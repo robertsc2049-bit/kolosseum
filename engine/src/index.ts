@@ -3,26 +3,37 @@ import { phase2CanonicaliseAndHash } from "./phases/phase2.js";
 import { phase3ResolveConstraints } from "./phases/phase3.js";
 import { phase4AssembleProgram } from "./phases/phase4.js";
 import { phase5ApplySubstitutionAndAdjustment } from "./phases/phase5.js";
+import { phase6ProduceSessionOutput } from "./phases/phase6.js";
 
 export type EngineResult =
   | {
       ok: true;
       phase2_hash: string;
       phase2_canonical_json: string;
+
       phase3: {
         constraints_resolved: true;
         notes: string[];
         registry_index_version: string;
         loaded_registries: string[];
       };
+
       phase4: {
         program_id: string;
         version: string;
         blocks: unknown[];
         notes: string[];
       };
+
       phase5: {
         adjustments: { adjustment_id: string; reason: string; applied: boolean }[];
+        notes: string[];
+      };
+
+      phase6: {
+        session_id: string;
+        status: "ready";
+        exercises: unknown[];
         notes: string[];
       };
     }
@@ -43,25 +54,38 @@ export function runEngine(input: unknown): EngineResult {
   const p5 = phase5ApplySubstitutionAndAdjustment(p4.program, p1.canonical_input);
   if (!p5.ok) return { ok: false, failure_token: p5.failure_token, details: p5.details };
 
+  const p6 = phase6ProduceSessionOutput(p4.program, p1.canonical_input);
+  if (!p6.ok) return { ok: false, failure_token: p6.failure_token, details: p6.details };
+
   return {
     ok: true,
     phase2_hash: p2.canonical_input_hash,
     phase2_canonical_json: new TextDecoder().decode(p2.canonical_input_json),
+
     phase3: {
       constraints_resolved: true,
       notes: p3.notes,
       registry_index_version: p3.registry_index_version,
       loaded_registries: p3.loaded_registries
     },
+
     phase4: {
       program_id: p4.program.program_id,
       version: p4.program.version,
       blocks: p4.program.blocks,
       notes: p4.notes
     },
+
     phase5: {
       adjustments: p5.adjustments,
       notes: p5.notes
+    },
+
+    phase6: {
+      session_id: p6.session.session_id,
+      status: p6.session.status,
+      exercises: p6.session.exercises,
+      notes: p6.notes
     }
   };
 }
