@@ -2,6 +2,7 @@
 import { phase2CanonicaliseAndHash } from "./phases/phase2.js";
 import { phase3ResolveConstraints } from "./phases/phase3.js";
 import { phase4AssembleProgram } from "./phases/phase4.js";
+import { phase5ApplySubstitutionAndAdjustment } from "./phases/phase5.js";
 
 export type EngineResult =
   | {
@@ -20,6 +21,10 @@ export type EngineResult =
         blocks: unknown[];
         notes: string[];
       };
+      phase5: {
+        adjustments: { adjustment_id: string; reason: string; applied: boolean }[];
+        notes: string[];
+      };
     }
   | { ok: false; failure_token: string; details?: unknown };
 
@@ -34,6 +39,9 @@ export function runEngine(input: unknown): EngineResult {
 
   const p4 = phase4AssembleProgram(p1.canonical_input);
   if (!p4.ok) return { ok: false, failure_token: p4.failure_token, details: p4.details };
+
+  const p5 = phase5ApplySubstitutionAndAdjustment(p4.program, p1.canonical_input);
+  if (!p5.ok) return { ok: false, failure_token: p5.failure_token, details: p5.details };
 
   return {
     ok: true,
@@ -50,6 +58,10 @@ export function runEngine(input: unknown): EngineResult {
       version: p4.program.version,
       blocks: p4.program.blocks,
       notes: p4.notes
+    },
+    phase5: {
+      adjustments: p5.adjustments,
+      notes: p5.notes
     }
   };
 }
