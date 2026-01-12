@@ -7,7 +7,12 @@ export type EngineResult =
       ok: true;
       phase2_hash: string;
       phase2_canonical_json: string;
-      phase3: { constraints_resolved: true; notes: string[]; registry_version: string };
+      phase3: {
+        constraints_resolved: true;
+        notes: string[];
+        registry_index_version: string;
+        loaded_registries: string[];
+      };
     }
   | { ok: false; failure_token: string; details?: unknown };
 
@@ -27,7 +32,8 @@ export function runEngine(input: unknown): EngineResult {
     phase3: {
       constraints_resolved: true,
       notes: p3.notes,
-      registry_version: p3.registry_version
+      registry_index_version: p3.registry_index_version,
+      loaded_registries: p3.loaded_registries
     }
   };
 }
