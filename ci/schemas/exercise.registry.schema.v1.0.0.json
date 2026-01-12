@@ -1,0 +1,72 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "kolosseum://schema/exercise.registry/1.0.0",
+  "title": "Exercise Registry (v1.0.0)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_id", "version", "entries"],
+  "properties": {
+    "registry_id": { "const": "exercise" },
+    "version": { "const": "1.0.0" },
+    "entries": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "exercise_id",
+          "pattern",
+          "stimulus_intent",
+          "rom",
+          "stability",
+          "equipment",
+          "equipment_tier",
+          "joint_stress_tags"
+        ],
+        "properties": {
+          "exercise_id": { "type": "string", "minLength": 1 },
+
+          "pattern": {
+            "type": "string",
+            "enum": [
+              "hinge",
+              "squat",
+              "horizontal_push",
+              "vertical_push",
+              "horizontal_pull",
+              "vertical_pull",
+              "carry",
+              "rotation",
+              "locomotion"
+            ]
+          },
+
+          "stimulus_intent": {
+            "type": "string",
+            "enum": ["strength", "hypertrophy", "power", "skill", "rehab", "conditioning"]
+          },
+
+          "rom": { "type": "string", "enum": ["full", "partial", "restricted"] },
+
+          "stability": { "type": "string", "enum": ["stable", "semi_stable", "unstable"] },
+
+          "equipment": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "minItems": 0
+          },
+
+          "equipment_tier": { "type": "string", "enum": ["TIER_1", "TIER_2", "TIER_3", "TIER_4"] },
+
+          "joint_stress_tags": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "minItems": 0
+          }
+        }
+      }
+    }
+  }
+}
+
