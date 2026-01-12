@@ -1,26 +1,32 @@
 ﻿import test from "node:test";
 import assert from "node:assert/strict";
-import { runEngine } from "../dist/engine/src/index.js";
+import { phase6ProduceSessionOutput } from "../dist/engine/src/phases/phase6.js";
 
-test("Phase 6 returns deterministic empty session shell", () => {
-  const input = {
-    consent_granted: true,
-    engine_version: "EB2-1.0.0",
-    enum_bundle_version: "EB2-1.0.0",
-    phase1_schema_version: "1.0.0",
-    actor_type: "athlete",
-    execution_scope: "individual",
-    activity_id: "powerlifting",
-    nd_mode: false,
-    instruction_density: "standard",
-    exposure_prompt_density: "standard",
-    bias_mode: "none"
+test("Phase 6 emits deterministic empty session shell (baseline)", () => {
+  const r = phase6ProduceSessionOutput({}, {});
+  assert.equal(r.ok, true);
+  if (r.ok) {
+    assert.equal(r.session.session_id, "SESSION_STUB");
+    assert.equal(r.session.status, "ready");
+    assert.ok(Array.isArray(r.session.exercises));
+  }
+});
+
+test("Phase 6 emits session exercises from program.exercises[] (v1)", () => {
+  const program = {
+    exercises: [
+      { exercise_id: "bench_press" },
+      { exercise_id: "dumbbell_bench_press" }
+    ]
   };
 
-  const res = runEngine(input);
-  assert.equal(res.ok, true);
+  const r = phase6ProduceSessionOutput(program, {});
+  assert.equal(r.ok, true);
 
-  assert.equal(res.phase6.session_id, "SESSION_STUB");
-  assert.equal(res.phase6.status, "ready");
-  assert.deepEqual(res.phase6.exercises, []);
+  if (r.ok) {
+    assert.deepEqual(r.session.exercises, [
+      { exercise_id: "bench_press", source: "program" },
+      { exercise_id: "dumbbell_bench_press", source: "program" }
+    ]);
+  }
 });
