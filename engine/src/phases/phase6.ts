@@ -1,6 +1,9 @@
-﻿export type Phase6SessionExercise = {
+﻿import type { ExerciseSignature } from "../substitution/types.js";
+
+export type Phase6SessionExercise = {
   exercise_id: string;
   source: "program";
+  substituted_from?: string;
 };
 
 export type Phase6SessionOutput = {
@@ -13,42 +16,128 @@ export type Phase6Result =
   | { ok: true; session: Phase6SessionOutput; notes: string[] }
   | { ok: false; failure_token: string; details?: unknown };
 
+type Phase5Like =
+  | { ok: true; adjustments: any[]; notes?: string[] }
+  | { ok: false; failure_token: string; details?: unknown }
+  | undefined;
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+
+function poolFromProgram(program: any): Record<string, ExerciseSignature> {
+  if (program?.exercise_pool && isRecord(program.exercise_pool)) {
+    return program.exercise_pool as Record<string, ExerciseSignature>;
+  }
+
+  const pool: Record<string, ExerciseSignature> = {};
+  for (const ex of program?.exercises ?? []) {
+    if (ex && typeof ex.exercise_id === "string") {
+      pool[ex.exercise_id] = ex as ExerciseSignature;
+    }
+  }
+  return pool;
+}
+
+function plannedIdsFromProgram(program: any): string[] {
+  if (Array.isArray(program?.planned_exercise_ids) && program.planned_exercise_ids.length > 0) {
+    return program.planned_exercise_ids.map((x: any) => String(x));
+  }
+  if (Array.isArray(program?.exercises) && program.exercises.length > 0) {
+    return program.exercises.map((x: any) => String(x?.exercise_id ?? "")).filter(Boolean);
+  }
+  return [];
+}
+
+function applySubstitutions(
+  planned: string[],
+  p5: Phase5Like
+): { ids: string[]; substitutedFrom: Map<string, string> } {
+  const substitutedFrom = new Map<string, string>();
+
+  if (!p5 || (p5 as any).ok !== true) return { ids: planned, substitutedFrom };
+
+  const adjustments = Array.isArray((p5 as any).adjustments) ? (p5 as any).adjustments : [];
+  let ids = [...planned];
+
+  for (const a of adjustments) {
+    if (a?.adjustment_id !== "SUBSTITUTE_EXERCISE") continue;
+    if (a?.applied !== true) continue;
+
+    const target = String(a?.details?.target_exercise_id ?? "");
+    const sub = String(a?.details?.substitute_exercise_id ?? "");
+    if (!target || !sub) continue;
+
+    // Replace all occurrences deterministically
+    ids = ids.map((x) => {
+      if (x !== target) return x;
+      substitutedFrom.set(sub, target);
+      return sub;
+    });
+  }
+
+  return { ids, substitutedFrom };
+}
+
+function dedupeStable(ids: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const id of ids) {
+    if (!id) continue;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    out.push(id);
+  }
+  return out;
+}
+
 /**
  * Phase 6 (v1)
- * Deterministically emits session exercises from program.exercises[] when present.
+ * Emits session exercises from program.planned_exercise_ids and applies Phase 5 substitutions
+ * deterministically without duplicates.
  */
-export function phase6ProduceSessionOutput(program: unknown, _canonicalInput: unknown): Phase6Result {
-  const notes: string[] = [];
+export function phase6ProduceSessionOutput(program: unknown, _canonicalInput: unknown, p5?: Phase5Like): Phase6Result {
+  const prog: any = program ?? {};
+  const pool = poolFromProgram(prog);
 
-  const exercises: Phase6SessionExercise[] = [];
+  const planned = plannedIdsFromProgram(prog);
+  const { ids: substitutedIds, substitutedFrom } = applySubstitutions(planned, p5);
 
-  if (program && typeof program === "object") {
-    const maybe = program as { exercises?: unknown };
+  const finalIds = dedupeStable(substitutedIds);
 
-    if (Array.isArray(maybe.exercises)) {
-      for (const item of maybe.exercises) {
-        if (item && typeof item === "object") {
-          const ex = item as { exercise_id?: unknown };
-          if (typeof ex.exercise_id === "string" && ex.exercise_id.length > 0) {
-            exercises.push({ exercise_id: ex.exercise_id, source: "program" });
-          }
-        }
-      }
-      notes.push("PHASE_6_V1: emitted session exercises from program.exercises[]");
-    } else {
-      notes.push("PHASE_6_V1: program has no exercises[]; emitted empty session");
-    }
-  } else {
-    notes.push("PHASE_6_V1: program not an object; emitted empty session");
+  const exercises: Phase6SessionExercise[] = finalIds.map((id) => {
+    const ex: Phase6SessionExercise = { exercise_id: id, source: "program" };
+    const from = substitutedFrom.get(id);
+    if (from) ex.substituted_from = from;
+    return ex;
+  });
+
+  // If planned list was empty, fall back to emitting nothing (deterministic)
+  // (Do NOT emit full pool/exercises list; Phase 6 is driven by plan.)
+    const hasPlan = finalIds.length > 0;
+
+  if (!hasPlan) {
+    return {
+      ok: true,
+      session: {
+        session_id: "SESSION_STUB",
+        status: "ready",
+        exercises: []
+      },
+      notes: ["PHASE_6_STUB: session output not yet implemented"]
+    };
   }
 
   return {
     ok: true,
     session: {
-      session_id: "SESSION_STUB",
+      session_id: "SESSION_V1",
       status: "ready",
       exercises
     },
-    notes
+    notes:
+      p5 && (p5 as any).ok === true
+        ? ["PHASE_6: applied Phase 5 substitution adjustments (planned list; no duplicates)"]
+        : ["PHASE_6_V1: emitted session exercises from planned list"]
   };
 }
