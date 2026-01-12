@@ -1,6 +1,7 @@
 ﻿import { phase1Validate } from "./phases/phase1.js";
 import { phase2CanonicaliseAndHash } from "./phases/phase2.js";
 import { phase3ResolveConstraints } from "./phases/phase3.js";
+import { phase4AssembleProgram } from "./phases/phase4.js";
 
 export type EngineResult =
   | {
@@ -12,6 +13,12 @@ export type EngineResult =
         notes: string[];
         registry_index_version: string;
         loaded_registries: string[];
+      };
+      phase4: {
+        program_id: string;
+        version: string;
+        blocks: unknown[];
+        notes: string[];
       };
     }
   | { ok: false; failure_token: string; details?: unknown };
@@ -25,6 +32,9 @@ export function runEngine(input: unknown): EngineResult {
   const p3 = phase3ResolveConstraints(p1.canonical_input);
   if (!p3.ok) return { ok: false, failure_token: p3.failure_token, details: p3.details };
 
+  const p4 = phase4AssembleProgram(p1.canonical_input);
+  if (!p4.ok) return { ok: false, failure_token: p4.failure_token, details: p4.details };
+
   return {
     ok: true,
     phase2_hash: p2.canonical_input_hash,
@@ -34,6 +44,12 @@ export function runEngine(input: unknown): EngineResult {
       notes: p3.notes,
       registry_index_version: p3.registry_index_version,
       loaded_registries: p3.loaded_registries
+    },
+    phase4: {
+      program_id: p4.program.program_id,
+      version: p4.program.version,
+      blocks: p4.program.blocks,
+      notes: p4.notes
     }
   };
 }
