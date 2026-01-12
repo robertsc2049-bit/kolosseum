@@ -13,15 +13,34 @@ function sortKeysDeep(value: unknown): unknown {
   return value;
 }
 
-export type Phase2Output = {
-  canonical_input_json: Uint8Array;
-  canonical_input_hash: string;
+export type Phase2Canonical = {
+  phase2_canonical_json: string; // stable string (sorted keys)
+  phase2_hash: string;           // sha256 over UTF-8 bytes of canonical JSON
 };
 
-export function phase2CanonicaliseAndHash(canonicalInput: unknown): Phase2Output {
-  const sorted = sortKeysDeep(canonicalInput);
-  const json = JSON.stringify(sorted);
-  const bytes = new TextEncoder().encode(json);
-  const hash = crypto.createHash("sha256").update(bytes).digest("hex");
-  return { canonical_input_json: bytes, canonical_input_hash: hash };
+export type Phase2Result =
+  | { ok: true; phase2: Phase2Canonical; notes: string[] }
+  | { ok: false; failure_token: string; details?: unknown };
+
+export function phase2CanonicaliseAndHash(input: unknown): Phase2Result {
+  try {
+    const sorted = sortKeysDeep(input);
+    const json = JSON.stringify(sorted);
+    const hash = crypto.createHash("sha256").update(Buffer.from(json, "utf8")).digest("hex");
+
+    return {
+      ok: true,
+      phase2: {
+        phase2_canonical_json: json,
+        phase2_hash: hash
+      },
+      notes: ["PHASE_2: canonicalised + hashed (sorted keys)"]
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      failure_token: "phase2_canonicalise_failed",
+      details: String(err)
+    };
+  }
 }
