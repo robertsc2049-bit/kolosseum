@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Phase1Input v1.0.0 (starter)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "consent_granted",
+    "engine_version",
+    "enum_bundle_version",
+    "phase1_schema_version",
+    "actor_type",
+    "execution_scope",
+    "activity_id",
+    "nd_mode",
+    "instruction_density",
+    "exposure_prompt_density",
+    "bias_mode"
+  ],
+  "properties": {
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "avoid_joint_stress_tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "banned_equipment_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "available_equipment_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      }
+    },
+
+    "consent_granted": { "type": "boolean", "const": true },
+
+    "engine_version": { "type": "string", "const": "EB2-1.0.0" },
+    "enum_bundle_version": { "type": "string", "const": "EB2-1.0.0" },
+    "phase1_schema_version": { "type": "string", "const": "1.0.0" },
+
+    "actor_type": { "type": "string", "enum": ["athlete", "coach", "org_admin"] },
+    "execution_scope": { "type": "string", "enum": ["individual", "coach_managed", "org_managed"] },
+
+    "governing_authority_id": { "type": "string" },
+
+    "activity_id": { "type": "string", "minLength": 1 },
+    "sport_role_id": { "type": "string" },
+
+    "nd_mode": { "type": "boolean" },
+    "instruction_density": { "type": "string" },
+    "exposure_prompt_density": { "type": "string" },
+    "bias_mode": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "execution_scope": { "enum": ["coach_managed", "org_managed"] } },
+        "required": ["execution_scope"]
+      },
+      "then": { "required": ["governing_authority_id"] }
+    }
+  ]
+}
+
