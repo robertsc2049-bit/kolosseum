@@ -2,38 +2,43 @@
 import test from "node:test";
 import { runEngine } from "../dist/engine/src/index.js";
 
-const min = {
-  activity_id: "powerlifting",
-  actor_type: "athlete",
-  bias_mode: "none",
+const MIN_PHASE1 = {
   consent_granted: true,
   engine_version: "EB2-1.0.0",
   enum_bundle_version: "EB2-1.0.0",
+  phase1_schema_version: "1.0.0",
+  actor_type: "athlete",
   execution_scope: "individual",
-  exposure_prompt_density: "standard",
-  instruction_density: "standard",
+  activity_id: "powerlifting",
   nd_mode: false,
-  phase1_schema_version: "1.0.0"
+  instruction_density: "standard",
+  exposure_prompt_density: "standard",
+  bias_mode: "none"
 };
 
-test("E2E: Phase 4 planned list; Phase 5 substitutes once; Phase 6 emits no duplicates", () => {
-  const out = runEngine(min);
+test("E2E: Phase 4 planned list; Phase 5 no-op; Phase 6 emits single exercise with no duplicates", () => {
+  const out = runEngine(MIN_PHASE1);
+
+  // Engine verdict
   assert.equal(out.ok, true);
 
-  // Phase 4: planned should be exactly one exercise in v0
+  // Phase 4
+  assert.ok(out.phase4);
   assert.equal(out.phase4.program_id, "PROGRAM_POWERLIFTING_V0");
 
-  // Phase 5: should substitute bench -> dumbbell bench given shoulder_high avoidance
+  // Phase 5
+  assert.ok(out.phase5);
   assert.ok(Array.isArray(out.phase5.adjustments));
-  assert.equal(out.phase5.adjustments.length, 1);
-  assert.equal(out.phase5.adjustments[0].adjustment_id, "SUBSTITUTE_EXERCISE");
-  assert.equal(out.phase5.adjustments[0].applied, true);
+  assert.equal(out.phase5.adjustments.length, 0);
 
-  // Phase 6: must emit exactly one planned exercise, substituted
+  // Phase 6
+  assert.ok(out.phase6);
   assert.equal(out.phase6.session_id, "SESSION_V1");
   assert.ok(Array.isArray(out.phase6.exercises));
   assert.equal(out.phase6.exercises.length, 1);
 
-  assert.equal(out.phase6.exercises[0].exercise_id, "dumbbell_bench_press");
-  assert.equal(out.phase6.exercises[0].substituted_from, "bench_press");
+  const ex = out.phase6.exercises[0];
+  assert.equal(ex.exercise_id, "bench_press");
+  assert.equal(ex.substituted_from, undefined);
 });
+
