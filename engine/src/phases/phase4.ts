@@ -1,16 +1,24 @@
 ﻿import fs from "node:fs";
 import path from "node:path";
 import type { ExerciseSignature } from "../substitution/types.js";
+import type { Phase3Output } from "./phase3.js";
 
 export type Phase4Program = {
   program_id: string;
   version: string;
   blocks: unknown[];
 
-  // NEW: minimal substitutable shape for Phase 5
-  exercises?: ExerciseSignature[];
+  // NEW: intended work only (the plan)
+  planned_exercise_ids?: string[];
+
+  // NEW: substitution pool for Phase 5 (includes intended + alternates)
+  exercise_pool?: Record<string, ExerciseSignature>;
+
+  // Phase 5 target
   target_exercise_id?: string;
-  constraints?: { avoid_joint_stress_tags?: string[] };
+
+  // constraints from Phase 3
+  constraints?: Phase3Output["constraints"];
 };
 
 export type Phase4Result =
@@ -18,7 +26,7 @@ export type Phase4Result =
   | { ok: false; failure_token: string; details?: unknown };
 
 function stripBom(s: string): string {
-  return s.length > 0 && s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
+  return s.length > 0 && s.charCodeAt(0) === 0xfeff ? s.slice(1) : s;
 }
 
 function readJson(p: string): any {
@@ -27,19 +35,16 @@ function readJson(p: string): any {
 }
 
 function repoRoot(): string {
-  // dist/engine/src/phases/phase4.js -> repoRoot is 4 levels up; but in TS we run compiled from dist.
-  // Use process.cwd() which is repo root when running via npm scripts.
   return process.cwd();
 }
 
-export function phase4AssembleProgram(canonicalInput: any): Phase4Result {
+export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output): Phase4Result {
   const activityId = String(canonicalInput?.activity_id ?? "");
 
-  // Default scaffold
   const base: Phase4Program = {
     program_id: "PROGRAM_STUB",
     version: "1.0.0",
-    blocks: [],
+    blocks: []
   };
 
   if (activityId !== "powerlifting") {
@@ -74,18 +79,28 @@ export function phase4AssembleProgram(canonicalInput: any): Phase4Result {
     };
   }
 
+  // ✅ Plan = intended work only
+  const planned_exercise_ids = ["bench_press"];
+
+  // ✅ Pool = intended + alternates
+  const exercise_pool: Record<string, ExerciseSignature> = {
+    bench_press: bench,
+    dumbbell_bench_press: dbBench
+  };
+
   return {
     ok: true,
     program: {
       program_id: "PROGRAM_POWERLIFTING_V0",
       version: "1.0.0",
       blocks: [],
-      exercises: [bench, dbBench],
+      planned_exercise_ids,
+      exercise_pool,
       target_exercise_id: "bench_press",
-
-      // Demo constraint to prove Phase 5 substitution in normal run (will move to Phase 3 later)
-      constraints: { avoid_joint_stress_tags: ["shoulder_high"] }
+      constraints: phase3.constraints
     },
-    notes: ["PHASE_4_V0: emitted minimal substitutable program from exercise registry"]
+    notes: ["PHASE_4_V0: emitted planned_exercise_ids (intended) + exercise_pool (candidates) from exercise registry (constraints from Phase 3)"]
   };
 }
+
+

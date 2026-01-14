@@ -5,77 +5,176 @@ import { phase4AssembleProgram } from "./phases/phase4.js";
 import { phase5ApplySubstitutionAndAdjustment } from "./phases/phase5.js";
 import { phase6ProduceSessionOutput } from "./phases/phase6.js";
 
-function normalisePhase5ForPhase6(p5: any): any {
-  // Phase 6 expects p5.ok===true and p5.adjustments[] if available.
-  // If Phase 5 fails, normalise to a failure-like object so Phase 6 can no-op deterministically.
-  if (p5 && p5.ok === true) return p5;
+type Phase2Extract = {
+  hash: string;
+  canonicalJson: string;
+  canonicalInput: unknown;
+};
+
+function isUint8Array(x: unknown): x is Uint8Array {
+  return x instanceof Uint8Array;
+}
+
+function safeJsonParse(s: string): unknown {
+  try {
+    return JSON.parse(s);
+  } catch {
+    throw new Error("PHASE_2_DECODE_FAILED");
+  }
+}
+
+function pickString(candidates: unknown[], fallback: string): string {
+  for (const c of candidates) {
+    if (typeof c === "string" && c.length > 0) return c;
+  }
+  return fallback;
+}
+
+/**
+ * Phase 2 extraction (supports:
+ * - Option A envelope: { ok:true, phase2:{ canonical_input_json, canonical_input_hash, phase2_canonical_json? } }
+ * - Direct legacy: { canonical_input_json, canonical_input_hash } / { phase2_hash, phase2_canonical_json }
+ * - Last-ditch: { canonical_input }
+ */
+function extractPhase2(p2: unknown): Phase2Extract {
+  const obj = (p2 ?? {}) as any;
+  const inner = obj?.phase2 ?? obj;
+
+  const hash = pickString(
+    [
+      inner?.canonical_input_hash, // Option A (preferred)
+      inner?.phase2_hash,
+      inner?.hash,
+      inner?.sha256,
+      obj?.canonical_input_hash,
+      obj?.phase2_hash
+    ],
+    "PHASE2_HASH_MISSING"
+  );
+
+  // Preferred: explicit canonical json string
+  const jsonString = pickString(
+    [inner?.phase2_canonical_json, obj?.phase2_canonical_json],
+    ""
+  );
+  if (jsonString) {
+    const canonicalInput = safeJsonParse(jsonString);
+    return { hash, canonicalJson: jsonString, canonicalInput };
+  }
+
+  // Next: canonical bytes
+  const bytesCandidates = [inner?.canonical_input_json, obj?.canonical_input_json];
+  for (const b of bytesCandidates) {
+    if (isUint8Array(b)) {
+      const s = Buffer.from(b).toString("utf8");
+      const canonicalInput = safeJsonParse(s);
+      return { hash, canonicalJson: s, canonicalInput };
+    }
+  }
+
+  // Last-ditch: structured canonical input
+  if (inner?.canonical_input) {
+    const s = JSON.stringify(inner.canonical_input);
+    return { hash, canonicalJson: s, canonicalInput: inner.canonical_input };
+  }
+
+  throw new Error("PHASE_2_DECODE_FAILED");
+}
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+
+function buildPoolFromExercises(exercises: unknown[]): Record<string, any> {
+  const pool: Record<string, any> = {};
+  for (const ex of exercises) {
+    const id = (ex as any)?.exercise_id;
+    if (typeof id === "string" && id.length > 0) pool[id] = ex;
+  }
+  return pool;
+}
+
+function buildPhase5InputFromProgram(program: any) {
+  const programExercises: unknown[] = Array.isArray(program?.exercises) ? program.exercises : [];
+
+  const poolFromProgram =
+    isRecord(program?.exercise_pool) ? (program.exercise_pool as Record<string, any>) : null;
+
+  const poolFromExercises = buildPoolFromExercises(programExercises);
+  const pool: Record<string, any> = poolFromProgram ?? poolFromExercises;
+
+  const plannedFromProgram =
+    Array.isArray(program?.planned_exercise_ids) ? program.planned_exercise_ids : null;
+
+  const plannedFromExercises = programExercises
+    .map((x: any) => String(x?.exercise_id ?? ""))
+    .filter((x: string) => x.length > 0);
+
+  const planned_exercise_ids: string[] =
+    (plannedFromProgram && plannedFromProgram.length > 0
+      ? plannedFromProgram
+      : plannedFromExercises.length > 0
+        ? plannedFromExercises
+        : Object.keys(pool)) ?? [];
 
   return {
-    ok: false,
-    failure_token: String(p5?.failure_token ?? "unknown"),
-    details: p5?.details
+    planned_exercise_ids,
+    exercise_pool: pool,
+    target_exercise_id: program?.target_exercise_id,
+    constraints: program?.constraints ?? {},
+    // legacy compatibility
+    exercises: programExercises as any
   };
 }
 
 export function runEngine(input: unknown) {
-  // -----------------------------
   // Phase 1
-  // -----------------------------
   const p1: any = phase1Validate(input);
   if (!p1?.ok) return p1;
 
   const validated = (p1 as any).validated_input ?? input;
 
-  // -----------------------------
-  // Phase 2 (new contract)
-  // -----------------------------
+  // Phase 2
   const p2: any = phase2CanonicaliseAndHash(validated);
-  if (!p2?.ok) return p2;
+  if (p2?.ok === false) return p2;
 
-  const canonicalJson: string = String(p2?.phase2?.phase2_canonical_json ?? "{}");
-  const canonicalInput = JSON.parse(canonicalJson);
+  let p2x: Phase2Extract;
+  try {
+    p2x = extractPhase2(p2);
+  } catch (e: any) {
+    return {
+      ok: false,
+      failure_token: "phase2_invalid_output",
+      details: String(e?.message ?? e ?? "PHASE_2_DECODE_FAILED")
+    };
+  }
 
-  const phase2Hash: string =
-    typeof p2?.phase2?.phase2_hash === "string" && p2.phase2.phase2_hash.length > 0
-      ? p2.phase2.phase2_hash
-      : typeof p2?.phase2?.canonical_input_hash === "string" && p2.phase2.canonical_input_hash.length > 0
-        ? p2.phase2.canonical_input_hash
-        : "PHASE2_HASH_MISSING";
+  const canonicalInput = p2x.canonicalInput;
 
-  // -----------------------------
   // Phase 3
-  // -----------------------------
   const p3: any = phase3ResolveConstraintsAndLoadRegistries(canonicalInput);
   if (!p3?.ok) return p3;
 
-  // -----------------------------
   // Phase 4
-  // -----------------------------
   const p4: any = phase4AssembleProgram(canonicalInput, p3.phase3);
   if (!p4?.ok) return p4;
 
-  // -----------------------------
-  // Phase 5
-  // -----------------------------
-  // Phase 5 operates on a minimal substitutable shape (guarded).
-  const phase5Input = {
-    exercises: p4.program?.exercises ?? [],
+  // Phase 5 (pool-based, but keeps legacy compatibility)
+  const phase5Input = buildPhase5InputFromProgram(p4.program);
+  const p5Raw: any = phase5ApplySubstitutionAndAdjustment(
+  {
+    planned_exercise_ids: p4.program?.planned_exercise_ids ?? [],
+    exercise_pool: p4.program?.exercise_pool ?? {},
     target_exercise_id: p4.program?.target_exercise_id,
     constraints: p4.program?.constraints ?? {}
-  };
+  },
+  canonicalInput
+);
 
-  const p5Raw: any = phase5ApplySubstitutionAndAdjustment(phase5Input, canonicalInput);
-  const p5ForPhase6 = normalisePhase5ForPhase6(p5Raw);
+  // Phase 6 (repo signature: (program, canonicalInput))
+  const p6Raw: any = phase6ProduceSessionOutput(p4.program, canonicalInput, p5Raw);
 
-  // -----------------------------
-  // Phase 6
-  // -----------------------------
-  // Phase 6 consumes full Phase 4 program, and applies Phase 5 adjustments if present.
-  const p6Raw: any = phase6ProduceSessionOutput(p4.program, canonicalInput, p5ForPhase6);
-
-  // -----------------------------
-  // Outward response (stable shape)
-  // -----------------------------
+  // Outbound shaping (keep CLI/tests stable)
   const phase5Out =
     p5Raw?.ok === true
       ? { adjustments: p5Raw.adjustments, notes: p5Raw.notes }
@@ -98,8 +197,8 @@ export function runEngine(input: unknown) {
 
   return {
     ok: true,
-    phase2_hash: phase2Hash,
-    phase2_canonical_json: canonicalJson,
+    phase2_hash: p2x.hash,
+    phase2_canonical_json: p2x.canonicalJson,
     phase3: {
       constraints_resolved: p3.phase3.constraints_resolved,
       notes: p3.phase3.notes,
@@ -117,3 +216,4 @@ export function runEngine(input: unknown) {
     phase6: phase6Out
   };
 }
+
