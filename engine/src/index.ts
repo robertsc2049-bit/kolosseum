@@ -53,10 +53,7 @@ function extractPhase2(p2: unknown): Phase2Extract {
   );
 
   // Preferred: explicit canonical json string
-  const jsonString = pickString(
-    [inner?.phase2_canonical_json, obj?.phase2_canonical_json],
-    ""
-  );
+  const jsonString = pickString([inner?.phase2_canonical_json, obj?.phase2_canonical_json], "");
   if (jsonString) {
     const canonicalInput = safeJsonParse(jsonString);
     return { hash, canonicalJson: jsonString, canonicalInput };
@@ -81,61 +78,16 @@ function extractPhase2(p2: unknown): Phase2Extract {
   throw new Error("PHASE_2_DECODE_FAILED");
 }
 
-function isRecord(v: unknown): v is Record<string, unknown> {
-  return !!v && typeof v === "object" && !Array.isArray(v);
-}
-
-function buildPoolFromExercises(exercises: unknown[]): Record<string, any> {
-  const pool: Record<string, any> = {};
-  for (const ex of exercises) {
-    const id = (ex as any)?.exercise_id;
-    if (typeof id === "string" && id.length > 0) pool[id] = ex;
-  }
-  return pool;
-}
-
-function buildPhase5InputFromProgram(program: any) {
-  const programExercises: unknown[] = Array.isArray(program?.exercises) ? program.exercises : [];
-
-  const poolFromProgram =
-    isRecord(program?.exercise_pool) ? (program.exercise_pool as Record<string, any>) : null;
-
-  const poolFromExercises = buildPoolFromExercises(programExercises);
-  const pool: Record<string, any> = poolFromProgram ?? poolFromExercises;
-
-  const plannedFromProgram =
-    Array.isArray(program?.planned_exercise_ids) ? program.planned_exercise_ids : null;
-
-  const plannedFromExercises = programExercises
-    .map((x: any) => String(x?.exercise_id ?? ""))
-    .filter((x: string) => x.length > 0);
-
-  const planned_exercise_ids: string[] =
-    (plannedFromProgram && plannedFromProgram.length > 0
-      ? plannedFromProgram
-      : plannedFromExercises.length > 0
-        ? plannedFromExercises
-        : Object.keys(pool)) ?? [];
-
-  return {
-    planned_exercise_ids,
-    exercise_pool: pool,
-    target_exercise_id: program?.target_exercise_id,
-    constraints: program?.constraints ?? {},
-    // legacy compatibility
-    exercises: programExercises as any
-  };
-}
-
 export function runEngine(input: unknown) {
-  // Phase 1
+  // Phase 1 (schema-validated + canonicalised)
   const p1: any = phase1Validate(input);
   if (!p1?.ok) return p1;
 
-  const validated = (p1 as any).validated_input ?? input;
+  // IMPORTANT: phase1 returns { ok:true, canonical_input }
+  const phase1CanonicalInput = (p1 as any).canonical_input ?? input;
 
-  // Phase 2
-  const p2: any = phase2CanonicaliseAndHash(validated);
+  // Phase 2 (canonical JSON + hash)
+  const p2: any = phase2CanonicaliseAndHash(phase1CanonicalInput);
   if (p2?.ok === false) return p2;
 
   let p2x: Phase2Extract;
@@ -159,19 +111,12 @@ export function runEngine(input: unknown) {
   const p4: any = phase4AssembleProgram(canonicalInput, p3.phase3);
   if (!p4?.ok) return p4;
 
-  // Phase 5 (pool-based, but keeps legacy compatibility)
-  const phase5Input = buildPhase5InputFromProgram(p4.program);
-  const p5Raw: any = phase5ApplySubstitutionAndAdjustment(
-  {
-    planned_exercise_ids: p4.program?.planned_exercise_ids ?? [],
-    exercise_pool: p4.program?.exercise_pool ?? {},
-    target_exercise_id: p4.program?.target_exercise_id,
-    constraints: p4.program?.constraints ?? {}
-  },
-  canonicalInput
-);
+  // Phase 5
+  // CRITICAL: pass the real Phase 4 program so Phase 5 sees program.exercises[]
+  // and can apply substitution based on Phase 1 constraints (carried through canonicalInput).
+  const p5Raw: any = phase5ApplySubstitutionAndAdjustment(p4.program, canonicalInput);
 
-  // Phase 6 (repo signature: (program, canonicalInput))
+  // Phase 6 (repo signature: (program, canonicalInput, phase5Raw))
   const p6Raw: any = phase6ProduceSessionOutput(p4.program, canonicalInput, p5Raw);
 
   // Outbound shaping (keep CLI/tests stable)
@@ -216,4 +161,5 @@ export function runEngine(input: unknown) {
     phase6: phase6Out
   };
 }
+
 

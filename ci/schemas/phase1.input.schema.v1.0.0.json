@@ -17,6 +17,29 @@
     "bias_mode"
   ],
   "properties": {
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "avoid_joint_stress_tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "banned_equipment_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "available_equipment_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      }
+    },
+
     "consent_granted": { "type": "boolean", "const": true },
 
     "engine_version": { "type": "string", "const": "EB2-1.0.0" },
