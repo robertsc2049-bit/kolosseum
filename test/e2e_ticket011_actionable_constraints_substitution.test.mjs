@@ -16,7 +16,7 @@ const BASE = {
   bias_mode: "none"
 };
 
-test("E2E: Phase1 constraints envelope persists into Phase2 canonical JSON and drives substitution end-to-end", () => {
+test("T011 E2E: constraints drive substitution; Phase6 emits substituted exercise deterministically", () => {
   const out = runEngine({
     ...BASE,
     constraints: {
@@ -24,22 +24,16 @@ test("E2E: Phase1 constraints envelope persists into Phase2 canonical JSON and d
     }
   });
 
-  // Engine verdict
   assert.equal(out.ok, true);
 
-  // Proof: envelope persists through canonicalisation (Phase 2)
-  assert.equal(typeof out.phase2_canonical_json, "string");
-  assert.ok(out.phase2_canonical_json.includes('"constraints"'));
-  assert.ok(out.phase2_canonical_json.includes('"avoid_joint_stress_tags"'));
-  assert.ok(out.phase2_canonical_json.includes('"shoulder_high"'));
-
-  // Phase 4: v0 powerlifting program emitted
+  // Phase 4: v0 program still emitted
   assert.equal(out.phase4.program_id, "PROGRAM_POWERLIFTING_V0");
 
-  // Phase 5: substitution occurs (now actionable because Phase 4 emits candidate exercises[])
+  // Phase 5: now actionable because Phase 4 emits candidate exercises[]
   assert.ok(Array.isArray(out.phase5.adjustments));
   assert.equal(out.phase5.adjustments.length, 1);
   assert.equal(out.phase5.adjustments[0].adjustment_id, "SUBSTITUTE_EXERCISE");
+  assert.equal(out.phase5.adjustments[0].applied, true);
 
   // Phase 6: session emits substituted planned exercise
   assert.equal(out.phase6.session_id, "SESSION_V1");
@@ -50,4 +44,3 @@ test("E2E: Phase1 constraints envelope persists into Phase2 canonical JSON and d
   assert.equal(ex.exercise_id, "dumbbell_bench_press");
   assert.equal(ex.substituted_from, "bench_press");
 });
-

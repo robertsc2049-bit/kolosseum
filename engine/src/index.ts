@@ -32,8 +32,8 @@ function pickString(candidates: unknown[], fallback: string): string {
 
 /**
  * Phase 2 extraction (supports:
- * - Option A envelope: { ok:true, phase2:{ canonical_input_json, canonical_input_hash, phase2_canonical_json? } }
- * - Direct legacy: { canonical_input_json, canonical_input_hash } / { phase2_hash, phase2_canonical_json }
+ * - Current envelope: { ok:true, phase2:{ phase2_canonical_json, phase2_hash } }
+ * - Legacy variants: { canonical_input_json, canonical_input_hash } / { phase2_hash, phase2_canonical_json }
  * - Last-ditch: { canonical_input }
  */
 function extractPhase2(p2: unknown): Phase2Extract {
@@ -42,24 +42,27 @@ function extractPhase2(p2: unknown): Phase2Extract {
 
   const hash = pickString(
     [
-      inner?.canonical_input_hash, // Option A (preferred)
-      inner?.phase2_hash,
+      inner?.phase2_hash, // current
+      inner?.canonical_input_hash, // legacy naming
       inner?.hash,
       inner?.sha256,
-      obj?.canonical_input_hash,
-      obj?.phase2_hash
+      obj?.phase2_hash,
+      obj?.canonical_input_hash
     ],
     "PHASE2_HASH_MISSING"
   );
 
   // Preferred: explicit canonical json string
-  const jsonString = pickString([inner?.phase2_canonical_json, obj?.phase2_canonical_json], "");
+  const jsonString = pickString(
+    [inner?.phase2_canonical_json, obj?.phase2_canonical_json],
+    ""
+  );
   if (jsonString) {
     const canonicalInput = safeJsonParse(jsonString);
     return { hash, canonicalJson: jsonString, canonicalInput };
   }
 
-  // Next: canonical bytes
+  // Next: canonical bytes (legacy)
   const bytesCandidates = [inner?.canonical_input_json, obj?.canonical_input_json];
   for (const b of bytesCandidates) {
     if (isUint8Array(b)) {
@@ -69,7 +72,7 @@ function extractPhase2(p2: unknown): Phase2Extract {
     }
   }
 
-  // Last-ditch: structured canonical input
+  // Last-ditch: structured canonical input (legacy)
   if (inner?.canonical_input) {
     const s = JSON.stringify(inner.canonical_input);
     return { hash, canonicalJson: s, canonicalInput: inner.canonical_input };
@@ -83,8 +86,16 @@ export function runEngine(input: unknown) {
   const p1: any = phase1Validate(input);
   if (!p1?.ok) return p1;
 
-  // IMPORTANT: phase1 returns { ok:true, canonical_input }
-  const phase1CanonicalInput = (p1 as any).canonical_input ?? input;
+  // Ticket 014: Phase1 canonical is the ONLY allowed downstream input.
+  if (!("canonical_input" in p1)) {
+    return {
+      ok: false,
+      failure_token: "phase1_invalid_output",
+      details: "PHASE_1: ok=true but canonical_input missing"
+    };
+  }
+
+  const phase1CanonicalInput = (p1 as any).canonical_input;
 
   // Phase 2 (canonical JSON + hash)
   const p2: any = phase2CanonicaliseAndHash(phase1CanonicalInput);
@@ -111,12 +122,10 @@ export function runEngine(input: unknown) {
   const p4: any = phase4AssembleProgram(canonicalInput, p3.phase3);
   if (!p4?.ok) return p4;
 
-  // Phase 5
-  // CRITICAL: pass the real Phase 4 program so Phase 5 sees program.exercises[]
-  // and can apply substitution based on Phase 1 constraints (carried through canonicalInput).
+  // Phase 5 (pass actual Phase 4 program)
   const p5Raw: any = phase5ApplySubstitutionAndAdjustment(p4.program, canonicalInput);
 
-  // Phase 6 (repo signature: (program, canonicalInput, phase5Raw))
+  // Phase 6
   const p6Raw: any = phase6ProduceSessionOutput(p4.program, canonicalInput, p5Raw);
 
   // Outbound shaping (keep CLI/tests stable)
@@ -161,5 +170,3 @@ export function runEngine(input: unknown) {
     phase6: phase6Out
   };
 }
-
-

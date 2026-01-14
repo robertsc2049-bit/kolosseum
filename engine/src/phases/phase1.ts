@@ -3,8 +3,8 @@ import fs from "node:fs";
 
 export type Phase1Constraints = {
   avoid_joint_stress_tags?: string[];
-  banned_equipment_ids?: string[];
-  available_equipment_ids?: string[];
+  banned_equipment?: string[];
+  available_equipment?: string[];
 };
 
 export type Phase1CanonicalInput = {
@@ -26,6 +26,9 @@ export type Phase1CanonicalInput = {
   exposure_prompt_density: string;
   bias_mode: string;
 
+  // IMPORTANT: preserve presence semantics.
+  // - If caller provided constraints: {}, canonical retains constraints: {}.
+  // - If caller omitted constraints entirely, canonical omits constraints.
   constraints?: Phase1Constraints;
 };
 
@@ -37,17 +40,28 @@ function stripBom(s: string): string {
   return s.length > 0 && s.charCodeAt(0) === 0xfeff ? s.slice(1) : s;
 }
 
-function canonicalizeConstraints(v: any): Phase1Constraints | undefined {
-  if (!v || typeof v !== "object") return undefined;
+function pickStringArray(xs: any): string[] | undefined {
+  if (!Array.isArray(xs)) return undefined;
+  const out = xs.filter((v: any) => typeof v === "string" && v.length > 0);
+  const uniq = Array.from(new Set(out));
+  return uniq.length > 0 ? uniq : undefined;
+}
+
+function canonicalizeConstraints(raw: any, envelopePresent: boolean): Phase1Constraints | undefined {
+  if (!envelopePresent) return undefined; // truly absent
+  if (!raw || typeof raw !== "object") return {}; // present but weird => canonical empty
 
   const c: Phase1Constraints = {};
-  if (Array.isArray(v.avoid_joint_stress_tags)) c.avoid_joint_stress_tags = v.avoid_joint_stress_tags;
-  if (Array.isArray(v.banned_equipment_ids)) c.banned_equipment_ids = v.banned_equipment_ids;
-  if (Array.isArray(v.available_equipment_ids)) c.available_equipment_ids = v.available_equipment_ids;
+  const avoid = pickStringArray(raw.avoid_joint_stress_tags);
+  const banned = pickStringArray(raw.banned_equipment);
+  const avail = pickStringArray(raw.available_equipment);
 
-  // If constraints was present but none of the known keys were present, treat as undefined.
-  // The JSON schema already prevents empty objects, this is just defensive.
-  return Object.keys(c).length > 0 ? c : undefined;
+  if (avoid) c.avoid_joint_stress_tags = avoid;
+  if (banned) c.banned_equipment = banned;
+  if (avail) c.available_equipment = avail;
+
+  // envelope present is semantically meaningful, so return {} even if empty
+  return c;
 }
 
 export function phase1Validate(input: unknown): Phase1Result {
@@ -69,12 +83,12 @@ export function phase1Validate(input: unknown): Phase1Result {
   }
 
   const obj = input as any;
-
   if (obj?.consent_granted !== true) {
     return { ok: false, failure_token: "consent_not_granted" };
   }
 
-  // Closed-world canonical copy (explicit pick only)
+  const envelopePresent = Object.prototype.hasOwnProperty.call(obj ?? {}, "constraints");
+
   const canonical: Phase1CanonicalInput = {
     consent_granted: true,
     engine_version: "EB2-1.0.0",
@@ -92,10 +106,14 @@ export function phase1Validate(input: unknown): Phase1Result {
     nd_mode: obj.nd_mode,
     instruction_density: obj.instruction_density,
     exposure_prompt_density: obj.exposure_prompt_density,
-    bias_mode: obj.bias_mode,
-
-    constraints: canonicalizeConstraints(obj.constraints)
+    bias_mode: obj.bias_mode
   };
+
+  if (envelopePresent) {
+    canonical.constraints = canonicalizeConstraints(obj.constraints, true);
+  }
 
   return { ok: true, canonical_input: canonical };
 }
+
+

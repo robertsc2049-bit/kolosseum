@@ -16,70 +16,41 @@ export type Phase5Result =
     }
   | { ok: false; failure_token: string; details?: unknown };
 
-// Minimal optional program shape we can act on (without breaking v0 stubs)
-type SubstitutableProgram = {
-  exercises: ExerciseSignature[];
+type Phase5ProgramLike = {
+  exercises?: ExerciseSignature[];
+  planned_exercise_ids?: string[];
+  exercise_pool?: Record<string, ExerciseSignature>;
   target_exercise_id?: string;
   constraints?: SubstitutionConstraints;
 };
 
-function isSubstitutableProgram(program: unknown): program is SubstitutableProgram {
-  if (!program || typeof program !== "object") return false;
-  const p: any = program;
-  return Array.isArray(p.exercises);
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
 }
 
-type Phase1ConstraintsLike = {
-  avoid_joint_stress_tags?: unknown;
-  banned_equipment_ids?: unknown; // Phase1 envelope name
-  available_equipment_ids?: unknown; // accepted by Phase1 schema; not consumed by substitution v0 contract
-};
-
-type Phase1CanonicalInputLike = {
-  constraints?: Phase1ConstraintsLike;
-};
-
-type Phase1WrapperLike = {
-  canonical_input?: Phase1CanonicalInputLike;
-};
+function isPhase5ProgramLike(program: unknown): program is Phase5ProgramLike {
+  return isRecord(program);
+}
 
 function mergeStringArrays(a: string[] | undefined, b: string[] | undefined): string[] | undefined {
   if (!a && !b) return undefined;
   return Array.from(new Set([...(a ?? []), ...(b ?? [])]));
 }
 
-/**
- * Phase 5 must tolerate multiple canonical input shapes because different engine pipelines
- * may pass either:
- *  - the canonical_input object directly, OR
- *  - a wrapper { canonical_input: ... }
- *
- * This function extracts constraints safely and maps them into the existing SubstitutionConstraints contract.
- *
- * Contract mapping:
- *  - Phase1.constraints.avoid_joint_stress_tags -> SubstitutionConstraints.avoid_joint_stress_tags
- *  - Phase1.constraints.banned_equipment_ids    -> SubstitutionConstraints.banned_equipment (v0 token passthrough)
- *
- * NOTE: Phase1.constraints.available_equipment_ids is accepted by schema but NOT consumed here
- * because SubstitutionConstraints has no availability field yet. That is a future contract extension.
- */
 function constraintsFromCanonicalInput(canonicalInput: unknown): SubstitutionConstraints {
   const root = canonicalInput as any;
 
-  // Accept both shapes:
-  // 1) wrapper: { canonical_input: { constraints: ... } }
-  // 2) direct:  { constraints: ... }
-  const canonical: Phase1CanonicalInputLike | undefined =
-    (root && typeof root === "object" && "canonical_input" in root ? (root as Phase1WrapperLike).canonical_input : undefined) ??
-    (root && typeof root === "object" ? (root as Phase1CanonicalInputLike) : undefined);
+  const canonical =
+    (root && typeof root === "object" && "canonical_input" in root ? root.canonical_input : undefined) ??
+    (root && typeof root === "object" ? root : undefined);
 
   const c = canonical?.constraints;
 
-  const avoid_joint_stress_tags = Array.isArray(c?.avoid_joint_stress_tags) ? (c!.avoid_joint_stress_tags as string[]) : undefined;
+  const avoid_joint_stress_tags =
+    Array.isArray(c?.avoid_joint_stress_tags) ? (c.avoid_joint_stress_tags as string[]) : undefined;
 
-  // Substitution contract uses banned_equipment (string tokens), not banned_equipment_ids.
-  // v0: forward the Phase1 tokens as-is.
-  const banned_equipment = Array.isArray(c?.banned_equipment_ids) ? (c!.banned_equipment_ids as string[]) : undefined;
+  const banned_equipment =
+    Array.isArray(c?.banned_equipment_ids) ? (c.banned_equipment_ids as string[]) : undefined;
 
   const out: SubstitutionConstraints = {};
   if (avoid_joint_stress_tags && avoid_joint_stress_tags.length > 0) out.avoid_joint_stress_tags = avoid_joint_stress_tags;
@@ -88,14 +59,8 @@ function constraintsFromCanonicalInput(canonicalInput: unknown): SubstitutionCon
   return out;
 }
 
-/**
- * Merge constraints deterministically.
- * Precedence: program.constraints overrides Phase 1 constraints for scalar fields.
- * Arrays: union-dedup (phase1 then program) so we don't accidentally drop disqualifiers.
- */
 function mergeConstraints(fromPhase1: SubstitutionConstraints, fromProgram: SubstitutionConstraints | undefined): SubstitutionConstraints {
   if (!fromProgram) return fromPhase1;
-
   return {
     ...fromPhase1,
     ...fromProgram,
@@ -104,37 +69,141 @@ function mergeConstraints(fromPhase1: SubstitutionConstraints, fromProgram: Subs
   };
 }
 
+function isEmptyConstraints(c: SubstitutionConstraints): boolean {
+  const a = c.avoid_joint_stress_tags;
+  const b = c.banned_equipment;
+  return (!a || a.length === 0) && (!b || b.length === 0);
+}
+
+function buildCandidateList(program: Phase5ProgramLike): ExerciseSignature[] {
+  if (isRecord(program.exercise_pool)) {
+    const vals = Object.values(program.exercise_pool);
+    const filtered = vals.filter((x: any) => isRecord(x) && typeof x.exercise_id === "string") as ExerciseSignature[];
+    filtered.sort((a, b) => a.exercise_id.localeCompare(b.exercise_id));
+    return filtered;
+  }
+
+  if (Array.isArray(program.exercises)) return program.exercises;
+
+  return [];
+}
+
+function resolveTargetId(program: Phase5ProgramLike, candidates: ExerciseSignature[]): string | null {
+  const explicit =
+    typeof program.target_exercise_id === "string" && program.target_exercise_id.length > 0
+      ? program.target_exercise_id
+      : null;
+  if (explicit) return explicit;
+
+  if (Array.isArray(program.planned_exercise_ids) && program.planned_exercise_ids.length > 0) {
+    const first = String(program.planned_exercise_ids[0] ?? "");
+    if (first) return first;
+  }
+
+  const firstCandidate = candidates[0]?.exercise_id;
+  return typeof firstCandidate === "string" && firstCandidate.length > 0 ? firstCandidate : null;
+}
+
+function findById(candidates: ExerciseSignature[], id: string): ExerciseSignature | null {
+  for (const c of candidates) {
+    if (c.exercise_id === id) return c;
+  }
+  return null;
+}
+
+/**
+ * Ticket 011 rule:
+ * - If target is eligible under constraints => NO substitution (no-op).
+ * - Only substitute when constraints disqualify the target (or target is missing).
+ *
+ * Hardened invariant:
+ * - If constraints are empty, target is eligible by definition (no surprise substitutions).
+ */
+function isTargetEligible(target: ExerciseSignature, constraints: SubstitutionConstraints): boolean {
+  if (isEmptyConstraints(constraints)) return true;
+
+  const probe = pickBestSubstitute(target, [target], constraints);
+  return !!probe && probe.selected_exercise_id === target.exercise_id;
+}
+
 export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonicalInput: unknown): Phase5Result {
-  // Default: preserve v0 behaviour
-  if (!isSubstitutableProgram(program)) {
+  if (!isPhase5ProgramLike(program)) {
     return {
       ok: true,
       adjustments: [],
-      notes: ["PHASE_5_STUB: no substitutable program shape found; no changes applied"]
+      notes: ["PHASE_5_STUB: program is not an object; no changes applied"]
     };
   }
 
-  const exercises = program.exercises;
-  if (exercises.length === 0) {
+  const candidates = buildCandidateList(program);
+  if (candidates.length === 0) {
     return {
       ok: true,
       adjustments: [],
-      notes: ["PHASE_5: program has zero exercises; no changes applied"]
+      notes: ["PHASE_5: no candidates available (no exercises/exercise_pool); no changes applied"]
     };
   }
 
-  const targetId = program.target_exercise_id ?? exercises[0]?.exercise_id;
-  const target = exercises.find(x => x.exercise_id === targetId) ?? exercises[0];
+  const targetId = resolveTargetId(program, candidates);
+  const target = targetId ? findById(candidates, targetId) : null;
 
   const phase1Constraints = constraintsFromCanonicalInput(canonicalInput);
   const effectiveConstraints = mergeConstraints(phase1Constraints, program.constraints);
 
-  const pick = pickBestSubstitute(target, exercises, effectiveConstraints);
+  if (!target) {
+    const fallbackTarget = candidates[0];
+    const pick = pickBestSubstitute(fallbackTarget, candidates, effectiveConstraints);
+    if (!pick) {
+      return {
+        ok: true,
+        adjustments: [],
+        notes: ["PHASE_5: target missing and no eligible substitute found; no changes applied"]
+      };
+    }
+
+    if (pick.selected_exercise_id === fallbackTarget.exercise_id) {
+      return {
+        ok: true,
+        adjustments: [],
+        notes: ["PHASE_5: target missing; best candidate equals fallback; no changes applied"]
+      };
+    }
+
+    return {
+      ok: true,
+      adjustments: [
+        {
+          adjustment_id: "SUBSTITUTE_EXERCISE",
+          applied: true,
+          reason: "substitution_engine_pick_target_missing",
+          details: {
+            target_exercise_id: fallbackTarget.exercise_id,
+            substitute_exercise_id: pick.selected_exercise_id,
+            score: pick.score,
+            reasons: pick.reasons,
+            constraints: effectiveConstraints
+          }
+        }
+      ],
+      notes: ["PHASE_5: substitution applied (target missing)"]
+    };
+  }
+
+  const eligible = isTargetEligible(target, effectiveConstraints);
+  if (eligible) {
+    return {
+      ok: true,
+      adjustments: [],
+      notes: ["PHASE_5: target eligible under constraints; no substitution (Ticket 011 rule)"]
+    };
+  }
+
+  const pick = pickBestSubstitute(target, candidates, effectiveConstraints);
   if (!pick) {
     return {
       ok: true,
       adjustments: [],
-      notes: ["PHASE_5: no eligible substitute found; no changes applied"]
+      notes: ["PHASE_5: target disqualified but no eligible substitute found; no changes applied"]
     };
   }
 
@@ -142,7 +211,7 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonical
     return {
       ok: true,
       adjustments: [],
-      notes: ["PHASE_5: best substitute equals target; no changes applied"]
+      notes: ["PHASE_5: scorer returned target despite ineligible signal; no changes applied"]
     };
   }
 
@@ -152,7 +221,7 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonical
       {
         adjustment_id: "SUBSTITUTE_EXERCISE",
         applied: true,
-        reason: "substitution_engine_pick",
+        reason: "substitution_engine_pick_target_disqualified",
         details: {
           target_exercise_id: target.exercise_id,
           substitute_exercise_id: pick.selected_exercise_id,
@@ -162,6 +231,6 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonical
         }
       }
     ],
-    notes: ["PHASE_5: substitution applied (guarded minimal shape)"]
+    notes: ["PHASE_5: substitution applied (target disqualified by constraints)"]
   };
 }
