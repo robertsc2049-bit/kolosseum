@@ -12,7 +12,7 @@ export type Phase3Output = {
   /**
    * Canonical constraint contract:
    * - {} is valid (envelope present but empty)
-   * - undefined envelope => Phase3 may inject deterministic demo defaults
+   * - undefined envelope => Phase3 may inject deterministic demo defaults (only if permitted)
    */
   constraints: Phase3Constraints;
 };
@@ -50,9 +50,12 @@ function uniqSortedStrings(xs: unknown): string[] | undefined {
 }
 
 /**
- * Ticket 012/014:
- * - If canonicalInput.constraints is PRESENT (even {}), it is sovereign: no defaults.
- * - If canonicalInput.constraints is ABSENT, defaults are permitted (demo only).
+ * Ticket 012 / Ticket 014 / Ticket 018 alignment:
+ * - If canonicalInput.constraints is PRESENT (even {}), it is sovereign: Phase3 MUST NOT inject defaults.
+ * - If canonicalInput.constraints is ABSENT, Phase3 MAY inject deterministic demo defaults (if you keep that behaviour).
+ *
+ * Note: Phase1 enforces schema + constraints_version + refusal rules.
+ * Phase3 assumes the canonical input is already lawful.
  */
 export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): Phase3Result {
   let lr: any;
@@ -69,7 +72,7 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
   const activityId = String(canonicalInput?.activity_id ?? "");
 
   const envelopePresent = Object.prototype.hasOwnProperty.call(canonicalInput ?? {}, "constraints");
-  const rawEnvelope = envelopePresent ? (canonicalInput?.constraints ?? {}) : undefined;
+  const rawEnvelope = envelopePresent ? canonicalInput?.constraints : undefined;
 
   let constraints: Phase3Constraints = {};
 
@@ -84,11 +87,13 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
       if (banned) constraints.banned_equipment = banned;
       if (available) constraints.available_equipment = available;
     } else {
-      // Present but invalid shape (should be prevented by schema). Stay deterministic.
+      // Present but invalid shape should be blocked by Phase1 schema.
+      // Stay deterministic: treat as empty envelope.
       constraints = {};
     }
   } else {
     // Envelope absent: demo defaults allowed, minimal and deterministic.
+    // If you ever want "no defaults, ever" later, delete this block and always return {} here.
     if (activityId === "powerlifting") {
       constraints = { avoid_joint_stress_tags: ["shoulder_high"] };
     } else {

@@ -20,22 +20,20 @@ test("T011 E2E: constraints drive substitution; Phase6 emits substituted exercis
   const out = runEngine({
     ...BASE,
     constraints: {
+      constraints_version: "1.0.0",
       avoid_joint_stress_tags: ["shoulder_high"]
     }
   });
 
   assert.equal(out.ok, true);
 
-  // Phase 4: v0 program still emitted
   assert.equal(out.phase4.program_id, "PROGRAM_POWERLIFTING_V0");
 
-  // Phase 5: now actionable because Phase 4 emits candidate exercises[]
   assert.ok(Array.isArray(out.phase5.adjustments));
   assert.equal(out.phase5.adjustments.length, 1);
   assert.equal(out.phase5.adjustments[0].adjustment_id, "SUBSTITUTE_EXERCISE");
   assert.equal(out.phase5.adjustments[0].applied, true);
 
-  // Phase 6: session emits substituted planned exercise
   assert.equal(out.phase6.session_id, "SESSION_V1");
   assert.ok(Array.isArray(out.phase6.exercises));
   assert.equal(out.phase6.exercises.length, 1);
@@ -44,3 +42,4 @@ test("T011 E2E: constraints drive substitution; Phase6 emits substituted exercis
   assert.equal(ex.exercise_id, "dumbbell_bench_press");
   assert.equal(ex.substituted_from, "bench_press");
 });
+

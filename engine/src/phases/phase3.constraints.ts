@@ -1,12 +1,12 @@
 /**
  * Phase3Constraints — canonical, closed-world constraint contract
- * Ticket 014+
+ * EB2-1.0.0
  *
  * Rules:
- * - Keys are final and authoritative end-to-end.
- * - Empty object {} is valid and semantically meaningful (envelope present).
- * - Undefined means "envelope absent".
- * - Arrays must be de-duped + sorted by Phase3 for determinism.
+ * - Canonical keys only. No legacy keys. No aliases.
+ * - {} is valid (envelope present but empty).
+ * - undefined means "envelope absent" (Phase 3 may inject deterministic demo defaults if permitted).
+ * - Arrays must be de-duped + sorted lexicographically for determinism.
  */
 export type Phase3Constraints = {
   avoid_joint_stress_tags?: string[];
@@ -16,11 +16,10 @@ export type Phase3Constraints = {
 
 export function isEmptyConstraints(c: Phase3Constraints | undefined): boolean {
   if (!c) return true;
-  return (
-    (!c.avoid_joint_stress_tags || c.avoid_joint_stress_tags.length === 0) &&
-    (!c.banned_equipment || c.banned_equipment.length === 0) &&
-    (!c.available_equipment || c.available_equipment.length === 0)
-  );
+  const a = c.avoid_joint_stress_tags;
+  const b = c.banned_equipment;
+  const d = c.available_equipment;
+  return (!a || a.length === 0) && (!b || b.length === 0) && (!d || d.length === 0);
 }
 
 
