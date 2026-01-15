@@ -43,7 +43,7 @@ function extractPhase2(p2: unknown): Phase2Extract {
   const hash = pickString(
     [
       inner?.phase2_hash, // current
-      inner?.canonical_input_hash, // legacy naming
+      inner?.canonical_input_hash, // legacy
       inner?.hash,
       inner?.sha256,
       obj?.phase2_hash,
@@ -52,17 +52,13 @@ function extractPhase2(p2: unknown): Phase2Extract {
     "PHASE2_HASH_MISSING"
   );
 
-  // Preferred: explicit canonical json string
-  const jsonString = pickString(
-    [inner?.phase2_canonical_json, obj?.phase2_canonical_json],
-    ""
-  );
+  const jsonString = pickString([inner?.phase2_canonical_json, obj?.phase2_canonical_json], "");
   if (jsonString) {
     const canonicalInput = safeJsonParse(jsonString);
     return { hash, canonicalJson: jsonString, canonicalInput };
   }
 
-  // Next: canonical bytes (legacy)
+  // legacy bytes
   const bytesCandidates = [inner?.canonical_input_json, obj?.canonical_input_json];
   for (const b of bytesCandidates) {
     if (isUint8Array(b)) {
@@ -72,7 +68,7 @@ function extractPhase2(p2: unknown): Phase2Extract {
     }
   }
 
-  // Last-ditch: structured canonical input (legacy)
+  // legacy structured
   if (inner?.canonical_input) {
     const s = JSON.stringify(inner.canonical_input);
     return { hash, canonicalJson: s, canonicalInput: inner.canonical_input };
@@ -82,11 +78,10 @@ function extractPhase2(p2: unknown): Phase2Extract {
 }
 
 export function runEngine(input: unknown) {
-  // Phase 1 (schema-validated + canonicalised)
+  // Phase 1
   const p1: any = phase1Validate(input);
   if (!p1?.ok) return p1;
 
-  // Ticket 014: Phase1 canonical is the ONLY allowed downstream input.
   if (!("canonical_input" in p1)) {
     return {
       ok: false,
@@ -97,7 +92,7 @@ export function runEngine(input: unknown) {
 
   const phase1CanonicalInput = (p1 as any).canonical_input;
 
-  // Phase 2 (canonical JSON + hash)
+  // Phase 2
   const p2: any = phase2CanonicaliseAndHash(phase1CanonicalInput);
   if (p2?.ok === false) return p2;
 
@@ -122,13 +117,13 @@ export function runEngine(input: unknown) {
   const p4: any = phase4AssembleProgram(canonicalInput, p3.phase3);
   if (!p4?.ok) return p4;
 
-  // Phase 5 (pass actual Phase 4 program)
+  // Phase 5 (FIX: must pass canonicalInput)
   const p5Raw: any = phase5ApplySubstitutionAndAdjustment(p4.program, canonicalInput);
 
   // Phase 6
   const p6Raw: any = phase6ProduceSessionOutput(p4.program, canonicalInput, p5Raw);
 
-  // Outbound shaping (keep CLI/tests stable)
+  // Outbound shaping
   const phase5Out =
     p5Raw?.ok === true
       ? { adjustments: p5Raw.adjustments, notes: p5Raw.notes }
@@ -164,6 +159,7 @@ export function runEngine(input: unknown) {
       program_id: p4.program.program_id,
       version: p4.program.version,
       blocks: p4.program.blocks,
+      constraints: p4.program.constraints,
       notes: p4.notes
     },
     phase5: phase5Out,

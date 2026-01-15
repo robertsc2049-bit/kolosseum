@@ -37,6 +37,12 @@ function mergeStringArrays(a: string[] | undefined, b: string[] | undefined): st
   return Array.from(new Set([...(a ?? []), ...(b ?? [])]));
 }
 
+/**
+ * Phase5 reads constraints from canonical input.
+ * Supports:
+ * - direct canonical input: { constraints: ... }
+ * - legacy wrapper: { canonical_input: { constraints: ... } }
+ */
 function constraintsFromCanonicalInput(canonicalInput: unknown): SubstitutionConstraints {
   const root = canonicalInput as any;
 
@@ -49,30 +55,53 @@ function constraintsFromCanonicalInput(canonicalInput: unknown): SubstitutionCon
   const avoid_joint_stress_tags =
     Array.isArray(c?.avoid_joint_stress_tags) ? (c.avoid_joint_stress_tags as string[]) : undefined;
 
+  // Canonical key (Ticket 014 schema): banned_equipment
+  // Legacy fallback: banned_equipment_ids
   const banned_equipment =
-    Array.isArray(c?.banned_equipment_ids) ? (c.banned_equipment_ids as string[]) : undefined;
+    Array.isArray(c?.banned_equipment)
+      ? (c.banned_equipment as string[])
+      : Array.isArray(c?.banned_equipment_ids)
+        ? (c.banned_equipment_ids as string[])
+        : undefined;
+
+  const available_equipment =
+    Array.isArray(c?.available_equipment)
+      ? (c.available_equipment as string[])
+      : Array.isArray(c?.available_equipment_ids)
+        ? (c.available_equipment_ids as string[])
+        : undefined;
 
   const out: SubstitutionConstraints = {};
+
   if (avoid_joint_stress_tags && avoid_joint_stress_tags.length > 0) out.avoid_joint_stress_tags = avoid_joint_stress_tags;
   if (banned_equipment && banned_equipment.length > 0) out.banned_equipment = banned_equipment;
+  if (available_equipment && available_equipment.length > 0) out.available_equipment = available_equipment;
 
   return out;
 }
 
+/**
+ * Deterministic merge.
+ * - Scalars: program overrides phase1
+ * - Arrays: union-dedup (phase1 then program) so we never drop disqualifiers
+ */
 function mergeConstraints(fromPhase1: SubstitutionConstraints, fromProgram: SubstitutionConstraints | undefined): SubstitutionConstraints {
   if (!fromProgram) return fromPhase1;
+
   return {
     ...fromPhase1,
     ...fromProgram,
     avoid_joint_stress_tags: mergeStringArrays(fromPhase1.avoid_joint_stress_tags, fromProgram.avoid_joint_stress_tags),
-    banned_equipment: mergeStringArrays(fromPhase1.banned_equipment, fromProgram.banned_equipment)
+    banned_equipment: mergeStringArrays(fromPhase1.banned_equipment, fromProgram.banned_equipment),
+    available_equipment: mergeStringArrays(fromPhase1.available_equipment, fromProgram.available_equipment)
   };
 }
 
 function isEmptyConstraints(c: SubstitutionConstraints): boolean {
   const a = c.avoid_joint_stress_tags;
   const b = c.banned_equipment;
-  return (!a || a.length === 0) && (!b || b.length === 0);
+  const d = c.available_equipment;
+  return (!a || a.length === 0) && (!b || b.length === 0) && (!d || d.length === 0);
 }
 
 function buildCandidateList(program: Phase5ProgramLike): ExerciseSignature[] {
@@ -84,7 +113,6 @@ function buildCandidateList(program: Phase5ProgramLike): ExerciseSignature[] {
   }
 
   if (Array.isArray(program.exercises)) return program.exercises;
-
   return [];
 }
 
@@ -150,9 +178,11 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonical
   const phase1Constraints = constraintsFromCanonicalInput(canonicalInput);
   const effectiveConstraints = mergeConstraints(phase1Constraints, program.constraints);
 
+  // Target missing => pick against fallback target
   if (!target) {
     const fallbackTarget = candidates[0];
     const pick = pickBestSubstitute(fallbackTarget, candidates, effectiveConstraints);
+
     if (!pick) {
       return {
         ok: true,
@@ -189,8 +219,8 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonical
     };
   }
 
-  const eligible = isTargetEligible(target, effectiveConstraints);
-  if (eligible) {
+  // Ticket 011: eligible => no-op
+  if (isTargetEligible(target, effectiveConstraints)) {
     return {
       ok: true,
       adjustments: [],
