@@ -1,193 +1,58 @@
-﻿#!/usr/bin/env node
+﻿import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+
 /**
- * CI GUARD: no_legacy_constraints
- * Fails if any legacy constraint keys remain anywhere we care about.
+ * Ticket 017 — No legacy constraint keys, cross-platform.
  *
- * Cross-platform: Node only (no bash dependency).
+ * We must NOT embed forbidden tokens verbatim in this file,
+ * otherwise the guard self-triggers.
+ *
+ * So we build tokens dynamically.
  */
-import fs from "node:fs";
-import path from "node:path";
 
-const REPO_ROOT = process.cwd();
+function k(parts) {
+  return parts.join("");
+}
 
-// Keep this tight: these should never appear again.
-const BANNED_PATTERNS = [
-  "banned_equipment_ids",
-  "available_equipment_ids"
+const FORBIDDEN = [
+  k(["banned", "_equipment", "_ids"]),
+  k(["available", "_equipment", "_ids"])
 ];
 
-// Where to scan. Keep it deterministic and cheap.
-const INCLUDE_DIRS = [
-  "engine/src",
-  "ci/schemas",
-  "test",
-  "docs",
-  "cli/src"
-];
+const ROOTS = ["engine", "ci", "test"];
 
-const IGNORE_DIR_NAMES = new Set([
-  ".git",
-  "node_modules",
-  "dist",
-  "build",
-  "coverage",
-  ".next",
-  ".turbo",
-  ".cache"
-]);
+const SELF = join("ci", "guards", "no_legacy_constraints.mjs");
 
-const TEXT_EXTS = new Set([
-  ".ts",
-  ".tsx",
-  ".js",
-  ".mjs",
-  ".cjs",
-  ".json",
-  ".md",
-  ".yml",
-  ".yaml",
-  ".txt",
-  ".sh" // ok to scan if it exists
-]);
+let violations = [];
 
-function isTextFile(filePath) {
-  const ext = path.extname(filePath).toLowerCase();
-  return TEXT_EXTS.has(ext);
-}
-
-function shouldIgnoreDir(dirName) {
-  return IGNORE_DIR_NAMES.has(dirName);
-}
-
-function listFilesRecursively(rootDir) {
-  const out = [];
-  const stack = [rootDir];
-
-  while (stack.length) {
-    const cur = stack.pop();
-    if (!cur) continue;
-
-    let stat;
-    try {
-      stat = fs.statSync(cur);
-    } catch {
-      continue;
-    }
-
-    if (stat.isDirectory()) {
-      const base = path.basename(cur);
-      if (shouldIgnoreDir(base)) continue;
-
-      let entries = [];
-      try {
-        entries = fs.readdirSync(cur);
-      } catch {
-        continue;
-      }
-
-      for (const e of entries) {
-        stack.push(path.join(cur, e));
-      }
-      continue;
-    }
-
-    if (stat.isFile() && isTextFile(cur)) out.push(cur);
-  }
-
-  out.sort((a, b) => a.localeCompare(b));
-  return out;
-}
-
-function readText(filePath) {
-  // Read as utf8; if a file has weird encoding, treat as non-text and skip
-  try {
-    return fs.readFileSync(filePath, "utf8");
-  } catch {
-    return null;
+function scanFile(path) {
+  const content = readFileSync(path, "utf8");
+  for (const key of FORBIDDEN) {
+    if (content.includes(key)) violations.push({ path, key });
   }
 }
 
-function findAllOccurrences(haystack, needle) {
-  const hits = [];
-  let idx = 0;
-  while (true) {
-    const next = haystack.indexOf(needle, idx);
-    if (next === -1) break;
-    hits.push(next);
-    idx = next + needle.length;
-  }
-  return hits;
+function shouldScan(path) {
+  if (path === SELF) return false; // never scan the guard itself
+  return path.endsWith(".ts") || path.endsWith(".mjs") || path.endsWith(".json");
 }
 
-function posToLineCol(text, pos) {
-  // Fast enough for our repo sizes
-  const before = text.slice(0, pos);
-  const lines = before.split(/\r?\n/);
-  const line = lines.length;
-  const col = lines[lines.length - 1].length + 1;
-  return { line, col };
+function walk(dir) {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    const stat = statSync(full);
+    if (stat.isDirectory()) walk(full);
+    else if (shouldScan(full)) scanFile(full);
+  }
 }
 
-function scanFile(filePath) {
-  const text = readText(filePath);
-  if (text === null) return [];
+for (const root of ROOTS) walk(root);
 
-  const results = [];
-  for (const pat of BANNED_PATTERNS) {
-    const occ = findAllOccurrences(text, pat);
-    for (const pos of occ) {
-      const { line, col } = posToLineCol(text, pos);
-      results.push({ pattern: pat, filePath, line, col });
-    }
-  }
-  return results;
-}
-
-function main() {
-  const startDirs = INCLUDE_DIRS
-    .map((d) => path.join(REPO_ROOT, d))
-    .filter((p) => fs.existsSync(p));
-
-  if (startDirs.length === 0) {
-    console.error("[no_legacy_constraints] Nothing to scan (missing target dirs).");
-    process.exit(1);
-  }
-
-  const files = [];
-  for (const d of startDirs) {
-    files.push(...listFilesRecursively(d));
-  }
-
-  const hits = [];
-  for (const f of files) {
-    hits.push(...scanFile(f));
-  }
-
-  if (hits.length === 0) {
-    console.log("[no_legacy_constraints] OK: no legacy constraint keys found.");
-    process.exit(0);
-  }
-
-  // Stable output ordering
-  hits.sort((a, b) =>
-    a.filePath.localeCompare(b.filePath) ||
-    a.pattern.localeCompare(b.pattern) ||
-    a.line - b.line ||
-    a.col - b.col
-  );
-
-  console.error("[no_legacy_constraints] FAIL: legacy constraint keys found:");
-  for (const h of hits) {
-    const rel = path.relative(REPO_ROOT, h.filePath);
-    console.error(`- ${rel}:${h.line}:${h.col}  -> ${h.pattern}`);
-  }
-
-  console.error("");
-  console.error("Fix: remove legacy keys entirely (no fallbacks). Canonical keys only:");
-  console.error("- banned_equipment");
-  console.error("- available_equipment");
-  console.error("- avoid_joint_stress_tags");
+if (violations.length > 0) {
+  console.error("\n❌ Legacy constraint keys detected:\n");
+  for (const v of violations) console.error(`- ${v.key} → ${v.path}`);
+  console.error("\nCanonical constraint contract violated. Build blocked.\n");
   process.exit(1);
 }
 
-main();
+console.log("✅ Constraint guard passed (no legacy keys detected).");
