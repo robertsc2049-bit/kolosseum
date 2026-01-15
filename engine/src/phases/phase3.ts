@@ -10,10 +10,9 @@ export type Phase3Output = {
   loaded_registries: string[];
 
   /**
-   * Canonical constraint contract (Ticket 014):
-   * - Keys are authoritative and stable end-to-end.
-   * - {} is valid and semantically meaningful (envelope present + empty).
-   * - undefined envelope => Phase3 may inject deterministic demo defaults.
+   * Canonical constraint contract:
+   * - {} is valid (envelope present but empty)
+   * - undefined envelope => Phase3 may inject deterministic demo defaults
    */
   constraints: Phase3Constraints;
 };
@@ -43,7 +42,6 @@ function uniqSortedStrings(xs: unknown): string[] | undefined {
       if (s.length > 0) buf.push(s);
     }
   }
-
   if (buf.length === 0) return undefined;
 
   const uniq = Array.from(new Set(buf));
@@ -52,10 +50,9 @@ function uniqSortedStrings(xs: unknown): string[] | undefined {
 }
 
 /**
- * Ticket 012 (authoritative):
- * - If canonicalInput.constraints is PRESENT (even {}), it is sovereign.
- *   Phase3 must not inject defaults.
- * - If canonicalInput.constraints is ABSENT (undefined), Phase3 may inject demo defaults.
+ * Ticket 012/014:
+ * - If canonicalInput.constraints is PRESENT (even {}), it is sovereign: no defaults.
+ * - If canonicalInput.constraints is ABSENT, defaults are permitted (demo only).
  */
 export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): Phase3Result {
   let lr: any;
@@ -77,21 +74,21 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
   let constraints: Phase3Constraints = {};
 
   if (envelopePresent) {
-    // Sovereign envelope: map only what was provided. No defaults.
+    // Sovereign envelope: map only what exists. No defaults.
     if (isRecord(rawEnvelope)) {
       const avoid = uniqSortedStrings((rawEnvelope as any).avoid_joint_stress_tags);
-      const banned = uniqSortedStrings((rawEnvelope as any).banned_equipment_ids);
-      const available = uniqSortedStrings((rawEnvelope as any).available_equipment_ids);
+      const banned = uniqSortedStrings((rawEnvelope as any).banned_equipment);
+      const available = uniqSortedStrings((rawEnvelope as any).available_equipment);
 
-      if (avoid) constraints = { ...constraints, avoid_joint_stress_tags: avoid };
-      if (banned) constraints = { ...constraints, banned_equipment_ids: banned };
-      if (available) constraints = { ...constraints, available_equipment_ids: available };
+      if (avoid) constraints.avoid_joint_stress_tags = avoid;
+      if (banned) constraints.banned_equipment = banned;
+      if (available) constraints.available_equipment = available;
     } else {
-      // constraints present but not an object: schema should prevent this; stay safe + deterministic.
+      // Present but invalid shape (should be prevented by schema). Stay deterministic.
       constraints = {};
     }
   } else {
-    // Envelope absent: deterministic demo defaults allowed.
+    // Envelope absent: demo defaults allowed, minimal and deterministic.
     if (activityId === "powerlifting") {
       constraints = { avoid_joint_stress_tags: ["shoulder_high"] };
     } else {
@@ -118,6 +115,7 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
     }
   };
 }
+
 
 
 
