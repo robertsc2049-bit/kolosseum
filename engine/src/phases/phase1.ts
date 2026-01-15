@@ -2,6 +2,7 @@
 import fs from "node:fs";
 
 export type Phase1Constraints = {
+  constraints_version: "1.0.0";
   avoid_joint_stress_tags?: string[];
   banned_equipment?: string[];
   available_equipment?: string[];
@@ -26,9 +27,6 @@ export type Phase1CanonicalInput = {
   exposure_prompt_density: string;
   bias_mode: string;
 
-  // IMPORTANT: preserve presence semantics.
-  // - If caller provided constraints: {}, canonical retains constraints: {}.
-  // - If caller omitted constraints entirely, canonical omits constraints.
   constraints?: Phase1Constraints;
 };
 
@@ -40,28 +38,83 @@ function stripBom(s: string): string {
   return s.length > 0 && s.charCodeAt(0) === 0xfeff ? s.slice(1) : s;
 }
 
-function pickStringArray(xs: any): string[] | undefined {
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+
+function pickStringArray(xs: unknown): string[] | undefined {
   if (!Array.isArray(xs)) return undefined;
-  const out = xs.filter((v: any) => typeof v === "string" && v.length > 0);
+  const out: string[] = [];
+  for (const v of xs) {
+    if (typeof v !== "string") continue;
+    const s = v.trim();
+    if (s.length > 0) out.push(s);
+  }
   const uniq = Array.from(new Set(out));
   return uniq.length > 0 ? uniq : undefined;
 }
 
-function canonicalizeConstraints(raw: any, envelopePresent: boolean): Phase1Constraints | undefined {
-  if (!envelopePresent) return undefined; // truly absent
-  if (!raw || typeof raw !== "object") return {}; // present but weird => canonical empty
+/**
+ * Ticket 018: refusal rules (before AJV), only when constraints envelope is present.
+ * - constraints must be object
+ * - constraints_version must be "1.0.0"
+ * - any key ending with "_ids" is refused
+ */
+function preflightConstraintsRefusal(obj: any): Phase1Result | null {
+  const envelopePresent = Object.prototype.hasOwnProperty.call(obj ?? {}, "constraints");
+  if (!envelopePresent) return null;
 
-  const c: Phase1Constraints = {};
+  const c = obj?.constraints;
+
+  if (!isRecord(c)) {
+    return {
+      ok: false,
+      failure_token: "constraints_type_invalid",
+      details: "PHASE_1: constraints envelope present but not an object"
+    };
+  }
+
+  const keys = Object.keys(c);
+  const refused = keys.filter(k => k.endsWith("_ids"));
+  if (refused.length > 0) {
+    refused.sort((a, b) => a.localeCompare(b));
+    return {
+      ok: false,
+      failure_token: "legacy_constraints_keys_refused",
+      details: {
+        refused,
+        rule: "Keys ending with _ids are not permitted",
+        canonical_keys: ["constraints_version", "avoid_joint_stress_tags", "banned_equipment", "available_equipment"]
+      }
+    };
+  }
+
+  if ((c as any).constraints_version !== "1.0.0") {
+    return {
+      ok: false,
+      failure_token: "constraints_version_invalid_or_missing",
+      details: {
+        received: (c as any).constraints_version,
+        required: "1.0.0"
+      }
+    };
+  }
+
+  return null;
+}
+
+function canonicalizeConstraints(raw: any): Phase1Constraints {
+  const out: Phase1Constraints = { constraints_version: "1.0.0" };
+
   const avoid = pickStringArray(raw.avoid_joint_stress_tags);
   const banned = pickStringArray(raw.banned_equipment);
   const avail = pickStringArray(raw.available_equipment);
 
-  if (avoid) c.avoid_joint_stress_tags = avoid;
-  if (banned) c.banned_equipment = banned;
-  if (avail) c.available_equipment = avail;
+  if (avoid) out.avoid_joint_stress_tags = avoid;
+  if (banned) out.banned_equipment = banned;
+  if (avail) out.available_equipment = avail;
 
-  // envelope present is semantically meaningful, so return {} even if empty
-  return c;
+  return out;
 }
 
 export function phase1Validate(input: unknown): Phase1Result {
@@ -75,19 +128,23 @@ export function phase1Validate(input: unknown): Phase1Result {
     strictRequired: false
   });
 
-  const validate = ajv.compile(schema);
+  if (isRecord(input)) {
+    const refusal = preflightConstraintsRefusal(input);
+    if (refusal) return refusal;
+  }
 
+  const validate = ajv.compile(schema);
   const ok = validate(input);
+
   if (!ok) {
     return { ok: false, failure_token: "type_mismatch", details: validate.errors };
   }
 
   const obj = input as any;
+
   if (obj?.consent_granted !== true) {
     return { ok: false, failure_token: "consent_not_granted" };
   }
-
-  const envelopePresent = Object.prototype.hasOwnProperty.call(obj ?? {}, "constraints");
 
   const canonical: Phase1CanonicalInput = {
     consent_granted: true,
@@ -109,11 +166,14 @@ export function phase1Validate(input: unknown): Phase1Result {
     bias_mode: obj.bias_mode
   };
 
+  const envelopePresent = Object.prototype.hasOwnProperty.call(obj ?? {}, "constraints");
   if (envelopePresent) {
-    canonical.constraints = canonicalizeConstraints(obj.constraints, true);
+    canonical.constraints = canonicalizeConstraints(obj.constraints);
   }
 
   return { ok: true, canonical_input: canonical };
 }
+
+
 
 
