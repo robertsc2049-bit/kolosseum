@@ -7,9 +7,10 @@
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test",
     "lint": "node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs",
-    "ci": "npm run lint && npm run build && npm run test",
+    "ci": "npm run guard:constraints && npm test",
     "hash:write": "node ci/scripts/write_checksums.mjs",
-    "run:cli": "node dist/cli/src/main.js"
+    "run:cli": "node dist/cli/src/main.js",
+    "guard:constraints": "node ci/guards/no_legacy_constraints.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1"
