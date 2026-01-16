@@ -20,7 +20,10 @@
     "constraints": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["constraints_version"],
       "properties": {
+        "constraints_version": { "type": "string", "const": "1.0.0" },
+
         "avoid_joint_stress_tags": {
           "type": "array",
           "items": { "type": "string" },
@@ -68,3 +71,4 @@
     }
   ]
 }
+

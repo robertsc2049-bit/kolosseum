@@ -1,6 +1,5 @@
 ﻿import test from "node:test";
 import assert from "node:assert/strict";
-
 import { runEngine } from "../dist/engine/src/index.js";
 
 const BASE = {
@@ -32,6 +31,7 @@ test("Phase 5 performs substitution for powerlifting v0 program when constraints
     ...BASE,
     activity_id: "powerlifting",
     constraints: {
+      constraints_version: "1.0.0",
       avoid_joint_stress_tags: ["shoulder_high"]
     }
   });
@@ -41,3 +41,4 @@ test("Phase 5 performs substitution for powerlifting v0 program when constraints
   assert.equal(res.phase5.adjustments.length, 1);
   assert.equal(res.phase5.adjustments[0].adjustment_id, "SUBSTITUTE_EXERCISE");
 });
+

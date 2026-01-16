@@ -16,11 +16,23 @@ export type Phase5Result =
     }
   | { ok: false; failure_token: string; details?: unknown };
 
+/**
+ * Phase 5 only needs a minimal program shape.
+ * Contract:
+ * - program.constraints is the canonical constraint contract produced by Phase 3 and carried through Phase 4.
+ * - Phase 5 MUST NOT re-parse constraints from canonicalInput.
+ * - canonicalInput is accepted for signature stability (engine/CLI callers) but is not consumed.
+ */
 type Phase5ProgramLike = {
   exercises?: ExerciseSignature[];
   planned_exercise_ids?: string[];
   exercise_pool?: Record<string, ExerciseSignature>;
   target_exercise_id?: string;
+
+  // Canonical constraint keys only:
+  // - avoid_joint_stress_tags
+  // - banned_equipment
+  // - available_equipment
   constraints?: SubstitutionConstraints;
 };
 
@@ -32,69 +44,37 @@ function isPhase5ProgramLike(program: unknown): program is Phase5ProgramLike {
   return isRecord(program);
 }
 
-function mergeStringArrays(a: string[] | undefined, b: string[] | undefined): string[] | undefined {
-  if (!a && !b) return undefined;
-  return Array.from(new Set([...(a ?? []), ...(b ?? [])]));
+function isNonEmptyStringArray(xs: unknown): xs is string[] {
+  return Array.isArray(xs) && xs.every(v => typeof v === "string");
 }
 
 /**
- * Phase5 reads constraints from canonical input.
- * Supports:
- * - direct canonical input: { constraints: ... }
- * - legacy wrapper: { canonical_input: { constraints: ... } }
+ * Canonical constraint normalization:
+ * - only canonical keys
+ * - drop empty arrays
+ * - dedupe
+ * - no legacy aliases, no fallbacks
  */
-function constraintsFromCanonicalInput(canonicalInput: unknown): SubstitutionConstraints {
-  const root = canonicalInput as any;
+function normalizeConstraints(raw: unknown): SubstitutionConstraints {
+  const c = (isRecord(raw) ? (raw as any) : {}) as any;
 
-  const canonical =
-    (root && typeof root === "object" && "canonical_input" in root ? root.canonical_input : undefined) ??
-    (root && typeof root === "object" ? root : undefined);
+  const avoid = isNonEmptyStringArray(c.avoid_joint_stress_tags)
+    ? (c.avoid_joint_stress_tags as string[]).filter((s: string) => s.length > 0)
+    : [];
 
-  const c = canonical?.constraints;
+  const banned = isNonEmptyStringArray(c.banned_equipment)
+    ? (c.banned_equipment as string[]).filter((s: string) => s.length > 0)
+    : [];
 
-  const avoid_joint_stress_tags =
-    Array.isArray(c?.avoid_joint_stress_tags) ? (c.avoid_joint_stress_tags as string[]) : undefined;
-
-  // Canonical key (Ticket 014 schema): banned_equipment
-  // Legacy fallback: banned_equipment_ids
-  const banned_equipment =
-    Array.isArray(c?.banned_equipment)
-      ? (c.banned_equipment as string[])
-      : Array.isArray(c?.banned_equipment_ids)
-        ? (c.banned_equipment_ids as string[])
-        : undefined;
-
-  const available_equipment =
-    Array.isArray(c?.available_equipment)
-      ? (c.available_equipment as string[])
-      : Array.isArray(c?.available_equipment_ids)
-        ? (c.available_equipment_ids as string[])
-        : undefined;
+  const available = isNonEmptyStringArray(c.available_equipment)
+    ? (c.available_equipment as string[]).filter((s: string) => s.length > 0)
+    : [];
 
   const out: SubstitutionConstraints = {};
-
-  if (avoid_joint_stress_tags && avoid_joint_stress_tags.length > 0) out.avoid_joint_stress_tags = avoid_joint_stress_tags;
-  if (banned_equipment && banned_equipment.length > 0) out.banned_equipment = banned_equipment;
-  if (available_equipment && available_equipment.length > 0) out.available_equipment = available_equipment;
-
+  if (avoid.length > 0) out.avoid_joint_stress_tags = Array.from(new Set(avoid));
+  if (banned.length > 0) out.banned_equipment = Array.from(new Set(banned));
+  if (available.length > 0) out.available_equipment = Array.from(new Set(available));
   return out;
-}
-
-/**
- * Deterministic merge.
- * - Scalars: program overrides phase1
- * - Arrays: union-dedup (phase1 then program) so we never drop disqualifiers
- */
-function mergeConstraints(fromPhase1: SubstitutionConstraints, fromProgram: SubstitutionConstraints | undefined): SubstitutionConstraints {
-  if (!fromProgram) return fromPhase1;
-
-  return {
-    ...fromPhase1,
-    ...fromProgram,
-    avoid_joint_stress_tags: mergeStringArrays(fromPhase1.avoid_joint_stress_tags, fromProgram.avoid_joint_stress_tags),
-    banned_equipment: mergeStringArrays(fromPhase1.banned_equipment, fromProgram.banned_equipment),
-    available_equipment: mergeStringArrays(fromPhase1.available_equipment, fromProgram.available_equipment)
-  };
 }
 
 function isEmptyConstraints(c: SubstitutionConstraints): boolean {
@@ -105,9 +85,10 @@ function isEmptyConstraints(c: SubstitutionConstraints): boolean {
 }
 
 function buildCandidateList(program: Phase5ProgramLike): ExerciseSignature[] {
+  // Prefer exercise_pool because it can be made deterministic by key sort.
   if (isRecord(program.exercise_pool)) {
     const vals = Object.values(program.exercise_pool);
-    const filtered = vals.filter((x: any) => isRecord(x) && typeof x.exercise_id === "string") as ExerciseSignature[];
+    const filtered = vals.filter((x: unknown) => isRecord(x) && typeof (x as any).exercise_id === "string") as ExerciseSignature[];
     filtered.sort((a, b) => a.exercise_id.localeCompare(b.exercise_id));
     return filtered;
   }
@@ -150,11 +131,12 @@ function findById(candidates: ExerciseSignature[], id: string): ExerciseSignatur
 function isTargetEligible(target: ExerciseSignature, constraints: SubstitutionConstraints): boolean {
   if (isEmptyConstraints(constraints)) return true;
 
+  // If target survives the scoring gate under its own constraints, it is eligible.
   const probe = pickBestSubstitute(target, [target], constraints);
   return !!probe && probe.selected_exercise_id === target.exercise_id;
 }
 
-export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonicalInput: unknown): Phase5Result {
+export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonicalInput: unknown): Phase5Result {
   if (!isPhase5ProgramLike(program)) {
     return {
       ok: true,
@@ -175,13 +157,12 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonical
   const targetId = resolveTargetId(program, candidates);
   const target = targetId ? findById(candidates, targetId) : null;
 
-  const phase1Constraints = constraintsFromCanonicalInput(canonicalInput);
-  const effectiveConstraints = mergeConstraints(phase1Constraints, program.constraints);
+  const constraints = normalizeConstraints(program.constraints);
 
   // Target missing => pick against fallback target
   if (!target) {
     const fallbackTarget = candidates[0];
-    const pick = pickBestSubstitute(fallbackTarget, candidates, effectiveConstraints);
+    const pick = pickBestSubstitute(fallbackTarget, candidates, constraints);
 
     if (!pick) {
       return {
@@ -211,7 +192,7 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonical
             substitute_exercise_id: pick.selected_exercise_id,
             score: pick.score,
             reasons: pick.reasons,
-            constraints: effectiveConstraints
+            constraints
           }
         }
       ],
@@ -220,7 +201,7 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonical
   }
 
   // Ticket 011: eligible => no-op
-  if (isTargetEligible(target, effectiveConstraints)) {
+  if (isTargetEligible(target, constraints)) {
     return {
       ok: true,
       adjustments: [],
@@ -228,7 +209,7 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonical
     };
   }
 
-  const pick = pickBestSubstitute(target, candidates, effectiveConstraints);
+  const pick = pickBestSubstitute(target, candidates, constraints);
   if (!pick) {
     return {
       ok: true,
@@ -257,10 +238,12 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, canonical
           substitute_exercise_id: pick.selected_exercise_id,
           score: pick.score,
           reasons: pick.reasons,
-          constraints: effectiveConstraints
+          constraints
         }
       }
     ],
     notes: ["PHASE_5: substitution applied (target disqualified by constraints)"]
   };
 }
+
+
