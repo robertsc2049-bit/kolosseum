@@ -21,9 +21,11 @@ $h = Invoke-RestMethod "$Base/health"
 Must ($h.ok -eq $true) "Health failed"
 
 # 1) Create block (minimal persisted shell is fine for runtime smoke)
+$canon = "smoke_" + ([guid]::NewGuid().ToString("N"))
+
 $blockBodyObj = @{
   engine_version     = "EB2-1.0.0"
-  canonical_hash     = "demo_hash"
+  canonical_hash     = $canon
   phase1_input       = @{}
   phase2_canonical   = @{}
   phase3_output      = @{}
