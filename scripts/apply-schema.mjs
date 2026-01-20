@@ -1,16 +1,21 @@
 import fs from "fs";
+import path from "node:path";
 import { Pool } from "pg";
 
-if (!process.env.DATABASE_URL) {
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl) {
   console.error("DATABASE_URL not set");
   process.exit(1);
 }
 
-const sql = fs.readFileSync("./src/db/schema.sql", "utf8");
+const schemaPath = path.resolve(process.cwd(), "schema.sql");
+if (!fs.existsSync(schemaPath)) {
+  console.error(`schema.sql not found at: ${schemaPath}`);
+  process.exit(1);
+}
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+const sql = fs.readFileSync(schemaPath, "utf8");
+const pool = new Pool({ connectionString: dbUrl });
 
 try {
   await pool.query(sql);
