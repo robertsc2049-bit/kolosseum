@@ -15,9 +15,7 @@ if (-not $Base) {
 Write-Host "Base: $Base"
 Write-Host "Mode: $Mode"
 
-function Must([bool]$ok, [string]$msg) {
-  if (-not $ok) { throw $msg }
-}
+function Must([bool]$ok, [string]$msg) { if (-not $ok) { throw $msg } }
 
 # health
 $h = Invoke-RestMethod "$Base/health"
@@ -38,21 +36,14 @@ $phase1 = @{
   bias_mode               = "variety"
 }
 
-$compileBodyObj = @{
-  phase1_input = $phase1
-}
+$compileBodyObj = @{ phase1_input = $phase1 }
 
-# Fresh mode: force unique canonical_hash override (for testing "new block" path)
 if ($Mode -eq "fresh") {
   $compileBodyObj.canonical_hash = ("smoke_" + ([guid]::NewGuid().ToString("N")))
 }
 
 $compileBody = $compileBodyObj | ConvertTo-Json -Depth 50 -Compress
-try {
-  $blockResp = Invoke-RestMethod -Method Post -Uri "$Base/blocks/compile" -ContentType "application/json" -Body $compileBody
-} catch {
-  throw ("Compile failed: " + $_.Exception.Message)
-}
+$blockResp = Invoke-RestMethod -Method Post -Uri "$Base/blocks/compile" -ContentType "application/json" -Body $compileBody
 
 $blockId = $blockResp.block_id
 Must ($null -ne $blockId -and $blockId.Length -gt 0) "Compile block failed: no block_id"
@@ -76,10 +67,10 @@ $sessionId = $sessionResp.session_id
 Must ($null -ne $sessionId -and $sessionId.Length -gt 0) "Create session failed: no session_id"
 Write-Host "session_id: $sessionId"
 
-# 3) Start
+# 3) Start (now persists START_SESSION)
 Invoke-RestMethod -Method Post "$Base/sessions/$sessionId/start" | Out-Null
 
-# 4) Events
+# 4) Events (persisted append-only)
 $body = @{ event = @{ type="COMPLETE_EXERCISE"; exercise_id="ex_demo_1" } } | ConvertTo-Json -Compress
 Invoke-RestMethod -Method Post "$Base/sessions/$sessionId/events" -ContentType "application/json" -Body $body | Out-Null
 
@@ -89,5 +80,11 @@ Invoke-RestMethod -Method Post "$Base/sessions/$sessionId/events" -ContentType "
 $body = @{ event = @{ type="RETURN_CONTINUE" } } | ConvertTo-Json -Compress
 Invoke-RestMethod -Method Post "$Base/sessions/$sessionId/events" -ContentType "application/json" -Body $body | Out-Null
 
-# 5) State
+# 5) Verify events are in DB
+$events = Invoke-RestMethod "$Base/sessions/$sessionId/events"
+Must ($events.events.Count -ge 4) "Expected >= 4 events persisted (START + 3 runtime)"
+Write-Host ("events persisted: " + $events.events.Count)
+
+# 6) State (rebuilt from plan + events)
 Invoke-RestMethod "$Base/sessions/$sessionId/state" | ConvertTo-Json -Depth 50
+

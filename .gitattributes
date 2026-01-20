@@ -1,5 +1,33 @@
-* text=auto eol=lf
-*.ps1 text eol=lf
+# Enforce deterministic line endings in repo
+* text=auto
+
+# TypeScript/JS/JSON/YAML/etc => LF
 *.ts  text eol=lf
+*.tsx text eol=lf
+*.js  text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
 *.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md  text eol=lf
 *.sql text eol=lf
+*.sh  text eol=lf
+
+# PowerShell scripts => CRLF (best UX on Windows terminals/editors)
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+
+# Windows cmd/batch
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary

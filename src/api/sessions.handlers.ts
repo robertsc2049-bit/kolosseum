@@ -1,165 +1,302 @@
-﻿import type { Request, Response } from "express";
+﻿// src/api/sessions.handlers.ts
+import type { Request, Response } from "express";
 import crypto from "node:crypto";
-
 import { pool } from "../db/pool.js";
 
-import { applyRuntimeEvents } from "../../engine/src/runtime/apply_runtime_event.js";
-import type { RuntimeEvent } from "../../engine/src/runtime/runtime_event.js";
-import type { Phase6SessionOutput } from "../../engine/src/phases/phase6.js";
+type JsonRecord = Record<string, unknown>;
+
+function isRecord(v: unknown): v is JsonRecord {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
 
 function asString(v: unknown): string | undefined {
   return typeof v === "string" && v.length > 0 ? v : undefined;
 }
 
-export async function createSession(req: Request, res: Response) {
-  const planned = req.body?.planned_session as Phase6SessionOutput | undefined;
-
-  if (!planned || typeof planned !== "object") {
-    return res.status(400).json({ error: "Missing planned_session" });
-  }
-
-  const session_id =
-    typeof (planned as any).session_id === "string" && (planned as any).session_id.length > 0
-      ? (planned as any).session_id
-      : `s_${crypto.randomUUID().replace(/-/g, "")}`;
-
-  const plannedToStore: Phase6SessionOutput = { ...(planned as any), session_id };
-
-  try {
-    await pool.query(
-      `
-      INSERT INTO sessions (session_id, status, planned_session)
-      VALUES ($1, 'not_started', $2::jsonb)
-      ON CONFLICT (session_id) DO NOTHING
-      `,
-      [session_id, JSON.stringify(plannedToStore)]
-    );
-
-    return res.status(201).json({ session_id });
-  } catch (err: any) {
-    return res.status(400).json({ error: err?.message ?? String(err) });
-  }
+function id(prefix: string): string {
+  return `${prefix}_${crypto.randomUUID().replace(/-/g, "")}`;
 }
 
+function pgErrorMessage(err: unknown): string {
+  if (err && typeof err === "object") {
+    const anyErr = err as any;
+    if (typeof anyErr.detail === "string" && anyErr.detail.length > 0) return anyErr.detail;
+    if (typeof anyErr.message === "string" && anyErr.message.length > 0) return anyErr.message;
+  }
+  return String(err);
+}
+
+type PlannedExercise = {
+  exercise_id: string;
+  source: "program";
+};
+
+type PlannedSession = {
+  session_id?: string;
+  status?: string; // not trusted; DB status is source of truth
+  exercises: PlannedExercise[];
+  notes?: unknown[];
+};
+
+// Runtime events we currently use in smoke + phase6 runtime tests
+type RuntimeEvent =
+  | { type: "START_SESSION" }
+  | { type: "COMPLETE_EXERCISE"; exercise_id: string }
+  | { type: "SKIP_EXERCISE"; exercise_id: string }
+  | { type: "SPLIT_SESSION" }
+  | { type: "RETURN_CONTINUE" }
+  | { type: "RETURN_SKIP" }
+  // forward compatible
+  | ({ type: string } & JsonRecord);
+
+function validateRuntimeEvent(v: unknown): RuntimeEvent | null {
+  if (!isRecord(v)) return null;
+  const t = asString(v.type);
+  if (!t) return null;
+
+  if (t === "COMPLETE_EXERCISE" || t === "SKIP_EXERCISE") {
+    const exercise_id = asString((v as any).exercise_id);
+    if (!exercise_id) return null;
+    return { ...(v as any), type: t, exercise_id } as RuntimeEvent;
+  }
+
+  if (t === "START_SESSION" || t === "SPLIT_SESSION" || t === "RETURN_CONTINUE" || t === "RETURN_SKIP") {
+    return { ...(v as any), type: t } as RuntimeEvent;
+  }
+
+  // Unknown event types are allowed to be stored, but they won't affect state unless you teach the reducer.
+  return { ...(v as any), type: t } as RuntimeEvent;
+}
+
+async function nextSeq(session_id: string): Promise<number> {
+  const r = await pool.query(
+    `SELECT COALESCE(MAX(seq), 0) AS max_seq FROM runtime_events WHERE session_id = $1`,
+    [session_id]
+  );
+  const maxSeq = Number(r.rows?.[0]?.max_seq ?? 0);
+  return maxSeq + 1;
+}
+
+async function loadSessionOr404(res: Response, session_id: string) {
+  const r = await pool.query(
+    `SELECT session_id, block_id, status, planned_session, created_at, updated_at
+     FROM sessions
+     WHERE session_id = $1`,
+    [session_id]
+  );
+  if ((r.rowCount ?? 0) === 0) {
+    res.status(404).json({ error: "Session not found" });
+    return null;
+  }
+  return r.rows[0] as any;
+}
+
+/**
+ * POST /sessions/:session_id/start
+ * - idempotent: if START already exists, do nothing
+ * - persists START_SESSION as a runtime_events row
+ */
 export async function startSession(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) return res.status(400).json({ error: "Missing session_id" });
 
-  const result = await pool.query(
-    `
-    UPDATE sessions
-    SET status = 'in_progress'
-    WHERE session_id = $1
-      AND status = 'not_started'
-    RETURNING session_id
-    `,
-    [session_id]
-  );
-
-  if ((result.rowCount ?? 0) === 0) {
-    return res.status(400).json({ error: "Session cannot be started" });
-  }
-
-  return res.json({ ok: true });
-}
-
-export async function appendRuntimeEvent(req: Request, res: Response) {
-  const session_id = asString(req.params?.session_id);
-  if (!session_id) return res.status(400).json({ error: "Missing session_id" });
-
-  const event = req.body?.event as RuntimeEvent | undefined;
-  if (!event || typeof event !== "object") {
-    return res.status(400).json({ error: "Missing runtime event" });
-  }
-
   const client = await pool.connect();
-
   try {
     await client.query("BEGIN");
 
-    const sessionRes = await client.query(
-      `SELECT planned_session FROM sessions WHERE session_id = $1`,
+    const s = await client.query(
+      `SELECT session_id, status FROM sessions WHERE session_id = $1 FOR UPDATE`,
       [session_id]
     );
-
-    if ((sessionRes.rowCount ?? 0) === 0) {
-      throw new Error("Session not found");
+    if ((s.rowCount ?? 0) === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Session not found" });
     }
 
-    const plannedSession = sessionRes.rows[0].planned_session as Phase6SessionOutput;
-
-    const eventsRes = await client.query(
-      `
-      SELECT seq, event
-      FROM runtime_events
-      WHERE session_id = $1
-      ORDER BY seq ASC
-      `,
+    // If a START_SESSION already exists, we're done.
+    const already = await client.query(
+      `SELECT 1 FROM runtime_events WHERE session_id = $1 AND (event->>'type') = 'START_SESSION' LIMIT 1`,
       [session_id]
     );
+    if ((already.rowCount ?? 0) === 0) {
+      const seq = await (async () => {
+        const r = await client.query(
+          `SELECT COALESCE(MAX(seq), 0) AS max_seq FROM runtime_events WHERE session_id = $1`,
+          [session_id]
+        );
+        const maxSeq = Number(r.rows?.[0]?.max_seq ?? 0);
+        return maxSeq + 1;
+      })();
 
-    const existingEvents: RuntimeEvent[] =
-      (eventsRes.rows as Array<{ event: RuntimeEvent }>).map((r) => r.event);
-
-    // Validate by replay (throws if invalid)
-    applyRuntimeEvents(plannedSession, [...existingEvents, event]);
-
-    const lastSeq =
-      eventsRes.rows.length > 0
-        ? Number((eventsRes.rows[eventsRes.rows.length - 1] as any).seq)
-        : 0;
-
-    const nextSeq = lastSeq + 1;
+      await client.query(
+        `INSERT INTO runtime_events(session_id, seq, event) VALUES ($1, $2, $3::jsonb)`,
+        [session_id, seq, JSON.stringify({ type: "START_SESSION" } satisfies RuntimeEvent)]
+      );
+    }
 
     await client.query(
-      `
-      INSERT INTO runtime_events (session_id, seq, event)
-      VALUES ($1, $2, $3)
-      `,
-      [session_id, nextSeq, event]
+      `UPDATE sessions SET status = 'in_progress', updated_at = now() WHERE session_id = $1`,
+      [session_id]
     );
 
     await client.query("COMMIT");
-    return res.json({ ok: true });
-  } catch (err: any) {
-    await client.query("ROLLBACK");
-    return res.status(400).json({ error: err?.message ?? String(err) });
+    return res.json({ ok: true, session_id });
+  } catch (err: unknown) {
+    try { await client.query("ROLLBACK"); } catch {}
+    return res.status(400).json({ error: pgErrorMessage(err) });
   } finally {
     client.release();
   }
 }
 
+/**
+ * POST /sessions/:session_id/events
+ * body: { event: {...} }
+ * - appends runtime event with seq = nextSeq
+ */
+export async function appendRuntimeEvent(req: Request, res: Response) {
+  const session_id = asString(req.params?.session_id);
+  if (!session_id) return res.status(400).json({ error: "Missing session_id" });
+
+  const event = validateRuntimeEvent((req.body as any)?.event);
+  if (!event) return res.status(400).json({ error: "Missing/invalid event" });
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const s = await client.query(
+      `SELECT session_id FROM sessions WHERE session_id = $1 FOR UPDATE`,
+      [session_id]
+    );
+    if ((s.rowCount ?? 0) === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    const r = await client.query(
+      `SELECT COALESCE(MAX(seq), 0) AS max_seq FROM runtime_events WHERE session_id = $1`,
+      [session_id]
+    );
+    const seq = Number(r.rows?.[0]?.max_seq ?? 0) + 1;
+
+    await client.query(
+      `INSERT INTO runtime_events(session_id, seq, event) VALUES ($1, $2, $3::jsonb)`,
+      [session_id, seq, JSON.stringify(event)]
+    );
+
+    await client.query(`UPDATE sessions SET updated_at = now() WHERE session_id = $1`, [session_id]);
+
+    await client.query("COMMIT");
+    return res.status(201).json({ ok: true, session_id, seq });
+  } catch (err: unknown) {
+    try { await client.query("ROLLBACK"); } catch {}
+    return res.status(400).json({ error: pgErrorMessage(err) });
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * GET /sessions/:session_id/events
+ */
+export async function listRuntimeEvents(req: Request, res: Response) {
+  const session_id = asString(req.params?.session_id);
+  if (!session_id) return res.status(400).json({ error: "Missing session_id" });
+
+  const r = await pool.query(
+    `SELECT seq, event, created_at
+     FROM runtime_events
+     WHERE session_id = $1
+     ORDER BY seq ASC`,
+    [session_id]
+  );
+
+  return res.json({ session_id, events: r.rows });
+}
+
+/**
+ * GET /sessions/:session_id/state
+ * Deterministic reducer over planned_session.exercises + runtime_events.
+ */
 export async function getSessionState(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) return res.status(400).json({ error: "Missing session_id" });
 
-  const sessionRes = await pool.query(
-    `SELECT planned_session FROM sessions WHERE session_id = $1`,
+  const session = await loadSessionOr404(res, session_id);
+  if (!session) return;
+
+  const planned = session.planned_session as PlannedSession;
+  const plannedExercises: PlannedExercise[] = Array.isArray(planned?.exercises) ? planned.exercises : [];
+
+  const evr = await pool.query(
+    `SELECT seq, event, created_at
+     FROM runtime_events
+     WHERE session_id = $1
+     ORDER BY seq ASC`,
     [session_id]
   );
 
-  if ((sessionRes.rowCount ?? 0) === 0) {
-    return res.status(404).json({ error: "Session not found" });
+  // State
+  const remaining: PlannedExercise[] = plannedExercises.map((x) => ({ ...x }));
+  const completed: PlannedExercise[] = [];
+  const dropped: PlannedExercise[] = [];
+  const event_log: RuntimeEvent[] = [];
+
+  function removeFromRemaining(exercise_id: string): PlannedExercise | null {
+    const idx = remaining.findIndex((e) => e.exercise_id === exercise_id);
+    if (idx < 0) return null;
+    const [ex] = remaining.splice(idx, 1);
+    return ex ?? null;
   }
 
-  const plannedSession = sessionRes.rows[0].planned_session as Phase6SessionOutput;
+  for (const row of evr.rows) {
+    const event = row.event as RuntimeEvent;
+    if (!event || typeof event !== "object") continue;
 
-  const eventsRes = await pool.query(
-    `
-    SELECT event
-    FROM runtime_events
-    WHERE session_id = $1
-    ORDER BY seq ASC
-    `,
-    [session_id]
-  );
+    // Keep log excluding START_SESSION? For now include everything; smoke expects START too.
+    event_log.push(event);
 
-  const events: RuntimeEvent[] =
-    (eventsRes.rows as Array<{ event: RuntimeEvent }>).map((r) => r.event);
+    switch (event.type) {
+      case "COMPLETE_EXERCISE": {
+        const ex = removeFromRemaining((event as any).exercise_id);
+        if (ex) completed.push(ex);
+        break;
+      }
+      case "SKIP_EXERCISE": {
+        const ex = removeFromRemaining((event as any).exercise_id);
+        if (ex) dropped.push(ex);
+        break;
+      }
+      case "RETURN_SKIP": {
+        // drop everything remaining
+        while (remaining.length > 0) {
+          const ex = remaining.shift();
+          if (ex) dropped.push(ex);
+        }
+        break;
+      }
+      case "START_SESSION":
+      case "SPLIT_SESSION":
+      case "RETURN_CONTINUE":
+      default:
+        // no-op for state right now
+        break;
+    }
+  }
 
-  const state = applyRuntimeEvents(plannedSession, events);
-
-  return res.json(state);
+  return res.json({
+    session_id,
+    remaining_exercises: remaining,
+    completed_exercises: completed,
+    dropped_exercises: dropped,
+    event_log
+  });
 }
+
+
+
+
+
 
 

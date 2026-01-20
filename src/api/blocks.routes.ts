@@ -1,7 +1,6 @@
 import { Router } from "express";
 import {
   compileBlock,
-  createBlock,
   getBlock,
   createSessionFromBlock,
   listBlockSessions
@@ -9,9 +8,13 @@ import {
 
 export const blocksRouter = Router();
 
+// compile is the ONLY block creation path
 blocksRouter.post("/compile", compileBlock);
-blocksRouter.post("/", createBlock);
+
+// read block
 blocksRouter.get("/:block_id", getBlock);
+
+// sessions are always created from an existing block
 blocksRouter.post("/:block_id/sessions", createSessionFromBlock);
 blocksRouter.get("/:block_id/sessions", listBlockSessions);
 
