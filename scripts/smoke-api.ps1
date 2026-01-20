@@ -1,5 +1,7 @@
 ﻿param(
-  [string]$Base
+  [string]$Base,
+  [ValidateSet("idempotent","fresh")]
+  [string]$Mode = "idempotent"
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,6 +13,7 @@ if (-not $Base) {
 }
 
 Write-Host "Base: $Base"
+Write-Host "Mode: $Mode"
 
 function Must([bool]$ok, [string]$msg) {
   if (-not $ok) { throw $msg }
@@ -20,23 +23,39 @@ function Must([bool]$ok, [string]$msg) {
 $h = Invoke-RestMethod "$Base/health"
 Must ($h.ok -eq $true) "Health failed"
 
-# 1) Create block (minimal persisted shell is fine for runtime smoke)
-$canon = "smoke_" + ([guid]::NewGuid().ToString("N"))
-
-$blockBodyObj = @{
-  engine_version     = "EB2-1.0.0"
-  canonical_hash     = $canon
-  phase1_input       = @{}
-  phase2_canonical   = @{}
-  phase3_output      = @{}
-  phase4_program     = @{}
-  phase5_adjustments = @()
+# 1) Compile block
+$phase1 = @{
+  consent_granted         = $true
+  engine_version          = "EB2-1.0.0"
+  enum_bundle_version     = "EB2-1.0.0"
+  phase1_schema_version   = "1.0.0"
+  actor_type              = "athlete"
+  execution_scope         = "individual"
+  activity_id             = "powerlifting"
+  nd_mode                 = $false
+  instruction_density     = "standard"
+  exposure_prompt_density = "standard"
+  bias_mode               = "variety"
 }
 
-$blockBody = $blockBodyObj | ConvertTo-Json -Depth 50 -Compress
-$blockResp = Invoke-RestMethod -Method Post -Uri "$Base/blocks" -ContentType "application/json" -Body $blockBody
+$compileBodyObj = @{
+  phase1_input = $phase1
+}
+
+# Fresh mode: force unique canonical_hash override (for testing "new block" path)
+if ($Mode -eq "fresh") {
+  $compileBodyObj.canonical_hash = ("smoke_" + ([guid]::NewGuid().ToString("N")))
+}
+
+$compileBody = $compileBodyObj | ConvertTo-Json -Depth 50 -Compress
+try {
+  $blockResp = Invoke-RestMethod -Method Post -Uri "$Base/blocks/compile" -ContentType "application/json" -Body $compileBody
+} catch {
+  throw ("Compile failed: " + $_.Exception.Message)
+}
+
 $blockId = $blockResp.block_id
-Must ($null -ne $blockId -and $blockId.Length -gt 0) "Create block failed: no block_id"
+Must ($null -ne $blockId -and $blockId.Length -gt 0) "Compile block failed: no block_id"
 Write-Host "block_id: $blockId"
 
 # 2) Create session from block
