@@ -25,6 +25,13 @@ CREATE TABLE IF NOT EXISTS sessions (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now()
 );
+-- ---------- event sequencing (per-session) ----------
+
+CREATE TABLE IF NOT EXISTS session_event_seq (
+  session_id text PRIMARY KEY REFERENCES sessions(session_id) ON DELETE CASCADE,
+  next_seq   integer NOT NULL DEFAULT 1
+);
+
 
 CREATE TABLE IF NOT EXISTS runtime_events (
   session_id  text NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,

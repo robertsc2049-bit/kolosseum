@@ -21,7 +21,6 @@ function pgErrorMessage(err: unknown): string {
   return String(err);
 }
 
-// Planned session payload (stored in sessions.planned_session jsonb)
 type PlannedExercise = {
   exercise_id: string;
   source: "program";
@@ -29,12 +28,11 @@ type PlannedExercise = {
 
 type PlannedSession = {
   session_id?: string;
-  status?: string; // not trusted; DB status is source of truth
+  status?: string;
   exercises: PlannedExercise[];
   notes?: unknown[];
 };
 
-// Runtime events we currently support (smoke + v0 API)
 type RuntimeEvent =
   | { type: "START_SESSION" }
   | { type: "COMPLETE_EXERCISE"; exercise_id: string }
@@ -42,7 +40,6 @@ type RuntimeEvent =
   | { type: "SPLIT_SESSION" }
   | { type: "RETURN_CONTINUE" }
   | { type: "RETURN_SKIP" }
-  // forward compatible (stored but may not affect reducer)
   | ({ type: string } & JsonRecord);
 
 function validateRuntimeEvent(v: unknown): RuntimeEvent | null {
@@ -66,7 +63,6 @@ function validateRuntimeEvent(v: unknown): RuntimeEvent | null {
     return { ...(v as any), type } as RuntimeEvent;
   }
 
-  // Unknown event types are allowed to be stored.
   return { ...(v as any), type } as RuntimeEvent;
 }
 
@@ -88,13 +84,37 @@ async function loadSessionOr404(res: Response, session_id: string) {
   return r.rows[0] as any;
 }
 
+async function allocateSeq(client: any, session_id: string): Promise<number> {
+  // Ensure allocator row exists
+  await client.query(
+    `
+    INSERT INTO session_event_seq(session_id, next_seq)
+    VALUES ($1, 1)
+    ON CONFLICT (session_id) DO NOTHING
+    `,
+    [session_id]
+  );
+
+  // Atomically claim the next sequence number
+  const r = await client.query(
+    `
+    UPDATE session_event_seq
+    SET next_seq = next_seq + 1
+    WHERE session_id = $1
+    RETURNING (next_seq - 1) AS claimed_seq
+    `,
+    [session_id]
+  );
+
+  const seq = Number(r.rows?.[0]?.claimed_seq);
+  if (!Number.isFinite(seq) || seq < 1) throw new Error("Failed to allocate runtime event seq");
+  return seq;
+}
+
 /**
  * POST /sessions/:session_id/start
- *
- * Behavior:
- * - Idempotent: if START_SESSION already exists, do nothing
- * - Persists START_SESSION as runtime_events row
- * - Sets sessions.status = 'in_progress'
+ * - idempotent START_SESSION insert
+ * - uses per-session seq allocator
  */
 export async function startSession(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
@@ -113,7 +133,6 @@ export async function startSession(req: Request, res: Response) {
       return res.status(404).json({ error: "Session not found" });
     }
 
-    // If already started, don't duplicate START_SESSION
     const already = await client.query(
       `
       SELECT 1
@@ -125,11 +144,7 @@ export async function startSession(req: Request, res: Response) {
     );
 
     if ((already.rowCount ?? 0) === 0) {
-      const r = await client.query(
-        `SELECT COALESCE(MAX(seq), 0) AS max_seq FROM runtime_events WHERE session_id = $1`,
-        [session_id]
-      );
-      const seq = Number(r.rows?.[0]?.max_seq ?? 0) + 1;
+      const seq = await allocateSeq(client, session_id);
 
       await client.query(
         `INSERT INTO runtime_events(session_id, seq, event) VALUES ($1, $2, $3::jsonb)`,
@@ -157,9 +172,7 @@ export async function startSession(req: Request, res: Response) {
 /**
  * POST /sessions/:session_id/events
  * body: { event: {...} }
- *
- * Behavior:
- * - Appends runtime event with seq = max(seq)+1 under row lock
+ * - appends runtime event with allocator seq
  */
 export async function appendRuntimeEvent(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
@@ -181,20 +194,14 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       return res.status(404).json({ error: "Session not found" });
     }
 
-    const r = await client.query(
-      `SELECT COALESCE(MAX(seq), 0) AS max_seq FROM runtime_events WHERE session_id = $1`,
-      [session_id]
-    );
-    const seq = Number(r.rows?.[0]?.max_seq ?? 0) + 1;
+    const seq = await allocateSeq(client, session_id);
 
     await client.query(
       `INSERT INTO runtime_events(session_id, seq, event) VALUES ($1, $2, $3::jsonb)`,
       [session_id, seq, JSON.stringify(event)]
     );
 
-    await client.query(`UPDATE sessions SET updated_at = now() WHERE session_id = $1`, [
-      session_id
-    ]);
+    await client.query(`UPDATE sessions SET updated_at = now() WHERE session_id = $1`, [session_id]);
 
     await client.query("COMMIT");
     return res.status(201).json({ ok: true, session_id, seq });
@@ -230,7 +237,6 @@ export async function listRuntimeEvents(req: Request, res: Response) {
 
 /**
  * GET /sessions/:session_id/state
- * Deterministic reducer over planned_session.exercises + runtime_events.
  */
 export async function getSessionState(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
@@ -288,9 +294,6 @@ export async function getSessionState(req: Request, res: Response) {
         }
         break;
       }
-      case "START_SESSION":
-      case "SPLIT_SESSION":
-      case "RETURN_CONTINUE":
       default:
         break;
     }
@@ -304,6 +307,7 @@ export async function getSessionState(req: Request, res: Response) {
     event_log
   });
 }
+
 
 
 
