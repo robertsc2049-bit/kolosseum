@@ -10,5 +10,12 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["engine/src/**/*.ts", "cli/src/**/*.ts"]
+  "include": [
+  "engine/src/**/*.ts",
+  "cli/src/**/*.ts",
+  "src/**/*.ts"
+]
+
+,
+  "exclude": ["dist"]
 }

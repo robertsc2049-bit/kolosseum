@@ -2,55 +2,79 @@
   [string]$Base = "http://[::1]:3000"
 )
 
+$ErrorActionPreference = "Stop"
+
+function Must([bool]$ok, [string]$msg) {
+  if (-not $ok) { throw $msg }
+}
+
+# Pick a working base URL
+try { Invoke-RestMethod "$Base/health" | Out-Null }
+catch { $Base = "http://127.0.0.1:3000"; Invoke-RestMethod "$Base/health" | Out-Null }
+
 Write-Host "Base: $Base"
 
-$h = Invoke-RestMethod "$Base/health"
-if (-not $h.ok) { throw "Health failed" }
+# ---------- 1) Create block ----------
+$blockBodyObj = @{
+  engine_version     = "EB2-1.0.0"
+  canonical_hash     = "demo_hash"
+  phase1_input       = @{}
+  phase2_canonical   = @{}
+  phase3_output      = @{}
+  phase4_program     = @{}
+  phase5_adjustments = @()
+}
 
-# Create a block (phase1_input is placeholder for now)
+$blockBody = $blockBodyObj | ConvertTo-Json -Depth 50 -Compress
+# sanity check locally before POST
+Must ($blockBody -match '"canonical_hash"\s*:\s*"demo_hash"') "BUG: canonical_hash missing from JSON payload"
+
 $blockResp = Invoke-RestMethod -Method Post `
   -Uri "$Base/blocks" `
   -ContentType "application/json" `
-  -Body (@{
-    engine_version = "EB2-1.0.0"
-    phase1_input   = @{ demo = "phase1_placeholder" }
-  } | ConvertTo-Json -Depth 50)
+  -Body $blockBody
+
+Must ($null -ne $blockResp.block_id -and $blockResp.block_id.Length -gt 0) "Create block failed: no block_id returned"
 
 $blockId = $blockResp.block_id
 Write-Host "block_id: $blockId"
 
-# Create a session for the block (planned_session drives runtime now)
+# ---------- 2) Create session from block ----------
+$plannedObj = @{
+  planned_session = @{
+    status    = "ready"
+    exercises = @(
+      @{ exercise_id="ex_demo_1"; source="program" }
+      @{ exercise_id="ex_demo_2"; source="program" }
+    )
+    notes = @()
+  }
+}
+
+$planned = $plannedObj | ConvertTo-Json -Depth 50 -Compress
+
 $sessionResp = Invoke-RestMethod -Method Post `
   -Uri "$Base/blocks/$blockId/sessions" `
   -ContentType "application/json" `
-  -Body (@{
-    planned_session = @{
-      status    = "ready"
-      exercises = @(
-        @{ exercise_id = "ex_demo_1"; source = "program" }
-        @{ exercise_id = "ex_demo_2"; source = "program" }
-      )
-      notes = @()
-    }
-  } | ConvertTo-Json -Depth 50)
+  -Body $planned
+
+Must ($null -ne $sessionResp.session_id -and $sessionResp.session_id.Length -gt 0) "Create session failed: no session_id returned"
 
 $sessionId = $sessionResp.session_id
 Write-Host "session_id: $sessionId"
 
-# Start
+# ---------- 3) Start session ----------
 Invoke-RestMethod -Method Post "$Base/sessions/$sessionId/start" | Out-Null
 
-# COMPLETE ex_demo_1
+# ---------- 4) Events ----------
 $body = @{ event = @{ type="COMPLETE_EXERCISE"; exercise_id="ex_demo_1" } } | ConvertTo-Json -Compress
-Invoke-RestMethod -Method Post -Uri "$Base/sessions/$sessionId/events" -ContentType "application/json" -Body $body | Out-Null
+Invoke-RestMethod -Method Post "$Base/sessions/$sessionId/events" -ContentType "application/json" -Body $body | Out-Null
 
-# SPLIT then RETURN_CONTINUE (keeps remaining)
 $body = @{ event = @{ type="SPLIT_SESSION" } } | ConvertTo-Json -Compress
-Invoke-RestMethod -Method Post -Uri "$Base/sessions/$sessionId/events" -ContentType "application/json" -Body $body | Out-Null
+Invoke-RestMethod -Method Post "$Base/sessions/$sessionId/events" -ContentType "application/json" -Body $body | Out-Null
 
 $body = @{ event = @{ type="RETURN_CONTINUE" } } | ConvertTo-Json -Compress
-Invoke-RestMethod -Method Post -Uri "$Base/sessions/$sessionId/events" -ContentType "application/json" -Body $body | Out-Null
+Invoke-RestMethod -Method Post "$Base/sessions/$sessionId/events" -ContentType "application/json" -Body $body | Out-Null
 
-# State
-$state = Invoke-RestMethod "$Base/sessions/$sessionId/state"
-$state | ConvertTo-Json -Depth 50
+# ---------- 5) State ----------
+Invoke-RestMethod "$Base/sessions/$sessionId/state" | ConvertTo-Json -Depth 50

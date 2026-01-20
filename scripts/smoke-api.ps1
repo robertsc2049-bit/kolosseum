@@ -1,7 +1,14 @@
 ﻿param(
-  [string]$Base = "http://[::1]:3000"
+  [string]$Base
 )
 
+if (-not $Base) {
+  $Base = "http://[::1]:3000"
+  try { Invoke-RestMethod "$Base/health" | Out-Null }
+  catch { $Base = "http://127.0.0.1:3000" }
+}
+
+Write-Host "Base: $Base"
 Write-Host "Base: $Base"
 
 # health
@@ -42,3 +49,4 @@ Invoke-RestMethod -Method Post -Uri "$Base/sessions/$sessionId/events" -ContentT
 # state
 $state = Invoke-RestMethod "$Base/sessions/$sessionId/state"
 $state | ConvertTo-Json -Depth 50
+
