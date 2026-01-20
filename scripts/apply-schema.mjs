@@ -14,7 +14,16 @@ if (!fs.existsSync(schemaPath)) {
   process.exit(1);
 }
 
-const sql = fs.readFileSync(schemaPath, "utf8");
+let sql = fs.readFileSync(schemaPath, "utf8");
+
+// Strip UTF-8 BOM if present (Postgres can choke at position 1)
+if (sql.length > 0 && sql.charCodeAt(0) === 0xfeff) {
+  sql = sql.slice(1);
+}
+
+// Ensure we run in a transaction even if schema.sql forgets BEGIN/COMMIT
+sql = `BEGIN;\n${sql}\nCOMMIT;\n`;
+
 const pool = new Pool({ connectionString: dbUrl });
 
 try {
