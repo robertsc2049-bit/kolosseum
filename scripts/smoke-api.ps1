@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$Base,
   [ValidateSet("idempotent","fresh")]
   [string]$Mode = "idempotent"
@@ -88,3 +88,9 @@ Write-Host ("events persisted: " + $events.events.Count)
 # 6) State (rebuilt from plan + events)
 Invoke-RestMethod "$Base/sessions/$sessionId/state" | ConvertTo-Json -Depth 50
 
+
+# eol-check
+
+# eol-check
+
+# eol-check
