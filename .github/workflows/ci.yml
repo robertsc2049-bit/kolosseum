@@ -43,14 +43,12 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      # Your guard + build + node --test
+      - name: Guard + Unit tests
+        run: npm run ci
 
       - name: Apply schema (drift guard)
         run: node scripts/apply-schema.mjs --db-url "$DATABASE_URL"
-
-      - name: Unit tests
-        run: node --test
 
       - name: Start API
         run: |
