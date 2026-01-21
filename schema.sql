@@ -3,7 +3,6 @@
 -- (idempotent + additive migrations)
 -- ================================
 
-BEGIN;
 
 -- ----------------
 -- UTIL: updated_at trigger function
@@ -98,5 +97,4 @@ CREATE TABLE IF NOT EXISTS session_event_seq (
   next_seq   INTEGER NOT NULL DEFAULT 1
 );
 
-COMMIT;
 
