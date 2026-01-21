@@ -1,8 +1,15 @@
-﻿node_modules/
+﻿# deps/build
+node_modules/
 dist/
+tmp_*.json
+
+# env/secrets
+.env
+.env.*.local
+*.pem
+*.key
+
+# OS/editor
 .DS_Store
 Thumbs.db
-node_modules/
-.env
-tmp_*.json
-.DS_Store
+.vscode/
