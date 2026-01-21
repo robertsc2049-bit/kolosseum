@@ -1,0 +1,11 @@
+﻿# secrets
+.env
+
+# build output
+dist/
+
+# deps
+node_modules/
+
+# misc
+tmp_*.json
