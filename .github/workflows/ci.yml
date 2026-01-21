@@ -22,10 +22,12 @@ jobs:
           --health-cmd="pg_isready -U postgres -d kolosseum_ci"
           --health-interval=5s
           --health-timeout=5s
-          --health-retries=20
+          --health-retries=30
 
     env:
       CI: true
+      NODE_ENV: test
+      PORT: 3000
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/kolosseum_ci
 
     steps:
@@ -41,59 +43,14 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Build + Test
-        run: npm test
-
-      - name: Schema apply (drift guard)
-        run: node scripts/apply-schema.mjs
-
-        name: CI
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: kolosseum
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres -d kolosseum"
-          --health-interval=5s
-          --health-timeout=3s
-          --health-retries=30
-
-    env:
-      NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/kolosseum
-      PORT: 3000
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install
-        run: npm ci
-
       - name: Build
         run: npm run build
 
-      - name: Apply schema
+      - name: Apply schema (drift guard)
         run: node scripts/apply-schema.mjs --db-url "$DATABASE_URL"
+
+      - name: Unit tests
+        run: node --test
 
       - name: Start API
         run: |
@@ -119,9 +76,6 @@ jobs:
         run: |
           ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode fresh
           ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode idempotent
-
-      - name: Unit tests
-        run: node --test
 
       - name: Stop API
         if: always()
