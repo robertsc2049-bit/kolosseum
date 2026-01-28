@@ -40,3 +40,9 @@
 
 # Keep PowerShell CRLF (you already do this, keep it)
 *.ps1 text eol=crlf
+
+# Checksums must be byte-stable across OS
+docs/checksums.sha256 text eol=lf
+
+# Docs should be consistent too
+*.md text eol=lf
