@@ -3,7 +3,6 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-<<<<<<< HEAD
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test",
@@ -11,25 +10,14 @@
     "ci": "npm run guard:constraints && npm test",
     "hash:write": "node ci/scripts/write_checksums.mjs",
     "run:cli": "node dist/cli/src/main.js",
-    "guard:constraints": "node ci/guards/no_legacy_constraints.mjs"
-  },
-=======
-"scripts": {
-  "build": "tsc -p tsconfig.json",
-  "test": "npm run build && node --test",
-  "lint": "node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs",
-  "ci": "npm run guard:constraints && npm test",
-  "hash:write": "node ci/scripts/write_checksums.mjs",
-  "run:cli": "node dist/cli/src/main.js",
-  "guard:constraints": "node ci/guards/no_legacy_constraints.mjs",
+    "guard:constraints": "node ci/guards/no_legacy_constraints.mjs",
 
-  "db:schema": "node scripts/apply-schema.mjs",
-  "start": "node dist/src/server.js",
-  "smoke:fresh": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-api.ps1 -Mode fresh",
-  "smoke:idem": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-api.ps1 -Mode idempotent",
-  "dev:check": "npm run ci && npm run db:schema"
-},
->>>>>>> 2c0f762 (Chore: repo contract scripts (db:schema, start, smoke, dev:check))
+    "db:schema": "node scripts/apply-schema.mjs",
+    "start": "node dist/src/server.js",
+    "smoke:fresh": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-api.ps1 -Mode fresh",
+    "smoke:idem": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-api.ps1 -Mode idempotent",
+    "dev:check": "npm run ci && npm run db:schema"
+  },
   "dependencies": {
     "ajv": "^8.17.1",
     "dotenv": "^17.2.3",
