@@ -10,6 +10,7 @@
                     "dev:check":  "npm run ci \u0026\u0026 npm run db:schema",
                     "guard:constraints":  "node ci/guards/no_legacy_constraints.mjs",
                     "guard:version":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/version-gate.ps1",
+                    "guard:tag-main": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ci-tag-main-gate.ps1"
                     "hash:write":  "node ci/scripts/write_checksums.mjs",
                     "lint":  "node ci/guards/repo_contract.mjs \u0026\u0026 node ci/scripts/spine_guard.mjs \u0026\u0026 node ci/scripts/sha256_guard.mjs \u0026\u0026 node ci/scripts/schema_guard.mjs",
                     "run:cli":  "node dist/cli/src/main.js",
