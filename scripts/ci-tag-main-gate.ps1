@@ -26,6 +26,11 @@ if ($tag -notmatch '^v\d+\.\d+\.\d+$') {
   Fail "tag '$tag' must match vX.Y.Z"
 }
 
+$tagType = (& git cat-file -t $tag).Trim()
+if ($tagType -ne "tag") {
+  Fail "tag '$tag' must be an annotated tag (lightweight tags are forbidden)"
+}
+
 # Ensure we actually have origin/main
 & git fetch --no-tags origin main | Out-Null
 if ($LASTEXITCODE -ne 0) { Fail "git fetch origin main failed" }
