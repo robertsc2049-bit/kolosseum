@@ -1,32 +1,33 @@
 {
-  "name": "kolosseum",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test",
-    "guard:constraints": "node ci/guards/no_legacy_constraints.mjs",
-    "lint": "node ci/guards/repo_contract.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs",
-    "ci": "npm run guard:constraints && npm test",
-    "hash:write": "node ci/scripts/write_checksums.mjs",
-    "run:cli": "node dist/cli/src/main.js",
-    "db:schema": "node scripts/apply-schema.mjs",
-    "start": "node dist/src/server.js",
-    "smoke:fresh": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-api.ps1 -Mode fresh",
-    "smoke:idem": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-api.ps1 -Mode idempotent",
-    "dev:check": "npm run ci && npm run db:schema"
-  },
-  "dependencies": {
-    "ajv": "^8.17.1",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "pg": "^8.17.1"
-  },
-  "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/node": "^22.10.5",
-    "@types/pg": "^8.16.0",
-    "typescript": "^5.7.3"
-  }
+    "name":  "kolosseum",
+    "private":  true,
+    "version":  "0.1.2",
+    "type":  "module",
+    "scripts":  {
+                    "build":  "tsc -p tsconfig.json",
+                    "ci":  "npm run guard:constraints \u0026\u0026 npm run guard:version \u0026\u0026 npm test",
+                    "db:schema":  "node scripts/apply-schema.mjs",
+                    "dev:check":  "npm run ci \u0026\u0026 npm run db:schema",
+                    "guard:constraints":  "node ci/guards/no_legacy_constraints.mjs",
+                    "guard:version":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/version-gate.ps1",
+                    "hash:write":  "node ci/scripts/write_checksums.mjs",
+                    "lint":  "node ci/guards/repo_contract.mjs \u0026\u0026 node ci/scripts/spine_guard.mjs \u0026\u0026 node ci/scripts/sha256_guard.mjs \u0026\u0026 node ci/scripts/schema_guard.mjs",
+                    "run:cli":  "node dist/cli/src/main.js",
+                    "smoke:fresh":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-api.ps1 -Mode fresh",
+                    "smoke:idem":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-api.ps1 -Mode idempotent",
+                    "start":  "node dist/src/server.js",
+                    "test":  "npm run build \u0026\u0026 node --test"
+                },
+    "dependencies":  {
+                         "ajv":  "^8.17.1",
+                         "dotenv":  "^17.2.3",
+                         "express":  "^5.2.1",
+                         "pg":  "^8.17.1"
+                     },
+    "devDependencies":  {
+                            "@types/express":  "^5.0.6",
+                            "@types/node":  "^22.10.5",
+                            "@types/pg":  "^8.16.0",
+                            "typescript":  "^5.7.3"
+                        }
 }
