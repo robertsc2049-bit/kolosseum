@@ -79,6 +79,12 @@ if (git status --porcelain) {
   Fail "dirty working tree. Commit or stash before preparing a release."
 }
 
+# --- Refuse if HEAD is currently exactly tagged vX.Y.Z (release tag must be created AFTER prepare) ---
+$headTag = (& git describe --tags --exact-match 2>$null).Trim()
+if ($headTag -match '^v\d+\.\d+\.\d+$') {
+  Fail "HEAD is already tagged ($headTag). Release-prepare must run on an untagged commit. Move HEAD forward (commit something) or checkout the intended commit."
+}
+
 Info "Fetching origin/main and tags"
 & git fetch --tags --prune origin main | Out-Null
 if ($LASTEXITCODE -ne 0) { Fail "git fetch origin main failed" }
