@@ -5,87 +5,101 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-function Fail {
-  param([string]$Message)
+function Fail([string]$Message) {
   Write-Host "FAIL tag-release: $Message" -ForegroundColor Red
   exit 1
 }
 
-function Info {
-  param([string]$Message)
+function Info([string]$Message) {
   Write-Host "INFO: $Message" -ForegroundColor Cyan
 }
 
-function Ok {
-  param([string]$Message)
+function Ok([string]$Message) {
   Write-Host "OK: $Message" -ForegroundColor Green
 }
 
-# Always run from repo root
-$repoRoot = & git rev-parse --show-toplevel 2>$null
-if (-not $repoRoot) { Fail "not inside a git repo" }
-Set-Location $repoRoot
+function Exec([string]$Title, [scriptblock]$Cmd) {
+  Info $Title
+  & $Cmd | Out-Null
+  if ($LASTEXITCODE -ne 0) { Fail "$Title (exit=$LASTEXITCODE)" }
+}
 
-# Validate tag format
+# --- repo root ---
+$repoRoot = (& git rev-parse --show-toplevel 2>$null)
+if ($LASTEXITCODE -ne 0 -or -not $repoRoot) { Fail "not inside a git repo" }
+Set-Location $repoRoot.Trim()
+
+# --- validate tag format ---
 if ($Tag -notmatch '^v\d+\.\d+\.\d+$') {
   Fail "tag '$Tag' must match vX.Y.Z"
 }
 
-# Must be clean
-if (git status --porcelain) {
-  Fail "Dirty working tree. Commit or stash before tagging.`n$(git status --short)"
+# --- must be on main ---
+$branch = (& git branch --show-current).Trim()
+if ($LASTEXITCODE -ne 0) { Fail "unable to detect current branch" }
+if ($branch -ne "main") { Fail "must be on branch 'main' (current: '$branch')" }
+
+# --- must be clean ---
+$porcelain = (& git status --porcelain)
+if ($LASTEXITCODE -ne 0) { Fail "git status failed" }
+if ($porcelain) {
+  Write-Host "Working tree status:" -ForegroundColor Yellow
+  & git status --short
+  Fail "dirty working tree. Commit or stash before tagging."
 }
 
-# Must be on main
-$branch = (git branch --show-current).Trim()
-if ($branch -ne "main") {
-  Fail "Must be on branch 'main' (current: '$branch')"
+# --- fetch remote truth ---
+Exec "Fetching origin/main and tags" {
+  git fetch --prune origin main --tags
 }
 
-# Fetch refs
-Info "Fetching origin/main and tags"
-git fetch --no-tags origin main | Out-Null
-git fetch --tags origin | Out-Null
+# --- must match origin/main exactly ---
+$counts = (& git rev-list --left-right --count origin/main...HEAD).Trim()
+if ($LASTEXITCODE -ne 0 -or -not $counts) { Fail "unable to compare HEAD to origin/main" }
 
-# Must match origin/main exactly
-$counts = (git rev-list --left-right --count origin/main...HEAD).Trim()
-$behind, $ahead = $counts -split '\s+'
+$parts = $counts -split '\s+'
+if ($parts.Count -lt 2) { Fail "unexpected rev-list output: '$counts'" }
 
-if ([int]$behind -ne 0 -or [int]$ahead -ne 0) {
-  Fail "Local main must exactly match origin/main (behind=$behind ahead=$ahead)"
+$behind = [int]$parts[0]
+$ahead  = [int]$parts[1]
+
+if ($behind -ne 0 -or $ahead -ne 0) {
+  Fail "local main must exactly match origin/main (behind=$behind ahead=$ahead). Run: git pull --rebase OR git push."
 }
 
-# Tag must not already exist
-if (git show-ref --tags --verify --quiet "refs/tags/$Tag") {
-  Fail "tag already exists locally: $Tag"
+# --- tag must not exist locally ---
+& git show-ref --tags --verify --quiet "refs/tags/$Tag"
+if ($LASTEXITCODE -eq 0) { Fail "tag already exists locally: $Tag" }
+
+# --- tag must not exist on origin ---
+$remoteTag = (& git ls-remote --tags origin "refs/tags/$Tag" 2>$null)
+if ($remoteTag) { Fail "tag already exists on origin: $Tag" }
+
+# --- run CI ---
+Exec "Running npm run ci" {
+  npm run ci
 }
 
-if (git ls-remote --tags origin "refs/tags/$Tag") {
-  Fail "tag already exists on origin: $Tag"
+# --- run version gate (explicit tag) ---
+Exec "Running version gate against $Tag" {
+  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/version-gate.ps1 -Tag $Tag
 }
 
-# Run CI
-Info "Running npm run ci"
-npm run ci
-if ($LASTEXITCODE -ne 0) {
-  Fail "npm run ci failed"
+# --- create annotated tag ---
+Exec "Creating annotated tag $Tag" {
+  git tag -a $Tag -m $Tag
 }
 
-# Version gate
-Info "Running version gate"
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File scripts/version-gate.ps1 -Tag $Tag
-
-if ($LASTEXITCODE -ne 0) {
-  Fail "version gate failed"
+# --- verify annotated tag (must be type 'tag') ---
+$ttype = (& git cat-file -t $Tag 2>$null).Trim()
+if ($LASTEXITCODE -ne 0 -or $ttype -ne "tag") {
+  Fail "tag '$Tag' is not annotated. Use annotated tags only."
 }
 
-# Create annotated tag
-Info "Creating tag $Tag"
-git tag -a $Tag -m $Tag
-
-# Push only the tag
-Info "Pushing tag $Tag"
-git push origin $Tag
+# --- push tag only ---
+Exec "Pushing tag $Tag" {
+  git push origin $Tag
+}
 
 Ok "Released $Tag"
+exit 0
