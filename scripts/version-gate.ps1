@@ -1,5 +1,5 @@
 param(
-  # Optional: force-check against a specific tag (e.g. v0.1.14)
+  # Optional: force-check against a specific tag (e.g. v0.1.2)
   [string]$Tag = "",
 
   # Enforce package.json version matches too
@@ -21,7 +21,7 @@ function Info([string]$msg) {
 }
 
 # Always run from repo root
-$repoRoot = (& git rev-parse --show-toplevel 2>$null)
+$repoRoot = (git rev-parse --show-toplevel) 2>$null
 if (-not $repoRoot) { Fail "not inside a git repo" }
 Set-Location $repoRoot
 
@@ -40,38 +40,31 @@ function Read-TextUtf8NoBom([string]$path) {
   return [System.Text.Encoding]::UTF8.GetString($bytes)
 }
 
-function Try-DescribeExactTag() {
-  # Critical: do NOT throw if HEAD isn't tagged.
-  $old = $ErrorActionPreference
-  $ErrorActionPreference = "SilentlyContinue"
-  try {
-    $out = (& git describe --tags --exact-match 2>$null)
-    if ($LASTEXITCODE -eq 0 -and $out) { return $out.Trim() }
-    return ""
-  } finally {
-    $ErrorActionPreference = $old
+# --- Determine tag to check against ---
+# Rules:
+#   - If -Tag provided -> enforce against it.
+#   - Else if running in GitHub Actions on a tag ref -> enforce against that tag.
+#   - Else -> skip (local/dev runs should not infer tags from HEAD).
+$tag = $Tag
+
+if (-not $tag) {
+  $ref = [string]$env:GITHUB_REF
+  if ($ref -match '^refs/tags/(v\d+\.\d+\.\d+)$') {
+    $tag = $Matches[1]
   }
 }
 
-# --- Determine tag to check against ---
-$tag = $Tag.Trim()
-
 if (-not $tag) {
-  $tag = Try-DescribeExactTag
-}
-
-if (-not $tag) {
-  Info "No tag detected (not a tag build). Version gate skipped."
+  Info "No tag ref detected and no -Tag provided. Version gate skipped."
   exit 0
 }
 
 # --- Validate tag format vX.Y.Z ---
 if ($tag -notmatch '^v(\d+)\.(\d+)\.(\d+)$') {
-  Fail "tag '$tag' must match format vX.Y.Z (e.g. v0.1.14)"
+  Fail "tag '$tag' must match format vX.Y.Z (e.g. v0.1.2)"
 }
-
 $tagVersion = "$($Matches[1]).$($Matches[2]).$($Matches[3])"
-Info "Tag detected: $tag (version $tagVersion)"
+Info "Tag target: $tag (version $tagVersion)"
 
 # --- src/version.ts must match ---
 $versionPath = Join-Path $repoRoot "src/version.ts"
