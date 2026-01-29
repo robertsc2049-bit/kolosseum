@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -eu
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+echo "[pre-commit] repo contract + sha/spine/schema guards"
+
+npm run lint
