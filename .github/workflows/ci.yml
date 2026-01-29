@@ -35,11 +35,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # required for tag + ancestry checks
 
       - name: Tag must be on main (tags only)
         if: startsWith(github.ref, 'refs/tags/')
         shell: pwsh
-        run: ./scripts/ci-tag-main-gate.ps1
+        run: |
+          ./scripts/ci-tag-main-gate.ps1
+
+      - name: Version gate (tags only)
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          ./scripts/version-gate.ps1
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -55,11 +64,6 @@ jobs:
 
       - name: Print build version
         run: node -e "import('./dist/src/version.js').then(m => console.log('BUILD_VERSION=' + m.VERSION))"
-
-      - name: Version gate (tags only)
-        if: startsWith(github.ref, 'refs/tags/')
-        shell: pwsh
-        run: ./scripts/version-gate.ps1
 
       - name: Apply schema (drift guard)
         run: node scripts/apply-schema.mjs --db-url "$DATABASE_URL"
@@ -97,4 +101,5 @@ jobs:
           fi
           echo "---- server.log ----"
           tail -200 server.log || true
+
 

@@ -5,6 +5,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# fail if tag exists on origin
+$remote = & git ls-remote --tags origin $Tag 2>$null
+if ($remote) { Fail "tag already exists on origin: $Tag" }
+
 function Fail([string]$msg) {
   Write-Host "FAIL tag-release: $msg" -ForegroundColor Red
   exit 1
