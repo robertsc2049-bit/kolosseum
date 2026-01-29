@@ -1,9 +1,12 @@
 param(
-  # Optional: force-check against a specific tag (e.g. v0.1.12)
+  # Optional: force-check against a specific tag (e.g. v0.1.2)
   [string]$Tag = "",
 
   # Enforce package.json version matches too
-  [switch]$EnforcePackageJson = $true
+  [switch]$EnforcePackageJson = $true,
+
+  # Enforce dist/src/version.js matches too (only if file exists)
+  [switch]$EnforceDist = $true
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,6 +20,21 @@ function Info([string]$msg) {
   Write-Host "INFO: $msg" -ForegroundColor Cyan
 }
 
+function Ok([string]$msg) {
+  Write-Host "OK: $msg" -ForegroundColor Green
+}
+
+# Always run from repo root
+$repoRoot = (& git rev-parse --show-toplevel 2>$null)
+if ($LASTEXITCODE -ne 0 -or -not $repoRoot) { Fail "not inside a git repo" }
+Set-Location $repoRoot.Trim()
+
+function Assert-NoMergeMarkers([string]$path, [string]$text) {
+  if ($text -match '(?m)^(<{7}|={7}\s*$|>{7})') {
+    Fail "$path contains merge conflict markers"
+  }
+}
+
 function Read-TextUtf8NoBom([string]$path) {
   if (-not (Test-Path $path)) { Fail "missing $path" }
   $bytes = [System.IO.File]::ReadAllBytes($path)
@@ -26,24 +44,17 @@ function Read-TextUtf8NoBom([string]$path) {
   return [System.Text.Encoding]::UTF8.GetString($bytes)
 }
 
-function Assert-NoMergeMarkers([string]$path, [string]$text) {
-  if ($text -match '(?m)^(<{7}|={7}\s*$|>{7})') {
-    Fail "$path contains merge conflict markers"
-  }
-}
-
-# Always run from repo root
-$repoRoot = (git rev-parse --show-toplevel) 2>$null
-if (-not $repoRoot) { Fail "not inside a git repo" }
-Set-Location $repoRoot
-
-# --- Determine tag to check against ---
-$tag = $Tag
+# ---- Determine tag to check ----
+$tag = $Tag.Trim()
 
 if (-not $tag) {
-  $tagOut = & git describe --tags --exact-match 2>$null
-  if ($LASTEXITCODE -eq 0 -and $tagOut) {
+  # IMPORTANT: do not allow git.exe fatal output to bubble as a terminating error
+  # Treat "no exact match" as normal (exit 0)
+  $tagOut = (& git describe --tags --exact-match 2>$null) | Out-String
+  if ($LASTEXITCODE -eq 0) {
     $tag = $tagOut.Trim()
+  } else {
+    $tag = ""
   }
 }
 
@@ -52,15 +63,15 @@ if (-not $tag) {
   exit 0
 }
 
-# --- Validate tag format vX.Y.Z ---
+# ---- Validate tag format vX.Y.Z ----
 if ($tag -notmatch '^v(\d+)\.(\d+)\.(\d+)$') {
-  Fail "tag '$tag' must match format vX.Y.Z (e.g. v0.1.12)"
+  Fail "tag '$tag' must match format vX.Y.Z (e.g. v0.1.2)"
 }
 
 $tagVersion = "$($Matches[1]).$($Matches[2]).$($Matches[3])"
 Info "Tag detected: $tag (version $tagVersion)"
 
-# --- src/version.ts must match ---
+# ---- src/version.ts ----
 $versionPath = Join-Path $repoRoot "src/version.ts"
 $versionText = Read-TextUtf8NoBom $versionPath
 Assert-NoMergeMarkers "src/version.ts" $versionText
@@ -76,7 +87,7 @@ if ($fileVersion -ne $tagVersion) {
   Fail "VERSION mismatch: src/version.ts=$fileVersion but tag=$tagVersion"
 }
 
-# --- package.json version (optional) ---
+# ---- package.json (optional) ----
 if ($EnforcePackageJson) {
   $pkgPath = Join-Path $repoRoot "package.json"
   $pkgText = Read-TextUtf8NoBom $pkgPath
@@ -97,5 +108,27 @@ if ($EnforcePackageJson) {
   }
 }
 
-Write-Host "OK: Version gate passed (tag $tag)." -ForegroundColor Green
+# ---- dist/src/version.js (optional; only if exists) ----
+if ($EnforceDist) {
+  $distPath = Join-Path $repoRoot "dist/src/version.js"
+  if (Test-Path $distPath) {
+    $distText = Read-TextUtf8NoBom $distPath
+    Assert-NoMergeMarkers "dist/src/version.js" $distText
+
+    $reJs = 'export\s+const\s+VERSION\s*=\s*"(\d+\.\d+\.\d+)"\s*;'
+    if ($distText -notmatch $reJs) {
+      Fail 'dist/src/version.js must contain: export const VERSION = "X.Y.Z";'
+    }
+    $distVersion = $Matches[1]
+    Info "dist/src/version.js VERSION: $distVersion"
+
+    if ($distVersion -ne $tagVersion) {
+      Fail "dist VERSION mismatch: dist/src/version.js=$distVersion but tag=$tagVersion"
+    }
+  } else {
+    Info "dist/src/version.js not found; skipping dist check"
+  }
+}
+
+Ok "Version gate passed (tag $tag)."
 exit 0
