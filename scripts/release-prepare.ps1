@@ -79,10 +79,19 @@ if (git status --porcelain) {
   Fail "dirty working tree. Commit or stash before preparing a release."
 }
 
-# --- Refuse if HEAD is currently exactly tagged vX.Y.Z (release tag must be created AFTER prepare) ---
-$headTag = (& git describe --tags --exact-match 2>$null).Trim()
-if ($headTag -match '^v\d+\.\d+\.\d+$') {
-  Fail "HEAD is already tagged ($headTag). Release-prepare must run on an untagged commit. Move HEAD forward (commit something) or checkout the intended commit."
+# --- Refuse if HEAD already has a semver release tag (vX.Y.Z) ---
+$oldEap = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+
+$headTag = (& git describe --tags --exact-match 2>$null)
+
+$ErrorActionPreference = $oldEap
+
+if ($LASTEXITCODE -eq 0) {
+  $headTag = $headTag.Trim()
+  if ($headTag -match '^v\d+\.\d+\.\d+$') {
+    Fail "HEAD is already tagged ($headTag). Refusing to prepare a new release on an already-tagged commit."
+  }
 }
 
 Info "Fetching origin/main and tags"
