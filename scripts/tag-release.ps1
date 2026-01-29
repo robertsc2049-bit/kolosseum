@@ -6,89 +6,90 @@ param(
 $ErrorActionPreference = "Stop"
 
 function Fail([string]$msg) {
-  Write-Host ("FAIL tag-release: " + $msg) -ForegroundColor Red
+  Write-Host "FAIL tag-release: $msg" -ForegroundColor Red
   exit 1
 }
 
 function Info([string]$msg) {
-  Write-Host ("INFO tag-release: " + $msg) -ForegroundColor Cyan
+  Write-Host "INFO: $msg" -ForegroundColor Cyan
 }
 
 # Always run from repo root
-$repoRoot = (& git rev-parse --show-toplevel 2>$null)
+$repoRoot = (& git rev-parse --show-toplevel) 2>$null
 if (-not $repoRoot) { Fail "not inside a git repo" }
 Set-Location $repoRoot
 
-# Validate tag format
+# Tag format guard
 if ($Tag -notmatch '^v\d+\.\d+\.\d+$') {
-  Fail ("tag '" + $Tag + "' must match vX.Y.Z (e.g. v0.1.10)")
+  Fail "tag '$Tag' must match vX.Y.Z (e.g. v0.1.11)"
 }
+
+# Working tree must be clean
+$dirty = (& git status --porcelain)
+if ($dirty) {
+  Write-Host "❌ Dirty working tree. Commit or stash before tagging." -ForegroundColor Red
+  & git status --short
+  exit 1
+}
+
+# Make sure we have up-to-date main locally (avoid tagging stale)
+& git fetch --no-tags origin main | Out-Null
+if ($LASTEXITCODE -ne 0) { Fail "git fetch origin main failed" }
 
 # Must be on main
 $branch = (& git rev-parse --abbrev-ref HEAD).Trim()
 if ($branch -ne "main") {
-  Fail ("must run on branch 'main' (currently '" + $branch + "')")
+  Fail "must run on branch 'main' (currently '$branch')"
 }
 
-# Must be clean
-$dirty = (& git status --porcelain)
-if ($dirty) {
-  Write-Host "FAIL tag-release: Dirty working tree. Commit or stash before tagging." -ForegroundColor Red
-  & git status --short
-  exit 1
+# Must not be behind origin/main
+& git rev-list --left-right --count origin/main...HEAD 2>$null | Out-Null
+if ($LASTEXITCODE -ne 0) { Fail "failed to compare HEAD with origin/main" }
+
+$lr = (& git rev-list --left-right --count origin/main...HEAD).Trim()
+# output: "<behind> <ahead>"
+$parts = $lr -split "\s+"
+$behind = [int]$parts[0]
+$ahead  = [int]$parts[1]
+if ($behind -ne 0) { Fail "your main is behind origin/main by $behind commits. Pull/rebase first." }
+
+# Refuse to create a tag if it already exists.
+# If it exists, it MUST be an annotated tag (no lightweight tags), but we still refuse to overwrite here.
+$tagExists = $false
+& git rev-parse --verify --quiet "refs/tags/$Tag" | Out-Null
+if ($LASTEXITCODE -eq 0) { $tagExists = $true }
+
+if ($tagExists) {
+  $tagType = (& git cat-file -t $Tag).Trim()
+  if ($tagType -ne "tag") {
+    Fail "tag '$Tag' exists but is NOT annotated (lightweight tags forbidden). Delete and recreate as annotated."
+  }
+  Fail "tag '$Tag' already exists. Refusing to retag."
 }
 
-# Must match origin/main exactly
-& git fetch --prune origin main | Out-Null
-if ($LASTEXITCODE -ne 0) { Fail "git fetch origin main failed" }
-
-$head = (& git rev-parse HEAD).Trim()
-$originMain = (& git rev-parse origin/main).Trim()
-if ($head -ne $originMain) {
-  Fail ("HEAD is not exactly origin/main. Refusing to tag. HEAD=" + $head + " origin/main=" + $originMain)
-}
-
-# Tag must not exist locally
-$localType = (& git cat-file -t $Tag 2>$null)
-if ($LASTEXITCODE -eq 0 -and $localType) {
-  Fail ("tag '" + $Tag + "' already exists locally")
-}
-
-# Tag must not exist on origin
-$remoteTag = (& git ls-remote --tags origin ("refs/tags/" + $Tag) 2>$null)
-if ($remoteTag) {
-  Fail ("tag '" + $Tag + "' already exists on origin")
-}
-
-# Run CI before tagging (includes version gate + tests)
-Info "running: npm run ci"
+# Run CI locally before tagging (this is the whole point)
+Info "Running npm run ci before tagging..."
 & npm run ci
-if ($LASTEXITCODE -ne 0) { Fail "npm run ci failed; refusing to tag" }
+if ($LASTEXITCODE -ne 0) { Fail "npm run ci failed — refusing to tag" }
 
-# Re-check clean (CI must not generate tracked changes)
+# Ensure build didn’t dirty the tree (catches accidental build artefact drift)
 $dirtyAfter = (& git status --porcelain)
 if ($dirtyAfter) {
-  Write-Host "FAIL tag-release: CI changed the working tree. Refusing to tag." -ForegroundColor Red
+  Write-Host "❌ Build/test changed files. Commit them before tagging." -ForegroundColor Red
   & git status --short
   exit 1
 }
 
-# Create annotated tag
-Info ("creating annotated tag: " + $Tag)
+# Create annotated tag on current HEAD
+Info "Creating annotated tag $Tag on HEAD..."
 & git tag -a $Tag -m $Tag
-if ($LASTEXITCODE -ne 0) { Fail "git tag failed" }
+if ($LASTEXITCODE -ne 0) { Fail "failed to create tag $Tag" }
 
-# Enforce annotated tag (lightweight forbidden)
-$tagType = (& git cat-file -t $Tag).Trim()
-if ($tagType -ne "tag") {
-  Fail ("tag '" + $Tag + "' must be an annotated tag (lightweight tags are forbidden)")
-}
+# Push just this tag (not --follow-tags, which can leak old local tags)
+Info "Pushing tag $Tag..."
+& git push origin "refs/tags/$Tag"
+if ($LASTEXITCODE -ne 0) { Fail "failed to push tag $Tag" }
 
-# Push ONLY this tag
-Info ("pushing tag: " + $Tag)
-& git push origin $Tag
-if ($LASTEXITCODE -ne 0) { Fail ("git push origin " + $Tag + " failed") }
-
-Write-Host ("OK tag-release: Released " + $Tag) -ForegroundColor Green
+Write-Host "OK: Released $Tag" -ForegroundColor Green
 exit 0
 
