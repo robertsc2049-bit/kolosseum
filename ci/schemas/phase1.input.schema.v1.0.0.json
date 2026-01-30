@@ -24,16 +24,53 @@
       "properties": {
         "constraints_version": { "type": "string", "const": "1.0.0" },
 
+        "goal_id": {
+          "type": "string",
+          "enum": ["strength", "hypertrophy", "general_fitness", "rehab", "sport_performance"]
+        },
+
+        "schedule": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "days_per_week": { "type": "integer", "minimum": 1, "maximum": 7 },
+            "session_timebox_minutes": { "type": "integer", "minimum": 10, "maximum": 240 }
+          }
+        },
+
+        "preferences": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "consistency_variety": { "type": "string", "enum": ["consistency", "variety"] },
+            "volume_cap": { "type": "string", "enum": ["low", "standard", "high"] }
+          }
+        },
+
+        "pain_probe_state": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "has_active_pain": { "type": "boolean" },
+            "active_pain_sites": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "probe_consent": { "type": "boolean" }
+          }
+        },
+
         "avoid_joint_stress_tags": {
           "type": "array",
           "items": { "type": "string" },
           "minItems": 1
         },
+
         "banned_equipment": {
           "type": "array",
-          "items": { "type": "string" },
-          "minItems": 1
+          "items": { "type": "string" }
         },
+
         "available_equipment": {
           "type": "array",
           "items": { "type": "string" },
@@ -57,9 +94,21 @@
     "sport_role_id": { "type": "string" },
 
     "nd_mode": { "type": "boolean" },
-    "instruction_density": { "type": "string" },
-    "exposure_prompt_density": { "type": "string" },
-    "bias_mode": { "type": "string" }
+
+    "instruction_density": {
+      "type": "string",
+      "enum": ["minimal", "standard", "detailed"]
+    },
+
+    "exposure_prompt_density": {
+      "type": "string",
+      "enum": ["minimal", "standard", "detailed"]
+    },
+
+    "bias_mode": {
+      "type": "string",
+      "enum": ["none", "consistency", "variety"]
+    }
   },
   "allOf": [
     {
@@ -71,4 +120,3 @@
     }
   ]
 }
-
