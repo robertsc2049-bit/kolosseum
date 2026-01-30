@@ -6,19 +6,25 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test",
+
     "guard:constraints": "node ci/guards/no_legacy_constraints.mjs",
     "guard:version": "node scripts/version-gate.mjs",
+
     "lint": "node ci/guards/repo_contract.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs",
     "ci": "npm run guard:constraints && npm run guard:version && npm run lint && npm test",
+
     "hash:write": "node ci/scripts/write_checksums.mjs",
     "run:cli": "node dist/cli/src/main.js",
     "db:schema": "node scripts/apply-schema.mjs",
     "start": "node dist/src/server.js",
-    "smoke:fresh": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-api.ps1 -Mode fresh",
-    "smoke:idem": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-api.ps1 -Mode idempotent",
+
+    "smoke:fresh": "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1 -- -Mode fresh",
+    "smoke:idem": "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1 -- -Mode idempotent",
+
     "dev:check": "npm run ci && npm run db:schema",
-    "release:prepare": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-prepare.ps1",
-    "release:tag": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tag-release.ps1"
+
+    "release:prepare": "node scripts/ps-runner.mjs --file scripts/release-prepare.ps1",
+    "release:tag": "node scripts/ps-runner.mjs --file scripts/tag-release.ps1"
   },
   "dependencies": {
     "ajv": "^8.17.1",
@@ -33,3 +39,4 @@
     "typescript": "^5.7.3"
   }
 }
+
