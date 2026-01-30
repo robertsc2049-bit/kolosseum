@@ -8,6 +8,19 @@ function die(msg) {
   process.exit(1);
 }
 
+function stripBom(s) {
+  return s.replace(/^\uFEFF/, "");
+}
+
+function normalizeLf(s) {
+  return s.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+}
+
+function readTextUtf8Normalized(p) {
+  const raw = readFileSync(p, "utf8");
+  return normalizeLf(stripBom(raw));
+}
+
 function stableStringify(value) {
   const seen = new WeakSet();
   const sorter = (v) => {
@@ -27,12 +40,13 @@ function sha256(s) {
 }
 
 function readJson(p) {
-  const raw = readFileSync(p, "utf8");
-  return JSON.parse((raw).replace(/^\uFEFF/, ""));
+  const text = readTextUtf8Normalized(p);
+  return JSON.parse(text);
 }
 
-function writeUtf8NoBom(p, text) {
-  writeFileSync(p, text, { encoding: "utf8" });
+function writeUtf8NoBomLf(p, text) {
+  const normalized = normalizeLf(text);
+  writeFileSync(p, normalized, { encoding: "utf8" });
 }
 
 function listJsonFiles(dirAbs) {
@@ -93,7 +107,6 @@ function rel(pAbs) {
 }
 
 function looksLikeRunnerSource(text) {
-  // Heuristics: file references multiple phases / pipeline, and exports something callable.
   const t = text.toLowerCase();
   const phaseHits =
     (t.includes("phase1") ? 1 : 0) +
@@ -123,21 +136,17 @@ async function resolveEngineRunner() {
   const fn = (process.env.ENGINE_FN || "").trim();
 
   const fnNames = [
-    // your likely names
     "runPipeline",
     "runEngine",
     "compileSession",
     "buildSession",
     "compile",
     "run",
-
-    // fallback names
     "main",
     "execute",
     "engine",
   ];
 
-  // Explicit override
   if (entry) {
     const mod = await tryImportModule(entry);
     if (!mod) die(`e2e:golden: ENGINE_ENTRY '${entry}' could not be imported.`);
@@ -147,8 +156,7 @@ async function resolveEngineRunner() {
     return { run: f, note: `ENGINE_ENTRY=${entry} ENGINE_FN=${fn}` };
   }
 
-  // Scan for likely runner modules (dist first, then engine/src, then src)
-    const roots = [
+  const roots = [
     resolve(process.cwd(), "dist/src"),
     resolve(process.cwd(), "engine/dist/src"),
     resolve(process.cwd(), "engine/src"),
@@ -159,28 +167,23 @@ async function resolveEngineRunner() {
   const filesAbs = [];
   walkFiles(process.cwd(), new Set([".mjs", ".js"]), filesAbs);
 
-  // filter to those under roots (prefer)
   const preferred = new Set(roots.filter(existsSync).map((r) => r));
   const underPreferred = filesAbs.filter((p) => {
     for (const r of preferred) if (p.startsWith(r)) return true;
     return false;
   });
 
-  const pool = (underPreferred.length ? underPreferred : filesAbs);
+  const pool = underPreferred.length ? underPreferred : filesAbs;
 
-  // shortlist via heuristics to avoid importing every module (side effects)
   const shortlisted = [];
   for (const pAbs of pool) {
     try {
       const txt = readFileSync(pAbs, "utf8");
       if (looksLikeRunnerSource(txt)) shortlisted.push(pAbs);
-    } catch {
-      // ignore unreadable
-    }
+    } catch {}
   }
 
-  // If heuristics got nothing, fall back to a small number of Ã¢â‚¬Å“centralÃ¢â‚¬Â modules
-    const fallbackCentral = [
+  const fallbackCentral = [
     resolve(process.cwd(), "dist/src/run_pipeline.js"),
     resolve(process.cwd(), "engine/dist/src/run_pipeline.js"),
     resolve(process.cwd(), "dist/src/index.js"),
@@ -197,12 +200,9 @@ async function resolveEngineRunner() {
     const mod = await tryImportModule(relPath);
     if (!mod) continue;
 
-    // Try named exports first
     for (const name of fnNames) {
       if (typeof mod[name] === "function") return { run: mod[name], note: `auto: ${relPath}::${name}` };
     }
-
-    // Try default export as function
     if (typeof mod.default === "function") return { run: mod.default, note: `auto: ${relPath}::default` };
   }
 
@@ -241,16 +241,25 @@ Put input JSON files in:
 Then run:
   npm run e2e:golden
 
-To create snapshots:
+To create snapshots locally:
   UPDATE_GOLDEN=1 npm run e2e:golden
 `
     );
   }
 
+  const isCI =
+    String(process.env.CI || "").toLowerCase() === "true" ||
+    process.env.GITHUB_ACTIONS === "true";
+
+  const update = (process.env.UPDATE_GOLDEN || "").trim() === "1";
+
+  if (isCI && update) {
+    die("e2e:golden: UPDATE_GOLDEN=1 is not allowed in CI. Run locally, commit snapshots, then push.");
+  }
+
   const { run, note } = await resolveEngineRunner();
   console.log(`e2e:golden: runner=${note}`);
 
-  const update = (process.env.UPDATE_GOLDEN || "").trim() === "1";
   const offenders = [];
 
   for (const inPath of inputFiles) {
@@ -272,21 +281,21 @@ To create snapshots:
 
     if (!existsSync(outPath)) {
       if (update) {
-        writeUtf8NoBom(outPath, actualText);
-        console.log(`Ã¢Å“â€¦ ${name}: wrote snapshot (new) sha256=${actualHash}`);
+        writeUtf8NoBomLf(outPath, actualText);
+        console.log(`SNAPSHOT new: ${name} sha256=${actualHash}`);
       } else {
         offenders.push({ name, kind: "missing_snapshot", detail: `missing expected: ${outPath}` });
       }
       continue;
     }
 
-    const expectedText = readFileSync(outPath, "utf8");
+    const expectedText = readTextUtf8Normalized(outPath);
     const expectedHash = sha256(expectedText);
 
     if (expectedText !== actualText) {
       if (update) {
-        writeUtf8NoBom(outPath, actualText);
-        console.log(`Ã¢Å“â€¦ ${name}: updated snapshot sha256=${expectedHash} -> ${actualHash}`);
+        writeUtf8NoBomLf(outPath, actualText);
+        console.log(`SNAPSHOT updated: ${name} sha256=${expectedHash} -> ${actualHash}`);
       } else {
         offenders.push({
           name,
@@ -295,23 +304,23 @@ To create snapshots:
         });
       }
     } else {
-      console.log(`Ã¢Å“â€¦ ${name}: OK sha256=${actualHash}`);
+      console.log(`OK: ${name} sha256=${actualHash}`);
     }
   }
 
   if (offenders.length) {
-    console.error(`\nÃ¢ÂÅ’ e2e:golden failed (${offenders.length} fixture(s) not clean):`);
+    console.error(`\nFAIL e2e:golden (${offenders.length} fixture(s) not clean):`);
     for (const o of offenders) {
       console.error(`\n--- ${o.name} [${o.kind}] ---`);
       console.error(o.detail);
     }
     console.error("\nFix:");
-    console.error("  - If snapshots are correct to update: UPDATE_GOLDEN=1 npm run e2e:golden");
+    console.error("  - If snapshots are correct to update (local only): UPDATE_GOLDEN=1 npm run e2e:golden");
     console.error("  - Otherwise fix engine output regression.");
     process.exit(1);
   }
 
-  console.log(`\ne2e:golden: OK (${inputFiles.length} fixture(s)).`);
+  console.log(`\nPASS e2e:golden (${inputFiles.length} fixture(s)).`);
 }
 
 await main();
