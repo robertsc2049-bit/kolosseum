@@ -1,11 +1,13 @@
 {
   "notes": [
-    "PHASE_6_STUB: deterministic empty session shell"
+    "PHASE_6: empty plan (no exercises emitted yet)",
+    "gate: goal=unset timebox=unset avail=0 banned=0 nd=undefined bias=undefined",
+    "gate: session_id=S_02d8538c19c5"
   ],
   "ok": true,
   "session": {
     "exercises": [],
-    "session_id": "SESSION_STUB",
+    "session_id": "S_02d8538c19c5",
     "status": "ready"
   }
 }
