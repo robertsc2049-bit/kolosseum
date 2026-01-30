@@ -1,31 +1,33 @@
-﻿// engine/src/phases/phase4.ts
 import fs from "node:fs";
 import path from "node:path";
 import type { ExerciseSignature } from "../substitution/types.js";
 import type { Phase3Constraints, Phase3Output } from "./phase3.js";
+
+export type PlannedItem = {
+  block_id: string;
+  item_id: string;
+  exercise_id: string;
+  sets?: number;
+  reps?: number;
+};
 
 export type Phase4Program = {
   program_id: string;
   version: string;
   blocks: unknown[];
 
-  /**
-   * v0+:
-   * - planned_exercise_ids: intended work only (the plan)
-   * - exercises: closed-world candidate set for Phase 5 scoring (intended + alternates)
-   * - exercise_pool: deterministic lookup map for Phase 6 mapping
-   */
-  planned_exercise_ids?: string[];
-  exercises?: ExerciseSignature[];
-  exercise_pool?: Record<string, ExerciseSignature>;
+  // Authoritative plan (v0)
+  planned_items: PlannedItem[];
+  planned_exercise_ids: string[];
 
-  // Phase 5 target (defaults to planned[0] if absent, Phase 5 handles)
-  target_exercise_id?: string;
+  // Candidate pool for substitution
+  exercises: ExerciseSignature[];
+  exercise_pool: Record<string, ExerciseSignature>;
 
-  /**
-   * Canonical constraint contract (Phase 3 authoritative).
-   * No renaming/mapping downstream.
-   */
+  // Phase5 target selection hint
+  target_exercise_id: string;
+
+  // Canonical constraints (Phase3 authoritative)
   constraints?: Phase3Constraints;
 };
 
@@ -34,171 +36,148 @@ export type Phase4Result =
   | { ok: false; failure_token: string; details?: unknown };
 
 function stripBom(s: string): string {
-  return s.length > 0 && s.charCodeAt(0) === 0xfeff ? s.slice(1) : s;
+  return s.charCodeAt(0) === 0xfeff ? s.slice(1) : s;
 }
 
 function readJson(p: string): any {
-  const raw = stripBom(fs.readFileSync(p, "utf8"));
-  return JSON.parse(raw);
+  return JSON.parse(stripBom(fs.readFileSync(p, "utf8")));
 }
 
 function repoRoot(): string {
   return process.cwd();
 }
 
-function pickExercise(entries: any, id: string): ExerciseSignature | undefined {
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+
+function pick(entries: any, id: string): ExerciseSignature {
   const ex = entries?.[id];
-  if (!ex || typeof ex !== "object") return undefined;
-  if (typeof (ex as any).exercise_id !== "string") return undefined;
+  if (!ex) throw new Error(`Missing exercise ${id}`);
   return ex as ExerciseSignature;
 }
 
-function pickFirstAvailable(entries: any, ids: string[]): ExerciseSignature | undefined {
+function uniqueStable(ids: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
   for (const id of ids) {
-    const ex = pickExercise(entries, id);
-    if (ex) return ex;
+    const s = String(id ?? "").trim();
+    if (!s) continue;
+    if (seen.has(s)) continue;
+    seen.add(s);
+    out.push(s);
   }
-  return undefined;
+  return out;
 }
 
-function buildProgramFromSpec(args: {
-  activityId: string;
-  entries: any;
-  program_id: string;
-  version: string;
-  planned_priority: string[];
-  alternate_priority: string[];
-  constraints: Phase3Constraints;
-}): Phase4Result {
-  const { activityId, entries, program_id, version, planned_priority, alternate_priority, constraints } = args;
+export function phase4AssembleProgram(
+  canonicalInput: any,
+  phase3: Phase3Output
+): Phase4Result {
+  const activity = String(canonicalInput?.activity_id ?? "");
 
-  const planned = pickFirstAvailable(entries, planned_priority);
-  if (!planned) {
-    return {
-      ok: false,
-      failure_token: "registry_incomplete",
-      details: `PHASE_4: activity '${activityId}' missing required planned exercises. Tried: ${planned_priority.join(", ")}`
-    };
+  const regPath = path.join(
+    repoRoot(),
+    "registries",
+    "exercise",
+    "exercise.registry.json"
+  );
+
+  const reg = readJson(regPath);
+  const entries = isRecord(reg?.entries) ? reg.entries : {};
+
+  /**
+   * Phase4 contract (v0):
+   * - Emits a MULTI-exercise plan for supported activities (>=2 planned ids).
+   * - Carries Phase3 canonical constraints forward on program.constraints (authoritative).
+   * - Provides deterministic exercise_pool for Phase5 scoring and substitution.
+   * - Sets target_exercise_id to planned_exercise_ids[0] (Phase5 pick target).
+   */
+
+  let program_id: string;
+  let intent: string[];
+
+  switch (activity) {
+    case "powerlifting":
+      program_id = "PROGRAM_POWERLIFTING_V0";
+      intent = ["bench_press", "back_squat"];
+      break;
+
+    case "rugby_union":
+      program_id = "PROGRAM_RUGBY_UNION_V0";
+      intent = ["back_squat", "bench_press"];
+      break;
+
+    case "general_strength":
+      program_id = "PROGRAM_GENERAL_STRENGTH_V0";
+      intent = ["deadlift", "bench_press"];
+      break;
+
+    default:
+      return {
+        ok: true,
+        program: {
+          program_id: "PROGRAM_STUB",
+          version: "1.0.0",
+          blocks: [],
+          planned_items: [],
+          planned_exercise_ids: [],
+          exercises: [],
+          exercise_pool: {},
+          target_exercise_id: "",
+          constraints: phase3.constraints
+        },
+        notes: ["PHASE_4_STUB"]
+      };
   }
 
-  const planned_id = planned.exercise_id;
+  const planned_exercise_ids = uniqueStable(intent);
 
-  // Deterministic alternates in listed order, excluding the planned id if repeated.
-  const alternates: ExerciseSignature[] = [];
-  const seen = new Set<string>([planned_id]);
+  // Planned items are authoritative plan surface (rich path used by Phase6)
+  const planned_items: PlannedItem[] = planned_exercise_ids.map((exercise_id, i) => ({
+    block_id: "B0",
+    item_id: `B0_I${i}`,
+    exercise_id,
+    sets: 3,
+    reps: 5
+  }));
 
-  for (const id of alternate_priority) {
-    const ex = pickExercise(entries, id);
-    if (!ex) continue;
-    if (seen.has(ex.exercise_id)) continue;
-    seen.add(ex.exercise_id);
-    alternates.push(ex);
-  }
+  // Deterministic exercise_pool: include intent + a small candidate set for substitution tests.
+  const poolIds = uniqueStable([
+    ...planned_exercise_ids,
+    "dumbbell_bench_press",
+    "machine_chest_press",
+    "goblet_squat",
+    "kettlebell_deadlift"
+  ]);
 
-  const planned_exercise_ids: string[] = [planned_id];
-
-  // Candidate list for Phase 5: intended first, then alternates.
-  const exercises: ExerciseSignature[] = [planned, ...alternates];
-
-  // Deterministic lookup map for Phase 6 mapping.
   const exercise_pool: Record<string, ExerciseSignature> = {};
-  for (const ex of exercises) exercise_pool[ex.exercise_id] = ex;
+  for (const id of poolIds) {
+    if (entries[id]) {
+      exercise_pool[id] = pick(entries, id);
+    }
+  }
+
+  const exercises = Object.values(exercise_pool).sort((a, b) =>
+    a.exercise_id.localeCompare(b.exercise_id)
+  );
+
+  // Deterministic target: first planned id (Phase5 will substitute only if disqualified)
+  const target_exercise_id = planned_exercise_ids[0] ?? "";
 
   return {
     ok: true,
     program: {
       program_id,
-      version,
+      version: "1.0.0",
       blocks: [],
+      planned_items,
       planned_exercise_ids,
       exercises,
       exercise_pool,
-      target_exercise_id: planned_id,
-      constraints
+      target_exercise_id,
+      constraints: phase3.constraints
     },
-    notes: [
-      `PHASE_4_V0: emitted planned_exercise_ids + exercises + exercise_pool for activity '${activityId}' from exercise registry; constraints consumed from Phase 3 canonical contract`
-    ]
-  };
-}
-
-export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output): Phase4Result {
-  const activityId = String(canonicalInput?.activity_id ?? "");
-
-  // v0 reads directly from disk for determinism + simplicity.
-  const regPath = path.join(repoRoot(), "registries", "exercise", "exercise.registry.json");
-  if (!fs.existsSync(regPath)) {
-    return {
-      ok: false,
-      failure_token: "registry_load_failed",
-      details: `PHASE_4: missing exercise registry: ${path.relative(repoRoot(), regPath)}`
-    };
-  }
-
-  const reg = readJson(regPath);
-  const entries = reg?.entries ?? {};
-
-  if (activityId === "powerlifting") {
-    // Keep bench-first for existing substitution coverage.
-    return buildProgramFromSpec({
-      activityId,
-      entries,
-      program_id: "PROGRAM_POWERLIFTING_V0",
-      version: "1.0.0",
-      planned_priority: ["bench_press"],
-      alternate_priority: ["dumbbell_bench_press", "machine_chest_press"],
-      constraints: phase3.constraints
-    });
-  }
-
-  if (activityId === "rugby_union") {
-    // Diverged: squat-first.
-    return buildProgramFromSpec({
-      activityId,
-      entries,
-      program_id: "PROGRAM_RUGBY_UNION_V0",
-      version: "1.0.0",
-      planned_priority: ["back_squat", "deadlift", "bench_press"],
-      alternate_priority: [
-        "goblet_squat",
-        "kettlebell_deadlift",
-        "dumbbell_bench_press",
-        "machine_chest_press",
-        "push_up"
-      ],
-      constraints: phase3.constraints
-    });
-  }
-
-  if (activityId === "general_strength") {
-    // Diverged: hinge-first, then squat, then presses.
-    return buildProgramFromSpec({
-      activityId,
-      entries,
-      program_id: "PROGRAM_GENERAL_STRENGTH_V0",
-      version: "1.0.0",
-      planned_priority: ["deadlift", "back_squat", "bench_press", "overhead_press"],
-      alternate_priority: [
-        "kettlebell_deadlift",
-        "goblet_squat",
-        "dumbbell_bench_press",
-        "machine_chest_press",
-        "dumbbell_overhead_press",
-        "push_up",
-        "incline_bench_press"
-      ],
-      constraints: phase3.constraints
-    });
-  }
-
-  // Closed-world v0: stub for anything else.
-  return {
-    ok: true,
-    program: {
-      program_id: "PROGRAM_STUB",
-      version: "1.0.0",
-      blocks: []
-    },
-    notes: ["PHASE_4_STUB: program assembly not yet implemented for this activity_id"]
+    notes: ["PHASE_4_V0: multi-exercise intent emitted"]
   };
 }
