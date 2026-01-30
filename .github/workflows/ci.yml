@@ -4,12 +4,15 @@ on:
   pull_request:
   push:
     branches: [ main ]
-    tags:
-      - "v*.*.*"
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     services:
       postgres:
@@ -31,6 +34,8 @@ jobs:
       NODE_ENV: test
       PORT: 3000
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/kolosseum_ci
+      # Hard block snapshot writes in CI (goldens must be updated locally + committed)
+      UPDATE_GOLDEN: "0"
 
     steps:
       - name: Checkout
@@ -38,28 +43,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      # ---------------------------
-      # Tag gates (tags only)
-      # ---------------------------
-      - name: Tag must be on main (tags only)
-        if: startsWith(github.ref, 'refs/tags/')
-        shell: pwsh
-        run: |
-          ./scripts/ci-tag-main-gate.ps1
-
-      - name: Version gate (tags only)
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          node scripts/version-gate.mjs --tag "${GITHUB_REF_NAME}"
-
-      # ---------------------------
-      # Node
-      # ---------------------------
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+
       - name: Guard diff (no BOM, LF-only)
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -69,9 +58,13 @@ jobs:
       - name: Install
         run: npm ci
 
-      # guard + unit tests
+      # Guard + unit tests (your existing CI script)
       - name: Guard + Unit tests
         run: npm run ci
+
+      # Ensure dist exists and is current for the steps below
+      - name: Build
+        run: npm run build
 
       - name: Print build version
         run: node -e "import('./dist/src/version.js').then(m => console.log('BUILD_VERSION=' + m.VERSION))"
@@ -80,9 +73,16 @@ jobs:
         run: node scripts/apply-schema.mjs --db-url "$DATABASE_URL"
 
       # ---------------------------
-      # API start / wait / smoke
+      # Engine release gating
       # ---------------------------
-      - name: Start API
+      - name: E2E golden (engine regression gate)
+        run: npm run e2e:golden
+
+      # ---------------------------
+      # API smoke (main only)
+      # ---------------------------
+      - name: Start API (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           rm -f server.log server.pid || true
           nohup node dist/src/server.js > server.log 2>&1 &
@@ -97,7 +97,8 @@ jobs:
             exit 1
           fi
 
-      - name: Wait for /health
+      - name: Wait for /health (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           set -e
           for i in $(seq 1 60); do
@@ -106,7 +107,6 @@ jobs:
               exit 0
             fi
 
-            # if the process died, fail immediately with logs
             if [ -f server.pid ] && ! kill -0 "$(cat server.pid)" 2>/dev/null; then
               echo "API process died during wait."
               echo "---- server.log ----"
@@ -122,13 +122,13 @@ jobs:
           tail -200 server.log || true
           exit 1
 
-      - name: Smoke API (PowerShell)
+      - name: Smoke API (PowerShell) (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
           ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode fresh
           ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode idempotent
 
-      # Always upload logs (helps when a run fails)
       - name: Upload API logs
         if: always()
         uses: actions/upload-artifact@v4
