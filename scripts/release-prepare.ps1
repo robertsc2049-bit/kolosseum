@@ -94,6 +94,22 @@ if ($LASTEXITCODE -eq 0) {
   }
 }
 
+# --- Refuse if version already equals requested version ---
+$curPkgVer = node -p "JSON.parse(require('fs').readFileSync('package.json','utf8')).version"
+if ($curPkgVer -eq $Version) {
+  Fail "package.json already at version $Version. You already prepared this release. Next step is tagging: .\scripts\tag-release.ps1 -Tag v$Version"
+}
+
+# --- Refuse if HEAD is already tagged with a semver vX.Y.Z ---
+$headSemverTags = (& git tag --points-at HEAD) `
+  | ForEach-Object { $_.Trim() } `
+  | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' }
+
+if ($headSemverTags -and $headSemverTags.Count -gt 0) {
+  Fail ("HEAD is already released (tagged): {0}. Refusing release-prepare." -f ($headSemverTags -join ", "))
+}
+
+
 Info "Fetching origin/main and tags"
 & git fetch --tags --prune origin main | Out-Null
 if ($LASTEXITCODE -ne 0) { Fail "git fetch origin main failed" }
@@ -139,16 +155,26 @@ $versionTs = "export const VERSION = `"$Version`";`n"
 Write-TextUtf8NoBom $versionTsPath $versionTs
 Ok "Updated src/version.ts -> $Version"
 
-# --- Update package.json version (preserve valid JSON; write UTF-8 no BOM) ---
+# --- Update package.json version (no reformat) ---
 $pkgPath = Join-Path $repoRoot "package.json"
 if (-not (Test-Path $pkgPath)) { Fail "missing package.json" }
 
 $pkgText = Read-TextUtf8NoBom $pkgPath
-try {
-  $pkgObj = $pkgText | ConvertFrom-Json
-} catch {
-  Fail "package.json is not valid JSON: $($_.Exception.Message)"
+
+if ($pkgText -notmatch '"version"\s*:\s*"\d+\.\d+\.\d+"') {
+  Fail "package.json missing a semver version field"
 }
+
+$pkgOut = [regex]::Replace(
+  $pkgText,
+  '"version"\s*:\s*"\d+\.\d+\.\d+"',
+  ('"version": "{0}"' -f $Version),
+  1
+)
+
+$pkgOut = $pkgOut.TrimEnd() + "`n"
+Write-TextUtf8NoBom $pkgPath $pkgOut
+Ok "Updated package.json version -> $Version"
 
 $pkgObj.version = $Version
 
