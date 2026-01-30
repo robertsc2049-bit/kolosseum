@@ -12,8 +12,8 @@ export type Phase3Output = {
   /**
    * Canonical constraint contract:
    * - {} is valid (envelope present but empty)
-   * - undefined envelope => Phase3 may inject deterministic demo defaults (only if permitted)
-   */
+      * - undefined envelope => Phase3 may inject deterministic v0 defaults (only if permitted)
+      *    */
   constraints: Phase3Constraints;
 };
 
@@ -52,7 +52,7 @@ function uniqSortedStrings(xs: unknown): string[] | undefined {
 /**
  * Ticket 012 / Ticket 014 / Ticket 018 alignment:
  * - If canonicalInput.constraints is PRESENT (even {}), it is sovereign: Phase3 MUST NOT inject defaults.
- * - If canonicalInput.constraints is ABSENT, Phase3 MAY inject deterministic demo defaults (if you keep that behaviour).
+  * - If canonicalInput.constraints is ABSENT, Phase3 MAY inject deterministic v0 defaults (if you keep that behaviour).
  *
  * Note: Phase1 enforces schema + constraints_version + refusal rules.
  * Phase3 assumes the canonical input is already lawful.
@@ -92,7 +92,7 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
       constraints = {};
     }
   } else {
-    // Envelope absent: demo defaults allowed, minimal and deterministic.
+    /// Envelope absent: v0 defaults allowed, minimal and deterministic.
     // If you ever want "no defaults, ever" later, delete this block and always return {} here.
     if (activityId === "powerlifting") {
       constraints = { avoid_joint_stress_tags: ["shoulder_high"] };
@@ -106,7 +106,7 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
   notes.push(
     envelopePresent
       ? "PHASE_3: constraints envelope present (Phase1 sovereign) — no defaults injected"
-      : "PHASE_3: constraints envelope absent — defaults permitted (demo)"
+      : "PHASE_3: constraints envelope absent — defaults permitted (v0)"
   );
 
   return {

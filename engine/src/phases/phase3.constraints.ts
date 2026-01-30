@@ -5,7 +5,7 @@
  * Rules:
  * - Canonical keys only. No legacy keys. No aliases.
  * - {} is valid (envelope present but empty).
- * - undefined means "envelope absent" (Phase 3 may inject deterministic demo defaults if permitted).
+  * - undefined means "envelope absent" (Phase 3 may inject deterministic v0 defaults if permitted).
  * - Arrays must be de-duped + sorted lexicographically for determinism.
  */
 export type Phase3Constraints = {
