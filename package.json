@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "kolosseum",
   "private": true,
   "version": "0.1.15",
@@ -9,7 +9,7 @@
     "guard:constraints": "node ci/guards/no_legacy_constraints.mjs",
     "guard:version": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/version-gate.ps1",
     "lint": "node ci/guards/repo_contract.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs",
-    "ci": "npm run guard:constraints && npm run guard:version && npm test",
+    "ci": "npm run guard:constraints && npm run guard:version && npm run lint && npm test",
     "hash:write": "node ci/scripts/write_checksums.mjs",
     "run:cli": "node dist/cli/src/main.js",
     "db:schema": "node scripts/apply-schema.mjs",
