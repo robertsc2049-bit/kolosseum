@@ -1,4 +1,5 @@
-﻿import fs from "node:fs";
+﻿// engine/src/phases/phase4.ts
+import fs from "node:fs";
 import path from "node:path";
 import type { ExerciseSignature } from "../substitution/types.js";
 import type { Phase3Constraints, Phase3Output } from "./phase3.js";
@@ -65,8 +66,8 @@ function buildProgramFromSpec(args: {
   entries: any;
   program_id: string;
   version: string;
-  planned_priority: string[]; // first available becomes the planned target
-  alternate_priority: string[]; // alternates for substitution candidate set
+  planned_priority: string[];
+  alternate_priority: string[];
   constraints: Phase3Constraints;
 }): Phase4Result {
   const { activityId, entries, program_id, version, planned_priority, alternate_priority, constraints } = args;
@@ -82,7 +83,7 @@ function buildProgramFromSpec(args: {
 
   const planned_id = planned.exercise_id;
 
-  // Build deterministic alternates list: first-match order, excluding planned if duplicated.
+  // Deterministic alternates in listed order, excluding the planned id if repeated.
   const alternates: ExerciseSignature[] = [];
   const seen = new Set<string>([planned_id]);
 
@@ -96,9 +97,10 @@ function buildProgramFromSpec(args: {
 
   const planned_exercise_ids: string[] = [planned_id];
 
-  // Candidate list for Phase 5: planned first, then alternates.
+  // Candidate list for Phase 5: intended first, then alternates.
   const exercises: ExerciseSignature[] = [planned, ...alternates];
 
+  // Deterministic lookup map for Phase 6 mapping.
   const exercise_pool: Record<string, ExerciseSignature> = {};
   for (const ex of exercises) exercise_pool[ex.exercise_id] = ex;
 
@@ -123,7 +125,7 @@ function buildProgramFromSpec(args: {
 export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output): Phase4Result {
   const activityId = String(canonicalInput?.activity_id ?? "");
 
-  // Load exercise registry (v0 reads directly from disk for determinism + simplicity).
+  // v0 reads directly from disk for determinism + simplicity.
   const regPath = path.join(repoRoot(), "registries", "exercise", "exercise.registry.json");
   if (!fs.existsSync(regPath)) {
     return {
@@ -136,88 +138,67 @@ export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output)
   const reg = readJson(regPath);
   const entries = reg?.entries ?? {};
 
-  // NOTE: These are deterministic preference lists.
-  // We do NOT infer; we only select from explicitly declared registry IDs.
-  // If the registry doesn't contain these, we fail closed-world (correct for v0).
   if (activityId === "powerlifting") {
+    // Keep bench-first for existing substitution coverage.
     return buildProgramFromSpec({
       activityId,
       entries,
       program_id: "PROGRAM_POWERLIFTING_V0",
       version: "1.0.0",
-      planned_priority: [
-        "bench_press"
-      ],
-      alternate_priority: [
-        "dumbbell_bench_press",
-        "machine_chest_press"
-      ],
+      planned_priority: ["bench_press"],
+      alternate_priority: ["dumbbell_bench_press", "machine_chest_press"],
       constraints: phase3.constraints
     });
   }
 
   if (activityId === "rugby_union") {
-    // Minimal “field sport strength” plan: pick one compound push as the target
-    // with deterministic alternates. Keep it small; v0 just needs something non-stub.
+    // Diverged: squat-first.
     return buildProgramFromSpec({
       activityId,
       entries,
       program_id: "PROGRAM_RUGBY_UNION_V0",
       version: "1.0.0",
-      planned_priority: [
-        "bench_press",
+      planned_priority: ["back_squat", "deadlift", "bench_press"],
+      alternate_priority: [
+        "goblet_squat",
+        "kettlebell_deadlift",
         "dumbbell_bench_press",
         "machine_chest_press",
         "push_up"
-      ],
-      alternate_priority: [
-        "dumbbell_bench_press",
-        "machine_chest_press",
-        "push_up",
-        "incline_dumbbell_press",
-        "incline_bench_press"
       ],
       constraints: phase3.constraints
     });
   }
 
   if (activityId === "general_strength") {
-    // Minimal general strength plan: same approach, but allow broader fallbacks.
+    // Diverged: hinge-first, then squat, then presses.
     return buildProgramFromSpec({
       activityId,
       entries,
       program_id: "PROGRAM_GENERAL_STRENGTH_V0",
       version: "1.0.0",
-      planned_priority: [
-        "bench_press",
-        "push_up",
-        "dumbbell_bench_press",
-        "machine_chest_press"
-      ],
+      planned_priority: ["deadlift", "back_squat", "bench_press", "overhead_press"],
       alternate_priority: [
-        "push_up",
+        "kettlebell_deadlift",
+        "goblet_squat",
         "dumbbell_bench_press",
         "machine_chest_press",
+        "dumbbell_overhead_press",
+        "push_up",
         "incline_bench_press"
       ],
       constraints: phase3.constraints
     });
   }
 
-  // Closed-world v0: still stub for anything else.
-  const base: Phase4Program = {
-    program_id: "PROGRAM_STUB",
-    version: "1.0.0",
-    blocks: []
-  };
-
+  // Closed-world v0: stub for anything else.
   return {
     ok: true,
-    program: base,
+    program: {
+      program_id: "PROGRAM_STUB",
+      version: "1.0.0",
+      blocks: []
+    },
     notes: ["PHASE_4_STUB: program assembly not yet implemented for this activity_id"]
   };
 }
-
-
-
-
