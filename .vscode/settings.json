@@ -1,0 +1,33 @@
+{
+  // =========================================
+  // Encoding & line endings (hard lock)
+  // =========================================
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+
+  // Never auto-add BOM
+  "files.autoGuessEncoding": false,
+
+  // =========================================
+  // Respect .editorconfig (do not override)
+  // =========================================
+  "editor.detectIndentation": false,
+  "editor.insertSpaces": true,
+
+  // =========================================
+  // Save-time enforcement
+  // =========================================
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+
+  // =========================================
+  // Language-specific sanity (optional but safe)
+  // =========================================
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[yaml]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }
+}

@@ -18,3 +18,9 @@ Thumbs.db
 server.out.log
 server.err.log
 
+
+# VS Code workspace settings (repo-enforced)
+!.vscode/
+.vscode/*
+!.vscode/settings.json
+
