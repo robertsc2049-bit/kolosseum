@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { runEngine } from "../dist/engine/src/index.js";
 
-test("Phase 4 returns PROGRAM_STUB for non-powerlifting activity", () => {
+test("Phase 4 returns PROGRAM_STUB for unknown activity", () => {
   const input = {
     consent_granted: true,
     engine_version: "EB2-1.0.0",
@@ -11,7 +11,7 @@ test("Phase 4 returns PROGRAM_STUB for non-powerlifting activity", () => {
     phase1_schema_version: "1.0.0",
     actor_type: "athlete",
     execution_scope: "individual",
-    activity_id: "rugby",
+    activity_id: "unknown_activity",
     nd_mode: false,
     instruction_density: "standard",
     exposure_prompt_density: "standard",
