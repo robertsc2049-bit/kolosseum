@@ -156,12 +156,23 @@ export function runEngine(input: unknown) {
       constraints: p3.phase3.constraints
     },
     phase4: {
-      program_id: p4.program.program_id,
-      version: p4.program.version,
-      blocks: p4.program.blocks,
-      constraints: p4.program.constraints,
-      notes: p4.notes
-    },
+  program_id: p4.program.program_id,
+  version: p4.program.version,
+  blocks: p4.program.blocks,
+
+  // v0+ program surface (needed for Phase 5/6 traceability + tests)
+  planned_exercise_ids: p4.program.planned_exercise_ids,
+  exercises: p4.program.exercises,
+  exercise_pool: p4.program.exercise_pool,
+  target_exercise_id: p4.program.target_exercise_id,
+
+  // Canonical constraint contract (Phase 3 authoritative)
+  constraints: p4.program.constraints,
+
+  // Notes emitted by Phase 4 assembler
+  notes: p4.notes
+},
+
     phase5: phase5Out,
     phase6: phase6Out
   };
