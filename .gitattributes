@@ -1,54 +1,25 @@
-# Enforce deterministic line endings in repo
-* text=auto
+# Enforce LF for all text files (cross-platform determinism)
+* text=auto eol=lf
 
-# TypeScript/JS/JSON/YAML/etc => LF
-*.ts text eol=lf
+# Explicit: JSON, JS/TS, config, docs
+*.json text eol=lf
 *.js text eol=lf
 *.mjs text eol=lf
-*.json text eol=lf
+*.cjs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.mts text eol=lf
+*.cts text eol=lf
+*.md text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
-*.md text eol=lf
 *.ps1 text eol=lf
-*.sql text eol=lf
-
-
-# PowerShell scripts => CRLF (best UX on Windows terminals/editors)
-*.ps1 text eol=crlf
-*.psm1 text eol=crlf
-*.psd1 text eol=crlf
-
-# Windows cmd/batch
-*.cmd text eol=crlf
-*.bat text eol=crlf
+*.sh text eol=lf
 
 # Binary files
 *.png binary
 *.jpg binary
 *.jpeg binary
 *.gif binary
-*.webp binary
-*.ico binary
 *.pdf binary
-
-# PowerShell scripts: keep LF in repo
-*.ps1 text eol=lf
-
-# Shell hooks/scripts: keep LF in repo
-*.sh text eol=lf
-scripts/hooks/* text eol=lf
-
-# JSON/TS: keep LF in repo
-*.json text eol=lf
-*.ts text eol=lf
-*.mjs text eol=lf
-*.yml text eol=lf
-
-# Keep PowerShell CRLF (you already do this, keep it)
-*.ps1 text eol=crlf
-
-# Checksums must be byte-stable across OS
-docs/checksums.sha256 text eol=lf
-
-# Docs should be consistent too
-*.md text eol=lf
+*.ico binary
