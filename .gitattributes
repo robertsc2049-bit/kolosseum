@@ -31,11 +31,18 @@
 *.ico binary
 *.pdf binary
 
-# Git hooks should always be LF (executed by sh)
-.git/hooks/* text eol=lf
+# PowerShell scripts: keep LF in repo
+*.ps1 text eol=lf
 
-# Shell scripts should always be LF
+# Shell hooks/scripts: keep LF in repo
 *.sh text eol=lf
+scripts/hooks/* text eol=lf
+
+# JSON/TS: keep LF in repo
+*.json text eol=lf
+*.ts text eol=lf
+*.mjs text eol=lf
+*.yml text eol=lf
 
 # Keep PowerShell CRLF (you already do this, keep it)
 *.ps1 text eol=crlf
