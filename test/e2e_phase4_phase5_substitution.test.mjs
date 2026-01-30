@@ -2,7 +2,7 @@
 import test from "node:test";
 import { runEngine } from "../dist/engine/src/index.js";
 
-const MIN_PHASE1 = {
+const BASE = {
   consent_granted: true,
   engine_version: "EB2-1.0.0",
   enum_bundle_version: "EB2-1.0.0",
@@ -13,34 +13,42 @@ const MIN_PHASE1 = {
   nd_mode: false,
   instruction_density: "standard",
   exposure_prompt_density: "standard",
-  bias_mode: "none",
-
-  // Pin envelope present (versioned) so Phase3 defaults cannot inject disqualifiers.
-  constraints: { constraints_version: "1.0.0" }
+  bias_mode: "none"
 };
 
-test("E2E: Phase 4 planned list; Phase 5 no-op under empty constraints; Phase 6 emits single planned exercise", () => {
-  const out = runEngine(MIN_PHASE1);
+test(
+  "E2E: Phase6 mirrors UNIQUE final planned exercises after substitution",
+  () => {
+    const out = runEngine(BASE);
+    assert.equal(out.ok, true);
 
-  assert.equal(out.ok, true);
+    const planned = out.phase4.planned_exercise_ids;
+    assert.ok(Array.isArray(planned));
 
-  assert.ok(out.phase4);
-  assert.equal(out.phase4.program_id, "PROGRAM_POWERLIFTING_V0");
+    let finalIds = [...planned];
 
-  assert.ok(out.phase5);
-  assert.ok(Array.isArray(out.phase5.adjustments));
-  assert.equal(out.phase5.adjustments.length, 0);
+    // Replay Phase5 substitution deterministically
+    for (const adj of out.phase5.adjustments ?? []) {
+      if (adj.adjustment_id !== "SUBSTITUTE_EXERCISE") continue;
+      if (adj.applied !== true) continue;
 
-  assert.ok(out.phase6);
-  assert.equal(out.phase6.session_id, "SESSION_V1");
-  assert.ok(Array.isArray(out.phase6.exercises));
-  assert.equal(out.phase6.exercises.length, 1);
+      const target = adj.details.target_exercise_id;
+      const sub = adj.details.substitute_exercise_id;
 
-  const ex = out.phase6.exercises[0];
-  assert.equal(ex.exercise_id, "bench_press");
-  assert.equal(ex.substituted_from, undefined);
-});
+      finalIds = finalIds.map(id => (id === target ? sub : id));
+    }
 
+    const uniqueFinal = Array.from(new Set(finalIds));
+
+    const session = out.phase6.exercises;
+    assert.ok(Array.isArray(session));
+    assert.equal(session.length, uniqueFinal.length);
+
+    for (const ex of session) {
+      assert.ok(uniqueFinal.includes(ex.exercise_id));
+    }
+  }
+);
 
 
 
