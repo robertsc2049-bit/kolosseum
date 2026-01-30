@@ -60,6 +60,11 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - name: Guard diff (no BOM, LF-only)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node ci/guards/diff_line_endings_guard.mjs
 
       - name: Install
         run: npm ci
