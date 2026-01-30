@@ -1,4 +1,4 @@
-﻿# deps/build
+# deps/build
 node_modules/
 dist/
 tmp_*.json
