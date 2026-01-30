@@ -1,25 +1,37 @@
-# Enforce LF for all text files (cross-platform determinism)
+# =========================================
+# Global: enforce LF everywhere
+# =========================================
 * text=auto eol=lf
 
-# Explicit: JSON, JS/TS, config, docs
-*.json text eol=lf
-*.js text eol=lf
-*.mjs text eol=lf
-*.cjs text eol=lf
-*.ts text eol=lf
-*.tsx text eol=lf
-*.mts text eol=lf
-*.cts text eol=lf
-*.md text eol=lf
-*.yml text eol=lf
-*.yaml text eol=lf
-*.ps1 text eol=lf
-*.sh text eol=lf
+# =========================================
+# Explicit text formats (belt + braces)
+# =========================================
+*.js        text eol=lf
+*.mjs       text eol=lf
+*.ts        text eol=lf
+*.json      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.md        text eol=lf
+*.txt       text eol=lf
+*.sh        text eol=lf
+*.ps1       text eol=lf
+*.sql       text eol=lf
 
-# Binary files
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.gif binary
-*.pdf binary
-*.ico binary
+# =========================================
+# Binary files (never touch line endings)
+# =========================================
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.ico       binary
+*.pdf       binary
+*.zip       binary
+*.gz        binary
+*.tgz       binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.eot       binary
