@@ -16,7 +16,7 @@ const BASE = {
   bias_mode: "none"
 };
 
-test("E2E: Phase1 constraints envelope persists into Phase2 canonical JSON and drives substitution end-to-end", () => {
+test("E2E: Phase1 constraints persist and drive a single deterministic substitution", () => {
   const out = runEngine({
     ...BASE,
     constraints: {
@@ -25,20 +25,30 @@ test("E2E: Phase1 constraints envelope persists into Phase2 canonical JSON and d
     }
   });
 
+  /* engine success */
   assert.equal(out.ok, true);
 
-  assert.ok(typeof out.phase2_canonical_json === "string");
-  assert.ok(out.phase2_canonical_json.includes('"constraints_version"'));
-  assert.ok(out.phase2_canonical_json.includes('"1.0.0"'));
-  assert.ok(out.phase2_canonical_json.includes('"avoid_joint_stress_tags"'));
-  assert.ok(out.phase2_canonical_json.includes('"shoulder_high"'));
+  /* Phase2 canonical persistence */
+  assert.equal(typeof out.phase2_canonical_json, "string");
+  assert.ok(out.phase2_canonical_json.includes('"constraints_version":"1.0.0"'));
+  assert.ok(out.phase2_canonical_json.includes('"avoid_joint_stress_tags":["shoulder_high"]'));
 
+  /* Phase4 contract */
   assert.equal(out.phase4.program_id, "PROGRAM_POWERLIFTING_V0");
+  assert.ok(Array.isArray(out.phase4.planned_exercise_ids));
+  assert.ok(out.phase4.planned_exercise_ids.length >= 1);
 
+  /* Phase5 must emit exactly ONE substitution */
   assert.ok(Array.isArray(out.phase5.adjustments));
   assert.equal(out.phase5.adjustments.length, 1);
-  assert.equal(out.phase5.adjustments[0].adjustment_id, "SUBSTITUTE_EXERCISE");
 
+  const adj = out.phase5.adjustments[0];
+  assert.equal(adj.adjustment_id, "SUBSTITUTE_EXERCISE");
+  assert.equal(adj.applied, true);
+  assert.equal(adj.details.target_exercise_id, "bench_press");
+  assert.equal(adj.details.substitute_exercise_id, "dumbbell_bench_press");
+
+  /* Phase6 mirrors UNIQUE final plan */
   assert.equal(out.phase6.session_id, "SESSION_V1");
   assert.ok(Array.isArray(out.phase6.exercises));
   assert.equal(out.phase6.exercises.length, 1);
@@ -47,5 +57,3 @@ test("E2E: Phase1 constraints envelope persists into Phase2 canonical JSON and d
   assert.equal(ex.exercise_id, "dumbbell_bench_press");
   assert.equal(ex.substituted_from, "bench_press");
 });
-
-
