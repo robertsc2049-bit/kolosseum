@@ -31,19 +31,88 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
 
-function asId(x: any): string {
+function asId(x: unknown): string {
   if (typeof x === "string") return x;
   if (!x || typeof x !== "object") return "";
-  return String(
-    (x as any).id ??
-      (x as any).registry_id ??
-      (x as any).name ??
-      (x as any).key ??
-      ""
-  );
+  const o = x as any;
+  return String(o.id ?? o.registry_id ?? o.name ?? o.key ?? "");
 }
 
-export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): Phase3Result {
+/**
+ * Extract registry ids from registry_index.json across multiple plausible schemas.
+ * Goal: return an ordered list of registry ids (strings).
+ */
+function extractRegistryIds(idx: unknown): string[] {
+  if (!idx) return [];
+
+  // If the root itself is an array (rare, but handle it)
+  if (Array.isArray(idx)) {
+    return idx
+      .map(asId)
+      .map((s: string) => String(s).trim())
+      .filter(Boolean);
+  }
+
+  if (!isRecord(idx)) return [];
+
+  const anyIdx: any = idx;
+
+  // Common array shapes
+  const rawArray =
+    (Array.isArray(anyIdx.index) && anyIdx.index) ||
+    (Array.isArray(anyIdx.registries) && anyIdx.registries) ||
+    (Array.isArray(anyIdx.items) && anyIdx.items) ||
+    (Array.isArray(anyIdx.entries) && anyIdx.entries) ||
+    (Array.isArray(anyIdx.order) && anyIdx.order) ||
+    null;
+
+  if (rawArray) {
+    return rawArray
+      .map(asId)
+      .map((s: string) => String(s).trim())
+      .filter(Boolean);
+  }
+
+  // Nested arrays under index/registries/items
+  if (isRecord(anyIdx.index) && Array.isArray((anyIdx.index as any).entries)) {
+    return (anyIdx.index as any).entries
+      .map(asId)
+      .map((s: string) => String(s).trim())
+      .filter(Boolean);
+  }
+  if (isRecord(anyIdx.registries) && Array.isArray((anyIdx.registries as any).entries)) {
+    return (anyIdx.registries as any).entries
+      .map(asId)
+      .map((s: string) => String(s).trim())
+      .filter(Boolean);
+  }
+  if (isRecord(anyIdx.items) && Array.isArray((anyIdx.items as any).entries)) {
+    return (anyIdx.items as any).entries
+      .map(asId)
+      .map((s: string) => String(s).trim())
+      .filter(Boolean);
+  }
+
+  // Object-map shapes where the keys are the registry ids
+  // (Preserves insertion order in modern JS engines for non-integer keys)
+  const mapCandidate =
+    (isRecord(anyIdx.registries) && anyIdx.registries) ||
+    (isRecord(anyIdx.index) && anyIdx.index) ||
+    (isRecord(anyIdx.entries) && anyIdx.entries) ||
+    null;
+
+  if (mapCandidate) {
+    return Object.keys(mapCandidate)
+      .map((s: string) => String(s).trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+export function phase3ResolveConstraintsAndLoadRegistries(
+  canonicalInput: any
+): Phase3Result {
   const notes: string[] = [];
   const loaded_registries: string[] = [];
 
@@ -55,19 +124,7 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
     const idx = readJson(idxPath);
     if (typeof idx?.version === "string") registry_index_version = idx.version;
 
-    // Accept common shapes:
-    //  - { index: ["activity","movement","exercise"] }
-    //  - { index: [{ id: "activity" }, ...] }
-    //  - { registries: ["activity", ...] }
-    //  - { registries: [{ registry_id: "activity" }, ...] }
-    //  - { items: [{ id: "activity" }, ...] }
-    const raw =
-      (Array.isArray(idx?.index) && idx.index) ||
-      (Array.isArray(idx?.registries) && idx.registries) ||
-      (Array.isArray(idx?.items) && idx.items) ||
-      [];
-
-    indexList = raw.map(asId).map(s => String(s).trim()).filter(Boolean);
+    indexList = extractRegistryIds(idx);
   }
 
   // Load registries in that exact order (best-effort) and record the order deterministically.
@@ -110,7 +167,11 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
   }
 
   if (!isRecord(env)) {
-    return { ok: false, failure_token: "type_mismatch", details: { path: "constraints", expected: "object" } };
+    return {
+      ok: false,
+      failure_token: "type_mismatch",
+      details: { path: "constraints", expected: "object" }
+    };
   }
 
   // Canonical constraints must exclude constraints_version.
