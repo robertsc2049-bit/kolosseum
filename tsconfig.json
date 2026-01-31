@@ -14,7 +14,8 @@
                     "engine/src/**/*.ts",
                     "cli/src/**/*.ts",
                     "src/**/*.ts",
-                    "engine/src/runtime/**/*.ts"
+                    "engine/src/runtime/**/*.ts",
+                    "engine/src/render/**/*.ts"
                 ],
     "exclude":  [
                     "dist"
