@@ -87,141 +87,62 @@ async function tryImportModule(modulePath) {
   }
 }
 
-function walkFiles(dirAbs, exts, out) {
-  if (!existsSync(dirAbs)) return;
-  for (const ent of readdirSync(dirAbs, { withFileTypes: true })) {
-    const p = join(dirAbs, ent.name);
-    if (ent.isDirectory()) {
-      if (ent.name === "node_modules" || ent.name === ".git") continue;
-      walkFiles(p, exts, out);
-      continue;
-    }
-    const e = extname(ent.name).toLowerCase();
-    if (exts.has(e)) out.push(p);
-  }
-}
-
-function rel(pAbs) {
-  const cwd = process.cwd();
-  return pAbs.startsWith(cwd) ? pAbs.slice(cwd.length + 1) : pAbs;
-}
-
-function looksLikeRunnerSource(text) {
-  const t = text.toLowerCase();
-  const phaseHits =
-    (t.includes("phase1") ? 1 : 0) +
-    (t.includes("phase2") ? 1 : 0) +
-    (t.includes("phase3") ? 1 : 0) +
-    (t.includes("phase4") ? 1 : 0) +
-    (t.includes("phase5") ? 1 : 0) +
-    (t.includes("phase6") ? 1 : 0);
-
-  const pipelineWords =
-    t.includes("pipeline") ||
-    t.includes("compile") ||
-    t.includes("session") ||
-    t.includes("engine") ||
-    t.includes("phases/phase");
-
-  const exportWords =
-    t.includes("export function") ||
-    t.includes("export const") ||
-    t.includes("export default");
-
-  return phaseHits >= 3 && pipelineWords && exportWords;
-}
-
+/**
+ * 🔒 LOCKED runner entrypoint (default):
+ *   dist/src/run_pipeline.js :: runPipeline
+ *
+ * Escape hatch (intentional only):
+ *   ENGINE_ENTRY=<module path> ENGINE_FN=<export name or 'default'>
+ *
+ * Autodiscovery is intentionally removed to prevent silent runner drift.
+ */
 async function resolveEngineRunner() {
-  const entry = (process.env.ENGINE_ENTRY || "").trim();
-  const fn = (process.env.ENGINE_FN || "").trim();
+  const entryEnv = (process.env.ENGINE_ENTRY || "").trim();
+  const fnEnv = (process.env.ENGINE_FN || "").trim();
 
-  const fnNames = [
-    "runPipeline",
-    "runEngine",
-    "compileSession",
-    "buildSession",
-    "compile",
-    "run",
-    "main",
-    "execute",
-    "engine",
-  ];
-
-  if (entry) {
-    const mod = await tryImportModule(entry);
-    if (!mod) die(`e2e:golden: ENGINE_ENTRY '${entry}' could not be imported.`);
-    if (!fn) die(`e2e:golden: ENGINE_FN not set. Set ENGINE_FN to the exported function name in '${entry}'.`);
-    const f = fn === "default" ? mod.default : mod[fn];
-    if (typeof f !== "function") die(`e2e:golden: '${entry}' does not export a function named '${fn}'.`);
-    return { run: f, note: `ENGINE_ENTRY=${entry} ENGINE_FN=${fn}` };
+  // Intentional override path (explicit only)
+  if (entryEnv) {
+    const mod = await tryImportModule(entryEnv);
+    if (!mod) die(`e2e:golden: ENGINE_ENTRY '${entryEnv}' could not be imported.`);
+    if (!fnEnv) die(`e2e:golden: ENGINE_FN not set. Set ENGINE_FN to the exported function name in '${entryEnv}'.`);
+    const f = fnEnv === "default" ? mod.default : mod[fnEnv];
+    if (typeof f !== "function") die(`e2e:golden: '${entryEnv}' does not export a function named '${fnEnv}'.`);
+    return { run: f, note: `ENGINE_ENTRY=${entryEnv} ENGINE_FN=${fnEnv}` };
   }
 
-  const roots = [
-    resolve(process.cwd(), "dist/src"),
-    resolve(process.cwd(), "engine/dist/src"),
-    resolve(process.cwd(), "engine/src"),
-    resolve(process.cwd(), "src"),
-    resolve(process.cwd(), "scripts"),
-  ];
+  // Locked default runner
+  const lockedEntry = "dist/src/run_pipeline.js";
+  const lockedFnName = "runPipeline";
 
-  const filesAbs = [];
-  walkFiles(process.cwd(), new Set([".mjs", ".js"]), filesAbs);
-
-  const preferred = new Set(roots.filter(existsSync).map((r) => r));
-  const underPreferred = filesAbs.filter((p) => {
-    for (const r of preferred) if (p.startsWith(r)) return true;
-    return false;
-  });
-
-  const pool = underPreferred.length ? underPreferred : filesAbs;
-
-  const shortlisted = [];
-  for (const pAbs of pool) {
-    try {
-      const txt = readFileSync(pAbs, "utf8");
-      if (looksLikeRunnerSource(txt)) shortlisted.push(pAbs);
-    } catch {}
+  const mod = await tryImportModule(lockedEntry);
+  if (!mod) {
+    die(
+      `e2e:golden: Locked runner could not be imported.\n` +
+        `expected entry: ${lockedEntry}\n\n` +
+        `Fix:\n` +
+        `  1) npm run build\n` +
+        `  2) Ensure '${lockedEntry}' exists and exports '${lockedFnName}'.\n\n` +
+        `If you intentionally moved the runner, run with explicit env:\n` +
+        `  ENGINE_ENTRY=<module path> ENGINE_FN=<export name or 'default'> npm run e2e:golden\n`
+    );
   }
 
-  const fallbackCentral = [
-    resolve(process.cwd(), "dist/src/run_pipeline.js"),
-    resolve(process.cwd(), "engine/dist/src/run_pipeline.js"),
-    resolve(process.cwd(), "dist/src/index.js"),
-    resolve(process.cwd(), "dist/src/server.js"),
-    resolve(process.cwd(), "engine/src/run_pipeline.ts"),
-    resolve(process.cwd(), "engine/src/index.js"),
-    resolve(process.cwd(), "engine/src/index.ts"),
-  ].filter(existsSync);
-
-  const candidatesAbs = [...shortlisted, ...fallbackCentral].slice(0, 80);
-
-  for (const pAbs of candidatesAbs) {
-    const relPath = rel(pAbs);
-    const mod = await tryImportModule(relPath);
-    if (!mod) continue;
-
-    for (const name of fnNames) {
-      if (typeof mod[name] === "function") return { run: mod[name], note: `auto: ${relPath}::${name}` };
-    }
-    if (typeof mod.default === "function") return { run: mod.default, note: `auto: ${relPath}::default` };
+  const f = mod[lockedFnName];
+  if (typeof f !== "function") {
+    const exports = Object.keys(mod || {}).sort().join(", ");
+    die(
+      `e2e:golden: Locked runner module imported but missing required export.\n` +
+        `entry: ${lockedEntry}\n` +
+        `required export: ${lockedFnName}\n` +
+        `module exports: [${exports || "(none)"}]\n\n` +
+        `Fix:\n` +
+        `  - Ensure '${lockedEntry}' exports '${lockedFnName}'.\n` +
+        `  - Or intentionally override with:\n` +
+        `    ENGINE_ENTRY=<module path> ENGINE_FN=<export name or 'default'> npm run e2e:golden\n`
+    );
   }
 
-  const triedList = candidatesAbs.map((p) => "  - " + rel(p)).join("\n");
-  die(
-`e2e:golden: Could not auto-discover an engine runner function.
-
-Next steps (pick one):
-A) Find a runner export and set env once:
-   ENGINE_ENTRY=<module path> ENGINE_FN=<export name or 'default'> npm run e2e:golden
-
-B) If no runner exists, we will create one file:
-   engine/src/run_pipeline.mjs exporting runPipeline(input)
-
-Auto-discovery shortlists up to 80 candidates using phase/pipeline heuristics.
-Tried candidates:
-${triedList || "  (none)"}
-`
-  );
+  return { run: f, note: `locked: ${lockedEntry}::${lockedFnName}` };
 }
 
 async function main() {
