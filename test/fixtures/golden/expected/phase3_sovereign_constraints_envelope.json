@@ -17,6 +17,27 @@
     "phase2_canonical_json": "{\"activity_id\":\"powerlifting\",\"actor_type\":\"athlete\",\"bias_mode\":\"none\",\"consent_granted\":true,\"constraints\":{\"available_equipment\":[\"eq_barbell\"],\"avoid_joint_stress_tags\":[\"knee\"],\"constraints_version\":\"1.0.0\"},\"engine_version\":\"EB2-1.0.0\",\"enum_bundle_version\":\"EB2-1.0.0\",\"execution_scope\":\"individual\",\"exposure_prompt_density\":\"standard\",\"instruction_density\":\"standard\",\"nd_mode\":false,\"phase1_schema_version\":\"1.0.0\"}",
     "phase2_hash": "646dbfa8d70f07dfb514a6c367a245d3e45cea2be8d3919ebd6f5032a254660b"
   },
+  "phase3_debug": {
+    "payload": {
+      "constraints": {
+        "available_equipment": [
+          "eq_barbell"
+        ],
+        "avoid_joint_stress_tags": "[Circular]"
+      },
+      "constraints_resolved": true,
+      "loaded_registries": [
+        "activity",
+        "movement",
+        "exercise"
+      ],
+      "notes": [
+        "PHASE_3: registries loaded",
+        "PHASE_3: constraints envelope present — canonicalized (v1)"
+      ],
+      "registry_index_version": "1.0.0"
+    }
+  },
   "session": {
     "exercises": [
       {
