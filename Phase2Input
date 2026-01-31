@@ -1,0 +1,26 @@
+{
+  "phase2_schema_version": "1.0.0",
+  "goal": {
+    "primary": "strength",
+    "secondary": []
+  },
+  "schedule": {
+    "days_per_week": 3,
+    "timebox_minutes": 60,
+    "preferred_days": ["mon", "wed", "fri"]
+  },
+  "equipment": {
+    "available": ["barbell", "rack", "bench", "plates", "dumbbells", "cables_high_low"],
+    "banned": []
+  },
+  "preferences": {
+    "consistency_variety": "balanced",
+    "instruction_density": "standard",
+    "volume_cap": "standard"
+  },
+  "pain_probe": {
+    "has_active_pain": false,
+    "active_sites": [],
+    "probe_consent": true
+  }
+}

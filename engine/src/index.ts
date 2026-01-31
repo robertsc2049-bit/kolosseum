@@ -1,4 +1,4 @@
-﻿import { phase1Validate } from "./phases/phase1.js";
+import { phase1Validate } from "./phases/phase1.js";
 import { phase2CanonicaliseAndHash } from "./phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "./phases/phase3.js";
 import { phase4AssembleProgram } from "./phases/phase4.js";
@@ -177,3 +177,4 @@ export function runEngine(input: unknown) {
     phase6: phase6Out
   };
 }
+export * from "./run_pipeline.js";

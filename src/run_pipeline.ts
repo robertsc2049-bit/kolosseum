@@ -1,6 +1,6 @@
 /**
  * src/run_pipeline.ts
- * Deterministic Phase1→Phase6 runner for CI golden tests.
+ * Deterministic Phase1 -> Phase6 runner for CI golden tests.
  *
  * Important:
  * - Preserve Phase5 envelope (ok + adjustments) so Phase6 can see substitutions.
