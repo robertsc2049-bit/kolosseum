@@ -23,7 +23,9 @@
         "available_equipment": [
           "eq_barbell"
         ],
-        "avoid_joint_stress_tags": "[Circular]"
+        "avoid_joint_stress_tags": [
+          "knee"
+        ]
       },
       "constraints_resolved": true,
       "loaded_registries": [

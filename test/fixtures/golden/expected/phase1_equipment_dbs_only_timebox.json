@@ -7,11 +7,12 @@
     "exercises": [
       {
         "block_id": "B0",
-        "exercise_id": "bench_press",
+        "exercise_id": "dumbbell_bench_press",
         "item_id": "B0_I0",
         "reps": 5,
         "sets": 3,
-        "source": "program"
+        "source": "program",
+        "substituted_from": "bench_press"
       },
       {
         "block_id": "B0",

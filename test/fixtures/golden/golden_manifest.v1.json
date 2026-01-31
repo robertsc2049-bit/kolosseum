@@ -1,6 +1,6 @@
 {
   "manifest_version": "1.0.0",
-  "generated_utc": "2026-01-31T16:20:28.799Z",
+  "generated_utc": "2026-01-31T16:47:17.126Z",
   "root": "test/fixtures/golden",
   "files": [
     {
@@ -37,7 +37,7 @@
     },
     {
       "path": "expected/phase3_sovereign_constraints_envelope.json",
-      "sha256": "0ab77299fcbede4ef30f9bc327f0f56a2bee805637c6ba637fa68f03fb5f96ec"
+      "sha256": "2aa29f1acaea0902605f25d68a2b2de9c40abf1fa4b2a1295f049470e378c2d2"
     },
     {
       "path": "expected/vanilla_minimal.json",

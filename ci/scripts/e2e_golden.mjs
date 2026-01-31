@@ -21,18 +21,41 @@ function readTextUtf8Normalized(p) {
   return normalizeLf(stripBom(raw));
 }
 
+/**
+ * Deterministic stringify that:
+ * - sorts object keys
+ * - preserves array order
+ * - breaks TRUE cycles as "[Circular]"
+ * - does NOT treat shared references as circular
+ */
 function stableStringify(value) {
-  const seen = new WeakSet();
-  const sorter = (v) => {
+  const stack = new WeakSet(); // current recursion path only
+  const memo = new WeakMap();  // preserves shared refs
+
+  const clone = (v) => {
     if (v === null || typeof v !== "object") return v;
-    if (seen.has(v)) return "[Circular]";
-    seen.add(v);
-    if (Array.isArray(v)) return v.map(sorter);
-    const out = {};
-    for (const k of Object.keys(v).sort()) out[k] = sorter(v[k]);
+
+    // True cycle: back-edge into the current recursion stack
+    if (stack.has(v)) return "[Circular]";
+
+    // Shared reference: reuse already-cloned node
+    if (memo.has(v)) return memo.get(v);
+
+    const out = Array.isArray(v) ? [] : {};
+    memo.set(v, out);
+    stack.add(v);
+
+    if (Array.isArray(v)) {
+      for (const item of v) out.push(clone(item));
+    } else {
+      for (const k of Object.keys(v).sort()) out[k] = clone(v[k]);
+    }
+
+    stack.delete(v);
     return out;
   };
-  return JSON.stringify(sorter(value), null, 2) + "\n";
+
+  return JSON.stringify(clone(value), null, 2) + "\n";
 }
 
 function sha256(s) {
