@@ -1,0 +1,12 @@
+{
+  "outputs_version": "1.0.0",
+  "generated_utc": "2026-01-31T14:37:55.334Z",
+  "root": "test/fixtures/golden/expected",
+  "output_sha256_by_fixture": {
+    "phase1_constraints_gym_basic": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819",
+    "phase1_envelope_powerlifting_default": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819",
+    "phase1_equipment_dbs_only_timebox": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819",
+    "phase1_pain_knee_powerlifting": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819",
+    "vanilla_minimal": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+  }
+}
