@@ -1,11 +1,28 @@
 {
   "notes": [
-    "PHASE_6_STUB: deterministic empty session shell"
+    "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
   ],
   "ok": true,
   "session": {
-    "exercises": [],
-    "session_id": "SESSION_STUB",
+    "exercises": [
+      {
+        "block_id": "B0",
+        "exercise_id": "bench_press",
+        "item_id": "B0_I0",
+        "reps": 5,
+        "sets": 3,
+        "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "back_squat",
+        "item_id": "B0_I1",
+        "reps": 5,
+        "sets": 3,
+        "source": "program"
+      }
+    ],
+    "session_id": "SESSION_V1",
     "status": "ready"
   }
 }

@@ -5,11 +5,10 @@
  * Important:
  * - Preserve Phase5 envelope (ok + adjustments) so Phase6 can see substitutions.
  * - Pass Phase1 canonical into Phase6 as the canonicalInput fingerprint source.
- * - Phase7b: optional debug_render_session_text flag (STRIPPED before Phase1).
+ * - Optional runner-only debug_render_session_text flag (STRIPPED before Phase1).
  *   When true, attach rendered_text to the final output (but never by default).
  */
 
-import * as fs from "node:fs";
 import * as P1 from "../engine/src/phases/phase1.js";
 import * as P2 from "../engine/src/phases/phase2.js";
 import * as P3 from "../engine/src/phases/phase3.js";
@@ -72,9 +71,7 @@ function pickOneOrHeuristic(mod: Record<string, any>, phaseNum: number, preferre
   ];
 
   for (const re of patterns) {
-    const hits = fns
-      .filter((x) => re.test(x.key))
-      .sort((a, b) => a.key.length - b.key.length);
+    const hits = fns.filter((x) => re.test(x.key)).sort((a, b) => a.key.length - b.key.length);
     if (hits.length) return hits[0].fn;
   }
 
@@ -96,6 +93,14 @@ function assertOk(r: any, label: string) {
   }
 }
 
+/**
+ * Unwrap phase payloads.
+ *
+ * NOTE: Your Phase1 emits { ok:true, canonical_input: {...} }.
+ * NOTE: Your Phase3 emits { ok:true, phase3: {...}, notes:[...] }.
+ *
+ * We support multiple historical keys so this runner stays resilient.
+ */
 function unwrapPayload(r: any, preferredKeys: string[]) {
   if (!r || typeof r !== "object" || r.ok !== true) return r;
   for (const k of preferredKeys) {
@@ -116,7 +121,6 @@ function attachRenderedTextIfEnabled(out: any, enabled: boolean) {
 
   const rendered_text = renderSessionText(session);
 
-  // attach in a way that doesn't disturb existing output when flag is false
   return {
     ...(out as any),
     rendered_text
@@ -137,28 +141,32 @@ export async function runPipeline(phase1Input: any) {
   // Phase1
   const r1 = await phase1(phase1InputClean);
   assertOk(r1, "phase1");
-  const p1 = unwrapPayload(r1, ["phase1", "output", "canonical"]);
+  const p1 = unwrapPayload(r1, ["canonical_input", "canonical", "phase1", "output"]);
   const phase1CanonicalForP6 = p1;
 
   // Phase2
   const r2 = await phase2(p1);
   assertOk(r2, "phase2");
-  const p2 = unwrapPayload(r2, ["phase2", "output", "canonical"]);
+  const p2 = unwrapPayload(r2, ["phase2", "canonical", "canonical_input", "output"]);
 
   // Phase3
   const r3 = await phase3(p2);
   assertOk(r3, "phase3");
-  const p3 = unwrapPayload(r3, ["phase3", "output", "canonical"]);
+  const p3 = unwrapPayload(r3, ["phase3", "canonical", "output"]);
 
-  // Phase4 expects (phase2, phase3)
+  // Phase4: prefer (phase1 canonical input, phase3 payload), then fallbacks
   let r4: any;
   try {
-    r4 = await phase4(p2, p3);
+    r4 = await phase4(p1, p3);
   } catch {
     try {
-      r4 = await phase4(p3);
+      r4 = await phase4(p2, p3);
     } catch {
-      r4 = await phase4(p2);
+      try {
+        r4 = await phase4(p3);
+      } catch {
+        r4 = await phase4(p2);
+      }
     }
   }
   assertOk(r4, "phase4");
