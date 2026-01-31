@@ -1,33 +1,42 @@
 {
-  "details": [
-    {
-      "instancePath": "",
-      "keyword": "required",
-      "message": "must have required property 'engine_version'",
-      "params": {
-        "missingProperty": "engine_version"
-      },
-      "schemaPath": "#/required"
-    },
-    {
-      "instancePath": "",
-      "keyword": "required",
-      "message": "must have required property 'enum_bundle_version'",
-      "params": {
-        "missingProperty": "enum_bundle_version"
-      },
-      "schemaPath": "#/required"
-    },
-    {
-      "instancePath": "",
-      "keyword": "required",
-      "message": "must have required property 'phase1_schema_version'",
-      "params": {
-        "missingProperty": "phase1_schema_version"
-      },
-      "schemaPath": "#/required"
-    }
+  "notes": [
+    "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
   ],
-  "failure_token": "type_mismatch",
-  "ok": false
+  "ok": true,
+  "phase2_debug": {
+    "canonical_input_hash": "646dbfa8d70f07dfb514a6c367a245d3e45cea2be8d3919ebd6f5032a254660b",
+    "constraints": {
+      "available_equipment": [
+        "eq_barbell"
+      ],
+      "avoid_joint_stress_tags": [
+        "knee"
+      ],
+      "constraints_version": "1.0.0"
+    },
+    "phase2_canonical_json": "{\"activity_id\":\"powerlifting\",\"actor_type\":\"athlete\",\"bias_mode\":\"none\",\"consent_granted\":true,\"constraints\":{\"available_equipment\":[\"eq_barbell\"],\"avoid_joint_stress_tags\":[\"knee\"],\"constraints_version\":\"1.0.0\"},\"engine_version\":\"EB2-1.0.0\",\"enum_bundle_version\":\"EB2-1.0.0\",\"execution_scope\":\"individual\",\"exposure_prompt_density\":\"standard\",\"instruction_density\":\"standard\",\"nd_mode\":false,\"phase1_schema_version\":\"1.0.0\"}",
+    "phase2_hash": "646dbfa8d70f07dfb514a6c367a245d3e45cea2be8d3919ebd6f5032a254660b"
+  },
+  "session": {
+    "exercises": [
+      {
+        "block_id": "B0",
+        "exercise_id": "bench_press",
+        "item_id": "B0_I0",
+        "reps": 5,
+        "sets": 3,
+        "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "back_squat",
+        "item_id": "B0_I1",
+        "reps": 5,
+        "sets": 3,
+        "source": "program"
+      }
+    ],
+    "session_id": "SESSION_V1",
+    "status": "ready"
+  }
 }
