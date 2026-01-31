@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
+﻿import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve, basename, extname, join } from "node:path";
 import { createHash } from "node:crypto";
 import process from "node:process";
@@ -145,6 +145,13 @@ async function resolveEngineRunner() {
   return { run: f, note: `locked: ${lockedEntry}::${lockedFnName}` };
 }
 
+function extractFailureTokenFromThrown(err) {
+  const text = String(err?.stack || err?.message || err || "");
+  const m = text.match(/failure_token=([a-z0-9_]+)/i);
+  if (!m) return null;
+  return String(m[1]).trim();
+}
+
 async function main() {
   const inputsDir = resolve(process.cwd(), "test/fixtures/golden/inputs");
   const expectedDir = resolve(process.cwd(), "test/fixtures/golden/expected");
@@ -193,8 +200,15 @@ To create snapshots locally:
     try {
       actual = await run(input);
     } catch (e) {
-      offenders.push({ name, kind: "runtime", detail: String(e?.stack || e) });
-      continue;
+      // Treat thrown engine failures that include failure_token=... as canonical failure outputs.
+      // This allows negative goldens without depending on exception stack stability.
+      const token = extractFailureTokenFromThrown(e);
+      if (token) {
+        actual = { ok: false, failure_token: token };
+      } else {
+        offenders.push({ name, kind: "runtime", detail: String(e?.stack || e) });
+        continue;
+      }
     }
 
     const actualText = stableStringify(actual);

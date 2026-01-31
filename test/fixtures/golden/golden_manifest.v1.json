@@ -1,8 +1,12 @@
 {
   "manifest_version": "1.0.0",
-  "generated_utc": "2026-01-31T14:18:54.187Z",
+  "generated_utc": "2026-01-31T15:05:03.296Z",
   "root": "test/fixtures/golden",
   "files": [
+    {
+      "path": "expected/neg_phase1_unknown_field.json",
+      "sha256": "ea61726a2b105b2f2c1ef72ddec978cc8a5c9e1bacf2b736869033be1111df2b"
+    },
     {
       "path": "expected/phase1_constraints_gym_basic.json",
       "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
@@ -22,6 +26,10 @@
     {
       "path": "expected/vanilla_minimal.json",
       "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+    },
+    {
+      "path": "inputs/neg_phase1_unknown_field.json",
+      "sha256": "02e60fddf0c7489ce5e31b70ae1eeacdb0bf06ae4b2c26a161a4297101ab2f29"
     },
     {
       "path": "inputs/phase1_constraints_gym_basic.json",
