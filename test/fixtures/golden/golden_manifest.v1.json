@@ -1,11 +1,11 @@
 {
   "manifest_version": "1.0.0",
-  "generated_utc": "2026-01-31T15:05:03.296Z",
+  "generated_utc": "2026-01-31T15:17:40.944Z",
   "root": "test/fixtures/golden",
   "files": [
     {
       "path": "expected/neg_phase1_unknown_field.json",
-      "sha256": "ea61726a2b105b2f2c1ef72ddec978cc8a5c9e1bacf2b736869033be1111df2b"
+      "sha256": "320eb67a37d528c3cc3375ea7d9799e883bf5959c54bdd54a1231669a525178a"
     },
     {
       "path": "expected/phase1_constraints_gym_basic.json",

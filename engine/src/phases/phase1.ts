@@ -70,12 +70,12 @@ function preflightConstraintsRefusal(obj: any): Phase1Result | null {
     return {
       ok: false,
       failure_token: "constraints_type_invalid",
-      details: "PHASE_1: constraints envelope present but not an object"
+      details: "PHASE_1: constraints envelope present but not an object",
     };
   }
 
   const keys = Object.keys(c);
-  const refused = keys.filter(k => k.endsWith("_ids"));
+  const refused = keys.filter((k) => k.endsWith("_ids"));
   if (refused.length > 0) {
     refused.sort((a, b) => a.localeCompare(b));
     return {
@@ -84,8 +84,8 @@ function preflightConstraintsRefusal(obj: any): Phase1Result | null {
       details: {
         refused,
         rule: "Keys ending with _ids are not permitted",
-        canonical_keys: ["constraints_version", "avoid_joint_stress_tags", "banned_equipment", "available_equipment"]
-      }
+        canonical_keys: ["constraints_version", "avoid_joint_stress_tags", "banned_equipment", "available_equipment"],
+      },
     };
   }
 
@@ -95,8 +95,8 @@ function preflightConstraintsRefusal(obj: any): Phase1Result | null {
       failure_token: "constraints_version_invalid_or_missing",
       details: {
         received: (c as any).constraints_version,
-        required: "1.0.0"
-      }
+        required: "1.0.0",
+      },
     };
   }
 
@@ -117,6 +117,48 @@ function canonicalizeConstraints(raw: any): Phase1Constraints {
   return out;
 }
 
+/**
+ * AJV error classifier:
+ * - additionalProperties => unknown_field
+ * - everything else => type_mismatch
+ *
+ * We keep details deterministic by extracting only stable fields and sorting.
+ */
+function classifyAjvErrors(errors: any[] | null | undefined): Phase1Result {
+  const errs = Array.isArray(errors) ? errors : [];
+
+  const unknowns: { instancePath: string; additionalProperty: string }[] = [];
+  for (const e of errs) {
+    if (e && typeof e === "object" && e.keyword === "additionalProperties") {
+      const instancePath = typeof e.instancePath === "string" ? e.instancePath : "";
+      const ap =
+        e.params && typeof e.params === "object" && typeof e.params.additionalProperty === "string"
+          ? e.params.additionalProperty
+          : "";
+      if (ap) unknowns.push({ instancePath, additionalProperty: ap });
+    }
+  }
+
+  if (unknowns.length > 0) {
+    unknowns.sort((a, b) => {
+      const pa = `${a.instancePath}::${a.additionalProperty}`;
+      const pb = `${b.instancePath}::${b.additionalProperty}`;
+      return pa.localeCompare(pb);
+    });
+
+    return {
+      ok: false,
+      failure_token: "unknown_field",
+      details: {
+        unknown_fields: unknowns,
+        ajv_errors: errs,
+      },
+    };
+  }
+
+  return { ok: false, failure_token: "type_mismatch", details: errs };
+}
+
 export function phase1Validate(input: unknown): Phase1Result {
   const schemaTextRaw = fs.readFileSync("ci/schemas/phase1.input.schema.v1.0.0.json", "utf8");
   const schemaText = stripBom(schemaTextRaw);
@@ -125,7 +167,7 @@ export function phase1Validate(input: unknown): Phase1Result {
   const ajv = new Ajv({
     allErrors: true,
     strict: true,
-    strictRequired: false
+    strictRequired: false,
   });
 
   if (isRecord(input)) {
@@ -137,7 +179,7 @@ export function phase1Validate(input: unknown): Phase1Result {
   const ok = validate(input);
 
   if (!ok) {
-    return { ok: false, failure_token: "type_mismatch", details: validate.errors };
+    return classifyAjvErrors(validate.errors as any);
   }
 
   const obj = input as any;
@@ -163,7 +205,7 @@ export function phase1Validate(input: unknown): Phase1Result {
     nd_mode: obj.nd_mode,
     instruction_density: obj.instruction_density,
     exposure_prompt_density: obj.exposure_prompt_density,
-    bias_mode: obj.bias_mode
+    bias_mode: obj.bias_mode,
   };
 
   const envelopePresent = Object.prototype.hasOwnProperty.call(obj ?? {}, "constraints");
@@ -173,7 +215,3 @@ export function phase1Validate(input: unknown): Phase1Result {
 
   return { ok: true, canonical_input: canonical };
 }
-
-
-
-
