@@ -24,3 +24,8 @@ server.err.log
 .vscode/*
 !.vscode/settings.json
 
+
+# local pipeline scratch
+_tmp_pipeline_out.json
+_tmp_pipeline_err.log
+
