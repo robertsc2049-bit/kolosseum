@@ -9,7 +9,7 @@
     "guard:constraints": "node ci/guards/no_legacy_constraints.mjs",
     "guard:version": "node scripts/version-gate.mjs",
     "lint": "node ci/guards/repo_contract.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs",
-    "ci": "npm run guard:constraints && npm run guard:version && npm run lint && npm test",
+    "ci": "npm run guard:constraints && npm run guard:version && npm run lint && npm test && npm run e2e:golden",
     "hash:write": "node ci/scripts/write_checksums.mjs",
     "run:cli": "node dist/cli/src/main.js",
     "db:schema": "node scripts/apply-schema.mjs",
@@ -20,8 +20,7 @@
     "release:prepare": "node scripts/ps-runner.mjs --file scripts/release-prepare.ps1",
     "release:tag": "node scripts/ps-runner.mjs --file scripts/tag-release.ps1",
     "e2e:golden": "node ci/scripts/e2e_golden.mjs",
-    "ci": "npm run guard:constraints && npm run guard:version && npm run lint && npm test && npm run e2e:golden"
-
+    "pipeline:run": "node dist/src/run_pipeline_cli.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
