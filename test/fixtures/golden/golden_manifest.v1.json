@@ -1,6 +1,6 @@
 {
   "manifest_version": "1.0.0",
-  "generated_utc": "2026-01-31T15:36:48.232Z",
+  "generated_utc": "2026-01-31T15:43:09.496Z",
   "root": "test/fixtures/golden",
   "files": [
     {
@@ -25,7 +25,7 @@
     },
     {
       "path": "expected/phase1_equipment_dbs_only_timebox.json",
-      "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+      "sha256": "30cd911173921f77a8aa1c0cb16ede33bb408f69602da4b1bdef89a3e62b2780"
     },
     {
       "path": "expected/phase1_pain_knee_powerlifting.json",
@@ -33,7 +33,7 @@
     },
     {
       "path": "expected/phase3_precedence_banned_over_available.json",
-      "sha256": "8b35daa4ed71b07d0ae1c17312c6b6036ebfd0ca31be8e5f9cdce7eb9120579e"
+      "sha256": "8eb562b407e44b2e3b7b50ee08d7b9a7035adbd9905fabf1067589e2c70cc486"
     },
     {
       "path": "expected/vanilla_minimal.json",
