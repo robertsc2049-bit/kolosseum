@@ -19,5 +19,6 @@
                         "banned_equipment":  [
                                                  "eq_barbell"
                                              ]
-                    }
+                    },
+    "debug_emit_phase2":  true
 }
