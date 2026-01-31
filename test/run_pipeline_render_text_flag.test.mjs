@@ -39,6 +39,15 @@ async function loadRenderer() {
   throw lastErr ?? new Error("Unable to import renderSessionText from dist");
 }
 
+const SKIP_DIRS = new Set([
+  "node_modules",
+  "dist",
+  ".git",
+  ".vscode",
+  ".next",
+  "coverage"
+]);
+
 async function walk(dir, maxDepth, depth = 0) {
   if (depth > maxDepth) return [];
   let entries;
@@ -51,27 +60,36 @@ async function walk(dir, maxDepth, depth = 0) {
   const out = [];
   for (const ent of entries) {
     const full = path.join(dir, ent.name);
+
     if (ent.isDirectory()) {
+      if (SKIP_DIRS.has(ent.name)) continue;
       out.push(...(await walk(full, maxDepth, depth + 1)));
-    } else if (ent.isFile()) {
-      out.push(full);
+      continue;
     }
+
+    if (ent.isFile()) out.push(full);
   }
   return out;
 }
 
 async function findVanillaMinimalFixture() {
   const root = process.cwd();
-  const ciDir = path.join(root, "ci");
-  const files = await walk(ciDir, 6);
+
+  // Search broadly; fixtures are not guaranteed to live under ./ci
+  const files = await walk(root, 8);
 
   const candidates = files
-    .filter((f) => f.toLowerCase().endsWith(".json"))
-    .filter((f) => path.basename(f).toLowerCase().includes("vanilla_minimal"))
+    .filter((f) => {
+      const base = path.basename(f).toLowerCase();
+      if (!(base.endsWith(".json") || base.endsWith(".jsonc"))) return false;
+      return base.includes("vanilla_minimal");
+    })
     .sort((a, b) => a.length - b.length);
 
   if (candidates.length === 0) {
-    throw new Error("No vanilla_minimal*.json found under ./ci (needed for run_pipeline flag test).");
+    throw new Error(
+      "No vanilla_minimal*.json/jsonc found anywhere in repo (needed for run_pipeline flag test)."
+    );
   }
 
   return candidates[0];
@@ -83,7 +101,13 @@ test("runPipeline does not emit rendered_text by default, but does when debug fl
 
   const fixturePath = await findVanillaMinimalFixture();
   const raw = await fs.readFile(fixturePath, "utf8");
-  const phase1Input = JSON.parse(raw);
+
+  // jsonc-safe parse (strip // line comments + /* */ blocks)
+  const cleaned = raw
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+
+  const phase1Input = JSON.parse(cleaned);
 
   const out1 = await runPipeline(phase1Input);
   assert.ok(out1 && typeof out1 === "object");
@@ -96,7 +120,6 @@ test("runPipeline does not emit rendered_text by default, but does when debug fl
   assert.equal(typeof out2.rendered_text.title, "string");
   assert.ok(Array.isArray(out2.rendered_text.lines));
 
-  // Validate it matches the renderer output exactly (deterministic)
   const expected = renderSessionText(out2.session);
   assert.deepEqual(out2.rendered_text, expected);
 });
