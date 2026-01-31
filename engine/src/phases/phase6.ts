@@ -5,7 +5,7 @@ export type Phase6SessionExercise = {
   exercise_id: string;
   source: "program";
 
-  // Rich fields only when driven by planned_items
+  // Optional prescription fields
   block_id?: string;
   item_id?: string;
   sets?: number;
@@ -61,7 +61,8 @@ function poolFromProgram(program: any): Record<string, ExerciseSignature> {
  */
 function planMode(program: any): "planned_items" | "planned_exercise_ids" | "exercises" | "empty" {
   if (Array.isArray(program?.planned_items) && program.planned_items.length > 0) return "planned_items";
-  if (Array.isArray(program?.planned_exercise_ids) && program.planned_exercise_ids.length > 0) return "planned_exercise_ids";
+  if (Array.isArray(program?.planned_exercise_ids) && program.planned_exercise_ids.length > 0)
+    return "planned_exercise_ids";
   if (Array.isArray(program?.exercises) && program.exercises.length > 0) return "exercises";
   return "empty";
 }
@@ -84,7 +85,11 @@ function applySubstitutions(
   p5: Phase5Like
 ): { ids: string[]; substitutedFrom: Map<string, string>; applied: boolean } {
   const substitutedFrom = new Map<string, string>();
-  if (!p5 || (p5 as any).ok !== true) return { ids: plannedIds, substitutedFrom, applied: false };
+
+  // ✅ FIXED: valid early return object (no truncation)
+  if (!p5 || (p5 as any).ok !== true) {
+    return { ids: plannedIds, substitutedFrom, applied: false };
+  }
 
   const adjustments = Array.isArray((p5 as any).adjustments) ? (p5 as any).adjustments : [];
   let ids = [...plannedIds];
@@ -117,6 +122,33 @@ function dedupeStable(ids: string[]): string[] {
     out.push(id);
   }
   return out;
+}
+
+/**
+ * Build deterministic prescription lookup from program.exercises[]
+ * (Used to enrich legacy plan modes.)
+ */
+function buildPrescriptionById(program: any): Map<string, Partial<Phase6SessionExercise>> {
+  const map = new Map<string, Partial<Phase6SessionExercise>>();
+  if (!Array.isArray(program?.exercises)) return map;
+
+  for (const ex of program.exercises) {
+    if (!ex || typeof ex.exercise_id !== "string") continue;
+
+    const entry: Partial<Phase6SessionExercise> = {};
+    if (typeof ex.block_id === "string") entry.block_id = ex.block_id;
+    if (typeof ex.item_id === "string") entry.item_id = ex.item_id;
+    if (typeof ex.sets === "number") entry.sets = ex.sets;
+    if (typeof ex.reps === "number") entry.reps = ex.reps;
+    if (ex.intensity) entry.intensity = ex.intensity;
+    if (typeof ex.rest_seconds === "number") entry.rest_seconds = ex.rest_seconds;
+
+    if (Object.keys(entry).length > 0) {
+      map.set(ex.exercise_id, entry);
+    }
+  }
+
+  return map;
 }
 
 /**
@@ -209,10 +241,18 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
   }
 
   // Legacy paths: planned_exercise_ids or exercises[]
+  // ✅ Enrich from program.exercises[] when metadata exists
+  const prescriptionById = buildPrescriptionById(prog);
+
   const exercises: Phase6SessionExercise[] = finalIds.map((id) => {
     const ex: Phase6SessionExercise = { exercise_id: id, source: "program" };
+
+    const meta = prescriptionById.get(id);
+    if (meta) Object.assign(ex, meta);
+
     const from = substitutedFrom.get(id);
     if (from) ex.substituted_from = from;
+
     return ex;
   });
 
