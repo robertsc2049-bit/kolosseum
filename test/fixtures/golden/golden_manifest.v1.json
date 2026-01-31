@@ -1,8 +1,16 @@
 {
   "manifest_version": "1.0.0",
-  "generated_utc": "2026-01-31T15:17:40.944Z",
+  "generated_utc": "2026-01-31T15:27:04.495Z",
   "root": "test/fixtures/golden",
   "files": [
+    {
+      "path": "expected/neg_phase1_constraints_legacy_ids_refused.json",
+      "sha256": "8371d398b6e7ba54a242f4acf40464fde80907306195daf9490872c392c4a8ee"
+    },
+    {
+      "path": "expected/neg_phase1_constraints_type_invalid.json",
+      "sha256": "d47eade3550483d81c49d6ab5c5758c40b8c8c20cde3db513f708c828b5c08cb"
+    },
     {
       "path": "expected/neg_phase1_unknown_field.json",
       "sha256": "320eb67a37d528c3cc3375ea7d9799e883bf5959c54bdd54a1231669a525178a"
@@ -26,6 +34,14 @@
     {
       "path": "expected/vanilla_minimal.json",
       "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+    },
+    {
+      "path": "inputs/neg_phase1_constraints_legacy_ids_refused.json",
+      "sha256": "b3c0883b3370d1fc6dcbe3d41a3635bb136d956588fa446c6c819f4d296c063b"
+    },
+    {
+      "path": "inputs/neg_phase1_constraints_type_invalid.json",
+      "sha256": "0dff095ceba15cbca12523dad2c4a4bef8d2e1171df8cac026e17be92b356c92"
     },
     {
       "path": "inputs/neg_phase1_unknown_field.json",

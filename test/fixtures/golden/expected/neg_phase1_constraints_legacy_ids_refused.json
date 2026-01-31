@@ -1,0 +1,16 @@
+{
+  "details": {
+    "canonical_keys": [
+      "constraints_version",
+      "avoid_joint_stress_tags",
+      "banned_equipment",
+      "available_equipment"
+    ],
+    "refused": [
+      "banned_equipment_ids"
+    ],
+    "rule": "Keys ending with _ids are not permitted"
+  },
+  "failure_token": "legacy_constraints_keys_refused",
+  "ok": false
+}
