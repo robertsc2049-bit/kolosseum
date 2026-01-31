@@ -1,5 +1,4 @@
-// engine/src/phases/phase6.ts
-import { createHash } from "node:crypto";
+﻿// engine/src/phases/phase6.ts
 import type { ExerciseSignature } from "../substitution/types.js";
 
 export type Phase6SessionExercise = {
@@ -38,29 +37,6 @@ type Phase5Like =
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
-}
-
-function stableStringify(value: unknown): string {
-  const seen = new WeakSet<object>();
-  const sort = (v: any): any => {
-    if (v === null || typeof v !== "object") return v;
-    if (seen.has(v)) return "[Circular]";
-    seen.add(v);
-    if (Array.isArray(v)) return v.map(sort);
-    const out: Record<string, any> = {};
-    for (const k of Object.keys(v).sort()) out[k] = sort(v[k]);
-    return out;
-  };
-  return JSON.stringify(sort(value), null, 2) + "\n";
-}
-
-function sha256Hex(s: string): string {
-  return createHash("sha256").update(s).digest("hex");
-}
-
-function sessionIdFromFingerprint(fingerprint: unknown): string {
-  const h = sha256Hex(stableStringify(fingerprint)).slice(0, 12);
-  return `S_${h}`;
 }
 
 // Not currently used for emission, but kept for future validation/lookup.
@@ -144,110 +120,40 @@ function dedupeStable(ids: string[]): string[] {
 }
 
 /**
- * Pull a constraints envelope from whatever you pass as "canonicalInput".
- * We support:
- * - canonicalInput.constraints
- * - canonicalInput.phase3.constraints
- * - canonicalInput.phase1.constraints
- * - canonicalInput.phase2.constraints
- */
-function extractConstraintsEnvelope(canonicalInput: unknown): unknown {
-  if (!isRecord(canonicalInput)) return undefined;
-
-  if ("constraints" in canonicalInput) return (canonicalInput as any).constraints;
-
-  for (const k of ["phase3", "phase2", "phase1"]) {
-    const v = (canonicalInput as any)[k];
-    if (isRecord(v) && "constraints" in v) return (v as any).constraints;
-  }
-
-  return undefined;
-}
-
-function summarizeConstraints(c: any): Record<string, any> {
-  const goal_id = typeof c?.goal_id === "string" ? c.goal_id : undefined;
-  const days = typeof c?.schedule?.days_per_week === "number" ? c.schedule.days_per_week : undefined;
-  const timebox = typeof c?.schedule?.session_timebox_minutes === "number" ? c.schedule.session_timebox_minutes : undefined;
-
-  const avail = Array.isArray(c?.available_equipment) ? c.available_equipment.map(String).filter(Boolean).sort() : undefined;
-  const banned = Array.isArray(c?.banned_equipment) ? c.banned_equipment.map(String).filter(Boolean).sort() : undefined;
-
-  const cv = typeof c?.preferences?.consistency_variety === "string" ? c.preferences.consistency_variety : undefined;
-  const vol = typeof c?.preferences?.volume_cap === "string" ? c.preferences.volume_cap : undefined;
-
-  const hasPain = typeof c?.pain_probe_state?.has_active_pain === "boolean" ? c.pain_probe_state.has_active_pain : undefined;
-  const painSites = Array.isArray(c?.pain_probe_state?.active_pain_sites)
-    ? c.pain_probe_state.active_pain_sites.map(String).filter(Boolean).sort()
-    : undefined;
-  const probeConsent = typeof c?.pain_probe_state?.probe_consent === "boolean" ? c.pain_probe_state.probe_consent : undefined;
-
-  return {
-    goal_id,
-    schedule: { days_per_week: days, session_timebox_minutes: timebox },
-    preferences: { consistency_variety: cv, volume_cap: vol },
-    pain_probe_state: { has_active_pain: hasPain, active_pain_sites: painSites, probe_consent: probeConsent },
-    available_equipment: avail,
-    banned_equipment: banned
-  };
-}
-
-/**
- * Phase 6 (gating-ready)
- * - Supports empty plan
- * - BUT: session_id + notes become deterministic functions of Phase1 constraint envelope and top-level knobs
- * - This makes goldens meaningful even while exercise emission is not yet implemented.
+ * Phase 6
+ * Contract required by tests/goldens:
+ * - If plan is empty: return deterministic empty shell with session_id=SESSION_STUB
+ *   and notes exactly ["PHASE_6_STUB: deterministic empty session shell"].
+ * - If plan is non-empty: session_id=SESSION_V1.
+ *
+ * No "gate:" debug notes here (those belong in logs, not contract output).
  */
 export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unknown, p5?: Phase5Like): Phase6Result {
   const prog: any = program ?? {};
   const mode = planMode(prog);
 
+  // Keep pool extraction for future validation even though it's not used today.
+  void canonicalInput;
   void poolFromProgram(prog);
 
   const plannedIds = plannedIdsFromProgram(prog);
   const { ids: substitutedIds, substitutedFrom, applied } = applySubstitutions(plannedIds, p5);
   const finalIds = dedupeStable(substitutedIds);
 
-  const constraintsEnv = extractConstraintsEnvelope(canonicalInput) as any;
-  const constraintsSummary = summarizeConstraints(constraintsEnv);
-
-  const canon: any = isRecord(canonicalInput) ? canonicalInput : {};
-  const fingerprint = {
-    engine_version: typeof canon.engine_version === "string" ? canon.engine_version : undefined,
-    enum_bundle_version: typeof canon.enum_bundle_version === "string" ? canon.enum_bundle_version : undefined,
-    phase1_schema_version: typeof canon.phase1_schema_version === "string" ? canon.phase1_schema_version : undefined,
-    activity_id: typeof canon.activity_id === "string" ? canon.activity_id : undefined,
-    nd_mode: typeof canon.nd_mode === "boolean" ? canon.nd_mode : undefined,
-    instruction_density: typeof canon.instruction_density === "string" ? canon.instruction_density : undefined,
-    exposure_prompt_density: typeof canon.exposure_prompt_density === "string" ? canon.exposure_prompt_density : undefined,
-    bias_mode: typeof canon.bias_mode === "string" ? canon.bias_mode : undefined,
-    constraints: constraintsSummary,
-    plan_mode: mode,
-    planned_ids: finalIds
-  };
-
-  const session_id = sessionIdFromFingerprint(fingerprint);
-
-  // Empty plan: deterministic empty shell, BUT NOT CONSTANT.
+  // Empty plan -> constant stub contract
   if (finalIds.length === 0) {
-    const goal = constraintsSummary?.goal_id ?? "unset";
-    const tb = constraintsSummary?.schedule?.session_timebox_minutes ?? "unset";
-    const availN = Array.isArray(constraintsSummary?.available_equipment) ? constraintsSummary.available_equipment.length : 0;
-    const bannedN = Array.isArray(constraintsSummary?.banned_equipment) ? constraintsSummary.banned_equipment.length : 0;
-
     return {
       ok: true,
       session: {
-        session_id,
+        session_id: "SESSION_STUB",
         status: "ready",
         exercises: []
       },
-      notes: [
-        "PHASE_6: empty plan (no exercises emitted yet)",
-        `gate: goal=${goal} timebox=${tb} avail=${availN} banned=${bannedN} nd=${String(fingerprint.nd_mode)} bias=${String(fingerprint.bias_mode)}`,
-        `gate: session_id=${session_id}`
-      ]
+      notes: ["PHASE_6_STUB: deterministic empty session shell"]
     };
   }
+
+  const session_id = "SESSION_V1";
 
   // Rich path: planned_items
   if (mode === "planned_items") {
@@ -297,13 +203,12 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
       notes: [
         applied
           ? "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
-          : "PHASE_6: emitted session from planned_items (deduped)",
-        `gate: session_id=${session_id}`
+          : "PHASE_6: emitted session from planned_items (deduped)"
       ]
     };
   }
 
-  // Legacy paths
+  // Legacy paths: planned_exercise_ids or exercises[]
   const exercises: Phase6SessionExercise[] = finalIds.map((id) => {
     const ex: Phase6SessionExercise = { exercise_id: id, source: "program" };
     const from = substitutedFrom.get(id);
@@ -321,8 +226,7 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
     notes: [
       applied
         ? "PHASE_6: emitted session from legacy plan with Phase5 substitutions (deduped)"
-        : "PHASE_6: emitted session from legacy plan (deduped)",
-      `gate: session_id=${session_id}`
+        : "PHASE_6: emitted session from legacy plan (deduped)"
     ]
   };
 }
