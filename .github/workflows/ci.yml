@@ -58,6 +58,9 @@ jobs:
       - name: Install
         run: npm ci
 
+              - name: E2E golden (no snapshot writes)
+        run: npm run e2e:golden
+
       # Guard + unit tests (your existing CI script)
       - name: Guard + Unit tests
         run: npm run ci
