@@ -1,0 +1,47 @@
+{
+  "manifest_version": "1.0.0",
+  "generated_utc": "2026-01-31T14:18:54.187Z",
+  "root": "test/fixtures/golden",
+  "files": [
+    {
+      "path": "expected/phase1_constraints_gym_basic.json",
+      "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+    },
+    {
+      "path": "expected/phase1_envelope_powerlifting_default.json",
+      "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+    },
+    {
+      "path": "expected/phase1_equipment_dbs_only_timebox.json",
+      "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+    },
+    {
+      "path": "expected/phase1_pain_knee_powerlifting.json",
+      "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+    },
+    {
+      "path": "expected/vanilla_minimal.json",
+      "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+    },
+    {
+      "path": "inputs/phase1_constraints_gym_basic.json",
+      "sha256": "807f351575cfcdb0e548f250e64ffa8eb146a95d6733f37364a2f8abf1acbe73"
+    },
+    {
+      "path": "inputs/phase1_envelope_powerlifting_default.json",
+      "sha256": "f23c29e9bd6fb855f6a59e589b6f045f087cc8b9362c4a6565d26f8f92906ee1"
+    },
+    {
+      "path": "inputs/phase1_equipment_dbs_only_timebox.json",
+      "sha256": "d21e741b1dba92c5c1c2b4c1fd835466ab306465b62596cc929916972aa21599"
+    },
+    {
+      "path": "inputs/phase1_pain_knee_powerlifting.json",
+      "sha256": "30557182b1d071172310cd1369fef67d4518a7a4d2714bfbd998c871bd09d6ab"
+    },
+    {
+      "path": "inputs/vanilla_minimal.json",
+      "sha256": "fe339a1eca83397841e37feb23084a0b64204f5a57cf333040e8198eb091ee92"
+    }
+  ]
+}
