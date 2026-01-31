@@ -1,6 +1,6 @@
 {
   "manifest_version": "1.0.0",
-  "generated_utc": "2026-01-31T15:51:12.820Z",
+  "generated_utc": "2026-01-31T16:03:20.680Z",
   "root": "test/fixtures/golden",
   "files": [
     {
@@ -34,6 +34,10 @@
     {
       "path": "expected/phase3_precedence_banned_over_available.json",
       "sha256": "63a6fbd11666f1c2ebd2634325bcd422a9c72aabbfbeccd93995b711ae903bf3"
+    },
+    {
+      "path": "expected/phase3_sovereign_constraints_envelope.json",
+      "sha256": "21146b529f8b9bf024072b982d68b793f69d8a177ff8ad9395aeacc63e9d26d7"
     },
     {
       "path": "expected/vanilla_minimal.json",
@@ -70,6 +74,10 @@
     {
       "path": "inputs/phase3_precedence_banned_over_available.json",
       "sha256": "c7bdacb86b4380f2c42a1a70b94d354ccd4bac8f478dbd6d21d578264fdb28f8"
+    },
+    {
+      "path": "inputs/phase3_sovereign_constraints_envelope.json",
+      "sha256": "2cbe1c349ddb70edda133bad57c627f1df0c235c614c5d30fe0ae57bfd094500"
     },
     {
       "path": "inputs/vanilla_minimal.json",

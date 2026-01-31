@@ -1,0 +1,33 @@
+{
+  "details": [
+    {
+      "instancePath": "",
+      "keyword": "required",
+      "message": "must have required property 'engine_version'",
+      "params": {
+        "missingProperty": "engine_version"
+      },
+      "schemaPath": "#/required"
+    },
+    {
+      "instancePath": "",
+      "keyword": "required",
+      "message": "must have required property 'enum_bundle_version'",
+      "params": {
+        "missingProperty": "enum_bundle_version"
+      },
+      "schemaPath": "#/required"
+    },
+    {
+      "instancePath": "",
+      "keyword": "required",
+      "message": "must have required property 'phase1_schema_version'",
+      "params": {
+        "missingProperty": "phase1_schema_version"
+      },
+      "schemaPath": "#/required"
+    }
+  ],
+  "failure_token": "type_mismatch",
+  "ok": false
+}
