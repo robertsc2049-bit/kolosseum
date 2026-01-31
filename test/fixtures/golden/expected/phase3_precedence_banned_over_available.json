@@ -20,8 +20,18 @@
   "phase3_debug": {
     "payload": {
       "constraints": {
-        "available_equipment": "[Circular]",
-        "banned_equipment": "[Circular]"
+        "available_equipment": [],
+        "banned_equipment": [
+          "eq_barbell"
+        ]
+      },
+      "constraints_resolution": {
+        "removed_from_available_equipment": [
+          "eq_barbell"
+        ],
+        "rules_applied": [
+          "banned_over_available_equipment"
+        ]
       },
       "constraints_resolved": true,
       "loaded_registries": [
