@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Guard: ban engine-status footgun
+        run: node ci/guards/ban_engine_status_guard.mjs
 
       - name: Setup Node
         uses: actions/setup-node@v4

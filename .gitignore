@@ -25,3 +25,7 @@ tmp_*
 *.tmp
 server.pid
 server.log
+
+# banned footgun
+scripts/engine-status.ps1
+
