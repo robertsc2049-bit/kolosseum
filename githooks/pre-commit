@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+
+echo "[pre-commit] repo_contract + lint"
+node ci/guards/repo_contract.mjs
+npm run lint
+echo "[pre-commit] OK"
