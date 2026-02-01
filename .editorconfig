@@ -4,11 +4,15 @@ root = true
 charset = utf-8
 end_of_line = lf
 insert_final_newline = true
+trim_trailing_whitespace = true
 
-[*.{yml,yaml,json,md,js,mjs,ts,tsx,css,html,sql}]
-charset = utf-8
-end_of_line = lf
+[*.md]
+trim_trailing_whitespace = false
 
 [*.ps1]
-charset = utf-8
-end_of_line = lf
+indent_style = space
+indent_size = 2
+
+[*.{js,mjs,ts,json,yml,yaml}]
+indent_style = space
+indent_size = 2
