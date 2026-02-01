@@ -12,9 +12,18 @@ if ($env:KOLOSSEUM_ENGINE_HEALTH_RUNNING -eq "1") {
 $env:KOLOSSEUM_ENGINE_HEALTH_RUNNING = "1"
 
 try {
-  $git  = (Get-Command git  -CommandType Application -ErrorAction Stop).Source
-  $npm  = (Get-Command npm  -CommandType Application -ErrorAction Stop).Source
-  $node = (Get-Command node -CommandType Application -ErrorAction Stop).Source
+  # Resolve real executables (Application only; take first path)
+  $gitCmd  = Get-Command git  -CommandType Application -ErrorAction Stop | Select-Object -First 1
+  $npmCmd  = Get-Command npm  -CommandType Application -ErrorAction Stop | Select-Object -First 1
+  $nodeCmd = Get-Command node -CommandType Application -ErrorAction Stop | Select-Object -First 1
+
+  $git  = $gitCmd.Path
+  $npm  = $npmCmd.Path
+  $node = $nodeCmd.Path
+
+  if (-not $git)  { throw "Could not resolve git executable path" }
+  if (-not $npm)  { throw "Could not resolve npm executable path" }
+  if (-not $node) { throw "Could not resolve node executable path" }
 
   Write-Host "git : $git"
   Write-Host "npm : $npm"
