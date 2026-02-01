@@ -5,38 +5,59 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+
     "test": "npm run build && node --test",
+    "test:one": "node --test",
+    "test:watch": "node --test --watch",
+
     "guard:constraints": "node ci/guards/no_legacy_constraints.mjs",
     "guard:version": "node scripts/version-gate.mjs",
-    "lint": "node ci/guards/tag_version_guard.mjs && node ci/guards/repo_contract.mjs && node ci/guards/ban_engine_status_guard.mjs && node ci/guards/engine_contract_guard.mjs && node ci/guards/golden_manifest_guard.mjs && node ci/guards/golden_outputs_guard.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs && npm run test:ci",
+
+    "lint:fast": "node ci/guards/node_version_guard.mjs && node ci/guards/tag_version_guard.mjs && node ci/guards/repo_contract.mjs && node ci/guards/no_bom_guard.mjs && node ci/guards/no_crlf_guard.mjs && node ci/guards/lockfile_note_guard.mjs && node ci/guards/ban_engine_status_guard.mjs && node ci/guards/engine_contract_guard.mjs && node ci/guards/golden_manifest_guard.mjs && node ci/guards/golden_outputs_guard.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs",
+
+    "lint": "npm run lint:fast && npm run test:ci",
+
     "ci": "npm run guard:constraints && npm run guard:version && npm run lint && npm run test && npm run e2e:golden",
 
-    "dev:fast": "node ci/guards/repo_contract.mjs && node ci/guards/ban_engine_status_guard.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs && npm run test:ci",
+    "dev:fast": "npm run lint:fast && npm run test:ci",
     "dev:prepush": "npm run lint",
     "repro:test": "node --test",
     "ci:parity": "node scripts/ps-runner.mjs --file scripts/ci-parity.ps1",
     "dev:status": "node scripts/ps-runner.mjs --file scripts/dev-status.ps1",
     "dev:status:full": "node scripts/ps-runner.mjs --file scripts/dev-status.ps1 -- -Full",
 
+    "repo:clean": "node scripts/ps-runner.mjs --file scripts/repo-clean.ps1",
+    "repo:clean:hard": "node scripts/ps-runner.mjs --file scripts/repo-clean.ps1 -- -Hard",
+    "diff:summary": "node ci/scripts/diff_summary.mjs",
+
     "hash:write": "node ci/scripts/write_checksums.mjs",
     "run:cli": "node dist/cli/src/main.js",
     "db:schema": "node scripts/apply-schema.mjs",
     "start": "node dist/src/server.js",
+
     "smoke:fresh": "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1 -- -Mode fresh",
     "smoke:idem": "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1 -- -Mode idempotent",
     "dev:check": "npm run ci && npm run db:schema",
+
     "release:prepare": "node scripts/ps-runner.mjs --file scripts/release-prepare.ps1",
     "release:tag": "node scripts/ps-runner.mjs --file scripts/tag-release.ps1",
+
     "e2e:golden": "node ci/scripts/e2e_golden.mjs",
+
     "pipeline:run": "node dist/src/run_pipeline_cli.js",
+    "engine:run": "npm run build && node dist/src/run_pipeline_cli.js",
+    "engine:hello": "npm run build && node dist/src/run_pipeline_cli.js examples/hello_world.json",
+
     "golden:manifest": "node ci/scripts/write_golden_manifest.mjs",
     "golden:outputs": "node ci/scripts/write_golden_outputs.mjs",
     "golden:update": "node tools/run_golden_update.mjs",
     "golden:update:safe": "node ci/scripts/golden_update_safe.mjs",
+
     "test:ci": "node test/ci_ban_engine_status_guard.test.mjs && node test/ci_stable_stringify.test.mjs && node test/cli_runner_rendered_text.test.mjs && node test/phase4_rich_plan_minimum.test.mjs && node test/registry_exercise_entries.test.mjs && node test/phase6_requires_planned_items.test.mjs",
-    "engine:hello": "npm run build && node dist/src/run_pipeline_cli.js examples/hello_world.json",
+
     "engine:contract": "node -e \"console.log(require('fs').readFileSync('ENGINE_CONTRACT.md','utf8'))\"",
     "engine:contract:head": "node -e \"const fs=require('fs'); const s=fs.readFileSync('ENGINE_CONTRACT.md','utf8').split(/\\r?\\n/).slice(0,40).join('\\n'); console.log(s);\"",
+
     "smoke": "npm run lint && npm run engine:hello"
   },
   "dependencies": {

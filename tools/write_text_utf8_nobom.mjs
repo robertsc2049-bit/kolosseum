@@ -24,15 +24,12 @@ if (mode === "--stdin") {
     process.stdin.on("end", () => res(s));
   });
 } else {
-  // Join all remaining args as content (keeps quotes simple)
   content = args.slice(1).join(" ");
   if (!content) die("missing content. provide \"<content>\" or use --stdin.");
 }
 
-// Strip accidental BOM char if present in string
+// Strip accidental BOM char
 content = content.replace(/^\uFEFF/, "");
 
 mkdirSync(dirname(outPath), { recursive: true });
-
-// Write UTF-8 without BOM
 writeFileSync(outPath, content, { encoding: "utf8" });
