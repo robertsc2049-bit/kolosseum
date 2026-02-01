@@ -1,28 +1,28 @@
-# Enforce LF in repo for scripts/configs that must be deterministic
-* text=auto eol=lf
-
-# GitHub Actions workflows must be LF-only
-.github/workflows/*.yml text eol=lf
+# GitHub Actions workflows: LF-only
+.github/workflows/*.yml  text eol=lf
 .github/workflows/*.yaml text eol=lf
 
-# JS/MJS/TS and JSON must be LF-only
-*.js   text eol=lf
-*.mjs  text eol=lf
-*.cjs  text eol=lf
-*.ts   text eol=lf
-*.json text eol=lf
-*.md   text eol=lf
+# CI + scripts + source: LF-only
+ci/**                 text eol=lf
+src/**                text eol=lf
+engine/**             text eol=lf
+test/**               text eol=lf
+scripts/*.mjs         text eol=lf
+scripts/*.js          text eol=lf
+docs/**               text eol=lf
+*.md                  text eol=lf
+*.json                text eol=lf
+*.ts                  text eol=lf
+*.js                  text eol=lf
+*.mjs                 text eol=lf
 
-# Shell scripts LF-only
-*.sh   text eol=lf
+# PowerShell scripts: keep CRLF (Windows-friendly)
+scripts/*.ps1         text eol=crlf
 
-# PowerShell scripts: keep CRLF (Windows-native). If you prefer LF, change to eol=lf.
-*.ps1  text eol=crlf
-
-# Binary files
-*.png  binary
-*.jpg  binary
+# Common binaries
+*.png binary
+*.jpg binary
 *.jpeg binary
-*.gif  binary
-*.pdf  binary
-*.zip  binary
+*.gif binary
+*.pdf binary
+*.zip binary
