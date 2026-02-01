@@ -46,7 +46,7 @@ if ((Test-Path ".git\rebase-apply") -or (Test-Path ".git\rebase-merge")) { Die "
 if (Test-Path ".git\MERGE_HEAD") { Die "Merge in progress. Finish it before releasing." }
 
 # Fetch origin + tags, ensure aligned
-Run "git fetch --tags origin | Out-Null"
+Run "git fetch --prune --tags origin | Out-Null"
 $local = (git rev-parse HEAD).Trim()
 $remote = (git rev-parse origin/main).Trim()
 if ($local -ne $remote) {
@@ -55,12 +55,6 @@ if ($local -ne $remote) {
 
 # Gate before any mutation
 Run "npm run ci"
-
-# Preflight: compute the next version without committing/tagging.
-# npm version outputs the new version tag string like "v0.1.23" when --no-git-tag-version is used.
-# But we do NOT want to mutate yet, so we simulate by reading current and checking remote only AFTER bump.
-# The safe approach is: bump, read version, then if remote tag exists -> abort with instructions (no force).
-# Because we already know tags are immutable, collision means you must bump again.
 
 # Bump version WITHOUT creating a git tag (this mutates package files)
 Run "npm version $Bump --no-git-tag-version"

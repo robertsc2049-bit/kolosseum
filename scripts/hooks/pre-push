@@ -1,88 +1,10 @@
-#!/usr/bin/env sh
-set -eu
+#!/bin/sh
+set -e
 
-ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-if [ -z "$ROOT" ]; then
-  echo "[pre-push] ERROR: not inside a git repo"
-  exit 1
-fi
-cd "$ROOT"
+echo "[pre-push] push changeset guard"
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/guard-push-changeset.ps1
 
-echo "[pre-push] main non-ff guard + tag immutability + schema check"
-
-ZERO="0000000000000000000000000000000000000000"
-
-fail () {
-  echo "[pre-push] ERROR: $1"
-  exit 1
-}
-
-# stdin: <local_ref> <local_sha> <remote_ref> <remote_sha>
-while IFS=' ' read -r local_ref local_sha remote_ref remote_sha
-do
-  # skip empty lines defensively
-  if [ -z "${local_ref:-}" ] && [ -z "${remote_ref:-}" ]; then
-    continue
-  fi
-
-  # ---------- MAIN PROTECTION ----------
-  if [ "$local_ref" = "refs/heads/main" ] || [ "$remote_ref" = "refs/heads/main" ]; then
-
-    # No deleting main
-    if [ "$local_sha" = "$ZERO" ]; then
-      fail "Refusing to delete main."
-    fi
-
-    # No creating main via push
-    if [ "$remote_sha" = "$ZERO" ]; then
-      fail "Refusing to create main via push. Create main on GitHub only."
-    fi
-
-    # No non-fast-forward updates to main
-    if ! git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
-      echo "[pre-push] ERROR: Refusing non-fast-forward update to main (force push blocked)."
-      echo "[pre-push]        remote(main)=$remote_sha"
-      echo "[pre-push]        local(main) =$local_sha"
-      exit 1
-    fi
-  fi
-
-  # ---------- TAG IMMUTABILITY ----------
-  case "$remote_ref" in
-    refs/tags/*)
-      tag="${remote_ref#refs/tags/}"
-
-      # Block deleting tags
-      if [ "$local_sha" = "$ZERO" ]; then
-        fail "Refusing to delete tag '$tag' (tags are immutable)."
-      fi
-
-      # Block moving existing tags (any change)
-      if [ "$remote_sha" != "$ZERO" ] && [ "$remote_sha" != "$local_sha" ]; then
-        echo "[pre-push] ERROR: Refusing to move existing tag '$tag' (tags are immutable)."
-        echo "[pre-push]        remote(tag)=$remote_sha"
-        echo "[pre-push]        local(tag) =$local_sha"
-        exit 1
-      fi
-
-      # Require annotated tags only (reject lightweight tags)
-      # (Check by sha first; check by name as fallback)
-      ttype="$(git cat-file -t "$local_sha" 2>/dev/null || true)"
-      if [ "$ttype" != "tag" ]; then
-        ttype2="$(git cat-file -t "$tag" 2>/dev/null || true)"
-        if [ "$ttype2" != "tag" ]; then
-          fail "Refusing lightweight tag '$tag'. Use annotated: git tag -a $tag -m $tag"
-        fi
-      fi
-      ;;
-  esac
-done
-
-# ---- Schema guard ----
-if command -v powershell.exe >/dev/null 2>&1; then
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/schema-check.ps1 -Quiet
-else
-  echo "[pre-push] INFO: powershell.exe not found; skipping schema-check.ps1"
-fi
-
+echo "[pre-push] repo_contract + lint"
+node ci/guards/repo_contract.mjs
+npm run lint
 echo "[pre-push] OK"
