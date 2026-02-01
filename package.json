@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.1.23",
   "type": "module",
+  "engines": {
+    "node": "24.12.0",
+    "npm": ">=10"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:fast": "tsc -p tsconfig.json",
@@ -25,8 +29,9 @@
     "dev:prepush": "npm run lint",
     "dev:prepush:smart": "node ci/scripts/prepush_smart.mjs",
 
-    "repro:test": "node --test",
-    "ci:parity": "node scripts/ps-runner.mjs --file scripts/ci-parity.ps1",
+    "ci:parity": "npm run ci",
+
+    "dev:check": "npm run ci && npm run db:schema",
 
     "dev:status": "node scripts/ps-runner.mjs --file scripts/dev-status.ps1",
     "dev:status:full": "node scripts/ps-runner.mjs --file scripts/dev-status.ps1 -- -Full",
@@ -35,28 +40,33 @@
 
     "repo:clean": "node scripts/ps-runner.mjs --file scripts/repo-clean.ps1",
     "repo:clean:hard": "node scripts/ps-runner.mjs --file scripts/repo-clean.ps1 -- -Hard",
+    "dev:panic": "npm run repo:clean:hard && npm ci && npm run dev:fast",
 
     "diff:summary": "node ci/scripts/diff_summary.mjs",
     "diff:golden": "node ci/scripts/diff_filtered.mjs \"golden|goldens|golden_manifest|golden_outputs\"",
     "diff:contracts": "node ci/scripts/diff_filtered.mjs \"ENGINE_CONTRACT\\.md|ci/schemas/|schema\\.sql|ENGINE_CONTRACT\"",
 
     "hash:write": "node ci/scripts/write_checksums.mjs",
+
     "run:cli": "node dist/cli/src/main.js",
+    "pipeline:run": "node dist/src/run_pipeline_cli.js",
+
+    "engine:run": "npm run build && node dist/src/run_pipeline_cli.js",
+    "engine:run:fast": "node dist/src/run_pipeline_cli.js",
+    "engine:run:strict": "npm run build:fast && node dist/src/run_pipeline_cli.js",
+    "engine:hello": "npm run build && node dist/src/run_pipeline_cli.js examples/hello_world.json",
+
     "db:schema": "node scripts/apply-schema.mjs",
     "start": "node dist/src/server.js",
 
     "smoke:fresh": "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1 -- -Mode fresh",
     "smoke:idem": "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1 -- -Mode idempotent",
-    "dev:check": "npm run ci && npm run db:schema",
+    "smoke": "npm run lint && npm run engine:hello",
 
     "release:prepare": "node scripts/ps-runner.mjs --file scripts/release-prepare.ps1",
     "release:tag": "node scripts/ps-runner.mjs --file scripts/tag-release.ps1",
 
     "e2e:golden": "node ci/scripts/e2e_golden.mjs",
-
-    "pipeline:run": "node dist/src/run_pipeline_cli.js",
-    "engine:run": "npm run build && node dist/src/run_pipeline_cli.js",
-    "engine:hello": "npm run build && node dist/src/run_pipeline_cli.js examples/hello_world.json",
 
     "golden:manifest": "node ci/scripts/write_golden_manifest.mjs",
     "golden:outputs": "node ci/scripts/write_golden_outputs.mjs",
@@ -66,9 +76,7 @@
     "test:ci": "node test/ci_ban_engine_status_guard.test.mjs && node test/ci_stable_stringify.test.mjs && node test/cli_runner_rendered_text.test.mjs && node test/phase4_rich_plan_minimum.test.mjs && node test/registry_exercise_entries.test.mjs && node test/phase6_requires_planned_items.test.mjs",
 
     "engine:contract": "node -e \"console.log(require('fs').readFileSync('ENGINE_CONTRACT.md','utf8'))\"",
-    "engine:contract:head": "node -e \"const fs=require('fs'); const s=fs.readFileSync('ENGINE_CONTRACT.md','utf8').split(/\\r?\\n/).slice(0,40).join('\\n'); console.log(s);\"",
-
-    "smoke": "npm run lint && npm run engine:hello"
+    "engine:contract:head": "node -e \"const fs=require('fs'); const s=fs.readFileSync('ENGINE_CONTRACT.md','utf8').split(/\\r?\\n/).slice(0,40).join('\\n'); console.log(s);\""
   },
   "dependencies": {
     "ajv": "^8.17.1",

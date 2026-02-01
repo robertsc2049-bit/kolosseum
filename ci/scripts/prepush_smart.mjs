@@ -1,34 +1,45 @@
 import { execSync } from "node:child_process";
 
-function sh(cmd) {
-  return execSync(cmd, { stdio: ["ignore", "pipe", "inherit"] }).toString("utf8");
+function sh(cmd, inherit = true) {
+  execSync(cmd, { stdio: inherit ? "inherit" : ["ignore", "pipe", "ignore"] });
 }
 
-function shOut(cmd) {
+function out(cmd) {
   return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] }).toString("utf8");
 }
 
-const files = shOut("git diff --name-only --cached")
+const files = out("git diff --name-only --cached")
   .split(/\r?\n/)
-  .map((s) => s.trim())
+  .map(s => s.trim())
   .filter(Boolean);
 
-const isDocOnly =
-  files.length > 0 &&
-  files.every((f) => /\.(md|txt)$/i.test(f));
+const DOC_ONLY = files.length > 0 && files.every(f => /\.(md|txt)$/i.test(f));
+const ENGINE_TOUCH = files.some(f =>
+  f.startsWith("engine/") ||
+  f.startsWith("cli/") ||
+  f.includes("ENGINE_CONTRACT") ||
+  f.includes("schema")
+);
 
-console.log(`prepush: staged files = ${files.length}`);
+console.log(`[pre-push] staged files: ${files.length}`);
+
 if (!files.length) {
-  console.log("prepush: nothing staged; running full prepush (lint).");
+  console.log("[pre-push] nothing staged → full path");
   sh("npm run lint");
   process.exit(0);
 }
 
-if (isDocOnly) {
-  console.log("prepush: docs-only change detected -> running lint:fast only");
+if (DOC_ONLY) {
+  console.log("[pre-push] docs-only → lint:fast");
   sh("npm run lint:fast");
   process.exit(0);
 }
 
-console.log("prepush: code change detected -> running full lint");
+if (!ENGINE_TOUCH) {
+  console.log("[pre-push] non-engine change → dev:fast");
+  sh("npm run dev:fast");
+  process.exit(0);
+}
+
+console.log("[pre-push] engine-affecting change → full lint");
 sh("npm run lint");

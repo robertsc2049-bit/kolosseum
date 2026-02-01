@@ -70,17 +70,62 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node ci/guards/diff_line_endings_guard.mjs
 
+      # Select targeted path and persist changed files list
+      - name: Select CI mode
+        id: select
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node ci/scripts/ci_select.mjs
+
+      # Write CI summary (shows mode + changed files)
+      - name: CI Summary
+        env:
+          CI_MODE: ${{ steps.select.outputs.mode }}
+          BASE_SHA: ${{ steps.select.outputs.base_sha }}
+          HEAD_SHA: ${{ steps.select.outputs.head_sha }}
+        run: node ci/scripts/ci_write_summary.mjs
+
+      # Capture diffs for triage artifacts (small text files)
+      - name: Capture diff stat (triage)
+        if: always()
+        env:
+          BASE_SHA: ${{ steps.select.outputs.base_sha }}
+          HEAD_SHA: ${{ steps.select.outputs.head_sha }}
+        run: |
+          git diff --name-status "$BASE_SHA" "$HEAD_SHA" > ci_diff_name_status.txt || true
+          git diff --stat "$BASE_SHA" "$HEAD_SHA" > ci_diff_stat.txt || true
+
+      # Only install deps when we need them
       - name: Install
+        if: steps.select.outputs.mode != 'docs'
         run: npm ci
 
-      # Single source of truth: this runs your full local/CI gate
-      - name: Guard + tests + build + golden
+      # Targeted execution
+      - name: Docs-only gate
+        if: steps.select.outputs.mode == 'docs'
+        run: npm run lint:fast
+
+      - name: CLI-only targeted gate
+        if: steps.select.outputs.mode == 'cli'
+        run: |
+          npm run lint:fast
+          node test/cli_runner_rendered_text.test.mjs
+
+      - name: Unit gate
+        if: steps.select.outputs.mode == 'unit'
+        run: npm run dev:fast
+
+      - name: Full gate
+        if: steps.select.outputs.mode == 'full'
         run: npm run ci
 
       - name: Print build version
+        if: steps.select.outputs.mode != 'docs'
         run: node -e "import('./dist/src/version.js').then(m => console.log('BUILD_VERSION=' + m.VERSION))"
 
       - name: Apply schema (drift guard)
+        if: steps.select.outputs.mode != 'docs'
         run: node scripts/apply-schema.mjs --db-url "$DATABASE_URL"
 
       # ---------------------------
@@ -133,6 +178,21 @@ jobs:
         run: |
           ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode fresh
           ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode idempotent
+
+      # ---------------------------
+      # Artifacts (triage)
+      # ---------------------------
+      - name: Upload triage bundle
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: triage
+          path: |
+            ci_changed_files.txt
+            ci_diff_name_status.txt
+            ci_diff_stat.txt
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload API logs
         if: always()
