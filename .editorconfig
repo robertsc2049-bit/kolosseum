@@ -1,54 +1,10 @@
-$bytes = [System.Text.Encoding]::UTF8.GetBytes(@'
-root = true
+﻿root = true
 
-# =========================================
-# Defaults (LF everywhere, no trailing junk)
-# =========================================
 [*]
 charset = utf-8
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
-indent_style = space
-indent_size = 2
 
-# =========================================
-# JS/TS/Node
-# =========================================
-[*.{js,mjs,cjs,ts,tsx}]
-indent_size = 2
-
-# =========================================
-# JSON/YAML/Markdown
-# =========================================
-[*.{json,yml,yaml,md}]
-indent_size = 2
-
-# =========================================
-# Shell scripts (2 spaces)
-# =========================================
-[*.sh]
-indent_size = 2
-
-# =========================================
-# PowerShell scripts (4 spaces typical)
-# Keep LF; avoid editor auto-CRLF.
-# =========================================
-[*.ps1]
-indent_size = 4
-
-# =========================================
-# Makefiles require tabs
-# =========================================
-[Makefile]
-indent_style = tab
-
-# =========================================
-# Docs you might want to allow trailing spaces in
-# (tables, markdown line breaks). Comment out if you want strict.
-# =========================================
-#[*.md]
-#trim_trailing_whitespace = false
-
-'@)
-[System.IO.File]::WriteAllBytes((Resolve-Path .\.editorconfig), $bytes)
+[*.{json,md,mjs,js,ts}]
+charset = utf-8
