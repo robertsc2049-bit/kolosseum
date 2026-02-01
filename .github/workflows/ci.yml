@@ -41,8 +41,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Guard: ban engine-status footgun
-        run: node ci/guards/ban_engine_status_guard.mjs
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -50,8 +48,21 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24.12.0
           cache: npm
+
+      # Cache TS incremental build artifacts to speed up CI builds
+      - name: Cache TypeScript incremental outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist
+          key: tsc-${{ runner.os }}-${{ hashFiles('package-lock.json', 'tsconfig.json', 'engine/src/**/*.ts', 'cli/src/**/*.ts', 'src/**/*.ts') }}
+          restore-keys: |
+            tsc-${{ runner.os }}-
+
+      - name: Guard: ban engine-status footgun
+        run: node ci/guards/ban_engine_status_guard.mjs
 
       - name: Guard diff (no BOM, LF-only)
         env:
@@ -62,26 +73,15 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Repo contract guard
-        run: node ci/guards/repo_contract.mjs
-
-      - name: E2E golden (no snapshot writes)
-        run: npm run e2e:golden
-
-      - name: Guard + Unit tests
+      # Single source of truth: this runs your full local/CI gate
+      - name: Guard + tests + build + golden
         run: npm run ci
-
-      - name: Build
-        run: npm run build
 
       - name: Print build version
         run: node -e "import('./dist/src/version.js').then(m => console.log('BUILD_VERSION=' + m.VERSION))"
 
       - name: Apply schema (drift guard)
         run: node scripts/apply-schema.mjs --db-url "$DATABASE_URL"
-
-      - name: E2E golden (engine regression gate)
-        run: npm run e2e:golden
 
       # ---------------------------
       # API smoke (main + tag builds)
@@ -147,7 +147,10 @@ jobs:
         if: always()
         run: |
           if [ -f server.pid ]; then
-            kill "$(cat server.pid)" || true
+            PID="$(cat server.pid)"
+            echo "Stopping PID=$PID"
+            kill "$PID" 2>/dev/null || true
+            sleep 1
+            kill -9 "$PID" 2>/dev/null || true
           fi
-          echo "---- server.log ----"
-          tail -200 server.log || true
+          rm -f server.pid || true

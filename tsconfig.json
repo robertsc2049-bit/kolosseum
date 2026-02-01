@@ -1,23 +1,28 @@
 {
-    "compilerOptions":  {
-                            "target":  "ES2022",
-                            "module":  "ES2022",
-                            "moduleResolution":  "Bundler",
-                            "outDir":  "dist",
-                            "rootDir":  ".",
-                            "strict":  true,
-                            "esModuleInterop":  true,
-                            "forceConsistentCasingInFileNames":  true,
-                            "skipLibCheck":  true
-                        },
-    "include":  [
-                    "engine/src/**/*.ts",
-                    "cli/src/**/*.ts",
-                    "src/**/*.ts",
-                    "engine/src/runtime/**/*.ts",
-                    "engine/src/render/**/*.ts"
-                ],
-    "exclude":  [
-                    "dist"
-                ]
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+
+    "outDir": "dist",
+    "rootDir": ".",
+
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    "incremental": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo"
+  },
+  "include": [
+    "engine/src/**/*.ts",
+    "cli/src/**/*.ts",
+    "src/**/*.ts",
+    "engine/src/runtime/**/*.ts",
+    "engine/src/render/**/*.ts"
+  ],
+  "exclude": [
+    "dist"
+  ]
 }
