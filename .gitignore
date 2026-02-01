@@ -29,3 +29,7 @@ server.err.log
 _tmp_pipeline_out.json
 _tmp_pipeline_err.log
 
+
+# npm pack artifacts
+kolosseum-*.tgz
+
