@@ -60,6 +60,9 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Repo contract guard
+        run: node ci/guards/repo_contract.mjs
+
       - name: E2E golden (no snapshot writes)
         run: npm run e2e:golden
 
