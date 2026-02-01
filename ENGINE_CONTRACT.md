@@ -1,4 +1,4 @@
-# Kolosseum Engine Contract (Phase1 â†’ Phase6)
+# Kolosseum Engine Contract (Phase1 → Phase6)
 
 This document defines the **contractual guarantees** for the deterministic engine spine and its CI runners.
 If you change behaviour covered here, you must treat it as an **API/contract change** and update fixtures/goldens intentionally.
@@ -18,22 +18,22 @@ The engine must be:
 
 ## Canonical spine
 
-### Phase 1 â€” Validate + Canonicalize
+### Phase 1 — Validate + Canonicalize
 **Input:** user/runner payload (JSON)  
 **Output:** canonical input shape (engine-authoritative)
 
 Guarantees:
 - Rejects legacy constraint keys (enforced by guards/tests).
-- Produces a canonical structure used as the â€œfingerprintâ€ for downstream phases.
+- Produces a canonical structure used as the “fingerprint” for downstream phases.
 - Runner-only flags MUST NOT leak into Phase1 (see Runner Flags).
 
-### Phase 2 â€” Deterministic derived fields
+### Phase 2 — Deterministic derived fields
 **Input:** Phase1 canonical  
 **Output:** deterministic canonical augmentation  
 Guarantees:
 - Hash/derived values are deterministic.
 
-### Phase 3 â€” Constraints resolution (authoritative)
+### Phase 3 — Constraints resolution (authoritative)
 **Input:** Phase2 canonical  
 **Output:** authoritative constraints model  
 Guarantees:
@@ -41,7 +41,7 @@ Guarantees:
 - Registry loading is deterministic and versioned (`registry_index_version` present).
 - Output must be stable for identical canonical input.
 
-### Phase 4 â€” Program assembly (v0 contract)
+### Phase 4 — Program assembly (v0 contract)
 **Input:** Phase2 canonical + Phase3 output  
 **Output:** a minimal substitutable program surface
 
@@ -54,7 +54,7 @@ Guarantees (v0):
   - `target_exercise_id` (selection hint for Phase5)
 - Carries Phase3 constraints on `program.constraints`.
 
-### Phase 5 â€” Adjustments (substitution envelope)
+### Phase 5 — Adjustments (substitution envelope)
 **Input:** Phase4 program  
 **Output:** **envelope** `{ ok:true, adjustments:[...], notes?:[...] }`
 
@@ -63,7 +63,7 @@ Guarantees:
 - Substitution decisions must be deterministic for identical inputs.
 - Adjustments use structured shapes (e.g. `adjustment_id: "SUBSTITUTE_EXERCISE"`).
 
-### Phase 6 â€” Session emission (API-stable v1)
+### Phase 6 — Session emission (API-stable v1)
 **Input:** Phase4 program + Phase1 canonical input + Phase5 envelope  
 **Output:** session output envelope `{ ok:true, session:{...}, notes:[...] }`
 
@@ -76,7 +76,7 @@ Guarantees:
 1. `program.planned_items` (rich)
 2. `program.planned_exercise_ids` (legacy)
 3. `program.exercises[]` (legacy fallback)
-4. empty plan â†’ stub session
+4. empty plan → stub session
 
 #### Phase6 stub contract
 If the plan is empty (after substitution + dedupe), Phase6 must return exactly:
@@ -160,7 +160,7 @@ Rules:
 - Only update goldens when you have a deliberate contract change:
   - `UPDATE_GOLDEN=1 npm run e2e:golden`
 
-Never â€œupdate to make it passâ€ without understanding the behavioural change.
+Never “update to make it pass” without understanding the behavioural change.
 
 ---
 
