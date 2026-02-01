@@ -23,3 +23,5 @@ tmp_planned_session.json
 _tmp*
 tmp_*
 *.tmp
+server.pid
+server.log
