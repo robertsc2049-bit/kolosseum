@@ -16,17 +16,9 @@ function Exec([string]$file, [string[]]$args) {
   if ($LASTEXITCODE -ne 0) { throw "Command failed ($LASTEXITCODE): $file $($args -join ' ')" }
 }
 
-function Git([string[]]$args) {
-  Exec "git" $args
-}
-
-function Npm([string[]]$args) {
-  Exec "npm" $args
-}
-
-function Node([string[]]$args) {
-  Exec "node" $args
-}
+function Npm([string[]]$args) { Exec "npm" $args }
+function Node([string[]]$args) { Exec "node" $args }
+function Git([string[]]$args) { Exec "git" $args }
 
 function Get-RepoRoot() {
   $root = & git rev-parse --show-toplevel
@@ -60,7 +52,7 @@ function Assert-GitBlob-NoBOM([string]$repoPath) {
 }
 
 function Assert-IfExists([string]$repoPath, [scriptblock]$check) {
-  $exists = & git cat-file -e ("HEAD:" + $repoPath) 2>$null
+  & git cat-file -e ("HEAD:" + $repoPath) 2>$null
   if ($LASTEXITCODE -eq 0) {
     & $check
   } else {
@@ -87,25 +79,56 @@ function Install-Dependencies() {
   }
 }
 
-function Run-Optional-Smoke() {
+function Require-Path([string]$path, [string]$why) {
+  if (-not (Test-Path -LiteralPath $path)) {
+    throw "Required file missing: $path ($why)"
+  }
+  Write-Host "OK: required present: $path"
+}
+
+function Require-RepoFile([string]$relativePath, [string]$why) {
+  Require-Path (Join-Path $PWD $relativePath) $why
+}
+
+function Run-Golden-Required() {
+  $golden = Join-Path $PWD "ci/scripts/e2e_golden.mjs"
+  Require-Path $golden "CI requires golden verification script"
+  Write-Host "Running golden verification: ci/scripts/e2e_golden.mjs"
+  Node @($golden)
+}
+
+function Run-Smoke-Required() {
   $cli = Join-Path $PWD "dist/src/run_pipeline_cli.js"
   $example = Join-Path $PWD "examples/hello_world.json"
 
-  if (Test-Path -LiteralPath $cli -and Test-Path -LiteralPath $example) {
-    Write-Host "Running pipeline CLI smoke: examples/hello_world.json"
-    Node @($cli, $example)
-  } else {
-    Write-Host "SKIP smoke: missing dist CLI or examples/hello_world.json"
-  }
+  Require-Path $example "CI requires examples/hello_world.json"
+
+  # Note: dist CLI is expected to exist after build
+  Require-Path $cli "CI requires built CLI at dist/src/run_pipeline_cli.js (build artifact)"
+
+  Write-Host "Running pipeline CLI smoke: examples/hello_world.json"
+  Node @($cli, $example)
 }
 
-function Run-Optional-Golden() {
+function Run-Golden-Optional() {
   $golden = Join-Path $PWD "ci/scripts/e2e_golden.mjs"
   if (Test-Path -LiteralPath $golden) {
     Write-Host "Running golden verification: ci/scripts/e2e_golden.mjs"
     Node @($golden)
   } else {
     Write-Host "SKIP golden: missing ci/scripts/e2e_golden.mjs"
+  }
+}
+
+function Run-Smoke-Optional() {
+  $cli = Join-Path $PWD "dist/src/run_pipeline_cli.js"
+  $example = Join-Path $PWD "examples/hello_world.json"
+
+  if ((Test-Path -LiteralPath $cli) -and (Test-Path -LiteralPath $example)) {
+    Write-Host "Running pipeline CLI smoke: examples/hello_world.json"
+    Node @($cli, $example)
+  } else {
+    Write-Host "SKIP smoke: missing dist CLI or examples/hello_world.json"
   }
 }
 
@@ -136,16 +159,27 @@ Show-GitEolConfig
 Write-Section "Dependencies"
 Install-Dependencies
 
+Write-Section "Preconditions (CI-required artifacts)"
+if ($Ci) {
+  Require-RepoFile "ci/scripts/e2e_golden.mjs" "golden verification must exist"
+  Require-RepoFile "examples/hello_world.json" "smoke example must exist"
+}
+
 Write-Section "Build"
 Npm @("run", "build")
 
 Write-Section "Guards + Lint + Tests (authoritative engine gates)"
-# npm run lint already executes your guard chain + test:ci (per your package.json scripts)
+# Your npm run lint runs guards + npm run test:ci
 Npm @("run", "lint")
 
-Write-Section "Optional: Golden + Smoke"
-Run-Optional-Golden
-Run-Optional-Smoke
+Write-Section "Golden + Smoke"
+if ($Ci) {
+  Run-Golden-Required
+  Run-Smoke-Required
+} else {
+  Run-Golden-Optional
+  Run-Smoke-Optional
+}
 
 Write-Section "DONE"
 Write-Host "✅ Engine status: GREEN"
