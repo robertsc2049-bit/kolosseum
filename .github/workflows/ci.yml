@@ -51,15 +51,15 @@ jobs:
           node-version: 24.12.0
           cache: npm
 
-      # Cache TS incremental build artifacts to speed up CI builds
-      - name: Cache TypeScript incremental outputs
+      # Cache TypeScript incremental build info (safe + correct)
+      - name: Cache TypeScript incremental build info
         uses: actions/cache@v4
         with:
           path: |
-            dist
-          key: tsc-${{ runner.os }}-${{ hashFiles('package-lock.json', 'tsconfig.json', 'engine/src/**/*.ts', 'cli/src/**/*.ts', 'src/**/*.ts') }}
+            dist/.tsbuildinfo
+          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('package-lock.json', 'tsconfig.json', 'engine/src/**/*.ts', 'cli/src/**/*.ts', 'src/**/*.ts') }}
           restore-keys: |
-            tsc-${{ runner.os }}-
+            tsbuildinfo-${{ runner.os }}-
 
       - name: Guard: ban engine-status footgun
         run: node ci/guards/ban_engine_status_guard.mjs
@@ -70,7 +70,6 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node ci/guards/diff_line_endings_guard.mjs
 
-      # Select targeted path and persist changed files list
       - name: Select CI mode
         id: select
         env:
@@ -78,7 +77,6 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node ci/scripts/ci_select.mjs
 
-      # Write CI summary (shows mode + changed files)
       - name: CI Summary
         env:
           CI_MODE: ${{ steps.select.outputs.mode }}
@@ -86,7 +84,6 @@ jobs:
           HEAD_SHA: ${{ steps.select.outputs.head_sha }}
         run: node ci/scripts/ci_write_summary.mjs
 
-      # Capture diffs for triage artifacts (small text files)
       - name: Capture diff stat (triage)
         if: always()
         env:
@@ -96,12 +93,10 @@ jobs:
           git diff --name-status "$BASE_SHA" "$HEAD_SHA" > ci_diff_name_status.txt || true
           git diff --stat "$BASE_SHA" "$HEAD_SHA" > ci_diff_stat.txt || true
 
-      # Only install deps when we need them
       - name: Install
         if: steps.select.outputs.mode != 'docs'
         run: npm ci
 
-      # Targeted execution
       - name: Docs-only gate
         if: steps.select.outputs.mode == 'docs'
         run: npm run lint:fast
@@ -179,9 +174,6 @@ jobs:
           ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode fresh
           ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode idempotent
 
-      # ---------------------------
-      # Artifacts (triage)
-      # ---------------------------
       - name: Upload triage bundle
         if: failure()
         uses: actions/upload-artifact@v4
