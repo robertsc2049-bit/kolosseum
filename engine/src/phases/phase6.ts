@@ -78,12 +78,18 @@ function applySubstitutions(
 ): { ids: string[]; substitutedFrom: Map<string, string>; applied: boolean } {
   const substitutedFrom = new Map<string, string>();
 
+  // No Phase5, or Phase5 failed -> no substitution application.
   if (!p5 || (p5 as any).ok !== true) {
     return { ids: plannedIds, substitutedFrom, applied: false };
   }
 
   const adjustments = Array.isArray((p5 as any).adjustments) ? (p5 as any).adjustments : [];
+  if (adjustments.length === 0) {
+    return { ids: plannedIds, substitutedFrom, applied: false };
+  }
+
   let ids = [...plannedIds];
+  let changed = false;
 
   for (const a of adjustments) {
     if (a?.adjustment_id !== "SUBSTITUTE_EXERCISE") continue;
@@ -92,15 +98,24 @@ function applySubstitutions(
     const target = String(a?.details?.target_exercise_id ?? "");
     const sub = String(a?.details?.substitute_exercise_id ?? "");
     if (!target || !sub) continue;
+    if (target === sub) continue;
 
+    // Replace ALL occurrences deterministically; mark changed only if a replacement actually happened.
+    let replacedThisAdjustment = false;
     ids = ids.map((x) => {
       if (x !== target) return x;
-      substitutedFrom.set(sub, target);
+      replacedThisAdjustment = true;
       return sub;
     });
+
+    if (replacedThisAdjustment) {
+      // Trace: substitute -> original target.
+      substitutedFrom.set(sub, target);
+      changed = true;
+    }
   }
 
-  return { ids, substitutedFrom, applied: true };
+  return { ids, substitutedFrom, applied: changed };
 }
 
 function dedupeStable(ids: string[]): string[] {
