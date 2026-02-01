@@ -43,7 +43,6 @@
     "registries/",
     "ci/schemas/",
     "schema.sql",
-    "ENGINE_CONTRACT.md",
-    "README.md"
+    "ENGINE_CONTRACT.md"
   ]
 }
