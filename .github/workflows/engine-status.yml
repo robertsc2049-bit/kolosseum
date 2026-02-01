@@ -22,4 +22,4 @@ jobs:
       - name: Engine status check
         shell: pwsh
         run: |
-          pwsh ./scripts/engine-status.ps1 -Ci
+          pwsh ./scripts/engine-health.ps1 -Ci
