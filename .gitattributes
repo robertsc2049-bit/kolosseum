@@ -1,40 +1,30 @@
-# Default to LF in repo
+# Enforce LF for repo-critical text
 * text=auto eol=lf
 
-# Explicit types
-*.mjs text eol=lf
-*.ts  text eol=lf
-*.js  text eol=lf
+# Code / scripts
+*.ps1  text eol=lf
+*.psm1 text eol=lf
+*.mjs  text eol=lf
+*.cjs  text eol=lf
+*.js   text eol=lf
+*.ts   text eol=lf
+*.tsx  text eol=lf
 *.json text eol=lf
-*.yml text eol=lf
+*.yml  text eol=lf
 *.yaml text eol=lf
-*.md  text eol=lf
-*.ps1 text eol=lf
-*.sql text eol=lf
+*.md   text eol=lf
+*.txt  text eol=lf
+*.sh   text eol=lf
 
-# Binaries
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.gif binary
-*.pdf binary
-# Treat Office docs as binary (never normalize/convert)
+# Hook files (no extension)
+scripts/hooks/* text eol=lf
+
+# Treat these as binary (never normalize)
 *.docx binary
-*.doc  binary
-*.pptx binary
-*.xlsx binary
-
-# --- Line endings: enforce LF for scripts (Windows-safe, Git Bash-friendly) ---
-*.sh   text eol=lf
-*.mjs  text eol=lf
-*.ts   text eol=lf
-*.json text eol=lf
-*.md   text eol=lf
-*.ps1  text eol=lf
-# --- Line endings: enforce LF for scripts (Windows-safe, Git Bash-friendly) ---
-*.sh   text eol=lf
-*.mjs  text eol=lf
-*.ts   text eol=lf
-*.json text eol=lf
-*.md   text eol=lf
-*.ps1  text eol=lf
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.zip  binary
