@@ -26,8 +26,9 @@
     "golden:update": "node ci/scripts/golden_update.mjs",
     "test:ci": "node test/ci_stable_stringify.test.mjs",
     "engine:hello": "node dist/src/run_pipeline_cli.js examples/hello_world.json",
-"engine:contract": "node -e \"console.log(require('fs').readFileSync('ENGINE_CONTRACT.md','utf8'))\""
-
+    "engine:contract": "node -e \"console.log(require('fs').readFileSync('ENGINE_CONTRACT.md','utf8'))\"",
+    "engine:contract:head": "node -e \"const fs=require('fs'); const s=fs.readFileSync('ENGINE_CONTRACT.md','utf8').split(/\\r?\\n/).slice(0,40).join('\\n'); console.log(s);\"",
+    "smoke": "npm run lint && npm run engine:hello"
   },
   "dependencies": {
     "ajv": "^8.17.1",
