@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+
+echo "[pre-commit] smart dispatcher"
+node ci/scripts/precommit_smart.mjs
+echo "[pre-commit] OK"
