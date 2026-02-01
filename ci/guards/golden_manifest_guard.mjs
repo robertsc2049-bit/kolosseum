@@ -20,7 +20,7 @@ const goldenRoot = path.join(repoRoot, "test", "fixtures", "golden");
 const manifestPath = path.join(goldenRoot, "golden_manifest.v1.json");
 
 // [PINNED] update only when intentionally regenerating manifest + fixtures
-const PINNED_MANIFEST_SHA256 = "d1c7c9343ec14fd8e21bfc64886ee28a22ddc907acb557398025bc423b30c58b";
+const PINNED_MANIFEST_SHA256 = "cec392207ae5d5d87dbccfb60228b1472cc607deb8af132c9d734294e08c64bf";
 
 if (!fs.existsSync(goldenRoot)) die(`[ERR] Missing golden root at ${goldenRoot}`);
 if (!fs.existsSync(manifestPath)) {
