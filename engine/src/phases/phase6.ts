@@ -35,6 +35,8 @@ type Phase5Like =
   | { ok: false; failure_token: string; details?: unknown }
   | undefined;
 
+type SubRule = { target: string; sub: string };
+
 function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
@@ -72,24 +74,10 @@ function plannedIdsFromPlannedItems(program: any): string[] {
   return program.planned_items.map((x: any) => String(x?.exercise_id ?? "")).filter(Boolean);
 }
 
-function applySubstitutions(
-  plannedIds: string[],
-  p5: Phase5Like
-): { ids: string[]; substitutedFrom: Map<string, string>; applied: boolean } {
-  const substitutedFrom = new Map<string, string>();
-
-  // No Phase5, or Phase5 failed -> no substitution application.
-  if (!p5 || (p5 as any).ok !== true) {
-    return { ids: plannedIds, substitutedFrom, applied: false };
-  }
-
+function extractSubRules(p5: Phase5Like): SubRule[] {
+  if (!p5 || (p5 as any).ok !== true) return [];
   const adjustments = Array.isArray((p5 as any).adjustments) ? (p5 as any).adjustments : [];
-  if (adjustments.length === 0) {
-    return { ids: plannedIds, substitutedFrom, applied: false };
-  }
-
-  let ids = [...plannedIds];
-  let changed = false;
+  const rules: SubRule[] = [];
 
   for (const a of adjustments) {
     if (a?.adjustment_id !== "SUBSTITUTE_EXERCISE") continue;
@@ -100,22 +88,45 @@ function applySubstitutions(
     if (!target || !sub) continue;
     if (target === sub) continue;
 
-    // Replace ALL occurrences deterministically; mark changed only if a replacement actually happened.
-    let replacedThisAdjustment = false;
-    ids = ids.map((x) => {
-      if (x !== target) return x;
-      replacedThisAdjustment = true;
-      return sub;
-    });
+    rules.push({ target, sub });
+  }
 
-    if (replacedThisAdjustment) {
-      // Trace: substitute -> original target.
-      substitutedFrom.set(sub, target);
+  return rules;
+}
+
+/**
+ * Deterministic sequential substitution:
+ * Applies rules in-order, allowing chaining (A->B then B->C => A->C).
+ */
+function applyRulesToId(originalId: string, rules: SubRule[]): { finalId: string; changed: boolean } {
+  let cur = originalId;
+  let changed = false;
+
+  for (let i = 0; i < rules.length; i++) {
+    const r = rules[i];
+    if (cur === r.target) {
+      cur = r.sub;
       changed = true;
     }
   }
 
-  return { ids, substitutedFrom, applied: changed };
+  return { finalId: cur, changed };
+}
+
+/**
+ * Apply rules to list of ids; `applied` true only if at least one id changes.
+ */
+function applySubstitutionsToIds(plannedIds: string[], rules: SubRule[]): { ids: string[]; applied: boolean } {
+  if (rules.length === 0) return { ids: plannedIds, applied: false };
+
+  let anyChanged = false;
+  const ids = plannedIds.map((id) => {
+    const r = applyRulesToId(id, rules);
+    if (r.changed) anyChanged = true;
+    return r.finalId;
+  });
+
+  return { ids, applied: anyChanged };
 }
 
 function dedupeStable(ids: string[]): string[] {
@@ -137,8 +148,6 @@ function dedupeStable(ids: string[]): string[] {
  *   and notes exactly ["PHASE_6_STUB: deterministic empty session shell"].
  * - If plan is non-empty: session_id=SESSION_V1.
  * - Non-empty plans MUST use planned_items. Legacy sources are forbidden.
- *
- * No "gate:" debug notes here (those belong in logs, not contract output).
  */
 export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unknown, p5?: Phase5Like): Phase6Result {
   const prog: any = program ?? {};
@@ -148,53 +157,43 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
   void canonicalInput;
   void poolFromProgram(prog);
 
-  // Empty plan (all sources empty) -> constant stub contract
+  // Empty plan -> constant stub contract
   if (mode === "empty") {
     return {
       ok: true,
-      session: {
-        session_id: "SESSION_STUB",
-        status: "ready",
-        exercises: []
-      },
+      session: { session_id: "SESSION_STUB", status: "ready", exercises: [] },
       notes: ["PHASE_6_STUB: deterministic empty session shell"]
     };
   }
 
-  // HARD GATE: planned_items is required for any non-empty plan.
+  // Hard gate: planned_items only
   if (mode !== "planned_items") {
     return {
       ok: false,
       failure_token: "phase6_requires_planned_items",
-      details: {
-        required: "planned_items",
-        saw: mode
-      }
+      details: { required: "planned_items", saw: mode }
     };
   }
 
-  const plannedIds = plannedIdsFromPlannedItems(prog);
-  const { ids: substitutedIds, substitutedFrom, applied } = applySubstitutions(plannedIds, p5);
-  const finalIds = dedupeStable(substitutedIds);
+  const rules = extractSubRules(p5);
 
-  // If planned_items existed but yielded no valid ids after filtering/substitution, treat as empty plan.
+  // Compute final ids for emptiness checks and global applied-flag
+  const plannedIds = plannedIdsFromPlannedItems(prog);
+  const subbed = applySubstitutionsToIds(plannedIds, rules);
+  const finalIds = dedupeStable(subbed.ids);
+
   if (finalIds.length === 0) {
     return {
       ok: true,
-      session: {
-        session_id: "SESSION_STUB",
-        status: "ready",
-        exercises: []
-      },
+      session: { session_id: "SESSION_STUB", status: "ready", exercises: [] },
       notes: ["PHASE_6_STUB: deterministic empty session shell"]
     };
   }
 
   const session_id = "SESSION_V1";
 
-  // Rich path: planned_items (authoritative)
+  // Emit from planned_items, applying chained rules per item deterministically
   const items: any[] = Array.isArray(prog?.planned_items) ? prog.planned_items : [];
-
   const exercises: Phase6SessionExercise[] = [];
   const seen = new Set<string>();
 
@@ -203,13 +202,8 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
     const originalId = String(it.exercise_id ?? "");
     if (!originalId) continue;
 
-    let finalId = originalId;
-    for (const [subId, targetId] of substitutedFrom.entries()) {
-      if (targetId === originalId) {
-        finalId = subId;
-        break;
-      }
-    }
+    const r = applyRulesToId(originalId, rules);
+    const finalId = r.finalId;
 
     if (seen.has(finalId)) continue;
     seen.add(finalId);
@@ -231,13 +225,9 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
 
   return {
     ok: true,
-    session: {
-      session_id,
-      status: "ready",
-      exercises
-    },
+    session: { session_id, status: "ready", exercises },
     notes: [
-      applied
+      subbed.applied
         ? "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
         : "PHASE_6: emitted session from planned_items (deduped)"
     ]
