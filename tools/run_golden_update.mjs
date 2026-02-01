@@ -1,7 +1,21 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 import crypto from "node:crypto";
 import { execSync } from "node:child_process";
 
+
+function assertRepoClean() {
+  if (process.env.ALLOW_DIRTY === "1") {
+    console.log("golden:update: ALLOW_DIRTY=1 set, skipping clean-tree check");
+    return;
+  }
+  const out = execSync("git status --porcelain", { encoding: "utf8" }).trim();
+  if (out.length > 0) {
+    console.error("[ERR] golden:update refused: working tree is not clean.");
+    console.error("Fix: commit/stash changes, or re-run with ALLOW_DIRTY=1 if you know what you're doing.");
+    process.exitCode = 1;
+    process.exit(1);
+  }
+}
 function sha256FileHex(p) {
   const buf = fs.readFileSync(p);
   return crypto.createHash("sha256").update(buf).digest("hex");
