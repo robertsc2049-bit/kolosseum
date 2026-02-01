@@ -8,23 +8,51 @@ function out(cmd) {
   return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] }).toString("utf8");
 }
 
-const files = out("git diff --name-only --cached")
-  .split(/\r?\n/)
-  .map(s => s.trim())
-  .filter(Boolean);
+function listPushedFiles() {
+  // Compare local HEAD range vs upstream.
+  // If upstream is missing (new branch), fall back to HEAD~1.
+  let upstream = "";
+  try {
+    upstream = out("git rev-parse --abbrev-ref --symbolic-full-name @{u}").trim();
+  } catch {
+    upstream = "";
+  }
+
+  let range = "";
+  if (upstream) {
+    range = out(`git rev-list --left-right --count ${upstream}...HEAD`).trim();
+    // Always compute file list using upstream..HEAD
+    const files = out(`git diff --name-only ${upstream}..HEAD`)
+      .split(/\r?\n/)
+      .map(s => s.trim())
+      .filter(Boolean);
+    return files;
+  }
+
+  // No upstream: best effort
+  const files = out("git diff --name-only HEAD~1..HEAD")
+    .split(/\r?\n/)
+    .map(s => s.trim())
+    .filter(Boolean);
+  return files;
+}
+
+const files = listPushedFiles();
 
 const DOC_ONLY = files.length > 0 && files.every(f => /\.(md|txt)$/i.test(f));
 const ENGINE_TOUCH = files.some(f =>
   f.startsWith("engine/") ||
   f.startsWith("cli/") ||
   f.includes("ENGINE_CONTRACT") ||
-  f.includes("schema")
+  f.includes("schema") ||
+  f.startsWith("ci/schemas/") ||
+  f.startsWith("registries/")
 );
 
-console.log(`[pre-push] staged files: ${files.length}`);
+console.log(`[pre-push] pushed files: ${files.length}`);
 
 if (!files.length) {
-  console.log("[pre-push] nothing staged → full path");
+  console.log("[pre-push] nothing to push (or unable to detect) → full path");
   sh("npm run lint");
   process.exit(0);
 }
