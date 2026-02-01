@@ -1,58 +1,109 @@
-﻿import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import fs from "node:fs";
+import path from "node:path";
 
-/**
- * Ticket 017 — No legacy constraint keys, cross-platform.
- *
- * We must NOT embed forbidden tokens verbatim in this file,
- * otherwise the guard self-triggers.
- *
- * So we build tokens dynamically.
- */
+const ROOT = process.cwd();
 
-function k(parts) {
-  return parts.join("");
-}
+// Only allow legacy keys in these explicit negative test fixtures.
+// Keep this list tiny and intentional.
+const ALLOWLIST = new Set([
+  "test/fixtures/golden/inputs/neg_phase1_constraints_legacy_ids_refused.json",
+  "test/fixtures/golden/expected/neg_phase1_constraints_legacy_ids_refused.json",
+]);
 
-const FORBIDDEN = [
-  k(["banned", "_equipment", "_ids"]),
-  k(["available", "_equipment", "_ids"])
+// Legacy keys we never want in real inputs/contracts.
+// Add more here if you have additional deprecated keys.
+const LEGACY_KEYS = [
+  "banned_equipment_ids",
+  "available_equipment_ids",
+  "required_equipment_ids",
+  "banned_exercise_ids",
+  "allowed_exercise_ids",
 ];
 
-const ROOTS = ["engine", "ci", "test"];
+const FILE_EXTS = new Set([
+  ".json",
+  ".js",
+  ".mjs",
+  ".ts",
+  ".tsx",
+]);
 
-const SELF = join("ci", "guards", "no_legacy_constraints.mjs");
+const SKIP_DIRS = new Set([
+  ".git",
+  "node_modules",
+  "dist",
+  "build",
+  "coverage",
+  ".next",
+  ".turbo",
+]);
 
-let violations = [];
+function toPosix(p) {
+  return p.split(path.sep).join("/");
+}
 
-function scanFile(path) {
-  const content = readFileSync(path, "utf8");
-  for (const key of FORBIDDEN) {
-    if (content.includes(key)) violations.push({ path, key });
+function isSkippableDir(absPath) {
+  const base = path.basename(absPath);
+  return SKIP_DIRS.has(base);
+}
+
+function walk(absDir, out) {
+  if (!fs.existsSync(absDir)) return;
+  const entries = fs.readdirSync(absDir, { withFileTypes: true });
+  for (const e of entries) {
+    const abs = path.join(absDir, e.name);
+    if (e.isDirectory()) {
+      if (isSkippableDir(abs)) continue;
+      walk(abs, out);
+      continue;
+    }
+    if (!e.isFile()) continue;
+    const ext = path.extname(e.name).toLowerCase();
+    if (!FILE_EXTS.has(ext)) continue;
+    out.push(abs);
   }
 }
 
-function shouldScan(path) {
-  if (path === SELF) return false; // never scan the guard itself
-  return path.endsWith(".ts") || path.endsWith(".mjs") || path.endsWith(".json");
-}
+function scanFile(absFile) {
+  const rel = toPosix(path.relative(ROOT, absFile));
+  if (ALLOWLIST.has(rel)) return [];
 
-function walk(dir) {
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    const stat = statSync(full);
-    if (stat.isDirectory()) walk(full);
-    else if (shouldScan(full)) scanFile(full);
+  let text;
+  try {
+    text = fs.readFileSync(absFile, "utf8");
+  } catch {
+    return [];
   }
+
+  const hits = [];
+  for (const k of LEGACY_KEYS) {
+    // Match JSON-ish key usage: "key":
+    const re = new RegExp(`"${k}"\\s*:`, "g");
+    if (re.test(text)) hits.push(k);
+  }
+
+  return hits.map((k) => ({ key: k, rel }));
 }
 
-for (const root of ROOTS) walk(root);
+function main() {
+  const files = [];
+  walk(ROOT, files);
 
-if (violations.length > 0) {
-  console.error("\n❌ Legacy constraint keys detected:\n");
-  for (const v of violations) console.error(`- ${v.key} → ${v.path}`);
-  console.error("\nCanonical constraint contract violated. Build blocked.\n");
-  process.exit(1);
+  const offenders = [];
+  for (const f of files) {
+    offenders.push(...scanFile(f));
+  }
+
+  if (offenders.length) {
+    console.error("\n❌ Legacy constraint keys detected:\n");
+    for (const o of offenders) {
+      console.error(`- ${o.key} → ${o.rel}`);
+    }
+    console.error("\nCanonical constraint contract violated. Build blocked.\n");
+    process.exit(1);
+  }
+
+  process.exit(0);
 }
 
-console.log("✅ Constraint guard passed (no legacy keys detected).");
+main();
