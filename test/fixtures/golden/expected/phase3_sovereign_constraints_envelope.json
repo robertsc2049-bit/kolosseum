@@ -1,6 +1,6 @@
 {
   "notes": [
-    "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
+    "PHASE_6: emitted session from planned_items (deduped)"
   ],
   "ok": true,
   "phase2_debug": {

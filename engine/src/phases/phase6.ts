@@ -16,7 +16,7 @@ export type Phase6SessionExercise = {
     | { type: "load"; value: number };
   rest_seconds?: number;
 
-  // Substitution trace
+  // Substitution trace (ONLY if the substituted exercise is emitted)
   substituted_from?: string;
 };
 
@@ -63,15 +63,9 @@ function poolFromProgram(program: any): Record<string, ExerciseSignature> {
  */
 function planMode(program: any): "planned_items" | "planned_exercise_ids" | "exercises" | "empty" {
   if (Array.isArray(program?.planned_items) && program.planned_items.length > 0) return "planned_items";
-  if (Array.isArray(program?.planned_exercise_ids) && program.planned_exercise_ids.length > 0)
-    return "planned_exercise_ids";
+  if (Array.isArray(program?.planned_exercise_ids) && program.planned_exercise_ids.length > 0) return "planned_exercise_ids";
   if (Array.isArray(program?.exercises) && program.exercises.length > 0) return "exercises";
   return "empty";
-}
-
-function plannedIdsFromPlannedItems(program: any): string[] {
-  if (!Array.isArray(program?.planned_items) || program.planned_items.length === 0) return [];
-  return program.planned_items.map((x: any) => String(x?.exercise_id ?? "")).filter(Boolean);
 }
 
 function extractSubRules(p5: Phase5Like): SubRule[] {
@@ -114,40 +108,17 @@ function applyRulesToId(originalId: string, rules: SubRule[]): { finalId: string
 }
 
 /**
- * Apply rules to list of ids; `applied` true only if at least one id changes.
- */
-function applySubstitutionsToIds(plannedIds: string[], rules: SubRule[]): { ids: string[]; applied: boolean } {
-  if (rules.length === 0) return { ids: plannedIds, applied: false };
-
-  let anyChanged = false;
-  const ids = plannedIds.map((id) => {
-    const r = applyRulesToId(id, rules);
-    if (r.changed) anyChanged = true;
-    return r.finalId;
-  });
-
-  return { ids, applied: anyChanged };
-}
-
-function dedupeStable(ids: string[]): string[] {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const id of ids) {
-    if (!id) continue;
-    if (seen.has(id)) continue;
-    seen.add(id);
-    out.push(id);
-  }
-  return out;
-}
-
-/**
  * Phase 6
  * Contract required by tests/goldens:
  * - If plan is empty: return deterministic empty shell with session_id=SESSION_STUB
  *   and notes exactly ["PHASE_6_STUB: deterministic empty session shell"].
  * - If plan is non-empty: session_id=SESSION_V1.
  * - Non-empty plans MUST use planned_items. Legacy sources are forbidden.
+ *
+ * CRITICAL RULE:
+ * - Phase6 notes/trace MUST be a pure function of the EMITTED session.exercises[].
+ *   If a substitution occurred but the substituted exercise was not emitted (e.g., dedup collision),
+ *   Phase 6 MUST NOT claim substitutions.
  */
 export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unknown, p5?: Phase5Like): Phase6Result {
   const prog: any = program ?? {};
@@ -177,19 +148,6 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
 
   const rules = extractSubRules(p5);
 
-  // Compute final ids for emptiness checks and global applied-flag
-  const plannedIds = plannedIdsFromPlannedItems(prog);
-  const subbed = applySubstitutionsToIds(plannedIds, rules);
-  const finalIds = dedupeStable(subbed.ids);
-
-  if (finalIds.length === 0) {
-    return {
-      ok: true,
-      session: { session_id: "SESSION_STUB", status: "ready", exercises: [] },
-      notes: ["PHASE_6_STUB: deterministic empty session shell"]
-    };
-  }
-
   const session_id = "SESSION_V1";
 
   // Emit from planned_items, applying chained rules per item deterministically
@@ -205,6 +163,7 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
     const r = applyRulesToId(originalId, rules);
     const finalId = r.finalId;
 
+    if (!finalId) continue;
     if (seen.has(finalId)) continue;
     seen.add(finalId);
 
@@ -219,15 +178,31 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
       rest_seconds: typeof it.rest_seconds === "number" ? it.rest_seconds : undefined
     };
 
+    // Trace only exists if the substituted exercise is actually emitted.
     if (finalId !== originalId) ex.substituted_from = originalId;
+
     exercises.push(ex);
   }
+
+  // If nothing emitted, fall back to stub contract (deterministic)
+  if (exercises.length === 0) {
+    return {
+      ok: true,
+      session: { session_id: "SESSION_STUB", status: "ready", exercises: [] },
+      notes: ["PHASE_6_STUB: deterministic empty session shell"]
+    };
+  }
+
+  // Notes are STRICTLY a function of the emitted exercises array.
+  const emittedHasSubstitution = exercises.some(
+    (e) => typeof e.substituted_from === "string" && e.substituted_from.length > 0
+  );
 
   return {
     ok: true,
     session: { session_id, status: "ready", exercises },
     notes: [
-      subbed.applied
+      emittedHasSubstitution
         ? "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
         : "PHASE_6: emitted session from planned_items (deduped)"
     ]

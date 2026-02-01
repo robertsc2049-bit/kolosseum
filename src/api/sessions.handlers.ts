@@ -1,4 +1,4 @@
-﻿// src/api/sessions.handlers.ts
+// src/api/sessions.handlers.ts
 import type { Request, Response } from "express";
 import { pool } from "../db/pool.js";
 
@@ -20,6 +20,13 @@ function pgErrorMessage(err: unknown): string {
   }
   return String(err);
 }
+
+/**
+ * Planned session is immutable input. We only use it:
+ * - to initialize runtime snapshot at START
+ * - to silently upgrade legacy summaries that did not store exercise objects
+ * Once started=true, we return only from the stored runtime snapshot.
+ */
 
 type PlannedExercise = {
   exercise_id: string;
@@ -61,90 +68,233 @@ function validateRuntimeEvent(v: unknown): RuntimeEvent | null {
     return { ...(v as any), type: t } as RuntimeEvent;
   }
 
-  // forward compatible: store unknown types; reducer ignores unless handled
+  // forward compatible: store unknown types
   return { ...(v as any), type: t } as RuntimeEvent;
 }
 
-type SessionSummary = {
+/**
+ * Runtime snapshot summary (authoritative once started=true).
+ * Trace is derived from these lists only.
+ */
+type SplitSnapshot = {
+  active: boolean;
+  remaining_at_split_ids: string[];
+};
+
+type SessionSummaryV2 = {
+  version: 2;
+  started: boolean;
+  remaining_exercises: PlannedExercise[];
+  completed_exercises: PlannedExercise[];
+  dropped_exercises: PlannedExercise[];
+  split?: SplitSnapshot;
+  last_seq: number; // 0 if none
+};
+
+type LegacySessionSummaryV1 = {
   started: boolean;
   remaining_ids: string[];
   completed_ids: string[];
   dropped_ids: string[];
-  last_seq: number; // 0 if none
+  last_seq: number;
+  // no split in legacy
 };
 
-function summaryFromPlanned(planned: PlannedSession): SessionSummary {
+function toPlannedExercisesFromIds(
+  planned: PlannedSession,
+  ids: string[]
+): PlannedExercise[] {
+  const plannedExercises = Array.isArray(planned?.exercises) ? planned.exercises : [];
+  const byId = new Map<string, PlannedExercise>();
+  for (const ex of plannedExercises) {
+    if (ex && typeof ex.exercise_id === "string" && ex.exercise_id.length > 0) {
+      byId.set(ex.exercise_id, ex);
+    }
+  }
+  // Only return ids that exist in planned
+  const out: PlannedExercise[] = [];
+  for (const id of ids) {
+    const ex = byId.get(id);
+    if (ex) out.push(ex);
+  }
+  return out;
+}
+
+function summaryFromPlanned(planned: PlannedSession): SessionSummaryV2 {
   const exercises = Array.isArray(planned?.exercises) ? planned.exercises : [];
-  const ids = exercises
-    .map((e) => (e && typeof e.exercise_id === "string" ? e.exercise_id : ""))
-    .filter((x) => x.length > 0);
+  const safeExercises: PlannedExercise[] = exercises
+    .map((e) => (e && typeof e.exercise_id === "string" ? { exercise_id: e.exercise_id, source: "program" as const } : null))
+    .filter(Boolean) as PlannedExercise[];
 
   return {
+    version: 2,
     started: false,
-    remaining_ids: ids,
-    completed_ids: [],
-    dropped_ids: [],
+    remaining_exercises: safeExercises,
+    completed_exercises: [],
+    dropped_exercises: [],
+    split: undefined,
     last_seq: 0
   };
 }
 
-function applyEventToSummary(summary: SessionSummary, ev: RuntimeEvent): SessionSummary {
-  const out: SessionSummary = {
-    started: summary.started,
-    remaining_ids: [...summary.remaining_ids],
-    completed_ids: [...summary.completed_ids],
-    dropped_ids: [...summary.dropped_ids],
-    last_seq: summary.last_seq
-  };
+function isV2Summary(v: unknown): v is SessionSummaryV2 {
+  if (!isRecord(v)) return false;
+  return v.version === 2 &&
+    typeof (v as any).started === "boolean" &&
+    Array.isArray((v as any).remaining_exercises) &&
+    Array.isArray((v as any).completed_exercises) &&
+    Array.isArray((v as any).dropped_exercises);
+}
 
-  const removeRemaining = (exercise_id: string): boolean => {
-    const idx = out.remaining_ids.indexOf(exercise_id);
-    if (idx < 0) return false;
-    out.remaining_ids.splice(idx, 1);
-    return true;
+function isV1Summary(v: unknown): v is LegacySessionSummaryV1 {
+  if (!isRecord(v)) return false;
+  return typeof (v as any).started === "boolean" &&
+    Array.isArray((v as any).remaining_ids) &&
+    Array.isArray((v as any).completed_ids) &&
+    Array.isArray((v as any).dropped_ids);
+}
+
+function uniqueById(list: PlannedExercise[]): PlannedExercise[] {
+  const seen = new Set<string>();
+  const out: PlannedExercise[] = [];
+  for (const ex of list) {
+    if (!ex || typeof ex.exercise_id !== "string") continue;
+    const id = ex.exercise_id;
+    if (!id) continue;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    out.push(ex);
+  }
+  return out;
+}
+
+function listHasId(list: PlannedExercise[], id: string): boolean {
+  return list.some((e) => e.exercise_id === id);
+}
+
+function removeByIdFromList(list: PlannedExercise[], id: string): [PlannedExercise | undefined, PlannedExercise[]] {
+  const idx = list.findIndex((e) => e.exercise_id === id);
+  if (idx < 0) return [undefined, list];
+  const found = list[idx];
+  return [found, [...list.slice(0, idx), ...list.slice(idx + 1)]];
+}
+
+/**
+ * Apply runtime events to V2 summary.
+ * Semantics:
+ * - complete/skip are idempotent; no resurrection
+ * - split records snapshot of remaining ids at split time (first split only)
+ * - return_continue ends split, preserves remaining
+ * - return_skip drops anything that was remaining_at_split AND is still remaining now
+ *   (matches engine runtime: drop remaining at split, not necessarily new items)
+ */
+function applyEventToSummaryV2(summary: SessionSummaryV2, ev: RuntimeEvent): SessionSummaryV2 {
+  const out: SessionSummaryV2 = {
+    ...summary,
+    remaining_exercises: [...summary.remaining_exercises],
+    completed_exercises: [...summary.completed_exercises],
+    dropped_exercises: [...summary.dropped_exercises],
+    split: summary.split ? { ...summary.split, remaining_at_split_ids: [...summary.split.remaining_at_split_ids] } : undefined
   };
 
   switch (ev.type) {
     case "START_SESSION":
       out.started = true;
+      // Hard normalize / dedupe at start for deterministic trace
+      out.remaining_exercises = uniqueById(out.remaining_exercises);
+      out.completed_exercises = uniqueById(out.completed_exercises);
+      out.dropped_exercises = uniqueById(out.dropped_exercises);
       return out;
 
     case "COMPLETE_EXERCISE": {
       const exercise_id = (ev as any).exercise_id as string;
-      if (typeof exercise_id === "string" && exercise_id.length > 0) {
-        if (removeRemaining(exercise_id)) out.completed_ids.push(exercise_id);
+      if (typeof exercise_id !== "string" || exercise_id.length === 0) return out;
+
+      // Idempotent: if already completed or dropped, ensure it's not in remaining, done.
+      if (listHasId(out.completed_exercises, exercise_id) || listHasId(out.dropped_exercises, exercise_id)) {
+        const [, rem] = removeByIdFromList(out.remaining_exercises, exercise_id);
+        out.remaining_exercises = rem;
+        return out;
       }
+
+      const [found, rem] = removeByIdFromList(out.remaining_exercises, exercise_id);
+      out.remaining_exercises = rem;
+      if (found) out.completed_exercises.push(found);
       return out;
     }
 
     case "SKIP_EXERCISE": {
       const exercise_id = (ev as any).exercise_id as string;
-      if (typeof exercise_id === "string" && exercise_id.length > 0) {
-        if (removeRemaining(exercise_id)) out.dropped_ids.push(exercise_id);
+      if (typeof exercise_id !== "string" || exercise_id.length === 0) return out;
+
+      if (listHasId(out.completed_exercises, exercise_id) || listHasId(out.dropped_exercises, exercise_id)) {
+        const [, rem] = removeByIdFromList(out.remaining_exercises, exercise_id);
+        out.remaining_exercises = rem;
+        return out;
       }
+
+      const [found, rem] = removeByIdFromList(out.remaining_exercises, exercise_id);
+      out.remaining_exercises = rem;
+      if (found) out.dropped_exercises.push(found);
+      return out;
+    }
+
+    case "SPLIT_SESSION": {
+      // First split only; idempotent
+      if (out.split?.active) return out;
+
+      out.split = {
+        active: true,
+        remaining_at_split_ids: out.remaining_exercises.map((e) => e.exercise_id)
+      };
+      return out;
+    }
+
+    case "RETURN_CONTINUE": {
+      if (!out.split?.active) return out;
+      out.split = { ...out.split, active: false };
       return out;
     }
 
     case "RETURN_SKIP": {
-      // drop everything remaining
-      while (out.remaining_ids.length > 0) {
-        const id = out.remaining_ids.shift();
-        if (id) out.dropped_ids.push(id);
+      if (out.split?.active) {
+        const toDrop = new Set(out.split.remaining_at_split_ids);
+        const stillRemainingIds = new Set(out.remaining_exercises.map((e) => e.exercise_id));
+        // Drop only those that were remaining at split and are still remaining now
+        const dropNowIds: string[] = [];
+        for (const id of toDrop) {
+          if (stillRemainingIds.has(id)) dropNowIds.push(id);
+        }
+
+        // Move from remaining -> dropped (preserve order)
+        const newRemaining: PlannedExercise[] = [];
+        for (const ex of out.remaining_exercises) {
+          if (dropNowIds.includes(ex.exercise_id)) out.dropped_exercises.push(ex);
+          else newRemaining.push(ex);
+        }
+        out.remaining_exercises = newRemaining;
+
+        out.split = { ...out.split, active: false };
+        return out;
+      }
+
+      // If no split is active, product semantics: drop everything remaining
+      // (safe and deterministic; aligns with earlier behavior)
+      while (out.remaining_exercises.length > 0) {
+        const ex = out.remaining_exercises.shift();
+        if (ex) out.dropped_exercises.push(ex);
       }
       return out;
     }
 
-    // No state change for these (yet)
-    case "SPLIT_SESSION":
-    case "RETURN_CONTINUE":
     default:
+      // Unknown event types are stored but do not mutate summary (forward compatible)
       return out;
   }
 }
 
 async function allocNextSeq(client: any, session_id: string): Promise<number> {
-  // Requires session_event_seq table with row per session_id.
-  // If row doesn't exist, create it (0) and then increment.
+  // one row per session
   await client.query(
     `INSERT INTO session_event_seq(session_id, next_seq)
      VALUES ($1, 0)
@@ -174,10 +324,63 @@ async function loadSessionForUpdate(client: any, session_id: string) {
   return (r.rowCount ?? 0) > 0 ? r.rows[0] : null;
 }
 
+async function loadSession(client: any, session_id: string) {
+  const r = await client.query(
+    `SELECT session_id, planned_session, session_state_summary
+     FROM sessions
+     WHERE session_id = $1`,
+    [session_id]
+  );
+  return (r.rowCount ?? 0) > 0 ? r.rows[0] : null;
+}
+
+function normalizeSummary(planned: PlannedSession, raw: unknown): { summary: SessionSummaryV2; needsUpgrade: boolean } {
+  // Valid V2 summary: use it.
+  if (isV2Summary(raw)) {
+    const s = raw as SessionSummaryV2;
+    return { summary: s, needsUpgrade: false };
+  }
+
+  // Legacy V1 summary: upgrade to V2 (silent)
+  if (isV1Summary(raw)) {
+    const v1 = raw as LegacySessionSummaryV1;
+
+    const remaining_ids = (v1.remaining_ids ?? []).filter((x) => typeof x === "string" && x.length > 0);
+    const completed_ids = (v1.completed_ids ?? []).filter((x) => typeof x === "string" && x.length > 0);
+    const dropped_ids = (v1.dropped_ids ?? []).filter((x) => typeof x === "string" && x.length > 0);
+
+    const upgraded: SessionSummaryV2 = {
+      version: 2,
+      started: v1.started === true,
+      remaining_exercises: toPlannedExercisesFromIds(planned, remaining_ids),
+      completed_exercises: toPlannedExercisesFromIds(planned, completed_ids),
+      dropped_exercises: toPlannedExercisesFromIds(planned, dropped_ids),
+      split: undefined,
+      last_seq: Number((v1 as any).last_seq ?? 0)
+    };
+
+    return { summary: upgraded, needsUpgrade: true };
+  }
+
+  // Anything else: initialize from planned
+  return { summary: summaryFromPlanned(planned), needsUpgrade: true };
+}
+
+function deriveTrace(summary: SessionSummaryV2) {
+  return {
+    started: summary.started,
+    remaining_ids: summary.remaining_exercises.map((e) => e.exercise_id),
+    completed_ids: summary.completed_exercises.map((e) => e.exercise_id),
+    dropped_ids: summary.dropped_exercises.map((e) => e.exercise_id),
+    split_active: summary.split?.active === true,
+    remaining_at_split_ids: summary.split?.remaining_at_split_ids ?? []
+  };
+}
+
 /**
  * POST /sessions/:session_id/start
- * - idempotent: if START_SESSION already exists in summary.started=true, do nothing
- * - persists START_SESSION event + sets sessions.status + initializes session_state_summary
+ * - idempotent
+ * - persists START_SESSION + sets status + ensures summary is V2
  */
 export async function startSession(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
@@ -195,22 +398,17 @@ export async function startSession(req: Request, res: Response) {
 
     const planned = s.planned_session as PlannedSession;
 
-    // Initialize summary if missing/invalid
-    const existingSummaryRaw = s.session_state_summary;
-    const existingSummary =
-      existingSummaryRaw &&
-      typeof existingSummaryRaw === "object" &&
-      Array.isArray((existingSummaryRaw as any).remaining_ids)
-        ? (existingSummaryRaw as SessionSummary)
-        : summaryFromPlanned(planned);
+    const { summary: normalized, needsUpgrade } = normalizeSummary(planned, s.session_state_summary);
 
-    if (existingSummary.started === true) {
-      // Ensure status is consistent
+    // If already started, ensure status and (optionally) upgrade stored summary
+    if (normalized.started === true) {
       await client.query(
         `UPDATE sessions
-         SET status = 'in_progress', updated_at = now()
+         SET status = 'in_progress',
+             session_state_summary = $2::jsonb,
+             updated_at = now()
          WHERE session_id = $1`,
-        [session_id]
+        [session_id, JSON.stringify(needsUpgrade ? normalized : (s.session_state_summary ?? normalized))]
       );
 
       await client.query("COMMIT");
@@ -227,8 +425,8 @@ export async function startSession(req: Request, res: Response) {
       [session_id, seq, JSON.stringify(ev)]
     );
 
-    // Update summary
-    const nextSummary = applyEventToSummary(existingSummary, ev);
+    // Update summary (V2 authoritative snapshot starts now)
+    const nextSummary = applyEventToSummaryV2(normalized, ev);
     nextSummary.last_seq = seq;
 
     await client.query(
@@ -243,9 +441,7 @@ export async function startSession(req: Request, res: Response) {
     await client.query("COMMIT");
     return res.status(200).json({ ok: true, session_id, started: true, seq });
   } catch (err: unknown) {
-    try {
-      await client.query("ROLLBACK");
-    } catch {}
+    try { await client.query("ROLLBACK"); } catch {}
     return res.status(400).json({ error: pgErrorMessage(err) });
   } finally {
     client.release();
@@ -257,7 +453,7 @@ export async function startSession(req: Request, res: Response) {
  * body: { event: {...} }
  * - allocates seq O(1)
  * - inserts runtime_events row
- * - updates session_state_summary incrementally (O(1) + small array ops)
+ * - updates session_state_summary incrementally (V2)
  */
 export async function appendRuntimeEvent(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
@@ -282,18 +478,11 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     }
 
     const planned = s.planned_session as PlannedSession;
+    const { summary: normalized, needsUpgrade } = normalizeSummary(planned, s.session_state_summary);
 
-    const summaryRaw = s.session_state_summary;
-    const summary =
-      summaryRaw &&
-      typeof summaryRaw === "object" &&
-      Array.isArray((summaryRaw as any).remaining_ids)
-        ? (summaryRaw as SessionSummary)
-        : summaryFromPlanned(planned);
+    let workingSummary = normalized;
 
-    // If not started, auto-start (product-safe for now)
-    // Insert START first so seq is monotonic
-    let workingSummary = summary;
+    // If not started, auto-start (product-safe)
     if (workingSummary.started !== true) {
       const startSeq = await allocNextSeq(client, session_id);
       const startEv: RuntimeEvent = { type: "START_SESSION" };
@@ -304,13 +493,22 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
         [session_id, startSeq, JSON.stringify(startEv)]
       );
 
-      workingSummary = applyEventToSummary(workingSummary, startEv);
+      workingSummary = applyEventToSummaryV2(workingSummary, startEv);
       workingSummary.last_seq = startSeq;
 
       await client.query(
         `UPDATE sessions
          SET status = 'in_progress',
              session_state_summary = $2::jsonb,
+             updated_at = now()
+         WHERE session_id = $1`,
+        [session_id, JSON.stringify(workingSummary)]
+      );
+    } else if (needsUpgrade) {
+      // Persist upgraded V2 snapshot even if started already
+      await client.query(
+        `UPDATE sessions
+         SET session_state_summary = $2::jsonb,
              updated_at = now()
          WHERE session_id = $1`,
         [session_id, JSON.stringify(workingSummary)]
@@ -325,7 +523,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       [session_id, seq, JSON.stringify(event)]
     );
 
-    const nextSummary = applyEventToSummary(workingSummary, event);
+    const nextSummary = applyEventToSummaryV2(workingSummary, event);
     nextSummary.last_seq = seq;
 
     await client.query(
@@ -339,9 +537,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     await client.query("COMMIT");
     return res.status(201).json({ ok: true, session_id, seq });
   } catch (err: unknown) {
-    try {
-      await client.query("ROLLBACK");
-    } catch {}
+    try { await client.query("ROLLBACK"); } catch {}
     return res.status(400).json({ error: pgErrorMessage(err) });
   } finally {
     client.release();
@@ -369,59 +565,47 @@ export async function listRuntimeEvents(req: Request, res: Response) {
 
 /**
  * GET /sessions/:session_id/state
- * O(1): read from sessions.session_state_summary (no runtime_events scan)
+ * - O(1) read from sessions.session_state_summary (no runtime_events scan)
+ * - Once started=true, response is derived ONLY from the stored runtime snapshot.
+ *   planned_session is not used for user-visible trace.
  */
 export async function getSessionState(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) return res.status(400).json({ error: "Missing session_id" });
 
-  const r = await pool.query(
-    `SELECT planned_session, session_state_summary
-     FROM sessions
-     WHERE session_id = $1`,
-    [session_id]
-  );
+  const client = await pool.connect();
+  try {
+    const row = await loadSession(client, session_id);
+    if (!row) return res.status(404).json({ error: "Session not found" });
 
-  if ((r.rowCount ?? 0) === 0) return res.status(404).json({ error: "Session not found" });
+    const planned = row.planned_session as PlannedSession;
+    const { summary, needsUpgrade } = normalizeSummary(planned, row.session_state_summary);
 
-  const planned = r.rows[0].planned_session as PlannedSession;
-  const summaryRaw = r.rows[0].session_state_summary;
+    // If started and legacy/invalid, upgrade storage silently (but DO NOT return planned-derived trace)
+    if (needsUpgrade) {
+      await client.query(
+        `UPDATE sessions
+         SET session_state_summary = $2::jsonb,
+             updated_at = now()
+         WHERE session_id = $1`,
+        [session_id, JSON.stringify(summary)]
+      );
+    }
 
-  const summary =
-    summaryRaw &&
-    typeof summaryRaw === "object" &&
-    Array.isArray((summaryRaw as any).remaining_ids)
-      ? (summaryRaw as SessionSummary)
-      : summaryFromPlanned(planned);
+    const trace = deriveTrace(summary);
 
-  // Map ids back to exercise objects for the client
-  const plannedExercises = Array.isArray(planned?.exercises) ? planned.exercises : [];
-  const byId = new Map<string, PlannedExercise>();
-  for (const ex of plannedExercises) {
-    if (ex && typeof ex.exercise_id === "string") byId.set(ex.exercise_id, ex);
+    return res.json({
+      session_id,
+      started: trace.started,
+      remaining_exercises: summary.remaining_exercises,
+      completed_exercises: summary.completed_exercises,
+      dropped_exercises: summary.dropped_exercises,
+      trace,
+      event_log: [] // history is /events; state is O(1)
+    });
+  } catch (err: unknown) {
+    return res.status(400).json({ error: pgErrorMessage(err) });
+  } finally {
+    client.release();
   }
-
-  const remaining = summary.remaining_ids.map((id) => byId.get(id)).filter(Boolean);
-  const completed = summary.completed_ids.map((id) => byId.get(id)).filter(Boolean);
-  const dropped = summary.dropped_ids.map((id) => byId.get(id)).filter(Boolean);
-
-  return res.json({
-    session_id,
-    remaining_exercises: remaining,
-    completed_exercises: completed,
-    dropped_exercises: dropped,
-    event_log: [] // history is /events; state is O(1)
-  });
 }
-
-
-
-
-
-
-
-
-
-
-
-

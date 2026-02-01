@@ -1,46 +1,41 @@
-import test from "node:test";
+﻿import test from "node:test";
 import assert from "node:assert/strict";
+import { phase6ProduceSessionOutput } from "../dist/engine/src/phases/phase6.js";
 
-async function loadPhase6() {
-  // Common dist layouts (try in order)
-  const candidates = [
-    "../dist/src/phases/phase6.js",
-    "../dist/engine/src/phases/phase6.js",
-    "../dist/phases/phase6.js",
-    "../dist/engine/phases/phase6.js"
-  ];
-
-  let lastErr;
-  for (const p of candidates) {
-    try {
-      return await import(p);
-    } catch (e) {
-      lastErr = e;
-    }
-  }
-  throw lastErr ?? new Error("Unable to import Phase6 from dist (no candidates matched)");
-}
-
-test("Phase6 legacy exercises[] preserve prescription metadata", async () => {
-  const { phase6ProduceSessionOutput } = await loadPhase6();
-
+test("Phase6 legacy exercises[] preserve prescription metadata (DEPRECATED PATH: now forbidden)", () => {
+  // This test used to assert legacy support. Phase6 is now planned_items-only.
   const program = {
     exercises: [
+      { exercise_id: "bench_press", sets: 3, reps: 5, rest_seconds: 120 }
+    ]
+  };
+  const r = phase6ProduceSessionOutput(program, {}, undefined);
+  assert.equal(r.ok, false);
+  assert.equal(r.failure_token, "phase6_requires_planned_items");
+  assert.deepEqual(r.details, { required: "planned_items", saw: "exercises" });
+});
+
+test("Phase6 planned_items preserves prescription metadata deterministically", () => {
+  const program = {
+    planned_items: [
       {
+        block_id: "B0",
+        item_id: "B0_I0",
         exercise_id: "bench_press",
         sets: 3,
         reps: 5,
-        rest_seconds: 180
+        rest_seconds: 120,
+        intensity: { type: "percent_1rm", value: 75 }
       }
     ]
   };
 
-  const res = phase6ProduceSessionOutput(program, {});
-  assert.equal(res.ok, true);
-
-  const ex = res.session.exercises[0];
+  const r = phase6ProduceSessionOutput(program, {}, undefined);
+  assert.equal(r.ok, true);
+  const ex = r.session.exercises[0];
   assert.equal(ex.exercise_id, "bench_press");
   assert.equal(ex.sets, 3);
   assert.equal(ex.reps, 5);
-  assert.equal(ex.rest_seconds, 180);
+  assert.equal(ex.rest_seconds, 120);
+  assert.deepEqual(ex.intensity, { type: "percent_1rm", value: 75 });
 });

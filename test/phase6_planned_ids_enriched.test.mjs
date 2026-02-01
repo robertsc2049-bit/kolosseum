@@ -1,47 +1,27 @@
-import test from "node:test";
+﻿import test from "node:test";
 import assert from "node:assert/strict";
+import { phase6ProduceSessionOutput } from "../dist/engine/src/phases/phase6.js";
 
-async function loadPhase6() {
-  // Common dist layouts (try in order)
-  const candidates = [
-    "../dist/src/phases/phase6.js",
-    "../dist/engine/src/phases/phase6.js",
-    "../dist/phases/phase6.js",
-    "../dist/engine/phases/phase6.js"
-  ];
-
-  let lastErr;
-  for (const p of candidates) {
-    try {
-      return await import(p);
-    } catch (e) {
-      lastErr = e;
-    }
-  }
-  throw lastErr ?? new Error("Unable to import Phase6 from dist (no candidates matched)");
-}
-
-test("Phase6 planned_exercise_ids enriched from exercises[] metadata", async () => {
-  const { phase6ProduceSessionOutput } = await loadPhase6();
-
+test("Phase6 planned_exercise_ids enriched from exercises[] metadata (DEPRECATED PATH: now forbidden)", () => {
+  // This test used to assert an enrichment bridge. Phase6 is now planned_items-only.
   const program = {
     planned_exercise_ids: ["squat"],
-    exercises: [
-      {
-        exercise_id: "squat",
-        sets: 5,
-        reps: 3,
-        intensity: { type: "percent_1rm", value: 80 }
-      }
-    ]
+    exercises: [{ exercise_id: "squat", sets: 5, reps: 5 }]
   };
+  const r = phase6ProduceSessionOutput(program, {}, undefined);
+  assert.equal(r.ok, false);
+  assert.equal(r.failure_token, "phase6_requires_planned_items");
+  assert.deepEqual(r.details, { required: "planned_items", saw: "planned_exercise_ids" });
+});
 
-  const res = phase6ProduceSessionOutput(program, {});
-  assert.equal(res.ok, true);
-
-  const ex = res.session.exercises[0];
-  assert.equal(ex.exercise_id, "squat");
-  assert.equal(ex.sets, 5);
-  assert.equal(ex.reps, 3);
-  assert.deepEqual(ex.intensity, { type: "percent_1rm", value: 80 });
+test("Phase6 planned_items accepts rich items directly (no enrichment needed)", () => {
+  const program = {
+    planned_items: [{ block_id: "B0", item_id: "B0_I0", exercise_id: "squat", sets: 5, reps: 5 }]
+  };
+  const r = phase6ProduceSessionOutput(program, {}, undefined);
+  assert.equal(r.ok, true);
+  assert.equal(r.session.exercises.length, 1);
+  assert.equal(r.session.exercises[0].exercise_id, "squat");
+  assert.equal(r.session.exercises[0].sets, 5);
+  assert.equal(r.session.exercises[0].reps, 5);
 });
