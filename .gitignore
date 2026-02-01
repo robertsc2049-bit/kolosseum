@@ -1,2 +1,25 @@
 server.pid
-server.log
+server.log# local env
+.env
+
+# build + deps
+dist/
+node_modules/
+
+# local scratch outputs
+_tmp_pipeline_out.json
+tmp_planned_session.json
+# local env
+.env
+
+# build + deps
+dist/
+node_modules/
+
+# local scratch outputs
+_tmp_pipeline_out.json
+tmp_planned_session.json
+# generic temp
+_tmp*
+tmp_*
+*.tmp
