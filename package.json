@@ -24,7 +24,10 @@
     "golden:manifest": "node ci/scripts/write_golden_manifest.mjs",
     "golden:outputs": "node ci/scripts/write_golden_outputs.mjs",
     "golden:update": "node ci/scripts/golden_update.mjs",
-    "test:ci": "node test/ci_stable_stringify.test.mjs"
+    "test:ci": "node test/ci_stable_stringify.test.mjs",
+    "engine:hello": "node dist/src/run_pipeline_cli.js examples/hello_world.json",
+"engine:contract": "node -e \"console.log(require('fs').readFileSync('ENGINE_CONTRACT.md','utf8'))\""
+
   },
   "dependencies": {
     "ajv": "^8.17.1",
