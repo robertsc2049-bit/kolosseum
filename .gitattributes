@@ -23,3 +23,18 @@
 *.doc  binary
 *.pptx binary
 *.xlsx binary
+
+# --- Line endings: enforce LF for scripts (Windows-safe, Git Bash-friendly) ---
+*.sh   text eol=lf
+*.mjs  text eol=lf
+*.ts   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.ps1  text eol=lf
+# --- Line endings: enforce LF for scripts (Windows-safe, Git Bash-friendly) ---
+*.sh   text eol=lf
+*.mjs  text eol=lf
+*.ts   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.ps1  text eol=lf
