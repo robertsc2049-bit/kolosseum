@@ -7,18 +7,20 @@ function die(msg) {
 }
 
 const banned = "scripts/engine-status.ps1";
+const bannedNorm = banned.replace(/\\/g, "/").toLowerCase();
 
 if (existsSync(banned)) {
   die(`❌ BANNED FOOTGUN PRESENT ON DISK: ${banned}`);
 }
 
 try {
-  const tracked = execSync("git ls-files", { stdio: ["ignore", "pipe", "ignore"] })
+  const tracked = execSync("git ls-files -z", { stdio: ["ignore", "pipe", "ignore"] })
     .toString("utf8")
-    .split(/\r?\n/)
-    .filter(Boolean);
+    .split("\0")
+    .filter(Boolean)
+    .map((p) => p.replace(/\\/g, "/").toLowerCase());
 
-  if (tracked.includes(banned)) {
+  if (tracked.includes(bannedNorm)) {
     die(`❌ BANNED FOOTGUN IS TRACKED IN GIT: ${banned}`);
   }
 } catch (e) {
