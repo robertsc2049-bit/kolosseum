@@ -1,37 +1,28 @@
-# =========================================
-# Global: enforce LF everywhere
-# =========================================
+# Enforce LF in repo for scripts/configs that must be deterministic
 * text=auto eol=lf
 
-# =========================================
-# Explicit text formats (belt + braces)
-# =========================================
-*.js        text eol=lf
-*.mjs       text eol=lf
-*.ts        text eol=lf
-*.json      text eol=lf
-*.yml       text eol=lf
-*.yaml      text eol=lf
-*.md        text eol=lf
-*.txt       text eol=lf
-*.sh        text eol=lf
-*.ps1       text eol=lf
-*.sql       text eol=lf
+# GitHub Actions workflows must be LF-only
+.github/workflows/*.yml text eol=lf
+.github/workflows/*.yaml text eol=lf
 
-# =========================================
-# Binary files (never touch line endings)
-# =========================================
-*.png       binary
-*.jpg       binary
-*.jpeg      binary
-*.gif       binary
-*.webp      binary
-*.ico       binary
-*.pdf       binary
-*.zip       binary
-*.gz        binary
-*.tgz       binary
-*.woff      binary
-*.woff2     binary
-*.ttf       binary
-*.eot       binary
+# JS/MJS/TS and JSON must be LF-only
+*.js   text eol=lf
+*.mjs  text eol=lf
+*.cjs  text eol=lf
+*.ts   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+
+# Shell scripts LF-only
+*.sh   text eol=lf
+
+# PowerShell scripts: keep CRLF (Windows-native). If you prefer LF, change to eol=lf.
+*.ps1  text eol=crlf
+
+# Binary files
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.pdf  binary
+*.zip  binary
