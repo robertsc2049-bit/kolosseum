@@ -8,7 +8,7 @@
     "test": "npm run build && node --test",
     "guard:constraints": "node ci/guards/no_legacy_constraints.mjs",
     "guard:version": "node scripts/version-gate.mjs",
-    "lint": "node ci/guards/repo_contract.mjs && node ci/guards/engine_contract_guard.mjs && node ci/guards/golden_manifest_guard.mjs && node ci/guards/golden_outputs_guard.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs && npm run test:ci",
+    "lint": "node ci/guards/tag_version_guard.mjs && node ci/guards/repo_contract.mjs && node ci/guards/engine_contract_guard.mjs && node ci/guards/golden_manifest_guard.mjs && node ci/guards/golden_outputs_guard.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs && npm run test:ci",
     "ci": "npm run guard:constraints && npm run guard:version && npm run lint && npm test && npm run e2e:golden",
     "hash:write": "node ci/scripts/write_checksums.mjs",
     "run:cli": "node dist/cli/src/main.js",
