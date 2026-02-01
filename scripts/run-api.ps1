@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$DbUrl,
   [int]$Port = 3000
 )

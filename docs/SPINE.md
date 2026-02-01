@@ -1,4 +1,4 @@
-﻿# SPINE.md
+# SPINE.md
 
 **Project:** Kolosseum  
 **Document:** SPINE (Authoritative Corpus Index)  

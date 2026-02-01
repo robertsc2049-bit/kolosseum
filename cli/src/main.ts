@@ -1,4 +1,4 @@
-﻿import { runEngine } from "../../engine/src/index.js";
+import { runEngine } from "../../engine/src/index.js";
 import { phase5ApplySubstitutionAndAdjustment } from "../../engine/src/phases/phase5.js";
 
 function banner(s: string) {

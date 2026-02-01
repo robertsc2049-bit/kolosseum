@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "kolosseum://schema/exercise.registry/1.0.0",
   "title": "Exercise Registry (v1.0.0)",

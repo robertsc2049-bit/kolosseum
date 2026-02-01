@@ -1,4 +1,4 @@
-﻿/**
+/**
  * src/run_pipeline.ts
  * Deterministic Phase1 -> Phase6 runner for CI golden tests.
  *

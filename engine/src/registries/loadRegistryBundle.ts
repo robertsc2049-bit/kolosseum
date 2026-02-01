@@ -1,4 +1,4 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 
 function stripBom(s: string): string {
   return s.length > 0 && s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;

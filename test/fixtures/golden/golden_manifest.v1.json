@@ -1,6 +1,6 @@
 {
   "manifest_version": "1.0.0",
-  "generated_utc": "2026-02-01T19:32:16.443Z",
+  "generated_utc": "2026-02-01T20:58:48.577Z",
   "root": "test/fixtures/golden",
   "files": [
     {
@@ -45,15 +45,15 @@
     },
     {
       "path": "inputs/neg_phase1_constraints_legacy_ids_refused.json",
-      "sha256": "b3c0883b3370d1fc6dcbe3d41a3635bb136d956588fa446c6c819f4d296c063b"
+      "sha256": "a6fb5c2faea28a07a7f737ffa9434eff14153e5f70bb093833385018cb37b5f5"
     },
     {
       "path": "inputs/neg_phase1_constraints_type_invalid.json",
-      "sha256": "0dff095ceba15cbca12523dad2c4a4bef8d2e1171df8cac026e17be92b356c92"
+      "sha256": "8cdc240da5799262a41f2ab7615f398f1a3b960d5ba7eb8d49e95c44136d6009"
     },
     {
       "path": "inputs/neg_phase1_unknown_field.json",
-      "sha256": "02e60fddf0c7489ce5e31b70ae1eeacdb0bf06ae4b2c26a161a4297101ab2f29"
+      "sha256": "0f61512b55ec3ec04a6495e0e25fb255ce70300a9d698ed2f8d6eb86dfa35f79"
     },
     {
       "path": "inputs/phase1_constraints_gym_basic.json",
@@ -73,11 +73,11 @@
     },
     {
       "path": "inputs/phase3_precedence_banned_over_available.json",
-      "sha256": "c7bdacb86b4380f2c42a1a70b94d354ccd4bac8f478dbd6d21d578264fdb28f8"
+      "sha256": "b6e04cf6607613ae741e24496d0d144364d5c603fe346e85fd69a8c283a4b441"
     },
     {
       "path": "inputs/phase3_sovereign_constraints_envelope.json",
-      "sha256": "2240dcb3f27bed18368b5f90166552c66c4ec2cd318b03c1690c85487540e5b8"
+      "sha256": "caa9f36dedcede5ed33baccd4773ea820f8ed06b86dcc5fe657708104a3cae99"
     },
     {
       "path": "inputs/vanilla_minimal.json",

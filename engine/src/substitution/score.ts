@@ -1,4 +1,4 @@
-﻿import type { ExerciseSignature, SubstitutionConstraints } from "./types.js";
+import type { ExerciseSignature, SubstitutionConstraints } from "./types.js";
 
 export type SubstitutionPick = {
   selected_exercise_id: string;

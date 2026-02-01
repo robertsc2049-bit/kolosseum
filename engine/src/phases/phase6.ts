@@ -1,4 +1,4 @@
-﻿// engine/src/phases/phase6.ts
+// engine/src/phases/phase6.ts
 import type { ExerciseSignature } from "../substitution/types.js";
 
 export type Phase6SessionExercise = {

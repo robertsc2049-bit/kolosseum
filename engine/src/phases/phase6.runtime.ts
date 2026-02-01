@@ -1,4 +1,4 @@
-﻿// engine/src/phases/phase6.runtime.ts
+// engine/src/phases/phase6.runtime.ts
 import type { Phase6SessionOutput, Phase6SessionExercise } from "./phase6.js";
 import { applyRuntimeEvent, makeRuntimeState } from "../runtime/session_runtime.js";
 import type { RuntimeEvent } from "../runtime/types.js";

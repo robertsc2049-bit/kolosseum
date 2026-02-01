@@ -1,4 +1,4 @@
-﻿import Ajv from "ajv";
+import Ajv from "ajv";
 import fs from "node:fs";
 
 export type Phase1Constraints = {

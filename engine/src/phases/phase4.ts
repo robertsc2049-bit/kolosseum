@@ -1,4 +1,4 @@
-﻿import path from "node:path";
+import path from "node:path";
 import type { ExerciseSignature } from "../substitution/types.js";
 import type { Phase3Constraints, Phase3Output } from "./phase3.js";
 import { loadExerciseEntriesFromPath } from "../registries/loadExerciseEntries.js";

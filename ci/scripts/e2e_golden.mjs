@@ -1,4 +1,4 @@
-﻿import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve, basename, extname, join } from "node:path";
 import { createHash } from "node:crypto";
 import process from "node:process";

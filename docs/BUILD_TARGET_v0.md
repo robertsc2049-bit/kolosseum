@@ -1,4 +1,4 @@
-﻿# BUILD_TARGET_v0.md
+# BUILD_TARGET_v0.md
 
 **Project:** Kolosseum  
 **Build Target:** v0 (Starter build)  

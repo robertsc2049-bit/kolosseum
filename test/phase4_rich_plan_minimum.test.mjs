@@ -1,4 +1,4 @@
-﻿import test from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 
 // Phase4 is compiled under dist/engine/... (node runs .mjs tests, so import JS output).

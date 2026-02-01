@@ -1,4 +1,4 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 
 const path = "ENGINE_CONTRACT.md";
 let s = fs.readFileSync(path, "utf8");

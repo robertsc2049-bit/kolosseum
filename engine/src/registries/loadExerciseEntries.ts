@@ -1,4 +1,4 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 import type { ExerciseSignature } from "../substitution/types.js";
 
 function stripBom(s: string): string {

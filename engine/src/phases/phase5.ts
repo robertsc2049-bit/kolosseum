@@ -1,4 +1,4 @@
-﻿import { pickBestSubstitute } from "../substitution/score.js";
+import { pickBestSubstitute } from "../substitution/score.js";
 import type { ExerciseSignature, SubstitutionConstraints } from "../substitution/types.js";
 
 export type Phase5Adjustment = {

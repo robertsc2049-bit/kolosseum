@@ -1,4 +1,4 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 
 const p = "package.json";
 let b = fs.readFileSync(p);

@@ -1,4 +1,4 @@
-﻿import test from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 
 import { phase6ProduceSessionOutput } from "../dist/engine/src/phases/phase6.js";

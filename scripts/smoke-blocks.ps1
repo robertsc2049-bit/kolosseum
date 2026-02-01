@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$Base = "http://[::1]:3000"
 )
 

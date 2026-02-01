@@ -1,4 +1,4 @@
-﻿## Mandatory Checks (No Exceptions)
+## Mandatory Checks (No Exceptions)
 
 This repository enforces strict invariants.
 

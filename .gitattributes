@@ -18,3 +18,8 @@
 *.jpeg binary
 *.gif binary
 *.pdf binary
+# Treat Office docs as binary (never normalize/convert)
+*.docx binary
+*.doc  binary
+*.pptx binary
+*.xlsx binary

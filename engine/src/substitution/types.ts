@@ -1,4 +1,4 @@
-﻿export type SubstitutionConstraints = {
+export type SubstitutionConstraints = {
   avoid_joint_stress_tags?: string[];  // disqualifier tags on candidate
   banned_equipment?: string[];         // disqualifier equipment ids/types
   available_equipment?: string[];      // if present, candidates must use allowed equipment
