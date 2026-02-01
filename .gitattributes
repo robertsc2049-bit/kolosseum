@@ -1,17 +1,20 @@
-# workflows + ci: LF
-.github/workflows/*.yml  text eol=lf
-.github/workflows/*.yaml text eol=lf
-ci/**                    text eol=lf
+# Default to LF in repo
+* text=auto eol=lf
 
-# code: LF
-src/**     text eol=lf
-engine/**  text eol=lf
-test/**    text eol=lf
-*.js   text eol=lf
-*.mjs  text eol=lf
-*.ts   text eol=lf
+# Explicit types
+*.mjs text eol=lf
+*.ts  text eol=lf
+*.js  text eol=lf
 *.json text eol=lf
-*.md   text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md  text eol=lf
+*.ps1 text eol=lf
+*.sql text eol=lf
 
-# PowerShell: CRLF (Windows)
-scripts/*.ps1 text eol=crlf
+# Binaries
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
