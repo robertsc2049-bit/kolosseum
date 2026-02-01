@@ -7,7 +7,6 @@ const ROOT = process.cwd();
 // Keep this list tiny and intentional.
 const ALLOWLIST = new Set([
   "test/fixtures/golden/inputs/neg_phase1_constraints_legacy_ids_refused.json",
-  "test/fixtures/golden/expected/neg_phase1_constraints_legacy_ids_refused.json",
 ]);
 
 // Legacy keys we never want in real inputs/contracts.
