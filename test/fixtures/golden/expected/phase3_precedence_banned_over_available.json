@@ -63,6 +63,38 @@
         "reps": 5,
         "sets": 3,
         "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "deadlift",
+        "item_id": "B0_I2",
+        "reps": 5,
+        "sets": 3,
+        "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "overhead_press",
+        "item_id": "B0_I3",
+        "reps": 5,
+        "sets": 3,
+        "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "incline_bench_press",
+        "item_id": "B0_I4",
+        "reps": 10,
+        "sets": 3,
+        "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "push_up",
+        "item_id": "B0_I5",
+        "reps": 10,
+        "sets": 3,
+        "source": "program"
       }
     ],
     "session_id": "SESSION_V1",

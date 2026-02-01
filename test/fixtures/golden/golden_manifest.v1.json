@@ -1,6 +1,6 @@
 {
   "manifest_version": "1.0.0",
-  "generated_utc": "2026-01-31T16:47:17.126Z",
+  "generated_utc": "2026-02-01T13:39:54.189Z",
   "root": "test/fixtures/golden",
   "files": [
     {
@@ -17,31 +17,31 @@
     },
     {
       "path": "expected/phase1_constraints_gym_basic.json",
-      "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+      "sha256": "8f07957597de8fd779730275d236946f58b29fd287935ace01d8b6fc97c57932"
     },
     {
       "path": "expected/phase1_envelope_powerlifting_default.json",
-      "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+      "sha256": "8f07957597de8fd779730275d236946f58b29fd287935ace01d8b6fc97c57932"
     },
     {
       "path": "expected/phase1_equipment_dbs_only_timebox.json",
-      "sha256": "30cd911173921f77a8aa1c0cb16ede33bb408f69602da4b1bdef89a3e62b2780"
+      "sha256": "8e791bdb37523fb751ce5f143e3162289275894865534b6c0e5807b260830117"
     },
     {
       "path": "expected/phase1_pain_knee_powerlifting.json",
-      "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+      "sha256": "8f07957597de8fd779730275d236946f58b29fd287935ace01d8b6fc97c57932"
     },
     {
       "path": "expected/phase3_precedence_banned_over_available.json",
-      "sha256": "63a6fbd11666f1c2ebd2634325bcd422a9c72aabbfbeccd93995b711ae903bf3"
+      "sha256": "068f086835a7291f5c6a36953a758754b4ecc0e4ea364c996e13d1390b855bdb"
     },
     {
       "path": "expected/phase3_sovereign_constraints_envelope.json",
-      "sha256": "2aa29f1acaea0902605f25d68a2b2de9c40abf1fa4b2a1295f049470e378c2d2"
+      "sha256": "b1c12dfb6c964ae2dfeb85a7f5d5850d78348e26e8da5494f03e24df730dbabe"
     },
     {
       "path": "expected/vanilla_minimal.json",
-      "sha256": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+      "sha256": "8f07957597de8fd779730275d236946f58b29fd287935ace01d8b6fc97c57932"
     },
     {
       "path": "inputs/neg_phase1_constraints_legacy_ids_refused.json",

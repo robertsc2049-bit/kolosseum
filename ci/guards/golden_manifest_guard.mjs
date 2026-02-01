@@ -1,4 +1,4 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 
@@ -34,13 +34,13 @@ const repoRoot = process.cwd();
 const goldenRoot = path.join(repoRoot, "test", "fixtures", "golden");
 const manifestPath = path.join(goldenRoot, "golden_manifest.v1.json");
 
-// ðŸ”’ PINNED: update only when intentionally regenerating manifest + fixtures
-const PINNED_MANIFEST_SHA256="f7400ad6c44c7baceb8957c66201398c8676ea18654b71489d285b48b359450a";
+// ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢ PINNED: update only when intentionally regenerating manifest + fixtures
+const PINNED_MANIFEST_SHA256="d1c7c9343ec14fd8e21bfc64886ee28a22ddc907acb557398025bc423b30c58b";
 
-if (!fs.existsSync(goldenRoot)) die(`âŒ Missing golden root at ${goldenRoot}`);
+if (!fs.existsSync(goldenRoot)) die(`ÃƒÂ¢Ã‚ÂÃ…â€™ Missing golden root at ${goldenRoot}`);
 if (!fs.existsSync(manifestPath)) {
   die(
-    `âŒ Missing golden manifest at ${manifestPath}\n` +
+    `ÃƒÂ¢Ã‚ÂÃ…â€™ Missing golden manifest at ${manifestPath}\n` +
       `Fix: node ci/scripts/write_golden_manifest.mjs && git add test/fixtures/golden/golden_manifest.v1.json`
   );
 }
@@ -50,7 +50,7 @@ const manifestBytes = fs.readFileSync(manifestPath);
 const manifestSha = sha256(manifestBytes);
 if (manifestSha !== PINNED_MANIFEST_SHA256) {
   die(
-    `âŒ Golden manifest SHA256 changed.\n` +
+    `ÃƒÂ¢Ã‚ÂÃ…â€™ Golden manifest SHA256 changed.\n` +
       `expected=${PINNED_MANIFEST_SHA256}\n` +
       `actual  =${manifestSha}\n` +
       `If intentional: regenerate fixtures, then update PINNED_MANIFEST_SHA256 and commit.`
@@ -61,20 +61,20 @@ let manifest;
 try {
   manifest = JSON.parse(manifestBytes.toString("utf8"));
 } catch (e) {
-  die(`âŒ Failed to parse golden manifest JSON: ${manifestPath}\n${String(e)}`);
+  die(`ÃƒÂ¢Ã‚ÂÃ…â€™ Failed to parse golden manifest JSON: ${manifestPath}\n${String(e)}`);
 }
 
-if (!manifest || typeof manifest !== "object") die("âŒ golden_manifest.v1.json invalid root type");
+if (!manifest || typeof manifest !== "object") die("ÃƒÂ¢Ã‚ÂÃ…â€™ golden_manifest.v1.json invalid root type");
 if (manifest.manifest_version !== "1.0.0")
-  die(`âŒ golden manifest_version mismatch: ${JSON.stringify(manifest.manifest_version)} (expected "1.0.0")`);
+  die(`ÃƒÂ¢Ã‚ÂÃ…â€™ golden manifest_version mismatch: ${JSON.stringify(manifest.manifest_version)} (expected "1.0.0")`);
 
 const files = Array.isArray(manifest.files) ? manifest.files : null;
-if (!files || files.length < 10) die(`âŒ golden manifest files[] missing/too small (${files ? files.length : "null"})`);
+if (!files || files.length < 10) die(`ÃƒÂ¢Ã‚ÂÃ…â€™ golden manifest files[] missing/too small (${files ? files.length : "null"})`);
 
 const expectedDir = path.join(goldenRoot, "expected");
 const inputsDir = path.join(goldenRoot, "inputs");
-if (!fs.existsSync(expectedDir)) die(`âŒ Missing expected dir: ${expectedDir}`);
-if (!fs.existsSync(inputsDir)) die(`âŒ Missing inputs dir: ${inputsDir}`);
+if (!fs.existsSync(expectedDir)) die(`ÃƒÂ¢Ã‚ÂÃ…â€™ Missing expected dir: ${expectedDir}`);
+if (!fs.existsSync(inputsDir)) die(`ÃƒÂ¢Ã‚ÂÃ…â€™ Missing inputs dir: ${inputsDir}`);
 
 const diskAbs = [...listJsonUnder(expectedDir), ...listJsonUnder(inputsDir)];
 const diskRelSet = new Set(diskAbs.map((p) => toPosixRel(goldenRoot, p)));
@@ -85,7 +85,7 @@ const extraInManifest = [...manifestRelSet].filter((p) => !diskRelSet.has(p) && 
 
 if (missingInManifest.length) {
   die(
-    `âŒ Golden manifest missing file(s):\n` +
+    `ÃƒÂ¢Ã‚ÂÃ…â€™ Golden manifest missing file(s):\n` +
       missingInManifest.map((p) => `  - ${p}`).join("\n") +
       `\nFix: node ci/scripts/write_golden_manifest.mjs && git add test/fixtures/golden/golden_manifest.v1.json`
   );
@@ -93,7 +93,7 @@ if (missingInManifest.length) {
 
 if (extraInManifest.length) {
   die(
-    `âŒ Golden manifest references non-existent file(s):\n` +
+    `ÃƒÂ¢Ã‚ÂÃ…â€™ Golden manifest references non-existent file(s):\n` +
       extraInManifest.map((p) => `  - ${p}`).join("\n") +
       `\nFix: node ci/scripts/write_golden_manifest.mjs && git add test/fixtures/golden/golden_manifest.v1.json`
   );
@@ -121,13 +121,13 @@ for (const f of files) {
 if (mismatches.length) {
   const head = mismatches.slice(0, 10);
   die(
-    `âŒ Golden fixture drift detected (${mismatches.length} mismatch(es)).\n` +
+    `ÃƒÂ¢Ã‚ÂÃ…â€™ Golden fixture drift detected (${mismatches.length} mismatch(es)).\n` +
       head.map((m) => `  - ${m.rel}\n    expected=${m.expected}\n    actual  =${m.actual}`).join("\n") +
       `\nFix (intentional): node ci/scripts/write_golden_manifest.mjs && git add test/fixtures/golden/**/* test/fixtures/golden/golden_manifest.v1.json && git commit -m "test(golden): update fixtures + manifest"`
   );
 }
 
-console.log("âœ… Golden manifest guard passed (content + sha256 pinned).");
+console.log("ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Golden manifest guard passed (content + sha256 pinned).");
 
 
 
