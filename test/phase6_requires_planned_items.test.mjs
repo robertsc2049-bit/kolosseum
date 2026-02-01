@@ -41,3 +41,43 @@ test("Phase6: planned_items plan is accepted", async () => {
   assert.equal(res.session.exercises.length, 1);
   assert.equal(res.session.exercises[0].exercise_id, "bench_press");
 });
+
+test("Phase6: substitution note appears only when an actual id changes", async () => {
+  const program = {
+    planned_items: [
+      { block_id: "B0", item_id: "B0_I0", exercise_id: "bench_press", sets: 3, reps: 5 },
+      { block_id: "B0", item_id: "B0_I1", exercise_id: "back_squat", sets: 3, reps: 5 }
+    ]
+  };
+
+  // Phase5-like object that substitutes bench_press -> dumbbell_bench_press
+  const p5 = {
+    ok: true,
+    adjustments: [
+      {
+        adjustment_id: "SUBSTITUTE_EXERCISE",
+        applied: true,
+        details: {
+          target_exercise_id: "bench_press",
+          substitute_exercise_id: "dumbbell_bench_press"
+        }
+      }
+    ]
+  };
+
+  const res = phase6ProduceSessionOutput(program, {}, p5);
+
+  assert.equal(res.ok, true);
+  assert.equal(res.session.session_id, "SESSION_V1");
+
+  // Note must reflect real substitution
+  assert.deepEqual(res.notes, ["PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"]);
+
+  // bench_press must be swapped and traced
+  assert.equal(res.session.exercises[0].exercise_id, "dumbbell_bench_press");
+  assert.equal(res.session.exercises[0].substituted_from, "bench_press");
+
+  // back_squat remains unchanged
+  assert.equal(res.session.exercises[1].exercise_id, "back_squat");
+  assert.ok(!("substituted_from" in res.session.exercises[1]));
+});
