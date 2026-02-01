@@ -1,7 +1,7 @@
 {
   "name": "kolosseum",
   "private": true,
-  "version": "0.1.16",
+  "version": "0.1.17",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -37,5 +37,13 @@
     "@types/node": "^22.10.5",
     "@types/pg": "^8.16.0",
     "typescript": "^5.7.3"
-  }
+  },
+  "files": [
+    "dist/",
+    "registries/",
+    "ci/schemas/",
+    "schema.sql",
+    "ENGINE_CONTRACT.md",
+    "README.md"
+  ]
 }
