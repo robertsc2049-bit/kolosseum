@@ -54,10 +54,10 @@ function poolFromProgram(program: any): Record<string, ExerciseSignature> {
 }
 
 /**
- * Authoritative plan:
- * 1) planned_items (rich)
- * 2) planned_exercise_ids (legacy)
- * 3) exercises[] (legacy fallback)
+ * Plan mode detection.
+ * Contract (enforced):
+ * - planned_items is the ONLY accepted non-empty plan source.
+ * - planned_exercise_ids and exercises[] are legacy and MUST NOT be used for session emission.
  */
 function planMode(program: any): "planned_items" | "planned_exercise_ids" | "exercises" | "empty" {
   if (Array.isArray(program?.planned_items) && program.planned_items.length > 0) return "planned_items";
@@ -67,17 +67,9 @@ function planMode(program: any): "planned_items" | "planned_exercise_ids" | "exe
   return "empty";
 }
 
-function plannedIdsFromProgram(program: any): string[] {
-  if (Array.isArray(program?.planned_items) && program.planned_items.length > 0) {
-    return program.planned_items.map((x: any) => String(x?.exercise_id ?? "")).filter(Boolean);
-  }
-  if (Array.isArray(program?.planned_exercise_ids) && program.planned_exercise_ids.length > 0) {
-    return program.planned_exercise_ids.map((x: any) => String(x)).filter(Boolean);
-  }
-  if (Array.isArray(program?.exercises) && program.exercises.length > 0) {
-    return program.exercises.map((x: any) => String(x?.exercise_id ?? "")).filter(Boolean);
-  }
-  return [];
+function plannedIdsFromPlannedItems(program: any): string[] {
+  if (!Array.isArray(program?.planned_items) || program.planned_items.length === 0) return [];
+  return program.planned_items.map((x: any) => String(x?.exercise_id ?? "")).filter(Boolean);
 }
 
 function applySubstitutions(
@@ -86,7 +78,6 @@ function applySubstitutions(
 ): { ids: string[]; substitutedFrom: Map<string, string>; applied: boolean } {
   const substitutedFrom = new Map<string, string>();
 
-  // ✅ FIXED: valid early return object (no truncation)
   if (!p5 || (p5 as any).ok !== true) {
     return { ids: plannedIds, substitutedFrom, applied: false };
   }
@@ -125,38 +116,12 @@ function dedupeStable(ids: string[]): string[] {
 }
 
 /**
- * Build deterministic prescription lookup from program.exercises[]
- * (Used to enrich legacy plan modes.)
- */
-function buildPrescriptionById(program: any): Map<string, Partial<Phase6SessionExercise>> {
-  const map = new Map<string, Partial<Phase6SessionExercise>>();
-  if (!Array.isArray(program?.exercises)) return map;
-
-  for (const ex of program.exercises) {
-    if (!ex || typeof ex.exercise_id !== "string") continue;
-
-    const entry: Partial<Phase6SessionExercise> = {};
-    if (typeof ex.block_id === "string") entry.block_id = ex.block_id;
-    if (typeof ex.item_id === "string") entry.item_id = ex.item_id;
-    if (typeof ex.sets === "number") entry.sets = ex.sets;
-    if (typeof ex.reps === "number") entry.reps = ex.reps;
-    if (ex.intensity) entry.intensity = ex.intensity;
-    if (typeof ex.rest_seconds === "number") entry.rest_seconds = ex.rest_seconds;
-
-    if (Object.keys(entry).length > 0) {
-      map.set(ex.exercise_id, entry);
-    }
-  }
-
-  return map;
-}
-
-/**
  * Phase 6
  * Contract required by tests/goldens:
  * - If plan is empty: return deterministic empty shell with session_id=SESSION_STUB
  *   and notes exactly ["PHASE_6_STUB: deterministic empty session shell"].
  * - If plan is non-empty: session_id=SESSION_V1.
+ * - Non-empty plans MUST use planned_items. Legacy sources are forbidden.
  *
  * No "gate:" debug notes here (those belong in logs, not contract output).
  */
@@ -168,11 +133,36 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
   void canonicalInput;
   void poolFromProgram(prog);
 
-  const plannedIds = plannedIdsFromProgram(prog);
+  // Empty plan (all sources empty) -> constant stub contract
+  if (mode === "empty") {
+    return {
+      ok: true,
+      session: {
+        session_id: "SESSION_STUB",
+        status: "ready",
+        exercises: []
+      },
+      notes: ["PHASE_6_STUB: deterministic empty session shell"]
+    };
+  }
+
+  // HARD GATE: planned_items is required for any non-empty plan.
+  if (mode !== "planned_items") {
+    return {
+      ok: false,
+      failure_token: "phase6_requires_planned_items",
+      details: {
+        required: "planned_items",
+        saw: mode
+      }
+    };
+  }
+
+  const plannedIds = plannedIdsFromPlannedItems(prog);
   const { ids: substitutedIds, substitutedFrom, applied } = applySubstitutions(plannedIds, p5);
   const finalIds = dedupeStable(substitutedIds);
 
-  // Empty plan -> constant stub contract
+  // If planned_items existed but yielded no valid ids after filtering/substitution, treat as empty plan.
   if (finalIds.length === 0) {
     return {
       ok: true,
@@ -187,74 +177,42 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
 
   const session_id = "SESSION_V1";
 
-  // Rich path: planned_items
-  if (mode === "planned_items") {
-    const items: any[] = Array.isArray(prog?.planned_items) ? prog.planned_items : [];
+  // Rich path: planned_items (authoritative)
+  const items: any[] = Array.isArray(prog?.planned_items) ? prog.planned_items : [];
 
-    const exercises: Phase6SessionExercise[] = [];
-    const seen = new Set<string>();
+  const exercises: Phase6SessionExercise[] = [];
+  const seen = new Set<string>();
 
-    for (let i = 0; i < items.length; i++) {
-      const it = items[i] ?? {};
-      const originalId = String(it.exercise_id ?? "");
-      if (!originalId) continue;
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i] ?? {};
+    const originalId = String(it.exercise_id ?? "");
+    if (!originalId) continue;
 
-      let finalId = originalId;
-      for (const [subId, targetId] of substitutedFrom.entries()) {
-        if (targetId === originalId) {
-          finalId = subId;
-          break;
-        }
+    let finalId = originalId;
+    for (const [subId, targetId] of substitutedFrom.entries()) {
+      if (targetId === originalId) {
+        finalId = subId;
+        break;
       }
-
-      if (seen.has(finalId)) continue;
-      seen.add(finalId);
-
-      const ex: Phase6SessionExercise = {
-        exercise_id: finalId,
-        source: "program",
-        block_id: typeof it.block_id === "string" ? it.block_id : "B0",
-        item_id: typeof it.item_id === "string" ? it.item_id : `B0_I${i}`,
-        sets: typeof it.sets === "number" ? it.sets : 0,
-        reps: typeof it.reps === "number" ? it.reps : 0,
-        intensity: it.intensity,
-        rest_seconds: typeof it.rest_seconds === "number" ? it.rest_seconds : undefined
-      };
-
-      if (finalId !== originalId) ex.substituted_from = originalId;
-      exercises.push(ex);
     }
 
-    return {
-      ok: true,
-      session: {
-        session_id,
-        status: "ready",
-        exercises
-      },
-      notes: [
-        applied
-          ? "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
-          : "PHASE_6: emitted session from planned_items (deduped)"
-      ]
+    if (seen.has(finalId)) continue;
+    seen.add(finalId);
+
+    const ex: Phase6SessionExercise = {
+      exercise_id: finalId,
+      source: "program",
+      block_id: typeof it.block_id === "string" ? it.block_id : "B0",
+      item_id: typeof it.item_id === "string" ? it.item_id : `B0_I${i}`,
+      sets: typeof it.sets === "number" ? it.sets : 0,
+      reps: typeof it.reps === "number" ? it.reps : 0,
+      intensity: it.intensity,
+      rest_seconds: typeof it.rest_seconds === "number" ? it.rest_seconds : undefined
     };
+
+    if (finalId !== originalId) ex.substituted_from = originalId;
+    exercises.push(ex);
   }
-
-  // Legacy paths: planned_exercise_ids or exercises[]
-  // ✅ Enrich from program.exercises[] when metadata exists
-  const prescriptionById = buildPrescriptionById(prog);
-
-  const exercises: Phase6SessionExercise[] = finalIds.map((id) => {
-    const ex: Phase6SessionExercise = { exercise_id: id, source: "program" };
-
-    const meta = prescriptionById.get(id);
-    if (meta) Object.assign(ex, meta);
-
-    const from = substitutedFrom.get(id);
-    if (from) ex.substituted_from = from;
-
-    return ex;
-  });
 
   return {
     ok: true,
@@ -265,8 +223,8 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
     },
     notes: [
       applied
-        ? "PHASE_6: emitted session from legacy plan with Phase5 substitutions (deduped)"
-        : "PHASE_6: emitted session from legacy plan (deduped)"
+        ? "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
+        : "PHASE_6: emitted session from planned_items (deduped)"
     ]
   };
 }
