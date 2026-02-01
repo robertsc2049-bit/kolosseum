@@ -1,28 +1,17 @@
-# GitHub Actions workflows: LF-only
+# workflows + ci: LF
 .github/workflows/*.yml  text eol=lf
 .github/workflows/*.yaml text eol=lf
+ci/**                    text eol=lf
 
-# CI + scripts + source: LF-only
-ci/**                 text eol=lf
-src/**                text eol=lf
-engine/**             text eol=lf
-test/**               text eol=lf
-scripts/*.mjs         text eol=lf
-scripts/*.js          text eol=lf
-docs/**               text eol=lf
-*.md                  text eol=lf
-*.json                text eol=lf
-*.ts                  text eol=lf
-*.js                  text eol=lf
-*.mjs                 text eol=lf
+# code: LF
+src/**     text eol=lf
+engine/**  text eol=lf
+test/**    text eol=lf
+*.js   text eol=lf
+*.mjs  text eol=lf
+*.ts   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
 
-# PowerShell scripts: keep CRLF (Windows-friendly)
-scripts/*.ps1         text eol=crlf
-
-# Common binaries
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.gif binary
-*.pdf binary
-*.zip binary
+# PowerShell: CRLF (Windows)
+scripts/*.ps1 text eol=crlf
