@@ -1,9 +1,10 @@
-#!/usr/bin/env sh
-set -eu
+#!/bin/sh
+set -e
 
-ROOT="$(git rev-parse --show-toplevel)"
-cd "$ROOT"
+echo "[pre-commit] staged-count guard"
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/guard-staged-count.ps1
 
-echo "[pre-commit] repo contract + sha/spine/schema guards"
-
+echo "[pre-commit] repo_contract + lint"
+node ci/guards/repo_contract.mjs
 npm run lint
+echo "[pre-commit] OK"
