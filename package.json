@@ -34,7 +34,8 @@
     "dev:check": "npm run ci && npm run db:schema",
 
     "dev:status": "node scripts/ps-runner.mjs --file scripts/dev-status.ps1",
-    "dev:status:full": "node scripts/ps-runner.mjs --file scripts/dev-status.ps1 -- -Full",
+"dev:status:full": "node scripts/ps-runner.mjs --file scripts/dev-status.ps1 -- -Full",
+
     "dev:next": "node scripts/ps-runner.mjs --file scripts/dev-next.ps1",
     "dev:next:full": "node scripts/ps-runner.mjs --file scripts/dev-next.ps1 -- -Full",
 
