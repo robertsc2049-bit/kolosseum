@@ -42,6 +42,10 @@
       "sha256": "d0b378f6be35acc9a10d6a775834ca36fd07096dfd27f5ce861d9703b47f72f9"
     },
     {
+      "path": "test/fixtures/golden/expected/phase6_session_powerlifting_contract.json",
+      "sha256": "d0b378f6be35acc9a10d6a775834ca36fd07096dfd27f5ce861d9703b47f72f9"
+    },
+    {
       "path": "test/fixtures/golden/expected/vanilla_minimal.json",
       "sha256": "8abec16fc013f91cbd5c3c004fee139ac669f7a0176b4dfe1c38aa68d67b85c4"
     },
@@ -83,6 +87,10 @@
     },
     {
       "path": "test/fixtures/golden/inputs/phase4_program_powerlifting_contract.json",
+      "sha256": "da03d1274f1dcc657e9c3e07d67ee05adef6a8ced553ef494c18a774955a324e"
+    },
+    {
+      "path": "test/fixtures/golden/inputs/phase6_session_powerlifting_contract.json",
       "sha256": "da03d1274f1dcc657e9c3e07d67ee05adef6a8ced553ef494c18a774955a324e"
     },
     {

@@ -1,0 +1,23 @@
+{
+  "details": {
+    "ajv_errors": [
+      {
+        "instancePath": "",
+        "keyword": "additionalProperties",
+        "message": "must NOT have additional properties",
+        "params": {
+          "additionalProperty": "debug_return_phase"
+        },
+        "schemaPath": "#/additionalProperties"
+      }
+    ],
+    "unknown_fields": [
+      {
+        "additionalProperty": "debug_return_phase",
+        "instancePath": ""
+      }
+    ]
+  },
+  "failure_token": "unknown_field",
+  "ok": false
+}
