@@ -54,6 +54,9 @@ addSchemaFile("ci/schemas/exercise.registry.schema.v1.0.0.json");
 // Phase 4 output schema (program)
 addSchemaFile("ci/schemas/phase4.output.schema.v1.0.0.json");
 
+// Phase 6 output schema (session)
+addSchemaFile("ci/schemas/phase6.output.schema.v1.0.0.json");
+
 // Validate exercise registry file exists + conforms
 {
   const registryPath = path.join(repoRoot, "registries", "exercise", "exercise.registry.json");
@@ -72,6 +75,13 @@ validateFixture(
   "phase4.output.schema.v1.0.0.json",
   "ci/fixtures/phase4.output.fixture.v1.0.0.json",
   "CI_SCHEMA_INVALID_PHASE4_OUTPUT"
+);
+
+// Validate Phase6 output fixture conforms to Phase6 schema
+validateFixture(
+  "phase6.output.schema.v1.0.0.json",
+  "ci/fixtures/phase6.output.fixture.v1.0.0.json",
+  "CI_SCHEMA_INVALID_PHASE6_OUTPUT"
 );
 
 console.log("schema_guard: OK");

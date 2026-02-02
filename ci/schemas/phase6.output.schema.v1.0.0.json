@@ -1,0 +1,97 @@
+{
+  "title": "Phase6 output schema v1.0.0",
+  "type": "object",
+  "required": ["ok"],
+  "properties": {
+    "ok": { "type": "boolean" }
+  },
+  "oneOf": [
+    {
+      "title": "ok=true",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok", "session", "notes"],
+      "properties": {
+        "ok": { "const": true },
+        "session": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["session_id", "status", "exercises"],
+          "properties": {
+            "session_id": { "type": "string" },
+            "status": { "const": "ready" },
+            "exercises": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["exercise_id", "source"],
+                "properties": {
+                  "exercise_id": { "type": "string", "minLength": 1 },
+                  "source": { "const": "program" },
+
+                  "block_id": { "type": "string" },
+                  "item_id": { "type": "string" },
+
+                  "sets": { "type": "integer", "minimum": 0 },
+                  "reps": { "type": "integer", "minimum": 0 },
+
+                  "intensity": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["type", "value"],
+                        "properties": {
+                          "type": { "const": "percent_1rm" },
+                          "value": { "type": "number" }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["type", "value"],
+                        "properties": {
+                          "type": { "const": "rpe" },
+                          "value": { "type": "number" }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["type", "value"],
+                        "properties": {
+                          "type": { "const": "load" },
+                          "value": { "type": "number" }
+                        }
+                      }
+                    ]
+                  },
+
+                  "rest_seconds": { "type": "integer", "minimum": 0 },
+
+                  "substituted_from": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    {
+      "title": "ok=false",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok", "failure_token"],
+      "properties": {
+        "ok": { "const": false },
+        "failure_token": { "type": "string", "minLength": 1 },
+        "details": {}
+      }
+    }
+  ]
+}
