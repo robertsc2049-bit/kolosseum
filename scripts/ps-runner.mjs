@@ -27,15 +27,15 @@ function parseArgs(argv) {
 }
 
 function commandExists(cmd) {
-  const res = spawnSync(cmd, ["-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"], {
-    stdio: "ignore",
-    shell: false
-  });
+  const res = spawnSync(
+    cmd,
+    ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", "$PSVersionTable.PSVersion.ToString()"],
+    { stdio: "ignore", shell: false, timeout: 10_000 }
+  );
   return res.status === 0;
 }
 
 function pickShell() {
-  // GitHub ubuntu images have pwsh; Windows has powershell; some setups have both.
   if (commandExists("pwsh")) return "pwsh";
   if (commandExists("powershell")) return "powershell";
   return "";
@@ -56,7 +56,9 @@ if (!shell) {
 info(`using ${shell} to run ${file}`);
 
 const args = [
+  "-NoLogo",
   "-NoProfile",
+  "-NonInteractive",
   "-ExecutionPolicy",
   "Bypass",
   "-File",
@@ -67,7 +69,12 @@ const args = [
 const res = spawnSync(shell, args, {
   stdio: "inherit",
   shell: false,
-  env: process.env
+  env: process.env,
+  timeout: 10 * 60 * 1000 // 10 minutes hard stop to prevent "hours"
 });
+
+if (res.error && res.error.code === "ETIMEDOUT") {
+  fail(`timed out running ${file}`);
+}
 
 process.exit(res.status ?? 1);

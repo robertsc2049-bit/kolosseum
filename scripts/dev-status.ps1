@@ -2,62 +2,113 @@ param(
   [switch]$Full
 )
 
+Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-function Say($msg) { Write-Host $msg }
+function Info($msg) { Write-Host $msg -ForegroundColor Cyan }
+function OK($msg)   { Write-Host $msg -ForegroundColor Green }
+function WARN($msg) { Write-Host $msg -ForegroundColor Yellow }
+function FAIL($msg) { Write-Host $msg -ForegroundColor Red; exit 1 }
 
-Set-Location (Split-Path -Parent $MyInvocation.MyCommand.Path) | Out-Null
-Set-Location .. | Out-Null
+function Invoke-ExternalWithTimeout {
+  param(
+    [Parameter(Mandatory=$true)][string]$FilePath,
+    [string[]]$ArgumentList = @(),
+    [int]$TimeoutSeconds = 5
+  )
 
-Say "== Kolosseum Dev Status =="
+  $p = New-Object System.Diagnostics.Process
+  $p.StartInfo = New-Object System.Diagnostics.ProcessStartInfo
+  $p.StartInfo.FileName = $FilePath
+  $p.StartInfo.Arguments = ($ArgumentList -join " ")
+  $p.StartInfo.RedirectStandardOutput = $true
+  $p.StartInfo.RedirectStandardError = $true
+  $p.StartInfo.UseShellExecute = $false
+  $p.StartInfo.CreateNoWindow = $true
 
-# Node + npm
-$node = (& node -v) 2>$null
-if (-not $node) { throw "Node.js not found on PATH." }
-Say "Node: $node"
+  if (-not $p.Start()) { return @{ ok=$false; code=$null; out=""; err="failed to start" } }
 
-$npm = (& npm -v) 2>$null
-if (-not $npm) { throw "npm not found on PATH." }
-Say "npm : $npm"
+  if (-not $p.WaitForExit($TimeoutSeconds * 1000)) {
+    try { $p.Kill() } catch { }
+    return @{ ok=$false; code=$null; out=""; err="timeout" }
+  }
 
-# Git status
-$st = (& git status --porcelain=v1) 2>$null
-if ($LASTEXITCODE -ne 0) { throw "git not available or repo not healthy." }
-
-if ($st) {
-  Say "WORKING TREE: DIRTY"
-  Say $st
-} else {
-  Say "WORKING TREE: CLEAN"
+  $out = $p.StandardOutput.ReadToEnd()
+  $err = $p.StandardError.ReadToEnd()
+  return @{ ok=($p.ExitCode -eq 0); code=$p.ExitCode; out=$out; err=$err }
 }
 
-# Useful git config checks
-function GitCfg($k) { (git config --global --get $k) 2>$null }
-Say "git core.editor:     $(GitCfg core.editor)"
-Say "git core.autocrlf:   $(GitCfg core.autocrlf)"
-Say "git core.eol:        $(GitCfg core.eol)"
-Say "git core.longpaths:  $(GitCfg core.longpaths)"
-Say "git rerere.enabled:  $(GitCfg rerere.enabled)"
-Say "git pull.rebase:     $(GitCfg pull.rebase)"
-Say "git rebase.autoStash:$(GitCfg rebase.autoStash)"
-
-# Port sanity (optional but catches 'why won't server start')
-function PortOpen($p) {
-  try {
-    $r = Test-NetConnection 127.0.0.1 -Port $p -WarningAction SilentlyContinue
-    return [bool]$r.TcpTestSucceeded
-  } catch { return $false }
+function Get-FirstLine($s) {
+  if (-not $s) { return $null }
+  $line = ($s -split "`r?`n" | Select-Object -First 1)
+  if ($line) { return $line.Trim() }
+  return $null
 }
-Say "port 3000 open: $(PortOpen 3000)"
-Say "port 5432 open: $(PortOpen 5432)"
 
-# Quick gates
+function Get-GitConfig([string]$key) {
+  $r = Invoke-ExternalWithTimeout -FilePath "git" -ArgumentList @("config","--get",$key) -TimeoutSeconds 3
+  if (-not $r.ok) { return $null }
+  return (Get-FirstLine $r.out)
+}
+
+function Get-PortListeningFast([int]$port) {
+  $r = Invoke-ExternalWithTimeout -FilePath "cmd.exe" -ArgumentList @("/c","netstat -ano -p tcp | findstr /R /C:"":$port\s""") -TimeoutSeconds 2
+  return $r.ok
+}
+
+Write-Host "== Kolosseum Dev Status ==" -ForegroundColor Cyan
+
+# Node (direct)
+$node = Invoke-ExternalWithTimeout -FilePath "node" -ArgumentList @("-v") -TimeoutSeconds 3
+if (-not $node.ok) { FAIL "Node not found or not responding" }
+Write-Host ("Node: {0}" -f (Get-FirstLine $node.out))
+
+# npm (go through cmd.exe so npm.cmd is resolved)
+$npm = Invoke-ExternalWithTimeout -FilePath "cmd.exe" -ArgumentList @("/c","npm -v") -TimeoutSeconds 3
+if (-not $npm.ok) { FAIL "npm not found or not responding (via cmd.exe)" }
+Write-Host ("npm : {0}" -f (Get-FirstLine $npm.out))
+
+# Repo root
+$root = Invoke-ExternalWithTimeout -FilePath "git" -ArgumentList @("rev-parse","--show-toplevel") -TimeoutSeconds 5
+if (-not $root.ok) { FAIL "Not a git repo (rev-parse failed or timed out)" }
+$repo = (Get-FirstLine $root.out)
+Set-Location $repo
+
+# Working tree
+$porc = Invoke-ExternalWithTimeout -FilePath "git" -ArgumentList @("status","--porcelain") -TimeoutSeconds 5
+if (-not $porc.ok) { WARN "WORKING TREE: UNKNOWN (git status timed out)" }
+elseif ((Get-FirstLine $porc.out)) { WARN "WORKING TREE: DIRTY" }
+else { OK "WORKING TREE: CLEAN" }
+
+# Git settings
+Write-Host ("git core.editor:     {0}" -f ((Get-GitConfig "core.editor")      ?? "<unset>"))
+Write-Host ("git core.autocrlf:   {0}" -f ((Get-GitConfig "core.autocrlf")    ?? "<unset>"))
+Write-Host ("git core.eol:        {0}" -f ((Get-GitConfig "core.eol")         ?? "<unset>"))
+Write-Host ("git core.longpaths:  {0}" -f ((Get-GitConfig "core.longpaths")   ?? "<unset>"))
+Write-Host ("git rerere.enabled:  {0}" -f ((Get-GitConfig "rerere.enabled")   ?? "<unset>"))
+Write-Host ("git pull.rebase:     {0}" -f ((Get-GitConfig "pull.rebase")      ?? "<unset>"))
+Write-Host ("git rebase.autoStash:{0}" -f ((Get-GitConfig "rebase.autoStash") ?? "<unset>"))
+
+# Ports (clear)
+$listen3000 = Get-PortListeningFast 3000
+$listen5432 = Get-PortListeningFast 5432
+
+Write-Host ("port 3000 listening: {0}" -f $listen3000)
+Write-Host ("port 3000 free:      {0}" -f (-not $listen3000))
+Write-Host ("port 5432 listening: {0}" -f $listen5432)
+Write-Host ("port 5432 free:      {0}" -f (-not $listen5432))
+
 if ($Full) {
-  Say "Running: npm run ci"
-  & npm run ci
+  Info "Running: npm run dev:fast"
+  # Use cmd.exe so npm.cmd resolution is identical to your normal terminal behaviour
+  $run = Invoke-ExternalWithTimeout -FilePath "cmd.exe" -ArgumentList @("/c","npm run dev:fast") -TimeoutSeconds (60 * 10)
+  if (-not $run.ok) {
+    Write-Host $run.out
+    Write-Host $run.err
+    FAIL "dev:fast failed"
+  }
+  Write-Host $run.out
+  OK "OK"
 } else {
-  Say "Running: npm run dev:fast"
-  & npm run dev:fast
+  OK "OK (status-only)"
 }
-
-Say "OK"
