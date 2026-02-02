@@ -7,3 +7,9 @@
 *.ts    text eol=lf
 *.md    text eol=lf
 *.ps1   text eol=lf
+
+# Enforce LF for repo scripts/config
+*.mjs text eol=lf
+*.js  text eol=lf
+*.ts  text eol=lf
+*.json text eol=lf
