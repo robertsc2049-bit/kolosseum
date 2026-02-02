@@ -50,8 +50,7 @@ function relPosix(repoRoot, absPath) {
 
 function writeUtf8NoBomLf(absPath, text) {
   const normalized = normalizeLf(text);
-  const utf8NoBom = new TextEncoder(); // Node writes UTF-8 without BOM here
-  fs.writeFileSync(absPath, utf8NoBom.encode(normalized));
+  fs.writeFileSync(absPath, normalized, { encoding: "utf8" });
 }
 
 function main() {
