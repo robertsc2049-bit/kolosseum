@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Kolosseum Phase4 Output (program) v1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ok"],
+  "properties": {
+    "ok": { "type": "boolean" },
+    "program": { "$ref": "#/definitions/program" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "failure_token": { "type": "string" },
+    "details": {}
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "ok": { "const": true } }, "required": ["ok"] },
+      "then": { "required": ["program", "notes"] }
+    },
+    {
+      "if": { "properties": { "ok": { "const": false } }, "required": ["ok"] },
+      "then": { "required": ["failure_token"] }
+    }
+  ],
+  "definitions": {
+    "intensity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "type": "string", "enum": ["percent_1rm", "rpe", "load"] },
+        "value": { "type": "number" }
+      }
+    },
+    "planned_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "block_id",
+        "item_id",
+        "exercise_id",
+        "session_id",
+        "role",
+        "sets",
+        "reps",
+        "intensity",
+        "rest_seconds"
+      ],
+      "properties": {
+        "block_id": { "type": "string", "minLength": 1 },
+        "item_id": { "type": "string", "minLength": 1 },
+        "exercise_id": { "type": "string", "minLength": 1 },
+        "session_id": { "type": "string", "minLength": 1 },
+        "role": { "type": "string", "enum": ["primary", "accessory"] },
+        "sets": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "reps": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "intensity": { "$ref": "#/definitions/intensity" },
+        "rest_seconds": { "type": "integer", "minimum": 0, "maximum": 3600 }
+      }
+    },
+    "exercise_signature_min": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["exercise_id"],
+      "properties": {
+        "exercise_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "program": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "program_id",
+        "version",
+        "blocks",
+        "planned_items",
+        "planned_exercise_ids",
+        "exercises",
+        "exercise_pool",
+        "target_exercise_id"
+      ],
+      "properties": {
+        "program_id": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "blocks": { "type": "array" },
+
+        "planned_items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/planned_item" }
+        },
+        "planned_exercise_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+
+        "exercises": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/exercise_signature_min" }
+        },
+        "exercise_pool": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/exercise_signature_min" }
+        },
+
+        "target_exercise_id": { "type": "string" },
+
+        "constraints": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

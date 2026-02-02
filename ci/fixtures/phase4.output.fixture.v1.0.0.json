@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "program": {
+    "program_id": "PROGRAM_POWERLIFTING_V1",
+    "version": "1.0.0",
+    "blocks": [],
+    "planned_items": [
+      {
+        "block_id": "B0",
+        "item_id": "B0_I0",
+        "exercise_id": "bench_press",
+        "session_id": "SESSION_V1",
+        "role": "primary",
+        "sets": 4,
+        "reps": 5,
+        "intensity": { "type": "percent_1rm", "value": 75 },
+        "rest_seconds": 180
+      },
+      {
+        "block_id": "B0",
+        "item_id": "B0_I1",
+        "exercise_id": "back_squat",
+        "session_id": "SESSION_V1",
+        "role": "primary",
+        "sets": 4,
+        "reps": 5,
+        "intensity": { "type": "percent_1rm", "value": 75 },
+        "rest_seconds": 180
+      }
+    ],
+    "planned_exercise_ids": ["bench_press", "back_squat"],
+    "exercises": [{ "exercise_id": "bench_press" }],
+    "exercise_pool": { "bench_press": { "exercise_id": "bench_press" } },
+    "target_exercise_id": "bench_press",
+    "constraints": {}
+  },
+  "notes": ["PHASE_4_V1: prescription-ready planned_items emitted"]
+}

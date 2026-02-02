@@ -24,19 +24,35 @@ const ajv = new Ajv({
   strictRequired: false
 });
 
-// Phase 1 schema
-{
-  const schemaPath = path.join(repoRoot, "ci", "schemas", "phase1.input.schema.v1.0.0.json");
+function addSchemaFile(rel) {
+  const schemaPath = path.join(repoRoot, rel);
+  if (!fs.existsSync(schemaPath)) {
+    fail(`schema_guard: CI_MISSING_HARD_FAIL: schema missing: ${rel}`);
+  }
   const schema = readJson(schemaPath);
-  ajv.addSchema(schema, "phase1.input.schema.v1.0.0.json");
+  ajv.addSchema(schema, path.basename(rel));
 }
 
-// Exercise registry schema
-{
-  const schemaPath = path.join(repoRoot, "ci", "schemas", "exercise.registry.schema.v1.0.0.json");
-  const schema = readJson(schemaPath);
-  ajv.addSchema(schema, "exercise.registry.schema.v1.0.0.json");
+function validateFixture(schemaName, fixtureRel, failureToken) {
+  const fixturePath = path.join(repoRoot, fixtureRel);
+  if (!fs.existsSync(fixturePath)) {
+    fail(`schema_guard: CI_MISSING_HARD_FAIL: fixture missing: ${fixtureRel}`);
+  }
+  const obj = readJson(fixturePath);
+  const ok = ajv.validate(schemaName, obj);
+  if (!ok) {
+    fail(`schema_guard: ${failureToken}: ${JSON.stringify(ajv.errors, null, 2)}`);
+  }
 }
+
+// Phase 1 schema
+addSchemaFile("ci/schemas/phase1.input.schema.v1.0.0.json");
+
+// Exercise registry schema
+addSchemaFile("ci/schemas/exercise.registry.schema.v1.0.0.json");
+
+// Phase 4 output schema (program)
+addSchemaFile("ci/schemas/phase4.output.schema.v1.0.0.json");
 
 // Validate exercise registry file exists + conforms
 {
@@ -47,10 +63,15 @@ const ajv = new Ajv({
   const reg = readJson(registryPath);
   const ok = ajv.validate("exercise.registry.schema.v1.0.0.json", reg);
   if (!ok) {
-    fail(
-      `schema_guard: CI_SCHEMA_INVALID_EXERCISE_REGISTRY: ${JSON.stringify(ajv.errors, null, 2)}`
-    );
+    fail(`schema_guard: CI_SCHEMA_INVALID_EXERCISE_REGISTRY: ${JSON.stringify(ajv.errors, null, 2)}`);
   }
 }
+
+// Validate Phase4 output fixture conforms to Phase4 schema
+validateFixture(
+  "phase4.output.schema.v1.0.0.json",
+  "ci/fixtures/phase4.output.fixture.v1.0.0.json",
+  "CI_SCHEMA_INVALID_PHASE4_OUTPUT"
+);
 
 console.log("schema_guard: OK");
