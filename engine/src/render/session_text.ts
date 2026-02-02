@@ -71,7 +71,7 @@ export function renderSessionText(session: Phase6SessionOutput): RenderedSession
     if (hasNumber(rest)) prescriptionBits.push(`(rest ${rest}s)`);
 
     if (prescriptionBits.length > 0) {
-      parts.push("—", prescriptionBits.join(" "));
+      parts.push("Ã¢â‚¬â€", prescriptionBits.join(" "));
     } else {
       warnings.push(`missing prescription for ${ex.exercise_id}`);
     }

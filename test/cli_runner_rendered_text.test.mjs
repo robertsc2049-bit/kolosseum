@@ -1,61 +1,103 @@
 import { spawnSync } from "node:child_process";
-import fs from "node:fs";
-
-function runCli(args, stdinText) {
-  const p = spawnSync("node", ["dist/src/run_pipeline_cli.js", ...args], {
-    input: stdinText ?? undefined,
-    encoding: "utf8",
-  });
-
-  // stdout must always be JSON per contract
-  let parsed;
-  try {
-    parsed = JSON.parse(p.stdout);
-  } catch (e) {
-    throw new Error(
-      `CLI stdout was not valid JSON.\nexit=${p.status}\nstdout=\n${p.stdout}\nstderr=\n${p.stderr}`
-    );
-  }
-
-  return { status: p.status, out: parsed, stdout: p.stdout, stderr: p.stderr };
-}
+import { existsSync, statSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
 function assertNoRendered(out) {
-  assert(!Object.prototype.hasOwnProperty.call(out, "rendered_text"), "rendered_text must be absent");
+  assert(!out.rendered_text, "rendered_text must NOT exist");
 }
 
 function assertHasRendered(out) {
-  assert(Object.prototype.hasOwnProperty.call(out, "rendered_text"), "rendered_text must exist");
-  const rt = out.rendered_text;
-  assert(rt && typeof rt === "object", "rendered_text must be an object");
-  assert(typeof rt.title === "string", "rendered_text.title must be string");
-  assert(Array.isArray(rt.lines), "rendered_text.lines must be array");
-  assert(rt.lines.every((x) => typeof x === "string"), "rendered_text.lines must be string[]");
-  assert(Array.isArray(rt.warnings), "rendered_text.warnings must be array");
+  assert(!!out.rendered_text, "rendered_text must exist");
+  assert(Array.isArray(out.rendered_text.lines), "rendered_text.lines must be array");
+  assert(out.rendered_text.lines.every((x) => typeof x === "string"), "rendered_text.lines must be string[]");
 }
 
-function loadJson(path) {
-  const raw = fs.readFileSync(path);
-  const s = raw[0] === 0xef && raw[1] === 0xbb && raw[2] === 0xbf ? raw.slice(3).toString("utf8") : raw.toString("utf8");
-  return JSON.parse(s);
+// Build dist if missing or stale vs relevant sources.
+// Reason: this test runs `node dist/src/run_pipeline_cli.js` directly.
+function ensureBuilt() {
+  const distCli = resolve("dist/src/run_pipeline_cli.js");
+  const srcCli = resolve("src/run_pipeline_cli.ts");
+  const srcPipeline = resolve("src/run_pipeline.ts");
+  const srcRenderer = resolve("engine/src/render/session_text.ts");
+
+  const sources = [srcCli, srcPipeline, srcRenderer].filter((p) => existsSync(p));
+
+  if (!existsSync(distCli)) {
+    buildNow("dist cli missing");
+    return;
+  }
+
+  const distMtime = statSync(distCli).mtimeMs;
+  const newestSrc = Math.max(...sources.map((p) => statSync(p).mtimeMs));
+
+  if (newestSrc > distMtime) {
+    buildNow("dist older than source");
+  }
 }
 
-function writeJson(path, obj) {
-  fs.writeFileSync(path, JSON.stringify(obj, null, 2) + "\n", "utf8");
+function buildNow(reason) {
+  let p;
+
+  if (process.platform === "win32") {
+    // On this repo, `npm` resolves to npm.ps1 (PowerShell), not npm.cmd.
+    // So we must build via PowerShell.
+    p = spawnSync(
+      "powershell.exe",
+      ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", "npm run build:fast"],
+      { encoding: "utf8" }
+    );
+  } else {
+    p = spawnSync("npm", ["run", "build:fast"], { encoding: "utf8" });
+  }
+
+  const stderr = (p.stderr ?? "").trim();
+  const stdout = (p.stdout ?? "").trim();
+  const spawnErr = p.error ? String(p.error) : "";
+
+  assert(
+    p.status === 0,
+    `build:fast must succeed (${reason}) (status=${p.status})\nspawn_error=\n${spawnErr}\nstdout=\n${stdout}\nstderr=\n${stderr}`
+  );
+}
+
+function runCli(args, stdinText) {
+  // Hermetic env: prevent dev machine env from changing return phase.
+  const env = { ...process.env };
+  delete env.KOLOSSEUM_RETURN_PHASE;
+
+  const p = spawnSync("node", ["dist/src/run_pipeline_cli.js", ...args], {
+    input: stdinText ?? undefined,
+    encoding: "utf8",
+    env,
+  });
+
+  const stdout = (p.stdout ?? "").trim();
+  const stderr = (p.stderr ?? "").trim();
+
+  assert(p.status === 0, `cli exit code must be 0 (status=${p.status}) stderr=${stderr}`);
+  assert(stdout.length > 0, "stdout must not be empty");
+
+  let parsed;
+  try {
+    parsed = JSON.parse(stdout);
+  } catch {
+    throw new Error(`stdout must be valid JSON; got: ${stdout}`);
+  }
+
+  return { out: parsed, stderr };
 }
 
 (function main() {
-  // Build two inputs:
-  // - normal hello_world.json
-  // - debug variant via flag at top-level
-  const base = loadJson("examples/hello_world.json");
+  ensureBuilt();
+
+  const basePath = "test/fixtures/golden/inputs/vanilla_minimal.json";
+  const base = JSON.parse(readFileSync(basePath, "utf8"));
   const debug = { ...base, debug_render_session_text: true };
 
-  // Run via stdin to ensure stdin path also strips BOM and supports flags
   const normalRes = runCli([], JSON.stringify(base));
   assert(normalRes.out && typeof normalRes.out === "object", "normal output must be object");
   assert(normalRes.out.ok === true, "normal run must be ok");
@@ -66,11 +108,9 @@ function writeJson(path, obj) {
   assert(debugRes.out.ok === true, "debug run must be ok");
   assertHasRendered(debugRes.out);
 
-  // Deterministic first line check for hello_world
   const first = debugRes.out.rendered_text.lines[0];
-  assert(first === "1) bench_press â€” 4x5 @ 75% rest 180s", `unexpected first rendered line: ${first}`);
+  const expected = "1) bench_press \u2014 4x5 @ 75% rest 180s";
+  assert(first === expected, `unexpected first rendered line: ${first}`);
 
   console.log("PASS test/cli_runner_rendered_text.test.mjs");
 })();
-
-

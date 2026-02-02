@@ -1,22 +1,9 @@
-# Normalize text files to LF in the repo
+# Force LF in this repo (Windows-safe, CI-safe)
 * text=auto eol=lf
 
-# Explicit text types
-*.md  text eol=lf
-*.txt text eol=lf
-*.json text eol=lf
-*.yml  text eol=lf
-*.yaml text eol=lf
-*.ts  text eol=lf
-*.mjs text eol=lf
-*.js  text eol=lf
-*.ps1 text eol=lf
-*.sql text eol=lf
-
-# Binary
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.gif binary
-*.webp binary
-*.pdf binary
+# Explicitly pin critical text formats
+*.json  text eol=lf
+*.mjs   text eol=lf
+*.ts    text eol=lf
+*.md    text eol=lf
+*.ps1   text eol=lf

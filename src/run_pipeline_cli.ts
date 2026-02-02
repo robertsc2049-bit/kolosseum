@@ -96,8 +96,7 @@ function renderSessionText(session: any) {
 
     // IMPORTANT: preserve legacy string exactly for tests (mojibake dash)
     const setsReps =
-      typeof ex.sets === "number" && typeof ex.reps === "number" ? ` â€” ${ex.sets}x${ex.reps}` : "";
-
+      typeof ex.sets === "number" && typeof ex.reps === "number" ? ` \u2014 ${ex.sets}x${ex.reps}` : "";
     const intensity = formatIntensity(ex.intensity);
     const intensityTxt = intensity ? ` ${intensity}` : "";
     const restTxt = typeof ex.rest_seconds === "number" ? ` rest ${ex.rest_seconds}s` : "";
