@@ -68,7 +68,9 @@ function writeJson(path, obj) {
 
   // Deterministic first line check for hello_world
   const first = debugRes.out.rendered_text.lines[0];
-  assert(first === "1) bench_press — 3x5", `unexpected first rendered line: ${first}`);
+  assert(first === "1) bench_press â€” 4x5 @ 75% rest 180s", `unexpected first rendered line: ${first}`);
 
   console.log("PASS test/cli_runner_rendered_text.test.mjs");
 })();
+
+
