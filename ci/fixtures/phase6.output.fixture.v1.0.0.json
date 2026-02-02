@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "session": {
+    "session_id": "SESSION_V1",
+    "status": "ready",
+    "exercises": [
+      {
+        "exercise_id": "SQUAT",
+        "source": "program",
+        "block_id": "B0",
+        "item_id": "B0_I0",
+        "sets": 3,
+        "reps": 5,
+        "intensity": { "type": "percent_1rm", "value": 75 },
+        "rest_seconds": 180
+      },
+      {
+        "exercise_id": "BENCH",
+        "source": "program",
+        "block_id": "B0",
+        "item_id": "B0_I1",
+        "sets": 4,
+        "reps": 6,
+        "intensity": { "type": "rpe", "value": 7.5 },
+        "rest_seconds": 150,
+        "substituted_from": "DB_BENCH"
+      }
+    ]
+  },
+  "notes": [
+    "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
+  ]
+}
