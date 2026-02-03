@@ -97,15 +97,15 @@ test("Phase4 output deterministic for general_strength", () => {
 
 test("Phase 4 emits minimal substitutable program for rugby_union", () => {
   const out = runEngine({ ...BASE, activity_id: "rugby_union" });
-  assertPhase4Surface(out, "PROGRAM_RUGBY_UNION_V0");
+  assertPhase4Surface(out, "PROGRAM_RUGBY_UNION_V1");
 });
 
 test("Phase 4 emits minimal substitutable program for general_strength", () => {
   const out = runEngine({ ...BASE, activity_id: "general_strength" });
-  assertPhase4Surface(out, "PROGRAM_GENERAL_STRENGTH_V0");
+  assertPhase4Surface(out, "PROGRAM_GENERAL_STRENGTH_V1");
 });
 
 test("Phase 4 emits minimal substitutable program for powerlifting", () => {
   const out = runEngine({ ...BASE, activity_id: "powerlifting" });
-  assertPhase4Surface(out, "PROGRAM_POWERLIFTING_V0");
+  assertPhase4Surface(out, "PROGRAM_POWERLIFTING_V1");
 });
