@@ -22,10 +22,20 @@ export type Phase5Result =
  * - program.constraints is the canonical constraint contract produced by Phase 3 and carried through Phase 4.
  * - Phase 5 MUST NOT re-parse constraints from canonicalInput.
  * - canonicalInput is accepted for signature stability (engine/CLI callers) but is not consumed.
+ *
+ * Ticket-030: timebox-safe targeting
+ * - Phase5 MUST respect Phase4's *pruned* plan ordering.
+ * - Today Phase4 emits planned_exercise_ids (pruned by timebox). planned_items may appear later.
+ * - Therefore: planned_items[0] (if present) else planned_exercise_ids[0] else target_exercise_id else first candidate.
  */
+type PlannedItemLike = {
+  exercise_id?: unknown;
+};
+
 type Phase5ProgramLike = {
   exercises?: ExerciseSignature[];
   planned_exercise_ids?: string[];
+  planned_items?: PlannedItemLike[];
   exercise_pool?: Record<string, ExerciseSignature>;
   target_exercise_id?: string;
 
@@ -46,6 +56,10 @@ function isPhase5ProgramLike(program: unknown): program is Phase5ProgramLike {
 
 function isNonEmptyStringArray(xs: unknown): xs is string[] {
   return Array.isArray(xs) && xs.every(v => typeof v === "string");
+}
+
+function isPlannedItemArray(xs: unknown): xs is PlannedItemLike[] {
+  return Array.isArray(xs);
 }
 
 /**
@@ -97,20 +111,40 @@ function buildCandidateList(program: Phase5ProgramLike): ExerciseSignature[] {
   return [];
 }
 
-function resolveTargetId(program: Phase5ProgramLike, candidates: ExerciseSignature[]): string | null {
+function getPlannedTarget(program: Phase5ProgramLike): { id: string; index: number } | null {
+  if (!isPlannedItemArray(program.planned_items) || program.planned_items.length === 0) return null;
+
+  for (let i = 0; i < program.planned_items.length; i++) {
+    const item = program.planned_items[i];
+    if (isRecord(item) && typeof (item as any).exercise_id === "string") {
+      const id = String((item as any).exercise_id);
+      if (id.length > 0) return { id, index: i };
+    }
+  }
+  return null;
+}
+
+function resolveTarget(program: Phase5ProgramLike, candidates: ExerciseSignature[]): { id: string; planned_item_index: number | null } | null {
+  // Future-proof: if planned_items appears, it is canonical post-Phase4.
+  const planned = getPlannedTarget(program);
+  if (planned) return { id: planned.id, planned_item_index: planned.index };
+
+  // Current Phase4 contract: planned_exercise_ids is the pruned plan order. Prefer it over target_exercise_id.
+  if (Array.isArray(program.planned_exercise_ids) && program.planned_exercise_ids.length > 0) {
+    const first = String(program.planned_exercise_ids[0] ?? "");
+    if (first) return { id: first, planned_item_index: null };
+  }
+
   const explicit =
     typeof program.target_exercise_id === "string" && program.target_exercise_id.length > 0
       ? program.target_exercise_id
       : null;
-  if (explicit) return explicit;
-
-  if (Array.isArray(program.planned_exercise_ids) && program.planned_exercise_ids.length > 0) {
-    const first = String(program.planned_exercise_ids[0] ?? "");
-    if (first) return first;
-  }
+  if (explicit) return { id: explicit, planned_item_index: null };
 
   const firstCandidate = candidates[0]?.exercise_id;
-  return typeof firstCandidate === "string" && firstCandidate.length > 0 ? firstCandidate : null;
+  return typeof firstCandidate === "string" && firstCandidate.length > 0
+    ? { id: firstCandidate, planned_item_index: null }
+    : null;
 }
 
 function findById(candidates: ExerciseSignature[], id: string): ExerciseSignature | null {
@@ -154,12 +188,14 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonica
     };
   }
 
-  const targetId = resolveTargetId(program, candidates);
-  const target = targetId ? findById(candidates, targetId) : null;
+  const targetRef = resolveTarget(program, candidates);
+  const targetId = targetRef ? targetRef.id : null;
+  const planned_item_index = targetRef ? targetRef.planned_item_index : null;
 
+  const target = targetId ? findById(candidates, targetId) : null;
   const constraints = normalizeConstraints(program.constraints);
 
-  // Target missing => pick against fallback target
+  // Target missing => pick against fallback target (keep planned_item_index for traceability)
   if (!target) {
     const fallbackTarget = candidates[0];
     const pick = pickBestSubstitute(fallbackTarget, candidates, constraints);
@@ -188,6 +224,7 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonica
           applied: true,
           reason: "substitution_engine_pick_target_missing",
           details: {
+            planned_item_index,
             target_exercise_id: fallbackTarget.exercise_id,
             substitute_exercise_id: pick.selected_exercise_id,
             score: pick.score,
@@ -234,6 +271,7 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonica
         applied: true,
         reason: "substitution_engine_pick_target_disqualified",
         details: {
+          planned_item_index,
           target_exercise_id: target.exercise_id,
           substitute_exercise_id: pick.selected_exercise_id,
           score: pick.score,
@@ -245,5 +283,3 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonica
     notes: ["PHASE_5: substitution applied (target disqualified by constraints)"]
   };
 }
-
-
