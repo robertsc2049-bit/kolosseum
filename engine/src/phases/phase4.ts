@@ -58,6 +58,16 @@ export type Phase4Options = {
   entries?: Record<string, ExerciseSignature>;
 };
 
+type Phase4Template = {
+  program_id: string;
+  intent: string[];
+};
+
+type RegistryLoad = {
+  entries: Record<string, ExerciseSignature>;
+  registry_path: string;
+};
+
 function repoRoot(): string {
   return process.cwd();
 }
@@ -152,22 +162,151 @@ function findMissingPlannedIds(entries: Record<string, ExerciseSignature>, plann
   return missing;
 }
 
-function loadEntriesFromDisk(): { entries: Record<string, ExerciseSignature>; registry_path: string } {
+function loadEntriesFromDisk(): RegistryLoad {
   const regPath = path.join(repoRoot(), "registries", "exercise", "exercise.registry.json");
   const entries = loadExerciseEntriesFromPath(regPath);
   return { entries, registry_path: regPath };
+}
+
+function loadRegistry(opts: Phase4Options): RegistryLoad {
+  return opts.entries
+    ? { entries: opts.entries, registry_path: "INJECTED_ENTRIES" }
+    : loadEntriesFromDisk();
+}
+
+function selectTemplate(activity: string): Phase4Template | null {
+  switch (activity) {
+    case "powerlifting":
+      return {
+        program_id: "PROGRAM_POWERLIFTING_V1",
+        intent: ["bench_press", "back_squat", "deadlift", "overhead_press", "incline_bench_press", "push_up"]
+      };
+
+    case "rugby_union":
+      return {
+        program_id: "PROGRAM_RUGBY_UNION_V1",
+        intent: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"]
+      };
+
+    case "general_strength":
+      return {
+        program_id: "PROGRAM_GENERAL_STRENGTH_V1",
+        intent: ["deadlift", "bench_press", "back_squat", "overhead_press", "incline_bench_press", "push_up"]
+      };
+
+    default:
+      return null;
+  }
+}
+
+function buildPlannedItems(intent: string[], session_id: string, timeboxMinutes: number): PlannedItem[] {
+  let planned_items = plannedItemsFromIntent(intent, session_id);
+  planned_items = applyTimeboxDeterministic(planned_items, timeboxMinutes);
+  return planned_items;
+}
+
+function derivePlannedExerciseIds(planned_items: PlannedItem[]): string[] {
+  return planned_items.map((it) => it.exercise_id);
+}
+
+function guardPlannedIdsExist(
+  entries: Record<string, ExerciseSignature>,
+  planned_exercise_ids: string[],
+  registry_path: string
+): { ok: true } | { ok: false; result: Phase4Result } {
+  const missingPlanned = findMissingPlannedIds(entries, planned_exercise_ids);
+  if (missingPlanned.length === 0) return { ok: true };
+
+  return {
+    ok: false,
+    result: {
+      ok: false,
+      failure_token: "PHASE4_MISSING_PLANNED_EXERCISE",
+      details: {
+        registry_path,
+        missing_exercise_ids: missingPlanned
+      }
+    }
+  };
+}
+
+function buildExercisePool(
+  entries: Record<string, ExerciseSignature>,
+  planned_exercise_ids: string[]
+): { exercise_pool: Record<string, ExerciseSignature>; exercises: ExerciseSignature[] } {
+  const poolIds = uniqueStable([
+    ...planned_exercise_ids,
+    "dumbbell_bench_press",
+    "machine_chest_press",
+    "goblet_squat",
+    "kettlebell_deadlift"
+  ]);
+
+  const exercise_pool: Record<string, ExerciseSignature> = {};
+
+  // Planned ids are guaranteed present (guarded before calling). Extras are best-effort.
+  for (const id of poolIds) {
+    if (entries[id]) {
+      exercise_pool[id] = pick(entries, id);
+    }
+  }
+
+  const exercises = Object.values(exercise_pool).sort((a, b) => a.exercise_id.localeCompare(b.exercise_id));
+  return { exercise_pool, exercises };
+}
+
+function deriveTargetExerciseId(planned_exercise_ids: string[]): string {
+  return planned_exercise_ids[0] ?? "";
+}
+
+function assembleSupportedProgram(args: {
+  canonicalInput: any;
+  phase3: Phase3Output;
+  template: Phase4Template;
+  registry: RegistryLoad;
+}): Phase4Result {
+  const { canonicalInput, phase3, template, registry } = args;
+  const { entries, registry_path } = registry;
+
+  // Keep Phase6 stable: single session for now.
+  const session_id = "SESSION_V1";
+
+  const timeboxMinutes = readSessionTimeboxMinutes(canonicalInput, phase3.constraints);
+
+  const planned_items = buildPlannedItems(template.intent, session_id, timeboxMinutes);
+
+  // Derived convenience only (and must match planned_items order 1:1 per test contract)
+  const planned_exercise_ids = derivePlannedExerciseIds(planned_items);
+
+  // Hardening: planned ids MUST exist in registry (no silent omission).
+  const guard = guardPlannedIdsExist(entries, planned_exercise_ids, registry_path);
+  if (!guard.ok) return guard.result;
+
+  const { exercise_pool, exercises } = buildExercisePool(entries, planned_exercise_ids);
+  const target_exercise_id = deriveTargetExerciseId(planned_exercise_ids);
+
+  return {
+    ok: true,
+    program: {
+      program_id: template.program_id,
+      version: "1.0.0",
+      blocks: [],
+      planned_items,
+      planned_exercise_ids,
+      exercises,
+      exercise_pool,
+      target_exercise_id,
+      constraints: phase3.constraints
+    },
+    notes: ["PHASE_4_V1: prescription-ready planned_items emitted"]
+  };
 }
 
 export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output, opts: Phase4Options = {}): Phase4Result {
   const activity = String(canonicalInput?.activity_id ?? "");
 
   // Registry source (disk by default; injectable for tests/future)
-  const registry = opts.entries
-    ? { entries: opts.entries, registry_path: "INJECTED_ENTRIES" }
-    : loadEntriesFromDisk();
-
-  const entries = registry.entries;
-  const registry_path = registry.registry_path;
+  const registry = loadRegistry(opts);
 
   /**
    * Phase4 contract (v1):
@@ -181,102 +320,32 @@ export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output,
    * - Hardening: FAIL HARD if any planned exercise_id is missing from registry.
    */
 
-  let program_id: string;
-  let intent: string[];
+  const template = selectTemplate(activity);
 
-  switch (activity) {
-    case "powerlifting":
-      program_id = "PROGRAM_POWERLIFTING_V1";
-      intent = ["bench_press", "back_squat", "deadlift", "overhead_press", "incline_bench_press", "push_up"];
-      break;
-
-    case "rugby_union":
-      program_id = "PROGRAM_RUGBY_UNION_V1";
-      intent = ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"];
-      break;
-
-    case "general_strength":
-      program_id = "PROGRAM_GENERAL_STRENGTH_V1";
-      intent = ["deadlift", "bench_press", "back_squat", "overhead_press", "incline_bench_press", "push_up"];
-      break;
-
-    default:
-      return {
-        ok: true,
-        program: {
-          program_id: "PROGRAM_STUB",
-          version: "1.0.0",
-          blocks: [],
-          planned_items: [],
-          planned_exercise_ids: [],
-          exercises: [],
-          exercise_pool: {},
-          target_exercise_id: "",
-          constraints: phase3.constraints
-        },
-        notes: ["PHASE_4_STUB"]
-      };
-  }
-
-  // Keep Phase6 stable: single session for now.
-  const session_id = "SESSION_V1";
-
-  const timeboxMinutes = readSessionTimeboxMinutes(canonicalInput, phase3.constraints);
-
-  let planned_items = plannedItemsFromIntent(intent, session_id);
-  planned_items = applyTimeboxDeterministic(planned_items, timeboxMinutes);
-
-  // Derived convenience only (and must match planned_items order 1:1 per test contract)
-  const planned_exercise_ids = planned_items.map((it) => it.exercise_id);
-
-  // Hardening: planned ids MUST exist in registry (no silent omission).
-  const missingPlanned = findMissingPlannedIds(entries, planned_exercise_ids);
-  if (missingPlanned.length > 0) {
+  if (!template) {
     return {
-      ok: false,
-      failure_token: "PHASE4_MISSING_PLANNED_EXERCISE",
-      details: {
-        registry_path,
-        missing_exercise_ids: missingPlanned
-      }
+      ok: true,
+      program: {
+        program_id: "PROGRAM_STUB",
+        version: "1.0.0",
+        blocks: [],
+        planned_items: [],
+        planned_exercise_ids: [],
+        exercises: [],
+        exercise_pool: {},
+        target_exercise_id: "",
+        constraints: phase3.constraints
+      },
+      notes: ["PHASE_4_STUB"]
     };
   }
 
-  const poolIds = uniqueStable([
-    ...planned_exercise_ids,
-    "dumbbell_bench_press",
-    "machine_chest_press",
-    "goblet_squat",
-    "kettlebell_deadlift"
-  ]);
-
-  const exercise_pool: Record<string, ExerciseSignature> = {};
-
-  // Planned ids are guaranteed present (above). Extras are best-effort.
-  for (const id of poolIds) {
-    if (entries[id]) {
-      exercise_pool[id] = pick(entries, id);
-    }
-  }
-
-  const exercises = Object.values(exercise_pool).sort((a, b) => a.exercise_id.localeCompare(b.exercise_id));
-  const target_exercise_id = planned_exercise_ids[0] ?? "";
-
-  return {
-    ok: true,
-    program: {
-      program_id,
-      version: "1.0.0",
-      blocks: [],
-      planned_items,
-      planned_exercise_ids,
-      exercises,
-      exercise_pool,
-      target_exercise_id,
-      constraints: phase3.constraints
-    },
-    notes: ["PHASE_4_V1: prescription-ready planned_items emitted"]
-  };
+  return assembleSupportedProgram({
+    canonicalInput,
+    phase3,
+    template,
+    registry
+  });
 }
 
 export default phase4AssembleProgram;
