@@ -25,12 +25,16 @@ export type Phase5Result =
  *
  * Ticket-030: timebox-safe targeting
  * - Phase5 MUST respect Phase4's *pruned* plan ordering.
- * - Today Phase4 emits planned_exercise_ids (pruned by timebox). planned_items may appear later.
- * - Therefore: planned_items[0] (if present) else planned_exercise_ids[0] else target_exercise_id else first candidate.
+ * - Today: Phase4 exposes planned_exercise_ids (pruned). planned_items may be internal/added later.
+ *
+ * Ticket-032: planned_items canonical (when present)
+ * - If planned_items exists, Phase5 MUST target planned_items[0].exercise_id.
+ * - Otherwise, target planned_exercise_ids[0], then target_exercise_id, then first candidate.
+ *
+ * IMPORTANT (E2E / Ticket-011):
+ * - Phase5 emits AT MOST ONE substitution rule (single-target), not one per planned item.
  */
-type PlannedItemLike = {
-  exercise_id?: unknown;
-};
+type PlannedItemLike = { exercise_id?: unknown };
 
 type Phase5ProgramLike = {
   exercises?: ExerciseSignature[];
@@ -124,12 +128,15 @@ function getPlannedTarget(program: Phase5ProgramLike): { id: string; index: numb
   return null;
 }
 
-function resolveTarget(program: Phase5ProgramLike, candidates: ExerciseSignature[]): { id: string; planned_item_index: number | null } | null {
-  // Future-proof: if planned_items appears, it is canonical post-Phase4.
+function resolveTarget(
+  program: Phase5ProgramLike,
+  candidates: ExerciseSignature[]
+): { id: string; planned_item_index: number | null } | null {
+  // Ticket-032: planned_items is canonical when present.
   const planned = getPlannedTarget(program);
   if (planned) return { id: planned.id, planned_item_index: planned.index };
 
-  // Current Phase4 contract: planned_exercise_ids is the pruned plan order. Prefer it over target_exercise_id.
+  // Ticket-030: planned_exercise_ids is current pruned plan order (prefer it over target_exercise_id).
   if (Array.isArray(program.planned_exercise_ids) && program.planned_exercise_ids.length > 0) {
     const first = String(program.planned_exercise_ids[0] ?? "");
     if (first) return { id: first, planned_item_index: null };
@@ -194,6 +201,15 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonica
 
   const target = targetId ? findById(candidates, targetId) : null;
   const constraints = normalizeConstraints(program.constraints);
+
+  // Ticket-011 invariant: empty constraints => no substitution
+  if (isEmptyConstraints(constraints)) {
+    return {
+      ok: true,
+      adjustments: [],
+      notes: ["PHASE_5: empty constraints; no substitution (Ticket 011 invariant)"]
+    };
+  }
 
   // Target missing => pick against fallback target (keep planned_item_index for traceability)
   if (!target) {

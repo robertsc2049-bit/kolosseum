@@ -15,7 +15,7 @@ const BASE = {
   bias_mode: "none"
 };
 
-test("Phase 5 returns empty adjustments when Phase 4 is a stub (non-powerlifting)", () => {
+test("Phase 5 returns empty adjustments when Phase 4 is a stub (unsupported activity)", () => {
   const res = runEngine({
     ...BASE,
     activity_id: "rugby"
@@ -26,7 +26,7 @@ test("Phase 5 returns empty adjustments when Phase 4 is a stub (non-powerlifting
   assert.deepEqual(res.phase5.adjustments, []);
 });
 
-test("Phase 5 targets Phase 4 pruned plan order (timebox-safe) and substitutes when constraints require it", () => {
+test("Phase 5 targets Phase4 pruned plan order (planned_items preferred when present) and substitutes when constraints require it", () => {
   const res = runEngine({
     ...BASE,
     activity_id: "powerlifting",
@@ -40,9 +40,8 @@ test("Phase 5 targets Phase 4 pruned plan order (timebox-safe) and substitutes w
   assert.ok(res.phase4);
   assert.ok(res.phase5);
 
-  // Canonical target for Phase5 must come from Phase4's plan order:
-  // - planned_items[0].exercise_id if Phase4 ever migrates
-  // - otherwise planned_exercise_ids[0] (current Phase4 contract, pruned by timebox)
+  // Expected target is Phase4's post-prune plan head:
+  // Prefer planned_items[0].exercise_id if Phase4 exposes it; otherwise planned_exercise_ids[0].
   let expectedTarget = null;
 
   if (res.phase4.planned_items && Array.isArray(res.phase4.planned_items) && res.phase4.planned_items.length > 0) {
@@ -65,4 +64,6 @@ test("Phase 5 targets Phase 4 pruned plan order (timebox-safe) and substitutes w
   assert.ok(details && typeof details === "object");
 
   assert.equal(details.target_exercise_id, expectedTarget);
+  assert.equal(typeof details.substitute_exercise_id, "string");
+  assert.ok(details.substitute_exercise_id.length > 0);
 });
