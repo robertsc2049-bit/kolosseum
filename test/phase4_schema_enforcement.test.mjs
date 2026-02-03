@@ -2,10 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import schema from "../ci/schemas/phase4.output.schema.v1.0.0.json" assert { type: "json" };
+import schema from "../ci/schemas/phase4.output.schema.v1.0.0.json" with { type: "json" };
 
-import * as P3 from "../engine/src/phases/phase3.js";
-import * as P4 from "../engine/src/phases/phase4.js";
+// Phase4 is compiled under dist/engine/... (node runs .mjs tests, so import JS output).
+import { phase4AssembleProgram } from "../dist/engine/src/phases/phase4.js";
 
 function makeAjv() {
   const ajv = new Ajv({
@@ -26,57 +26,46 @@ function validateOrDie(ajv, value) {
   }
 }
 
-async function phase4FromActivity(activity) {
-  // Minimal Phase3-shaped input to Phase4.
-  // If your Phase4 expects more, add it here once and keep it minimal.
-  const p3 = {
-    ok: true,
-    constraints: {},
-    activity,
+function runPhase4ForActivity(activity_id) {
+  // IMPORTANT:
+  // phase4AssembleProgram signature is (canonicalInput, phase3).
+  // If you call the default export with one argument, phase3 is undefined and will crash.
+  const canonicalInput = {
+    activity_id,
+    // keep minimal; add fields here only if Phase4 contract grows.
   };
 
-  // If Phase4 requires full Phase3 output, route through Phase3.
-  // If it accepts a minimal stub, this will still work.
-  const o3 = (typeof P3.phase3 === "function")
-    ? await P3.phase3(p3)
-    : p3;
+  // Minimal Phase3 payload: Phase4 currently only needs constraints carried forward.
+  const phase3 = {
+    constraints: {},
+  };
 
-  // Some phase modules export different names; Phase4 in your repo is already used in tests,
-  // so prefer the canonical export first.
-  const phase4Fn =
-    P4.phase4 ||
-    P4.runPhase4 ||
-    P4.runPHASE4 ||
-    P4.default;
-
-  assert.equal(typeof phase4Fn, "function", "Phase4 function export not found.");
-
-  return await phase4Fn(o3);
+  return phase4AssembleProgram(canonicalInput, phase3);
 }
 
-test("Phase4 output conforms to schema (powerlifting)", async () => {
+test("Phase4 output conforms to schema (powerlifting)", () => {
   const ajv = makeAjv();
-  const out = await phase4FromActivity("powerlifting");
+  const out = runPhase4ForActivity("powerlifting");
   validateOrDie(ajv, out);
 });
 
-test("Phase4 output conforms to schema (rugby_union)", async () => {
+test("Phase4 output conforms to schema (rugby_union)", () => {
   const ajv = makeAjv();
-  const out = await phase4FromActivity("rugby_union");
+  const out = runPhase4ForActivity("rugby_union");
   validateOrDie(ajv, out);
 });
 
-test("Phase4 output conforms to schema (general_strength)", async () => {
+test("Phase4 output conforms to schema (general_strength)", () => {
   const ajv = makeAjv();
-  const out = await phase4FromActivity("general_strength");
+  const out = runPhase4ForActivity("general_strength");
   validateOrDie(ajv, out);
 });
 
-test("Phase4 output conforms to schema (unsupported activity)", async () => {
+test("Phase4 output conforms to schema (unsupported activity)", () => {
   const ajv = makeAjv();
-  const out = await phase4FromActivity("unsupported_activity");
+  const out = runPhase4ForActivity("unsupported_activity");
   validateOrDie(ajv, out);
 
-  // sanity: unsupported should still be ok=false OR ok=true stub depending on your contract.
+  // sanity
   assert.equal(typeof out.ok, "boolean");
 });
