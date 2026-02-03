@@ -26,7 +26,7 @@ test("Phase 5 returns empty adjustments when Phase 4 is a stub (non-powerlifting
   assert.deepEqual(res.phase5.adjustments, []);
 });
 
-test("Phase 5 performs substitution for powerlifting v0 program when constraints require it", () => {
+test("Phase 5 targets Phase 4 pruned plan order (timebox-safe) and substitutes when constraints require it", () => {
   const res = runEngine({
     ...BASE,
     activity_id: "powerlifting",
@@ -37,8 +37,32 @@ test("Phase 5 performs substitution for powerlifting v0 program when constraints
   });
 
   assert.equal(res.ok, true);
+  assert.ok(res.phase4);
   assert.ok(res.phase5);
+
+  // Canonical target for Phase5 must come from Phase4's plan order:
+  // - planned_items[0].exercise_id if Phase4 ever migrates
+  // - otherwise planned_exercise_ids[0] (current Phase4 contract, pruned by timebox)
+  let expectedTarget = null;
+
+  if (res.phase4.planned_items && Array.isArray(res.phase4.planned_items) && res.phase4.planned_items.length > 0) {
+    const first = res.phase4.planned_items[0];
+    if (first && typeof first.exercise_id === "string" && first.exercise_id.length > 0) {
+      expectedTarget = first.exercise_id;
+    }
+  }
+
+  if (!expectedTarget) {
+    assert.ok(Array.isArray(res.phase4.planned_exercise_ids));
+    assert.ok(res.phase4.planned_exercise_ids.length > 0);
+    expectedTarget = res.phase4.planned_exercise_ids[0];
+  }
+
   assert.equal(res.phase5.adjustments.length, 1);
   assert.equal(res.phase5.adjustments[0].adjustment_id, "SUBSTITUTE_EXERCISE");
-});
 
+  const details = res.phase5.adjustments[0].details;
+  assert.ok(details && typeof details === "object");
+
+  assert.equal(details.target_exercise_id, expectedTarget);
+});
