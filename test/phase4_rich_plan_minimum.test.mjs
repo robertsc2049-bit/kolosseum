@@ -42,8 +42,6 @@ function assertStableUnique(list, label) {
   // Uniqueness
   const set = new Set(trimmed);
   assert.equal(set.size, trimmed.length, `${label} must contain unique ids`);
-
-  // Stable order requirement is implicit: we compare arrays later.
 }
 
 function assertPhase4PlanContract(program, { minItems = 2 } = {}) {
@@ -90,10 +88,34 @@ function assertPhase4PlanContract(program, { minItems = 2 } = {}) {
   assert.equal(typeof program.exercise_pool, "object", "program.exercise_pool must be an object");
   assert.ok(program.exercise_pool && !Array.isArray(program.exercise_pool), "program.exercise_pool must be a map/object");
 
-  // The pool must at least include all planned ids (otherwise Phase5 can’t score safely).
+  // The pool must at least include all planned ids (otherwise Phase5 can't score safely).
   for (const id of program.planned_exercise_ids) {
     assert.ok(program.exercise_pool[id], `exercise_pool must include planned id: ${id}`);
   }
+}
+
+function mkInput(activity_id, tbMinutes) {
+  const base = { activity_id };
+  if (typeof tbMinutes === "number") {
+    base.constraints = {
+      constraints_version: "1.0.0",
+      schedule: { session_timebox_minutes: tbMinutes }
+    };
+  }
+  return base;
+}
+
+function assertTimeboxPlan(program, expectedLen, expectedAccessoryCount) {
+  assertPhase4PlanContract(program, { minItems: Math.min(2, expectedLen) });
+
+  assert.equal(program.planned_items.length, expectedLen, `planned_items length must be ${expectedLen}`);
+
+  const primaries = program.planned_items.filter((x) => x.role === "primary");
+  const accessories = program.planned_items.filter((x) => x.role === "accessory");
+
+  // Guardrail: never drop primaries (Phase4 generator currently emits 4 primaries baseline)
+  assert.equal(primaries.length, 4, "must keep all 4 primaries");
+  assert.equal(accessories.length, expectedAccessoryCount, `accessory count must be ${expectedAccessoryCount}`);
 }
 
 test("Phase4: supported activities emit a rich, stable plan contract (powerlifting)", () => {
@@ -133,6 +155,72 @@ test("Phase4: supported activities emit a rich, stable plan contract (general_st
 
   // Same 6-slot plan contract for now.
   assert.equal(r.program.planned_items.length, 6, "general_strength planned_items length must be 6");
+});
+
+test("Phase4: timebox pruning (powerlifting) tb<30 drops all accessories; tb<45 keeps 1; tb>=45 keeps all", () => {
+  const phase3 = mkPhase3();
+
+  {
+    const r = phase4AssembleProgram(mkInput("powerlifting", 25), phase3);
+    assert.equal(r.ok, true);
+    assertTimeboxPlan(r.program, 4, 0);
+  }
+
+  {
+    const r = phase4AssembleProgram(mkInput("powerlifting", 40), phase3);
+    assert.equal(r.ok, true);
+    assertTimeboxPlan(r.program, 5, 1);
+  }
+
+  {
+    const r = phase4AssembleProgram(mkInput("powerlifting", 60), phase3);
+    assert.equal(r.ok, true);
+    assertTimeboxPlan(r.program, 6, 2);
+  }
+});
+
+test("Phase4: timebox pruning (rugby_union) tb<30 drops all accessories; tb<45 keeps 1; tb>=45 keeps all", () => {
+  const phase3 = mkPhase3();
+
+  {
+    const r = phase4AssembleProgram(mkInput("rugby_union", 25), phase3);
+    assert.equal(r.ok, true);
+    assertTimeboxPlan(r.program, 4, 0);
+  }
+
+  {
+    const r = phase4AssembleProgram(mkInput("rugby_union", 40), phase3);
+    assert.equal(r.ok, true);
+    assertTimeboxPlan(r.program, 5, 1);
+  }
+
+  {
+    const r = phase4AssembleProgram(mkInput("rugby_union", 60), phase3);
+    assert.equal(r.ok, true);
+    assertTimeboxPlan(r.program, 6, 2);
+  }
+});
+
+test("Phase4: timebox pruning (general_strength) tb<30 drops all accessories; tb<45 keeps 1; tb>=45 keeps all", () => {
+  const phase3 = mkPhase3();
+
+  {
+    const r = phase4AssembleProgram(mkInput("general_strength", 25), phase3);
+    assert.equal(r.ok, true);
+    assertTimeboxPlan(r.program, 4, 0);
+  }
+
+  {
+    const r = phase4AssembleProgram(mkInput("general_strength", 40), phase3);
+    assert.equal(r.ok, true);
+    assertTimeboxPlan(r.program, 5, 1);
+  }
+
+  {
+    const r = phase4AssembleProgram(mkInput("general_strength", 60), phase3);
+    assert.equal(r.ok, true);
+    assertTimeboxPlan(r.program, 6, 2);
+  }
 });
 
 test("Phase4: unsupported activity returns stub program with empty plan + carries Phase3 constraints", () => {
