@@ -20,7 +20,7 @@ function sha256TextUtf8(text) {
 }
 
 // IMPORTANT: This MUST be a 64-hex string. If this is empty, you previously broke the guard.
-const PINNED_MANIFEST_SHA256 = "5a5857c532f1003b7e6f40573bd757c03e925aaf4a9b6662695ec54a408e3178";
+const PINNED_MANIFEST_SHA256 = "af864c6d887f789e541ada286f95cb1f368d3a2f805cad74edcd052db021ebe5";
 
 function isHex64(s) {
   return typeof s === "string" && /^[a-f0-9]{64}$/.test(s);

@@ -8,49 +8,79 @@
       {
         "block_id": "B0",
         "exercise_id": "dumbbell_bench_press",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 75
+        },
         "item_id": "B0_I0",
         "reps": 5,
-        "sets": 3,
+        "rest_seconds": 180,
+        "sets": 4,
         "source": "program",
         "substituted_from": "bench_press"
       },
       {
         "block_id": "B0",
         "exercise_id": "back_squat",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 75
+        },
         "item_id": "B0_I1",
         "reps": 5,
-        "sets": 3,
+        "rest_seconds": 180,
+        "sets": 4,
         "source": "program"
       },
       {
         "block_id": "B0",
         "exercise_id": "deadlift",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 75
+        },
         "item_id": "B0_I2",
         "reps": 5,
-        "sets": 3,
+        "rest_seconds": 180,
+        "sets": 4,
         "source": "program"
       },
       {
         "block_id": "B0",
         "exercise_id": "overhead_press",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 75
+        },
         "item_id": "B0_I3",
         "reps": 5,
-        "sets": 3,
+        "rest_seconds": 180,
+        "sets": 4,
         "source": "program"
       },
       {
         "block_id": "B0",
         "exercise_id": "incline_bench_press",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 60
+        },
         "item_id": "B0_I4",
         "reps": 10,
+        "rest_seconds": 90,
         "sets": 3,
         "source": "program"
       },
       {
         "block_id": "B0",
         "exercise_id": "push_up",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 60
+        },
         "item_id": "B0_I5",
         "reps": 10,
+        "rest_seconds": 90,
         "sets": 3,
         "source": "program"
       }

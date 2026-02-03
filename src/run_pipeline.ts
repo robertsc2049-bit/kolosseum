@@ -2,10 +2,13 @@
  * src/run_pipeline.ts
  * Deterministic Phase1 -> Phase6 runner for CI golden tests.
  *
- * Optional runner-only debug flags (STRIPPED before Phase1):
+ * Runner-only debug flags (STRIPPED before Phase1):
  *   - debug_render_session_text: attach rendered_text to final output.
  *   - debug_emit_phase2: attach phase2_debug (high-signal) to final output.
  *   - debug_emit_phase3: attach phase3_debug payload to final output.
+ *
+ * Runner-only control (NOT in Phase1 JSON):
+ *   - return_phase: stop after the given phase and return that phase result.
  *
  * IMPORTANT:
  * - Preserve Phase5 envelope (ok + adjustments) so Phase6 can see substitutions.
@@ -20,22 +23,30 @@ import * as P5 from "../engine/src/phases/phase5.js";
 import * as P6 from "../engine/src/phases/phase6.js";
 import { renderSessionText } from "../engine/src/render/session_text.js";
 
-type AnyRecord = Record<string, unknown>;
+export type ReturnPhase = "phase1" | "phase2" | "phase3" | "phase4" | "phase5" | "phase6";
 
-function isRecord(v: unknown): v is AnyRecord {
+export type RunPipelineOptions = {
+  return_phase?: ReturnPhase | null;
+};
+
+function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
 
-function callableExports(mod: AnyRecord): { key: string; fn: Function }[] {
+function callableExports(mod: Record<string, unknown>) {
   return Object.entries(mod)
     .filter(([k, v]) => typeof v === "function" && k !== "__esModule")
-    .map(([k, v]) => ({ key: k, fn: v as Function }));
+    .map(([k, v]) => ({ key: k, fn: v as (...args: any[]) => any }));
 }
 
-function pickOneOrHeuristic(mod: AnyRecord, phaseNum: number, preferred: string[] = []): Function {
+function pickOneOrHeuristic(
+  mod: Record<string, unknown>,
+  phaseNum: number,
+  preferred: string[] = []
+) {
   for (const name of preferred) {
-    const v = (mod as AnyRecord)[name];
-    if (typeof v === "function") return v as Function;
+    const v = (mod as any)[name];
+    if (typeof v === "function") return v as (...args: any[]) => any;
   }
 
   const fns = callableExports(mod);
@@ -58,8 +69,8 @@ function pickOneOrHeuristic(mod: AnyRecord, phaseNum: number, preferred: string[
     if (hits.length) return hits[0].fn;
   }
 
-  const def = (mod as AnyRecord).default;
-  if (typeof def === "function") return def as Function;
+  const def = (mod as any).default;
+  if (typeof def === "function") return def as (...args: any[]) => any;
 
   const keys = Object.keys(mod).sort().join(", ");
   const fnKeys = fns.map((x) => x.key).sort().join(", ");
@@ -69,14 +80,8 @@ function pickOneOrHeuristic(mod: AnyRecord, phaseNum: number, preferred: string[
   );
 }
 
-type RunnerFlags = {
-  debug_render_session_text: boolean;
-  debug_emit_phase2: boolean;
-  debug_emit_phase3: boolean;
-};
-
-function stripRunnerFlags(input: unknown): { cleaned: unknown; flags: RunnerFlags } {
-  const flags: RunnerFlags = {
+function stripRunnerFlags(input: unknown) {
+  const flags = {
     debug_render_session_text: !!(isRecord(input) && input.debug_render_session_text === true),
     debug_emit_phase2: !!(isRecord(input) && input.debug_emit_phase2 === true),
     debug_emit_phase3: !!(isRecord(input) && input.debug_emit_phase3 === true),
@@ -84,7 +89,7 @@ function stripRunnerFlags(input: unknown): { cleaned: unknown; flags: RunnerFlag
 
   if (!isRecord(input)) return { cleaned: input, flags };
 
-  const cleaned: AnyRecord = {};
+  const cleaned: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(input)) {
     if (k === "debug_render_session_text") continue;
     if (k === "debug_emit_phase2") continue;
@@ -94,7 +99,7 @@ function stripRunnerFlags(input: unknown): { cleaned: unknown; flags: RunnerFlag
   return { cleaned, flags };
 }
 
-function unwrapPayload(r: any, preferredKeys: string[]): any {
+function unwrapPayload(r: any, preferredKeys: string[]) {
   if (!r || typeof r !== "object" || r.ok !== true) return r;
   for (const k of preferredKeys) {
     if (k in r) return r[k];
@@ -107,17 +112,18 @@ function unwrapPayload(r: any, preferredKeys: string[]): any {
  * - Prefer a real object if present (phase2/canonical/canonical_input/output).
  * - Otherwise parse phase2_canonical_json string into an object.
  */
-function extractPhase2CanonicalObject(r2: any): AnyRecord | null {
+function extractPhase2CanonicalObject(r2: any) {
   const candidate = unwrapPayload(r2, ["phase2", "canonical", "canonical_input", "output"]);
   if (isRecord(candidate) && !("phase2_canonical_json" in candidate)) {
     return candidate;
   }
 
-  // If Phase2 returned metadata only, try to parse phase2_canonical_json
   const json =
-    (isRecord(r2) && typeof (r2 as any).phase2_canonical_json === "string") ? (r2 as any).phase2_canonical_json
-      : (isRecord(candidate) && typeof (candidate as any).phase2_canonical_json === "string") ? (candidate as any).phase2_canonical_json
-      : null;
+    isRecord(r2) && typeof (r2 as any).phase2_canonical_json === "string"
+      ? (r2 as any).phase2_canonical_json
+      : isRecord(candidate) && typeof (candidate as any).phase2_canonical_json === "string"
+        ? (candidate as any).phase2_canonical_json
+        : null;
 
   if (typeof json === "string") {
     try {
@@ -131,12 +137,12 @@ function extractPhase2CanonicalObject(r2: any): AnyRecord | null {
   return null;
 }
 
-function attachRenderedTextIfEnabled(out: any, enabled: boolean): any {
+function attachRenderedTextIfEnabled(out: any, enabled: boolean) {
   if (!enabled) return out;
   if (!out || typeof out !== "object") return out;
   if (out.ok !== true) return out;
 
-  const session = out.session;
+  const session = (out as any).session;
   if (!session || typeof session !== "object") return out;
 
   const rendered_text = renderSessionText(session);
@@ -148,26 +154,29 @@ function attachRenderedTextIfEnabled(out: any, enabled: boolean): any {
  * - keep hashes + canonical json string (deterministic)
  * - include parsed constraints if present (small + meaningful)
  */
-function attachPhase2DebugIfEnabled(out: any, enabled: boolean, r2: any, p2Canonical: AnyRecord | null): any {
+function attachPhase2DebugIfEnabled(out: any, enabled: boolean, r2: any, p2Canonical: any) {
   if (!enabled) return out;
   if (!out || typeof out !== "object") return out;
 
   const meta = unwrapPayload(r2, ["phase2", "canonical", "canonical_input", "output"]);
+  const phase2_debug: Record<string, unknown> = {};
 
-  const phase2_debug: AnyRecord = {};
   if (isRecord(meta)) {
     if (typeof (meta as any).phase2_hash === "string") phase2_debug.phase2_hash = (meta as any).phase2_hash;
-    if (typeof (meta as any).canonical_input_hash === "string") phase2_debug.canonical_input_hash = (meta as any).canonical_input_hash;
-    if (typeof (meta as any).phase2_canonical_json === "string") phase2_debug.phase2_canonical_json = (meta as any).phase2_canonical_json;
+    if (typeof (meta as any).canonical_input_hash === "string")
+      phase2_debug.canonical_input_hash = (meta as any).canonical_input_hash;
+    if (typeof (meta as any).phase2_canonical_json === "string")
+      phase2_debug.phase2_canonical_json = (meta as any).phase2_canonical_json;
   }
-  if (p2Canonical && isRecord(p2Canonical.constraints)) {
-    phase2_debug.constraints = p2Canonical.constraints;
+
+  if (p2Canonical && isRecord((p2Canonical as any).constraints)) {
+    phase2_debug.constraints = (p2Canonical as any).constraints;
   }
 
   return { ...out, phase2_debug };
 }
 
-function attachPhase3DebugIfEnabled(out: any, enabled: boolean, r3: any): any {
+function attachPhase3DebugIfEnabled(out: any, enabled: boolean, r3: any) {
   if (!enabled) return out;
   if (!out || typeof out !== "object") return out;
 
@@ -175,7 +184,21 @@ function attachPhase3DebugIfEnabled(out: any, enabled: boolean, r3: any): any {
   return { ...out, phase3_debug: { payload } };
 }
 
-export async function runPipeline(phase1Input: unknown): Promise<any> {
+function normReturnPhase(v: unknown): ReturnPhase | null {
+  if (typeof v !== "string") return null;
+  const s = v.trim().toLowerCase();
+  if (s === "phase1") return "phase1";
+  if (s === "phase2") return "phase2";
+  if (s === "phase3") return "phase3";
+  if (s === "phase4") return "phase4";
+  if (s === "phase5") return "phase5";
+  if (s === "phase6") return "phase6";
+  return null;
+}
+
+export async function runPipeline(phase1Input: unknown, opts: RunPipelineOptions = {}) {
+  const want: ReturnPhase = normReturnPhase(opts.return_phase) || "phase6";
+
   const phase1 = pickOneOrHeuristic(P1 as any, 1, ["phase1Validate"]);
   const phase2 = pickOneOrHeuristic(P2 as any, 2);
   const phase3 = pickOneOrHeuristic(P3 as any, 3);
@@ -188,7 +211,8 @@ export async function runPipeline(phase1Input: unknown): Promise<any> {
   // Phase1
   const r1 = await phase1(phase1InputClean);
   if (!r1 || typeof r1 !== "object") return { ok: false, failure_token: "phase1_failed_non_object" };
-  if (r1.ok !== true) return r1;
+  if ((r1 as any).ok !== true) return r1;
+  if (want === "phase1") return r1;
 
   const p1 = unwrapPayload(r1, ["canonical_input", "canonical", "phase1", "output"]);
   const phase1CanonicalForP6 = p1;
@@ -196,21 +220,21 @@ export async function runPipeline(phase1Input: unknown): Promise<any> {
   // Phase2
   const r2 = await phase2(p1);
   if (!r2 || typeof r2 !== "object") return { ok: false, failure_token: "phase2_failed_non_object" };
-  if (r2.ok !== true) return r2;
+  if ((r2 as any).ok !== true) return r2;
+  if (want === "phase2") return r2;
 
   const p2Canonical = extractPhase2CanonicalObject(r2);
-  if (!p2Canonical) {
-    return { ok: false, failure_token: "phase2_canonical_parse_failed" };
-  }
+  if (!p2Canonical) return { ok: false, failure_token: "phase2_canonical_parse_failed" };
 
-  // Phase3 (MUST receive the canonical object, not Phase2 meta)
+  // Phase3
   const r3 = await phase3(p2Canonical);
   if (!r3 || typeof r3 !== "object") return { ok: false, failure_token: "phase3_failed_non_object" };
-  if (r3.ok !== true) return r3;
+  if ((r3 as any).ok !== true) return r3;
+  if (want === "phase3") return r3;
 
   const p3 = unwrapPayload(r3, ["phase3", "canonical", "output"]);
 
-  // Phase4: prefer (phase1 canonical input, phase3 payload), then fallbacks
+  // Phase4
   let r4: any;
   try {
     r4 = await phase4(p1, p3);
@@ -225,20 +249,21 @@ export async function runPipeline(phase1Input: unknown): Promise<any> {
       }
     }
   }
-
   if (!r4 || typeof r4 !== "object") return { ok: false, failure_token: "phase4_failed_non_object" };
   if (r4.ok !== true) return r4;
+  if (want === "phase4") return r4;
 
   const program = unwrapPayload(r4, ["phase4", "output", "program", "plan", "canonical"]);
 
-  // Phase5: preserve envelope
+  // Phase5
   const r5 = await phase5(program);
   if (!r5 || typeof r5 !== "object") return { ok: false, failure_token: "phase5_failed_non_object" };
   if (r5.ok !== true) return r5;
+  if (want === "phase5") return r5;
 
   const p5Envelope = r5;
 
-  // Phase6: preferred signature (program, canonicalInput, p5Envelope)
+  // Phase6
   let r6: any;
   try {
     r6 = await phase6(program, phase1CanonicalForP6, p5Envelope);
@@ -258,6 +283,7 @@ export async function runPipeline(phase1Input: unknown): Promise<any> {
   let out = attachRenderedTextIfEnabled(r6, flags.debug_render_session_text);
   out = attachPhase2DebugIfEnabled(out, flags.debug_emit_phase2, r2, p2Canonical);
   out = attachPhase3DebugIfEnabled(out, flags.debug_emit_phase3, r3);
+
   return out;
 }
 
