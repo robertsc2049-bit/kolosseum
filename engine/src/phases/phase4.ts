@@ -50,6 +50,14 @@ export type Phase4Result =
   | { ok: true; program: Phase4Program; notes: string[] }
   | { ok: false; failure_token: string; details?: unknown };
 
+export type Phase4Options = {
+  /**
+   * Optional injection seam for tests and future callers.
+   * If provided, Phase4 will NOT read the registry from disk.
+   */
+  entries?: Record<string, ExerciseSignature>;
+};
+
 function repoRoot(): string {
   return process.cwd();
 }
@@ -144,11 +152,22 @@ function findMissingPlannedIds(entries: Record<string, ExerciseSignature>, plann
   return missing;
 }
 
-export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output): Phase4Result {
-  const activity = String(canonicalInput?.activity_id ?? "");
-
+function loadEntriesFromDisk(): { entries: Record<string, ExerciseSignature>; registry_path: string } {
   const regPath = path.join(repoRoot(), "registries", "exercise", "exercise.registry.json");
   const entries = loadExerciseEntriesFromPath(regPath);
+  return { entries, registry_path: regPath };
+}
+
+export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output, opts: Phase4Options = {}): Phase4Result {
+  const activity = String(canonicalInput?.activity_id ?? "");
+
+  // Registry source (disk by default; injectable for tests/future)
+  const registry = opts.entries
+    ? { entries: opts.entries, registry_path: "INJECTED_ENTRIES" }
+    : loadEntriesFromDisk();
+
+  const entries = registry.entries;
+  const registry_path = registry.registry_path;
 
   /**
    * Phase4 contract (v1):
@@ -217,7 +236,7 @@ export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output)
       ok: false,
       failure_token: "PHASE4_MISSING_PLANNED_EXERCISE",
       details: {
-        registry_path: regPath,
+        registry_path,
         missing_exercise_ids: missingPlanned
       }
     };

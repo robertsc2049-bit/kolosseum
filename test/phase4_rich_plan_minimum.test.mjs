@@ -1,10 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import fs from "node:fs";
 import path from "node:path";
 
 // Phase4 is compiled under dist/engine/... (node runs .mjs tests, so import JS output).
 import { phase4AssembleProgram } from "../dist/engine/src/phases/phase4.js";
+import { loadExerciseEntriesFromPath } from "../dist/engine/src/registries/loadExerciseEntries.js";
 
 function mkPhase3(constraints = { constraints_version: "1.0.0" }) {
   return { constraints };
@@ -108,6 +108,16 @@ function assertTimeboxPlan(program, expectedLen, expectedAccessoryCount) {
 
   assert.equal(primaries.length, 4, "must keep all 4 primaries");
   assert.equal(accessories.length, expectedAccessoryCount, `accessory count must be ${expectedAccessoryCount}`);
+}
+
+function registryPathFromRepoRoot() {
+  return path.join(process.cwd(), "registries", "exercise", "exercise.registry.json");
+}
+
+function loadEntriesForTest() {
+  const regPath = registryPathFromRepoRoot();
+  const entries = loadExerciseEntriesFromPath(regPath);
+  return { regPath, entries };
 }
 
 test("Phase4: supported activities emit a rich, stable plan contract (powerlifting)", () => {
@@ -239,96 +249,28 @@ test("Phase4: Phase3 timebox is sovereign over raw input when both are present a
   assertTimeboxPlan(r.program, 4, 0);
 });
 
-function entryMatchesId(obj, targetId) {
-  if (!obj || typeof obj !== "object") return false;
-  const candidates = [
-    obj.exercise_id,
-    obj.exerciseId,
-    obj.id,
-    obj.key,
-    obj.slug
-  ];
-  return candidates.some((v) => String(v ?? "") === targetId);
-}
+test("Phase4: FAIL HARD if any planned exercise_id is missing from registry (no silent omission) — no disk mutation", () => {
+  const { regPath, entries } = loadEntriesForTest();
 
-// Deep search: does the JSON contain bench_press either as a map key OR as an entry id field?
-function deepHasExerciseId(node, targetId) {
-  if (Array.isArray(node)) {
-    for (const el of node) {
-      if (deepHasExerciseId(el, targetId)) return true;
-    }
-    return false;
-  }
+  assert.ok(entries && typeof entries === "object", "entries must load");
+  assert.ok(entries.bench_press, "registry must include bench_press for this test");
 
-  if (node && typeof node === "object") {
-    // key match (map registry)
-    if (Object.prototype.hasOwnProperty.call(node, targetId)) return true;
+  // Remove bench_press from the injected entries map (no filesystem writes).
+  const injected = { ...entries };
+  delete injected.bench_press;
 
-    // entry match (array/object entries)
-    if (entryMatchesId(node, targetId)) return true;
+  const canonicalInput = { activity_id: "powerlifting" };
+  const phase3 = mkPhase3();
 
-    for (const v of Object.values(node)) {
-      if (deepHasExerciseId(v, targetId)) return true;
-    }
-    return false;
-  }
+  const r = phase4AssembleProgram(canonicalInput, phase3, { entries: injected });
 
-  return false;
-}
+  assert.equal(r.ok, false, "phase4AssembleProgram must fail when planned id missing");
+  assert.equal(r.failure_token, "PHASE4_MISSING_PLANNED_EXERCISE");
+  assert.ok(r.details, "details must exist");
+  assert.equal(r.details.registry_path, "INJECTED_ENTRIES", "should report injected registry source");
+  assert.ok(Array.isArray(r.details.missing_exercise_ids), "details.missing_exercise_ids must be an array");
+  assert.ok(r.details.missing_exercise_ids.includes("bench_press"), "missing list must include bench_press");
 
-// Deep remove:
-// - deletes object properties named targetId
-// - filters arrays removing objects whose id fields match targetId
-function deepRemoveExerciseId(node, targetId) {
-  if (Array.isArray(node)) {
-    const out = [];
-    for (const el of node) {
-      if (el && typeof el === "object" && entryMatchesId(el, targetId)) continue;
-      out.push(deepRemoveExerciseId(el, targetId));
-    }
-    return out;
-  }
-
-  if (node && typeof node === "object") {
-    const out = {};
-    for (const [k, v] of Object.entries(node)) {
-      if (k === targetId) continue; // delete map key
-      out[k] = deepRemoveExerciseId(v, targetId);
-    }
-    return out;
-  }
-
-  return node;
-}
-
-test("Phase4: FAIL HARD if any planned exercise_id is missing from registry (no silent omission)", () => {
-  const repoRoot = process.cwd();
-  const regPath = path.join(repoRoot, "registries", "exercise", "exercise.registry.json");
-  const original = fs.readFileSync(regPath, "utf8");
-
-  try {
-    const parsed = JSON.parse(original);
-
-    assert.ok(deepHasExerciseId(parsed, "bench_press"), "registry must contain bench_press for this test");
-
-    const modified = deepRemoveExerciseId(parsed, "bench_press");
-
-    // This is the assertion that was failing before; now it will work for key-maps and id-fields.
-    assert.ok(!deepHasExerciseId(modified, "bench_press"), "mutation must remove bench_press");
-
-    fs.writeFileSync(regPath, JSON.stringify(modified, null, 2) + "\n", "utf8");
-
-    const canonicalInput = { activity_id: "powerlifting" };
-    const phase3 = mkPhase3();
-
-    const r = phase4AssembleProgram(canonicalInput, phase3);
-
-    assert.equal(r.ok, false, "phase4AssembleProgram must fail when planned id missing");
-    assert.equal(r.failure_token, "PHASE4_MISSING_PLANNED_EXERCISE");
-    assert.ok(r.details, "details must exist");
-    assert.ok(Array.isArray(r.details.missing_exercise_ids), "details.missing_exercise_ids must be an array");
-    assert.ok(r.details.missing_exercise_ids.includes("bench_press"), "missing list must include bench_press");
-  } finally {
-    fs.writeFileSync(regPath, original, "utf8");
-  }
+  // Extra guard: regPath exists and we didn't touch it; this variable is here to prevent accidental removal.
+  assert.ok(typeof regPath === "string" && regPath.length > 0, "regPath must be present");
 });
