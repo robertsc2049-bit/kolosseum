@@ -45,7 +45,7 @@ function isPhase5ProgramLike(program: unknown): program is Phase5ProgramLike {
 }
 
 function isNonEmptyStringArray(xs: unknown): xs is string[] {
-  return Array.isArray(xs) && xs.every(v => typeof v === "string");
+  return Array.isArray(xs) && xs.every((v) => typeof v === "string");
 }
 
 /**
@@ -88,29 +88,15 @@ function buildCandidateList(program: Phase5ProgramLike): ExerciseSignature[] {
   // Prefer exercise_pool because it can be made deterministic by key sort.
   if (isRecord(program.exercise_pool)) {
     const vals = Object.values(program.exercise_pool);
-    const filtered = vals.filter((x: unknown) => isRecord(x) && typeof (x as any).exercise_id === "string") as ExerciseSignature[];
+    const filtered = vals.filter(
+      (x: unknown) => isRecord(x) && typeof (x as any).exercise_id === "string"
+    ) as ExerciseSignature[];
     filtered.sort((a, b) => a.exercise_id.localeCompare(b.exercise_id));
     return filtered;
   }
 
   if (Array.isArray(program.exercises)) return program.exercises;
   return [];
-}
-
-function resolveTargetId(program: Phase5ProgramLike, candidates: ExerciseSignature[]): string | null {
-  const explicit =
-    typeof program.target_exercise_id === "string" && program.target_exercise_id.length > 0
-      ? program.target_exercise_id
-      : null;
-  if (explicit) return explicit;
-
-  if (Array.isArray(program.planned_exercise_ids) && program.planned_exercise_ids.length > 0) {
-    const first = String(program.planned_exercise_ids[0] ?? "");
-    if (first) return first;
-  }
-
-  const firstCandidate = candidates[0]?.exercise_id;
-  return typeof firstCandidate === "string" && firstCandidate.length > 0 ? firstCandidate : null;
 }
 
 function findById(candidates: ExerciseSignature[], id: string): ExerciseSignature | null {
@@ -136,6 +122,50 @@ function isTargetEligible(target: ExerciseSignature, constraints: SubstitutionCo
   return !!probe && probe.selected_exercise_id === target.exercise_id;
 }
 
+/**
+ * Option 1 (constraint-driven target):
+ * - Prefer the FIRST planned exercise that is actually DISQUALIFIED by constraints.
+ *   This prevents an eligible "first planned" (e.g., bench) from blocking substitution
+ *   when another planned item (e.g., squat) is disqualified.
+ * - If none are disqualified, fall back deterministically:
+ *   explicit target_exercise_id -> planned_exercise_ids[0] -> candidates[0]
+ */
+function resolveTargetId(
+  program: Phase5ProgramLike,
+  candidates: ExerciseSignature[],
+  constraints: SubstitutionConstraints
+): string | null {
+  // If constraints are present and we have planned ids, pick the first planned item that is ineligible.
+  if (!isEmptyConstraints(constraints) && Array.isArray(program.planned_exercise_ids) && program.planned_exercise_ids.length > 0) {
+    for (const rawId of program.planned_exercise_ids) {
+      const id = String(rawId ?? "").trim();
+      if (!id) continue;
+
+      const ex = findById(candidates, id);
+      if (!ex) continue;
+
+      if (!isTargetEligible(ex, constraints)) {
+        return ex.exercise_id;
+      }
+    }
+  }
+
+  // Otherwise respect explicit hint (still deterministic).
+  const explicit =
+    typeof program.target_exercise_id === "string" && program.target_exercise_id.length > 0
+      ? program.target_exercise_id
+      : null;
+  if (explicit) return explicit;
+
+  if (Array.isArray(program.planned_exercise_ids) && program.planned_exercise_ids.length > 0) {
+    const first = String(program.planned_exercise_ids[0] ?? "").trim();
+    if (first) return first;
+  }
+
+  const firstCandidate = candidates[0]?.exercise_id;
+  return typeof firstCandidate === "string" && firstCandidate.length > 0 ? firstCandidate : null;
+}
+
 export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonicalInput: unknown): Phase5Result {
   if (!isPhase5ProgramLike(program)) {
     return {
@@ -154,10 +184,10 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonica
     };
   }
 
-  const targetId = resolveTargetId(program, candidates);
-  const target = targetId ? findById(candidates, targetId) : null;
-
   const constraints = normalizeConstraints(program.constraints);
+
+  const targetId = resolveTargetId(program, candidates, constraints);
+  const target = targetId ? findById(candidates, targetId) : null;
 
   // Target missing => pick against fallback target
   if (!target) {
@@ -245,5 +275,3 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonica
     notes: ["PHASE_5: substitution applied (target disqualified by constraints)"]
   };
 }
-
-
