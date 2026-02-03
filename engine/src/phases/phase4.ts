@@ -1,165 +1,26 @@
 import path from "node:path";
-import type { ExerciseSignature } from "../substitution/types.js";
-import type { Phase3Constraints, Phase3Output } from "./phase3.js";
 import { loadExerciseEntriesFromPath } from "../registries/loadExerciseEntries.js";
+import type { ExerciseSignature } from "../substitution/types.js";
+import type { Phase3Output } from "./phase3.js";
 
-export type PlannedItemRole = "primary" | "accessory";
+import {
+  assembleSupportedProgram,
+  selectTemplate,
+  type Phase4Options,
+  type Phase4Result,
+  type RegistryLoad,
 
-export type PlannedItemIntensity =
-  | { type: "percent_1rm"; value: number }
-  | { type: "rpe"; value: number }
-  | { type: "load"; value: number };
+  // re-exported public types
+  type PlannedItem,
+  type PlannedItemIntensity,
+  type PlannedItemRole,
+  type Phase4Program
+} from "./phase4_builders.js";
 
-export type PlannedItem = {
-  block_id: string;
-  item_id: string;
-  exercise_id: string;
-
-  // v1 prescription-ready fields (authoritative for Phase6 rendering)
-  session_id: string;
-  role: PlannedItemRole;
-  sets: number;
-  reps: number;
-  intensity: PlannedItemIntensity;
-  rest_seconds: number;
-};
-
-export type Phase4Program = {
-  program_id: string;
-  version: string;
-  blocks: unknown[];
-
-  // Authoritative plan
-  planned_items: PlannedItem[];
-
-  // Derived convenience only (do not treat as authoritative)
-  planned_exercise_ids: string[];
-
-  // Candidate pool for substitution
-  exercises: ExerciseSignature[];
-  exercise_pool: Record<string, ExerciseSignature>;
-
-  // Phase5 target selection hint
-  target_exercise_id: string;
-
-  // Canonical constraints (Phase3 authoritative)
-  constraints?: Phase3Constraints;
-};
-
-export type Phase4Result =
-  | { ok: true; program: Phase4Program; notes: string[] }
-  | { ok: false; failure_token: string; details?: unknown };
-
-export type Phase4Options = {
-  /**
-   * Optional injection seam for tests and future callers.
-   * If provided, Phase4 will NOT read the registry from disk.
-   */
-  entries?: Record<string, ExerciseSignature>;
-};
-
-type Phase4Template = {
-  program_id: string;
-  intent: string[];
-};
-
-type RegistryLoad = {
-  entries: Record<string, ExerciseSignature>;
-  registry_path: string;
-};
+export type { PlannedItemRole, PlannedItemIntensity, PlannedItem, Phase4Program, Phase4Result, Phase4Options };
 
 function repoRoot(): string {
   return process.cwd();
-}
-
-function pick(entries: Record<string, ExerciseSignature>, id: string): ExerciseSignature {
-  const ex = entries?.[id];
-  if (!ex) throw new Error(`Missing exercise ${id}`);
-  return ex;
-}
-
-function uniqueStable(ids: string[]): string[] {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const id of ids) {
-    const s = String(id ?? "").trim();
-    if (!s) continue;
-    if (seen.has(s)) continue;
-    seen.add(s);
-    out.push(s);
-  }
-  return out;
-}
-
-function plannedItemsFromIntent(intent: string[], session_id: string): PlannedItem[] {
-  const ids = uniqueStable(intent);
-
-  return ids.map((exercise_id, i) => {
-    const isAccessory = i >= 4;
-    const role: PlannedItemRole = isAccessory ? "accessory" : "primary";
-
-    const sets = isAccessory ? 3 : 4;
-    const reps = isAccessory ? 10 : 5;
-
-    const intensity: PlannedItemIntensity = isAccessory
-      ? { type: "percent_1rm", value: 60 }
-      : { type: "percent_1rm", value: 75 };
-
-    const rest_seconds = isAccessory ? 90 : 180;
-
-    return {
-      block_id: "B0",
-      item_id: `B0_I${i}`,
-      exercise_id,
-      session_id,
-      role,
-      sets,
-      reps,
-      intensity,
-      rest_seconds
-    };
-  });
-}
-
-function readSessionTimeboxMinutes(canonicalInput: any, phase3Constraints?: any): number {
-  // Hardening: prefer Phase3 canonical constraints over raw input.
-  const tb =
-    phase3Constraints?.schedule?.session_timebox_minutes ??
-    canonicalInput?.constraints?.schedule?.session_timebox_minutes ??
-    NaN;
-
-  const n = Number(tb);
-  if (!Number.isFinite(n) || n <= 0) return NaN;
-  return n;
-}
-
-/**
- * Timebox pruning (deterministic):
- * - If no timebox: unchanged
- * - Always keep all primaries
- * - tb < 30: drop all accessories
- * - tb < 45: keep at most 1 accessory (stable order)
- */
-function applyTimeboxDeterministic(items: PlannedItem[], timeboxMinutes: number): PlannedItem[] {
-  if (!Number.isFinite(timeboxMinutes)) return items;
-
-  if (timeboxMinutes < 30) return items.filter((it) => it.role === "primary");
-
-  if (timeboxMinutes < 45) {
-    const primaries = items.filter((it) => it.role === "primary");
-    const accessories = items.filter((it) => it.role === "accessory");
-    return [...primaries, ...accessories.slice(0, 1)];
-  }
-
-  return items;
-}
-
-function findMissingPlannedIds(entries: Record<string, ExerciseSignature>, plannedIds: string[]): string[] {
-  const missing: string[] = [];
-  for (const id of plannedIds) {
-    if (!entries[id]) missing.push(id);
-  }
-  return missing;
 }
 
 function loadEntriesFromDisk(): RegistryLoad {
@@ -170,136 +31,8 @@ function loadEntriesFromDisk(): RegistryLoad {
 
 function loadRegistry(opts: Phase4Options): RegistryLoad {
   return opts.entries
-    ? { entries: opts.entries, registry_path: "INJECTED_ENTRIES" }
+    ? { entries: opts.entries as Record<string, ExerciseSignature>, registry_path: "INJECTED_ENTRIES" }
     : loadEntriesFromDisk();
-}
-
-function selectTemplate(activity: string): Phase4Template | null {
-  switch (activity) {
-    case "powerlifting":
-      return {
-        program_id: "PROGRAM_POWERLIFTING_V1",
-        intent: ["bench_press", "back_squat", "deadlift", "overhead_press", "incline_bench_press", "push_up"]
-      };
-
-    case "rugby_union":
-      return {
-        program_id: "PROGRAM_RUGBY_UNION_V1",
-        intent: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"]
-      };
-
-    case "general_strength":
-      return {
-        program_id: "PROGRAM_GENERAL_STRENGTH_V1",
-        intent: ["deadlift", "bench_press", "back_squat", "overhead_press", "incline_bench_press", "push_up"]
-      };
-
-    default:
-      return null;
-  }
-}
-
-function buildPlannedItems(intent: string[], session_id: string, timeboxMinutes: number): PlannedItem[] {
-  let planned_items = plannedItemsFromIntent(intent, session_id);
-  planned_items = applyTimeboxDeterministic(planned_items, timeboxMinutes);
-  return planned_items;
-}
-
-function derivePlannedExerciseIds(planned_items: PlannedItem[]): string[] {
-  return planned_items.map((it) => it.exercise_id);
-}
-
-function guardPlannedIdsExist(
-  entries: Record<string, ExerciseSignature>,
-  planned_exercise_ids: string[],
-  registry_path: string
-): { ok: true } | { ok: false; result: Phase4Result } {
-  const missingPlanned = findMissingPlannedIds(entries, planned_exercise_ids);
-  if (missingPlanned.length === 0) return { ok: true };
-
-  return {
-    ok: false,
-    result: {
-      ok: false,
-      failure_token: "PHASE4_MISSING_PLANNED_EXERCISE",
-      details: {
-        registry_path,
-        missing_exercise_ids: missingPlanned
-      }
-    }
-  };
-}
-
-function buildExercisePool(
-  entries: Record<string, ExerciseSignature>,
-  planned_exercise_ids: string[]
-): { exercise_pool: Record<string, ExerciseSignature>; exercises: ExerciseSignature[] } {
-  const poolIds = uniqueStable([
-    ...planned_exercise_ids,
-    "dumbbell_bench_press",
-    "machine_chest_press",
-    "goblet_squat",
-    "kettlebell_deadlift"
-  ]);
-
-  const exercise_pool: Record<string, ExerciseSignature> = {};
-
-  // Planned ids are guaranteed present (guarded before calling). Extras are best-effort.
-  for (const id of poolIds) {
-    if (entries[id]) {
-      exercise_pool[id] = pick(entries, id);
-    }
-  }
-
-  const exercises = Object.values(exercise_pool).sort((a, b) => a.exercise_id.localeCompare(b.exercise_id));
-  return { exercise_pool, exercises };
-}
-
-function deriveTargetExerciseId(planned_exercise_ids: string[]): string {
-  return planned_exercise_ids[0] ?? "";
-}
-
-function assembleSupportedProgram(args: {
-  canonicalInput: any;
-  phase3: Phase3Output;
-  template: Phase4Template;
-  registry: RegistryLoad;
-}): Phase4Result {
-  const { canonicalInput, phase3, template, registry } = args;
-  const { entries, registry_path } = registry;
-
-  // Keep Phase6 stable: single session for now.
-  const session_id = "SESSION_V1";
-
-  const timeboxMinutes = readSessionTimeboxMinutes(canonicalInput, phase3.constraints);
-
-  const planned_items = buildPlannedItems(template.intent, session_id, timeboxMinutes);
-
-  // Derived convenience only (and must match planned_items order 1:1 per test contract)
-  const planned_exercise_ids = derivePlannedExerciseIds(planned_items);
-
-  // Hardening: planned ids MUST exist in registry (no silent omission).
-  const guard = guardPlannedIdsExist(entries, planned_exercise_ids, registry_path);
-  if (!guard.ok) return guard.result;
-
-  const { exercise_pool, exercises } = buildExercisePool(entries, planned_exercise_ids);
-  const target_exercise_id = deriveTargetExerciseId(planned_exercise_ids);
-
-  return {
-    ok: true,
-    program: {
-      program_id: template.program_id,
-      version: "1.0.0",
-      blocks: [],
-      planned_items,
-      planned_exercise_ids,
-      exercises,
-      exercise_pool,
-      target_exercise_id,
-      constraints: phase3.constraints
-    },
-    notes: ["PHASE_4_V1: prescription-ready planned_items emitted"]
-  };
 }
 
 export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output, opts: Phase4Options = {}): Phase4Result {
