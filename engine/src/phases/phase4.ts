@@ -104,9 +104,10 @@ function plannedItemsFromIntent(intent: string[], session_id: string): PlannedIt
 }
 
 function readSessionTimeboxMinutes(canonicalInput: any, phase3Constraints?: any): number {
+  // Hardening: prefer Phase3 canonical constraints over raw input.
   const tb =
-    canonicalInput?.constraints?.schedule?.session_timebox_minutes ??
     phase3Constraints?.schedule?.session_timebox_minutes ??
+    canonicalInput?.constraints?.schedule?.session_timebox_minutes ??
     NaN;
 
   const n = Number(tb);
@@ -135,6 +136,14 @@ function applyTimeboxDeterministic(items: PlannedItem[], timeboxMinutes: number)
   return items;
 }
 
+function findMissingPlannedIds(entries: Record<string, ExerciseSignature>, plannedIds: string[]): string[] {
+  const missing: string[] = [];
+  for (const id of plannedIds) {
+    if (!entries[id]) missing.push(id);
+  }
+  return missing;
+}
+
 export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output): Phase4Result {
   const activity = String(canonicalInput?.activity_id ?? "");
 
@@ -150,6 +159,7 @@ export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output)
    * - Provides deterministic exercise_pool for Phase5 scoring and substitution.
    * - Sets target_exercise_id to derived planned_exercise_ids[0].
    * - Applies deterministic timebox pruning via constraints.schedule.session_timebox_minutes.
+   * - Hardening: FAIL HARD if any planned exercise_id is missing from registry.
    */
 
   let program_id: string;
@@ -200,6 +210,19 @@ export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output)
   // Derived convenience only (and must match planned_items order 1:1 per test contract)
   const planned_exercise_ids = planned_items.map((it) => it.exercise_id);
 
+  // Hardening: planned ids MUST exist in registry (no silent omission).
+  const missingPlanned = findMissingPlannedIds(entries, planned_exercise_ids);
+  if (missingPlanned.length > 0) {
+    return {
+      ok: false,
+      failure_token: "PHASE4_MISSING_PLANNED_EXERCISE",
+      details: {
+        registry_path: regPath,
+        missing_exercise_ids: missingPlanned
+      }
+    };
+  }
+
   const poolIds = uniqueStable([
     ...planned_exercise_ids,
     "dumbbell_bench_press",
@@ -209,6 +232,8 @@ export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output)
   ]);
 
   const exercise_pool: Record<string, ExerciseSignature> = {};
+
+  // Planned ids are guaranteed present (above). Extras are best-effort.
   for (const id of poolIds) {
     if (entries[id]) {
       exercise_pool[id] = pick(entries, id);
