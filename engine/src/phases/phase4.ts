@@ -103,19 +103,30 @@ function plannedItemsFromIntent(intent: string[], session_id: string): PlannedIt
   });
 }
 
+function readSessionTimeboxMinutes(canonicalInput: any, phase3Constraints?: any): number {
+  const tb =
+    canonicalInput?.constraints?.schedule?.session_timebox_minutes ??
+    phase3Constraints?.schedule?.session_timebox_minutes ??
+    NaN;
+
+  const n = Number(tb);
+  if (!Number.isFinite(n) || n <= 0) return NaN;
+  return n;
+}
+
 /**
  * Timebox pruning (deterministic):
- * - keep all primaries always
+ * - If no timebox: unchanged
+ * - Always keep all primaries
  * - tb < 30: drop all accessories
  * - tb < 45: keep at most 1 accessory (stable order)
  */
-function applyTimeboxDeterministic(items: PlannedItem[], canonicalInput: any): PlannedItem[] {
-  const tb = Number(canonicalInput?.timebox_min ?? canonicalInput?.timebox_minutes ?? NaN);
-  if (!Number.isFinite(tb) || tb <= 0) return items;
+function applyTimeboxDeterministic(items: PlannedItem[], timeboxMinutes: number): PlannedItem[] {
+  if (!Number.isFinite(timeboxMinutes)) return items;
 
-  if (tb < 30) return items.filter((it) => it.role === "primary");
+  if (timeboxMinutes < 30) return items.filter((it) => it.role === "primary");
 
-  if (tb < 45) {
+  if (timeboxMinutes < 45) {
     const primaries = items.filter((it) => it.role === "primary");
     const accessories = items.filter((it) => it.role === "accessory");
     return [...primaries, ...accessories.slice(0, 1)];
@@ -138,6 +149,7 @@ export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output)
    * - Carries Phase3 canonical constraints forward on program.constraints (authoritative).
    * - Provides deterministic exercise_pool for Phase5 scoring and substitution.
    * - Sets target_exercise_id to derived planned_exercise_ids[0].
+   * - Applies deterministic timebox pruning via constraints.schedule.session_timebox_minutes.
    */
 
   let program_id: string;
@@ -180,11 +192,13 @@ export function phase4AssembleProgram(canonicalInput: any, phase3: Phase3Output)
   // Keep Phase6 stable: single session for now.
   const session_id = "SESSION_V1";
 
-  let planned_items = plannedItemsFromIntent(intent, session_id);
-  planned_items = applyTimeboxDeterministic(planned_items, canonicalInput);
+  const timeboxMinutes = readSessionTimeboxMinutes(canonicalInput, phase3.constraints);
 
-  // Derived convenience only
-  const planned_exercise_ids = uniqueStable(planned_items.map((it) => it.exercise_id));
+  let planned_items = plannedItemsFromIntent(intent, session_id);
+  planned_items = applyTimeboxDeterministic(planned_items, timeboxMinutes);
+
+  // Derived convenience only (and must match planned_items order 1:1 per test contract)
+  const planned_exercise_ids = planned_items.map((it) => it.exercise_id);
 
   const poolIds = uniqueStable([
     ...planned_exercise_ids,
