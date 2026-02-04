@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import path from "node:path";
-import { stageTempRepoRoot, runRegistryLawGuard, readJson, writeJsonUtf8Lf, rmrf } from "../test_support/registry_law_guard_harness.mjs";
+import { stageTempRepoRoot, runRegistryLawGuard, readJson, writeJsonUtf8Lf, cleanupTempRepoRoot } from "../test_support/registry_law_guard_harness.mjs";
 
 test("CI: registry_law_guard hard-fails on FK break (exercise.pattern -> missing movement)", () => {
   const tempRoot = stageTempRepoRoot();
@@ -32,6 +32,6 @@ test("CI: registry_law_guard hard-fails on FK break (exercise.pattern -> missing
     assert.match(combined, /registry_law_guard:\s*FAIL/i);
     assert.match(combined, /FK fail pattern/i);
   } finally {
-    rmrf(tempRoot);
+    cleanupTempRepoRoot(tempRoot);
   }
 });
