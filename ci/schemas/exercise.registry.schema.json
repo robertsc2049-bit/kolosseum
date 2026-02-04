@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/exercise.registry.schema.json",
+  "title": "Exercise Registry Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_id", "version", "entries"],
+  "properties": {
+    "registry_id": { "type": "string", "const": "exercise" },
+    "version": { "type": "string", "minLength": 1 },
+    "entries": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "exercise_id",
+          "pattern",
+          "stimulus_intent",
+          "rom",
+          "stability",
+          "equipment",
+          "equipment_tier",
+          "joint_stress_tags"
+        ],
+        "properties": {
+          "exercise_id": { "type": "string", "minLength": 1 },
+          "pattern": { "type": "string", "minLength": 1 },
+          "stimulus_intent": { "type": "string", "minLength": 1 },
+          "rom": { "type": "string", "minLength": 1 },
+          "stability": { "type": "string", "minLength": 1 },
+          "equipment": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "equipment_tier": { "type": "string", "minLength": 1 },
+          "joint_stress_tags": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}
