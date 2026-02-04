@@ -1,29 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import path from "node:path";
-import { stageTempRepoRoot, runRegistryLawGuard, readJson, writeJsonUtf8Lf, rmrf } from "./_helpers/registry_law_guard_harness.mjs";
 
-/**
- * Ensure a movement entry has an equipment token list field we can mutate.
- * We intentionally support a couple of plausible field names.
- * registry_law_guard ultimately enforces "movement-scoped equipment vocab", so adding a token to ONE movement
- * and then using it under a DIFFERENT movement pattern should fail.
- */
-function ensureMovementEquipmentArray(movementEntry) {
-  if (!movementEntry || typeof movementEntry !== "object") return { key: "equipment_tokens", arr: [] };
+import {
+  stageTempRepoRoot,
+  cleanupTempRepoRoot,
+  readJson,
+  writeJsonUtf8Lf,
+  runRegistryLawGuard
+} from "./_helpers/registry_law_guard_harness.mjs";
 
-  // Prefer the field name used by the guard in code/comments: equipment_tokens
-  if (Array.isArray(movementEntry.equipment_tokens)) {
-    return { key: "equipment_tokens", arr: movementEntry.equipment_tokens };
-  }
-  if (Array.isArray(movementEntry.equipment)) {
-    return { key: "equipment", arr: movementEntry.equipment };
-  }
-
-  // Default: create equipment_tokens
-  movementEntry.equipment_tokens = [];
-  return { key: "equipment_tokens", arr: movementEntry.equipment_tokens };
-}
+import { ensureMovementEquipmentArray } from "./_helpers/registry_mutators.mjs";
 
 test("CI: registry_law_guard hard-fails when token is valid in some movement but invalid for this exercise.pattern", () => {
   const tempRoot = stageTempRepoRoot();
@@ -51,28 +38,26 @@ test("CI: registry_law_guard hard-fails when token is valid in some movement but
     assert.ok(good && typeof good === "object", "expected good movement entry object");
     assert.ok(bad && typeof bad === "object", "expected bad movement entry object");
 
-    // Create a globally-valid token by inserting it into ONE movement's allowed list.
-    // Then make an exercise claim it under a DIFFERENT movement pattern.
+    // Create a movement-scoped token by inserting it into ONE movement's allowed list only.
     const token = "__scoped_only_token__";
 
-    // Ensure token appears ONLY in the "good" movement list.
     const g = ensureMovementEquipmentArray(good);
     if (!g.arr.includes(token)) g.arr.push(token);
 
     const b = ensureMovementEquipmentArray(bad);
-    // Remove if present (defensive)
     while (b.arr.includes(token)) b.arr.splice(b.arr.indexOf(token), 1);
 
     writeJsonUtf8Lf(movPath, mov);
 
     const eKeys = Object.keys(ex.entries || {});
     assert.ok(eKeys.length > 0, "expected exercise entries");
-
     const e0 = ex.entries[eKeys[0]];
     assert.ok(e0 && typeof e0 === "object", "expected exercise entry object");
 
-    // Scoped FK break: token exists in registry vocab (because movement 'good' allows it),
-    // but does NOT exist for movement 'bad', and we set pattern='bad'.
+    // Scoped FK break:
+    // - token exists in movement 'good'
+    // - exercise claims movement 'bad'
+    // - exercise equipment includes token => should fail
     e0.pattern = badMovementId;
     e0.equipment = [token];
 
@@ -85,6 +70,6 @@ test("CI: registry_law_guard hard-fails when token is valid in some movement but
     assert.match(combined, /registry_law_guard:\s*FAIL/i);
     assert.match(combined, /equipment/i);
   } finally {
-    rmrf(tempRoot);
+    cleanupTempRepoRoot(tempRoot);
   }
 });
