@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -26,20 +27,41 @@ function writeJsonUtf8Lf(abs, obj) {
   fs.writeFileSync(abs, lf, { encoding: "utf8" });
 }
 
-function runGuard() {
-  return spawnSync(
-    process.execPath,
-    [p("ci/guards/registry_law_guard.mjs")],
-    { cwd: repoRoot(), encoding: "utf8" }
-  );
+/**
+ * Create a hermetic temp "repo root" that contains ONLY what registry_law_guard needs:
+ * - registries/** (the artifacts under test)
+ * - ci/schemas/** (validator schemas loaded via absFromRoot("ci/schemas/.."))
+ *
+ * The guard itself is executed from the real repo path, but with cwd=tempRoot,
+ * so absFromRoot() resolves inside the temp root and cannot touch real registries.
+ */
+function stageTempRepoRoot() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-registry-law-"));
+
+  // Copy registries/**
+  fs.cpSync(p("registries"), path.join(tmp, "registries"), { recursive: true });
+
+  // Copy ci/schemas/**
+  fs.mkdirSync(path.join(tmp, "ci"), { recursive: true });
+  fs.cpSync(p("ci", "schemas"), path.join(tmp, "ci", "schemas"), { recursive: true });
+
+  return tmp;
+}
+
+function runGuard(tempRootAbs) {
+  return spawnSync(process.execPath, [p("ci/guards/registry_law_guard.mjs")], {
+    cwd: tempRootAbs,
+    encoding: "utf8"
+  });
 }
 
 test("CI: registry_law_guard hard-fails on FK break (exercise.pattern -> missing movement)", () => {
-  const exPath = p("registries/exercise/exercise.registry.json");
-  const originalRaw = fs.readFileSync(exPath, "utf8");
-  const original = readJson(exPath);
+  const tempRoot = stageTempRepoRoot();
 
   try {
+    const exPath = path.join(tempRoot, "registries", "exercise", "exercise.registry.json");
+    const original = readJson(exPath);
+
     assert.equal(typeof original, "object");
     assert.equal(typeof original.entries, "object");
 
@@ -50,11 +72,11 @@ test("CI: registry_law_guard hard-fails on FK break (exercise.pattern -> missing
     assert.ok(original.entries[k0], "expected first entry object");
     assert.equal(typeof original.entries[k0].pattern, "string", "expected entry.pattern string");
 
-    // FK break
+    // FK break (in temp copy ONLY)
     original.entries[k0].pattern = "__fk_break_nonexistent_movement__";
     writeJsonUtf8Lf(exPath, original);
 
-    const r = runGuard();
+    const r = runGuard(tempRoot);
 
     assert.notEqual(r.status, 0, `expected registry_law_guard to fail; status=${r.status}`);
 
@@ -62,6 +84,10 @@ test("CI: registry_law_guard hard-fails on FK break (exercise.pattern -> missing
     assert.match(combined, /registry_law_guard:\s*FAIL/i);
     assert.match(combined, /FK fail pattern/i);
   } finally {
-    fs.writeFileSync(exPath, originalRaw, { encoding: "utf8" });
+    try {
+      fs.rmSync(tempRoot, { recursive: true, force: true });
+    } catch {
+      // ignore cleanup failures in CI
+    }
   }
 });
