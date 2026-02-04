@@ -1,113 +1,107 @@
-import test from "node:test";
 import assert from "node:assert/strict";
-import fs from "node:fs/promises";
+import test from "node:test";
 import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import fs from "node:fs/promises";
 
-async function loadRunPipeline() {
-  const candidates = [
-    "../dist/src/run_pipeline.js",
-    "../dist/engine/src/run_pipeline.js"
-  ];
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  let lastErr;
-  for (const p of candidates) {
-    try {
-      return await import(p);
-    } catch (e) {
-      lastErr = e;
-    }
-  }
-  throw lastErr ?? new Error("Unable to import runPipeline from dist");
-}
-
-async function loadRenderer() {
-  const candidates = [
-    "../dist/src/render/session_text.js",
-    "../dist/engine/src/render/session_text.js",
-    "../dist/render/session_text.js",
-    "../dist/engine/render/session_text.js"
-  ];
-
-  let lastErr;
-  for (const p of candidates) {
-    try {
-      return await import(p);
-    } catch (e) {
-      lastErr = e;
-    }
-  }
-  throw lastErr ?? new Error("Unable to import renderSessionText from dist");
-}
-
-const SKIP_DIRS = new Set([
-  "node_modules",
-  "dist",
-  ".git",
-  ".vscode",
-  ".next",
-  "coverage"
-]);
-
-async function walk(dir, maxDepth, depth = 0) {
-  if (depth > maxDepth) return [];
-  let entries;
+async function fileExists(p) {
   try {
-    entries = await fs.readdir(dir, { withFileTypes: true });
+    const st = await fs.stat(p);
+    return st.isFile();
   } catch {
-    return [];
+    return false;
   }
-
-  const out = [];
-  for (const ent of entries) {
-    const full = path.join(dir, ent.name);
-
-    if (ent.isDirectory()) {
-      if (SKIP_DIRS.has(ent.name)) continue;
-      out.push(...(await walk(full, maxDepth, depth + 1)));
-      continue;
-    }
-
-    if (ent.isFile()) out.push(full);
-  }
-  return out;
 }
 
-async function findVanillaMinimalFixture() {
-  const root = process.cwd();
+async function findRepoRoot(startDir) {
+  let cur = startDir;
+  for (let i = 0; i < 25; i++) {
+    const candidate = path.join(cur, "package.json");
+    if (await fileExists(candidate)) return cur;
+    const parent = path.dirname(cur);
+    if (parent === cur) break;
+    cur = parent;
+  }
+  throw new Error(`Could not locate repo root (package.json) starting from: ${startDir}`);
+}
 
-  // Search broadly; fixtures are not guaranteed to live under ./ci
-  const files = await walk(root, 8);
+function stripJsonc(raw) {
+  // Safe even for .json (no-op on typical files)
+  return raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+}
 
-  const candidates = files
-    .filter((f) => {
-      const base = path.basename(f).toLowerCase();
-      if (!(base.endsWith(".json") || base.endsWith(".jsonc"))) return false;
-      return base.includes("vanilla_minimal");
-    })
-    .sort((a, b) => a.length - b.length);
+async function importDistModule(repoRoot, relPath, requiredExportName) {
+  const abs = path.join(repoRoot, relPath);
+  if (!(await fileExists(abs))) {
+    throw new Error(`Missing dist module: ${abs}`);
+  }
 
-  if (candidates.length === 0) {
+  const mod = await import(pathToFileURL(abs).href);
+
+  // Accept either named export or default object with the export on it.
+  const fn = mod[requiredExportName] ?? mod.default?.[requiredExportName] ?? null;
+  if (!fn) {
+    const keys = Object.keys(mod).sort().join(", ");
     throw new Error(
-      "No vanilla_minimal*.json/jsonc found anywhere in repo (needed for run_pipeline flag test)."
+      [
+        `Loaded dist module but missing export: ${requiredExportName}`,
+        `modulePath: ${abs}`,
+        `exports: ${keys || "(none)"}`
+      ].join("\n")
     );
   }
 
-  return candidates[0];
+  return fn;
+}
+
+async function loadRunPipeline() {
+  const repoRoot = await findRepoRoot(__dirname);
+  // This matches the stack trace you posted (dist/engine/src/run_pipeline.js).
+  const runPipeline = await importDistModule(repoRoot, "dist/engine/src/run_pipeline.js", "runPipeline");
+  return { runPipeline };
+}
+
+async function loadRenderer() {
+  const repoRoot = await findRepoRoot(__dirname);
+  // Renderer used to validate the debug output.
+  const renderSessionText = await importDistModule(repoRoot, "dist/engine/src/render/session_text.js", "renderSessionText");
+  return { renderSessionText };
+}
+
+async function loadVanillaMinimalPhase1Input() {
+  const repoRoot = await findRepoRoot(__dirname);
+  const fixtureAbs = path.join(repoRoot, "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
+
+  if (!(await fileExists(fixtureAbs))) {
+    throw new Error(`Missing golden input fixture: ${fixtureAbs}`);
+  }
+
+  const raw = await fs.readFile(fixtureAbs, "utf8");
+  const cleaned = stripJsonc(raw).trim();
+
+  if (!cleaned) {
+    const rawPreview = raw.length > 200 ? raw.slice(0, 200) + "â€¦" : raw;
+    throw new Error(
+      [
+        "vanilla_minimal.json became empty after JSONC stripping (unexpected).",
+        `fixtureAbs: ${fixtureAbs}`,
+        `rawLength: ${raw.length}`,
+        `rawPreview: ${JSON.stringify(rawPreview)}`
+      ].join("\n")
+    );
+  }
+
+  return JSON.parse(cleaned);
 }
 
 test("runPipeline does not emit rendered_text by default, but does when debug flag enabled", async () => {
   const { runPipeline } = await loadRunPipeline();
   const { renderSessionText } = await loadRenderer();
 
-  const fixturePath = await findVanillaMinimalFixture();
-  const raw = await fs.readFile(fixturePath, "utf8");
-
-  // jsonc-safe parse (strip // line comments + /* */ blocks)
-  const cleaned = raw
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/^\s*\/\/.*$/gm, "");
-
-  const phase1Input = JSON.parse(cleaned);
+  const phase1Input = await loadVanillaMinimalPhase1Input();
 
   const out1 = await runPipeline(phase1Input);
   assert.ok(out1 && typeof out1 === "object");

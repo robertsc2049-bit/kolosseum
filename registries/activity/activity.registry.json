@@ -1,5 +1,18 @@
 {
   "registry_id": "activity",
   "version": "1.0.0",
-  "entries": {}
+  "entries": {
+    "powerlifting": {
+      "activity_id": "powerlifting",
+      "stimulus_intents": ["strength"]
+    },
+    "general_strength": {
+      "activity_id": "general_strength",
+      "stimulus_intents": ["strength"]
+    },
+    "rugby_union": {
+      "activity_id": "rugby_union",
+      "stimulus_intents": ["strength"]
+    }
+  }
 }

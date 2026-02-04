@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kolosseum.local/schemas/exercise_registry.schema.json",
+  "title": "Kolosseum Exercise Registry File (v1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_id", "version", "entries"],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z0-9][a-z0-9_\\-\\.]*$"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z0-9][a-z0-9_\\-\\.]*$": {
+          "$ref": "registry_entry.schema.json"
+        }
+      }
+    }
+  }
+}

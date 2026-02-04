@@ -11,7 +11,7 @@
     },
     {
       "path": "test/fixtures/golden/expected/neg_phase1_unknown_field.json",
-      "sha256": "320eb67a37d528c3cc3375ea7d9799e883bf5959c54bdd54a1231669a525178a"
+      "sha256": "e9fb516d2f954c054891240173e7472ad862b34a7ecc71b41cfdd9bcc46702d2"
     },
     {
       "path": "test/fixtures/golden/expected/phase1_constraints_gym_basic.json",
@@ -24,6 +24,10 @@
     {
       "path": "test/fixtures/golden/expected/phase1_equipment_dbs_only_timebox.json",
       "sha256": "b6c8c71a7044530e82a14b40f5edc09e8f1ca9c25bc007030e0b86f18738569d"
+    },
+    {
+      "path": "test/fixtures/golden/expected/phase1_equipment_plate_only.json",
+      "sha256": "afe1136c1f7474c01ec3031ee4e43e46f10b5e467fa51bd3950eef787ef8fd0a"
     },
     {
       "path": "test/fixtures/golden/expected/phase1_pain_knee_powerlifting.json",
@@ -39,7 +43,7 @@
     },
     {
       "path": "test/fixtures/golden/expected/phase4_program_powerlifting_contract.json",
-      "sha256": "d0b378f6be35acc9a10d6a775834ca36fd07096dfd27f5ce861d9703b47f72f9"
+      "sha256": "c24835b52c3dfa4058e869231ff1c73ce492bb530bddb59b428bca226774d475"
     },
     {
       "path": "test/fixtures/golden/expected/phase6_session_powerlifting_contract.json",
@@ -72,6 +76,10 @@
     {
       "path": "test/fixtures/golden/inputs/phase1_equipment_dbs_only_timebox.json",
       "sha256": "d21e741b1dba92c5c1c2b4c1fd835466ab306465b62596cc929916972aa21599"
+    },
+    {
+      "path": "test/fixtures/golden/inputs/phase1_equipment_plate_only.json",
+      "sha256": "37a5668be949bd0622820cf42cf2806b6938e28c6fdeaef1ec90e1279be1727f"
     },
     {
       "path": "test/fixtures/golden/inputs/phase1_pain_knee_powerlifting.json",
