@@ -8,9 +8,9 @@ import {
   readJson,
   writeJsonUtf8Lf,
   runRegistryLawGuard
-} from "./_helpers/registry_law_guard_harness.mjs";
+} from "../test_support/registry_law_guard_harness.mjs";
 
-import { ensureMovementEquipmentArray } from "./_helpers/registry_mutators.mjs";
+import { ensureMovementEquipmentArray } from "../test_support/registry_mutators.mjs";
 
 test("CI: registry_law_guard hard-fails when token is valid in some movement but invalid for this exercise.pattern", () => {
   const tempRoot = stageTempRepoRoot();

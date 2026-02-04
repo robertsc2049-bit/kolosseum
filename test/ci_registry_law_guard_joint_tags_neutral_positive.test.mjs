@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import path from "node:path";
-import { stageTempRepoRoot, runRegistryLawGuard, readJson, writeJsonUtf8Lf, rmrf } from "./_helpers/registry_law_guard_harness.mjs";
+import { stageTempRepoRoot, runRegistryLawGuard, readJson, writeJsonUtf8Lf, rmrf } from "../test_support/registry_law_guard_harness.mjs";
 
 test("CI: registry_law_guard passes when exercise uses joint_stress_tags=['neutral']", () => {
   const tempRoot = stageTempRepoRoot();
