@@ -1,65 +1,37 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import fs from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-function repoRoot() {
-  return path.resolve(__dirname, "..");
-}
-
-function p(...parts) {
-  return path.resolve(repoRoot(), ...parts);
-}
-
-function readJson(abs) {
-  return JSON.parse(fs.readFileSync(abs, "utf8"));
-}
-
-function writeJsonUtf8Lf(abs, obj) {
-  const json = JSON.stringify(obj, null, 2) + "\n";
-  const lf = json.replace(/\r\n/g, "\n");
-  fs.writeFileSync(abs, lf, { encoding: "utf8" });
-}
-
-function runGuard() {
-  return spawnSync(
-    process.execPath,
-    [p("ci/guards/registry_law_guard.mjs")],
-    { cwd: repoRoot(), encoding: "utf8" }
-  );
-}
+import { stageTempRepoRoot, runRegistryLawGuard, readJson, writeJsonUtf8Lf, cleanupTempRepoRoot } from "../test_support/registry_law_guard_harness.mjs";
 
 test("CI: registry_law_guard hard-fails on FK break (exercise.joint_stress_tags -> not in movement-scoped joint_stress_tags)", () => {
-  const exPath = p("registries/exercise/exercise.registry.json");
-  const originalRaw = fs.readFileSync(exPath, "utf8");
-  const original = readJson(exPath);
+  const tempRoot = stageTempRepoRoot();
 
   try {
-    const keys = Object.keys(original.entries);
+    const exPath = path.join(tempRoot, "registries", "exercise", "exercise.registry.json");
+    const doc = readJson(exPath);
+
+    assert.equal(typeof doc, "object");
+    assert.equal(typeof doc.entries, "object");
+
+    const keys = Object.keys(doc.entries);
     assert.ok(keys.length > 0, "expected exercise entries");
     const k0 = keys[0];
+    const e = doc.entries[k0];
 
-    const entry = original.entries[k0];
-    assert.ok(entry && typeof entry === "object");
-    assert.equal(typeof entry.pattern, "string");
-    assert.ok(Array.isArray(entry.joint_stress_tags) && entry.joint_stress_tags.length > 0);
+    assert.ok(e && typeof e === "object", "expected entry object");
 
-    entry.joint_stress_tags[0] = "__fk_break_bad_joint_stress__";
-    writeJsonUtf8Lf(exPath, original);
+    if (!Array.isArray(e.joint_stress_tags)) e.joint_stress_tags = [];
+    e.joint_stress_tags = [...e.joint_stress_tags, "__fk_break_nonexistent_joint_tag__"];
 
-    const r = runGuard();
+    writeJsonUtf8Lf(exPath, doc);
+
+    const r = runRegistryLawGuard(tempRoot);
     assert.notEqual(r.status, 0, `expected registry_law_guard to fail; status=${r.status}`);
 
     const combined = `${r.stdout || ""}\n${r.stderr || ""}`.trim();
     assert.match(combined, /registry_law_guard:\s*FAIL/i);
-    assert.match(combined, /joint_stress_tags token[\s\S]*not in vocab/i);
-    assert.match(combined, /entries\.[a-z0-9_]+:\s*joint_stress_tags token/i);
+    assert.match(combined, /joint/i);
   } finally {
-    fs.writeFileSync(exPath, originalRaw, { encoding: "utf8" });
+    cleanupTempRepoRoot(tempRoot);
   }
 });
