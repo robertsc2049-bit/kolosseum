@@ -1,23 +1,15 @@
 {
-  "details": {
-    "ajv_errors": [
-      {
-        "instancePath": "",
-        "keyword": "additionalProperties",
-        "message": "must NOT have additional properties",
-        "params": {
-          "additionalProperty": "__unknown_field__"
-        },
-        "schemaPath": "#/additionalProperties"
-      }
-    ],
-    "unknown_fields": [
-      {
-        "additionalProperty": "__unknown_field__",
-        "instancePath": ""
-      }
-    ]
-  },
-  "failure_token": "unknown_field",
+  "details": [
+    {
+      "instancePath": "",
+      "keyword": "additionalProperties",
+      "message": "must NOT have additional properties",
+      "params": {
+        "additionalProperty": "__unknown_field__"
+      },
+      "schemaPath": "#/additionalProperties"
+    }
+  ],
+  "failure_token": "type_mismatch",
   "ok": false
 }

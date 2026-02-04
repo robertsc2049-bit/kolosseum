@@ -5,80 +5,132 @@ function sh(cmd, inherit = true) {
 }
 
 function out(cmd) {
-  return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] }).toString("utf8");
+  return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] })
+    .toString("utf8")
+    .trim();
 }
 
-function getUpstreamRef() {
+function tryOut(cmd) {
   try {
-    return out("git rev-parse --abbrev-ref --symbolic-full-name @{u}").trim();
+    return out(cmd);
   } catch {
     return "";
   }
 }
 
+function getCurrentBranch() {
+  // Empty on detached HEAD.
+  return tryOut("git branch --show-current");
+}
+
+function getUpstreamRef() {
+  // This is safe from Node (no PowerShell @{upstream} mangling).
+  return tryOut("git rev-parse --abbrev-ref --symbolic-full-name @{u}");
+}
+
 function getOutgoingCommitCount(upstream) {
   if (!upstream) return null; // unknown (new branch / no upstream)
-  try {
-    const s = out(`git rev-list --count ${upstream}..HEAD`).trim();
-    const n = Number(s);
-    if (!Number.isFinite(n) || n < 0) return null;
-    return n;
-  } catch {
-    return null;
-  }
+  const s = tryOut(`git rev-list --count ${upstream}..HEAD`);
+  if (!s) return null;
+  const n = Number(s);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return n;
+}
+
+function getDiffBaseRef() {
+  // Prefer upstream. If missing, fall back to HEAD~1 only if it exists.
+  const upstream = getUpstreamRef();
+  if (upstream) return { kind: "upstream", ref: upstream };
+
+  // New branch with no upstream: best effort. If HEAD~1 doesn't exist, we can't know.
+  const hasHead1 = !!tryOut("git rev-parse --verify HEAD~1");
+  if (hasHead1) return { kind: "head1", ref: "HEAD~1" };
+
+  return { kind: "unknown", ref: "" };
 }
 
 function listPushedFiles() {
   const upstream = getUpstreamRef();
   const outgoing = getOutgoingCommitCount(upstream);
 
-  // Ticket-029: no-op push should exit 0 (no full path).
+  // Ticket-029: no-op push should exit 0.
   if (upstream && outgoing === 0) {
     console.log("[pre-push] no-op (0 outgoing commits) -> exit 0");
     process.exit(0);
   }
 
-  // Compare local HEAD range vs upstream.
-  // If upstream is missing (new branch), fall back to HEAD~1.
-  if (upstream) {
-    const files = out(`git diff --name-only ${upstream}..HEAD`)
+  const base = getDiffBaseRef();
+
+  if (base.kind === "upstream") {
+    return tryOut(`git diff --name-only ${base.ref}..HEAD`)
       .split(/\r?\n/)
       .map((s) => s.trim())
       .filter(Boolean);
-    return files;
   }
 
-  // No upstream: best effort (likely new branch). If HEAD~1 fails (shallow), fall back to empty list.
-  try {
-    const files = out("git diff --name-only HEAD~1..HEAD")
+  if (base.kind === "head1") {
+    return tryOut(`git diff --name-only ${base.ref}..HEAD`)
       .split(/\r?\n/)
       .map((s) => s.trim())
       .filter(Boolean);
-    return files;
-  } catch {
-    return [];
   }
+
+  // Unknown diff base (detached / shallow / first commit). Return null to signal uncertainty.
+  return null;
+}
+
+function classify(files) {
+  const DOC_ONLY =
+    files.length > 0 && files.every((f) => /\.(md|txt)$/i.test(f));
+
+  const ENGINE_RISK = files.some((f) => {
+    // Core engine + contracts + registries + schema + CI enforcement = engine-risk.
+    return (
+      f.startsWith("engine/") ||
+      f.startsWith("registries/") ||
+      f.startsWith("ci/") || // IMPORTANT: include guards/scripts/manifests, not just ci/schemas
+      f.startsWith("ci/schemas/") ||
+      f.includes("ENGINE_CONTRACT") ||
+      f === "schema.sql" ||
+      f.startsWith("scripts/") // scripts can change guardrails + release plumbing
+    );
+  });
+
+  const APP_RISK = files.some((f) => {
+    // API/server/DB are operational-risk (not engine logic, but still important).
+    return (
+      f.startsWith("src/") ||
+      f.startsWith("db/") ||
+      f.startsWith("migrations/") ||
+      f.startsWith("api/") ||
+      f.includes("server") ||
+      f.includes("apply-schema")
+    );
+  });
+
+  return { DOC_ONLY, ENGINE_RISK, APP_RISK };
 }
 
 const files = listPushedFiles();
 
-const DOC_ONLY = files.length > 0 && files.every((f) => /\.(md|txt)$/i.test(f));
-const ENGINE_TOUCH = files.some((f) =>
-  f.startsWith("engine/") ||
-  f.startsWith("cli/") ||
-  f.includes("ENGINE_CONTRACT") ||
-  f.includes("schema") ||
-  f.startsWith("ci/schemas/") ||
-  f.startsWith("registries/")
-);
+if (files === null) {
+  // We cannot prove what is being pushed. Do not silently skip.
+  // Conservative but still fast: guards + unit. (Avoid full CI punishment.)
+  console.log("[pre-push] cannot determine pushed files -> dev:fast (conservative)");
+  sh("npm run dev:fast");
+  process.exit(0);
+}
 
 console.log(`[pre-push] pushed files: ${files.length}`);
 
 if (!files.length) {
-  // Ticket-029: if we can't detect pushed files, do NOT punish with full lint.
-  console.log("[pre-push] no pushed files detected -> exit 0");
+  // We *could* compute the diff but it is empty. Likely unusual range; stay cheap but not zero.
+  console.log("[pre-push] pushed file list empty -> lint:fast");
+  sh("npm run lint:fast");
   process.exit(0);
 }
+
+const { DOC_ONLY, ENGINE_RISK, APP_RISK } = classify(files);
 
 if (DOC_ONLY) {
   console.log("[pre-push] docs-only -> lint:fast");
@@ -86,11 +138,17 @@ if (DOC_ONLY) {
   process.exit(0);
 }
 
-if (!ENGINE_TOUCH) {
-  console.log("[pre-push] non-engine change -> dev:fast");
+if (ENGINE_RISK) {
+  console.log("[pre-push] engine-risk change -> ci");
+  sh("npm run ci");
+  process.exit(0);
+}
+
+if (APP_RISK) {
+  console.log("[pre-push] app-risk change -> dev:fast");
   sh("npm run dev:fast");
   process.exit(0);
 }
 
-console.log("[pre-push] engine-affecting change -> full lint");
-sh("npm run lint");
+console.log("[pre-push] non-risk change -> lint:fast");
+sh("npm run lint:fast");

@@ -1,5 +1,26 @@
 {
   "registry_id": "movement",
   "version": "1.0.0",
-  "entries": {}
+  "entries": {
+    "horizontal_push": {
+      "movement_id": "horizontal_push",
+      "equipment_vocab": ["bodyweight", "barbell", "dumbbell", "machine", "bench", "rack", "kettlebell", "cable", "plate"],
+      "joint_stress_tags_vocab": ["neutral", "shoulder", "elbow", "wrist", "cervical_low", "cervical_medium", "cervical_high", "thoracic_low", "thoracic_medium", "thoracic_high", "lumbar_low", "lumbar_medium", "lumbar_high", "sacroiliac_low", "sacroiliac_medium", "sacroiliac_high"]
+    },
+    "vertical_push": {
+      "movement_id": "vertical_push",
+      "equipment_vocab": ["bodyweight", "barbell", "dumbbell", "machine", "kettlebell", "bench", "rack", "cable", "plate"],
+      "joint_stress_tags_vocab": ["neutral", "shoulder", "elbow", "wrist", "cervical_low", "cervical_medium", "cervical_high", "thoracic_low", "thoracic_medium", "thoracic_high", "lumbar_low", "lumbar_medium", "lumbar_high", "sacroiliac_low", "sacroiliac_medium", "sacroiliac_high"]
+    },
+    "squat": {
+      "movement_id": "squat",
+      "equipment_vocab": ["bodyweight", "barbell", "dumbbell", "machine", "rack", "kettlebell", "bench", "trap_bar", "plate"],
+      "joint_stress_tags_vocab": ["neutral", "hip", "knee", "ankle", "cervical_low", "cervical_medium", "cervical_high", "thoracic_low", "thoracic_medium", "thoracic_high", "lumbar_low", "lumbar_medium", "lumbar_high", "sacroiliac_low", "sacroiliac_medium", "sacroiliac_high"]
+    },
+    "hinge": {
+      "movement_id": "hinge",
+      "equipment_vocab": ["bodyweight", "barbell", "dumbbell", "kettlebell", "machine", "bench", "rack", "trap_bar", "cable", "plate"],
+      "joint_stress_tags_vocab": ["neutral", "hip", "knee", "cervical_low", "cervical_medium", "cervical_high", "thoracic_low", "thoracic_medium", "thoracic_high", "lumbar_low", "lumbar_medium", "lumbar_high", "sacroiliac_low", "sacroiliac_medium", "sacroiliac_high"]
+    }
+  }
 }

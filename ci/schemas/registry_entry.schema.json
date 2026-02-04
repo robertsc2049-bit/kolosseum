@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kolosseum.local/schemas/registry_entry.schema.json",
+  "title": "Kolosseum Exercise Registry Entry (v1, map-backed)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "exercise_id",
+    "pattern",
+    "stimulus_intent",
+    "rom",
+    "stability",
+    "equipment",
+    "equipment_tier"
+  ],
+  "properties": {
+    "exercise_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z0-9][a-z0-9_\\-\\.]*$"
+    },
+    "pattern": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9_\\-\\.]+$"
+    },
+    "stimulus_intent": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9_\\-\\.]+$"
+    },
+    "rom": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9_\\-\\.]+$"
+    },
+    "stability": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9_\\-\\.]+$"
+    },
+    "equipment": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^[a-z0-9_\\-\\.]+$"
+      },
+      "uniqueItems": true
+    },
+    "equipment_tier": {
+      "type": "string",
+      "enum": ["TIER_1", "TIER_2", "TIER_3", "TIER_4"]
+    },
+    "joint_stress_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^[a-z0-9_\\-\\.]+$"
+      },
+      "uniqueItems": true
+    }
+  }
+}

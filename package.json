@@ -17,7 +17,7 @@
     "test:unit": "npm run test:ci",
     "guard:constraints": "node ci/guards/no_legacy_constraints.mjs",
     "guard:version": "node scripts/version-gate.mjs",
-    "lint:fast": "node ci/guards/node_version_guard.mjs && node ci/guards/tag_version_guard.mjs && node ci/guards/repo_contract.mjs && node ci/guards/no_bom_guard.mjs && node ci/guards/no_crlf_guard.mjs && node ci/guards/no_mojibake_guard.mjs && node ci/guards/lockfile_note_guard.mjs && node ci/guards/ban_engine_status_guard.mjs && node ci/guards/engine_contract_guard.mjs && node ci/guards/golden_manifest_guard.mjs && node ci/guards/golden_outputs_guard.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs",
+    "lint:fast": "node ci/guards/node_version_guard.mjs && node ci/guards/tag_version_guard.mjs && node ci/guards/repo_contract.mjs && node ci/guards/no_bom_guard.mjs && node ci/guards/no_crlf_guard.mjs && node ci/guards/no_mojibake_guard.mjs && node ci/guards/lockfile_note_guard.mjs && node ci/guards/ban_engine_status_guard.mjs && node ci/guards/engine_contract_guard.mjs && node ci/guards/golden_manifest_guard.mjs && node ci/guards/golden_outputs_guard.mjs && node ci/scripts/spine_guard.mjs && node ci/scripts/sha256_guard.mjs && node ci/scripts/schema_guard.mjs && node ci/guards/registry_law_guard.mjs",
     "lint": "npm run lint:fast && npm run test:ci",
     "ci": "npm run guard:constraints && npm run guard:version && npm run lint && npm run test && npm run e2e:golden",
     "dev:fast": "npm run lint:fast && npm run test:unit",
@@ -54,7 +54,7 @@
     "golden:outputs": "node ci/scripts/write_golden_outputs.mjs",
     "golden:update": "node tools/run_golden_update.mjs",
     "golden:update:safe": "node ci/scripts/golden_update_safe.mjs",
-    "test:ci": "node test/ci_ban_engine_status_guard.test.mjs && node test/ci_stable_stringify.test.mjs && node test/cli_runner_rendered_text.test.mjs && node test/phase4_rich_plan_minimum.test.mjs && node test/registry_exercise_entries.test.mjs && node test/phase6_requires_planned_items.test.mjs",
+    "test:ci": "node test/ci_ban_engine_status_guard.test.mjs && node test/ci_stable_stringify.test.mjs && node test/cli_runner_rendered_text.test.mjs && node test/phase4_rich_plan_minimum.test.mjs && node test/registry_exercise_entries.test.mjs && node test/phase6_requires_planned_items.test.mjs && node test/ci_registry_law_guard_fk_negative.test.mjs && node test/ci_registry_law_guard_passes.test.mjs && node test/ci_registry_law_guard_stimulus_fk_negative.test.mjs && node test/ci_registry_law_guard_equipment_fk_negative.test.mjs && node test/ci_registry_law_guard_joint_stress_fk_negative.test.mjs && node test/ci_registry_law_guard_equipment_scoped_negative.test.mjs && node test/ci_registry_law_guard_joint_tags_missing_negative.test.mjs && node test/ci_registry_law_guard_joint_tags_neutral_positive.test.mjs && node test/phase1_plate_only_collapse_negative.test.mjs",
     "engine:contract": "node -e \"console.log(require('fs').readFileSync('ENGINE_CONTRACT.md','utf8'))\"",
     "engine:contract:head": "node -e \"const fs=require('fs'); const s=fs.readFileSync('ENGINE_CONTRACT.md','utf8').split(/\\r?\\n/).slice(0,40).join('\\n'); console.log(s);\""
   },
