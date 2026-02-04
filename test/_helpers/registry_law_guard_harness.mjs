@@ -73,6 +73,12 @@ export function cleanupTempRepoRoot(tempRootAbs) {
   }
 }
 
+/**
+ * Back-compat alias: older tests import `rmrf`.
+ * Keep until we migrate all call sites.
+ */
+export const rmrf = cleanupTempRepoRoot;
+
 export function runRegistryLawGuard(tempRootAbs) {
   return spawnSync(process.execPath, [p("ci/guards/registry_law_guard.mjs")], {
     cwd: tempRootAbs,
