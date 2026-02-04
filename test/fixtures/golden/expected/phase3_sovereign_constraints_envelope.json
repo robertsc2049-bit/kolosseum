@@ -31,7 +31,8 @@
       "loaded_registries": [
         "activity",
         "movement",
-        "exercise"
+        "exercise",
+        "program"
       ],
       "notes": [
         "PHASE_3: registries loaded",

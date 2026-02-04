@@ -3,6 +3,7 @@
   "order": [
     "activity",
     "movement",
-    "exercise"
+    "exercise",
+    "program"
   ]
 }
