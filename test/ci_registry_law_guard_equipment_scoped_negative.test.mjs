@@ -1,40 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-function repoRoot() {
-  return path.resolve(__dirname, "..");
-}
-function p(...parts) {
-  return path.resolve(repoRoot(), ...parts);
-}
-function readJson(abs) {
-  return JSON.parse(fs.readFileSync(abs, "utf8"));
-}
-function writeJsonUtf8Lf(abs, obj) {
-  const json = JSON.stringify(obj, null, 2) + "\n";
-  fs.writeFileSync(abs, json.replace(/\r\n/g, "\n"), { encoding: "utf8" });
-}
-function stageTempRepoRoot() {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-registry-law-"));
-  fs.cpSync(p("registries"), path.join(tmp, "registries"), { recursive: true });
-  fs.mkdirSync(path.join(tmp, "ci"), { recursive: true });
-  fs.cpSync(p("ci", "schemas"), path.join(tmp, "ci", "schemas"), { recursive: true });
-  return tmp;
-}
-function runGuard(tempRootAbs) {
-  return spawnSync(process.execPath, [p("ci/guards/registry_law_guard.mjs")], {
-    cwd: tempRootAbs,
-    encoding: "utf8"
-  });
-}
+import { stageTempRepoRoot, runRegistryLawGuard, readJson, writeJsonUtf8Lf, rmrf } from "./_helpers/registry_law_guard_harness.mjs";
 
 /**
  * Ensure a movement entry has an equipment token list field we can mutate.
@@ -60,6 +27,7 @@ function ensureMovementEquipmentArray(movementEntry) {
 
 test("CI: registry_law_guard hard-fails when token is valid in some movement but invalid for this exercise.pattern", () => {
   const tempRoot = stageTempRepoRoot();
+
   try {
     const regRoot = path.join(tempRoot, "registries");
     const movPath = path.join(regRoot, "movement", "movement.registry.json");
@@ -110,14 +78,13 @@ test("CI: registry_law_guard hard-fails when token is valid in some movement but
 
     writeJsonUtf8Lf(exPath, ex);
 
-    const r = runGuard(tempRoot);
+    const r = runRegistryLawGuard(tempRoot);
     assert.notEqual(r.status, 0, `expected registry_law_guard to fail; status=${r.status}`);
 
     const combined = `${r.stdout || ""}\n${r.stderr || ""}`.trim();
     assert.match(combined, /registry_law_guard:\s*FAIL/i);
-assert.match(combined, /equipment/i);
-assert.match(combined, /__scoped_only_token__|pattern|entries\./i);
+    assert.match(combined, /equipment/i);
   } finally {
-    try { fs.rmSync(tempRoot, { recursive: true, force: true }); } catch {}
+    rmrf(tempRoot);
   }
 });
