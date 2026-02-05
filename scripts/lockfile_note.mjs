@@ -3,99 +3,117 @@ import path from "node:path";
 import process from "node:process";
 import { execSync } from "node:child_process";
 
-function sh(cmd) {
-  return execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trimEnd();
+function sh(cmd, inherit = true) {
+  execSync(cmd, { stdio: inherit ? "inherit" : ["ignore", "pipe", "inherit"] });
 }
-function die(msg) {
-  console.error(msg);
-  process.exit(1);
-}
-
-function repoRootOrDie() {
-  try {
-    return sh("git rev-parse --show-toplevel");
-  } catch (e) {
-    die("lockfile:note: not in a git repo (git rev-parse failed).");
-  }
+function out(cmd) {
+  return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] }).toString("utf8");
 }
 
-function isUnstagedOrUntrackedClean() {
-  // Porcelain: lines starting with "??" are untracked.
-  // Lines where first column is space and second is not space are unstaged changes (e.g. " M file").
-  const out = sh("git status --porcelain");
-  if (!out) return true;
-
-  const lines = out.split(/\r?\n/).filter(Boolean);
-
-  // allow staged changes; disallow *unstaged* changes or untracked files
-  for (const l of lines) {
-    if (l.startsWith("?? ")) return false;          // untracked
-    const x = l[0];
-    const y = l[1];
-    if (x === " " && y !== " ") return false;       // unstaged
-  }
-  return true;
-}
-
-function isFileStaged(rel) {
-  const out = sh("git diff --cached --name-only");
-  if (!out) return false;
-  const files = out.split(/\r?\n/).filter(Boolean);
-  return files.includes(rel);
-}
-
-function normalizeLf(s) {
+function normalizeToLf(s) {
   return s.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 }
 
-function writeUtf8NoBomLf(absPath, text) {
+function todayStampUtc() {
+  // deterministic across machines/timezones
+  const d = new Date();
+  const yyyy = String(d.getUTCFullYear());
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function parseArgs(argv) {
+  const args = {
+    stagedOnly: false,
+    message: "",
+    quiet: false,
+  };
+
+  for (let i = 2; i < argv.length; i++) {
+    const a = argv[i];
+
+    if (a === "--staged" || a === "--staged-only") {
+      args.stagedOnly = true;
+      continue;
+    }
+    if (a === "--quiet" || a === "-q") {
+      args.quiet = true;
+      continue;
+    }
+    if (a === "--message" || a === "-m") {
+      const v = argv[i + 1];
+      if (!v) throw new Error("lockfile_note: -m/--message requires a value");
+      args.message = v;
+      i++;
+      continue;
+    }
+
+    throw new Error(`lockfile_note: unknown arg: ${a}`);
+  }
+
+  return args;
+}
+
+function ensureLfUtf8NoBom(absPath, text) {
   const dir = path.dirname(absPath);
-  fs.mkdirSync(dir, { recursive: true });
-  const lf = normalizeLf(text);
-  fs.writeFileSync(absPath, lf, { encoding: "utf8" }); // Node utf8 has no BOM by default
+  if (dir && !fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+  const lf = normalizeToLf(text);
+  fs.writeFileSync(absPath, lf, { encoding: "utf8" });
+
   const probe = fs.readFileSync(absPath, "utf8");
-  if (probe.includes("\r")) die(`lockfile:note: CRLF detected after write (must be LF-only): ${absPath}`);
+  if (probe.includes("\r")) {
+    throw new Error(`lockfile_note: CR detected after write (expected LF-only): ${absPath}`);
+  }
+}
+
+function isLockfileStaged() {
+  const staged = out("git diff --name-only --cached")
+    .split(/\r?\n/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  return staged.includes("package-lock.json");
+}
+
+function getMessage(args) {
+  const env = (process.env.KOLOSSEUM_LOCKFILE_NOTE || "").trim();
+  if (args.message.trim().length > 0) return args.message.trim();
+  if (env.length > 0) return env;
+
+  // Default is explicit but safe. You should override for anything meaningful.
+  return "package-lock.json updated (auto-note). Set KOLOSSEUM_LOCKFILE_NOTE or pass -m to provide a real reason.";
 }
 
 function main() {
-  const root = repoRootOrDie();
-  process.chdir(root);
+  const args = parseArgs(process.argv);
 
-  const msg = process.argv.slice(2).join(" ").trim();
-  if (!msg) {
-    die("lockfile:note: missing message. Usage:\n  npm run lockfile:note -- \"why the lockfile changed\"");
+  if (args.stagedOnly && !isLockfileStaged()) {
+    if (!args.quiet) console.log("[lockfile_note] package-lock.json not staged -> no-op");
+    process.exit(0);
   }
 
-  if (!isUnstagedOrUntrackedClean()) {
-    die("lockfile:note: refused â€” working tree has UNSTAGED changes or untracked files. Stage or revert them first.");
-  }
-
-  if (!isFileStaged("package-lock.json")) {
-    die("lockfile:note: refused â€” package-lock.json is not staged. Stage it first, then run lockfile:note.");
-  }
-
+  const repoRoot = process.cwd();
   const noteRel = "LOCKFILE_CHANGE_NOTE.md";
-  const noteAbs = path.join(root, noteRel);
+  const noteAbs = path.resolve(repoRoot, noteRel);
 
-  let existing = "";
-  if (fs.existsSync(noteAbs)) existing = fs.readFileSync(noteAbs, "utf8");
+  const line = `${todayStampUtc()}: ${getMessage(args)}\n`;
 
-  const today = new Date().toISOString().slice(0, 10);
-  const line = `${today}: ${msg}\n`;
+  const existing = fs.existsSync(noteAbs) ? fs.readFileSync(noteAbs, "utf8") : "";
+  const next = normalizeToLf(existing) + normalizeToLf(line);
 
-  // append, normalize to LF, enforce UTF-8 no BOM (node default) + LF-only
-  const combined = existing ? (normalizeLf(existing).replace(/\n?$/, "\n") + line) : line;
-  writeUtf8NoBomLf(noteAbs, combined);
+  ensureLfUtf8NoBom(noteAbs, next);
 
-  // stage the note automatically
-  sh(`git add "${noteRel}"`);
+  // Stage it
+  sh(`git add -- "${noteRel}"`, true);
 
-  // re-check cleanliness (still no unstaged/untracked)
-  if (!isUnstagedOrUntrackedClean()) {
-    die("lockfile:note: wrote/staged note, but working tree is now dirty (unstaged/untracked). Fix that before committing.");
-  }
-
-  console.log("OK: wrote + staged LOCKFILE_CHANGE_NOTE.md (LF-only).");
+  if (!args.quiet) console.log(`[lockfile_note] ensured + staged ${noteRel}`);
 }
 
-main();
+try {
+  main();
+} catch (e) {
+  console.error(`❌ ${String(e && e.message ? e.message : e)}`);
+  process.exit(1);
+}

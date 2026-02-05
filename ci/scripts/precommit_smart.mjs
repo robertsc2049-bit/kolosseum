@@ -1,6 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
-import process from "node:process";
 import { execSync } from "node:child_process";
 
 function sh(cmd, inherit = true) {
@@ -10,59 +7,14 @@ function out(cmd) {
   return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] }).toString("utf8");
 }
 
-function normalizeToLf(s) {
-  return s.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+function stagedFiles() {
+  return out("git diff --name-only --cached")
+    .split(/\r?\n/)
+    .map(s => s.trim())
+    .filter(Boolean);
 }
 
-function writeUtf8NoBomLf(absPath, text) {
-  const dir = path.dirname(absPath);
-  if (dir && !fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-  const lf = normalizeToLf(text);
-  fs.writeFileSync(absPath, lf, { encoding: "utf8" });
-
-  // Hard assert: no CR remains
-  const probe = fs.readFileSync(absPath, "utf8");
-  if (probe.includes("\r")) {
-    throw new Error(`precommit_smart: CR detected after write (expected LF-only): ${absPath}`);
-  }
-}
-
-function ensureLockfileNoteIfNeeded(stagedFiles) {
-  const lockfile = "package-lock.json";
-  if (!stagedFiles.includes(lockfile)) return;
-
-  const noteRel = "LOCKFILE_CHANGE_NOTE.md";
-  const noteAbs = path.resolve(process.cwd(), noteRel);
-
-  const today = new Date();
-  const yyyy = String(today.getFullYear());
-  const mm = String(today.getMonth() + 1).padStart(2, "0");
-  const dd = String(today.getDate()).padStart(2, "0");
-  const dateStamp = `${yyyy}-${mm}-${dd}`;
-
-  const msgRaw = (process.env.KOLOSSEUM_LOCKFILE_NOTE || "").trim();
-  const msg =
-    msgRaw.length > 0
-      ? msgRaw
-      : "package-lock.json updated (auto-note). If this is non-trivial, set KOLOSSEUM_LOCKFILE_NOTE to a better message.";
-
-  const line = `${dateStamp}: ${msg}\n`;
-
-  const existing = fs.existsSync(noteAbs) ? fs.readFileSync(noteAbs, "utf8") : "";
-  const next = normalizeToLf(existing) + normalizeToLf(line);
-
-  writeUtf8NoBomLf(noteAbs, next);
-
-  // Stage it automatically
-  sh(`git add -- "${noteRel}"`);
-  console.log(`[pre-commit] lockfile staged -> ensured + staged ${noteRel}`);
-}
-
-const files = out("git diff --name-only --cached")
-  .split(/\r?\n/)
-  .map((s) => s.trim())
-  .filter(Boolean);
+let files = stagedFiles();
 
 console.log(`[pre-commit] staged files: ${files.length}`);
 
@@ -71,12 +23,20 @@ if (files.length === 0) {
   process.exit(0);
 }
 
-// If the lockfile is staged, ensure the note exists (LF-only) and is staged too.
-ensureLockfileNoteIfNeeded(files);
+// Single source of truth: if package-lock.json is staged, this writes LF-only note + stages it.
+sh("node scripts/lockfile_note.mjs --staged");
 
-const isDoc = (f) => f.startsWith("docs/") || /\.(md|txt)$/i.test(f);
+// Re-read staged files after the helper potentially staged the note.
+files = stagedFiles();
 
-const touchesEngine = (f) => f.startsWith("engine/") || f.startsWith("cli/") || f.startsWith("src/");
+const isDoc = (f) =>
+  f.startsWith("docs/") ||
+  /\.(md|txt)$/i.test(f);
+
+const touchesEngine = (f) =>
+  f.startsWith("engine/") ||
+  f.startsWith("cli/") ||
+  f.startsWith("src/");
 
 const touchesContracts = (f) =>
   f === "ENGINE_CONTRACT.md" ||
@@ -85,13 +45,25 @@ const touchesContracts = (f) =>
   f.startsWith("registries/") ||
   /contract|schema/i.test(f);
 
-const touchesCIInfra = (f) => f.startsWith(".github/workflows/") || f.startsWith("ci/") || f.startsWith("scripts/") || f.startsWith("tools/");
+const touchesCIInfra = (f) =>
+  f.startsWith(".github/workflows/") ||
+  f.startsWith("ci/") ||
+  f.startsWith("scripts/") ||
+  f.startsWith("tools/");
 
 const touchesBuildMeta = (f) =>
-  f === "package.json" || f === "package-lock.json" || f === "tsconfig.json" || f === ".npmrc" || f === ".nvmrc";
+  f === "package.json" ||
+  f === "package-lock.json" ||
+  f === "tsconfig.json" ||
+  f === ".npmrc" ||
+  f === ".nvmrc";
 
 const DOC_ONLY = files.every(isDoc);
-const RISK = files.some(touchesEngine) || files.some(touchesContracts) || files.some(touchesCIInfra) || files.some(touchesBuildMeta);
+const RISK =
+  files.some(touchesEngine) ||
+  files.some(touchesContracts) ||
+  files.some(touchesCIInfra) ||
+  files.some(touchesBuildMeta);
 
 if (DOC_ONLY) {
   console.log("[pre-commit] docs-only -> lint:fast");
@@ -104,8 +76,7 @@ if (DOC_ONLY) {
   sh("npm run lint");
 }
 
-// Refuse any hook side-effects that left unstaged changes behind.
-// (Staged changes are fine; this is about the hook mutating the working tree unexpectedly.)
+// Refuse hook side-effects that left unstaged changes behind.
 const unstaged = out("git diff --name-only").trim();
 if (unstaged.length > 0) {
   console.error("❌ pre-commit produced unstaged changes. Fix and re-stage before committing.");
