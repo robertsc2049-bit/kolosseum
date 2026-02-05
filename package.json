@@ -63,7 +63,8 @@
                     "test:renderer":  "node --test test/session_text_render.test.mjs",
                     "test:renderer:src":  "node scripts/run_env.mjs KOLOSSEUM_TEST_SRC=1 -- node --test test/session_text_render.test.mjs",
                     "test:unit":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 npm run test:ci",
-                    "test:watch":  "node --test --watch"
+                    "test:watch":  "node --test --watch",
+                    "green":  "npm run lint:fast \u0026\u0026 npm run test:unit \u0026\u0026 npm run build:fast \u0026\u0026 npm run dev:fast"
                 },
     "dependencies":  {
                          "ajv":  "^8.17.1",
