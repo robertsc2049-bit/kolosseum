@@ -36,7 +36,10 @@ if [ "$branch" = "main" ] && [ "${KOLOSSEUM_ALLOW_PUSH_MAIN:-}" != "1" ]; then
 fi
 
 echo "[pre-push] push changeset guard"
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/guard-push-changeset.ps1
+PS="pwsh"
+command -v pwsh >/dev/null 2>&1 || PS="powershell"
+
+"$PS" -NoProfile -ExecutionPolicy Bypass -File scripts/guard-push-changeset.ps1
 
 echo "[pre-push] smart dispatcher"
 node ci/scripts/prepush_smart.mjs
