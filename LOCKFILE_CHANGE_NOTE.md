@@ -8,4 +8,4 @@ When you stage package-lock.json, update this note with 2-6 lines:
 Example:
 Intentional: updated devDependencies for typescript tooling.
 Command: npm install
-Scope: dev-only.
+Scope: dev-only.2026-02-05: Added dev dependency 'ajv-formats' so phase4_schema_enforcement.test.mjs can load schema formats; resolves ERR_MODULE_NOT_FOUND in CI/pre-push.
