@@ -14,4 +14,4 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run green
+      - run: npm run green:ci
