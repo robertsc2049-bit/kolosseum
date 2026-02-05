@@ -68,37 +68,78 @@ function ensureLfUtf8NoBom(absPath, text) {
   }
 }
 
-function isLockfileStaged() {
-  const staged = out("git diff --name-only --cached")
+function stagedFiles() {
+  return out("git diff --name-only --cached")
     .split(/\r?\n/)
     .map((s) => s.trim())
     .filter(Boolean);
-
-  return staged.includes("package-lock.json");
 }
 
-function getMessage(args) {
-  const env = (process.env.KOLOSSEUM_LOCKFILE_NOTE || "").trim();
-  if (args.message.trim().length > 0) return args.message.trim();
-  if (env.length > 0) return env;
+function isLockfileStaged() {
+  return stagedFiles().includes("package-lock.json");
+}
 
-  // Default is explicit but safe. You should override for anything meaningful.
-  return "package-lock.json updated (auto-note). Set KOLOSSEUM_LOCKFILE_NOTE or pass -m to provide a real reason.";
+function resolveNoteMessage(args) {
+  const env = (process.env.KOLOSSEUM_LOCKFILE_NOTE || "").trim();
+  const cli = (args.message || "").trim();
+
+  if (cli.length > 0) return { message: cli, provided: "cli" };
+  if (env.length > 0) return { message: env, provided: "env" };
+
+  return { message: "", provided: "none" };
+}
+
+function failMissingMessage() {
+  // Keep this brutally actionable.
+  const example = "Added dev dependency 'ajv-formats' for schema formats in CI";
+  const cmd =
+    `KOLOSSEUM_LOCKFILE_NOTE="${example}" git commit -m "chore: update dependencies"`;
+  const psCmd =
+    `$env:KOLOSSEUM_LOCKFILE_NOTE = "${example}"; git commit -m "chore: update dependencies"; Remove-Item Env:KOLOSSEUM_LOCKFILE_NOTE`;
+
+  throw new Error(
+    [
+      "lockfile_note: package-lock.json is staged but no note message was provided.",
+      "Provide a one-line reason via env var or -m/--message, then re-run commit.",
+      "",
+      "PowerShell:",
+      `  ${psCmd}`,
+      "",
+      "POSIX shell:",
+      `  ${cmd}`,
+    ].join("\n")
+  );
 }
 
 function main() {
   const args = parseArgs(process.argv);
 
-  if (args.stagedOnly && !isLockfileStaged()) {
-    if (!args.quiet) console.log("[lockfile_note] package-lock.json not staged -> no-op");
+  const lockfileStaged = isLockfileStaged();
+
+  if (args.stagedOnly && !lockfileStaged) {
+    // no-op
     process.exit(0);
+  }
+
+  // Strict mode: if lockfile is staged, a real message is mandatory.
+  const msg = resolveNoteMessage(args);
+  if (lockfileStaged && msg.provided === "none") {
+    failMissingMessage();
+  }
+
+  // If lockfile isn't staged and we're not stagedOnly, we still allow manual note writing,
+  // but require a message (same strictness) to avoid junk notes.
+  if (!lockfileStaged && msg.provided === "none") {
+    throw new Error(
+      "lockfile_note: refusing to write note without a message. Provide -m/--message or KOLOSSEUM_LOCKFILE_NOTE."
+    );
   }
 
   const repoRoot = process.cwd();
   const noteRel = "LOCKFILE_CHANGE_NOTE.md";
   const noteAbs = path.resolve(repoRoot, noteRel);
 
-  const line = `${todayStampUtc()}: ${getMessage(args)}\n`;
+  const line = `${todayStampUtc()}: ${msg.message}\n`;
 
   const existing = fs.existsSync(noteAbs) ? fs.readFileSync(noteAbs, "utf8") : "";
   const next = normalizeToLf(existing) + normalizeToLf(line);
@@ -108,12 +149,15 @@ function main() {
   // Stage it
   sh(`git add -- "${noteRel}"`, true);
 
-  if (!args.quiet) console.log(`[lockfile_note] ensured + staged ${noteRel}`);
+  if (!args.quiet) {
+    console.log(`[lockfile_note] ensured + staged ${noteRel}`);
+  }
 }
 
 try {
   main();
 } catch (e) {
-  console.error(`❌ ${String(e && e.message ? e.message : e)}`);
+  const msg = String(e && e.message ? e.message : e);
+  console.error(`❌ ${msg}`);
   process.exit(1);
 }

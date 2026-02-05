@@ -24,7 +24,8 @@ if (files.length === 0) {
 }
 
 // Single source of truth: if package-lock.json is staged, this writes LF-only note + stages it.
-sh("node scripts/lockfile_note.mjs --staged");
+// Quiet in the hook; strict message enforcement happens inside the helper.
+sh("node scripts/lockfile_note.mjs --staged --quiet");
 
 // Re-read staged files after the helper potentially staged the note.
 files = stagedFiles();
