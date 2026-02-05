@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+# NOTE:
+# This hook is a POSIX shell script.
+# It is executed by Git under `sh` (Git Bash / WSL / macOS / Linux).
+# Do NOT try to run this file directly in PowerShell.
+
 # Always run from repo root (Git usually does, but don't rely on it).
 repo="$(git rev-parse --show-toplevel 2>/dev/null || echo "")"
 if [ -n "$repo" ]; then
@@ -9,7 +14,7 @@ fi
 
 branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"
 
-# If no upstream, treat as 'has something to push' (safer).
+# If no upstream, treat as "has something to push" (safer).
 upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")"
 
 has_outgoing="1"
@@ -36,10 +41,12 @@ if [ "$branch" = "main" ] && [ "${KOLOSSEUM_ALLOW_PUSH_MAIN:-}" != "1" ]; then
 fi
 
 echo "[pre-push] push changeset guard"
-PS="pwsh"
-command -v pwsh >/dev/null 2>&1 || PS="powershell"
 
-"$PS" -NoProfile -ExecutionPolicy Bypass -File scripts/guard-push-changeset.ps1
+if command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -ExecutionPolicy Bypass -File "scripts/guard-push-changeset.ps1"
+else
+  powershell -NoProfile -ExecutionPolicy Bypass -File "scripts/guard-push-changeset.ps1"
+fi
 
 echo "[pre-push] smart dispatcher"
 node ci/scripts/prepush_smart.mjs
