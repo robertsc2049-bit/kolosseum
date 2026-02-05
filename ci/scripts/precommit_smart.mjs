@@ -10,7 +10,7 @@ function out(cmd) {
 function stagedFiles() {
   return out("git diff --name-only --cached")
     .split(/\r?\n/)
-    .map(s => s.trim())
+    .map((s) => s.trim())
     .filter(Boolean);
 }
 
@@ -30,14 +30,10 @@ sh("node scripts/lockfile_note.mjs --staged --quiet");
 // Re-read staged files after the helper potentially staged the note.
 files = stagedFiles();
 
-const isDoc = (f) =>
-  f.startsWith("docs/") ||
-  /\.(md|txt)$/i.test(f);
+const isDoc = (f) => f.startsWith("docs/") || /\.(md|txt)$/i.test(f);
 
 const touchesEngine = (f) =>
-  f.startsWith("engine/") ||
-  f.startsWith("cli/") ||
-  f.startsWith("src/");
+  f.startsWith("engine/") || f.startsWith("cli/") || f.startsWith("src/");
 
 const touchesContracts = (f) =>
   f === "ENGINE_CONTRACT.md" ||
@@ -73,14 +69,14 @@ if (DOC_ONLY) {
   console.log("[pre-commit] low-risk change -> lint:fast");
   sh("npm run lint:fast");
 } else {
-  console.log("[pre-commit] risk surface touched -> full lint");
-  sh("npm run lint");
+  console.log("[pre-commit] risk surface touched -> green");
+  sh("npm run green");
 }
 
 // Refuse hook side-effects that left unstaged changes behind.
 const unstaged = out("git diff --name-only").trim();
 if (unstaged.length > 0) {
-  console.error("❌ pre-commit produced unstaged changes. Fix and re-stage before committing.");
+  console.error("ERROR: pre-commit produced unstaged changes. Fix and re-stage before committing.");
   console.error(unstaged);
   process.exit(1);
 }
