@@ -1,6 +1,11 @@
-![Engine Status](https://github.com/robertsc2049-bit/kolusseum/actions/workflows/engine-status.yml/badge.svg)
-
 # Kolosseum
 
+## How to validate changes
 
+Run the full local green gate:
 
+- npm run green
+
+CI runs the CI-parity green gate:
+
+- npm run green:ci
