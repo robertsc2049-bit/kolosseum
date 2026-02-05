@@ -1,87 +1,67 @@
-// engine/src/render/session_text.ts
-export type Intensity =
-  | { type: "percent_1rm"; value: number }
-  | { type: "rpe"; value: number }
-  | { type: "load"; value: number };
-
-export type Phase6SessionExercise = {
-  exercise_id: string;
-  source: "program";
-  block_id?: string;
-  item_id?: string;
-  sets?: number;
-  reps?: number;
-  intensity?: Intensity;
-  rest_seconds?: number;
-  substituted_from?: string;
-};
-
-export type Phase6SessionOutput = {
-  session_id: string;
-  status: "ready";
-  exercises: Phase6SessionExercise[];
-};
-
+/**
+ * engine/src/render/session_text.ts
+ *
+ * Deterministic, stable session text rendering for CLI/debug output.
+ *
+ * Contract expectations (tests pin this):
+ * - Use an em dash between exercise_id and sets/reps: \u2014
+ * - Percent intensity renders as "@ 75%" (NO "1RM" suffix)
+ * - Rest renders as "rest 180s" (NO parentheses)
+ */
 export type RenderedSessionText = {
   title: string;
   lines: string[];
   warnings: string[];
 };
 
-function fmtIntensity(i?: Intensity): string | undefined {
-  if (!i) return undefined;
-  if (i.type === "percent_1rm") return `${i.value}%1RM`;
-  if (i.type === "rpe") return `RPE ${i.value}`;
-  if (i.type === "load") return `${i.value}kg`;
-  return undefined;
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
 }
 
-function hasNumber(x: unknown): x is number {
-  return typeof x === "number" && Number.isFinite(x);
+function formatIntensity(i: unknown): string | null {
+  if (!isRecord(i)) return null;
+
+  const t = i.type;
+  const v = i.value;
+
+  if (t === "percent_1rm" && typeof v === "number") return `@ ${v}%`;
+  if (t === "rpe" && (typeof v === "number" || typeof v === "string")) return `@ RPE ${v}`;
+  if (t === "load" && (typeof v === "number" || typeof v === "string")) return `@ ${v}`;
+
+  return null;
 }
 
-export function renderSessionText(session: Phase6SessionOutput): RenderedSessionText {
-  const title = `Session ${session.session_id}`;
-  const lines: string[] = [];
+export function renderSessionText(session: unknown): RenderedSessionText {
   const warnings: string[] = [];
 
-  const exs = Array.isArray(session.exercises) ? session.exercises : [];
-
-  if (exs.length === 0) {
-    lines.push("(no exercises)");
-    return { title, lines, warnings };
+  if (!isRecord(session)) {
+    return { title: "Session", lines: [], warnings: ["session_not_object"] };
   }
 
-  for (let idx = 0; idx < exs.length; idx++) {
-    const ex = exs[idx];
+  const sid = typeof session.session_id === "string" ? session.session_id : "UNKNOWN";
+  const title = `Session ${sid}`;
+
+  const exs = Array.isArray(session.exercises) ? session.exercises : [];
+  const lines = exs.map((ex, idx) => {
     const n = idx + 1;
 
-    const parts: string[] = [`${n}) ${String(ex.exercise_id)}`];
+    if (!isRecord(ex)) return `${n}) [invalid_exercise]`;
 
-    const sets = ex.sets;
-    const reps = ex.reps;
-    const intensity = fmtIntensity(ex.intensity);
-    const rest = ex.rest_seconds;
+    const id = typeof ex.exercise_id === "string" ? ex.exercise_id : "UNKNOWN_EXERCISE";
 
-    const prescriptionBits: string[] = [];
-    if (hasNumber(sets) && hasNumber(reps)) prescriptionBits.push(`${sets}x${reps}`);
-    else if (hasNumber(sets) || hasNumber(reps)) warnings.push(`partial prescription for ${ex.exercise_id}`);
+    // IMPORTANT: preserve legacy string exactly for tests (em dash)
+    const setsReps =
+      typeof ex.sets === "number" && typeof ex.reps === "number" ? ` \u2014 ${ex.sets}x${ex.reps}` : "";
 
-    if (intensity) prescriptionBits.push(`@ ${intensity}`);
-    if (hasNumber(rest)) prescriptionBits.push(`(rest ${rest}s)`);
+    const intensity = formatIntensity(ex.intensity);
+    const intensityTxt = intensity ? ` ${intensity}` : "";
 
-    if (prescriptionBits.length > 0) {
-      parts.push("—", prescriptionBits.join(" "));
-    } else {
-      warnings.push(`missing prescription for ${ex.exercise_id}`);
-    }
+    const restTxt = typeof ex.rest_seconds === "number" ? ` rest ${ex.rest_seconds}s` : "";
 
-    if (typeof ex.substituted_from === "string" && ex.substituted_from.length > 0) {
-      parts.push(`[sub for ${ex.substituted_from}]`);
-    }
+    const subTxt = typeof ex.substituted_from === "string" ? ` (sub for ${ex.substituted_from})` : "";
 
-    lines.push(parts.join(" "));
-  }
+    return `${n}) ${id}${setsReps}${intensityTxt}${restTxt}${subTxt}`;
+  });
 
   return { title, lines, warnings };
 }
