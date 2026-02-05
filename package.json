@@ -9,7 +9,7 @@
                 },
     "scripts":  {
                     "build":  "tsc -p tsconfig.json",
-                    "build:fast":  "tsc -p tsconfig.json",
+                    "build:fast":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 tsc -p tsconfig.json",
                     "build:watch":  "tsc -p tsconfig.json -w",
                     "ci":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 npm run guard:constraints \u0026\u0026 npm run guard:version \u0026\u0026 npm run lint \u0026\u0026 npm run test \u0026\u0026 npm run e2e:golden",
                     "ci:parity":  "npm run ci",
@@ -20,7 +20,7 @@
                     "dev:next:full":  "node scripts/ps-runner.mjs --file scripts/dev-next.ps1 -- -Full",
                     "dev:panic":  "npm run repo:clean:hard \u0026\u0026 npm ci \u0026\u0026 npm run dev:fast",
                     "dev:prepush":  "npm run lint",
-                    "dev:prepush:smart":  "node ci/scripts/prepush_smart.mjs",
+                    "dev:prepush:smart":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 node ci/scripts/prepush_smart.mjs",
                     "dev:status":  "node scripts/ps-runner.mjs --file scripts/dev-status.ps1",
                     "dev:status:full":  "node scripts/ps-runner.mjs --file scripts/dev-status.ps1 -- -Full",
                     "diff:contracts":  "node ci/scripts/diff_filtered.mjs \"ENGINE_CONTRACT\\.md|ci/schemas/|schema\\.sql|ENGINE_CONTRACT\"",
@@ -57,12 +57,12 @@
                     "smoke:fresh":  "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1 -- -Mode fresh",
                     "smoke:idem":  "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1 -- -Mode idempotent",
                     "start":  "node dist/src/server.js",
-                    "test":  "npm run build \u0026\u0026 node --test --test-concurrency=1",
+                    "test":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 npm run build \u0026\u0026 node --test --test-concurrency=1",
                     "test:ci":  "node test/ci_ban_engine_status_guard.test.mjs \u0026\u0026 node test/ci_stable_stringify.test.mjs \u0026\u0026 node test/cli_runner_rendered_text.test.mjs \u0026\u0026 node test/phase4_rich_plan_minimum.test.mjs \u0026\u0026 node test/registry_exercise_entries.test.mjs \u0026\u0026 node test/phase6_requires_planned_items.test.mjs \u0026\u0026 node test/ci_registry_law_guard_fk_negative.test.mjs \u0026\u0026 node test/ci_registry_law_guard_passes.test.mjs \u0026\u0026 node test/ci_registry_law_guard_stimulus_fk_negative.test.mjs \u0026\u0026 node test/ci_registry_law_guard_equipment_fk_negative.test.mjs \u0026\u0026 node test/ci_registry_law_guard_joint_stress_fk_negative.test.mjs \u0026\u0026 node test/ci_registry_law_guard_equipment_scoped_negative.test.mjs \u0026\u0026 node test/ci_registry_law_guard_joint_tags_missing_negative.test.mjs \u0026\u0026 node test/ci_registry_law_guard_joint_tags_neutral_positive.test.mjs \u0026\u0026 node test/phase1_plate_only_collapse_negative.test.mjs",
                     "test:one":  "node --test",
                     "test:renderer":  "node --test test/session_text_render.test.mjs",
                     "test:renderer:src":  "node scripts/run_env.mjs KOLOSSEUM_TEST_SRC=1 -- node --test test/session_text_render.test.mjs",
-                    "test:unit":  "npm run test:ci",
+                    "test:unit":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 npm run test:ci",
                     "test:watch":  "node --test --watch"
                 },
     "dependencies":  {
