@@ -1,10 +1,44 @@
 #!/bin/sh
 set -e
 
+# Always run from repo root (Git usually does, but don't rely on it).
+repo="$(git rev-parse --show-toplevel 2>/dev/null || echo "")"
+if [ -n "$repo" ]; then
+  cd "$repo"
+fi
+
+branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"
+
+# If no upstream, treat as 'has something to push' (safer).
+upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")"
+
+has_outgoing="1"
+if [ -n "$upstream" ]; then
+  outgoing="$(git rev-list --count "${upstream}..HEAD" 2>/dev/null || echo "0")"
+  if [ "$outgoing" = "0" ]; then
+    has_outgoing="0"
+  fi
+fi
+
+# Fast exit: nothing to push.
+if [ "$has_outgoing" = "0" ]; then
+  echo "[pre-push] nothing to push -> skip checks"
+  exit 0
+fi
+
+# Block direct pushes to main unless explicitly overridden.
+if [ "$branch" = "main" ] && [ "${KOLOSSEUM_ALLOW_PUSH_MAIN:-}" != "1" ]; then
+  echo "[pre-push] BLOCKED: direct push to main is disabled."
+  echo "[pre-push] Use a ticket branch + PR."
+  echo "[pre-push] Override once:"
+  echo "[pre-push]   KOLOSSEUM_ALLOW_PUSH_MAIN=1 git push"
+  exit 1
+fi
+
 echo "[pre-push] push changeset guard"
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/guard-push-changeset.ps1
 
-echo "[pre-push] repo_contract + lint"
-node ci/guards/repo_contract.mjs
-npm run lint
+echo "[pre-push] smart dispatcher"
+node ci/scripts/prepush_smart.mjs
+
 echo "[pre-push] OK"
