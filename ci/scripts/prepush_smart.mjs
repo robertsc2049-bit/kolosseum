@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import process from "node:process";
 
 function sh(cmd, inherit = true) {
   execSync(cmd, { stdio: inherit ? "inherit" : ["ignore", "pipe", "ignore"] });
@@ -16,6 +17,88 @@ function tryOut(cmd) {
   } catch {
     return "";
   }
+}
+
+function readStdinUtf8() {
+  // pre-push provides lines:
+  // <local ref> <local sha1> <remote ref> <remote sha1>
+  // When run manually, stdin may be empty.
+  try {
+    return execSync("node -e \"process.stdin.setEncoding('utf8'); let d=''; process.stdin.on('data', c => d+=c); process.stdin.on('end', ()=>process.stdout.write(d));\"",
+      { stdio: ["pipe", "pipe", "ignore"] }
+    ).toString("utf8");
+  } catch {
+    // Fallback: try direct read (works when stdin is already buffered)
+    try {
+      return execSync("node -e \"process.stdin.setEncoding('utf8'); let d=''; process.stdin.on('data', c => d+=c); process.stdin.on('end', ()=>process.stdout.write(d));\"",
+        { input: "", stdio: ["pipe", "pipe", "ignore"] }
+      ).toString("utf8");
+    } catch {
+      return "";
+    }
+  }
+}
+
+function parsePushTargetsFromStdin() {
+  // Prefer real stdin if available; but Node can't reliably read stdin in some hook wrappers.
+  // So: use process.stdin if it's already ended; otherwise use a small helper.
+  let text = "";
+  try {
+    // If someone runs this directly, stdin is empty -> fine.
+    // Note: synchronous read of process.stdin is not a thing; rely on best-effort helper.
+    text = readStdinUtf8();
+  } catch {
+    text = "";
+  }
+
+  const lines = String(text)
+    .split(/\r?\n/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const updates = [];
+  for (const line of lines) {
+    const parts = line.split(/\s+/);
+    if (parts.length < 4) continue;
+    const [localRef, localSha, remoteRef, remoteSha] = parts;
+    updates.push({ localRef, localSha, remoteRef, remoteSha });
+  }
+  return updates;
+}
+
+function isPushingMain() {
+  const updates = parsePushTargetsFromStdin();
+
+  // If we can't tell (no stdin), fall back to intent signals:
+  // - Many wrappers call this script with no stdin.
+  // In that case we do NOT block by guessing; we only block if upstream is main AND branch is main.
+  if (!updates.length) {
+    const branch = tryOut("git rev-parse --abbrev-ref HEAD");
+    const upstream = tryOut("git rev-parse --abbrev-ref --symbolic-full-name @{u}");
+    const isMainBranch = branch === "main";
+    const isUpstreamMain = upstream.endsWith("/main") || upstream === "origin/main";
+    return isMainBranch && isUpstreamMain;
+  }
+
+  // If any update targets refs/heads/main, it's a main push.
+  return updates.some((u) => u.remoteRef === "refs/heads/main");
+}
+
+function requireMainPushOverrideOrDie() {
+  if (!isPushingMain()) return;
+
+  const allowed = process.env.KOLOSSEUM_ALLOW_PUSH_MAIN === "1";
+  if (!allowed) {
+    console.error("[pre-push] BLOCKED: direct push to main is disabled.");
+    console.error("[pre-push] Use a ticket branch + PR.");
+    console.error("[pre-push] Override once (PowerShell):");
+    console.error('[pre-push]   $env:KOLOSSEUM_ALLOW_PUSH_MAIN="1"; git push origin main; Remove-Item Env:KOLOSSEUM_ALLOW_PUSH_MAIN');
+    process.exit(1);
+  }
+
+  console.log("[pre-push] main push override detected -> forcing green:ci");
+  sh("npm run green:ci");
+  process.exit(0);
 }
 
 function getUpstreamRef() {
@@ -109,6 +192,12 @@ function classify(files) {
 
   return { DOC_ONLY, ENGINE_RISK, APP_RISK };
 }
+
+/**
+ * 0) Hard gate: pushing main requires explicit override.
+ *    If override present, we force green:ci and exit.
+ */
+requireMainPushOverrideOrDie();
 
 const files = listPushedFiles();
 
