@@ -76,6 +76,8 @@
     "@types/node": "^22.10.5",
     "@types/pg": "^8.16.0",
     "ajv-formats": "^3.0.1",
+    "is-number": "7.0.0",
+    "is-odd": "3.0.1",
     "typescript": "^5.7.3"
   },
   "files": [
