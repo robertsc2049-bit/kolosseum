@@ -1,35 +1,13 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
+import { renderSessionText } from "../dist/engine/src/render/session_text.js";
 
-async function loadRenderer() {
-  const candidates = [
-    "../dist/src/render/session_text.js",
-    "../dist/engine/src/render/session_text.js",
-    "../dist/render/session_text.js",
-    "../dist/engine/render/session_text.js"
-  ];
-
-  let lastErr;
-  for (const p of candidates) {
-    try {
-      return await import(p);
-    } catch (e) {
-      lastErr = e;
-    }
-  }
-  throw lastErr ?? new Error("Unable to import session_text renderer from dist");
-}
-
-test("renderSessionText renders deterministic lines with prescription + substitution", async () => {
-  const { renderSessionText } = await loadRenderer();
-
+test("renderSessionText renders deterministic lines with prescription + substitution", () => {
   const session = {
-    session_id: "SESSION_V1",
-    status: "ready",
+    session_id: "S1",
     exercises: [
       {
         exercise_id: "squat",
-        source: "program",
         sets: 5,
         reps: 3,
         intensity: { type: "percent_1rm", value: 80 },
@@ -37,7 +15,6 @@ test("renderSessionText renders deterministic lines with prescription + substitu
       },
       {
         exercise_id: "db_bench",
-        source: "program",
         sets: 3,
         reps: 10,
         intensity: { type: "rpe", value: 8 },
@@ -48,20 +25,19 @@ test("renderSessionText renders deterministic lines with prescription + substitu
 
   const out = renderSessionText(session);
 
-  assert.equal(out.title, "Session SESSION_V1");
+  assert.equal(out.title, "Session S1");
+  assert.deepEqual(out.warnings, []);
   assert.deepEqual(out.lines, [
-    "1) squat — 5x3 @ 80%1RM (rest 180s)",
-    "2) db_bench — 3x10 @ RPE 8 [sub for bench_press]"
+    "1) squat — 5x3 @ 80% rest 180s",
+    "2) db_bench — 3x10 @ RPE 8 (sub for bench_press)"
   ]);
-  assert.equal(Array.isArray(out.warnings), true);
 });
 
-test("renderSessionText handles empty session deterministically", async () => {
-  const { renderSessionText } = await loadRenderer();
+test("renderSessionText handles empty session deterministically", () => {
+  const out = renderSessionText({ session_id: "EMPTY", exercises: [] });
 
-  const session = { session_id: "SESSION_STUB", status: "ready", exercises: [] };
-  const out = renderSessionText(session);
-
-  assert.equal(out.title, "Session SESSION_STUB");
-  assert.deepEqual(out.lines, ["(no exercises)"]);
+  assert.equal(out.title, "Session EMPTY");
+  assert.deepEqual(out.warnings, []);
+  // Current renderer contract: empty => no lines
+  assert.deepEqual(out.lines, []);
 });

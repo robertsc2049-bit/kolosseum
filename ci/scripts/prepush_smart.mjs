@@ -18,13 +18,8 @@ function tryOut(cmd) {
   }
 }
 
-function getCurrentBranch() {
-  // Empty on detached HEAD.
-  return tryOut("git branch --show-current");
-}
-
 function getUpstreamRef() {
-  // This is safe from Node (no PowerShell @{upstream} mangling).
+  // Safe from Node (no PowerShell @{upstream} mangling).
   return tryOut("git rev-parse --abbrev-ref --symbolic-full-name @{u}");
 }
 
@@ -80,33 +75,37 @@ function listPushedFiles() {
 }
 
 function classify(files) {
-  const DOC_ONLY =
-    files.length > 0 && files.every((f) => /\.(md|txt)$/i.test(f));
+  const isDoc = (f) => f.startsWith("docs/") || /\.(md|txt)$/i.test(f);
 
-  const ENGINE_RISK = files.some((f) => {
-    // Core engine + contracts + registries + schema + CI enforcement = engine-risk.
-    return (
-      f.startsWith("engine/") ||
-      f.startsWith("registries/") ||
-      f.startsWith("ci/") || // IMPORTANT: include guards/scripts/manifests, not just ci/schemas
-      f.startsWith("ci/schemas/") ||
-      f.includes("ENGINE_CONTRACT") ||
-      f === "schema.sql" ||
-      f.startsWith("scripts/") // scripts can change guardrails + release plumbing
-    );
-  });
+  const DOC_ONLY = files.length > 0 && files.every(isDoc);
 
-  const APP_RISK = files.some((f) => {
-    // API/server/DB are operational-risk (not engine logic, but still important).
-    return (
-      f.startsWith("src/") ||
-      f.startsWith("db/") ||
-      f.startsWith("migrations/") ||
-      f.startsWith("api/") ||
-      f.includes("server") ||
-      f.includes("apply-schema")
-    );
-  });
+  const touchesEngine = (f) =>
+    f.startsWith("engine/") ||
+    f.startsWith("registries/") ||
+    f.startsWith("cli/") ||
+    f.includes("ENGINE_CONTRACT") ||
+    f === "schema.sql" ||
+    f.startsWith("ci/") ||                // guards/scripts/manifests/schemas
+    f.startsWith("scripts/") ||           // release plumbing + guardrails
+    f.startsWith("tools/") ||             // toolchain affects determinism
+    f.startsWith(".github/workflows/") || // CI is part of the contract
+    f === "package.json" ||
+    f === "package-lock.json" ||
+    f === "tsconfig.json" ||
+    f === ".npmrc" ||
+    f === ".nvmrc";
+
+  const touchesApp = (f) =>
+    f.startsWith("src/") ||
+    f.startsWith("db/") ||
+    f.startsWith("migrations/") ||
+    f.startsWith("api/") ||
+    f.includes("server") ||
+    f.includes("apply-schema");
+
+  // If it touches engine-risk contract surface, treat as engine-risk.
+  const ENGINE_RISK = files.some(touchesEngine);
+  const APP_RISK = !ENGINE_RISK && files.some(touchesApp);
 
   return { DOC_ONLY, ENGINE_RISK, APP_RISK };
 }
@@ -115,7 +114,7 @@ const files = listPushedFiles();
 
 if (files === null) {
   // We cannot prove what is being pushed. Do not silently skip.
-  // Conservative but still fast: guards + unit. (Avoid full CI punishment.)
+  // Conservative but still fast-ish: dev:fast (guards + unit) not full CI punishment.
   console.log("[pre-push] cannot determine pushed files -> dev:fast (conservative)");
   sh("npm run dev:fast");
   process.exit(0);
@@ -124,7 +123,7 @@ if (files === null) {
 console.log(`[pre-push] pushed files: ${files.length}`);
 
 if (!files.length) {
-  // We *could* compute the diff but it is empty. Likely unusual range; stay cheap but not zero.
+  // Diff computed but empty: stay cheap but not zero.
   console.log("[pre-push] pushed file list empty -> lint:fast");
   sh("npm run lint:fast");
   process.exit(0);
@@ -139,8 +138,8 @@ if (DOC_ONLY) {
 }
 
 if (ENGINE_RISK) {
-  console.log("[pre-push] engine-risk change -> ci");
-  sh("npm run ci");
+  console.log("[pre-push] engine-risk change -> green:ci");
+  sh("npm run green:ci");
   process.exit(0);
 }
 

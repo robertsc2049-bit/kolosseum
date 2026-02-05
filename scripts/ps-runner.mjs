@@ -55,22 +55,42 @@ if (!shell) {
 
 info(`using ${shell} to run ${file}`);
 
+// Pass the script path + args via env to avoid PowerShell -Command arg binding weirdness.
+const env = { ...process.env };
+env.KOLOSSEUM_PSRUNNER_SCRIPT = abs;
+env.KOLOSSEUM_PSRUNNER_ARGS_JSON = JSON.stringify(passthrough);
+
+// Force UTF-8 output inside the PowerShell host process, then invoke the script.
+const command = [
+  "$ErrorActionPreference = 'Stop';",
+  "$ScriptPath = $env:KOLOSSEUM_PSRUNNER_SCRIPT;",
+  "if ([string]::IsNullOrWhiteSpace($ScriptPath)) { throw 'ps-runner: missing KOLOSSEUM_PSRUNNER_SCRIPT'; }",
+  "$ArgsJson = $env:KOLOSSEUM_PSRUNNER_ARGS_JSON;",
+  "if ([string]::IsNullOrWhiteSpace($ArgsJson)) { $ArgsJson = '[]'; }",
+  "$ScriptArgs = @();",
+  "try { $ScriptArgs = (ConvertFrom-Json -InputObject $ArgsJson); } catch { throw ('ps-runner: invalid KOLOSSEUM_PSRUNNER_ARGS_JSON: ' + $ArgsJson); }",
+  "if ($null -eq $ScriptArgs) { $ScriptArgs = @(); }",
+  "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false);",
+  "$OutputEncoding = [Console]::OutputEncoding;",
+  "& $ScriptPath @ScriptArgs;",
+  "exit $LASTEXITCODE;",
+].join(" ");
+
 const args = [
   "-NoLogo",
   "-NoProfile",
   "-NonInteractive",
   "-ExecutionPolicy",
   "Bypass",
-  "-File",
-  abs,
-  ...passthrough
+  "-Command",
+  command,
 ];
 
 const res = spawnSync(shell, args, {
   stdio: "inherit",
   shell: false,
-  env: process.env,
-  timeout: 10 * 60 * 1000 // 10 minutes hard stop to prevent "hours"
+  env,
+  timeout: 10 * 60 * 1000, // 10 minutes hard stop to prevent "hours"
 });
 
 if (res.error && res.error.code === "ETIMEDOUT") {

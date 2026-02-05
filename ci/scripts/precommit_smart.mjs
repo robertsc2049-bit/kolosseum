@@ -7,26 +7,33 @@ function out(cmd) {
   return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] }).toString("utf8");
 }
 
-const files = out("git diff --name-only --cached")
-  .split(/\r?\n/)
-  .map(s => s.trim())
-  .filter(Boolean);
+function stagedFiles() {
+  return out("git diff --name-only --cached")
+    .split(/\r?\n/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+let files = stagedFiles();
 
 console.log(`[pre-commit] staged files: ${files.length}`);
 
 if (files.length === 0) {
-  console.log("[pre-commit] nothing staged → OK");
+  console.log("[pre-commit] nothing staged -> OK");
   process.exit(0);
 }
 
-const isDoc = (f) =>
-  f.startsWith("docs/") ||
-  /\.(md|txt)$/i.test(f);
+// Single source of truth: if package-lock.json is staged, this writes LF-only note + stages it.
+// Quiet in the hook; strict message enforcement happens inside the helper.
+sh("node scripts/lockfile_note.mjs --staged --quiet");
+
+// Re-read staged files after the helper potentially staged the note.
+files = stagedFiles();
+
+const isDoc = (f) => f.startsWith("docs/") || /\.(md|txt)$/i.test(f);
 
 const touchesEngine = (f) =>
-  f.startsWith("engine/") ||
-  f.startsWith("cli/") ||
-  f.startsWith("src/");
+  f.startsWith("engine/") || f.startsWith("cli/") || f.startsWith("src/");
 
 const touchesContracts = (f) =>
   f === "ENGINE_CONTRACT.md" ||
@@ -56,16 +63,22 @@ const RISK =
   files.some(touchesBuildMeta);
 
 if (DOC_ONLY) {
-  console.log("[pre-commit] docs-only → lint:fast");
+  console.log("[pre-commit] docs-only -> lint:fast");
   sh("npm run lint:fast");
-  process.exit(0);
+} else if (!RISK) {
+  console.log("[pre-commit] low-risk change -> lint:fast");
+  sh("npm run lint:fast");
+} else {
+  console.log("[pre-commit] risk surface touched -> green");
+  sh("npm run green");
 }
 
-if (!RISK) {
-  console.log("[pre-commit] low-risk change → lint:fast");
-  sh("npm run lint:fast");
-  process.exit(0);
+// Refuse hook side-effects that left unstaged changes behind.
+const unstaged = out("git diff --name-only").trim();
+if (unstaged.length > 0) {
+  console.error("ERROR: pre-commit produced unstaged changes. Fix and re-stage before committing.");
+  console.error(unstaged);
+  process.exit(1);
 }
 
-console.log("[pre-commit] risk surface touched → full lint");
-sh("npm run lint");
+console.log("[pre-commit] OK");

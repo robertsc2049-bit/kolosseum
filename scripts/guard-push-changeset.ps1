@@ -1,43 +1,63 @@
 param(
-  [int]$Max = 40,
-  [string]$BaseRef = "origin/main"
+  [Parameter(Mandatory=$false)]
+  [string]$BaseRef = "origin/main",
+
+  [Parameter(Mandatory=$false)]
+  [int]$Max = 250
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# Allow bypass for intentionally large push changesets.
-# Usage:
-#   $env:ALLOW_LARGE_PUSH="1"; git push; Remove-Item Env:\ALLOW_LARGE_PUSH -ErrorAction SilentlyContinue
-$allow = $env:ALLOW_LARGE_PUSH
-if ($allow -eq "1" -or $allow -eq "true" -or $allow -eq "TRUE") {
-  Write-Host "⚠️  push changeset guard bypassed via ALLOW_LARGE_PUSH=$allow" -ForegroundColor Yellow
-  exit 0
-}
-
-function Has-Ref([string]$ref) {
-  git show-ref --verify --quiet "refs/remotes/$ref" 2>$null
-  return ($LASTEXITCODE -eq 0)
-}
-
-# Ensure base ref exists locally (pre-push should normally have up-to-date refs, but don't assume)
-if (-not (Has-Ref "origin/main")) {
-  git fetch --prune origin | Out-Null
-}
-
-# Count file changes in what you're about to push compared to base
-$files = git diff --name-only "$BaseRef..HEAD"
-$count = @($files).Count
-
-if ($count -gt $Max) {
-  Write-Host "❌ Too many changed files to push ($count). Max allowed: $Max" -ForegroundColor Red
-  Write-Host "Base: $BaseRef" -ForegroundColor Yellow
-  Write-Host "Changed files:" -ForegroundColor Yellow
-  $files | ForEach-Object { "  $_" }
-  Write-Host ""
-  Write-Host "If this is intentional, bypass once with:" -ForegroundColor Cyan
-  Write-Host '  $env:ALLOW_LARGE_PUSH="1"; git push; Remove-Item Env:\ALLOW_LARGE_PUSH' -ForegroundColor Cyan
+function Die([string]$msg) {
+  Write-Host ("[pre-push] " + $msg) -ForegroundColor Red
   exit 1
 }
 
-Write-Host "✅ Push changeset size OK ($count <= $Max) vs $BaseRef" -ForegroundColor Green
+function Info([string]$msg) {
+  Write-Host ("[pre-push] " + $msg)
+}
+
+function Ok([string]$msg) {
+  Write-Host ("[pre-push] " + $msg) -ForegroundColor Green
+}
+
+# Ensure we are in a git repo
+try {
+  git rev-parse --is-inside-work-tree *> $null
+} catch {
+  Die "Not inside a git work tree."
+}
+
+# Make sure BaseRef exists (local or remote)
+$baseOk = $true
+try { git rev-parse --verify "$BaseRef^{commit}" *> $null } catch { $baseOk = $false }
+
+if (-not $baseOk) {
+  # Attempt to fetch the ref if it is remote-like
+  try { git fetch --prune *> $null } catch {}
+  try { git rev-parse --verify "$BaseRef^{commit}" *> $null } catch {
+    Die ("BaseRef not found: {0}" -f $BaseRef)
+  }
+}
+
+# Count changed files between BaseRef and HEAD (merge-base aware via ...)
+[string[]]$files = @()
+try {
+  $files = git diff --name-only "$BaseRef...HEAD"
+} catch {
+  Die ("Failed to compute diff vs {0}" -f $BaseRef)
+}
+
+# Normalize
+$files = $files | Where-Object { $_ -and $_.Trim().Length -gt 0 }
+$count = @($files).Count
+
+Info ("Push changeset file count = {0}; max = {1}; base = {2}" -f $count, $Max, $BaseRef)
+
+if ($count -gt $Max) {
+  Die ("Push changeset too large ({0} > {1}) vs {2}. Split the branch or raise Max deliberately." -f $count, $Max, $BaseRef)
+}
+
+Ok ("Push changeset size OK ({0} <= {1}) vs {2}" -f $count, $Max, $BaseRef)
+exit 0
