@@ -1,0 +1,70 @@
+name: Protect main (auto-revert on CI failure)
+
+on:
+  push:
+    branches: [ main ]
+
+# Avoid two reverts fighting each other if multiple pushes happen fast
+concurrency:
+  group: protect-main
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  ci:
+    name: green:ci on main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Run CI
+        id: run_ci
+        run: npm run ci
+
+  revert_on_failure:
+    name: Auto-revert failing main push
+    needs: [ ci ]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "kolosseum-bot"
+          git config user.email "kolosseum-bot@users.noreply.github.com"
+
+      - name: Revert HEAD
+        run: |
+          echo "CI failed; reverting HEAD on main."
+          git revert --no-edit HEAD
+
+      - name: Push revert
+        run: |
+          git push origin HEAD:main
+
+      - name: Open issue with details
+        run: |
+          title="CI FAILED on main; auto-reverted ${{ github.sha }}"
+          body="A push to main failed CI and was auto-reverted.\n\nCommit: ${{ github.sha }}\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n"
+          gh issue create --title "$title" --body "$body"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
