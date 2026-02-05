@@ -11,7 +11,7 @@ $ErrorActionPreference = "Stop"
 #   $env:ALLOW_LARGE_PUSH="1"; git push; Remove-Item Env:\ALLOW_LARGE_PUSH -ErrorAction SilentlyContinue
 $allow = $env:ALLOW_LARGE_PUSH
 if ($allow -eq "1" -or $allow -eq "true" -or $allow -eq "TRUE") {
-  Write-Host "⚠️  push changeset guard bypassed via ALLOW_LARGE_PUSH=$allow" -ForegroundColor Yellow
+  Write-Host "âš ï¸  push changeset guard bypassed via ALLOW_LARGE_PUSH=$allow" -ForegroundColor Yellow
   exit 0
 }
 
@@ -30,7 +30,7 @@ $files = git diff --name-only "$BaseRef..HEAD"
 $count = @($files).Count
 
 if ($count -gt $Max) {
-  Write-Host "❌ Too many changed files to push ($count). Max allowed: $Max" -ForegroundColor Red
+  Write-Host "âŒ Too many changed files to push ($count). Max allowed: $Max" -ForegroundColor Red
   Write-Host "Base: $BaseRef" -ForegroundColor Yellow
   Write-Host "Changed files:" -ForegroundColor Yellow
   $files | ForEach-Object { "  $_" }
@@ -40,4 +40,4 @@ if ($count -gt $Max) {
   exit 1
 }
 
-Write-Host "✅ Push changeset size OK ($count <= $Max) vs $BaseRef" -ForegroundColor Green
+Write-Host "âœ… Push changeset size OK ($count <= $Max) vs $BaseRef" -ForegroundColor Green
