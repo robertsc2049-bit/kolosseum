@@ -42,7 +42,7 @@
                     "guard:version":  "node scripts/version-gate.mjs",
                     "hash:write":  "node ci/scripts/write_checksums.mjs",
                     "lint":  "npm run lint:fast \u0026\u0026 npm run test:ci",
-                    "lint:fast":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 node ci/guards/green_ci_parity_guard.mjs \u0026\u0026 node ci/guards/readme_validation_contract_guard.mjs \u0026\u0026 node ci/guards/green_contract_installer_sync_guard.mjs \u0026\u0026 node ci/guards/node_version_guard.mjs \u0026\u0026 node ci/guards/tag_version_guard.mjs \u0026\u0026 node ci/guards/repo_contract.mjs \u0026\u0026 node ci/guards/no_bom_guard.mjs \u0026\u0026 node ci/guards/no_crlf_guard.mjs \u0026\u0026 node ci/guards/no_mojibake_guard.mjs \u0026\u0026 node ci/guards/lockfile_note_guard.mjs \u0026\u0026 node ci/guards/ban_engine_status_guard.mjs \u0026\u0026 node ci/guards/engine_contract_guard.mjs \u0026\u0026 node ci/guards/golden_manifest_guard.mjs \u0026\u0026 node ci/guards/golden_outputs_guard.mjs \u0026\u0026 node ci/scripts/spine_guard.mjs \u0026\u0026 node ci/scripts/sha256_guard.mjs \u0026\u0026 node ci/scripts/schema_guard.mjs \u0026\u0026 node ci/guards/registry_schema_presence_guard.mjs \u0026\u0026 node ci/guards/registry_bundle_guard.mjs \u0026\u0026 node ci/guards/registry_law_guard.mjs",
+                    "lint:fast":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 node ci/guards/green_ci_parity_guard.mjs \u0026\u0026 node ci/guards/readme_validation_contract_guard.mjs \u0026\u0026 node ci/guards/green_contract_installer_sync_guard.mjs \u0026\u0026 node ci/guards/node_version_guard.mjs \u0026\u0026 node ci/guards/tag_version_guard.mjs \u0026\u0026 node ci/guards/repo_contract.mjs \u0026\u0026 node ci/guards/no_bom_guard.mjs \u0026\u0026 node ci/guards/no_crlf_guard.mjs \u0026\u0026 node ci/guards/no_mojibake_guard.mjs \u0026\u0026 node ci/guards/lockfile_note_guard.mjs \u0026\u0026 node ci/guards/ban_engine_status_guard.mjs \u0026\u0026 node ci/guards/ban_engine_src_imports_in_api_guard.mjs \u0026\u0026 node ci/guards/engine_contract_guard.mjs \u0026\u0026 node ci/guards/engine_exports_types_guard.mjs \u0026\u0026 node ci/guards/golden_manifest_guard.mjs \u0026\u0026 node ci/guards/golden_outputs_guard.mjs \u0026\u0026 node ci/scripts/spine_guard.mjs \u0026\u0026 node ci/scripts/sha256_guard.mjs \u0026\u0026 node ci/scripts/schema_guard.mjs \u0026\u0026 node ci/guards/registry_schema_presence_guard.mjs \u0026\u0026 node ci/guards/registry_bundle_guard.mjs \u0026\u0026 node ci/guards/registry_law_guard.mjs",
                     "lockfile:note":  "node scripts/lockfile_note.mjs",
                     "pipeline:run":  "node dist/src/run_pipeline_cli.js",
                     "pkg:script":  "node scripts/pkg_script.mjs",
@@ -73,7 +73,8 @@
                          "ajv":  "^8.17.1",
                          "dotenv":  "^17.2.3",
                          "express":  "^5.2.1",
-                         "pg":  "^8.17.1"
+                         "pg":  "^8.17.1",
+                         "@kolosseum/engine":  "file:engine"
                      },
     "devDependencies":  {
                             "@types/express":  "^5.0.6",

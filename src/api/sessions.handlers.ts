@@ -9,7 +9,7 @@ import {
   deriveTrace,
   normalizeSummary,
   validateWireRuntimeEvent
-} from "../../engine/src/runtime/session_summary.js";
+} from "@kolosseum/engine/runtime/session_summary.js";
 
 type JsonRecord = Record<string, unknown>;
 
