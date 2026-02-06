@@ -33,6 +33,23 @@ function removeOne(arr: string[], id: string): string[] {
   return arr.filter((x) => x !== id);
 }
 
+function dropIds(next: RuntimeState, idsToDrop: Set<string>) {
+  // Drop = mark skipped + remove from remaining (idempotent)
+  if (idsToDrop.size === 0) return;
+
+  // Only drop things that are currently remaining (no resurrection)
+  const remainingSet = new Set(next.remaining_ids);
+
+  for (const id of idsToDrop) {
+    if (!id) continue;
+    if (!remainingSet.has(id)) continue;
+    if (next.completed_ids.has(id)) continue; // cannot become skipped after complete
+    next.skipped_ids.add(id);
+  }
+
+  next.remaining_ids = next.remaining_ids.filter((id) => !idsToDrop.has(id));
+}
+
 export function applyRuntimeEvent(state: RuntimeState, event: RuntimeEvent): RuntimeState {
   // Pure function: do not mutate input state
   const next: RuntimeState = {
@@ -96,13 +113,18 @@ export function applyRuntimeEvent(state: RuntimeState, event: RuntimeEvent): Run
     }
 
     case "split_return_skip": {
-      // Skip: drop anything that was remaining at split time that is still remaining now.
-      // This matches existing semantics: you come back and choose to skip remaining work.
-      if (!next.split?.active) return next;
+      // Product semantics:
+      // - If split active: drop anything that was remaining at split time AND is still remaining now.
+      // - If split not active: drop everything remaining (safe + deterministic).
+      if (next.split?.active) {
+        const toDrop = new Set(next.split.remaining_at_split);
+        dropIds(next, toDrop);
+        next.split.active = false;
+        return next;
+      }
 
-      const toDrop = new Set(next.split.remaining_at_split);
-      next.remaining_ids = next.remaining_ids.filter((id) => !toDrop.has(id));
-      next.split.active = false;
+      // No active split -> drop all remaining
+      dropIds(next, new Set(next.remaining_ids));
       return next;
     }
 
