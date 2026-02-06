@@ -2,13 +2,10 @@
 import type { Request, Response } from "express";
 import { pool } from "../db/pool.js";
 
-// Canonical semantics: API maps wire events -> engine runtime reducer.
-// One reducer. One state model. One set of invariants.
+// Canonical semantics live in the engine runtime reducer.
+// API is a thin wrapper: validate wire event -> map -> reducer -> persist snapshot.
 import { applyRuntimeEvent, makeRuntimeState } from "../../engine/src/runtime/session_runtime.js";
-import type {
-  RuntimeEvent as EngineRuntimeEvent,
-  RuntimeState as EngineRuntimeState
-} from "../../engine/src/runtime/types.js";
+import type { RuntimeEvent as EngineRuntimeEvent, RuntimeState as EngineRuntimeState } from "../../engine/src/runtime/types.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -30,10 +27,10 @@ function pgErrorMessage(err: unknown): string {
 }
 
 /**
- * Planned session is immutable input. We only use it:
- * - to initialize runtime snapshot at START
- * - to upgrade legacy summaries
- * Once started=true, response trace and lists are derived ONLY from stored runtime snapshot.
+ * Planned session is immutable input. We only use it to:
+ * - build initial runtime state at START
+ * - upgrade legacy summaries
+ * Once started=true, all semantics are driven by the stored runtime snapshot + reducer.
  */
 
 type PlannedExercise = {
@@ -70,22 +67,17 @@ function validateWireRuntimeEvent(v: unknown): WireRuntimeEvent | null {
     return { ...(v as any), type: t, exercise_id } as WireRuntimeEvent;
   }
 
-  if (
-    t === "START_SESSION" ||
-    t === "SPLIT_SESSION" ||
-    t === "RETURN_CONTINUE" ||
-    t === "RETURN_SKIP"
-  ) {
+  if (t === "START_SESSION" || t === "SPLIT_SESSION" || t === "RETURN_CONTINUE" || t === "RETURN_SKIP") {
     return { ...(v as any), type: t } as WireRuntimeEvent;
   }
 
-  // Forward compatible: store unknown types, but they do not mutate summary.
+  // Forward compatible: store unknown types; they do not affect runtime snapshot.
   return { ...(v as any), type: t } as WireRuntimeEvent;
 }
 
 /**
- * Engine runtime state is Set-heavy; summaries are JSONB.
- * We store a JSON-serialised runtime state (arrays) as V3 summary.
+ * JSONB storage form for runtime state (engine uses Sets).
+ * This is purely a serialization container — semantics are from reducer.
  */
 type RuntimeStateJson = {
   remaining_ids: string[];
@@ -97,11 +89,26 @@ type RuntimeStateJson = {
   };
 };
 
-function uniqStable(ids: string[]): string[] {
+function uniqStable(ids: unknown): string[] {
+  const arr = Array.isArray(ids) ? ids : [];
   const seen = new Set<string>();
   const out: string[] = [];
-  for (const raw of ids) {
-    const id = typeof raw === "string" ? raw : String(raw ?? "");
+  for (const v of arr) {
+    const s = typeof v === "string" ? v : String(v ?? "");
+    if (!s) continue;
+    if (seen.has(s)) continue;
+    seen.add(s);
+    out.push(s);
+  }
+  return out;
+}
+
+function plannedIds(planned: PlannedSession): string[] {
+  const exs = Array.isArray(planned?.exercises) ? planned.exercises : [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const ex of exs) {
+    const id = ex && typeof ex.exercise_id === "string" ? ex.exercise_id : "";
     if (!id) continue;
     if (seen.has(id)) continue;
     seen.add(id);
@@ -110,81 +117,11 @@ function uniqStable(ids: string[]): string[] {
   return out;
 }
 
-function normalizeRuntimeJson(rs: RuntimeStateJson): RuntimeStateJson {
-  const completed = uniqStable(Array.isArray(rs.completed_ids) ? rs.completed_ids : []);
-  const skipped = uniqStable(Array.isArray(rs.skipped_ids) ? rs.skipped_ids : []);
-  const terminal = new Set<string>([...completed, ...skipped]);
-
-  const remainingRaw = Array.isArray(rs.remaining_ids) ? rs.remaining_ids : [];
-  const remaining = uniqStable(remainingRaw).filter((id) => !terminal.has(id));
-
-  let split: RuntimeStateJson["split"] = undefined;
-  if (rs.split && typeof rs.split === "object") {
-    const active = rs.split.active === true;
-    const snap = uniqStable(Array.isArray(rs.split.remaining_at_split) ? rs.split.remaining_at_split : []);
-    split = { active, remaining_at_split: snap };
-  }
-
-  // Also ensure split snapshot doesn't contain terminal ids
-  if (split) {
-    const cleanedSnap = split.remaining_at_split.filter((id) => !terminal.has(id));
-    split = { ...split, remaining_at_split: cleanedSnap };
-  }
-
-  return {
-    remaining_ids: remaining,
-    completed_ids: completed,
-    skipped_ids: skipped,
-    split
-  };
-}
-
-function toEngineState(rs: RuntimeStateJson): EngineRuntimeState {
-  const n = normalizeRuntimeJson(rs);
-  return {
-    remaining_ids: [...n.remaining_ids],
-    completed_ids: new Set(n.completed_ids),
-    skipped_ids: new Set(n.skipped_ids),
-    split: n.split ? { active: n.split.active, remaining_at_split: [...n.split.remaining_at_split] } : undefined
-  };
-}
-
-function fromEngineState(state: EngineRuntimeState): RuntimeStateJson {
-  const out: RuntimeStateJson = {
-    remaining_ids: uniqStable(Array.isArray(state.remaining_ids) ? state.remaining_ids : []),
-    completed_ids: uniqStable(Array.from(state.completed_ids ?? [])),
-    skipped_ids: uniqStable(Array.from(state.skipped_ids ?? [])),
-    split: state.split
-      ? {
-          active: state.split.active === true,
-          remaining_at_split: uniqStable(Array.isArray(state.split.remaining_at_split) ? state.split.remaining_at_split : [])
-        }
-      : undefined
-  };
-  return normalizeRuntimeJson(out);
-}
-
-function applyEngineEventJson(rs: RuntimeStateJson, ev: EngineRuntimeEvent): RuntimeStateJson {
-  const next = applyRuntimeEvent(toEngineState(rs), ev);
-  return fromEngineState(next);
-}
-
-function plannedIds(planned: PlannedSession): string[] {
-  const exs = Array.isArray(planned?.exercises) ? planned.exercises : [];
-  return uniqStable(
-    exs
-      .map((e) => (e && typeof e.exercise_id === "string" ? e.exercise_id : ""))
-      .filter(Boolean)
-  );
-}
-
 function toPlannedExercisesFromIds(planned: PlannedSession, ids: string[]): PlannedExercise[] {
   const exs = Array.isArray(planned?.exercises) ? planned.exercises : [];
   const byId = new Map<string, PlannedExercise>();
   for (const ex of exs) {
-    if (ex && typeof ex.exercise_id === "string" && ex.exercise_id.length > 0) {
-      byId.set(ex.exercise_id, ex);
-    }
+    if (ex && typeof ex.exercise_id === "string" && ex.exercise_id.length > 0) byId.set(ex.exercise_id, ex);
   }
 
   const out: PlannedExercise[] = [];
@@ -196,16 +133,88 @@ function toPlannedExercisesFromIds(planned: PlannedSession, ids: string[]): Plan
 }
 
 /**
+ * Engine <-> JSON conversions.
+ * Important: we DO NOT re-implement invariants here.
+ * - We reconstruct state through the reducer when upgrading legacy summaries.
+ * - For V3, we accept stored snapshot and only "scope to plan" (safety), not semantics.
+ */
+function fromEngineState(state: EngineRuntimeState): RuntimeStateJson {
+  return {
+    remaining_ids: Array.isArray(state.remaining_ids) ? [...state.remaining_ids] : [],
+    completed_ids: Array.from(state.completed_ids ?? []),
+    skipped_ids: Array.from(state.skipped_ids ?? []),
+    split: state.split ? { active: state.split.active === true, remaining_at_split: [...state.split.remaining_at_split] } : undefined
+  };
+}
+
+function scopeRuntimeJsonToPlan(planned_ids: string[], rt: RuntimeStateJson): RuntimeStateJson {
+  const allowed = new Set(planned_ids);
+  const remaining_ids = uniqStable(rt.remaining_ids).filter((id) => allowed.has(id));
+  const completed_ids = uniqStable(rt.completed_ids).filter((id) => allowed.has(id));
+  const skipped_ids = uniqStable(rt.skipped_ids).filter((id) => allowed.has(id));
+
+  const split =
+    rt.split && typeof rt.split === "object"
+      ? {
+          active: rt.split.active === true,
+          remaining_at_split: uniqStable(rt.split.remaining_at_split).filter((id) => allowed.has(id))
+        }
+      : undefined;
+
+  return { remaining_ids, completed_ids, skipped_ids, split };
+}
+
+function engineStateFromV3Snapshot(planned_ids: string[], raw: unknown): EngineRuntimeState {
+  // Start from plan (gives a stable base ordering), then restore terminals via reducer.
+  const base = makeRuntimeState(planned_ids);
+
+  const rtRaw: RuntimeStateJson = isRecord(raw)
+    ? {
+        remaining_ids: uniqStable((raw as any).remaining_ids),
+        completed_ids: uniqStable((raw as any).completed_ids),
+        skipped_ids: uniqStable((raw as any).skipped_ids),
+        split: isRecord((raw as any).split)
+          ? {
+              active: (raw as any).split.active === true,
+              remaining_at_split: uniqStable((raw as any).split.remaining_at_split)
+            }
+          : undefined
+      }
+    : { remaining_ids: [], completed_ids: [], skipped_ids: [], split: undefined };
+
+  const scoped = scopeRuntimeJsonToPlan(planned_ids, rtRaw);
+
+  // Rebuild terminals through reducer to guarantee invariants.
+  let st = base;
+  for (const id of scoped.completed_ids) st = applyRuntimeEvent(st, { type: "complete_exercise", exercise_id: id });
+  for (const id of scoped.skipped_ids) st = applyRuntimeEvent(st, { type: "skip_exercise", exercise_id: id });
+
+  // Remaining_ids is implicitly "plan minus terminals" at this point (engine invariant).
+  // Restore split shape as stored (it is runtime state data, not a second semantics implementation).
+  if (scoped.split) {
+    st = {
+      ...st,
+      split: {
+        active: scoped.split.active === true,
+        remaining_at_split: [...scoped.split.remaining_at_split]
+      }
+    };
+  }
+
+  return st;
+}
+
+/**
  * Summary formats:
  * - V1: legacy ids lists (no split)
- * - V2: legacy lists of exercise objects + split snapshot (API-owned semantics)
- * - V3: engine runtime state JSON (canonical)
+ * - V2: legacy lists of exercise objects + split snapshot
+ * - V3: canonical engine runtime state JSON snapshot
  */
 
 type SessionSummaryV3 = {
   version: 3;
   started: boolean;
-  runtime: RuntimeStateJson; // canonical
+  runtime: RuntimeStateJson;
   last_seq: number; // 0 if none
 };
 
@@ -242,154 +251,95 @@ function isV3Summary(v: unknown): v is SessionSummaryV3 {
 
 function isV2Summary(v: unknown): v is SessionSummaryV2 {
   if (!isRecord(v)) return false;
-  return v.version === 2 &&
+  return (
+    v.version === 2 &&
     typeof (v as any).started === "boolean" &&
     Array.isArray((v as any).remaining_exercises) &&
     Array.isArray((v as any).completed_exercises) &&
-    Array.isArray((v as any).dropped_exercises);
+    Array.isArray((v as any).dropped_exercises)
+  );
 }
 
 function isV1Summary(v: unknown): v is LegacySessionSummaryV1 {
   if (!isRecord(v)) return false;
-  return typeof (v as any).started === "boolean" &&
+  return (
+    typeof (v as any).started === "boolean" &&
     Array.isArray((v as any).remaining_ids) &&
     Array.isArray((v as any).completed_ids) &&
-    Array.isArray((v as any).dropped_ids);
+    Array.isArray((v as any).dropped_ids)
+  );
 }
 
 function summaryFromPlanned(planned: PlannedSession): SessionSummaryV3 {
   const ids = plannedIds(planned);
-  const base = fromEngineState(makeRuntimeState(ids));
-  return {
-    version: 3,
-    started: false,
-    runtime: base,
-    last_seq: 0
-  };
+  const runtime = fromEngineState(makeRuntimeState(ids));
+  return { version: 3, started: false, runtime, last_seq: 0 };
 }
 
-function summaryV3FromV2(planned: PlannedSession, v2: SessionSummaryV2): SessionSummaryV3 {
-  const remaining_ids = uniqStable((v2.remaining_exercises ?? []).map((e) => e?.exercise_id).filter(Boolean) as string[]);
-  const completed_ids = uniqStable((v2.completed_exercises ?? []).map((e) => e?.exercise_id).filter(Boolean) as string[]);
-  const skipped_ids = uniqStable((v2.dropped_exercises ?? []).map((e) => e?.exercise_id).filter(Boolean) as string[]);
+function summaryV3FromLegacy(planned: PlannedSession, legacy: LegacySessionSummaryV1 | SessionSummaryV2): SessionSummaryV3 {
+  const ids = plannedIds(planned);
 
-  const rt: RuntimeStateJson = normalizeRuntimeJson({
-    remaining_ids,
-    completed_ids,
-    skipped_ids,
-    split: v2.split
-      ? {
-          active: v2.split.active === true,
-          remaining_at_split: uniqStable((v2.split.remaining_at_split_ids ?? []).filter((x) => typeof x === "string") as string[])
-        }
-      : undefined
-  });
+  const completed_ids =
+    "completed_ids" in legacy
+      ? uniqStable((legacy as any).completed_ids)
+      : uniqStable((legacy as any).completed_exercises?.map((e: any) => e?.exercise_id));
 
-  // Ensure runtime is scoped to planned ids only (hard safety, deterministic)
-  const allowed = new Set(plannedIds(planned));
-  const scoped = normalizeRuntimeJson({
-    remaining_ids: rt.remaining_ids.filter((id) => allowed.has(id)),
-    completed_ids: rt.completed_ids.filter((id) => allowed.has(id)),
-    skipped_ids: rt.skipped_ids.filter((id) => allowed.has(id)),
-    split: rt.split
-      ? {
-          active: rt.split.active,
-          remaining_at_split: rt.split.remaining_at_split.filter((id) => allowed.has(id))
-        }
-      : undefined
-  });
+  const skipped_ids =
+    "dropped_ids" in legacy
+      ? uniqStable((legacy as any).dropped_ids)
+      : uniqStable((legacy as any).dropped_exercises?.map((e: any) => e?.exercise_id));
 
+  let st = makeRuntimeState(ids);
+  for (const id of completed_ids) st = applyRuntimeEvent(st, { type: "complete_exercise", exercise_id: id });
+  for (const id of skipped_ids) st = applyRuntimeEvent(st, { type: "skip_exercise", exercise_id: id });
+
+  // Preserve any legacy split snapshot if present.
+  const splitV2 = (legacy as any).split;
+  if (splitV2 && typeof splitV2 === "object") {
+    st = {
+      ...st,
+      split: {
+        active: splitV2.active === true,
+        remaining_at_split: uniqStable(splitV2.remaining_at_split_ids)
+      }
+    };
+  }
+
+  const last_seq = Number((legacy as any).last_seq ?? 0);
   return {
     version: 3,
-    started: v2.started === true,
-    runtime: scoped,
-    last_seq: Number((v2 as any).last_seq ?? 0)
-  };
-}
-
-function summaryV3FromV1(planned: PlannedSession, v1: LegacySessionSummaryV1): SessionSummaryV3 {
-  const remaining_ids = uniqStable((v1.remaining_ids ?? []).filter((x) => typeof x === "string") as string[]);
-  const completed_ids = uniqStable((v1.completed_ids ?? []).filter((x) => typeof x === "string") as string[]);
-  const skipped_ids = uniqStable((v1.dropped_ids ?? []).filter((x) => typeof x === "string") as string[]);
-
-  const rt: RuntimeStateJson = normalizeRuntimeJson({
-    remaining_ids,
-    completed_ids,
-    skipped_ids,
-    split: undefined
-  });
-
-  const allowed = new Set(plannedIds(planned));
-  const scoped = normalizeRuntimeJson({
-    remaining_ids: rt.remaining_ids.filter((id) => allowed.has(id)),
-    completed_ids: rt.completed_ids.filter((id) => allowed.has(id)),
-    skipped_ids: rt.skipped_ids.filter((id) => allowed.has(id)),
-    split: undefined
-  });
-
-  return {
-    version: 3,
-    started: v1.started === true,
-    runtime: scoped,
-    last_seq: Number((v1 as any).last_seq ?? 0)
+    started: (legacy as any).started === true,
+    runtime: fromEngineState(st),
+    last_seq
   };
 }
 
 function normalizeSummary(planned: PlannedSession, raw: unknown): { summary: SessionSummaryV3; needsUpgrade: boolean } {
+  // Canonical V3: scope to plan + rebuild terminals through reducer (no API semantics).
   if (isV3Summary(raw)) {
-    const s = raw as SessionSummaryV3;
-    const rt = normalizeRuntimeJson((s as any).runtime as RuntimeStateJson);
+    const ids = plannedIds(planned);
+    const last_seq = Number((raw as any).last_seq ?? 0);
+    const started = (raw as any).started === true;
 
-    // Also enforce planned scoping on every load (product-safe)
-    const allowed = new Set(plannedIds(planned));
-    const scoped = normalizeRuntimeJson({
-      remaining_ids: rt.remaining_ids.filter((id) => allowed.has(id)),
-      completed_ids: rt.completed_ids.filter((id) => allowed.has(id)),
-      skipped_ids: rt.skipped_ids.filter((id) => allowed.has(id)),
-      split: rt.split
-        ? {
-            active: rt.split.active,
-            remaining_at_split: rt.split.remaining_at_split.filter((id) => allowed.has(id))
-          }
-        : undefined
-    });
+    const st = engineStateFromV3Snapshot(ids, (raw as any).runtime);
+    const runtime = fromEngineState(st);
 
-    const fixed: SessionSummaryV3 = {
-      version: 3,
-      started: s.started === true,
-      runtime: scoped,
-      last_seq: Number((s as any).last_seq ?? 0)
-    };
+    // upgrade storage if last_seq coerces, runtime shape normalizes, or version mismatch
+    const needs =
+      (raw as any).version !== 3 ||
+      Number((raw as any).last_seq ?? 0) !== last_seq ||
+      JSON.stringify((raw as any).runtime) !== JSON.stringify(runtime);
 
-    // If runtime changed due to normalization, upgrade storage.
-    const needs = JSON.stringify((s as any).runtime) !== JSON.stringify(fixed.runtime) ||
-      Number((s as any).last_seq ?? 0) !== fixed.last_seq ||
-      (s as any).version !== 3;
-
-    return { summary: fixed, needsUpgrade: needs };
+    return { summary: { version: 3, started, runtime, last_seq }, needsUpgrade: needs };
   }
 
-  if (isV2Summary(raw)) {
-    return { summary: summaryV3FromV2(planned, raw as SessionSummaryV2), needsUpgrade: true };
+  // Legacy -> V3 via reducer reconstruction
+  if (isV2Summary(raw) || isV1Summary(raw)) {
+    return { summary: summaryV3FromLegacy(planned, raw as any), needsUpgrade: true };
   }
 
-  if (isV1Summary(raw)) {
-    return { summary: summaryV3FromV1(planned, raw as LegacySessionSummaryV1), needsUpgrade: true };
-  }
-
+  // Unknown -> fresh V3
   return { summary: summaryFromPlanned(planned), needsUpgrade: true };
-}
-
-function deriveTrace(summary: SessionSummaryV3) {
-  const rt = normalizeRuntimeJson(summary.runtime);
-  return {
-    started: summary.started === true,
-    remaining_ids: rt.remaining_ids,
-    completed_ids: rt.completed_ids,
-    dropped_ids: rt.skipped_ids,
-    split_active: rt.split?.active === true,
-    remaining_at_split_ids: rt.split?.remaining_at_split ?? []
-  };
 }
 
 /**
@@ -413,28 +363,33 @@ function toEngineEvent(w: WireRuntimeEvent): EngineRuntimeEvent | null {
   }
 }
 
-function applyWireEventToSummaryV3(summary: SessionSummaryV3, ev: WireRuntimeEvent): SessionSummaryV3 {
-  const out: SessionSummaryV3 = {
-    ...summary,
-    runtime: normalizeRuntimeJson(summary.runtime),
-    last_seq: Number(summary.last_seq ?? 0)
-  };
-
+function applyWireEvent(summary: SessionSummaryV3, ev: WireRuntimeEvent, planned: PlannedSession): SessionSummaryV3 {
+  // START is API-level: it flips started and initializes runtime snapshot from plan (via reducer base).
   if (ev.type === "START_SESSION") {
-    out.started = true;
-    // Deterministic normalization only; runtime ids already scoped.
-    out.runtime = normalizeRuntimeJson(out.runtime);
-    return out;
+    const ids = plannedIds(planned);
+    const st = makeRuntimeState(ids);
+    return { ...summary, started: true, runtime: fromEngineState(st) };
   }
 
   const engineEv = toEngineEvent(ev);
-  if (!engineEv) {
-    // Unknown event types do not mutate runtime snapshot (forward compatible).
-    return out;
-  }
+  if (!engineEv) return summary; // forward-compatible: no-op for unknown types
 
-  out.runtime = applyEngineEventJson(out.runtime, engineEv);
-  return out;
+  const ids = plannedIds(planned);
+  const st = engineStateFromV3Snapshot(ids, summary.runtime);
+  const next = applyRuntimeEvent(st, engineEv);
+  return { ...summary, runtime: fromEngineState(next) };
+}
+
+function deriveTrace(summary: SessionSummaryV3) {
+  const rt = summary.runtime;
+  return {
+    started: summary.started === true,
+    remaining_ids: uniqStable(rt.remaining_ids),
+    completed_ids: uniqStable(rt.completed_ids),
+    dropped_ids: uniqStable(rt.skipped_ids),
+    split_active: rt.split?.active === true,
+    remaining_at_split_ids: rt.split?.remaining_at_split ? uniqStable(rt.split.remaining_at_split) : []
+  };
 }
 
 async function allocNextSeq(client: any, session_id: string): Promise<number> {
@@ -499,7 +454,7 @@ export async function startSession(req: Request, res: Response) {
     const planned = s.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned, s.session_state_summary);
 
-    // If already started, ensure status and (optionally) upgrade stored summary
+    // If already started, just ensure status + optionally upgrade summary
     if (normalized.started === true) {
       await client.query(
         `UPDATE sessions
@@ -523,7 +478,7 @@ export async function startSession(req: Request, res: Response) {
       [session_id, seq, JSON.stringify(ev)]
     );
 
-    const nextSummary = applyWireEventToSummaryV3(normalized, ev);
+    const nextSummary = applyWireEvent(normalized, ev, planned);
     nextSummary.last_seq = seq;
 
     await client.query(
@@ -538,7 +493,9 @@ export async function startSession(req: Request, res: Response) {
     await client.query("COMMIT");
     return res.status(200).json({ ok: true, session_id, started: true, seq });
   } catch (err: unknown) {
-    try { await client.query("ROLLBACK"); } catch {}
+    try {
+      await client.query("ROLLBACK");
+    } catch {}
     return res.status(400).json({ error: pgErrorMessage(err) });
   } finally {
     client.release();
@@ -550,7 +507,7 @@ export async function startSession(req: Request, res: Response) {
  * body: { event: {...} }
  * - allocates seq O(1)
  * - inserts runtime_events row
- * - updates session_state_summary incrementally (V3, engine canonical)
+ * - updates session_state_summary incrementally (V3, reducer canonical)
  */
 export async function appendRuntimeEvent(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
@@ -579,7 +536,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
 
     let workingSummary = normalized;
 
-    // If not started, auto-start (product-safe)
+    // Product-safe: auto-start if not started
     if (workingSummary.started !== true) {
       const startSeq = await allocNextSeq(client, session_id);
       const startEv: WireRuntimeEvent = { type: "START_SESSION" };
@@ -590,7 +547,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
         [session_id, startSeq, JSON.stringify(startEv)]
       );
 
-      workingSummary = applyWireEventToSummaryV3(workingSummary, startEv);
+      workingSummary = applyWireEvent(workingSummary, startEv, planned);
       workingSummary.last_seq = startSeq;
 
       await client.query(
@@ -602,7 +559,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
         [session_id, JSON.stringify(workingSummary)]
       );
     } else if (needsUpgrade) {
-      // Persist upgraded V3 snapshot even if started already
+      // Persist upgraded snapshot even if already started
       await client.query(
         `UPDATE sessions
          SET session_state_summary = $2::jsonb,
@@ -620,7 +577,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       [session_id, seq, JSON.stringify(event)]
     );
 
-    const nextSummary = applyWireEventToSummaryV3(workingSummary, event);
+    const nextSummary = applyWireEvent(workingSummary, event, planned);
     nextSummary.last_seq = seq;
 
     await client.query(
@@ -634,7 +591,9 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     await client.query("COMMIT");
     return res.status(201).json({ ok: true, session_id, seq });
   } catch (err: unknown) {
-    try { await client.query("ROLLBACK"); } catch {}
+    try {
+      await client.query("ROLLBACK");
+    } catch {}
     return res.status(400).json({ error: pgErrorMessage(err) });
   } finally {
     client.release();
@@ -663,7 +622,7 @@ export async function listRuntimeEvents(req: Request, res: Response) {
 /**
  * GET /sessions/:session_id/state
  * - O(1) read from sessions.session_state_summary (no runtime_events scan)
- * - Once started=true, response is derived ONLY from the stored runtime snapshot.
+ * - Once started=true, response is derived ONLY from stored runtime snapshot + reducer-owned invariants.
  */
 export async function getSessionState(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
