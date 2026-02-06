@@ -1,4 +1,4 @@
-/* engine/src/phases/phase6.runtime.ts */
+// engine/src/phases/phase6.runtime.ts
 import type { Phase6SessionOutput, Phase6SessionExercise } from "./phase6.js";
 import { applyRuntimeEvent, makeRuntimeState } from "../runtime/session_runtime.js";
 import type { RuntimeEvent } from "../runtime/types.js";
@@ -10,16 +10,34 @@ export type Phase6RuntimeTrace = {
   split_active: boolean;
 };
 
-function traceFromRuntimeState(state: any): Phase6RuntimeTrace {
-  const remaining_ids = Array.isArray(state?.remaining_ids) ? state.remaining_ids.map(String) : [];
-  const completed_ids = Array.from(state?.completed_ids ?? []).map(String);
-  const dropped_ids = Array.from(state?.skipped_ids ?? []).map(String);
-  const split_active = Boolean(state?.split?.active);
+type ExerciseStatus = "pending" | "completed" | "skipped";
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+
+function normalizeStringArray(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  return v.map((x) => String(x));
+}
+
+function normalizeStringSet(v: unknown): Set<string> {
+  const out = new Set<string>();
+  if (!(v instanceof Set)) return out;
+  for (const x of v.values()) out.add(String(x));
+  return out;
+}
+
+function traceFromRuntimeState(state: unknown): Phase6RuntimeTrace {
+  const remaining_ids = isRecord(state) ? normalizeStringArray(state.remaining_ids) : [];
+  const completed_ids = isRecord(state) ? Array.from(normalizeStringSet(state.completed_ids)) : [];
+  const dropped_ids = isRecord(state) ? Array.from(normalizeStringSet(state.skipped_ids)) : [];
+
+  const split_active =
+    isRecord(state) && isRecord(state.split) ? Boolean((state.split as Record<string, unknown>).active) : false;
 
   return { remaining_ids, completed_ids, dropped_ids, split_active };
 }
-
-type ExerciseStatus = "pending" | "completed" | "skipped";
 
 function statusForId(id: string, completed: Set<string>, skipped: Set<string>): ExerciseStatus {
   if (completed.has(id)) return "completed";
@@ -27,18 +45,24 @@ function statusForId(id: string, completed: Set<string>, skipped: Set<string>): 
   return "pending";
 }
 
-function applyStatusToExercises(exercises: Phase6SessionExercise[], state: any): Phase6SessionExercise[] {
-  const completed = state?.completed_ids instanceof Set ? (state.completed_ids as Set<string>) : new Set<string>();
-  const skipped = state?.skipped_ids instanceof Set ? (state.skipped_ids as Set<string>) : new Set<string>();
+function getCompletedAndSkipped(state: unknown): { completed: Set<string>; skipped: Set<string> } {
+  if (!isRecord(state)) return { completed: new Set<string>(), skipped: new Set<string>() };
+  return {
+    completed: normalizeStringSet(state.completed_ids),
+    skipped: normalizeStringSet(state.skipped_ids)
+  };
+}
+
+function applyStatusToExercises(exercises: Phase6SessionExercise[], state: unknown): Phase6SessionExercise[] {
+  const { completed, skipped } = getCompletedAndSkipped(state);
 
   // IMPORTANT:
   // - Preserve original stable order
   // - Keep ALL exercises
-  // - Add status field (even if Phase6SessionExercise type does not yet declare it)
+  // - Add status field (pending/completed/skipped)
   return exercises.map((e) => {
-    const id = String((e as any)?.exercise_id ?? "");
-    const status = statusForId(id, completed, skipped);
-    return { ...(e as any), status } as any;
+    const status = statusForId(String(e.exercise_id ?? ""), completed, skipped);
+    return { ...e, status };
   });
 }
 
@@ -50,10 +74,7 @@ function applyStatusToExercises(exercises: Phase6SessionExercise[], state: any):
  *
  * Contract: does NOT change session_id; does NOT add notes.
  */
-export function phase6ApplyRuntimeEvents(
-  session: Phase6SessionOutput,
-  events: RuntimeEvent[]
-): Phase6SessionOutput {
+export function phase6ApplyRuntimeEvents(session: Phase6SessionOutput, events: RuntimeEvent[]): Phase6SessionOutput {
   const planned_ids = session.exercises.map((e) => e.exercise_id);
   let state = makeRuntimeState(planned_ids);
 
@@ -96,8 +117,8 @@ export function phase6ApplyRuntimeEventsWithTrace(
 
   // Safety: trace.remaining_ids must equal the pending exercises in session (stable order).
   const emittedPendingIds = nextSession.exercises
-    .filter((e: any) => (e?.status ?? "pending") === "pending")
-    .map((e: Phase6SessionExercise) => e.exercise_id);
+    .filter((e) => (e.status ?? "pending") === "pending")
+    .map((e) => e.exercise_id);
 
   if (emittedPendingIds.join("|") !== trace.remaining_ids.join("|")) {
     throw new Error("PHASE6_RUNTIME_TRACE_MISMATCH: trace.remaining_ids must equal emitted pending exercises");

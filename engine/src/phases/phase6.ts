@@ -5,6 +5,9 @@ export type Phase6SessionExercise = {
   exercise_id: string;
   source: "program";
 
+  // Runtime-only status (optional; default is "pending" when omitted)
+  status?: "pending" | "completed" | "skipped";
+
   // Optional prescription fields
   block_id?: string;
   item_id?: string;
