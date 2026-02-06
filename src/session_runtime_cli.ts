@@ -94,7 +94,7 @@ function parseArgs(argv: string[]) {
           "  --session   Path to Phase6 session.json",
           "  --events    Path to JSON array of runtime events",
           "  --outdir    Output directory (writes session.json + session.txt)",
-          "",
+          ""
         ].join("\n")
       );
       process.exit(0);
@@ -113,17 +113,6 @@ function parseArgs(argv: string[]) {
 function normalizeSession(doc: any) {
   if (doc && typeof doc === "object" && doc.session && typeof doc.session === "object") return doc.session;
   return doc;
-}
-
-function isTraceObject(x: any): x is { remaining_ids: string[]; completed_ids: string[]; dropped_ids: string[]; split_active: boolean } {
-  return (
-    !!x &&
-    typeof x === "object" &&
-    Array.isArray(x.remaining_ids) &&
-    Array.isArray(x.completed_ids) &&
-    Array.isArray(x.dropped_ids) &&
-    typeof x.split_active === "boolean"
-  );
 }
 
 async function main() {
@@ -153,23 +142,21 @@ async function main() {
   const txtAbs = path.join(absOut, "session.txt");
   writeUtf8Lf(txtAbs, rendered.lines.join("\n") + "\n");
 
-  const trace = applied.trace;
-  const traceSummary = isTraceObject(trace)
-    ? {
-        remaining: trace.remaining_ids.length,
-        completed: trace.completed_ids.length,
-        dropped: trace.dropped_ids.length,
-        split_active: trace.split_active,
-      }
-    : { kind: typeof trace };
+  const t: any = applied.trace;
+  const trace_summary = {
+    remaining: Array.isArray(t?.remaining_ids) ? t.remaining_ids.length : 0,
+    completed: Array.isArray(t?.completed_ids) ? t.completed_ids.length : 0,
+    dropped: Array.isArray(t?.dropped_ids) ? t.dropped_ids.length : 0,
+    split_active: Boolean(t?.split_active)
+  };
 
   process.stdout.write(
     JSON.stringify({
       ok: true,
       outdir: absOut,
       applied_events: eventsDoc.length,
-      trace_summary: traceSummary,
-      trace,
+      trace_summary,
+      trace: applied.trace
     })
   );
 }

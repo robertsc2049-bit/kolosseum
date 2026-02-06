@@ -7,6 +7,10 @@
  * - Use an em dash between exercise_id and sets/reps: \u2014
  * - Percent intensity renders as "@ 75%" (NO "1RM" suffix)
  * - Rest renders as "rest 180s" (NO parentheses)
+ *
+ * Behaviour:
+ * - Renders ONLY exercises with status "pending" (or missing status).
+ *   Completed/skipped are preserved in session JSON truth, but hidden from the sheet by default.
  */
 export type RenderedSessionText = {
   title: string;
@@ -31,6 +35,12 @@ function formatIntensity(i: unknown): string | null {
   return null;
 }
 
+function getStatus(ex: Record<string, unknown>): "pending" | "completed" | "skipped" {
+  const s = ex.status;
+  if (s === "completed" || s === "skipped" || s === "pending") return s;
+  return "pending";
+}
+
 export function renderSessionText(session: unknown): RenderedSessionText {
   const warnings: string[] = [];
 
@@ -42,26 +52,34 @@ export function renderSessionText(session: unknown): RenderedSessionText {
   const title = `Session ${sid}`;
 
   const exs = Array.isArray(session.exercises) ? session.exercises : [];
-  const lines = exs.map((ex, idx) => {
-    const n = idx + 1;
 
-    if (!isRecord(ex)) return `${n}) [invalid_exercise]`;
+  const lines: string[] = [];
+  for (const exAny of exs) {
+    if (!isRecord(exAny)) {
+      lines.push(`${lines.length + 1}) [invalid_exercise]`);
+      continue;
+    }
 
-    const id = typeof ex.exercise_id === "string" ? ex.exercise_id : "UNKNOWN_EXERCISE";
+    // Default behaviour: hide completed/skipped from printed sheet.
+    const st = getStatus(exAny);
+    if (st !== "pending") continue;
+
+    const n = lines.length + 1;
+    const id = typeof exAny.exercise_id === "string" ? exAny.exercise_id : "UNKNOWN_EXERCISE";
 
     // IMPORTANT: preserve legacy string exactly for tests (em dash)
     const setsReps =
-      typeof ex.sets === "number" && typeof ex.reps === "number" ? ` \u2014 ${ex.sets}x${ex.reps}` : "";
+      typeof exAny.sets === "number" && typeof exAny.reps === "number" ? ` \u2014 ${exAny.sets}x${exAny.reps}` : "";
 
-    const intensity = formatIntensity(ex.intensity);
+    const intensity = formatIntensity(exAny.intensity);
     const intensityTxt = intensity ? ` ${intensity}` : "";
 
-    const restTxt = typeof ex.rest_seconds === "number" ? ` rest ${ex.rest_seconds}s` : "";
+    const restTxt = typeof exAny.rest_seconds === "number" ? ` rest ${exAny.rest_seconds}s` : "";
 
-    const subTxt = typeof ex.substituted_from === "string" ? ` (sub for ${ex.substituted_from})` : "";
+    const subTxt = typeof exAny.substituted_from === "string" ? ` (sub for ${exAny.substituted_from})` : "";
 
-    return `${n}) ${id}${setsReps}${intensityTxt}${restTxt}${subTxt}`;
-  });
+    lines.push(`${n}) ${id}${setsReps}${intensityTxt}${restTxt}${subTxt}`);
+  }
 
   return { title, lines, warnings };
 }

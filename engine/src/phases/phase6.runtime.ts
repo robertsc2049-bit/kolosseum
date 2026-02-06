@@ -1,4 +1,4 @@
-// engine/src/phases/phase6.runtime.ts
+/* engine/src/phases/phase6.runtime.ts */
 import type { Phase6SessionOutput, Phase6SessionExercise } from "./phase6.js";
 import { applyRuntimeEvent, makeRuntimeState } from "../runtime/session_runtime.js";
 import type { RuntimeEvent } from "../runtime/types.js";
@@ -19,10 +19,34 @@ function traceFromRuntimeState(state: any): Phase6RuntimeTrace {
   return { remaining_ids, completed_ids, dropped_ids, split_active };
 }
 
+type ExerciseStatus = "pending" | "completed" | "skipped";
+
+function statusForId(id: string, completed: Set<string>, skipped: Set<string>): ExerciseStatus {
+  if (completed.has(id)) return "completed";
+  if (skipped.has(id)) return "skipped";
+  return "pending";
+}
+
+function applyStatusToExercises(exercises: Phase6SessionExercise[], state: any): Phase6SessionExercise[] {
+  const completed = state?.completed_ids instanceof Set ? (state.completed_ids as Set<string>) : new Set<string>();
+  const skipped = state?.skipped_ids instanceof Set ? (state.skipped_ids as Set<string>) : new Set<string>();
+
+  // IMPORTANT:
+  // - Preserve original stable order
+  // - Keep ALL exercises
+  // - Add status field (even if Phase6SessionExercise type does not yet declare it)
+  return exercises.map((e) => {
+    const id = String((e as any)?.exercise_id ?? "");
+    const status = statusForId(id, completed, skipped);
+    return { ...(e as any), status } as any;
+  });
+}
+
 /**
  * Runtime wrapper (legacy signature):
  * - Applies events deterministically
- * - Returns Phase6SessionOutput with remaining exercises only
+ * - Returns Phase6SessionOutput with ALL exercises preserved
+ * - Adds per-exercise status (pending/completed/skipped)
  *
  * Contract: does NOT change session_id; does NOT add notes.
  */
@@ -37,20 +61,19 @@ export function phase6ApplyRuntimeEvents(
     state = applyRuntimeEvent(state, ev);
   }
 
-  const remaining = new Set(state.remaining_ids);
-
   return {
     session_id: session.session_id,
     status: "ready",
-    exercises: session.exercises.filter((e) => remaining.has(e.exercise_id))
+    exercises: applyStatusToExercises(session.exercises, state)
   };
 }
 
 /**
  * Runtime wrapper (new):
  * - Same reducer + determinism
- * - Also returns a trace object derived ONLY from emitted runtime state
- *   (remaining/completed/dropped sets), not from planned_session.
+ * - Returns:
+ *   - session with ALL exercises + per-exercise status
+ *   - trace derived ONLY from reducer state (remaining/completed/dropped + split flag)
  */
 export function phase6ApplyRuntimeEventsWithTrace(
   session: Phase6SessionOutput,
@@ -63,23 +86,21 @@ export function phase6ApplyRuntimeEventsWithTrace(
     state = applyRuntimeEvent(state, ev);
   }
 
-  const remaining = new Set(state.remaining_ids);
-
   const nextSession: Phase6SessionOutput = {
     session_id: session.session_id,
     status: "ready",
-    exercises: session.exercises.filter((e) => remaining.has(e.exercise_id))
+    exercises: applyStatusToExercises(session.exercises, state)
   };
 
-  // Trace is derived ONLY from reducer state (which itself is derived from emitted ids).
   const trace = traceFromRuntimeState(state);
 
-  // Extra safety: ensure trace.remaining_ids matches emitted exercises exactly (stable order).
-  // If mismatch ever occurs, reducer/mapper contract has drifted.
-  const emittedRemainingIds = nextSession.exercises.map((e: Phase6SessionExercise) => e.exercise_id);
-  if (emittedRemainingIds.join("|") !== trace.remaining_ids.join("|")) {
-    // Hard fail: contract violation (should never happen).
-    throw new Error("PHASE6_RUNTIME_TRACE_MISMATCH: trace.remaining_ids must equal emitted remaining exercises");
+  // Safety: trace.remaining_ids must equal the pending exercises in session (stable order).
+  const emittedPendingIds = nextSession.exercises
+    .filter((e: any) => (e?.status ?? "pending") === "pending")
+    .map((e: Phase6SessionExercise) => e.exercise_id);
+
+  if (emittedPendingIds.join("|") !== trace.remaining_ids.join("|")) {
+    throw new Error("PHASE6_RUNTIME_TRACE_MISMATCH: trace.remaining_ids must equal emitted pending exercises");
   }
 
   return { session: nextSession, trace };
