@@ -115,6 +115,17 @@ function normalizeSession(doc: any) {
   return doc;
 }
 
+function isTraceObject(x: any): x is { remaining_ids: string[]; completed_ids: string[]; dropped_ids: string[]; split_active: boolean } {
+  return (
+    !!x &&
+    typeof x === "object" &&
+    Array.isArray(x.remaining_ids) &&
+    Array.isArray(x.completed_ids) &&
+    Array.isArray(x.dropped_ids) &&
+    typeof x.split_active === "boolean"
+  );
+}
+
 async function main() {
   const { sessionPath, eventsPath, outdir } = parseArgs(process.argv.slice(2));
 
@@ -142,12 +153,23 @@ async function main() {
   const txtAbs = path.join(absOut, "session.txt");
   writeUtf8Lf(txtAbs, rendered.lines.join("\n") + "\n");
 
+  const trace = applied.trace;
+  const traceSummary = isTraceObject(trace)
+    ? {
+        remaining: trace.remaining_ids.length,
+        completed: trace.completed_ids.length,
+        dropped: trace.dropped_ids.length,
+        split_active: trace.split_active,
+      }
+    : { kind: typeof trace };
+
   process.stdout.write(
     JSON.stringify({
       ok: true,
       outdir: absOut,
       applied_events: eventsDoc.length,
-      trace_len: Array.isArray(applied.trace) ? applied.trace.length : 0,
+      trace_summary: traceSummary,
+      trace,
     })
   );
 }
