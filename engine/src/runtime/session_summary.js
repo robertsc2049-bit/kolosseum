@@ -57,47 +57,104 @@ export function plannedIds(planned) {
 }
 
 /**
+ * Runtime JSON snapshot (V3) is canonical:
+ * - remaining_ids/completed_ids/skipped_ids always present
+ * - split is represented by split_active + remaining_at_split_ids
+ *
+ * Back-compat: we ALSO accept/emit the older nested rt.split shape.
+ *
  * @typedef {{
  *  remaining_ids: string[],
  *  completed_ids: string[],
  *  skipped_ids: string[],
+ *  split_active?: boolean,
+ *  remaining_at_split_ids?: string[],
  *  split?: { active: boolean, remaining_at_split: string[] }
  * }} RuntimeStateJson
  */
 
+function readSplitActive(rt) {
+  if (!rt || typeof rt !== "object") return false;
+  if (typeof rt.split_active === "boolean") return rt.split_active === true;
+  if (rt.split && typeof rt.split === "object") return rt.split.active === true;
+  return false;
+}
+
+function readRemainingAtSplitIds(rt) {
+  if (!rt || typeof rt !== "object") return [];
+  if (Array.isArray(rt.remaining_at_split_ids)) return uniqStable(rt.remaining_at_split_ids);
+  if (rt.split && typeof rt.split === "object" && Array.isArray(rt.split.remaining_at_split)) {
+    return uniqStable(rt.split.remaining_at_split);
+  }
+  return [];
+}
+
+function splitJsonFrom(rt) {
+  const active = readSplitActive(rt);
+  const remaining_at_split = readRemainingAtSplitIds(rt);
+  return active || remaining_at_split.length > 0 ? { active, remaining_at_split } : undefined;
+}
+
 export function fromEngineState(state) {
-  return {
-    remaining_ids: Array.isArray(state.remaining_ids) ? [...state.remaining_ids] : [],
-    completed_ids: Array.from(state.completed_ids ?? []),
-    skipped_ids: Array.from(state.skipped_ids ?? []),
-    split: state.split
-      ? { active: state.split.active === true, remaining_at_split: [...state.split.remaining_at_split] }
-      : undefined
+  const remaining_ids = Array.isArray(state.remaining_ids) ? [...state.remaining_ids] : [];
+  const completed_ids = uniqStable(Array.from(state.completed_ids ?? []));
+  const skipped_ids = uniqStable(Array.from(state.skipped_ids ?? state.dropped_ids ?? []));
+
+  const split_active =
+    typeof state.split_active === "boolean"
+      ? state.split_active === true
+      : state.split && typeof state.split === "object"
+        ? state.split.active === true
+        : false;
+
+  const remaining_at_split_ids =
+    Array.isArray(state.remaining_at_split_ids)
+      ? uniqStable(state.remaining_at_split_ids)
+      : state.split && typeof state.split === "object" && Array.isArray(state.split.remaining_at_split)
+        ? uniqStable(state.split.remaining_at_split)
+        : [];
+
+  /** @type {RuntimeStateJson} */
+  const rt = {
+    remaining_ids,
+    completed_ids,
+    skipped_ids,
+    split_active,
+    remaining_at_split_ids
   };
+
+  // Back-compat emission for older consumers.
+  const split = splitJsonFrom(rt);
+  if (split) rt.split = split;
+
+  return rt;
 }
 
 export function scopeRuntimeJsonToPlan(planned_ids, rt) {
   const allowed = new Set(planned_ids);
+
   const remaining_ids = uniqStable(rt?.remaining_ids).filter((id) => allowed.has(id));
   const completed_ids = uniqStable(rt?.completed_ids).filter((id) => allowed.has(id));
   const skipped_ids = uniqStable(rt?.skipped_ids).filter((id) => allowed.has(id));
 
-  const split =
-    rt?.split && typeof rt.split === "object"
-      ? {
-          active: rt.split.active === true,
-          remaining_at_split: uniqStable(rt.split.remaining_at_split).filter((id) => allowed.has(id))
-        }
-      : undefined;
+  const split_active = readSplitActive(rt);
+  const remaining_at_split_ids = readRemainingAtSplitIds(rt).filter((id) => allowed.has(id));
 
-  return { remaining_ids, completed_ids, skipped_ids, split };
+  /** @type {RuntimeStateJson} */
+  const out = { remaining_ids, completed_ids, skipped_ids, split_active, remaining_at_split_ids };
+
+  // Back-compat split shape (accepted + emitted).
+  const split = splitJsonFrom(out);
+  if (split) out.split = split;
+
+  return out;
 }
 
 /**
  * Build an Engine runtime state from a V3 JSON snapshot.
  * - Base state always comes from plan (stable ordering)
  * - Terminals are restored through reducer to guarantee invariants
- * - Split shape is restored as data (not semantics), after terminals are rebuilt
+ * - Split shape is restored as data after terminals are rebuilt
  */
 export function engineStateFromV3Snapshot(planned_ids, raw) {
   const base = makeRuntimeState(planned_ids);
@@ -108,6 +165,8 @@ export function engineStateFromV3Snapshot(planned_ids, raw) {
         remaining_ids: uniqStable(raw.remaining_ids),
         completed_ids: uniqStable(raw.completed_ids),
         skipped_ids: uniqStable(raw.skipped_ids),
+        split_active: readSplitActive(raw),
+        remaining_at_split_ids: readRemainingAtSplitIds(raw),
         split: isRecord(raw.split)
           ? {
               active: raw.split.active === true,
@@ -115,7 +174,7 @@ export function engineStateFromV3Snapshot(planned_ids, raw) {
             }
           : undefined
       }
-    : { remaining_ids: [], completed_ids: [], skipped_ids: [], split: undefined };
+    : { remaining_ids: [], completed_ids: [], skipped_ids: [], split_active: false, remaining_at_split_ids: [], split: undefined };
 
   const scoped = scopeRuntimeJsonToPlan(planned_ids, rtRaw);
 
@@ -123,15 +182,12 @@ export function engineStateFromV3Snapshot(planned_ids, raw) {
   for (const id of scoped.completed_ids) st = applyRuntimeEvent(st, { type: "complete_exercise", exercise_id: id });
   for (const id of scoped.skipped_ids) st = applyRuntimeEvent(st, { type: "skip_exercise", exercise_id: id });
 
-  if (scoped.split) {
-    st = {
-      ...st,
-      split: {
-        active: scoped.split.active === true,
-        remaining_at_split: [...scoped.split.remaining_at_split]
-      }
-    };
-  }
+  // Restore split as data (no implied semantics beyond persisted snapshot).
+  st = {
+    ...st,
+    split_active: scoped.split_active === true,
+    remaining_at_split_ids: Array.isArray(scoped.remaining_at_split_ids) ? [...scoped.remaining_at_split_ids] : []
+  };
 
   return st;
 }
@@ -210,15 +266,11 @@ export function summaryV3FromLegacy(planned, legacy) {
   for (const id of completed_ids) st = applyRuntimeEvent(st, { type: "complete_exercise", exercise_id: id });
   for (const id of skipped_ids) st = applyRuntimeEvent(st, { type: "skip_exercise", exercise_id: id });
 
+  // V2 split snapshot must be replayable: reconstruct via reducer (split_start),
+  // not by injecting an ad-hoc nested split object.
   const splitV2 = legacy.split;
-  if (splitV2 && typeof splitV2 === "object") {
-    st = {
-      ...st,
-      split: {
-        active: splitV2.active === true,
-        remaining_at_split: uniqStable(splitV2.remaining_at_split_ids)
-      }
-    };
+  if (splitV2 && typeof splitV2 === "object" && splitV2.active === true) {
+    st = applyRuntimeEvent(st, { type: "split_start" });
   }
 
   const last_seq = Number(legacy.last_seq ?? 0);
@@ -232,9 +284,6 @@ export function summaryV3FromLegacy(planned, legacy) {
 
 /**
  * Normalize any stored summary (V1/V2/V3/unknown) into canonical V3.
- * - V3: scope to plan + rebuild terminals through reducer + normalize number fields
- * - V1/V2: upgrade by reducer reconstruction
- * - unknown: fresh V3 from plan
  *
  * @returns {{ summary: SessionSummaryV3, needsUpgrade: boolean }}
  */
@@ -244,7 +293,13 @@ export function normalizeSummary(planned, raw) {
     const last_seq = Number(raw.last_seq ?? 0);
     const started = raw.started === true;
 
-    const st = engineStateFromV3Snapshot(ids, raw.runtime);
+    // Rebuild terminals through reducer.
+    const st0 = engineStateFromV3Snapshot(ids, raw.runtime);
+
+    // CRITICAL: V3 persisted snapshots must NOT preserve "active split".
+    // Split is a runtime decision gate, not durable state.
+    const st = { ...st0, split_active: false, remaining_at_split_ids: [] };
+
     const runtime = fromEngineState(st);
 
     const needs =
@@ -264,13 +319,17 @@ export function normalizeSummary(planned, raw) {
 
 export function deriveTrace(summary) {
   const rt = summary.runtime;
+
+  const split_active = readSplitActive(rt);
+  const remaining_at_split_ids = readRemainingAtSplitIds(rt);
+
   return {
     started: summary.started === true,
     remaining_ids: uniqStable(rt.remaining_ids),
     completed_ids: uniqStable(rt.completed_ids),
     dropped_ids: uniqStable(rt.skipped_ids),
-    split_active: rt.split?.active === true,
-    remaining_at_split_ids: rt.split?.remaining_at_split ? uniqStable(rt.split.remaining_at_split) : []
+    split_active,
+    remaining_at_split_ids
   };
 }
 
