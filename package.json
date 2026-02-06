@@ -65,7 +65,9 @@
                     "test:unit":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 npm run test:ci",
                     "test:watch":  "node --test --watch",
                     "green":  "npm run lint:fast \u0026\u0026 npm run test:unit \u0026\u0026 npm run build:fast \u0026\u0026 npm run dev:fast",
-                    "green:ci":  "npm run ci"
+                    "green:ci":  "npm run ci",
+                    "engine:export":  "npm run build:fast \u0026\u0026 node dist/src/run_pipeline_cli.js --outdir out",
+                    "engine:events":  "npm run build:fast \u0026\u0026 node dist/src/session_runtime_cli.js"
                 },
     "dependencies":  {
                          "ajv":  "^8.17.1",
