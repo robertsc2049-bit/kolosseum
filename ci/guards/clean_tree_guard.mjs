@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import fs from "node:fs";
 import process from "node:process";
 
 function die(msg, code = 1) {
@@ -19,10 +20,26 @@ function git(args) {
   return (r.stdout || "").toString();
 }
 
-// If GREEN has already validated baseline + enforces "no implicit writes" after each step,
-// re-checking clean tree in every sub-step is redundant noise.
-if (process.env.KOLOSSEUM_GREEN === "1" && process.env.KOLOSSEUM_GREEN_BASELINE_CLEAN === "1") {
-  ok("OK: clean_tree_guard (skipped: green baseline clean verified)");
+function canSkipUnderGreen() {
+  // Only skip when invoked by GREEN with a nonce proven via a temp-file handshake.
+  // This prevents accidental env poisoning (e.g., someone exporting KOLOSSEUM_GREEN_* manually).
+  if (process.env.KOLOSSEUM_GREEN !== "1") return false;
+
+  const nonce = process.env.KOLOSSEUM_GREEN_NONCE || "";
+  const file = process.env.KOLOSSEUM_GREEN_NONCE_FILE || "";
+  if (!nonce || !file) return false;
+
+  try {
+    const disk = fs.readFileSync(file, "utf8").trim();
+    if (disk !== nonce) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+if (canSkipUnderGreen()) {
+  ok("OK: clean_tree_guard (skipped: green nonce verified)");
   process.exit(0);
 }
 

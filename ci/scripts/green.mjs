@@ -1,4 +1,8 @@
 import { spawnSync } from "node:child_process";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import process from "node:process";
 
 function die(msg, code = 1) {
@@ -131,27 +135,44 @@ function assertNoImplicitWrites(stepLabel, basePorcelain) {
   die(msg, 1);
 }
 
+function makeGreenNonceHandshake() {
+  const nonce = crypto.randomBytes(18).toString("hex"); // 36 chars
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-green-"));
+  const file = path.join(dir, "nonce.txt");
+  fs.writeFileSync(file, nonce + "\n", { encoding: "utf8" });
+  return { nonce, file, dir };
+}
+
 // Baseline: allow staged index; forbid unstaged/untracked.
 const base = porcelain();
 const baseLines = splitLines(base);
 assertStartStateAllowed(baseLines);
 
-// Mark that baseline clean check was performed by green.
-// clean_tree_guard can skip its redundant checks during green sub-steps without weakening guarantees
-// because green asserts "no implicit writes" after each step.
-const env = { KOLOSSEUM_GREEN: "1", KOLOSSEUM_GREEN_BASELINE_CLEAN: "1" };
+// Mint a per-run nonce handshake so clean_tree_guard can skip safely during sub-steps.
+const hs = makeGreenNonceHandshake();
 
-// Run sequence (authoritative)
-runNpm("lint:fast", env);
-assertNoImplicitWrites("lint:fast", base);
+const env = {
+  KOLOSSEUM_GREEN: "1",
+  KOLOSSEUM_GREEN_NONCE: hs.nonce,
+  KOLOSSEUM_GREEN_NONCE_FILE: hs.file,
+};
 
-runNpm("test:unit", env);
-assertNoImplicitWrites("test:unit", base);
+try {
+  // Run sequence (authoritative)
+  runNpm("lint:fast", env);
+  assertNoImplicitWrites("lint:fast", base);
 
-runNpm("build:fast", env);
-assertNoImplicitWrites("build:fast", base);
+  runNpm("test:unit", env);
+  assertNoImplicitWrites("test:unit", base);
 
-runNpm("dev:fast", env);
-assertNoImplicitWrites("dev:fast", base);
+  runNpm("build:fast", env);
+  assertNoImplicitWrites("build:fast", base);
 
-process.stdout.write("\nGREEN_OK: all steps passed; repo state unchanged from baseline.\n");
+  runNpm("dev:fast", env);
+  assertNoImplicitWrites("dev:fast", base);
+
+  process.stdout.write("\nGREEN_OK: all steps passed; repo state unchanged from baseline.\n");
+} finally {
+  // Best-effort cleanup of temp handshake
+  try { fs.rmSync(hs.dir, { recursive: true, force: true }); } catch {}
+}
