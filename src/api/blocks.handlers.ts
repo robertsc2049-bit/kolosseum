@@ -3,13 +3,13 @@ import type { Request, Response } from "express";
 import crypto from "node:crypto";
 import { pool } from "../db/pool.js";
 
-import type { Phase6SessionOutput } from "../../engine/src/phases/phase6.js";
+import type { Phase6SessionOutput } from "@kolosseum/engine/phases/phase6.js";
 
-import { phase1Validate } from "../../engine/src/phases/phase1.js";
-import { phase2CanonicaliseAndHash } from "../../engine/src/phases/phase2.js";
-import { phase3ResolveConstraintsAndLoadRegistries } from "../../engine/src/phases/phase3.js";
-import { phase4AssembleProgram } from "../../engine/src/phases/phase4.js";
-import { phase6ProduceSessionOutput } from "../../engine/src/phases/phase6.js";
+import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
+import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
+import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
+import { phase4AssembleProgram } from "@kolosseum/engine/phases/phase4.js";
+import { phase6ProduceSessionOutput } from "@kolosseum/engine/phases/phase6.js";
 
 type CompileBlockBody = {
   phase1_input: unknown;

@@ -1,0 +1,37 @@
+{
+    "name":  "@kolosseum/engine",
+    "private":  true,
+    "version":  "0.1.0",
+    "type":  "module",
+    "types":  "./types/index.d.ts",
+    "exports":  {
+                    "./runtime/session_summary.js":  {
+                                                         "types":  "./types/runtime/session_summary.d.ts",
+                                                         "default":  "./dist/src/runtime/session_summary.js"
+                                                     },
+                    "./phases/phase1.js":  {
+                                               "types":  "./types/phases/phase1.d.ts",
+                                               "default":  "./dist/src/phases/phase1.js"
+                                           },
+                    "./phases/phase2.js":  {
+                                               "types":  "./types/phases/phase2.d.ts",
+                                               "default":  "./dist/src/phases/phase2.js"
+                                           },
+                    "./runtime/apply_runtime_event.js":  {
+                                                             "types":  "./types/runtime/apply_runtime_event.d.ts",
+                                                             "default":  "./dist/src/runtime/apply_runtime_event.js"
+                                                         },
+                    "./phases/phase3.js":  {
+                                               "types":  "./types/phases/phase3.d.ts",
+                                               "default":  "./dist/src/phases/phase3.js"
+                                           },
+                    "./phases/phase4.js":  {
+                                               "types":  "./types/phases/phase4.d.ts",
+                                               "default":  "./dist/src/phases/phase4.js"
+                                           },
+                    "./phases/phase6.js":  {
+                                               "types":  "./types/phases/phase6.d.ts",
+                                               "default":  "./dist/src/phases/phase6.js"
+                                           }
+                }
+}

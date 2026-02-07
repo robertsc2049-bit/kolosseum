@@ -10,26 +10,71 @@ export type Phase6RuntimeTrace = {
   split_active: boolean;
 };
 
-function traceFromRuntimeState(state: any): Phase6RuntimeTrace {
-  const remaining_ids = Array.isArray(state?.remaining_ids) ? state.remaining_ids.map(String) : [];
-  const completed_ids = Array.from(state?.completed_ids ?? []).map(String);
-  const dropped_ids = Array.from(state?.skipped_ids ?? []).map(String);
-  const split_active = Boolean(state?.split?.active);
+type ExerciseStatus = "pending" | "completed" | "skipped";
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+
+function normalizeStringArray(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  return v.map((x) => String(x));
+}
+
+function normalizeStringSet(v: unknown): Set<string> {
+  const out = new Set<string>();
+  if (!(v instanceof Set)) return out;
+  for (const x of v.values()) out.add(String(x));
+  return out;
+}
+
+function traceFromRuntimeState(state: unknown): Phase6RuntimeTrace {
+  const remaining_ids = isRecord(state) ? normalizeStringArray(state.remaining_ids) : [];
+  const completed_ids = isRecord(state) ? Array.from(normalizeStringSet(state.completed_ids)) : [];
+  const dropped_ids = isRecord(state) ? Array.from(normalizeStringSet(state.skipped_ids)) : [];
+
+  const split_active =
+    isRecord(state) && isRecord(state.split) ? Boolean((state.split as Record<string, unknown>).active) : false;
 
   return { remaining_ids, completed_ids, dropped_ids, split_active };
+}
+
+function statusForId(id: string, completed: Set<string>, skipped: Set<string>): ExerciseStatus {
+  if (completed.has(id)) return "completed";
+  if (skipped.has(id)) return "skipped";
+  return "pending";
+}
+
+function getCompletedAndSkipped(state: unknown): { completed: Set<string>; skipped: Set<string> } {
+  if (!isRecord(state)) return { completed: new Set<string>(), skipped: new Set<string>() };
+  return {
+    completed: normalizeStringSet(state.completed_ids),
+    skipped: normalizeStringSet(state.skipped_ids)
+  };
+}
+
+function applyStatusToExercises(exercises: Phase6SessionExercise[], state: unknown): Phase6SessionExercise[] {
+  const { completed, skipped } = getCompletedAndSkipped(state);
+
+  // IMPORTANT:
+  // - Preserve original stable order
+  // - Keep ALL exercises
+  // - Add status field (pending/completed/skipped)
+  return exercises.map((e) => {
+    const status = statusForId(String(e.exercise_id ?? ""), completed, skipped);
+    return { ...e, status };
+  });
 }
 
 /**
  * Runtime wrapper (legacy signature):
  * - Applies events deterministically
- * - Returns Phase6SessionOutput with remaining exercises only
+ * - Returns Phase6SessionOutput with ALL exercises preserved
+ * - Adds per-exercise status (pending/completed/skipped)
  *
  * Contract: does NOT change session_id; does NOT add notes.
  */
-export function phase6ApplyRuntimeEvents(
-  session: Phase6SessionOutput,
-  events: RuntimeEvent[]
-): Phase6SessionOutput {
+export function phase6ApplyRuntimeEvents(session: Phase6SessionOutput, events: RuntimeEvent[]): Phase6SessionOutput {
   const planned_ids = session.exercises.map((e) => e.exercise_id);
   let state = makeRuntimeState(planned_ids);
 
@@ -37,20 +82,19 @@ export function phase6ApplyRuntimeEvents(
     state = applyRuntimeEvent(state, ev);
   }
 
-  const remaining = new Set(state.remaining_ids);
-
   return {
     session_id: session.session_id,
     status: "ready",
-    exercises: session.exercises.filter((e) => remaining.has(e.exercise_id))
+    exercises: applyStatusToExercises(session.exercises, state)
   };
 }
 
 /**
  * Runtime wrapper (new):
  * - Same reducer + determinism
- * - Also returns a trace object derived ONLY from emitted runtime state
- *   (remaining/completed/dropped sets), not from planned_session.
+ * - Returns:
+ *   - session with ALL exercises + per-exercise status
+ *   - trace derived ONLY from reducer state (remaining/completed/dropped + split flag)
  */
 export function phase6ApplyRuntimeEventsWithTrace(
   session: Phase6SessionOutput,
@@ -63,23 +107,21 @@ export function phase6ApplyRuntimeEventsWithTrace(
     state = applyRuntimeEvent(state, ev);
   }
 
-  const remaining = new Set(state.remaining_ids);
-
   const nextSession: Phase6SessionOutput = {
     session_id: session.session_id,
     status: "ready",
-    exercises: session.exercises.filter((e) => remaining.has(e.exercise_id))
+    exercises: applyStatusToExercises(session.exercises, state)
   };
 
-  // Trace is derived ONLY from reducer state (which itself is derived from emitted ids).
   const trace = traceFromRuntimeState(state);
 
-  // Extra safety: ensure trace.remaining_ids matches emitted exercises exactly (stable order).
-  // If mismatch ever occurs, reducer/mapper contract has drifted.
-  const emittedRemainingIds = nextSession.exercises.map((e: Phase6SessionExercise) => e.exercise_id);
-  if (emittedRemainingIds.join("|") !== trace.remaining_ids.join("|")) {
-    // Hard fail: contract violation (should never happen).
-    throw new Error("PHASE6_RUNTIME_TRACE_MISMATCH: trace.remaining_ids must equal emitted remaining exercises");
+  // Safety: trace.remaining_ids must equal the pending exercises in session (stable order).
+  const emittedPendingIds = nextSession.exercises
+    .filter((e) => (e.status ?? "pending") === "pending")
+    .map((e) => e.exercise_id);
+
+  if (emittedPendingIds.join("|") !== trace.remaining_ids.join("|")) {
+    throw new Error("PHASE6_RUNTIME_TRACE_MISMATCH: trace.remaining_ids must equal emitted pending exercises");
   }
 
   return { session: nextSession, trace };
