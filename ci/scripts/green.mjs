@@ -35,10 +35,9 @@ function run(cmd, args, label, opts = {}) {
 function runNpm(scriptName, envExtra = {}) {
   const env = { ...process.env, ...envExtra };
 
-  // Windows: don't exec npm.cmd directly (EINVAL); go through cmd.exe.
+  // Windows: go through cmd.exe for npm to avoid spawn EINVAL edge cases.
   if (process.platform === "win32") {
     const comspec = process.env.ComSpec || "C:\\Windows\\System32\\cmd.exe";
-    // /d  = disable AutoRun, /s = stricter quoting, /c = run and exit
     run(comspec, ["/d", "/s", "/c", `npm run ${scriptName}`], `npm run ${scriptName}`, { env });
     return;
   }
@@ -132,12 +131,15 @@ function assertNoImplicitWrites(stepLabel, basePorcelain) {
   die(msg, 1);
 }
 
-const env = { KOLOSSEUM_GREEN: "1" };
-
 // Baseline: allow staged index; forbid unstaged/untracked.
 const base = porcelain();
 const baseLines = splitLines(base);
 assertStartStateAllowed(baseLines);
+
+// Mark that baseline clean check was performed by green.
+// clean_tree_guard can skip its redundant checks during green sub-steps without weakening guarantees
+// because green asserts "no implicit writes" after each step.
+const env = { KOLOSSEUM_GREEN: "1", KOLOSSEUM_GREEN_BASELINE_CLEAN: "1" };
 
 // Run sequence (authoritative)
 runNpm("lint:fast", env);
