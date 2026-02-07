@@ -2,22 +2,52 @@ import { spawnSync } from "node:child_process";
 import process from "node:process";
 
 function die(msg, code = 1) {
-  process.stderr.write(msg + "\n");
+  process.stderr.write(String(msg).trimEnd() + "\n");
   process.exit(code);
 }
 
-function run(cmd, args, label, envExtra = {}) {
+function run(cmd, args, label, opts = {}) {
   process.stdout.write(`\n== GREEN STEP: ${label} ==\n`);
   const r = spawnSync(cmd, args, {
     stdio: "inherit",
     shell: false,
-    env: { ...process.env, ...envExtra },
+    env: opts.env ?? process.env,
+    windowsHide: true,
   });
-  if (r.status !== 0) die(`GREEN_FAIL: step '${label}' failed with exit code ${r.status}`, r.status ?? 1);
+
+  if (r.status === null) {
+    const bits = [
+      `GREEN_FAIL: step '${label}' produced no exit code (status=null).`,
+      `cmd: ${cmd} ${args.join(" ")}`,
+      r.signal ? `signal: ${r.signal}` : "signal: (none)",
+      r.error ? `error: ${r.error.message || String(r.error)}` : "error: (none)",
+      "",
+      "This is almost always a spawn/exec failure on this platform.",
+    ];
+    die(bits.join("\n"), 1);
+  }
+
+  if (r.status !== 0) {
+    die(`GREEN_FAIL: step '${label}' failed with exit code ${r.status}`, r.status ?? 1);
+  }
+}
+
+function runNpm(scriptName, envExtra = {}) {
+  const env = { ...process.env, ...envExtra };
+
+  // Windows: don't exec npm.cmd directly (EINVAL); go through cmd.exe.
+  if (process.platform === "win32") {
+    const comspec = process.env.ComSpec || "C:\\Windows\\System32\\cmd.exe";
+    // /d  = disable AutoRun, /s = stricter quoting, /c = run and exit
+    run(comspec, ["/d", "/s", "/c", `npm run ${scriptName}`], `npm run ${scriptName}`, { env });
+    return;
+  }
+
+  run("npm", ["run", scriptName], `npm run ${scriptName}`, { env });
 }
 
 function git(args) {
-  const r = spawnSync("git", args, { encoding: "utf8", shell: false });
+  const r = spawnSync("git", args, { encoding: "utf8", shell: false, windowsHide: true });
   if (r.status !== 0) {
     const out = (r.stdout || "") + (r.stderr || "");
     die(`GREEN_FAIL: git ${args.join(" ")} failed\n${out}`.trim(), r.status ?? 1);
@@ -29,71 +59,97 @@ function porcelain() {
   return git(["status", "--porcelain=v1", "--untracked-files=normal"]);
 }
 
-function listUntracked(p) {
-  return p
-    .split(/\r?\n/)
-    .filter(Boolean)
-    .filter((l) => l.startsWith("?? "))
-    .map((l) => l.slice(3).trim());
+function splitLines(p) {
+  return p.split(/\r?\n/).filter(Boolean);
 }
 
-function invariantClean(label) {
-  const p = porcelain();
-  if (p.trim().length) {
-    const untracked = listUntracked(p);
-    const tracked = p
-      .split(/\r?\n/)
-      .filter(Boolean)
-      .filter((l) => !l.startsWith("?? "))
-      .map((l) => l.trim());
-
-    const lines = [
-      `GREEN_FAIL: working tree became dirty after step '${label}'.`,
-      "",
-      tracked.length ? "Tracked changes:" : "Tracked changes: (none)",
-      ...tracked.map((x) => `  ${x}`),
-      "",
-      untracked.length ? "New untracked files:" : "New untracked files: (none)",
-      ...untracked.map((x) => `  ${x}`),
-      "",
-      "Action:",
-      "- This is treated as an implicit write and is forbidden unless explicitly run in a write mode.",
-      "- The offender is the step named above.",
-    ];
-    die(lines.join("\n"));
-  }
+function hasUntracked(lines) {
+  return lines.some((l) => l.startsWith("?? "));
 }
 
-function ensureStartClean() {
-  const p = porcelain();
-  if (p.trim().length) {
+function hasUnstaged(lines) {
+  // XY: X=index, Y=working tree
+  return lines.some((l) => l.length >= 2 && l[1] !== " ");
+}
+
+function prettyList(title, items) {
+  const out = [title];
+  if (!items.length) out.push("  (none)");
+  else for (const it of items) out.push("  " + it);
+  return out.join("\n");
+}
+
+function assertStartStateAllowed(baseLines) {
+  if (hasUntracked(baseLines) || hasUnstaged(baseLines)) {
+    const untracked = baseLines.filter((l) => l.startsWith("?? "));
+    const unstaged = baseLines.filter((l) => !l.startsWith("?? ") && l.length >= 2 && l[1] !== " ");
     die(
       [
-        "GREEN_FAIL: working tree is not clean at start.",
-        "Refusing to run.",
+        "GREEN_FAIL: start state is not allowed.",
         "",
-        "Run:",
-        "  npm run dev:status",
+        prettyList("Untracked files (forbidden):", untracked),
+        "",
+        prettyList("Unstaged changes (forbidden):", unstaged),
+        "",
+        "Fix:",
+        "- Staged changes are allowed.",
+        "- Untracked + unstaged are forbidden.",
       ].join("\n")
     );
   }
 }
 
-// Canonical: single entry point + set KOLOSSEUM_GREEN=1 so sub-commands are allowed.
+function diffSets(baseLines, nowLines) {
+  const b = new Set(baseLines);
+  const n = new Set(nowLines);
+  const added = [...n].filter((x) => !b.has(x)).sort();
+  const removed = [...b].filter((x) => !n.has(x)).sort();
+  return { added, removed };
+}
+
+function assertNoImplicitWrites(stepLabel, basePorcelain) {
+  const now = porcelain();
+  if (now === basePorcelain) return;
+
+  const baseLines = splitLines(basePorcelain);
+  const nowLines = splitLines(now);
+  const { added, removed } = diffSets(baseLines, nowLines);
+
+  const msg = [
+    `GREEN_FAIL: repo state changed after step '${stepLabel}'.`,
+    "",
+    "This is an implicit write and is forbidden unless behind an explicit --write mode.",
+    "",
+    prettyList("New status lines:", added),
+    "",
+    prettyList("Missing status lines:", removed),
+    "",
+    prettyList("Untracked now:", nowLines.filter((l) => l.startsWith("?? "))),
+    "",
+    `Offender: step '${stepLabel}'.`,
+  ].join("\n");
+
+  die(msg, 1);
+}
+
 const env = { KOLOSSEUM_GREEN: "1" };
 
-ensureStartClean();
+// Baseline: allow staged index; forbid unstaged/untracked.
+const base = porcelain();
+const baseLines = splitLines(base);
+assertStartStateAllowed(baseLines);
 
-run("npm", ["run", "lint:fast"], "lint:fast", env);
-invariantClean("lint:fast");
+// Run sequence (authoritative)
+runNpm("lint:fast", env);
+assertNoImplicitWrites("lint:fast", base);
 
-run("npm", ["run", "test:unit"], "test:unit", env);
-invariantClean("test:unit");
+runNpm("test:unit", env);
+assertNoImplicitWrites("test:unit", base);
 
-run("npm", ["run", "build:fast"], "build:fast", env);
-invariantClean("build:fast");
+runNpm("build:fast", env);
+assertNoImplicitWrites("build:fast", base);
 
-run("npm", ["run", "dev:fast"], "dev:fast", env);
-invariantClean("dev:fast");
+runNpm("dev:fast", env);
+assertNoImplicitWrites("dev:fast", base);
 
-process.stdout.write("\nGREEN_OK: all steps passed; tree remained clean.\n");
+process.stdout.write("\nGREEN_OK: all steps passed; repo state unchanged from baseline.\n");
