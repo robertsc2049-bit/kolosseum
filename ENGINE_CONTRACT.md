@@ -168,3 +168,14 @@ Never “update to make it pass” without understanding the behavioural change.
 
 - Engine changes that alter behaviour covered by this contract should be grouped and documented.
 - If we need breaking changes, we create a new explicit contract version (e.g. Phase6 v2) rather than silently mutating v1.
+
+## CLI export contract
+
+The run_pipeline CLI supports a stable export surface:
+
+- Input: Phase1 JSON via stdin or --in/-i
+- Export: --outdir/-o writes exactly:
+  - session.json
+  - session.txt
+
+The normative CLI contract is defined in docs/CLI_EXPORT.md.

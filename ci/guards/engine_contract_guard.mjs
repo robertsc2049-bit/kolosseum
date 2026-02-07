@@ -36,7 +36,7 @@ for (const s of mustContain) {
 }
 
 // Hard lock: sha256 pin
-const EXPECTED_SHA256 = "A9A5FD590046785562C8547285D540051A570050DFADE0D9986B694ECEB3EE37";
+const EXPECTED_SHA256 = "672A781F8BD5116B5DF56E824DDB4C5715CE713CE862D0010155343B8ED795A4";
 
 const actual = crypto.createHash("sha256").update(buf).digest("hex").toUpperCase();
 
