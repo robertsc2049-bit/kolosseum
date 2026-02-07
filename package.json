@@ -11,7 +11,7 @@
     "build": "tsc -p tsconfig.json && npm run engine:shim:check",
     "build:fast": "node ci/guards/green_entrypoint_guard.mjs && node ci/guards/clean_tree_guard.mjs && tsc -p tsconfig.json && npm run engine:shim:check",
     "build:watch": "tsc -p tsconfig.json -w",
-    "ci": "node ci/guards/clean_tree_guard.mjs && npm run guard:constraints && npm run guard:version && npm run lint && npm run test && npm run e2e:golden",
+    "ci": "node ci/guards/clean_tree_guard.mjs && npm run guard:constraints && npm run guard:version && npm run green && npm run e2e:golden",
     "ci:parity": "npm run ci",
     "db:schema": "node scripts/apply-schema.mjs",
     "dev:check": "npm run ci && npm run db:schema",
