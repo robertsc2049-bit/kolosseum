@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum:evidence_seal.schema.v1.0.0",
+  "title": "Kolosseum Evidence Seal (v1.0.0)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "envelope_sha256", "seal_sha256"],
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "kolosseum:evidence_seal@1"
+    },
+    "envelope_sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+    "seal_sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algo", "public_key_id", "sig_base64"],
+      "properties": {
+        "algo": { "type": "string", "enum": ["ed25519"] },
+        "public_key_id": { "type": "string", "minLength": 1 },
+        "sig_base64": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

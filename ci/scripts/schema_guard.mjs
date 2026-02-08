@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import Ajv from "ajv";
+import Ajv2020 from "ajv/dist/2020.js";
+import { createRequire } from "node:module";
 
 function stripBom(s) {
   return s.length > 0 && s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
@@ -18,11 +19,19 @@ function fail(msg) {
 
 const repoRoot = process.cwd();
 
-const ajv = new Ajv({
+// Ajv2020 supports draft 2020-12, but DOES NOT preload draft-07 meta schema.
+// This repo contains schemas that reference draft-07, so we must add that meta schema explicitly.
+const require = createRequire(import.meta.url);
+const draft7Meta = require("ajv/dist/refs/json-schema-draft-07.json");
+
+const ajv = new Ajv2020({
   allErrors: true,
   strict: true,
   strictRequired: false
 });
+
+// Register draft-07 meta schema so Ajv2020 can compile/validate older schemas too.
+ajv.addMetaSchema(draft7Meta);
 
 function addSchemaFile(rel) {
   const schemaPath = path.join(repoRoot, rel);
@@ -57,6 +66,10 @@ addSchemaFile("ci/schemas/phase4.output.schema.v1.0.0.json");
 // Phase 6 output schema (session)
 addSchemaFile("ci/schemas/phase6.output.schema.v1.0.0.json");
 
+// Evidence envelope + seal schemas (Phase 7/8 contract layer)
+addSchemaFile("ci/schemas/evidence_envelope.schema.v1.0.0.json");
+addSchemaFile("ci/schemas/evidence_seal.schema.v1.0.0.json");
+
 // Validate exercise registry file exists + conforms
 {
   const registryPath = path.join(repoRoot, "registries", "exercise", "exercise.registry.json");
@@ -82,6 +95,20 @@ validateFixture(
   "phase6.output.schema.v1.0.0.json",
   "ci/fixtures/phase6.output.fixture.v1.0.0.json",
   "CI_SCHEMA_INVALID_PHASE6_OUTPUT"
+);
+
+// Validate Evidence Envelope fixture conforms to schema
+validateFixture(
+  "evidence_envelope.schema.v1.0.0.json",
+  "ci/fixtures/evidence_envelope.fixture.v1.0.0.json",
+  "CI_SCHEMA_INVALID_EVIDENCE_ENVELOPE"
+);
+
+// Validate Evidence Seal fixture conforms to schema
+validateFixture(
+  "evidence_seal.schema.v1.0.0.json",
+  "ci/fixtures/evidence_seal.fixture.v1.0.0.json",
+  "CI_SCHEMA_INVALID_EVIDENCE_SEAL"
 );
 
 console.log("schema_guard: OK");

@@ -1,0 +1,98 @@
+{
+  "artifacts": {
+    "phase_outputs": [
+      {
+        "name": "phase1_envelope",
+        "phase": 1,
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "phase3_constraints",
+        "phase": 3,
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "phase4_program",
+        "phase": 4,
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "name": "phase6_session",
+        "phase": 6,
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "contract": "kolosseum:evidence_envelope@1",
+  "engine": {
+    "node": "24.12.0",
+    "version": "0.1.23"
+  },
+  "inputs": {
+    "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "registry_bundle_sha256": "03BCDE1FF5005F4B374B23F6724FE314B122AEDAC4125D1E37E2C5E22A9FBD48",
+    "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "schema_sha256s": [
+      {
+        "path": "ci/schemas/activity.registry.schema.json",
+        "sha256": "0BB4D745CA655437F099E0E7D20FBFC4300A5489B23CA104A3F164231F3A577C"
+      },
+      {
+        "path": "ci/schemas/evidence_envelope.schema.v1.0.0.json",
+        "sha256": "967033E606DAA4830B0C8B7A1B050E977A709925660FDF0A5A13ABB7FBE294CB"
+      },
+      {
+        "path": "ci/schemas/evidence_seal.schema.v1.0.0.json",
+        "sha256": "06E36522E257201BCB3F9595A7D7C3058B1EE13890EE7CE67ABA6B46D8276C6E"
+      },
+      {
+        "path": "ci/schemas/exercise_registry.schema.json",
+        "sha256": "C1CF6290E76EFC1100ACB3C667EA527EF033A938DC864FAC4E14C361AD24A3E5"
+      },
+      {
+        "path": "ci/schemas/exercise.registry.schema.json",
+        "sha256": "C723CEBAEAE3EF6812BE2A6660D736AAFB7FA844CBE9F65EF8EEA39DF1123AA9"
+      },
+      {
+        "path": "ci/schemas/exercise.registry.schema.v1.0.0.json",
+        "sha256": "D9AA49F2F26C44ED866BDB504D14D19545AE8A2CFDDA067BCE884AFAC70202F6"
+      },
+      {
+        "path": "ci/schemas/movement.registry.schema.json",
+        "sha256": "D7D2E3DBEFE2F8F65C809AFC3361010291DA6505285EACA07599D588236F6AB7"
+      },
+      {
+        "path": "ci/schemas/phase1.input.schema.v1.0.0.json",
+        "sha256": "B686A1CE56B0C75F83359D996D3ED9AE40060E56D4845387A6B8FD3338118D28"
+      },
+      {
+        "path": "ci/schemas/phase4.output.schema.v1.0.0.json",
+        "sha256": "6651F323654A60A90E71CCFB009BEEC30E94AC606E093BBE4B6DE58901A0E195"
+      },
+      {
+        "path": "ci/schemas/phase6.output.schema.v1.0.0.json",
+        "sha256": "F0F4F21BD1B73950DC4B979C6405DB96F214728786150E87D9B6BDB2F80E879F"
+      },
+      {
+        "path": "ci/schemas/program.registry.schema.json",
+        "sha256": "31E37A7CB633FFAB7404B729A0D01364E80119B75487F90481D3C0B470C2BD5D"
+      },
+      {
+        "path": "ci/schemas/registry_entry.schema.json",
+        "sha256": "C686F8A96C8333FE7BC6D70C8B34CF8FF121893C78198BEBA687D7F9002B25BD"
+      }
+    ]
+  },
+  "validations": {
+    "guards": [
+      {
+        "name": "registry_law_guard",
+        "result": "pass"
+      },
+      {
+        "name": "engine_contract_guard",
+        "result": "pass"
+      }
+    ]
+  }
+}
