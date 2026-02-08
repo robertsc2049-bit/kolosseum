@@ -43,12 +43,11 @@ if (canSkipUnderGreen()) {
 }
 
 // We explicitly allow *staged-only* changes.
-// What we forbid:
+// We forbid:
 //  - untracked files (??)
 //  - unstaged changes in the working tree (Y column in porcelain is not space)
-//
-// This makes pre-commit / green:fast usable, while still preventing hidden drift.
 const porcelain = git(["status", "--porcelain=v1", "--untracked-files=normal"]).trimEnd();
+
 if (!porcelain) {
   ok("OK: clean_tree_guard (WORKING TREE: CLEAN)");
   process.exit(0);
@@ -61,29 +60,25 @@ const unstaged = [];
 const stagedOnly = [];
 
 for (const l of lines) {
-  // Untracked: "?? path"
   if (l.startsWith("??")) {
     untracked.push(l);
     continue;
   }
 
-  // Porcelain v1: XY<space>path
   const x = l.length >= 1 ? l[0] : " ";
   const y = l.length >= 2 ? l[1] : " ";
 
-  // Any Y != space means working tree differs from index (unstaged drift).
   if (y !== " ") {
     unstaged.push(l);
     continue;
   }
 
-  // If X != space and Y == space, it's staged-only (allowed).
   if (x !== " ") {
     stagedOnly.push(l);
     continue;
   }
 
-  // Defensive: treat anything else as unstaged.
+  // Defensive: unexpected format = treat as drift.
   unstaged.push(l);
 }
 
@@ -98,8 +93,17 @@ function renderList(arr, limit = 200) {
   return { limited, suffix };
 }
 
-const parts = [];
+function safeGitDiffNameOnly() {
+  // Only meaningful when there are unstaged changes; ignore errors (guard should still fail on unstaged).
+  try {
+    const out = git(["diff", "--name-only"]).trimEnd();
+    return out ? out : "";
+  } catch {
+    return "";
+  }
+}
 
+const parts = [];
 parts.push("❌ clean_tree_guard: WORKING TREE: DIRTY");
 
 if (untracked.length) {
@@ -116,6 +120,13 @@ if (unstaged.length) {
   parts.push("Unstaged entries (working tree drift):");
   for (const l of limited) parts.push(" " + l);
   if (suffix) parts.push(suffix);
+
+  const diffNames = safeGitDiffNameOnly();
+  if (diffNames) {
+    parts.push("");
+    parts.push("Unstaged files (git diff --name-only):");
+    for (const f of diffNames.split(/\r?\n/).filter(Boolean)) parts.push(" " + f);
+  }
 }
 
 parts.push("");
