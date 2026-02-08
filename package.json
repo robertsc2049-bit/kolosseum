@@ -20,7 +20,7 @@
 
                     "build":  "tsc -p tsconfig.json \u0026\u0026 npm run engine:shim:check",
 
-                    "build:fast":  "node ci/guards/green_entrypoint_guard.mjs \u0026\u0026 node ci/guards/clean_tree_guard.mjs \u0026\u0026 tsc -p tsconfig.json \u0026\u0026 npm run engine:shim:check",
+                    "build:fast":  "node ci/guards/green_entrypoint_guard.mjs \u0026\u0026 node ci/guards/clean_tree_guard.mjs \u0026\u0026 tsc -p tsconfig.json \u0026\u0026 npm run engine:shim:check \u0026\u0026 node ci/guards/run_pipeline_contract_version_guard.mjs",
 
                     "build:watch":  "tsc -p tsconfig.json -w",
 

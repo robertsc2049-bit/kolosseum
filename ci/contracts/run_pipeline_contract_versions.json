@@ -1,0 +1,1 @@
+{"meta":{"created_utc":"2026-02-08T18:41:59.682Z","fixture":"test/fixtures/golden/expected/vanilla_minimal.json","tool":"run_pipeline_contract_version_guard"},"request":{"shape_sha256":"f96ae07bb71d52f76025eaeed107ee2cf86ad40f473e38f07390eceebe2c6413","version":1},"response":{"shape_sha256":"5681068e1549d39196f2e3047bd303cf58a5c7c464a42eb74bdd57a2bd919d2a","version":1}}
