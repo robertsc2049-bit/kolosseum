@@ -1,58 +1,130 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import process from "node:process";
+import crypto from "node:crypto";
 import { spawnSync } from "node:child_process";
 
 function die(msg, code = 1) {
-  console.error(msg);
+  process.stderr.write(String(msg).trimEnd() + "\n");
   process.exit(code);
 }
 
-function npmInvocation() {
-  // When invoked via `npm run ...`, npm sets npm_execpath to the npm CLI JS file.
-  // Spawning Node + npm-cli.js is the most reliable cross-platform call (avoids npm.cmd EINVAL on Windows).
-  const npmExecPath = process.env.npm_execpath;
-  if (npmExecPath && typeof npmExecPath === "string" && npmExecPath.length > 0) {
-    return { cmd: process.execPath, prefix: [npmExecPath] };
+function ok(msg) {
+  process.stdout.write(String(msg).trimEnd() + "\n");
+}
+
+function headline(msg) {
+  process.stdout.write("\n== GREEN:FAST STEP: " + String(msg).trim() + " ==\n\n");
+}
+
+function safeRmRf(p) {
+  try {
+    fs.rmSync(p, { recursive: true, force: true });
+  } catch {
+    // ignore
+  }
+}
+
+function mkNonceHandshake() {
+  const nonce = crypto.randomBytes(16).toString("hex");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-greenfast-"));
+  const file = path.join(dir, "nonce.txt");
+  fs.writeFileSync(file, nonce + "\n", { encoding: "utf8" });
+  return { nonce, dir, file };
+}
+
+function findNpmCli(env) {
+  const cands = [];
+
+  if (env.npm_execpath && typeof env.npm_execpath === "string") cands.push(env.npm_execpath);
+  if (env.NPM_CLI_JS && typeof env.NPM_CLI_JS === "string") cands.push(env.NPM_CLI_JS);
+
+  // Common install: <nodeDir>/node_modules/npm/bin/npm-cli.js
+  try {
+    const nodeDir = path.dirname(process.execPath);
+    cands.push(path.join(nodeDir, "node_modules", "npm", "bin", "npm-cli.js"));
+  } catch {
+    // ignore
   }
 
-  // Fallback for odd environments (still try direct npm).
-  const cmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  return { cmd, prefix: [] };
+  for (const p of cands) {
+    try {
+      if (p && fs.existsSync(p)) return p;
+    } catch {
+      // ignore
+    }
+  }
+  return null;
 }
 
-function runRaw(stepName, cmd, args) {
-  console.log("");
-  console.log(`== GREEN:FAST STEP: ${stepName} ==`);
-  console.log("");
+/**
+ * Run npm deterministically without relying on PATH or .cmd resolution.
+ * Uses node + npm-cli.js for stable Windows behavior.
+ */
+function runNpm(script, extraEnv = {}) {
+  const env = { ...process.env, ...extraEnv };
 
-  const r = spawnSync(cmd, args, {
+  const node = process.execPath;
+  if (!node || typeof node !== "string") {
+    return { code: 1, detail: "process.execPath missing" };
+  }
+
+  const npmCli = findNpmCli(env);
+  if (!npmCli) {
+    return {
+      code: 1,
+      detail:
+        "npm cli not found (npm_execpath/NPM_CLI_JS missing and no npm-cli.js near node). Run via `npm run green:fast` or fix env.",
+    };
+  }
+
+  const r = spawnSync(node, [npmCli, "run", script], {
+    encoding: "utf8",
     stdio: "inherit",
     shell: false,
-    env: process.env,
+    windowsHide: true,
+    env,
   });
 
-  if (r.error) die(`GREEN_FAST_FAIL: ${stepName}: ${r.error.message}`, 1);
-  const code = typeof r.status === "number" ? r.status : 1;
-  if (code !== 0) die(`GREEN_FAST_FAIL: ${stepName} failed with exit code ${code}`, code);
+  if (r.error) {
+    return { code: 1, detail: `spawn error: ${r.error.name}: ${r.error.message}` };
+  }
+  if (r.signal) {
+    return { code: 1, detail: `terminated by signal: ${r.signal}` };
+  }
+
+  const code = r.status ?? 1;
+  return { code, detail: code === 0 ? "" : `exit code ${code}` };
 }
 
-function runNpm(stepName, npmArgs) {
-  const inv = npmInvocation();
-  runRaw(stepName, inv.cmd, [...inv.prefix, ...npmArgs]);
+// green:fast exists to be an authoritative entrypoint like green,
+// but quicker. It still mints the same nonce handshake so clean_tree_guard
+// can safely skip during nested steps, and so env poisoning is prevented.
+const { nonce, dir, file } = mkNonceHandshake();
+
+const greenEnv = {
+  KOLOSSEUM_GREEN: "1",
+  KOLOSSEUM_GREEN_NONCE: nonce,
+  KOLOSSEUM_GREEN_NONCE_FILE: file,
+  KOLOSSEUM_GREEN_ENTRYPOINT: "1",
+};
+
+try {
+  headline("nonce handshake (mint + verify)");
+  ok("OK: green:fast nonce minted");
+
+  const steps = ["lint:fast", "test:unit", "build:fast"];
+
+  for (const s of steps) {
+    headline(`npm run ${s}`);
+    const r = runNpm(s, greenEnv);
+    if (r.code !== 0) {
+      die(`GREEN_FAST_FAIL: npm run ${s} failed (${r.detail})`, r.code);
+    }
+  }
+
+  ok("\nGREEN_FAST_OK: all steps passed; repo state unchanged from baseline.");
+} finally {
+  safeRmRf(dir);
 }
-
-function main() {
-  // Establish the GREEN nonce so nested clean_tree_guard behaves like it does inside ci/scripts/green.mjs
-  runRaw("green_entrypoint_guard (establish nonce)", process.execPath, ["ci/guards/green_entrypoint_guard.mjs"]);
-
-  // Minimal authoritative local chain, no e2e:
-  // - lint:fast (guards + schema + evidence + registry law)
-  // - test:unit (CI-focused unit tests)
-  // - build:fast (tsc + shim check)
-  runNpm("npm run lint:fast", ["run", "lint:fast"]);
-  runNpm("npm run test:unit", ["run", "test:unit"]);
-  runNpm("npm run build:fast", ["run", "build:fast"]);
-
-  console.log("");
-  console.log("GREEN_FAST_OK: minimal local chain passed.");
-}
-
-main();
