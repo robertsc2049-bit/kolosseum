@@ -34,22 +34,49 @@ function mkNonceHandshake() {
   return { nonce, dir, file };
 }
 
+function findNpmCli(env) {
+  const cands = [];
+
+  if (env.npm_execpath && typeof env.npm_execpath === "string") cands.push(env.npm_execpath);
+  if (env.NPM_CLI_JS && typeof env.NPM_CLI_JS === "string") cands.push(env.NPM_CLI_JS);
+
+  // Common install: <nodeDir>/node_modules/npm/bin/npm-cli.js
+  try {
+    const nodeDir = path.dirname(process.execPath);
+    cands.push(path.join(nodeDir, "node_modules", "npm", "bin", "npm-cli.js"));
+  } catch {
+    // ignore
+  }
+
+  for (const p of cands) {
+    try {
+      if (p && fs.existsSync(p)) return p;
+    } catch {
+      // ignore
+    }
+  }
+  return null;
+}
+
 /**
  * Run npm deterministically without relying on PATH or .cmd resolution.
- * On Windows, spawning "npm.cmd" can fail silently under some environments.
- * Using node + npm-cli.js is explicit and stable.
+ * Uses node + npm-cli.js for stable Windows behavior.
  */
 function runNpm(script, extraEnv = {}) {
   const env = { ...process.env, ...extraEnv };
 
   const node = process.execPath;
-  const npmCli = env.npm_execpath;
-
   if (!node || typeof node !== "string") {
     return { code: 1, detail: "process.execPath missing" };
   }
-  if (!npmCli || typeof npmCli !== "string") {
-    return { code: 1, detail: "npm_execpath missing; npm not discoverable from this environment" };
+
+  const npmCli = findNpmCli(env);
+  if (!npmCli) {
+    return {
+      code: 1,
+      detail:
+        "npm cli not found (npm_execpath/NPM_CLI_JS missing and no npm-cli.js near node). Run via `npm run green:fast` or fix env.",
+    };
   }
 
   const r = spawnSync(node, [npmCli, "run", script], {
@@ -60,7 +87,6 @@ function runNpm(script, extraEnv = {}) {
     env,
   });
 
-  // If the process couldn't even start, status is null and error is set.
   if (r.error) {
     return { code: 1, detail: `spawn error: ${r.error.name}: ${r.error.message}` };
   }
@@ -88,10 +114,6 @@ try {
   headline("nonce handshake (mint + verify)");
   ok("OK: green:fast nonce minted");
 
-  // Keep green:fast fast but meaningful:
-  // - lint:fast (full guard chain + lint)
-  // - test:unit (fast deterministic unit suite)
-  // - build:fast (tsc compile + shim check)
   const steps = ["lint:fast", "test:unit", "build:fast"];
 
   for (const s of steps) {
