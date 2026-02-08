@@ -13,6 +13,7 @@ function die(msg, code = 1) {
 function run(cmd, args, label, opts = {}) {
   process.stdout.write(`\n== GREEN STEP: ${label} ==\n`);
   const r = spawnSync(cmd, args, {
+    cwd: process.cwd(),
     stdio: "inherit",
     shell: false,
     env: opts.env ?? process.env,
@@ -50,7 +51,12 @@ function runNpm(scriptName, envExtra = {}) {
 }
 
 function git(args) {
-  const r = spawnSync("git", args, { encoding: "utf8", shell: false, windowsHide: true });
+  const r = spawnSync("git", args, {
+    cwd: process.cwd(),
+    encoding: "utf8",
+    shell: false,
+    windowsHide: true,
+  });
   if (r.status !== 0) {
     const out = (r.stdout || "") + (r.stderr || "");
     die(`GREEN_FAIL: git ${args.join(" ")} failed\n${out}`.trim(), r.status ?? 1);
@@ -167,6 +173,9 @@ try {
 
   runNpm("build:fast", env);
   assertNoImplicitWrites("build:fast", base);
+
+  run("node", ["ci/guards/run_pipeline_contract_version_guard.mjs"], "runPipeline contract versions", { env });
+  assertNoImplicitWrites("runPipeline contract versions", base);
 
   runNpm("dev:fast", env);
   assertNoImplicitWrites("dev:fast", base);

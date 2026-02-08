@@ -85,6 +85,7 @@ function runNpm(script, extraEnv = {}) {
     shell: false,
     windowsHide: true,
     env,
+    cwd: process.cwd(),
   });
 
   if (r.error) {
@@ -96,6 +97,19 @@ function runNpm(script, extraEnv = {}) {
 
   const code = r.status ?? 1;
   return { code, detail: code === 0 ? "" : `exit code ${code}` };
+}
+
+function runNode(args, envExtra) {
+  const env = { ...process.env, ...envExtra };
+  const r = spawnSync("node", args, { stdio: "inherit", env, cwd: process.cwd() });
+  if (r.error) {
+    return { code: 1, detail: `spawn error: ${r.error.name}: ${r.error.message}` };
+  }
+  if (r.signal) {
+    return { code: 1, detail: `signal: ${r.signal}` };
+  }
+  const code = (typeof r.status === "number") ? r.status : 0;
+  return { code, detail: `exit ${code}` };
 }
 
 // green:fast exists to be an authoritative entrypoint like green,
@@ -122,6 +136,13 @@ try {
     if (r.code !== 0) {
       die(`GREEN_FAST_FAIL: npm run ${s} failed (${r.detail})`, r.code);
     }
+  }
+
+
+  headline("runPipeline contract versions");
+  const rv = runNode(["ci/guards/run_pipeline_contract_version_guard.mjs"], greenEnv);
+  if (rv.code !== 0) {
+    die(`GREEN_FAST_FAIL: runPipeline contract versions failed (${rv.detail})`, rv.code);
   }
 
   ok("\nGREEN_FAST_OK: all steps passed; repo state unchanged from baseline.");
