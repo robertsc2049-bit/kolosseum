@@ -18,20 +18,12 @@ function headline(msg) {
   process.stdout.write("\n== GREEN:FAST STEP: " + String(msg).trim() + " ==\n\n");
 }
 
-function npmBin() {
-  return process.platform === "win32" ? "npm.cmd" : "npm";
-}
-
-function runNpm(script, extraEnv = {}) {
-  const env = { ...process.env, ...extraEnv };
-  const r = spawnSync(npmBin(), ["run", script], {
-    encoding: "utf8",
-    stdio: "inherit",
-    shell: false,
-    windowsHide: true,
-    env,
-  });
-  return r.status ?? 1;
+function safeRmRf(p) {
+  try {
+    fs.rmSync(p, { recursive: true, force: true });
+  } catch {
+    // ignore
+  }
 }
 
 function mkNonceHandshake() {
@@ -42,12 +34,42 @@ function mkNonceHandshake() {
   return { nonce, dir, file };
 }
 
-function safeRmRf(p) {
-  try {
-    fs.rmSync(p, { recursive: true, force: true });
-  } catch {
-    // ignore
+/**
+ * Run npm deterministically without relying on PATH or .cmd resolution.
+ * On Windows, spawning "npm.cmd" can fail silently under some environments.
+ * Using node + npm-cli.js is explicit and stable.
+ */
+function runNpm(script, extraEnv = {}) {
+  const env = { ...process.env, ...extraEnv };
+
+  const node = process.execPath;
+  const npmCli = env.npm_execpath;
+
+  if (!node || typeof node !== "string") {
+    return { code: 1, detail: "process.execPath missing" };
   }
+  if (!npmCli || typeof npmCli !== "string") {
+    return { code: 1, detail: "npm_execpath missing; npm not discoverable from this environment" };
+  }
+
+  const r = spawnSync(node, [npmCli, "run", script], {
+    encoding: "utf8",
+    stdio: "inherit",
+    shell: false,
+    windowsHide: true,
+    env,
+  });
+
+  // If the process couldn't even start, status is null and error is set.
+  if (r.error) {
+    return { code: 1, detail: `spawn error: ${r.error.name}: ${r.error.message}` };
+  }
+  if (r.signal) {
+    return { code: 1, detail: `terminated by signal: ${r.signal}` };
+  }
+
+  const code = r.status ?? 1;
+  return { code, detail: code === 0 ? "" : `exit code ${code}` };
 }
 
 // green:fast exists to be an authoritative entrypoint like green,
@@ -74,9 +96,9 @@ try {
 
   for (const s of steps) {
     headline(`npm run ${s}`);
-    const code = runNpm(s, greenEnv);
-    if (code !== 0) {
-      die(`GREEN_FAST_FAIL: npm run ${s} failed with exit code ${code}`, code);
+    const r = runNpm(s, greenEnv);
+    if (r.code !== 0) {
+      die(`GREEN_FAST_FAIL: npm run ${s} failed (${r.detail})`, r.code);
     }
   }
 
