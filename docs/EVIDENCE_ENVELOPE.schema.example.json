@@ -1,0 +1,24 @@
+{
+  "contract": "kolosseum:evidence_envelope@1",
+  "engine": { "version": "0.1.23", "node": "24.12.0" },
+  "inputs": {
+    "request_sha256": "",
+    "constraints_sha256": "",
+    "registry_bundle_sha256": "",
+    "schema_sha256s": [ { "path": "", "sha256": "" } ]
+  },
+  "artifacts": {
+    "phase_outputs": [
+      { "phase": 1, "name": "phase1_envelope", "sha256": "" },
+      { "phase": 3, "name": "phase3_constraints", "sha256": "" },
+      { "phase": 4, "name": "phase4_program", "sha256": "" },
+      { "phase": 6, "name": "phase6_session", "sha256": "" }
+    ]
+  },
+  "validations": {
+    "guards": [
+      { "name": "registry_law_guard", "result": "pass" },
+      { "name": "engine_contract_guard", "result": "pass" }
+    ]
+  }
+}

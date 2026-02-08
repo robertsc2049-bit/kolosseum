@@ -6,7 +6,7 @@ const docsDir = path.resolve("docs");
 const checksumFile = path.join(docsDir, "checksums.sha256");
 
 if (!fs.existsSync(checksumFile)) {
-  console.error("CI_CHECKSUM_PLACEHOLDER: docs/checksums.sha256 missing");
+  console.error("CI_CHECKSUM_MISSING: docs/checksums.sha256 missing");
   process.exit(1);
 }
 
