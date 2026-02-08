@@ -31,8 +31,7 @@ function canSkipUnderGreen() {
 
   try {
     const disk = fs.readFileSync(file, "utf8").trim();
-    if (disk !== nonce) return false;
-    return true;
+    return disk === nonce;
   } catch {
     return false;
   }
@@ -43,28 +42,91 @@ if (canSkipUnderGreen()) {
   process.exit(0);
 }
 
+// We explicitly allow *staged-only* changes.
+// What we forbid:
+//  - untracked files (??)
+//  - unstaged changes in the working tree (Y column in porcelain is not space)
+//
+// This makes pre-commit / green:fast usable, while still preventing hidden drift.
 const porcelain = git(["status", "--porcelain=v1", "--untracked-files=normal"]).trimEnd();
-
 if (!porcelain) {
   ok("OK: clean_tree_guard (WORKING TREE: CLEAN)");
   process.exit(0);
 }
 
 const lines = porcelain.split(/\r?\n/).filter(Boolean);
-const limited = lines.slice(0, 200);
-const suffix = lines.length > 200 ? `\n... (${lines.length - 200} more)` : "";
 
-die(
-  [
-    "❌ clean_tree_guard: WORKING TREE: DIRTY (unstaged or untracked)",
-    "",
-    "Dirty entries:",
-    ...limited.map((l) => " " + l),
-    suffix,
-    "",
-    "Fix:",
-    "  - stage/commit what you intended, OR",
-    "  - discard with: git restore -- . && git clean -fd",
-  ].join("\n").trimEnd(),
-  1
-);
+const untracked = [];
+const unstaged = [];
+const stagedOnly = [];
+
+for (const l of lines) {
+  // Untracked: "?? path"
+  if (l.startsWith("??")) {
+    untracked.push(l);
+    continue;
+  }
+
+  // Porcelain v1: XY<space>path
+  const x = l.length >= 1 ? l[0] : " ";
+  const y = l.length >= 2 ? l[1] : " ";
+
+  // Any Y != space means working tree differs from index (unstaged drift).
+  if (y !== " ") {
+    unstaged.push(l);
+    continue;
+  }
+
+  // If X != space and Y == space, it's staged-only (allowed).
+  if (x !== " ") {
+    stagedOnly.push(l);
+    continue;
+  }
+
+  // Defensive: treat anything else as unstaged.
+  unstaged.push(l);
+}
+
+if (untracked.length === 0 && unstaged.length === 0) {
+  ok("OK: clean_tree_guard (WORKING TREE: CLEAN; staged changes allowed)");
+  process.exit(0);
+}
+
+function renderList(arr, limit = 200) {
+  const limited = arr.slice(0, limit);
+  const suffix = arr.length > limit ? `\n... (${arr.length - limit} more)` : "";
+  return { limited, suffix };
+}
+
+const parts = [];
+
+parts.push("❌ clean_tree_guard: WORKING TREE: DIRTY");
+
+if (untracked.length) {
+  const { limited, suffix } = renderList(untracked);
+  parts.push("");
+  parts.push("Untracked entries:");
+  for (const l of limited) parts.push(" " + l);
+  if (suffix) parts.push(suffix);
+}
+
+if (unstaged.length) {
+  const { limited, suffix } = renderList(unstaged);
+  parts.push("");
+  parts.push("Unstaged entries (working tree drift):");
+  for (const l of limited) parts.push(" " + l);
+  if (suffix) parts.push(suffix);
+}
+
+parts.push("");
+parts.push("Fix:");
+if (untracked.length) {
+  parts.push("  - remove untracked files (or add them), OR");
+  parts.push("  - discard untracked with: git clean -fd");
+}
+if (unstaged.length) {
+  parts.push("  - stage what you intended, OR");
+  parts.push("  - discard with: git restore -- .");
+}
+
+die(parts.join("\n").trimEnd(), 1);
