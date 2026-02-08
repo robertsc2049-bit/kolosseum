@@ -5,17 +5,28 @@ function die(msg, code = 1) {
   process.exit(code);
 }
 
-function npmCmd() {
-  return process.platform === "win32" ? "npm.cmd" : "npm";
+function npmInvocation() {
+  // When invoked via `npm run ...`, npm sets npm_execpath to the npm CLI JS file.
+  // Spawning Node + npm-cli.js is the most reliable cross-platform call (avoids npm.cmd EINVAL on Windows).
+  const npmExecPath = process.env.npm_execpath;
+  if (npmExecPath && typeof npmExecPath === "string" && npmExecPath.length > 0) {
+    return { cmd: process.execPath, prefix: [npmExecPath] };
+  }
+
+  // Fallback for odd environments (still try direct npm).
+  const cmd = process.platform === "win32" ? "npm.cmd" : "npm";
+  return { cmd, prefix: [] };
 }
 
-function run(stepName, args) {
+function run(stepName, npmArgs) {
   console.log("");
   console.log(`== GREEN:FAST STEP: ${stepName} ==`);
   console.log("");
 
-  const cmd = npmCmd();
-  const r = spawnSync(cmd, args, {
+  const inv = npmInvocation();
+  const args = [...inv.prefix, ...npmArgs];
+
+  const r = spawnSync(inv.cmd, args, {
     stdio: "inherit",
     shell: false,
     env: process.env,
