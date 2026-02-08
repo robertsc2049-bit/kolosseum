@@ -1,4 +1,48 @@
 #!/bin/sh
 set -e
+
 echo "[pre-commit] smart dispatcher"
-node ci/scripts/precommit_smart.mjs
+
+# Always run from repo root.
+repo="$(git rev-parse --show-toplevel 2>/dev/null || echo "")"
+if [ -n "$repo" ]; then cd "$repo"; fi
+
+# Determine staged file set.
+files="$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null || echo "")"
+
+# No-op: nothing staged.
+if [ -z "$files" ]; then
+  echo "[pre-commit] nothing staged -> skip checks"
+  exit 0
+fi
+
+# Risk classification:
+# High-risk surfaces should pay full GREEN (matches current strict behavior).
+# Low-risk changes run green:fast (no e2e).
+is_high_risk=0
+
+# shellcheck disable=SC2039
+for f in $files; do
+  case "$f" in
+    # Engine / API / CI / tests / scripts / schemas / registries / contracts
+    engine/*|api/*|ci/*|test/*|scripts/*|docs/ENGINE_*|ENGINE_CONTRACT.md|schema.sql|docs/checksums.sha256)
+      is_high_risk=1
+      ;;
+    # Build & tooling config
+    package.json|package-lock.json|tsconfig*.json|.github/*|githooks/*|scripts/hooks/*)
+      is_high_risk=1
+      ;;
+    *)
+      ;;
+  esac
+done
+
+if [ "$is_high_risk" -eq 1 ]; then
+  echo "[pre-commit] risk surface touched -> green"
+  npm run green
+else
+  echo "[pre-commit] low-risk change -> green:fast"
+  npm run green:fast
+fi
+
+echo "[pre-commit] OK"

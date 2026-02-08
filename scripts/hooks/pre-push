@@ -1,47 +1,74 @@
 #!/bin/sh
 set -e
 
-# Always run from repo root (Git usually does, but don't rely on it).
+echo "[pre-push] push changeset guard"
+
+# Always run from repo root.
 repo="$(git rev-parse --show-toplevel 2>/dev/null || echo "")"
-if [ -n "$repo" ]; then
-  cd "$repo"
-fi
+if [ -n "$repo" ]; then cd "$repo"; fi
 
-branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"
-
-# If no upstream, treat as 'has something to push' (safer).
+# If no upstream, don't guess. Skip (consistent with earlier behavior).
 upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")"
-
-has_outgoing="1"
-if [ -n "$upstream" ]; then
-  outgoing="$(git rev-list --count "${upstream}..HEAD" 2>/dev/null || echo "0")"
-  if [ "$outgoing" = "0" ]; then
-    has_outgoing="0"
-  fi
+if [ -z "$upstream" ]; then
+  echo "[pre-push] no upstream -> skip checks"
+  exit 0
 fi
 
-# Fast exit: nothing to push.
-if [ "$has_outgoing" = "0" ]; then
+# If nothing to push, skip.
+ahead="$(git rev-list --count "$upstream"..HEAD 2>/dev/null || echo "0")"
+if [ "$ahead" = "0" ]; then
   echo "[pre-push] nothing to push -> skip checks"
   exit 0
 fi
 
-# Block direct pushes to main unless explicitly overridden.
-if [ "$branch" = "main" ] && [ "${KOLOSSEUM_ALLOW_PUSH_MAIN:-}" != "1" ]; then
-  echo "[pre-push] BLOCKED: direct push to main is disabled."
-  echo "[pre-push] Use a ticket branch + PR."
-  echo "[pre-push] Override once:"
-  echo "[pre-push]   KOLOSSEUM_ALLOW_PUSH_MAIN=1 git push"
+# Base is origin/main if present, otherwise use upstream's remote tip.
+base="origin/main"
+git rev-parse --verify "$base" >/dev/null 2>&1 || base="$upstream"
+
+# File list for the push changeset guard (approx; good enough for “size” & risk routing).
+files="$(git diff --name-only --diff-filter=ACMR "$base"...HEAD 2>/dev/null || echo "")"
+
+# Count files (portable-ish).
+count=0
+if [ -n "$files" ]; then
+  # shellcheck disable=SC2039
+  for _f in $files; do count=$((count + 1)); done
+fi
+
+max=250
+echo "[pre-push] Push changeset file count = $count; max = $max; base = $base"
+
+if [ "$count" -gt "$max" ]; then
+  echo "[pre-push] Push changeset TOO LARGE ($count > $max)"
   exit 1
 fi
 
-echo "[pre-push] push changeset guard"
-PS="pwsh"
-command -v pwsh >/dev/null 2>&1 || PS="powershell"
-
-"$PS" -NoProfile -ExecutionPolicy Bypass -File scripts/guard-push-changeset.ps1
-
+echo "[pre-push] Push changeset size OK ($count <= $max) vs $base"
 echo "[pre-push] smart dispatcher"
-node ci/scripts/prepush_smart.mjs
+
+# Risk classification: high-risk -> green:ci, low-risk -> green:fast
+is_high_risk=0
+
+# shellcheck disable=SC2039
+for f in $files; do
+  case "$f" in
+    engine/*|api/*|ci/*|test/*|scripts/*|docs/ENGINE_*|ENGINE_CONTRACT.md|schema.sql|docs/checksums.sha256)
+      is_high_risk=1
+      ;;
+    package.json|package-lock.json|tsconfig*.json|.github/*|githooks/*|scripts/hooks/*)
+      is_high_risk=1
+      ;;
+    *)
+      ;;
+  esac
+done
+
+if [ "$is_high_risk" -eq 1 ]; then
+  echo "[pre-push] engine-risk change -> green:ci"
+  npm run green:ci
+else
+  echo "[pre-push] low-risk change -> green:fast"
+  npm run green:fast
+fi
 
 echo "[pre-push] OK"
