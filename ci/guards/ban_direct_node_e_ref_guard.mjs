@@ -37,7 +37,7 @@ function relPosix(absPath){
 
 // Policy: Invoke-NodeE is the ONLY allowed interface for ad-hoc Node from PowerShell.
 // Ban everywhere except the two allowed files:
-//  - references to internal runner scripts (legacy names + new path)
+//  - references to internal runner scripts (legacy names + new path + filename)
 //  - node -e
 //  - node --input-type=module -
 //  - ANY mention of "\b_impl\b" (prevents "I'll just call the impl folder") outside the allowlist
@@ -52,7 +52,12 @@ const allowRel = new Set([
 
 // Any mention of these runner filenames/paths in other scripts is a policy breach.
 // Keep legacy names so old references get caught.
-const reInternalRunnerRef = /\b(?:node-e|_node-e|_internal_node_runner)\.ps1\b|scripts\/_impl\/node_runner\.ps1\b/i;
+const reInternalRunnerRef =
+  /\b(?:node-e|_node-e|_internal_node_runner)\.ps1\b|scripts\/_impl\/node_runner\.ps1\b/i;
+
+// Critical: block *any* mention of node_runner.ps1 outside allowlist.
+// This catches dynamic path construction and pwsh/powershell -File patterns.
+const reNodeRunnerFilename = /\bnode_runner\.ps1\b/i;
 
 // node -e (option can appear after other flags)
 const reNodeDashE = /\bnode(?:\.exe)?\b[\s\S]{0,120}?\s-e\b/i;
@@ -63,6 +68,10 @@ const reNodeStdinEsm =
 
 // Block "impl folder" references anywhere else (discourages bypass patterns)
 const reImplFolderRef = /\b_impl\b/i;
+
+// Extra: explicitly catch PowerShell invoking a file runner by name
+const rePwshFileNodeRunner =
+  /\b(?:pwsh|powershell)(?:\.exe)?\b[\s\S]{0,200}?\b-File\b[\s\S]{0,200}?\bnode_runner\.ps1\b/i;
 
 const offenders = [];
 
@@ -75,6 +84,8 @@ for (const root of roots) {
 
     const hits = [];
     if (reInternalRunnerRef.test(txt)) hits.push("direct internal runner reference");
+    if (reNodeRunnerFilename.test(txt)) hits.push("node_runner filename reference");
+    if (rePwshFileNodeRunner.test(txt)) hits.push("pwsh/powershell -File node_runner.ps1");
     if (reNodeDashE.test(txt)) hits.push("node -e");
     if (reNodeStdinEsm.test(txt)) hits.push("node --input-type=module -");
     if (reImplFolderRef.test(txt)) hits.push("impl folder reference");
@@ -91,11 +102,12 @@ if (offenders.length) {
   lines.push("Internal runner is implementation-only and must not be referenced directly.");
   lines.push("Direct `node -e` and `node --input-type=module -` are blocked.");
   lines.push("Impl-folder references are blocked outside the allowlist.");
+  lines.push("Any `node_runner.ps1` reference is blocked outside the allowlist.");
   lines.push("");
   lines.push("Offending file(s):");
   for (const o of offenders) lines.push(`  - ${o.rel}  [${o.hits.join(", ")}]`);
   lines.push("");
-  die(lines.join("\\n"));
+  die(lines.join("\n"));
 }
 
 console.log("OK: ban_direct_node_e_ref_guard");
