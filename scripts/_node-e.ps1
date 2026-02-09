@@ -4,6 +4,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# INTERNAL: Do not call this directly. Use scripts/Invoke-NodeE.ps1.
+# Purpose: run JS as ESM via stdin without quoting/encoding edge cases.
+
 # Decode UTF-8 (no BOM implied)
 $bytes = [Convert]::FromBase64String($JsB64)
 $Js = [System.Text.Encoding]::UTF8.GetString($bytes)

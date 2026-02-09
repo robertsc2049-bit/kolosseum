@@ -19,7 +19,14 @@ function Run([string]$cmd) {
 }
 
 function Read-Version() {
-  (node -e "process.stdout.write(require('./package.json').version)").Trim()
+    $js = @(
+    'import fs from "node:fs";',
+    'const j = JSON.parse(fs.readFileSync("package.json","utf8"));',
+    'process.stdout.write(String(j.version || ""));'
+  ) -join "`n"
+  $invoke = Join-Path $PSScriptRoot "Invoke-NodeE.ps1"
+  $out = & $invoke -Js $js
+  return (($out -join "`n").Trim())
 }
 
 function Remote-Tag-Exists([string]$tag) {
@@ -91,3 +98,4 @@ Run "git push origin ""$tag"""
 
 Write-Host ""
 Write-Host "RELEASED $tag" -ForegroundColor Green
+
