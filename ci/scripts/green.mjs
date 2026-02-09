@@ -12,7 +12,7 @@ function die(msg, code = 1) {
 
 function run(cmd, args, label, opts = {}) {
   process.stdout.write(`\n== GREEN STEP: ${label} ==\n`);
-    // If a step asks to run "node", prefer the current Node binary.
+  // If a step asks to run "node", prefer the current Node binary.
   // GitHub Actions can surface ENOENT when spawning "node" by name.
   if (cmd === "node" || cmd === "node.exe") cmd = process.execPath;
 
