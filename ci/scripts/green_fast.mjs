@@ -79,7 +79,9 @@ function runNpm(script, extraEnv = {}) {
     };
   }
 
-  const r = spawnSync(node, [npmCli, "run", script], {
+    const nodeExec = (node === "node" || node === "node.exe") ? process.execPath : node;
+
+  const r = spawnSync(nodeExec, [npmCli, "run", script], {
     encoding: "utf8",
     stdio: "inherit",
     shell: false,
