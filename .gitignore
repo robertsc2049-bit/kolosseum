@@ -30,3 +30,7 @@ server.log
 scripts/engine-status.ps1
 
 out/
+
+# local debug scratch
+tmp/
+
