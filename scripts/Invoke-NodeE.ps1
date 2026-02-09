@@ -11,7 +11,7 @@ $b64 = [Convert]::ToBase64String(
 
 # Invoke internal runner and capture stdout
 $out = pwsh -NoProfile -ExecutionPolicy Bypass `
-  -File (Join-Path $PSScriptRoot "_internal_node_runner.ps1") `
+  -File (Join-Path $PSScriptRoot "_impl\node_runner.ps1") `
   -JsB64 $b64
 
 # Emit stdout to caller
