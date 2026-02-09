@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import { pool } from "../db/pool.js";
 
 import type { Phase6SessionOutput } from "@kolosseum/engine/phases/phase6.js";
+import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_event.js";
 
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
@@ -148,6 +149,69 @@ export async function compileBlock(req: Request, res: Response) {
   const planned_session_from_engine: Phase6SessionOutput = p6.session;
 
   // ---- Persist (TX): block upsert + optional session create ----
+
+  // --- Phase6 runtime (authoritative, reducer-derived) ---
+  // API emits runtime_trace so client can force return gate deterministically.
+  const runtime_events = (req as any).body?.runtime_events ?? (req as any).body?.events ?? [];
+  const runtime_state: any = applyRuntimeEvents(
+    planned_session_from_engine as any,
+    Array.isArray(runtime_events) ? runtime_events : []
+  );
+
+  const remaining_ids: string[] = Array.isArray(runtime_state?.remaining_ids)
+    ? runtime_state.remaining_ids.map((x: any) => String(x))
+    : [];
+
+  const completed_ids: string[] =
+    runtime_state?.completed_ids instanceof Set
+      ? Array.from(runtime_state.completed_ids).map((x: any) => String(x))
+      : (Array.isArray(runtime_state?.completed_ids)
+          ? runtime_state.completed_ids.map((x: any) => String(x))
+          : []);
+
+  const dropped_ids: string[] =
+    runtime_state?.skipped_ids instanceof Set
+      ? Array.from(runtime_state.skipped_ids).map((x: any) => String(x))
+      : (Array.isArray(runtime_state?.skipped_ids)
+          ? runtime_state.skipped_ids.map((x: any) => String(x))
+          : []);
+
+  const split_active: boolean =
+    typeof runtime_state?.split_active === "boolean"
+      ? runtime_state.split_active
+      : (typeof runtime_state?.split?.active === "boolean" ? runtime_state.split.active : false);
+
+  const remaining_at_split_ids: string[] =
+    Array.isArray(runtime_state?.remaining_at_split_ids)
+      ? runtime_state.remaining_at_split_ids.map((x: any) => String(x))
+      : (Array.isArray(runtime_state?.split?.remaining_at_split)
+          ? runtime_state.split.remaining_at_split.map((x: any) => String(x))
+          : []);
+
+  const return_gate_required: boolean = split_active === true && remaining_at_split_ids.length > 0;
+
+  const runtime_trace_from_engine = {
+    remaining_ids,
+    completed_ids,
+    dropped_ids,
+    split_active,
+    remaining_at_split_ids,
+    return_gate_required
+  };
+
+  // Apply status to exercises (preserve order; keep all exercises)
+  const completedSet = new Set(completed_ids);
+  const droppedSet = new Set(dropped_ids);
+
+  const planned_session_applied: Phase6SessionOutput = {
+    ...planned_session_from_engine,
+    exercises: planned_session_from_engine.exercises.map((e: any) => {
+      const id = String(e.exercise_id ?? "");
+      const status = completedSet.has(id) ? "completed" : (droppedSet.has(id) ? "skipped" : "pending");
+      return { ...e, status };
+    })
+  };
+
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -241,7 +305,9 @@ export async function compileBlock(req: Request, res: Response) {
     const payload: any = {
       block_id: persisted_block_id,
       engine_version,
-      canonical_hash
+      canonical_hash,
+      planned_session: planned_session_applied,
+      runtime_trace: runtime_trace_from_engine,
     };
     if (session_id) payload.session_id = session_id;
 
