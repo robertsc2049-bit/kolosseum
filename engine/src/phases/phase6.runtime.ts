@@ -7,7 +7,16 @@ export type Phase6RuntimeTrace = {
   remaining_ids: string[];
   completed_ids: string[];
   dropped_ids: string[];
+
+  // Canonical split semantics from reducer state:
+  // - split_active: are we currently in a split state
+  // - remaining_at_split_ids: authoritative snapshot captured at split time
   split_active: boolean;
+  remaining_at_split_ids: string[];
+
+  // Convenience for UI: if true, client should force a return decision gate.
+  // (You can render "Continue where I left off" vs "Skip and move on".)
+  return_gate_required: boolean;
 };
 
 type ExerciseStatus = "pending" | "completed" | "skipped";
@@ -28,15 +37,58 @@ function normalizeStringSet(v: unknown): Set<string> {
   return out;
 }
 
+// Back-compat reader: accept either canonical reducer fields OR legacy nested split shape.
+function readSplitActive(state: unknown): boolean {
+  if (!isRecord(state)) return false;
+
+  if (typeof (state as Record<string, unknown>).split_active === "boolean") {
+    return (state as Record<string, unknown>).split_active === true;
+  }
+
+  const split = (state as Record<string, unknown>).split;
+  if (isRecord(split) && typeof (split as Record<string, unknown>).active === "boolean") {
+    return (split as Record<string, unknown>).active === true;
+  }
+
+  return false;
+}
+
+function readRemainingAtSplitIds(state: unknown): string[] {
+  if (!isRecord(state)) return [];
+
+  const a = (state as Record<string, unknown>).remaining_at_split_ids;
+  if (Array.isArray(a)) return a.map((x) => String(x));
+
+  const split = (state as Record<string, unknown>).split;
+  if (isRecord(split)) {
+    const b = (split as Record<string, unknown>).remaining_at_split;
+    if (Array.isArray(b)) return b.map((x) => String(x));
+  }
+
+  // Some older callers use remaining_at_split_ids under different keys; keep this tight for now.
+  return [];
+}
+
 function traceFromRuntimeState(state: unknown): Phase6RuntimeTrace {
   const remaining_ids = isRecord(state) ? normalizeStringArray(state.remaining_ids) : [];
   const completed_ids = isRecord(state) ? Array.from(normalizeStringSet(state.completed_ids)) : [];
   const dropped_ids = isRecord(state) ? Array.from(normalizeStringSet(state.skipped_ids)) : [];
 
-  const split_active =
-    isRecord(state) && isRecord(state.split) ? Boolean((state.split as Record<string, unknown>).active) : false;
+  const split_active = readSplitActive(state);
+  const remaining_at_split_ids = readRemainingAtSplitIds(state);
 
-  return { remaining_ids, completed_ids, dropped_ids, split_active };
+  // Gate should be required when split is active AND there is anything that was remaining at split time.
+  // (If remaining_at_split_ids is empty, it's effectively a no-op split.)
+  const return_gate_required = split_active === true && remaining_at_split_ids.length > 0;
+
+  return {
+    remaining_ids,
+    completed_ids,
+    dropped_ids,
+    split_active,
+    remaining_at_split_ids,
+    return_gate_required
+  };
 }
 
 function statusForId(id: string, completed: Set<string>, skipped: Set<string>): ExerciseStatus {
@@ -94,7 +146,7 @@ export function phase6ApplyRuntimeEvents(session: Phase6SessionOutput, events: R
  * - Same reducer + determinism
  * - Returns:
  *   - session with ALL exercises + per-exercise status
- *   - trace derived ONLY from reducer state (remaining/completed/dropped + split flag)
+ *   - trace derived ONLY from reducer state (remaining/completed/dropped + split semantics)
  */
 export function phase6ApplyRuntimeEventsWithTrace(
   session: Phase6SessionOutput,

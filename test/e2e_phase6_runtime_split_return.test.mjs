@@ -29,7 +29,7 @@ function baseSession() {
   return r.session;
 }
 
-test("Phase6 runtime: split â†’ return continue preserves remaining work", () => {
+test("Phase6 runtime: split -> return continue preserves remaining work", () => {
   const session = baseSession();
 
   const events = [
@@ -53,7 +53,7 @@ test("Phase6 runtime: split â†’ return continue preserves remaining work", 
   assert.equal(state.dropped_exercises.length, 0);
 });
 
-test("Phase6 runtime: split â†’ return skip drops remaining work", () => {
+test("Phase6 runtime: split -> return skip drops remaining work", () => {
   const session = baseSession();
 
   const events = [
