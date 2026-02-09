@@ -32,29 +32,26 @@ function walk(dir, out = []) {
 }
 
 function relPosix(absPath){
-  return path
-    .relative(repo, absPath)
-    .replace(/\\/g, "/");
+  return path.relative(repo, absPath).replace(/\\/g, "/");
 }
 
 // Policy: Invoke-NodeE is the ONLY allowed interface for ad-hoc Node from PowerShell.
-// Ban:
-//  - references to node-e/_node-e implementation scripts
+// Ban everywhere except the two allowed files:
+//  - references to internal runner scripts (old or new names)
 //  - node -e
 //  - node --input-type=module -
 //
-// Allowed exception:
+// Allowed:
 //  - scripts/Invoke-NodeE.ps1 (blessed interface)
-//
-// Note: internal implementation file(s) may exist, but must not trigger this guard by self-content.
+//  - scripts/_internal_node_runner.ps1 (internal implementation; never called directly by other scripts)
 const allowRel = new Set([
   "scripts/Invoke-NodeE.ps1",
-  "scripts/node-e.ps1",
-  "scripts/_node-e.ps1",
+  "scripts/_internal_node_runner.ps1",
 ]);
 
-// Direct references to internal runners (call-site smell)
-const reNodeERef = /\b(?:_?node-e)\.ps1\b/i;
+// Any mention of these filenames in other scripts is a policy breach.
+// (We keep legacy names in the regex so old references get caught.)
+const reInternalRunnerRef = /\b(?:node-e|_node-e|_internal_node_runner)\.ps1\b/i;
 
 // node -e (option can appear after other flags)
 const reNodeDashE = /\bnode(?:\.exe)?\b[\s\S]{0,120}?\s-e\b/i;
@@ -73,7 +70,7 @@ for (const root of roots) {
     const txt = lf(fs.readFileSync(file, "utf8"));
 
     const hits = [];
-    if (reNodeERef.test(txt)) hits.push("direct _?node-e.ps1 reference");
+    if (reInternalRunnerRef.test(txt)) hits.push("direct internal runner reference");
     if (reNodeDashE.test(txt)) hits.push("node -e");
     if (reNodeStdinEsm.test(txt)) hits.push("node --input-type=module -");
 
@@ -86,15 +83,13 @@ if (offenders.length) {
   lines.push("❌ ban_direct_node_e_ref_guard: forbidden Node invocation detected in PowerShell.");
   lines.push("");
   lines.push("Policy: Use scripts/Invoke-NodeE.ps1 for any Node patching.");
-  lines.push("Internal runners (_node-e/node-e) must not be referenced directly.");
+  lines.push("Internal runner is implementation-only and must not be referenced directly.");
   lines.push("Direct `node -e` and `node --input-type=module -` are blocked.");
   lines.push("");
   lines.push("Offending file(s):");
-  for (const o of offenders) {
-    lines.push(`  - ${o.rel}  [${o.hits.join(", ")}]`);
-  }
+  for (const o of offenders) lines.push(`  - ${o.rel}  [${o.hits.join(", ")}]`);
   lines.push("");
-  die(lines.join("\n"));
+  die(lines.join("\\n"));
 }
 
 console.log("OK: ban_direct_node_e_ref_guard");
