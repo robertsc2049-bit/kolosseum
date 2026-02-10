@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+# Always run from repo root.
+repo="$(git rev-parse --show-toplevel 2>/dev/null || echo "")"
+if [ -n "$repo" ]; then
+  cd "$repo"
+fi
+
+node ci/scripts/prepush_green.mjs
