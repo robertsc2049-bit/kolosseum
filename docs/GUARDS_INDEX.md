@@ -6,6 +6,7 @@ This file is **auto-generated** from `ci/guards/`.
 - **@law**: what rule family the guard enforces
 - **@severity**: low | medium | high
 - **@scope**: repo | engine | registry | docs | ci | ... (free-form but consistent)
+- **@desc**: (optional) short human description; if missing, the generator may fall back to the first top comment
 
 ## Guards
 
@@ -25,7 +26,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/green_ci_parity_guard.mjs` | CI Integrity | high | repo |  |
 | `ci/guards/green_contract_installer_sync_guard.mjs` | CI Integrity | high | repo |  |
 | `ci/guards/green_entrypoint_guard.mjs` | CI Integrity | high | repo | Guard: prevent ad-hoc partial runs that can hide implicit writes. |
-| `ci/guards/guards_index_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/guards_index_guard.mjs` | Repo Governance | medium | repo | Locale-independent ASCII comparator. |
 | `ci/guards/lockfile_note_guard.mjs` | Repo Hygiene | high | repo |  |
 | `ci/guards/no_bom_guard.mjs` | Encoding Hygiene | high | repo |  |
 | `ci/guards/no_crlf_guard.mjs` | Encoding Hygiene | high | repo |  |

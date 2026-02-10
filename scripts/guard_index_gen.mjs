@@ -14,6 +14,17 @@ function exists(p) {
   try { fs.accessSync(p); return true; } catch { return false; }
 }
 
+// Locale-independent ASCII comparator.
+// NOTE: we normalize to forward slashes before comparing.
+function asciiCompare(a, b) {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+}
+
+function normRel(p) {
+  return String(p).replace(/\\/g, "/");
+}
+
 const repo = process.cwd();
 const guardsDir = path.join(repo, "ci", "guards");
 const outPath = path.join(repo, "docs", "GUARDS_INDEX.md");
@@ -25,15 +36,19 @@ if (!exists(guardsDir)) die(`Missing: ${path.relative(repo, guardsDir)}`);
 
 const exts = new Set([".mjs", ".ps1", ".sh"]);
 
-function listGuards() {
+function listGuardsRel() {
   const out = [];
   for (const ent of fs.readdirSync(guardsDir, { withFileTypes: true })) {
     if (!ent.isFile()) continue;
     const ext = path.extname(ent.name).toLowerCase();
     if (!exts.has(ext)) continue;
-    out.push(path.join(guardsDir, ent.name));
+
+    const abs = path.join(guardsDir, ent.name);
+    const rel = normRel(path.relative(repo, abs));
+    out.push(rel);
   }
-  return out.sort((a, b) => a.localeCompare(b));
+  out.sort(asciiCompare);
+  return out;
 }
 
 // Deterministic heuristic (matches guard_meta_apply).
@@ -68,35 +83,39 @@ function inferMetaFromBasename(basename) {
 }
 
 function parseMeta(txt, ext, basename) {
-  const lines = lf(txt).split("\n").slice(0, 120);
+  const lines = lf(txt).split("\n").slice(0, 160);
   const isHash = ext === ".ps1" || ext === ".sh";
 
   const reLaw = isHash ? /^#\s*@law\s*:\s*(.+)\s*$/i : /^\/\/\s*@law\s*:\s*(.+)\s*$/i;
   const reSeverity = isHash ? /^#\s*@severity\s*:\s*(.+)\s*$/i : /^\/\/\s*@severity\s*:\s*(.+)\s*$/i;
   const reScope = isHash ? /^#\s*@scope\s*:\s*(.+)\s*$/i : /^\/\/\s*@scope\s*:\s*(.+)\s*$/i;
+  const reDesc = isHash ? /^#\s*@desc\s*:\s*(.+)\s*$/i : /^\/\/\s*@desc\s*:\s*(.+)\s*$/i;
 
   let law = "";
   let severity = "";
   let scope = "";
+  let desc = "";
 
   for (const l of lines) {
     let m = l.match(reLaw); if (m) { law = (m[1] || "").trim(); continue; }
     m = l.match(reSeverity); if (m) { severity = (m[1] || "").trim(); continue; }
     m = l.match(reScope); if (m) { scope = (m[1] || "").trim(); continue; }
+    m = l.match(reDesc); if (m) { desc = (m[1] || "").trim(); continue; }
   }
 
-  // description: first non-empty non-meta comment line near top
-  let desc = "";
-  const commentRe = isHash ? /^#\s*(.+)$/ : /^\/\/\s*(.+)$/;
-  for (const l of lines) {
-    if (reLaw.test(l) || reSeverity.test(l) || reScope.test(l)) continue;
-    const m = l.match(commentRe);
-    if (!m) continue;
-    const s = (m[1] || "").trim();
-    if (!s) continue;
-    if (/^ci\/guards\//i.test(s)) continue;
-    desc = s;
-    break;
+  // description fallback: first non-empty non-meta comment line near top (legacy support)
+  if (!desc) {
+    const commentRe = isHash ? /^#\s*(.+)$/ : /^\/\/\s*(.+)$/;
+    for (const l of lines) {
+      if (reLaw.test(l) || reSeverity.test(l) || reScope.test(l) || reDesc.test(l)) continue;
+      const m = l.match(commentRe);
+      if (!m) continue;
+      const s = (m[1] || "").trim();
+      if (!s) continue;
+      if (/^ci\/guards\//i.test(s)) continue;
+      desc = s;
+      break;
+    }
   }
 
   // If headerless, still show meaningful metadata.
@@ -115,14 +134,14 @@ function mdEscape(s) {
 }
 
 function build() {
-  const files = listGuards();
+  const relFiles = listGuardsRel();
   const rows = [];
 
-  for (const f of files) {
-    const rel = path.relative(repo, f).replace(/\\/g, "/");
-    const ext = path.extname(f).toLowerCase();
-    const basename = path.basename(f);
-    const txt = fs.readFileSync(f, "utf8");
+  for (const rel of relFiles) {
+    const abs = path.join(repo, rel);
+    const ext = path.extname(abs).toLowerCase();
+    const basename = path.basename(abs);
+    const txt = fs.readFileSync(abs, "utf8");
     const meta = parseMeta(txt, ext, basename);
 
     rows.push({
@@ -143,6 +162,7 @@ function build() {
     "- **@law**: what rule family the guard enforces",
     "- **@severity**: low | medium | high",
     "- **@scope**: repo | engine | registry | docs | ci | ... (free-form but consistent)",
+    "- **@desc**: (optional) short human description; if missing, the generator may fall back to the first top comment",
     "",
     "## Guards",
     "",
@@ -163,7 +183,7 @@ const md = build();
 if (shouldWrite) {
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, md, "utf8");
-  console.log(`OK: guard_index_gen --write (${path.relative(repo, outPath).replace(/\\/g, "/")})`);
+  console.log(`OK: guard_index_gen --write (${normRel(path.relative(repo, outPath))})`);
 } else {
   process.stdout.write(md);
 }
