@@ -1,49 +1,35 @@
-[CmdletBinding(DefaultParameterSetName='Lines')]
 param(
-  [Parameter(Mandatory=$true)]
-  [ValidateNotNullOrEmpty()]
-  [string] $Path,
+  [Parameter(Mandatory=$true, Position=0)]
+  [string]$Path,
 
-  [Parameter(ParameterSetName='Lines', Mandatory=$true)]
-  [AllowEmptyCollection()]
-  [string[]] $Lines,
-
-  [Parameter(ParameterSetName='Text', Mandatory=$true)]
+  [Parameter(Mandatory=$true, Position=1)]
   [AllowEmptyString()]
-  [string] $Text,
-
-  [switch] $NoFinalNewline
+  [string]$Text
 )
 
-function Normalize-ToLf([string] $s) {
-  if ($null -eq $s) { return '' }
-  return (($s -replace "
-", "
-") -replace "", "
-")
+$ErrorActionPreference = "Stop"
+
+function Normalize-Lf([string]$s) {
+  return ($s -replace "`r`n", "`n") -replace "`r", "`n"
 }
 
-$outDir = Split-Path -Parent $Path
-if ($outDir -and -not (Test-Path -LiteralPath $outDir)) {
-  New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+# Resolve to a repo-rooted absolute path and reject escapes.
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$resolve = Join-Path $here "Resolve-RepoPath.ps1"
+if (-not (Test-Path -LiteralPath $resolve)) { throw "Write-Utf8NoBomLf: missing helper: $resolve" }
+
+$abs = & $resolve $Path
+
+# Ensure parent exists (create it) — preserves historical behavior for callers that expect mkdir.
+$parent = Split-Path -Parent $abs
+if (-not $parent) { throw "Write-Utf8NoBomLf: cannot determine parent for: $abs" }
+if (-not (Test-Path -LiteralPath $parent)) {
+  New-Item -ItemType Directory -Force -Path $parent | Out-Null
 }
 
-if ($PSCmdlet.ParameterSetName -eq 'Lines') {
-  $text = [string]::Join("
-", $Lines)
-} else {
-  $text = $Text
-}
-
-$text = Normalize-ToLf $text
-
-if (-not $NoFinalNewline) {
-  if ($text.Length -eq 0) { $text = "
-" }
-  elseif (-not $text.EndsWith("
-")) { $text += "
-" }
-}
-
+# UTF-8 no BOM + LF only
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText($Path, $text, $utf8NoBom)
+[System.IO.File]::WriteAllText($abs, (Normalize-Lf $Text), $utf8NoBom)
+
+# Emit the absolute path for convenience
+$abs
