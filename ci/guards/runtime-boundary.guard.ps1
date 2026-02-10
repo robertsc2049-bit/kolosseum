@@ -1,3 +1,6 @@
+# @law: Repo Governance
+# @severity: medium
+# @scope: repo
 Write-Host "[guard] runtime boundary"
 
 $RuntimeDir = "engine/src/runtime"

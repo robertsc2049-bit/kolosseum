@@ -1,3 +1,6 @@
+// @law: Repo Governance
+// @severity: medium
+// @scope: repo
 import fs from "node:fs";
 import path from "node:path";
 

@@ -1,3 +1,6 @@
+// @law: Encoding Hygiene
+// @severity: high
+// @scope: repo
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 import process from "node:process";

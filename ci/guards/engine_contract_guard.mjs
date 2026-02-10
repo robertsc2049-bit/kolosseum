@@ -1,3 +1,6 @@
+// @law: Runtime Boundary
+// @severity: high
+// @scope: engine
 // ci/guards/engine_contract_guard.mjs
 import fs from "node:fs";
 import path from "node:path";

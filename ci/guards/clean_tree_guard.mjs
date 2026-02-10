@@ -1,3 +1,6 @@
+// @law: Repo Hygiene
+// @severity: high
+// @scope: repo
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import process from "node:process";

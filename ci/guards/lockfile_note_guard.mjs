@@ -1,3 +1,6 @@
+// @law: Repo Hygiene
+// @severity: high
+// @scope: repo
 import { execSync } from "node:child_process";
 
 function out(cmd) {

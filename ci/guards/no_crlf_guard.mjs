@@ -1,3 +1,6 @@
+// @law: Encoding Hygiene
+// @severity: high
+// @scope: repo
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 

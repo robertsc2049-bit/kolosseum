@@ -1,3 +1,6 @@
+// @law: Runtime Boundary
+// @severity: high
+// @scope: engine
 // ci/guards/ban_engine_src_imports_in_api_guard.mjs
 import fs from "node:fs";
 import path from "node:path";

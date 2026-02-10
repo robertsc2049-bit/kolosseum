@@ -1,3 +1,6 @@
+// @law: Runtime Boundary
+// @severity: high
+// @scope: engine
 import { existsSync } from "node:fs";
 import { execSync } from "node:child_process";
 

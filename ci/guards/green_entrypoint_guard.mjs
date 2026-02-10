@@ -1,3 +1,6 @@
+// @law: CI Integrity
+// @severity: high
+// @scope: repo
 import process from "node:process";
 
 function die(msg) {
