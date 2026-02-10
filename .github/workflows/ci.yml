@@ -45,6 +45,37 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Set diff_line_endings_guard SHAs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "BASE_SHA=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_ENV"
+            echo "HEAD_SHA=${{ github.sha }}" >> "$GITHUB_ENV"
+            exit 0
+          fi
+      
+          # Non-PR: prefer github.event.before when present; otherwise fall back to merge-base or HEAD^.
+          HEAD="${{ github.sha }}"
+          BEFORE="${{ github.event.before }}"
+          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            echo "BASE_SHA=$BEFORE" >> "$GITHUB_ENV"
+            echo "HEAD_SHA=$HEAD" >> "$GITHUB_ENV"
+            exit 0
+          fi
+      
+          # Fallbacks require checkout(fetch-depth:0). Try merge-base vs origin/main, else HEAD^.
+          if git show-ref --quiet refs/remotes/origin/main; then
+            BASE="$(git merge-base "$HEAD" origin/main)"
+            echo "BASE_SHA=$BASE" >> "$GITHUB_ENV"
+            echo "HEAD_SHA=$HEAD" >> "$GITHUB_ENV"
+            exit 0
+          fi
+      
+          BASE="$(git rev-parse "$HEAD^")"
+          echo "BASE_SHA=$BASE" >> "$GITHUB_ENV"
+          echo "HEAD_SHA=$HEAD" >> "$GITHUB_ENV"
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
