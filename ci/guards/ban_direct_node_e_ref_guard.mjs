@@ -99,7 +99,7 @@ for (const root of roots) {
 
 if (offenders.length) {
   const lines = [];
-  lines.push("❌ ban_direct_node_e_ref_guard: forbidden Node invocation detected in PowerShell.");
+  lines.push("\u274C ban_direct_node_e_ref_guard: forbidden Node invocation detected in PowerShell.");
   lines.push("");
   lines.push("Policy: Use scripts/Invoke-NodeE.ps1 for any Node patching.");
   lines.push("Internal runner is implementation-only and must not be referenced directly.");

@@ -22,7 +22,7 @@ try {
     .map((s) => s.trim())
     .filter(Boolean);
 } catch (e) {
-  die(`❌ no_bom_guard: git ls-files failed (${e?.message ?? e})`);
+  die(`\u274C no_bom_guard: git ls-files failed (${e?.message ?? e})`);
 }
 
 const offenders = [];
@@ -44,7 +44,7 @@ for (const f of files) {
 }
 
 if (offenders.length) {
-  die(`❌ no_bom_guard: UTF-8 BOM detected in:\n- ${offenders.join("\n- ")}\nFix by rewriting as UTF-8 without BOM.`);
+  die(`\u274C no_bom_guard: UTF-8 BOM detected in:\n- ${offenders.join("\n- ")}\nFix by rewriting as UTF-8 without BOM.`);
 }
 
 console.log("OK: no_bom_guard");

@@ -7,19 +7,19 @@ import process from "node:process";
 
 const ROOT = "engine/src/render";
 
-// Common UTF-8 → CP1252 / CP437 mojibake sequences
+// Common UTF-8 \u2192 CP1252 / CP437 mojibake sequences
 // This list is intentionally conservative.
 const MOJIBAKE_PATTERNS = [
-  "Ã¢â‚¬â€", // em dash
-  "Ã¢â‚¬â€œ", // en dash
-  "Ã¢â‚¬Ëœ",
-  "Ã¢â‚¬â„¢",
-  "Ã¢â‚¬Å“",
-  "Ã¢â‚¬Â",
-  "Â ",       // stray nbsp / encoding leak
-  "Â·",
-  "Â—",
-  "Â–",
+  "\u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC", // em dash
+  "\u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u20AC\u0153", // en dash
+  "\u00C3\u00A2\u00E2\u201A\u00AC\u00CB\u0153",
+  "\u00C3\u00A2\u00E2\u201A\u00AC\u00E2\u201E\u00A2",
+  "\u00C3\u00A2\u00E2\u201A\u00AC\u00C5\u201C",
+  "\u00C3\u00A2\u00E2\u201A\u00AC\u00C2",
+  "\u00C2 ",       // stray nbsp / encoding leak
+  "\u00C2\u00B7",
+  "\u00C2\u2014",
+  "\u00C2\u2013",
 ];
 
 function walk(dir, files = []) {
@@ -56,7 +56,7 @@ function main() {
   }
 
   if (violations.length > 0) {
-    console.error("❌ Mojibake detected in render layer:\n");
+    console.error("\u274C Mojibake detected in render layer:\n");
 
     for (const v of violations) {
       console.error(`- ${v.file}`);

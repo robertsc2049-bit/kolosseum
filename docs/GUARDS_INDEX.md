@@ -32,7 +32,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/no_crlf_guard.mjs` | Encoding Hygiene | high | repo |  |
 | `ci/guards/no_legacy_constraints.mjs` | Repo Governance | medium | repo | Only allow legacy keys in these explicit negative test fixtures. |
 | `ci/guards/no_legacy_constraints.sh` | Repo Governance | medium | repo | !/usr/bin/env bash |
-| `ci/guards/no_mojibake_guard.mjs` | Encoding Hygiene | high | repo | Common UTF-8 → CP1252 / CP437 mojibake sequences |
+| `ci/guards/no_mojibake_guard.mjs` | Encoding Hygiene | high | repo | Common UTF-8 \u2192 CP1252 / CP437 mojibake sequences |
 | `ci/guards/node_version_guard.mjs` | Build Integrity | high | repo |  |
 | `ci/guards/readme_validation_contract_guard.mjs` | Contracts | high | repo |  |
 | `ci/guards/registry_bundle_guard.mjs` | Registry Law | high | registry |  |

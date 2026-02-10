@@ -70,7 +70,7 @@ for (const root of roots) {
 if (offenders.length) {
   die(
     [
-      "❌ ban_set_content_utf8_guard: forbidden usage detected.",
+      "\u274C ban_set_content_utf8_guard: forbidden usage detected.",
       "",
       "Reason: `Set/Add-Content -Encoding UTF8` and `Out-File -Encoding UTF8` are BOM/encoding footguns and cause repo churn.",
       "Policy: use scripts/Write-Utf8NoBomLf.ps1 for repo text writes (LF + UTF-8 no BOM), or the node-e/Invoke-NodeE flow.",

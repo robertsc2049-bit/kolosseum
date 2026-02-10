@@ -13,7 +13,7 @@ const banned = "scripts/engine-status.ps1";
 const bannedNorm = banned.replace(/\\/g, "/").toLowerCase();
 
 if (existsSync(banned)) {
-  die(`❌ BANNED FOOTGUN PRESENT ON DISK: ${banned}`);
+  die(`\u274C BANNED FOOTGUN PRESENT ON DISK: ${banned}`);
 }
 
 try {
@@ -24,10 +24,10 @@ try {
     .map((p) => p.replace(/\\/g, "/").toLowerCase());
 
   if (tracked.includes(bannedNorm)) {
-    die(`❌ BANNED FOOTGUN IS TRACKED IN GIT: ${banned}`);
+    die(`\u274C BANNED FOOTGUN IS TRACKED IN GIT: ${banned}`);
   }
 } catch (e) {
-  die(`❌ ban_engine_status_guard: git ls-files failed (${e?.message ?? e})`);
+  die(`\u274C ban_engine_status_guard: git ls-files failed (${e?.message ?? e})`);
 }
 
 console.log(`OK: banned footgun not present or tracked (${banned})`);

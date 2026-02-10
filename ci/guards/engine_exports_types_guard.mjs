@@ -6,7 +6,7 @@ import path from "node:path";
 import process from "node:process";
 
 function die(msg) {
-  console.error(`Ã¢ÂÅ’ engine_exports_types_guard: ${msg}`);
+console.error(`[ERR] engine_exports_types_guard: ${msg}`);
   process.exit(1);
 }
 

@@ -58,7 +58,7 @@ function main() {
   }
 
   // Fail with exact fix commands (canonical helper).
-  console.error(`❌ lockfile_note_guard: ${lockfile} changed in ${scope} scope but ${note} was not updated.`);
+  console.error(`\u274C lockfile_note_guard: ${lockfile} changed in ${scope} scope but ${note} was not updated.`);
   console.error("");
   console.error("Fix (recommended): add an LF-only note via the canonical helper, then re-run your commit/CI:");
   console.error("");

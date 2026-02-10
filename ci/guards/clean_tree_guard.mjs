@@ -18,7 +18,7 @@ function git(args) {
   const r = spawnSync("git", args, { encoding: "utf8", shell: false, windowsHide: true });
   if (r.status !== 0) {
     const out = (r.stdout || "") + (r.stderr || "");
-    die(`❌ clean_tree_guard: git ${args.join(" ")} failed\n${out}`.trim(), r.status ?? 1);
+    die(`\u274C clean_tree_guard: git ${args.join(" ")} failed\n${out}`.trim(), r.status ?? 1);
   }
   return (r.stdout || "").toString();
 }
@@ -107,7 +107,7 @@ function safeGitDiffNameOnly() {
 }
 
 const parts = [];
-parts.push("❌ clean_tree_guard: WORKING TREE: DIRTY");
+parts.push("\u274C clean_tree_guard: WORKING TREE: DIRTY");
 
 if (untracked.length) {
   const { limited, suffix } = renderList(untracked);

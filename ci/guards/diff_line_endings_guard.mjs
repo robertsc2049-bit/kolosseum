@@ -75,7 +75,7 @@ for (const f of files) {
 }
 
 if (offenders.length) {
-  console.error("❌ diff_line_endings_guard failed. New violations detected:");
+  console.error("\u274C diff_line_endings_guard failed. New violations detected:");
   for (const o of offenders) {
     const parts = [];
     if (o.bom) parts.push("UTF-8 BOM");

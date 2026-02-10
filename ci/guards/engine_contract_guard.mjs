@@ -14,14 +14,14 @@ function die(msg) {
 const repoRoot = process.cwd();
 const p = path.join(repoRoot, "ENGINE_CONTRACT.md");
 
-if (!fs.existsSync(p)) die(`❌ Missing ENGINE_CONTRACT.md at ${p}`);
+if (!fs.existsSync(p)) die(`\u274C Missing ENGINE_CONTRACT.md at ${p}`);
 
 const buf = fs.readFileSync(p);
 const txt = buf.toString("utf8");
 const trimmed = txt.trim();
 
 if (trimmed.length < 500) {
-  die(`❌ ENGINE_CONTRACT.md looks too small (${trimmed.length} chars). Refusing.`);
+  die(`\u274C ENGINE_CONTRACT.md looks too small (${trimmed.length} chars). Refusing.`);
 }
 
 // Content sanity: keeps accidental replacements from passing even if hash disabled later
@@ -35,7 +35,7 @@ const mustContain = [
 ];
 
 for (const s of mustContain) {
-  if (!txt.includes(s)) die(`❌ ENGINE_CONTRACT.md missing required phrase: ${JSON.stringify(s)}`);
+  if (!txt.includes(s)) die(`\u274C ENGINE_CONTRACT.md missing required phrase: ${JSON.stringify(s)}`);
 }
 
 // Hard lock: sha256 pin
@@ -46,7 +46,7 @@ const actual = crypto.createHash("sha256").update(buf).digest("hex").toUpperCase
 if (actual !== EXPECTED_SHA256) {
   die(
     [
-      "❌ ENGINE_CONTRACT.md SHA256 mismatch.",
+      "\u274C ENGINE_CONTRACT.md SHA256 mismatch.",
       `   expected: ${EXPECTED_SHA256}`,
       `   actual:   ${actual}`,
       "",
@@ -57,4 +57,4 @@ if (actual !== EXPECTED_SHA256) {
   );
 }
 
-console.log("✅ Engine contract guard passed (content + sha256 pinned).");
+console.log("\u2705 Engine contract guard passed (content + sha256 pinned).");

@@ -21,7 +21,7 @@ try {
     .map((s) => s.trim())
     .filter(Boolean);
 } catch (e) {
-  die(`❌ no_crlf_guard: git ls-files failed (${e?.message ?? e})`);
+  die(`\u274C no_crlf_guard: git ls-files failed (${e?.message ?? e})`);
 }
 
 const offenders = [];
@@ -41,7 +41,7 @@ for (const f of files) {
 }
 
 if (offenders.length) {
-  die(`❌ no_crlf_guard: CRLF detected in:\n- ${offenders.join("\n- ")}\nNormalize to LF.`);
+  die(`\u274C no_crlf_guard: CRLF detected in:\n- ${offenders.join("\n- ")}\nNormalize to LF.`);
 }
 
 console.log("OK: no_crlf_guard");

@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 function die(msg) {
-  console.error(`❌ Repo contract failed: ${msg}`);
+  console.error(`\u274C Repo contract failed: ${msg}`);
   process.exit(1);
 }
 
@@ -105,4 +105,4 @@ for (const p of toCheck) {
 // --- filesystem contract ---
 checkPathsExist();
 
-console.log("✅ Repo contract guard passed.");
+console.log("\u2705 Repo contract guard passed.");

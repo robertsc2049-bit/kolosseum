@@ -97,9 +97,9 @@ function main() {
   }
 
   if (offenders.length) {
-    console.error("\n❌ Legacy constraint keys detected:\n");
+    console.error("\n\u274C Legacy constraint keys detected:\n");
     for (const o of offenders) {
-      console.error(`- ${o.key} → ${o.rel}`);
+      console.error(`- ${o.key} \u2192 ${o.rel}`);
     }
     console.error("\nCanonical constraint contract violated. Build blocked.\n");
     process.exit(1);
