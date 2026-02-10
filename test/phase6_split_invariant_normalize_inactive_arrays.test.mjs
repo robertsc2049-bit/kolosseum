@@ -19,6 +19,7 @@ function v3Summary(runtime, last_seq) {
 // If split_active === false, remaining_at_split_ids MUST normalize to [].
 // - If remaining_at_split_ids is present and non-empty (even if "valid"), normalize MUST clear it to [] and set needsUpgrade=true.
 // - If remaining_at_split_ids is present but contains garbage (wrong ids, empty strings, nulls, numbers, dupes), normalize MUST clear it to [] and set needsUpgrade=true.
+// - If remaining_at_split_ids is present and already [] (canonical), normalize MUST NOT claim an upgrade (needsUpgrade=false).
 // - If remaining_at_split_ids is missing entirely and split is inactive:
 //     * If normalize EMITS the field, that is a mutation => needsUpgrade MUST be true.
 //     * If normalize OMITS the field, no mutation => needsUpgrade MUST be false.
@@ -52,8 +53,20 @@ function v3Summary(runtime, last_seq) {
       mode: "present_nonempty"
     },
     {
-      name: "inactive split + remaining_at_split_ids missing entirely",
+      name: "inactive split + remaining_at_split_ids present and already canonical empty",
       last_seq: 9203,
+      runtime: {
+        remaining_ids: ["ex1", "ex2"],
+        completed_ids: [],
+        skipped_ids: [],
+        split_active: false,
+        remaining_at_split_ids: []
+      },
+      mode: "present_empty"
+    },
+    {
+      name: "inactive split + remaining_at_split_ids missing entirely",
+      last_seq: 9204,
       runtime: {
         remaining_ids: ["ex1", "ex2"],
         completed_ids: [],
@@ -86,6 +99,15 @@ function v3Summary(runtime, last_seq) {
       );
       assert.equal(has, true, c.name + " (field should be emitted after normalize)");
       assert.deepEqual(summary.runtime.remaining_at_split_ids, [], c.name);
+    } else if (c.mode === "present_empty") {
+      // Field existed and was already canonical => MUST NOT count as repair.
+      assert.equal(has, true, c.name + " (field should still exist)");
+      assert.deepEqual(summary.runtime.remaining_at_split_ids, [], c.name);
+      assert.equal(
+        needsUpgrade,
+        false,
+        "normalize must NOT claim upgrade when remaining_at_split_ids is already canonical [] under inactive split: " + c.name
+      );
     } else {
       // Field absent in raw input; contract may or may not emit it.
       if (has) {
