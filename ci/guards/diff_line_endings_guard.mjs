@@ -1,6 +1,11 @@
 // @law: Encoding Hygiene
 // @severity: high
 // @scope: repo
+//
+// Policy:
+// - Local dev may SKIP if BASE_SHA/HEAD_SHA are not provided.
+// - CI MUST FAIL CLOSED if BASE_SHA/HEAD_SHA are missing (no pretend-enforcement).
+
 import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 
@@ -17,10 +22,17 @@ function die(msg) {
   process.exit(1);
 }
 
-const base = (process.env.BASE_SHA || "").trim();
-const head = (process.env.HEAD_SHA || "").trim();
+const isCi =
+  String(process.env.CI || "").toLowerCase() === "true" ||
+  String(process.env.GITHUB_ACTIONS || "").toLowerCase() === "true";
+
+const base = String(process.env.BASE_SHA || "").trim();
+const head = String(process.env.HEAD_SHA || "").trim();
 
 if (!base || !head) {
+  if (isCi) {
+    die("diff_line_endings_guard: FAIL (CI true but BASE_SHA/HEAD_SHA not set) [fail-closed].");
+  }
   console.log("diff_line_endings_guard: SKIP (BASE_SHA/HEAD_SHA not set).");
   process.exit(0);
 }
@@ -75,7 +87,7 @@ for (const f of files) {
 }
 
 if (offenders.length) {
-  console.error("\u274C diff_line_endings_guard failed. New violations detected:");
+  console.error("diff_line_endings_guard: FAIL. New violations detected:");
   for (const o of offenders) {
     const parts = [];
     if (o.bom) parts.push("UTF-8 BOM");
