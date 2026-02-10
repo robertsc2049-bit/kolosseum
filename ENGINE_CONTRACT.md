@@ -178,4 +178,4 @@ The run_pipeline CLI supports a stable export surface:
   - session.json
   - session.txt
 
-The normative CLI contract is defined in docs/CLI_EXPORT.md.
+The normative CLI contract is defined in docs/CLI_EXPORT.md.\n### Back-compat emission rules (raw shape validity)\n\nRaw fields suppress back-compat emission only when structurally valid; invalid shapes are treated as absent. For split, this means `raw.runtime.remaining_at_split_ids` only suppresses legacy `runtime.split` emission when it is an array of strings; non-arrays or arrays containing non-string elements are treated as absent for suppression purposes.\n\n

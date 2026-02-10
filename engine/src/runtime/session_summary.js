@@ -320,21 +320,31 @@ export function normalizeSummary(planned, raw) {
     const runtime = fromEngineState(st);
 
     // Split back-compat emission rules:
+
+    // Back-compat suppression is keyed off *valid* raw shapes only.
+    // Rule: Raw fields suppress back-compat emission only when structurally valid;
+    // invalid shapes (and invalid element types) are treated as absent.
+    function rawHasArrayOfStrings(obj, prop){
+      if (!obj || typeof obj !== 'object') return false;
+      if (!Object.prototype.hasOwnProperty.call(obj, prop)) return false;
+      const v = obj[prop];
+      if (!Array.isArray(v)) return false;
+      for (const x of v) { if (typeof x !== 'string') return false; }
+      return true;
+    }
     // - Do NOT introduce runtime.split when modern split snapshot is already canonical (prevents upgrade loops).
     // - DO emit runtime.split for legacy readers when split is active but raw did NOT explicitly carry remaining_at_split_ids.
     const rawHadSplit = !!(raw && raw.runtime && typeof raw.runtime === 'object' && raw.runtime !== null &&
       Object.prototype.hasOwnProperty.call(raw.runtime, 'split'));
     // Treat raw remaining_at_split_ids as explicitly carried ONLY if it is structurally valid (array).
     // Garbage types must not suppress legacy split emission.
-    const rawHadRemainingAtSplitIdsArray = !!(raw && raw.runtime && typeof raw.runtime === 'object' && raw.runtime !== null &&
-      Object.prototype.hasOwnProperty.call(raw.runtime, 'remaining_at_split_ids') &&
-      Array.isArray(raw.runtime.remaining_at_split_ids));
+        const rawHadRemainingAtSplitIdsValid = rawHasArrayOfStrings(raw && raw.runtime && typeof raw.runtime === 'object' ? raw.runtime : null, 'remaining_at_split_ids');
     const splitActive = readSplitActive(runtime);
     const remAtSplit = readRemainingAtSplitIds(runtime);
     if (!rawHadSplit) {
       // Avoid upgrade loops: if we already have canonical modern split data, do not add nested split.
       // Back-compat exception: only emit nested split when split is active, remAtSplit is empty, AND raw did not explicitly carry remaining_at_split_ids.
-      if (splitActive && remAtSplit.length === 0 && !rawHadRemainingAtSplitIdsArray) {
+      if (splitActive && remAtSplit.length === 0 && !rawHadRemainingAtSplitIdsValid) {
         runtime.split = { active: true, remaining_at_split: [] };
       } else {
         if (runtime && typeof runtime === 'object' && runtime !== null &&
