@@ -296,9 +296,10 @@ export function normalizeSummary(planned, raw) {
     // Rebuild terminals through reducer.
     const st0 = engineStateFromV3Snapshot(ids, raw.runtime);
 
-    // CRITICAL: V3 persisted snapshots must NOT preserve "active split".
-    // Split is a runtime decision gate, not durable state.
-    const st = { ...st0, split_active: false, remaining_at_split_ids: [] };
+    // CRITICAL: Split snapshot is runtime truth and MUST be persisted until RETURN_CONTINUE/RETURN_SKIP clears it.
+// Do NOT clear split_active/remaining_at_split_ids during normalization/persist.
+const st = { ...st0 };
+// (Split semantics are preserved as stored data; reducer owns when it clears.)
 
     const runtime = fromEngineState(st);
 
