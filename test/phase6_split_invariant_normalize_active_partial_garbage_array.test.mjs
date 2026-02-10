@@ -59,5 +59,3 @@ function v3Summary(runtime, last_seq) {
     assert.deepEqual(summary.runtime.split.remaining_at_split, [], c.name);
   }
 }
-
-console.log("PASS phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs");
