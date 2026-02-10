@@ -69,8 +69,8 @@ if (DOC_ONLY) {
   console.log("[pre-commit] low-risk change -> lint:fast");
   sh("npm run lint:fast");
 } else {
-  console.log("[pre-commit] risk surface touched -> green");
-  sh("npm run green");
+  console.log("[pre-commit] risk surface touched -> green:fast");
+  sh("npm run green:fast");
 }
 
 // Refuse hook side-effects that left unstaged changes behind.
