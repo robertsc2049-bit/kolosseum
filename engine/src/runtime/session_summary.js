@@ -174,7 +174,14 @@ export function engineStateFromV3Snapshot(planned_ids, raw) {
             }
           : undefined
       }
-    : { remaining_ids: [], completed_ids: [], skipped_ids: [], split_active: false, remaining_at_split_ids: [], split: undefined };
+    : {
+        remaining_ids: [],
+        completed_ids: [],
+        skipped_ids: [],
+        split_active: false,
+        remaining_at_split_ids: [],
+        split: undefined
+      };
 
   const scoped = scopeRuntimeJsonToPlan(planned_ids, rtRaw);
 
@@ -183,10 +190,18 @@ export function engineStateFromV3Snapshot(planned_ids, raw) {
   for (const id of scoped.skipped_ids) st = applyRuntimeEvent(st, { type: "skip_exercise", exercise_id: id });
 
   // Restore split as data (no implied semantics beyond persisted snapshot).
+  // Invariant: if split is inactive, remaining_at_split_ids must be empty.
+  const split_active = scoped.split_active === true;
+  const remaining_at_split_ids = split_active
+    ? Array.isArray(scoped.remaining_at_split_ids)
+      ? [...scoped.remaining_at_split_ids]
+      : []
+    : [];
+
   st = {
     ...st,
-    split_active: scoped.split_active === true,
-    remaining_at_split_ids: Array.isArray(scoped.remaining_at_split_ids) ? [...scoped.remaining_at_split_ids] : []
+    split_active,
+    remaining_at_split_ids
   };
 
   return st;
@@ -296,10 +311,11 @@ export function normalizeSummary(planned, raw) {
     // Rebuild terminals through reducer.
     const st0 = engineStateFromV3Snapshot(ids, raw.runtime);
 
-    // CRITICAL: Split snapshot is runtime truth and MUST be persisted until RETURN_CONTINUE/RETURN_SKIP clears it.
-// Do NOT clear split_active/remaining_at_split_ids during normalization/persist.
-const st = { ...st0 };
-// (Split semantics are preserved as stored data; reducer owns when it clears.)
+    // CRITICAL: Split snapshot is runtime truth and MUST be persisted until
+    // RETURN_CONTINUE/RETURN_SKIP clears it. Do NOT clear split_active or
+    // remaining_at_split_ids during normalization/persist.
+    const st = { ...st0 };
+    // (Split semantics are preserved as stored data; reducer owns when it clears.)
 
     const runtime = fromEngineState(st);
 
