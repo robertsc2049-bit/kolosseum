@@ -26,11 +26,11 @@ function main() {
   }
 
   console.log(`pre-push: upstream=${upstream}`);
-  console.log("pre-push: running: npm run green (BASE/HEAD computed by green)");
+  console.log("pre-push: running: npm run green:fast (BASE/HEAD computed by fast runner)");
 
-  execSync("npm run green", { stdio: "inherit", env: process.env });
+  execSync("npm run green:fast", { stdio: "inherit", env: process.env });
 
-  console.log("pre-push: OK (green passed)");
+  console.log("pre-push: OK (green:fast passed)");
 }
 
 try {
