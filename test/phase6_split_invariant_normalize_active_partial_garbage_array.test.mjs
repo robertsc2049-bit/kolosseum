@@ -60,4 +60,4 @@ function v3Summary(runtime, last_seq) {
   }
 }
 
-console.log("PASS phase6_split_invariant_normalize_garbage_types.test.mjs");
+console.log("PASS phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs");
