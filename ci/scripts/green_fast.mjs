@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import crypto from "node:crypto";
-import { spawnSync } from "node:child_process";
+import { spawnSync, execSync } from "node:child_process";
 
 function die(msg, code = 1) {
   process.stderr.write(String(msg).trimEnd() + "\n");
@@ -23,6 +23,16 @@ function safeRmRf(p) {
     fs.rmSync(p, { recursive: true, force: true });
   } catch {
     // ignore
+  }
+}
+
+function sh(cmd) {
+  try {
+    return execSync(cmd, { stdio: ["ignore", "pipe", "pipe"], encoding: "utf8" }).trim();
+  } catch (e) {
+    const stderr = (e && typeof e.stderr === "string") ? e.stderr : "";
+    const msg = stderr ? `${cmd}\n${stderr}` : `${cmd}`;
+    die(`GREEN_FAST_FAIL: git command failed:\n${msg}`, 2);
   }
 }
 
@@ -100,21 +110,57 @@ function runNpm(script, extraEnv = {}) {
   return { code, detail: code === 0 ? "" : `exit code ${code}` };
 }
 
+function computeBaseHeadEnv() {
+  // Always from repo root.
+  const repo = sh("git rev-parse --show-toplevel");
+  process.chdir(repo);
+
+  // Require upstream (fail closed). This matches your current pre-push behavior.
+  let upstream = "";
+  try {
+    upstream = sh("git rev-parse --abbrev-ref --symbolic-full-name @{u}");
+  } catch {
+    upstream = "";
+  }
+  if (!upstream) {
+    die("GREEN_FAST_FAIL: no upstream set (expected @{u}). Fix: git push -u origin HEAD", 2);
+  }
+
+  const head = sh("git rev-parse HEAD");
+  const base = sh(`git merge-base ${head} ${upstream}`);
+
+  return {
+    upstream,
+    BASE_SHA: base,
+    HEAD_SHA: head,
+  };
+}
+
 // green:fast exists to be an authoritative entrypoint like green,
 // but quicker. It still mints the same nonce handshake so clean_tree_guard
 // can safely skip during nested steps, and so env poisoning is prevented.
 const { nonce, dir, file } = mkNonceHandshake();
 
-const greenEnv = {
-  KOLOSSEUM_GREEN: "1",
-  KOLOSSEUM_GREEN_NONCE: nonce,
-  KOLOSSEUM_GREEN_NONCE_FILE: file,
-  KOLOSSEUM_GREEN_ENTRYPOINT: "1",
-};
-
 try {
   headline("nonce handshake (mint + verify)");
   ok("OK: green:fast nonce minted");
+
+  headline("compute BASE/HEAD from upstream");
+  const { upstream, BASE_SHA, HEAD_SHA } = computeBaseHeadEnv();
+  ok(`green:fast upstream=${upstream}`);
+  ok(`green:fast BASE_SHA=${BASE_SHA}`);
+  ok(`green:fast HEAD_SHA=${HEAD_SHA}`);
+
+  const greenEnv = {
+    KOLOSSEUM_GREEN: "1",
+    KOLOSSEUM_GREEN_NONCE: nonce,
+    KOLOSSEUM_GREEN_NONCE_FILE: file,
+    KOLOSSEUM_GREEN_ENTRYPOINT: "1",
+
+    // Critical: enables diff_line_endings_guard + other BASE/HEAD-aware guards.
+    BASE_SHA,
+    HEAD_SHA,
+  };
 
   const steps = ["lint:fast", "test:unit", "build:fast"];
 
