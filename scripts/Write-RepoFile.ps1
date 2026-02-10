@@ -6,41 +6,46 @@ param(
   [AllowEmptyString()]
   [string]$Text,
 
-  # If set, the target file must already exist (prevents accidental new files).
+  # If set, the target file must already exist.
   [switch]$MustExist,
 
   # If set, create the parent directory if missing.
-  # Default behavior is to FAIL if parent is missing (safer against typos).
   [switch]$CreateParent
 )
 
 $ErrorActionPreference = "Stop"
 
-# Locate sibling helpers reliably.
+function Normalize-Lf([string]$s) {
+  return ($s -replace "`r`n", "`n") -replace "`r", "`n"
+}
+
+# Resolve path to repo-rooted absolute path; reject escapes.
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $resolve = Join-Path $here "Resolve-RepoPath.ps1"
-$writeLf = Join-Path $here "Write-Utf8NoBomLf.ps1"
-
 if (-not (Test-Path -LiteralPath $resolve)) { throw "Write-RepoFile: missing helper: $resolve" }
-if (-not (Test-Path -LiteralPath $writeLf)) { throw "Write-RepoFile: missing helper: $writeLf" }
 
-# Resolve to absolute repo-rooted path; optionally enforce existence.
-$abs = & $resolve $Path -MustExist:$MustExist
+$abs = if ($MustExist) { & $resolve -Path $Path -MustExist } else { & $resolve -Path $Path }
 
-# Parent dir policy: default fail, opt-in create.
+# Parent policy
 $parent = Split-Path -Parent $abs
-if (-not $parent) { throw "Write-RepoFile: cannot determine parent directory for: $abs" }
+if (-not $parent) { throw "Write-RepoFile: cannot determine parent for: $abs" }
 
 if (-not (Test-Path -LiteralPath $parent)) {
   if ($CreateParent) {
     New-Item -ItemType Directory -Force -Path $parent | Out-Null
   } else {
-    throw "Write-RepoFile: parent directory does not exist: $parent (use -CreateParent to allow mkdir)"
+    throw "Write-RepoFile: parent directory missing (refusing). parent='$parent' path='$abs'"
   }
 }
 
-# Always write UTF-8 no BOM + LF (delegate to canonical helper).
-& $writeLf -Path $abs -Text $Text | Out-Null
+# MustExist policy (after resolve, to keep error message clean)
+if ($MustExist -and -not (Test-Path -LiteralPath $abs)) {
+  throw "Write-RepoFile: target does not exist (-MustExist set): $abs"
+}
 
-# Emit absolute path (useful for piping / logs).
+# Write UTF-8 no BOM + LF only
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($abs, (Normalize-Lf $Text), $utf8NoBom)
+
+# Emit absolute path for callers
 $abs
