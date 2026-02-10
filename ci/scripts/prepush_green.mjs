@@ -25,19 +25,9 @@ function main() {
     process.exit(2);
   }
 
-  const head = sh("git rev-parse HEAD");
-  const base = sh(`git merge-base ${head} ${upstream}`);
-
-  // Export for diff guards (diff_line_endings_guard, etc).
-  process.env.BASE_SHA = base;
-  process.env.HEAD_SHA = head;
-
   console.log(`pre-push: upstream=${upstream}`);
-  console.log(`pre-push: BASE_SHA=${base}`);
-  console.log(`pre-push: HEAD_SHA=${head}`);
-  console.log("pre-push: running: npm run green");
+  console.log("pre-push: running: npm run green (BASE/HEAD computed by green)");
 
-  // Run canonical local entrypoint.
   execSync("npm run green", { stdio: "inherit", env: process.env });
 
   console.log("pre-push: OK (green passed)");
@@ -46,6 +36,5 @@ function main() {
 try {
   main();
 } catch (e) {
-  // Preserve npm/guard output (already printed via inherit), just exit non-zero.
   process.exit(typeof e?.status === "number" ? e.status : 1);
 }

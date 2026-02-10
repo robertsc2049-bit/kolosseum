@@ -64,7 +64,7 @@
     "test:renderer:src": "node scripts/run_env.mjs KOLOSSEUM_TEST_SRC=1 -- node --test test/session_text_render.test.mjs",
     "test:unit": "node ci/guards/green_entrypoint_guard.mjs && node ci/guards/clean_tree_guard.mjs && npm run test:ci",
     "test:watch": "node --test --watch",
-    "green": "node ci/scripts/green.mjs",
+    "green": "node ci/scripts/green_with_basehead.mjs",
     "green:ci": "node ci/guards/clean_tree_guard.mjs && npm run guard:constraints && npm run guard:version && npm run green && npm run e2e:golden",
     "engine:export": "npm run build:fast && node dist/src/run_pipeline_cli.js --outdir out",
     "engine:events": "npm run build:fast && node dist/src/session_runtime_cli.js",
@@ -78,7 +78,8 @@
     "guard:explain": "node scripts/guard_explain.mjs",
     "dev:ready": "node scripts/ps-runner.mjs --file scripts/dev-ready.ps1",
     "dev:ready:green": "node scripts/ps-runner.mjs --file scripts/dev-ready.ps1 -- -RunGreen",
-    "hooks:install": "node scripts/ps-runner.mjs --file scripts/install-githooks.ps1"
+    "hooks:install": "node scripts/ps-runner.mjs --file scripts/install-githooks.ps1",
+    "green:raw": "node ci/scripts/green.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",
