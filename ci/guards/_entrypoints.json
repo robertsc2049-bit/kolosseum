@@ -1,0 +1,19 @@
+{
+  "package_json_scripts": [
+    "lint:fast",
+    "dev:fast",
+    "green",
+    "ci",
+    "green:ci",
+    "build:fast",
+    "test:unit",
+    "test:ci",
+    "e2e:golden",
+    "guard:index",
+    "guard:constraints",
+    "guard:version"
+  ],
+  "workflow_files": [
+    ".github/workflows/green.yml"
+  ]
+}
