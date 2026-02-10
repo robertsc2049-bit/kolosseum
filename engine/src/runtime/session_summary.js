@@ -319,6 +319,38 @@ export function normalizeSummary(planned, raw) {
 
     const runtime = fromEngineState(st);
 
+    // Split back-compat emission rules:
+    // - Do NOT introduce runtime.split when modern split snapshot is already canonical (prevents upgrade loops).
+    // - DO emit runtime.split for legacy readers when split is active but raw did NOT explicitly carry remaining_at_split_ids.
+    const rawHadSplit = !!(raw && raw.runtime && typeof raw.runtime === 'object' && raw.runtime !== null &&
+      Object.prototype.hasOwnProperty.call(raw.runtime, 'split'));
+    // Treat raw remaining_at_split_ids as explicitly carried ONLY if it is structurally valid (array).
+    // Garbage types must not suppress legacy split emission.
+    const rawHadRemainingAtSplitIdsArray = !!(raw && raw.runtime && typeof raw.runtime === 'object' && raw.runtime !== null &&
+      Object.prototype.hasOwnProperty.call(raw.runtime, 'remaining_at_split_ids') &&
+      Array.isArray(raw.runtime.remaining_at_split_ids));
+    const splitActive = readSplitActive(runtime);
+    const remAtSplit = readRemainingAtSplitIds(runtime);
+    if (!rawHadSplit) {
+      // Avoid upgrade loops: if we already have canonical modern split data, do not add nested split.
+      // Back-compat exception: only emit nested split when split is active, remAtSplit is empty, AND raw did not explicitly carry remaining_at_split_ids.
+      if (splitActive && remAtSplit.length === 0 && !rawHadRemainingAtSplitIdsArray) {
+        runtime.split = { active: true, remaining_at_split: [] };
+      } else {
+        if (runtime && typeof runtime === 'object' && runtime !== null &&
+          Object.prototype.hasOwnProperty.call(runtime, 'split')) delete runtime.split;
+      }
+    } else {
+      // Raw already had nested split: keep it only when meaningful.
+      // Invariant: inactive split with empty remaining_at_split must not emit nested runtime.split.
+      const s = splitJsonFrom(runtime);
+      if (s) {
+        runtime.split = s;
+      } else {
+        if (runtime && typeof runtime === 'object' && runtime !== null &&
+          Object.prototype.hasOwnProperty.call(runtime, 'split')) delete runtime.split;
+      }
+    }
     const needs =
       raw.version !== 3 ||
       Number(raw.last_seq ?? 0) !== last_seq ||
