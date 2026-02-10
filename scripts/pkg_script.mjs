@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { writeRepoTextSync } from "./repo_io.mjs";
 
 function die(msg, code = 1) {
   console.error(msg);
@@ -21,7 +22,7 @@ function readJson(absPath) {
 function writeJsonStable(absPath, obj) {
   // Stable formatting: 2-space indent, LF, trailing newline.
   const text = JSON.stringify(obj, null, 2).replace(/\r\n/g, "\n") + "\n";
-  fs.writeFileSync(absPath, text, { encoding: "utf8" });
+  writeRepoTextSync(absPath, text);
 }
 
 function sortObjectKeys(o) {

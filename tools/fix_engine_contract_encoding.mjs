@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { writeRepoTextSync } from "../scripts/repo_io.mjs";
 
 const path = "ENGINE_CONTRACT.md";
 let s = fs.readFileSync(path, "utf8");
@@ -27,6 +28,6 @@ const fixes = new Map([
 for (const [bad, good] of fixes) s = s.split(bad).join(good);
 
 // Write UTF-8 without BOM (Node does not add BOM)
-fs.writeFileSync(path, s, "utf8");
+writeRepoTextSync(path, s);
 
 console.log("ENGINE_CONTRACT.md fixed (mojibake -> unicode), written as UTF-8 (no BOM).");

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import crypto from "node:crypto";
+import { writeRepoTextSync } from "./repo_io.mjs";
 
 function die(msg) {
   console.error(msg);
@@ -86,5 +87,5 @@ if (modeCheck) {
 
 // --write
 fs.mkdirSync(path.dirname(dst), { recursive: true });
-fs.writeFileSync(dst, srcText, { encoding: "utf8" });
+writeRepoTextSync(dst, srcText);
 console.log("OK: wrote shim -> engine/src/runtime/session_runtime.js");

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { execSync } from "node:child_process";
+import { writeRepoTextSync } from "./repo_io.mjs";
 
 function sh(cmd, inherit = true) {
   execSync(cmd, { stdio: inherit ? "inherit" : ["ignore", "pipe", "inherit"] });
@@ -60,7 +61,7 @@ function ensureLfUtf8NoBom(absPath, text) {
   if (dir && !fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
   const lf = normalizeToLf(text);
-  fs.writeFileSync(absPath, lf, { encoding: "utf8" });
+  writeRepoTextSync(absPath, lf);
 
   const probe = fs.readFileSync(absPath, "utf8");
   if (probe.includes("\r")) {

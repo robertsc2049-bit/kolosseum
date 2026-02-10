@@ -1,5 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { writeRepoTextSync } from "../scripts/repo_io.mjs";
 
 function die(msg) {
   console.error(msg);
@@ -32,4 +33,4 @@ if (mode === "--stdin") {
 content = content.replace(/^\uFEFF/, "");
 
 mkdirSync(dirname(outPath), { recursive: true });
-writeFileSync(outPath, content, { encoding: "utf8" });
+writeRepoTextSync(outPath, content);

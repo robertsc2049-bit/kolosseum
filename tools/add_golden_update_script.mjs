@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { writeRepoTextSync } from "../scripts/repo_io.mjs";
 
 const p = "package.json";
 let b = fs.readFileSync(p);
@@ -14,5 +15,5 @@ j.scripts = j.scripts || {};
 j.scripts["golden:update"] =
   "node tools/run_golden_update.mjs";
 
-fs.writeFileSync(p, JSON.stringify(j, null, 2) + "\n", "utf8");
+writeRepoTextSync(p, JSON.stringify(j, null, 2) + "\n", "utf8");
 console.log("package.json: added scripts.golden:update");

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import crypto from "node:crypto";
 import { execSync } from "node:child_process";
+import { writeRepoTextSync } from "../scripts/repo_io.mjs";
 
 
 function assertRepoClean() {
@@ -28,7 +29,7 @@ function readUtf8NoBom(p) {
 }
 
 function writeUtf8NoBom(p, s) {
-  fs.writeFileSync(p, s, "utf8"); // Node writes UTF-8 without BOM
+  writeRepoTextSync(p, s); // Node writes UTF-8 without BOM
 }
 
 function repinGoldenManifestGuard() {

@@ -1,81 +1,127 @@
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import os from "node:os";
+import { execFileSync, spawnSync } from "node:child_process";
+import { normalizeLf } from "../scripts/repo_io.mjs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Harness for registry_law_guard tests.
+// Key rule: staging uses a TEMP repo copy, so writers MUST allow out-of-repo paths.
+// Repo-safe writers (writeRepoTextSync) are *not* appropriate here.
 
-/**
- * Walk up from a starting directory until we find a marker file.
- * This makes the harness robust if the test directory moves deeper later.
- */
-function findUpForFile(startDirAbs, fileName) {
-  let cur = startDirAbs;
-  for (;;) {
-    const candidate = path.join(cur, fileName);
-    if (fs.existsSync(candidate)) return cur;
-    const parent = path.dirname(cur);
-    if (parent === cur) break;
-    cur = parent;
+function getRepoRootAbsSync() {
+  const out = execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" });
+  const root = String(out || "").trim();
+  if (!root) throw new Error("registry_law_guard_harness: git rev-parse --show-toplevel returned empty output.");
+  return path.resolve(root);
+}
+
+function copyRepoToTempRootSync(srcRoot, dstRoot) {
+  // Copy the minimum surfaces the guard/test needs.
+  // Exclude huge/irrelevant dirs; node_modules is junctioned separately.
+  const exclude = new Set([
+    ".git",
+    "dist",
+    "coverage",
+    ".next",
+    ".turbo",
+    ".cache",
+    "tmp",
+    "temp",
+    "artifacts",
+    "node_modules"
+  ]);
+
+  fs.mkdirSync(dstRoot, { recursive: true });
+
+  for (const ent of fs.readdirSync(srcRoot, { withFileTypes: true })) {
+    const name = ent.name;
+    if (exclude.has(name)) continue;
+
+    const src = path.join(srcRoot, name);
+    const dst = path.join(dstRoot, name);
+
+    if (ent.isDirectory()) {
+      fs.cpSync(src, dst, { recursive: true });
+    } else if (ent.isFile()) {
+      fs.mkdirSync(path.dirname(dst), { recursive: true });
+      fs.copyFileSync(src, dst);
+    }
   }
-  throw new Error(`registry_law_guard_harness: could not find ${fileName} above ${startDirAbs}`);
 }
 
-/**
- * Repo root is discovered by walking upward until we find package.json.
- * DO NOT replace with brittle path.resolve(__dirname, "..", "..") etc.
- */
-export function repoRootAbs() {
-  return findUpForFile(__dirname, "package.json");
+function junctionNodeModulesSync(srcRoot, dstRoot) {
+  const srcNm = path.join(srcRoot, "node_modules");
+  const dstNm = path.join(dstRoot, "node_modules");
+
+  if (!fs.existsSync(srcNm)) {
+    throw new Error(`registry_law_guard_harness: node_modules missing at repo root: ${srcNm}`);
+  }
+
+  if (fs.existsSync(dstNm)) {
+    fs.rmSync(dstNm, { recursive: true, force: true });
+  }
+
+  // On Windows, "junction" avoids admin requirements and works like a directory link.
+  fs.symlinkSync(srcNm, dstNm, "junction");
 }
 
-export function p(...parts) {
-  return path.resolve(repoRootAbs(), ...parts);
+export function stageTempRepoRoot() {
+  const srcRoot = getRepoRootAbsSync();
+  const tmpBase = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-registry-law-"));
+  const dstRoot = path.resolve(tmpBase);
+
+  copyRepoToTempRootSync(srcRoot, dstRoot);
+  junctionNodeModulesSync(srcRoot, dstRoot);
+
+  return dstRoot;
+}
+
+export function cleanupTempRepoRoot(tempRepoRootAbs) {
+  if (!tempRepoRootAbs) return;
+  const abs = path.resolve(String(tempRepoRootAbs));
+  if (fs.existsSync(abs)) {
+    fs.rmSync(abs, { recursive: true, force: true });
+  }
 }
 
 export function readJson(absPath) {
-  return JSON.parse(fs.readFileSync(absPath, "utf8"));
+  const p = path.resolve(String(absPath));
+  const raw = fs.readFileSync(p, "utf8");
+  return JSON.parse(raw);
 }
 
-export function writeJsonUtf8Lf(absPath, obj) {
-  const json = JSON.stringify(obj, null, 2) + "\n";
-  fs.writeFileSync(absPath, json.replace(/\r\n/g, "\n"), { encoding: "utf8" });
-}
+export function writeJsonUtf8Lf(absPath, obj, opts = {}) {
+  const space = Object.prototype.hasOwnProperty.call(opts, "space") ? opts.space : 2;
+  const suffixNewline = Object.prototype.hasOwnProperty.call(opts, "suffixNewline") ? !!opts.suffixNewline : true;
 
-/**
- * Create a hermetic temp "repo root" that contains ONLY what registry_law_guard needs:
- * - registries/** (artifacts under test)
- * - ci/schemas/** (validator schemas loaded via absFromRoot("ci/schemas/.."))
- *
- * The guard itself is executed from the real repo path, but with cwd=tempRoot,
- * so absFromRoot() resolves inside the temp root and cannot touch real registries.
- */
-export function stageTempRepoRoot() {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-registry-law-"));
-
-  // Copy registries/**
-  fs.cpSync(p("registries"), path.join(tmp, "registries"), { recursive: true });
-
-  // Copy ci/schemas/**
-  fs.mkdirSync(path.join(tmp, "ci"), { recursive: true });
-  fs.cpSync(p("ci", "schemas"), path.join(tmp, "ci", "schemas"), { recursive: true });
-
-  return tmp;
-}
-
-export function cleanupTempRepoRoot(tempRootAbs) {
-  try {
-    fs.rmSync(tempRootAbs, { recursive: true, force: true });
-  } catch {
-    // ignore cleanup failures in CI
+  if (typeof absPath !== "string" || !absPath.trim()) {
+    throw new Error("writeJsonUtf8Lf: absPath must be a non-empty string.");
   }
+
+  const outPath = path.resolve(absPath);
+  const parent = path.dirname(outPath);
+  fs.mkdirSync(parent, { recursive: true });
+
+  const json = JSON.stringify(obj, null, space) + (suffixNewline ? "\n" : "");
+  fs.writeFileSync(outPath, normalizeLf(json), { encoding: "utf8" });
+
+  return outPath;
 }
 
-export function runRegistryLawGuard(tempRootAbs) {
-  return spawnSync(process.execPath, [p("ci/guards/registry_law_guard.mjs")], {
-    cwd: tempRootAbs,
-    encoding: "utf8"
+// IMPORTANT: tests expect a { status, stdout, stderr } shape (like spawnSync).
+export function runRegistryLawGuard(repoRootAbs) {
+  const cwd = path.resolve(String(repoRootAbs));
+  const node = process.execPath;
+
+  const r = spawnSync(node, ["ci/guards/registry_law_guard.mjs"], {
+    cwd,
+    encoding: "utf8",
+    stdio: "pipe"
   });
+
+  return {
+    status: typeof r.status === "number" ? r.status : 1,
+    stdout: String(r.stdout || ""),
+    stderr: String(r.stderr || "")
+  };
 }
