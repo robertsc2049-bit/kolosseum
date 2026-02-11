@@ -34,8 +34,17 @@ function requireIncludes(needle, label) {
   }
 }
 
+function forbidIncludes(needle, label) {
+  if (s.includes(needle)) {
+    die("readme_validation_contract_guard: forbidden README string (policy): " + label);
+  }
+}
+
 requireIncludes("## How to validate changes", "heading '## How to validate changes'");
-requireIncludes("npm run green", "command 'npm run green'");
-requireIncludes("npm run green:ci", "command 'npm run green:ci'");
+requireIncludes("npm run verify", "command 'npm run verify'");
+
+// Policy: README must not instruct humans to run internal green entrypoints.
+forbidIncludes("npm run green:ci", "command 'npm run green:ci'");
+forbidIncludes("npm run green", "command 'npm run green'");
 
 console.log("OK: readme_validation_contract_guard");

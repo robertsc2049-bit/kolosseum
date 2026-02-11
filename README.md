@@ -2,13 +2,11 @@
 
 ## How to validate changes
 
-Run the full local green gate:
+Run this manually when you want a single authoritative verification signal:
 
-- npm run verify
-
-CI runs the CI-parity green gate:
-
-- npm run verify
+```bash
+npm run verify
+```
 
 ## Dev workflow (authoritative)
 
@@ -38,14 +36,3 @@ npm run verify
 ```
 
 Do not run random scripts. If you need a verification signal, run `npm run verify`.
-
-## Internal contract (CI)
-If you’re reading this, you’re not meant to run these manually. Use `npm run verify`.
-
-Humans: use `npm run verify`.
-CI/guards may reference these internal entrypoints:
-
-```bash
-npm run green
-npm run green:ci
-```
