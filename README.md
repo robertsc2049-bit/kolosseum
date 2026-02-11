@@ -1,5 +1,7 @@
 # Kolosseum
 
+Commands: see docs/COMMANDS.md
+
 ## How to validate changes
 
 Run this manually when you want a single authoritative verification signal:
