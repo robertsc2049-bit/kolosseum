@@ -28,4 +28,12 @@ npm run green:pr
 - `green:*` commands enforce repo hygiene and CI guardrails.
 - If a guard fails, **fix the guard failure**. Do not bypass it.
 - Directly invoking lower-level scripts (`lint:fast`, `test:unit`, etc.) is for debugging only.
+## Canonical local check
 
+Run this manually when you want a single authoritative “is the repo green?” signal:
+
+```bash
+npm run green:dev
+```
+
+This is the fastest strict chain (via `green:fast`): lint:fast + unit tests + build:fast, with BASE_SHA/HEAD_SHA exported for diff-aware guards.
