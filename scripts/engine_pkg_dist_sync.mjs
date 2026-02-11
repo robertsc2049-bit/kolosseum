@@ -125,7 +125,7 @@ function main() {
     if (!isFile(r)) die("engine_pkg_dist_sync: required file missing in engine/src: " + r);
   }
 
-  // B) built engine output tree (tsc output) â€” MUST include registries/, phases/, etc.
+  // B) built engine output tree (tsc output)  -  MUST include registries/, phases/, etc.
   const builtRoot = findBuiltEngineRoot(repo);
   if (!builtRoot) die("engine_pkg_dist_sync: could not locate built engine outputs (phases/phase1.js). Run `npm run build` then retry.");
 

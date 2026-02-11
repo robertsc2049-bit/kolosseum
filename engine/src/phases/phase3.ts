@@ -168,7 +168,7 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
   const env = canonicalInput?.constraints;
   if (!env) {
     notes.push("PHASE_3: registries loaded");
-    notes.push("PHASE_3: constraints envelope absent — defaults permitted (v0)");
+    notes.push("PHASE_3: constraints envelope absent  -  defaults permitted (v0)");
     return {
       ok: true,
       phase3: {
@@ -227,7 +227,7 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
   constraints = out;
 
   notes.push("PHASE_3: registries loaded");
-  notes.push("PHASE_3: constraints envelope present — canonicalized (v1)");
+  notes.push("PHASE_3: constraints envelope present  -  canonicalized (v1)");
 
   return {
     ok: true,

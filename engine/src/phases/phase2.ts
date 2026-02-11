@@ -57,10 +57,10 @@ export function phase2CanonicaliseAndHash(input: unknown): Phase2Result {
   try {
     // If caller provided an explicit constraints envelope (even empty {}),
     // it must remain present in canonical output.
-    // We don’t mutate input, but we guard against “undefined” getting introduced.
+    // We don't mutate input, but we guard against "undefined" getting introduced.
     if (isRecord(input) && hasOwn(input, "constraints") && input.constraints === undefined) {
       // constraints present-but-undefined is invalid for our semantics.
-      // Canonicalise it as empty object to preserve “present” signal deterministically.
+      // Canonicalise it as empty object to preserve "present" signal deterministically.
       (input as any).constraints = {};
     }
 
@@ -88,4 +88,3 @@ export function phase2CanonicaliseAndHash(input: unknown): Phase2Result {
     };
   }
 }
-

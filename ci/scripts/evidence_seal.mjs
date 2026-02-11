@@ -84,7 +84,7 @@ function computeEnvelope(repoRoot, opts) {
     return { path: relPosix(rel), sha256: sha256Bytes(bytes).toUpperCase() };
   });
 
-  // Registry bundle is the “committed bundle” artifact your guard already enforces.
+  // Registry bundle is the "committed bundle" artifact your guard already enforces.
   const bundleRel = path.join("registries", "registry_bundle.json");
   const bundleAbs = path.join(repoRoot, bundleRel);
   if (!fs.existsSync(bundleAbs)) die("evidence_seal: missing registries/registry_bundle.json");
@@ -171,8 +171,8 @@ function main() {
   if (flagWrite) {
     writeUtf8Lf(outEnvelope, envelopeText);
     writeUtf8Lf(outSeal, sealText);
-    console.log(`✅ Wrote ${path.relative(repoRoot, outEnvelope)}`);
-    console.log(`✅ Wrote ${path.relative(repoRoot, outSeal)}`);
+    console.log(`OK: Wrote ${path.relative(repoRoot, outEnvelope)}`);
+    console.log(`OK: Wrote ${path.relative(repoRoot, outSeal)}`);
     console.log(`envelope_sha256=${env.envelope_sha256}`);
     console.log(`seal_sha256=${seal.seal_sha256}`);
     return;

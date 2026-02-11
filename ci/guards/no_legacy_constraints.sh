@@ -21,7 +21,7 @@ if command -v rg >/dev/null 2>&1; then
     --glob '!**/*.map' \
     --hidden; then
     echo ""
-    echo "❌ Legacy constraint keys found. Replace with canonical keys:"
+    echo "ERROR: Legacy constraint keys found. Replace with canonical keys:"
     echo "   - banned_equipment"
     echo "   - available_equipment"
     exit 1
@@ -33,11 +33,11 @@ else
     --exclude-dir=node_modules \
     --exclude='*.map'; then
     echo ""
-    echo "❌ Legacy constraint keys found. Replace with canonical keys:"
+    echo "ERROR: Legacy constraint keys found. Replace with canonical keys:"
     echo "   - banned_equipment"
     echo "   - available_equipment"
     exit 1
   fi
 fi
 
-echo "✅ Constraint key guard passed"
+echo "OK: Constraint key guard passed"

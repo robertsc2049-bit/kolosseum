@@ -194,7 +194,7 @@ function scoreCandidate(target: any, candidate: any): { score: number; reasons: 
     reasons.push(`id_token_overlap: ${tokenOverlap}`);
   }
 
-  // Extra “bench/press family” boost (covers typical fixtures)
+  // Extra "bench/press family" boost (covers typical fixtures)
   const tHasBench = tTokens.has("bench");
   const cHasBench = cTokens.has("bench");
   if (tHasBench && cHasBench) {
@@ -218,7 +218,7 @@ function scoreCandidate(target: any, candidate: any): { score: number; reasons: 
     reasons.push(`equipment_overlap: ${equipOverlap}`);
   }
 
-  // Penalize “regression to unequipped” when target appears equipped
+  // Penalize "regression to unequipped" when target appears equipped
   if (tEquip.size > 0 && cEquip.size === 0) {
     score -= 5000;
     reasons.push("penalty: unequipped_candidate_for_equipped_target");

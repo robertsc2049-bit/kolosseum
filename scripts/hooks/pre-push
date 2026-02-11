@@ -25,7 +25,7 @@ fi
 base="origin/main"
 git rev-parse --verify "$base" >/dev/null 2>&1 || base="$upstream"
 
-# File list for the push changeset guard (approx; good enough for “size” & risk routing).
+# File list for the push changeset guard (approx; good enough for "size" & risk routing).
 files="$(git diff --name-only --diff-filter=ACMR "$base"...HEAD 2>/dev/null || echo "")"
 
 # Count files (portable-ish).

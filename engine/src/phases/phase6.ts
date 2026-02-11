@@ -1,9 +1,15 @@
 // engine/src/phases/phase6.ts
 import type { ExerciseSignature } from "../substitution/types.js";
 
+export type ExercisePriority = "required" | "core" | "accessory";
+
 export type Phase6SessionExercise = {
   exercise_id: string;
   source: "program";
+
+  // Deterministic priority for runtime policy (e.g., RETURN_SKIP drops accessories only).
+  // If omitted by legacy callers, runtime defaults to "core".
+  priority?: ExercisePriority;
 
   // Runtime-only status (optional; default is "pending" when omitted)
   status?: "pending" | "completed" | "skipped";
@@ -110,6 +116,31 @@ function applyRulesToId(originalId: string, rules: SubRule[]): { finalId: string
   return { finalId: cur, changed };
 }
 
+function normalizePriority(x: unknown): ExercisePriority | undefined {
+  if (x === "required" || x === "core" || x === "accessory") return x;
+  return undefined;
+}
+
+/**
+ * Deterministic v1 priority inference:
+ * - If planned_item.priority is present and valid: use it.
+ * - Else:
+ *   - sets>=3 and reps<=6 => core
+ *   - otherwise => accessory
+ *
+ * This is intentionally simple and deterministic. Registry-based semantics can upgrade later.
+ */
+function inferPriority(it: any): ExercisePriority {
+  const p = normalizePriority(it?.priority);
+  if (p) return p;
+
+  const sets = typeof it?.sets === "number" ? it.sets : 0;
+  const reps = typeof it?.reps === "number" ? it.reps : 0;
+
+  if (sets >= 3 && reps > 0 && reps <= 6) return "core";
+  return "accessory";
+}
+
 /**
  * Phase 6
  * Contract required by tests/goldens:
@@ -173,6 +204,7 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
     const ex: Phase6SessionExercise = {
       exercise_id: finalId,
       source: "program",
+      priority: inferPriority(it),
       block_id: typeof it.block_id === "string" ? it.block_id : "B0",
       item_id: typeof it.item_id === "string" ? it.item_id : `B0_I${i}`,
       sets: typeof it.sets === "number" ? it.sets : 0,

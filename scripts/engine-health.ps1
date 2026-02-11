@@ -93,7 +93,7 @@ try {
 
   Write-Host ""
   Write-Host "=== DONE ==="
-  Write-Host "✅ Engine health: GREEN"
+  Write-Host "OK: Engine health: GREEN"
 }
 finally {
   $env:KOLOSSEUM_ENGINE_HEALTH_RUNNING = "0"

@@ -159,6 +159,6 @@ try {
   main();
 } catch (e) {
   const msg = String(e && e.message ? e.message : e);
-  console.error(`❌ ${msg}`);
+  console.error(`ERROR: ${msg}`);
   process.exit(1);
 }

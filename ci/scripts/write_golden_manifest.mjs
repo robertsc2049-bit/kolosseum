@@ -91,7 +91,7 @@ function main() {
   const text = JSON.stringify(manifest, null, 2) + "\n";
   writeUtf8NoBomLf(manifestPath, text);
 
-  console.log(`✅ Wrote ${relPosix(repoRoot, manifestPath)} (${files.length} file(s))`);
+  console.log(`OK: Wrote ${relPosix(repoRoot, manifestPath)} (${files.length} file(s))`);
 }
 
 main();

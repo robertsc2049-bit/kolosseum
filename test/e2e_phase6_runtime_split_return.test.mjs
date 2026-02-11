@@ -16,9 +16,12 @@ import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_even
 function baseProgram() {
   return {
     planned_items: [
-      { exercise_id: "sq", sets: 3, reps: 5 },
-      { exercise_id: "bp", sets: 3, reps: 5 },
-      { exercise_id: "dl", sets: 1, reps: 5 }
+      { exercise_id: "sq", sets: 3, reps: 5, priority: "core" },
+      { exercise_id: "bp", sets: 3, reps: 5, priority: "core" },
+      { exercise_id: "dl", sets: 1, reps: 5, priority: "core" },
+
+      // Deterministic accessory (low-priority) to prove RETURN_SKIP policy.
+      { exercise_id: "acc_row", sets: 3, reps: 10, priority: "accessory" }
     ]
   };
 }
@@ -47,13 +50,13 @@ test("Phase6 runtime: split -> return continue preserves remaining work", () => 
 
   assert.deepEqual(
     state.remaining_exercises.map(e => e.exercise_id),
-    ["bp", "dl"]
+    ["bp", "dl", "acc_row"]
   );
 
   assert.equal(state.dropped_exercises.length, 0);
 });
 
-test("Phase6 runtime: split -> return skip drops remaining work", () => {
+test("Phase6 runtime: split -> return skip drops accessories only", () => {
   const session = baseSession();
 
   const events = [
@@ -69,14 +72,16 @@ test("Phase6 runtime: split -> return skip drops remaining work", () => {
     ["sq"]
   );
 
+  // Core work remains.
   assert.deepEqual(
-    state.remaining_exercises,
-    []
+    state.remaining_exercises.map(e => e.exercise_id),
+    ["bp", "dl"]
   );
 
+  // Only accessory work is dropped.
   assert.deepEqual(
     state.dropped_exercises.map(e => e.exercise_id),
-    ["bp", "dl"]
+    ["acc_row"]
   );
 });
 
@@ -91,7 +96,7 @@ test("Phase6 runtime: skipped exercise never reappears", () => {
 
   assert.deepEqual(
     state.remaining_exercises.map(e => e.exercise_id),
-    ["sq", "dl"]
+    ["sq", "dl", "acc_row"]
   );
 
   assert.deepEqual(
@@ -116,7 +121,7 @@ test("Phase6 runtime: completed exercise never reappears", () => {
 
   assert.deepEqual(
     state.remaining_exercises.map(e => e.exercise_id),
-    ["sq", "dl"]
+    ["sq", "dl", "acc_row"]
   );
 });
 

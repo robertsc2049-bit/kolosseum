@@ -1,5 +1,5 @@
 /**
- * Phase3Constraints — canonical, closed-world constraint contract
+ * Phase3Constraints  -  canonical, closed-world constraint contract
  * EB2-1.0.0
  *
  * Rules:
@@ -21,5 +21,3 @@ export function isEmptyConstraints(c: Phase3Constraints | undefined): boolean {
   const d = c.available_equipment;
   return (!a || a.length === 0) && (!b || b.length === 0) && (!d || d.length === 0);
 }
-
-

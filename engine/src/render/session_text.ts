@@ -4,7 +4,7 @@
  * Deterministic, stable session text rendering for CLI/debug output.
  *
  * Contract expectations (tests pin this):
- * - Use an em dash between exercise_id and sets/reps: \u2014
+ * - Use ASCII " - " between exercise_id and sets/reps (avoid console/codepage mojibake).
  * - Percent intensity renders as "@ 75%" (NO "1RM" suffix)
  * - Rest renders as "rest 180s" (NO parentheses)
  *
@@ -67,9 +67,9 @@ export function renderSessionText(session: unknown): RenderedSessionText {
     const n = lines.length + 1;
     const id = typeof exAny.exercise_id === "string" ? exAny.exercise_id : "UNKNOWN_EXERCISE";
 
-    // IMPORTANT: preserve legacy string exactly for tests (em dash)
+    // IMPORTANT: ASCII-only separator to avoid terminal encoding ambiguity.
     const setsReps =
-      typeof exAny.sets === "number" && typeof exAny.reps === "number" ? ` \u2014 ${exAny.sets}x${exAny.reps}` : "";
+      typeof exAny.sets === "number" && typeof exAny.reps === "number" ? ` - ${exAny.sets}x${exAny.reps}` : "";
 
     const intensity = formatIntensity(exAny.intensity);
     const intensityTxt = intensity ? ` ${intensity}` : "";

@@ -30,7 +30,7 @@ function patchPinnedShaInGuard(guardPath, constName, newSha) {
   }
   const next = txt.replace(re, `$1${newSha.toLowerCase()}$2`);
   fs.writeFileSync(guardPath, next, "utf8");
-  console.log(`✅ Updated ${path.relative(process.cwd(), guardPath)} ${constName}=${newSha.toLowerCase()}`);
+  console.log(`OK: Updated ${path.relative(process.cwd(), guardPath)} ${constName}=${newSha.toLowerCase()}`);
 }
 
 function main() {
@@ -56,7 +56,7 @@ function main() {
   run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "lint"]);
   run(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "e2e:golden"]);
 
-  console.log("✅ golden:update complete. Now git add + commit.");
+  console.log("OK: golden:update complete. Now git add + commit.");
 }
 
 main();

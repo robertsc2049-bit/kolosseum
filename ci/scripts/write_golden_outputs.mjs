@@ -76,8 +76,8 @@ function main() {
   const outSha = sha256Hex(outputsBytes);
   writeUtf8NoBomLf(outputsShaPath, outSha + "\n");
 
-  console.log(`✅ Wrote test/fixtures/golden/golden_outputs.v1.json (${expectedFiles.length} fixture(s))`);
-  console.log(`✅ Wrote test/fixtures/golden/golden_outputs.v1.sha256 = ${outSha}`);
+  console.log(`OK: Wrote test/fixtures/golden/golden_outputs.v1.json (${expectedFiles.length} fixture(s))`);
+  console.log(`OK: Wrote test/fixtures/golden/golden_outputs.v1.sha256 = ${outSha}`);
 }
 
 main();

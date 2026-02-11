@@ -16,7 +16,9 @@ function dieUnknownEvent(t: string): never {
   throw new Error(`PHASE6_RUNTIME_UNKNOWN_EVENT: ${t}`);
 }
 
-// Engine-internal (wire) variants — MUST match engine/src/runtime/types.ts
+export type RuntimePriority = "required" | "core" | "accessory";
+
+// Engine-internal (wire) variants  -  MUST match engine/src/runtime/types.ts
 type LowerRuntimeEvent =
   | { type: "complete_exercise"; exercise_id: string }
   | { type: "skip_exercise"; exercise_id: string }
@@ -46,6 +48,10 @@ export type RuntimeExerciseRef = { exercise_id: string };
  * Compatibility aliases included:
  * - dropped_* aliases for skipped_* (many tests/upgrade paths use dropped_ids naming)
  * - remaining/completed/dropped array aliases (some wrappers use shorter names)
+ *
+ * Priority:
+ * - priority_by_id controls policy drops (RETURN_SKIP)
+ * - if missing/unknown, runtime defaults to "core"
  */
 export type RuntimeState = {
   started: boolean;
@@ -58,6 +64,9 @@ export type RuntimeState = {
 
   split_active: boolean;
   remaining_at_split_ids: string[];
+
+  // Priority map (deterministic; derived from session.exercises if available)
+  priority_by_id: Record<string, RuntimePriority>;
 
   remaining_exercises: RuntimeExerciseRef[];
   completed_exercises: RuntimeExerciseRef[];
@@ -272,6 +281,27 @@ function extractPlannedIds(sessionLike: unknown): string[] {
   die("PHASE6_RUNTIME_BAD_SESSION: could not extract planned exercise ids");
 }
 
+function normalizePriority(x: unknown): RuntimePriority | null {
+  if (x === "required" || x === "core" || x === "accessory") return x;
+  return null;
+}
+
+function extractPriorityById(sessionLike: unknown): Record<string, RuntimePriority> {
+  const out: Record<string, RuntimePriority> = {};
+  if (!isRecord(sessionLike)) return out;
+
+  const exs = Array.isArray((sessionLike as AnyRecord).exercises) ? (sessionLike as AnyRecord).exercises as unknown[] : [];
+  for (const exAny of exs) {
+    if (!isRecord(exAny)) continue;
+    const id = typeof (exAny as AnyRecord).exercise_id === "string" ? String((exAny as AnyRecord).exercise_id) : "";
+    if (!id) continue;
+
+    const p = normalizePriority((exAny as AnyRecord).priority) ?? "core";
+    out[id] = p;
+  }
+  return out;
+}
+
 function setFromUnknownList(x: unknown): Set<string> {
   if (!x) return new Set<string>();
   if (x instanceof Set) {
@@ -328,7 +358,7 @@ function autoCloseSplitIfDone(st: RuntimeState): void {
  * - Accept legacy 'dropped_ids' naming
  * - If split_active=true and remaining_at_split_ids is present, it is authoritative for what was remaining at split time.
  */
-function ensureStateShape(state: unknown, plannedFallback: string[]): RuntimeState {
+function ensureStateShape(state: unknown, plannedFallback: string[], priorityFallback: Record<string, RuntimePriority>): RuntimeState {
   if (!isRecord(state)) {
     const st: RuntimeState = {
       started: true,
@@ -339,6 +369,8 @@ function ensureStateShape(state: unknown, plannedFallback: string[]): RuntimeSta
 
       split_active: false,
       remaining_at_split_ids: [],
+
+      priority_by_id: { ...priorityFallback },
 
       remaining_exercises: [],
       completed_exercises: [],
@@ -382,6 +414,19 @@ function ensureStateShape(state: unknown, plannedFallback: string[]): RuntimeSta
   const remaining_at_split_ids =
     Array.isArray(s.remaining_at_split_ids) ? uniqStableIds(s.remaining_at_split_ids) : [];
 
+  const priority_by_id = (() => {
+    const raw = (s as AnyRecord).priority_by_id;
+    if (isRecord(raw)) {
+      const out: Record<string, RuntimePriority> = { ...priorityFallback };
+      for (const [k, v] of Object.entries(raw)) {
+        const p = normalizePriority(v);
+        if (p) out[k] = p;
+      }
+      return out;
+    }
+    return { ...priorityFallback };
+  })();
+
   const st: RuntimeState = {
     started,
     remaining_ids: remaining_ids_raw,
@@ -392,6 +437,8 @@ function ensureStateShape(state: unknown, plannedFallback: string[]): RuntimeSta
 
     split_active,
     remaining_at_split_ids,
+
+    priority_by_id,
 
     remaining_exercises: [],
     completed_exercises: [],
@@ -411,6 +458,7 @@ function ensureStateShape(state: unknown, plannedFallback: string[]): RuntimeSta
 
 export function makeRuntimeState(session: unknown): RuntimeState {
   const planned = extractPlannedIds(session);
+  const priority_by_id = extractPriorityById(session);
 
   const st: RuntimeState = {
     started: true,
@@ -421,6 +469,8 @@ export function makeRuntimeState(session: unknown): RuntimeState {
 
     split_active: false,
     remaining_at_split_ids: [],
+
+    priority_by_id,
 
     remaining_exercises: [],
     completed_exercises: [],
@@ -444,7 +494,10 @@ export function applyRuntimeEvent(state: RuntimeState, event: RuntimeEvent): Run
   const plannedFallback: string[] =
     Array.isArray((state as any)?.remaining_ids) ? uniqStableIds((state as any).remaining_ids) : [];
 
-  const st = ensureStateShape(state as unknown, plannedFallback);
+  const priorityFallback: Record<string, RuntimePriority> =
+    isRecord((state as any)?.priority_by_id) ? ((state as any).priority_by_id as Record<string, RuntimePriority>) : {};
+
+  const st = ensureStateShape(state as unknown, plannedFallback, priorityFallback);
   const t = normalizeType(event.type);
 
   switch (t) {
@@ -514,16 +567,24 @@ export function applyRuntimeEvent(state: RuntimeState, event: RuntimeEvent): Run
     case "RETURN_SKIP": {
       st.started = true;
 
-      // Explicit decision: drop all remaining work.
-      // Primary authoritative set is remaining_at_split_ids (what existed when they split),
-      // but we also union with current remaining_ids as a hardening fallback.
-      const toDrop = new Set<string>();
+      // Policy-based skip:
+      // - Drop accessories only (low-priority work).
+      // - Preserve core/required remaining work.
+      //
+      // Authoritative snapshot is remaining_at_split_ids, with remaining_ids union as hardening fallback.
+      const candidates = new Set<string>();
+      for (const id of st.remaining_at_split_ids) candidates.add(id);
+      for (const id of st.remaining_ids) candidates.add(id);
 
-      for (const id of st.remaining_at_split_ids) toDrop.add(id);
-      for (const id of st.remaining_ids) toDrop.add(id);
+      const toDrop: string[] = [];
+      for (const id of Array.from(candidates.values()).sort()) {
+        const p = st.priority_by_id[id] ?? "core";
+        if (p === "accessory") toDrop.push(id);
+      }
 
-      if (toDrop.size > 0) {
-        st.remaining_ids = st.remaining_ids.filter((id) => !toDrop.has(id));
+      if (toDrop.length > 0) {
+        const dropSet = new Set<string>(toDrop);
+        st.remaining_ids = st.remaining_ids.filter((id) => !dropSet.has(id));
         for (const id of toDrop) {
           if (!st.completed_ids.has(id)) st.skipped_ids.add(id);
         }
