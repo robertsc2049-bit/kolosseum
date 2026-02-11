@@ -81,7 +81,7 @@
     "hooks:install": "node scripts/ps-runner.mjs --file scripts/install-githooks.ps1",
     "green:raw": "node ci/scripts/green.mjs",
     "green:dev": "node ci/scripts/green_fast.mjs",
-    "verify": "npm run green:dev"
+    "verify": "node ci/scripts/green_fast.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",
