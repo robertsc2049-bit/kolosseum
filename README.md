@@ -39,7 +39,8 @@ npm run verify
 
 Do not run random scripts. If you need a verification signal, run `npm run verify`.
 
-## Internal (CI / guards)
+## Internal contract (CI)
+If you’re reading this, you’re not meant to run these manually. Use `npm run verify`.
 
 Humans: use `npm run verify`.
 CI/guards may reference these internal entrypoints:
