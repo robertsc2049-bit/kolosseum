@@ -36,4 +36,6 @@ Run this manually when you want a single authoritative “is the repo green?” 
 npm run green:dev
 ```
 
+Do not run random scripts. If you need a green signal, run `npm run green:dev`.
+
 This is the fastest strict chain (via `green:fast`): lint:fast + unit tests + build:fast, with BASE_SHA/HEAD_SHA exported for diff-aware guards.
