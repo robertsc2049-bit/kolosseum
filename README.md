@@ -28,12 +28,13 @@ npm run green:pr
 - `green:*` commands enforce repo hygiene and CI guardrails.
 - If a guard fails, **fix the guard failure**. Do not bypass it.
 - Directly invoking lower-level scripts (`lint:fast`, `test:unit`, etc.) is for debugging only.
+
 ## Canonical local check
 
 Run this manually when you want a single authoritative “is the repo green?” signal:
 
 ```bash
-npm run green:dev
+npm run verify
 ```
 
-Do not run random scripts. If you need a green signal, run `npm run green:dev`.
+Do not run random scripts. If you need a green signal, run `npm run verify`.
