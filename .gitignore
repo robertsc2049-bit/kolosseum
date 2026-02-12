@@ -34,3 +34,7 @@ out/
 # local debug scratch
 tmp/
 
+engine.run.log
+verify.full.log
+*.run.log
+*.full.log
