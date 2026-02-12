@@ -58,7 +58,7 @@ const MAX_LINES = 800;
 
 if (!FORCE && (filesChanged > MAX_FILES || linesChanged > MAX_LINES)) {
   die(
-    `ERROR: golden:update:safe blocked a large diff (files=${filesChanged}, lines=${linesChanged}). ` +
+    `❌ golden:update:safe blocked a large diff (files=${filesChanged}, lines=${linesChanged}). ` +
     `If intentional, re-run with FORCE=1.`
   );
 }

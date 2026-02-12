@@ -173,7 +173,7 @@ async function main() {
       if (e.detail) console.error(`detail: ${e.detail}`);
       if (e.position) console.error(`position: ${e.position}`);
 
-      // show a small hint if it looks like the earlier "ALTER inside CREATE TABLE" issue
+      // show a small hint if it looks like the earlier “ALTER inside CREATE TABLE” issue
       if (typeof msg === "string" && msg.toLowerCase().includes("syntax error") && typeof e.position === "string") {
         console.error("hint: check schema.sql around the reported position; common cause is SQL placed inside CREATE TABLE parentheses.");
       }

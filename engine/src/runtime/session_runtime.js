@@ -205,27 +205,6 @@ function extractPlannedIds(sessionLike) {
     }
     die("PHASE6_RUNTIME_BAD_SESSION: could not extract planned exercise ids");
 }
-function normalizePriority(x) {
-    if (x === "required" || x === "core" || x === "accessory")
-        return x;
-    return null;
-}
-function extractPriorityById(sessionLike) {
-    const out = {};
-    if (!isRecord(sessionLike))
-        return out;
-    const exs = Array.isArray(sessionLike.exercises) ? sessionLike.exercises : [];
-    for (const exAny of exs) {
-        if (!isRecord(exAny))
-            continue;
-        const id = typeof exAny.exercise_id === "string" ? String(exAny.exercise_id) : "";
-        if (!id)
-            continue;
-        const p = normalizePriority(exAny.priority) ?? "core";
-        out[id] = p;
-    }
-    return out;
-}
 function setFromUnknownList(x) {
     if (!x)
         return new Set();
@@ -279,7 +258,7 @@ function autoCloseSplitIfDone(st) {
  * - Accept legacy 'dropped_ids' naming
  * - If split_active=true and remaining_at_split_ids is present, it is authoritative for what was remaining at split time.
  */
-function ensureStateShape(state, plannedFallback, priorityFallback) {
+function ensureStateShape(state, plannedFallback) {
     if (!isRecord(state)) {
         const st = {
             started: true,
@@ -289,7 +268,6 @@ function ensureStateShape(state, plannedFallback, priorityFallback) {
             dropped_ids: new Set(),
             split_active: false,
             remaining_at_split_ids: [],
-            priority_by_id: { ...priorityFallback },
             remaining_exercises: [],
             completed_exercises: [],
             skipped_exercises: [],
@@ -327,19 +305,6 @@ function ensureStateShape(state, plannedFallback, priorityFallback) {
     })();
     const split_active = typeof s.split_active === "boolean" ? s.split_active : false;
     const remaining_at_split_ids = Array.isArray(s.remaining_at_split_ids) ? uniqStableIds(s.remaining_at_split_ids) : [];
-    const priority_by_id = (() => {
-        const raw = s.priority_by_id;
-        if (isRecord(raw)) {
-            const out = { ...priorityFallback };
-            for (const [k, v] of Object.entries(raw)) {
-                const p = normalizePriority(v);
-                if (p)
-                    out[k] = p;
-            }
-            return out;
-        }
-        return { ...priorityFallback };
-    })();
     const st = {
         started,
         remaining_ids: remaining_ids_raw,
@@ -348,7 +313,6 @@ function ensureStateShape(state, plannedFallback, priorityFallback) {
         dropped_ids: skipped_ids,
         split_active,
         remaining_at_split_ids,
-        priority_by_id,
         remaining_exercises: [],
         completed_exercises: [],
         skipped_exercises: [],
@@ -364,7 +328,6 @@ function ensureStateShape(state, plannedFallback, priorityFallback) {
 }
 export function makeRuntimeState(session) {
     const planned = extractPlannedIds(session);
-    const priority_by_id = extractPriorityById(session);
     const st = {
         started: true,
         remaining_ids: planned,
@@ -373,7 +336,6 @@ export function makeRuntimeState(session) {
         dropped_ids: new Set(),
         split_active: false,
         remaining_at_split_ids: [],
-        priority_by_id,
         remaining_exercises: [],
         completed_exercises: [],
         skipped_exercises: [],
@@ -390,8 +352,7 @@ export function makeRuntimeState(session) {
 export function applyRuntimeEvent(state, event) {
     validateEvent(event);
     const plannedFallback = Array.isArray(state?.remaining_ids) ? uniqStableIds(state.remaining_ids) : [];
-    const priorityFallback = isRecord(state?.priority_by_id) ? state.priority_by_id : {};
-    const st = ensureStateShape(state, plannedFallback, priorityFallback);
+    const st = ensureStateShape(state, plannedFallback);
     const t = normalizeType(event.type);
     switch (t) {
         case "COMPLETE_EXERCISE": {
@@ -443,25 +404,16 @@ export function applyRuntimeEvent(state, event) {
         }
         case "RETURN_SKIP": {
             st.started = true;
-            // Policy-based skip:
-            // - Drop accessories only (low-priority work).
-            // - Preserve core/required remaining work.
-            //
-            // Authoritative snapshot is remaining_at_split_ids, with remaining_ids union as hardening fallback.
-            const candidates = new Set();
+            // Explicit decision: drop all remaining work.
+            // Primary authoritative set is remaining_at_split_ids (what existed when they split),
+            // but we also union with current remaining_ids as a hardening fallback.
+            const toDrop = new Set();
             for (const id of st.remaining_at_split_ids)
-                candidates.add(id);
+                toDrop.add(id);
             for (const id of st.remaining_ids)
-                candidates.add(id);
-            const toDrop = [];
-            for (const id of Array.from(candidates.values()).sort()) {
-                const p = st.priority_by_id[id] ?? "core";
-                if (p === "accessory")
-                    toDrop.push(id);
-            }
-            if (toDrop.length > 0) {
-                const dropSet = new Set(toDrop);
-                st.remaining_ids = st.remaining_ids.filter((id) => !dropSet.has(id));
+                toDrop.add(id);
+            if (toDrop.size > 0) {
+                st.remaining_ids = st.remaining_ids.filter((id) => !toDrop.has(id));
                 for (const id of toDrop) {
                     if (!st.completed_ids.has(id))
                         st.skipped_ids.add(id);

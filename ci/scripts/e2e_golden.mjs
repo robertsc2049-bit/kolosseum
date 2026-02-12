@@ -111,7 +111,7 @@ async function tryImportModule(modulePath) {
 }
 
 /**
- * LOCKED LOCKED runner entrypoint (default):
+ * 🔒 LOCKED runner entrypoint (default):
  *   dist/src/run_pipeline.js :: runPipeline
  *
  * Escape hatch (intentional only):

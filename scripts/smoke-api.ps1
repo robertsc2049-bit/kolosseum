@@ -168,7 +168,7 @@ if ($health.json -ne $null) {
 }
 
 # 3) Minimal smoke calls (extend later when endpoints stabilize)
-# NOTE: If you don't have a stable endpoint beyond /health yet, keep it lean.
+# NOTE: If you don’t have a stable endpoint beyond /health yet, keep it lean.
 # If you DO have one (e.g. POST /engine/run), wire it here.
 
 # Example placeholder: no-op success
