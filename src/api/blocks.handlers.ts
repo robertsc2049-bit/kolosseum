@@ -1,6 +1,7 @@
 // src/api/blocks.handlers.ts
 import type { Request, Response } from "express";
 import crypto from "node:crypto";
+import { selectCanonicalHash } from "./canonical_hash.js";
 import { pool } from "../db/pool.js";
 
 import type { Phase6SessionOutput } from "@kolosseum/engine/phases/phase6.js";
@@ -104,7 +105,24 @@ export async function compileBlock(req: Request, res: Response) {
 
   // canonical_hash is deterministic for identical canonical input (default).
   // Allow override only if caller explicitly supplies one.
-  const canonical_hash = asString(body.canonical_hash) ?? p2.phase2.phase2_hash;
+    // canonical_hash MUST be deterministic over canonical input.
+  // SECURITY: ignore caller-supplied canonical_hash unless explicitly enabled + authenticated.
+  const requested_canonical_hash = asString(body.canonical_hash);
+  const allow_override = process.env.KOLOSSEUM_ALLOW_CANONICAL_HASH_OVERRIDE === '1';
+  const expected_token =
+    typeof process.env.KOLOSSEUM_INTERNAL_TOKEN === 'string' && process.env.KOLOSSEUM_INTERNAL_TOKEN.trim().length > 0
+      ? process.env.KOLOSSEUM_INTERNAL_TOKEN.trim()
+      : undefined;
+  const provided_token = typeof (req as any)?.get === 'function' ? (req as any).get('x-kolosseum-internal-token') : undefined;
+
+  const canonical_hash = selectCanonicalHash({
+    requested: requested_canonical_hash,
+    phase2_hash: p2.phase2.phase2_hash,
+    allow_override,
+    expected_token,
+    provided_token
+  }).canonical_hash;
+
 
   // ---- Phase 3 ----
   const p3 = phase3ResolveConstraintsAndLoadRegistries(canonical_input);
