@@ -146,7 +146,11 @@ function canonicalizeEquipmentList(
     uniq1.push(t);
   }
 
-  return { ok: true, tokens: uniq1.length > 0 ? uniq1 : undefined };
+  // CRITICAL: determinism. Canonical constraints must not depend on user-provided ordering.
+  // After normalization + dedupe, sort for stable canonical JSON/hash downstream.
+  const sorted = uniq1.slice().sort((a, b) => a.localeCompare(b));
+
+  return { ok: true, tokens: sorted.length > 0 ? sorted : undefined };
 }
 
 /**
