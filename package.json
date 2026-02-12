@@ -29,7 +29,7 @@
     "e2e:golden": "node ci/scripts/e2e_golden.mjs",
     "engine:contract": "node -e \"console.log(require('fs').readFileSync('ENGINE_CONTRACT.md','utf8'))\"",
     "engine:contract:head": "node -e \"const fs=require('fs'); const s=fs.readFileSync('ENGINE_CONTRACT.md','utf8').split(/\\r?\\n/).slice(0,40).join('\\n'); console.log(s);\"",
-    "engine:hello": "npm run build && node dist/src/run_pipeline_cli.js examples/hello_world.json",
+    "engine:hello": "npm run build && node dist/src/run_pipeline_cli.js --in examples/hello_world.json",
     "engine:run": "npm run build && node dist/src/run_pipeline_cli.js",
     "engine:run:fast": "node dist/src/run_pipeline_cli.js",
     "engine:run:strict": "npm run build:fast && node dist/src/run_pipeline_cli.js",
