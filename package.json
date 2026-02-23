@@ -32,7 +32,7 @@
                     "engine:hello":  "npm run build \u0026\u0026 node dist/src/run_pipeline_cli.js --in examples/hello_world.json",
                     "engine:run":  "npm run build \u0026\u0026 node scripts/run_pipeline_cli_file.mjs --in examples/hello_world.json",
                     "engine:run:fast":  "node dist/src/run_pipeline_cli.js",
-                    "engine:run:strict":  "set KOLOSSEUM_CLEAN_TREE_STRICT=1\u0026\u0026 npm run build:fast \u0026\u0026 node scripts/run_pipeline_cli_file.mjs --in examples/hello_world.json",
+                    "engine:run:strict":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/engine_run_strict.ps1",
                     "git:sync":  "git fetch --prune \u0026\u0026 git status -sb \u0026\u0026 (git rev-parse --abbrev-ref --symbolic-full-name @{u} \u003eNUL 2\u003e\u00261 \u0026\u0026 git pull --rebase || echo \"no upstream; skipping pull\")",
                     "golden:manifest":  "node ci/scripts/write_golden_manifest.mjs",
                     "golden:outputs":  "node ci/scripts/write_golden_outputs.mjs",
