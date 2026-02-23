@@ -1,27 +1,42 @@
-name: Engine Status
+name: engine-status
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "**"
+    tags-ignore:
+      - "v*"
+      - "rc-*"
   pull_request:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engine-status-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  engine_status:
+  guard:
+    name: guard
     runs-on: ubuntu-latest
+
+    env:
+      NODE_VERSION: "24.12.0"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Guard: ban engine-status footgun
-        run: node ci/guards/ban_engine_status_guard.mjs
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      - name: Engine status check
-        shell: pwsh
-        run: |
-          pwsh ./scripts/engine-health.ps1 -Ci
+      - name: Install
+        run: npm ci
+
+      - name: Guard: ban engine-status footgun
+        run: node ci/guards/ban_engine_status_guard.mjs

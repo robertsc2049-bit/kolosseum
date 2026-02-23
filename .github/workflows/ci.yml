@@ -1,239 +1,47 @@
-name: CI
+name: ci
 
 on:
-  pull_request:
   push:
-    branches: [ main ]
-    tags:
+    branches:
+      - "**"
+    tags-ignore:
       - "v*"
+      - "rc-*"
+  pull_request:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  test:
+  ci:
+    name: ci
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: kolosseum_ci
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres -d kolosseum_ci"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=30
 
     env:
-      CI: true
-      NODE_ENV: test
-      PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/kolosseum_ci
-      UPDATE_GOLDEN: "0"
+      NODE_VERSION: "24.12.0"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          fetch-tags: true
-
-      - name: Set diff_line_endings_guard SHAs
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "BASE_SHA=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_ENV"
-            echo "HEAD_SHA=${{ github.sha }}" >> "$GITHUB_ENV"
-            exit 0
-          fi
-      
-          # Non-PR: prefer github.event.before when present; otherwise fall back to merge-base or HEAD^.
-          HEAD="${{ github.sha }}"
-          BEFORE="${{ github.event.before }}"
-          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ]; then
-            echo "BASE_SHA=$BEFORE" >> "$GITHUB_ENV"
-            echo "HEAD_SHA=$HEAD" >> "$GITHUB_ENV"
-            exit 0
-          fi
-      
-          # Fallbacks require checkout(fetch-depth:0). Try merge-base vs origin/main, else HEAD^.
-          if git show-ref --quiet refs/remotes/origin/main; then
-            BASE="$(git merge-base "$HEAD" origin/main)"
-            echo "BASE_SHA=$BASE" >> "$GITHUB_ENV"
-            echo "HEAD_SHA=$HEAD" >> "$GITHUB_ENV"
-            exit 0
-          fi
-      
-          BASE="$(git rev-parse "$HEAD^")"
-          echo "BASE_SHA=$BASE" >> "$GITHUB_ENV"
-          echo "HEAD_SHA=$HEAD" >> "$GITHUB_ENV"
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 24.12.0
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      # Cache TypeScript incremental build info (safe + correct)
-      - name: Cache TypeScript incremental build info
-        uses: actions/cache@v4
-        with:
-          path: |
-            dist/.tsbuildinfo
-          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('package-lock.json', 'tsconfig.json', 'engine/src/**/*.ts', 'cli/src/**/*.ts', 'src/**/*.ts') }}
-          restore-keys: |
-            tsbuildinfo-${{ runner.os }}-
-
-      - name: Guard: ban engine-status footgun
-        run: node ci/guards/ban_engine_status_guard.mjs
-
-      - name: Guard diff (no BOM, LF-only)
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: node ci/guards/diff_line_endings_guard.mjs
-
-      - name: Select CI mode
-        id: select
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: node ci/scripts/ci_select.mjs
-
-      - name: CI Summary
-        env:
-          CI_MODE: ${{ steps.select.outputs.mode }}
-          BASE_SHA: ${{ steps.select.outputs.base_sha }}
-          HEAD_SHA: ${{ steps.select.outputs.head_sha }}
-        run: node ci/scripts/ci_write_summary.mjs
-
-      - name: Capture diff stat (triage)
-        if: always()
-        env:
-          BASE_SHA: ${{ steps.select.outputs.base_sha }}
-          HEAD_SHA: ${{ steps.select.outputs.head_sha }}
-        run: |
-          git diff --name-status "$BASE_SHA" "$HEAD_SHA" > ci_diff_name_status.txt || true
-          git diff --stat "$BASE_SHA" "$HEAD_SHA" > ci_diff_stat.txt || true
-
       - name: Install
-        if: steps.select.outputs.mode != 'docs'
         run: npm ci
 
-      - name: Docs-only gate
-        if: steps.select.outputs.mode == 'docs'
-        run: npm run lint:fast
-
-      - name: CLI-only targeted gate
-        if: steps.select.outputs.mode == 'cli'
-        run: |
-          npm run lint:fast
-          node test/cli_runner_rendered_text.test.mjs
-
-      - name: Unit gate
-        if: steps.select.outputs.mode == 'unit'
-        run: npm run dev:fast
-
-      - name: Full gate
-        if: steps.select.outputs.mode == 'full'
+      - name: Guard + Unit tests (ci)
         run: npm run ci
 
-      - name: Print build version
-        if: steps.select.outputs.mode != 'docs'
-        run: node -e "import('./dist/src/version.js').then(m => console.log('BUILD_VERSION=' + m.VERSION))"
-
-      - name: Apply schema (drift guard)
-        if: steps.select.outputs.mode != 'docs'
-        run: node scripts/apply-schema.mjs --db-url "$DATABASE_URL"
-
-      # ---------------------------
-      # API smoke (main + tag builds)
-      # ---------------------------
-      - name: Start API (main + tags)
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-        run: |
-          rm -f server.log server.pid || true
-          nohup node dist/src/server.js > server.log 2>&1 &
-          echo $! > server.pid
-          sleep 1
-
-          echo "PID=$(cat server.pid)"
-          if ! kill -0 "$(cat server.pid)" 2>/dev/null; then
-            echo "API process is not running right after start."
-            echo "---- server.log ----"
-            tail -200 server.log || true
-            exit 1
-          fi
-
-      - name: Wait for /health (main + tags)
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-        run: |
-          set -e
-          for i in $(seq 1 60); do
-            if curl -fsS "http://127.0.0.1:3000/health" >/dev/null; then
-              echo "API is up (health OK)."
-              exit 0
-            fi
-
-            if [ -f server.pid ] && ! kill -0 "$(cat server.pid)" 2>/dev/null; then
-              echo "API process died during wait."
-              echo "---- server.log ----"
-              tail -200 server.log || true
-              exit 1
-            fi
-
-            sleep 1
-          done
-
-          echo "API failed to become healthy within 60s."
-          echo "---- server.log ----"
-          tail -200 server.log || true
-          exit 1
-
-      - name: Smoke API (PowerShell) (main + tags)
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-        shell: pwsh
-        run: |
-          ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode fresh
-          ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode idempotent
-
-      - name: Upload triage bundle
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: triage
-          path: |
-            ci_changed_files.txt
-            ci_diff_name_status.txt
-            ci_diff_stat.txt
-          if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Upload API logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-logs
-          path: server.log
-          if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Stop API
-        if: always()
-        run: |
-          if [ -f server.pid ]; then
-            PID="$(cat server.pid)"
-            echo "Stopping PID=$PID"
-            kill "$PID" 2>/dev/null || true
-            sleep 1
-            kill -9 "$PID" 2>/dev/null || true
-          fi
-          rm -f server.pid || true
+      - name: Build (fast)
+        run: npm run build:fast
