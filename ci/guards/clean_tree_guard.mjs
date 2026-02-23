@@ -40,19 +40,28 @@ function canSkipUnderGreen() {
   }
 }
 
+function isStrict() {
+  // Strict means: no staged, no unstaged, no untracked.
+  // Default (non-strict): allow staged-only changes (X != ' ' and Y == ' ').
+  return process.env.KOLOSSEUM_CLEAN_TREE_STRICT === "1";
+}
+
 if (canSkipUnderGreen()) {
   ok("OK: clean_tree_guard (skipped: green nonce verified)");
   process.exit(0);
 }
 
-// We explicitly allow *staged-only* changes.
+const strict = isStrict();
+
 // We forbid:
 //  - untracked files (??)
 //  - unstaged changes in the working tree (Y column in porcelain is not space)
+// In strict mode we ALSO forbid:
+//  - staged changes (X column is not space)
 const porcelain = git(["status", "--porcelain=v1", "--untracked-files=normal"]).trimEnd();
 
 if (!porcelain) {
-  ok("OK: clean_tree_guard (WORKING TREE: CLEAN)");
+  ok(`OK: clean_tree_guard (WORKING TREE: CLEAN${strict ? "; strict" : ""})`);
   process.exit(0);
 }
 
@@ -85,8 +94,13 @@ for (const l of lines) {
   unstaged.push(l);
 }
 
-if (untracked.length === 0 && unstaged.length === 0) {
+if (!strict && untracked.length === 0 && unstaged.length === 0) {
   ok("OK: clean_tree_guard (WORKING TREE: CLEAN; staged changes allowed)");
+  process.exit(0);
+}
+
+if (strict && untracked.length === 0 && unstaged.length === 0 && stagedOnly.length === 0) {
+  ok("OK: clean_tree_guard (WORKING TREE: CLEAN; strict)");
   process.exit(0);
 }
 
@@ -96,10 +110,9 @@ function renderList(arr, limit = 200) {
   return { limited, suffix };
 }
 
-function safeGitDiffNameOnly() {
-  // Only meaningful when there are unstaged changes; ignore errors (guard should still fail on unstaged).
+function safeGitDiffNameOnly(args) {
   try {
-    const out = git(["diff", "--name-only"]).trimEnd();
+    const out = git(args).trimEnd();
     return out ? out : "";
   } catch {
     return "";
@@ -107,7 +120,7 @@ function safeGitDiffNameOnly() {
 }
 
 const parts = [];
-parts.push("\u274C clean_tree_guard: WORKING TREE: DIRTY");
+parts.push(`\u274C clean_tree_guard: WORKING TREE: DIRTY${strict ? " (strict)" : ""}`);
 
 if (untracked.length) {
   const { limited, suffix } = renderList(untracked);
@@ -124,7 +137,7 @@ if (unstaged.length) {
   for (const l of limited) parts.push(" " + l);
   if (suffix) parts.push(suffix);
 
-  const diffNames = safeGitDiffNameOnly();
+  const diffNames = safeGitDiffNameOnly(["diff", "--name-only"]);
   if (diffNames) {
     parts.push("");
     parts.push("Unstaged files (git diff --name-only):");
@@ -132,15 +145,37 @@ if (unstaged.length) {
   }
 }
 
+if (stagedOnly.length) {
+  const { limited, suffix } = renderList(stagedOnly);
+  parts.push("");
+  parts.push("Staged entries:");
+  for (const l of limited) parts.push(" " + l);
+  if (suffix) parts.push(suffix);
+
+  const stagedNames = safeGitDiffNameOnly(["diff", "--cached", "--name-only"]);
+  if (stagedNames) {
+    parts.push("");
+    parts.push("Staged files (git diff --cached --name-only):");
+    for (const f of stagedNames.split(/\r?\n/).filter(Boolean)) parts.push(" " + f);
+  }
+}
+
 parts.push("");
 parts.push("Fix:");
+
 if (untracked.length) {
   parts.push("  - remove untracked files (or add them), OR");
   parts.push("  - discard untracked with: git clean -fd");
 }
+
 if (unstaged.length) {
   parts.push("  - stage what you intended, OR");
   parts.push("  - discard with: git restore -- .");
+}
+
+if (strict && stagedOnly.length) {
+  parts.push("  - commit staged changes, OR");
+  parts.push("  - unstage with: git restore --staged -- .");
 }
 
 die(parts.join("\n").trimEnd(), 1);
