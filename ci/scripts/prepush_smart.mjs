@@ -19,18 +19,24 @@ function tryOut(cmd) {
   }
 }
 
+function die(msg, code = 1) {
+  process.stderr.write(String(msg).trimEnd() + "\n");
+  process.exit(code);
+}
+
 function readStdinUtf8() {
   // pre-push provides lines:
   // <local ref> <local sha1> <remote ref> <remote sha1>
-  // When run manually, stdin may be empty.
+  // When run manually or via some wrappers, stdin may be empty.
   try {
-    return execSync("node -e \"process.stdin.setEncoding('utf8'); let d=''; process.stdin.on('data', c => d+=c); process.stdin.on('end', ()=>process.stdout.write(d));\"",
+    return execSync(
+      "node -e \"process.stdin.setEncoding('utf8'); let d=''; process.stdin.on('data', c => d+=c); process.stdin.on('end', ()=>process.stdout.write(d));\"",
       { stdio: ["pipe", "pipe", "ignore"] }
     ).toString("utf8");
   } catch {
-    // Fallback: try direct read (works when stdin is already buffered)
     try {
-      return execSync("node -e \"process.stdin.setEncoding('utf8'); let d=''; process.stdin.on('data', c => d+=c); process.stdin.on('end', ()=>process.stdout.write(d));\"",
+      return execSync(
+        "node -e \"process.stdin.setEncoding('utf8'); let d=''; process.stdin.on('data', c => d+=c); process.stdin.on('end', ()=>process.stdout.write(d));\"",
         { input: "", stdio: ["pipe", "pipe", "ignore"] }
       ).toString("utf8");
     } catch {
@@ -40,12 +46,8 @@ function readStdinUtf8() {
 }
 
 function parsePushTargetsFromStdin() {
-  // Prefer real stdin if available; but Node can't reliably read stdin in some hook wrappers.
-  // So: use process.stdin if it's already ended; otherwise use a small helper.
   let text = "";
   try {
-    // If someone runs this directly, stdin is empty -> fine.
-    // Note: synchronous read of process.stdin is not a thing; rely on best-effort helper.
     text = readStdinUtf8();
   } catch {
     text = "";
@@ -70,8 +72,7 @@ function isPushingMain() {
   const updates = parsePushTargetsFromStdin();
 
   // If we can't tell (no stdin), fall back to intent signals:
-  // - Many wrappers call this script with no stdin.
-  // In that case we do NOT block by guessing; we only block if upstream is main AND branch is main.
+  // only block if branch is main and upstream is main.
   if (!updates.length) {
     const branch = tryOut("git rev-parse --abbrev-ref HEAD");
     const upstream = tryOut("git rev-parse --abbrev-ref --symbolic-full-name @{u}");
@@ -92,17 +93,15 @@ function requireMainPushOverrideOrDie() {
     console.error("[pre-push] BLOCKED: direct push to main is disabled.");
     console.error("[pre-push] Use a ticket branch + PR.");
     console.error("[pre-push] Override once (PowerShell):");
-    console.error('[pre-push]   $env:KOLOSSEUM_ALLOW_PUSH_MAIN="1"; git push origin main; Remove-Item Env:KOLOSSEUM_ALLOW_PUSH_MAIN');
+    console.error(
+      '[pre-push]   $env:KOLOSSEUM_ALLOW_PUSH_MAIN="1"; git push origin main; Remove-Item Env:KOLOSSEUM_ALLOW_PUSH_MAIN'
+    );
     process.exit(1);
   }
-
-  console.log("[pre-push] main push override detected -> forcing green:ci");
-  sh("npm run green:ci");
-  process.exit(0);
 }
 
 function getUpstreamRef() {
-  // Safe from Node (no PowerShell @{upstream} mangling).
+  // Safe from Node (no PowerShell @{u} mangling).
   return tryOut("git rev-parse --abbrev-ref --symbolic-full-name @{u}");
 }
 
@@ -115,9 +114,24 @@ function getOutgoingCommitCount(upstream) {
   return n;
 }
 
-function getDiffBaseRef() {
+function runStandardChecksOrDie() {
+  const script = "scripts/standard-checks.ps1";
+  const exists = !!tryOut(`git ls-files --error-unmatch ${script}`);
+  if (!exists) {
+    // Fall back to disk check: repo may have the file untracked (should not happen, but be explicit).
+    const disk = tryOut(`node -e "const fs=require('fs'); process.exit(fs.existsSync('${script.replace(/\\/g, "/")}')?0:1)"`);
+    if (disk) {
+      // disk check returned output; not reliable. Prefer explicit failure message below.
+    }
+    die(`[pre-push] standard checks missing: ${script}`, 2);
+  }
+
+  console.log("[pre-push] standard checks (origin canonical + gh visibility)");
+  sh(`pwsh -NoProfile -ExecutionPolicy Bypass -File ${script} -SkipGreenFast`);
+}
+
+function getDiffBaseRef(upstream) {
   // Prefer upstream. If missing, fall back to HEAD~1 only if it exists.
-  const upstream = getUpstreamRef();
   if (upstream) return { kind: "upstream", ref: upstream };
 
   // New branch with no upstream: best effort. If HEAD~1 doesn't exist, we can't know.
@@ -127,17 +141,8 @@ function getDiffBaseRef() {
   return { kind: "unknown", ref: "" };
 }
 
-function listPushedFiles() {
-  const upstream = getUpstreamRef();
-  const outgoing = getOutgoingCommitCount(upstream);
-
-  // Ticket-029: no-op push should exit 0.
-  if (upstream && outgoing === 0) {
-    console.log("[pre-push] no-op (0 outgoing commits) -> exit 0");
-    process.exit(0);
-  }
-
-  const base = getDiffBaseRef();
+function listPushedFiles(upstream) {
+  const base = getDiffBaseRef(upstream);
 
   if (base.kind === "upstream") {
     return tryOut(`git diff --name-only ${base.ref}..HEAD`)
@@ -195,11 +200,31 @@ function classify(files) {
 
 /**
  * 0) Hard gate: pushing main requires explicit override.
- *    If override present, we force green:ci and exit.
+ *    If override present, we force green:ci after standard checks.
  */
 requireMainPushOverrideOrDie();
 
-const files = listPushedFiles();
+const upstream = getUpstreamRef();
+const outgoing = getOutgoingCommitCount(upstream);
+
+// No-op push should exit 0 without doing anything expensive.
+if (upstream && outgoing === 0) {
+  console.log("[pre-push] no-op (0 outgoing commits) -> exit 0");
+  process.exit(0);
+}
+
+// Always run cheap standard checks for real pushes (or unknown outgoing).
+runStandardChecksOrDie();
+
+// If this is a main push AND override is present, force green:ci and exit.
+// (We intentionally run standard checks first.)
+if (isPushingMain() && process.env.KOLOSSEUM_ALLOW_PUSH_MAIN === "1") {
+  console.log("[pre-push] main push override detected -> forcing green:ci");
+  sh("npm run green:ci");
+  process.exit(0);
+}
+
+const files = listPushedFiles(upstream);
 
 if (files === null) {
   // We cannot prove what is being pushed. Do not silently skip.
