@@ -8,11 +8,12 @@ function die(msg, code = 1) {
 }
 
 function fileExists(p) {
-  try { return fs.statSync(p).isFile() || fs.statSync(p).isFIFO(); } catch { return false; }
-}
-
-function dirExists(p) {
-  try { return fs.statSync(p).isDirectory(); } catch { return false; }
+  try {
+    const st = fs.statSync(p);
+    return st.isFile() || st.isFIFO();
+  } catch {
+    return false;
+  }
 }
 
 function findRepoRoot(startDir) {
@@ -25,12 +26,6 @@ function findRepoRoot(startDir) {
     cur = parent;
   }
   return null;
-}
-
-function resolveCmd(name) {
-  // Keep it simple: rely on PATH. Wrapper (PS1) already prints resolved paths on Windows.
-  // In containers/mac/linux this is enough.
-  return name;
 }
 
 function run(cmd, args, cwd) {
@@ -52,6 +47,7 @@ function parseArgs(argv) {
   const out = { fixture: "examples/hello_world.json", build: true };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
+
     if (a === "--fixture" || a === "--in") {
       const v = argv[i + 1];
       if (!v) die("engine_smoke.mjs: missing value after --fixture/--in");
@@ -59,8 +55,10 @@ function parseArgs(argv) {
       i++;
       continue;
     }
+
     if (a === "--no-build") { out.build = false; continue; }
     if (a === "--build") { out.build = true; continue; }
+
     if (a === "-h" || a === "--help") {
       console.log([
         "engine_smoke.mjs",
@@ -70,6 +68,7 @@ function parseArgs(argv) {
       ].join("\n"));
       process.exit(0);
     }
+
     die(`engine_smoke.mjs: unknown arg: ${a}`);
   }
   return out;
@@ -91,13 +90,13 @@ console.log(`SMOKE: fixture=${path.relative(repo, fixtureAbs)}`);
 
 if (args.build) {
   console.log("SMOKE: build=on (npm run build:fast)");
-  run(resolveCmd("npm"), ["run", "build:fast"], repo);
+  run("npm", ["run", "build:fast"], repo);
 } else {
   console.log("SMOKE: build=off (--no-build)");
 }
 
 console.log("SMOKE: run_pipeline (hello_world)");
-run(resolveCmd("node"), [runnerAbs, "--in", fixtureAbs], repo);
+run("node", [runnerAbs, "--in", fixtureAbs], repo);
 
 console.log("SMOKE_OK");
 process.exit(0);
