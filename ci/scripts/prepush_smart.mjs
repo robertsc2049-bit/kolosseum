@@ -27,16 +27,15 @@ function die(msg, code = 1) {
 function readStdinUtf8() {
   // pre-push provides lines:
   // <local ref> <local sha1> <remote ref> <remote sha1>
-  // When run manually or via some wrappers, stdin may be empty.
   try {
     return execSync(
-      "node -e \"process.stdin.setEncoding('utf8'); let d=''; process.stdin.on('data', c => d+=c); process.stdin.on('end', ()=>process.stdout.write(d));\"",
+      'node -e "process.stdin.setEncoding(\'utf8\'); let d=\'\'; process.stdin.on(\'data\', c => d+=c); process.stdin.on(\'end\', ()=>process.stdout.write(d));"',
       { stdio: ["pipe", "pipe", "ignore"] }
     ).toString("utf8");
   } catch {
     try {
       return execSync(
-        "node -e \"process.stdin.setEncoding('utf8'); let d=''; process.stdin.on('data', c => d+=c); process.stdin.on('end', ()=>process.stdout.write(d));\"",
+        'node -e "process.stdin.setEncoding(\'utf8\'); let d=\'\'; process.stdin.on(\'data\', c => d+=c); process.stdin.on(\'end\', ()=>process.stdout.write(d));"',
         { input: "", stdio: ["pipe", "pipe", "ignore"] }
       ).toString("utf8");
     } catch {
@@ -71,8 +70,8 @@ function parsePushTargetsFromStdin() {
 function isPushingMain() {
   const updates = parsePushTargetsFromStdin();
 
-  // If we can't tell (no stdin), fall back to intent signals:
-  // only block if branch is main and upstream is main.
+  // If we can't tell (no stdin), fall back:
+  // block only if branch is main AND upstream looks like main.
   if (!updates.length) {
     const branch = tryOut("git rev-parse --abbrev-ref HEAD");
     const upstream = tryOut("git rev-parse --abbrev-ref --symbolic-full-name @{u}");
@@ -81,7 +80,6 @@ function isPushingMain() {
     return isMainBranch && isUpstreamMain;
   }
 
-  // If any update targets refs/heads/main, it's a main push.
   return updates.some((u) => u.remoteRef === "refs/heads/main");
 }
 
@@ -114,27 +112,27 @@ function getOutgoingCommitCount(upstream) {
   return n;
 }
 
+function runPushChangesetGuardOrDie() {
+  const script = "scripts/guard-push-changeset.ps1";
+  const exists = !!tryOut(`git ls-files --error-unmatch ${script}`);
+  if (!exists) die(`[pre-push] missing push changeset guard: ${script}`, 2);
+
+  console.log("[pre-push] push changeset guard");
+  sh(`pwsh -NoProfile -ExecutionPolicy Bypass -File ${script}`);
+}
+
 function runStandardChecksOrDie() {
   const script = "scripts/standard-checks.ps1";
   const exists = !!tryOut(`git ls-files --error-unmatch ${script}`);
-  if (!exists) {
-    // Fall back to disk check: repo may have the file untracked (should not happen, but be explicit).
-    const disk = tryOut(`node -e "const fs=require('fs'); process.exit(fs.existsSync('${script.replace(/\\/g, "/")}')?0:1)"`);
-    if (disk) {
-      // disk check returned output; not reliable. Prefer explicit failure message below.
-    }
-    die(`[pre-push] standard checks missing: ${script}`, 2);
-  }
+  if (!exists) die(`[pre-push] standard checks missing: ${script}`, 2);
 
   console.log("[pre-push] standard checks (origin canonical + gh visibility)");
   sh(`pwsh -NoProfile -ExecutionPolicy Bypass -File ${script} -SkipGreenFast`);
 }
 
 function getDiffBaseRef(upstream) {
-  // Prefer upstream. If missing, fall back to HEAD~1 only if it exists.
   if (upstream) return { kind: "upstream", ref: upstream };
 
-  // New branch with no upstream: best effort. If HEAD~1 doesn't exist, we can't know.
   const hasHead1 = !!tryOut("git rev-parse --verify HEAD~1");
   if (hasHead1) return { kind: "head1", ref: "HEAD~1" };
 
@@ -144,28 +142,22 @@ function getDiffBaseRef(upstream) {
 function listPushedFiles(upstream) {
   const base = getDiffBaseRef(upstream);
 
-  if (base.kind === "upstream") {
+  if (base.kind === "upstream" || base.kind === "head1") {
     return tryOut(`git diff --name-only ${base.ref}..HEAD`)
       .split(/\r?\n/)
       .map((s) => s.trim())
       .filter(Boolean);
   }
 
-  if (base.kind === "head1") {
-    return tryOut(`git diff --name-only ${base.ref}..HEAD`)
-      .split(/\r?\n/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-
-  // Unknown diff base (detached / shallow / first commit). Return null to signal uncertainty.
   return null;
 }
 
 function classify(files) {
   const isDoc = (f) => f.startsWith("docs/") || /\.(md|txt)$/i.test(f);
+  const isWorkflow = (f) => f.startsWith(".github/workflows/");
 
   const DOC_ONLY = files.length > 0 && files.every(isDoc);
+  const WORKFLOW_ONLY = files.length > 0 && files.every(isWorkflow);
 
   const touchesEngine = (f) =>
     f.startsWith("engine/") ||
@@ -173,10 +165,9 @@ function classify(files) {
     f.startsWith("cli/") ||
     f.includes("ENGINE_CONTRACT") ||
     f === "schema.sql" ||
-    f.startsWith("ci/") ||                // guards/scripts/manifests/schemas
-    f.startsWith("scripts/") ||           // release plumbing + guardrails
-    f.startsWith("tools/") ||             // toolchain affects determinism
-    f.startsWith(".github/workflows/") || // CI is part of the contract
+    f.startsWith("ci/") ||         // guards/scripts/manifests/schemas
+    f.startsWith("scripts/") ||    // release plumbing + guardrails
+    f.startsWith("tools/") ||      // toolchain affects determinism
     f === "package.json" ||
     f === "package-lock.json" ||
     f === "tsconfig.json" ||
@@ -191,16 +182,19 @@ function classify(files) {
     f.includes("server") ||
     f.includes("apply-schema");
 
-  // If it touches engine-risk contract surface, treat as engine-risk.
-  const ENGINE_RISK = files.some(touchesEngine);
-  const APP_RISK = !ENGINE_RISK && files.some(touchesApp);
+  // Workflow-only is control-plane; handled separately.
+  const ENGINE_RISK = !WORKFLOW_ONLY && files.some(touchesEngine);
+  const APP_RISK = !ENGINE_RISK && !WORKFLOW_ONLY && files.some(touchesApp);
 
-  return { DOC_ONLY, ENGINE_RISK, APP_RISK };
+  return { DOC_ONLY, WORKFLOW_ONLY, ENGINE_RISK, APP_RISK };
 }
 
 /**
- * 0) Hard gate: pushing main requires explicit override.
- *    If override present, we force green:ci after standard checks.
+ * Single owner flow:
+ * 1) Block main unless override.
+ * 2) If no outgoing commits, exit 0.
+ * 3) For real pushes: push changeset guard -> standard checks.
+ * 4) Route by diff surface.
  */
 requireMainPushOverrideOrDie();
 
@@ -213,7 +207,8 @@ if (upstream && outgoing === 0) {
   process.exit(0);
 }
 
-// Always run cheap standard checks for real pushes (or unknown outgoing).
+// Unknown outgoing (no upstream) => treat as real push and proceed.
+runPushChangesetGuardOrDie();
 runStandardChecksOrDie();
 
 // If this is a main push AND override is present, force green:ci and exit.
@@ -227,8 +222,6 @@ if (isPushingMain() && process.env.KOLOSSEUM_ALLOW_PUSH_MAIN === "1") {
 const files = listPushedFiles(upstream);
 
 if (files === null) {
-  // We cannot prove what is being pushed. Do not silently skip.
-  // Conservative but still fast-ish: dev:fast (guards + unit) not full CI punishment.
   console.log("[pre-push] cannot determine pushed files -> dev:fast (conservative)");
   sh("npm run dev:fast");
   process.exit(0);
@@ -237,17 +230,22 @@ if (files === null) {
 console.log(`[pre-push] pushed files: ${files.length}`);
 
 if (!files.length) {
-  // Diff computed but empty: stay cheap but not zero.
   console.log("[pre-push] pushed file list empty -> lint:fast");
   sh("npm run lint:fast");
   process.exit(0);
 }
 
-const { DOC_ONLY, ENGINE_RISK, APP_RISK } = classify(files);
+const { DOC_ONLY, WORKFLOW_ONLY, ENGINE_RISK, APP_RISK } = classify(files);
 
 if (DOC_ONLY) {
   console.log("[pre-push] docs-only -> lint:fast");
   sh("npm run lint:fast");
+  process.exit(0);
+}
+
+if (WORKFLOW_ONLY) {
+  console.log("[pre-push] workflow-only (.github/workflows/**) -> green:fast");
+  sh("npm run green:fast");
   process.exit(0);
 }
 
