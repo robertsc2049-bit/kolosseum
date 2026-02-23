@@ -244,7 +244,7 @@ function decideRoute(files) {
   return { route: "lint:fast", reason: "non-risk" };
 }
 
-function printDryRunReport(state) {
+function dryRunPayload(state) {
   const {
     updates,
     stdinMissing,
@@ -256,30 +256,71 @@ function printDryRunReport(state) {
     decision,
   } = state;
 
-  console.log("[pre-push][dry-run] enabled (no guards, no npm, no pwsh)");
-  console.log(`[pre-push][dry-run] stdin: ${stdinMissing ? "missing" : "present"} (${updates.length} update(s))`);
-  console.log(`[pre-push][dry-run] upstream: ${upstream || "(none)"}`);
-  console.log(`[pre-push][dry-run] outgoing: ${outgoing === null ? "(unknown)" : String(outgoing)}`);
-  console.log(`[pre-push][dry-run] pushingMain: ${pushingMain ? "yes" : "no"}`);
-  console.log(`[pre-push][dry-run] allowMain: ${allowMain ? "yes" : "no"}`);
+  const wouldBlockMain = pushingMain && !allowMain;
 
-  if (files === null) {
+  return {
+    mode: "dry-run",
+    stdin: {
+      present: !stdinMissing,
+      updates_count: updates.length,
+      updates,
+    },
+    git: {
+      upstream: upstream || null,
+      outgoing: outgoing === null ? null : outgoing,
+    },
+    main: {
+      pushing: !!pushingMain,
+      allow_override: !!allowMain,
+      would_block: !!wouldBlockMain,
+    },
+    files: files === null ? null : files,
+    decision,
+  };
+}
+
+function printDryRunReportText(payload) {
+  const stdinMissing = !payload.stdin.present;
+
+  console.log("[pre-push][dry-run] enabled (no guards, no npm, no pwsh)");
+  console.log(
+    `[pre-push][dry-run] stdin: ${stdinMissing ? "missing" : "present"} (${payload.stdin.updates_count} update(s))`
+  );
+  console.log(`[pre-push][dry-run] upstream: ${payload.git.upstream || "(none)"}`);
+  console.log(
+    `[pre-push][dry-run] outgoing: ${payload.git.outgoing === null ? "(unknown)" : String(payload.git.outgoing)}`
+  );
+  console.log(`[pre-push][dry-run] pushingMain: ${payload.main.pushing ? "yes" : "no"}`);
+  console.log(`[pre-push][dry-run] allowMain: ${payload.main.allow_override ? "yes" : "no"}`);
+
+  if (payload.files === null) {
     console.log("[pre-push][dry-run] files: (null) cannot determine");
   } else {
-    console.log(`[pre-push][dry-run] files: ${files.length}`);
-    for (const f of files) console.log(`[pre-push][dry-run]   ${f}`);
+    console.log(`[pre-push][dry-run] files: ${payload.files.length}`);
+    for (const f of payload.files) console.log(`[pre-push][dry-run]   ${f}`);
   }
 
-  console.log(`[pre-push][dry-run] decision: ${decision.route} (${decision.reason})`);
+  console.log(`[pre-push][dry-run] decision: ${payload.decision.route} (${payload.decision.reason})`);
 
-  if (pushingMain && !allowMain) {
+  if (payload.main.would_block) {
     console.log("[pre-push][dry-run] NOTE: would BLOCK main push (override not set).");
   }
+}
+
+function printDryRun(payload) {
+  const fmt = String(process.env.KOLOSSEUM_PREPUSH_DRYRUN_FORMAT || "").trim().toLowerCase();
+  if (fmt === "json") {
+    // JSON-only, single object, newline terminated. No prefix lines.
+    process.stdout.write(JSON.stringify(payload) + "\n");
+    return;
+  }
+  printDryRunReportText(payload);
 }
 
 /**
  * Single owner flow:
  * - KOLOSSEUM_PREPUSH_DRYRUN=1: compute + print decisions only; exit 0.
+ * - KOLOSSEUM_PREPUSH_DRYRUN_FORMAT=json: when dry-run is enabled, print JSON-only.
  * - KOLOSSEUM_PREPUSH_FORCE=1: bypass no-op exits for local simulation (non-dry-run).
  */
 const updates = parsePushTargetsFromStdin();
@@ -300,7 +341,7 @@ else files = listPushedFilesFallback(upstream);
 const decision = decideRoute(files);
 
 if (dryRun) {
-  printDryRunReport({
+  const payload = dryRunPayload({
     updates,
     stdinMissing,
     upstream,
@@ -310,6 +351,7 @@ if (dryRun) {
     files,
     decision,
   });
+  printDryRun(payload);
   process.exit(0);
 }
 
