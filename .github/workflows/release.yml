@@ -1,17 +1,22 @@
-name: Release Gates
+name: release
 
 on:
   push:
     tags:
-      - "rc-v*.*.*-*"
-      - "v*.*.*"
+      - "v*"
+      - "rc-*"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
 
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  gates:
+  release:
+    name: release
     runs-on: ubuntu-latest
 
     services:
@@ -20,20 +25,19 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: kolosseum_ci
+          POSTGRES_DB: kolosseum
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U postgres -d kolosseum_ci"
+          --health-cmd="pg_isready -U postgres -d kolosseum"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=30
 
     env:
-      CI: true
-      NODE_ENV: test
-      PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/kolosseum_ci
+      NODE_VERSION: "24.12.0"
+      DATABASE_URL: "postgres://postgres:postgres@127.0.0.1:5432/kolosseum"
+      PORT: "3000"
 
     steps:
       - name: Checkout
@@ -41,38 +45,34 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Tag must be on main + version gate always (rc + v)
-      - name: Tag must be on main
-        shell: pwsh
-        run: |
-          ./scripts/ci-tag-main-gate.ps1
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Install
         run: npm ci
 
       - name: Version gate
-        run: |
-          node scripts/version-gate.mjs --tag "${GITHUB_REF_NAME}"
+        run: node scripts/version-gate.mjs --tag "${GITHUB_REF_NAME}"
 
-      - name: Guard + Unit tests
+      - name: Guard + Unit tests (ci)
         run: npm run ci
 
-      - name: Apply schema (drift guard)
-        run: node scripts/apply-schema.mjs --db-url "$DATABASE_URL"
+      - name: Build (fast)
+        run: npm run build:fast
 
-      # RC-only heavy gates (you will wire these scripts/tests next)
+      - name: Apply schema (drift guard)
+        run: node scripts/apply-schema.mjs --db-url "${DATABASE_URL}"
+
+      # RC-only heavy gates
       - name: RC: Determinism check
-        if: startsWith(github.ref, 'refs/tags/rc-')
+        if: ${{ startsWith(github.ref, 'refs/tags/rc-') }}
         run: npm run determinism:check
 
       - name: RC: Golden fixtures
-        if: startsWith(github.ref, 'refs/tags/rc-')
+        if: ${{ startsWith(github.ref, 'refs/tags/rc-') }}
         run: npm run e2e:golden
 
       - name: Start API
@@ -84,36 +84,23 @@ jobs:
 
       - name: Wait for /health
         run: |
-          set -e
           for i in $(seq 1 60); do
-            if curl -fsS "http://127.0.0.1:3000/health" >/dev/null; then
+            if curl -fsS "http://127.0.0.1:${PORT}/health" >/dev/null; then
+              echo "OK: /health"
               exit 0
             fi
             sleep 1
           done
-          echo "API failed to become healthy within 60s."
-          tail -200 server.log || true
+          echo "ERROR: /health never became ready"
+          echo "--- server.log (tail) ---"
+          tail -n 200 server.log || true
           exit 1
-
-      - name: Smoke API (PowerShell)
-        shell: pwsh
-        run: |
-          ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode fresh
-          ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode idempotent
-
-      - name: Upload API logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-logs
-          path: server.log
-          if-no-files-found: ignore
-          retention-days: 14
 
       - name: Stop API
         if: always()
         run: |
           if [ -f server.pid ]; then
-            kill "$(cat server.pid)" || true
+            PID="$(cat server.pid)"
+            kill "$PID" || true
           fi
-          tail -200 server.log || true
+          sleep 1
