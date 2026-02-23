@@ -1,13 +1,13 @@
 name: ci
 
 on:
+  pull_request: {}
   push:
     branches:
-      - "**"
+      - main
     tags-ignore:
       - "v*"
       - "rc-*"
-  pull_request:
   workflow_dispatch: {}
 
 permissions:
