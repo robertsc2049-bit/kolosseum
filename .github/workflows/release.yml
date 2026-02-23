@@ -67,12 +67,12 @@ jobs:
         run: node scripts/apply-schema.mjs --db-url "${DATABASE_URL}"
 
       # RC-only heavy gates
-      - name: RC: Determinism check
-        if: ${{ startsWith(github.ref, 'refs/tags/rc-') }}
+      - name: "RC: Determinism check"
+        if: startsWith(github.ref, 'refs/tags/rc-')
         run: npm run determinism:check
 
-      - name: RC: Golden fixtures
-        if: ${{ startsWith(github.ref, 'refs/tags/rc-') }}
+      - name: "RC: Golden fixtures"
+        if: startsWith(github.ref, 'refs/tags/rc-')
         run: npm run e2e:golden
 
       - name: Start API
