@@ -1,176 +1,122 @@
-<# scripts/smoke-api.ps1
-   Cross-platform smoke tests for the Kolosseum API.
-
-   Usage:
-     pwsh ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode fresh
-     pwsh ./scripts/smoke-api.ps1 -Base "http://127.0.0.1:3000" -Mode idempotent
-
-   Contract:
-   - /health must return HTTP 200 once the API is ready.
-   - Body should be JSON and ideally include version/build metadata.
-#>
-
-[CmdletBinding()]
 param(
-  [Parameter(Mandatory = $false)]
-  [string]$Base = "http://127.0.0.1:3000",
-
-  [Parameter(Mandatory = $false)]
-  [ValidateSet("fresh", "idempotent")]
-  [string]$Mode = "fresh",
-
-  # How long to wait for /health before failing (seconds)
-  [Parameter(Mandatory = $false)]
-  [int]$HealthTimeoutSeconds = 45,
-
-  # Poll interval while waiting for /health (milliseconds)
-  [Parameter(Mandatory = $false)]
-  [int]$HealthPollMs = 750
+  [string]$Base = "http://127.0.0.1:3000"
 )
 
 $ErrorActionPreference = "Stop"
 
-function Info([string]$msg) { Write-Host $msg -ForegroundColor Cyan }
-function Warn([string]$msg) { Write-Host $msg -ForegroundColor Yellow }
-function Fail([string]$msg) { Write-Host "FAIL: $msg" -ForegroundColor Red; exit 1 }
+function Must([bool]$ok, [string]$msg) { if (-not $ok) { throw $msg } }
+function SleepMs([int]$ms) { Start-Sleep -Milliseconds $ms }
 
-function JoinUrl([string]$base, [string]$path) {
-  $b = $base.TrimEnd("/")
-  $p = $path
-  if (-not $p.StartsWith("/")) { $p = "/$p" }
-  return "$b$p"
+function Wait-Health([string]$base, [int]$timeoutSec = 20, [int]$pollMs = 250) {
+  $deadline = (Get-Date).AddSeconds($timeoutSec)
+  while ((Get-Date) -lt $deadline) {
+    try {
+      Invoke-RestMethod -Method Get -Uri "$base/health" -TimeoutSec 2 | Out-Null
+      return
+    } catch {
+      SleepMs $pollMs
+    }
+  }
+  throw "Health did not return 200 within ${timeoutSec}s: $base/health"
 }
 
-function Try-GetJson([string]$url) {
-  try {
-    # UseBasicParsing is ignored in PowerShell 7+, harmless.
-    $resp = Invoke-WebRequest -Uri $url -Method GET -TimeoutSec 10 -UseBasicParsing
-    $status = [int]$resp.StatusCode
-    $raw = [string]$resp.Content
+function Find-Phase1SchemaFile() {
+  $candidates = @("engine","src","dist","ci","registry","registries","schema","schemas") |
+    ForEach-Object { Join-Path (Get-Location) $_ } |
+    Where-Object { Test-Path -LiteralPath $_ }
 
-    $json = $null
-    if ($raw) {
-      try { $json = $raw | ConvertFrom-Json } catch { $json = $null }
-    }
+  foreach ($root in $candidates) {
+    $hit = Get-ChildItem -LiteralPath $root -Recurse -File -ErrorAction SilentlyContinue |
+      Select-String -Pattern '"phase1_schema_version"' -List -ErrorAction SilentlyContinue |
+      Select-Object -First 1
+    if ($hit -and $hit.Path) { return $hit.Path }
+  }
 
-    return @{
-      ok = $true
-      status = $status
-      raw = $raw
-      json = $json
-      error = $null
-    }
-  } catch {
-    return @{
-      ok = $false
-      status = $null
-      raw = $null
-      json = $null
-      error = $_.Exception.Message
-    }
+  $hit2 = Get-ChildItem -LiteralPath (Get-Location) -Recurse -File -ErrorAction SilentlyContinue |
+    Select-String -Pattern '"phase1_schema_version"' -List -ErrorAction SilentlyContinue |
+    Select-Object -First 1
+  if ($hit2 -and $hit2.Path) { return $hit2.Path }
+
+  throw "Could not locate a Phase1 schema file containing phase1_schema_version."
+}
+
+function Get-PrimitiveDefault([object]$propSchema) {
+  if ($null -eq $propSchema) { return $null }
+  if ($propSchema.const) { return $propSchema.const }
+  if ($propSchema.enum -and $propSchema.enum.Count -gt 0) { return $propSchema.enum[0] }
+
+  $t = $propSchema.type
+  if ($t -is [System.Array]) { $t = $t[0] }
+
+  switch ($t) {
+    "boolean" { return $false }
+    "integer" { return 0 }
+    "number"  { return 0 }
+    "string"  { return "x" }
+    default   { return "x" }
   }
 }
 
-function Wait-ForHealth([string]$base, [int]$timeoutSeconds, [int]$pollMs) {
-  $healthUrl = JoinUrl $base "/health"
-  $deadline = [DateTimeOffset]::UtcNow.AddSeconds($timeoutSeconds)
+function Build-Phase1Input() {
+  $schemaPath = Find-Phase1SchemaFile
+  $raw = [System.IO.File]::ReadAllText($schemaPath, [System.Text.UTF8Encoding]::new($false))
+  $schema = $raw | ConvertFrom-Json -Depth 200
 
-  Info "Health check: GET $healthUrl (timeout ${timeoutSeconds}s, poll ${pollMs}ms)"
+  if (-not $schema.properties) { throw "Phase1 schema missing properties: $schemaPath" }
 
-  $last = $null
-  while ([DateTimeOffset]::UtcNow -lt $deadline) {
-    $r = Try-GetJson $healthUrl
-    $last = $r
+  $required = @()
+  if ($schema.required) { $required = @($schema.required) }
 
-    if ($r.ok -and $r.status -eq 200) {
-      # Optional sanity: if JSON exists, it must not be empty
-      if ($r.json -ne $null) {
-        Info "Health OK (200)."
-        return $r
-      }
+  # CLOSED WORLD: only required keys + consent_granted if allowed by schema.
+  $p1 = [ordered]@{}
 
-      # If it returned 200 but JSON parse failed, still treat as OK but warn.
-      Warn "Health OK (200) but response is not valid JSON. Continuing."
-      return $r
-    }
-
-    if ($r.ok) {
-      Warn "Health not ready yet: HTTP $($r.status). Retrying..."
-    } else {
-      Warn "Health not reachable yet: $($r.error). Retrying..."
-    }
-
-    Start-Sleep -Milliseconds $pollMs
+  foreach ($k in $required) {
+    $prop = $schema.properties.$k
+    if (-not $prop) { throw "Phase1 schema required key '$k' missing from properties: $schemaPath" }
+    $p1.$k = (Get-PrimitiveDefault $prop)
   }
 
-  # timed out
-  $details = ""
-  if ($last -ne $null) {
-    if ($last.ok) {
-      $details = "Last status=$($last.status). Last body=$([string]$last.raw)"
-    } else {
-      $details = "Last error=$($last.error)"
+  if ($schema.properties.consent_granted) { $p1.consent_granted = $true }
+
+  # Known engine-critical keys: replace placeholder "x" only when schema didn't constrain value.
+  $overrides = @{
+    activity_id              = "general_strength"
+    actor_type               = "athlete"
+    execution_scope          = "individual"
+    instruction_density      = "standard"
+    exposure_prompt_density  = "standard"
+    bias_mode                = "variety"
+    nd_mode                  = $false
+  }
+
+  foreach ($kv in $overrides.GetEnumerator()) {
+    $k = $kv.Key
+    if ($p1.Contains($k)) {
+      if ($p1.$k -is [string] -and $p1.$k -eq "x") { $p1.$k = $kv.Value }
+      if ($p1.$k -is [bool]) { $p1.$k = [bool]$kv.Value }
     }
   }
-  Fail "Health failed after ${timeoutSeconds}s. $details"
+
+  return $p1
 }
 
-function Invoke-Api([string]$method, [string]$url, [object]$body = $null) {
-  try {
-    $headers = @{ "Content-Type" = "application/json" }
-    if ($body -ne $null) {
-      $json = $body | ConvertTo-Json -Depth 20 -Compress
-      $resp = Invoke-WebRequest -Uri $url -Method $method -Headers $headers -Body $json -TimeoutSec 20 -UseBasicParsing
-    } else {
-      $resp = Invoke-WebRequest -Uri $url -Method $method -Headers $headers -TimeoutSec 20 -UseBasicParsing
-    }
+Write-Host "Base: $Base"
+Wait-Health $Base
 
-    $raw = [string]$resp.Content
-    $parsed = $null
-    if ($raw) {
-      try { $parsed = $raw | ConvertFrom-Json } catch { $parsed = $null }
-    }
+$compileUri = "$Base/blocks/compile"
+Write-Host "Blocks compile endpoint: $compileUri"
 
-    return @{
-      ok = $true
-      status = [int]$resp.StatusCode
-      raw = $raw
-      json = $parsed
-      error = $null
-    }
-  } catch {
-    return @{
-      ok = $false
-      status = $null
-      raw = $null
-      json = $null
-      error = $_.Exception.Message
-    }
-  }
+$phase1Input = Build-Phase1Input
+$compileReq = [ordered]@{
+  phase1_input   = $phase1Input
+  runtime_events = @()
 }
 
-# -------------------------
-# Main
-# -------------------------
+$body = $compileReq | ConvertTo-Json -Depth 80 -Compress
+$resp = Invoke-RestMethod -Method Post -Uri $compileUri -ContentType "application/json" -Body $body -TimeoutSec 30
 
-Info "Base: $Base"
-Info "Mode: $Mode"
+Must ($null -ne $resp.block_id -and $resp.block_id.Length -gt 0) "Compile failed: no block_id returned"
+Must ($null -ne $resp.planned_session) "Compile failed: no planned_session returned"
 
-# 1) Wait until API is actually ready
-$health = Wait-ForHealth -base $Base -timeoutSeconds $HealthTimeoutSeconds -pollMs $HealthPollMs
-
-# 2) Print version/build metadata if present
-if ($health.json -ne $null) {
-  $ver = $null
-  if ($health.json.PSObject.Properties.Name -contains "version") { $ver = [string]$health.json.version }
-  if (-not $ver -and ($health.json.PSObject.Properties.Name -contains "build_version")) { $ver = [string]$health.json.build_version }
-  if ($ver) { Info "Build version: $ver" }
-}
-
-# 3) Minimal smoke calls (extend later when endpoints stabilize)
-# NOTE: If you don’t have a stable endpoint beyond /health yet, keep it lean.
-# If you DO have one (e.g. POST /engine/run), wire it here.
-
-# Example placeholder: no-op success
-Info "Smoke OK: health passed. (No additional API calls configured yet.)"
-exit 0
+Write-Host "block_id: $($resp.block_id)"
+Write-Host "planned_session.exercises.count: $(@($resp.planned_session.exercises).Count)"

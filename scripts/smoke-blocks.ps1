@@ -191,6 +191,10 @@ Must ($null -ne $blockResp.planned_session) "Compile block failed: no planned_se
 $blockId = $blockResp.block_id
 Write-Host "block_id: $blockId"
 
+# Tier-1: assert DB persistence immediately after compile.
+# If this fails, compile returned an id that does not exist in Postgres.
+node scripts/smoke-db-assert-block.mjs $blockId
+
 $planned_session = $blockResp.planned_session
 $ex1 = Pick-FirstExerciseId $planned_session
 Write-Host "Using exercise_id: $ex1"
