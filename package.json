@@ -81,7 +81,9 @@
     "hooks:install": "node scripts/ps-runner.mjs --file scripts/install-githooks.ps1",
     "green:raw": "node ci/scripts/green.mjs",
     "green:dev": "node ci/scripts/green_fast.mjs",
-    "verify": "node ci/scripts/green_fast.mjs"
+    "verify": "node ci/scripts/green_fast.mjs",
+    "smoke:blocks": "node scripts/ps-runner.mjs --file scripts/smoke-blocks.ps1",
+    "smoke:blocks:run": "node scripts/ps-runner.mjs --file scripts/smoke-blocks-run.ps1"
   },
   "dependencies": {
     "ajv": "^8.17.1",
