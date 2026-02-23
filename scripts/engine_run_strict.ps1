@@ -36,6 +36,16 @@ try {
 
 Set-Location $repo
 
+# ---- version stamps (debugging without guessing) ----
+& git --version
+& node --version
+& npm --version
+
+# ---- repo sanity (avoid running in the wrong folder) ----
+if (-not (Test-Path -LiteralPath ".\package.json")) { Die "engine_run_strict.ps1: package.json missing at repo root: $repo" 1 }
+if (-not (Test-Path -LiteralPath ".\scripts\run_pipeline_cli_file.mjs")) { Die "engine_run_strict.ps1: scripts/run_pipeline_cli_file.mjs missing at repo root: $repo" 1 }
+if (-not (Test-Path -LiteralPath ".\examples\hello_world.json")) { Die "engine_run_strict.ps1: examples/hello_world.json missing at repo root: $repo" 1 }
+
 # Strict clean-tree mode for this process + children
 $env:KOLOSSEUM_CLEAN_TREE_STRICT = "1"
 
