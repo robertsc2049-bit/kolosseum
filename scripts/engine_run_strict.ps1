@@ -43,17 +43,15 @@ Set-Location $repo
 
 # ---- repo sanity (avoid running in the wrong folder) ----
 if (-not (Test-Path -LiteralPath ".\package.json")) { Die "engine_run_strict.ps1: package.json missing at repo root: $repo" 1 }
+if (-not (Test-Path -LiteralPath ".\scripts\engine_smoke.mjs")) { Die "engine_run_strict.ps1: scripts/engine_smoke.mjs missing at repo root: $repo" 1 }
 if (-not (Test-Path -LiteralPath ".\scripts\run_pipeline_cli_file.mjs")) { Die "engine_run_strict.ps1: scripts/run_pipeline_cli_file.mjs missing at repo root: $repo" 1 }
 if (-not (Test-Path -LiteralPath ".\examples\hello_world.json")) { Die "engine_run_strict.ps1: examples/hello_world.json missing at repo root: $repo" 1 }
 
 # Strict clean-tree mode for this process + children
 $env:KOLOSSEUM_CLEAN_TREE_STRICT = "1"
 
-# Build fast then run hello_world fixture
-& npm run build:fast
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-& node scripts/run_pipeline_cli_file.mjs --in examples/hello_world.json
+# Canonical local smoke boundary (delegates to OS-agnostic Node smoke command)
+& node scripts/engine_smoke.mjs --fixture examples/hello_world.json
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 exit 0
