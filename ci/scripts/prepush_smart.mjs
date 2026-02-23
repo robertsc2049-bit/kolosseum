@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { execSync } from "node:child_process";
 import process from "node:process";
 
@@ -24,34 +25,22 @@ function die(msg, code = 1) {
   process.exit(code);
 }
 
+function isAllZeroSha(s) {
+  const x = String(s || "").trim();
+  return x.length === 40 && /^0{40}$/.test(x);
+}
+
 function readStdinUtf8() {
-  // pre-push provides lines:
-  // <local ref> <local sha1> <remote ref> <remote sha1>
+  // Correct: read fd 0 (the hook stdin) directly.
   try {
-    return execSync(
-      'node -e "process.stdin.setEncoding(\'utf8\'); let d=\'\'; process.stdin.on(\'data\', c => d+=c); process.stdin.on(\'end\', ()=>process.stdout.write(d));"',
-      { stdio: ["pipe", "pipe", "ignore"] }
-    ).toString("utf8");
+    return fs.readFileSync(0, "utf8");
   } catch {
-    try {
-      return execSync(
-        'node -e "process.stdin.setEncoding(\'utf8\'); let d=\'\'; process.stdin.on(\'data\', c => d+=c); process.stdin.on(\'end\', ()=>process.stdout.write(d));"',
-        { input: "", stdio: ["pipe", "pipe", "ignore"] }
-      ).toString("utf8");
-    } catch {
-      return "";
-    }
+    return "";
   }
 }
 
 function parsePushTargetsFromStdin() {
-  let text = "";
-  try {
-    text = readStdinUtf8();
-  } catch {
-    text = "";
-  }
-
+  const text = readStdinUtf8();
   const lines = String(text)
     .split(/\r?\n/)
     .map((s) => s.trim())
@@ -67,37 +56,6 @@ function parsePushTargetsFromStdin() {
   return updates;
 }
 
-function isPushingMain() {
-  const updates = parsePushTargetsFromStdin();
-
-  // If we can't tell (no stdin), fall back:
-  // block only if branch is main AND upstream looks like main.
-  if (!updates.length) {
-    const branch = tryOut("git rev-parse --abbrev-ref HEAD");
-    const upstream = tryOut("git rev-parse --abbrev-ref --symbolic-full-name @{u}");
-    const isMainBranch = branch === "main";
-    const isUpstreamMain = upstream.endsWith("/main") || upstream === "origin/main";
-    return isMainBranch && isUpstreamMain;
-  }
-
-  return updates.some((u) => u.remoteRef === "refs/heads/main");
-}
-
-function requireMainPushOverrideOrDie() {
-  if (!isPushingMain()) return;
-
-  const allowed = process.env.KOLOSSEUM_ALLOW_PUSH_MAIN === "1";
-  if (!allowed) {
-    console.error("[pre-push] BLOCKED: direct push to main is disabled.");
-    console.error("[pre-push] Use a ticket branch + PR.");
-    console.error("[pre-push] Override once (PowerShell):");
-    console.error(
-      '[pre-push]   $env:KOLOSSEUM_ALLOW_PUSH_MAIN="1"; git push origin main; Remove-Item Env:KOLOSSEUM_ALLOW_PUSH_MAIN'
-    );
-    process.exit(1);
-  }
-}
-
 function getUpstreamRef() {
   // Safe from Node (no PowerShell @{u} mangling).
   return tryOut("git rev-parse --abbrev-ref --symbolic-full-name @{u}");
@@ -110,6 +68,35 @@ function getOutgoingCommitCount(upstream) {
   const n = Number(s);
   if (!Number.isFinite(n) || n < 0) return null;
   return n;
+}
+
+function computePushingMain(updates) {
+  // Primary truth: stdin updates
+  if (updates.length) {
+    return updates.some((u) => u.remoteRef === "refs/heads/main");
+  }
+
+  // Fallback: branch + upstream intent
+  const branch = tryOut("git rev-parse --abbrev-ref HEAD");
+  const upstream = getUpstreamRef();
+  const isMainBranch = branch === "main";
+  const isUpstreamMain = upstream.endsWith("/main") || upstream === "origin/main";
+  return isMainBranch && isUpstreamMain;
+}
+
+function requireMainPushOverrideOrDie(pushingMain) {
+  if (!pushingMain) return;
+
+  const allowed = process.env.KOLOSSEUM_ALLOW_PUSH_MAIN === "1";
+  if (!allowed) {
+    console.error("[pre-push] BLOCKED: direct push to main is disabled.");
+    console.error("[pre-push] Use a ticket branch + PR.");
+    console.error("[pre-push] Override once (PowerShell):");
+    console.error(
+      '[pre-push]   $env:KOLOSSEUM_ALLOW_PUSH_MAIN="1"; git push origin main; Remove-Item Env:KOLOSSEUM_ALLOW_PUSH_MAIN'
+    );
+    process.exit(1);
+  }
 }
 
 function runPushChangesetGuardOrDie() {
@@ -130,26 +117,62 @@ function runStandardChecksOrDie() {
   sh(`pwsh -NoProfile -ExecutionPolicy Bypass -File ${script} -SkipGreenFast`);
 }
 
-function getDiffBaseRef(upstream) {
-  if (upstream) return { kind: "upstream", ref: upstream };
+function listPushedFilesFromUpdates(updates) {
+  // Best-effort: aggregate file list across all non-delete ref updates.
+  const files = new Set();
 
-  const hasHead1 = !!tryOut("git rev-parse --verify HEAD~1");
-  if (hasHead1) return { kind: "head1", ref: "HEAD~1" };
+  const meaningful = updates.filter(
+    (u) => !isAllZeroSha(u.localSha) && u.localRef && u.remoteRef
+  );
+  if (!meaningful.length) return [];
 
-  return { kind: "unknown", ref: "" };
+  for (const u of meaningful) {
+    // If remoteSha is known (not all zeros), diff exactly remoteSha..localSha.
+    // If remoteSha is all zeros (new remote ref), we cannot know remote base.
+    // Fall back to upstream or HEAD~1 later.
+    if (!isAllZeroSha(u.remoteSha)) {
+      const names = tryOut(`git diff --name-only ${u.remoteSha}..${u.localSha}`)
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      for (const f of names) files.add(f);
+      continue;
+    }
+
+    // New branch / new remote ref:
+    // best effort: if merge-base with origin/main exists, use that.
+    const mb = tryOut("git merge-base HEAD origin/main");
+    const base = mb ? mb : (tryOut("git rev-parse --verify HEAD~1") ? "HEAD~1" : "");
+    if (!base) continue;
+
+    const names = tryOut(`git diff --name-only ${base}..${u.localSha}`)
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    for (const f of names) files.add(f);
+  }
+
+  return Array.from(files);
 }
 
-function listPushedFiles(upstream) {
-  const base = getDiffBaseRef(upstream);
-
-  if (base.kind === "upstream" || base.kind === "head1") {
-    return tryOut(`git diff --name-only ${base.ref}..HEAD`)
+function listPushedFilesFallback(upstream) {
+  // Fallback when stdin missing: approximate by upstream..HEAD, else HEAD~1..HEAD.
+  if (upstream) {
+    return tryOut(`git diff --name-only ${upstream}..HEAD`)
       .split(/\r?\n/)
       .map((s) => s.trim())
       .filter(Boolean);
   }
 
-  return null;
+  const hasHead1 = !!tryOut("git rev-parse --verify HEAD~1");
+  if (hasHead1) {
+    return tryOut("git diff --name-only HEAD~1..HEAD")
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  return null; // truly unknown (first commit / detached / shallow)
 }
 
 function classify(files) {
@@ -192,11 +215,14 @@ function classify(files) {
 /**
  * Single owner flow:
  * 1) Block main unless override.
- * 2) If no outgoing commits, exit 0.
+ * 2) If no outgoing commits (upstream known) -> exit 0.
  * 3) For real pushes: push changeset guard -> standard checks.
- * 4) Route by diff surface.
+ * 4) Route by diff surface (prefer real stdin ranges).
  */
-requireMainPushOverrideOrDie();
+const updates = parsePushTargetsFromStdin();
+const pushingMain = computePushingMain(updates);
+
+requireMainPushOverrideOrDie(pushingMain);
 
 const upstream = getUpstreamRef();
 const outgoing = getOutgoingCommitCount(upstream);
@@ -213,13 +239,21 @@ runStandardChecksOrDie();
 
 // If this is a main push AND override is present, force green:ci and exit.
 // (We intentionally run standard checks first.)
-if (isPushingMain() && process.env.KOLOSSEUM_ALLOW_PUSH_MAIN === "1") {
+if (pushingMain && process.env.KOLOSSEUM_ALLOW_PUSH_MAIN === "1") {
   console.log("[pre-push] main push override detected -> forcing green:ci");
   sh("npm run green:ci");
   process.exit(0);
 }
 
-const files = listPushedFiles(upstream);
+// Prefer exact push ranges from stdin when available.
+let files = null;
+
+if (updates.length) {
+  const fromUpdates = listPushedFilesFromUpdates(updates);
+  files = fromUpdates;
+} else {
+  files = listPushedFilesFallback(upstream);
+}
 
 if (files === null) {
   console.log("[pre-push] cannot determine pushed files -> dev:fast (conservative)");
