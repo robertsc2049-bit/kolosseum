@@ -76,7 +76,9 @@ function computePushingMain(updates) {
     return updates.some((u) => u.remoteRef === "refs/heads/main");
   }
 
-  // Fallback: branch + upstream intent
+  // Fallback (stdin missing):
+  // Keep heuristic minimal and let the no-op short-circuit avoid false blocks
+  // for tag-only pushes when nothing is ahead of upstream.
   const branch = tryOut("git rev-parse --abbrev-ref HEAD");
   const upstream = getUpstreamRef();
   const isMainBranch = branch === "main";
@@ -117,6 +119,18 @@ function runStandardChecksOrDie() {
   sh(`pwsh -NoProfile -ExecutionPolicy Bypass -File ${script} -SkipGreenFast`);
 }
 
+function tryForkPointBase(localSha) {
+  // Best base for "new remote ref" cases (remoteSha=0): find branch point.
+  // fork-point can fail if reflog data isn't present; that's fine.
+  const sha = String(localSha || "").trim();
+  if (!sha) return "";
+  const fp = tryOut(`git merge-base --fork-point origin/main ${sha}`);
+  if (fp) return fp;
+  const mb = tryOut(`git merge-base origin/main ${sha}`);
+  if (mb) return mb;
+  return "";
+}
+
 function listPushedFilesFromUpdates(updates) {
   // Best-effort: aggregate file list across all non-delete ref updates.
   const files = new Set();
@@ -127,11 +141,12 @@ function listPushedFilesFromUpdates(updates) {
   if (!meaningful.length) return [];
 
   for (const u of meaningful) {
+    const localSha = String(u.localSha || "").trim();
+    const remoteSha = String(u.remoteSha || "").trim();
+
     // If remoteSha is known (not all zeros), diff exactly remoteSha..localSha.
-    // If remoteSha is all zeros (new remote ref), we cannot know remote base.
-    // Fall back to upstream or HEAD~1 later.
-    if (!isAllZeroSha(u.remoteSha)) {
-      const names = tryOut(`git diff --name-only ${u.remoteSha}..${u.localSha}`)
+    if (localSha && remoteSha && !isAllZeroSha(remoteSha)) {
+      const names = tryOut(`git diff --name-only ${remoteSha}..${localSha}`)
         .split(/\r?\n/)
         .map((s) => s.trim())
         .filter(Boolean);
@@ -140,12 +155,14 @@ function listPushedFilesFromUpdates(updates) {
     }
 
     // New branch / new remote ref:
-    // best effort: if merge-base with origin/main exists, use that.
-    const mb = tryOut("git merge-base HEAD origin/main");
-    const base = mb ? mb : (tryOut("git rev-parse --verify HEAD~1") ? "HEAD~1" : "");
-    if (!base) continue;
+    // Prefer fork-point base against origin/main for narrower diffs.
+    const base =
+      tryForkPointBase(localSha) ||
+      (tryOut("git rev-parse --verify HEAD~1") ? "HEAD~1" : "");
 
-    const names = tryOut(`git diff --name-only ${base}..${u.localSha}`)
+    if (!base || !localSha) continue;
+
+    const names = tryOut(`git diff --name-only ${base}..${localSha}`)
       .split(/\r?\n/)
       .map((s) => s.trim())
       .filter(Boolean);
@@ -214,21 +231,36 @@ function classify(files) {
 
 /**
  * Single owner flow:
- * 1) Block main unless override.
- * 2) If no outgoing commits (upstream known) -> exit 0.
+ * 1) If no outgoing commits (upstream known) AND stdin missing -> exit 0 (avoid false blocks for tag-only pushes).
+ * 2) Block main unless override.
  * 3) For real pushes: push changeset guard -> standard checks.
  * 4) Route by diff surface (prefer real stdin ranges).
+ *
+ * Testing escape hatch:
+ *   $env:KOLOSSEUM_PREPUSH_FORCE="1"  # bypass no-op early exit to test routing locally
  */
 const updates = parsePushTargetsFromStdin();
-const pushingMain = computePushingMain(updates);
-
-requireMainPushOverrideOrDie(pushingMain);
-
 const upstream = getUpstreamRef();
 const outgoing = getOutgoingCommitCount(upstream);
 
-// No-op push should exit 0 without doing anything expensive.
-if (upstream && outgoing === 0) {
+const stdinMissing = updates.length === 0;
+const force = process.env.KOLOSSEUM_PREPUSH_FORCE === "1";
+
+// If stdin is missing and this is a no-op w.r.t upstream, exit early.
+// This prevents false "main push" blocks on tag-only pushes in broken stdin environments.
+if (!force && stdinMissing && upstream && outgoing === 0) {
+  console.log("[pre-push] no-op (0 outgoing commits; stdin missing) -> exit 0");
+  process.exit(0);
+}
+
+const pushingMain = computePushingMain(updates);
+
+// Main protection after early no-op short-circuit.
+requireMainPushOverrideOrDie(pushingMain);
+
+// General no-op exit (normal case): upstream known and no outgoing commits.
+// Keep it, but allow force for local simulation.
+if (!force && upstream && outgoing === 0) {
   console.log("[pre-push] no-op (0 outgoing commits) -> exit 0");
   process.exit(0);
 }
@@ -249,8 +281,7 @@ if (pushingMain && process.env.KOLOSSEUM_ALLOW_PUSH_MAIN === "1") {
 let files = null;
 
 if (updates.length) {
-  const fromUpdates = listPushedFilesFromUpdates(updates);
-  files = fromUpdates;
+  files = listPushedFilesFromUpdates(updates);
 } else {
   files = listPushedFilesFallback(upstream);
 }
