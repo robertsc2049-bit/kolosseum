@@ -51,7 +51,18 @@ if (-not (Test-Path -LiteralPath ".\examples\hello_world.json")) { Die "engine_r
 $env:KOLOSSEUM_CLEAN_TREE_STRICT = "1"
 
 # Canonical local smoke boundary (delegates to OS-agnostic Node smoke command)
-& node scripts/engine_smoke.mjs --fixture examples/hello_world.json
+# - Local default: build on (ensures a true "works from scratch" smoke)
+# - CI: build off (workflow likely already built; avoid double-build churn)
+$smokeArgs = @("scripts/engine_smoke.mjs", "--fixture", "examples/hello_world.json")
+
+if ($env:CI -and $env:CI.ToLowerInvariant() -eq "true") {
+  Write-Host "SMOKE_WRAPPER: CI=true -> adding --no-build"
+  $smokeArgs += "--no-build"
+} else {
+  Write-Host "SMOKE_WRAPPER: CI!=true -> build stays ON (default)"
+}
+
+& node @smokeArgs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 exit 0
