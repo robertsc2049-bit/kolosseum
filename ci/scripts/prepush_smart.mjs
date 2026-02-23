@@ -31,7 +31,9 @@ function isAllZeroSha(s) {
 }
 
 function readStdinUtf8() {
-  // Correct: read fd 0 (the hook stdin) directly.
+  // CRITICAL: never block on a console TTY.
+  // In real git hooks, stdin is a pipe with finite content. In local runs it is often a TTY.
+  if (process.stdin && process.stdin.isTTY) return "";
   try {
     return fs.readFileSync(0, "utf8");
   } catch {
@@ -205,9 +207,9 @@ function classify(files) {
     f.startsWith("cli/") ||
     f.includes("ENGINE_CONTRACT") ||
     f === "schema.sql" ||
-    f.startsWith("ci/") ||         // guards/scripts/manifests/schemas
-    f.startsWith("scripts/") ||    // release plumbing + guardrails
-    f.startsWith("tools/") ||      // toolchain affects determinism
+    f.startsWith("ci/") ||
+    f.startsWith("scripts/") ||
+    f.startsWith("tools/") ||
     f === "package.json" ||
     f === "package-lock.json" ||
     f === "tsconfig.json" ||
@@ -222,22 +224,63 @@ function classify(files) {
     f.includes("server") ||
     f.includes("apply-schema");
 
-  // Workflow-only is control-plane; handled separately.
-  const ENGINE_RISK = !WORKFLOW_ONLY && files.some(touchesEngine);
-  const APP_RISK = !ENGINE_RISK && !WORKFLOW_ONLY && files.some(touchesApp);
+  const WORKFLOW_ONLY_SAFE = WORKFLOW_ONLY;
+  const ENGINE_RISK = !WORKFLOW_ONLY_SAFE && files.some(touchesEngine);
+  const APP_RISK = !ENGINE_RISK && !WORKFLOW_ONLY_SAFE && files.some(touchesApp);
 
   return { DOC_ONLY, WORKFLOW_ONLY, ENGINE_RISK, APP_RISK };
 }
 
+function decideRoute(files) {
+  if (files === null) return { route: "dev:fast", reason: "cannot-determine-files" };
+  if (!files.length) return { route: "lint:fast", reason: "empty-file-list" };
+
+  const { DOC_ONLY, WORKFLOW_ONLY, ENGINE_RISK, APP_RISK } = classify(files);
+
+  if (DOC_ONLY) return { route: "lint:fast", reason: "docs-only" };
+  if (WORKFLOW_ONLY) return { route: "green:fast", reason: "workflow-only" };
+  if (ENGINE_RISK) return { route: "green:ci", reason: "engine-risk" };
+  if (APP_RISK) return { route: "dev:fast", reason: "app-risk" };
+  return { route: "lint:fast", reason: "non-risk" };
+}
+
+function printDryRunReport(state) {
+  const {
+    updates,
+    stdinMissing,
+    upstream,
+    outgoing,
+    pushingMain,
+    allowMain,
+    files,
+    decision,
+  } = state;
+
+  console.log("[pre-push][dry-run] enabled (no guards, no npm, no pwsh)");
+  console.log(`[pre-push][dry-run] stdin: ${stdinMissing ? "missing" : "present"} (${updates.length} update(s))`);
+  console.log(`[pre-push][dry-run] upstream: ${upstream || "(none)"}`);
+  console.log(`[pre-push][dry-run] outgoing: ${outgoing === null ? "(unknown)" : String(outgoing)}`);
+  console.log(`[pre-push][dry-run] pushingMain: ${pushingMain ? "yes" : "no"}`);
+  console.log(`[pre-push][dry-run] allowMain: ${allowMain ? "yes" : "no"}`);
+
+  if (files === null) {
+    console.log("[pre-push][dry-run] files: (null) cannot determine");
+  } else {
+    console.log(`[pre-push][dry-run] files: ${files.length}`);
+    for (const f of files) console.log(`[pre-push][dry-run]   ${f}`);
+  }
+
+  console.log(`[pre-push][dry-run] decision: ${decision.route} (${decision.reason})`);
+
+  if (pushingMain && !allowMain) {
+    console.log("[pre-push][dry-run] NOTE: would BLOCK main push (override not set).");
+  }
+}
+
 /**
  * Single owner flow:
- * 1) If no outgoing commits (upstream known) AND stdin missing -> exit 0 (avoid false blocks for tag-only pushes).
- * 2) Block main unless override.
- * 3) For real pushes: push changeset guard -> standard checks.
- * 4) Route by diff surface (prefer real stdin ranges).
- *
- * Testing escape hatch:
- *   $env:KOLOSSEUM_PREPUSH_FORCE="1"  # bypass no-op early exit to test routing locally
+ * - KOLOSSEUM_PREPUSH_DRYRUN=1: compute + print decisions only; exit 0.
+ * - KOLOSSEUM_PREPUSH_FORCE=1: bypass no-op exits for local simulation (non-dry-run).
  */
 const updates = parsePushTargetsFromStdin();
 const upstream = getUpstreamRef();
@@ -245,6 +288,30 @@ const outgoing = getOutgoingCommitCount(upstream);
 
 const stdinMissing = updates.length === 0;
 const force = process.env.KOLOSSEUM_PREPUSH_FORCE === "1";
+const dryRun = process.env.KOLOSSEUM_PREPUSH_DRYRUN === "1";
+
+const pushingMain = computePushingMain(updates);
+const allowMain = process.env.KOLOSSEUM_ALLOW_PUSH_MAIN === "1";
+
+let files = null;
+if (updates.length) files = listPushedFilesFromUpdates(updates);
+else files = listPushedFilesFallback(upstream);
+
+const decision = decideRoute(files);
+
+if (dryRun) {
+  printDryRunReport({
+    updates,
+    stdinMissing,
+    upstream,
+    outgoing,
+    pushingMain,
+    allowMain,
+    files,
+    decision,
+  });
+  process.exit(0);
+}
 
 // If stdin is missing and this is a no-op w.r.t upstream, exit early.
 // This prevents false "main push" blocks on tag-only pushes in broken stdin environments.
@@ -252,8 +319,6 @@ if (!force && stdinMissing && upstream && outgoing === 0) {
   console.log("[pre-push] no-op (0 outgoing commits; stdin missing) -> exit 0");
   process.exit(0);
 }
-
-const pushingMain = computePushingMain(updates);
 
 // Main protection after early no-op short-circuit.
 requireMainPushOverrideOrDie(pushingMain);
@@ -270,20 +335,10 @@ runPushChangesetGuardOrDie();
 runStandardChecksOrDie();
 
 // If this is a main push AND override is present, force green:ci and exit.
-// (We intentionally run standard checks first.)
 if (pushingMain && process.env.KOLOSSEUM_ALLOW_PUSH_MAIN === "1") {
   console.log("[pre-push] main push override detected -> forcing green:ci");
   sh("npm run green:ci");
   process.exit(0);
-}
-
-// Prefer exact push ranges from stdin when available.
-let files = null;
-
-if (updates.length) {
-  files = listPushedFilesFromUpdates(updates);
-} else {
-  files = listPushedFilesFallback(upstream);
 }
 
 if (files === null) {
