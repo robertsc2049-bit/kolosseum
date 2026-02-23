@@ -5,6 +5,27 @@ function Die([string]$Msg, [int]$Code = 1) {
   exit $Code
 }
 
+function Require-Tool([string]$Name) {
+  $cmd = Get-Command $Name -ErrorAction SilentlyContinue
+  if (-not $cmd) {
+    Die "engine_run_strict.ps1: required tool not found on PATH: $Name" 1
+  }
+
+  $src = ""
+  try { $src = $cmd.Source } catch { $src = "" }
+  if (-not $src) {
+    try { $src = $cmd.Path } catch { $src = "" }
+  }
+  if (-not $src) { $src = "<unknown>" }
+
+  Write-Host ("TOOL: {0} => {1}" -f $Name, $src)
+}
+
+# ---- tooling sanity (fail fast + print paths) ----
+Require-Tool "git"
+Require-Tool "npm"
+Require-Tool "node"
+
 # Resolve repo root (works from any CWD)
 try {
   $repo = (& git rev-parse --show-toplevel).Trim()
