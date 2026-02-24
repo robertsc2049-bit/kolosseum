@@ -49,29 +49,34 @@ function Invoke-ProcessWithTimeout {
     [Parameter(Mandatory=$true)][int]$TimeoutSeconds
   )
 
-  $psi = [System.Diagnostics.ProcessStartInfo]::new()
-  $psi.FileName = $FilePath
-  foreach ($a in $ArgumentList) { [void]$psi.ArgumentList.Add($a) }
-  $psi.UseShellExecute = $false
-  $psi.RedirectStandardOutput = $true
-  $psi.RedirectStandardError  = $true
-  $psi.CreateNoWindow = $true
-  $psi.WorkingDirectory = (Get-Location).Path
+  $wd = (Get-Location).Path
+  $outFile = Join-Path $env:TEMP ("kolosseum-devstatus-out-" + [guid]::NewGuid().ToString("n") + ".log")
+  $errFile = Join-Path $env:TEMP ("kolosseum-devstatus-err-" + [guid]::NewGuid().ToString("n") + ".log")
 
-  $p = [System.Diagnostics.Process]::new()
-  $p.StartInfo = $psi
-
+  $sw = [System.Diagnostics.Stopwatch]::StartNew()
   try {
+    $p = $null
     try {
-      if (-not $p.Start()) {
-        return [pscustomobject]@{ ok=$false; code=999; out=""; err="Failed to start: $FilePath" }
-      }
+      $p = Start-Process -FilePath $FilePath `
+        -ArgumentList $ArgumentList `
+        -WorkingDirectory $wd `
+        -NoNewWindow `
+        -PassThru `
+        -RedirectStandardOutput $outFile `
+        -RedirectStandardError  $errFile
     } catch {
       return [pscustomobject]@{ ok=$false; code=999; out=""; err=($_.Exception.Message) }
     }
 
-    $ok = $p.WaitForExit([Math]::Max(1,$TimeoutSeconds) * 1000)
-    if (-not $ok) {
+    $finished = $false
+    try {
+      $finished = $p.WaitForExit([Math]::Max(1,$TimeoutSeconds) * 1000)
+    } catch {
+      # If WaitForExit itself errors, treat as failure
+      $finished = $false
+    }
+
+    if (-not $finished) {
       try { $p.Kill($true) | Out-Null } catch { try { $p.Kill() | Out-Null } catch {} }
       return [pscustomobject]@{
         ok   = $false
@@ -81,13 +86,13 @@ function Invoke-ProcessWithTimeout {
       }
     }
 
-    $stdout = ""
-    $stderr = ""
-    try { $stdout = $p.StandardOutput.ReadToEnd().TrimEnd() } catch {}
-    try { $stderr = $p.StandardError.ReadToEnd().TrimEnd() } catch {}
-
     $code = 0
     try { $code = $p.ExitCode } catch { $code = 999 }
+
+    $stdout = ""
+    $stderr = ""
+    try { if (Test-Path -LiteralPath $outFile) { $stdout = ([System.IO.File]::ReadAllText($outFile)).TrimEnd() } } catch {}
+    try { if (Test-Path -LiteralPath $errFile) { $stderr = ([System.IO.File]::ReadAllText($errFile)).TrimEnd() } } catch {}
 
     return [pscustomobject]@{
       ok   = ($code -eq 0)
@@ -97,18 +102,15 @@ function Invoke-ProcessWithTimeout {
     }
   }
   finally {
-    try { $p.Dispose() } catch {}
+    $sw.Stop() | Out-Null
+    try { if (Test-Path -LiteralPath $outFile) { Remove-Item -LiteralPath $outFile -Force } } catch {}
+    try { if (Test-Path -LiteralPath $errFile) { Remove-Item -LiteralPath $errFile -Force } } catch {}
   }
 }
 
 function Resolve-GlobalNpmCmd {
-  # Use PowerShell resolver (works under ps-runner even if PATH is manipulated).
   $cmds = @()
-  try {
-    $cmds = @(Get-Command npm.cmd -All -ErrorAction SilentlyContinue)
-  } catch {
-    $cmds = @()
-  }
+  try { $cmds = @(Get-Command npm.cmd -All -ErrorAction SilentlyContinue) } catch { $cmds = @() }
 
   $paths = @()
   foreach ($c in $cmds) {
@@ -119,15 +121,9 @@ function Resolve-GlobalNpmCmd {
 
   if ($paths.Count -eq 0) { return "" }
 
-  foreach ($p in $paths) {
-    if ($p -ieq "C:\Program Files\nodejs\npm.cmd") { return $p }
-  }
+  foreach ($p in $paths) { if ($p -ieq "C:\Program Files\nodejs\npm.cmd") { return $p } }
+  foreach ($p in $paths) { if ($p -like "*\Program Files\nodejs\npm.cmd") { return $p } }
 
-  foreach ($p in $paths) {
-    if ($p -like "*\Program Files\nodejs\npm.cmd") { return $p }
-  }
-
-  # Fallback: first found.
   return $paths[0]
 }
 
