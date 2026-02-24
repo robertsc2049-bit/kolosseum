@@ -12,6 +12,7 @@ This file is **auto-generated** from `ci/guards/`.
 
 | Guard | @law | @severity | @scope | Description |
 |---|---|---|---|---|
+| `ci/guards/artefacts_map_guard.mjs` | Repo Hygiene | high | ci/guards + ci/artefacts |  |
 | `ci/guards/ascii_only_ci_guards_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/ban_direct_node_e_ref_guard.mjs` | Repo Governance | medium | repo | Policy: Invoke-NodeE is the ONLY allowed interface for ad-hoc Node from PowerShell. |
 | `ci/guards/ban_engine_src_imports_in_api_guard.mjs` | Runtime Boundary | high | engine |  |
