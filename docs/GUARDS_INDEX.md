@@ -45,3 +45,4 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/run_pipeline_contract_version_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/runtime-boundary.guard.ps1` | Repo Governance | medium | repo |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | Not a tag build -> no-op |
+| `ci/guards/workflow_policy_header_guard.mjs` | Repo Governance | medium | repo |  |
