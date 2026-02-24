@@ -102,44 +102,46 @@ function Invoke-ProcessWithTimeout {
 }
 
 function Resolve-GlobalNpmCmd {
-  # We want the real global npm shim, not repo-local PATH poison.
-  $lines = @()
+  # Use PowerShell resolver (works under ps-runner even if PATH is manipulated).
+  $cmds = @()
   try {
-    $lines = @(cmd.exe /d /s /c "where npm.cmd" 2^>^&1)
+    $cmds = @(Get-Command npm.cmd -All -ErrorAction SilentlyContinue)
   } catch {
-    return ""
+    $cmds = @()
   }
 
-  $candidates = @()
-  foreach ($l in $lines) {
-    $t = ($l | Out-String).Trim()
-    if ($t -and (Test-Path -LiteralPath $t)) { $candidates += $t }
+  $paths = @()
+  foreach ($c in $cmds) {
+    try {
+      if ($c -and $c.Source -and (Test-Path -LiteralPath $c.Source)) { $paths += $c.Source }
+    } catch {}
   }
 
-  if ($candidates.Count -eq 0) { return "" }
+  if ($paths.Count -eq 0) { return "" }
 
-  foreach ($c in $candidates) {
-    if ($c -like "*\Program Files\nodejs\npm.cmd") { return $c }
+  foreach ($p in $paths) {
+    if ($p -ieq "C:\Program Files\nodejs\npm.cmd") { return $p }
+  }
+
+  foreach ($p in $paths) {
+    if ($p -like "*\Program Files\nodejs\npm.cmd") { return $p }
   }
 
   # Fallback: first found.
-  return $candidates[0]
+  return $paths[0]
 }
 
 Write-Host "== Kolosseum Dev Status ==" -ForegroundColor Cyan
 
 $node = Invoke-ProcessWithTimeout -FilePath "node" -ArgumentList @("-v") -TimeoutSeconds 3
+Write-Host ("Node: " + ($node.ok ? $node.out : ("UNKNOWN" + ($node.err ? (" (" + $node.err + ")") : ""))))
 
 $npmCmd = Resolve-GlobalNpmCmd
 if (-not $npmCmd) {
-  Write-Host "npm : UNKNOWN (could not resolve npm.cmd via where)" -ForegroundColor Yellow
+  Write-Host "npm : UNKNOWN (could not resolve npm.cmd via Get-Command)" -ForegroundColor Yellow
 } else {
   $npm = Invoke-ProcessWithTimeout -FilePath $npmCmd -ArgumentList @("-v") -TimeoutSeconds 10
-  Write-Host ("Node: " + ($node.ok ? $node.out : ("UNKNOWN" + ($node.err ? (" (" + $node.err + ")") : ""))))
-  Write-Host ("npm : " + ($npm.ok  ? $npm.out  : ("UNKNOWN" + ($npm.err ? (" (" + $npm.err + ")") : ""))))
-}
-
-if ($npmCmd) {
+  Write-Host ("npm : " + ($npm.ok ? $npm.out : ("UNKNOWN" + ($npm.err ? (" (" + $npm.err + ")") : ""))))
   Write-Host ("npm.cmd (resolved): " + $npmCmd)
 }
 
