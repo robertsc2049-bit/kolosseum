@@ -15,7 +15,7 @@
                     "ci:parity":  "npm run ci",
                     "db:schema":  "node scripts/apply-schema.mjs",
                     "dev:check":  "npm run ci \u0026\u0026 npm run db:schema",
-                    "dev:fast":  "node ci/guards/green_entrypoint_guard.mjs \u0026\u0026 node ci/guards/clean_tree_guard.mjs \u0026\u0026 npm run lint:fast \u0026\u0026 npm run test:unit",
+                    "dev:fast":  "node ci/scripts/dev_fast.mjs",
                     "dev:next":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 node scripts/ps-runner.mjs --file scripts/dev-next.ps1",
                     "dev:next:full":  "node scripts/ps-runner.mjs --file scripts/dev-next.ps1 -- -Full",
                     "dev:panic":  "npm run repo:clean:hard \u0026\u0026 npm ci \u0026\u0026 npm run dev:fast",
