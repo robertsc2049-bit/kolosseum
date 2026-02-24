@@ -42,12 +42,11 @@ function Get-PortListeningFast([int]$Port) {
   } catch { return $false }
 }
 
-function Invoke-ExternalWithTimeout {
+function Invoke-ProcessWithTimeout {
   param(
     [Parameter(Mandatory=$true)][string]$FilePath,
     [Parameter(Mandatory=$false)][string[]]$ArgumentList = @(),
-    [Parameter(Mandatory=$true)][int]$TimeoutSeconds,
-    [switch]$Stream
+    [Parameter(Mandatory=$true)][int]$TimeoutSeconds
   )
 
   $psi = [System.Diagnostics.ProcessStartInfo]::new()
@@ -61,35 +60,10 @@ function Invoke-ExternalWithTimeout {
   $p = [System.Diagnostics.Process]::new()
   $p.StartInfo = $psi
 
-  $out = [System.Collections.Generic.List[string]]::new()
-  $err = [System.Collections.Generic.List[string]]::new()
-
   try {
-    $outHandler = [System.Diagnostics.DataReceivedEventHandler]{
-      param($sender, $e)
-      if ($null -ne $e.Data) {
-        $out.Add($e.Data) | Out-Null
-        if ($Stream) { Write-Host $e.Data }
-      }
-    }
-
-    $errHandler = [System.Diagnostics.DataReceivedEventHandler]{
-      param($sender, $e)
-      if ($null -ne $e.Data) {
-        $err.Add($e.Data) | Out-Null
-        if ($Stream) { Write-Host $e.Data -ForegroundColor DarkRed }
-      }
-    }
-
-    $p.add_OutputDataReceived($outHandler)
-    $p.add_ErrorDataReceived($errHandler)
-
     if (-not $p.Start()) {
       return [pscustomobject]@{ ok=$false; code=999; out=""; err="Failed to start: $FilePath" }
     }
-
-    $p.BeginOutputReadLine()
-    $p.BeginErrorReadLine()
 
     $ok = $p.WaitForExit([Math]::Max(1,$TimeoutSeconds) * 1000)
     if (-not $ok) {
@@ -97,13 +71,16 @@ function Invoke-ExternalWithTimeout {
       return [pscustomobject]@{
         ok   = $false
         code = 124
-        out  = ($out -join "`n").TrimEnd()
+        out  = ""
         err  = ("TIMEOUT after {0}s: {1} {2}" -f $TimeoutSeconds, $FilePath, ($ArgumentList -join " "))
       }
     }
 
-    # flush any last lines
-    Start-Sleep -Milliseconds 50
+    # safe now: process exited
+    $stdout = ""
+    $stderr = ""
+    try { $stdout = $p.StandardOutput.ReadToEnd().TrimEnd() } catch {}
+    try { $stderr = $p.StandardError.ReadToEnd().TrimEnd() } catch {}
 
     $code = 0
     try { $code = $p.ExitCode } catch { $code = 999 }
@@ -111,8 +88,8 @@ function Invoke-ExternalWithTimeout {
     return [pscustomobject]@{
       ok   = ($code -eq 0)
       code = $code
-      out  = ($out -join "`n").TrimEnd()
-      err  = ($err -join "`n").TrimEnd()
+      out  = $stdout
+      err  = $stderr
     }
   }
   finally {
@@ -122,11 +99,11 @@ function Invoke-ExternalWithTimeout {
 
 Write-Host "== Kolosseum Dev Status ==" -ForegroundColor Cyan
 
-$node = Invoke-ExternalWithTimeout -FilePath "node" -ArgumentList @("-v") -TimeoutSeconds 3
-$npm  = Invoke-ExternalWithTimeout -FilePath "npm"  -ArgumentList @("-v") -TimeoutSeconds 10
+$node = Invoke-ProcessWithTimeout -FilePath "node" -ArgumentList @("-v") -TimeoutSeconds 3
+$npm  = Invoke-ProcessWithTimeout -FilePath "npm"  -ArgumentList @("-v") -TimeoutSeconds 10
 
 Write-Host ("Node: " + ($node.ok ? $node.out : "UNKNOWN"))
-Write-Host ("npm : " + ($npm.ok  ? $npm.out  : "UNKNOWN"))
+Write-Host ("npm : " + ($npm.ok  ? $npm.out  : ("UNKNOWN" + ($npm.err ? (" (" + $npm.err + ")") : ""))))
 
 $wt = Get-WorkingTreeStatus
 Write-Host ("WORKING TREE: " + $wt)
@@ -148,12 +125,15 @@ Write-Host ("port 5432 free:       " + (-not $p5432))
 
 if ($Full) {
   Write-Host "== FULL: running verify ==" -ForegroundColor Cyan
-  $run = Invoke-ExternalWithTimeout -FilePath "npm" -ArgumentList @("run","verify") -TimeoutSeconds (60 * 15) -Stream
+  $run = Invoke-ProcessWithTimeout -FilePath "npm" -ArgumentList @("run","verify") -TimeoutSeconds (60 * 15)
+
+  if ($run.out) { Write-Host $run.out }
+  if ($run.err) { Write-Host $run.err -ForegroundColor DarkRed }
+
   if (-not $run.ok) {
-    if ($run.out) { Write-Host $run.out }
-    if ($run.err) { Write-Host $run.err -ForegroundColor Red }
     FAIL ("verify failed (exit={0})" -f $run.code)
   }
+
   OK "OK (full)"
 } else {
   OK "OK (status-only)"
