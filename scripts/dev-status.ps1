@@ -67,9 +67,7 @@ function Invoke-ProcessWithTimeout {
         return [pscustomobject]@{ ok=$false; code=999; out=""; err="Failed to start: $FilePath" }
       }
     } catch {
-      return [pscustomobject]@{
-        ok=$false; code=999; out=""; err=($_.Exception.Message)
-      }
+      return [pscustomobject]@{ ok=$false; code=999; out=""; err=($_.Exception.Message) }
     }
 
     $ok = $p.WaitForExit([Math]::Max(1,$TimeoutSeconds) * 1000)
@@ -103,20 +101,46 @@ function Invoke-ProcessWithTimeout {
   }
 }
 
+function Resolve-GlobalNpmCmd {
+  # We want the real global npm shim, not repo-local PATH poison.
+  $lines = @()
+  try {
+    $lines = @(cmd.exe /d /s /c "where npm.cmd" 2^>^&1)
+  } catch {
+    return ""
+  }
+
+  $candidates = @()
+  foreach ($l in $lines) {
+    $t = ($l | Out-String).Trim()
+    if ($t -and (Test-Path -LiteralPath $t)) { $candidates += $t }
+  }
+
+  if ($candidates.Count -eq 0) { return "" }
+
+  foreach ($c in $candidates) {
+    if ($c -like "*\Program Files\nodejs\npm.cmd") { return $c }
+  }
+
+  # Fallback: first found.
+  return $candidates[0]
+}
+
 Write-Host "== Kolosseum Dev Status ==" -ForegroundColor Cyan
 
-# Use explicit Windows shims where relevant.
-$node = Invoke-ProcessWithTimeout -FilePath "node"     -ArgumentList @("-v") -TimeoutSeconds 3
-$npm  = Invoke-ProcessWithTimeout -FilePath "npm.cmd"  -ArgumentList @("-v") -TimeoutSeconds 10
+$node = Invoke-ProcessWithTimeout -FilePath "node" -ArgumentList @("-v") -TimeoutSeconds 3
 
-Write-Host ("Node: " + ($node.ok ? $node.out : ("UNKNOWN" + ($node.err ? (" (" + $node.err + ")") : ""))))
-Write-Host ("npm : " + ($npm.ok  ? $npm.out  : ("UNKNOWN" + ($npm.err ? (" (" + $npm.err + ")") : ""))))
+$npmCmd = Resolve-GlobalNpmCmd
+if (-not $npmCmd) {
+  Write-Host "npm : UNKNOWN (could not resolve npm.cmd via where)" -ForegroundColor Yellow
+} else {
+  $npm = Invoke-ProcessWithTimeout -FilePath $npmCmd -ArgumentList @("-v") -TimeoutSeconds 10
+  Write-Host ("Node: " + ($node.ok ? $node.out : ("UNKNOWN" + ($node.err ? (" (" + $node.err + ")") : ""))))
+  Write-Host ("npm : " + ($npm.ok  ? $npm.out  : ("UNKNOWN" + ($npm.err ? (" (" + $npm.err + ")") : ""))))
+}
 
-if (-not $npm.ok) {
-  Write-Host "== DIAG: npm resolution ==" -ForegroundColor Yellow
-  try { Write-Host ("PATH: " + $env:PATH) } catch {}
-  try { Write-Host ("where npm:"); (cmd.exe /d /s /c "where npm" 2>&1) | ForEach-Object { Write-Host $_ } } catch {}
-  try { Write-Host ("where npm.cmd:"); (cmd.exe /d /s /c "where npm.cmd" 2>&1) | ForEach-Object { Write-Host $_ } } catch {}
+if ($npmCmd) {
+  Write-Host ("npm.cmd (resolved): " + $npmCmd)
 }
 
 $wt = Get-WorkingTreeStatus
@@ -139,7 +163,9 @@ Write-Host ("port 5432 free:       " + (-not $p5432))
 
 if ($Full) {
   Write-Host "== FULL: running verify ==" -ForegroundColor Cyan
-  $run = Invoke-ProcessWithTimeout -FilePath "npm.cmd" -ArgumentList @("run","verify") -TimeoutSeconds (60 * 15)
+  if (-not $npmCmd) { FAIL "verify failed: npm.cmd not resolvable" }
+
+  $run = Invoke-ProcessWithTimeout -FilePath $npmCmd -ArgumentList @("run","verify") -TimeoutSeconds (60 * 15)
 
   if ($run.out) { Write-Host $run.out }
   if ($run.err) { Write-Host $run.err -ForegroundColor DarkRed }
