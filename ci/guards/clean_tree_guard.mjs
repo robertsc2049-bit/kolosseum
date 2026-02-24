@@ -24,6 +24,16 @@ function git(args) {
 }
 
 function canSkipUnderGreen() {
+  // Policy:
+  // - We allow a "green nonce verified" skip to prevent redundant checks when GREEN orchestrates
+  //   many nested scripts.
+  // - BUT: callers may force enforcement even under GREEN by setting KOLOSSEUM_CLEAN_TREE_ENFORCE=1.
+  //
+  // This makes dev:fast able to behave like "standard checks" (fail on DIRTY) while still using
+  // the green-style nonce handshake for safety.
+
+  if (process.env.KOLOSSEUM_CLEAN_TREE_ENFORCE === "1") return false;
+
   // Only skip when invoked by GREEN with a nonce proven via a temp-file handshake.
   // This prevents accidental env poisoning (e.g., someone exporting KOLOSSEUM_GREEN_* manually).
   if (process.env.KOLOSSEUM_GREEN !== "1") return false;
@@ -148,7 +158,7 @@ if (unstaged.length) {
 if (stagedOnly.length) {
   const { limited, suffix } = renderList(stagedOnly);
   parts.push("");
-  parts.push("Staged entries:");
+  parts.push("Staged-only entries:");
   for (const l of limited) parts.push(" " + l);
   if (suffix) parts.push(suffix);
 
@@ -158,24 +168,12 @@ if (stagedOnly.length) {
     parts.push("Staged files (git diff --cached --name-only):");
     for (const f of stagedNames.split(/\r?\n/).filter(Boolean)) parts.push(" " + f);
   }
+
+  if (!strict) {
+    parts.push("");
+    parts.push("NOTE: staged-only is allowed in non-strict mode.");
+    parts.push("      To forbid staged changes too: set KOLOSSEUM_CLEAN_TREE_STRICT=1.");
+  }
 }
 
-parts.push("");
-parts.push("Fix:");
-
-if (untracked.length) {
-  parts.push("  - remove untracked files (or add them), OR");
-  parts.push("  - discard untracked with: git clean -fd");
-}
-
-if (unstaged.length) {
-  parts.push("  - stage what you intended, OR");
-  parts.push("  - discard with: git restore -- .");
-}
-
-if (strict && stagedOnly.length) {
-  parts.push("  - commit staged changes, OR");
-  parts.push("  - unstage with: git restore --staged -- .");
-}
-
-die(parts.join("\n").trimEnd(), 1);
+die(parts.join("\n"), 1);

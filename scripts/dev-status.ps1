@@ -127,7 +127,12 @@ function Resolve-GlobalNpmCmd {
   return $paths[0]
 }
 
-Write-Host "== Kolosseum Dev Status ==" -ForegroundColor Cyan
+Write-Host "== Kolosseum Dev Status ==
+env.KOLOSSEUM_GREEN:             
+env.KOLOSSEUM_GREEN_ENTRYPOINT:   
+env.KOLOSSEUM_CLEAN_TREE_ENFORCE: 
+env.KOLOSSEUM_CLEAN_TREE_STRICT:  
+env.KOLOSSEUM_DEV_FAST_STRICT:    " -ForegroundColor Cyan
 
 $node = Invoke-ProcessWithTimeout -FilePath "node" -ArgumentList @("-v") -TimeoutSeconds 3
 Write-Host ("Node: " + ($node.ok ? $node.out : ("UNKNOWN" + ($node.err ? (" (" + $node.err + ")") : ""))))

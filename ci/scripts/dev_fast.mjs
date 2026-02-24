@@ -136,8 +136,21 @@ function computeBaseHeadEnv() {
   };
 }
 
+function isStrict() {
+  // Default: allow staged-only changes so you can stage -> dev:fast -> commit.
+  // Opt-in strict: KOLOSSEUM_DEV_FAST_STRICT=1 forbids staged too.
+  return process.env.KOLOSSEUM_DEV_FAST_STRICT === "1";
+}
+
 // dev:fast exists to be a stable local entrypoint that still provides BASE/HEAD
 // so BASE/HEAD-aware guards (diff_line_endings_guard, etc.) never skip locally.
+//
+// Policy:
+// - Always FORCE clean_tree_guard to enforce (no green nonce skip), so it fails on:
+//   - untracked
+//   - unstaged drift
+// - Default allows staged-only (so you can run checks before commit).
+// - Optional strict mode forbids staged too.
 const { nonce, dir, file } = mkNonceHandshake();
 
 try {
@@ -150,18 +163,27 @@ try {
   ok(`dev:fast BASE_SHA=${BASE_SHA}`);
   ok(`dev:fast HEAD_SHA=${HEAD_SHA}`);
 
+  const strict = isStrict();
+
   const env = {
-    // Treat as a green-style authoritative entrypoint so green_entrypoint_guard passes,
-    // and nested clean_tree_guard calls can safely skip when nonce verified.
+    // Treat as a green-style authoritative entrypoint so green_entrypoint_guard passes.
     KOLOSSEUM_GREEN: "1",
     KOLOSSEUM_GREEN_NONCE: nonce,
     KOLOSSEUM_GREEN_NONCE_FILE: file,
     KOLOSSEUM_GREEN_ENTRYPOINT: "1",
 
+    // Enforce clean-tree even under green nonce (no "skip").
+    KOLOSSEUM_CLEAN_TREE_ENFORCE: "1",
+
+    // Optional strict clean-tree (forbid staged too).
+    ...(strict ? { KOLOSSEUM_CLEAN_TREE_STRICT: "1" } : {}),
+
     // Enables BASE/HEAD-aware guards locally.
     BASE_SHA,
     HEAD_SHA,
   };
+
+  ok(`dev:fast clean_tree: enforce=1 strict=${strict ? "1" : "0"}`);
 
   const steps = ["lint:fast", "test:unit"];
 
