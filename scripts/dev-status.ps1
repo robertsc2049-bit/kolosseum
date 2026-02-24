@@ -5,7 +5,6 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# UTF-8 output (no BOM) to avoid mojibake / console weirdness
 try {
   [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
   $script:OutputEncoding = [Console]::OutputEncoding
@@ -52,7 +51,6 @@ function Invoke-CmdWithTimeout {
 
   $psi = New-Object System.Diagnostics.ProcessStartInfo
   $psi.FileName = "cmd.exe"
-  # /d disables AutoRun, /s keeps quoting rules, /c executes then exits
   [void]$psi.ArgumentList.Add("/d")
   [void]$psi.ArgumentList.Add("/s")
   [void]$psi.ArgumentList.Add("/c")
@@ -77,7 +75,6 @@ function Invoke-CmdWithTimeout {
       return [pscustomobject]@{ ok=$false; code=999; out=""; err="Failed to start: $CmdLine" }
     }
 
-    # IMPORTANT: use Register-ObjectEvent so handlers execute on a Runspace (no PSInvalidOperationException)
     $subOut = Register-ObjectEvent -InputObject $p -EventName OutputDataReceived -Action {
       $line = $Event.SourceEventArgs.Data
       if ($null -ne $line) {
@@ -99,7 +96,7 @@ function Invoke-CmdWithTimeout {
 
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
     while (-not $p.HasExited) {
-      # Pump the event queue so OutputDataReceived/ErrorDataReceived actions run
+      # Always pump events so captured output works even when -Stream is off
       Wait-Event -Timeout 0.1 | Out-Null
 
       if ($sw.Elapsed.TotalSeconds -ge $TimeoutSeconds) {
@@ -113,7 +110,6 @@ function Invoke-CmdWithTimeout {
       }
     }
 
-    # Final pump to flush any last lines
     for ($i=0; $i -lt 10; $i++) { Wait-Event -Timeout 0.05 | Out-Null }
 
     $code = 0
@@ -127,12 +123,14 @@ function Invoke-CmdWithTimeout {
     }
   }
   finally {
-    if ($subOut) { try { Unregister-Event -SourceIdentifier $subOut.Name } catch {} }
-    if ($subErr) { try { Unregister-Event -SourceIdentifier $subErr.Name } catch {} }
+    # Unregister only what we created
+    if ($subOut) { try { Unregister-Event -SourceIdentifier $subOut.Name -Force } catch {} }
+    if ($subErr) { try { Unregister-Event -SourceIdentifier $subErr.Name -Force } catch {} }
 
-    # Clean up any queued events/subscribers to avoid leaks across runs
-    try { Get-EventSubscriber | Where-Object { $_.SourceObject -eq $p } | Unregister-Event -Force } catch {}
-    try { Remove-Event -ErrorAction SilentlyContinue } catch {}
+    # Remove queued events for those identifiers (non-interactive)
+    if ($subOut) { try { Remove-Event -SourceIdentifier $subOut.Name -ErrorAction SilentlyContinue } catch {} }
+    if ($subErr) { try { Remove-Event -SourceIdentifier $subErr.Name -ErrorAction SilentlyContinue } catch {} }
+
     try { $p.Dispose() } catch {}
   }
 }
@@ -172,12 +170,10 @@ function Invoke-ExternalWithTimeout {
   }
 }
 
-# ---------------- Main ----------------
-
 Write-Host "== Kolosseum Dev Status ==" -ForegroundColor Cyan
 
 $node = Invoke-ExternalWithTimeout -FilePath "node" -ArgumentList @("-v") -TimeoutSeconds 3
-$npm  = Invoke-CmdWithTimeout -CmdLine "npm -v" -TimeoutSeconds 3
+$npm  = Invoke-CmdWithTimeout -CmdLine "npm -v" -TimeoutSeconds 10
 
 Write-Host ("Node: " + ($node.ok ? $node.out : "UNKNOWN"))
 Write-Host ("npm : " + ($npm.ok  ? $npm.out  : "UNKNOWN"))
@@ -202,16 +198,12 @@ Write-Host ("port 5432 free:      " + (-not $p5432))
 
 if ($Full) {
   Write-Host "== FULL: running verify ==" -ForegroundColor Cyan
-
-  # stream to avoid “looks stuck” and avoid stdout pipe deadlocks
   $run = Invoke-CmdWithTimeout -CmdLine "npm run verify" -TimeoutSeconds (60 * 15) -Stream
-
   if (-not $run.ok) {
     if ($run.out) { Write-Host $run.out }
     if ($run.err) { Write-Host $run.err -ForegroundColor Red }
     FAIL ("verify failed (exit={0})" -f $run.code)
   }
-
   OK "OK (full)"
 } else {
   OK "OK (status-only)"
