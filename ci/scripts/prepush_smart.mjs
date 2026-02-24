@@ -58,6 +58,37 @@ function parsePushTargetsFromStdin() {
   return updates;
 }
 
+function sortUpdatesCanonical(updates) {
+  const arr = Array.isArray(updates) ? updates.slice() : [];
+  arr.sort((a, b) => {
+    const ar = String(a?.remoteRef || "");
+    const br = String(b?.remoteRef || "");
+    const c1 = ar.localeCompare(br);
+    if (c1 !== 0) return c1;
+
+    const al = String(a?.localRef || "");
+    const bl = String(b?.localRef || "");
+    const c2 = al.localeCompare(bl);
+    if (c2 !== 0) return c2;
+
+    const als = String(a?.localSha || "");
+    const bls = String(b?.localSha || "");
+    const c3 = als.localeCompare(bls);
+    if (c3 !== 0) return c3;
+
+    const ars = String(a?.remoteSha || "");
+    const brs = String(b?.remoteSha || "");
+    return ars.localeCompare(brs);
+  });
+  return arr;
+}
+
+function sortFilesLex(files) {
+  const arr = Array.isArray(files) ? files.slice() : [];
+  arr.sort((a, b) => String(a).localeCompare(String(b)));
+  return arr;
+}
+
 function getUpstreamRef() {
   // Safe from Node (no PowerShell @{u} mangling).
   return tryOut("git rev-parse --abbrev-ref --symbolic-full-name @{u}");
@@ -171,24 +202,29 @@ function listPushedFilesFromUpdates(updates) {
     for (const f of names) files.add(f);
   }
 
-  return Array.from(files);
+  // Deterministic output
+  return sortFilesLex(Array.from(files));
 }
 
 function listPushedFilesFallback(upstream) {
   // Fallback when stdin missing: approximate by upstream..HEAD, else HEAD~1..HEAD.
   if (upstream) {
-    return tryOut(`git diff --name-only ${upstream}..HEAD`)
-      .split(/\r?\n/)
-      .map((s) => s.trim())
-      .filter(Boolean);
+    return sortFilesLex(
+      tryOut(`git diff --name-only ${upstream}..HEAD`)
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    );
   }
 
   const hasHead1 = !!tryOut("git rev-parse --verify HEAD~1");
   if (hasHead1) {
-    return tryOut("git diff --name-only HEAD~1..HEAD")
-      .split(/\r?\n/)
-      .map((s) => s.trim())
-      .filter(Boolean);
+    return sortFilesLex(
+      tryOut("git diff --name-only HEAD~1..HEAD")
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    );
   }
 
   return null; // truly unknown (first commit / detached / shallow)
@@ -258,12 +294,15 @@ function dryRunPayload(state) {
 
   const wouldBlockMain = pushingMain && !allowMain;
 
+  const sortedUpdates = sortUpdatesCanonical(updates);
+  const sortedFiles = files === null ? null : sortFilesLex(files);
+
   return {
     mode: "dry-run",
     stdin: {
       present: !stdinMissing,
-      updates_count: updates.length,
-      updates,
+      updates_count: sortedUpdates.length,
+      updates: sortedUpdates,
     },
     git: {
       upstream: upstream || null,
@@ -274,7 +313,7 @@ function dryRunPayload(state) {
       allow_override: !!allowMain,
       would_block: !!wouldBlockMain,
     },
-    files: files === null ? null : files,
+    files: sortedFiles,
     decision,
   };
 }
@@ -338,7 +377,14 @@ let files = null;
 if (updates.length) files = listPushedFilesFromUpdates(updates);
 else files = listPushedFilesFallback(upstream);
 
-const decision = decideRoute(files);
+let decision = decideRoute(files);
+
+// Semantics tweak for dry-run (and generally more truthful classification):
+// If stdin is missing AND upstream is known AND outgoing is 0, we have no push context.
+// The runtime path exits early anyway; this makes dry-run reporting accurate.
+if (stdinMissing && upstream && outgoing === 0) {
+  decision = { route: "lint:fast", reason: "no-push-context" };
+}
 
 if (dryRun) {
   const payload = dryRunPayload({
