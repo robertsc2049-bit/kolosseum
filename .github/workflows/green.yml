@@ -1,3 +1,13 @@
+# ==========================================================
+# KOLOSSEUM WORKFLOW POLICY
+# ----------------------------------------------------------
+# green.yml
+# - Runs on:
+#     • pull_request (all branches)
+#     • push to main only
+# - Does NOT run on feature branch pushes by design.
+# - Heavy validation gate; feature pushes rely on local hook.
+# ==========================================================
 name: green
 
 on:

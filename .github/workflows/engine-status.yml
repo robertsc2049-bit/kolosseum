@@ -1,3 +1,13 @@
+# ==========================================================
+# KOLOSSEUM WORKFLOW POLICY
+# ----------------------------------------------------------
+# engine-status.yml
+# - Runs on:
+#     • push to ALL branches
+#     • pull_request
+# - Lightweight signal for feature branches.
+# - Complements (does not replace) green/ci gates.
+# ==========================================================
 name: engine-status
 
 on:
