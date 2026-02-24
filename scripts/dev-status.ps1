@@ -56,13 +56,20 @@ function Invoke-ProcessWithTimeout {
   $psi.RedirectStandardOutput = $true
   $psi.RedirectStandardError  = $true
   $psi.CreateNoWindow = $true
+  $psi.WorkingDirectory = (Get-Location).Path
 
   $p = [System.Diagnostics.Process]::new()
   $p.StartInfo = $psi
 
   try {
-    if (-not $p.Start()) {
-      return [pscustomobject]@{ ok=$false; code=999; out=""; err="Failed to start: $FilePath" }
+    try {
+      if (-not $p.Start()) {
+        return [pscustomobject]@{ ok=$false; code=999; out=""; err="Failed to start: $FilePath" }
+      }
+    } catch {
+      return [pscustomobject]@{
+        ok=$false; code=999; out=""; err=($_.Exception.Message)
+      }
     }
 
     $ok = $p.WaitForExit([Math]::Max(1,$TimeoutSeconds) * 1000)
@@ -76,7 +83,6 @@ function Invoke-ProcessWithTimeout {
       }
     }
 
-    # safe now: process exited
     $stdout = ""
     $stderr = ""
     try { $stdout = $p.StandardOutput.ReadToEnd().TrimEnd() } catch {}
@@ -99,11 +105,19 @@ function Invoke-ProcessWithTimeout {
 
 Write-Host "== Kolosseum Dev Status ==" -ForegroundColor Cyan
 
-$node = Invoke-ProcessWithTimeout -FilePath "node" -ArgumentList @("-v") -TimeoutSeconds 3
-$npm  = Invoke-ProcessWithTimeout -FilePath "npm"  -ArgumentList @("-v") -TimeoutSeconds 10
+# Use explicit Windows shims where relevant.
+$node = Invoke-ProcessWithTimeout -FilePath "node"     -ArgumentList @("-v") -TimeoutSeconds 3
+$npm  = Invoke-ProcessWithTimeout -FilePath "npm.cmd"  -ArgumentList @("-v") -TimeoutSeconds 10
 
-Write-Host ("Node: " + ($node.ok ? $node.out : "UNKNOWN"))
+Write-Host ("Node: " + ($node.ok ? $node.out : ("UNKNOWN" + ($node.err ? (" (" + $node.err + ")") : ""))))
 Write-Host ("npm : " + ($npm.ok  ? $npm.out  : ("UNKNOWN" + ($npm.err ? (" (" + $npm.err + ")") : ""))))
+
+if (-not $npm.ok) {
+  Write-Host "== DIAG: npm resolution ==" -ForegroundColor Yellow
+  try { Write-Host ("PATH: " + $env:PATH) } catch {}
+  try { Write-Host ("where npm:"); (cmd.exe /d /s /c "where npm" 2>&1) | ForEach-Object { Write-Host $_ } } catch {}
+  try { Write-Host ("where npm.cmd:"); (cmd.exe /d /s /c "where npm.cmd" 2>&1) | ForEach-Object { Write-Host $_ } } catch {}
+}
 
 $wt = Get-WorkingTreeStatus
 Write-Host ("WORKING TREE: " + $wt)
@@ -125,7 +139,7 @@ Write-Host ("port 5432 free:       " + (-not $p5432))
 
 if ($Full) {
   Write-Host "== FULL: running verify ==" -ForegroundColor Cyan
-  $run = Invoke-ProcessWithTimeout -FilePath "npm" -ArgumentList @("run","verify") -TimeoutSeconds (60 * 15)
+  $run = Invoke-ProcessWithTimeout -FilePath "npm.cmd" -ArgumentList @("run","verify") -TimeoutSeconds (60 * 15)
 
   if ($run.out) { Write-Host $run.out }
   if ($run.err) { Write-Host $run.err -ForegroundColor DarkRed }
