@@ -42,107 +42,15 @@ function Get-PortListeningFast([int]$Port) {
   } catch { return $false }
 }
 
-function Invoke-CmdWithTimeout {
-  param(
-    [Parameter(Mandatory=$true)][string]$CmdLine,
-    [Parameter(Mandatory=$true)][int]$TimeoutSeconds,
-    [switch]$Stream
-  )
-
-  $psi = New-Object System.Diagnostics.ProcessStartInfo
-  $psi.FileName = "cmd.exe"
-  [void]$psi.ArgumentList.Add("/d")
-  [void]$psi.ArgumentList.Add("/s")
-  [void]$psi.ArgumentList.Add("/c")
-  [void]$psi.ArgumentList.Add($CmdLine)
-  $psi.UseShellExecute = $false
-  $psi.RedirectStandardOutput = $true
-  $psi.RedirectStandardError  = $true
-  $psi.CreateNoWindow = $true
-
-  $p = New-Object System.Diagnostics.Process
-  $p.StartInfo = $psi
-  $p.EnableRaisingEvents = $true
-
-  $out = New-Object System.Collections.Generic.List[string]
-  $err = New-Object System.Collections.Generic.List[string]
-
-  $subOut = $null
-  $subErr = $null
-
-  try {
-    if (-not $p.Start()) {
-      return [pscustomobject]@{ ok=$false; code=999; out=""; err="Failed to start: $CmdLine" }
-    }
-
-    $subOut = Register-ObjectEvent -InputObject $p -EventName OutputDataReceived -Action {
-      $line = $Event.SourceEventArgs.Data
-      if ($null -ne $line) {
-        $script:out.Add($line) | Out-Null
-        if ($using:Stream) { Write-Host $line }
-      }
-    }
-
-    $subErr = Register-ObjectEvent -InputObject $p -EventName ErrorDataReceived -Action {
-      $line = $Event.SourceEventArgs.Data
-      if ($null -ne $line) {
-        $script:err.Add($line) | Out-Null
-        if ($using:Stream) { Write-Host $line -ForegroundColor DarkRed }
-      }
-    }
-
-    $p.BeginOutputReadLine()
-    $p.BeginErrorReadLine()
-
-    $sw = [System.Diagnostics.Stopwatch]::StartNew()
-    while (-not $p.HasExited) {
-      # Always pump events so captured output works even when -Stream is off
-      Wait-Event -Timeout 0.1 | Out-Null
-
-      if ($sw.Elapsed.TotalSeconds -ge $TimeoutSeconds) {
-        try { $p.Kill($true) | Out-Null } catch { try { $p.Kill() | Out-Null } catch {} }
-        return [pscustomobject]@{
-          ok  = $false
-          code = 124
-          out = ($out -join "`n").TrimEnd()
-          err = ("TIMEOUT after {0}s: {1}" -f $TimeoutSeconds, $CmdLine)
-        }
-      }
-    }
-
-    for ($i=0; $i -lt 10; $i++) { Wait-Event -Timeout 0.05 | Out-Null }
-
-    $code = 0
-    try { $code = $p.ExitCode } catch { $code = 999 }
-
-    return [pscustomobject]@{
-      ok  = ($code -eq 0)
-      code = $code
-      out = ($out -join "`n").TrimEnd()
-      err = ($err -join "`n").TrimEnd()
-    }
-  }
-  finally {
-    # Unregister only what we created
-    if ($subOut) { try { Unregister-Event -SourceIdentifier $subOut.Name -Force } catch {} }
-    if ($subErr) { try { Unregister-Event -SourceIdentifier $subErr.Name -Force } catch {} }
-
-    # Remove queued events for those identifiers (non-interactive)
-    if ($subOut) { try { Remove-Event -SourceIdentifier $subOut.Name -ErrorAction SilentlyContinue } catch {} }
-    if ($subErr) { try { Remove-Event -SourceIdentifier $subErr.Name -ErrorAction SilentlyContinue } catch {} }
-
-    try { $p.Dispose() } catch {}
-  }
-}
-
 function Invoke-ExternalWithTimeout {
   param(
     [Parameter(Mandatory=$true)][string]$FilePath,
     [Parameter(Mandatory=$false)][string[]]$ArgumentList = @(),
-    [Parameter(Mandatory=$true)][int]$TimeoutSeconds
+    [Parameter(Mandatory=$true)][int]$TimeoutSeconds,
+    [switch]$Stream
   )
 
-  $psi = New-Object System.Diagnostics.ProcessStartInfo
+  $psi = [System.Diagnostics.ProcessStartInfo]::new()
   $psi.FileName = $FilePath
   foreach ($a in $ArgumentList) { [void]$psi.ArgumentList.Add($a) }
   $psi.UseShellExecute = $false
@@ -150,22 +58,64 @@ function Invoke-ExternalWithTimeout {
   $psi.RedirectStandardError  = $true
   $psi.CreateNoWindow = $true
 
-  $p = New-Object System.Diagnostics.Process
+  $p = [System.Diagnostics.Process]::new()
   $p.StartInfo = $psi
 
+  $out = [System.Collections.Generic.List[string]]::new()
+  $err = [System.Collections.Generic.List[string]]::new()
+
   try {
-    if (-not $p.Start()) {
-      return [pscustomobject]@{ ok=$false; out=""; err="Failed to start: $FilePath" }
+    $outHandler = [System.Diagnostics.DataReceivedEventHandler]{
+      param($sender, $e)
+      if ($null -ne $e.Data) {
+        $out.Add($e.Data) | Out-Null
+        if ($Stream) { Write-Host $e.Data }
+      }
     }
-    $ok = $p.WaitForExit([Math]::Max(1,$TimeoutSeconds)*1000)
+
+    $errHandler = [System.Diagnostics.DataReceivedEventHandler]{
+      param($sender, $e)
+      if ($null -ne $e.Data) {
+        $err.Add($e.Data) | Out-Null
+        if ($Stream) { Write-Host $e.Data -ForegroundColor DarkRed }
+      }
+    }
+
+    $p.add_OutputDataReceived($outHandler)
+    $p.add_ErrorDataReceived($errHandler)
+
+    if (-not $p.Start()) {
+      return [pscustomobject]@{ ok=$false; code=999; out=""; err="Failed to start: $FilePath" }
+    }
+
+    $p.BeginOutputReadLine()
+    $p.BeginErrorReadLine()
+
+    $ok = $p.WaitForExit([Math]::Max(1,$TimeoutSeconds) * 1000)
     if (-not $ok) {
       try { $p.Kill($true) | Out-Null } catch { try { $p.Kill() | Out-Null } catch {} }
-      return [pscustomobject]@{ ok=$false; out=""; err=("TIMEOUT after {0}s: {1}" -f $TimeoutSeconds, $FilePath) }
+      return [pscustomobject]@{
+        ok   = $false
+        code = 124
+        out  = ($out -join "`n").TrimEnd()
+        err  = ("TIMEOUT after {0}s: {1} {2}" -f $TimeoutSeconds, $FilePath, ($ArgumentList -join " "))
+      }
     }
-    $stdout = $p.StandardOutput.ReadToEnd().Trim()
-    $stderr = $p.StandardError.ReadToEnd().Trim()
-    return [pscustomobject]@{ ok=($p.ExitCode -eq 0); out=$stdout; err=$stderr }
-  } finally {
+
+    # flush any last lines
+    Start-Sleep -Milliseconds 50
+
+    $code = 0
+    try { $code = $p.ExitCode } catch { $code = 999 }
+
+    return [pscustomobject]@{
+      ok   = ($code -eq 0)
+      code = $code
+      out  = ($out -join "`n").TrimEnd()
+      err  = ($err -join "`n").TrimEnd()
+    }
+  }
+  finally {
     try { $p.Dispose() } catch {}
   }
 }
@@ -173,7 +123,7 @@ function Invoke-ExternalWithTimeout {
 Write-Host "== Kolosseum Dev Status ==" -ForegroundColor Cyan
 
 $node = Invoke-ExternalWithTimeout -FilePath "node" -ArgumentList @("-v") -TimeoutSeconds 3
-$npm  = Invoke-CmdWithTimeout -CmdLine "npm -v" -TimeoutSeconds 10
+$npm  = Invoke-ExternalWithTimeout -FilePath "npm"  -ArgumentList @("-v") -TimeoutSeconds 10
 
 Write-Host ("Node: " + ($node.ok ? $node.out : "UNKNOWN"))
 Write-Host ("npm : " + ($npm.ok  ? $npm.out  : "UNKNOWN"))
@@ -181,24 +131,24 @@ Write-Host ("npm : " + ($npm.ok  ? $npm.out  : "UNKNOWN"))
 $wt = Get-WorkingTreeStatus
 Write-Host ("WORKING TREE: " + $wt)
 
-Write-Host ("git core.editor:     " + (Get-GitConfig "core.editor"))
-Write-Host ("git core.autocrlf:   " + (Get-GitConfig "core.autocrlf"))
-Write-Host ("git core.eol:        " + (Get-GitConfig "core.eol"))
-Write-Host ("git core.longpaths:  " + (Get-GitConfig "core.longpaths"))
-Write-Host ("git rerere.enabled:  " + (Get-GitConfig "rerere.enabled"))
-Write-Host ("git pull.rebase:     " + (Get-GitConfig "pull.rebase"))
-Write-Host ("git rebase.autoStash:" + (Get-GitConfig "rebase.autoStash"))
+Write-Host ("git core.editor:      " + (Get-GitConfig "core.editor"))
+Write-Host ("git core.autocrlf:    " + (Get-GitConfig "core.autocrlf"))
+Write-Host ("git core.eol:         " + (Get-GitConfig "core.eol"))
+Write-Host ("git core.longpaths:   " + (Get-GitConfig "core.longpaths"))
+Write-Host ("git rerere.enabled:   " + (Get-GitConfig "rerere.enabled"))
+Write-Host ("git pull.rebase:      " + (Get-GitConfig "pull.rebase"))
+Write-Host ("git rebase.autoStash: " + (Get-GitConfig "rebase.autoStash"))
 
 $p3000 = Get-PortListeningFast 3000
 $p5432 = Get-PortListeningFast 5432
-Write-Host ("port 3000 listening: " + $p3000)
-Write-Host ("port 3000 free:      " + (-not $p3000))
-Write-Host ("port 5432 listening: " + $p5432)
-Write-Host ("port 5432 free:      " + (-not $p5432))
+Write-Host ("port 3000 listening:  " + $p3000)
+Write-Host ("port 3000 free:       " + (-not $p3000))
+Write-Host ("port 5432 listening:  " + $p5432)
+Write-Host ("port 5432 free:       " + (-not $p5432))
 
 if ($Full) {
   Write-Host "== FULL: running verify ==" -ForegroundColor Cyan
-  $run = Invoke-CmdWithTimeout -CmdLine "npm run verify" -TimeoutSeconds (60 * 15) -Stream
+  $run = Invoke-ExternalWithTimeout -FilePath "npm" -ArgumentList @("run","verify") -TimeoutSeconds (60 * 15) -Stream
   if (-not $run.ok) {
     if ($run.out) { Write-Host $run.out }
     if ($run.err) { Write-Host $run.err -ForegroundColor Red }
