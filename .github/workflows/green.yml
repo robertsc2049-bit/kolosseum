@@ -1,17 +1,44 @@
+# ==========================================================
+# KOLOSSEUM WORKFLOW POLICY
+# ----------------------------------------------------------
+# green.yml
+# - Runs on:
+#     • pull_request (all branches)
+#     • push to main only
+# - Does NOT run on feature branch pushes by design.
+# - Heavy validation gate; feature pushes rely on local hook.
+# ==========================================================
 name: green
 
 on:
-  pull_request:
+  pull_request: {}
   push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: green-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   green:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
-      - run: npm run green:ci
+
+      - name: Install
+        run: npm ci
+
+      - name: Green (CI)
+        run: npm run green:ci

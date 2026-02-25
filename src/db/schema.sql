@@ -68,3 +68,11 @@ ALTER TABLE session_event_seq
   ALTER COLUMN next_seq SET DEFAULT 0;
 
 COMMIT;
+-- hard invariant: runtime_events.seq is strictly positive
+DO $$
+BEGIN
+  ALTER TABLE runtime_events
+    ADD CONSTRAINT runtime_events_seq_ge_1 CHECK (seq >= 1);
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;

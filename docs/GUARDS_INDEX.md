@@ -12,12 +12,13 @@ This file is **auto-generated** from `ci/guards/`.
 
 | Guard | @law | @severity | @scope | Description |
 |---|---|---|---|---|
+| `ci/guards/artefacts_map_guard.mjs` | Repo Hygiene | high | ci/guards + ci/artefacts |  |
 | `ci/guards/ascii_only_ci_guards_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/ban_direct_node_e_ref_guard.mjs` | Repo Governance | medium | repo | Policy: Invoke-NodeE is the ONLY allowed interface for ad-hoc Node from PowerShell. |
 | `ci/guards/ban_engine_src_imports_in_api_guard.mjs` | Runtime Boundary | high | engine |  |
 | `ci/guards/ban_engine_status_guard.mjs` | Runtime Boundary | high | engine |  |
 | `ci/guards/ban_set_content_utf8_guard.mjs` | Encoding Hygiene | high | repo |  |
-| `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | We explicitly allow *staged-only* changes. |
+| `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | We forbid: |
 | `ci/guards/diff_line_endings_guard.mjs` | Encoding Hygiene | high | repo |  |
 | `ci/guards/engine_contract_guard.mjs` | Runtime Boundary | high | engine | Content sanity: keeps accidental replacements from passing even if hash disabled later |
 | `ci/guards/engine_exports_types_guard.mjs` | Runtime Boundary | high | engine |  |
@@ -29,7 +30,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/green_entrypoint_guard.mjs` | CI Integrity | high | repo | Guard: prevent ad-hoc partial runs that can hide implicit writes. |
 | `ci/guards/guards_entrypoint_coverage_guard.mjs` | CI Integrity | high | repo |  |
 | `ci/guards/guards_index_guard.mjs` | Repo Governance | medium | repo | Locale-independent ASCII comparator. |
-| `ci/guards/lockfile_note_guard.mjs` | Repo Hygiene | high | repo |  |
+| `ci/guards/lockfile_note_guard.mjs` | LOCKFILE_NOTE | ERROR | REPO |  |
 | `ci/guards/no_bom_guard.mjs` | Encoding Hygiene | high | repo |  |
 | `ci/guards/no_crlf_guard.mjs` | Encoding Hygiene | high | repo |  |
 | `ci/guards/no_legacy_constraints.mjs` | Repo Governance | medium | repo | Only allow legacy keys in these explicit negative test fixtures. |
@@ -44,3 +45,4 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/run_pipeline_contract_version_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/runtime-boundary.guard.ps1` | Repo Governance | medium | repo |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | Not a tag build -> no-op |
+| `ci/guards/workflow_policy_header_guard.mjs` | Repo Governance | medium | repo |  |

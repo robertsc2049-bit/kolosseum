@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "groups": [
+    {
+      "id": "docs",
+      "kind": "DOC",
+      "patterns": ["docs/**", "**/*.md", "**/*.txt"]
+    },
+    {
+      "id": "workflows",
+      "kind": "WORKFLOW",
+      "patterns": [".github/workflows/**"]
+    },
+    {
+      "id": "control_plane",
+      "kind": "ENGINE_RISK",
+      "patterns": [
+        "ci/**",
+        "scripts/**",
+        "tools/**",
+        "package.json",
+        "package-lock.json",
+        "tsconfig.json",
+        ".npmrc",
+        ".nvmrc"
+      ]
+    },
+    {
+      "id": "engine_core",
+      "kind": "ENGINE_RISK",
+      "patterns": [
+        "engine/**",
+        "registries/**",
+        "cli/**",
+        "**/*ENGINE_CONTRACT*",
+        "schema.sql"
+      ]
+    },
+    {
+      "id": "app_core",
+      "kind": "APP_RISK",
+      "patterns": [
+        "src/**",
+        "api/**",
+        "db/**",
+        "migrations/**",
+        "**/*server*",
+        "**/*apply-schema*"
+      ]
+    }
+  ],
+  "decision": {
+    "when_docs_only": { "route": "lint:fast", "reason": "docs-only" },
+    "when_workflow_only": { "route": "green:fast", "reason": "workflow-only" },
+    "when_engine_risk": { "route": "green:ci", "reason": "engine-risk" },
+    "when_app_risk": { "route": "dev:fast", "reason": "app-risk" },
+    "default": { "route": "lint:fast", "reason": "non-risk" }
+  }
+}

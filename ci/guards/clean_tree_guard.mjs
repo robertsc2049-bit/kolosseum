@@ -24,6 +24,16 @@ function git(args) {
 }
 
 function canSkipUnderGreen() {
+  // Policy:
+  // - We allow a "green nonce verified" skip to prevent redundant checks when GREEN orchestrates
+  //   many nested scripts.
+  // - BUT: callers may force enforcement even under GREEN by setting KOLOSSEUM_CLEAN_TREE_ENFORCE=1.
+  //
+  // This makes dev:fast able to behave like "standard checks" (fail on DIRTY) while still using
+  // the green-style nonce handshake for safety.
+
+  if (process.env.KOLOSSEUM_CLEAN_TREE_ENFORCE === "1") return false;
+
   // Only skip when invoked by GREEN with a nonce proven via a temp-file handshake.
   // This prevents accidental env poisoning (e.g., someone exporting KOLOSSEUM_GREEN_* manually).
   if (process.env.KOLOSSEUM_GREEN !== "1") return false;
@@ -40,19 +50,28 @@ function canSkipUnderGreen() {
   }
 }
 
+function isStrict() {
+  // Strict means: no staged, no unstaged, no untracked.
+  // Default (non-strict): allow staged-only changes (X != ' ' and Y == ' ').
+  return process.env.KOLOSSEUM_CLEAN_TREE_STRICT === "1";
+}
+
 if (canSkipUnderGreen()) {
   ok("OK: clean_tree_guard (skipped: green nonce verified)");
   process.exit(0);
 }
 
-// We explicitly allow *staged-only* changes.
+const strict = isStrict();
+
 // We forbid:
 //  - untracked files (??)
 //  - unstaged changes in the working tree (Y column in porcelain is not space)
+// In strict mode we ALSO forbid:
+//  - staged changes (X column is not space)
 const porcelain = git(["status", "--porcelain=v1", "--untracked-files=normal"]).trimEnd();
 
 if (!porcelain) {
-  ok("OK: clean_tree_guard (WORKING TREE: CLEAN)");
+  ok(`OK: clean_tree_guard (WORKING TREE: CLEAN${strict ? "; strict" : ""})`);
   process.exit(0);
 }
 
@@ -85,8 +104,13 @@ for (const l of lines) {
   unstaged.push(l);
 }
 
-if (untracked.length === 0 && unstaged.length === 0) {
+if (!strict && untracked.length === 0 && unstaged.length === 0) {
   ok("OK: clean_tree_guard (WORKING TREE: CLEAN; staged changes allowed)");
+  process.exit(0);
+}
+
+if (strict && untracked.length === 0 && unstaged.length === 0 && stagedOnly.length === 0) {
+  ok("OK: clean_tree_guard (WORKING TREE: CLEAN; strict)");
   process.exit(0);
 }
 
@@ -96,10 +120,9 @@ function renderList(arr, limit = 200) {
   return { limited, suffix };
 }
 
-function safeGitDiffNameOnly() {
-  // Only meaningful when there are unstaged changes; ignore errors (guard should still fail on unstaged).
+function safeGitDiffNameOnly(args) {
   try {
-    const out = git(["diff", "--name-only"]).trimEnd();
+    const out = git(args).trimEnd();
     return out ? out : "";
   } catch {
     return "";
@@ -107,7 +130,7 @@ function safeGitDiffNameOnly() {
 }
 
 const parts = [];
-parts.push("\u274C clean_tree_guard: WORKING TREE: DIRTY");
+parts.push(`\u274C clean_tree_guard: WORKING TREE: DIRTY${strict ? " (strict)" : ""}`);
 
 if (untracked.length) {
   const { limited, suffix } = renderList(untracked);
@@ -124,7 +147,7 @@ if (unstaged.length) {
   for (const l of limited) parts.push(" " + l);
   if (suffix) parts.push(suffix);
 
-  const diffNames = safeGitDiffNameOnly();
+  const diffNames = safeGitDiffNameOnly(["diff", "--name-only"]);
   if (diffNames) {
     parts.push("");
     parts.push("Unstaged files (git diff --name-only):");
@@ -132,15 +155,25 @@ if (unstaged.length) {
   }
 }
 
-parts.push("");
-parts.push("Fix:");
-if (untracked.length) {
-  parts.push("  - remove untracked files (or add them), OR");
-  parts.push("  - discard untracked with: git clean -fd");
-}
-if (unstaged.length) {
-  parts.push("  - stage what you intended, OR");
-  parts.push("  - discard with: git restore -- .");
+if (stagedOnly.length) {
+  const { limited, suffix } = renderList(stagedOnly);
+  parts.push("");
+  parts.push("Staged-only entries:");
+  for (const l of limited) parts.push(" " + l);
+  if (suffix) parts.push(suffix);
+
+  const stagedNames = safeGitDiffNameOnly(["diff", "--cached", "--name-only"]);
+  if (stagedNames) {
+    parts.push("");
+    parts.push("Staged files (git diff --cached --name-only):");
+    for (const f of stagedNames.split(/\r?\n/).filter(Boolean)) parts.push(" " + f);
+  }
+
+  if (!strict) {
+    parts.push("");
+    parts.push("NOTE: staged-only is allowed in non-strict mode.");
+    parts.push("      To forbid staged changes too: set KOLOSSEUM_CLEAN_TREE_STRICT=1.");
+  }
 }
 
-die(parts.join("\n").trimEnd(), 1);
+die(parts.join("\n"), 1);
