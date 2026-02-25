@@ -67,6 +67,22 @@ CREATE TABLE IF NOT EXISTS session_event_seq (
 ALTER TABLE session_event_seq
   ALTER COLUMN next_seq SET DEFAULT 0;
 
+-- engine runs (append-only, used by /sessions/plan vertical slice)
+CREATE TABLE IF NOT EXISTS engine_runs (
+  id          text PRIMARY KEY,
+  kind        text NOT NULL,
+  input_hash  text NOT NULL,
+  input       jsonb NOT NULL,
+  output      jsonb NOT NULL,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS engine_runs_kind_created_at_idx
+  ON engine_runs(kind, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS engine_runs_input_hash_idx
+  ON engine_runs(input_hash);
+
 COMMIT;
 -- hard invariant: runtime_events.seq is strictly positive
 DO $$

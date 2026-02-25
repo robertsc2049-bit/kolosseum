@@ -4,11 +4,16 @@ import {
   startSession,
   appendRuntimeEvent,
   listRuntimeEvents,
-  getSessionState
+  getSessionState,
+  planSession
 } from "./sessions.handlers.js";
 
 export const sessionsRouter = Router();
 
+// Vertical slice: plan session via engine(dist)
+sessionsRouter.post("/plan", planSession);
+
+// Existing session runtime endpoints
 sessionsRouter.post("/:session_id/start", startSession);
 sessionsRouter.post("/:session_id/events", appendRuntimeEvent);
 sessionsRouter.get("/:session_id/events", listRuntimeEvents);
