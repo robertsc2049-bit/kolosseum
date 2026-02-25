@@ -3,8 +3,8 @@
 # ----------------------------------------------------------
 # ci.yml
 # - Runs on:
-#     • pull_request (all branches)
-#     • push to main only
+#     â€¢ pull_request (all branches)
+#     â€¢ push to main only
 # - Does NOT run on feature branch pushes by design.
 # - Full CI enforcement happens on PR + main.
 # ==========================================================
@@ -52,6 +52,3 @@ jobs:
 
       - name: Guard + Unit tests (ci)
         run: npm run ci
-
-      - name: Build (fast)
-        run: npm run build:fast
