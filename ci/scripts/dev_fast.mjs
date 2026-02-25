@@ -26,18 +26,19 @@ function mintNonce() {
   log("OK: dev:fast nonce minted");
 }
 
-function emitBaseHead() {
+function computeAndExportBaseHead() {
   log("");
   log("== DEV:FAST STEP: compute BASE/HEAD from upstream ==");
   log("");
 
   const r = resolveBaseHead();
 
-  if (r.upstream) {
-    log(`dev:fast upstream=${r.upstream}`);
-  } else {
-    log("dev:fast upstream=(none)");
-  }
+  // EXPORT to env so all child processes (lint/test/guards) can see it.
+  process.env.BASE_SHA = r.base;
+  process.env.HEAD_SHA = r.head;
+
+  if (r.upstream) log(`dev:fast upstream=${r.upstream}`);
+  else log("dev:fast upstream=(none)");
 
   log(`dev:fast BASE_SHA=${r.base}`);
   log(`dev:fast HEAD_SHA=${r.head}`);
@@ -45,7 +46,7 @@ function emitBaseHead() {
 
 function main() {
   mintNonce();
-  emitBaseHead();
+  computeAndExportBaseHead();
 
   const enforce = parseBoolEnv("DEV_FAST_ENFORCE_CLEAN_TREE", true) ? 1 : 0;
   const strict = parseBoolEnv("DEV_FAST_STRICT_CLEAN_TREE", false) ? 1 : 0;
