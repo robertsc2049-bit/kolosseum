@@ -106,7 +106,15 @@ async function allocNextSeq(client: any, session_id: string): Promise<number> {
     [session_id]
   );
 
-  return Number(r.rows?.[0]?.next_seq ?? 1);
+  const rowCount = Number(r?.rowCount ?? 0);
+if (rowCount !== 1) {
+  throw new Error(`allocNextSeq invariant violated: expected 1 row, got ${rowCount}`);
+}
+const nextSeq = Number(r.rows?.[0]?.next_seq);
+if (!Number.isFinite(nextSeq) || nextSeq < 1) {
+  throw new Error(`allocNextSeq invariant violated: invalid next_seq=${String(r.rows?.[0]?.next_seq)}`);
+}
+return nextSeq;
 }
 
 async function loadSessionForUpdate(client: any, session_id: string) {
