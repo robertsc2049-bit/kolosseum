@@ -60,9 +60,6 @@ jobs:
       - name: Guard + Unit tests (ci)
         run: npm run ci
 
-      - name: Build (fast)
-        run: npm run build:fast
-
       - name: Apply schema (drift guard)
         run: node scripts/apply-schema.mjs --db-url "${DATABASE_URL}"
 
