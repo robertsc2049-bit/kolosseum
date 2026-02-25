@@ -1,0 +1,81 @@
+name: runnable-v0
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "**/*.txt"
+      - "docs/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/PULL_REQUEST_TEMPLATE*"
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runnable-v0-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runnable_v0:
+    name: runnable-v0
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KOLOSSEUM_GREEN: "1"
+      KOLOSSEUM_GREEN_ENTRYPOINT: "ci"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build + runnable v0 smoke
+        run: |
+          npm run build:fast
+          node - <<'NODE'
+          const fs = require("fs");
+          const path = require("path");
+
+          const fixture = path.join(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
+          if (!fs.existsSync(fixture)) throw new Error("Missing fixture: " + fixture);
+
+          const input = JSON.parse(fs.readFileSync(fixture, "utf8"));
+
+          const runner = path.join(process.cwd(), "dist", "src", "run_pipeline.js");
+          if (!fs.existsSync(runner)) throw new Error("Missing dist runner: " + runner);
+
+          const mod = require(runner);
+          const fn = mod.runPipeline || (mod.default && mod.default.runPipeline);
+          if (!fn) throw new Error("Missing export runPipeline in " + runner);
+
+          Promise.resolve(fn(input)).then((out) => {
+            if (!out || out.ok !== true) {
+              console.error("Unexpected output (ok !== true):");
+              console.error(JSON.stringify(out, null, 2));
+              process.exit(2);
+            }
+
+            if (!out.session || !Array.isArray(out.session.exercises) || out.session.exercises.length < 1) {
+              console.error("Unexpected output (missing session.exercises):");
+              console.error(JSON.stringify(out, null, 2));
+              process.exit(3);
+            }
+
+            console.log("OK: runnable v0 smoke (runPipeline + vanilla_minimal)");
+          }).catch((e) => {
+            console.error(e && e.stack ? e.stack : String(e));
+            process.exit(1);
+          });
+          NODE
