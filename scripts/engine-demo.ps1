@@ -69,22 +69,21 @@ if (-not ($fixturePath.ToLower().EndsWith(".json"))) {
   throw "Fixture must be .json for now. Pass a .json fixture via -Fixture."
 }
 
-$raw = Get-Content -LiteralPath $fixturePath -Raw -Encoding UTF8
-$inputObj = $raw | ConvertFrom-Json
-
-# Execute in-process via Node so we match CI runner shape
-# - We call dist/src/run_pipeline.js::runPipeline directly
-# - We stringify output deterministically
+# Execute via Node, but require dist using an absolute path (temp script runs from %TEMP%)
 $node = @"
 const fs = require("fs");
+const path = require("path");
 
 (async () => {
-  const input = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
-  const mod = require("./dist/src/run_pipeline.js");
+  const fixturePath = process.argv[2];
+  const input = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
+
+  const runnerPath = path.join(process.cwd(), "dist", "src", "run_pipeline.js");
+  const mod = require(runnerPath);
   const fn = mod.runPipeline || (mod.default && mod.default.runPipeline);
 
   if (!fn) {
-    console.error("Missing export: runPipeline in dist/src/run_pipeline.js");
+    console.error("Missing export: runPipeline in " + runnerPath);
     process.exit(2);
   }
 
