@@ -34,5 +34,34 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Engine demo
-        run: npm run engine:demo
+      - name: Build + runnable v0 smoke
+        run: |
+          npm run build:fast
+          node - <<'NODE'
+          const fs = require("fs");
+          const path = require("path");
+
+          const fixture = path.join(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
+          if (!fs.existsSync(fixture)) throw new Error("Missing fixture: " + fixture);
+
+          const input = JSON.parse(fs.readFileSync(fixture, "utf8"));
+
+          const runner = path.join(process.cwd(), "dist", "src", "run_pipeline.js");
+          if (!fs.existsSync(runner)) throw new Error("Missing dist runner: " + runner);
+
+          const mod = require(runner);
+          const fn = mod.runPipeline || (mod.default && mod.default.runPipeline);
+          if (!fn) throw new Error("Missing export runPipeline in " + runner);
+
+          Promise.resolve(fn(input)).then((out) => {
+            if (!out || out.ok !== true) {
+              console.error("Unexpected output:");
+              console.error(JSON.stringify(out, null, 2));
+              process.exit(2);
+            }
+            console.log("OK: runnable v0 smoke (runPipeline + vanilla_minimal)");
+          }).catch((e) => {
+            console.error(e && e.stack ? e.stack : String(e));
+            process.exit(1);
+          });
+          NODE
