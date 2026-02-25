@@ -8,16 +8,16 @@ function sh(cmd, opts = {}) {
   }).trim();
 }
 
-function shOk(cmd) {
+function shOk(cmd, opts = {}) {
   try {
-    sh(cmd);
+    sh(cmd, opts);
     return true;
   } catch {
     return false;
   }
 }
 
-function log(line) {
+function log(line = "") {
   process.stdout.write(line + "\n");
 }
 
@@ -46,7 +46,7 @@ function ensureOriginBranch(baseBranch) {
   log(`green:fast missing origin/${baseBranch} -> fetching...`);
 
   // Fetch only the base branch into the remote-tracking ref.
-  // Use a shallow fetch (depth=1) because we only need merge-base with HEAD.
+  // Start shallow; we may deepen if merge-base needs history.
   sh(
     `git fetch --no-tags --prune --depth=1 origin +refs/heads/${baseBranch}:refs/remotes/origin/${baseBranch}`,
     { stdio: ["ignore", "pipe", "pipe"] }
@@ -55,6 +55,39 @@ function ensureOriginBranch(baseBranch) {
   if (!shOk(`git show-ref --verify --quiet ${ref}`)) {
     throw new Error(`green:fast failed to materialize origin/${baseBranch} (${ref})`);
   }
+}
+
+function deepenForMergeBase(baseBranch) {
+  // Deepen both HEAD history (as seen by the runner) and origin/<baseBranch>.
+  // In PR merge refs, fetch-depth=1 is common; merge-base can fail without ancestry.
+  log(`green:fast merge-base failed -> deepening fetch... (origin/${baseBranch})`);
+
+  // Try deepen first (cheap).
+  shOk(
+    `git fetch --no-tags --prune --deepen=200 origin +refs/heads/${baseBranch}:refs/remotes/origin/${baseBranch}`,
+    { stdio: ["ignore", "pipe", "pipe"] }
+  );
+
+  // If still shallow, unshallow (most reliable). This is a no-op if already complete.
+  shOk(`git fetch --no-tags --prune --unshallow origin`, { stdio: ["ignore", "pipe", "pipe"] });
+
+  // Re-ensure origin/<baseBranch> exists after any fetch.
+  ensureOriginBranch(baseBranch);
+}
+
+function mergeBaseWithRetry(headRef, baseBranch) {
+  const baseRef = `origin/${baseBranch}`;
+
+  // Attempt 1
+  try {
+    return sh(`git merge-base ${headRef} ${baseRef}`);
+  } catch {
+    // Deepen/unshallow and retry once.
+    deepenForMergeBase(baseBranch);
+  }
+
+  // Attempt 2
+  return sh(`git merge-base ${headRef} ${baseRef}`);
 }
 
 function resolveBaseHead() {
@@ -90,7 +123,7 @@ function resolveBaseHead() {
     log(`green:fast baseRef=origin/${baseBranch}`);
 
     const headSha = sh("git rev-parse HEAD");
-    const baseSha = sh(`git merge-base HEAD origin/${baseBranch}`);
+    const baseSha = mergeBaseWithRetry("HEAD", baseBranch);
 
     process.env.BASE_SHA = baseSha;
     process.env.HEAD_SHA = headSha;
@@ -114,7 +147,6 @@ function resolveBaseHead() {
 }
 
 function main() {
-  // Keep existing output cadence your logs depend on.
   log("");
   log("== GREEN:FAST STEP: nonce handshake (mint + verify) ==");
   log("");
@@ -124,14 +156,7 @@ function main() {
   // This is where CI was dying.
   resolveBaseHead();
 
-  // The rest of green:fast is unchanged: call through to existing scripts/commands.
-  // If your repo already drives the remaining steps from this script, keep that logic below.
-  // We intentionally avoid guessing the rest of your pipeline here.
-  //
-  // IMPORTANT: If your previous green_fast.mjs had additional steps, re-add them below.
-  //
-  // In your repo, "green:fast" already runs lint/test/build via npm scripts,
-  // so green_fast.mjs usually only sets BASE/HEAD and orchestrates those steps.
+  // NOTE: Orchestration remains owned by npm scripts in this repo.
 }
 
 try {
