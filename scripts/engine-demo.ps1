@@ -10,10 +10,7 @@ function Find-VanillaMinimal {
     "ci/fixtures",
     "test",
     "ci",
-    "fixtures",
-    "ci/scripts",
-    "ci/fixtures",
-    "test/fixtures"
+    "fixtures"
   ) | Select-Object -Unique
 
   $hits = @()
@@ -32,7 +29,6 @@ function Find-VanillaMinimal {
     } catch {}
   }
 
-  # Prefer json/jsonc over txt, and shorter paths (more "canonical")
   $hits = $hits |
     Sort-Object @{
       Expression = { if ($_.Extension -match '\.jsonc?$') { 0 } else { 1 } }
@@ -47,12 +43,12 @@ function Find-VanillaMinimal {
 }
 
 function Pick-Fixture([string]$maybe) {
-  if ($maybe -and (Test-Path -LiteralPath $maybe)) { return $maybe }
+  if ($maybe -and (Test-Path -LiteralPath $maybe)) { return (Resolve-Path -LiteralPath $maybe).Path }
 
   $hits = Find-VanillaMinimal
   if ($hits.Count -gt 0) { return $hits[0].FullName }
 
-  throw "No default fixture found. Pass -Fixture <path>. Also ensure a file named like 'vanilla_minimal.*' exists under test/fixtures or ci/fixtures."
+  throw "No default fixture found. Pass -Fixture <path>."
 }
 
 $fixturePath = Pick-Fixture $Fixture
@@ -63,9 +59,48 @@ Write-Host ""
 
 npm run build:fast
 
-$cli = "dist/src/run_pipeline_cli_file.js"
-if (-not (Test-Path -LiteralPath $cli)) {
-  throw "Missing $cli. build:fast should produce it."
+$runner = "dist/src/run_pipeline.js"
+if (-not (Test-Path -LiteralPath $runner)) {
+  throw "Missing $runner. build:fast should produce it."
 }
 
-node $cli --in $fixturePath
+# Load fixture JSON (jsonc/txt not supported yet—enforce json)
+if (-not ($fixturePath.ToLower().EndsWith(".json"))) {
+  throw "Fixture must be .json for now. Pass a .json fixture via -Fixture."
+}
+
+$raw = Get-Content -LiteralPath $fixturePath -Raw -Encoding UTF8
+$inputObj = $raw | ConvertFrom-Json
+
+# Execute in-process via Node so we match CI runner shape
+# - We call dist/src/run_pipeline.js::runPipeline directly
+# - We stringify output deterministically
+$node = @"
+const fs = require("fs");
+
+(async () => {
+  const input = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+  const mod = require("./dist/src/run_pipeline.js");
+  const fn = mod.runPipeline || (mod.default && mod.default.runPipeline);
+
+  if (!fn) {
+    console.error("Missing export: runPipeline in dist/src/run_pipeline.js");
+    process.exit(2);
+  }
+
+  const out = await fn(input);
+  process.stdout.write(JSON.stringify(out, null, 2) + "\n");
+})().catch((e) => {
+  console.error(e && e.stack ? e.stack : String(e));
+  process.exit(1);
+});
+"@
+
+$tmp = Join-Path $env:TEMP ("kolosseum_engine_demo_" + [Guid]::NewGuid().ToString("N") + ".cjs")
+[System.IO.File]::WriteAllText($tmp, $node, (New-Object System.Text.UTF8Encoding($false)))
+
+try {
+  node $tmp $fixturePath
+} finally {
+  Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
+}
