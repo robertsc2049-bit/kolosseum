@@ -1,7 +1,13 @@
-name: engine-demo
+name: runnable-v0
 
 on:
   pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "**/*.txt"
+      - "docs/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/PULL_REQUEST_TEMPLATE*"
   push:
     branches:
       - main
@@ -11,11 +17,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: engine-demo-${{ github.ref }}
+  group: runnable-v0-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  engine_demo:
+  runnable_v0:
+    name: runnable-v0
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -55,10 +62,17 @@ jobs:
 
           Promise.resolve(fn(input)).then((out) => {
             if (!out || out.ok !== true) {
-              console.error("Unexpected output:");
+              console.error("Unexpected output (ok !== true):");
               console.error(JSON.stringify(out, null, 2));
               process.exit(2);
             }
+
+            if (!out.session || !Array.isArray(out.session.exercises) || out.session.exercises.length < 1) {
+              console.error("Unexpected output (missing session.exercises):");
+              console.error(JSON.stringify(out, null, 2));
+              process.exit(3);
+            }
+
             console.log("OK: runnable v0 smoke (runPipeline + vanilla_minimal)");
           }).catch((e) => {
             console.error(e && e.stack ? e.stack : String(e));
