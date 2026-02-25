@@ -65,7 +65,7 @@
                     "test:unit":  "node ci/guards/green_entrypoint_guard.mjs \u0026\u0026 node ci/guards/clean_tree_guard.mjs \u0026\u0026 npm run test:ci",
                     "test:watch":  "node --test --watch",
                     "green":  "node ci/scripts/green_fast.mjs",
-                    "green:ci":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 npm run guard:constraints \u0026\u0026 npm run guard:version \u0026\u0026 npm run green \u0026\u0026 npm run e2e:golden",
+                    "green:ci":  "node ci/guards/clean_tree_guard.mjs \u0026\u0026 npm run guard:constraints \u0026\u0026 npm run guard:version \u0026\u0026 npm run green \u0026\u0026 npm run build:fast \u0026\u0026 npm run e2e:golden",
                     "engine:export":  "npm run build:fast \u0026\u0026 node dist/src/run_pipeline_cli.js --outdir out",
                     "engine:events":  "npm run build:fast \u0026\u0026 node dist/src/session_runtime_cli.js",
                     "engine:shim:check":  "node scripts/engine_pkg_dist_sync.mjs --write \u0026\u0026 node scripts/engine_shim_sync.mjs --check",
