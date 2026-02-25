@@ -4,23 +4,55 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Find-VanillaMinimal {
+  $roots = @(
+    "test/fixtures",
+    "ci/fixtures",
+    "test",
+    "ci",
+    "fixtures",
+    "ci/scripts",
+    "ci/fixtures",
+    "test/fixtures"
+  ) | Select-Object -Unique
+
+  $hits = @()
+
+  foreach ($r in $roots) {
+    if (-not (Test-Path -LiteralPath $r)) { continue }
+
+    try {
+      $found = Get-ChildItem -LiteralPath $r -Recurse -File -ErrorAction SilentlyContinue |
+        Where-Object {
+          $_.Name -match 'vanilla[_-]?minimal' -and $_.Extension -match '^\.(json|jsonc|txt)$'
+        } |
+        Select-Object -First 25
+
+      if ($found) { $hits += $found }
+    } catch {}
+  }
+
+  # Prefer json/jsonc over txt, and shorter paths (more "canonical")
+  $hits = $hits |
+    Sort-Object @{
+      Expression = { if ($_.Extension -match '\.jsonc?$') { 0 } else { 1 } }
+    }, @{
+      Expression = { $_.FullName.Length }
+    }, @{
+      Expression = { $_.FullName }
+    } |
+    Select-Object -Unique
+
+  return $hits
+}
+
 function Pick-Fixture([string]$maybe) {
   if ($maybe -and (Test-Path -LiteralPath $maybe)) { return $maybe }
 
-  $candidates = @(
-    "test/fixtures/vanilla_minimal.json",
-    "ci/fixtures/vanilla_minimal.json",
-    "test/fixtures/vanilla_minimal.jsonc",
-    "ci/fixtures/vanilla_minimal.jsonc",
-    "test/fixtures/vanilla_minimal.txt",
-    "ci/fixtures/vanilla_minimal.txt"
-  )
+  $hits = Find-VanillaMinimal
+  if ($hits.Count -gt 0) { return $hits[0].FullName }
 
-  foreach ($c in $candidates) {
-    if (Test-Path -LiteralPath $c) { return $c }
-  }
-
-  throw "No default fixture found. Pass -Fixture <path>. Tried: $($candidates -join ', ')"
+  throw "No default fixture found. Pass -Fixture <path>. Also ensure a file named like 'vanilla_minimal.*' exists under test/fixtures or ci/fixtures."
 }
 
 $fixturePath = Pick-Fixture $Fixture
@@ -29,13 +61,11 @@ Write-Host "== engine demo =="
 Write-Host "fixture: $fixturePath"
 Write-Host ""
 
-# Build deterministic dist (fast)
 npm run build:fast
 
-# Prefer the file-based CLI runner you just merged in
 $cli = "dist/src/run_pipeline_cli_file.js"
 if (-not (Test-Path -LiteralPath $cli)) {
-  throw "Missing $cli. build:fast should produce it. If it moved, update this script once and we're done."
+  throw "Missing $cli. build:fast should produce it."
 }
 
 node $cli --in $fixturePath
