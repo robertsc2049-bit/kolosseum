@@ -302,7 +302,7 @@ export async function compileBlock(req: Request, res: Response) {
         await client.query(
           `
           INSERT INTO session_event_seq (session_id, next_seq)
-          VALUES ($1, 1)
+          VALUES ($1, 0)
           ON CONFLICT (session_id) DO NOTHING
           `,
           [session_id]
@@ -407,7 +407,7 @@ export async function createSessionFromBlock(req: Request, res: Response) {
       await pool.query(
         `
         INSERT INTO session_event_seq (session_id, next_seq)
-        VALUES ($1, 1)
+        VALUES ($1, 0)
         ON CONFLICT (session_id) DO NOTHING
         `,
         [session_id]
