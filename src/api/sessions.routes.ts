@@ -1,5 +1,6 @@
 // src/api/sessions.routes.ts
 import { Router } from "express";
+import { asyncHandler } from "./async_handler.js";
 import {
   startSession,
   appendRuntimeEvent,
@@ -11,10 +12,10 @@ import {
 export const sessionsRouter = Router();
 
 // Vertical slice: plan session via engine(dist)
-sessionsRouter.post("/plan", planSession);
+sessionsRouter.post("/plan", asyncHandler(planSession));
 
 // Existing session runtime endpoints
-sessionsRouter.post("/:session_id/start", startSession);
-sessionsRouter.post("/:session_id/events", appendRuntimeEvent);
-sessionsRouter.get("/:session_id/events", listRuntimeEvents);
-sessionsRouter.get("/:session_id/state", getSessionState);
+sessionsRouter.post("/:session_id/start", asyncHandler(startSession));
+sessionsRouter.post("/:session_id/events", asyncHandler(appendRuntimeEvent));
+sessionsRouter.get("/:session_id/events", asyncHandler(listRuntimeEvents));
+sessionsRouter.get("/:session_id/state", asyncHandler(getSessionState));
