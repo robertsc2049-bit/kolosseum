@@ -7,14 +7,19 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import fs from "node:fs";
 
-// Canonical semantics + summary normalization live in engine runtime.
-// API is a thin wrapper: validate wire event -> map -> reducer -> persist snapshot.
 import {
   applyWireEvent,
   deriveTrace,
   normalizeSummary,
   validateWireRuntimeEvent
 } from "@kolosseum/engine/runtime/session_summary.js";
+
+import {
+  badRequest,
+  notFound,
+  upstreamBadGateway,
+  internalError
+} from "./http_errors.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -26,52 +31,32 @@ function asString(v: unknown): string | undefined {
   return typeof v === "string" && v.length > 0 ? v : undefined;
 }
 
-function pgErrorMessage(err: unknown): string {
-  if (err && typeof err === "object") {
-    const anyErr = err as any;
-    if (typeof anyErr.detail === "string" && anyErr.detail.length > 0) return anyErr.detail;
-    if (typeof anyErr.message === "string" && anyErr.message.length > 0) return anyErr.message;
-  }
-  return String(err);
-}
-
-/**
- * ---------------------------
- * Vertical slice: plan session
- * POST /sessions/plan
- * ---------------------------
- *
- * - Calls dist runner (never engine src)
- * - Returns engine output
- * - Persists input/output row in engine_runs (best-effort)
- */
-
 function sha256Hex(s: string): string {
   return crypto.createHash("sha256").update(s, "utf8").digest("hex");
 }
 
 async function loadDefaultFixture(): Promise<any> {
   const fixture = resolve(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
-  if (!fs.existsSync(fixture)) throw new Error("Missing fixture: " + fixture);
+  if (!fs.existsSync(fixture)) {
+    throw internalError("Missing default fixture on server", { fixture });
+  }
   return JSON.parse(fs.readFileSync(fixture, "utf8"));
 }
 
 async function runPipelineFromDist(input: any): Promise<any> {
   const runnerPath = resolve(process.cwd(), "dist", "src", "run_pipeline.js");
   if (!fs.existsSync(runnerPath)) {
-    throw new Error("Missing dist runner: " + runnerPath + " (did you run build:fast?)");
+    throw internalError("Missing dist runner (did you run build:fast?)", { runnerPath });
   }
 
   // ESM-safe import using file URL
   const url = pathToFileURL(runnerPath).href;
   const mod: any = await import(url);
 
-  const fn =
-    mod?.runPipeline ||
-    (mod?.default && (mod.default.runPipeline || mod.default));
+  const fn = mod?.runPipeline || (mod?.default && (mod.default.runPipeline || mod.default));
 
   if (typeof fn !== "function") {
-    throw new Error("Missing export runPipeline in " + runnerPath);
+    throw internalError("Missing export runPipeline in dist runner", { runnerPath });
   }
 
   return await fn(input);
@@ -101,55 +86,62 @@ async function ensureEngineRunsTable(): Promise<void> {
   `);
 }
 
+/**
+ * ---------------------------
+ * Vertical slice: plan session
+ * POST /sessions/plan
+ * ---------------------------
+ *
+ * - Calls dist runner (never engine src)
+ * - Returns engine output
+ * - Persists input/output row in engine_runs (best-effort)
+ */
 export async function planSession(req: Request, res: Response) {
-  try {
-    // body can be: { input: <engine-input> } or raw object treated as input
-    const body = isRecord(req.body) ? req.body : {};
-    const input = (body as any).input ?? body;
+  // body can be: { input: <engine-input> } or raw object treated as input
+  const bodyUnknown = req.body as unknown;
 
-    const effectiveInput = input && Object.keys(input).length > 0 ? input : await loadDefaultFixture();
-
-    const inputStr = JSON.stringify(effectiveInput);
-    const inputHash = sha256Hex(inputStr);
-
-    const out = await runPipelineFromDist(effectiveInput);
-
-    // Minimal invariants for vertical slice
-    if (!out || out.ok !== true) {
-      return res.status(502).json({
-        ok: false,
-        error: "Engine output invalid (ok !== true)",
-        output: out ?? null
-      });
-    }
-
-    if (!out.session || !Array.isArray(out.session.exercises) || out.session.exercises.length < 1) {
-      return res.status(502).json({
-        ok: false,
-        error: "Engine output invalid (missing session.exercises)",
-        output: out ?? null
-      });
-    }
-
-    // Best-effort persistence. If DB is not configured (SMOKE_NO_DB), this is a no-op via NoDbPool.
-    try {
-      await ensureEngineRunsTable();
-      const id = `er_${crypto.randomUUID().replace(/-/g, "")}`;
-
-      await pool.query(
-        `INSERT INTO engine_runs (id, kind, input_hash, input, output)
-         VALUES ($1, $2, $3, $4::jsonb, $5::jsonb)`,
-        [id, "plan_session", inputHash, JSON.stringify(effectiveInput), JSON.stringify(out)]
-      );
-    } catch {
-      // Don’t break the API response because persistence isn’t available in Tier-0 modes.
-      // The vertical-slice CI can assert persistence when a real DB is present.
-    }
-
-    return res.status(200).json(out);
-  } catch (err: unknown) {
-    return res.status(400).json({ ok: false, error: pgErrorMessage(err) });
+  let input: any;
+  if (isRecord(bodyUnknown)) input = (bodyUnknown as any).input ?? bodyUnknown;
+  else if (typeof bodyUnknown === "undefined" || bodyUnknown === null) input = {};
+  else {
+    // express.json already parsed; if it's an array/primitive, treat as invalid request shape
+    throw badRequest("Invalid JSON body (expected object)");
   }
+
+  const effectiveInput =
+    input && typeof input === "object" && Object.keys(input).length > 0
+      ? input
+      : await loadDefaultFixture();
+
+  const inputStr = JSON.stringify(effectiveInput);
+  const inputHash = sha256Hex(inputStr);
+
+  const out = await runPipelineFromDist(effectiveInput);
+
+  // Minimal invariants for vertical slice
+  if (!out || out.ok !== true) {
+    throw upstreamBadGateway("Engine output invalid (ok !== true)", { output: out ?? null });
+  }
+
+  if (!out.session || !Array.isArray(out.session.exercises) || out.session.exercises.length < 1) {
+    throw upstreamBadGateway("Engine output invalid (missing session.exercises)", { output: out ?? null });
+  }
+
+  // Best-effort persistence. If DB is not configured (SMOKE_NO_DB), this is a no-op via NoDbPool.
+  try {
+    await ensureEngineRunsTable();
+    const id = `er_${crypto.randomUUID().replace(/-/g, "")}`;
+
+    await pool.query(
+      `INSERT INTO engine_runs (id, kind, input_hash, input, output)
+       VALUES ($1, $2, $3, $4::jsonb, $5::jsonb)`,
+      [id, "plan_session", inputHash, JSON.stringify(effectiveInput), JSON.stringify(out)]
+    );
+  } catch {
+    // Don't break response due to Tier-0 DB unavailability.
+  }
+
+  return res.status(200).json(out);
 }
 
 /**
@@ -216,11 +208,11 @@ async function allocNextSeq(client: any, session_id: string): Promise<number> {
 
   const rowCount = Number(r?.rowCount ?? 0);
   if (rowCount !== 1) {
-    throw new Error(`allocNextSeq invariant violated: expected 1 row, got ${rowCount}`);
+    throw internalError("allocNextSeq invariant violated (expected 1 row)", { rowCount });
   }
   const nextSeq = Number(r.rows?.[0]?.next_seq);
   if (!Number.isFinite(nextSeq) || nextSeq < 1) {
-    throw new Error(`allocNextSeq invariant violated: invalid next_seq=${String(r.rows?.[0]?.next_seq)}`);
+    throw internalError("allocNextSeq invariant violated (invalid next_seq)", { next_seq: r.rows?.[0]?.next_seq });
   }
   return nextSeq;
 }
@@ -253,17 +245,14 @@ async function loadSession(client: any, session_id: string) {
  */
 export async function startSession(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
-  if (!session_id) return res.status(400).json({ error: "Missing session_id" });
+  if (!session_id) throw badRequest("Missing session_id");
 
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
 
     const s = await loadSessionForUpdate(client, session_id);
-    if (!s) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({ error: "Session not found" });
-    }
+    if (!s) throw notFound("Session not found");
 
     const planned = s.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, s.session_state_summary);
@@ -310,7 +299,7 @@ export async function startSession(req: Request, res: Response) {
     try {
       await client.query("ROLLBACK");
     } catch {}
-    return res.status(400).json({ error: pgErrorMessage(err) });
+    throw err;
   } finally {
     client.release();
   }
@@ -325,14 +314,14 @@ export async function startSession(req: Request, res: Response) {
  */
 export async function appendRuntimeEvent(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
-  if (!session_id) return res.status(400).json({ error: "Missing session_id" });
+  if (!session_id) throw badRequest("Missing session_id");
 
   const event = validateWireRuntimeEvent((req.body as any)?.event);
-  if (!event) return res.status(400).json({ error: "Missing/invalid event" });
+  if (!event) throw badRequest("Missing/invalid event");
 
   // Prevent clients from manually writing START_SESSION via /events
   if ((event as any).type === "START_SESSION") {
-    return res.status(400).json({ error: "START_SESSION must be created via /start" });
+    throw badRequest("START_SESSION must be created via /start");
   }
 
   const client = await pool.connect();
@@ -340,10 +329,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     await client.query("BEGIN");
 
     const s = await loadSessionForUpdate(client, session_id);
-    if (!s) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({ error: "Session not found" });
-    }
+    if (!s) throw notFound("Session not found");
 
     const planned = s.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, s.session_state_summary);
@@ -408,7 +394,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     try {
       await client.query("ROLLBACK");
     } catch {}
-    return res.status(400).json({ error: pgErrorMessage(err) });
+    throw err;
   } finally {
     client.release();
   }
@@ -420,7 +406,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
  */
 export async function listRuntimeEvents(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
-  if (!session_id) return res.status(400).json({ error: "Missing session_id" });
+  if (!session_id) throw badRequest("Missing session_id");
 
   const r = await pool.query(
     `SELECT seq, event, created_at
@@ -440,12 +426,12 @@ export async function listRuntimeEvents(req: Request, res: Response) {
  */
 export async function getSessionState(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
-  if (!session_id) return res.status(400).json({ error: "Missing session_id" });
+  if (!session_id) throw badRequest("Missing session_id");
 
   const client = await pool.connect();
   try {
     const row = await loadSession(client, session_id);
-    if (!row) return res.status(404).json({ error: "Session not found" });
+    if (!row) throw notFound("Session not found");
 
     const planned = row.planned_session as PlannedSession;
     const { summary, needsUpgrade } = normalizeSummary(planned as any, row.session_state_summary);
@@ -477,8 +463,6 @@ export async function getSessionState(req: Request, res: Response) {
       trace,
       event_log: [] // history is /events; state is O(1)
     });
-  } catch (err: unknown) {
-    return res.status(400).json({ error: pgErrorMessage(err) });
   } finally {
     client.release();
   }
