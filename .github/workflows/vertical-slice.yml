@@ -51,7 +51,6 @@ jobs:
           nohup node dist/src/main.js > /tmp/kolosseum-server.log 2>&1 &
           echo $! > /tmp/kolosseum-server.pid
           sleep 1
-
       - name: Wait for /health
         run: |
           for i in $(seq 1 60); do
@@ -65,20 +64,12 @@ jobs:
           echo "--- /tmp/kolosseum-server.log (tail) ---"
           tail -n 200 /tmp/kolosseum-server.log || true
           exit 1
-
-      - name: Stop server
-        if: always()
-        run: |
-          if [ -f /tmp/kolosseum-server.pid ]; then
-            kill "$(cat /tmp/kolosseum-server.pid)" || true
-          fi
-          sleep 1
       - name: Hit plan-session endpoint
         run: |
           node - <<'NODE'
           const assert = (c, m) => { if (!c) { console.error(m); process.exit(1); } };
           const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
+      
           (async () => {
             const url = "http://127.0.0.1:3000/sessions/plan";
             let lastErr = null;
@@ -98,6 +89,7 @@ jobs:
                 return;
               } catch (e) {
                 lastErr = e;
+                const msg = (e && e.message) ? e.message : String(e);
                 console.error("attempt /10 failed: ");
                 await sleep(1000);
               }
@@ -109,14 +101,12 @@ jobs:
             process.exit(1);
           });
           NODE
-
       - name: Tail server log on failure
         if: failure()
         run: |
           echo "--- /tmp/kolosseum-server.log (tail) ---"
           tail -n 200 /tmp/kolosseum-server.log || true
 
-          NODE
 name: vertical-slice
 
 on:
