@@ -48,140 +48,23 @@ jobs:
       - name: Start server
         run: |
           rm -f /tmp/kolosseum-server.log /tmp/kolosseum-server.pid || true
-          nohup node dist/src/main.js > /tmp/kolosseum-server.log 2>&1 &
+          node dist/src/main.js >/tmp/kolosseum-server.log 2>&1 &
           echo $! > /tmp/kolosseum-server.pid
-          sleep 1
-      - name: Wait for /health
+
+      - name: Wait for server readiness (port 3000)
         run: |
-          for i in $(seq 1 60); do
-            if curl -fsS "http://127.0.0.1:${PORT}/health" >/dev/null; then
-              echo "OK: /health"
+          for i in {1..60}; do
+            if (echo > /dev/tcp/127.0.0.1/3000) >/dev/null 2>&1; then
+              echo "OK: server ready on 127.0.0.1:3000"
               exit 0
             fi
             sleep 1
           done
-          echo "ERROR: /health never became ready"
-          echo "--- /tmp/kolosseum-server.log (tail) ---"
-          tail -n 200 /tmp/kolosseum-server.log || true
-          exit 1
-      - name: Hit plan-session endpoint
-        run: |
-          node - <<'NODE'
-          const assert = (c, m) => { if (!c) { console.error(m); process.exit(1); } };
-          const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-      
-          (async () => {
-            const url = "http://127.0.0.1:3000/sessions/plan";
-            let lastErr = null;
-            for (let attempt = 1; attempt <= 10; attempt++) {
-              try {
-                const res = await fetch(url, {
-                  method: "POST",
-                  headers: { "content-type": "application/json" },
-                  body: JSON.stringify({})
-                });
-                const json = await res.json().catch(() => null);
-                assert(res.ok, "HTTP not ok: " + res.status + " " + JSON.stringify(json));
-                assert(json && json.ok === true, "ok !== true: " + JSON.stringify(json));
-                assert(json.session && Array.isArray(json.session.exercises) && json.session.exercises.length > 0,
-                  "missing session.exercises: " + JSON.stringify(json));
-                console.log("OK: vertical slice plan-session");
-                return;
-              } catch (e) {
-                lastErr = e;
-                const msg = (e && e.message) ? e.message : String(e);
-                console.error("attempt /10 failed: ");
-                await sleep(1000);
-              }
-            }
-            console.error("ERROR: plan-session never succeeded");
-            throw lastErr || new Error("plan-session failed");
-          })().catch((e) => {
-            console.error(e && e.stack ? e.stack : String(e));
-            process.exit(1);
-          });
-          NODE
-      - name: Tail server log on failure
-        if: failure()
-        run: |
-          echo "--- /tmp/kolosseum-server.log (tail) ---"
-          tail -n 200 /tmp/kolosseum-server.log || true
-
-name: vertical-slice
-
-on:
-  pull_request:
-    paths-ignore:
-      - "**/*.md"
-      - "**/*.txt"
-      - "docs/**"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".github/PULL_REQUEST_TEMPLATE*"
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-permissions:
-  contents: read
-
-concurrency:
-  group: vertical-slice-${{ github.ref }}
-  cancel-in-progress: true
-
-jobs:
-  plan_session_api:
-    name: plan-session-api
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      KOLOSSEUM_GREEN: "1"
-      KOLOSSEUM_GREEN_ENTRYPOINT: "ci"
-      SMOKE_NO_DB: "1"
-      PORT: "3000"
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Install
-        run: npm ci
-
-      - name: Build
-        run: npm run build:fast
-      - name: Start server
-        run: |
-          rm -f /tmp/kolosseum-server.log /tmp/kolosseum-server.pid || true
-          nohup node dist/src/main.js > /tmp/kolosseum-server.log 2>&1 &
-          echo $! > /tmp/kolosseum-server.pid
-          sleep 1
-
-      - name: Wait for /health
-        run: |
-          for i in $(seq 1 60); do
-            if curl -fsS "http://127.0.0.1:${PORT}/health" >/dev/null; then
-              echo "OK: /health"
-              exit 0
-            fi
-            sleep 1
-          done
-          echo "ERROR: /health never became ready"
+          echo "ERROR: server did not become ready"
           echo "--- /tmp/kolosseum-server.log (tail) ---"
           tail -n 200 /tmp/kolosseum-server.log || true
           exit 1
 
-      - name: Stop server
-        if: always()
-        run: |
-          if [ -f /tmp/kolosseum-server.pid ]; then
-            kill "$(cat /tmp/kolosseum-server.pid)" || true
-          fi
-          sleep 1
       - name: Hit plan-session endpoint
         run: |
           node - <<'NODE'
@@ -203,3 +86,11 @@ jobs:
             console.log("OK: vertical slice plan-session");
           })().catch((e) => { console.error(e && e.stack ? e.stack : String(e)); process.exit(1); });
           NODE
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f /tmp/kolosseum-server.pid ]; then
+            kill "$(cat /tmp/kolosseum-server.pid)" || true
+          fi
+          sleep 1
+
