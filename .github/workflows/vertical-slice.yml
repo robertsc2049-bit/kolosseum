@@ -65,6 +65,13 @@ jobs:
           tail -n 200 /tmp/kolosseum-server.log || true
           exit 1
 
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f /tmp/kolosseum-server.pid ]; then
+            kill "$(cat /tmp/kolosseum-server.pid)" || true
+          fi
+          sleep 1
       - name: Hit plan-session endpoint
         run: |
           node - <<'NODE'
@@ -86,11 +93,3 @@ jobs:
             console.log("OK: vertical slice plan-session");
           })().catch((e) => { console.error(e && e.stack ? e.stack : String(e)); process.exit(1); });
           NODE
-      - name: Stop server
-        if: always()
-        run: |
-          if [ -f /tmp/kolosseum-server.pid ]; then
-            kill "$(cat /tmp/kolosseum-server.pid)" || true
-          fi
-          sleep 1
-
