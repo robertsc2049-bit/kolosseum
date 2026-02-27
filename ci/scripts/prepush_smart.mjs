@@ -13,6 +13,14 @@ function out(cmd) {
     .trim();
 }
 
+function safeOut(cmd) {
+  try {
+    return { ok: true, text: out(cmd) };
+  } catch {
+    return { ok: false, text: "" };
+  }
+}
+
 function tryOut(cmd) {
   try {
     return out(cmd);
@@ -159,6 +167,7 @@ function tryForkPointBase(localSha) {
 
 function listPushedFilesFromUpdates(updates) {
   const files = new Set();
+  let diffFailed = false;
 
   const meaningful = updates.filter(
     (u) => !isAllZeroSha(u.localSha) && u.localRef && u.remoteRef
@@ -170,7 +179,12 @@ function listPushedFilesFromUpdates(updates) {
     const remoteSha = String(u.remoteSha || "").trim();
 
     if (localSha && remoteSha && !isAllZeroSha(remoteSha)) {
-      const names = tryOut(`git diff --name-only ${remoteSha}..${localSha}`)
+      const r = safeOut(`git diff --name-only ${remoteSha}..${localSha}`);
+      if (!r.ok) {
+        diffFailed = true;
+        continue;
+      }
+      const names = r.text
         .split(/\r?\n/)
         .map((s) => s.trim())
         .filter(Boolean);
@@ -184,20 +198,30 @@ function listPushedFilesFromUpdates(updates) {
 
     if (!base || !localSha) continue;
 
-    const names = tryOut(`git diff --name-only ${base}..${localSha}`)
+    const r = safeOut(`git diff --name-only ${base}..${localSha}`);
+    if (!r.ok) {
+      diffFailed = true;
+      continue;
+    }
+    const names = r.text
       .split(/\r?\n/)
       .map((s) => s.trim())
       .filter(Boolean);
     for (const f of names) files.add(f);
   }
 
+  // Conservative: if any diff failed for a meaningful update, refuse to classify.
+  if (diffFailed) return null;
+
   return sortFilesLex(Array.from(files));
 }
 
 function listPushedFilesFallback(upstream) {
   if (upstream) {
+    const r = safeOut(`git diff --name-only ${upstream}..HEAD`);
+    if (!r.ok) return null;
     return sortFilesLex(
-      tryOut(`git diff --name-only ${upstream}..HEAD`)
+      r.text
         .split(/\r?\n/)
         .map((s) => s.trim())
         .filter(Boolean)
@@ -206,8 +230,10 @@ function listPushedFilesFallback(upstream) {
 
   const hasHead1 = !!tryOut("git rev-parse --verify HEAD~1");
   if (hasHead1) {
+    const r = safeOut("git diff --name-only HEAD~1..HEAD");
+    if (!r.ok) return null;
     return sortFilesLex(
-      tryOut("git diff --name-only HEAD~1..HEAD")
+      r.text
         .split(/\r?\n/)
         .map((s) => s.trim())
         .filter(Boolean)
@@ -248,7 +274,9 @@ function loadArtefactsOrDie() {
   const groups = json.groups.map((g) => ({
     id: String(g.id || "").trim(),
     kind: String(g.kind || "").trim(),
-    patterns: Array.isArray(g.patterns) ? g.patterns.map((p) => String(p || "").trim()).filter(Boolean) : []
+    patterns: Array.isArray(g.patterns)
+      ? g.patterns.map((p) => String(p || "").trim()).filter(Boolean)
+      : []
   }));
 
   for (const g of groups) {
