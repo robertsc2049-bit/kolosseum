@@ -45,13 +45,33 @@ jobs:
 
       - name: Build
         run: npm run build:fast
-
       - name: Start server
         run: |
-          node dist/src/server.js &
-          sleep 1
+          rm -f /tmp/kolosseum-server.log /tmp/kolosseum-server.pid || true
+          node dist/src/main.js >/tmp/kolosseum-server.log 2>&1 &
+          echo $! > /tmp/kolosseum-server.pid
 
-      - name: Hit plan-session endpoint
+      - name: Wait for server readiness (port 3000)
+        run: |
+          for i in {1..60}; do
+            if (echo > /dev/tcp/127.0.0.1/3000) >/dev/null 2>&1; then
+              echo "OK: server ready on 127.0.0.1:3000"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "ERROR: server did not become ready"
+          echo "--- /tmp/kolosseum-server.log (tail) ---"
+          tail -n 200 /tmp/kolosseum-server.log || true
+          exit 1
+
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f /tmp/kolosseum-server.pid ]; then
+            kill "$(cat /tmp/kolosseum-server.pid)" || true
+          fi
+          sleep 1      - name: Hit plan-session endpoint
         run: |
           node - <<'NODE'
           const assert = (c, m) => { if (!c) { console.error(m); process.exit(1); } };
