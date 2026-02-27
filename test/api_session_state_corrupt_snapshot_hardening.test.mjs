@@ -2,8 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { applyRuntimeEvent, makeRuntimeState } from "../engine/src/runtime/session_runtime.js";
-import { deriveTrace, normalizeSummary, fromEngineState } from "../engine/src/runtime/session_summary.js";
+import { deriveTrace, normalizeSummary } from "../engine/src/runtime/session_summary.js";
 
 function planned(ids) {
   return {
@@ -40,28 +39,22 @@ test("Corrupt V3 snapshot: junk + duplicates are scoped/uniq + terminals rebuilt
 
   const apiTrace = deriveTrace(summary);
 
-  // Expected: we rebuild from plan, then apply terminals via reducer in the order:
-  // completed_ids uniq/scoped => ["exB"]
-  // skipped_ids uniq/scoped => ["exA"]
-  // Split is restored as stored data after scoping/uniq => remaining_at_split ["exC","exD"] active true
-  let st = makeRuntimeState(planIds);
-  st = applyRuntimeEvent(st, { type: "complete_exercise", exercise_id: "exB" });
-  st = applyRuntimeEvent(st, { type: "skip_exercise", exercise_id: "exA" });
-
-  // Now force split data shape to what normalization would persist (scoped + uniq)
-  st = {
-    ...st,
-    split: { active: true, remaining_at_split: ["exC", "exD"] }
+  // Contract: trace is the stable API-level view.
+  // After scoping+uniq:
+  // completed_ids => ["exB"]
+  // dropped_ids (skipped) => ["exA"]
+  // remaining_ids => ["exC","exD"]
+  // split restored from stored data after scoping/uniq => active true, remaining_at_split ["exC","exD"]
+  const expectedTrace = {
+    started: true,
+    remaining_ids: ["exC", "exD"],
+    completed_ids: ["exB"],
+    dropped_ids: ["exA"],
+    split_active: true,
+    remaining_at_split_ids: ["exC", "exD"]
   };
 
-  const expected = deriveTrace({
-    version: 3,
-    started: true,
-    runtime: fromEngineState(st),
-    last_seq: 9
-  });
-
-  assert.deepEqual(apiTrace, expected);
+  assert.deepEqual(apiTrace, expectedTrace);
 
   // Stability: repeated normalize must be idempotent and not reorder
   const again = normalizeSummary(planned_session, summary).summary;
