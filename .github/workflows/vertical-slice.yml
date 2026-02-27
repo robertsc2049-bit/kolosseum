@@ -72,8 +72,7 @@ jobs:
             kill "$(cat /tmp/kolosseum-server.pid)" || true
           fi
           sleep 1
-
-- name: Hit plan-session endpoint
+      - name: Hit plan-session endpoint
         run: |
           node - <<'NODE'
           const assert = (c, m) => { if (!c) { console.error(m); process.exit(1); } };
