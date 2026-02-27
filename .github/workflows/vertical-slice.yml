@@ -1,0 +1,74 @@
+name: vertical-slice
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "**/*.txt"
+      - "docs/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/PULL_REQUEST_TEMPLATE*"
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vertical-slice-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan_session_api:
+    name: plan-session-api
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KOLOSSEUM_GREEN: "1"
+      KOLOSSEUM_GREEN_ENTRYPOINT: "ci"
+      SMOKE_NO_DB: "1"
+      PORT: "3000"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build:fast
+
+      - name: Start server
+        run: |
+          node dist/src/server.js &
+          sleep 1
+
+      - name: Hit plan-session endpoint
+        run: |
+          node - <<'NODE'
+          const assert = (c, m) => { if (!c) { console.error(m); process.exit(1); } };
+          (async () => {
+            const url = "http://127.0.0.1:3000/sessions/plan";
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({})
+            });
+
+            const json = await res.json().catch(() => null);
+            assert(res.ok, "HTTP not ok: " + res.status + " " + JSON.stringify(json));
+            assert(json && json.ok === true, "ok !== true: " + JSON.stringify(json));
+            assert(json.session && Array.isArray(json.session.exercises) && json.session.exercises.length > 0,
+              "missing session.exercises: " + JSON.stringify(json));
+
+            console.log("OK: vertical slice plan-session");
+          })().catch((e) => { console.error(e && e.stack ? e.stack : String(e)); process.exit(1); });
+          NODE

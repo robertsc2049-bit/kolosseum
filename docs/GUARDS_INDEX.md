@@ -37,6 +37,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/no_legacy_constraints.sh` | Repo Governance | medium | repo | !/usr/bin/env bash |
 | `ci/guards/no_mojibake_guard.mjs` | Encoding Hygiene | high | repo | Detect common UTF-8->legacy decode artifacts by searching for *byte sequences*. |
 | `ci/guards/node_version_guard.mjs` | Build Integrity | high | repo |  |
+| `ci/guards/nonempty_critical_ci_files_guard.mjs` | Repo Hygiene | high | ci/guards | @rationale: |
 | `ci/guards/readme_validation_contract_guard.mjs` | Contracts | high | repo | Policy: README must not instruct humans to run internal green entrypoints. |
 | `ci/guards/registry_bundle_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/registry_law_guard.mjs` | Registry Law | high | registry |  |

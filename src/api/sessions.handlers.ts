@@ -2,6 +2,11 @@
 import type { Request, Response } from "express";
 import { pool } from "../db/pool.js";
 
+import crypto from "node:crypto";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import fs from "node:fs";
+
 // Canonical semantics + summary normalization live in engine runtime.
 // API is a thin wrapper: validate wire event -> map -> reducer -> persist snapshot.
 import {
@@ -31,6 +36,123 @@ function pgErrorMessage(err: unknown): string {
 }
 
 /**
+ * ---------------------------
+ * Vertical slice: plan session
+ * POST /sessions/plan
+ * ---------------------------
+ *
+ * - Calls dist runner (never engine src)
+ * - Returns engine output
+ * - Persists input/output row in engine_runs (best-effort)
+ */
+
+function sha256Hex(s: string): string {
+  return crypto.createHash("sha256").update(s, "utf8").digest("hex");
+}
+
+async function loadDefaultFixture(): Promise<any> {
+  const fixture = resolve(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
+  if (!fs.existsSync(fixture)) throw new Error("Missing fixture: " + fixture);
+  return JSON.parse(fs.readFileSync(fixture, "utf8"));
+}
+
+async function runPipelineFromDist(input: any): Promise<any> {
+  const runnerPath = resolve(process.cwd(), "dist", "src", "run_pipeline.js");
+  if (!fs.existsSync(runnerPath)) {
+    throw new Error("Missing dist runner: " + runnerPath + " (did you run build:fast?)");
+  }
+
+  // ESM-safe import using file URL
+  const url = pathToFileURL(runnerPath).href;
+  const mod: any = await import(url);
+
+  const fn =
+    mod?.runPipeline ||
+    (mod?.default && (mod.default.runPipeline || mod.default));
+
+  if (typeof fn !== "function") {
+    throw new Error("Missing export runPipeline in " + runnerPath);
+  }
+
+  return await fn(input);
+}
+
+async function ensureEngineRunsTable(): Promise<void> {
+  // This table is independent (no FK deps) so smoke can run even if the full schema isn't present.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS engine_runs (
+      id          text PRIMARY KEY,
+      kind        text NOT NULL,
+      input_hash  text NOT NULL,
+      input       jsonb NOT NULL,
+      output      jsonb NOT NULL,
+      created_at  timestamptz NOT NULL DEFAULT now()
+    );
+  `);
+
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS engine_runs_kind_created_at_idx
+    ON engine_runs(kind, created_at DESC);
+  `);
+
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS engine_runs_input_hash_idx
+    ON engine_runs(input_hash);
+  `);
+}
+
+export async function planSession(req: Request, res: Response) {
+  try {
+    // body can be: { input: <engine-input> } or raw object treated as input
+    const body = isRecord(req.body) ? req.body : {};
+    const input = (body as any).input ?? body;
+
+    const effectiveInput = input && Object.keys(input).length > 0 ? input : await loadDefaultFixture();
+
+    const inputStr = JSON.stringify(effectiveInput);
+    const inputHash = sha256Hex(inputStr);
+
+    const out = await runPipelineFromDist(effectiveInput);
+
+    // Minimal invariants for vertical slice
+    if (!out || out.ok !== true) {
+      return res.status(502).json({
+        ok: false,
+        error: "Engine output invalid (ok !== true)",
+        output: out ?? null
+      });
+    }
+
+    if (!out.session || !Array.isArray(out.session.exercises) || out.session.exercises.length < 1) {
+      return res.status(502).json({
+        ok: false,
+        error: "Engine output invalid (missing session.exercises)",
+        output: out ?? null
+      });
+    }
+
+    // Best-effort persistence. If DB is not configured (SMOKE_NO_DB), this is a no-op via NoDbPool.
+    try {
+      await ensureEngineRunsTable();
+      const id = `er_${crypto.randomUUID().replace(/-/g, "")}`;
+
+      await pool.query(
+        `INSERT INTO engine_runs (id, kind, input_hash, input, output)
+         VALUES ($1, $2, $3, $4::jsonb, $5::jsonb)`,
+        [id, "plan_session", inputHash, JSON.stringify(effectiveInput), JSON.stringify(out)]
+      );
+    } catch {
+      // Don’t break the API response because persistence isn’t available in Tier-0 modes.
+      // The vertical-slice CI can assert persistence when a real DB is present.
+    }
+
+    return res.status(200).json(out);
+  } catch (err: unknown) {
+    return res.status(400).json({ ok: false, error: pgErrorMessage(err) });
+  }
+}
+
+/**
  * Planned session is immutable input. We only use it to:
  * - build initial runtime state at START
  * - upgrade legacy summaries
@@ -57,20 +179,6 @@ function uniqStable(ids: unknown): string[] {
     if (seen.has(s)) continue;
     seen.add(s);
     out.push(s);
-  }
-  return out;
-}
-
-function plannedIds(planned: PlannedSession): string[] {
-  const exs = Array.isArray(planned?.exercises) ? planned.exercises : [];
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const ex of exs) {
-    const id = ex && typeof ex.exercise_id === "string" ? ex.exercise_id : "";
-    if (!id) continue;
-    if (seen.has(id)) continue;
-    seen.add(id);
-    out.push(id);
   }
   return out;
 }
@@ -107,14 +215,14 @@ async function allocNextSeq(client: any, session_id: string): Promise<number> {
   );
 
   const rowCount = Number(r?.rowCount ?? 0);
-if (rowCount !== 1) {
-  throw new Error(`allocNextSeq invariant violated: expected 1 row, got ${rowCount}`);
-}
-const nextSeq = Number(r.rows?.[0]?.next_seq);
-if (!Number.isFinite(nextSeq) || nextSeq < 1) {
-  throw new Error(`allocNextSeq invariant violated: invalid next_seq=${String(r.rows?.[0]?.next_seq)}`);
-}
-return nextSeq;
+  if (rowCount !== 1) {
+    throw new Error(`allocNextSeq invariant violated: expected 1 row, got ${rowCount}`);
+  }
+  const nextSeq = Number(r.rows?.[0]?.next_seq);
+  if (!Number.isFinite(nextSeq) || nextSeq < 1) {
+    throw new Error(`allocNextSeq invariant violated: invalid next_seq=${String(r.rows?.[0]?.next_seq)}`);
+  }
+  return nextSeq;
 }
 
 async function loadSessionForUpdate(client: any, session_id: string) {
