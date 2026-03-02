@@ -77,6 +77,31 @@ function parseRuntimeEvents(raw: unknown[]): any[] {
   return out;
 }
 
+function mapEngineRuntimeApplyError(e: unknown) {
+  const msg = e instanceof Error ? e.message : String(e);
+  // Preserve the engine error code string; UI/clients can key off this deterministically.
+  if (msg.startsWith("PHASE6_RUNTIME_AWAIT_RETURN_DECISION")) {
+    throw badRequest("Runtime event rejected (await return decision)", {
+      failure_token: "phase6_runtime_await_return_decision",
+      cause: msg
+    });
+  }
+  if (msg.startsWith("PHASE6_RUNTIME_UNKNOWN_EVENT")) {
+    throw badRequest("Runtime event rejected (unknown event type)", {
+      failure_token: "phase6_runtime_unknown_event",
+      cause: msg
+    });
+  }
+  if (msg.startsWith("PHASE6_RUNTIME_INVALID_EVENT")) {
+    throw badRequest("Runtime event rejected (invalid event shape)", {
+      failure_token: "phase6_runtime_invalid_event",
+      cause: msg
+    });
+  }
+  // Default: still a client error (runtime_events are caller-controlled).
+  throw badRequest("Invalid runtime_events/events (apply failed)", { cause: msg });
+}
+
 /**
  * POST /blocks/compile
  * Optional: ?create_session=true
@@ -164,7 +189,7 @@ export async function compileBlock(req: Request, res: Response) {
   try {
     runtime_state = applyRuntimeEvents(planned_session_from_engine as any, runtime_events as any);
   } catch (e: unknown) {
-    throw badRequest("Invalid runtime_events/events (apply failed)", { cause: e instanceof Error ? e.message : String(e) });
+    mapEngineRuntimeApplyError(e);
   }
 
   const remaining_ids: string[] = Array.isArray(runtime_state?.remaining_ids)
@@ -197,7 +222,20 @@ export async function compileBlock(req: Request, res: Response) {
           ? runtime_state.split.remaining_at_split.map((x: any) => String(x))
           : []);
 
-  const return_gate_required: boolean = split_active === true && remaining_at_split_ids.length > 0;
+  // Contract lock:
+  // UI/clients MUST key off these fields; never infer from split_active alone.
+  const return_decision_required: boolean =
+    typeof runtime_state?.return_decision_required === "boolean" ? runtime_state.return_decision_required : false;
+
+  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+    Array.isArray(runtime_state?.return_decision_options)
+      ? runtime_state.return_decision_options
+          .map((x: any) => String(x))
+          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+      : [];
+
+  // Back-compat field (older clients). Do NOT derive from split_active.
+  const return_gate_required: boolean = return_decision_required;
 
   const runtime_trace_from_engine = {
     remaining_ids,
@@ -205,6 +243,8 @@ export async function compileBlock(req: Request, res: Response) {
     dropped_ids,
     split_active,
     remaining_at_split_ids,
+    return_decision_required,
+    return_decision_options,
     return_gate_required
   };
 

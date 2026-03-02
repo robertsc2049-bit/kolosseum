@@ -35,6 +35,32 @@ function sha256Hex(s: string): string {
   return crypto.createHash("sha256").update(s, "utf8").digest("hex");
 }
 
+function mapEngineWireApplyError(e: unknown) {
+  const msg = e instanceof Error ? e.message : String(e);
+
+  if (msg.startsWith("PHASE6_RUNTIME_AWAIT_RETURN_DECISION")) {
+    throw badRequest("Runtime event rejected (await return decision)", {
+      failure_token: "phase6_runtime_await_return_decision",
+      cause: msg
+    });
+  }
+  if (msg.startsWith("PHASE6_RUNTIME_UNKNOWN_EVENT")) {
+    throw badRequest("Runtime event rejected (unknown event type)", {
+      failure_token: "phase6_runtime_unknown_event",
+      cause: msg
+    });
+  }
+  if (msg.startsWith("PHASE6_RUNTIME_INVALID_EVENT")) {
+    throw badRequest("Runtime event rejected (invalid event shape)", {
+      failure_token: "phase6_runtime_invalid_event",
+      cause: msg
+    });
+  }
+
+  // Default: reducer rejected it; treat as caller fault.
+  throw badRequest("Runtime event rejected (apply failed)", { cause: msg });
+}
+
 async function loadDefaultFixture(): Promise<any> {
   const fixture = resolve(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
   if (!fs.existsSync(fixture)) {
@@ -281,7 +307,12 @@ export async function startSession(req: Request, res: Response) {
       [session_id, seq, JSON.stringify(ev)]
     );
 
-    const nextSummary = applyWireEvent(normalized as any, ev as any, planned as any) as any;
+    let nextSummary: any;
+    try {
+      nextSummary = applyWireEvent(normalized as any, ev as any, planned as any) as any;
+    } catch (e: unknown) {
+      mapEngineWireApplyError(e);
+    }
     nextSummary.last_seq = seq;
 
     await client.query(
@@ -347,7 +378,11 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
         [session_id, startSeq, JSON.stringify(startEv)]
       );
 
-      workingSummary = applyWireEvent(workingSummary, startEv as any, planned as any);
+      try {
+        workingSummary = applyWireEvent(workingSummary, startEv as any, planned as any);
+      } catch (e: unknown) {
+        mapEngineWireApplyError(e);
+      }
       workingSummary.last_seq = startSeq;
 
       await client.query(
@@ -377,7 +412,12 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       [session_id, seq, JSON.stringify(event)]
     );
 
-    const nextSummary = applyWireEvent(workingSummary, event as any, planned as any) as any;
+    let nextSummary: any;
+    try {
+      nextSummary = applyWireEvent(workingSummary, event as any, planned as any) as any;
+    } catch (e: unknown) {
+      mapEngineWireApplyError(e);
+    }
     nextSummary.last_seq = seq;
 
     await client.query(
@@ -448,6 +488,24 @@ export async function getSessionState(req: Request, res: Response) {
     }
 
     const trace = deriveTrace(summary as any) as any;
+
+    // Contract lock:
+    // Expose gate semantics via return_decision_* (never require clients to infer from split_active).
+    const rt: any = (summary as any)?.runtime ?? {};
+    const return_decision_required =
+      typeof rt?.return_decision_required === "boolean"
+        ? rt.return_decision_required
+        : (typeof rt?.split_active === "boolean" ? rt.split_active === true : false);
+
+    const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+      Array.isArray(rt?.return_decision_options)
+        ? rt.return_decision_options
+            .map((x: any) => String(x))
+            .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+        : (return_decision_required ? ["RETURN_CONTINUE", "RETURN_SKIP"] : []);
+
+    trace.return_decision_required = return_decision_required;
+    trace.return_decision_options = return_decision_options;
 
     // Derive exercise objects from planned + runtime ids (order-preserving)
     const remaining_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.remaining_ids));
