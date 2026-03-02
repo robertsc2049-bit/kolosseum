@@ -5,6 +5,12 @@ import fs from "node:fs";
 import { resolve } from "node:path";
 import net from "node:net";
 
+const MARK = "[tier1-smoke]";
+
+function isCi() {
+  return String(process.env.CI || "").toLowerCase() === "true";
+}
+
 function loadDefaultFixtureOrDie() {
   const p = resolve(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
   if (!fs.existsSync(p)) throw new Error("Missing fixture: " + p);
@@ -15,11 +21,7 @@ async function readJsonOrText(res) {
   const ct = String(res.headers.get("content-type") || "").toLowerCase();
   if (ct.includes("application/json") || ct.includes("+json")) return await res.json();
   const txt = await res.text();
-  try {
-    return JSON.parse(txt);
-  } catch {
-    return txt;
-  }
+  try { return JSON.parse(txt); } catch { return txt; }
 }
 
 function defaultDbUrl() {
@@ -30,6 +32,16 @@ function defaultDbUrl() {
 function getDbUrl() {
   const env = (process.env.DATABASE_URL || "").trim();
   return env.length > 0 ? env : defaultDbUrl();
+}
+
+function sanitizeDbUrl(dbUrl) {
+  try {
+    const u = new URL(dbUrl);
+    if (u.password) u.password = "***";
+    return u.toString();
+  } catch {
+    return "<invalid DATABASE_URL>";
+  }
 }
 
 function parseHostPort(dbUrl) {
@@ -51,9 +63,7 @@ async function canConnectTcp(host, port, timeoutMs = 250) {
     function finish(ok) {
       if (done) return;
       done = true;
-      try {
-        sock.destroy();
-      } catch {}
+      try { sock.destroy(); } catch {}
       resolve(ok);
     }
 
@@ -77,19 +87,20 @@ async function loadExpressAppOrDie() {
   throw new Error("Server entrypoint did not export `app`. Exports: " + keys.join(", "));
 }
 
-function isCi() {
-  // GitHub Actions sets CI=true; keep this generic.
-  return String(process.env.CI || "").toLowerCase() === "true";
-}
-
 test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start -> /sessions/:id/state", async (t) => {
   const dbUrl = getDbUrl();
+  const safeDbUrl = sanitizeDbUrl(dbUrl);
   const { host, port } = parseHostPort(dbUrl);
 
-  // If nothing is listening, skip locally (and in CI if CI does not provision DB for this lane).
+  // Always print a marker so CI logs can prove what happened.
+  console.log(`${MARK} begin ci=${isCi()} target=${host}:${port} DATABASE_URL=${safeDbUrl}`);
+
+  // If nothing is listening, skip (local and any CI lane that doesn't provision DB).
   const tcpOk = await canConnectTcp(host, port, 250);
   if (!tcpOk) {
-    t.skip("Tier-1 smoke skipped: no Postgres listening at " + host + ":" + port + " (DATABASE_URL=" + dbUrl + ")");
+    const msg = `Tier-1 smoke skipped: no Postgres listening at ${host}:${port} (DATABASE_URL=${safeDbUrl})`;
+    console.log(`${MARK} skip tcp ${msg}`);
+    t.skip(msg);
     return;
   }
 
@@ -103,7 +114,6 @@ test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start
     assert.ok(addr && typeof addr === "object" && typeof addr.port === "number", "server address/port not available");
     const baseUrl = "http://127.0.0.1:" + addr.port;
 
-    // blocks/compile expects { phase1_input: ... }
     const phase1 = loadDefaultFixtureOrDie();
     const compileBody = { phase1_input: phase1 };
 
@@ -118,10 +128,12 @@ test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start
       const msg = String(body?.error || body?.message || "");
       const isAuthFail = msg.toLowerCase().includes("password authentication failed");
 
-      // Local convenience: if a Postgres is up but creds are wrong, skip (dev machines vary).
-      // CI correctness: if a Postgres is reachable but creds are wrong, FAIL (do not hide broken infra).
+      // Local convenience only: if a Postgres is up but creds are wrong, skip.
+      // CI correctness: do NOT skip auth failures in CI.
       if (compileRes.status === 500 && isAuthFail && !isCi()) {
-        t.skip("Tier-1 smoke skipped: Postgres auth failed (DATABASE_URL=" + dbUrl + "). Bring up docker testdb or fix creds.");
+        const skipMsg = `Tier-1 smoke skipped: Postgres auth failed (DATABASE_URL=${safeDbUrl}). Bring up docker testdb or fix creds.`;
+        console.log(`${MARK} skip auth ${skipMsg}`);
+        t.skip(skipMsg);
         return;
       }
 
@@ -153,6 +165,8 @@ test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start
     assert.ok(Array.isArray(state.remaining_exercises), "expected remaining_exercises[]");
     assert.ok(Array.isArray(state.completed_exercises), "expected completed_exercises[]");
     assert.ok(Array.isArray(state.dropped_exercises), "expected dropped_exercises[]");
+
+    console.log(`${MARK} pass session_id=${sessionId}`);
   } finally {
     await new Promise((resolve) => srv.close(resolve));
   }
