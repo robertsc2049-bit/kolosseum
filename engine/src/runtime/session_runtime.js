@@ -10,6 +10,9 @@ function die(msg) {
 function dieUnknownEvent(t) {
     throw new Error(`PHASE6_RUNTIME_UNKNOWN_EVENT: ${t}`);
 }
+function dieAwaitReturnDecision(t) {
+    throw new Error(`PHASE6_RUNTIME_AWAIT_RETURN_DECISION: ${t}`);
+}
 function normalizeType(t) {
     switch (t) {
         // engine internal -> canonical
@@ -234,13 +237,13 @@ function removeId(list, id) {
     return list.filter((x) => x !== id);
 }
 function syncDerived(st) {
-    // keep alias sets in sync
     st.dropped_ids = st.skipped_ids;
     st.remaining_exercises = idsToRefs(st.remaining_ids);
     st.completed_exercises = setToRefsStable(st.completed_ids);
     st.skipped_exercises = setToRefsStable(st.skipped_ids);
     st.dropped_exercises = st.skipped_exercises;
-    // short aliases
+    st.return_decision_required = !!st.split_active;
+    st.return_decision_options = st.return_decision_required ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
     st.remaining = st.remaining_exercises;
     st.completed = st.completed_exercises;
     st.skipped = st.skipped_exercises;
@@ -252,12 +255,6 @@ function autoCloseSplitIfDone(st) {
         st.remaining_at_split_ids = [];
     }
 }
-/**
- * Hardening rules:
- * - Ensure all expected fields exist
- * - Accept legacy 'dropped_ids' naming
- * - If split_active=true and remaining_at_split_ids is present, it is authoritative for what was remaining at split time.
- */
 function ensureStateShape(state, plannedFallback) {
     if (!isRecord(state)) {
         const st = {
@@ -276,6 +273,8 @@ function ensureStateShape(state, plannedFallback) {
             completed: [],
             skipped: [],
             dropped: [],
+            return_decision_required: false,
+            return_decision_options: [],
         };
         autoCloseSplitIfDone(st);
         syncDerived(st);
@@ -283,9 +282,10 @@ function ensureStateShape(state, plannedFallback) {
     }
     const s = state;
     const started = typeof s.started === "boolean" ? s.started : true;
-    const remaining_ids_raw = Array.isArray(s.remaining_ids) ? uniqStableIds(s.remaining_ids) : plannedFallback.slice();
+    const remaining_ids_raw = Array.isArray(s.remaining_ids)
+        ? uniqStableIds(s.remaining_ids)
+        : plannedFallback.slice();
     const completed_ids = setFromUnknownList(s.completed_ids);
-    // accept BOTH names as input; unify to skipped_ids
     const skipped_ids = (() => {
         const a = setFromUnknownList(s.skipped_ids);
         const b = setFromUnknownList(s.dropped_ids);
@@ -295,7 +295,6 @@ function ensureStateShape(state, plannedFallback) {
             return a;
         if (a.size === 0 && b.size === 0)
             return new Set();
-        // merge deterministically if both exist
         const out = new Set();
         for (const v of Array.from(a.values()).sort())
             out.add(v);
@@ -321,6 +320,8 @@ function ensureStateShape(state, plannedFallback) {
         completed: [],
         skipped: [],
         dropped: [],
+        return_decision_required: false,
+        return_decision_options: [],
     };
     autoCloseSplitIfDone(st);
     syncDerived(st);
@@ -344,6 +345,8 @@ export function makeRuntimeState(session) {
         completed: [],
         skipped: [],
         dropped: [],
+        return_decision_required: false,
+        return_decision_options: [],
     };
     autoCloseSplitIfDone(st);
     syncDerived(st);
@@ -354,11 +357,14 @@ export function applyRuntimeEvent(state, event) {
     const plannedFallback = Array.isArray(state?.remaining_ids) ? uniqStableIds(state.remaining_ids) : [];
     const st = ensureStateShape(state, plannedFallback);
     const t = normalizeType(event.type);
+    // RETURN decision gate
+    if (st.split_active && (t === "COMPLETE_EXERCISE" || t === "SKIP_EXERCISE")) {
+        dieAwaitReturnDecision(t);
+    }
     switch (t) {
         case "COMPLETE_EXERCISE": {
             const id = event.exercise_id;
             st.started = true;
-            // no-op if terminal already recorded
             if (st.completed_ids.has(id) || st.skipped_ids.has(id)) {
                 autoCloseSplitIfDone(st);
                 syncDerived(st);
@@ -387,7 +393,6 @@ export function applyRuntimeEvent(state, event) {
         case "SPLIT_SESSION": {
             st.started = true;
             st.split_active = true;
-            // authoritative capture of what was remaining at split time
             st.remaining_at_split_ids = st.remaining_ids.slice();
             autoCloseSplitIfDone(st);
             syncDerived(st);
@@ -395,7 +400,6 @@ export function applyRuntimeEvent(state, event) {
         }
         case "RETURN_CONTINUE": {
             st.started = true;
-            // explicit decision: resume without dropping
             st.split_active = false;
             st.remaining_at_split_ids = [];
             autoCloseSplitIfDone(st);
@@ -404,9 +408,6 @@ export function applyRuntimeEvent(state, event) {
         }
         case "RETURN_SKIP": {
             st.started = true;
-            // Explicit decision: drop all remaining work.
-            // Primary authoritative set is remaining_at_split_ids (what existed when they split),
-            // but we also union with current remaining_ids as a hardening fallback.
             const toDrop = new Set();
             for (const id of st.remaining_at_split_ids)
                 toDrop.add(id);
