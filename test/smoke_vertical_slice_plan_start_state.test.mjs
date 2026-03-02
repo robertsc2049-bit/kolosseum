@@ -21,7 +21,11 @@ async function readJsonOrText(res) {
   const ct = String(res.headers.get("content-type") || "").toLowerCase();
   if (ct.includes("application/json") || ct.includes("+json")) return await res.json();
   const txt = await res.text();
-  try { return JSON.parse(txt); } catch { return txt; }
+  try {
+    return JSON.parse(txt);
+  } catch {
+    return txt;
+  }
 }
 
 function defaultDbUrl() {
@@ -35,10 +39,20 @@ function getDbUrl() {
 }
 
 function sanitizeDbUrl(dbUrl) {
+  // Never rely on URL.toString() after mutating username/password; rebuild deterministically.
   try {
     const u = new URL(dbUrl);
-    if (u.password) u.password = "***";
-    return u.toString();
+
+    const user = u.username ? encodeURIComponent(u.username) : "";
+    const pass = u.password ? "***" : "";
+    const auth = user ? (pass ? `${user}:${pass}@` : `${user}@`) : "";
+
+    // u.host includes hostname:port (port if present)
+    // Preserve pathname/search/hash exactly.
+    const out = `${u.protocol}//${auth}${u.host}${u.pathname}${u.search}${u.hash}`;
+
+    // Ensure single-line logs even if caller passes weird whitespace.
+    return out.replace(/\s+/g, "");
   } catch {
     return "<invalid DATABASE_URL>";
   }
@@ -63,7 +77,9 @@ async function canConnectTcp(host, port, timeoutMs = 250) {
     function finish(ok) {
       if (done) return;
       done = true;
-      try { sock.destroy(); } catch {}
+      try {
+        sock.destroy();
+      } catch {}
       resolve(ok);
     }
 
@@ -92,13 +108,14 @@ test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start
   const safeDbUrl = sanitizeDbUrl(dbUrl);
   const { host, port } = parseHostPort(dbUrl);
 
-  // Always print a marker so CI logs can prove what happened.
-  console.log(`${MARK} begin ci=${isCi()} target=${host}:${port} DATABASE_URL=${safeDbUrl}`);
+  // Marker: prove in CI logs whether we skipped/passed and what we targeted (without leaking secrets).
+  // Keep it one line for easy grep.
+  console.log(`${MARK} begin ci=${isCi()} target=${host}:${port} db=${safeDbUrl}`);
 
   // If nothing is listening, skip (local and any CI lane that doesn't provision DB).
   const tcpOk = await canConnectTcp(host, port, 250);
   if (!tcpOk) {
-    const msg = `Tier-1 smoke skipped: no Postgres listening at ${host}:${port} (DATABASE_URL=${safeDbUrl})`;
+    const msg = `Tier-1 smoke skipped: no Postgres listening at ${host}:${port} (db=${safeDbUrl})`;
     console.log(`${MARK} skip tcp ${msg}`);
     t.skip(msg);
     return;
@@ -108,7 +125,7 @@ test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start
   const srv = http.createServer(app);
 
   try {
-    await new Promise((resolve) => srv.listen(0, "127.0.0.1", resolve));
+    await new Promise((resolveListen) => srv.listen(0, "127.0.0.1", resolveListen));
 
     const addr = srv.address();
     assert.ok(addr && typeof addr === "object" && typeof addr.port === "number", "server address/port not available");
@@ -131,13 +148,15 @@ test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start
       // Local convenience only: if a Postgres is up but creds are wrong, skip.
       // CI correctness: do NOT skip auth failures in CI.
       if (compileRes.status === 500 && isAuthFail && !isCi()) {
-        const skipMsg = `Tier-1 smoke skipped: Postgres auth failed (DATABASE_URL=${safeDbUrl}). Bring up docker testdb or fix creds.`;
+        const skipMsg = `Tier-1 smoke skipped: Postgres auth failed (db=${safeDbUrl}). Bring up docker testdb or fix creds.`;
         console.log(`${MARK} skip auth ${skipMsg}`);
         t.skip(skipMsg);
         return;
       }
 
-      throw new Error("blocks/compile failed: " + compileRes.status + " body=" + JSON.stringify(body).slice(0, 2000));
+      throw new Error(
+        "blocks/compile failed: " + compileRes.status + " body=" + JSON.stringify(body).slice(0, 2000)
+      );
     }
 
     const compiled = await readJsonOrText(compileRes);
@@ -168,6 +187,6 @@ test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start
 
     console.log(`${MARK} pass session_id=${sessionId}`);
   } finally {
-    await new Promise((resolve) => srv.close(resolve));
+    await new Promise((resolveClose) => srv.close(resolveClose));
   }
 });
