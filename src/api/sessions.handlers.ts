@@ -23,6 +23,14 @@ import {
 
 type JsonRecord = Record<string, unknown>;
 
+function __kolosseumWireSentinel(evt: any) {
+  if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW !== "1") return;
+  const t = typeof evt?.type === "string" ? String(evt.type).toUpperCase() : "";
+  // Allow START to succeed; throw on everything else.
+  if (!t.includes("START")) {
+    throw new Error("KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW: unhandled wire apply failure sentinel");
+  }
+}
 function isRecord(v: unknown): v is JsonRecord {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
@@ -351,7 +359,11 @@ export async function startSession(req: Request, res: Response) {
 
     let nextSummary: any;
     try {
-      nextSummary = applyWireEvent(upgraded0.summary as any, ev as any, planned as any) as any;
+if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
+              // Sentinel present but cannot safely discriminate start vs non-start here (applyWireEvent call spans lines).
+              // Intentionally NO-OP to avoid breaking /start.
+            }            __kolosseumWireSentinel(ev as any);
+            nextSummary = applyWireEvent(upgraded0.summary as any, ev as any, planned as any) as any;
     } catch (e: unknown) {
       mapEngineWireApplyError(e);
     }
@@ -428,7 +440,10 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       );
 
       try {
-        workingSummary = applyWireEvent(workingSummary, startEv as any, planned as any);
+if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
+                  // Sentinel present but cannot safely discriminate start vs non-start here (applyWireEvent call spans lines).
+                  // Intentionally NO-OP to avoid breaking /start.
+                }                workingSummary = applyWireEvent(workingSummary, startEv as any, planned as any);
       } catch (e: unknown) {
         mapEngineWireApplyError(e);
       }
@@ -466,7 +481,11 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
 
     let nextSummary: any;
     try {
-      nextSummary = applyWireEvent(workingSummary, event as any, planned as any) as any;
+if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
+              // Sentinel present but cannot safely discriminate start vs non-start here (applyWireEvent call spans lines).
+              // Intentionally NO-OP to avoid breaking /start.
+            }            __kolosseumWireSentinel(event as any);
+            nextSummary = applyWireEvent(workingSummary, event as any, planned as any) as any;
     } catch (e: unknown) {
       mapEngineWireApplyError(e);
     }
@@ -564,6 +583,11 @@ export async function getSessionState(req: Request, res: Response) {
 
     trace.return_decision_required = return_decision_required;
     trace.return_decision_options = return_decision_options;
+
+    // Contract lock: do not leak legacy/inferential gate fields via deriveTrace().
+    // The only allowed gate semantics in API are return_decision_required/options.
+    delete (trace as any).split_active;
+    delete (trace as any).return_gate_required;
 
     // Derive exercise objects from planned + runtime ids (order-preserving)
     const remaining_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.remaining_ids));
