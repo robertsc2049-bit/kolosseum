@@ -15,7 +15,11 @@ async function readJsonOrText(res) {
   const ct = String(res.headers.get("content-type") || "").toLowerCase();
   if (ct.includes("application/json") || ct.includes("+json")) return await res.json();
   const txt = await res.text();
-  try { return JSON.parse(txt); } catch { return txt; }
+  try {
+    return JSON.parse(txt);
+  } catch {
+    return txt;
+  }
 }
 
 function defaultDbUrl() {
@@ -29,15 +33,12 @@ function getDbUrl() {
 }
 
 function parseHostPort(dbUrl) {
-  // extremely small parser for postgres://user:pass@host:port/db
-  // We only need host/port to see if *anything* is listening.
   try {
     const u = new URL(dbUrl);
     const host = u.hostname || "127.0.0.1";
     const port = Number(u.port || "5432");
     return { host, port };
   } catch {
-    // If URL parsing fails, assume local default
     return { host: "127.0.0.1", port: 5432 };
   }
 }
@@ -50,7 +51,9 @@ async function canConnectTcp(host, port, timeoutMs = 250) {
     function finish(ok) {
       if (done) return;
       done = true;
-      try { sock.destroy(); } catch {}
+      try {
+        sock.destroy();
+      } catch {}
       resolve(ok);
     }
 
@@ -74,11 +77,16 @@ async function loadExpressAppOrDie() {
   throw new Error("Server entrypoint did not export `app`. Exports: " + keys.join(", "));
 }
 
+function isCi() {
+  // GitHub Actions sets CI=true; keep this generic.
+  return String(process.env.CI || "").toLowerCase() === "true";
+}
+
 test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start -> /sessions/:id/state", async (t) => {
   const dbUrl = getDbUrl();
   const { host, port } = parseHostPort(dbUrl);
 
-  // If nothing is listening, skip locally (CI should provide infra).
+  // If nothing is listening, skip locally (and in CI if CI does not provision DB for this lane).
   const tcpOk = await canConnectTcp(host, port, 250);
   if (!tcpOk) {
     t.skip("Tier-1 smoke skipped: no Postgres listening at " + host + ":" + port + " (DATABASE_URL=" + dbUrl + ")");
@@ -107,10 +115,12 @@ test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start
 
     if (!compileRes.ok) {
       const body = await readJsonOrText(compileRes);
-
-      // Common local failure: auth. Treat as skip, not red, for dev machines without the expected db.
       const msg = String(body?.error || body?.message || "");
-      if (compileRes.status === 500 && msg.toLowerCase().includes("password authentication failed")) {
+      const isAuthFail = msg.toLowerCase().includes("password authentication failed");
+
+      // Local convenience: if a Postgres is up but creds are wrong, skip (dev machines vary).
+      // CI correctness: if a Postgres is reachable but creds are wrong, FAIL (do not hide broken infra).
+      if (compileRes.status === 500 && isAuthFail && !isCi()) {
         t.skip("Tier-1 smoke skipped: Postgres auth failed (DATABASE_URL=" + dbUrl + "). Bring up docker testdb or fix creds.");
         return;
       }
