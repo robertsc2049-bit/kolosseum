@@ -57,8 +57,9 @@ function mapEngineWireApplyError(e: unknown) {
     });
   }
 
-  // Default: reducer rejected it; treat as caller fault.
-  throw badRequest("Runtime event rejected (apply failed)", { cause: msg });
+  // Default: unknown engine exception => server fault, not client fault.
+  // This prevents misclassifying invariant bugs as 4xx.
+  throw internalError("Runtime event rejected (unexpected engine error)", { cause: msg });
 }
 
 async function loadDefaultFixture(): Promise<any> {
@@ -216,6 +217,43 @@ function toPlannedExercisesFromIds(planned: PlannedSession, ids: string[]): Plan
   return out;
 }
 
+/**
+ * Contract upgrade:
+ * - We DO NOT infer gate semantics at response time.
+ * - We MAY map legacy fields -> new explicit fields during normalization/upgrade.
+ *
+ * Legacy: runtime.split_active (boolean)
+ * New:    runtime.return_decision_required (boolean)
+ *         runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
+ */
+function ensureReturnDecisionContract(summary: any): { summary: any; changed: boolean } {
+  const rt: any = summary?.runtime;
+  if (!rt || typeof rt !== "object") return { summary, changed: false };
+
+  const hasRequired = typeof rt.return_decision_required === "boolean";
+  const hasOptions = Array.isArray(rt.return_decision_options);
+
+  if (hasRequired && hasOptions) return { summary, changed: false };
+
+  let changed = false;
+
+  // Upgrade mapping: if legacy has split_active, map it into the explicit contract fields.
+  // This is a one-way upgrade step, not response-time inference.
+  const splitActive = typeof rt.split_active === "boolean" ? rt.split_active : false;
+
+  if (!hasRequired) {
+    rt.return_decision_required = splitActive === true;
+    changed = true;
+  }
+
+  if (!hasOptions) {
+    rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
+    changed = true;
+  }
+
+  return { summary, changed };
+}
+
 async function allocNextSeq(client: any, session_id: string): Promise<number> {
   await client.query(
     `INSERT INTO session_event_seq(session_id, next_seq)
@@ -283,15 +321,19 @@ export async function startSession(req: Request, res: Response) {
     const planned = s.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, s.session_state_summary);
 
+    // Ensure contract fields exist (upgrade step).
+    const upgraded0 = ensureReturnDecisionContract(normalized);
+    const shouldPersist0 = needsUpgrade || upgraded0.changed;
+
     // If already started, just ensure status + optionally upgrade summary
-    if (normalized.started === true) {
+    if (upgraded0.summary.started === true) {
       await client.query(
         `UPDATE sessions
          SET status = 'in_progress',
              session_state_summary = $2::jsonb,
              updated_at = now()
          WHERE session_id = $1`,
-        [session_id, JSON.stringify(needsUpgrade ? normalized : (s.session_state_summary ?? normalized))]
+        [session_id, JSON.stringify(shouldPersist0 ? upgraded0.summary : (s.session_state_summary ?? upgraded0.summary))]
       );
 
       await client.query("COMMIT");
@@ -309,11 +351,14 @@ export async function startSession(req: Request, res: Response) {
 
     let nextSummary: any;
     try {
-      nextSummary = applyWireEvent(normalized as any, ev as any, planned as any) as any;
+      nextSummary = applyWireEvent(upgraded0.summary as any, ev as any, planned as any) as any;
     } catch (e: unknown) {
       mapEngineWireApplyError(e);
     }
     nextSummary.last_seq = seq;
+
+    // Ensure contract fields exist after reducer application.
+    const upgraded1 = ensureReturnDecisionContract(nextSummary);
 
     await client.query(
       `UPDATE sessions
@@ -321,7 +366,7 @@ export async function startSession(req: Request, res: Response) {
            session_state_summary = $2::jsonb,
            updated_at = now()
        WHERE session_id = $1`,
-      [session_id, JSON.stringify(nextSummary)]
+      [session_id, JSON.stringify(upgraded1.summary)]
     );
 
     await client.query("COMMIT");
@@ -365,7 +410,11 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     const planned = s.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, s.session_state_summary);
 
-    let workingSummary: any = normalized;
+    // Ensure contract fields exist (upgrade step).
+    const upgraded0 = ensureReturnDecisionContract(normalized);
+    const shouldPersist0 = needsUpgrade || upgraded0.changed;
+
+    let workingSummary: any = upgraded0.summary;
 
     // Product-safe: auto-start if not started
     if (workingSummary.started !== true) {
@@ -385,6 +434,9 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       }
       workingSummary.last_seq = startSeq;
 
+      // Ensure contract fields exist after reducer application.
+      workingSummary = ensureReturnDecisionContract(workingSummary).summary;
+
       await client.query(
         `UPDATE sessions
          SET status = 'in_progress',
@@ -393,7 +445,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
          WHERE session_id = $1`,
         [session_id, JSON.stringify(workingSummary)]
       );
-    } else if (needsUpgrade) {
+    } else if (shouldPersist0) {
       // Persist upgraded snapshot even if already started
       await client.query(
         `UPDATE sessions
@@ -419,6 +471,9 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       mapEngineWireApplyError(e);
     }
     nextSummary.last_seq = seq;
+
+    // Ensure contract fields exist after reducer application.
+    nextSummary = ensureReturnDecisionContract(nextSummary).summary;
 
     await client.query(
       `UPDATE sessions
@@ -474,35 +529,38 @@ export async function getSessionState(req: Request, res: Response) {
     if (!row) throw notFound("Session not found");
 
     const planned = row.planned_session as PlannedSession;
-    const { summary, needsUpgrade } = normalizeSummary(planned as any, row.session_state_summary);
+    const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, row.session_state_summary);
+
+    // Ensure contract fields exist (upgrade step). No response-time inference.
+    const upgraded = ensureReturnDecisionContract(normalized);
+    const shouldPersist = needsUpgrade || upgraded.changed;
 
     // If legacy/invalid, upgrade storage silently (product-safe)
-    if (needsUpgrade) {
+    if (shouldPersist) {
       await client.query(
         `UPDATE sessions
          SET session_state_summary = $2::jsonb,
              updated_at = now()
          WHERE session_id = $1`,
-        [session_id, JSON.stringify(summary)]
+        [session_id, JSON.stringify(upgraded.summary)]
       );
     }
 
-    const trace = deriveTrace(summary as any) as any;
+    const trace = deriveTrace(upgraded.summary as any) as any;
 
     // Contract lock:
-    // Expose gate semantics via return_decision_* (never require clients to infer from split_active).
-    const rt: any = (summary as any)?.runtime ?? {};
-    const return_decision_required =
-      typeof rt?.return_decision_required === "boolean"
-        ? rt.return_decision_required
-        : (typeof rt?.split_active === "boolean" ? rt.split_active === true : false);
+    // Expose gate semantics ONLY via return_decision_* fields (never derive from split_active in response).
+    const rt: any = (upgraded.summary as any)?.runtime ?? {};
+
+    const return_decision_required: boolean =
+      typeof rt?.return_decision_required === "boolean" ? rt.return_decision_required : false;
 
     const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
       Array.isArray(rt?.return_decision_options)
         ? rt.return_decision_options
             .map((x: any) => String(x))
             .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
-        : (return_decision_required ? ["RETURN_CONTINUE", "RETURN_SKIP"] : []);
+        : [];
 
     trace.return_decision_required = return_decision_required;
     trace.return_decision_options = return_decision_options;

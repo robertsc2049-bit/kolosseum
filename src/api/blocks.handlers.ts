@@ -98,8 +98,10 @@ function mapEngineRuntimeApplyError(e: unknown) {
       cause: msg
     });
   }
-  // Default: still a client error (runtime_events are caller-controlled).
-  throw badRequest("Invalid runtime_events/events (apply failed)", { cause: msg });
+
+  // Default: unknown engine/runtime exception => server fault, not client fault.
+  // This prevents misclassifying invariant bugs as 4xx.
+  throw internalError("Runtime apply failed (unexpected engine error)", { cause: msg });
 }
 
 /**

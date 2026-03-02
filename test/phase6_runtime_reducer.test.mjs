@@ -1,3 +1,4 @@
+// test/phase6_runtime_reducer.test.mjs
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -11,23 +12,34 @@ async function loadRuntime() {
   }
 }
 
+function asArray(v) {
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+  if (v instanceof Set) return Array.from(v);
+  if (typeof v[Symbol.iterator] === "function") return Array.from(v);
+  return [];
+}
+
 test("Phase6 runtime reducer: determinism for identical event sequences", async () => {
   const { makeRuntimeState, applyRuntimeEvent } = await loadRuntime();
 
   const ids = ["A", "B", "C"];
   const events = [
-    { type: "complete_exercise", exercise_id: "A" },
-    { type: "split_start" },
-    { type: "complete_exercise", exercise_id: "B" },
-    { type: "split_return_continue" }
+    { type: "COMPLETE_EXERCISE", exercise_id: "A" },
+
+    // Split introduces an explicit return gate. No progress events allowed until RETURN_*.
+    { type: "SPLIT_SESSION" },
+    { type: "RETURN_CONTINUE" },
+
+    { type: "COMPLETE_EXERCISE", exercise_id: "B" }
   ];
 
   const s1 = events.reduce((s, e) => applyRuntimeEvent(s, e), makeRuntimeState(ids));
   const s2 = events.reduce((s, e) => applyRuntimeEvent(s, e), makeRuntimeState(ids));
 
-  assert.deepEqual([...s1.remaining_ids], [...s2.remaining_ids]);
-  assert.deepEqual([...s1.completed_ids].sort(), [...s2.completed_ids].sort());
-  assert.deepEqual([...s1.skipped_ids].sort(), [...s2.skipped_ids].sort());
+  assert.deepEqual(asArray(s1.remaining_ids), asArray(s2.remaining_ids));
+  assert.deepEqual(asArray(s1.completed_ids).sort(), asArray(s2.completed_ids).sort());
+  assert.deepEqual(asArray(s1.skipped_ids).sort(), asArray(s2.skipped_ids).sort());
 });
 
 test("Phase6 runtime reducer: idempotent complete/skip never resurrects", async () => {
@@ -36,13 +48,13 @@ test("Phase6 runtime reducer: idempotent complete/skip never resurrects", async 
   const ids = ["A", "B"];
   let s = makeRuntimeState(ids);
 
-  s = applyRuntimeEvent(s, { type: "complete_exercise", exercise_id: "A" });
-  s = applyRuntimeEvent(s, { type: "complete_exercise", exercise_id: "A" });
-  s = applyRuntimeEvent(s, { type: "skip_exercise", exercise_id: "A" });
+  s = applyRuntimeEvent(s, { type: "COMPLETE_EXERCISE", exercise_id: "A" });
+  s = applyRuntimeEvent(s, { type: "COMPLETE_EXERCISE", exercise_id: "A" });
+  s = applyRuntimeEvent(s, { type: "SKIP_EXERCISE", exercise_id: "A" });
 
-  assert.equal(s.remaining_ids.includes("A"), false);
-  assert.equal(s.completed_ids.has("A"), true);
-  assert.equal(s.skipped_ids.has("A"), false); // complete wins over later skip
+  assert.equal(asArray(s.remaining_ids).includes("A"), false);
+  assert.equal(asArray(s.completed_ids).includes("A"), true);
+  assert.equal(asArray(s.skipped_ids).includes("A"), false); // complete wins over later skip
 });
 
 test("Phase6 runtime reducer: split return skip drops remaining at split", async () => {
@@ -51,13 +63,15 @@ test("Phase6 runtime reducer: split return skip drops remaining at split", async
   const ids = ["A", "B", "C"];
   let s = makeRuntimeState(ids);
 
-  s = applyRuntimeEvent(s, { type: "split_start" });
-  s = applyRuntimeEvent(s, { type: "complete_exercise", exercise_id: "A" });
+  // Complete A first. Then split captures remaining at split time (B,C).
+  s = applyRuntimeEvent(s, { type: "COMPLETE_EXERCISE", exercise_id: "A" });
 
-  // At split time remaining was A,B,C. Now remaining is B,C. Skip should drop B,C.
-  s = applyRuntimeEvent(s, { type: "split_return_skip" });
+  s = applyRuntimeEvent(s, { type: "SPLIT_SESSION" });
 
-  assert.deepEqual(s.remaining_ids, []);
+  // RETURN_SKIP should drop whatever remained at split time (B,C).
+  s = applyRuntimeEvent(s, { type: "RETURN_SKIP" });
+
+  assert.deepEqual(asArray(s.remaining_ids), []);
 });
 
 test("Phase6 runtime reducer: unknown event hard fails", async () => {
@@ -66,5 +80,5 @@ test("Phase6 runtime reducer: unknown event hard fails", async () => {
   const ids = ["A"];
   const s = makeRuntimeState(ids);
 
-  assert.throws(() => applyRuntimeEvent(s, { type: "nope" }), /PHASE6_RUNTIME_UNKNOWN_EVENT/);
+  assert.throws(() => applyRuntimeEvent(s, { type: "NOPE" }), /PHASE6_RUNTIME_UNKNOWN_EVENT/);
 });
