@@ -29,7 +29,6 @@ async function readJsonOrText(res) {
 }
 
 function defaultDbUrl() {
-  // Match repo convention seen in scripts/smoke-blocks-run.ps1
   return "postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test";
 }
 
@@ -38,34 +37,20 @@ function getDbUrl() {
   return env.length > 0 ? env : defaultDbUrl();
 }
 
-function sanitizeDbUrl(dbUrl) {
-  // Never rely on URL.toString() after mutating username/password; rebuild deterministically.
+function parseDbComponents(dbUrl) {
   try {
     const u = new URL(dbUrl);
-
-    const user = u.username ? encodeURIComponent(u.username) : "";
-    const pass = u.password ? "***" : "";
-    const auth = user ? (pass ? `${user}:${pass}@` : `${user}@`) : "";
-
-    // u.host includes hostname:port (port if present)
-    // Preserve pathname/search/hash exactly.
-    const out = `${u.protocol}//${auth}${u.host}${u.pathname}${u.search}${u.hash}`;
-
-    // Ensure single-line logs even if caller passes weird whitespace.
-    return out.replace(/\s+/g, "");
+    return {
+      host: u.hostname || "127.0.0.1",
+      port: Number(u.port || "5432"),
+      name: (u.pathname || "/").replace(/^\//, "") || "unknown"
+    };
   } catch {
-    return "<invalid DATABASE_URL>";
-  }
-}
-
-function parseHostPort(dbUrl) {
-  try {
-    const u = new URL(dbUrl);
-    const host = u.hostname || "127.0.0.1";
-    const port = Number(u.port || "5432");
-    return { host, port };
-  } catch {
-    return { host: "127.0.0.1", port: 5432 };
+    return {
+      host: "127.0.0.1",
+      port: 5432,
+      name: "unknown"
+    };
   }
 }
 
@@ -77,9 +62,7 @@ async function canConnectTcp(host, port, timeoutMs = 250) {
     function finish(ok) {
       if (done) return;
       done = true;
-      try {
-        sock.destroy();
-      } catch {}
+      try { sock.destroy(); } catch {}
       resolve(ok);
     }
 
@@ -91,8 +74,6 @@ async function canConnectTcp(host, port, timeoutMs = 250) {
 }
 
 async function loadExpressAppOrDie() {
-  // dist/src/server.js imports db/pool at module top-level.
-  // Ensure DATABASE_URL is set *before* import.
   const dbUrl = getDbUrl();
   process.env.DATABASE_URL = dbUrl;
 
@@ -105,17 +86,15 @@ async function loadExpressAppOrDie() {
 
 test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start -> /sessions/:id/state", async (t) => {
   const dbUrl = getDbUrl();
-  const safeDbUrl = sanitizeDbUrl(dbUrl);
-  const { host, port } = parseHostPort(dbUrl);
+  const { host, port, name } = parseDbComponents(dbUrl);
 
-  // Marker: prove in CI logs whether we skipped/passed and what we targeted (without leaking secrets).
-  // Keep it one line for easy grep.
-  console.log(`${MARK} begin ci=${isCi()} target=${host}:${port} db=${safeDbUrl}`);
+  console.log(
+    `${MARK} begin ci=${isCi()} target=${host}:${port} db_host=${host} db_port=${port} db_name=${name}`
+  );
 
-  // If nothing is listening, skip (local and any CI lane that doesn't provision DB).
   const tcpOk = await canConnectTcp(host, port, 250);
   if (!tcpOk) {
-    const msg = `Tier-1 smoke skipped: no Postgres listening at ${host}:${port} (db=${safeDbUrl})`;
+    const msg = `Tier-1 smoke skipped: no Postgres listening at ${host}:${port}`;
     console.log(`${MARK} skip tcp ${msg}`);
     t.skip(msg);
     return;
@@ -128,7 +107,7 @@ test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start
     await new Promise((resolveListen) => srv.listen(0, "127.0.0.1", resolveListen));
 
     const addr = srv.address();
-    assert.ok(addr && typeof addr === "object" && typeof addr.port === "number", "server address/port not available");
+    assert.ok(addr && typeof addr === "object" && typeof addr.port === "number");
     const baseUrl = "http://127.0.0.1:" + addr.port;
 
     const phase1 = loadDefaultFixtureOrDie();
@@ -142,48 +121,38 @@ test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start
 
     if (!compileRes.ok) {
       const body = await readJsonOrText(compileRes);
-      const msg = String(body?.error || body?.message || "");
-      const isAuthFail = msg.toLowerCase().includes("password authentication failed");
-
-      // Local convenience only: if a Postgres is up but creds are wrong, skip.
-      // CI correctness: do NOT skip auth failures in CI.
-      if (compileRes.status === 500 && isAuthFail && !isCi()) {
-        const skipMsg = `Tier-1 smoke skipped: Postgres auth failed (db=${safeDbUrl}). Bring up docker testdb or fix creds.`;
-        console.log(`${MARK} skip auth ${skipMsg}`);
-        t.skip(skipMsg);
-        return;
-      }
-
       throw new Error(
-        "blocks/compile failed: " + compileRes.status + " body=" + JSON.stringify(body).slice(0, 2000)
+        "blocks/compile failed: " +
+        compileRes.status +
+        " body=" +
+        JSON.stringify(body).slice(0, 2000)
       );
     }
 
     const compiled = await readJsonOrText(compileRes);
-    assert.ok(compiled && typeof compiled === "object", "compile response not object");
-    assert.ok(compiled.block_id, "expected block_id");
-    assert.ok(compiled.session_id, "expected session_id (create_session=true)");
+    assert.ok(compiled.block_id);
+    assert.ok(compiled.session_id);
 
     const sessionId = String(compiled.session_id);
 
     const startRes = await fetch(baseUrl + "/sessions/" + sessionId + "/start", { method: "POST" });
     if (!startRes.ok) {
       const body = await readJsonOrText(startRes);
-      throw new Error("sessions/start failed: " + startRes.status + " body=" + JSON.stringify(body).slice(0, 2000));
+      throw new Error("sessions/start failed: " + JSON.stringify(body).slice(0, 2000));
     }
 
     const stateRes = await fetch(baseUrl + "/sessions/" + sessionId + "/state");
     if (!stateRes.ok) {
       const body = await readJsonOrText(stateRes);
-      throw new Error("sessions/state failed: " + stateRes.status + " body=" + JSON.stringify(body).slice(0, 2000));
+      throw new Error("sessions/state failed: " + JSON.stringify(body).slice(0, 2000));
     }
 
     const state = await readJsonOrText(stateRes);
     assert.equal(String(state.session_id), sessionId);
-    assert.ok(state.trace && typeof state.trace === "object", "expected trace object");
-    assert.ok(Array.isArray(state.remaining_exercises), "expected remaining_exercises[]");
-    assert.ok(Array.isArray(state.completed_exercises), "expected completed_exercises[]");
-    assert.ok(Array.isArray(state.dropped_exercises), "expected dropped_exercises[]");
+    assert.ok(state.trace && typeof state.trace === "object");
+    assert.ok(Array.isArray(state.remaining_exercises));
+    assert.ok(Array.isArray(state.completed_exercises));
+    assert.ok(Array.isArray(state.dropped_exercises));
 
     console.log(`${MARK} pass session_id=${sessionId}`);
   } finally {
