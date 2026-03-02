@@ -1,11 +1,12 @@
 // src/server.ts
-import express from 'express';
+import express from "express";
+import path from "node:path";
 
-import { sessionsRouter } from './api/sessions.routes.js';
-import { blocksRouter } from './api/blocks.routes.js';
-import { apiErrorMiddleware } from './api/error_middleware.js';
+import { sessionsRouter } from "./api/sessions.routes.js";
+import { blocksRouter } from "./api/blocks.routes.js";
+import { apiErrorMiddleware } from "./api/error_middleware.js";
 
-import { VERSION } from './version.js';
+import { VERSION } from "./version.js";
 
 export const app = express();
 
@@ -16,13 +17,27 @@ export const app = express();
  * Must be unauthenticated and must not touch DB.
  * Used by CI + deploy health probes.
  */
-app.get('/health', (_req, res) => {
-  return res.status(200).json({ status: 'ok', version: VERSION });
+app.get("/health", (_req, res) => {
+  return res.status(200).json({ status: "ok", version: VERSION });
 });
 
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: "1mb" }));
 
-app.use('/sessions', sessionsRouter);
-app.use('/blocks', blocksRouter);
+/**
+ * Minimal built-in UI (static, no framework)
+ * - /ui/session.html?session_id=...
+ * - /ui/session/:session_id (redirect convenience)
+ */
+const publicDir = path.resolve(process.cwd(), "public");
+app.use("/ui", express.static(publicDir));
+
+app.get("/ui/session/:session_id", (req, res) => {
+  const sid = String(req.params.session_id ?? "").trim();
+  if (!sid) return res.redirect("/ui/session.html");
+  return res.redirect(`/ui/session.html?session_id=${encodeURIComponent(sid)}`);
+});
+
+app.use("/sessions", sessionsRouter);
+app.use("/blocks", blocksRouter);
 
 app.use(apiErrorMiddleware);

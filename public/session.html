@@ -1,0 +1,72 @@
+// public/session.html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kolosseum — Session UI (Return Decision)</title>
+    <link rel="stylesheet" href="/ui/session.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <div>
+          <div class="h1">Session UI</div>
+          <div class="sub">Return-decision gate banner (diagnostic)</div>
+        </div>
+        <div class="pill" id="apiBasePill">API: <span id="apiBaseText"></span></div>
+      </header>
+
+      <section class="card">
+        <div class="row">
+          <label class="label" for="sessionId">session_id</label>
+          <input id="sessionId" class="input" placeholder="e.g. s_..." autocomplete="off" />
+          <button id="btnLoad" class="btn">Load</button>
+          <button id="btnStart" class="btn secondary">Start</button>
+        </div>
+        <div class="hint">
+          Tip: open <span class="mono">/ui/session/&lt;session_id&gt;</span> for a shortcut redirect.
+        </div>
+      </section>
+
+      <section class="card banner hidden" id="returnBanner">
+        <div class="banner-left">
+          <div class="banner-title">Return decision required</div>
+          <div class="banner-sub">Client must choose what to do when returning from split.</div>
+        </div>
+        <div class="banner-actions">
+          <button id="btnContinue" class="btn danger">Continue</button>
+          <button id="btnSkip" class="btn danger secondary">Skip</button>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div class="h2">State summary</div>
+          <div class="kv">
+            <div class="k">started</div><div class="v" id="vStarted">-</div>
+            <div class="k">return_decision_required</div><div class="v mono" id="vGate">-</div>
+            <div class="k">return_decision_options</div><div class="v mono" id="vOptions">-</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="h2">Raw trace</div>
+          <pre class="pre" id="traceJson">{}</pre>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="h2">Last response</div>
+        <pre class="pre" id="stateJson">{}</pre>
+      </section>
+
+      <section class="card">
+        <div class="h2">Console</div>
+        <pre class="pre" id="log"></pre>
+      </section>
+    </div>
+
+    <script src="/ui/session.js"></script>
+  </body>
+</html>
