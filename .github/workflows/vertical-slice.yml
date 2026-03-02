@@ -45,6 +45,7 @@ jobs:
 
       - name: Build
         run: npm run build:fast
+
       - name: Start server
         run: |
           rm -f /tmp/kolosseum-server.log /tmp/kolosseum-server.pid || true
@@ -64,6 +65,7 @@ jobs:
           echo "--- /tmp/kolosseum-server.log (tail) ---"
           tail -n 200 /tmp/kolosseum-server.log || true
           exit 1
+
       - name: Hit plan-session endpoint
         run: |
           node - <<'NODE'
@@ -93,3 +95,60 @@ jobs:
             kill "$(cat /tmp/kolosseum-server.pid)" || true
           fi
           sleep 1
+
+  tier1_smoke_db:
+    name: tier1-smoke-db
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kolosseum_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d kolosseum_test"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=30
+    env:
+      KOLOSSEUM_GREEN: "1"
+      KOLOSSEUM_GREEN_ENTRYPOINT: "ci"
+      PORT: "3000"
+      DATABASE_URL: "postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build:fast
+
+      - name: Wait for Postgres
+        run: |
+          for i in {1..60}; do
+            if (echo > /dev/tcp/127.0.0.1/5432) >/dev/null 2>&1; then
+              echo "OK: postgres port open on 127.0.0.1:5432"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "ERROR: postgres port did not open"
+          exit 1
+
+      - name: Apply schema
+        run: node scripts/apply-schema.mjs --db-url "${DATABASE_URL}"
+
+      - name: Tier-1 smoke (vertical slice with DB)
+        run: node --test test/smoke_vertical_slice_plan_start_state.test.mjs
