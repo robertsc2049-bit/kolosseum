@@ -21,6 +21,8 @@ import {
   internalError
 } from "./http_errors.js";
 
+import { sessionStateCache } from "./session_state_cache.js";
+
 type JsonRecord = Record<string, unknown>;
 
 function isRecord(v: unknown): v is JsonRecord {
@@ -337,6 +339,10 @@ export async function startSession(req: Request, res: Response) {
       );
 
       await client.query("COMMIT");
+
+      // invalidate cache after successful commit
+      sessionStateCache.del(session_id);
+
       return res.json({ ok: true, session_id, started: true });
     }
 
@@ -370,6 +376,10 @@ export async function startSession(req: Request, res: Response) {
     );
 
     await client.query("COMMIT");
+
+    // invalidate cache after successful commit
+    sessionStateCache.del(session_id);
+
     return res.status(200).json({ ok: true, session_id, started: true, seq });
   } catch (err: unknown) {
     try {
@@ -484,6 +494,10 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     );
 
     await client.query("COMMIT");
+
+    // invalidate cache after successful commit
+    sessionStateCache.del(session_id);
+
     return res.status(201).json({ ok: true, session_id, seq });
   } catch (err: unknown) {
     try {
@@ -514,14 +528,23 @@ export async function listRuntimeEvents(req: Request, res: Response) {
   return res.json({ session_id, events: r.rows });
 }
 
+const SESSION_STATE_CACHE_TTL_MS = 2000;
+
 /**
  * GET /sessions/:session_id/state
  * - O(1) read from sessions.session_state_summary (no runtime_events scan)
  * - Once started=true, response is derived ONLY from stored runtime snapshot + reducer-owned invariants.
+ * - Cache v1: read-through, short TTL, invalidated on start/events commit.
  */
 export async function getSessionState(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) throw badRequest("Missing session_id");
+
+  // Cache-first (do not cache errors)
+  const cached = sessionStateCache.get(session_id);
+  if (cached) {
+    return res.json(cached);
+  }
 
   const client = await pool.connect();
   try {
@@ -570,7 +593,7 @@ export async function getSessionState(req: Request, res: Response) {
     const completed_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.completed_ids));
     const dropped_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.dropped_ids));
 
-    return res.json({
+    const payload = {
       session_id,
       started: trace.started,
       remaining_exercises,
@@ -578,7 +601,11 @@ export async function getSessionState(req: Request, res: Response) {
       dropped_exercises,
       trace,
       event_log: [] // history is /events; state is O(1)
-    });
+    };
+
+    sessionStateCache.set(session_id, payload, SESSION_STATE_CACHE_TTL_MS);
+
+    return res.json(payload);
   } finally {
     client.release();
   }
