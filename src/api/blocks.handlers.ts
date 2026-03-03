@@ -190,6 +190,20 @@ export async function compileBlock(req: Request, res: Response) {
   let runtime_state: any;
   try {
     runtime_state = applyRuntimeEvents(planned_session_from_engine as any, runtime_events as any);
+    // TEST SENTINEL: force an unhandled runtime apply throw (must map to 500, not 400).
+    if (process.env.KOLOSSEUM_TEST_FORCE_RUNTIME_APPLY_THROW === "1") {
+      throw new Error("KOLOSSEUM_TEST_FORCE_RUNTIME_APPLY_THROW: unhandled apply failure sentinel");
+    }
+
+    // Contract lock: do not leak legacy/inferential gate fields via API.
+    // Only return_decision_required/options are allowed semantics.
+    if (runtime_state && typeof (runtime_state as any) === "object") {
+      const __t = (runtime_state as any).runtime_trace;
+      if (__t && typeof __t === "object") {
+        delete (__t as any).split_active;
+        delete (__t as any).return_gate_required;
+      }
+    }
   } catch (e: unknown) {
     mapEngineRuntimeApplyError(e);
   }
