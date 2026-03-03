@@ -3,8 +3,8 @@
 # ----------------------------------------------------------
 # green.yml
 # - Runs on:
-#     • pull_request (all branches)
-#     • push to main only
+#     - pull_request (all branches)
+#     - push to main only
 # - Does NOT run on feature branch pushes by design.
 # - Heavy validation gate; feature pushes rely on local hook.
 #
@@ -97,7 +97,4 @@ jobs:
         run: npm run build:fast
 
       - name: Integration (DB-backed)
-        run: |
-          node --test \
-            test/api.return_gate.regression.test.mjs \
-            test/api.blocks_compile_apply_unknown_maps_500.regression.test.mjs
+        run: npm run test:ci:integration
