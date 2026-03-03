@@ -32,8 +32,8 @@ async function getFreePort() {
   });
 }
 
-function spawnNode(args, opts = {}) {
-  const child = spawn(process.execPath, args, {
+function spawnProc(cmd, args, opts = {}) {
+  const child = spawn(cmd, args, {
     stdio: ["ignore", "pipe", "pipe"],
     ...opts,
   });
@@ -53,6 +53,15 @@ function spawnNode(args, opts = {}) {
       return stderr;
     },
   };
+}
+
+function spawnNode(args, opts = {}) {
+  return spawnProc(process.execPath, args, opts);
+}
+
+function spawnNpm(args, opts = {}) {
+  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
+  return spawnProc(npmCmd, args, opts);
 }
 
 async function delay(ms) {
@@ -99,17 +108,33 @@ async function httpJson(method, url, body) {
   return { res, text, json };
 }
 
-test("API regression: split return decision gate blocks events until RETURN_CONTINUE", async (t) => {
-  const root = repoRoot();
-
-  // ---- Build guard (this is an integration test that runs dist/) ----
+async function ensureBuiltDist(root, env) {
   const serverEntrypoint = path.join(root, "dist", "src", "main.js");
-  if (!(await fileExists(serverEntrypoint))) {
+  if (await fileExists(serverEntrypoint)) return serverEntrypoint;
+
+  // Build is required for this integration test. Make it deterministic on clean runners.
+  const build = spawnNpm(["run", "build:fast"], { cwd: root, env });
+  const code = await new Promise((resolve) => build.child.on("close", resolve));
+
+  if (code !== 0) {
     throw new Error(
-      `Missing server entrypoint at ${serverEntrypoint}\n` +
-        `This test requires a build. Run: npm run build:fast (or npm run build) before node --test.`
+      `build:fast failed (code=${code}).\n` +
+        `stdout:\n${build.stdout}\n` +
+        `stderr:\n${build.stderr}`
     );
   }
+
+  if (!(await fileExists(serverEntrypoint))) {
+    throw new Error(
+      `build:fast completed but server entrypoint is still missing:\n${serverEntrypoint}`
+    );
+  }
+
+  return serverEntrypoint;
+}
+
+test("API regression: split return decision gate blocks events until RETURN_CONTINUE", async (t) => {
+  const root = repoRoot();
 
   // ---- Environment ----
   const env = {
@@ -123,6 +148,9 @@ test("API regression: split return decision gate blocks events until RETURN_CONT
     PORT: "0",
   };
   delete env.SMOKE_NO_DB;
+
+  // ---- Ensure dist build exists (self-sufficient) ----
+  const serverEntrypoint = await ensureBuiltDist(root, env);
 
   // ---- Apply schema (idempotent) ----
   {
@@ -148,7 +176,6 @@ test("API regression: split return decision gate blocks events until RETURN_CONT
         server.child.kill();
       } catch {}
     }
-    // small grace to flush stdio
     await delay(80);
   });
 
