@@ -219,13 +219,13 @@ function toPlannedExercisesFromIds(planned: PlannedSession, ids: string[]): Plan
 
 /**
  * Contract upgrade:
- * Legacy: runtime.split_active (boolean)
- * New:    runtime.return_decision_required (boolean)
- *         runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
+ * Legacy carrier (internal only): trace.split_active (boolean) and/or runtime.split_active (boolean)
+ * New (persisted + API): runtime.return_decision_required (boolean)
+ *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
  *
  * Hard rule:
  * - split_active is legacy input ONLY.
- * - After upgrade, delete split_active from persisted summaries so nothing can read it later.
+ * - Server may upgrade internally (including from derived trace), then MUST emit only explicit fields.
  */
 function ensureReturnDecisionContract(summary: any): { summary: any; changed: boolean } {
   const rt: any = summary?.runtime;
@@ -236,8 +236,25 @@ function ensureReturnDecisionContract(summary: any): { summary: any; changed: bo
 
   let changed = false;
 
-  const splitActivePresent = typeof rt.split_active === "boolean";
-  const splitActive = splitActivePresent ? rt.split_active : false;
+  // Prefer persisted runtime legacy; otherwise allow upgrade from derived legacy trace.
+  const runtimeSplitActivePresent = typeof rt.split_active === "boolean";
+  const runtimeSplitActive = runtimeSplitActivePresent ? rt.split_active : undefined;
+
+  let derivedSplitActive: boolean | undefined = undefined;
+  if (typeof runtimeSplitActive !== "boolean") {
+    try {
+      const t: any = deriveTrace(summary as any) as any;
+      if (typeof t?.split_active === "boolean") derivedSplitActive = t.split_active;
+    } catch {
+      // deriveTrace should be stable, but never let upgrade crash the API.
+      derivedSplitActive = undefined;
+    }
+  }
+
+  const splitActive: boolean =
+    typeof runtimeSplitActive === "boolean"
+      ? runtimeSplitActive
+      : (typeof derivedSplitActive === "boolean" ? derivedSplitActive : false);
 
   // Upgrade missing explicit fields (migration mapping is allowed only here).
   if (!hasRequired) {
@@ -580,6 +597,7 @@ export async function getSessionState(req: Request, res: Response) {
     const planned = row.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, row.session_state_summary);
 
+    // IMPORTANT: upgrade may rely on derived legacy trace.split_active
     const upgraded = ensureReturnDecisionContract(normalized);
     const shouldPersist = needsUpgrade || upgraded.changed;
 
