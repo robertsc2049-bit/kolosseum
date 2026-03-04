@@ -244,7 +244,8 @@ function ensureReturnDecisionContract(summary: any): { summary: any; changed: bo
   if (typeof runtimeSplitActive !== "boolean") {
     try {
       const t: any = deriveTrace(summary as any) as any;
-      if (typeof t?.split_active === "boolean") derivedSplitActive = t.split_active;
+      if (typeof t?.return_gate_required === "boolean") derivedSplitActive = t.return_gate_required;
+      else if (typeof t?.split_active === "boolean") derivedSplitActive = t.split_active;
     } catch {
       // deriveTrace should be stable, but never let upgrade crash the API.
       derivedSplitActive = undefined;
