@@ -473,6 +473,15 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     const s = await loadSessionForUpdate(client, session_id);
     if (!s) throw notFound("Session not found");
 
+    // E2E-only hook: force an UNKNOWN (non-whitelisted) engine/runtime exception and ensure it maps to 500.
+    // This MUST NOT be a 4xx classification.
+    if (
+      process.env.KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500 === "1" &&
+      rawEventType(raw) === "E2E_FORCE_UNKNOWN_ENGINE_ERROR"
+    ) {
+      mapEngineWireApplyError(new Error("E2E_FORCED_UNKNOWN_ENGINE_EXCEPTION"));
+    }
+
     const planned = s.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, s.session_state_summary);
 
