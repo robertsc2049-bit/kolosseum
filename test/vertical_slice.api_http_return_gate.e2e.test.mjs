@@ -44,9 +44,8 @@ async function runNpm(script) {
 }
 
 function loadPhase1FixtureOrThrow() {
-  // This file already exists in your repo and is used by server planSession as a default.
-  // Here we use it as a deterministic "minimal viable" phase1_input for /blocks/compile.
-  // If this ever stops being Phase1-shaped, that is a real contract break and should fail loudly.
+  // Canonical minimal Phase-1 contract fixture.
+  // Used by server defaults and by this HTTP e2e as the deterministic minimal input for /blocks/compile.
   const fixturePath = path.resolve(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
   if (!fs.existsSync(fixturePath)) {
     throw new Error(`Missing fixture: ${fixturePath}`);
@@ -54,23 +53,30 @@ function loadPhase1FixtureOrThrow() {
   return JSON.parse(fs.readFileSync(fixturePath, "utf8"));
 }
 
-test("Vertical slice (HTTP): compile->create session->start->return gate events->state contract", async (t) => {  // Current boot truth: server imports DB pool at module load, so DATABASE_URL is required.
+test("Vertical slice (HTTP): compile->create session->start->return gate events->state contract", async (t) => {
+  const gateEnabled = process.env.KOLOSSEUM_HTTP_E2E_RETURN_GATE === "1";
+
+  // Current boot truth: server imports DB pool at module load, so DATABASE_URL is required.
   // Local default: skip if missing (unless the gate is explicitly enabled).
   if (!process.env.DATABASE_URL) {
-    if (process.env.KOLOSSEUM_HTTP_E2E_RETURN_GATE === "1") {
+    if (gateEnabled) {
       throw new Error("KOLOSSEUM_HTTP_E2E_RETURN_GATE=1 requires DATABASE_URL (CI contract).");
     }
     t.skip("DATABASE_URL missing; server boot hard-requires DB right now. Skipping HTTP vertical-slice.");
     return;
-  }  // Hard requirement: dist build must exist for server spawn.
+  }
+
+  // Hard requirement: dist build must exist for server spawn.
   // Local default: skip if missing (unless the gate is explicitly enabled).
   if (!fs.existsSync(path.resolve(process.cwd(), "dist", "src", "main.js"))) {
-    if (process.env.KOLOSSEUM_HTTP_E2E_RETURN_GATE === "1") {
+    if (gateEnabled) {
       throw new Error("KOLOSSEUM_HTTP_E2E_RETURN_GATE=1 requires dist build (run build:fast).");
     }
     t.skip("dist/src/main.js missing; run build:fast before executing HTTP e2e.");
     return;
-  }// Ensure DB schema exists (sessions/blocks/runtime_events tables).
+  }
+
+  // Ensure DB schema exists (sessions/blocks/runtime_events tables).
   await runNpm("db:schema");
 
   const port = 58123 + Math.floor(Math.random() * 2000);
@@ -88,7 +94,7 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
   try {
     await waitForHealth(baseUrl);
 
-    // Always assert /health (Tier-0 probe)
+    // Tier-0 probe
     {
       const r = await fetch(`${baseUrl}/health`);
       assert.equal(r.status, 200);
@@ -97,18 +103,8 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
       assert.ok(typeof j?.version === "string" && j.version.length > 0);
     }
 
-    // Full return-gate flow must be explicitly enabled (CI sets this to "1").
-        // Full return-gate flow must be explicitly enabled (CI sets this to "1").
-    const gateEnabled = process.env.KOLOSSEUM_HTTP_E2E_RETURN_GATE === "1";
+    // Gate flow is explicitly opt-in.
     if (!gateEnabled) return;
-
-    // If the gate is enabled, these become hard requirements (CI contract).
-    if (!process.env.DATABASE_URL) {
-      throw new Error("KOLOSSEUM_HTTP_E2E_RETURN_GATE=1 requires DATABASE_URL (CI contract).");
-    }
-    if (!fs.existsSync(path.resolve(process.cwd(), "dist", "src", "main.js"))) {
-      throw new Error("KOLOSSEUM_HTTP_E2E_RETURN_GATE=1 requires dist build (run build:fast).");
-    }
 
     const phase1_input = loadPhase1FixtureOrThrow();
 
