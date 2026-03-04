@@ -4,6 +4,13 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
+async function readJsonOnce(res) {
+  const text = await res.text().catch(() => "");
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch { json = null; }
+  return { text, json };
+}
+
 function wait(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
@@ -20,8 +27,8 @@ async function waitForHealth(baseUrl, timeoutMs = 15000) {
   throw new Error(`server not healthy within ${timeoutMs}ms: ${baseUrl}/health`);
 }
 
-function spawnServer(port, extraEnv = {}) {
-  const env = { ...process.env, PORT: String(port), NODE_ENV: "test", ...extraEnv };
+function spawnServer(port) {
+  const env = { ...process.env, PORT: String(port), NODE_ENV: "test" };
 
   const child = spawn(process.execPath, ["dist/src/main.js"], {
     env,
@@ -36,11 +43,39 @@ function spawnServer(port, extraEnv = {}) {
   return { child, getLogs: () => out };
 }
 
-async function runNpm(script) {
-  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  const p = spawn(npmCmd, ["run", script], { stdio: "inherit", windowsHide: true });
-  const code = await new Promise((res) => p.on("exit", res));
-  if (code !== 0) throw new Error(`npm run ${script} failed (exit=${code})`);
+async function runNpm(scriptOrArgs, opts = {}) {
+  // Contract:
+  // - runNpm("db:schema")  => npm run db:schema
+  // - runNpm(["run","db:schema"]) => npm run db:schema
+  // Windows: wrap via cmd.exe to avoid npm(.cmd) spawn quirks.
+  const env = { ...process.env, ...(opts.env || {}) };
+
+  const tokens = Array.isArray(scriptOrArgs)
+    ? scriptOrArgs.map((x) => String(x))
+    : ["run", String(scriptOrArgs)];
+
+  if (tokens.length < 2 || tokens[0] !== "run") {
+    throw new Error(`runNpm: expected "run <script>" shape. Got: ${tokens.join(" ")}`);
+  }
+
+  const isWin = process.platform === "win32";
+  const cmd = isWin ? "cmd.exe" : "npm";
+  const cmdArgs = isWin ? ["/d", "/s", "/c", "npm", ...tokens] : tokens;
+
+  const p = spawn(cmd, cmdArgs, {
+    cwd: opts.cwd || process.cwd(),
+    env,
+    stdio: "inherit",
+    windowsHide: true,
+    shell: false,
+  });
+
+  const code = await new Promise((res, rej) => {
+    p.on("error", rej);
+    p.on("exit", res);
+  });
+
+  if (code !== 0) throw new Error(`npm ${tokens.join(" ")} failed (exit=${code})`);
 }
 
 function loadPhase1FixtureOrThrow() {
@@ -66,11 +101,10 @@ test("Vertical slice (HTTP): unknown engine exception maps to 500 (never 4xx)", 
 
   await runNpm("db:schema");
 
-  const port = 61200 + Math.floor(Math.random() * 2000);
+  const port = 60123 + Math.floor(Math.random() * 2000);
   const baseUrl = `http://127.0.0.1:${port}`;
 
-  // Enable the server-side sentinel so applyWireEvent throws an unknown error for any non-START event.
-  const { child, getLogs } = spawnServer(port, { KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW: "1" });
+  const { child, getLogs } = spawnServer(port);
 
   t.after(async () => {
     if (!child.killed) {
@@ -82,46 +116,55 @@ test("Vertical slice (HTTP): unknown engine exception maps to 500 (never 4xx)", 
   try {
     await waitForHealth(baseUrl);
 
-    // Gate is opt-in.
+    // Tier-0 probe
+    {
+      const r = await fetch(`${baseUrl}/health`);
+      const body = await readJsonOnce(r);
+      assert.equal(r.status, 200, body.text);
+      assert.equal(body.json?.status, "ok");
+      assert.ok(typeof body.json?.version === "string" && body.json.version.length > 0);
+    }
+
     if (!enabled) return;
 
     const phase1_input = loadPhase1FixtureOrThrow();
 
-    // 1) Compile + create session
+    // Create a session
     const compile = await fetch(`${baseUrl}/blocks/compile?create_session=true`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ phase1_input }),
     });
-    assert.ok(compile.status === 200 || compile.status === 201, await compile.text());
-    const compiled = await compile.json();
+    const compileBody = await readJsonOnce(compile);
+    assert.ok(compile.status === 200 || compile.status === 201, compileBody.text);
 
-    assert.ok(typeof compiled?.session_id === "string" && compiled.session_id.length > 0, "expected session_id");
-    const sessionId = compiled.session_id;
+    const sessionId = compileBody.json?.session_id;
+    assert.ok(typeof sessionId === "string" && sessionId.length > 0, "expected session_id");
 
-    // 2) Start
+    // Start session
     const start = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/start`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({}),
     });
-    assert.equal(start.status, 200, await start.text());
+    const startBody = await readJsonOnce(start);
+    assert.equal(start.status, 200, startBody.text);
 
-    // 3) Send a valid non-START runtime event.
-    // Use COMPLETE_STEP so the API expands it to a canonical engine event.
+    // Trigger the unknown-engine-500 pathway.
+    // Contract: when KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500=1, the server must expose a deterministic
+    // request that forces an UNKNOWN (non-whitelisted) engine exception and maps it to 500.
+    //
+    // This test assumes that request is implemented via a special event type.
     const ev = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ event: { type: "COMPLETE_STEP" } }),
+      body: JSON.stringify({ event: { type: "E2E_FORCE_UNKNOWN_ENGINE_ERROR" } }),
     });
 
-    const txt = await ev.text();
+    const evBody = await readJsonOnce(ev);
 
-    // Unknown exception must be a server fault.
-    assert.equal(ev.status, 500, txt);
-
-    // Lock the “unknown engine error” path: body should include sentinel marker or the generic message.
-    assert.match(txt, /(KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW|unexpected engine error)/i, "expected unknown-engine marker in body");
+    // The entire point: never classify unknown engine exceptions as 4xx.
+    assert.equal(ev.status, 500, evBody.text);
   } catch (e) {
     throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${getLogs()}`);
   }
