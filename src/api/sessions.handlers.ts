@@ -219,13 +219,15 @@ function toPlannedExercisesFromIds(planned: PlannedSession, ids: string[]): Plan
 
 /**
  * Contract upgrade:
- * Legacy carrier (internal only): trace.split_active (boolean) and/or runtime.split_active (boolean)
+ * Legacy carrier (engine/internal): runtime.split_active (boolean) and/or trace.split_active (boolean)
  * New (persisted + API): runtime.return_decision_required (boolean)
  *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
  *
- * Hard rule:
- * - split_active is legacy input ONLY.
- * - Server may upgrade internally (including from derived trace), then MUST emit only explicit fields.
+ * Hard rules:
+ * - split_active must NEVER escape the API surface.
+ * - BUT: do NOT delete runtime.split_active while the engine may still rely on it as the state carrier.
+ *   Keep it as internal persisted state until the engine fully migrates.
+ * - Server upgrades missing explicit fields here; API emits only explicit fields.
  */
 function ensureReturnDecisionContract(summary: any): { summary: any; changed: boolean } {
   const rt: any = summary?.runtime;
@@ -236,7 +238,7 @@ function ensureReturnDecisionContract(summary: any): { summary: any; changed: bo
 
   let changed = false;
 
-  // Prefer persisted runtime legacy; otherwise allow upgrade from derived legacy trace.
+  // Prefer persisted legacy carrier; otherwise allow upgrade from derived legacy trace.
   const runtimeSplitActivePresent = typeof rt.split_active === "boolean";
   const runtimeSplitActive = runtimeSplitActivePresent ? rt.split_active : undefined;
 
@@ -244,27 +246,25 @@ function ensureReturnDecisionContract(summary: any): { summary: any; changed: bo
   if (typeof runtimeSplitActive !== "boolean") {
     try {
       const t: any = deriveTrace(summary as any) as any;
-      {
-        const coerceLegacyBool = (v: unknown): boolean | undefined => {
-          if (typeof v === "boolean") return v;
-          if (typeof v === "number") {
-            if (v === 1) return true;
-            if (v === 0) return false;
-          }
-          if (typeof v === "string") {
-            if (v === "true") return true;
-            if (v === "false") return false;
-            if (v === "1") return true;
-            if (v === "0") return false;
-          }
-          return undefined;
-        };
+      const coerceLegacyBool = (v: unknown): boolean | undefined => {
+        if (typeof v === "boolean") return v;
+        if (typeof v === "number") {
+          if (v === 1) return true;
+          if (v === 0) return false;
+        }
+        if (typeof v === "string") {
+          if (v === "true") return true;
+          if (v === "false") return false;
+          if (v === "1") return true;
+          if (v === "0") return false;
+        }
+        return undefined;
+      };
 
-        const rg = coerceLegacyBool(t?.return_gate_required);
-        const sa = coerceLegacyBool(t?.split_active);
-        if (typeof rg === "boolean") derivedSplitActive = rg;
-        else if (typeof sa === "boolean") derivedSplitActive = sa;
-      }
+      const rg = coerceLegacyBool(t?.return_gate_required);
+      const sa = coerceLegacyBool(t?.split_active);
+      if (typeof rg === "boolean") derivedSplitActive = rg;
+      else if (typeof sa === "boolean") derivedSplitActive = sa;
     } catch {
       // deriveTrace should be stable, but never let upgrade crash the API.
       derivedSplitActive = undefined;
@@ -276,21 +276,23 @@ function ensureReturnDecisionContract(summary: any): { summary: any; changed: bo
       ? runtimeSplitActive
       : (typeof derivedSplitActive === "boolean" ? derivedSplitActive : false);
 
-  // Upgrade missing explicit fields (migration mapping is allowed only here).
+  // Upgrade missing explicit fields (migration mapping allowed only here).
   if (!hasRequired) {
     rt.return_decision_required = splitActive === true;
     changed = true;
   }
+
   if (!hasOptions) {
     rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
     changed = true;
+  } else {
+    // Defensive normalize: keep only known options (engine may evolve; API is strict).
+    rt.return_decision_options = (rt.return_decision_options as any[])
+      .map((x) => String(x))
+      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
   }
 
-  // Purge legacy semantic carrier after upgrade (even if explicit fields already existed).
-  if ("split_active" in rt) {
-    delete rt.split_active;
-    changed = true;
-  }
+  // IMPORTANT: do NOT delete rt.split_active here.
 
   return { summary, changed };
 }

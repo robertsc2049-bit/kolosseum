@@ -44,11 +44,40 @@ function spawnServer(port) {
   return { child, getLogs: () => out };
 }
 
-async function runNpm(script) {
-  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  const p = spawn(npmCmd, ["run", script], { stdio: "inherit", windowsHide: true });
-  const code = await new Promise((res) => p.on("exit", res));
-  if (code !== 0) throw new Error(`npm run ${script} failed (exit=${code})`);
+async function runNpm(scriptOrArgs, opts = {}) {
+  // Contract:
+  // - runNpm("db:schema")  => npm run db:schema
+  // - runNpm(["run","db:schema"]) => npm run db:schema
+  // Windows: wrap via cmd.exe to avoid npm(.cmd) spawn quirks.
+
+  const env = { ...process.env, ...(opts.env || {}) };
+
+  const tokens = Array.isArray(scriptOrArgs)
+    ? scriptOrArgs.map((x) => String(x))
+    : ["run", String(scriptOrArgs)];
+
+  if (tokens.length < 2 || tokens[0] !== "run") {
+    throw new Error(`runNpm: expected "run <script>" shape. Got: ${tokens.join(" ")}`);
+  }
+
+  const isWin = process.platform === "win32";
+  const cmd = isWin ? "cmd.exe" : "npm";
+  const cmdArgs = isWin ? ["/d", "/s", "/c", "npm", ...tokens] : tokens;
+
+  const p = spawn(cmd, cmdArgs, {
+    cwd: opts.cwd || process.cwd(),
+    env,
+    stdio: "inherit",
+    windowsHide: true,
+    shell: false
+  });
+
+  const code = await new Promise((res, rej) => {
+    p.on("error", rej);
+    p.on("exit", res);
+  });
+
+  if (code !== 0) throw new Error(`npm ${tokens.join(" ")} failed (exit=${code})`);
 }
 
 function loadPhase1FixtureOrThrow() {
