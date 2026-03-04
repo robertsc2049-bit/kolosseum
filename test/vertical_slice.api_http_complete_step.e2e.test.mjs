@@ -127,6 +127,7 @@ test("Vertical slice (HTTP): COMPLETE_STEP expands to COMPLETE_EXERCISE + state 
       assert.ok(typeof body.json?.version === "string" && body.json.version.length > 0);
     }
 
+    // Gate is opt-in.
     if (!enabled) return;
 
     const phase1_input = loadPhase1FixtureOrThrow();
@@ -142,7 +143,6 @@ test("Vertical slice (HTTP): COMPLETE_STEP expands to COMPLETE_EXERCISE + state 
 
     const compiled = compileBody.json;
     assert.ok(typeof compiled?.session_id === "string" && compiled.session_id.length > 0, "expected session_id");
-
     const sessionId = compiled.session_id;
 
     // 2) Start session (idempotent)
@@ -154,17 +154,41 @@ test("Vertical slice (HTTP): COMPLETE_STEP expands to COMPLETE_EXERCISE + state 
     const startBody = await readJsonOnce(start);
     assert.equal(start.status, 200, startBody.text);
 
-    // 3) Read state: must expose current_step (string or null/undefined allowed but field must exist for enabled path)
-    const state1 = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
-    const state1Body = await readJsonOnce(state1);
-    assert.equal(state1.status, 200, state1Body.text);
+    // 3) State must expose current_step at top-level (contract), plus trace.return_decision_required
+    const st1r = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
+    const st1Body = await readJsonOnce(st1r);
+    assert.equal(st1r.status, 200, st1Body.text);
 
-    const s1 = state1Body.json;
-    assert.ok(s1?.trace && typeof s1.trace === "object", "expected trace object");
-    assert.ok("current_step" in s1.trace, "expected trace.current_step to exist (contract)");
-    const step1 = s1.trace.current_step;
+    const st1 = st1Body.json;
+    assert.ok(st1 && typeof st1 === "object", "expected state object");
+    assert.ok(st1.trace && typeof st1.trace === "object", "expected trace object");
+    assert.ok("return_decision_required" in st1.trace, "expected trace.return_decision_required");
+    assert.equal(typeof st1.trace.return_decision_required, "boolean", "expected trace.return_decision_required boolean");
 
-    // 4) COMPLETE_STEP -> server expands to canonical COMPLETE_EXERCISE internally
+    assert.ok("current_step" in st1, "expected current_step field (top-level)");
+    const beforeCompleted = Array.isArray(st1.completed_exercises) ? st1.completed_exercises.length : 0;
+
+    // If return gate is active, COMPLETE_STEP must be rejected (engine guard).
+    if (st1.trace.return_decision_required === true) {
+      assert.equal(st1.current_step?.type, "RETURN_DECISION");
+      assert.ok(Array.isArray(st1.current_step?.options), "expected current_step.options");
+
+      const evBlocked = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ event: { type: "COMPLETE_STEP" } }),
+      });
+      const blockedBody = await readJsonOnce(evBlocked);
+      assert.equal(evBlocked.status, 400, blockedBody.text);
+      assert.match(blockedBody.text, /phase6_runtime_await_return_decision/, "expected failure token in body");
+      return;
+    }
+
+    // Otherwise we must be on an EXERCISE step and COMPLETE_STEP should advance completion.
+    assert.equal(st1.current_step?.type, "EXERCISE");
+    assert.ok(st1.current_step?.exercise?.exercise_id, "expected current_step.exercise.exercise_id");
+
+    // 4) COMPLETE_STEP (server expands to COMPLETE_EXERCISE)
     const ev = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -173,21 +197,20 @@ test("Vertical slice (HTTP): COMPLETE_STEP expands to COMPLETE_EXERCISE + state 
     const evBody = await readJsonOnce(ev);
     assert.equal(ev.status, 201, evBody.text);
 
-    // 5) State again: current_step should be stable contract and usually advances
-    const state2 = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
-    const state2Body = await readJsonOnce(state2);
-    assert.equal(state2.status, 200, state2Body.text);
+    // 5) State must show completed count increased deterministically (+1)
+    const st2r = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
+    const st2Body = await readJsonOnce(st2r);
+    assert.equal(st2r.status, 200, st2Body.text);
 
-    const s2 = state2Body.json;
-    assert.ok(s2?.trace && typeof s2.trace === "object", "expected trace object");
-    assert.ok("current_step" in s2.trace, "expected trace.current_step to exist (contract)");
+    const st2 = st2Body.json;
+    assert.ok(st2 && typeof st2 === "object", "expected state object");
+    assert.ok("current_step" in st2, "expected current_step field (top-level)");
 
-    const step2 = s2.trace.current_step;
-
-    // If both are strings, it should generally move forward.
-    if (typeof step1 === "string" && typeof step2 === "string") {
-      assert.notEqual(step2, step1, `expected current_step to advance; was ${step1} -> ${step2}`);
-    }
+    const afterCompleted = Array.isArray(st2.completed_exercises) ? st2.completed_exercises.length : 0;
+    assert.ok(
+      afterCompleted === beforeCompleted + 1,
+      `expected completed_exercises +1 (before=${beforeCompleted}, after=${afterCompleted})`
+    );
   } catch (e) {
     throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${getLogs()}`);
   }
