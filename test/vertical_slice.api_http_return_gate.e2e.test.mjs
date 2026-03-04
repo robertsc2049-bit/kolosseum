@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
 function wait(ms) {
   return new Promise((r) => setTimeout(r, ms));
@@ -28,35 +30,45 @@ function spawnServer(port) {
   });
 
   let out = "";
-  child.stdout.on("data", (d) => {
-    out += d.toString("utf8");
-  });
-  child.stderr.on("data", (d) => {
-    out += d.toString("utf8");
-  });
+  child.stdout.on("data", (d) => (out += d.toString("utf8")));
+  child.stderr.on("data", (d) => (out += d.toString("utf8")));
 
   return { child, getLogs: () => out };
 }
 
-async function runDbSchemaOrThrow() {
+async function runNpm(script) {
   const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-
-  const p = spawn(npmCmd, ["run", "db:schema"], {
-    stdio: "inherit",
-    windowsHide: true,
-  });
-
+  const p = spawn(npmCmd, ["run", script], { stdio: "inherit", windowsHide: true });
   const code = await new Promise((res) => p.on("exit", res));
-  if (code !== 0) throw new Error(`db:schema failed (exit=${code})`);
+  if (code !== 0) throw new Error(`npm run ${script} failed (exit=${code})`);
 }
 
-test("Vertical slice (HTTP): boots server and responds to /health", async (t) => {
-  // Hard fact: server boot currently requires DATABASE_URL at import-time (dist/src/db/pool.js throws).
-  // So this e2e can only run in environments that provide DATABASE_URL (CI / dev with .env).
+function loadPhase1FixtureOrThrow() {
+  // This file already exists in your repo and is used by server planSession as a default.
+  // Here we use it as a deterministic "minimal viable" phase1_input for /blocks/compile.
+  // If this ever stops being Phase1-shaped, that is a real contract break and should fail loudly.
+  const fixturePath = path.resolve(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
+  if (!fs.existsSync(fixturePath)) {
+    throw new Error(`Missing fixture: ${fixturePath}`);
+  }
+  return JSON.parse(fs.readFileSync(fixturePath, "utf8"));
+}
+
+test("Vertical slice (HTTP): compile->create session->start->return gate events->state contract", async (t) => {
+  // Current boot truth: server imports DB pool at module load, so DATABASE_URL is required.
   if (!process.env.DATABASE_URL) {
     t.skip("DATABASE_URL missing; server boot hard-requires DB right now. Skipping HTTP vertical-slice.");
     return;
   }
+
+  // Hard requirement: dist build must exist for server spawn.
+  if (!fs.existsSync(path.resolve(process.cwd(), "dist", "src", "main.js"))) {
+    t.skip("dist/src/main.js missing; run build:fast before executing HTTP e2e.");
+    return;
+  }
+
+  // Ensure DB schema exists (sessions/blocks/runtime_events tables).
+  await runNpm("db:schema");
 
   const port = 58123 + Math.floor(Math.random() * 2000);
   const baseUrl = `http://127.0.0.1:${port}`;
@@ -73,73 +85,80 @@ test("Vertical slice (HTTP): boots server and responds to /health", async (t) =>
   try {
     await waitForHealth(baseUrl);
 
-    const r = await fetch(`${baseUrl}/health`);
-    assert.equal(r.status, 200);
-    const body = await r.text();
-    assert.ok(body.length > 0, "health body must be non-empty");
+    // Always assert /health (Tier-0 probe)
+    {
+      const r = await fetch(`${baseUrl}/health`);
+      assert.equal(r.status, 200);
+      const j = await r.json();
+      assert.equal(j?.status, "ok");
+      assert.ok(typeof j?.version === "string" && j.version.length > 0);
+    }
 
-    // Full return-gate flow is OPTIONAL and must be explicitly enabled.
-    // Enable:
-    //   $env:KOLOSSEUM_HTTP_E2E_RETURN_GATE="1"
-    //   (DATABASE_URL already required for this test)
-    //   npm run test:ci:integration
+    // Full return-gate flow must be explicitly enabled (CI sets this to "1").
     if (process.env.KOLOSSEUM_HTTP_E2E_RETURN_GATE !== "1") return;
 
-    await runDbSchemaOrThrow();
+    const phase1_input = loadPhase1FixtureOrThrow();
 
-    // NOTE: The below endpoints/payloads are still guesses until we lock the HTTP contract.
-    // Keep this behind the flag until the API routes are confirmed.
+    // 1) Compile + create session
+    const compile = await fetch(`${baseUrl}/blocks/compile?create_session=true`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phase1_input }),
+    });
+    assert.ok(compile.status === 200 || compile.status === 201, await compile.text());
+    const compiled = await compile.json();
 
-    const create = await fetch(`${baseUrl}/sessions`, {
+    assert.ok(typeof compiled?.block_id === "string" && compiled.block_id.length > 0, "expected block_id");
+    assert.ok(typeof compiled?.session_id === "string" && compiled.session_id.length > 0, "expected session_id");
+
+    const sessionId = compiled.session_id;
+
+    // 2) Start session (idempotent)
+    const start = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/start`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({}),
     });
-    assert.equal(create.status, 200, await create.text());
-    const created = await create.json();
-    assert.ok(created?.session_id, "expected session_id");
-    const sessionId = created.session_id;
+    assert.equal(start.status, 200, await start.text());
 
-    const compile = await fetch(`${baseUrl}/blocks/compile`, {
+    // 3) Apply SPLIT_START
+    const evSplit = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ session_id: sessionId }),
+      body: JSON.stringify({ event: { type: "SPLIT_START" } }),
     });
-    assert.equal(compile.status, 200, await compile.text());
+    assert.equal(evSplit.status, 201, await evSplit.text());
 
-    const apply = await fetch(`${baseUrl}/blocks/apply`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        session_id: sessionId,
-        runtime_events: [{ kind: "SPLIT_START" }],
-      }),
-    });
-    assert.equal(apply.status, 200, await apply.text());
-
-    const state1 = await fetch(`${baseUrl}/sessions/${sessionId}/state`);
+    // 4) State must expose explicit gate semantics via trace.return_decision_*
+    const state1 = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
     assert.equal(state1.status, 200, await state1.text());
     const s1 = await state1.json();
 
-    assert.equal(typeof s1?.return_decision_required, "boolean");
-    assert.equal(s1.return_decision_required, true);
-    assert.ok(Array.isArray(s1?.return_decision_options));
+    assert.ok(s1?.trace && typeof s1.trace === "object", "expected trace object");
+    assert.equal(typeof s1.trace.return_decision_required, "boolean");
+    assert.equal(s1.trace.return_decision_required, true);
+    assert.ok(Array.isArray(s1.trace.return_decision_options), "expected return_decision_options array");
+    assert.ok(
+      s1.trace.return_decision_options.includes("RETURN_CONTINUE") &&
+        s1.trace.return_decision_options.includes("RETURN_SKIP"),
+      "expected RETURN_CONTINUE and RETURN_SKIP options"
+    );
 
-    const cont = await fetch(`${baseUrl}/blocks/apply`, {
+    // 5) Continue
+    const evContinue = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        session_id: sessionId,
-        runtime_events: [{ kind: "RETURN_CONTINUE" }],
-      }),
+      body: JSON.stringify({ event: { type: "RETURN_CONTINUE" } }),
     });
-    assert.equal(cont.status, 200, await cont.text());
+    assert.equal(evContinue.status, 201, await evContinue.text());
 
-    const state2 = await fetch(`${baseUrl}/sessions/${sessionId}/state`);
+    const state2 = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
     assert.equal(state2.status, 200, await state2.text());
     const s2 = await state2.json();
 
-    assert.equal(s2?.return_decision_required, false);
+    assert.ok(s2?.trace && typeof s2.trace === "object", "expected trace object");
+    assert.equal(typeof s2.trace.return_decision_required, "boolean");
+    assert.equal(s2.trace.return_decision_required, false);
   } catch (e) {
     throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${getLogs()}`);
   }
