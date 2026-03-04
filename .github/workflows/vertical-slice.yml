@@ -120,6 +120,8 @@ jobs:
       PORT: "3000"
       DATABASE_URL: "postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test"
       KOLOSSEUM_HTTP_E2E_RETURN_GATE: "1"
+      KOLOSSEUM_HTTP_E2E_COMPLETE_STEP: "1"
+      KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -153,3 +155,12 @@ jobs:
 
       - name: Tier-1 smoke (vertical slice with DB)
         run: node --test test/smoke_vertical_slice_plan_start_state.test.mjs
+
+      - name: HTTP e2e (return gate)
+        run: node --test test/vertical_slice.api_http_return_gate.e2e.test.mjs
+
+      - name: HTTP e2e (COMPLETE_STEP)
+        run: node --test test/vertical_slice.api_http_complete_step.e2e.test.mjs
+
+      - name: HTTP e2e (unknown engine error => 500)
+        run: node --test test/vertical_slice.api_http_unknown_engine_error_500.e2e.test.mjs
