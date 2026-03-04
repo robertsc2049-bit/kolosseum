@@ -222,6 +222,10 @@ function toPlannedExercisesFromIds(planned: PlannedSession, ids: string[]): Plan
  * Legacy: runtime.split_active (boolean)
  * New:    runtime.return_decision_required (boolean)
  *         runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
+ *
+ * Hard rule:
+ * - split_active is legacy input ONLY.
+ * - After upgrade, delete split_active from persisted summaries so nothing can read it later.
  */
 function ensureReturnDecisionContract(summary: any): { summary: any; changed: boolean } {
   const rt: any = summary?.runtime;
@@ -230,19 +234,24 @@ function ensureReturnDecisionContract(summary: any): { summary: any; changed: bo
   const hasRequired = typeof rt.return_decision_required === "boolean";
   const hasOptions = Array.isArray(rt.return_decision_options);
 
-  if (hasRequired && hasOptions) return { summary, changed: false };
-
   let changed = false;
 
-  const splitActive = typeof rt.split_active === "boolean" ? rt.split_active : false;
+  const splitActivePresent = typeof rt.split_active === "boolean";
+  const splitActive = splitActivePresent ? rt.split_active : false;
 
+  // Upgrade missing explicit fields (migration mapping is allowed only here).
   if (!hasRequired) {
     rt.return_decision_required = splitActive === true;
     changed = true;
   }
-
   if (!hasOptions) {
     rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
+    changed = true;
+  }
+
+  // Purge legacy semantic carrier after upgrade (even if explicit fields already existed).
+  if ("split_active" in rt) {
+    delete rt.split_active;
     changed = true;
   }
 
@@ -445,6 +454,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       );
 
       try {
+        __kolosseumWireSentinel(startEv as any);
         workingSummary = applyWireEvent(workingSummary, startEv as any, planned as any);
       } catch (e: unknown) {
         mapEngineWireApplyError(e);
@@ -600,6 +610,7 @@ export async function getSessionState(req: Request, res: Response) {
     trace.return_decision_required = return_decision_required;
     trace.return_decision_options = return_decision_options;
 
+    // guarantee: no legacy gate fields escape the API
     delete (trace as any).split_active;
     delete (trace as any).return_gate_required;
 

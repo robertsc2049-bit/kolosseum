@@ -49,27 +49,28 @@ function loadPhase1FixtureOrThrow() {
   return JSON.parse(fs.readFileSync(fixturePath, "utf8"));
 }
 
-test("Vertical slice (HTTP): COMPLETE_STEP expands to COMPLETE_EXERCISE + state exposes current_step", async (t) => {
-  const enabled = process.env.KOLOSSEUM_HTTP_E2E_COMPLETE_STEP === "1";
+test("Vertical slice (HTTP): unknown engine exception maps to 500 (never 4xx)", async (t) => {
+  const enabled = process.env.KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500 === "1";
 
   if (!process.env.DATABASE_URL) {
-    if (enabled) throw new Error("KOLOSSEUM_HTTP_E2E_COMPLETE_STEP=1 requires DATABASE_URL (CI contract).");
+    if (enabled) throw new Error("KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500=1 requires DATABASE_URL (CI contract).");
     t.skip("DATABASE_URL missing; server boot hard-requires DB right now. Skipping HTTP vertical-slice.");
     return;
   }
 
   if (!fs.existsSync(path.resolve(process.cwd(), "dist", "src", "main.js"))) {
-    if (enabled) throw new Error("KOLOSSEUM_HTTP_E2E_COMPLETE_STEP=1 requires dist build (run build:fast).");
+    if (enabled) throw new Error("KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500=1 requires dist build (run build:fast).");
     t.skip("dist/src/main.js missing; run build:fast before executing HTTP e2e.");
     return;
   }
 
   await runNpm("db:schema");
 
-  const port = 59200 + Math.floor(Math.random() * 2000);
+  const port = 61200 + Math.floor(Math.random() * 2000);
   const baseUrl = `http://127.0.0.1:${port}`;
 
-  const { child, getLogs } = spawnServer(port);
+  // Enable the server-side sentinel so applyWireEvent throws an unknown error for any non-START event.
+  const { child, getLogs } = spawnServer(port, { KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW: "1" });
 
   t.after(async () => {
     if (!child.killed) {
@@ -81,7 +82,7 @@ test("Vertical slice (HTTP): COMPLETE_STEP expands to COMPLETE_EXERCISE + state 
   try {
     await waitForHealth(baseUrl);
 
-    // Gate is opt-in (like return-gate test).
+    // Gate is opt-in.
     if (!enabled) return;
 
     const phase1_input = loadPhase1FixtureOrThrow();
@@ -106,59 +107,21 @@ test("Vertical slice (HTTP): COMPLETE_STEP expands to COMPLETE_EXERCISE + state 
     });
     assert.equal(start.status, 200, await start.text());
 
-    // 3) State should expose current_step (exercise) initially (unless return gate is active)
-    const st1r = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
-    assert.equal(st1r.status, 200, await st1r.text());
-    const st1 = await st1r.json();
-
-    assert.ok(st1 && typeof st1 === "object", "expected state object");
-    assert.ok(st1.trace && typeof st1.trace === "object", "expected trace object");
-    assert.ok("return_decision_required" in st1.trace, "expected trace.return_decision_required");
-    assert.ok("current_step" in st1, "expected current_step field");
-
-    if (st1.trace.return_decision_required === true) {
-      assert.equal(st1.current_step?.type, "RETURN_DECISION");
-      assert.ok(Array.isArray(st1.current_step?.options), "expected current_step.options");
-
-      // If gate required, COMPLETE_STEP must be rejected (engine guard).
-      const evBlocked = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ event: { type: "COMPLETE_STEP" } }),
-      });
-
-      const txt = await evBlocked.text();
-      assert.equal(evBlocked.status, 400, txt);
-
-      // Lock the failure_token contract (text-level; tolerant of response shape changes).
-      assert.match(txt, /phase6_runtime_await_return_decision/, "expected failure token in body");
-
-      return;
-    }
-
-    assert.equal(st1.current_step?.type, "EXERCISE");
-    assert.ok(st1.current_step?.exercise?.exercise_id, "expected current_step.exercise.exercise_id");
-
-    const beforeCompleted = Array.isArray(st1.completed_exercises) ? st1.completed_exercises.length : 0;
-
-    // 4) COMPLETE_STEP (server expands to COMPLETE_EXERCISE)
+    // 3) Send a valid non-START runtime event.
+    // Use COMPLETE_STEP so the API expands it to a canonical engine event.
     const ev = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ event: { type: "COMPLETE_STEP" } }),
     });
-    assert.equal(ev.status, 201, await ev.text());
 
-    // 5) State must show completed count increased (or at least changed deterministically)
-    const st2r = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
-    assert.equal(st2r.status, 200, await st2r.text());
-    const st2 = await st2r.json();
+    const txt = await ev.text();
 
-    const afterCompleted = Array.isArray(st2.completed_exercises) ? st2.completed_exercises.length : 0;
-    assert.ok(afterCompleted === beforeCompleted + 1, `expected completed_exercises +1 (before=${beforeCompleted}, after=${afterCompleted})`);
+    // Unknown exception must be a server fault.
+    assert.equal(ev.status, 500, txt);
 
-    // Also keep current_step contract present
-    assert.ok("current_step" in st2, "expected current_step field");
+    // Lock the “unknown engine error” path: body should include sentinel marker or the generic message.
+    assert.match(txt, /(KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW|unexpected engine error)/i, "expected unknown-engine marker in body");
   } catch (e) {
     throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${getLogs()}`);
   }
