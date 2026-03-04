@@ -155,8 +155,7 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
 
     assert.ok(s1?.trace && typeof s1.trace === "object", "expected trace object");
     assert.equal(typeof s1.trace.return_decision_required, "boolean");
-    assert.equal(s1.trace.return_decision_required, true);
-    assert.ok(Array.isArray(s1.trace.return_decision_options), "expected return_decision_options array");
+    assert.equal(s1.trace.return_decision_required, true, `expected return_decision_required=true; trace=` + JSON.stringify(s1.trace));assert.ok(Array.isArray(s1.trace.return_decision_options), "expected return_decision_options array");
     assert.ok(
       s1.trace.return_decision_options.includes("RETURN_CONTINUE") &&
         s1.trace.return_decision_options.includes("RETURN_SKIP"),
@@ -178,8 +177,7 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
 
     assert.ok(s2?.trace && typeof s2.trace === "object", "expected trace object");
     assert.equal(typeof s2.trace.return_decision_required, "boolean");
-    assert.equal(s2.trace.return_decision_required, false);
-  } catch (e) {
+    assert.equal(s2.trace.return_decision_required, false, `expected return_decision_required=false; trace=` + JSON.stringify(s2.trace));} catch (e) {
     throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${getLogs()}`);
   }
 });
