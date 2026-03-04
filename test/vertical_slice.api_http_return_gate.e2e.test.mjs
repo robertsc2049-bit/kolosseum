@@ -4,6 +4,14 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
+async function readJsonOnce(res) {
+  const text = await res.text().catch(() => "");
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch { json = null; }
+  return { text, json };
+}
+
+
 function wait(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
@@ -114,8 +122,9 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ phase1_input }),
     });
-    assert.ok(compile.status === 200 || compile.status === 201, await compile.text());
-    const compiled = await compile.json();
+    const compileBody = await readJsonOnce(compile);
+    assert.ok(compile.status === 200 || compile.status === 201, compileBody.text);
+    const compiled = compileBody.json;
 
     assert.ok(typeof compiled?.block_id === "string" && compiled.block_id.length > 0, "expected block_id");
     assert.ok(typeof compiled?.session_id === "string" && compiled.session_id.length > 0, "expected session_id");
@@ -140,8 +149,9 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
 
     // 4) State must expose explicit gate semantics via trace.return_decision_*
     const state1 = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
-    assert.equal(state1.status, 200, await state1.text());
-    const s1 = await state1.json();
+    const state1Body = await readJsonOnce(state1);
+    assert.equal(state1.status, 200, state1Body.text);
+    const s1 = state1Body.json;
 
     assert.ok(s1?.trace && typeof s1.trace === "object", "expected trace object");
     assert.equal(typeof s1.trace.return_decision_required, "boolean");
@@ -162,8 +172,9 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
     assert.equal(evContinue.status, 201, await evContinue.text());
 
     const state2 = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
-    assert.equal(state2.status, 200, await state2.text());
-    const s2 = await state2.json();
+    const state2Body = await readJsonOnce(state2);
+    assert.equal(state2.status, 200, state2Body.text);
+    const s2 = state2Body.json;
 
     assert.ok(s2?.trace && typeof s2.trace === "object", "expected trace object");
     assert.equal(typeof s2.trace.return_decision_required, "boolean");
