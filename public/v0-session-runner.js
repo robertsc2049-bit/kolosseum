@@ -40,7 +40,7 @@ function renderState(state) {
 }
 
 async function loadDefaultFixture() {
-  const res = await fetch("/test/fixtures/golden/inputs/vanilla_minimal.json");
+  const res = await fetch("/ui/fixtures/vanilla_minimal.json");
   const out = await readJson(res);
   if (!out.ok || !out.json) {
     throw new Error(`Failed to load fixture (${out.status}) ${out.text}`);
