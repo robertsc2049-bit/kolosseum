@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Kolosseum v0 Session Runner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; max-width: 960px; }
+    h1, h2 { margin-bottom: 8px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .card { border: 1px solid #ccc; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
+    input, button, textarea { font: inherit; padding: 8px; }
+    button { cursor: pointer; }
+    textarea { width: 100%; min-height: 120px; }
+    pre { white-space: pre-wrap; word-break: break-word; background: #f6f6f6; padding: 12px; border-radius: 8px; }
+    .muted { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Kolosseum v0 Session Runner</h1>
+  <p class="muted">Minimal browser runner for compile -> create session -> start -> complete step -> return decision.</p>
+
+  <div class="card">
+    <h2>1) Compile + create session</h2>
+    <div class="row">
+      <button id="btnLoadFixture">Load default fixture</button>
+      <button id="btnCompile">Compile + Create Session</button>
+    </div>
+    <textarea id="phase1Input"></textarea>
+  </div>
+
+  <div class="card">
+    <h2>2) Session controls</h2>
+    <div class="row">
+      <input id="sessionId" placeholder="session_id" style="min-width: 360px;" />
+      <button id="btnStart">Start</button>
+      <button id="btnRefresh">Refresh State</button>
+      <button id="btnCompleteStep">Complete Step</button>
+      <button id="btnContinue">Return Continue</button>
+      <button id="btnSkip">Return Skip</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3) Current step</h2>
+    <pre id="currentStep">(no state yet)</pre>
+  </div>
+
+  <div class="card">
+    <h2>4) State payload</h2>
+    <pre id="stateOut">(no state yet)</pre>
+  </div>
+
+  <div class="card">
+    <h2>5) Log</h2>
+    <pre id="logOut"></pre>
+  </div>
+
+  <script type="module" src="/v0-session-runner.js"></script>
+</body>
+</html>
