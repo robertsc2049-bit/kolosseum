@@ -22,9 +22,16 @@
     button:disabled { cursor: not-allowed; opacity: 0.55; }
     textarea { width: 100%; min-height: 120px; }
     pre { white-space: pre-wrap; word-break: break-word; background: #f6f6f6; padding: 12px; border-radius: 8px; }
-    .step-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-    .step-meta { margin-top: 8px; }
+
+    .step-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .step-subtitle { color: #666; margin-bottom: 12px; }
+    .step-panel { border: 1px solid #ddd; border-radius: 8px; padding: 14px; background: #fafafa; }
+    .step-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+    .metric { border: 1px solid #e2e2e2; border-radius: 8px; padding: 10px; background: #fff; }
+    .metric-label { font-size: 12px; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .metric-value { font-size: 20px; font-weight: 700; }
     .primary-actions { margin-top: 12px; }
+    .options-list { margin: 8px 0 0 18px; padding: 0; }
   </style>
 </head>
 <body>
@@ -65,8 +72,13 @@
       <h2>4) Current step</h2>
       <div id="stepBadge" class="pill idle">No current step</div>
       <div class="step-title" id="stepTitle">No session state loaded</div>
-      <div class="muted" id="stepSubtitle">Load or create a session to begin.</div>
-      <div class="step-meta mono" id="stepMeta">-</div>
+      <div class="step-subtitle" id="stepSubtitle">Load or create a session to begin.</div>
+
+      <div class="step-panel">
+        <div id="stepBody">
+          <div class="muted">No step details yet.</div>
+        </div>
+      </div>
 
       <div class="row primary-actions">
         <button id="btnCompleteStep">Complete Step</button>
