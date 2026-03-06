@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/api/sessions.handlers.ts
 import type { Request, Response } from "express";
 import { pool } from "../db/pool.js";
@@ -33,6 +34,7 @@ function __kolosseumWireSentinel(evt: any) {
     throw new Error("KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW: unhandled wire apply failure sentinel");
   }
 }
+
 function isRecord(v: unknown): v is JsonRecord {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
@@ -86,7 +88,6 @@ async function runPipelineFromDist(input: any): Promise<any> {
     throw internalError("Missing dist runner (did you run build:fast?)", { runnerPath });
   }
 
-  // ESM-safe import using file URL
   const url = pathToFileURL(runnerPath).href;
   const mod: any = await import(url);
 
@@ -100,7 +101,6 @@ async function runPipelineFromDist(input: any): Promise<any> {
 }
 
 async function ensureEngineRunsTable(): Promise<void> {
-  // This table is independent (no FK deps) so smoke can run even if the full schema isn't present.
   await pool.query(`
     CREATE TABLE IF NOT EXISTS engine_runs (
       id          text PRIMARY KEY,
@@ -128,22 +128,14 @@ async function ensureEngineRunsTable(): Promise<void> {
  * Vertical slice: plan session
  * POST /sessions/plan
  * ---------------------------
- *
- * - Calls dist runner (never engine src)
- * - Returns engine output
- * - Persists input/output row in engine_runs (best-effort)
  */
 export async function planSession(req: Request, res: Response) {
-  // body can be: { input: <engine-input> } or raw object treated as input
   const bodyUnknown = req.body as unknown;
 
   let input: any;
   if (isRecord(bodyUnknown)) input = (bodyUnknown as any).input ?? bodyUnknown;
   else if (typeof bodyUnknown === "undefined" || bodyUnknown === null) input = {};
-  else {
-    // express.json already parsed; if it's an array/primitive, treat as invalid request shape
-    throw badRequest("Invalid JSON body (expected object)");
-  }
+  else throw badRequest("Invalid JSON body (expected object)");
 
   const effectiveInput =
     input && typeof input === "object" && Object.keys(input).length > 0
@@ -155,7 +147,6 @@ export async function planSession(req: Request, res: Response) {
 
   const out = await runPipelineFromDist(effectiveInput);
 
-  // Minimal invariants for vertical slice
   if (!out || out.ok !== true) {
     throw upstreamBadGateway("Engine output invalid (ok !== true)", { output: out ?? null });
   }
@@ -164,7 +155,6 @@ export async function planSession(req: Request, res: Response) {
     throw upstreamBadGateway("Engine output invalid (missing session.exercises)", { output: out ?? null });
   }
 
-  // Best-effort persistence. If DB is not configured (SMOKE_NO_DB), this is a no-op via NoDbPool.
   try {
     await ensureEngineRunsTable();
     const id = `er_${crypto.randomUUID().replace(/-/g, "")}`;
@@ -175,7 +165,7 @@ export async function planSession(req: Request, res: Response) {
       [id, "plan_session", inputHash, JSON.stringify(effectiveInput), JSON.stringify(out)]
     );
   } catch {
-    // Don't break response due to Tier-0 DB unavailability.
+    // best-effort
   }
 
   return res.status(200).json(out);
@@ -229,12 +219,15 @@ function toPlannedExercisesFromIds(planned: PlannedSession, ids: string[]): Plan
 
 /**
  * Contract upgrade:
- * - We DO NOT infer gate semantics at response time.
- * - We MAY map legacy fields -> new explicit fields during normalization/upgrade.
+ * Legacy carrier (engine/internal): runtime.split_active (boolean) and/or trace.split_active (boolean)
+ * New (persisted + API): runtime.return_decision_required (boolean)
+ *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
  *
- * Legacy: runtime.split_active (boolean)
- * New:    runtime.return_decision_required (boolean)
- *         runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
+ * Hard rules:
+ * - split_active must NEVER escape the API surface.
+ * - BUT: do NOT delete runtime.split_active while the engine may still rely on it as the state carrier.
+ *   Keep it as internal persisted state until the engine fully migrates.
+ * - Server upgrades missing explicit fields here; API emits only explicit fields.
  */
 function ensureReturnDecisionContract(summary: any): { summary: any; changed: boolean } {
   const rt: any = summary?.runtime;
@@ -243,14 +236,47 @@ function ensureReturnDecisionContract(summary: any): { summary: any; changed: bo
   const hasRequired = typeof rt.return_decision_required === "boolean";
   const hasOptions = Array.isArray(rt.return_decision_options);
 
-  if (hasRequired && hasOptions) return { summary, changed: false };
-
   let changed = false;
 
-  // Upgrade mapping: if legacy has split_active, map it into the explicit contract fields.
-  // This is a one-way upgrade step, not response-time inference.
-  const splitActive = typeof rt.split_active === "boolean" ? rt.split_active : false;
+  // Prefer persisted legacy carrier; otherwise allow upgrade from derived legacy trace.
+  const runtimeSplitActivePresent = typeof rt.split_active === "boolean";
+  const runtimeSplitActive = runtimeSplitActivePresent ? rt.split_active : undefined;
 
+  let derivedSplitActive: boolean | undefined = undefined;
+  if (typeof runtimeSplitActive !== "boolean") {
+    try {
+      const t: any = deriveTrace(summary as any) as any;
+      const coerceLegacyBool = (v: unknown): boolean | undefined => {
+        if (typeof v === "boolean") return v;
+        if (typeof v === "number") {
+          if (v === 1) return true;
+          if (v === 0) return false;
+        }
+        if (typeof v === "string") {
+          if (v === "true") return true;
+          if (v === "false") return false;
+          if (v === "1") return true;
+          if (v === "0") return false;
+        }
+        return undefined;
+      };
+
+      const rg = coerceLegacyBool(t?.return_gate_required);
+      const sa = coerceLegacyBool(t?.split_active);
+      if (typeof rg === "boolean") derivedSplitActive = rg;
+      else if (typeof sa === "boolean") derivedSplitActive = sa;
+    } catch {
+      // deriveTrace should be stable, but never let upgrade crash the API.
+      derivedSplitActive = undefined;
+    }
+  }
+
+  const splitActive: boolean =
+    typeof runtimeSplitActive === "boolean"
+      ? runtimeSplitActive
+      : (typeof derivedSplitActive === "boolean" ? derivedSplitActive : false);
+
+  // Upgrade missing explicit fields (migration mapping allowed only here).
   if (!hasRequired) {
     rt.return_decision_required = splitActive === true;
     changed = true;
@@ -259,7 +285,14 @@ function ensureReturnDecisionContract(summary: any): { summary: any; changed: bo
   if (!hasOptions) {
     rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
     changed = true;
+  } else {
+    // Defensive normalize: keep only known options (engine may evolve; API is strict).
+    rt.return_decision_options = (rt.return_decision_options as any[])
+      .map((x) => String(x))
+      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
   }
+
+  // IMPORTANT: do NOT delete rt.split_active here.
 
   return { summary, changed };
 }
@@ -281,13 +314,13 @@ async function allocNextSeq(client: any, session_id: string): Promise<number> {
   );
 
   const rowCount = Number(r?.rowCount ?? 0);
-  if (rowCount !== 1) {
-    throw internalError("allocNextSeq invariant violated (expected 1 row)", { rowCount });
-  }
+  if (rowCount !== 1) throw internalError("allocNextSeq invariant violated (expected 1 row)", { rowCount });
+
   const nextSeq = Number(r.rows?.[0]?.next_seq);
   if (!Number.isFinite(nextSeq) || nextSeq < 1) {
     throw internalError("allocNextSeq invariant violated (invalid next_seq)", { next_seq: r.rows?.[0]?.next_seq });
   }
+
   return nextSeq;
 }
 
@@ -312,6 +345,29 @@ async function loadSession(client: any, session_id: string) {
   return (r.rowCount ?? 0) > 0 ? r.rows[0] : null;
 }
 
+function extractRawEvent(req: Request): unknown {
+  const body = req.body as any;
+  if (!body || typeof body !== "object") return null;
+  return body.event ?? null;
+}
+
+function rawEventType(raw: unknown): string | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const t = (raw as any).type;
+  if (typeof t !== "string" || t.length === 0) return null;
+  return t;
+}
+
+/**
+ * API-only sugar:
+ * - COMPLETE_STEP: no fields
+ *   Expanded server-side into COMPLETE_EXERCISE for the first remaining exercise.
+ */
+function isApiCompleteStep(raw: unknown): boolean {
+  const t = rawEventType(raw);
+  return t === "COMPLETE_STEP";
+}
+
 /**
  * POST /sessions/:session_id/start
  * - idempotent
@@ -331,11 +387,9 @@ export async function startSession(req: Request, res: Response) {
     const planned = s.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, s.session_state_summary);
 
-    // Ensure contract fields exist (upgrade step).
     const upgraded0 = ensureReturnDecisionContract(normalized);
     const shouldPersist0 = needsUpgrade || upgraded0.changed;
 
-    // If already started, just ensure status + optionally upgrade summary
     if (upgraded0.summary.started === true) {
       await client.query(
         `UPDATE sessions
@@ -347,10 +401,7 @@ export async function startSession(req: Request, res: Response) {
       );
 
       await client.query("COMMIT");
-
-      // invalidate cache after successful commit
       sessionStateCache.del(session_id);
-
       return res.json({ ok: true, session_id, started: true });
     }
 
@@ -365,17 +416,14 @@ export async function startSession(req: Request, res: Response) {
 
     let nextSummary: any;
     try {
-if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
-              // Sentinel present but cannot safely discriminate start vs non-start here (applyWireEvent call spans lines).
-              // Intentionally NO-OP to avoid breaking /start.
-            }            __kolosseumWireSentinel(ev as any);
-            nextSummary = applyWireEvent(upgraded0.summary as any, ev as any, planned as any) as any;
+      __kolosseumWireSentinel(ev as any);
+      nextSummary = applyWireEvent(upgraded0.summary as any, ev as any, planned as any) as any;
     } catch (e: unknown) {
       mapEngineWireApplyError(e);
     }
+
     nextSummary.last_seq = seq;
 
-    // Ensure contract fields exist after reducer application.
     const upgraded1 = ensureReturnDecisionContract(nextSummary);
 
     await client.query(
@@ -388,15 +436,11 @@ if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
     );
 
     await client.query("COMMIT");
-
-    // invalidate cache after successful commit
     sessionStateCache.del(session_id);
 
     return res.status(200).json({ ok: true, session_id, started: true, seq });
   } catch (err: unknown) {
-    try {
-      await client.query("ROLLBACK");
-    } catch {}
+    try { await client.query("ROLLBACK"); } catch {}
     throw err;
   } finally {
     client.release();
@@ -414,11 +458,11 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) throw badRequest("Missing session_id");
 
-  const event = validateWireRuntimeEvent((req.body as any)?.event);
-  if (!event) throw badRequest("Missing/invalid event");
+  const raw = extractRawEvent(req);
+  if (!raw) throw badRequest("Missing/invalid event");
 
   // Prevent clients from manually writing START_SESSION via /events
-  if ((event as any).type === "START_SESSION") {
+  if (rawEventType(raw) === "START_SESSION") {
     throw badRequest("START_SESSION must be created via /start");
   }
 
@@ -429,10 +473,18 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     const s = await loadSessionForUpdate(client, session_id);
     if (!s) throw notFound("Session not found");
 
+    // E2E-only hook: force an UNKNOWN (non-whitelisted) engine/runtime exception and ensure it maps to 500.
+    // This MUST NOT be a 4xx classification.
+    if (
+      process.env.KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500 === "1" &&
+      rawEventType(raw) === "E2E_FORCE_UNKNOWN_ENGINE_ERROR"
+    ) {
+      mapEngineWireApplyError(new Error("E2E_FORCED_UNKNOWN_ENGINE_EXCEPTION"));
+    }
+
     const planned = s.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, s.session_state_summary);
 
-    // Ensure contract fields exist (upgrade step).
     const upgraded0 = ensureReturnDecisionContract(normalized);
     const shouldPersist0 = needsUpgrade || upgraded0.changed;
 
@@ -450,16 +502,13 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       );
 
       try {
-if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
-                  // Sentinel present but cannot safely discriminate start vs non-start here (applyWireEvent call spans lines).
-                  // Intentionally NO-OP to avoid breaking /start.
-                }                workingSummary = applyWireEvent(workingSummary, startEv as any, planned as any);
+        __kolosseumWireSentinel(startEv as any);
+        workingSummary = applyWireEvent(workingSummary, startEv as any, planned as any);
       } catch (e: unknown) {
         mapEngineWireApplyError(e);
       }
-      workingSummary.last_seq = startSeq;
 
-      // Ensure contract fields exist after reducer application.
+      workingSummary.last_seq = startSeq;
       workingSummary = ensureReturnDecisionContract(workingSummary).summary;
 
       await client.query(
@@ -471,7 +520,6 @@ if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
         [session_id, JSON.stringify(workingSummary)]
       );
     } else if (shouldPersist0) {
-      // Persist upgraded snapshot even if already started
       await client.query(
         `UPDATE sessions
          SET session_state_summary = $2::jsonb,
@@ -479,6 +527,26 @@ if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
          WHERE session_id = $1`,
         [session_id, JSON.stringify(workingSummary)]
       );
+    }
+
+    // --- Expand API-only COMPLETE_STEP into canonical engine event ---
+    let event: any;
+
+    if (isApiCompleteStep(raw)) {
+      const trace0: any = deriveTrace(workingSummary as any) as any;
+      const remaining = uniqStable(trace0?.remaining_ids);
+      const nextId = remaining.length > 0 ? remaining[0] : null;
+      if (!nextId) {
+        throw badRequest("COMPLETE_STEP rejected (no remaining exercise)", {
+          failure_token: "no_remaining_exercise"
+        });
+      }
+      event = { type: "COMPLETE_EXERCISE", exercise_id: nextId };
+    } else {
+      // normal path: validate via engine boundary
+      const validated = validateWireRuntimeEvent(raw);
+      if (!validated) throw badRequest("Missing/invalid event");
+      event = validated;
     }
 
     const seq = await allocNextSeq(client, session_id);
@@ -491,17 +559,13 @@ if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
 
     let nextSummary: any;
     try {
-if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
-              // Sentinel present but cannot safely discriminate start vs non-start here (applyWireEvent call spans lines).
-              // Intentionally NO-OP to avoid breaking /start.
-            }            __kolosseumWireSentinel(event as any);
-            nextSummary = applyWireEvent(workingSummary, event as any, planned as any) as any;
+      __kolosseumWireSentinel(event as any);
+      nextSummary = applyWireEvent(workingSummary, event as any, planned as any) as any;
     } catch (e: unknown) {
       mapEngineWireApplyError(e);
     }
-    nextSummary.last_seq = seq;
 
-    // Ensure contract fields exist after reducer application.
+    nextSummary.last_seq = seq;
     nextSummary = ensureReturnDecisionContract(nextSummary).summary;
 
     await client.query(
@@ -513,15 +577,11 @@ if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
     );
 
     await client.query("COMMIT");
-
-    // invalidate cache after successful commit
     sessionStateCache.del(session_id);
 
     return res.status(201).json({ ok: true, session_id, seq });
   } catch (err: unknown) {
-    try {
-      await client.query("ROLLBACK");
-    } catch {}
+    try { await client.query("ROLLBACK"); } catch {}
     throw err;
   } finally {
     client.release();
@@ -530,7 +590,6 @@ if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW === "1") {
 
 /**
  * GET /sessions/:session_id/events
- * (history endpoint)
  */
 export async function listRuntimeEvents(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
@@ -551,19 +610,15 @@ const SESSION_STATE_CACHE_TTL_MS = 2000;
 
 /**
  * GET /sessions/:session_id/state
- * - O(1) read from sessions.session_state_summary (no runtime_events scan)
- * - Once started=true, response is derived ONLY from stored runtime snapshot + reducer-owned invariants.
+ * - O(1) read from sessions.session_state_summary
  * - Cache v1: read-through, short TTL, invalidated on start/events commit.
  */
 export async function getSessionState(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) throw badRequest("Missing session_id");
 
-  // Cache-first (do not cache errors)
   const cached = sessionStateCache.get(session_id);
-  if (cached) {
-    return res.json(cached);
-  }
+  if (cached) return res.json(cached);
 
   const client = await pool.connect();
   try {
@@ -573,11 +628,10 @@ export async function getSessionState(req: Request, res: Response) {
     const planned = row.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, row.session_state_summary);
 
-    // Ensure contract fields exist (upgrade step). No response-time inference.
+    // IMPORTANT: upgrade may rely on derived legacy trace.split_active
     const upgraded = ensureReturnDecisionContract(normalized);
     const shouldPersist = needsUpgrade || upgraded.changed;
 
-    // If legacy/invalid, upgrade storage silently (product-safe)
     if (shouldPersist) {
       await client.query(
         `UPDATE sessions
@@ -590,8 +644,6 @@ export async function getSessionState(req: Request, res: Response) {
 
     const trace = deriveTrace(upgraded.summary as any) as any;
 
-    // Contract lock:
-    // Expose gate semantics ONLY via return_decision_* fields (never derive from split_active in response).
     const rt: any = (upgraded.summary as any)?.runtime ?? {};
 
     const return_decision_required: boolean =
@@ -607,28 +659,32 @@ export async function getSessionState(req: Request, res: Response) {
     trace.return_decision_required = return_decision_required;
     trace.return_decision_options = return_decision_options;
 
-    // Contract lock: do not leak legacy/inferential gate fields via deriveTrace().
-    // The only allowed gate semantics in API are return_decision_required/options.
+    // guarantee: no legacy gate fields escape the API
     delete (trace as any).split_active;
     delete (trace as any).return_gate_required;
 
-    // Derive exercise objects from planned + runtime ids (order-preserving)
     const remaining_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.remaining_ids));
     const completed_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.completed_ids));
     const dropped_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.dropped_ids));
 
+    // v0 projection: current_step
+    const current_step =
+      return_decision_required === true
+        ? { type: "RETURN_DECISION", options: return_decision_options }
+        : (remaining_exercises.length > 0 ? { type: "EXERCISE", exercise: remaining_exercises[0] } : null);
+
     const payload = {
       session_id,
       started: trace.started,
+      current_step,
       remaining_exercises,
       completed_exercises,
       dropped_exercises,
       trace,
-      event_log: [] // history is /events; state is O(1)
+      event_log: []
     };
 
     sessionStateCache.set(session_id, payload, SESSION_STATE_CACHE_TTL_MS);
-
     return res.json(payload);
   } finally {
     client.release();
