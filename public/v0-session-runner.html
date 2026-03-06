@@ -32,6 +32,14 @@
     .metric-value { font-size: 20px; font-weight: 700; }
     .primary-actions { margin-top: 12px; }
     .options-list { margin: 8px 0 0 18px; padding: 0; }
+
+    .queue-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .queue-list { display: grid; gap: 10px; }
+    .queue-item { border: 1px solid #e2e2e2; border-radius: 8px; padding: 12px; background: #fff; }
+    .queue-item.current { border-color: #198754; background: #f7fff9; }
+    .queue-item.upcoming { border-color: #d7d7d7; }
+    .queue-name { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .queue-meta { font-size: 14px; color: #444; }
   </style>
 </head>
 <body>
@@ -89,17 +97,35 @@
   </div>
 
   <div class="card">
-    <h2>5) Current step JSON</h2>
+    <h2>5) Queue preview</h2>
+    <div class="queue-grid">
+      <div>
+        <h3>Current</h3>
+        <div id="queueCurrent" class="queue-list">
+          <div class="muted">No current exercise.</div>
+        </div>
+      </div>
+      <div>
+        <h3>Up next</h3>
+        <div id="queueUpcoming" class="queue-list">
+          <div class="muted">No upcoming exercises.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>6) Current step JSON</h2>
     <pre id="currentStep">(no state yet)</pre>
   </div>
 
   <div class="card">
-    <h2>6) State payload</h2>
+    <h2>7) State payload</h2>
     <pre id="stateOut">(no state yet)</pre>
   </div>
 
   <div class="card">
-    <h2>7) Log</h2>
+    <h2>8) Log</h2>
     <pre id="logOut"></pre>
   </div>
 
