@@ -31,6 +31,9 @@ const el = {
   stepSubtitle: document.getElementById("stepSubtitle"),
   stepBody: document.getElementById("stepBody"),
 
+  queueCurrent: document.getElementById("queueCurrent"),
+  queueUpcoming: document.getElementById("queueUpcoming"),
+
   btnLoadFixture: document.getElementById("btnLoadFixture"),
   btnCompile: document.getElementById("btnCompile"),
   btnStart: document.getElementById("btnStart"),
@@ -66,6 +69,39 @@ function formatIntensity(intensity) {
   return "-";
 }
 
+function formatExerciseLine(ex) {
+  const sets = Number.isInteger(ex?.sets) ? ex.sets : "-";
+  const reps = Number.isInteger(ex?.reps) ? ex.reps : "-";
+  const rest = Number.isInteger(ex?.rest_seconds) ? `${ex.rest_seconds}s` : "-";
+  const intensity = formatIntensity(ex?.intensity);
+  return `${sets} x ${reps} | Rest ${rest} | ${intensity}`;
+}
+
+function renderQueueItem(exercise, kind) {
+  const exerciseId = exercise?.exercise_id || "(unknown exercise)";
+  const meta = formatExerciseLine(exercise);
+  return `
+    <div class="queue-item ${escapeHtml(kind)}">
+      <div class="queue-name">${escapeHtml(exerciseId)}</div>
+      <div class="queue-meta">${escapeHtml(meta)}</div>
+    </div>
+  `;
+}
+
+function renderQueue(state) {
+  const remaining = Array.isArray(state?.remaining_exercises) ? state.remaining_exercises : [];
+  const current = remaining.length > 0 ? remaining[0] : null;
+  const upcoming = remaining.slice(1, 4);
+
+  el.queueCurrent.innerHTML = current
+    ? renderQueueItem(current, "current")
+    : `<div class="muted">No current exercise.</div>`;
+
+  el.queueUpcoming.innerHTML = upcoming.length > 0
+    ? upcoming.map((ex) => renderQueueItem(ex, "upcoming")).join("")
+    : `<div class="muted">No upcoming exercises.</div>`;
+}
+
 function renderExerciseBody(step) {
   const ex = step?.exercise || {};
   const exerciseId = ex.exercise_id || "(unknown exercise)";
@@ -80,8 +116,8 @@ function renderExerciseBody(step) {
     <div class="muted mono">exercise_id=${escapeHtml(exerciseId)}</div>
     <div class="step-metrics">
       <div class="metric">
-        <div class="metric-label">Sets × Reps</div>
-        <div class="metric-value">${escapeHtml(`${sets} × ${reps}`)}</div>
+        <div class="metric-label">Sets x Reps</div>
+        <div class="metric-value">${escapeHtml(`${sets} x ${reps}`)}</div>
       </div>
       <div class="metric">
         <div class="metric-label">Rest</div>
@@ -185,6 +221,8 @@ function renderState(state) {
   el.statCompleted.textContent = String(completedCount);
   el.statRemaining.textContent = String(remainingCount);
   el.statDropped.textContent = String(droppedCount);
+
+  renderQueue(state);
 
   const step = state?.current_step;
   const stepType = step && typeof step === "object" ? String(step.type || "") : "";
@@ -304,4 +342,5 @@ el.phase1Input.value = JSON.stringify({
 }, null, 2);
 
 updateGlobalButtons(false, "");
+renderQueue({});
 setStepUiIdle("No session state loaded", "Load or create a session to begin.", "No step details yet.");
