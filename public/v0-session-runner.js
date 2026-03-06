@@ -44,6 +44,11 @@ const el = {
   btnSkip: document.getElementById("btnSkip"),
 };
 
+const exerciseLabels = new Map();
+let labelsLoaded = false;
+let labelsLoadPromise = null;
+let lastRenderedState = null;
+
 function log(msg, data) {
   const line = data ? `${msg}\n${JSON.stringify(data, null, 2)}\n` : `${msg}\n`;
   el.logOut.textContent = `${line}\n${el.logOut.textContent}`;
@@ -69,6 +74,100 @@ function formatIntensity(intensity) {
   return "-";
 }
 
+function humanizeExerciseId(exerciseId) {
+  const raw = String(exerciseId || "").trim();
+  if (!raw) return "(unknown exercise)";
+  return raw
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function pickLabelFromRecord(record) {
+  if (!record || typeof record !== "object") return "";
+  const candidates = [
+    record.display_name,
+    record.exercise_name,
+    record.label,
+    record.title,
+    record.name,
+  ];
+  for (const value of candidates) {
+    const s = String(value || "").trim();
+    if (s) return s;
+  }
+  return "";
+}
+
+function collectExerciseRecords(node, out) {
+  if (!node) return;
+
+  if (Array.isArray(node)) {
+    for (const item of node) collectExerciseRecords(item, out);
+    return;
+  }
+
+  if (typeof node !== "object") return;
+
+  if (typeof node.exercise_id === "string" && node.exercise_id.trim()) {
+    out.push(node);
+  }
+
+  for (const value of Object.values(node)) {
+    collectExerciseRecords(value, out);
+  }
+}
+
+async function loadExerciseLabels() {
+  if (labelsLoadPromise) return labelsLoadPromise;
+
+  labelsLoadPromise = (async () => {
+    try {
+      const res = await fetch("/registries/registry_bundle.json");
+      const out = await readJson(res);
+
+      if (!out.ok || !out.json) {
+        log("Registry labels unavailable; using fallback humanized ids.", {
+          status: out.status,
+          text: out.text,
+        });
+        labelsLoaded = true;
+        return;
+      }
+
+      const records = [];
+      collectExerciseRecords(out.json, records);
+
+      for (const record of records) {
+        const exerciseId = String(record.exercise_id || "").trim();
+        if (!exerciseId) continue;
+
+        const label = pickLabelFromRecord(record) || humanizeExerciseId(exerciseId);
+        if (!exerciseLabels.has(exerciseId)) {
+          exerciseLabels.set(exerciseId, label);
+        }
+      }
+
+      labelsLoaded = true;
+      log("Loaded exercise labels.", {
+        count: exerciseLabels.size,
+      });
+    } catch (e) {
+      labelsLoaded = true;
+      log(`Registry labels load failed; using fallback humanized ids. ${e.message}`);
+    }
+  })();
+
+  return labelsLoadPromise;
+}
+
+function getExerciseDisplayName(exercise) {
+  const exerciseId = String(exercise?.exercise_id || "").trim();
+  if (!exerciseId) return "(unknown exercise)";
+  return exerciseLabels.get(exerciseId) || humanizeExerciseId(exerciseId);
+}
+
 function formatExerciseLine(ex) {
   const sets = Number.isInteger(ex?.sets) ? ex.sets : "-";
   const reps = Number.isInteger(ex?.reps) ? ex.reps : "-";
@@ -79,11 +178,14 @@ function formatExerciseLine(ex) {
 
 function renderQueueItem(exercise, kind) {
   const exerciseId = exercise?.exercise_id || "(unknown exercise)";
+  const displayName = getExerciseDisplayName(exercise);
   const meta = formatExerciseLine(exercise);
+
   return `
     <div class="queue-item ${escapeHtml(kind)}">
-      <div class="queue-name">${escapeHtml(exerciseId)}</div>
+      <div class="queue-name">${escapeHtml(displayName)}</div>
       <div class="queue-meta">${escapeHtml(meta)}</div>
+      <div class="queue-meta mono">exercise_id=${escapeHtml(exerciseId)}</div>
     </div>
   `;
 }
@@ -105,6 +207,7 @@ function renderQueue(state) {
 function renderExerciseBody(step) {
   const ex = step?.exercise || {};
   const exerciseId = ex.exercise_id || "(unknown exercise)";
+  const displayName = getExerciseDisplayName(ex);
   const sets = Number.isInteger(ex.sets) ? String(ex.sets) : "-";
   const reps = Number.isInteger(ex.reps) ? String(ex.reps) : "-";
   const rest = Number.isInteger(ex.rest_seconds) ? `${ex.rest_seconds}s` : "-";
@@ -114,6 +217,7 @@ function renderExerciseBody(step) {
 
   el.stepBody.innerHTML = `
     <div class="muted mono">exercise_id=${escapeHtml(exerciseId)}</div>
+    <div class="muted">Display name: ${escapeHtml(displayName)}</div>
     <div class="step-metrics">
       <div class="metric">
         <div class="metric-label">Sets x Reps</div>
@@ -170,12 +274,13 @@ function setStepUiIdle(title, subtitle, bodyMessage) {
 
 function setStepUiExercise(step, started) {
   const exerciseId = step?.exercise?.exercise_id || "(unknown exercise)";
+  const displayName = getExerciseDisplayName(step?.exercise);
 
   el.stepBadge.textContent = "Exercise";
   el.stepBadge.className = "pill ok";
-  el.stepTitle.textContent = exerciseId;
+  el.stepTitle.textContent = displayName;
   el.stepSubtitle.textContent = started
-    ? "Current action: complete this step, or split session to enter return decision."
+    ? `Current action: complete this step, or split session to enter return decision. (${exerciseId})`
     : "Session not started. Press Start to begin.";
   renderExerciseBody(step);
 
@@ -209,6 +314,8 @@ function updateGlobalButtons(started, stepType) {
 }
 
 function renderState(state) {
+  lastRenderedState = state;
+
   el.stateOut.textContent = JSON.stringify(state, null, 2);
   el.currentStep.textContent = JSON.stringify(state?.current_step ?? null, null, 2);
 
@@ -344,3 +451,11 @@ el.phase1Input.value = JSON.stringify({
 updateGlobalButtons(false, "");
 renderQueue({});
 setStepUiIdle("No session state loaded", "Load or create a session to begin.", "No step details yet.");
+
+loadExerciseLabels().then(() => {
+  if (lastRenderedState) {
+    renderState(lastRenderedState);
+  } else {
+    renderQueue({});
+  }
+});
