@@ -38,8 +38,12 @@
     .queue-item { border: 1px solid #e2e2e2; border-radius: 8px; padding: 12px; background: #fff; }
     .queue-item.current { border-color: #198754; background: #f7fff9; }
     .queue-item.upcoming { border-color: #d7d7d7; }
+    .queue-item.completed { border-color: #198754; background: #f8fffb; }
+    .queue-item.dropped { border-color: #b26a00; background: #fffaf3; }
     .queue-name { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
     .queue-meta { font-size: 14px; color: #444; }
+
+    .history-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
   </style>
 </head>
 <body>
@@ -115,17 +119,35 @@
   </div>
 
   <div class="card">
-    <h2>6) Current step JSON</h2>
+    <h2>6) Session history</h2>
+    <div class="history-grid">
+      <div>
+        <h3>Completed</h3>
+        <div id="historyCompleted" class="queue-list">
+          <div class="muted">No completed exercises yet.</div>
+        </div>
+      </div>
+      <div>
+        <h3>Dropped</h3>
+        <div id="historyDropped" class="queue-list">
+          <div class="muted">No dropped exercises yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>7) Current step JSON</h2>
     <pre id="currentStep">(no state yet)</pre>
   </div>
 
   <div class="card">
-    <h2>7) State payload</h2>
+    <h2>8) State payload</h2>
     <pre id="stateOut">(no state yet)</pre>
   </div>
 
   <div class="card">
-    <h2>8) Log</h2>
+    <h2>9) Log</h2>
     <pre id="logOut"></pre>
   </div>
 
