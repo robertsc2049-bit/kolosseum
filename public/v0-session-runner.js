@@ -35,6 +35,7 @@ const el = {
   btnCompile: document.getElementById("btnCompile"),
   btnStart: document.getElementById("btnStart"),
   btnRefresh: document.getElementById("btnRefresh"),
+  btnSplitSession: document.getElementById("btnSplitSession"),
   btnCompleteStep: document.getElementById("btnCompleteStep"),
   btnContinue: document.getElementById("btnContinue"),
   btnSkip: document.getElementById("btnSkip"),
@@ -69,7 +70,7 @@ function setStepUiExercise(step, started) {
   el.stepBadge.className = "pill ok";
   el.stepTitle.textContent = exerciseId;
   el.stepSubtitle.textContent = started
-    ? "Current action: complete this step."
+    ? "Current action: complete this step, or split session to enter return decision."
     : "Session not started. Press Start to begin.";
   el.stepMeta.textContent =
     `exercise_id=${exerciseId}` +
@@ -99,6 +100,12 @@ function setStepUiReturnDecision(step, started) {
   el.btnSkip.disabled = !started || !hasSkip;
 }
 
+function updateGlobalButtons(started, stepType) {
+  el.btnStart.disabled = !el.sessionId.value.trim() || started === true;
+  el.btnRefresh.disabled = !el.sessionId.value.trim();
+  el.btnSplitSession.disabled = !el.sessionId.value.trim() || started !== true || stepType !== "EXERCISE";
+}
+
 function renderState(state) {
   el.stateOut.textContent = JSON.stringify(state, null, 2);
   el.currentStep.textContent = JSON.stringify(state?.current_step ?? null, null, 2);
@@ -114,6 +121,10 @@ function renderState(state) {
   el.statDropped.textContent = String(droppedCount);
 
   const step = state?.current_step;
+  const stepType = step && typeof step === "object" ? String(step.type || "") : "";
+
+  updateGlobalButtons(started, stepType);
+
   if (!step || typeof step !== "object") {
     setStepUiIdle(
       started ? "No current step available" : "Session not started",
@@ -206,6 +217,10 @@ el.btnRefresh.addEventListener("click", async () => {
   try { await refreshState(); } catch (e) { log(`ERROR: ${e.message}`); }
 });
 
+el.btnSplitSession.addEventListener("click", async () => {
+  try { await postEvent({ type: "SPLIT_SESSION" }); } catch (e) { log(`ERROR: ${e.message}`); }
+});
+
 el.btnCompleteStep.addEventListener("click", async () => {
   try { await postEvent({ type: "COMPLETE_STEP" }); } catch (e) { log(`ERROR: ${e.message}`); }
 });
@@ -222,4 +237,5 @@ el.phase1Input.value = JSON.stringify({
   note: "Click 'Load default fixture' or paste a valid phase1_input payload."
 }, null, 2);
 
+updateGlobalButtons(false, "");
 setStepUiIdle("No session state loaded", "Load or create a session to begin.", "-");
