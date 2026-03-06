@@ -5,15 +5,26 @@
   <title>Kolosseum v0 Session Runner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: Arial, sans-serif; margin: 24px; max-width: 960px; }
-    h1, h2 { margin-bottom: 8px; }
+    body { font-family: Arial, sans-serif; margin: 24px; max-width: 1080px; }
+    h1, h2, h3 { margin: 0 0 8px 0; }
     .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
     .card { border: 1px solid #ccc; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px 12px; }
+    .muted { color: #666; }
+    .mono { font-family: Consolas, Menlo, Monaco, monospace; }
+    .pill { display: inline-block; padding: 4px 10px; border: 1px solid #bbb; border-radius: 999px; font-size: 14px; }
+    .pill.ok { border-color: #198754; }
+    .pill.warn { border-color: #b26a00; }
+    .pill.idle { border-color: #888; }
     input, button, textarea { font: inherit; padding: 8px; }
     button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: 0.55; }
     textarea { width: 100%; min-height: 120px; }
     pre { white-space: pre-wrap; word-break: break-word; background: #f6f6f6; padding: 12px; border-radius: 8px; }
-    .muted { color: #666; }
+    .step-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .step-meta { margin-top: 8px; }
+    .primary-actions { margin-top: 12px; }
   </style>
 </head>
 <body>
@@ -35,24 +46,47 @@
       <input id="sessionId" placeholder="session_id" style="min-width: 360px;" />
       <button id="btnStart">Start</button>
       <button id="btnRefresh">Refresh State</button>
-      <button id="btnCompleteStep">Complete Step</button>
-      <button id="btnContinue">Return Continue</button>
-      <button id="btnSkip">Return Skip</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>3) Session status</h2>
+      <div class="kv">
+        <div class="muted">Started</div><div id="statStarted">false</div>
+        <div class="muted">Completed</div><div id="statCompleted">0</div>
+        <div class="muted">Remaining</div><div id="statRemaining">0</div>
+        <div class="muted">Dropped</div><div id="statDropped">0</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>4) Current step</h2>
+      <div id="stepBadge" class="pill idle">No current step</div>
+      <div class="step-title" id="stepTitle">No session state loaded</div>
+      <div class="muted" id="stepSubtitle">Load or create a session to begin.</div>
+      <div class="step-meta mono" id="stepMeta">-</div>
+
+      <div class="row primary-actions">
+        <button id="btnCompleteStep">Complete Step</button>
+        <button id="btnContinue">Return Continue</button>
+        <button id="btnSkip">Return Skip</button>
+      </div>
     </div>
   </div>
 
   <div class="card">
-    <h2>3) Current step</h2>
+    <h2>5) Current step JSON</h2>
     <pre id="currentStep">(no state yet)</pre>
   </div>
 
   <div class="card">
-    <h2>4) State payload</h2>
+    <h2>6) State payload</h2>
     <pre id="stateOut">(no state yet)</pre>
   </div>
 
   <div class="card">
-    <h2>5) Log</h2>
+    <h2>7) Log</h2>
     <pre id="logOut"></pre>
   </div>
 
