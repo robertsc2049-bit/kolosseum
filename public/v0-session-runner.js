@@ -20,6 +20,17 @@ const el = {
   currentStep: document.getElementById("currentStep"),
   stateOut: document.getElementById("stateOut"),
   logOut: document.getElementById("logOut"),
+
+  statStarted: document.getElementById("statStarted"),
+  statCompleted: document.getElementById("statCompleted"),
+  statRemaining: document.getElementById("statRemaining"),
+  statDropped: document.getElementById("statDropped"),
+
+  stepBadge: document.getElementById("stepBadge"),
+  stepTitle: document.getElementById("stepTitle"),
+  stepSubtitle: document.getElementById("stepSubtitle"),
+  stepMeta: document.getElementById("stepMeta"),
+
   btnLoadFixture: document.getElementById("btnLoadFixture"),
   btnCompile: document.getElementById("btnCompile"),
   btnStart: document.getElementById("btnStart"),
@@ -34,9 +45,99 @@ function log(msg, data) {
   el.logOut.textContent = `${line}\n${el.logOut.textContent}`;
 }
 
+function disableStepActions() {
+  el.btnCompleteStep.disabled = true;
+  el.btnContinue.disabled = true;
+  el.btnSkip.disabled = true;
+}
+
+function setStepUiIdle(title, subtitle, meta) {
+  el.stepBadge.textContent = "No current step";
+  el.stepBadge.className = "pill idle";
+  el.stepTitle.textContent = title;
+  el.stepSubtitle.textContent = subtitle;
+  el.stepMeta.textContent = meta || "-";
+  disableStepActions();
+}
+
+function setStepUiExercise(step, started) {
+  const exerciseId = step?.exercise?.exercise_id || "(unknown exercise)";
+  const sets = step?.exercise?.sets;
+  const reps = step?.exercise?.reps;
+
+  el.stepBadge.textContent = "Exercise";
+  el.stepBadge.className = "pill ok";
+  el.stepTitle.textContent = exerciseId;
+  el.stepSubtitle.textContent = started
+    ? "Current action: complete this step."
+    : "Session not started. Press Start to begin.";
+  el.stepMeta.textContent =
+    `exercise_id=${exerciseId}` +
+    `${Number.isInteger(sets) ? ` | sets=${sets}` : ""}` +
+    `${Number.isInteger(reps) ? ` | reps=${reps}` : ""}`;
+
+  el.btnCompleteStep.disabled = !started;
+  el.btnContinue.disabled = true;
+  el.btnSkip.disabled = true;
+}
+
+function setStepUiReturnDecision(step, started) {
+  const options = Array.isArray(step?.options) ? step.options : [];
+  const hasContinue = options.includes("RETURN_CONTINUE");
+  const hasSkip = options.includes("RETURN_SKIP");
+
+  el.stepBadge.textContent = "Return decision";
+  el.stepBadge.className = "pill warn";
+  el.stepTitle.textContent = "Return decision required";
+  el.stepSubtitle.textContent = started
+    ? "Choose how to resume after split."
+    : "Session not started. Press Start to begin.";
+  el.stepMeta.textContent = `options=${JSON.stringify(options)}`;
+
+  el.btnCompleteStep.disabled = true;
+  el.btnContinue.disabled = !started || !hasContinue;
+  el.btnSkip.disabled = !started || !hasSkip;
+}
+
 function renderState(state) {
   el.stateOut.textContent = JSON.stringify(state, null, 2);
   el.currentStep.textContent = JSON.stringify(state?.current_step ?? null, null, 2);
+
+  const started = !!state?.started;
+  const completedCount = Array.isArray(state?.completed_exercises) ? state.completed_exercises.length : 0;
+  const remainingCount = Array.isArray(state?.remaining_exercises) ? state.remaining_exercises.length : 0;
+  const droppedCount = Array.isArray(state?.dropped_exercises) ? state.dropped_exercises.length : 0;
+
+  el.statStarted.textContent = String(started);
+  el.statCompleted.textContent = String(completedCount);
+  el.statRemaining.textContent = String(remainingCount);
+  el.statDropped.textContent = String(droppedCount);
+
+  const step = state?.current_step;
+  if (!step || typeof step !== "object") {
+    setStepUiIdle(
+      started ? "No current step available" : "Session not started",
+      started ? "Refresh state or inspect payload." : "Start the session to get the first step.",
+      "-"
+    );
+    return;
+  }
+
+  if (step.type === "EXERCISE") {
+    setStepUiExercise(step, started);
+    return;
+  }
+
+  if (step.type === "RETURN_DECISION") {
+    setStepUiReturnDecision(step, started);
+    return;
+  }
+
+  setStepUiIdle(
+    `Unsupported step type: ${String(step.type)}`,
+    "State payload contains a step type the UI does not yet handle.",
+    JSON.stringify(step)
+  );
 }
 
 async function loadDefaultFixture() {
@@ -120,3 +221,5 @@ el.btnSkip.addEventListener("click", async () => {
 el.phase1Input.value = JSON.stringify({
   note: "Click 'Load default fixture' or paste a valid phase1_input payload."
 }, null, 2);
+
+setStepUiIdle("No session state loaded", "Load or create a session to begin.", "-");
