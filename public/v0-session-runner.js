@@ -29,7 +29,7 @@ const el = {
   stepBadge: document.getElementById("stepBadge"),
   stepTitle: document.getElementById("stepTitle"),
   stepSubtitle: document.getElementById("stepSubtitle"),
-  stepMeta: document.getElementById("stepMeta"),
+  stepBody: document.getElementById("stepBody"),
 
   btnLoadFixture: document.getElementById("btnLoadFixture"),
   btnCompile: document.getElementById("btnCompile"),
@@ -46,25 +46,94 @@ function log(msg, data) {
   el.logOut.textContent = `${line}\n${el.logOut.textContent}`;
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function formatIntensity(intensity) {
+  if (!intensity || typeof intensity !== "object") return "-";
+  const type = String(intensity.type || "");
+  const value = intensity.value;
+
+  if (type === "percent_1rm" && typeof value === "number") return `${value}% 1RM`;
+  if (type && typeof value !== "undefined") return `${type}: ${value}`;
+  if (type) return type;
+  return "-";
+}
+
+function renderExerciseBody(step) {
+  const ex = step?.exercise || {};
+  const exerciseId = ex.exercise_id || "(unknown exercise)";
+  const sets = Number.isInteger(ex.sets) ? String(ex.sets) : "-";
+  const reps = Number.isInteger(ex.reps) ? String(ex.reps) : "-";
+  const rest = Number.isInteger(ex.rest_seconds) ? `${ex.rest_seconds}s` : "-";
+  const intensity = formatIntensity(ex.intensity);
+  const blockId = ex.block_id || "-";
+  const itemId = ex.item_id || "-";
+
+  el.stepBody.innerHTML = `
+    <div class="muted mono">exercise_id=${escapeHtml(exerciseId)}</div>
+    <div class="step-metrics">
+      <div class="metric">
+        <div class="metric-label">Sets × Reps</div>
+        <div class="metric-value">${escapeHtml(`${sets} × ${reps}`)}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Rest</div>
+        <div class="metric-value">${escapeHtml(rest)}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Intensity</div>
+        <div class="metric-value">${escapeHtml(intensity)}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Block / Item</div>
+        <div class="metric-value">${escapeHtml(`${blockId} / ${itemId}`)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderReturnDecisionBody(step) {
+  const options = Array.isArray(step?.options) ? step.options : [];
+  const items = options.length
+    ? options.map((opt) => `<li class="mono">${escapeHtml(opt)}</li>`).join("")
+    : `<li class="muted">No options supplied.</li>`;
+
+  el.stepBody.innerHTML = `
+    <div class="muted">The session is waiting for an explicit return decision.</div>
+    <ul class="options-list">
+      ${items}
+    </ul>
+  `;
+}
+
+function renderIdleBody(message) {
+  el.stepBody.innerHTML = `<div class="muted">${escapeHtml(message)}</div>`;
+}
+
 function disableStepActions() {
   el.btnCompleteStep.disabled = true;
   el.btnContinue.disabled = true;
   el.btnSkip.disabled = true;
 }
 
-function setStepUiIdle(title, subtitle, meta) {
+function setStepUiIdle(title, subtitle, bodyMessage) {
   el.stepBadge.textContent = "No current step";
   el.stepBadge.className = "pill idle";
   el.stepTitle.textContent = title;
   el.stepSubtitle.textContent = subtitle;
-  el.stepMeta.textContent = meta || "-";
+  renderIdleBody(bodyMessage || "No step details yet.");
   disableStepActions();
 }
 
 function setStepUiExercise(step, started) {
   const exerciseId = step?.exercise?.exercise_id || "(unknown exercise)";
-  const sets = step?.exercise?.sets;
-  const reps = step?.exercise?.reps;
 
   el.stepBadge.textContent = "Exercise";
   el.stepBadge.className = "pill ok";
@@ -72,10 +141,7 @@ function setStepUiExercise(step, started) {
   el.stepSubtitle.textContent = started
     ? "Current action: complete this step, or split session to enter return decision."
     : "Session not started. Press Start to begin.";
-  el.stepMeta.textContent =
-    `exercise_id=${exerciseId}` +
-    `${Number.isInteger(sets) ? ` | sets=${sets}` : ""}` +
-    `${Number.isInteger(reps) ? ` | reps=${reps}` : ""}`;
+  renderExerciseBody(step);
 
   el.btnCompleteStep.disabled = !started;
   el.btnContinue.disabled = true;
@@ -93,7 +159,7 @@ function setStepUiReturnDecision(step, started) {
   el.stepSubtitle.textContent = started
     ? "Choose how to resume after split."
     : "Session not started. Press Start to begin.";
-  el.stepMeta.textContent = `options=${JSON.stringify(options)}`;
+  renderReturnDecisionBody(step);
 
   el.btnCompleteStep.disabled = true;
   el.btnContinue.disabled = !started || !hasContinue;
@@ -129,7 +195,7 @@ function renderState(state) {
     setStepUiIdle(
       started ? "No current step available" : "Session not started",
       started ? "Refresh state or inspect payload." : "Start the session to get the first step.",
-      "-"
+      started ? "No step details available." : "No step details yet."
     );
     return;
   }
@@ -147,7 +213,7 @@ function renderState(state) {
   setStepUiIdle(
     `Unsupported step type: ${String(step.type)}`,
     "State payload contains a step type the UI does not yet handle.",
-    JSON.stringify(step)
+    "Unsupported step payload."
   );
 }
 
@@ -238,4 +304,4 @@ el.phase1Input.value = JSON.stringify({
 }, null, 2);
 
 updateGlobalButtons(false, "");
-setStepUiIdle("No session state loaded", "Load or create a session to begin.", "-");
+setStepUiIdle("No session state loaded", "Load or create a session to begin.", "No step details yet.");
