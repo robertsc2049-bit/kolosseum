@@ -21,6 +21,8 @@ const el = {
   stateOut: document.getElementById("stateOut"),
   logOut: document.getElementById("logOut"),
 
+  statSessionId: document.getElementById("statSessionId"),
+  statCurrentMode: document.getElementById("statCurrentMode"),
   statStarted: document.getElementById("statStarted"),
   statCompleted: document.getElementById("statCompleted"),
   statRemaining: document.getElementById("statRemaining"),
@@ -33,6 +35,8 @@ const el = {
 
   queueCurrent: document.getElementById("queueCurrent"),
   queueUpcoming: document.getElementById("queueUpcoming"),
+  historyCompleted: document.getElementById("historyCompleted"),
+  historyDropped: document.getElementById("historyDropped"),
 
   btnLoadFixture: document.getElementById("btnLoadFixture"),
   btnCompile: document.getElementById("btnCompile"),
@@ -45,7 +49,6 @@ const el = {
 };
 
 const exerciseLabels = new Map();
-let labelsLoaded = false;
 let labelsLoadPromise = null;
 let lastRenderedState = null;
 
@@ -132,7 +135,6 @@ async function loadExerciseLabels() {
           status: out.status,
           text: out.text,
         });
-        labelsLoaded = true;
         return;
       }
 
@@ -149,12 +151,10 @@ async function loadExerciseLabels() {
         }
       }
 
-      labelsLoaded = true;
       log("Loaded exercise labels.", {
         count: exerciseLabels.size,
       });
     } catch (e) {
-      labelsLoaded = true;
       log(`Registry labels load failed; using fallback humanized ids. ${e.message}`);
     }
   })();
@@ -202,6 +202,20 @@ function renderQueue(state) {
   el.queueUpcoming.innerHTML = upcoming.length > 0
     ? upcoming.map((ex) => renderQueueItem(ex, "upcoming")).join("")
     : `<div class="muted">No upcoming exercises.</div>`;
+}
+
+function renderHistoryList(target, items, emptyMessage, kind) {
+  target.innerHTML = items.length > 0
+    ? items.map((ex) => renderQueueItem(ex, kind)).join("")
+    : `<div class="muted">${escapeHtml(emptyMessage)}</div>`;
+}
+
+function renderHistory(state) {
+  const completed = Array.isArray(state?.completed_exercises) ? state.completed_exercises : [];
+  const dropped = Array.isArray(state?.dropped_exercises) ? state.dropped_exercises : [];
+
+  renderHistoryList(el.historyCompleted, completed, "No completed exercises yet.", "completed");
+  renderHistoryList(el.historyDropped, dropped, "No dropped exercises yet.", "dropped");
 }
 
 function renderExerciseBody(step) {
@@ -313,6 +327,13 @@ function updateGlobalButtons(started, stepType) {
   el.btnSplitSession.disabled = !el.sessionId.value.trim() || started !== true || stepType !== "EXERCISE";
 }
 
+function getCurrentMode(step) {
+  if (!step || typeof step !== "object") return "IDLE";
+  if (step.type === "EXERCISE") return "EXERCISE";
+  if (step.type === "RETURN_DECISION") return "RETURN_DECISION";
+  return String(step.type || "UNKNOWN");
+}
+
 function renderState(state) {
   lastRenderedState = state;
 
@@ -323,16 +344,19 @@ function renderState(state) {
   const completedCount = Array.isArray(state?.completed_exercises) ? state.completed_exercises.length : 0;
   const remainingCount = Array.isArray(state?.remaining_exercises) ? state.remaining_exercises.length : 0;
   const droppedCount = Array.isArray(state?.dropped_exercises) ? state.dropped_exercises.length : 0;
+  const step = state?.current_step;
+  const stepType = step && typeof step === "object" ? String(step.type || "") : "";
+  const sessionId = el.sessionId.value.trim() || String(state?.session_id || "-").trim() || "-";
 
+  el.statSessionId.textContent = sessionId;
+  el.statCurrentMode.textContent = getCurrentMode(step);
   el.statStarted.textContent = String(started);
   el.statCompleted.textContent = String(completedCount);
   el.statRemaining.textContent = String(remainingCount);
   el.statDropped.textContent = String(droppedCount);
 
   renderQueue(state);
-
-  const step = state?.current_step;
-  const stepType = step && typeof step === "object" ? String(step.type || "") : "";
+  renderHistory(state);
 
   updateGlobalButtons(started, stepType);
 
@@ -448,8 +472,12 @@ el.phase1Input.value = JSON.stringify({
   note: "Click 'Load default fixture' or paste a valid phase1_input payload."
 }, null, 2);
 
+el.statSessionId.textContent = "-";
+el.statCurrentMode.textContent = "IDLE";
+
 updateGlobalButtons(false, "");
 renderQueue({});
+renderHistory({});
 setStepUiIdle("No session state loaded", "Load or create a session to begin.", "No step details yet.");
 
 loadExerciseLabels().then(() => {
@@ -457,5 +485,6 @@ loadExerciseLabels().then(() => {
     renderState(lastRenderedState);
   } else {
     renderQueue({});
+    renderHistory({});
   }
 });

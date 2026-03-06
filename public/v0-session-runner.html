@@ -33,6 +33,12 @@
     .primary-actions { margin-top: 12px; }
     .options-list { margin: 8px 0 0 18px; padding: 0; }
 
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .summary-item { border: 1px solid #e2e2e2; border-radius: 8px; padding: 10px; background: #fff; }
+    .summary-label { font-size: 12px; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .summary-value { font-size: 20px; font-weight: 700; }
+    .summary-value.mono { font-size: 14px; line-height: 1.4; }
+
     .queue-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
     .queue-list { display: grid; gap: 10px; }
     .queue-item { border: 1px solid #e2e2e2; border-radius: 8px; padding: 12px; background: #fff; }
@@ -71,12 +77,32 @@
 
   <div class="grid">
     <div class="card">
-      <h2>3) Session status</h2>
-      <div class="kv">
-        <div class="muted">Started</div><div id="statStarted">false</div>
-        <div class="muted">Completed</div><div id="statCompleted">0</div>
-        <div class="muted">Remaining</div><div id="statRemaining">0</div>
-        <div class="muted">Dropped</div><div id="statDropped">0</div>
+      <h2>3) Session summary</h2>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-label">Session ID</div>
+          <div id="statSessionId" class="summary-value mono">-</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Current mode</div>
+          <div id="statCurrentMode" class="summary-value">IDLE</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Started</div>
+          <div id="statStarted" class="summary-value">false</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Completed</div>
+          <div id="statCompleted" class="summary-value">0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Remaining</div>
+          <div id="statRemaining" class="summary-value">0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Dropped</div>
+          <div id="statDropped" class="summary-value">0</div>
+        </div>
       </div>
     </div>
 
