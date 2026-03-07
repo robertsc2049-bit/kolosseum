@@ -16,22 +16,20 @@ export const SESSION_EVENT_SEQUENCE_TOKENS = Object.freeze({
   SEQ_GAP: "seq_gap",
   SEQ_DUPLICATE: "seq_duplicate",
   SEQ_REWIND: "seq_rewind",
-});
+} as const);
 
-/**
- * @param {number} n
- * @returns {boolean}
- */
-function isPositiveSafeInteger(n) {
-  return Number.isSafeInteger(n) && n >= 1;
+function isPositiveSafeInteger(n: unknown): n is number {
+  return Number.isSafeInteger(n) && (n as number) >= 1;
 }
 
-/**
- * @param {number} lastSeqNo
- * @param {number} incomingSeqNo
- * @returns {{ ok: true, expectedSeqNo: number } | { ok: false, token: string, expectedSeqNo: number, details: string }}
- */
-export function validateNextSessionEventSequence(lastSeqNo, incomingSeqNo) {
+export type ValidateNextSessionEventSequenceResult =
+  | { ok: true; expectedSeqNo: number }
+  | { ok: false; token: string; expectedSeqNo: number; details: string };
+
+export function validateNextSessionEventSequence(
+  lastSeqNo: number | null | undefined,
+  incomingSeqNo: number
+): ValidateNextSessionEventSequenceResult {
   const normalizedLast = lastSeqNo === null || lastSeqNo === undefined ? 0 : lastSeqNo;
 
   if (!Number.isSafeInteger(normalizedLast) || normalizedLast < 0) {
@@ -84,60 +82,54 @@ export function validateNextSessionEventSequence(lastSeqNo, incomingSeqNo) {
   };
 }
 
-/**
- * @param {number} lastSeqNo
- * @param {number} incomingSeqNo
- * @returns {{ expectedSeqNo: number }}
- */
-export function assertNextSessionEventSequence(lastSeqNo, incomingSeqNo) {
+export function assertNextSessionEventSequence(
+  lastSeqNo: number | null | undefined,
+  incomingSeqNo: number
+): { expectedSeqNo: number } {
   const result = validateNextSessionEventSequence(lastSeqNo, incomingSeqNo);
   if (result.ok) {
     return result;
   }
 
-  const error = new Error(result.details);
+  const error = new Error(result.details) as Error & {
+    token?: string;
+    expectedSeqNo?: number;
+  };
   error.name = "SessionEventSequenceError";
   error.token = result.token;
   error.expectedSeqNo = result.expectedSeqNo;
   throw error;
 }
 
-/**
- * @typedef {{
- *   seq_no: number,
- *   event_type: string,
- *   event_payload?: unknown
- * }} SessionEvent
- */
+export type SessionEvent = {
+  seq_no: number;
+  event_type: string;
+  event_payload?: unknown;
+};
 
 /**
  * Deterministically reconstructs minimal factual state from a supplied event list.
  * No reordering is permitted. No direct state patching is permitted.
- *
- * @param {SessionEvent[]} events
- * @returns {{
- *   last_seq_no: number,
- *   event_count: number,
- *   event_type_counts: Record<string, number>,
- *   latest_event_type: string | null
- * }}
  */
-export function reconstructSessionStateFromEvents(events) {
+export function reconstructSessionStateFromEvents(events: SessionEvent[]): {
+  last_seq_no: number;
+  event_count: number;
+  event_type_counts: Record<string, number>;
+  latest_event_type: string | null;
+} {
   if (!Array.isArray(events)) {
     throw new TypeError("events must be an array.");
   }
 
-  /** @type {{
-   *   last_seq_no: number,
-   *   event_count: number,
-   *   event_type_counts: Record<string, number>,
-   *   latest_event_type: string | null
-   * }}
-   */
-  const initial = {
+  const initial: {
+    last_seq_no: number;
+    event_count: number;
+    event_type_counts: Record<string, number>;
+    latest_event_type: string | null;
+  } = {
     last_seq_no: 0,
     event_count: 0,
-    event_type_counts: Object.create(null),
+    event_type_counts: Object.create(null) as Record<string, number>,
     latest_event_type: null,
   };
 
@@ -150,14 +142,18 @@ export function reconstructSessionStateFromEvents(events) {
     const eventType = event.event_type;
 
     if (!isPositiveSafeInteger(seqNo)) {
-      const error = new Error(`events[${index}].seq_no must be a safe integer >= 1.`);
+      const error = new Error(`events[${index}].seq_no must be a safe integer >= 1.`) as Error & {
+        token?: string;
+      };
       error.name = "SessionEventSequenceError";
       error.token = SESSION_EVENT_SEQUENCE_TOKENS.SEQ_INVALID;
       throw error;
     }
 
     if (typeof eventType !== "string" || eventType.length === 0) {
-      const error = new Error(`events[${index}].event_type must be a non-empty string.`);
+      const error = new Error(`events[${index}].event_type must be a non-empty string.`) as Error & {
+        token?: string;
+      };
       error.name = "SessionEventSequenceError";
       error.token = SESSION_EVENT_SEQUENCE_TOKENS.SEQ_INVALID;
       throw error;
@@ -165,7 +161,7 @@ export function reconstructSessionStateFromEvents(events) {
 
     assertNextSessionEventSequence(state.last_seq_no, seqNo);
 
-    const nextCounts = {
+    const nextCounts: Record<string, number> = {
       ...state.event_type_counts,
       [eventType]: (state.event_type_counts[eventType] ?? 0) + 1,
     };
