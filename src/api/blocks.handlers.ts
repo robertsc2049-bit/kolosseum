@@ -21,12 +21,8 @@ type CompileBlockBody = {
   phase1_input: unknown;
   engine_version?: string;
   canonical_hash?: string;
-
-  // reserved for when Phase 5 compile exists
   apply_phase5?: boolean;
   phase5_input?: unknown;
-
-  // optional runtime events to pre-apply in response (not persisted here)
   runtime_events?: unknown;
   events?: unknown;
 };
@@ -79,7 +75,6 @@ function parseRuntimeEvents(raw: unknown[]): any[] {
 
 function mapEngineRuntimeApplyError(e: unknown) {
   const msg = e instanceof Error ? e.message : String(e);
-  // Preserve the engine error code string; UI/clients can key off this deterministically.
   if (msg.startsWith("PHASE6_RUNTIME_AWAIT_RETURN_DECISION")) {
     throw badRequest("Runtime event rejected (await return decision)", {
       failure_token: "phase6_runtime_await_return_decision",
@@ -99,8 +94,6 @@ function mapEngineRuntimeApplyError(e: unknown) {
     });
   }
 
-  // Default: unknown engine/runtime exception => server fault, not client fault.
-  // This prevents misclassifying invariant bugs as 4xx.
   throw internalError("Runtime apply failed (unexpected engine error)", { cause: msg });
 }
 
@@ -118,25 +111,19 @@ export async function compileBlock(req: Request, res: Response) {
 
   const engine_version = asString(body.engine_version) ?? "EB2-1.0.0";
   const apply_phase5 = body.apply_phase5 === true;
-
-  // compile can optionally persist a session
   const create_session = asBoolQuery((req.query as any)?.create_session);
 
-  // ---- Phase 1 ----
   const p1 = phase1Validate(body.phase1_input);
   if (!p1.ok) {
     throw badRequest("Phase 1 failed", { failure_token: p1.failure_token, details: p1.details });
   }
   const canonical_input = p1.canonical_input;
 
-  // ---- Phase 2 ----
   const p2 = phase2CanonicaliseAndHash(canonical_input);
   if (!p2.ok) {
     throw badRequest("Phase 2 failed", { failure_token: p2.failure_token, details: p2.details });
   }
 
-  // canonical_hash is deterministic for identical canonical input (default).
-  // Allow override only if explicitly enabled + authenticated.
   const requested_canonical_hash = asString(body.canonical_hash);
   const allow_override = process.env.KOLOSSEUM_ALLOW_CANONICAL_HASH_OVERRIDE === "1";
   const expected_token =
@@ -159,49 +146,47 @@ export async function compileBlock(req: Request, res: Response) {
     throw internalError("canonical_hash selection failed", { cause: e instanceof Error ? e.message : String(e) });
   }
 
-  // ---- Phase 3 ----
   const p3 = phase3ResolveConstraintsAndLoadRegistries(canonical_input);
   if (!p3.ok) {
     throw badRequest("Phase 3 failed", { failure_token: p3.failure_token, details: p3.details });
   }
 
-  // ---- Phase 4 ----
   const p4 = phase4AssembleProgram(canonical_input, p3.phase3);
   if (!p4.ok) {
     throw badRequest("Phase 4 failed", { failure_token: p4.failure_token, details: p4.details });
   }
 
-  // ---- Phase 5 (reserved) ----
   if (apply_phase5) {
     throw badRequest("Phase 5 compile not implemented", { failure_token: "phase5_compile_not_implemented" });
   }
   const phase5_adjustments: unknown[] = [];
 
-  // ---- Phase 6 planned session ----
   const p6 = phase6ProduceSessionOutput(p4.program, canonical_input, undefined);
   if (!p6.ok) {
     throw badRequest("Phase 6 failed", { failure_token: p6.failure_token, details: p6.details });
   }
   const planned_session_from_engine: Phase6SessionOutput = p6.session;
 
-  // ---- Runtime pre-apply (validated; type boundary at engine call) ----
   const runtime_events = parseRuntimeEvents(readRuntimeEvents(body));
 
   let runtime_state: any;
   try {
     runtime_state = applyRuntimeEvents(planned_session_from_engine as any, runtime_events as any);
-    // TEST SENTINEL: force an unhandled runtime apply throw (must map to 500, not 400).
+
     if (process.env.KOLOSSEUM_TEST_FORCE_RUNTIME_APPLY_THROW === "1") {
       throw new Error("KOLOSSEUM_TEST_FORCE_RUNTIME_APPLY_THROW: unhandled apply failure sentinel");
     }
 
-    // Contract lock: do not leak legacy/inferential gate fields via API.
-    // Only return_decision_required/options are allowed semantics.
-    if (runtime_state && typeof (runtime_state as any) === "object") {
-      const __t = (runtime_state as any).runtime_trace;
-      if (__t && typeof __t === "object") {
-        delete (__t as any).split_active;
-        delete (__t as any).return_gate_required;
+    if (runtime_state && typeof runtime_state === "object") {
+      delete runtime_state.split_active;
+      delete runtime_state.remaining_at_split_ids;
+      delete runtime_state.return_gate_required;
+
+      const rt = runtime_state.runtime_trace;
+      if (rt && typeof rt === "object") {
+        delete rt.split_active;
+        delete rt.remaining_at_split_ids;
+        delete rt.return_gate_required;
       }
     }
   } catch (e: unknown) {
@@ -226,20 +211,6 @@ export async function compileBlock(req: Request, res: Response) {
           ? runtime_state.skipped_ids.map((x: any) => String(x))
           : []);
 
-  const split_active: boolean =
-    typeof runtime_state?.split_active === "boolean"
-      ? runtime_state.split_active
-      : (typeof runtime_state?.split?.active === "boolean" ? runtime_state.split.active : false);
-
-  const remaining_at_split_ids: string[] =
-    Array.isArray(runtime_state?.remaining_at_split_ids)
-      ? runtime_state.remaining_at_split_ids.map((x: any) => String(x))
-      : (Array.isArray(runtime_state?.split?.remaining_at_split)
-          ? runtime_state.split.remaining_at_split.map((x: any) => String(x))
-          : []);
-
-  // Contract lock:
-  // UI/clients MUST key off these fields; never infer from split_active alone.
   const return_decision_required: boolean =
     typeof runtime_state?.return_decision_required === "boolean" ? runtime_state.return_decision_required : false;
 
@@ -250,21 +221,14 @@ export async function compileBlock(req: Request, res: Response) {
           .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
       : [];
 
-  // Back-compat field (older clients). Do NOT derive from split_active.
-  const return_gate_required: boolean = return_decision_required;
-
   const runtime_trace_from_engine = {
     remaining_ids,
     completed_ids,
     dropped_ids,
-    split_active,
-    remaining_at_split_ids,
     return_decision_required,
-    return_decision_options,
-    return_gate_required
+    return_decision_options
   };
 
-  // Apply status to exercises (preserve order; keep all exercises)
   const completedSet = new Set(completed_ids);
   const droppedSet = new Set(dropped_ids);
 
@@ -277,7 +241,6 @@ export async function compileBlock(req: Request, res: Response) {
     })
   };
 
-  // ---- Persist (TX): block upsert + optional session create ----
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -332,8 +295,6 @@ export async function compileBlock(req: Request, res: Response) {
 
     if (create_session) {
       session_id = id("s");
-
-      // persist planned_session with the DB session_id forced
       const plannedToStore = { ...planned_session_from_engine, session_id };
 
       await client.query(
@@ -344,8 +305,6 @@ export async function compileBlock(req: Request, res: Response) {
         [session_id, JSON.stringify(plannedToStore), persisted_block_id]
       );
 
-      // If session_event_seq table exists, initialise it (safe + forward compatible).
-      // If it doesn't exist, this will throw; we swallow ONLY "relation does not exist".
       try {
         await client.query(
           `
@@ -363,9 +322,6 @@ export async function compileBlock(req: Request, res: Response) {
 
     await client.query("COMMIT");
 
-    // Status semantics:
-    // - Without session: preserve old behavior (201 if new block else 200)
-    // - With session: a new session was created => 201
     const status = create_session ? 201 : (created_block ? 201 : 200);
 
     const payload: any = {
@@ -452,7 +408,6 @@ export async function createSessionFromBlock(req: Request, res: Response) {
     [session_id, JSON.stringify(plannedToStore), block_id]
   );
 
-  // session_event_seq init if table exists
   try {
     await pool.query(
       `
