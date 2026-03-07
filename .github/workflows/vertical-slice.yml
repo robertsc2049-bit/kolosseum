@@ -156,6 +156,9 @@ jobs:
       - name: Tier-1 smoke (vertical slice with DB)
         run: node --test test/smoke_vertical_slice_plan_start_state.test.mjs
 
+      - name: API regression (compile runtime_trace contract)
+        run: node --test test/api.blocks_compile_runtime_trace_contract.regression.test.mjs
+
       - name: HTTP e2e (return gate)
         run: node --test test/vertical_slice.api_http_return_gate.e2e.test.mjs
 

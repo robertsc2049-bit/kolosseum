@@ -7,16 +7,8 @@ export type Phase6RuntimeTrace = {
   remaining_ids: string[];
   completed_ids: string[];
   dropped_ids: string[];
-
-  // Canonical split semantics from reducer state:
-  // - split_active: are we currently in a split state
-  // - remaining_at_split_ids: authoritative snapshot captured at split time
-  split_active: boolean;
-  remaining_at_split_ids: string[];
-
-  // Convenience for UI: if true, client should force a return decision gate.
-  // (You can render "Continue where I left off" vs "Skip and move on".)
-  return_gate_required: boolean;
+  return_decision_required: boolean;
+  return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP">;
 };
 
 type ExerciseStatus = "pending" | "completed" | "skipped";
@@ -37,36 +29,11 @@ function normalizeStringSet(v: unknown): Set<string> {
   return out;
 }
 
-// Back-compat reader: accept either canonical reducer fields OR legacy nested split shape.
-function readSplitActive(state: unknown): boolean {
-  if (!isRecord(state)) return false;
-
-  if (typeof (state as Record<string, unknown>).split_active === "boolean") {
-    return (state as Record<string, unknown>).split_active === true;
-  }
-
-  const split = (state as Record<string, unknown>).split;
-  if (isRecord(split) && typeof (split as Record<string, unknown>).active === "boolean") {
-    return (split as Record<string, unknown>).active === true;
-  }
-
-  return false;
-}
-
-function readRemainingAtSplitIds(state: unknown): string[] {
-  if (!isRecord(state)) return [];
-
-  const a = (state as Record<string, unknown>).remaining_at_split_ids;
-  if (Array.isArray(a)) return a.map((x) => String(x));
-
-  const split = (state as Record<string, unknown>).split;
-  if (isRecord(split)) {
-    const b = (split as Record<string, unknown>).remaining_at_split;
-    if (Array.isArray(b)) return b.map((x) => String(x));
-  }
-
-  // Some older callers use remaining_at_split_ids under different keys; keep this tight for now.
-  return [];
+function normalizeReturnDecisionOptions(v: unknown): Array<"RETURN_CONTINUE" | "RETURN_SKIP"> {
+  if (!Array.isArray(v)) return [];
+  return v
+    .map((x) => String(x))
+    .filter((x): x is "RETURN_CONTINUE" | "RETURN_SKIP" => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
 }
 
 function traceFromRuntimeState(state: unknown): Phase6RuntimeTrace {
@@ -74,20 +41,22 @@ function traceFromRuntimeState(state: unknown): Phase6RuntimeTrace {
   const completed_ids = isRecord(state) ? Array.from(normalizeStringSet(state.completed_ids)) : [];
   const dropped_ids = isRecord(state) ? Array.from(normalizeStringSet(state.skipped_ids)) : [];
 
-  const split_active = readSplitActive(state);
-  const remaining_at_split_ids = readRemainingAtSplitIds(state);
+  const return_decision_required =
+    isRecord(state) && typeof state.return_decision_required === "boolean"
+      ? state.return_decision_required
+      : false;
 
-  // Gate should be required when split is active AND there is anything that was remaining at split time.
-  // (If remaining_at_split_ids is empty, it's effectively a no-op split.)
-  const return_gate_required = split_active === true && remaining_at_split_ids.length > 0;
+  const return_decision_options =
+    isRecord(state)
+      ? normalizeReturnDecisionOptions(state.return_decision_options)
+      : [];
 
   return {
     remaining_ids,
     completed_ids,
     dropped_ids,
-    split_active,
-    remaining_at_split_ids,
-    return_gate_required
+    return_decision_required,
+    return_decision_options
   };
 }
 
@@ -108,10 +77,6 @@ function getCompletedAndSkipped(state: unknown): { completed: Set<string>; skipp
 function applyStatusToExercises(exercises: Phase6SessionExercise[], state: unknown): Phase6SessionExercise[] {
   const { completed, skipped } = getCompletedAndSkipped(state);
 
-  // IMPORTANT:
-  // - Preserve original stable order
-  // - Keep ALL exercises
-  // - Add status field (pending/completed/skipped)
   return exercises.map((e) => {
     const status = statusForId(String(e.exercise_id ?? ""), completed, skipped);
     return { ...e, status };
@@ -146,7 +111,7 @@ export function phase6ApplyRuntimeEvents(session: Phase6SessionOutput, events: R
  * - Same reducer + determinism
  * - Returns:
  *   - session with ALL exercises + per-exercise status
- *   - trace derived ONLY from reducer state (remaining/completed/dropped + split semantics)
+ *   - trace derived ONLY from explicit public reducer contract
  */
 export function phase6ApplyRuntimeEventsWithTrace(
   session: Phase6SessionOutput,
@@ -167,7 +132,6 @@ export function phase6ApplyRuntimeEventsWithTrace(
 
   const trace = traceFromRuntimeState(state);
 
-  // Safety: trace.remaining_ids must equal the pending exercises in session (stable order).
   const emittedPendingIds = nextSession.exercises
     .filter((e) => (e.status ?? "pending") === "pending")
     .map((e) => e.exercise_id);

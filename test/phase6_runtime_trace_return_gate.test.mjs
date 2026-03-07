@@ -2,16 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 async function loadPhase6Runtime() {
-  // Try the expected layout first
   try {
     return await import("../dist/engine/src/phases/phase6.runtime.js");
-  } catch (e1) {
-    // Fallback layout (common when rootDir differs)
+  } catch {
     return await import("../dist/src/phases/phase6.runtime.js");
   }
 }
 
-test("Phase6 runtime trace: split_active + remaining_at_split_ids drive return_gate_required", async () => {
+test("Phase6 runtime trace: split session emits explicit return decision contract only", async () => {
   const { phase6ApplyRuntimeEventsWithTrace } = await loadPhase6Runtime();
 
   const session = {
@@ -31,12 +29,14 @@ test("Phase6 runtime trace: split_active + remaining_at_split_ids drive return_g
 
   const { trace } = phase6ApplyRuntimeEventsWithTrace(session, events);
 
-  assert.equal(trace.split_active, true);
-  assert.deepEqual(trace.remaining_at_split_ids, ["B", "C"]);
-  assert.equal(trace.return_gate_required, true);
+  assert.equal(trace.return_decision_required, true);
+  assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+  assert.equal(Object.prototype.hasOwnProperty.call(trace, "split_active"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(trace, "return_gate_required"), false);
 });
 
-test("Phase6 runtime trace: return_continue clears return_gate_required", async () => {
+test("Phase6 runtime trace: return_continue clears explicit return decision contract", async () => {
   const { phase6ApplyRuntimeEventsWithTrace } = await loadPhase6Runtime();
 
   const session = {
@@ -55,7 +55,9 @@ test("Phase6 runtime trace: return_continue clears return_gate_required", async 
 
   const { trace } = phase6ApplyRuntimeEventsWithTrace(session, events);
 
-  assert.equal(trace.split_active, false);
-  assert.deepEqual(trace.remaining_at_split_ids, []);
-  assert.equal(trace.return_gate_required, false);
+  assert.equal(trace.return_decision_required, false);
+  assert.deepEqual(trace.return_decision_options, []);
+  assert.equal(Object.prototype.hasOwnProperty.call(trace, "split_active"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(trace, "return_gate_required"), false);
 });
