@@ -10,7 +10,6 @@
     .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
     .card { border: 1px solid #ccc; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px 12px; }
     .muted { color: #666; }
     .mono { font-family: Consolas, Menlo, Monaco, monospace; }
     .pill { display: inline-block; padding: 4px 10px; border: 1px solid #bbb; border-radius: 999px; font-size: 14px; }
@@ -86,6 +85,18 @@
         <div class="summary-item">
           <div class="summary-label">Current mode</div>
           <div id="statCurrentMode" class="summary-value">IDLE</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Lifecycle</div>
+          <div id="statLifecycle" class="summary-value">NOT_STARTED</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">% Complete</div>
+          <div id="statProgressPct" class="summary-value">0%</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Completed / Total</div>
+          <div id="statCompletedTotal" class="summary-value">0 / 0</div>
         </div>
         <div class="summary-item">
           <div class="summary-label">Started</div>
