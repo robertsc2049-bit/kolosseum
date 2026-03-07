@@ -23,6 +23,9 @@ const el = {
 
   statSessionId: document.getElementById("statSessionId"),
   statCurrentMode: document.getElementById("statCurrentMode"),
+  statLifecycle: document.getElementById("statLifecycle"),
+  statProgressPct: document.getElementById("statProgressPct"),
+  statCompletedTotal: document.getElementById("statCompletedTotal"),
   statStarted: document.getElementById("statStarted"),
   statCompleted: document.getElementById("statCompleted"),
   statRemaining: document.getElementById("statRemaining"),
@@ -334,6 +337,22 @@ function getCurrentMode(step) {
   return String(step.type || "UNKNOWN");
 }
 
+function getLifecycleState(started, stepType, remainingCount) {
+  if (!started) return "NOT_STARTED";
+  if (stepType === "RETURN_DECISION") return "RETURN_PENDING";
+  if (remainingCount === 0) return "DONE";
+  return "IN_PROGRESS";
+}
+
+function getTotalPlanned(completedCount, remainingCount, droppedCount) {
+  return completedCount + remainingCount + droppedCount;
+}
+
+function getPercentComplete(completedCount, totalPlanned) {
+  if (totalPlanned <= 0) return 0;
+  return Math.round((completedCount / totalPlanned) * 100);
+}
+
 function renderState(state) {
   lastRenderedState = state;
 
@@ -347,9 +366,15 @@ function renderState(state) {
   const step = state?.current_step;
   const stepType = step && typeof step === "object" ? String(step.type || "") : "";
   const sessionId = el.sessionId.value.trim() || String(state?.session_id || "-").trim() || "-";
+  const totalPlanned = getTotalPlanned(completedCount, remainingCount, droppedCount);
+  const percentComplete = getPercentComplete(completedCount, totalPlanned);
+  const lifecycle = getLifecycleState(started, stepType, remainingCount);
 
   el.statSessionId.textContent = sessionId;
   el.statCurrentMode.textContent = getCurrentMode(step);
+  el.statLifecycle.textContent = lifecycle;
+  el.statProgressPct.textContent = `${percentComplete}%`;
+  el.statCompletedTotal.textContent = `${completedCount} / ${totalPlanned}`;
   el.statStarted.textContent = String(started);
   el.statCompleted.textContent = String(completedCount);
   el.statRemaining.textContent = String(remainingCount);
@@ -474,6 +499,9 @@ el.phase1Input.value = JSON.stringify({
 
 el.statSessionId.textContent = "-";
 el.statCurrentMode.textContent = "IDLE";
+el.statLifecycle.textContent = "NOT_STARTED";
+el.statProgressPct.textContent = "0%";
+el.statCompletedTotal.textContent = "0 / 0";
 
 updateGlobalButtons(false, "");
 renderQueue({});
