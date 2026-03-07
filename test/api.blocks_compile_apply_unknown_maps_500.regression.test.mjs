@@ -77,7 +77,7 @@ test("API regression: /blocks/compile unknown applyRuntimeEvents failure must ma
 
   const env = {
     ...process.env,
-    DATABASE_URL: process.env.DATABASE_URL ?? "postgres://postgres:postgres@127.0.0.1:5432/kolosseum",
+    DATABASE_URL: process.env.DATABASE_URL ?? "postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test",
     PORT: "0",
     KOLOSSEUM_TEST_FORCE_RUNTIME_APPLY_THROW: "1"
   };
