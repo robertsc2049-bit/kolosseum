@@ -77,7 +77,7 @@ test("API regression: unknown applyRuntimeEvents failure must map to 500 (not 40
 
   const env = {
     ...process.env,
-    DATABASE_URL: process.env.DATABASE_URL ?? "postgres://postgres:postgres@127.0.0.1:5432/kolosseum",
+    DATABASE_URL: process.env.DATABASE_URL ?? "postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test",
     PORT: "0",
 
     // This must trigger the sentinel throw you add right before applyRuntimeEvents(...)
