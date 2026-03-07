@@ -96,5 +96,12 @@ jobs:
       - name: Build (fast)
         run: npm run build:fast
 
+      - name: Apply schema
+        run: node scripts/apply-schema.mjs --db-url "${DATABASE_URL}"
+
       - name: Integration (DB-backed)
+        env:
+          KOLOSSEUM_HTTP_E2E_RETURN_GATE: "1"
+          KOLOSSEUM_HTTP_E2E_COMPLETE_STEP: "1"
+          KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500: "1"
         run: npm run test:ci:integration
