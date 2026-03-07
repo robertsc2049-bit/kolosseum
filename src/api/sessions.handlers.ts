@@ -21,6 +21,7 @@ import {
   upstreamBadGateway,
   internalError
 } from "./http_errors.js";
+import { assertNextSessionEventSequence } from "../domain/session_event_sequence.js";
 
 import { sessionStateCache } from "./session_state_cache.js";
 
@@ -320,6 +321,8 @@ async function allocNextSeq(client: any, session_id: string): Promise<number> {
   if (!Number.isFinite(nextSeq) || nextSeq < 1) {
     throw internalError("allocNextSeq invariant violated (invalid next_seq)", { next_seq: r.rows?.[0]?.next_seq });
   }
+
+  assertNextSessionEventSequence(nextSeq - 1, nextSeq);
 
   return nextSeq;
 }

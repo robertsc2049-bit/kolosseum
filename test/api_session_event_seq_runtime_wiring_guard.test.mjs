@@ -7,7 +7,7 @@ const repoRoot = process.cwd();
 const targetPath = path.join(repoRoot, "src", "api", "sessions.handlers.ts");
 const raw = fs.readFileSync(targetPath, "utf8");
 
-test("runtime session event seq wiring: sessions.handlers imports and calls assertNextSessionEventSequence in allocNextSeq", () => {
+test("runtime session event seq wiring: sessions.handlers imports and validates allocNextSeq", () => {
   assert.match(
     raw,
     /import\s+\{\s*assertNextSessionEventSequence\s*\}\s+from\s+"\.\.\/domain\/session_event_sequence\.js";/,
@@ -16,7 +16,7 @@ test("runtime session event seq wiring: sessions.handlers imports and calls asse
 
   assert.match(
     raw,
-    /const nextSeq = Number\(r\.rows\?\.\[0\]\?\.next_seq\);[\s\S]*?assertNextSessionEventSequence\(nextSeq - 1, nextSeq\);[\s\S]*?return nextSeq;/,
+    /const nextSeq = Number\(r\.rows\?\.\[0\]\?\.next_seq\);[\s\S]*?if \(!Number\.isFinite\(nextSeq\) \|\| nextSeq < 1\) \{[\s\S]*?\}[\s\S]*?assertNextSessionEventSequence\(nextSeq - 1, nextSeq\);[\s\S]*?return nextSeq;/,
     "allocNextSeq must validate the returned next_seq before returning it"
   );
 
