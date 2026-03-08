@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 const distPoolUrl = new URL("../dist/src/db/pool.js", import.meta.url).href;
 const distHandlerUrl = new URL("../dist/src/api/sessions.handlers.js", import.meta.url).href;
 const distHttpErrorsUrl = new URL("../dist/src/api/http_errors.js", import.meta.url).href;
+const distSessionStateCacheUrl = new URL("../dist/src/api/session_state_cache.js", import.meta.url).href;
 
 // We do NOT mock session_state_cache; we want the real cache behavior.
 
@@ -164,6 +165,14 @@ mock.module("@kolosseum/engine/runtime/session_summary.js", {
 });
 
 const { getSessionState, appendRuntimeEvent } = await import(distHandlerUrl);
+const { sessionStateCache } = await import(distSessionStateCacheUrl);
+
+function resetTestState() {
+  connectCalls = 0;
+  loadStateSelectCalls = 0;
+  nextSeq = 0;
+  sessionStateCache.clear();
+}
 
 function makeRes() {
   return {
@@ -175,8 +184,7 @@ function makeRes() {
 }
 
 test("GET /sessions/:id/state is cached (second call avoids DB connect/select)", async () => {
-  connectCalls = 0;
-  loadStateSelectCalls = 0;
+  resetTestState();
 
   const req = { params: { session_id: "s_cache" } };
   const res1 = makeRes();
@@ -204,9 +212,7 @@ test("GET /sessions/:id/state is cached (second call avoids DB connect/select)",
 });
 
 test("appendRuntimeEvent invalidates session state cache (next state call hits DB again)", async () => {
-  connectCalls = 0;
-  loadStateSelectCalls = 0;
-  nextSeq = 0;
+  resetTestState();
 
   // prime cache
   const reqState = { params: { session_id: "s_cache" } };
@@ -228,7 +234,7 @@ test("appendRuntimeEvent invalidates session state cache (next state call hits D
   const resAfter = makeRes();
   await getSessionState(reqState, resAfter);
 
-  assert.equal(connectCalls, 2, "expected second DB connect after invalidation");
+  assert.equal(connectCalls, 3, "expected third DB connect after invalidation path (prime state + append event + refetch state)");
   assert.equal(loadStateSelectCalls, 2, "expected second loadSession SELECT after invalidation");
 
   assert.equal(resPrime._json.trace.return_decision_required, false);
