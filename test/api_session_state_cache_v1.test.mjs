@@ -189,6 +189,18 @@ test("GET /sessions/:id/state is cached (second call avoids DB connect/select)",
   assert.equal(loadStateSelectCalls, 1, "expected only one loadSession SELECT due to cache hit");
   assert.equal(res1._json.session_id, "s_cache");
   assert.equal(res2._json.session_id, "s_cache");
+
+  assert.equal(res1._json.trace.return_decision_required, false);
+  assert.deepEqual(res1._json.trace.return_decision_options, []);
+  assert.equal(Object.prototype.hasOwnProperty.call(res1._json.trace, "split_active"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(res1._json.trace, "remaining_at_split_ids"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(res1._json.trace, "return_gate_required"), false);
+
+  assert.equal(res2._json.trace.return_decision_required, false);
+  assert.deepEqual(res2._json.trace.return_decision_options, []);
+  assert.equal(Object.prototype.hasOwnProperty.call(res2._json.trace, "split_active"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(res2._json.trace, "remaining_at_split_ids"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(res2._json.trace, "return_gate_required"), false);
 });
 
 test("appendRuntimeEvent invalidates session state cache (next state call hits DB again)", async () => {
@@ -218,4 +230,16 @@ test("appendRuntimeEvent invalidates session state cache (next state call hits D
 
   assert.equal(connectCalls, 2, "expected second DB connect after invalidation");
   assert.equal(loadStateSelectCalls, 2, "expected second loadSession SELECT after invalidation");
+
+  assert.equal(resPrime._json.trace.return_decision_required, false);
+  assert.deepEqual(resPrime._json.trace.return_decision_options, []);
+  assert.equal(Object.prototype.hasOwnProperty.call(resPrime._json.trace, "split_active"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(resPrime._json.trace, "remaining_at_split_ids"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(resPrime._json.trace, "return_gate_required"), false);
+
+  assert.equal(resAfter._json.trace.return_decision_required, false);
+  assert.deepEqual(resAfter._json.trace.return_decision_options, []);
+  assert.equal(Object.prototype.hasOwnProperty.call(resAfter._json.trace, "split_active"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(resAfter._json.trace, "remaining_at_split_ids"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(resAfter._json.trace, "return_gate_required"), false);
 });
