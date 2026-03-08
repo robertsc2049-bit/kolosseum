@@ -645,7 +645,7 @@ export async function getSessionState(req: Request, res: Response) {
       );
     }
 
-    const trace = deriveTrace(upgraded.summary as any) as any;
+    const derivedTrace = deriveTrace(upgraded.summary as any) as any;
 
     const rt: any = (upgraded.summary as any)?.runtime ?? {};
 
@@ -659,12 +659,20 @@ export async function getSessionState(req: Request, res: Response) {
             .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
         : [];
 
-    trace.return_decision_required = return_decision_required;
-    trace.return_decision_options = return_decision_options;
+    const {
+      split_active: _legacySplitActive,
+      remaining_at_split_ids: _legacyRemainingAtSplitIds,
+      return_gate_required: _legacyReturnGateRequired,
+      return_decision_required: _derivedReturnDecisionRequired,
+      return_decision_options: _derivedReturnDecisionOptions,
+      ...traceBase
+    } = (derivedTrace && typeof derivedTrace === "object" ? derivedTrace : {}) as Record<string, any>;
 
-    // guarantee: no legacy gate fields escape the API
-    delete (trace as any).split_active;
-    delete (trace as any).return_gate_required;
+    const trace: Record<string, any> = {
+      ...traceBase,
+      return_decision_required,
+      return_decision_options
+    };
 
     const remaining_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.remaining_ids));
     const completed_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.completed_ids));
