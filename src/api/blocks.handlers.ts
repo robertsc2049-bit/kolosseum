@@ -178,15 +178,18 @@ export async function compileBlock(req: Request, res: Response) {
     }
 
     if (runtime_state && typeof runtime_state === "object") {
-      delete runtime_state.split_active;
-      delete runtime_state.remaining_at_split_ids;
-      delete runtime_state.return_gate_required;
-
       const rt = runtime_state.runtime_trace;
       if (rt && typeof rt === "object") {
-        delete rt.split_active;
-        delete rt.remaining_at_split_ids;
-        delete rt.return_gate_required;
+        const {
+          split_active: _legacySplitActive,
+          remaining_at_split_ids: _legacyRemainingAtSplitIds,
+          return_gate_required: _legacyReturnGateRequired,
+          return_decision_required: _derivedReturnDecisionRequired,
+          return_decision_options: _derivedReturnDecisionOptions,
+          ...traceBase
+        } = rt as Record<string, any>;
+
+        runtime_state.runtime_trace = traceBase;
       }
     }
   } catch (e: unknown) {
