@@ -3,25 +3,29 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-test("package.json keeps compile runtime trace cluster adjacent, ordered, unique, and out of integration", () => {
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+test("package.json matches pinned compile runtime trace CI manifest", () => {
   const repo = process.cwd();
   const pkgPath = path.join(repo, "package.json");
+  const manifestPath = path.join(repo, "ci", "contracts", "compile_runtime_trace_ci_cluster.json");
+
   const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 
   const testCi = String(pkg.scripts?.["test:ci"] ?? "");
   const testCiIntegration = String(pkg.scripts?.["test:ci:integration"] ?? "");
+  const cluster = Array.isArray(manifest.cluster) ? manifest.cluster : [];
 
-  const compileCmd = "node test/api.blocks_compile_runtime_trace_contract.regression.test.mjs";
-  const wiringCmd = "node test/ci_compile_runtime_trace_wiring.test.mjs";
-  const orderingCmd = "node test/ci_compile_runtime_trace_ordering.test.mjs";
-
-  const cluster = [compileCmd, wiringCmd, orderingCmd];
+  assert.ok(cluster.length > 0, "expected non-empty compile runtime trace cluster manifest");
 
   for (const cmd of cluster) {
     assert.ok(testCi.includes(cmd), `expected ${cmd} in test:ci`);
     assert.ok(!testCiIntegration.includes(cmd), `expected ${cmd} to stay out of test:ci:integration`);
-    const escaped = cmd.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const count = (testCi.match(new RegExp(escaped, "g")) ?? []).length;
+
+    const count = (testCi.match(new RegExp(escapeRegExp(cmd), "g")) ?? []).length;
     assert.equal(count, 1, `expected exactly one occurrence of ${cmd} in test:ci`);
   }
 
@@ -30,16 +34,20 @@ test("package.json keeps compile runtime trace cluster adjacent, ordered, unique
     assert.notEqual(idx, -1, "expected cluster command index in test:ci");
   }
 
-  assert.ok(indexes[0] < indexes[1], "expected compile regression before wiring guard");
-  assert.ok(indexes[1] < indexes[2], "expected wiring guard before ordering guard");
+  for (let i = 1; i < indexes.length; i += 1) {
+    assert.ok(
+      indexes[i - 1] < indexes[i],
+      `expected manifest command ${i - 1} to appear before manifest command ${i}`
+    );
+  }
 
   const tokens = testCi.split(" && ").map((s) => s.trim()).filter(Boolean);
-  const clusterStart = tokens.indexOf(compileCmd);
+  const clusterStart = tokens.indexOf(cluster[0]);
 
-  assert.notEqual(clusterStart, -1, "expected compile regression token in test:ci token list");
+  assert.notEqual(clusterStart, -1, "expected first manifest command token in test:ci token list");
   assert.deepEqual(
     tokens.slice(clusterStart, clusterStart + cluster.length),
     cluster,
-    "expected compile runtime trace cluster to be adjacent with no inserted commands"
+    "expected manifest cluster to be adjacent with no inserted commands"
   );
 });

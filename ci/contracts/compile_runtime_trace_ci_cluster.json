@@ -1,0 +1,6 @@
+{
+  "cluster": [
+    "node test/api.blocks_compile_runtime_trace_contract.regression.test.mjs",
+    "node test/ci_compile_runtime_trace_manifest.test.mjs"
+  ]
+}
