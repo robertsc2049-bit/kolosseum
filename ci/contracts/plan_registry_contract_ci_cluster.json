@@ -1,0 +1,7 @@
+{
+  "cluster": [
+    "node test/phase4_rich_plan_minimum.test.mjs",
+    "node test/registry_exercise_entries.test.mjs",
+    "node test/phase6_requires_planned_items.test.mjs"
+  ]
+}

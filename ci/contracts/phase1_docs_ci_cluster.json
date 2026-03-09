@@ -1,0 +1,6 @@
+{
+  "cluster": [
+    "node test/phase1_plate_only_collapse_negative.test.mjs",
+    "node test/cli_export_contract_docs.test.mjs"
+  ]
+}

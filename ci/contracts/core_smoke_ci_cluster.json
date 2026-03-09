@@ -1,0 +1,8 @@
+{
+  "cluster": [
+    "node test/ci_ban_engine_status_guard.test.mjs",
+    "node test/ci_ban_direct_node_e_ref_guard_node_runner_negative.test.mjs",
+    "node test/ci_stable_stringify.test.mjs",
+    "node test/cli_runner_rendered_text.test.mjs"
+  ]
+}
