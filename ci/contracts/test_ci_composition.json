@@ -42,7 +42,9 @@
     { "kind": "command", "value": "node test/ci_dev_session_api_manifest_file.test.mjs" },
     { "kind": "command", "value": "node test/ci_dev_session_api_manifest.test.mjs" },
 
-    { "kind": "command", "value": "node test/phase6_runtime_trace_return_gate.test.mjs" },
+    { "kind": "manifest", "path": "ci/contracts/runtime_trace_return_gate_ci_cluster.json" },
+    { "kind": "command", "value": "node test/ci_runtime_trace_return_gate_cluster_manifest_file.test.mjs" },
+    { "kind": "command", "value": "node test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs" },
     { "kind": "command", "value": "node test/ci_runtime_trace_return_gate_manifest_file.test.mjs" },
     { "kind": "command", "value": "node test/ci_runtime_trace_return_gate_manifest.test.mjs" },
 
