@@ -1,0 +1,6 @@
+{
+  "cluster": [
+    "node test/ci_registry_law_guard_passes.test.mjs",
+    "node test/ci_registry_law_guard_joint_tags_neutral_positive.test.mjs"
+  ]
+}
