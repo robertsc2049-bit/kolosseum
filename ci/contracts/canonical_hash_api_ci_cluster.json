@@ -1,0 +1,7 @@
+{
+  "cluster": [
+    "node test/api_compile_canonical_hash_determinism.test.mjs",
+    "node test/api_canonical_hash_override_guard.test.mjs",
+    "node test/api_canonical_hash_handler_wiring_guard.test.mjs"
+  ]
+}
