@@ -1,6 +1,8 @@
 {
   "items": [
     { "kind": "manifest", "path": "ci/contracts/core_smoke_ci_cluster.json" },
+    { "kind": "command", "value": "node test/ci_core_smoke_cluster_manifest_file.test.mjs" },
+    { "kind": "command", "value": "node test/ci_core_smoke_cluster_manifest.test.mjs" },
     { "kind": "command", "value": "node test/ci_core_smoke_manifest_file.test.mjs" },
     { "kind": "command", "value": "node test/ci_core_smoke_manifest.test.mjs" },
 
