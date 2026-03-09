@@ -1,0 +1,10 @@
+{
+  "cluster": [
+    "node test/ci_registry_law_guard_fk_negative.test.mjs",
+    "node test/ci_registry_law_guard_stimulus_fk_negative.test.mjs",
+    "node test/ci_registry_law_guard_equipment_fk_negative.test.mjs",
+    "node test/ci_registry_law_guard_joint_stress_fk_negative.test.mjs",
+    "node test/ci_registry_law_guard_equipment_scoped_negative.test.mjs",
+    "node test/ci_registry_law_guard_joint_tags_missing_negative.test.mjs"
+  ]
+}
