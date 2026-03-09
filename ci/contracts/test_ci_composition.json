@@ -41,6 +41,8 @@
     { "kind": "command", "value": "node test/ci_canonical_hash_api_manifest.test.mjs" },
 
     { "kind": "manifest", "path": "ci/contracts/dev_session_api_ci_cluster.json" },
+    { "kind": "command", "value": "node test/ci_dev_session_api_cluster_manifest_file.test.mjs" },
+    { "kind": "command", "value": "node test/ci_dev_session_api_cluster_manifest.test.mjs" },
     { "kind": "command", "value": "node test/ci_dev_session_api_manifest_file.test.mjs" },
     { "kind": "command", "value": "node test/ci_dev_session_api_manifest.test.mjs" },
 
