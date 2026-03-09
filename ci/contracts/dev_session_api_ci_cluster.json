@@ -1,0 +1,6 @@
+{
+  "cluster": [
+    "node test/dev_fast_clean_tree_negative.test.mjs",
+    "node test/api_session_event_seq_init_contract.test.mjs"
+  ]
+}
