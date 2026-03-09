@@ -25,6 +25,8 @@
     { "kind": "command", "value": "node test/ci_registry_law_positive_manifest.test.mjs" },
 
     { "kind": "manifest", "path": "ci/contracts/phase1_docs_ci_cluster.json" },
+    { "kind": "command", "value": "node test/ci_phase1_docs_cluster_manifest_file.test.mjs" },
+    { "kind": "command", "value": "node test/ci_phase1_docs_cluster_manifest.test.mjs" },
     { "kind": "command", "value": "node test/ci_phase1_docs_manifest_file.test.mjs" },
     { "kind": "command", "value": "node test/ci_phase1_docs_manifest.test.mjs" },
 
