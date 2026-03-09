@@ -11,14 +11,12 @@
     { "kind": "command", "value": "node test/ci_plan_registry_contract_manifest_file.test.mjs" },
     { "kind": "command", "value": "node test/ci_plan_registry_contract_manifest.test.mjs" },
 
-    { "kind": "command", "value": "node test/ci_registry_law_guard_fk_negative.test.mjs" },
-    { "kind": "command", "value": "node test/ci_registry_law_guard_stimulus_fk_negative.test.mjs" },
-    { "kind": "command", "value": "node test/ci_registry_law_guard_equipment_fk_negative.test.mjs" },
-    { "kind": "command", "value": "node test/ci_registry_law_guard_joint_stress_fk_negative.test.mjs" },
-    { "kind": "command", "value": "node test/ci_registry_law_guard_equipment_scoped_negative.test.mjs" },
-    { "kind": "command", "value": "node test/ci_registry_law_guard_joint_tags_missing_negative.test.mjs" },
+    { "kind": "manifest", "path": "ci/contracts/registry_law_negative_ci_cluster.json" },
+    { "kind": "command", "value": "node test/ci_registry_law_negative_cluster_manifest_file.test.mjs" },
+    { "kind": "command", "value": "node test/ci_registry_law_negative_cluster_manifest.test.mjs" },
     { "kind": "command", "value": "node test/ci_registry_law_negative_manifest_file.test.mjs" },
     { "kind": "command", "value": "node test/ci_registry_law_negative_manifest.test.mjs" },
+
     { "kind": "command", "value": "node test/ci_registry_law_guard_passes.test.mjs" },
     { "kind": "command", "value": "node test/ci_registry_law_guard_joint_tags_neutral_positive.test.mjs" },
     { "kind": "command", "value": "node test/ci_registry_law_positive_manifest_file.test.mjs" },
