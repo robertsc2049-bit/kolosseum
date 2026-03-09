@@ -35,6 +35,8 @@
     { "kind": "command", "value": "node test/ci_ban_set_content_utf8_guard_outfile_negative.test.mjs" },
 
     { "kind": "manifest", "path": "ci/contracts/canonical_hash_api_ci_cluster.json" },
+    { "kind": "command", "value": "node test/ci_canonical_hash_api_cluster_manifest_file.test.mjs" },
+    { "kind": "command", "value": "node test/ci_canonical_hash_api_cluster_manifest.test.mjs" },
     { "kind": "command", "value": "node test/ci_canonical_hash_api_manifest_file.test.mjs" },
     { "kind": "command", "value": "node test/ci_canonical_hash_api_manifest.test.mjs" },
 
