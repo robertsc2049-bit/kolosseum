@@ -62,7 +62,7 @@
     "start": "node dist/src/main.js",
     "test": "node ci/guards/clean_tree_guard.mjs && npm run build && node --test --test-concurrency=1",
     "test:ci": "node ci/scripts/run_test_ci_from_index.mjs",
-    "test:ci:integration": "node test/smoke_vertical_slice_plan_start_state.test.mjs && node test/api.return_gate.regression.test.mjs && node test/api.blocks_compile_apply_unknown_maps_500.regression.test.mjs && node test/vertical_slice.api_http_return_gate.e2e.test.mjs && node test/vertical_slice.api_http_complete_step.e2e.test.mjs && node test/vertical_slice.api_http_unknown_engine_error_500.e2e.test.mjs",
+    "test:ci:integration": "node ci/scripts/run_test_ci_integration_from_index.mjs",
     "test:ci:all": "npm run test:ci && npm run test:ci:integration",
     "test:one": "node --test",
     "test:renderer": "node --test test/session_text_render.test.mjs",

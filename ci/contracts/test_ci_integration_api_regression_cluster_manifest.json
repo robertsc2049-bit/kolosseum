@@ -1,0 +1,7 @@
+{
+  "label": "test:ci:integration api regression cluster",
+  "commands": [
+    "node test/api.return_gate.regression.test.mjs",
+    "node test/api.blocks_compile_apply_unknown_maps_500.regression.test.mjs"
+  ]
+}

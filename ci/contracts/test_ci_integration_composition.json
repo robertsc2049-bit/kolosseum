@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "api_regression_cluster",
+      "manifest": "ci/contracts/test_ci_integration_api_regression_cluster_manifest.json",
+      "guards": [
+        "node test/ci_test_ci_integration_api_regression_cluster_manifest_file.test.mjs",
+        "node test/ci_test_ci_integration_api_regression_cluster_manifest.test.mjs"
+      ]
+    },
+    {
+      "id": "vertical_slice_cluster",
+      "manifest": "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json",
+      "guards": [
+        "node test/ci_test_ci_integration_vertical_slice_cluster_manifest_file.test.mjs",
+        "node test/ci_test_ci_integration_vertical_slice_cluster_manifest.test.mjs"
+      ]
+    }
+  ]
+}
