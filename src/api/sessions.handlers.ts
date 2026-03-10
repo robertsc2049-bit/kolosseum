@@ -22,15 +22,22 @@ import {
   internalError
 } from "./http_errors.js";
 import { assertNextSessionEventSequence } from "../domain/session_event_sequence.js";
-
-import { sessionStateCache } from "./session_state_cache.js";
+import {
+  type PlannedSession,
+  ensureReturnDecisionContract,
+  invalidateSessionStateCache,
+  loadSessionStateRow,
+  projectSessionStatePayload,
+  readCachedSessionState,
+  uniqStable,
+  writeCachedSessionState
+} from "./session_state_read_model.js";
 
 type JsonRecord = Record<string, unknown>;
 
 function __kolosseumWireSentinel(evt: any) {
   if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW !== "1") return;
   const t = typeof evt?.type === "string" ? String(evt.type).toUpperCase() : "";
-  // Allow START to succeed; throw on everything else.
   if (!t.includes("START")) {
     throw new Error("KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW: unhandled wire apply failure sentinel");
   }
@@ -70,8 +77,6 @@ function mapEngineWireApplyError(e: unknown) {
     });
   }
 
-  // Default: unknown engine exception => server fault, not client fault.
-  // This prevents misclassifying invariant bugs as 4xx.
   throw internalError("Runtime event rejected (unexpected engine error)", { cause: msg });
 }
 
@@ -124,12 +129,6 @@ async function ensureEngineRunsTable(): Promise<void> {
   `);
 }
 
-/**
- * ---------------------------
- * Vertical slice: plan session
- * POST /sessions/plan
- * ---------------------------
- */
 export async function planSession(req: Request, res: Response) {
   const bodyUnknown = req.body as unknown;
 
@@ -172,132 +171,6 @@ export async function planSession(req: Request, res: Response) {
   return res.status(200).json(out);
 }
 
-/**
- * Planned session is immutable input. We only use it to:
- * - build initial runtime state at START
- * - upgrade legacy summaries
- * Once started=true, all semantics are driven by the stored runtime snapshot + reducer.
- */
-
-type PlannedExercise = {
-  exercise_id: string;
-  source: "program";
-};
-
-type PlannedSession = {
-  exercises: PlannedExercise[];
-  notes?: unknown[];
-};
-
-function uniqStable(ids: unknown): string[] {
-  const arr = Array.isArray(ids) ? ids : [];
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const v of arr) {
-    const s = typeof v === "string" ? v : String(v ?? "");
-    if (!s) continue;
-    if (seen.has(s)) continue;
-    seen.add(s);
-    out.push(s);
-  }
-  return out;
-}
-
-function toPlannedExercisesFromIds(planned: PlannedSession, ids: string[]): PlannedExercise[] {
-  const exs = Array.isArray(planned?.exercises) ? planned.exercises : [];
-  const byId = new Map<string, PlannedExercise>();
-  for (const ex of exs) {
-    if (ex && typeof ex.exercise_id === "string" && ex.exercise_id.length > 0) byId.set(ex.exercise_id, ex);
-  }
-
-  const out: PlannedExercise[] = [];
-  for (const id of ids) {
-    const ex = byId.get(id);
-    if (ex) out.push(ex);
-  }
-  return out;
-}
-
-/**
- * Contract upgrade:
- * Legacy carrier (engine/internal): runtime.split_active (boolean) and/or trace.split_active (boolean)
- * New (persisted + API): runtime.return_decision_required (boolean)
- *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
- *
- * Hard rules:
- * - split_active must NEVER escape the API surface.
- * - BUT: do NOT delete runtime.split_active while the engine may still rely on it as the state carrier.
- *   Keep it as internal persisted state until the engine fully migrates.
- * - Server upgrades missing explicit fields here; API emits only explicit fields.
- */
-function ensureReturnDecisionContract(summary: any): { summary: any; changed: boolean } {
-  const rt: any = summary?.runtime;
-  if (!rt || typeof rt !== "object") return { summary, changed: false };
-
-  const hasRequired = typeof rt.return_decision_required === "boolean";
-  const hasOptions = Array.isArray(rt.return_decision_options);
-
-  let changed = false;
-
-  // Prefer persisted legacy carrier; otherwise allow upgrade from derived legacy trace.
-  const runtimeSplitActivePresent = typeof rt.split_active === "boolean";
-  const runtimeSplitActive = runtimeSplitActivePresent ? rt.split_active : undefined;
-
-  let derivedSplitActive: boolean | undefined = undefined;
-  if (typeof runtimeSplitActive !== "boolean") {
-    try {
-      const t: any = deriveTrace(summary as any) as any;
-      const coerceLegacyBool = (v: unknown): boolean | undefined => {
-        if (typeof v === "boolean") return v;
-        if (typeof v === "number") {
-          if (v === 1) return true;
-          if (v === 0) return false;
-        }
-        if (typeof v === "string") {
-          if (v === "true") return true;
-          if (v === "false") return false;
-          if (v === "1") return true;
-          if (v === "0") return false;
-        }
-        return undefined;
-      };
-
-      const rg = coerceLegacyBool(t?.return_gate_required);
-      const sa = coerceLegacyBool(t?.split_active);
-      if (typeof rg === "boolean") derivedSplitActive = rg;
-      else if (typeof sa === "boolean") derivedSplitActive = sa;
-    } catch {
-      // deriveTrace should be stable, but never let upgrade crash the API.
-      derivedSplitActive = undefined;
-    }
-  }
-
-  const splitActive: boolean =
-    typeof runtimeSplitActive === "boolean"
-      ? runtimeSplitActive
-      : (typeof derivedSplitActive === "boolean" ? derivedSplitActive : false);
-
-  // Upgrade missing explicit fields (migration mapping allowed only here).
-  if (!hasRequired) {
-    rt.return_decision_required = splitActive === true;
-    changed = true;
-  }
-
-  if (!hasOptions) {
-    rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
-    changed = true;
-  } else {
-    // Defensive normalize: keep only known options (engine may evolve; API is strict).
-    rt.return_decision_options = (rt.return_decision_options as any[])
-      .map((x) => String(x))
-      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
-  }
-
-  // IMPORTANT: do NOT delete rt.split_active here.
-
-  return { summary, changed };
-}
-
 async function allocNextSeq(client: any, session_id: string): Promise<number> {
   await client.query(
     `INSERT INTO session_event_seq(session_id, next_seq)
@@ -338,16 +211,6 @@ async function loadSessionForUpdate(client: any, session_id: string) {
   return (r.rowCount ?? 0) > 0 ? r.rows[0] : null;
 }
 
-async function loadSession(client: any, session_id: string) {
-  const r = await client.query(
-    `SELECT session_id, planned_session, session_state_summary
-     FROM sessions
-     WHERE session_id = $1`,
-    [session_id]
-  );
-  return (r.rowCount ?? 0) > 0 ? r.rows[0] : null;
-}
-
 function extractRawEvent(req: Request): unknown {
   const body = req.body as any;
   if (!body || typeof body !== "object") return null;
@@ -361,21 +224,11 @@ function rawEventType(raw: unknown): string | null {
   return t;
 }
 
-/**
- * API-only sugar:
- * - COMPLETE_STEP: no fields
- *   Expanded server-side into COMPLETE_EXERCISE for the first remaining exercise.
- */
 function isApiCompleteStep(raw: unknown): boolean {
   const t = rawEventType(raw);
   return t === "COMPLETE_STEP";
 }
 
-/**
- * POST /sessions/:session_id/start
- * - idempotent
- * - persists START_SESSION + sets status + ensures summary is V3
- */
 export async function startSession(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) throw badRequest("Missing session_id");
@@ -390,7 +243,7 @@ export async function startSession(req: Request, res: Response) {
     const planned = s.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, s.session_state_summary);
 
-    const upgraded0 = ensureReturnDecisionContract(normalized);
+    const upgraded0 = ensureReturnDecisionContract(normalized, deriveTrace);
     const shouldPersist0 = needsUpgrade || upgraded0.changed;
 
     if (upgraded0.summary.started === true) {
@@ -404,7 +257,7 @@ export async function startSession(req: Request, res: Response) {
       );
 
       await client.query("COMMIT");
-      sessionStateCache.del(session_id);
+      invalidateSessionStateCache(session_id);
       return res.json({ ok: true, session_id, started: true });
     }
 
@@ -427,7 +280,7 @@ export async function startSession(req: Request, res: Response) {
 
     nextSummary.last_seq = seq;
 
-    const upgraded1 = ensureReturnDecisionContract(nextSummary);
+    const upgraded1 = ensureReturnDecisionContract(nextSummary, deriveTrace);
 
     await client.query(
       `UPDATE sessions
@@ -439,7 +292,7 @@ export async function startSession(req: Request, res: Response) {
     );
 
     await client.query("COMMIT");
-    sessionStateCache.del(session_id);
+    invalidateSessionStateCache(session_id);
 
     return res.status(200).json({ ok: true, session_id, started: true, seq });
   } catch (err: unknown) {
@@ -450,13 +303,6 @@ export async function startSession(req: Request, res: Response) {
   }
 }
 
-/**
- * POST /sessions/:session_id/events
- * body: { event: {...} }
- * - allocates seq O(1)
- * - inserts runtime_events row
- * - updates session_state_summary incrementally (V3, reducer canonical)
- */
 export async function appendRuntimeEvent(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) throw badRequest("Missing session_id");
@@ -464,7 +310,6 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
   const raw = extractRawEvent(req);
   if (!raw) throw badRequest("Missing/invalid event");
 
-  // Prevent clients from manually writing START_SESSION via /events
   if (rawEventType(raw) === "START_SESSION") {
     throw badRequest("START_SESSION must be created via /start");
   }
@@ -476,8 +321,6 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     const s = await loadSessionForUpdate(client, session_id);
     if (!s) throw notFound("Session not found");
 
-    // E2E-only hook: force an UNKNOWN (non-whitelisted) engine/runtime exception and ensure it maps to 500.
-    // This MUST NOT be a 4xx classification.
     if (
       process.env.KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500 === "1" &&
       rawEventType(raw) === "E2E_FORCE_UNKNOWN_ENGINE_ERROR"
@@ -488,12 +331,11 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     const planned = s.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, s.session_state_summary);
 
-    const upgraded0 = ensureReturnDecisionContract(normalized);
+    const upgraded0 = ensureReturnDecisionContract(normalized, deriveTrace);
     const shouldPersist0 = needsUpgrade || upgraded0.changed;
 
     let workingSummary: any = upgraded0.summary;
 
-    // Product-safe: auto-start if not started
     if (workingSummary.started !== true) {
       const startSeq = await allocNextSeq(client, session_id);
       const startEv = { type: "START_SESSION" };
@@ -512,7 +354,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       }
 
       workingSummary.last_seq = startSeq;
-      workingSummary = ensureReturnDecisionContract(workingSummary).summary;
+      workingSummary = ensureReturnDecisionContract(workingSummary, deriveTrace).summary;
 
       await client.query(
         `UPDATE sessions
@@ -532,7 +374,6 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       );
     }
 
-    // --- Expand API-only COMPLETE_STEP into canonical engine event ---
     let event: any;
 
     if (isApiCompleteStep(raw)) {
@@ -546,7 +387,6 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
       }
       event = { type: "COMPLETE_EXERCISE", exercise_id: nextId };
     } else {
-      // normal path: validate via engine boundary
       const validated = validateWireRuntimeEvent(raw);
       if (!validated) throw badRequest("Missing/invalid event");
       event = validated;
@@ -569,7 +409,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     }
 
     nextSummary.last_seq = seq;
-    nextSummary = ensureReturnDecisionContract(nextSummary).summary;
+    nextSummary = ensureReturnDecisionContract(nextSummary, deriveTrace).summary;
 
     await client.query(
       `UPDATE sessions
@@ -580,7 +420,7 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     );
 
     await client.query("COMMIT");
-    sessionStateCache.del(session_id);
+    invalidateSessionStateCache(session_id);
 
     return res.status(201).json({ ok: true, session_id, seq });
   } catch (err: unknown) {
@@ -591,9 +431,6 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
   }
 }
 
-/**
- * GET /sessions/:session_id/events
- */
 export async function listRuntimeEvents(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) throw badRequest("Missing session_id");
@@ -609,30 +446,22 @@ export async function listRuntimeEvents(req: Request, res: Response) {
   return res.json({ session_id, events: r.rows });
 }
 
-const SESSION_STATE_CACHE_TTL_MS = 2000;
-
-/**
- * GET /sessions/:session_id/state
- * - O(1) read from sessions.session_state_summary
- * - Cache v1: read-through, short TTL, invalidated on start/events commit.
- */
 export async function getSessionState(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) throw badRequest("Missing session_id");
 
-  const cached = sessionStateCache.get(session_id);
+  const cached = readCachedSessionState(session_id);
   if (cached) return res.json(cached);
 
   const client = await pool.connect();
   try {
-    const row = await loadSession(client, session_id);
+    const row = await loadSessionStateRow(client, session_id);
     if (!row) throw notFound("Session not found");
 
     const planned = row.planned_session as PlannedSession;
     const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, row.session_state_summary);
 
-    // IMPORTANT: upgrade may rely on derived legacy trace.split_active
-    const upgraded = ensureReturnDecisionContract(normalized);
+    const upgraded = ensureReturnDecisionContract(normalized, deriveTrace);
     const shouldPersist = needsUpgrade || upgraded.changed;
 
     if (shouldPersist) {
@@ -646,56 +475,9 @@ export async function getSessionState(req: Request, res: Response) {
     }
 
     const derivedTrace = deriveTrace(upgraded.summary as any) as any;
+    const payload = projectSessionStatePayload(session_id, planned, upgraded.summary, derivedTrace);
 
-    const rt: any = (upgraded.summary as any)?.runtime ?? {};
-
-    const return_decision_required: boolean =
-      typeof rt?.return_decision_required === "boolean" ? rt.return_decision_required : false;
-
-    const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
-      Array.isArray(rt?.return_decision_options)
-        ? rt.return_decision_options
-            .map((x: any) => String(x))
-            .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
-        : [];
-
-    const {
-      split_active: _legacySplitActive,
-      remaining_at_split_ids: _legacyRemainingAtSplitIds,
-      return_gate_required: _legacyReturnGateRequired,
-      return_decision_required: _derivedReturnDecisionRequired,
-      return_decision_options: _derivedReturnDecisionOptions,
-      ...traceBase
-    } = (derivedTrace && typeof derivedTrace === "object" ? derivedTrace : {}) as Record<string, any>;
-
-    const trace: Record<string, any> = {
-      ...traceBase,
-      return_decision_required,
-      return_decision_options
-    };
-
-    const remaining_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.remaining_ids));
-    const completed_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.completed_ids));
-    const dropped_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.dropped_ids));
-
-    // v0 projection: current_step
-    const current_step =
-      return_decision_required === true
-        ? { type: "RETURN_DECISION", options: return_decision_options }
-        : (remaining_exercises.length > 0 ? { type: "EXERCISE", exercise: remaining_exercises[0] } : null);
-
-    const payload = {
-      session_id,
-      started: trace.started,
-      current_step,
-      remaining_exercises,
-      completed_exercises,
-      dropped_exercises,
-      trace,
-      event_log: []
-    };
-
-    sessionStateCache.set(session_id, payload, SESSION_STATE_CACHE_TTL_MS);
+    writeCachedSessionState(session_id, payload);
     return res.json(payload);
   } finally {
     client.release();
