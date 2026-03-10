@@ -3,51 +3,34 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-test("package.json matches pinned split invariant normalize cluster CI manifest", () => {
+test("test:ci composition index includes pinned split invariant normalize cluster manifest and adjacent guard pair", () => {
   const repo = process.cwd();
-  const pkgPath = path.join(repo, "package.json");
-  const manifestPath = path.join(repo, "ci", "contracts", "split_invariant_normalize_ci_cluster.json");
+  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+  const index = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+  const items = index.items;
 
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  assert.ok(Array.isArray(items), "expected composition items array");
 
-  const testCi = String(pkg.scripts?.["test:ci"] ?? "");
-  const testCiIntegration = String(pkg.scripts?.["test:ci:integration"] ?? "");
-  const cluster = Array.isArray(manifest.cluster) ? manifest.cluster : [];
+  const manifestPath = "ci/contracts/split_invariant_normalize_ci_cluster.json";
+  const manifestIdx = items.findIndex(
+    (item) => item?.kind === "manifest" && item.path === manifestPath
+  );
 
-  assert.ok(cluster.length > 0, "expected non-empty split invariant normalize cluster manifest");
+  assert.notEqual(
+    manifestIdx,
+    -1,
+    "expected split invariant normalize cluster manifest in composition index"
+  );
 
-  for (const cmd of cluster) {
-    assert.ok(testCi.includes(cmd), `expected ${cmd} in test:ci`);
-    assert.ok(!testCiIntegration.includes(cmd), `expected ${cmd} to stay out of test:ci:integration`);
-
-    const count = (testCi.match(new RegExp(escapeRegExp(cmd), "g")) ?? []).length;
-    assert.equal(count, 1, `expected exactly one occurrence of ${cmd} in test:ci`);
-  }
-
-  const indexes = cluster.map((cmd) => testCi.indexOf(cmd));
-  for (const idx of indexes) {
-    assert.notEqual(idx, -1, "expected cluster command index in test:ci");
-  }
-
-  for (let i = 1; i < indexes.length; i += 1) {
-    assert.ok(
-      indexes[i - 1] < indexes[i],
-      `expected manifest command ${i - 1} to appear before manifest command ${i}`
-    );
-  }
-
-  const tokens = testCi.split(" && ").map((s) => s.trim()).filter(Boolean);
-  const clusterStart = tokens.indexOf(cluster[0]);
-
-  assert.notEqual(clusterStart, -1, "expected first manifest command token in test:ci token list");
   assert.deepEqual(
-    tokens.slice(clusterStart, clusterStart + cluster.length),
-    cluster,
-    "expected split invariant normalize cluster to be adjacent with no inserted commands"
+    items.slice(manifestIdx, manifestIdx + 5),
+    [
+      { kind: "manifest", path: "ci/contracts/split_invariant_normalize_ci_cluster.json" },
+      { kind: "command", value: "node test/ci_split_invariant_normalize_cluster_manifest_file.test.mjs" },
+      { kind: "command", value: "node test/ci_split_invariant_normalize_cluster_manifest.test.mjs" },
+      { kind: "command", value: "node test/ci_split_invariant_normalize_manifest_file.test.mjs" },
+      { kind: "command", value: "node test/ci_split_invariant_normalize_manifest.test.mjs" }
+    ],
+    "expected split invariant normalize cluster manifest followed by its adjacent guard pair and legacy manifest guards"
   );
 });
