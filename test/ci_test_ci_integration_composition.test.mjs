@@ -22,6 +22,7 @@ test("package.json test:ci:integration is single-owner and resolves from determi
     "node test/ci_test_ci_integration_vertical_slice_cluster_manifest.test.mjs",
     "node test/smoke_vertical_slice_plan_start_state.test.mjs",
     "node test/vertical_slice.api_http_return_gate.e2e.test.mjs",
+    "node test/vertical_slice.api_http_return_skip.e2e.test.mjs",
     "node test/vertical_slice.api_http_complete_step.e2e.test.mjs",
     "node test/vertical_slice.api_http_unknown_engine_error_500.e2e.test.mjs"
   ]);

@@ -44,13 +44,7 @@ function spawnServer(port) {
 }
 
 async function runNpm(scriptOrArgs, opts = {}) {
-  // Contract:
-  // - runNpm("db:schema")  => npm run db:schema
-  // - runNpm(["run","db:schema"]) => npm run db:schema
-  // Windows: wrap via cmd.exe to avoid npm(.cmd) spawn quirks.
-
   const env = { ...process.env, ...(opts.env || {}) };
-
   const tokens = Array.isArray(scriptOrArgs)
     ? scriptOrArgs.map((x) => String(x))
     : ["run", String(scriptOrArgs)];
@@ -80,8 +74,6 @@ async function runNpm(scriptOrArgs, opts = {}) {
 }
 
 function loadPhase1FixtureOrThrow() {
-  // Canonical minimal Phase-1 contract fixture.
-  // Used by server defaults and by this HTTP e2e as the deterministic minimal input for /blocks/compile.
   const fixturePath = path.resolve(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
   if (!fs.existsSync(fixturePath)) {
     throw new Error(`Missing fixture: ${fixturePath}`);
@@ -92,8 +84,6 @@ function loadPhase1FixtureOrThrow() {
 test("Vertical slice (HTTP): compile->create session->start->return gate events->state contract", async (t) => {
   const gateEnabled = process.env.KOLOSSEUM_HTTP_E2E_RETURN_GATE === "1";
 
-  // Current boot truth: server imports DB pool at module load, so DATABASE_URL is required.
-  // Local default: skip if missing (unless the gate is explicitly enabled).
   if (!process.env.DATABASE_URL) {
     if (gateEnabled) {
       throw new Error("KOLOSSEUM_HTTP_E2E_RETURN_GATE=1 requires DATABASE_URL (CI contract).");
@@ -102,8 +92,6 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
     return;
   }
 
-  // Hard requirement: dist build must exist for server spawn.
-  // Local default: skip if missing (unless the gate is explicitly enabled).
   if (!fs.existsSync(path.resolve(process.cwd(), "dist", "src", "main.js"))) {
     if (gateEnabled) {
       throw new Error("KOLOSSEUM_HTTP_E2E_RETURN_GATE=1 requires dist build (run build:fast).");
@@ -112,7 +100,6 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
     return;
   }
 
-  // Ensure DB schema exists (sessions/blocks/runtime_events tables).
   await runNpm("db:schema");
 
   const port = 58123 + Math.floor(Math.random() * 2000);
@@ -130,7 +117,6 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
   try {
     await waitForHealth(baseUrl);
 
-    // Tier-0 probe
     {
       const r = await fetch(`${baseUrl}/health`);
       assert.equal(r.status, 200);
@@ -139,12 +125,10 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
       assert.ok(typeof j?.version === "string" && j.version.length > 0);
     }
 
-    // Gate flow is explicitly opt-in.
     if (!gateEnabled) return;
 
     const phase1_input = loadPhase1FixtureOrThrow();
 
-    // 1) Compile + create session
     const compile = await fetch(`${baseUrl}/blocks/compile?create_session=true`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -159,7 +143,6 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
 
     const sessionId = compiled.session_id;
 
-    // 2) Start session (idempotent)
     const start = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/start`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -167,7 +150,6 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
     });
     assert.equal(start.status, 200, await start.text());
 
-    // 3) Apply SPLIT_SESSION (canonical engine event; SPLIT_START is a no-op)
     const evSplit = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -175,7 +157,6 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
     });
     assert.equal(evSplit.status, 201, await evSplit.text());
 
-    // 4) State must expose explicit gate semantics via trace.return_decision_*
     const state1 = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
     const state1Body = await readJsonOnce(state1);
     assert.equal(state1.status, 200, state1Body.text);
@@ -195,7 +176,6 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
       "expected RETURN_CONTINUE and RETURN_SKIP options"
     );
 
-    // 5) Continue
     const evContinue = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -214,6 +194,102 @@ test("Vertical slice (HTTP): compile->create session->start->return gate events-
       s2.trace.return_decision_required,
       false,
       `expected return_decision_required=false; trace=` + JSON.stringify(s2.trace)
+    );
+  } catch (e) {
+    throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${getLogs()}`);
+  }
+});
+
+test("Vertical slice (HTTP): RETURN_SKIP clears gate and advances session state", async (t) => {
+  const gateEnabled = process.env.KOLOSSEUM_HTTP_E2E_RETURN_GATE === "1";
+
+  if (!process.env.DATABASE_URL) {
+    if (gateEnabled) {
+      throw new Error("KOLOSSEUM_HTTP_E2E_RETURN_GATE=1 requires DATABASE_URL (CI contract).");
+    }
+    t.skip("DATABASE_URL missing; server boot hard-requires DB right now. Skipping HTTP vertical-slice.");
+    return;
+  }
+
+  if (!fs.existsSync(path.resolve(process.cwd(), "dist", "src", "main.js"))) {
+    if (gateEnabled) {
+      throw new Error("KOLOSSEUM_HTTP_E2E_RETURN_GATE=1 requires dist build (run build:fast).");
+    }
+    t.skip("dist/src/main.js missing; run build:fast before executing HTTP e2e.");
+    return;
+  }
+
+  await runNpm("db:schema");
+
+  const port = 60123 + Math.floor(Math.random() * 2000);
+  const baseUrl = `http://127.0.0.1:${port}`;
+  const { child, getLogs } = spawnServer(port);
+
+  t.after(async () => {
+    if (!child.killed) {
+      child.kill();
+      await wait(200);
+    }
+  });
+
+  try {
+    await waitForHealth(baseUrl);
+
+    if (!gateEnabled) return;
+
+    const phase1_input = loadPhase1FixtureOrThrow();
+
+    const compile = await fetch(`${baseUrl}/blocks/compile?create_session=true`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phase1_input }),
+    });
+    const compileBody = await readJsonOnce(compile);
+    assert.ok(compile.status === 200 || compile.status === 201, compileBody.text);
+    const compiled = compileBody.json;
+    const sessionId = compiled.session_id;
+
+    const start = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/start`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    assert.equal(start.status, 200, await start.text());
+
+    const evSplit = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ event: { type: "SPLIT_SESSION" } }),
+    });
+    assert.equal(evSplit.status, 201, await evSplit.text());
+
+    const state1 = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
+    const state1Body = await readJsonOnce(state1);
+    assert.equal(state1.status, 200, state1Body.text);
+    assert.equal(state1Body.json.trace.return_decision_required, true);
+    assert.ok(Array.isArray(state1Body.json.trace.return_decision_options));
+    assert.ok(state1Body.json.trace.return_decision_options.includes("RETURN_SKIP"));
+
+    const evSkip = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ event: { type: "RETURN_SKIP" } }),
+    });
+    assert.equal(evSkip.status, 201, await evSkip.text());
+
+    const state2 = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/state`);
+    const state2Body = await readJsonOnce(state2);
+    assert.equal(state2.status, 200, state2Body.text);
+
+    const s2 = state2Body.json;
+    assert.ok(s2?.trace && typeof s2.trace === "object", "expected trace object");
+    assert.equal(s2.trace.return_decision_required, false);
+    assert.ok(Array.isArray(s2.trace.return_decision_options));
+    assert.equal(s2.trace.return_decision_options.length, 0);
+    assert.ok(Array.isArray(s2.trace.dropped_ids), "expected dropped_ids after RETURN_SKIP");
+    assert.ok(
+      s2.trace.dropped_ids.length >= 1,
+      `expected at least one dropped_id after RETURN_SKIP; trace=` + JSON.stringify(s2.trace)
     );
   } catch (e) {
     throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${getLogs()}`);
