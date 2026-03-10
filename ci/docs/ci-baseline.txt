@@ -147,4 +147,3 @@ test/ci_test_ci_composition_file.test.mjs:16:  }, "expected test:ci composition 
 test/ci_test_ci_composition_file.test.mjs:18:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
 test/ci_test_ci_composition_file.test.mjs:19:  assert.ok(Array.isArray(index.items), "expected composition.items array");
 test/ci_test_ci_composition_file.test.mjs:20:  assert.ok(index.items.length > 0, "expected non-empty composition.items");
-
