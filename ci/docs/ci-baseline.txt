@@ -1,0 +1,150 @@
+Date: 2026-03-10T17:31:08
+Branch: ticket/v0-ci-index-review-surface
+
+Runtime:
+
+
+Days              : 0
+Hours             : 0
+Minutes           : 0
+Seconds           : 32
+Milliseconds      : 979
+Ticks             : 329799822
+TotalDays         : 0.000381712756944444
+TotalHours        : 0.00916110616666667
+TotalMinutes      : 0.54966637
+TotalSeconds      : 32.9799822
+TotalMilliseconds : 32979.9822
+
+
+
+
+
+Entrypoints:
+.github/workflows/green.yml:107:        run: npm run test:ci:integration
+ci/guards/_entrypoints.json:10:    "test:ci",
+ci/guards/green_entrypoint_guard.mjs:36:  "test:ci",
+package.json:47:    "lint": "npm run lint:fast && npm run test:ci",
+package.json:64:    "test:ci": "node ci/scripts/run_test_ci_from_index.mjs",
+package.json:65:    "test:ci:integration": "node test/smoke_vertical_slice_plan_start_state.test.mjs && node test/api.return_gate.regression.test.mjs && node test/api.blocks_compile_apply_unknown_maps_500.regression.test.mjs && node test/vertical_slice.api_http_return_gate.e2e.test.mjs && node test/vertical_slice.api_http_complete_step.e2e.test.mjs && node test/vertical_slice.api_http_unknown_engine_error_500.e2e.test.mjs",
+package.json:66:    "test:ci:all": "npm run test:ci && npm run test:ci:integration",
+package.json:70:    "test:unit": "node ci/guards/green_entrypoint_guard.mjs && node ci/guards/clean_tree_guard.mjs && npm run test:ci",
+test/ci_canonical_hash_api_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned canonical hash API cluster manifest and adjacent guard pair", () => {
+test/ci_canonical_hash_api_manifest.test.mjs:7:test("canonical hash API manifest remains present in composed test:ci command set", () => {
+test/ci_canonical_hash_api_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+test/ci_compile_runtime_trace_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned compile runtime trace cluster manifest and adjacent guard pair", () => {
+test/ci_compile_runtime_trace_manifest.test.mjs:7:test("compile runtime trace manifest remains present in composed test:ci command set", () => {
+test/ci_compile_runtime_trace_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+test/ci_core_smoke_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned core smoke cluster manifest and adjacent guard pair", () => {
+test/ci_core_smoke_manifest.test.mjs:7:test("core smoke manifest remains present in composed test:ci command set", () => {
+test/ci_core_smoke_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+test/ci_dev_session_api_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned dev session API cluster manifest and adjacent guard pair", () => {
+test/ci_dev_session_api_manifest.test.mjs:7:test("dev session API manifest remains present in composed test:ci command set", () => {
+test/ci_dev_session_api_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+test/ci_phase1_docs_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned phase1 docs cluster manifest and adjacent guard pair", () => {
+test/ci_phase1_docs_manifest.test.mjs:7:test("phase1 docs manifest remains present in composed test:ci command set", () => {
+test/ci_phase1_docs_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+test/ci_plan_registry_contract_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned plan registry contract cluster manifest and adjacent guard pair", () => {
+test/ci_plan_registry_contract_manifest.test.mjs:7:test("plan registry contract manifest remains present in composed test:ci command set", () => {
+test/ci_plan_registry_contract_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+test/ci_registry_law_negative_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned registry law negative cluster manifest and adjacent guard pair", () => {
+test/ci_registry_law_negative_manifest.test.mjs:7:test("registry law negative manifest remains present in composed test:ci command set", () => {
+test/ci_registry_law_negative_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+test/ci_registry_law_positive_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned registry law positive cluster manifest and adjacent guard pair", () => {
+test/ci_registry_law_positive_manifest.test.mjs:7:test("registry law positive manifest remains present in composed test:ci command set", () => {
+test/ci_registry_law_positive_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned runtime trace return gate cluster manifest and adjacent guard pair", () => {
+test/ci_runtime_trace_return_gate_manifest.test.mjs:7:test("runtime trace return gate manifest remains present in composed test:ci command set", () => {
+test/ci_runtime_trace_return_gate_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+test/ci_split_invariant_normalize_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned split invariant normalize cluster manifest and adjacent guard pair", () => {
+test/ci_split_invariant_normalize_manifest.test.mjs:7:test("split invariant normalize manifest remains present in composed test:ci command set", () => {
+test/ci_split_invariant_normalize_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+test/ci_test_ci_composition.test.mjs:7:test("package.json test:ci is single-owner and resolves from deterministic composition index", () => {
+test/ci_test_ci_composition.test.mjs:14:  const testCi = String(pkg.scripts?.["test:ci"] ?? "");
+test/ci_test_ci_composition.test.mjs:15:  const testCiIntegration = String(pkg.scripts?.["test:ci:integration"] ?? "");
+test/ci_test_ci_composition.test.mjs:17:  assert.notEqual(testCi, "", "expected package.json scripts.test:ci");
+test/ci_test_ci_composition.test.mjs:21:    "expected package.json test:ci to use the single-owner runner"
+test/ci_test_ci_composition.test.mjs:24:  assert.ok(fs.existsSync(runnerPath), "expected single-owner test:ci runner to exist");
+test/ci_test_ci_composition.test.mjs:29:    assert.ok(!testCiIntegration.includes(cmd), `expected ${cmd} to stay out of test:ci:integration`);
+test/ci_test_ci_composition_file.test.mjs:8:test("test:ci composition file is well-formed and expands to unique node-test-only commands", () => {
+test/ci_test_ci_composition_file.test.mjs:16:  }, "expected test:ci composition file to be valid JSON");
+
+package.json:64:    "test:ci": "node ci/scripts/run_test_ci_from_index.mjs",
+test/ci_test_ci_composition.test.mjs:10:  const runnerPath = path.join(repo, "ci", "scripts", "run_test_ci_from_index.mjs");
+test/ci_test_ci_composition.test.mjs:20:    "node ci/scripts/run_test_ci_from_index.mjs",
+
+
+Ownership:
+scripts/install-hooks.ps1:43:Write-Host "OK: installed .git\hooks\pre-push.cmd -> single owner dispatcher" -ForegroundColor Green
+test/ci_test_ci_composition.test.mjs:7:test("package.json test:ci is single-owner and resolves from deterministic composition index", () => {
+test/ci_test_ci_composition.test.mjs:21:    "expected package.json test:ci to use the single-owner runner"
+test/ci_test_ci_composition.test.mjs:24:  assert.ok(fs.existsSync(runnerPath), "expected single-owner test:ci runner to exist");
+
+
+Composition:
+ci/contracts/test_ci_composition.json:25:      "value": "node test/ci_test_ci_composition_file.test.mjs"
+ci/contracts/test_ci_composition.json:29:      "value": "node test/ci_test_ci_composition.test.mjs"
+ci/scripts/compose_test_ci_from_index.mjs:18:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+ci/scripts/compose_test_ci_from_index.mjs:22:    throw new Error("expected test_ci_composition.json to contain an object");
+ci/scripts/compose_test_ci_from_index.mjs:25:    throw new Error("expected test_ci_composition.json items[] to be a non-empty array");
+ci/scripts/compose_test_ci_from_index.mjs:32:      throw new Error("expected each composition item to be an object");
+ci/scripts/compose_test_ci_from_index.mjs:36:      assertNodeTestCommand(item.value, "invalid composition command");
+ci/scripts/compose_test_ci_from_index.mjs:63:    throw new Error(`unsupported composition item kind: ${String(item.kind)}`);
+docs/COMMANDS.md:23:These exist for hooks, guard composition, or advanced debugging. They are **not** part of the public contract:
+test/ci_canonical_hash_api_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned canonical hash API cluster manifest and adjacent guard pair", () => {
+test/ci_canonical_hash_api_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_canonical_hash_api_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+test/ci_canonical_hash_api_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+test/ci_canonical_hash_api_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected canonical hash API cluster manifest in composition index");
+test/ci_compile_runtime_trace_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned compile runtime trace cluster manifest and adjacent guard pair", () => {
+test/ci_compile_runtime_trace_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_compile_runtime_trace_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+test/ci_compile_runtime_trace_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+test/ci_compile_runtime_trace_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected canonical hash API cluster manifest in composition index");
+test/ci_core_smoke_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned core smoke cluster manifest and adjacent guard pair", () => {
+test/ci_core_smoke_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_core_smoke_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+test/ci_core_smoke_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+test/ci_core_smoke_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected core smoke cluster manifest in composition index");
+test/ci_dev_session_api_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned dev session API cluster manifest and adjacent guard pair", () => {
+test/ci_dev_session_api_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_dev_session_api_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+test/ci_dev_session_api_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+test/ci_dev_session_api_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected dev session API cluster manifest in composition index");
+test/ci_phase1_docs_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned phase1 docs cluster manifest and adjacent guard pair", () => {
+test/ci_phase1_docs_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_phase1_docs_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+test/ci_phase1_docs_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+test/ci_phase1_docs_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected phase1 docs cluster manifest in composition index");
+test/ci_plan_registry_contract_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned plan registry contract cluster manifest and adjacent guard pair", () => {
+test/ci_plan_registry_contract_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_plan_registry_contract_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+test/ci_plan_registry_contract_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+test/ci_plan_registry_contract_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected plan registry contract cluster manifest in composition index");
+test/ci_registry_law_negative_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned registry law negative cluster manifest and adjacent guard pair", () => {
+test/ci_registry_law_negative_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_registry_law_negative_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+test/ci_registry_law_negative_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+test/ci_registry_law_negative_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected registry law negative cluster manifest in composition index");
+test/ci_registry_law_positive_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned registry law positive cluster manifest and adjacent guard pair", () => {
+test/ci_registry_law_positive_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_registry_law_positive_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+test/ci_registry_law_positive_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+test/ci_registry_law_positive_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected registry law positive cluster manifest in composition index");
+test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned runtime trace return gate cluster manifest and adjacent guard pair", () => {
+test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected runtime trace return gate cluster manifest in composition index");
+test/ci_split_invariant_normalize_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned split invariant normalize cluster manifest and adjacent guard pair", () => {
+test/ci_split_invariant_normalize_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_split_invariant_normalize_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(items), "expected composition items array");
+test/ci_split_invariant_normalize_cluster_manifest.test.mjs:22:    "expected split invariant normalize cluster manifest in composition index"
+test/ci_test_ci_composition.test.mjs:7:test("package.json test:ci is single-owner and resolves from deterministic composition index", () => {
+test/ci_test_ci_composition_file.test.mjs:8:test("test:ci composition file is well-formed and expands to unique node-test-only commands", () => {
+test/ci_test_ci_composition_file.test.mjs:10:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+test/ci_test_ci_composition_file.test.mjs:16:  }, "expected test:ci composition file to be valid JSON");
+test/ci_test_ci_composition_file.test.mjs:18:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+test/ci_test_ci_composition_file.test.mjs:19:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+test/ci_test_ci_composition_file.test.mjs:20:  assert.ok(index.items.length > 0, "expected non-empty composition.items");
+
