@@ -237,7 +237,7 @@ function removeId(list, id) {
     return list.filter((x) => x !== id);
 }
 function syncDerived(st) {
-    st.dropped_ids = st.skipped_ids;
+    st.dropped_ids = st.dropped_ids.size > 0 ? new Set(st.dropped_ids) : new Set(st.skipped_ids);
     st.remaining_exercises = idsToRefs(st.remaining_ids);
     st.completed_exercises = setToRefsStable(st.completed_ids);
     st.skipped_exercises = setToRefsStable(st.skipped_ids);
@@ -302,6 +302,14 @@ function ensureStateShape(state, plannedFallback) {
             out.add(v);
         return out;
     })();
+    const dropped_ids = (() => {
+        const explicit = Array.isArray(s.dropped_ids)
+            ? uniqStableIds(s.dropped_ids)
+            : [];
+        if (explicit.length > 0)
+            return new Set(explicit);
+        return new Set(skipped_ids);
+    })();
     const split_active = typeof s.split_active === "boolean" ? s.split_active : false;
     const remaining_at_split_ids = Array.isArray(s.remaining_at_split_ids) ? uniqStableIds(s.remaining_at_split_ids) : [];
     const st = {
@@ -309,7 +317,7 @@ function ensureStateShape(state, plannedFallback) {
         remaining_ids: remaining_ids_raw,
         completed_ids,
         skipped_ids,
-        dropped_ids: skipped_ids,
+        dropped_ids,
         split_active,
         remaining_at_split_ids,
         remaining_exercises: [],
@@ -386,6 +394,7 @@ export function applyRuntimeEvent(state, event) {
             }
             st.remaining_ids = removeId(st.remaining_ids, id);
             st.skipped_ids.add(id);
+            st.dropped_ids.add(id);
             autoCloseSplitIfDone(st);
             syncDerived(st);
             return st;
@@ -408,16 +417,18 @@ export function applyRuntimeEvent(state, event) {
         }
         case "RETURN_SKIP": {
             st.started = true;
-            const toDrop = new Set();
-            for (const id of st.remaining_at_split_ids)
-                toDrop.add(id);
-            for (const id of st.remaining_ids)
-                toDrop.add(id);
+            const orderedToDrop = uniqStableIds([
+                ...st.remaining_at_split_ids,
+                ...st.remaining_ids
+            ]);
+            const toDrop = new Set(orderedToDrop);
             if (toDrop.size > 0) {
                 st.remaining_ids = st.remaining_ids.filter((id) => !toDrop.has(id));
-                for (const id of toDrop) {
-                    if (!st.completed_ids.has(id))
+                for (const id of orderedToDrop) {
+                    if (!st.completed_ids.has(id)) {
                         st.skipped_ids.add(id);
+                        st.dropped_ids.add(id);
+                    }
                 }
             }
             st.split_active = false;

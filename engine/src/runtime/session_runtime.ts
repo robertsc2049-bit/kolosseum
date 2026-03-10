@@ -283,7 +283,7 @@ type RuntimeStateInternal = {
 };
 
 function syncDerived(st: RuntimeStateInternal): void {
-  st.dropped_ids = st.skipped_ids;
+  st.dropped_ids = st.dropped_ids.size > 0 ? new Set(st.dropped_ids) : new Set(st.skipped_ids);
 
   st.remaining_exercises = idsToRefs(st.remaining_ids);
   st.completed_exercises = setToRefsStable(st.completed_ids);
@@ -357,6 +357,16 @@ function ensureStateShape(state: unknown, plannedFallback: string[]): RuntimeSta
     return out;
   })();
 
+  const dropped_ids = (() => {
+    const explicit = Array.isArray((s as any).dropped_ids)
+      ? uniqStableIds((s as any).dropped_ids)
+      : [];
+
+    if (explicit.length > 0) return new Set<string>(explicit);
+
+    return new Set<string>(skipped_ids);
+  })();
+
   const split_active = typeof (s as any).split_active === "boolean" ? (s as any).split_active : false;
   const remaining_at_split_ids = Array.isArray((s as any).remaining_at_split_ids) ? uniqStableIds((s as any).remaining_at_split_ids) : [];
 
@@ -365,7 +375,7 @@ function ensureStateShape(state: unknown, plannedFallback: string[]): RuntimeSta
     remaining_ids: remaining_ids_raw,
     completed_ids,
     skipped_ids,
-    dropped_ids: skipped_ids,
+    dropped_ids,
     split_active,
     remaining_at_split_ids,
     remaining_exercises: [],
@@ -456,6 +466,7 @@ export function applyRuntimeEvent(state: unknown, event: unknown): RuntimeStateI
 
       st.remaining_ids = removeId(st.remaining_ids, id);
       st.skipped_ids.add(id);
+      st.dropped_ids.add(id);
 
       autoCloseSplitIfDone(st);
       syncDerived(st);
@@ -485,14 +496,19 @@ export function applyRuntimeEvent(state: unknown, event: unknown): RuntimeStateI
     case "RETURN_SKIP": {
       st.started = true;
 
-      const toDrop = new Set<string>();
-      for (const id of st.remaining_at_split_ids) toDrop.add(id);
-      for (const id of st.remaining_ids) toDrop.add(id);
+      const orderedToDrop = uniqStableIds([
+        ...st.remaining_at_split_ids,
+        ...st.remaining_ids
+      ]);
+      const toDrop = new Set<string>(orderedToDrop);
 
       if (toDrop.size > 0) {
         st.remaining_ids = st.remaining_ids.filter((id) => !toDrop.has(id));
-        for (const id of toDrop) {
-          if (!st.completed_ids.has(id)) st.skipped_ids.add(id);
+        for (const id of orderedToDrop) {
+          if (!st.completed_ids.has(id)) {
+            st.skipped_ids.add(id);
+            st.dropped_ids.add(id);
+          }
         }
       }
 

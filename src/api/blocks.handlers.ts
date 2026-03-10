@@ -208,11 +208,15 @@ export async function compileBlock(req: Request, res: Response) {
           : []);
 
   const dropped_ids: string[] =
-    runtime_state?.skipped_ids instanceof Set
-      ? Array.from(runtime_state.skipped_ids).map((x: any) => String(x))
-      : (Array.isArray(runtime_state?.skipped_ids)
-          ? runtime_state.skipped_ids.map((x: any) => String(x))
-          : []);
+    runtime_state?.dropped_ids instanceof Set
+      ? Array.from(runtime_state.dropped_ids).map((x: any) => String(x))
+      : (Array.isArray(runtime_state?.dropped_ids)
+          ? runtime_state.dropped_ids.map((x: any) => String(x))
+          : (runtime_state?.skipped_ids instanceof Set
+              ? Array.from(runtime_state.skipped_ids).map((x: any) => String(x))
+              : (Array.isArray(runtime_state?.skipped_ids)
+                  ? runtime_state.skipped_ids.map((x: any) => String(x))
+                  : [])));
 
   const return_decision_required: boolean =
     typeof runtime_state?.return_decision_required === "boolean" ? runtime_state.return_decision_required : false;

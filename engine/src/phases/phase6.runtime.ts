@@ -39,7 +39,11 @@ function normalizeReturnDecisionOptions(v: unknown): Array<"RETURN_CONTINUE" | "
 function traceFromRuntimeState(state: unknown): Phase6RuntimeTrace {
   const remaining_ids = isRecord(state) ? normalizeStringArray(state.remaining_ids) : [];
   const completed_ids = isRecord(state) ? Array.from(normalizeStringSet(state.completed_ids)) : [];
-  const dropped_ids = isRecord(state) ? Array.from(normalizeStringSet(state.skipped_ids)) : [];
+  const dropped_ids = isRecord(state)
+    ? (Array.isArray((state as Record<string, unknown>).dropped_ids)
+        ? normalizeStringArray((state as Record<string, unknown>).dropped_ids)
+        : Array.from(normalizeStringSet(state.skipped_ids)))
+    : [];
 
   const return_decision_required =
     isRecord(state) && typeof state.return_decision_required === "boolean"

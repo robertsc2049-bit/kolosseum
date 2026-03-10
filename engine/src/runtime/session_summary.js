@@ -98,7 +98,8 @@ function splitJsonFrom(rt) {
 export function fromEngineState(state) {
   const remaining_ids = Array.isArray(state.remaining_ids) ? [...state.remaining_ids] : [];
   const completed_ids = uniqStable(Array.from(state.completed_ids ?? []));
-  const skipped_ids = uniqStable(Array.from(state.skipped_ids ?? state.dropped_ids ?? []));
+  const skipped_ids = uniqStable(Array.from(state.skipped_ids ?? []));
+  const dropped_ids = uniqStable(Array.from(state.dropped_ids ?? state.skipped_ids ?? []));
 
   const split_active =
     typeof state.split_active === "boolean"
@@ -119,6 +120,7 @@ export function fromEngineState(state) {
     remaining_ids,
     completed_ids,
     skipped_ids,
+    dropped_ids,
     split_active,
     remaining_at_split_ids
   };
@@ -136,12 +138,13 @@ export function scopeRuntimeJsonToPlan(planned_ids, rt) {
   const remaining_ids = uniqStable(rt?.remaining_ids).filter((id) => allowed.has(id));
   const completed_ids = uniqStable(rt?.completed_ids).filter((id) => allowed.has(id));
   const skipped_ids = uniqStable(rt?.skipped_ids).filter((id) => allowed.has(id));
+  const dropped_ids = uniqStable(rt?.dropped_ids ?? rt?.skipped_ids).filter((id) => allowed.has(id));
 
   const split_active = readSplitActive(rt);
   const remaining_at_split_ids = readRemainingAtSplitIds(rt).filter((id) => allowed.has(id));
 
   /** @type {RuntimeStateJson} */
-  const out = { remaining_ids, completed_ids, skipped_ids, split_active, remaining_at_split_ids };
+  const out = { remaining_ids, completed_ids, skipped_ids, dropped_ids, split_active, remaining_at_split_ids };
 
   // Back-compat split shape (accepted + emitted).
   const split = splitJsonFrom(out);
@@ -165,6 +168,7 @@ export function engineStateFromV3Snapshot(planned_ids, raw) {
         remaining_ids: uniqStable(raw.remaining_ids),
         completed_ids: uniqStable(raw.completed_ids),
         skipped_ids: uniqStable(raw.skipped_ids),
+        dropped_ids: uniqStable(raw.dropped_ids ?? raw.skipped_ids),
         split_active: readSplitActive(raw),
         remaining_at_split_ids: readRemainingAtSplitIds(raw),
         split: isRecord(raw.split)
@@ -178,6 +182,7 @@ export function engineStateFromV3Snapshot(planned_ids, raw) {
         remaining_ids: [],
         completed_ids: [],
         skipped_ids: [],
+        dropped_ids: [],
         split_active: false,
         remaining_at_split_ids: [],
         split: undefined
@@ -200,6 +205,11 @@ export function engineStateFromV3Snapshot(planned_ids, raw) {
 
   st = {
     ...st,
+    dropped_ids: new Set(
+      Array.isArray(scoped.dropped_ids) && scoped.dropped_ids.length > 0
+        ? scoped.dropped_ids
+        : scoped.skipped_ids
+    ),
     split_active,
     remaining_at_split_ids
   };
@@ -361,10 +371,28 @@ export function normalizeSummary(planned, raw) {
           Object.prototype.hasOwnProperty.call(runtime, 'split')) delete runtime.split;
       }
     }
+    const normalizeRuntimeForUpgradeCompare = (rt) => {
+      const out = rt && typeof rt === "object" ? JSON.parse(JSON.stringify(rt)) : {};
+
+      const skipped = Array.isArray(out.skipped_ids) ? out.skipped_ids : [];
+      const dropped = Array.isArray(out.dropped_ids) ? out.dropped_ids : [];
+
+      const droppedIsRedundant =
+        !Object.prototype.hasOwnProperty.call(out, "dropped_ids") ||
+        dropped.length === 0 ||
+        JSON.stringify(dropped) === JSON.stringify(skipped);
+
+      if (droppedIsRedundant) {
+        delete out.dropped_ids;
+      }
+
+      return out;
+    };
+
     const needs =
       raw.version !== 3 ||
       Number(raw.last_seq ?? 0) !== last_seq ||
-      JSON.stringify(raw.runtime) !== JSON.stringify(runtime);
+      JSON.stringify(normalizeRuntimeForUpgradeCompare(raw.runtime)) !== JSON.stringify(normalizeRuntimeForUpgradeCompare(runtime));
 
     return { summary: { version: 3, started, runtime, last_seq }, needsUpgrade: needs };
   }
@@ -386,7 +414,7 @@ export function deriveTrace(summary) {
     started: summary.started === true,
     remaining_ids: uniqStable(rt.remaining_ids),
     completed_ids: uniqStable(rt.completed_ids),
-    dropped_ids: uniqStable(rt.skipped_ids),
+    dropped_ids: uniqStable(rt.dropped_ids ?? rt.skipped_ids),
     split_active,
     remaining_at_split_ids
   };
