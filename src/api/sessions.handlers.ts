@@ -26,6 +26,7 @@ import {
   startSessionMutation
 } from "./session_state_write_service.js";
 import { planSessionService } from "./plan_session_service.js";
+import { listRuntimeEventsQuery } from "./session_events_query_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -70,15 +71,8 @@ export async function listRuntimeEvents(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) throw badRequest("Missing session_id");
 
-  const r = await pool.query(
-    `SELECT seq, event, created_at
-     FROM runtime_events
-     WHERE session_id = $1
-     ORDER BY seq ASC`,
-    [session_id]
-  );
-
-  return res.json({ session_id, events: r.rows });
+  const payload = await listRuntimeEventsQuery(session_id);
+  return res.json(payload);
 }
 
 export async function getSessionState(req: Request, res: Response) {
