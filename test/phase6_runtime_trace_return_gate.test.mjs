@@ -61,3 +61,29 @@ test("Phase6 runtime trace: return_continue clears explicit return decision cont
   assert.equal(Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"), false);
   assert.equal(Object.prototype.hasOwnProperty.call(trace, "return_gate_required"), false);
 });
+
+test("Phase6 runtime trace: return_skip clears explicit return decision contract", async () => {
+  const { phase6ApplyRuntimeEventsWithTrace } = await loadPhase6Runtime();
+
+  const session = {
+    session_id: "S1",
+    status: "ready",
+    exercises: [
+      { exercise_id: "A", sets: 1, reps: 1 },
+      { exercise_id: "B", sets: 1, reps: 1 }
+    ]
+  };
+
+  const events = [
+    { type: "SPLIT_SESSION" },
+    { type: "RETURN_SKIP" }
+  ];
+
+  const { trace } = phase6ApplyRuntimeEventsWithTrace(session, events);
+
+  assert.equal(trace.return_decision_required, false);
+  assert.deepEqual(trace.return_decision_options, []);
+  assert.equal(Object.prototype.hasOwnProperty.call(trace, "split_active"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(trace, "return_gate_required"), false);
+});
