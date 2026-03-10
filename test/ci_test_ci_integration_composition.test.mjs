@@ -17,6 +17,7 @@ test("package.json test:ci:integration is single-owner and resolves from determi
     "node test/ci_test_ci_integration_api_regression_cluster_manifest_file.test.mjs",
     "node test/ci_test_ci_integration_api_regression_cluster_manifest.test.mjs",
     "node test/api.return_gate.regression.test.mjs",
+    "node test/api.return_skip.regression.test.mjs",
     "node test/api.blocks_compile_apply_unknown_maps_500.regression.test.mjs",
     "node test/ci_test_ci_integration_vertical_slice_cluster_manifest_file.test.mjs",
     "node test/ci_test_ci_integration_vertical_slice_cluster_manifest.test.mjs",
