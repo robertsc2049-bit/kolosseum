@@ -1,9 +1,10 @@
 {
-  "label": "test:ci:integration vertical slice cluster",
-  "commands": [
-    "node test/smoke_vertical_slice_plan_start_state.test.mjs",
-    "node test/vertical_slice.api_http_return_gate.e2e.test.mjs",
-    "node test/vertical_slice.api_http_complete_step.e2e.test.mjs",
-    "node test/vertical_slice.api_http_unknown_engine_error_500.e2e.test.mjs"
-  ]
+    "label":  "test:ci:integration vertical slice cluster",
+    "commands":  [
+                     "node test/smoke_vertical_slice_plan_start_state.test.mjs",
+                     "node test/vertical_slice.api_http_return_gate.e2e.test.mjs",
+                     "node test/vertical_slice.api_http_complete_step.e2e.test.mjs",
+                     "node test/vertical_slice.api_http_unknown_engine_error_500.e2e.test.mjs",
+                     "node test/vertical_slice.api_http_return_skip.e2e.test.mjs"
+                 ]
 }
