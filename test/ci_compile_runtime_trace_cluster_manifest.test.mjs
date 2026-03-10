@@ -15,15 +15,17 @@ test("test:ci composition index includes pinned compile runtime trace cluster ma
   const manifestPath = "ci/contracts/compile_runtime_trace_ci_cluster.json";
 
   const manifestIdx = items.findIndex((item) => item?.kind === "manifest" && item?.path === manifestPath);
-  assert.notEqual(manifestIdx, -1, "expected compile runtime trace cluster manifest in composition index");
+  assert.notEqual(manifestIdx, -1, "expected canonical hash API cluster manifest in composition index");
 
   assert.deepEqual(
-    items.slice(manifestIdx, manifestIdx + 3),
+    items.slice(manifestIdx, manifestIdx + 5),
     [
       { kind: "manifest", path: "ci/contracts/compile_runtime_trace_ci_cluster.json" },
       { kind: "command", value: "node test/ci_compile_runtime_trace_cluster_manifest_file.test.mjs" },
-      { kind: "command", value: "node test/ci_compile_runtime_trace_cluster_manifest.test.mjs" }
+      { kind: "command", value: "node test/ci_compile_runtime_trace_cluster_manifest.test.mjs" },
+      { kind: "command", value: "node test/ci_compile_runtime_trace_manifest_file.test.mjs" },
+      { kind: "command", value: "node test/ci_compile_runtime_trace_manifest.test.mjs" }
     ],
-    "expected compile runtime trace cluster manifest followed by its adjacent guard pair"
+    "expected canonical hash API cluster manifest followed by its adjacent guard pair and legacy manifest guards"
   );
 });
