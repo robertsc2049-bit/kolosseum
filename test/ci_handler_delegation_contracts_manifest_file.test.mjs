@@ -12,6 +12,8 @@ test("handler delegation contracts manifest file remains pinned to the expected 
   assert.deepEqual(manifest.cluster, [
     "node test/api_handlers_plan_session_delegation.test.mjs",
     "node test/api_handlers_start_session_delegation.test.mjs",
-    "node test/api_handlers_append_runtime_event_delegation.test.mjs"
+    "node test/api_handlers_append_runtime_event_delegation.test.mjs",
+    "node test/api_handlers_list_runtime_events_delegation.test.mjs",
+    "node test/api_handlers_get_session_state_delegation.test.mjs"
   ]);
 });

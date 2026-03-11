@@ -18,7 +18,7 @@ test("handler delegation contracts cluster manifest file is well-formed, non-emp
   assert.ok(manifest && typeof manifest === "object" && !Array.isArray(manifest), "expected manifest object");
   assert.equal(manifest.label, "handler delegation contracts ci cluster");
   assert.ok(Array.isArray(manifest.cluster), "expected manifest.cluster array");
-  assert.equal(manifest.cluster.length, 3, "expected exactly 3 handler delegation contract commands");
+  assert.equal(manifest.cluster.length, 5, "expected exactly 5 handler delegation contract commands");
 
   const seen = new Set();
   for (const cmd of manifest.cluster) {
