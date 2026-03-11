@@ -206,6 +206,26 @@
                   },
                   {
                       "kind":  "manifest",
+                      "path":  "ci/contracts/compile_block_persistence_delegation_contracts_ci_cluster.json"
+                  },
+                  {
+                      "kind":  "command",
+                      "value":  "node test/ci_compile_block_persistence_delegation_contracts_cluster_manifest_file.test.mjs"
+                  },
+                  {
+                      "kind":  "command",
+                      "value":  "node test/ci_compile_block_persistence_delegation_contracts_cluster_manifest.test.mjs"
+                  },
+                  {
+                      "kind":  "command",
+                      "value":  "node test/ci_compile_block_persistence_delegation_contracts_manifest_file.test.mjs"
+                  },
+                  {
+                      "kind":  "command",
+                      "value":  "node test/ci_compile_block_persistence_delegation_contracts_manifest.test.mjs"
+                  },
+                  {
+                      "kind":  "manifest",
                       "path":  "ci/contracts/block_handler_delegation_contracts_ci_cluster.json"
                   },
                   {
