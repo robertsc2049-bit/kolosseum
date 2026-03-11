@@ -10,6 +10,11 @@ test("compile block persistence delegation contracts manifest remains present in
     "node test/api_handlers_compile_block_persistence_delegation.test.mjs",
     "node test/api_handlers_compile_block_persistence_args_contract.test.mjs",
     "node test/api_handlers_compile_block_response_contract.test.mjs",
+    "node test/api_handlers_compile_block_missing_phase1_input_contract.test.mjs",
+    "node test/api_handlers_compile_block_phase_failure_mapping_contract.test.mjs",
+    "node test/api_handlers_compile_block_create_session_response_contract.test.mjs",
+    "node test/api_handlers_compile_block_runtime_event_error_contract.test.mjs",
+    "node test/api_handlers_compile_block_response_allowlist_contract.test.mjs",
     "node test/ci_api_block_compile_write_service_contract_wrapper.test.mjs"
   ]) {
     assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
