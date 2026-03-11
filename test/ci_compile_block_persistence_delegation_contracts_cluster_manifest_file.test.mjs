@@ -18,7 +18,7 @@ test("compile block persistence delegation contracts cluster manifest file is we
   assert.ok(manifest && typeof manifest === "object" && !Array.isArray(manifest), "expected manifest object");
   assert.equal(manifest.label, "compile block persistence delegation contracts ci cluster");
   assert.ok(Array.isArray(manifest.cluster), "expected manifest.cluster array");
-  assert.equal(manifest.cluster.length, 2, "expected exactly 2 compile block persistence delegation contract commands");
+  assert.equal(manifest.cluster.length, 4, "expected exactly 4 compile block persistence delegation contract commands");
 
   const seen = new Set();
   for (const cmd of manifest.cluster) {
