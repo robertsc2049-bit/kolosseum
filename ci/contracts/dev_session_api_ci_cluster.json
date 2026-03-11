@@ -1,6 +1,10 @@
 {
   "cluster": [
     "node test/dev_fast_clean_tree_negative.test.mjs",
-    "node test/api_session_event_seq_init_contract.test.mjs"
+    "node test/api_session_event_seq_init_contract.test.mjs",
+    "node test/ci_api_session_state_query_service_contract_wrapper.test.mjs",
+    "node test/ci_api_session_state_write_service_contract_wrapper.test.mjs",
+    "node test/ci_api_session_events_query_service_contract_wrapper.test.mjs",
+    "node test/ci_api_plan_session_service_contract_wrapper.test.mjs"
   ]
 }
