@@ -9,7 +9,9 @@ test("handler delegation contracts manifest remains present in composed test:ci 
   for (const cmd of [
     "node test/api_handlers_plan_session_delegation.test.mjs",
     "node test/api_handlers_start_session_delegation.test.mjs",
-    "node test/api_handlers_append_runtime_event_delegation.test.mjs"
+    "node test/api_handlers_append_runtime_event_delegation.test.mjs",
+    "node test/api_handlers_list_runtime_events_delegation.test.mjs",
+    "node test/api_handlers_get_session_state_delegation.test.mjs"
   ]) {
     assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
   }
