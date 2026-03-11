@@ -1,0 +1,8 @@
+{
+  "label": "handler delegation contracts ci cluster",
+  "cluster": [
+    "node test/api_handlers_plan_session_delegation.test.mjs",
+    "node test/api_handlers_start_session_delegation.test.mjs",
+    "node test/api_handlers_append_runtime_event_delegation.test.mjs"
+  ]
+}
