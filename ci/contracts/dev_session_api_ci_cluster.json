@@ -8,6 +8,7 @@
     "node test/ci_api_plan_session_service_contract_wrapper.test.mjs",
     "node test/ci_api_append_runtime_event_executed_handler_http_contract_wrapper.test.mjs",
     "node test/ci_api_get_session_state_executed_handler_http_contract_wrapper.test.mjs",
-    "node test/ci_api_list_runtime_events_executed_handler_http_contract_wrapper.test.mjs"
+    "node test/ci_api_list_runtime_events_executed_handler_http_contract_wrapper.test.mjs",
+    "node test/ci_api_start_session_executed_handler_http_contract_wrapper.test.mjs"
   ]
 }
