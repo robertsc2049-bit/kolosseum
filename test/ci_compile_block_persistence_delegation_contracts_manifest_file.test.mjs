@@ -18,6 +18,7 @@ test("compile block persistence delegation contracts manifest file remains pinne
     "node test/api_handlers_compile_block_create_session_response_contract.test.mjs",
     "node test/api_handlers_compile_block_runtime_event_error_contract.test.mjs",
     "node test/api_handlers_compile_block_response_allowlist_contract.test.mjs",
+    "node test/ci_api_compile_block_executed_handler_http_contract_wrapper.test.mjs",
     "node test/ci_api_block_compile_write_service_contract_wrapper.test.mjs"
   ]);
 });

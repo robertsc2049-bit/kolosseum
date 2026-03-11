@@ -13,19 +13,17 @@ test("compile block persistence delegation contracts cluster manifest file is we
   let manifest;
   assert.doesNotThrow(() => {
     manifest = JSON.parse(raw);
-  }, "expected compile block persistence delegation contracts cluster manifest to be valid JSON");
+  });
 
-  assert.ok(manifest && typeof manifest === "object" && !Array.isArray(manifest), "expected manifest object");
   assert.equal(manifest.label, "compile block persistence delegation contracts ci cluster");
-  assert.ok(Array.isArray(manifest.cluster), "expected manifest.cluster array");
-  assert.equal(manifest.cluster.length, 9, "expected exactly 9 compile block persistence delegation contract commands");
+  assert.ok(Array.isArray(manifest.cluster));
+  assert.equal(manifest.cluster.length, 10);
 
   const seen = new Set();
   for (const cmd of manifest.cluster) {
-    assert.equal(typeof cmd, "string", "expected command string");
-    assert.notEqual(cmd.trim(), "", "expected non-empty command");
-    assert.equal(cmd, cmd.trim(), "expected trimmed command");
-    assert.match(cmd, NODE_TEST_CMD_RE, "expected node test/... .test.mjs command");
+    assert.equal(typeof cmd, "string");
+    assert.equal(cmd, cmd.trim());
+    assert.match(cmd, NODE_TEST_CMD_RE);
     assert.ok(!seen.has(cmd), `expected unique command: ${cmd}`);
     seen.add(cmd);
   }
