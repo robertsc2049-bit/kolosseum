@@ -16,6 +16,8 @@ import { phase6ProduceSessionOutput } from "@kolosseum/engine/phases/phase6.js";
 import { validateWireRuntimeEvent } from "@kolosseum/engine/runtime/session_summary.js";
 
 import { badRequest, notFound, internalError } from "./http_errors.js";
+import { createSessionFromBlockMutation } from "./block_session_write_service.js";
+import { listBlockSessionsQuery } from "./block_session_query_service.js";
 
 type CompileBlockBody = {
   phase1_input: unknown;
@@ -396,40 +398,13 @@ export async function createSessionFromBlock(req: Request, res: Response) {
   const block_id = asString(req.params?.block_id);
   if (!block_id) throw badRequest("Missing block_id");
 
-  const planned = (req.body as any)?.planned_session as Phase6SessionOutput | undefined;
-  if (!planned || typeof planned !== "object") {
+  const planned_session = (req.body as any)?.planned_session as Phase6SessionOutput | undefined;
+  if (!planned_session || typeof planned_session !== "object") {
     throw badRequest("Missing planned_session");
   }
 
-  const b = await pool.query(`SELECT block_id FROM blocks WHERE block_id = $1`, [block_id]);
-  if ((b.rowCount ?? 0) === 0) throw notFound("Block not found");
-
-  const session_id = id("s");
-  const plannedToStore = { ...planned, session_id };
-
-  await pool.query(
-    `
-    INSERT INTO sessions (session_id, status, planned_session, block_id)
-    VALUES ($1, 'created', $2::jsonb, $3)
-    `,
-    [session_id, JSON.stringify(plannedToStore), block_id]
-  );
-
-  try {
-    await pool.query(
-      `
-      INSERT INTO session_event_seq (session_id, next_seq)
-      VALUES ($1, 0)
-      ON CONFLICT (session_id) DO NOTHING
-      `,
-      [session_id]
-    );
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
-    if (!/relation .*session_event_seq.* does not exist/i.test(msg)) throw e;
-  }
-
-  return res.status(201).json({ session_id });
+  const result = await createSessionFromBlockMutation(block_id, planned_session);
+  return res.status(201).json(result);
 }
 
 /**
@@ -439,15 +414,6 @@ export async function listBlockSessions(req: Request, res: Response) {
   const block_id = asString(req.params?.block_id);
   if (!block_id) throw badRequest("Missing block_id");
 
-  const r = await pool.query(
-    `
-    SELECT session_id, status, created_at, updated_at
-    FROM sessions
-    WHERE block_id = $1
-    ORDER BY created_at ASC
-    `,
-    [block_id]
-  );
-
-  return res.json({ block_id, sessions: r.rows });
+  const payload = await listBlockSessionsQuery(block_id);
+  return res.json(payload);
 }
