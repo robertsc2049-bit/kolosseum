@@ -11,6 +11,8 @@ test("compile block persistence delegation contracts manifest file remains pinne
   assert.equal(manifest.label, "compile block persistence delegation contracts ci cluster");
   assert.deepEqual(manifest.cluster, [
     "node test/api_handlers_compile_block_persistence_delegation.test.mjs",
+    "node test/api_handlers_compile_block_persistence_args_contract.test.mjs",
+    "node test/api_handlers_compile_block_response_contract.test.mjs",
     "node test/ci_api_block_compile_write_service_contract_wrapper.test.mjs"
   ]);
 });
