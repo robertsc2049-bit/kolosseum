@@ -12,6 +12,7 @@ test("block handler delegation contracts manifest file remains pinned to the exp
   assert.deepEqual(manifest.cluster, [
     "node test/api_handlers_create_session_from_block_delegation.test.mjs",
     "node test/api_handlers_list_block_sessions_delegation.test.mjs",
-    "node test/ci_api_create_session_from_block_executed_handler_http_contract_wrapper.test.mjs"
+    "node test/ci_api_create_session_from_block_executed_handler_http_contract_wrapper.test.mjs",
+    "node test/ci_api_list_block_sessions_executed_handler_http_contract_wrapper.test.mjs"
   ]);
 });

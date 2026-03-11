@@ -17,7 +17,7 @@ test("block handler delegation contracts cluster manifest file is well-formed, n
 
   assert.equal(manifest.label, "block handler delegation contracts ci cluster");
   assert.ok(Array.isArray(manifest.cluster));
-  assert.equal(manifest.cluster.length, 3);
+  assert.equal(manifest.cluster.length, 4);
 
   const seen = new Set();
   for (const cmd of manifest.cluster) {
