@@ -1,0 +1,7 @@
+{
+  "label": "block handler delegation contracts ci cluster",
+  "cluster": [
+    "node test/api_handlers_create_session_from_block_delegation.test.mjs",
+    "node test/api_handlers_list_block_sessions_delegation.test.mjs"
+  ]
+}
