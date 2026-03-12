@@ -52,9 +52,7 @@ function Expand-KolosseumRunRecords {
   function Add-KolosseumRunRecord {
     param(
       [AllowNull()]
-      [object]$Node,
-      [Parameter(Mandatory = $true)]
-      [System.Collections.ArrayList]$Sink
+      [object]$Node
     )
 
     if ($null -eq $Node) {
@@ -62,7 +60,7 @@ function Expand-KolosseumRunRecords {
     }
 
     if (Test-KolosseumRunRecord -Item $Node) {
-      [void]$Sink.Add($Node)
+      [void]$expanded.Add($Node)
       return
     }
 
@@ -72,7 +70,7 @@ function Expand-KolosseumRunRecords {
 
     if ($Node -is [System.Collections.IEnumerable]) {
       foreach ($nested in $Node) {
-        Add-KolosseumRunRecord -Node $nested -Sink $Sink
+        Add-KolosseumRunRecord -Node $nested
       }
       return
     }
@@ -81,7 +79,7 @@ function Expand-KolosseumRunRecords {
   }
 
   foreach ($item in $Runs) {
-    Add-KolosseumRunRecord -Node $item -Sink $expanded
+    Add-KolosseumRunRecord -Node $item
   }
 
   return @($expanded.ToArray())

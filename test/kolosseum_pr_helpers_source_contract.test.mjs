@@ -52,8 +52,11 @@ test("repo-tracked PR helper recursively flattens nested run collections with ar
   assert.match(text, /\[System\.Collections\.ArrayList\]::new\(\)/);
   assert.match(text, /function\s+Add-KolosseumRunRecord\b/);
   assert.match(text, /if \(Test-KolosseumRunRecord -Item \$Node\)/);
-  assert.match(text, /\[void\]\$Sink\.Add\(\$Node\)/);
+  assert.match(text, /\[void\]\$expanded\.Add\(\$Node\)/);
   assert.match(text, /foreach \(\$nested in \$Node\)/);
+  assert.match(text, /Add-KolosseumRunRecord -Node \$nested/);
+  assert.doesNotMatch(text, /-Sink \$expanded/);
+  assert.doesNotMatch(text, /\[System\.Collections\.ArrayList\]\$Sink/);
   assert.match(text, /return @\(\$expanded\.ToArray\(\)\)/);
 });
 
