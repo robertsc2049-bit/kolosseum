@@ -200,6 +200,71 @@ function Sync-KolosseumMainAfterMerge {
   git reset --hard origin/main | Out-Host
 }
 
+function Wait-KolosseumMainPostMergeRuns {
+  [CmdletBinding()]
+  param(
+    [int]$TimeoutMinutes = 15,
+    [int]$PollSeconds = 10
+  )
+
+  Set-Location C:\Users\rober\kolosseum
+  $ErrorActionPreference = "Stop"
+
+  $headSha = (git rev-parse HEAD).Trim()
+  if (-not $headSha) {
+    throw "Wait-KolosseumMainPostMergeRuns: could not resolve HEAD sha"
+  }
+
+  $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
+  $terminalConclusions = @("success", "failure", "cancelled", "skipped", "neutral", "timed_out", "action_required", "startup_failure", "stale")
+
+  while ($true) {
+    if ((Get-Date) -gt $deadline) {
+      throw "Wait-KolosseumMainPostMergeRuns: timed out waiting for post-merge main runs for sha $headSha"
+    }
+
+    $runsJson = gh run list --branch main --event push --json databaseId,status,conclusion,workflowName,headSha,createdAt,displayTitle --limit 20 2>$null
+    if (-not $runsJson) {
+      Start-Sleep -Seconds $PollSeconds
+      continue
+    }
+
+    $runs = @($runsJson | ConvertFrom-Json)
+    $matchingRuns = @($runs | Where-Object { $_.headSha -eq $headSha })
+
+    if ($matchingRuns.Count -eq 0) {
+      Start-Sleep -Seconds $PollSeconds
+      continue
+    }
+
+    $dedupedRows = Get-KolosseumDedupedRecentRunRows -Runs $matchingRuns
+    Write-Host "Post-merge main runs:"
+    foreach ($row in $dedupedRows) {
+      $countSuffix = if ($row.count -gt 1) { " x$($row.count)" } else { "" }
+      Write-Host ("- [{0}] {1} | {2} | {3} | {4} | {5}{6}" -f $row.status, $row.workflow, $row.branch, $row.event, $row.created, $row.title, $countSuffix)
+    }
+
+    $failed = @($matchingRuns | Where-Object {
+      $_.status -eq "completed" -and $_.conclusion -and $_.conclusion -ne "success"
+    })
+    if ($failed.Count -gt 0) {
+      $failedNames = ($failed | ForEach-Object { Format-KolosseumTextForConsole $_.workflowName } | Sort-Object -Unique) -join ", "
+      throw "Wait-KolosseumMainPostMergeRuns: post-merge main run failure detected for sha $headSha in workflow(s): $failedNames"
+    }
+
+    $allCompleted = @($matchingRuns | Where-Object {
+      $_.status -eq "completed" -and $terminalConclusions -contains $_.conclusion
+    })
+
+    if ($allCompleted.Count -eq $matchingRuns.Count) {
+      Write-Host "Post-merge main runs complete for sha $headSha"
+      return
+    }
+
+    Start-Sleep -Seconds $PollSeconds
+  }
+}
+
 function Merge-KolosseumPr {
   [CmdletBinding()]
   param(
@@ -229,5 +294,6 @@ function Merge-KolosseumPr {
   gh pr merge $PrNumber --squash --delete-branch --admin | Out-Host
 
   Sync-KolosseumMainAfterMerge
+  Wait-KolosseumMainPostMergeRuns -TimeoutMinutes 15 -PollSeconds 10
   Show-KolosseumRecentRuns -Limit 10
 }
