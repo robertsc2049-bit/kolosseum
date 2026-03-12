@@ -201,3 +201,69 @@ test("getSessionStateQuery persists legacy return-decision upgrade and exposes o
   assert.equal(connectCalls, 1, "expected second upgraded read to hit cache");
   assert.deepEqual(cached, payload);
 });
+
+test("getSessionStateQuery preserves deterministic replay projection across uncached reloads", async () => {
+  resetState();
+
+  currentRow = {
+    session_id: "s_query_replay_invariants",
+    planned_session: {
+      exercises: [
+        { exercise_id: "ex1", source: "program" },
+        { exercise_id: "ex2", source: "program" },
+        { exercise_id: "ex3", source: "program" },
+        { exercise_id: "ex4", source: "program" }
+      ],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["ex3", "ex2", "ex3"],
+        completed_ids: ["ex1", "ex1"],
+        dropped_ids: ["ex4", "ex2", "ex4"],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  const first = await getSessionStateQuery("s_query_replay_invariants");
+
+  assert.equal(connectCalls, 1, "expected first read to hit DB once");
+  assert.equal(selectCalls, 1, "expected first read to SELECT once");
+  assert.equal(updateCalls.length, 0, "did not expect any upgrade write for already-explicit summary");
+
+  assert.deepEqual(
+    first.remaining_exercises.map((x) => x.exercise_id),
+    ["ex3", "ex2"],
+    "remaining_exercises must preserve first-seen stable order"
+  );
+  assert.deepEqual(
+    first.completed_exercises.map((x) => x.exercise_id),
+    ["ex1"],
+    "completed_exercises must collapse duplicates deterministically"
+  );
+  assert.deepEqual(
+    first.dropped_exercises.map((x) => x.exercise_id),
+    ["ex4", "ex2"],
+    "dropped_exercises must preserve first-seen stable order"
+  );
+  assert.equal(first.trace.return_decision_required, false);
+  assert.deepEqual(first.trace.return_decision_options, []);
+  assert.equal(Object.prototype.hasOwnProperty.call(first.trace, "split_active"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(first.trace, "remaining_at_split_ids"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(first.trace, "return_gate_required"), false);
+
+  sessionStateCache.clear();
+
+  const second = await getSessionStateQuery("s_query_replay_invariants");
+
+  assert.equal(connectCalls, 2, "expected uncached reload to reconnect");
+  assert.equal(selectCalls, 2, "expected uncached reload to reselect");
+  assert.deepEqual(
+    second,
+    first,
+    "uncached reload must reproduce the exact same public payload"
+  );
+});
