@@ -26,6 +26,7 @@ test("repo-tracked PR helper uses structured deterministic output helpers", () =
   const text = readHelper();
 
   assert.match(text, /function\s+Format-KolosseumTextForConsole\b/);
+  assert.match(text, /function\s+Expand-KolosseumRunRecords\b/);
   assert.match(text, /function\s+Get-KolosseumDedupedCheckSummaryRows\b/);
   assert.match(text, /function\s+Get-KolosseumDedupedRecentRunRows\b/);
   assert.match(text, /function\s+Wait-KolosseumMainPostMergeRuns\b/);
@@ -33,14 +34,24 @@ test("repo-tracked PR helper uses structured deterministic output helpers", () =
   assert.match(text, /function\s+Show-KolosseumRecentRuns\b/);
   assert.match(text, /gh\s+pr\s+checks\s+\$PrNumber\s+--json\s+name,state,workflow,bucket,link/);
   assert.match(text, /gh\s+run\s+list\s+--limit\s+\$Limit\s+--json\s+status,conclusion,workflowName,headBranch,event,displayTitle,createdAt/);
-  assert.match(text, /gh\s+run\s+list\s+--branch\s+main\s+--event\s+push\s+--json\s+databaseId,status,conclusion,workflowName,headSha,createdAt,displayTitle\s+--limit\s+20/);
+  assert.match(text, /gh\s+run\s+list\s+--branch\s+main\s+--event\s+push\s+--json\s+databaseId,status,conclusion,workflowName,headSha,headBranch,event,createdAt,displayTitle\s+--limit\s+20/);
   assert.match(text, /\[object\]\$Text/);
-  assert.match(text, /\$Text\s+-is\s+\[System\.Collections\.IEnumerable\]\s+-and\s+-not\s+\(\$Text\s+-is\s+\[string\]\)/);
-  assert.match(text, /\[string\]\$_/);
+  assert.match(text, /Format-KolosseumTextForConsole expects a scalar value, not a collection/);
   assert.match(text, /0x2026/);
   assert.match(text, /0x00D4/);
   assert.match(text, /0x00C7/);
   assert.match(text, /0x00AA/);
+});
+
+test("repo-tracked PR helper expands nested run collections before dedupe and failure checks", () => {
+  const text = readHelper();
+
+  assert.match(text, /function\s+Expand-KolosseumRunRecords\b/);
+  assert.match(text, /\$propertyNames\s*=\s*@\(\$item\.PSObject\.Properties\.Name\)/);
+  assert.match(text, /\$propertyNames\s+-contains\s+"status"\s+-and\s+\$propertyNames\s+-contains\s+"workflowName"/);
+  assert.match(text, /\$item\s+-is\s+\[System\.Collections\.IEnumerable\]\s+-and\s+\$item\s+-isnot\s+\[string\]/);
+  assert.match(text, /Expand-KolosseumRunRecords -Runs \$Runs/);
+  assert.match(text, /Expand-KolosseumRunRecords -Runs @\(\$matchingRuns\)/);
 });
 
 test("repo-tracked PR helper dedupes identical workflow name state rows deterministically", () => {
@@ -73,6 +84,7 @@ test("repo-tracked PR helper waits for post-merge main push runs before final re
   assert.match(text, /git\s+rev-parse\s+HEAD/);
   assert.match(text, /gh\s+run\s+list\s+--branch\s+main\s+--event\s+push/);
   assert.match(text, /Where-Object\s+\{\s*\$_\.headSha\s+-eq\s+\$headSha\s*\}/);
+  assert.match(text, /\$failed\s*=\s*@\(\$flatMatchingRuns \| Where-Object/);
   assert.match(text, /Start-Sleep\s+-Seconds\s+\$PollSeconds/);
   assert.match(text, /Post-merge main runs complete for sha/);
 });
