@@ -402,7 +402,7 @@ function Get-KolosseumLatestMainPushRunsForSha {
 }
 
 function Wait-KolosseumMainPostMergeRuns {
-  [CmdletBinding()]
+  [CmdletBinding(DefaultParameterSetName = "Minutes")]
   param(
     [Parameter(Mandatory = $true, Position = 0)]
     [Alias("HeadSha", "CommitSha", "MergeSha")]
@@ -410,8 +410,18 @@ function Wait-KolosseumMainPostMergeRuns {
 
     [int]$PollSeconds = 10,
 
-    [int]$TimeoutSeconds = 900
+    [Parameter(ParameterSetName = "Minutes")]
+    [int]$TimeoutMinutes = 15,
+
+    [Parameter(ParameterSetName = "Seconds")]
+    [int]$TimeoutSeconds
   )
+
+  if ($PSCmdlet.ParameterSetName -eq "Seconds") {
+    $effectiveTimeoutSeconds = $TimeoutSeconds
+  } else {
+    $effectiveTimeoutSeconds = $TimeoutMinutes * 60
+  }
 
   $requiredWorkflows = @(
     "ci",
@@ -422,7 +432,7 @@ function Wait-KolosseumMainPostMergeRuns {
     "vertical-slice"
   )
 
-  $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+  $deadline = (Get-Date).AddSeconds($effectiveTimeoutSeconds)
 
   while ($true) {
     $latest = @(Get-KolosseumLatestMainPushRunsForSha -Sha $Sha)
@@ -483,7 +493,7 @@ function Wait-KolosseumMainPostMergeRuns {
     }
 
     if ((Get-Date) -ge $deadline) {
-      throw ("Wait-KolosseumMainPostMergeRuns: timeout waiting for post-merge main push workflows for sha {0}. Missing: {1}. In-progress: {2}" -f $Sha, (($missing -join ", "), ($inProgress -join ", ")))
+      throw ("Wait-KolosseumMainPostMergeRuns: timeout waiting for post-merge main push workflows for sha {0}. Missing: {1}. In-progress: {2}" -f $Sha, ($missing -join ", "), ($inProgress -join ", "))
     }
 
     Start-Sleep -Seconds $PollSeconds
