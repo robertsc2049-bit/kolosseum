@@ -30,8 +30,10 @@ test("repo-tracked PR helper uses structured deterministic output helpers", () =
   assert.match(text, /function\s+Show-KolosseumRecentRuns\b/);
   assert.match(text, /gh\s+pr\s+checks\s+\$PrNumber\s+--json\s+name,state,workflow,bucket,link/);
   assert.match(text, /gh\s+run\s+list\s+--limit\s+\$Limit\s+--json\s+status,conclusion,workflowName,headBranch,event,displayTitle,createdAt/);
-  assert.match(text, /Replace\("ÔÇª", "\.\.\."\)/);
-  assert.match(text, /Replace\(\[string\]\[char\]0x2026, "\.\.\."\)/);
+  assert.match(text, /0x2026/);
+  assert.match(text, /0x00D4/);
+  assert.match(text, /0x00C7/);
+  assert.match(text, /0x00AA/);
 });
 
 test("repo-tracked PR helper realigns main only after successful merge call site", () => {

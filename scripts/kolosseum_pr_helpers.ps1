@@ -13,8 +13,11 @@ function Format-KolosseumTextForConsole {
   $clean = $clean -replace "`r?`n", " "
   $clean = $clean -replace "\s+", " "
   $clean = $clean.Trim()
+
   $clean = $clean.Replace([string][char]0x2026, "...")
-  $clean = $clean.Replace("ÔÇª", "...")
+  $clean = $clean -replace [regex]::Escape([string][char]0x00D4 + [string][char]0x00C7 + [string][char]0x00AA), "..."
+  $clean = $clean -replace [regex]::Escape([string][char]0x00C3 + [string][char]0x201D + [string][char]0x00C3 + [string][char]0x2021 + [string][char]0x00C2 + [string][char]0x00AA), "..."
+
   return $clean
 }
 
@@ -42,6 +45,7 @@ function Show-KolosseumCheckSummary {
     $workflow = Format-KolosseumTextForConsole $check.workflow
     $name = Format-KolosseumTextForConsole $check.name
     $state = Format-KolosseumTextForConsole $check.state
+
     if ([string]::IsNullOrWhiteSpace($workflow)) {
       Write-Host ("- [{0}] {1}" -f $state, $name)
     } else {
