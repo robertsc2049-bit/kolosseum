@@ -1,3 +1,91 @@
+function Format-KolosseumTextForConsole {
+  [CmdletBinding()]
+  param(
+    [AllowNull()]
+    [string]$Text
+  )
+
+  if ($null -eq $Text) {
+    return ""
+  }
+
+  $clean = $Text
+  $clean = $clean -replace "`r?`n", " "
+  $clean = $clean -replace "\s+", " "
+  $clean = $clean.Trim()
+  $clean = $clean.Replace([string][char]0x2026, "...")
+  $clean = $clean.Replace("ÔÇª", "...")
+  return $clean
+}
+
+function Show-KolosseumCheckSummary {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [int]$PrNumber
+  )
+
+  $checksJson = gh pr checks $PrNumber --json name,state,workflow,bucket,link 2>$null
+  if (-not $checksJson) {
+    Write-Host "Checks: no structured results returned for PR #$PrNumber"
+    return
+  }
+
+  $checks = $checksJson | ConvertFrom-Json
+  if (-not $checks) {
+    Write-Host "Checks: no checks found for PR #$PrNumber"
+    return
+  }
+
+  Write-Host "Checks summary:"
+  foreach ($check in ($checks | Sort-Object workflow, name)) {
+    $workflow = Format-KolosseumTextForConsole $check.workflow
+    $name = Format-KolosseumTextForConsole $check.name
+    $state = Format-KolosseumTextForConsole $check.state
+    if ([string]::IsNullOrWhiteSpace($workflow)) {
+      Write-Host ("- [{0}] {1}" -f $state, $name)
+    } else {
+      Write-Host ("- [{0}] {1} / {2}" -f $state, $workflow, $name)
+    }
+  }
+}
+
+function Show-KolosseumRecentRuns {
+  [CmdletBinding()]
+  param(
+    [int]$Limit = 10
+  )
+
+  $runsJson = gh run list --limit $Limit --json status,conclusion,workflowName,headBranch,event,displayTitle,createdAt 2>$null
+  if (-not $runsJson) {
+    Write-Host "Recent runs: no structured results returned"
+    return
+  }
+
+  $runs = $runsJson | ConvertFrom-Json
+  if (-not $runs) {
+    Write-Host "Recent runs: none"
+    return
+  }
+
+  Write-Host "Recent runs:"
+  foreach ($run in $runs) {
+    $status = if ($run.status -eq "completed") {
+      if ([string]::IsNullOrWhiteSpace($run.conclusion)) { "completed" } else { $run.conclusion }
+    } else {
+      $run.status
+    }
+
+    $workflow = Format-KolosseumTextForConsole $run.workflowName
+    $branch = Format-KolosseumTextForConsole $run.headBranch
+    $event = Format-KolosseumTextForConsole $run.event
+    $title = Format-KolosseumTextForConsole $run.displayTitle
+    $created = Format-KolosseumTextForConsole $run.createdAt
+
+    Write-Host ("- [{0}] {1} | {2} | {3} | {4} | {5}" -f $status, $workflow, $branch, $event, $created, $title)
+  }
+}
+
 function Sync-KolosseumMainAfterMerge {
   [CmdletBinding()]
   param()
@@ -47,17 +135,23 @@ function Merge-KolosseumPr {
   $ErrorActionPreference = "Stop"
 
   $prInfo = gh pr view $PrNumber --json mergeable,mergeStateStatus,reviewDecision,isDraft,title,url | ConvertFrom-Json
+  $prTitle = Format-KolosseumTextForConsole $prInfo.title
 
   if ($prInfo.isDraft) {
-    throw "PR #$PrNumber is draft: $($prInfo.title)"
+    throw "PR #$PrNumber is draft: $prTitle"
   }
 
   if ($prInfo.mergeable -ne "MERGEABLE") {
     throw "PR #$PrNumber is not mergeable.`nmergeable=$($prInfo.mergeable)`nmergeStateStatus=$($prInfo.mergeStateStatus)`nreviewDecision=$($prInfo.reviewDecision)`nurl=$($prInfo.url)"
   }
 
-  gh pr checks $PrNumber --watch | Out-Host
+  Write-Host ("Watching checks for PR #{0}: {1}" -f $PrNumber, $prTitle)
+  gh pr checks $PrNumber --watch | Out-Null
+  Show-KolosseumCheckSummary -PrNumber $PrNumber
+
+  Write-Host ("Merging PR #{0}: {1}" -f $PrNumber, $prTitle)
   gh pr merge $PrNumber --squash --delete-branch --admin | Out-Host
+
   Sync-KolosseumMainAfterMerge
-  gh run list --limit 10 | Out-Host
+  Show-KolosseumRecentRuns -Limit 10
 }
