@@ -26,6 +26,7 @@ test("repo-tracked PR helper uses structured deterministic output helpers", () =
   const text = readHelper();
 
   assert.match(text, /function\s+Format-KolosseumTextForConsole\b/);
+  assert.match(text, /function\s+Test-KolosseumRunRecord\b/);
   assert.match(text, /function\s+Expand-KolosseumRunRecords\b/);
   assert.match(text, /function\s+Get-KolosseumDedupedCheckSummaryRows\b/);
   assert.match(text, /function\s+Get-KolosseumDedupedRecentRunRows\b/);
@@ -43,15 +44,17 @@ test("repo-tracked PR helper uses structured deterministic output helpers", () =
   assert.match(text, /0x00AA/);
 });
 
-test("repo-tracked PR helper expands nested run collections before dedupe and failure checks", () => {
+test("repo-tracked PR helper recursively flattens nested run collections with arraylist sink", () => {
   const text = readHelper();
 
+  assert.match(text, /function\s+Test-KolosseumRunRecord\b/);
   assert.match(text, /function\s+Expand-KolosseumRunRecords\b/);
-  assert.match(text, /\$propertyNames\s*=\s*@\(\$item\.PSObject\.Properties\.Name\)/);
-  assert.match(text, /\$propertyNames\s+-contains\s+"status"\s+-and\s+\$propertyNames\s+-contains\s+"workflowName"/);
-  assert.match(text, /\$item\s+-is\s+\[System\.Collections\.IEnumerable\]\s+-and\s+\$item\s+-isnot\s+\[string\]/);
-  assert.match(text, /Expand-KolosseumRunRecords -Runs \$Runs/);
-  assert.match(text, /Expand-KolosseumRunRecords -Runs @\(\$matchingRuns\)/);
+  assert.match(text, /\[System\.Collections\.ArrayList\]::new\(\)/);
+  assert.match(text, /function\s+Add-KolosseumRunRecord\b/);
+  assert.match(text, /if \(Test-KolosseumRunRecord -Item \$Node\)/);
+  assert.match(text, /\[void\]\$Sink\.Add\(\$Node\)/);
+  assert.match(text, /foreach \(\$nested in \$Node\)/);
+  assert.match(text, /return @\(\$expanded\.ToArray\(\)\)/);
 });
 
 test("repo-tracked PR helper dedupes identical workflow name state rows deterministically", () => {
@@ -67,6 +70,7 @@ test("repo-tracked PR helper dedupes identical recent run rows deterministically
   const text = readHelper();
 
   assert.match(text, /function\s+Get-KolosseumDedupedRecentRunRows\b/);
+  assert.match(text, /Expand-KolosseumRunRecords -Runs \$Runs/);
   assert.match(text, /dedupe_key\s*=\s*"\{0\}\|\{1\}\|\{2\}\|\{3\}\|\{4\}\|\{5\}"/);
   assert.match(text, /status\s*=\s*\$first\.status/);
   assert.match(text, /workflow\s*=\s*\$first\.workflow/);
@@ -84,6 +88,7 @@ test("repo-tracked PR helper waits for post-merge main push runs before final re
   assert.match(text, /git\s+rev-parse\s+HEAD/);
   assert.match(text, /gh\s+run\s+list\s+--branch\s+main\s+--event\s+push/);
   assert.match(text, /Where-Object\s+\{\s*\$_\.headSha\s+-eq\s+\$headSha\s*\}/);
+  assert.match(text, /Expand-KolosseumRunRecords -Runs \$matchingRuns/);
   assert.match(text, /\$failed\s*=\s*@\(\$flatMatchingRuns \| Where-Object/);
   assert.match(text, /Start-Sleep\s+-Seconds\s+\$PollSeconds/);
   assert.match(text, /Post-merge main runs complete for sha/);
