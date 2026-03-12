@@ -21,6 +21,39 @@ function Format-KolosseumTextForConsole {
   return $clean
 }
 
+function Get-KolosseumDedupedCheckSummaryRows {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [object[]]$Checks
+  )
+
+  $rows = foreach ($check in $Checks) {
+    $workflow = Format-KolosseumTextForConsole $check.workflow
+    $name = Format-KolosseumTextForConsole $check.name
+    $state = (Format-KolosseumTextForConsole $check.state).ToUpperInvariant()
+
+    [pscustomobject]@{
+      workflow = $workflow
+      name = $name
+      state = $state
+      dedupe_key = "{0}|{1}|{2}" -f $workflow, $name, $state
+    }
+  }
+
+  $deduped = foreach ($group in ($rows | Group-Object dedupe_key | Sort-Object Name)) {
+    $first = $group.Group | Select-Object -First 1
+    [pscustomobject]@{
+      workflow = $first.workflow
+      name = $first.name
+      state = $first.state
+      count = $group.Count
+    }
+  }
+
+  return $deduped
+}
+
 function Show-KolosseumCheckSummary {
   [CmdletBinding()]
   param(
@@ -40,16 +73,16 @@ function Show-KolosseumCheckSummary {
     return
   }
 
-  Write-Host "Checks summary:"
-  foreach ($check in ($checks | Sort-Object workflow, name)) {
-    $workflow = Format-KolosseumTextForConsole $check.workflow
-    $name = Format-KolosseumTextForConsole $check.name
-    $state = Format-KolosseumTextForConsole $check.state
+  $summaryRows = Get-KolosseumDedupedCheckSummaryRows -Checks @($checks)
 
-    if ([string]::IsNullOrWhiteSpace($workflow)) {
-      Write-Host ("- [{0}] {1}" -f $state, $name)
+  Write-Host "Checks summary:"
+  foreach ($row in $summaryRows) {
+    $countSuffix = if ($row.count -gt 1) { " x$($row.count)" } else { "" }
+
+    if ([string]::IsNullOrWhiteSpace($row.workflow)) {
+      Write-Host ("- [{0}] {1}{2}" -f $row.state, $row.name, $countSuffix)
     } else {
-      Write-Host ("- [{0}] {1} / {2}" -f $state, $workflow, $name)
+      Write-Host ("- [{0}] {1} / {2}{3}" -f $row.state, $row.workflow, $row.name, $countSuffix)
     }
   }
 }
