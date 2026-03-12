@@ -365,3 +365,128 @@ function Merge-KolosseumPr {
   Wait-KolosseumMainPostMergeRuns -TimeoutMinutes 15 -PollSeconds 10
   Show-KolosseumRecentRuns -Limit 10
 }
+
+# region post-merge-main-run-selection-override
+function Get-KolosseumLatestMainPushRunsForSha {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Sha,
+
+    [int]$Limit = 50
+  )
+
+  $runs = gh run list --branch main --event push --limit $Limit --json databaseId,headSha,workflowName,status,conclusion,event,displayTitle,createdAt,updatedAt | ConvertFrom-Json
+  if (-not $runs) {
+    return @()
+  }
+
+  $filtered = @(
+    $runs |
+      Where-Object { $_.headSha -eq $Sha -and $_.event -eq "push" } |
+      Sort-Object workflowName, @{ Expression = "databaseId"; Descending = $true }
+  )
+
+  if ($filtered.Count -eq 0) {
+    return @()
+  }
+
+  $latest = @(
+    $filtered |
+      Group-Object workflowName |
+      ForEach-Object { $_.Group | Select-Object -First 1 } |
+      Sort-Object workflowName
+  )
+
+  return $latest
+}
+
+function Wait-KolosseumMainPostMergeRuns {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true, Position = 0)]
+    [Alias("HeadSha", "CommitSha", "MergeSha")]
+    [string]$Sha,
+
+    [int]$PollSeconds = 10,
+
+    [int]$TimeoutSeconds = 900
+  )
+
+  $requiredWorkflows = @(
+    "ci",
+    "engine-status",
+    "green",
+    "Protect main (auto-revert on CI failure)",
+    "runnable-v0",
+    "vertical-slice"
+  )
+
+  $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+
+  while ($true) {
+    $latest = @(Get-KolosseumLatestMainPushRunsForSha -Sha $Sha)
+
+    Write-Host ("Post-merge main runs (latest push run per workflow for sha {0}):" -f $Sha)
+
+    if ($latest.Count -eq 0) {
+      Write-Host "- [waiting] no main push runs found yet"
+    } else {
+      foreach ($run in $latest) {
+        $state =
+          if ($run.status -ne "completed") {
+            "in_progress"
+          } elseif ($run.conclusion -eq "success" -or $run.conclusion -eq "skipped") {
+            "success"
+          } else {
+            "failure"
+          }
+
+        Write-Host ("- [{0}] {1} | main | push | {2} | {3}" -f $state, $run.workflowName, $run.createdAt, $run.displayTitle)
+      }
+    }
+
+    $latestByWorkflow = @{}
+    foreach ($run in $latest) {
+      $latestByWorkflow[$run.workflowName] = $run
+    }
+
+    $missing = @(
+      $requiredWorkflows |
+        Where-Object { -not $latestByWorkflow.ContainsKey($_) }
+    )
+
+    $inProgress = @(
+      $requiredWorkflows |
+        Where-Object {
+          $latestByWorkflow.ContainsKey($_) -and
+          $latestByWorkflow[$_].status -ne "completed"
+        }
+    )
+
+    $failed = @(
+      $requiredWorkflows |
+        Where-Object {
+          $latestByWorkflow.ContainsKey($_) -and
+          $latestByWorkflow[$_].status -eq "completed" -and
+          $latestByWorkflow[$_].conclusion -notin @("success", "skipped")
+        }
+    )
+
+    if ($failed.Count -gt 0) {
+      throw ("Wait-KolosseumMainPostMergeRuns: post-merge main run failure detected for sha {0} in workflow(s): {1}" -f $Sha, ($failed -join ", "))
+    }
+
+    if ($missing.Count -eq 0 -and $inProgress.Count -eq 0) {
+      Write-Host ("Wait-KolosseumMainPostMergeRuns: all required post-merge main push workflows succeeded for sha {0}" -f $Sha)
+      return $latest
+    }
+
+    if ((Get-Date) -ge $deadline) {
+      throw ("Wait-KolosseumMainPostMergeRuns: timeout waiting for post-merge main push workflows for sha {0}. Missing: {1}. In-progress: {2}" -f $Sha, (($missing -join ", "), ($inProgress -join ", ")))
+    }
+
+    Start-Sleep -Seconds $PollSeconds
+  }
+}
+# endregion post-merge-main-run-selection-override
