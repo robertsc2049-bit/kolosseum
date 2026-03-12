@@ -5,7 +5,8 @@ import { assertNextSessionEventSequence } from "../domain/session_event_sequence
 import {
   badRequest,
   notFound,
-  internalError
+  internalError,
+  conflict
 } from "./http_errors.js";
 import {
   type PlannedSession,
@@ -103,6 +104,32 @@ function rawEventType(raw: unknown): string | null {
 function isApiCompleteStep(raw: unknown): boolean {
   const t = rawEventType(raw);
   return t === "COMPLETE_STEP";
+}
+
+function isReturnDecisionEventType(t: string | null): t is "RETURN_CONTINUE" | "RETURN_SKIP" {
+  return t === "RETURN_CONTINUE" || t === "RETURN_SKIP";
+}
+
+function isReturnDecisionGateOpen(summary: any): boolean {
+  const explicit = summary?.runtime?.return_decision_required;
+  if (typeof explicit === "boolean") return explicit;
+
+  try {
+    return deriveTrace(summary as any)?.return_decision_required === true;
+  } catch {
+    return false;
+  }
+}
+
+function ensureResolvedReturnDecisionReplayRejected(summary: any, raw: unknown): void {
+  const t = rawEventType(raw);
+  if (!isReturnDecisionEventType(t)) return;
+  if (isReturnDecisionGateOpen(summary)) return;
+
+  throw conflict("Runtime event rejected (resolved return decision replay)", {
+    failure_token: "phase6_runtime_resolved_return_decision_replay",
+    cause: `PHASE6_RUNTIME_RESOLVED_RETURN_DECISION_REPLAY: ${t}`
+  });
 }
 
 export function extractRawEventFromBody(body: unknown): unknown {
@@ -264,6 +291,8 @@ export async function appendRuntimeEventMutation(session_id: string, raw: unknow
       if (!validated) throw badRequest("Missing/invalid event");
       event = validated;
     }
+
+    ensureResolvedReturnDecisionReplayRejected(workingSummary, event);
 
     const seq = await allocNextSeq(client, session_id);
 
