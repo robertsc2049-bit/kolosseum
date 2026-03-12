@@ -54,6 +54,54 @@ function Get-KolosseumDedupedCheckSummaryRows {
   return $deduped
 }
 
+function Get-KolosseumDedupedRecentRunRows {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [object[]]$Runs
+  )
+
+  $rows = foreach ($run in $Runs) {
+    $status = if ($run.status -eq "completed") {
+      if ([string]::IsNullOrWhiteSpace($run.conclusion)) { "completed" } else { $run.conclusion }
+    } else {
+      $run.status
+    }
+
+    $status = Format-KolosseumTextForConsole $status
+    $workflow = Format-KolosseumTextForConsole $run.workflowName
+    $branch = Format-KolosseumTextForConsole $run.headBranch
+    $event = Format-KolosseumTextForConsole $run.event
+    $title = Format-KolosseumTextForConsole $run.displayTitle
+    $created = Format-KolosseumTextForConsole $run.createdAt
+
+    [pscustomobject]@{
+      status = $status
+      workflow = $workflow
+      branch = $branch
+      event = $event
+      title = $title
+      created = $created
+      dedupe_key = "{0}|{1}|{2}|{3}|{4}|{5}" -f $status, $workflow, $branch, $event, $created, $title
+    }
+  }
+
+  $deduped = foreach ($group in ($rows | Group-Object dedupe_key | Sort-Object Name)) {
+    $first = $group.Group | Select-Object -First 1
+    [pscustomobject]@{
+      status = $first.status
+      workflow = $first.workflow
+      branch = $first.branch
+      event = $first.event
+      title = $first.title
+      created = $first.created
+      count = $group.Count
+    }
+  }
+
+  return $deduped
+}
+
 function Show-KolosseumCheckSummary {
   [CmdletBinding()]
   param(
@@ -105,21 +153,12 @@ function Show-KolosseumRecentRuns {
     return
   }
 
+  $recentRows = Get-KolosseumDedupedRecentRunRows -Runs @($runs)
+
   Write-Host "Recent runs:"
-  foreach ($run in $runs) {
-    $status = if ($run.status -eq "completed") {
-      if ([string]::IsNullOrWhiteSpace($run.conclusion)) { "completed" } else { $run.conclusion }
-    } else {
-      $run.status
-    }
-
-    $workflow = Format-KolosseumTextForConsole $run.workflowName
-    $branch = Format-KolosseumTextForConsole $run.headBranch
-    $event = Format-KolosseumTextForConsole $run.event
-    $title = Format-KolosseumTextForConsole $run.displayTitle
-    $created = Format-KolosseumTextForConsole $run.createdAt
-
-    Write-Host ("- [{0}] {1} | {2} | {3} | {4} | {5}" -f $status, $workflow, $branch, $event, $created, $title)
+  foreach ($row in $recentRows) {
+    $countSuffix = if ($row.count -gt 1) { " x$($row.count)" } else { "" }
+    Write-Host ("- [{0}] {1} | {2} | {3} | {4} | {5}{6}" -f $row.status, $row.workflow, $row.branch, $row.event, $row.created, $row.title, $countSuffix)
   }
 }
 
