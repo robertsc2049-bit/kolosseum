@@ -26,14 +26,29 @@ test("repo-tracked PR helper uses structured deterministic output helpers", () =
   const text = readHelper();
 
   assert.match(text, /function\s+Format-KolosseumTextForConsole\b/);
+  assert.match(text, /function\s+Get-KolosseumDedupedCheckSummaryRows\b/);
   assert.match(text, /function\s+Show-KolosseumCheckSummary\b/);
   assert.match(text, /function\s+Show-KolosseumRecentRuns\b/);
   assert.match(text, /gh\s+pr\s+checks\s+\$PrNumber\s+--json\s+name,state,workflow,bucket,link/);
   assert.match(text, /gh\s+run\s+list\s+--limit\s+\$Limit\s+--json\s+status,conclusion,workflowName,headBranch,event,displayTitle,createdAt/);
+  assert.match(text, /Group-Object\s+dedupe_key/);
+  assert.match(text, /Sort-Object\s+Name/);
+  assert.match(text, /x\$\(\$row\.count\)/);
   assert.match(text, /0x2026/);
   assert.match(text, /0x00D4/);
   assert.match(text, /0x00C7/);
   assert.match(text, /0x00AA/);
+});
+
+test("repo-tracked PR helper dedupes identical workflow name state rows deterministically", () => {
+  const text = readHelper();
+
+  assert.match(text, /dedupe_key\s*=\s*"\{0\}\|\{1\}\|\{2\}"/);
+  assert.match(text, /workflow\s*=\s*\$first\.workflow/);
+  assert.match(text, /name\s*=\s*\$first\.name/);
+  assert.match(text, /state\s*=\s*\$first\.state/);
+  assert.match(text, /count\s*=\s*\$group\.Count/);
+  assert.match(text, /if\s*\(\$row\.count\s+-gt\s+1\)\s*\{\s*" x\$\(\$row\.count\)"\s*\}/);
 });
 
 test("repo-tracked PR helper realigns main only after successful merge call site", () => {
