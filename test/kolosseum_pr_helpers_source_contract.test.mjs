@@ -28,10 +28,12 @@ test("repo-tracked PR helper uses structured deterministic output helpers", () =
   assert.match(text, /function\s+Format-KolosseumTextForConsole\b/);
   assert.match(text, /function\s+Get-KolosseumDedupedCheckSummaryRows\b/);
   assert.match(text, /function\s+Get-KolosseumDedupedRecentRunRows\b/);
+  assert.match(text, /function\s+Wait-KolosseumMainPostMergeRuns\b/);
   assert.match(text, /function\s+Show-KolosseumCheckSummary\b/);
   assert.match(text, /function\s+Show-KolosseumRecentRuns\b/);
   assert.match(text, /gh\s+pr\s+checks\s+\$PrNumber\s+--json\s+name,state,workflow,bucket,link/);
   assert.match(text, /gh\s+run\s+list\s+--limit\s+\$Limit\s+--json\s+status,conclusion,workflowName,headBranch,event,displayTitle,createdAt/);
+  assert.match(text, /gh\s+run\s+list\s+--branch\s+main\s+--event\s+push\s+--json\s+databaseId,status,conclusion,workflowName,headSha,createdAt,displayTitle\s+--limit\s+20/);
   assert.match(text, /0x2026/);
   assert.match(text, /0x00D4/);
   assert.match(text, /0x00C7/);
@@ -59,10 +61,20 @@ test("repo-tracked PR helper dedupes identical recent run rows deterministically
   assert.match(text, /title\s*=\s*\$first\.title/);
   assert.match(text, /created\s*=\s*\$first\.created/);
   assert.match(text, /count\s*=\s*\$group\.Count/);
-  assert.match(text, /Write-Host\s+\("- \[\{0\}\] \{1\} \| \{2\} \| \{3\} \| \{4\} \| \{5\}\{6\}"/);
 });
 
-test("repo-tracked PR helper realigns main only after successful merge call site", () => {
+test("repo-tracked PR helper waits for post-merge main push runs before final recent-runs summary", () => {
+  const text = readHelper();
+
+  assert.match(text, /function\s+Wait-KolosseumMainPostMergeRuns\b/);
+  assert.match(text, /git\s+rev-parse\s+HEAD/);
+  assert.match(text, /gh\s+run\s+list\s+--branch\s+main\s+--event\s+push/);
+  assert.match(text, /Where-Object\s+\{\s*\$_\.headSha\s+-eq\s+\$headSha\s*\}/);
+  assert.match(text, /Start-Sleep\s+-Seconds\s+\$PollSeconds/);
+  assert.match(text, /Post-merge main runs complete for sha/);
+});
+
+test("repo-tracked PR helper realigns main and waits only after successful merge call site", () => {
   const text = readHelper();
 
   assert.match(text, /function\s+Merge-KolosseumPr\b/);
@@ -70,17 +82,21 @@ test("repo-tracked PR helper realigns main only after successful merge call site
   assert.match(text, /Show-KolosseumCheckSummary\s+-PrNumber\s+\$PrNumber/);
   assert.match(text, /gh\s+pr\s+merge\s+\$PrNumber\s+--squash\s+--delete-branch\s+--admin/);
   assert.match(text, /Sync-KolosseumMainAfterMerge/);
+  assert.match(text, /Wait-KolosseumMainPostMergeRuns\s+-TimeoutMinutes\s+15\s+-PollSeconds\s+10/);
   assert.match(text, /Show-KolosseumRecentRuns\s+-Limit\s+10/);
 
   const mergeFnStart = text.search(/function\s+Merge-KolosseumPr\b/);
   const mergeCallIndex = text.indexOf("gh pr merge $PrNumber --squash --delete-branch --admin", mergeFnStart);
   const syncCallIndex = text.indexOf("Sync-KolosseumMainAfterMerge", mergeCallIndex);
-  const runsCallIndex = text.indexOf("Show-KolosseumRecentRuns -Limit 10", syncCallIndex);
+  const waitCallIndex = text.indexOf("Wait-KolosseumMainPostMergeRuns -TimeoutMinutes 15 -PollSeconds 10", syncCallIndex);
+  const runsCallIndex = text.indexOf("Show-KolosseumRecentRuns -Limit 10", waitCallIndex);
 
   assert.notEqual(mergeFnStart, -1, "missing Merge-KolosseumPr function");
   assert.notEqual(mergeCallIndex, -1, "missing merge call");
   assert.notEqual(syncCallIndex, -1, "missing sync call after merge");
-  assert.notEqual(runsCallIndex, -1, "missing recent runs summary after sync");
+  assert.notEqual(waitCallIndex, -1, "missing post-merge wait call after sync");
+  assert.notEqual(runsCallIndex, -1, "missing recent runs summary after post-merge wait");
   assert.ok(syncCallIndex > mergeCallIndex, "main realignment must happen after successful gh pr merge");
-  assert.ok(runsCallIndex > syncCallIndex, "recent runs summary must happen after main realignment");
+  assert.ok(waitCallIndex > syncCallIndex, "post-merge main run wait must happen after main realignment");
+  assert.ok(runsCallIndex > waitCallIndex, "recent runs summary must happen after post-merge main run wait");
 });
