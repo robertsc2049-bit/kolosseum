@@ -118,6 +118,7 @@ mock.module(distHttpErrorsUrl, {
   namedExports: {
     badRequest: (msg, meta) => Object.assign(new Error(msg), { status: 400, meta }),
     notFound: (msg, meta) => Object.assign(new Error(msg), { status: 404, meta }),
+    conflict: (msg, meta) => Object.assign(new Error(msg), { status: 409, meta }),
     upstreamBadGateway: (msg, meta) => Object.assign(new Error(msg), { status: 502, meta }),
     internalError: (msg, meta) => Object.assign(new Error(msg), { status: 500, meta })
   }
