@@ -34,6 +34,9 @@ test("repo-tracked PR helper uses structured deterministic output helpers", () =
   assert.match(text, /gh\s+pr\s+checks\s+\$PrNumber\s+--json\s+name,state,workflow,bucket,link/);
   assert.match(text, /gh\s+run\s+list\s+--limit\s+\$Limit\s+--json\s+status,conclusion,workflowName,headBranch,event,displayTitle,createdAt/);
   assert.match(text, /gh\s+run\s+list\s+--branch\s+main\s+--event\s+push\s+--json\s+databaseId,status,conclusion,workflowName,headSha,createdAt,displayTitle\s+--limit\s+20/);
+  assert.match(text, /\[object\]\$Text/);
+  assert.match(text, /\$Text\s+-is\s+\[System\.Collections\.IEnumerable\]\s+-and\s+-not\s+\(\$Text\s+-is\s+\[string\]\)/);
+  assert.match(text, /\[string\]\$_/);
   assert.match(text, /0x2026/);
   assert.match(text, /0x00D4/);
   assert.match(text, /0x00C7/);

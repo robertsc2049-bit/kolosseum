@@ -2,14 +2,24 @@ function Format-KolosseumTextForConsole {
   [CmdletBinding()]
   param(
     [AllowNull()]
-    [string]$Text
+    [object]$Text
   )
 
   if ($null -eq $Text) {
     return ""
   }
 
-  $clean = $Text
+  $raw = if ($Text -is [string]) {
+    $Text
+  } elseif ($Text -is [System.Collections.IEnumerable] -and -not ($Text -is [string])) {
+    (($Text | ForEach-Object {
+      if ($null -eq $_) { "" } else { [string]$_ }
+    }) -join " ")
+  } else {
+    [string]$Text
+  }
+
+  $clean = $raw
   $clean = $clean -replace "`r?`n", " "
   $clean = $clean -replace "\s+", " "
   $clean = $clean.Trim()
@@ -237,7 +247,7 @@ function Wait-KolosseumMainPostMergeRuns {
       continue
     }
 
-    $dedupedRows = Get-KolosseumDedupedRecentRunRows -Runs $matchingRuns
+    $dedupedRows = Get-KolosseumDedupedRecentRunRows -Runs @($matchingRuns)
     Write-Host "Post-merge main runs:"
     foreach ($row in $dedupedRows) {
       $countSuffix = if ($row.count -gt 1) { " x$($row.count)" } else { "" }
