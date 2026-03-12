@@ -9,17 +9,11 @@ function Format-KolosseumTextForConsole {
     return ""
   }
 
-  $raw = if ($Text -is [string]) {
-    $Text
-  } elseif ($Text -is [System.Collections.IEnumerable] -and -not ($Text -is [string])) {
-    (($Text | ForEach-Object {
-      if ($null -eq $_) { "" } else { [string]$_ }
-    }) -join " ")
-  } else {
-    [string]$Text
+  if ($Text -isnot [string] -and $Text -is [System.Collections.IEnumerable]) {
+    throw "Format-KolosseumTextForConsole expects a scalar value, not a collection."
   }
 
-  $clean = $raw
+  $clean = [string]$Text
   $clean = $clean -replace "`r?`n", " "
   $clean = $clean -replace "\s+", " "
   $clean = $clean.Trim()
@@ -29,6 +23,42 @@ function Format-KolosseumTextForConsole {
   $clean = $clean -replace [regex]::Escape([string][char]0x00C3 + [string][char]0x201D + [string][char]0x00C3 + [string][char]0x2021 + [string][char]0x00C2 + [string][char]0x00AA), "..."
 
   return $clean
+}
+
+function Expand-KolosseumRunRecords {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [object[]]$Runs
+  )
+
+  $expanded = New-Object System.Collections.Generic.List[object]
+
+  foreach ($item in $Runs) {
+    if ($null -eq $item) {
+      continue
+    }
+
+    $propertyNames = @($item.PSObject.Properties.Name)
+
+    if ($propertyNames -contains "status" -and $propertyNames -contains "workflowName") {
+      $expanded.Add($item)
+      continue
+    }
+
+    if ($item -is [System.Collections.IEnumerable] -and $item -isnot [string]) {
+      foreach ($nested in $item) {
+        if ($null -ne $nested) {
+          $expanded.Add($nested)
+        }
+      }
+      continue
+    }
+
+    throw "Expand-KolosseumRunRecords: unsupported run item shape: $($item.GetType().FullName)"
+  }
+
+  return @($expanded)
 }
 
 function Get-KolosseumDedupedCheckSummaryRows {
@@ -71,9 +101,11 @@ function Get-KolosseumDedupedRecentRunRows {
     [object[]]$Runs
   )
 
-  $rows = foreach ($run in $Runs) {
+  $flatRuns = Expand-KolosseumRunRecords -Runs $Runs
+
+  $rows = foreach ($run in $flatRuns) {
     $status = if ($run.status -eq "completed") {
-      if ([string]::IsNullOrWhiteSpace($run.conclusion)) { "completed" } else { $run.conclusion }
+      if ([string]::IsNullOrWhiteSpace([string]$run.conclusion)) { "completed" } else { $run.conclusion }
     } else {
       $run.status
     }
@@ -233,7 +265,7 @@ function Wait-KolosseumMainPostMergeRuns {
       throw "Wait-KolosseumMainPostMergeRuns: timed out waiting for post-merge main runs for sha $headSha"
     }
 
-    $runsJson = gh run list --branch main --event push --json databaseId,status,conclusion,workflowName,headSha,createdAt,displayTitle --limit 20 2>$null
+    $runsJson = gh run list --branch main --event push --json databaseId,status,conclusion,workflowName,headSha,headBranch,event,createdAt,displayTitle --limit 20 2>$null
     if (-not $runsJson) {
       Start-Sleep -Seconds $PollSeconds
       continue
@@ -247,14 +279,16 @@ function Wait-KolosseumMainPostMergeRuns {
       continue
     }
 
-    $dedupedRows = Get-KolosseumDedupedRecentRunRows -Runs @($matchingRuns)
+    $flatMatchingRuns = Expand-KolosseumRunRecords -Runs @($matchingRuns)
+
+    $dedupedRows = Get-KolosseumDedupedRecentRunRows -Runs @($flatMatchingRuns)
     Write-Host "Post-merge main runs:"
     foreach ($row in $dedupedRows) {
       $countSuffix = if ($row.count -gt 1) { " x$($row.count)" } else { "" }
       Write-Host ("- [{0}] {1} | {2} | {3} | {4} | {5}{6}" -f $row.status, $row.workflow, $row.branch, $row.event, $row.created, $row.title, $countSuffix)
     }
 
-    $failed = @($matchingRuns | Where-Object {
+    $failed = @($flatMatchingRuns | Where-Object {
       $_.status -eq "completed" -and $_.conclusion -and $_.conclusion -ne "success"
     })
     if ($failed.Count -gt 0) {
@@ -262,11 +296,11 @@ function Wait-KolosseumMainPostMergeRuns {
       throw "Wait-KolosseumMainPostMergeRuns: post-merge main run failure detected for sha $headSha in workflow(s): $failedNames"
     }
 
-    $allCompleted = @($matchingRuns | Where-Object {
+    $allCompleted = @($flatMatchingRuns | Where-Object {
       $_.status -eq "completed" -and $terminalConclusions -contains $_.conclusion
     })
 
-    if ($allCompleted.Count -eq $matchingRuns.Count) {
+    if ($allCompleted.Count -eq $flatMatchingRuns.Count) {
       Write-Host "Post-merge main runs complete for sha $headSha"
       return
     }
