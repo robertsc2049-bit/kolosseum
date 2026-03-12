@@ -3,7 +3,8 @@
   "commands": [
     "node test/api.return_gate.regression.test.mjs",
     "node test/api.return_skip.regression.test.mjs",
-  "node test/api.return_skip.persisted_replay.regression.test.mjs",
+    "node test/api.return_skip.persisted_replay.regression.test.mjs",
+    "node test/api.runtime_events_state_parity.regression.test.mjs",
     "node test/api.blocks_compile_apply_unknown_maps_500.regression.test.mjs"
   ]
 }
