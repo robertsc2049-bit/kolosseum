@@ -25,6 +25,21 @@ function Format-KolosseumTextForConsole {
   return $clean
 }
 
+function Test-KolosseumRunRecord {
+  [CmdletBinding()]
+  param(
+    [AllowNull()]
+    [object]$Item
+  )
+
+  if ($null -eq $Item) {
+    return $false
+  }
+
+  $propertyNames = @($Item.PSObject.Properties.Name)
+  return (($propertyNames -contains "status") -and ($propertyNames -contains "workflowName"))
+}
+
 function Expand-KolosseumRunRecords {
   [CmdletBinding()]
   param(
@@ -32,33 +47,44 @@ function Expand-KolosseumRunRecords {
     [object[]]$Runs
   )
 
-  $expanded = New-Object System.Collections.Generic.List[object]
+  $expanded = [System.Collections.ArrayList]::new()
 
-  foreach ($item in $Runs) {
-    if ($null -eq $item) {
-      continue
+  function Add-KolosseumRunRecord {
+    param(
+      [AllowNull()]
+      [object]$Node,
+      [Parameter(Mandatory = $true)]
+      [System.Collections.ArrayList]$Sink
+    )
+
+    if ($null -eq $Node) {
+      return
     }
 
-    $propertyNames = @($item.PSObject.Properties.Name)
-
-    if ($propertyNames -contains "status" -and $propertyNames -contains "workflowName") {
-      $expanded.Add($item)
-      continue
+    if (Test-KolosseumRunRecord -Item $Node) {
+      [void]$Sink.Add($Node)
+      return
     }
 
-    if ($item -is [System.Collections.IEnumerable] -and $item -isnot [string]) {
-      foreach ($nested in $item) {
-        if ($null -ne $nested) {
-          $expanded.Add($nested)
-        }
+    if ($Node -is [string]) {
+      throw "Expand-KolosseumRunRecords: unsupported string run item shape."
+    }
+
+    if ($Node -is [System.Collections.IEnumerable]) {
+      foreach ($nested in $Node) {
+        Add-KolosseumRunRecord -Node $nested -Sink $Sink
       }
-      continue
+      return
     }
 
-    throw "Expand-KolosseumRunRecords: unsupported run item shape: $($item.GetType().FullName)"
+    throw "Expand-KolosseumRunRecords: unsupported run item shape: $($Node.GetType().FullName)"
   }
 
-  return @($expanded)
+  foreach ($item in $Runs) {
+    Add-KolosseumRunRecord -Node $item -Sink $expanded
+  }
+
+  return @($expanded.ToArray())
 }
 
 function Get-KolosseumDedupedCheckSummaryRows {
@@ -74,9 +100,9 @@ function Get-KolosseumDedupedCheckSummaryRows {
     $state = (Format-KolosseumTextForConsole $check.state).ToUpperInvariant()
 
     [pscustomobject]@{
-      workflow = $workflow
-      name = $name
-      state = $state
+      workflow   = $workflow
+      name       = $name
+      state      = $state
       dedupe_key = "{0}|{1}|{2}" -f $workflow, $name, $state
     }
   }
@@ -85,9 +111,9 @@ function Get-KolosseumDedupedCheckSummaryRows {
     $first = $group.Group | Select-Object -First 1
     [pscustomobject]@{
       workflow = $first.workflow
-      name = $first.name
-      state = $first.state
-      count = $group.Count
+      name     = $first.name
+      state    = $first.state
+      count    = $group.Count
     }
   }
 
@@ -118,12 +144,12 @@ function Get-KolosseumDedupedRecentRunRows {
     $created = Format-KolosseumTextForConsole $run.createdAt
 
     [pscustomobject]@{
-      status = $status
-      workflow = $workflow
-      branch = $branch
-      event = $event
-      title = $title
-      created = $created
+      status     = $status
+      workflow   = $workflow
+      branch     = $branch
+      event      = $event
+      title      = $title
+      created    = $created
       dedupe_key = "{0}|{1}|{2}|{3}|{4}|{5}" -f $status, $workflow, $branch, $event, $created, $title
     }
   }
@@ -131,13 +157,13 @@ function Get-KolosseumDedupedRecentRunRows {
   $deduped = foreach ($group in ($rows | Group-Object dedupe_key | Sort-Object Name)) {
     $first = $group.Group | Select-Object -First 1
     [pscustomobject]@{
-      status = $first.status
+      status   = $first.status
       workflow = $first.workflow
-      branch = $first.branch
-      event = $first.event
-      title = $first.title
-      created = $first.created
-      count = $group.Count
+      branch   = $first.branch
+      event    = $first.event
+      title    = $first.title
+      created  = $first.created
+      count    = $group.Count
     }
   }
 
@@ -279,9 +305,9 @@ function Wait-KolosseumMainPostMergeRuns {
       continue
     }
 
-    $flatMatchingRuns = Expand-KolosseumRunRecords -Runs @($matchingRuns)
+    $flatMatchingRuns = Expand-KolosseumRunRecords -Runs $matchingRuns
 
-    $dedupedRows = Get-KolosseumDedupedRecentRunRows -Runs @($flatMatchingRuns)
+    $dedupedRows = Get-KolosseumDedupedRecentRunRows -Runs $flatMatchingRuns
     Write-Host "Post-merge main runs:"
     foreach ($row in $dedupedRows) {
       $countSuffix = if ($row.count -gt 1) { " x$($row.count)" } else { "" }
