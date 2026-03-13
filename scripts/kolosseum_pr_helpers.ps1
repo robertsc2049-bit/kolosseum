@@ -362,7 +362,15 @@ function Merge-KolosseumPr {
   gh pr merge $PrNumber --squash --delete-branch --admin | Out-Host
 
   Sync-KolosseumMainAfterMerge
-  Wait-KolosseumMainPostMergeRuns -TimeoutMinutes 15 -PollSeconds 10
+
+  $postMergeSha = (git rev-parse HEAD).Trim()
+  if ([string]::IsNullOrWhiteSpace($postMergeSha)) {
+    throw "Merge-KolosseumPr: failed to resolve post-merge local main HEAD sha."
+  }
+
+  Write-Host ("Resolved post-merge main sha: {0}" -f $postMergeSha)
+
+  Wait-KolosseumMainPostMergeRuns -Sha $postMergeSha -TimeoutMinutes 15 -PollSeconds 10
   Show-KolosseumRecentRuns -Limit 10
 }
 
