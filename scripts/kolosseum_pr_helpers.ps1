@@ -266,6 +266,49 @@ function Sync-KolosseumMainAfterMerge {
   git reset --hard origin/main | Out-Host
 }
 
+function Get-KolosseumLatestMainPushRunsForSha {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Sha,
+
+    [int]$Limit = 50
+  )
+
+  $runs = gh run list --branch main --event push --limit $Limit --json databaseId,headSha,workflowName,status,conclusion,event,displayTitle,createdAt,updatedAt | ConvertFrom-Json
+  if (-not $runs) {
+    return @()
+  }
+
+  $filtered = @(
+    $runs |
+      Where-Object { $_.headSha -eq $Sha -and $_.event -eq "push" } |
+      Sort-Object workflowName, @{ Expression = "databaseId"; Descending = $true }
+  )
+
+  if ($filtered.Count -eq 0) {
+    return @()
+  }
+
+  $latest = @(
+    $filtered |
+      Group-Object workflowName |
+      ForEach-Object { $_.Group | Select-Object -First 1 } |
+      Sort-Object workflowName
+  )
+
+  return $latest
+}
+
+$script:KolosseumRequiredPostMergeMainWorkflows = @(
+  "ci",
+  "engine-status",
+  "green",
+  "Protect main (auto-revert on CI failure)",
+  "runnable-v0",
+  "vertical-slice"
+)
+
 function Wait-KolosseumMainPostMergeRuns {
   [CmdletBinding(DefaultParameterSetName = "Minutes")]
   param(
@@ -288,14 +331,7 @@ function Wait-KolosseumMainPostMergeRuns {
     $effectiveTimeoutSeconds = $TimeoutMinutes * 60
   }
 
-  $requiredWorkflows = @(
-    "ci",
-    "engine-status",
-    "green",
-    "Protect main (auto-revert on CI failure)",
-    "runnable-v0",
-    "vertical-slice"
-  )
+  $requiredWorkflows = $script:KolosseumRequiredPostMergeMainWorkflows
 
   $deadline = (Get-Date).AddSeconds($effectiveTimeoutSeconds)
 
