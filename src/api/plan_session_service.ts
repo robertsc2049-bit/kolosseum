@@ -3,12 +3,13 @@
 import { pool } from "../db/pool.js";
 import crypto from "node:crypto";
 import { resolve } from "node:path";
-import { pathToFileURL } from "node:url";
 import fs from "node:fs";
+
 import {
   upstreamBadGateway,
   internalError
 } from "./http_errors.js";
+import { runPipelineFromDist } from "./engine_runner_service.js";
 
 function sha256Hex(s: string): string {
   return crypto.createHash("sha256").update(s, "utf8").digest("hex");
@@ -20,24 +21,6 @@ async function loadDefaultFixture(): Promise<any> {
     throw internalError("Missing default fixture on server", { fixture });
   }
   return JSON.parse(fs.readFileSync(fixture, "utf8"));
-}
-
-async function runPipelineFromDist(input: any): Promise<any> {
-  const runnerPath = resolve(process.cwd(), "dist", "src", "run_pipeline.js");
-  if (!fs.existsSync(runnerPath)) {
-    throw internalError("Missing dist runner (did you run build:fast?)", { runnerPath });
-  }
-
-  const url = pathToFileURL(runnerPath).href;
-  const mod: any = await import(url);
-
-  const fn = mod?.runPipeline || (mod?.default && (mod.default.runPipeline || mod.default));
-
-  if (typeof fn !== "function") {
-    throw internalError("Missing export runPipeline in dist runner", { runnerPath });
-  }
-
-  return await fn(input);
 }
 
 async function ensureEngineRunsTable(): Promise<void> {
