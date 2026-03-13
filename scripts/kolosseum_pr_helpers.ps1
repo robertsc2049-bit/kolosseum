@@ -367,6 +367,59 @@ function Merge-KolosseumPr {
 }
 
 # region post-merge-main-run-selection-override
+function Convert-KolosseumDisplayText {
+  [CmdletBinding()]
+  param(
+    [AllowNull()]
+    [string]$Text
+  )
+
+  if ($null -eq $Text -or $Text.Length -eq 0) {
+    return $Text
+  }
+
+  $value = $Text
+
+  $value = $value.Replace([string][char]0x2018, "'")
+  $value = $value.Replace([string][char]0x2019, "'")
+  $value = $value.Replace([string][char]0x201C, '"')
+  $value = $value.Replace([string][char]0x201D, '"')
+  $value = $value.Replace([string][char]0x2013, "-")
+  $value = $value.Replace([string][char]0x2014, "-")
+  $value = $value.Replace([string][char]0x2026, "...")
+  $value = $value.Replace([string][char]0x00A0, " ")
+
+  $value = $value -replace 'ÔÇª', '...'
+  $value = $value -replace 'â€¦', '...'
+  $value = $value -replace '�Ǫ', '...'
+  $value = $value -replace 'â€”', '-'
+  $value = $value -replace 'â€“', '-'
+  $value = $value -replace 'â€˜', "'"
+  $value = $value -replace 'â€™', "'"
+  $value = $value -replace 'â€œ', '"'
+  $value = $value -replace 'â€', '"'
+  $value = $value -replace 'Â', ' '
+
+  $sb = New-Object System.Text.StringBuilder
+  foreach ($ch in $value.ToCharArray()) {
+    $code = [int][char]$ch
+
+    if ($code -eq 9 -or $code -eq 10 -or $code -eq 13) {
+      [void]$sb.Append($ch)
+    } elseif ($code -ge 32 -and $code -le 126) {
+      [void]$sb.Append($ch)
+    } else {
+      [void]$sb.Append('?')
+    }
+  }
+
+  $sanitized = $sb.ToString()
+  $sanitized = $sanitized -replace '\?{3,}', '...'
+  $sanitized = $sanitized -replace '[ ]{2,}', ' '
+  $sanitized = $sanitized.Trim()
+
+  return $sanitized
+}
 function Get-KolosseumLatestMainPushRunsForSha {
   [CmdletBinding()]
   param(
@@ -452,7 +505,8 @@ function Wait-KolosseumMainPostMergeRuns {
             "failure"
           }
 
-        Write-Host ("- [{0}] {1} | main | push | {2} | {3}" -f $state, $run.workflowName, $run.createdAt, $run.displayTitle)
+        $displayTitle = Convert-KolosseumDisplayText -Text $run.displayTitle
+        Write-Host ("- [{0}] {1} | main | push | {2} | {3}" -f $state, $run.workflowName, $run.createdAt, $displayTitle)
       }
     }
 
@@ -488,6 +542,10 @@ function Wait-KolosseumMainPostMergeRuns {
     }
 
     if ($missing.Count -eq 0 -and $inProgress.Count -eq 0) {
+      foreach ($run in $latest) {
+        $run.displayTitle = Convert-KolosseumDisplayText -Text $run.displayTitle
+      }
+
       Write-Host ("Wait-KolosseumMainPostMergeRuns: all required post-merge main push workflows succeeded for sha {0}" -f $Sha)
       return $latest
     }
