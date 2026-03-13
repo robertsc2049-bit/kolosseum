@@ -498,7 +498,7 @@ function Wait-KolosseumMainPostMergeRuns {
 
     if ($missing.Count -eq 0 -and $inProgress.Count -eq 0) {
       Write-Host ("Wait-KolosseumMainPostMergeRuns: all required post-merge main push workflows succeeded for sha {0}" -f $Sha)
-      return $latest
+      return
     }
 
     if ((Get-Date) -ge $deadline) {
