@@ -308,6 +308,12 @@ $script:KolosseumRequiredPostMergeMainWorkflows = @(
   "runnable-v0",
   "vertical-slice"
 )
+function Get-KolosseumRequiredPostMergeMainWorkflows {
+  [CmdletBinding()]
+  param()
+
+  return @($script:KolosseumRequiredPostMergeMainWorkflows)
+}
 
 function Wait-KolosseumMainPostMergeRuns {
   [CmdletBinding(DefaultParameterSetName = "Minutes")]
@@ -331,7 +337,7 @@ function Wait-KolosseumMainPostMergeRuns {
     $effectiveTimeoutSeconds = $TimeoutMinutes * 60
   }
 
-  $requiredWorkflows = $script:KolosseumRequiredPostMergeMainWorkflows
+  $requiredWorkflows = @(Get-KolosseumRequiredPostMergeMainWorkflows)
 
   $deadline = (Get-Date).AddSeconds($effectiveTimeoutSeconds)
 
