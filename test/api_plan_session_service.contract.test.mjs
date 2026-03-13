@@ -5,32 +5,25 @@ import path from "node:path";
 
 const repo = process.cwd();
 
-const distHttpErrorsUrl = new URL("../dist/src/api/http_errors.js", import.meta.url).href;
 const distEngineRunnerServiceUrl = new URL("../dist/src/api/engine_runner_service.js", import.meta.url).href;
 const distEngineRunPersistenceServiceUrl = new URL("../dist/src/api/engine_run_persistence_service.js", import.meta.url).href;
 const distDefaultInputServiceUrl = new URL("../dist/src/api/plan_session_default_input_service.js", import.meta.url).href;
+const distOutputValidationServiceUrl = new URL("../dist/src/api/plan_session_output_validation_service.js", import.meta.url).href;
 const distServiceUrl = new URL("../dist/src/api/plan_session_service.js", import.meta.url).href;
 
 let runnerCalls = [];
 let persistenceCalls = [];
 let defaultLoaderCalls = 0;
 let defaultLoaderValue = null;
+let validationCalls = [];
 
 function resetState() {
   runnerCalls = [];
   persistenceCalls = [];
   defaultLoaderCalls = 0;
   defaultLoaderValue = null;
+  validationCalls = [];
 }
-
-mock.module(distHttpErrorsUrl, {
-  namedExports: {
-    badRequest: (msg, meta) => Object.assign(new Error(msg), { status: 400, meta }),
-    notFound: (msg, meta) => Object.assign(new Error(msg), { status: 404, meta }),
-    upstreamBadGateway: (msg, meta) => Object.assign(new Error(msg), { status: 502, meta }),
-    internalError: (msg, meta) => Object.assign(new Error(msg), { status: 500, meta })
-  }
-});
 
 mock.module(distEngineRunnerServiceUrl, {
   namedExports: {
@@ -64,9 +57,17 @@ mock.module(distDefaultInputServiceUrl, {
   }
 });
 
+mock.module(distOutputValidationServiceUrl, {
+  namedExports: {
+    validatePlanSessionOutput: (out) => {
+      validationCalls.push(out);
+    }
+  }
+});
+
 const { planSessionService } = await import(distServiceUrl);
 
-test("planSessionService falls back to default input loader and delegates best-effort engine run persistence", async () => {
+test("planSessionService falls back to default input loader and delegates validation plus best-effort persistence", async () => {
   resetState();
 
   const fixturePath = path.join(repo, "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
@@ -81,6 +82,10 @@ test("planSessionService falls back to default input loader and delegates best-e
   assert.equal(defaultLoaderCalls, 1, "expected default loader to be invoked once");
   assert.equal(runnerCalls.length, 1, "expected runner to be invoked once");
   assert.deepEqual(runnerCalls[0], defaultLoaderValue, "expected empty input to fall back to default loader");
+
+  assert.equal(validationCalls.length, 1, "expected validation helper to be invoked once");
+  assert.equal(validationCalls[0].ok, true);
+  assert.ok(Array.isArray(validationCalls[0].session.exercises));
 
   assert.equal(persistenceCalls.length, 1, "expected persistence helper to be invoked once");
   assert.equal(persistenceCalls[0].kind, "plan_session");
@@ -102,6 +107,9 @@ test("planSessionService passes through explicit input without invoking default 
   assert.equal(defaultLoaderCalls, 0);
   assert.equal(runnerCalls.length, 1);
   assert.deepEqual(runnerCalls[0], input);
+
+  assert.equal(validationCalls.length, 1);
+  assert.equal(validationCalls[0].ok, true);
 
   assert.equal(persistenceCalls.length, 1);
   assert.equal(persistenceCalls[0].kind, "plan_session");
@@ -125,6 +133,14 @@ test("planSessionService source contract: delegates engine execution to runPipel
   assert.match(src, /const\s+out\s*=\s*await\s+runPipelineFromDist\(effectiveInput\)/);
 });
 
+test("planSessionService source contract: delegates output validation to validatePlanSessionOutput", async () => {
+  const srcPath = path.join(repo, "src", "api", "plan_session_service.ts");
+  const src = await fs.promises.readFile(srcPath, "utf8");
+
+  assert.match(src, /import\s+\{\s*validatePlanSessionOutput\s*\}\s+from\s+"\.\/plan_session_output_validation_service\.js"/);
+  assert.match(src, /validatePlanSessionOutput\(out\)/);
+});
+
 test("planSessionService source contract: delegates persistence to persistEngineRunBestEffort", async () => {
   const srcPath = path.join(repo, "src", "api", "plan_session_service.ts");
   const src = await fs.promises.readFile(srcPath, "utf8");
@@ -133,18 +149,19 @@ test("planSessionService source contract: delegates persistence to persistEngine
   assert.match(src, /await\s+persistEngineRunBestEffort\("plan_session",\s*effectiveInput,\s*out\)/);
 });
 
-test("planSessionService source contract: rejects ok !== true with upstreamBadGateway 502", async () => {
-  const srcPath = path.join(repo, "src", "api", "plan_session_service.ts");
+test("planSessionOutputValidationService source contract: rejects ok !== true with upstreamBadGateway 502", async () => {
+  const srcPath = path.join(repo, "src", "api", "plan_session_output_validation_service.ts");
   const src = await fs.promises.readFile(srcPath, "utf8");
 
+  assert.match(src, /import\s+\{\s*upstreamBadGateway\s*\}\s+from\s+"\.\/http_errors\.js"/);
   assert.match(
     src,
     /if\s*\(!out\s*\|\|\s*out\.ok\s*!==\s*true\)\s*\{\s*throw\s+upstreamBadGateway\("Engine output invalid \(ok !== true\)"/s
   );
 });
 
-test("planSessionService source contract: rejects missing session.exercises with upstreamBadGateway 502", async () => {
-  const srcPath = path.join(repo, "src", "api", "plan_session_service.ts");
+test("planSessionOutputValidationService source contract: rejects missing session.exercises with upstreamBadGateway 502", async () => {
+  const srcPath = path.join(repo, "src", "api", "plan_session_output_validation_service.ts");
   const src = await fs.promises.readFile(srcPath, "utf8");
 
   assert.match(
