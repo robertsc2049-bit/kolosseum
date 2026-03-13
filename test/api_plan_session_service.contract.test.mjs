@@ -8,16 +8,19 @@ const repo = process.cwd();
 const distHttpErrorsUrl = new URL("../dist/src/api/http_errors.js", import.meta.url).href;
 const distEngineRunnerServiceUrl = new URL("../dist/src/api/engine_runner_service.js", import.meta.url).href;
 const distEngineRunPersistenceServiceUrl = new URL("../dist/src/api/engine_run_persistence_service.js", import.meta.url).href;
+const distDefaultInputServiceUrl = new URL("../dist/src/api/plan_session_default_input_service.js", import.meta.url).href;
 const distServiceUrl = new URL("../dist/src/api/plan_session_service.js", import.meta.url).href;
 
 let runnerCalls = [];
 let persistenceCalls = [];
-let failPersistence = false;
+let defaultLoaderCalls = 0;
+let defaultLoaderValue = null;
 
 function resetState() {
   runnerCalls = [];
   persistenceCalls = [];
-  failPersistence = false;
+  defaultLoaderCalls = 0;
+  defaultLoaderValue = null;
 }
 
 mock.module(distHttpErrorsUrl, {
@@ -47,22 +50,27 @@ mock.module(distEngineRunnerServiceUrl, {
 mock.module(distEngineRunPersistenceServiceUrl, {
   namedExports: {
     persistEngineRunBestEffort: async (kind, input, output) => {
-      persistenceCalls.push({
-        kind,
-        input,
-        output,
-        simulated_failure: failPersistence
-      });
+      persistenceCalls.push({ kind, input, output });
+    }
+  }
+});
 
-      return;
+mock.module(distDefaultInputServiceUrl, {
+  namedExports: {
+    loadPlanSessionDefaultInput: async () => {
+      defaultLoaderCalls += 1;
+      return defaultLoaderValue;
     }
   }
 });
 
 const { planSessionService } = await import(distServiceUrl);
 
-test("planSessionService falls back to vanilla_minimal fixture and delegates best-effort engine run persistence", async () => {
+test("planSessionService falls back to default input loader and delegates best-effort engine run persistence", async () => {
   resetState();
+
+  const fixturePath = path.join(repo, "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
+  defaultLoaderValue = JSON.parse(await fs.promises.readFile(fixturePath, "utf8"));
 
   const out = await planSessionService({});
 
@@ -70,20 +78,17 @@ test("planSessionService falls back to vanilla_minimal fixture and delegates bes
   assert.ok(Array.isArray(out.session.exercises));
   assert.equal(out.session.exercises.length, 1);
 
-  const fixturePath = path.join(repo, "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
-  const expectedFixture = JSON.parse(await fs.promises.readFile(fixturePath, "utf8"));
-
+  assert.equal(defaultLoaderCalls, 1, "expected default loader to be invoked once");
   assert.equal(runnerCalls.length, 1, "expected runner to be invoked once");
-  assert.deepEqual(runnerCalls[0], expectedFixture, "expected empty input to fall back to vanilla_minimal fixture");
+  assert.deepEqual(runnerCalls[0], defaultLoaderValue, "expected empty input to fall back to default loader");
 
   assert.equal(persistenceCalls.length, 1, "expected persistence helper to be invoked once");
   assert.equal(persistenceCalls[0].kind, "plan_session");
-  assert.deepEqual(persistenceCalls[0].input, expectedFixture);
+  assert.deepEqual(persistenceCalls[0].input, defaultLoaderValue);
   assert.equal(persistenceCalls[0].output.ok, true);
-  assert.equal(persistenceCalls[0].simulated_failure, false);
 });
 
-test("planSessionService passes through explicit input to the dist runner and persistence helper", async () => {
+test("planSessionService passes through explicit input without invoking default loader", async () => {
   resetState();
 
   const input = {
@@ -94,6 +99,7 @@ test("planSessionService passes through explicit input to the dist runner and pe
   const out = await planSessionService(input);
 
   assert.equal(out.ok, true);
+  assert.equal(defaultLoaderCalls, 0);
   assert.equal(runnerCalls.length, 1);
   assert.deepEqual(runnerCalls[0], input);
 
@@ -101,24 +107,14 @@ test("planSessionService passes through explicit input to the dist runner and pe
   assert.equal(persistenceCalls[0].kind, "plan_session");
   assert.deepEqual(persistenceCalls[0].input, input);
   assert.equal(persistenceCalls[0].output.ok, true);
-  assert.equal(persistenceCalls[0].simulated_failure, false);
 });
 
-test("planSessionService preserves response success contract when persistence helper is in failure mode", async () => {
-  resetState();
-  failPersistence = true;
+test("planSessionService source contract: delegates default input loading to loadPlanSessionDefaultInput", async () => {
+  const srcPath = path.join(repo, "src", "api", "plan_session_service.ts");
+  const src = await fs.promises.readFile(srcPath, "utf8");
 
-  const out = await planSessionService({ explicit: true });
-
-  assert.equal(out.ok, true);
-  assert.equal(out.trace.source, "runner-ok");
-  assert.equal(runnerCalls.length, 1);
-  assert.deepEqual(runnerCalls[0], { explicit: true });
-
-  assert.equal(persistenceCalls.length, 1);
-  assert.equal(persistenceCalls[0].kind, "plan_session");
-  assert.deepEqual(persistenceCalls[0].input, { explicit: true });
-  assert.equal(persistenceCalls[0].simulated_failure, true);
+  assert.match(src, /import\s+\{\s*loadPlanSessionDefaultInput\s*\}\s+from\s+"\.\/plan_session_default_input_service\.js"/);
+  assert.match(src, /:\s*await\s+loadPlanSessionDefaultInput\(\)/);
 });
 
 test("planSessionService source contract: delegates engine execution to runPipelineFromDist", async () => {
