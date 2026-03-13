@@ -5,36 +5,20 @@ import path from "node:path";
 
 const repo = process.cwd();
 
-const distPoolUrl = new URL("../dist/src/db/pool.js", import.meta.url).href;
 const distHttpErrorsUrl = new URL("../dist/src/api/http_errors.js", import.meta.url).href;
 const distEngineRunnerServiceUrl = new URL("../dist/src/api/engine_runner_service.js", import.meta.url).href;
+const distEngineRunPersistenceServiceUrl = new URL("../dist/src/api/engine_run_persistence_service.js", import.meta.url).href;
 const distServiceUrl = new URL("../dist/src/api/plan_session_service.js", import.meta.url).href;
 
-let poolQueries = [];
-let failPersistence = false;
 let runnerCalls = [];
+let persistenceCalls = [];
+let failPersistence = false;
 
 function resetState() {
-  poolQueries = [];
-  failPersistence = false;
   runnerCalls = [];
+  persistenceCalls = [];
+  failPersistence = false;
 }
-
-mock.module(distPoolUrl, {
-  namedExports: {
-    pool: {
-      query: async (sql, params) => {
-        poolQueries.push({ sql: String(sql), params });
-
-        if (failPersistence) {
-          throw new Error("persistence unavailable");
-        }
-
-        return { rowCount: 1, rows: [] };
-      }
-    }
-  }
-});
 
 mock.module(distHttpErrorsUrl, {
   namedExports: {
@@ -60,9 +44,24 @@ mock.module(distEngineRunnerServiceUrl, {
   }
 });
 
+mock.module(distEngineRunPersistenceServiceUrl, {
+  namedExports: {
+    persistEngineRunBestEffort: async (kind, input, output) => {
+      persistenceCalls.push({
+        kind,
+        input,
+        output,
+        simulated_failure: failPersistence
+      });
+
+      return;
+    }
+  }
+});
+
 const { planSessionService } = await import(distServiceUrl);
 
-test("planSessionService falls back to vanilla_minimal fixture for empty input and persists best-effort engine run", async () => {
+test("planSessionService falls back to vanilla_minimal fixture and delegates best-effort engine run persistence", async () => {
   resetState();
 
   const out = await planSessionService({});
@@ -77,15 +76,14 @@ test("planSessionService falls back to vanilla_minimal fixture for empty input a
   assert.equal(runnerCalls.length, 1, "expected runner to be invoked once");
   assert.deepEqual(runnerCalls[0], expectedFixture, "expected empty input to fall back to vanilla_minimal fixture");
 
-  assert.ok(poolQueries.length >= 1, "expected best-effort persistence queries");
-  assert.match(poolQueries[0].sql, /CREATE TABLE IF NOT EXISTS engine_runs/i);
-  assert.ok(
-    poolQueries.some((x) => /INSERT INTO engine_runs/i.test(x.sql)),
-    "expected engine_runs insert attempt"
-  );
+  assert.equal(persistenceCalls.length, 1, "expected persistence helper to be invoked once");
+  assert.equal(persistenceCalls[0].kind, "plan_session");
+  assert.deepEqual(persistenceCalls[0].input, expectedFixture);
+  assert.equal(persistenceCalls[0].output.ok, true);
+  assert.equal(persistenceCalls[0].simulated_failure, false);
 });
 
-test("planSessionService passes through explicit input to the dist runner", async () => {
+test("planSessionService passes through explicit input to the dist runner and persistence helper", async () => {
   resetState();
 
   const input = {
@@ -98,9 +96,15 @@ test("planSessionService passes through explicit input to the dist runner", asyn
   assert.equal(out.ok, true);
   assert.equal(runnerCalls.length, 1);
   assert.deepEqual(runnerCalls[0], input);
+
+  assert.equal(persistenceCalls.length, 1);
+  assert.equal(persistenceCalls[0].kind, "plan_session");
+  assert.deepEqual(persistenceCalls[0].input, input);
+  assert.equal(persistenceCalls[0].output.ok, true);
+  assert.equal(persistenceCalls[0].simulated_failure, false);
 });
 
-test("planSessionService does not fail the request when engine_runs persistence fails", async () => {
+test("planSessionService preserves response success contract when persistence helper is in failure mode", async () => {
   resetState();
   failPersistence = true;
 
@@ -110,7 +114,11 @@ test("planSessionService does not fail the request when engine_runs persistence 
   assert.equal(out.trace.source, "runner-ok");
   assert.equal(runnerCalls.length, 1);
   assert.deepEqual(runnerCalls[0], { explicit: true });
-  assert.ok(poolQueries.length >= 1, "expected persistence attempt before best-effort swallow");
+
+  assert.equal(persistenceCalls.length, 1);
+  assert.equal(persistenceCalls[0].kind, "plan_session");
+  assert.deepEqual(persistenceCalls[0].input, { explicit: true });
+  assert.equal(persistenceCalls[0].simulated_failure, true);
 });
 
 test("planSessionService source contract: delegates engine execution to runPipelineFromDist", async () => {
@@ -119,6 +127,14 @@ test("planSessionService source contract: delegates engine execution to runPipel
 
   assert.match(src, /import\s+\{\s*runPipelineFromDist\s*\}\s+from\s+"\.\/engine_runner_service\.js"/);
   assert.match(src, /const\s+out\s*=\s*await\s+runPipelineFromDist\(effectiveInput\)/);
+});
+
+test("planSessionService source contract: delegates persistence to persistEngineRunBestEffort", async () => {
+  const srcPath = path.join(repo, "src", "api", "plan_session_service.ts");
+  const src = await fs.promises.readFile(srcPath, "utf8");
+
+  assert.match(src, /import\s+\{\s*persistEngineRunBestEffort\s*\}\s+from\s+"\.\/engine_run_persistence_service\.js"/);
+  assert.match(src, /await\s+persistEngineRunBestEffort\("plan_session",\s*effectiveInput,\s*out\)/);
 });
 
 test("planSessionService source contract: rejects ok !== true with upstreamBadGateway 502", async () => {
