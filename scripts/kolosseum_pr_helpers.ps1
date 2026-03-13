@@ -460,7 +460,8 @@ function Wait-KolosseumMainPostMergeRuns {
             "failure"
           }
 
-        Write-Host ("- [{0}] {1} | main | push | {2} | {3}" -f $state, $run.workflowName, $run.createdAt, $run.displayTitle)
+        $displayTitle = Format-KolosseumTextForConsole $run.displayTitle
+        Write-Host ("- [{0}] {1} | main | push | {2} | {3}" -f $state, $run.workflowName, $run.createdAt, $displayTitle)
       }
     }
 
