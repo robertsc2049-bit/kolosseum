@@ -7,6 +7,7 @@ const repo = process.cwd();
 
 const distPoolUrl = new URL("../dist/src/db/pool.js", import.meta.url).href;
 const distHttpErrorsUrl = new URL("../dist/src/api/http_errors.js", import.meta.url).href;
+const distEngineRunnerServiceUrl = new URL("../dist/src/api/engine_runner_service.js", import.meta.url).href;
 const distServiceUrl = new URL("../dist/src/api/plan_session_service.js", import.meta.url).href;
 
 let poolQueries = [];
@@ -17,66 +18,6 @@ function resetState() {
   poolQueries = [];
   failPersistence = false;
   runnerCalls = [];
-}
-
-function runnerPath() {
-  return path.join(repo, "dist", "src", "run_pipeline.js");
-}
-
-function backupPath() {
-  return path.join(repo, "dist", "src", "run_pipeline.js.__plan_session_service_test_backup__");
-}
-
-async function writeOkRunnerModule() {
-  const fullPath = runnerPath();
-  const dir = path.dirname(fullPath);
-  await fs.promises.mkdir(dir, { recursive: true });
-
-  const body = `
-globalThis.__planSessionRunnerCalls = globalThis.__planSessionRunnerCalls ?? [];
-export async function runPipeline(input) {
-  globalThis.__planSessionRunnerCalls.push(input);
-  return {
-    ok: true,
-    session: {
-      exercises: [{ exercise_id: "ex1", source: "program" }]
-    },
-    trace: { source: "runner-ok" }
-  };
-}
-`;
-
-  await fs.promises.writeFile(fullPath, body, "utf8");
-}
-
-async function withOkRunner(fn) {
-  const runPath = runnerPath();
-  const bakPath = backupPath();
-  const hadOriginal = fs.existsSync(runPath);
-
-  if (fs.existsSync(bakPath)) {
-    await fs.promises.unlink(bakPath);
-  }
-
-  if (hadOriginal) {
-    await fs.promises.copyFile(runPath, bakPath);
-  }
-
-  try {
-    globalThis.__planSessionRunnerCalls = [];
-    await writeOkRunnerModule();
-    await fn();
-    runnerCalls = [...globalThis.__planSessionRunnerCalls];
-  } finally {
-    delete globalThis.__planSessionRunnerCalls;
-
-    if (fs.existsSync(bakPath)) {
-      await fs.promises.copyFile(bakPath, runPath);
-      await fs.promises.unlink(bakPath);
-    } else if (fs.existsSync(runPath) && !hadOriginal) {
-      await fs.promises.unlink(runPath);
-    }
-  }
 }
 
 mock.module(distPoolUrl, {
@@ -104,18 +45,31 @@ mock.module(distHttpErrorsUrl, {
   }
 });
 
+mock.module(distEngineRunnerServiceUrl, {
+  namedExports: {
+    runPipelineFromDist: async (input) => {
+      runnerCalls.push(input);
+      return {
+        ok: true,
+        session: {
+          exercises: [{ exercise_id: "ex1", source: "program" }]
+        },
+        trace: { source: "runner-ok" }
+      };
+    }
+  }
+});
+
 const { planSessionService } = await import(distServiceUrl);
 
 test("planSessionService falls back to vanilla_minimal fixture for empty input and persists best-effort engine run", async () => {
   resetState();
 
-  await withOkRunner(async () => {
-    const out = await planSessionService({});
+  const out = await planSessionService({});
 
-    assert.equal(out.ok, true);
-    assert.ok(Array.isArray(out.session.exercises));
-    assert.equal(out.session.exercises.length, 1);
-  });
+  assert.equal(out.ok, true);
+  assert.ok(Array.isArray(out.session.exercises));
+  assert.equal(out.session.exercises.length, 1);
 
   const fixturePath = path.join(repo, "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
   const expectedFixture = JSON.parse(await fs.promises.readFile(fixturePath, "utf8"));
@@ -139,11 +93,9 @@ test("planSessionService passes through explicit input to the dist runner", asyn
     constraints: { available_equipment: ["barbell"] }
   };
 
-  await withOkRunner(async () => {
-    const out = await planSessionService(input);
-    assert.equal(out.ok, true);
-  });
+  const out = await planSessionService(input);
 
+  assert.equal(out.ok, true);
   assert.equal(runnerCalls.length, 1);
   assert.deepEqual(runnerCalls[0], input);
 });
@@ -152,15 +104,21 @@ test("planSessionService does not fail the request when engine_runs persistence 
   resetState();
   failPersistence = true;
 
-  await withOkRunner(async () => {
-    const out = await planSessionService({ explicit: true });
-    assert.equal(out.ok, true);
-    assert.equal(out.trace.source, "runner-ok");
-  });
+  const out = await planSessionService({ explicit: true });
 
+  assert.equal(out.ok, true);
+  assert.equal(out.trace.source, "runner-ok");
   assert.equal(runnerCalls.length, 1);
   assert.deepEqual(runnerCalls[0], { explicit: true });
   assert.ok(poolQueries.length >= 1, "expected persistence attempt before best-effort swallow");
+});
+
+test("planSessionService source contract: delegates engine execution to runPipelineFromDist", async () => {
+  const srcPath = path.join(repo, "src", "api", "plan_session_service.ts");
+  const src = await fs.promises.readFile(srcPath, "utf8");
+
+  assert.match(src, /import\s+\{\s*runPipelineFromDist\s*\}\s+from\s+"\.\/engine_runner_service\.js"/);
+  assert.match(src, /const\s+out\s*=\s*await\s+runPipelineFromDist\(effectiveInput\)/);
 });
 
 test("planSessionService source contract: rejects ok !== true with upstreamBadGateway 502", async () => {
