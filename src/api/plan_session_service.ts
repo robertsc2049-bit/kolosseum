@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/api/plan_session_service.ts
-import { pool } from "../db/pool.js";
-import crypto from "node:crypto";
 import { resolve } from "node:path";
 import fs from "node:fs";
 
@@ -10,10 +8,7 @@ import {
   internalError
 } from "./http_errors.js";
 import { runPipelineFromDist } from "./engine_runner_service.js";
-
-function sha256Hex(s: string): string {
-  return crypto.createHash("sha256").update(s, "utf8").digest("hex");
-}
+import { persistEngineRunBestEffort } from "./engine_run_persistence_service.js";
 
 async function loadDefaultFixture(): Promise<any> {
   const fixture = resolve(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
@@ -23,37 +18,11 @@ async function loadDefaultFixture(): Promise<any> {
   return JSON.parse(fs.readFileSync(fixture, "utf8"));
 }
 
-async function ensureEngineRunsTable(): Promise<void> {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS engine_runs (
-      id          text PRIMARY KEY,
-      kind        text NOT NULL,
-      input_hash  text NOT NULL,
-      input       jsonb NOT NULL,
-      output      jsonb NOT NULL,
-      created_at  timestamptz NOT NULL DEFAULT now()
-    );
-  `);
-
-  await pool.query(`
-    CREATE INDEX IF NOT EXISTS engine_runs_kind_created_at_idx
-    ON engine_runs(kind, created_at DESC);
-  `);
-
-  await pool.query(`
-    CREATE INDEX IF NOT EXISTS engine_runs_input_hash_idx
-    ON engine_runs(input_hash);
-  `);
-}
-
 export async function planSessionService(input: any) {
   const effectiveInput =
     input && typeof input === "object" && Object.keys(input).length > 0
       ? input
       : await loadDefaultFixture();
-
-  const inputStr = JSON.stringify(effectiveInput);
-  const inputHash = sha256Hex(inputStr);
 
   const out = await runPipelineFromDist(effectiveInput);
 
@@ -65,18 +34,7 @@ export async function planSessionService(input: any) {
     throw upstreamBadGateway("Engine output invalid (missing session.exercises)", { output: out ?? null });
   }
 
-  try {
-    await ensureEngineRunsTable();
-    const id = `er_${crypto.randomUUID().replace(/-/g, "")}`;
-
-    await pool.query(
-      `INSERT INTO engine_runs (id, kind, input_hash, input, output)
-       VALUES ($1, $2, $3, $4::jsonb, $5::jsonb)`,
-      [id, "plan_session", inputHash, JSON.stringify(effectiveInput), JSON.stringify(out)]
-    );
-  } catch {
-    // best-effort
-  }
+  await persistEngineRunBestEffort("plan_session", effectiveInput, out);
 
   return out;
 }
