@@ -7,21 +7,21 @@ const repo = process.cwd();
 
 const distEngineRunnerServiceUrl = new URL("../dist/src/api/engine_runner_service.js", import.meta.url).href;
 const distEngineRunPersistenceServiceUrl = new URL("../dist/src/api/engine_run_persistence_service.js", import.meta.url).href;
-const distDefaultInputServiceUrl = new URL("../dist/src/api/plan_session_default_input_service.js", import.meta.url).href;
+const distRequestNormalizationServiceUrl = new URL("../dist/src/api/plan_session_request_normalization_service.js", import.meta.url).href;
 const distOutputValidationServiceUrl = new URL("../dist/src/api/plan_session_output_validation_service.js", import.meta.url).href;
 const distServiceUrl = new URL("../dist/src/api/plan_session_service.js", import.meta.url).href;
 
 let runnerCalls = [];
 let persistenceCalls = [];
-let defaultLoaderCalls = 0;
-let defaultLoaderValue = null;
+let normalizationCalls = [];
+let normalizedInputValue = null;
 let validationCalls = [];
 
 function resetState() {
   runnerCalls = [];
   persistenceCalls = [];
-  defaultLoaderCalls = 0;
-  defaultLoaderValue = null;
+  normalizationCalls = [];
+  normalizedInputValue = null;
   validationCalls = [];
 }
 
@@ -48,11 +48,11 @@ mock.module(distEngineRunPersistenceServiceUrl, {
   }
 });
 
-mock.module(distDefaultInputServiceUrl, {
+mock.module(distRequestNormalizationServiceUrl, {
   namedExports: {
-    loadPlanSessionDefaultInput: async () => {
-      defaultLoaderCalls += 1;
-      return defaultLoaderValue;
+    normalizePlanSessionRequest: async (input) => {
+      normalizationCalls.push(input);
+      return normalizedInputValue;
     }
   }
 });
@@ -67,11 +67,11 @@ mock.module(distOutputValidationServiceUrl, {
 
 const { planSessionService } = await import(distServiceUrl);
 
-test("planSessionService falls back to default input loader and delegates validation plus best-effort persistence", async () => {
+test("planSessionService delegates request normalization, output validation, and best-effort persistence", async () => {
   resetState();
 
   const fixturePath = path.join(repo, "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
-  defaultLoaderValue = JSON.parse(await fs.promises.readFile(fixturePath, "utf8"));
+  normalizedInputValue = JSON.parse(await fs.promises.readFile(fixturePath, "utf8"));
 
   const out = await planSessionService({});
 
@@ -79,9 +79,11 @@ test("planSessionService falls back to default input loader and delegates valida
   assert.ok(Array.isArray(out.session.exercises));
   assert.equal(out.session.exercises.length, 1);
 
-  assert.equal(defaultLoaderCalls, 1, "expected default loader to be invoked once");
+  assert.equal(normalizationCalls.length, 1, "expected request normalization helper to be invoked once");
+  assert.deepEqual(normalizationCalls[0], {}, "expected raw input to be passed to normalization helper");
+
   assert.equal(runnerCalls.length, 1, "expected runner to be invoked once");
-  assert.deepEqual(runnerCalls[0], defaultLoaderValue, "expected empty input to fall back to default loader");
+  assert.deepEqual(runnerCalls[0], normalizedInputValue, "expected runner to receive normalized input");
 
   assert.equal(validationCalls.length, 1, "expected validation helper to be invoked once");
   assert.equal(validationCalls[0].ok, true);
@@ -89,22 +91,26 @@ test("planSessionService falls back to default input loader and delegates valida
 
   assert.equal(persistenceCalls.length, 1, "expected persistence helper to be invoked once");
   assert.equal(persistenceCalls[0].kind, "plan_session");
-  assert.deepEqual(persistenceCalls[0].input, defaultLoaderValue);
+  assert.deepEqual(persistenceCalls[0].input, normalizedInputValue);
   assert.equal(persistenceCalls[0].output.ok, true);
 });
 
-test("planSessionService passes through explicit input without invoking default loader", async () => {
+test("planSessionService passes explicit input to request normalization helper", async () => {
   resetState();
 
   const input = {
     user: { activity: "general_strength" },
     constraints: { available_equipment: ["barbell"] }
   };
+  normalizedInputValue = input;
 
   const out = await planSessionService(input);
 
   assert.equal(out.ok, true);
-  assert.equal(defaultLoaderCalls, 0);
+
+  assert.equal(normalizationCalls.length, 1);
+  assert.deepEqual(normalizationCalls[0], input);
+
   assert.equal(runnerCalls.length, 1);
   assert.deepEqual(runnerCalls[0], input);
 
@@ -117,12 +123,12 @@ test("planSessionService passes through explicit input without invoking default 
   assert.equal(persistenceCalls[0].output.ok, true);
 });
 
-test("planSessionService source contract: delegates default input loading to loadPlanSessionDefaultInput", async () => {
+test("planSessionService source contract: delegates request normalization to normalizePlanSessionRequest", async () => {
   const srcPath = path.join(repo, "src", "api", "plan_session_service.ts");
   const src = await fs.promises.readFile(srcPath, "utf8");
 
-  assert.match(src, /import\s+\{\s*loadPlanSessionDefaultInput\s*\}\s+from\s+"\.\/plan_session_default_input_service\.js"/);
-  assert.match(src, /:\s*await\s+loadPlanSessionDefaultInput\(\)/);
+  assert.match(src, /import\s+\{\s*normalizePlanSessionRequest\s*\}\s+from\s+"\.\/plan_session_request_normalization_service\.js"/);
+  assert.match(src, /const\s+effectiveInput\s*=\s*await\s+normalizePlanSessionRequest\(input\)/);
 });
 
 test("planSessionService source contract: delegates engine execution to runPipelineFromDist", async () => {
@@ -149,23 +155,20 @@ test("planSessionService source contract: delegates persistence to persistEngine
   assert.match(src, /await\s+persistEngineRunBestEffort\("plan_session",\s*effectiveInput,\s*out\)/);
 });
 
-test("planSessionOutputValidationService source contract: rejects ok !== true with upstreamBadGateway 502", async () => {
-  const srcPath = path.join(repo, "src", "api", "plan_session_output_validation_service.ts");
+test("planSessionRequestNormalizationService source contract: explicit object input passes through unchanged", async () => {
+  const srcPath = path.join(repo, "src", "api", "plan_session_request_normalization_service.ts");
   const src = await fs.promises.readFile(srcPath, "utf8");
 
-  assert.match(src, /import\s+\{\s*upstreamBadGateway\s*\}\s+from\s+"\.\/http_errors\.js"/);
+  assert.match(src, /import\s+\{\s*loadPlanSessionDefaultInput\s*\}\s+from\s+"\.\/plan_session_default_input_service\.js"/);
   assert.match(
     src,
-    /if\s*\(!out\s*\|\|\s*out\.ok\s*!==\s*true\)\s*\{\s*throw\s+upstreamBadGateway\("Engine output invalid \(ok !== true\)"/s
+    /return\s+input\s+&&\s+typeof\s+input\s*===\s*"object"\s+&&\s+Object\.keys\(input\)\.length\s*>\s*0\s*\?\s*input\s*:\s*await\s+loadPlanSessionDefaultInput\(\)/s
   );
 });
 
-test("planSessionOutputValidationService source contract: rejects missing session.exercises with upstreamBadGateway 502", async () => {
-  const srcPath = path.join(repo, "src", "api", "plan_session_output_validation_service.ts");
+test("planSessionRequestNormalizationService source contract: empty input falls back to loadPlanSessionDefaultInput", async () => {
+  const srcPath = path.join(repo, "src", "api", "plan_session_request_normalization_service.ts");
   const src = await fs.promises.readFile(srcPath, "utf8");
 
-  assert.match(
-    src,
-    /if\s*\(!out\.session\s*\|\|\s*!Array\.isArray\(out\.session\.exercises\)\s*\|\|\s*out\.session\.exercises\.length\s*<\s*1\)\s*\{\s*throw\s+upstreamBadGateway\("Engine output invalid \(missing session\.exercises\)"/s
-  );
+  assert.match(src, /await\s+loadPlanSessionDefaultInput\(\)/);
 });
