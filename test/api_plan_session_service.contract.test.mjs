@@ -21,6 +21,7 @@ let normalizationError = null;
 let validationError = null;
 let validationShouldEnforceContract = false;
 let runnerReturnValue = null;
+let failPersistence = false;
 
 function makeRunnerSuccessOutput() {
   return {
@@ -43,6 +44,7 @@ function resetState() {
   validationError = null;
   validationShouldEnforceContract = false;
   runnerReturnValue = makeRunnerSuccessOutput();
+  failPersistence = false;
 }
 
 function isInvalidPlanSessionOutput(out) {
@@ -66,7 +68,13 @@ mock.module(distEngineRunPersistenceServiceUrl, {
   namedExports: {
     persistEngineRunBestEffort: async (kind, input, output) => {
       callLog.push("persist");
-      persistenceCalls.push({ kind, input, output });
+      persistenceCalls.push({
+        kind,
+        input,
+        output,
+        simulated_failure: failPersistence
+      });
+      return;
     }
   }
 });
@@ -129,6 +137,7 @@ test("planSessionService delegates request normalization, output validation, and
   assert.equal(persistenceCalls[0].kind, "plan_session");
   assert.deepEqual(persistenceCalls[0].input, normalizedInputValue);
   assert.equal(persistenceCalls[0].output.ok, true);
+  assert.equal(persistenceCalls[0].simulated_failure, false);
 
   assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
 });
@@ -159,6 +168,7 @@ test("planSessionService passes explicit input to request normalization helper",
   assert.equal(persistenceCalls[0].kind, "plan_session");
   assert.deepEqual(persistenceCalls[0].input, input);
   assert.equal(persistenceCalls[0].output.ok, true);
+  assert.equal(persistenceCalls[0].simulated_failure, false);
 
   assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
 });
@@ -187,6 +197,41 @@ test("planSessionService preserves orchestration order and returns the validated
   assert.deepEqual(validationCalls[0], runnerReturnValue);
   assert.deepEqual(persistenceCalls[0].output, runnerReturnValue);
   assert.deepEqual(out, runnerReturnValue);
+});
+
+test("planSessionService persistence failure mode remains non-fatal and preserves the validated response contract", async () => {
+  resetState();
+
+  normalizedInputValue = {
+    user: { activity: "general_strength" },
+    constraints: { available_equipment: ["barbell", "dumbbell"] }
+  };
+  runnerReturnValue = {
+    ok: true,
+    session: {
+      exercises: [
+        { exercise_id: "deadlift", source: "program" }
+      ]
+    },
+    trace: { source: "runner-persistence-failure-mode" }
+  };
+  failPersistence = true;
+
+  const out = await planSessionService({ persistence_failure_mode: true });
+
+  assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
+  assert.equal(normalizationCalls.length, 1);
+  assert.equal(runnerCalls.length, 1);
+  assert.equal(validationCalls.length, 1);
+  assert.equal(persistenceCalls.length, 1);
+
+  assert.equal(persistenceCalls[0].simulated_failure, true);
+  assert.deepEqual(persistenceCalls[0].input, normalizedInputValue);
+  assert.deepEqual(persistenceCalls[0].output, runnerReturnValue);
+
+  assert.deepEqual(out, runnerReturnValue);
+  assert.equal(out.ok, true);
+  assert.equal(out.trace.source, "runner-persistence-failure-mode");
 });
 
 test("planSessionService failure boundary: normalization failure blocks runner, validation, and persistence", async () => {
