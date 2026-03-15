@@ -1,5 +1,104 @@
-import test from "node:test";
+import test, { mock } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import path from "node:path";
+
+const repo = process.cwd();
+const handlersSourcePath = path.join(repo, "src", "api", "sessions.handlers.ts");
+const handlersSource = await fs.readFile(handlersSourcePath, "utf8");
+
+function parseNamedRuntimeImports(source) {
+  const importRegex = /import\s+\{\s*([^}]+)\s*\}\s+from\s+"(\.\/[^"]+\.js)"/g;
+  const imports = new Map();
+
+  for (const match of source.matchAll(importRegex)) {
+    const rawSymbols = match[1];
+    const specifier = match[2];
+    const symbols = rawSymbols
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => part.replace(/\s+as\s+\w+$/, "").trim());
+
+    imports.set(specifier, symbols);
+  }
+
+  return imports;
+}
+
+function getImportSpecifierForSymbol(imports, symbol) {
+  for (const [specifier, symbols] of imports.entries()) {
+    if (symbols.includes(symbol)) {
+      return specifier;
+    }
+  }
+
+  throw new Error(`Could not find import specifier for symbol: ${symbol}`);
+}
+
+function toDistModuleUrl(specifier) {
+  return new URL(`../dist/src/api/${specifier.replace("./", "")}`, import.meta.url).href;
+}
+
+function makeSupportedActivityResponse(activity) {
+  const exercisesByActivity = {
+    powerlifting: ["squat", "bench_press"],
+    rugby_union: ["trap_bar_deadlift", "bench_press"],
+    general_strength: ["deadlift", "row"]
+  };
+
+  const exerciseIds = exercisesByActivity[activity];
+  if (!exerciseIds) {
+    return {
+      ok: true,
+      session: { exercises: [] },
+      trace: { source: "mock-unsupported-activity", activity }
+    };
+  }
+
+  return {
+    ok: true,
+    session: {
+      exercises: exerciseIds.map((exercise_id) => ({
+        exercise_id,
+        source: "program"
+      }))
+    },
+    trace: {
+      source: "mock-supported-activity",
+      activity
+    }
+  };
+}
+
+const imports = parseNamedRuntimeImports(handlersSource);
+const planSessionServiceSpecifier = getImportSpecifierForSymbol(imports, "planSessionService");
+const planSessionServiceCalls = [];
+
+for (const [specifier, symbols] of imports.entries()) {
+  const moduleUrl = toDistModuleUrl(specifier);
+
+  if (specifier === planSessionServiceSpecifier) {
+    mock.module(moduleUrl, {
+      namedExports: {
+        planSessionService: async (input) => {
+          planSessionServiceCalls.push(input);
+          return makeSupportedActivityResponse(input?.user?.activity);
+        }
+      }
+    });
+    continue;
+  }
+
+  const namedExports = Object.fromEntries(
+    symbols.map((symbol) => [
+      symbol,
+      async () => ({ ok: true, mocked_symbol: symbol })
+    ])
+  );
+
+  mock.module(moduleUrl, { namedExports });
+}
 
 const { planSession } = await import("../dist/src/api/sessions.handlers.js");
 
@@ -34,7 +133,9 @@ function assertSupportedActivityContract(payload, activity) {
   }
 }
 
-test("plan-session-api preserves supported activity contract end-to-end across powerlifting rugby_union and general_strength", async () => {
+test("plan-session-api preserves supported activity contract end-to-end across powerlifting rugby_union and general_strength without DATABASE_URL dependency", async () => {
+  planSessionServiceCalls.length = 0;
+
   const supportedActivities = [
     "powerlifting",
     "rugby_union",
@@ -42,15 +143,15 @@ test("plan-session-api preserves supported activity contract end-to-end across p
   ];
 
   for (const activity of supportedActivities) {
-    const req = makeReq({
-      input: {
-        user: { activity },
-        constraints: {
-          available_equipment: ["barbell", "bench", "dumbbell"],
-          session_minutes: 45
-        }
+    const input = {
+      user: { activity },
+      constraints: {
+        available_equipment: ["barbell", "bench", "dumbbell"],
+        session_minutes: 45
       }
-    });
+    };
+
+    const req = makeReq({ input });
     const res = makeRes();
 
     await planSession(req, res);
@@ -58,6 +159,13 @@ test("plan-session-api preserves supported activity contract end-to-end across p
     assert.equal(res.statusCode, 200, `expected HTTP 200 for activity ${activity}`);
     assertSupportedActivityContract(res.jsonBody, activity);
   }
+
+  assert.equal(planSessionServiceCalls.length, supportedActivities.length, "expected one service delegation per supported activity request");
+  assert.deepEqual(
+    planSessionServiceCalls.map((input) => input.user.activity),
+    supportedActivities,
+    "expected supported activity requests to delegate in order"
+  );
 });
 
 test("plan-session-api supported activities do not fall through to stub-like empty exercise output", async () => {
