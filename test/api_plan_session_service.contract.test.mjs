@@ -284,6 +284,38 @@ test("planSessionService returns the exact validated runner object identity with
   assert.deepEqual(out, validationSnapshot, "returned object should match the validation-time snapshot exactly");
 });
 
+test("planSessionService invokes persistence exactly once for validated success paths", async () => {
+  resetState();
+
+  normalizedInputValue = {
+    user: { activity: "general_strength" },
+    constraints: { available_equipment: ["barbell", "dumbbell", "bench"] }
+  };
+  runnerReturnValue = {
+    ok: true,
+    session: {
+      exercises: [
+        { exercise_id: "deadlift", source: "program" },
+        { exercise_id: "bench_press", source: "program" }
+      ]
+    },
+    trace: {
+      source: "runner-single-persist-success",
+      metadata: { request_id: "req-001" }
+    }
+  };
+
+  const out = await planSessionService({ success_single_persist_case: true });
+
+  assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
+  assert.equal(validationCalls.length, 1, "validated success path should validate exactly once");
+  assert.equal(persistenceCalls.length, 1, "validated success path should persist exactly once");
+  assert.equal(persistenceCalls.filter((x) => x.kind === "plan_session").length, 1, "should only record one plan_session persistence call");
+  assert.equal(persistenceCalls[0].input, normalizedInputValue, "persistence should receive the normalized input exactly once");
+  assert.equal(persistenceCalls[0].output, runnerReturnValue, "persistence should receive the validated output exactly once");
+  assert.equal(out, runnerReturnValue, "success path should still return the validated runner object");
+});
+
 test("planSessionService persistence failure mode remains non-fatal and preserves the validated response contract", async () => {
   resetState();
 
