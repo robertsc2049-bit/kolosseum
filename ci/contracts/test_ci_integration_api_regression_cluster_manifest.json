@@ -1,15 +1,16 @@
 {
-  "label": "test:ci:integration api regression cluster",
-  "commands": [
-    "node test/api.return_gate.regression.test.mjs",
-    "node test/api.return_skip.regression.test.mjs",
-    "node test/api.return_skip.persisted_replay.regression.test.mjs",
-    "node test/api.runtime_events_state_parity.regression.test.mjs",
-    "node test/api.events_append_only_history.regression.test.mjs",
-    "node test/api.complete_step_events_state_parity.regression.test.mjs",
-    "node test/api.return_continue_append_only_history.regression.test.mjs",
-    "node test/api.state_replay_projection_after_split_decisions.regression.test.mjs",
-    "node test/api.split_decision_idempotent_rejected.regression.test.mjs",
-    "node test/api.blocks_compile_apply_unknown_maps_500.regression.test.mjs"
-  ]
+    "label":  "test:ci:integration api regression cluster",
+    "commands":  [
+                     "node test/api.return_gate.regression.test.mjs",
+                     "node test/api.return_skip.regression.test.mjs",
+                     "node test/api.return_skip.persisted_replay.regression.test.mjs",
+                     "node test/api.runtime_events_state_parity.regression.test.mjs",
+                     "node test/api.events_append_only_history.regression.test.mjs",
+                     "node test/api.complete_step_events_state_parity.regression.test.mjs",
+                     "node test/api.return_continue_append_only_history.regression.test.mjs",
+                     "node test/api.state_replay_projection_after_split_decisions.regression.test.mjs",
+                     "node test/api.split_decision_idempotent_rejected.regression.test.mjs",
+                     "node test/api.blocks_compile_apply_unknown_maps_500.regression.test.mjs",
+                     "node test/api.return_continue_idempotent_after_ungate_wrapper.test.mjs"
+                 ]
 }
