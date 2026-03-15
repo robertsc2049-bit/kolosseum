@@ -129,19 +129,44 @@ async function postEvent(baseUrl, sessionId, event) {
   return { res, body };
 }
 
-test("Vertical slice (HTTP): COMPLETE_STEP is rejected during RETURN_DECISION and accepted immediately after RETURN_CONTINUE", async (t) => {
+async function createStartedSession(baseUrl) {
+  const phase1_input = loadPhase1FixtureOrThrow();
+
+  const compile = await fetch(`${baseUrl}/blocks/compile?create_session=true`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ phase1_input }),
+  });
+  const compileBody = await readJsonOnce(compile);
+  assert.ok(compile.status === 200 || compile.status === 201, compileBody.text);
+
+  const sessionId = compileBody.json?.session_id;
+  assert.ok(typeof sessionId === "string" && sessionId.length > 0, "expected session_id");
+
+  const start = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/start`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({}),
+  });
+  const startBody = await readJsonOnce(start);
+  assert.equal(start.status, 200, startBody.text);
+
+  return sessionId;
+}
+
+async function bootHttpVerticalSlice(t) {
   const enabled = process.env.KOLOSSEUM_HTTP_E2E_COMPLETE_STEP === "1";
 
   if (!process.env.DATABASE_URL) {
     if (enabled) throw new Error("KOLOSSEUM_HTTP_E2E_COMPLETE_STEP=1 requires DATABASE_URL (CI contract).");
     t.skip("DATABASE_URL missing; server boot hard-requires DB right now. Skipping HTTP vertical-slice.");
-    return;
+    return null;
   }
 
   if (!fs.existsSync(path.resolve(process.cwd(), "dist", "src", "main.js"))) {
     if (enabled) throw new Error("KOLOSSEUM_HTTP_E2E_COMPLETE_STEP=1 requires dist build (run build:fast).");
     t.skip("dist/src/main.js missing; run build:fast before executing HTTP e2e.");
-    return;
+    return null;
   }
 
   await runNpm("db:schema");
@@ -157,40 +182,29 @@ test("Vertical slice (HTTP): COMPLETE_STEP is rejected during RETURN_DECISION an
     }
   });
 
+  await waitForHealth(baseUrl);
+
+  const health = await fetch(`${baseUrl}/health`);
+  const healthBody = await readJsonOnce(health);
+  assert.equal(health.status, 200, healthBody.text);
+  assert.equal(healthBody.json?.status, "ok");
+  assert.ok(typeof healthBody.json?.version === "string" && healthBody.json.version.length > 0);
+
+  if (!enabled) return { enabled, baseUrl, getLogs };
+
+  return { enabled, baseUrl, getLogs };
+}
+
+test("Vertical slice (HTTP): COMPLETE_STEP is rejected during RETURN_DECISION and accepted immediately after RETURN_CONTINUE", async (t) => {
+  let ctx = null;
+
   try {
-    await waitForHealth(baseUrl);
+    ctx = await bootHttpVerticalSlice(t);
+    if (!ctx) return;
+    if (!ctx.enabled) return;
 
-    {
-      const r = await fetch(`${baseUrl}/health`);
-      const body = await readJsonOnce(r);
-      assert.equal(r.status, 200, body.text);
-      assert.equal(body.json?.status, "ok");
-      assert.ok(typeof body.json?.version === "string" && body.json.version.length > 0);
-    }
-
-    if (!enabled) return;
-
-    const phase1_input = loadPhase1FixtureOrThrow();
-
-    const compile = await fetch(`${baseUrl}/blocks/compile?create_session=true`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ phase1_input }),
-    });
-    const compileBody = await readJsonOnce(compile);
-    assert.ok(compile.status === 200 || compile.status === 201, compileBody.text);
-
-    const sessionId = compileBody.json?.session_id;
-    assert.ok(typeof sessionId === "string" && sessionId.length > 0, "expected session_id");
-
-    const start = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/start`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({}),
-    });
-    const startBody = await readJsonOnce(start);
-    assert.equal(start.status, 200, startBody.text);
-
+    const { baseUrl } = ctx;
+    const sessionId = await createStartedSession(baseUrl);
     const st1 = await fetchState(baseUrl, sessionId);
 
     const beforeCompleted = Array.isArray(st1.completed_exercises) ? st1.completed_exercises.length : 0;
@@ -236,6 +250,95 @@ test("Vertical slice (HTTP): COMPLETE_STEP is rejected during RETURN_DECISION an
       `expected completed_exercises +1 (before=${beforeCompleted}, after=${afterCompleted})`
     );
   } catch (e) {
-    throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${getLogs()}`);
+    const logs = ctx?.getLogs ? ctx.getLogs() : "";
+    throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${logs}`);
+  }
+});
+
+test("Vertical slice (HTTP): RETURN_SKIP rejects COMPLETE_STEP before ungate and preserves dropped_ids after reload", async (t) => {
+  let ctx = null;
+
+  try {
+    ctx = await bootHttpVerticalSlice(t);
+    if (!ctx) return;
+    if (!ctx.enabled) return;
+
+    const { baseUrl } = ctx;
+    const sessionId = await createStartedSession(baseUrl);
+    const st1 = await fetchState(baseUrl, sessionId);
+
+    if (st1.trace.return_decision_required !== true) {
+      t.skip("RETURN_SKIP proof requires an active RETURN_DECISION gate for this fixture/runtime path.");
+      return;
+    }
+
+    assert.equal(st1.current_step?.type, "RETURN_DECISION");
+    assert.ok(Array.isArray(st1.current_step?.options), "expected current_step.options during RETURN_DECISION");
+
+    const blocked = await postEvent(baseUrl, sessionId, { type: "COMPLETE_STEP" });
+    assert.equal(blocked.res.status, 400, blocked.body.text);
+    assert.match(blocked.body.text, /phase6_runtime_await_return_decision/, "expected failure token in body");
+
+    const skipEvent = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
+    assert.equal(skipEvent.res.status, 201, skipEvent.body.text);
+
+    const st2 = await fetchState(baseUrl, sessionId);
+    assert.equal(st2.trace.return_decision_required, false, "RETURN_SKIP should ungate the session");
+    assert.ok(Array.isArray(st2.dropped_ids), "expected dropped_ids array after RETURN_SKIP");
+    assert.ok(st2.dropped_ids.length > 0, "expected RETURN_SKIP to persist at least one dropped id");
+
+    const droppedIdsAfterSkip = [...st2.dropped_ids];
+
+    const st3 = await fetchState(baseUrl, sessionId);
+    assert.deepEqual(
+      st3.dropped_ids,
+      droppedIdsAfterSkip,
+      "dropped_ids should survive immediate reload without drift"
+    );
+    assert.equal(st3.trace.return_decision_required, false, "reloaded state should remain ungated after RETURN_SKIP");
+
+    const blockedAgain = await postEvent(baseUrl, sessionId, { type: "COMPLETE_STEP" });
+
+    if (st3.current_step?.type === "EXERCISE") {
+      assert.equal(
+        blockedAgain.res.status,
+        201,
+        blockedAgain.body.text
+      );
+
+      const st4 = await fetchState(baseUrl, sessionId);
+      assert.deepEqual(
+        st4.dropped_ids,
+        droppedIdsAfterSkip,
+        "accepted COMPLETE_STEP after ungate must not rewrite dropped_ids chosen by RETURN_SKIP"
+      );
+      return;
+    }
+
+    assert.equal(
+      blockedAgain.res.status,
+      400,
+      blockedAgain.body.text
+    );
+    assert.doesNotMatch(
+      blockedAgain.body.text,
+      /phase6_runtime_await_return_decision/,
+      "post-RETURN_SKIP rejection must not still be the return-decision gate"
+    );
+
+    const st4 = await fetchState(baseUrl, sessionId);
+    assert.deepEqual(
+      st4.dropped_ids,
+      droppedIdsAfterSkip,
+      "rejected post-ungate COMPLETE_STEP must not rewrite dropped_ids after reload"
+    );
+    assert.equal(
+      st4.trace.return_decision_required,
+      false,
+      "post-ungate state must remain ungated even if COMPLETE_STEP is rejected for another reason"
+    );
+  } catch (e) {
+    const logs = ctx?.getLogs ? ctx.getLogs() : "";
+    throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${logs}`);
   }
 });
