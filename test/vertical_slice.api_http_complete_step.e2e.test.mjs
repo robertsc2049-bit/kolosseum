@@ -342,3 +342,78 @@ test("Vertical slice (HTTP): RETURN_SKIP rejects COMPLETE_STEP before ungate and
     throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${logs}`);
   }
 });
+
+test("Vertical slice (HTTP): RETURN_SKIP is idempotent-rejected after ungate and preserves dropped_ids across repeated reloads", async (t) => {
+  let ctx = null;
+
+  try {
+    ctx = await bootHttpVerticalSlice(t);
+    if (!ctx) return;
+    if (!ctx.enabled) return;
+
+    const { baseUrl } = ctx;
+    const sessionId = await createStartedSession(baseUrl);
+    const st1 = await fetchState(baseUrl, sessionId);
+
+    if (st1.trace.return_decision_required !== true) {
+      t.skip("RETURN_SKIP idempotent rejection proof requires an active RETURN_DECISION gate for this fixture/runtime path.");
+      return;
+    }
+
+    assert.equal(st1.current_step?.type, "RETURN_DECISION");
+    assert.ok(Array.isArray(st1.current_step?.options), "expected current_step.options during RETURN_DECISION");
+
+    const firstSkip = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
+    assert.equal(firstSkip.res.status, 201, firstSkip.body.text);
+
+    const st2 = await fetchState(baseUrl, sessionId);
+    assert.equal(st2.trace.return_decision_required, false, "first RETURN_SKIP should ungate the session");
+    assert.ok(Array.isArray(st2.dropped_ids), "expected dropped_ids after first RETURN_SKIP");
+    assert.ok(st2.dropped_ids.length > 0, "expected first RETURN_SKIP to persist at least one dropped id");
+
+    const droppedIdsAfterFirstSkip = [...st2.dropped_ids];
+
+    const st3 = await fetchState(baseUrl, sessionId);
+    assert.deepEqual(
+      st3.dropped_ids,
+      droppedIdsAfterFirstSkip,
+      "dropped_ids should survive first reload after RETURN_SKIP"
+    );
+    assert.equal(st3.trace.return_decision_required, false, "state should remain ungated after first reload");
+
+    const secondSkip = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
+    assert.equal(secondSkip.res.status, 400, secondSkip.body.text);
+    assert.doesNotMatch(
+      secondSkip.body.text,
+      /phase6_runtime_await_return_decision/,
+      "idempotent rejection after ungate must not still be the return-decision gate"
+    );
+
+    const st4 = await fetchState(baseUrl, sessionId);
+    assert.deepEqual(
+      st4.dropped_ids,
+      droppedIdsAfterFirstSkip,
+      "second RETURN_SKIP rejection must not rewrite dropped_ids"
+    );
+    assert.equal(
+      st4.trace.return_decision_required,
+      false,
+      "second RETURN_SKIP rejection must keep the session ungated"
+    );
+
+    const st5 = await fetchState(baseUrl, sessionId);
+    assert.deepEqual(
+      st5.dropped_ids,
+      droppedIdsAfterFirstSkip,
+      "dropped_ids should survive repeated reloads after idempotent rejection"
+    );
+    assert.equal(
+      st5.trace.return_decision_required,
+      false,
+      "repeated reloads should keep the session ungated after idempotent rejection"
+    );
+  } catch (e) {
+    const logs = ctx?.getLogs ? ctx.getLogs() : "";
+    throw new Error(`${e?.message ?? e}\n\n--- server logs ---\n${logs}`);
+  }
+});
