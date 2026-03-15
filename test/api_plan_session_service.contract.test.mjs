@@ -318,6 +318,36 @@ test("planSessionService invokes persistence exactly once for validated success 
   assert.equal(out, runnerReturnValue, "success path should still return the validated runner object");
 });
 
+test("planSessionService never validates more than once on validated success paths", async () => {
+  resetState();
+
+  normalizedInputValue = {
+    user: { activity: "general_strength" },
+    constraints: { available_equipment: ["barbell", "bench", "dumbbell"] }
+  };
+  runnerReturnValue = {
+    ok: true,
+    session: {
+      exercises: [
+        { exercise_id: "deadlift", source: "program" },
+        { exercise_id: "bench_press", source: "program" }
+      ]
+    },
+    trace: {
+      source: "runner-single-validate-success",
+      metadata: { request_id: "req-validate-once" }
+    }
+  };
+
+  const out = await planSessionService({ validate_once_success_case: true });
+
+  assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
+  assert.equal(validationCalls.length, 1, "validated success path should validate exactly once");
+  assert.equal(validationCalls[0], runnerReturnValue, "the single validation call should observe the exact runner output object");
+  assert.equal(persistenceCalls.length, 1, "validated success path should still persist exactly once");
+  assert.equal(out, runnerReturnValue, "service should still return the validated runner object");
+});
+
 test("planSessionService preserves the exact normalized input reference across runner and persistence", async () => {
   resetState();
 
