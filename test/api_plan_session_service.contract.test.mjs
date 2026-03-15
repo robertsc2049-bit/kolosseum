@@ -316,6 +316,37 @@ test("planSessionService invokes persistence exactly once for validated success 
   assert.equal(out, runnerReturnValue, "success path should still return the validated runner object");
 });
 
+test("planSessionService never persists on any non-success response shape rejected by validation", async () => {
+  resetState();
+
+  normalizedInputValue = {
+    user: { activity: "general_strength" },
+    constraints: { available_equipment: ["barbell"] }
+  };
+  runnerReturnValue = {
+    ok: false,
+    session: {
+      exercises: []
+    },
+    trace: {
+      source: "runner-non-success-shape",
+      metadata: { request_id: "req-non-success" }
+    }
+  };
+  validationShouldEnforceContract = true;
+
+  await assert.rejects(
+    () => planSessionService({ non_success_response_shape_case: true }),
+    /validation rejected invalid output/
+  );
+
+  assert.deepEqual(callLog, ["normalize", "run", "validate"]);
+  assert.equal(runnerCalls.length, 1, "runner should still have been invoked once");
+  assert.equal(validationCalls.length, 1, "invalid non-success shape should be validated once");
+  assert.equal(persistenceCalls.length, 0, "non-success response shape must never persist");
+  assert.equal(validatedOutputRefs.has(runnerReturnValue), false, "rejected non-success output must not be marked validated");
+});
+
 test("planSessionService persistence failure mode remains non-fatal and preserves the validated response contract", async () => {
   resetState();
 
