@@ -22,6 +22,7 @@ let validationError = null;
 let validationShouldEnforceContract = false;
 let runnerReturnValue = null;
 let failPersistence = false;
+let runnerError = null;
 
 function makeRunnerSuccessOutput() {
   return {
@@ -45,6 +46,7 @@ function resetState() {
   validationShouldEnforceContract = false;
   runnerReturnValue = makeRunnerSuccessOutput();
   failPersistence = false;
+  runnerError = null;
 }
 
 function isInvalidPlanSessionOutput(out) {
@@ -59,6 +61,9 @@ mock.module(distEngineRunnerServiceUrl, {
     runPipelineFromDist: async (input) => {
       callLog.push("run");
       runnerCalls.push(input);
+      if (runnerError) {
+        throw runnerError;
+      }
       return runnerReturnValue;
     }
   }
@@ -246,6 +251,27 @@ test("planSessionService failure boundary: normalization failure blocks runner, 
 
   assert.deepEqual(callLog, ["normalize"]);
   assert.equal(runnerCalls.length, 0);
+  assert.equal(validationCalls.length, 0);
+  assert.equal(persistenceCalls.length, 0);
+});
+
+test("planSessionService failure boundary: runner failure fails fast and blocks validation plus persistence", async () => {
+  resetState();
+
+  normalizedInputValue = {
+    user: { activity: "general_strength" },
+    constraints: { available_equipment: ["barbell"] }
+  };
+  runnerError = Object.assign(new Error("runner exploded"), { status: 502 });
+
+  await assert.rejects(
+    () => planSessionService({ runner_failure_case: true }),
+    /runner exploded/
+  );
+
+  assert.deepEqual(callLog, ["normalize", "run"]);
+  assert.equal(normalizationCalls.length, 1);
+  assert.equal(runnerCalls.length, 1);
   assert.equal(validationCalls.length, 0);
   assert.equal(persistenceCalls.length, 0);
 });
