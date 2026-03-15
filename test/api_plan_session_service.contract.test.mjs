@@ -347,6 +347,43 @@ test("planSessionService never persists on any non-success response shape reject
   assert.equal(validatedOutputRefs.has(runnerReturnValue), false, "rejected non-success output must not be marked validated");
 });
 
+test("planSessionService persistence failure never alters call ordering or returned validated payload", async () => {
+  resetState();
+
+  normalizedInputValue = {
+    user: { activity: "general_strength" },
+    constraints: { available_equipment: ["barbell", "dumbbell"] }
+  };
+  runnerReturnValue = {
+    ok: true,
+    session: {
+      exercises: [
+        { exercise_id: "deadlift", source: "program" },
+        { exercise_id: "row", source: "accessory" }
+      ]
+    },
+    trace: {
+      source: "runner-persistence-failure-order-stable",
+      metadata: { request_id: "req-persist-fail-stable" }
+    }
+  };
+  failPersistence = true;
+
+  const out = await planSessionService({ persistence_failure_ordering_case: true });
+
+  assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
+  assert.equal(validationCalls.length, 1, "validated output should still be validated exactly once");
+  assert.equal(persistenceCalls.length, 1, "persistence failure path should still attempt persistence exactly once");
+  assert.equal(persistenceCalls[0].simulated_failure, true, "test should be exercising simulated persistence failure mode");
+  assert.equal(persistenceCalls[0].output, runnerReturnValue, "persistence failure path should still receive the validated runner object");
+  assert.equal(out, runnerReturnValue, "persistence failure must not replace the returned validated payload");
+
+  const validationSnapshot = validationSnapshots.get(runnerReturnValue);
+  assert.ok(validationSnapshot, "expected validation snapshot for persistence failure path");
+  assert.deepEqual(out, validationSnapshot, "returned payload must remain identical to the validation-time snapshot");
+  assert.deepEqual(runnerReturnValue, validationSnapshot, "validated runner object must remain unmutated despite persistence failure");
+});
+
 test("planSessionService persistence failure mode remains non-fatal and preserves the validated response contract", async () => {
   resetState();
 
