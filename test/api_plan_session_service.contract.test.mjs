@@ -318,6 +318,58 @@ test("planSessionService invokes persistence exactly once for validated success 
   assert.equal(out, runnerReturnValue, "success path should still return the validated runner object");
 });
 
+test("planSessionService preserves the exact normalized input reference across runner and persistence", async () => {
+  resetState();
+
+  normalizedInputValue = {
+    user: {
+      activity: "general_strength",
+      profile: {
+        training_age: "intermediate"
+      }
+    },
+    constraints: {
+      available_equipment: ["barbell", "bench", "dumbbell"],
+      session_minutes: 45
+    },
+    context: {
+      block_id: "block-normalized-input-reference-stable"
+    }
+  };
+  normalizedInputSnapshots.set(
+    normalizedInputValue,
+    JSON.parse(JSON.stringify(normalizedInputValue))
+  );
+
+  runnerReturnValue = {
+    ok: true,
+    session: {
+      exercises: [
+        { exercise_id: "deadlift", source: "program" },
+        { exercise_id: "bench_press", source: "program" }
+      ]
+    },
+    trace: {
+      source: "runner-normalized-input-reference-stable"
+    }
+  };
+
+  const out = await planSessionService({ normalized_input_reference_case: true });
+
+  assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
+  assert.equal(runnerCalls.length, 1, "runner should be invoked exactly once");
+  assert.equal(persistenceCalls.length, 1, "persistence should be invoked exactly once");
+
+  assert.equal(runnerCalls[0], normalizedInputValue, "runner should receive the exact normalized input reference");
+  assert.equal(persistenceCalls[0].input, normalizedInputValue, "persistence should receive the exact normalized input reference");
+  assert.equal(runnerCalls[0], persistenceCalls[0].input, "runner and persistence should observe the same normalized input object reference");
+
+  const normalizedSnapshot = normalizedInputSnapshots.get(normalizedInputValue);
+  assert.ok(normalizedSnapshot, "expected snapshot for normalized input");
+  assert.deepEqual(normalizedInputValue, normalizedSnapshot, "normalized input must remain unmutated while preserving reference identity");
+  assert.equal(out, runnerReturnValue, "service should still return the validated runner object");
+});
+
 test("planSessionService never mutates normalized input before runner or persistence", async () => {
   resetState();
 
