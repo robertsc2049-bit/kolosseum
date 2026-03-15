@@ -348,6 +348,37 @@ test("planSessionService never validates more than once on validated success pat
   assert.equal(out, runnerReturnValue, "service should still return the validated runner object");
 });
 
+test("planSessionService never persists before validation even when validation is explicit no-op success", async () => {
+  resetState();
+
+  normalizedInputValue = {
+    user: { activity: "general_strength" },
+    constraints: { available_equipment: ["barbell", "bench"] }
+  };
+  runnerReturnValue = {
+    ok: true,
+    session: {
+      exercises: [
+        { exercise_id: "deadlift", source: "program" }
+      ]
+    },
+    trace: {
+      source: "runner-validation-noop-success",
+      metadata: { request_id: "req-validation-noop-success" }
+    }
+  };
+  persistenceShouldRequireValidatedOutput = true;
+
+  const out = await planSessionService({ validation_noop_success_case: true });
+
+  assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
+  assert.equal(validationCalls.length, 1, "validation should still be invoked exactly once");
+  assert.equal(persistenceCalls.length, 1, "persistence should still be attempted exactly once");
+  assert.equal(validatedOutputRefs.has(runnerReturnValue), true, "output should be marked validated before persistence observes it");
+  assert.equal(persistenceCalls[0].output, runnerReturnValue, "persistence should observe the validated runner output");
+  assert.equal(out, runnerReturnValue, "service should still return the validated runner output");
+});
+
 test("planSessionService preserves the exact normalized input reference across runner and persistence", async () => {
   resetState();
 
