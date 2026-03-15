@@ -23,6 +23,8 @@ let validationShouldEnforceContract = false;
 let runnerReturnValue = null;
 let failPersistence = false;
 let runnerError = null;
+let persistenceShouldRequireValidatedOutput = false;
+let validatedOutputRefs = new Set();
 
 function makeRunnerSuccessOutput() {
   return {
@@ -47,6 +49,8 @@ function resetState() {
   runnerReturnValue = makeRunnerSuccessOutput();
   failPersistence = false;
   runnerError = null;
+  persistenceShouldRequireValidatedOutput = false;
+  validatedOutputRefs = new Set();
 }
 
 function isInvalidPlanSessionOutput(out) {
@@ -79,6 +83,11 @@ mock.module(distEngineRunPersistenceServiceUrl, {
         output,
         simulated_failure: failPersistence
       });
+
+      if (persistenceShouldRequireValidatedOutput && !validatedOutputRefs.has(output)) {
+        throw new Error("persistence observed unvalidated output");
+      }
+
       return;
     }
   }
@@ -110,6 +119,8 @@ mock.module(distOutputValidationServiceUrl, {
       if (validationShouldEnforceContract && isInvalidPlanSessionOutput(out)) {
         throw new Error("validation rejected invalid output");
       }
+
+      validatedOutputRefs.add(out);
     }
   }
 });
@@ -201,6 +212,34 @@ test("planSessionService preserves orchestration order and returns the validated
   assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
   assert.deepEqual(validationCalls[0], runnerReturnValue);
   assert.deepEqual(persistenceCalls[0].output, runnerReturnValue);
+  assert.deepEqual(out, runnerReturnValue);
+});
+
+test("planSessionService persistence is strictly post-validation and never observes an unvalidated payload", async () => {
+  resetState();
+
+  normalizedInputValue = {
+    user: { activity: "general_strength" },
+    constraints: { available_equipment: ["barbell", "dumbbell"] }
+  };
+  runnerReturnValue = {
+    ok: true,
+    session: {
+      exercises: [
+        { exercise_id: "deadlift", source: "program" }
+      ]
+    },
+    trace: { source: "runner-post-validation-only" }
+  };
+  persistenceShouldRequireValidatedOutput = true;
+
+  const out = await planSessionService({ post_validation_only_case: true });
+
+  assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
+  assert.equal(validationCalls.length, 1);
+  assert.equal(persistenceCalls.length, 1);
+  assert.equal(validatedOutputRefs.has(runnerReturnValue), true);
+  assert.equal(persistenceCalls[0].output, runnerReturnValue);
   assert.deepEqual(out, runnerReturnValue);
 });
 
