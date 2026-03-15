@@ -25,6 +25,7 @@ let failPersistence = false;
 let runnerError = null;
 let persistenceShouldRequireValidatedOutput = false;
 let validatedOutputRefs = new Set();
+let validationSnapshots = new Map();
 
 function makeRunnerSuccessOutput() {
   return {
@@ -51,6 +52,7 @@ function resetState() {
   runnerError = null;
   persistenceShouldRequireValidatedOutput = false;
   validatedOutputRefs = new Set();
+  validationSnapshots = new Map();
 }
 
 function isInvalidPlanSessionOutput(out) {
@@ -121,6 +123,7 @@ mock.module(distOutputValidationServiceUrl, {
       }
 
       validatedOutputRefs.add(out);
+      validationSnapshots.set(out, JSON.parse(JSON.stringify(out)));
     }
   }
 });
@@ -241,6 +244,44 @@ test("planSessionService persistence is strictly post-validation and never obser
   assert.equal(validatedOutputRefs.has(runnerReturnValue), true);
   assert.equal(persistenceCalls[0].output, runnerReturnValue);
   assert.deepEqual(out, runnerReturnValue);
+});
+
+test("planSessionService returns the exact validated runner object identity without post-validation mutation", async () => {
+  resetState();
+
+  normalizedInputValue = {
+    user: { activity: "powerlifting" },
+    constraints: { available_equipment: ["barbell", "bench", "plates"] }
+  };
+  runnerReturnValue = {
+    ok: true,
+    session: {
+      exercises: [
+        { exercise_id: "squat", source: "program" },
+        { exercise_id: "bench_press", source: "program" },
+        { exercise_id: "row", source: "accessory" }
+      ]
+    },
+    trace: {
+      source: "runner-identity-stable",
+      metadata: { block_id: "block-123" }
+    }
+  };
+
+  const out = await planSessionService({ identity_case: true });
+
+  assert.deepEqual(callLog, ["normalize", "run", "validate", "persist"]);
+  assert.equal(validationCalls.length, 1);
+  assert.equal(persistenceCalls.length, 1);
+
+  assert.equal(validationCalls[0], runnerReturnValue, "validator should observe the exact runner object");
+  assert.equal(persistenceCalls[0].output, runnerReturnValue, "persistence should observe the exact validated runner object");
+  assert.equal(out, runnerReturnValue, "service should return the exact validated runner object identity");
+
+  const validationSnapshot = validationSnapshots.get(runnerReturnValue);
+  assert.ok(validationSnapshot, "expected a validation snapshot for the validated runner object");
+  assert.deepEqual(runnerReturnValue, validationSnapshot, "validated runner object should remain unmutated after validation");
+  assert.deepEqual(out, validationSnapshot, "returned object should match the validation-time snapshot exactly");
 });
 
 test("planSessionService persistence failure mode remains non-fatal and preserves the validated response contract", async () => {
