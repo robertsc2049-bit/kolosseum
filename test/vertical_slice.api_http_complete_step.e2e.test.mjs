@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import net from "node:net";
 
 async function readJsonOnce(res) {
   const text = await res.text().catch(() => "");
@@ -41,6 +42,33 @@ function spawnServer(port) {
   child.stderr.on("data", (d) => (out += d.toString("utf8")));
 
   return { child, getLogs: () => out };
+}
+
+async function reserveEphemeralPort() {
+  return await new Promise((resolve, reject) => {
+    const server = net.createServer();
+
+    server.unref();
+
+    server.on("error", reject);
+
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      if (!address || typeof address === "string") {
+        server.close(() => reject(new Error("failed to reserve ephemeral port")));
+        return;
+      }
+
+      const port = address.port;
+      server.close((closeErr) => {
+        if (closeErr) {
+          reject(closeErr);
+          return;
+        }
+        resolve(port);
+      });
+    });
+  });
 }
 
 async function runNpm(scriptOrArgs, opts = {}) {
@@ -103,7 +131,7 @@ test("Vertical slice (HTTP): COMPLETE_STEP expands to COMPLETE_EXERCISE + state 
 
   await runNpm("db:schema");
 
-  const port = 58123 + Math.floor(Math.random() * 2000);
+  const port = await reserveEphemeralPort();
   const baseUrl = `http://127.0.0.1:${port}`;
 
   const { child, getLogs } = spawnServer(port);
