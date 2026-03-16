@@ -1792,6 +1792,33 @@ test("API regression: compile-created session flow preserves byte-stable /state 
     });
   });
 });
+test("API regression: compile-created session flow preserves normalized current-step identity and trace contract across alternating /state -> /events -> /state read cycles after downstream progress", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session continue normalized current-step identity trace alternating state events state cycles after downstream progress scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossAlternatingStateEventsStateReadCyclesAfterDownstreamProgress: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session skip normalized current-step identity trace alternating state events state cycles after downstream progress scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossAlternatingStateEventsStateReadCyclesAfterDownstreamProgress: true
+    });
+  });
+});
 test("API regression: compile-created session flow preserves deterministic terminal parity across alternating fresh process restarts after downstream progress", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
