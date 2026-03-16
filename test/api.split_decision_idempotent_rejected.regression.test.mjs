@@ -521,6 +521,7 @@ async function runResolvedReplayScenario({
   sessionStateCache,
   label,
   decisionType,
+  databaseUrl = process.env.DATABASE_URL,
   requireByteStableImmediateReplay = false,
   requireByteStableAcrossRepeatedReloads = false,
   requireByteStableAfterDownstreamProgress = false,
@@ -528,7 +529,8 @@ async function runResolvedReplayScenario({
   requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts = false,
   requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads = false,
   requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads = false,
-  requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads = false
+  requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads = false,
+  requireTerminalParityAcrossAlternatingFreshProcessRestarts = false
 }) {
   const sessionId = await createSession(baseUrl, root);
 
@@ -969,6 +971,42 @@ async function runResolvedReplayScenario({
       acceptedTerminalShape,
       `${label}: final terminal /state after repeated interleaved reads`
     );
+
+    if (requireTerminalParityAcrossAlternatingFreshProcessRestarts) {
+      for (let cycle = 1; cycle <= 3; cycle += 1) {
+        const freshSnapshot = await readTerminalParitySnapshotViaFreshServer({
+          root,
+          databaseUrl,
+          sessionId,
+          label: `${label} fresh restart cycle ${cycle}`
+        });
+
+        assertAppendOnlyEventCardinalityAndOrderingStable(
+          freshSnapshot.events,
+          acceptedEvents,
+          acceptedTerminalOrdering,
+          `${label}: fresh restart cycle ${cycle} /events`
+        );
+        assertByteStableEvents(
+          freshSnapshot.events,
+          acceptedEvents,
+          acceptedEventsText,
+          `${label}: fresh restart cycle ${cycle} /events byte parity`
+        );
+        assertByteStableState(
+          freshSnapshot.state,
+          acceptedState,
+          acceptedStateText,
+          `${label}: fresh restart cycle ${cycle} /state byte parity`
+        );
+        assertTerminalStateShapeAndNoResurrectionStable(
+          freshSnapshot.state,
+          acceptedState,
+          acceptedTerminalShape,
+          `${label}: fresh restart cycle ${cycle} /state`
+        );
+      }
+    }
   }
 
   sessionStateCache.clear();
@@ -1067,6 +1105,63 @@ async function runResolvedReplayScenario({
   }
 }
 
+async function readTerminalParitySnapshotViaFreshServer({
+  root,
+  databaseUrl,
+  sessionId,
+  label
+}) {
+  const buildEnv = {
+    ...process.env,
+    DATABASE_URL: databaseUrl,
+    PORT: "0"
+  };
+  delete buildEnv.SMOKE_NO_DB;
+
+  const serverModulePath = await ensureBuiltDist(root, buildEnv);
+  const port = await getFreePort();
+  const baseUrl = `http://127.0.0.1:${port}`;
+
+  const serverModuleUrl = pathToFileURL(serverModulePath).href + `?fresh=${Date.now()}-${Math.random()}`;
+  const cacheModuleUrl =
+    pathToFileURL(path.join(root, "dist", "src", "api", "session_state_cache.js")).href +
+    `?fresh=${Date.now()}-${Math.random()}`;
+
+  const [{ app }, { sessionStateCache }] = await Promise.all([
+    import(serverModuleUrl),
+    import(cacheModuleUrl)
+  ]);
+
+  assert.ok(app && typeof app.listen === "function", `${label}: expected dist server app.listen()`);
+  assert.ok(
+    sessionStateCache && typeof sessionStateCache.clear === "function",
+    `${label}: expected dist sessionStateCache.clear()`
+  );
+
+  const srv = await new Promise((resolve, reject) => {
+    const instance = app.listen(port, "127.0.0.1", () => resolve(instance));
+    instance.on("error", reject);
+  });
+
+  try {
+    await waitForHealth(baseUrl);
+    sessionStateCache.clear();
+
+    const events = await getEvents(baseUrl, sessionId, `${label} fresh-server events`);
+    const state = await getState(baseUrl, sessionId, `${label} fresh-server state`);
+
+    return { events, state };
+  } finally {
+    await new Promise((resolve) => {
+      try {
+        srv.close(() => resolve());
+      } catch {
+        resolve();
+      }
+    });
+    await delay(50);
+  }
+}
 async function withServer(t, fn) {
   const root = repoRoot();
 
@@ -1376,6 +1471,37 @@ test("API regression: rejected RETURN_SKIP replay preserves terminal-state shape
   });
 });
 
+test("API regression: rejected resolved split-decision replays preserve terminal-state parity across alternating fresh process restarts", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "continue terminal-state parity across alternating fresh process restarts scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads: true,
+      requireTerminalParityAcrossAlternatingFreshProcessRestarts: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip terminal-state parity across alternating fresh process restarts scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads: true,
+      requireTerminalParityAcrossAlternatingFreshProcessRestarts: true
+    });
+  });
+});
 test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
