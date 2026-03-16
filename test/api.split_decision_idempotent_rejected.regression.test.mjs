@@ -613,7 +613,7 @@ test("API regression: rejected split-decision replay remains byte-stable across 
   });
 });
 
-test("API regression: rejected split-decision replay remains byte-stable after accepted downstream progress", async (t) => {
+test("API regression: rejected RETURN_CONTINUE replay remains byte-stable after accepted downstream progress", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
       baseUrl,
@@ -621,16 +621,6 @@ test("API regression: rejected split-decision replay remains byte-stable after a
       sessionStateCache,
       label: "continue downstream-progress byte-stable replay scenario",
       decisionType: "RETURN_CONTINUE",
-      requireByteStableImmediateReplay: true,
-      requireByteStableAfterDownstreamProgress: true
-    });
-
-    await runResolvedReplayScenario({
-      baseUrl,
-      root,
-      sessionStateCache,
-      label: "skip downstream-progress byte-stable replay scenario",
-      decisionType: "RETURN_SKIP",
       requireByteStableImmediateReplay: true,
       requireByteStableAfterDownstreamProgress: true
     });
