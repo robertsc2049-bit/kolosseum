@@ -1533,6 +1533,39 @@ test("API regression: compile-created session flow preserves deterministic appen
     });
   });
 });
+test("API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session continue terminal no-resurrection alternating read cycles after downstream progress scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session skip terminal no-resurrection alternating read cycles after downstream progress scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads: true
+    });
+  });
+});
 test("API regression: compile-created session flow preserves deterministic terminal parity across alternating fresh process restarts after downstream progress", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
