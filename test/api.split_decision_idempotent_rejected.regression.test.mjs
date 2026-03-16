@@ -1595,6 +1595,35 @@ test("API regression: compile-created session flow preserves normalized current-
     });
   });
 });
+test("API regression: compile-created session flow preserves append-only event cardinality and ordering across alternating fresh process restarts after downstream progress", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session continue append-only event ordering alternating fresh restarts after downstream progress scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session skip append-only event ordering alternating fresh restarts after downstream progress scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
+    });
+  });
+});
 test("API regression: compile-created session flow preserves deterministic terminal parity across alternating fresh process restarts after downstream progress", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
