@@ -257,6 +257,68 @@ function assertByteStableEvents(eventsPayload, acceptedEvents, acceptedEventsTex
   );
 }
 
+function snapshotEventOrdering(eventsPayload) {
+  const events = eventsPayload?.json?.events;
+  assert.ok(Array.isArray(events), "snapshotEventOrdering expected events array");
+
+  return events.map((event, index) => ({
+    index,
+    session_event_seq: event?.session_event_seq ?? null,
+    event_id: event?.event_id ?? null,
+    type: event?.type ?? null
+  }));
+}
+
+function assertAppendOnlyEventCardinalityAndOrderingStable(
+  eventsPayload,
+  acceptedEvents,
+  acceptedOrdering,
+  label
+) {
+  const actualEvents = eventsPayload?.json?.events;
+  const expectedEvents = acceptedEvents?.json?.events;
+
+  assert.ok(Array.isArray(actualEvents), `${label}: actual events array missing`);
+  assert.ok(Array.isArray(expectedEvents), `${label}: expected events array missing`);
+
+  assert.equal(
+    actualEvents.length,
+    expectedEvents.length,
+    `${label}: event cardinality changed.\nbefore=${expectedEvents.length}\nafter=${actualEvents.length}`
+  );
+
+  const actualOrdering = snapshotEventOrdering(eventsPayload);
+  assert.deepEqual(
+    actualOrdering,
+    acceptedOrdering,
+    `${label}: append-only event ordering changed.\nbefore=${JSON.stringify(acceptedOrdering)}\nafter=${JSON.stringify(actualOrdering)}`
+  );
+
+  const actualSeqs = actualOrdering.map((x) => x.session_event_seq);
+  const expectedSeqs = acceptedOrdering.map((x) => x.session_event_seq);
+  assert.deepEqual(
+    actualSeqs,
+    expectedSeqs,
+    `${label}: session_event_seq order drifted.\nbefore=${JSON.stringify(expectedSeqs)}\nafter=${JSON.stringify(actualSeqs)}`
+  );
+
+  const actualIds = actualOrdering.map((x) => x.event_id);
+  const expectedIds = acceptedOrdering.map((x) => x.event_id);
+  assert.deepEqual(
+    actualIds,
+    expectedIds,
+    `${label}: event_id order drifted.\nbefore=${JSON.stringify(expectedIds)}\nafter=${JSON.stringify(actualIds)}`
+  );
+
+  const actualTypes = actualOrdering.map((x) => x.type);
+  const expectedTypes = acceptedOrdering.map((x) => x.type);
+  assert.deepEqual(
+    actualTypes,
+    expectedTypes,
+    `${label}: event type order drifted.\nbefore=${JSON.stringify(expectedTypes)}\nafter=${JSON.stringify(actualTypes)}`
+  );
+}
+
 async function runResolvedReplayScenario({
   baseUrl,
   root,
@@ -267,7 +329,8 @@ async function runResolvedReplayScenario({
   requireByteStableAcrossRepeatedReloads = false,
   requireByteStableAfterDownstreamProgress = false,
   requireByteStableAcrossMixedReadPaths = false,
-  requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts = false
+  requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts = false,
+  requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads = false
 }) {
   const sessionId = await createSession(baseUrl, root);
 
@@ -414,6 +477,7 @@ async function runResolvedReplayScenario({
 
   const acceptedEventsText = acceptedEvents.text;
   const acceptedStateText = acceptedState.text;
+  const acceptedEventOrdering = snapshotEventOrdering(acceptedEvents);
 
   const replay = await httpJson(
     "POST",
@@ -502,6 +566,56 @@ async function runResolvedReplayScenario({
     }
   }
 
+  if (requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads) {
+    for (let i = 2; i <= 4; i += 1) {
+      const replayAgain = await httpJson(
+        "POST",
+        `${baseUrl}/sessions/${sessionId}/events`,
+        { event: { type: decisionType } }
+      );
+      assertRejectedResolvedReplay(replayAgain, { label, decisionType, ordinal: i });
+    }
+
+    for (let cycle = 1; cycle <= 3; cycle += 1) {
+      sessionStateCache.clear();
+
+      const interleavedEventsA = await getEvents(
+        baseUrl,
+        sessionId,
+        `${label} interleaved cycle ${cycle} events A`
+      );
+      const interleavedState = await getState(
+        baseUrl,
+        sessionId,
+        `${label} interleaved cycle ${cycle} state`
+      );
+      const interleavedEventsB = await getEvents(
+        baseUrl,
+        sessionId,
+        `${label} interleaved cycle ${cycle} events B`
+      );
+
+      assertAppendOnlyEventCardinalityAndOrderingStable(
+        interleavedEventsA,
+        acceptedEvents,
+        acceptedEventOrdering,
+        `${label}: interleaved cycle ${cycle} first /events`
+      );
+      assertByteStableState(
+        interleavedState,
+        acceptedState,
+        acceptedStateText,
+        `${label}: interleaved cycle ${cycle} /state`
+      );
+      assertAppendOnlyEventCardinalityAndOrderingStable(
+        interleavedEventsB,
+        acceptedEvents,
+        acceptedEventOrdering,
+        `${label}: interleaved cycle ${cycle} second /events`
+      );
+    }
+  }
+
   sessionStateCache.clear();
 
   const afterReplayEvents = await getEvents(baseUrl, sessionId, `${label} after replay events`);
@@ -533,6 +647,15 @@ async function runResolvedReplayScenario({
     );
   }
 
+  if (requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads) {
+    assertAppendOnlyEventCardinalityAndOrderingStable(
+      afterReplayEvents,
+      acceptedEvents,
+      acceptedEventOrdering,
+      `${label}: final /events after repeated interleaved reads`
+    );
+  }
+
   if (requireByteStableAcrossRepeatedReloads) {
     sessionStateCache.clear();
 
@@ -559,6 +682,15 @@ async function runResolvedReplayScenario({
       acceptedStateText,
       `${label}: /state across repeated reloads after rejected replay`
     );
+
+    if (requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads) {
+      assertAppendOnlyEventCardinalityAndOrderingStable(
+        secondReloadEvents,
+        acceptedEvents,
+        acceptedEventOrdering,
+        `${label}: second reload /events after repeated interleaved reads`
+      );
+    }
   }
 }
 
@@ -779,6 +911,32 @@ test("API regression: rejected split-decision replay remains byte-stable across 
       decisionType: "RETURN_SKIP",
       requireByteStableImmediateReplay: true,
       requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts: true
+    });
+  });
+});
+
+test("API regression: rejected split-decision replay preserves append-only event cardinality and ordering across repeated interleaved reads", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "continue append-only event cardinality and ordering scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip append-only event cardinality and ordering scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true
     });
   });
 });
