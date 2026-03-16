@@ -211,7 +211,8 @@ async function runResolvedReplayScenario({
   sessionStateCache,
   label,
   decisionType,
-  requireByteStableImmediateReplay = false
+  requireByteStableImmediateReplay = false,
+  requireByteStableAcrossRepeatedReloads = false
 }) {
   const sessionId = await createSession(baseUrl, root);
 
@@ -348,6 +349,43 @@ async function runResolvedReplayScenario({
     acceptedState.json,
     `${label}: /state changed after rejected replay.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(afterReplayState.json)}`
   );
+
+  if (requireByteStableAcrossRepeatedReloads) {
+    sessionStateCache.clear();
+
+    const secondReloadEvents = await getEvents(
+      baseUrl,
+      sessionId,
+      `${label} second reload events`
+    );
+    const secondReloadState = await getState(
+      baseUrl,
+      sessionId,
+      `${label} second reload state`
+    );
+
+    assert.equal(
+      secondReloadEvents.text,
+      acceptedEventsText,
+      `${label}: /events raw payload changed across repeated reloads after rejected replay.\nbefore=${acceptedEventsText}\nafter=${secondReloadEvents.text}`
+    );
+    assert.equal(
+      secondReloadState.text,
+      acceptedStateText,
+      `${label}: /state raw payload changed across repeated reloads after rejected replay.\nbefore=${acceptedStateText}\nafter=${secondReloadState.text}`
+    );
+
+    assert.deepEqual(
+      secondReloadEvents.json,
+      acceptedEvents.json,
+      `${label}: /events JSON changed across repeated reloads after rejected replay.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(secondReloadEvents.json)}`
+    );
+    assert.deepEqual(
+      secondReloadState.json,
+      acceptedState.json,
+      `${label}: /state JSON changed across repeated reloads after rejected replay.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(secondReloadState.json)}`
+    );
+  }
 }
 
 async function withServer(t, fn) {
@@ -481,6 +519,30 @@ test("API regression: RETURN_SKIP replay rejection leaves /events and /state byt
       label: "skip byte-stable immediate replay scenario",
       decisionType: "RETURN_SKIP",
       requireByteStableImmediateReplay: true
+    });
+  });
+});
+
+test("API regression: rejected split-decision replay remains byte-stable across repeated reloads", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "continue repeated-reload byte-stable replay scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip repeated-reload byte-stable replay scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true
     });
   });
 });
