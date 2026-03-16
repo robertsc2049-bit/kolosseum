@@ -205,6 +205,58 @@ async function getEvents(baseUrl, sessionId, label) {
   return events;
 }
 
+function assertRejectedResolvedReplay(replay, { label, decisionType, ordinal }) {
+  const replayLabel = ordinal
+    ? `${label}: rejected replay #${ordinal}`
+    : `${label}: replayed ${decisionType}`;
+
+  assert.equal(
+    replay.res.status,
+    409,
+    `${replayLabel} expected 409, got ${replay.res.status}. raw=${replay.text}`
+  );
+  assert.ok(
+    replay.json && typeof replay.json === "object",
+    `${replayLabel}: expected replay error JSON. raw=${replay.text}`
+  );
+  assert.equal(
+    replay.json.details?.failure_token,
+    "phase6_runtime_resolved_return_decision_replay",
+    `${replayLabel}: expected failure_token phase6_runtime_resolved_return_decision_replay. raw=${replay.text}`
+  );
+  assert.equal(
+    replay.json.details?.cause,
+    `PHASE6_RUNTIME_RESOLVED_RETURN_DECISION_REPLAY: ${decisionType}`,
+    `${replayLabel}: expected explicit cause for resolved replay. raw=${replay.text}`
+  );
+}
+
+function assertByteStableState(statePayload, acceptedState, acceptedStateText, label) {
+  assert.equal(
+    statePayload.text,
+    acceptedStateText,
+    `${label}: /state raw payload changed.\nbefore=${acceptedStateText}\nafter=${statePayload.text}`
+  );
+  assert.deepEqual(
+    statePayload.json,
+    acceptedState.json,
+    `${label}: /state JSON changed.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(statePayload.json)}`
+  );
+}
+
+function assertByteStableEvents(eventsPayload, acceptedEvents, acceptedEventsText, label) {
+  assert.equal(
+    eventsPayload.text,
+    acceptedEventsText,
+    `${label}: /events raw payload changed.\nbefore=${acceptedEventsText}\nafter=${eventsPayload.text}`
+  );
+  assert.deepEqual(
+    eventsPayload.json,
+    acceptedEvents.json,
+    `${label}: /events JSON changed.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(eventsPayload.json)}`
+  );
+}
+
 async function runResolvedReplayScenario({
   baseUrl,
   root,
@@ -214,7 +266,8 @@ async function runResolvedReplayScenario({
   requireByteStableImmediateReplay = false,
   requireByteStableAcrossRepeatedReloads = false,
   requireByteStableAfterDownstreamProgress = false,
-  requireByteStableAcrossMixedReadPaths = false
+  requireByteStableAcrossMixedReadPaths = false,
+  requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts = false
 }) {
   const sessionId = await createSession(baseUrl, root);
 
@@ -367,26 +420,7 @@ async function runResolvedReplayScenario({
     `${baseUrl}/sessions/${sessionId}/events`,
     { event: { type: decisionType } }
   );
-
-  assert.equal(
-    replay.res.status,
-    409,
-    `${label}: replayed ${decisionType} expected 409, got ${replay.res.status}. raw=${replay.text}`
-  );
-  assert.ok(
-    replay.json && typeof replay.json === "object",
-    `${label}: expected replay error JSON. raw=${replay.text}`
-  );
-  assert.equal(
-    replay.json.details?.failure_token,
-    "phase6_runtime_resolved_return_decision_replay",
-    `${label}: expected failure_token phase6_runtime_resolved_return_decision_replay. raw=${replay.text}`
-  );
-  assert.equal(
-    replay.json.details?.cause,
-    `PHASE6_RUNTIME_RESOLVED_RETURN_DECISION_REPLAY: ${decisionType}`,
-    `${label}: expected explicit cause for resolved replay. raw=${replay.text}`
-  );
+  assertRejectedResolvedReplay(replay, { label, decisionType });
 
   if (requireByteStableAcrossMixedReadPaths) {
     sessionStateCache.clear();
@@ -405,27 +439,67 @@ async function runResolvedReplayScenario({
       `${label} mixed hydrated events`
     );
 
-    assert.equal(
-      mixedHydratedState.text,
+    assertByteStableState(
+      mixedHydratedState,
+      acceptedState,
       acceptedStateText,
-      `${label}: /state raw payload changed across mixed cache/hydrated reads after rejected replay.\nbefore=${acceptedStateText}\nafter=${mixedHydratedState.text}`
+      `${label}: /state across mixed cache/hydrated reads after rejected replay`
     );
-    assert.equal(
-      mixedHydratedEvents.text,
+    assertByteStableEvents(
+      mixedHydratedEvents,
+      acceptedEvents,
       acceptedEventsText,
-      `${label}: /events raw payload changed across mixed cache/hydrated reads after rejected replay.\nbefore=${acceptedEventsText}\nafter=${mixedHydratedEvents.text}`
+      `${label}: /events across mixed cache/hydrated reads after rejected replay`
     );
+  }
 
-    assert.deepEqual(
-      mixedHydratedState.json,
-      acceptedState.json,
-      `${label}: /state JSON changed across mixed cache/hydrated reads after rejected replay.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(mixedHydratedState.json)}`
-    );
-    assert.deepEqual(
-      mixedHydratedEvents.json,
-      acceptedEvents.json,
-      `${label}: /events JSON changed across mixed cache/hydrated reads after rejected replay.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(mixedHydratedEvents.json)}`
-    );
+  if (requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts) {
+    for (let i = 2; i <= 3; i += 1) {
+      const replayAgain = await httpJson(
+        "POST",
+        `${baseUrl}/sessions/${sessionId}/events`,
+        { event: { type: decisionType } }
+      );
+      assertRejectedResolvedReplay(replayAgain, { label, decisionType, ordinal: i });
+    }
+
+    for (let cycle = 1; cycle <= 2; cycle += 1) {
+      sessionStateCache.clear();
+      const stateA = await getState(
+        baseUrl,
+        sessionId,
+        `${label} alternating cycle ${cycle} state A`
+      );
+      const eventsMid = await getEvents(
+        baseUrl,
+        sessionId,
+        `${label} alternating cycle ${cycle} events`
+      );
+      const stateB = await getState(
+        baseUrl,
+        sessionId,
+        `${label} alternating cycle ${cycle} state B`
+      );
+
+      assertByteStableState(
+        stateA,
+        acceptedState,
+        acceptedStateText,
+        `${label}: alternating cycle ${cycle} first /state after multiple rejected re-posts`
+      );
+      assertByteStableEvents(
+        eventsMid,
+        acceptedEvents,
+        acceptedEventsText,
+        `${label}: alternating cycle ${cycle} /events after multiple rejected re-posts`
+      );
+      assertByteStableState(
+        stateB,
+        acceptedState,
+        acceptedStateText,
+        `${label}: alternating cycle ${cycle} second /state after multiple rejected re-posts`
+      );
+    }
   }
 
   sessionStateCache.clear();
@@ -434,28 +508,30 @@ async function runResolvedReplayScenario({
   const afterReplayState = await getState(baseUrl, sessionId, `${label} after replay state`);
 
   if (requireByteStableImmediateReplay) {
-    assert.equal(
-      afterReplayEvents.text,
+    assertByteStableEvents(
+      afterReplayEvents,
+      acceptedEvents,
       acceptedEventsText,
-      `${label}: /events raw payload changed after rejected replay.\nbefore=${acceptedEventsText}\nafter=${afterReplayEvents.text}`
+      `${label}: /events after rejected replay`
     );
-    assert.equal(
-      afterReplayState.text,
+    assertByteStableState(
+      afterReplayState,
+      acceptedState,
       acceptedStateText,
-      `${label}: /state raw payload changed after rejected replay.\nbefore=${acceptedStateText}\nafter=${afterReplayState.text}`
+      `${label}: /state after rejected replay`
+    );
+  } else {
+    assert.deepEqual(
+      afterReplayEvents.json,
+      acceptedEvents.json,
+      `${label}: /events changed after rejected replay.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(afterReplayEvents.json)}`
+    );
+    assert.deepEqual(
+      afterReplayState.json,
+      acceptedState.json,
+      `${label}: /state changed after rejected replay.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(afterReplayState.json)}`
     );
   }
-
-  assert.deepEqual(
-    afterReplayEvents.json,
-    acceptedEvents.json,
-    `${label}: /events changed after rejected replay.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(afterReplayEvents.json)}`
-  );
-  assert.deepEqual(
-    afterReplayState.json,
-    acceptedState.json,
-    `${label}: /state changed after rejected replay.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(afterReplayState.json)}`
-  );
 
   if (requireByteStableAcrossRepeatedReloads) {
     sessionStateCache.clear();
@@ -471,26 +547,17 @@ async function runResolvedReplayScenario({
       `${label} second reload state`
     );
 
-    assert.equal(
-      secondReloadEvents.text,
+    assertByteStableEvents(
+      secondReloadEvents,
+      acceptedEvents,
       acceptedEventsText,
-      `${label}: /events raw payload changed across repeated reloads after rejected replay.\nbefore=${acceptedEventsText}\nafter=${secondReloadEvents.text}`
+      `${label}: /events across repeated reloads after rejected replay`
     );
-    assert.equal(
-      secondReloadState.text,
+    assertByteStableState(
+      secondReloadState,
+      acceptedState,
       acceptedStateText,
-      `${label}: /state raw payload changed across repeated reloads after rejected replay.\nbefore=${acceptedStateText}\nafter=${secondReloadState.text}`
-    );
-
-    assert.deepEqual(
-      secondReloadEvents.json,
-      acceptedEvents.json,
-      `${label}: /events JSON changed across repeated reloads after rejected replay.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(secondReloadEvents.json)}`
-    );
-    assert.deepEqual(
-      secondReloadState.json,
-      acceptedState.json,
-      `${label}: /state JSON changed across repeated reloads after rejected replay.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(secondReloadState.json)}`
+      `${label}: /state across repeated reloads after rejected replay`
     );
   }
 }
@@ -688,6 +755,30 @@ test("API regression: rejected split-decision replay remains byte-stable across 
       decisionType: "RETURN_SKIP",
       requireByteStableImmediateReplay: true,
       requireByteStableAcrossMixedReadPaths: true
+    });
+  });
+});
+
+test("API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state read cycles after multiple rejected re-posts", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "continue alternating state-events-state byte-stable replay scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip alternating state-events-state byte-stable replay scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts: true
     });
   });
 });
