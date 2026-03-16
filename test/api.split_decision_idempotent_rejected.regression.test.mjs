@@ -672,10 +672,10 @@ async function runResolvedReplayScenario({
     }
   }
 
-  const acceptedEventsText = acceptedEvents.text;
-  const acceptedStateText = acceptedState.text;
-  const acceptedEventOrdering = snapshotEventOrdering(acceptedEvents);
-  const acceptedNormalizedCurrentStepIdentity =
+  let acceptedEventsText = acceptedEvents.text;
+  let acceptedStateText = acceptedState.text;
+  let acceptedEventOrdering = snapshotEventOrdering(acceptedEvents);
+  let acceptedNormalizedCurrentStepIdentity =
     snapshotNormalizedCurrentStepIdentity(acceptedState);
 
   const replay = await httpJson(
@@ -881,10 +881,14 @@ async function runResolvedReplayScenario({
     );
     acceptedState = acceptedTerminalState;
 
-    const acceptedTerminalStateText = acceptedState.text;
-    const acceptedTerminalEventsText = acceptedEvents.text;
+    acceptedStateText = acceptedState.text;
+    acceptedEventsText = acceptedEvents.text;
+    acceptedEventOrdering = snapshotEventOrdering(acceptedEvents);
+    acceptedNormalizedCurrentStepIdentity =
+      snapshotNormalizedCurrentStepIdentity(acceptedState);
+
     const acceptedTerminalShape = snapshotTerminalStateShape(acceptedState);
-    const acceptedTerminalOrdering = snapshotEventOrdering(acceptedEvents);
+    const acceptedTerminalOrdering = acceptedEventOrdering;
 
     for (let i = 2; i <= 4; i += 1) {
       const replayAgain = await httpJson(
@@ -950,13 +954,13 @@ async function runResolvedReplayScenario({
     assertByteStableEvents(
       afterTerminalReplayEvents,
       acceptedEvents,
-      acceptedTerminalEventsText,
+      acceptedEventsText,
       `${label}: terminal /events after rejected replay`
     );
     assertByteStableState(
       afterTerminalReplayState,
       acceptedState,
-      acceptedTerminalStateText,
+      acceptedStateText,
       `${label}: terminal /state after rejected replay`
     );
     assertTerminalStateShapeAndNoResurrectionStable(
