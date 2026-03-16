@@ -1502,6 +1502,37 @@ test("API regression: rejected resolved split-decision replays preserve terminal
     });
   });
 });
+test("API regression: compile-created session flow preserves deterministic append-only events/state parity across fresh uncached replay after downstream progress", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session continue append-only parity fresh uncached replay after downstream progress scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      requireByteStableAcrossMixedReadPaths: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session skip append-only parity fresh uncached replay after downstream progress scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      requireByteStableAcrossMixedReadPaths: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true
+    });
+  });
+});
 test("API regression: compile-created session flow preserves deterministic terminal contract across full operator path", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
