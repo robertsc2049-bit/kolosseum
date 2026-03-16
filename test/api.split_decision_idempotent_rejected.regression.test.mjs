@@ -350,7 +350,7 @@ async function runResolvedReplayScenario({
   );
 }
 
-test("API regression: split decision commands are idempotent-rejected after gate resolution", async (t) => {
+async function withServer(t, fn) {
   const root = repoRoot();
 
   const databaseUrl =
@@ -436,115 +436,51 @@ test("API regression: split decision commands are idempotent-rejected after gate
 
   await waitForHealth(baseUrl);
 
-  await runResolvedReplayScenario({
-    baseUrl,
-    root,
-    sessionStateCache,
-    label: "continue scenario",
-    decisionType: "RETURN_CONTINUE"
-  });
+  await fn({ baseUrl, root, sessionStateCache });
+}
 
-  await runResolvedReplayScenario({
-    baseUrl,
-    root,
-    sessionStateCache,
-    label: "skip scenario",
-    decisionType: "RETURN_SKIP"
+test("API regression: split decision commands are idempotent-rejected after gate resolution", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "continue scenario",
+      decisionType: "RETURN_CONTINUE"
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip scenario",
+      decisionType: "RETURN_SKIP"
+    });
   });
 });
 
 test("API regression: RETURN_CONTINUE replay rejection leaves /events and /state byte-stable across immediate re-post", async (t) => {
-  const root = repoRoot();
-
-  const databaseUrl =
-    process.env.DATABASE_URL ??
-    "postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test";
-
-  const buildEnv = {
-    ...process.env,
-    DATABASE_URL: databaseUrl,
-    PORT: "0"
-  };
-  delete buildEnv.SMOKE_NO_DB;
-
-  const previousDatabaseUrl = process.env.DATABASE_URL;
-  const previousSmokeNoDb = process.env.SMOKE_NO_DB;
-
-  process.env.DATABASE_URL = databaseUrl;
-  delete process.env.SMOKE_NO_DB;
-
-  t.after(() => {
-    if (typeof previousDatabaseUrl === "undefined") {
-      delete process.env.DATABASE_URL;
-    } else {
-      process.env.DATABASE_URL = previousDatabaseUrl;
-    }
-
-    if (typeof previousSmokeNoDb === "undefined") {
-      delete process.env.SMOKE_NO_DB;
-    } else {
-      process.env.SMOKE_NO_DB = previousSmokeNoDb;
-    }
-  });
-
-  const serverModulePath = await ensureBuiltDist(root, buildEnv);
-
-  {
-    const schemaScript = path.join(root, "scripts", "apply-schema.mjs");
-    const schema = spawnNode([schemaScript], { cwd: root, env: buildEnv });
-    const code = await new Promise((resolve) => schema.child.on("close", resolve));
-    if (code !== 0) {
-      throw new Error(
-        `apply-schema failed (code=${code}).\nstdout:\n${schema.stdout}\nstderr:\n${schema.stderr}`
-      );
-    }
-  }
-
-  const port = await getFreePort();
-  process.env.PORT = String(port);
-
-  const serverModuleUrl = pathToFileURL(serverModulePath).href + `?t=${Date.now()}`;
-  const cacheModuleUrl =
-    pathToFileURL(path.join(root, "dist", "src", "api", "session_state_cache.js")).href +
-    `?t=${Date.now()}`;
-
-  const [{ app }, { sessionStateCache }] = await Promise.all([
-    import(serverModuleUrl),
-    import(cacheModuleUrl)
-  ]);
-
-  assert.ok(app && typeof app.listen === "function", "expected dist server app.listen()");
-  assert.ok(
-    sessionStateCache && typeof sessionStateCache.clear === "function",
-    "expected dist sessionStateCache.clear()"
-  );
-
-  const baseUrl = `http://127.0.0.1:${port}`;
-
-  const srv = await new Promise((resolve, reject) => {
-    const instance = app.listen(port, "127.0.0.1", () => resolve(instance));
-    instance.on("error", reject);
-  });
-
-  t.after(async () => {
-    await new Promise((resolve) => {
-      try {
-        srv.close(() => resolve());
-      } catch {
-        resolve();
-      }
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "continue byte-stable immediate replay scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true
     });
-    await delay(50);
   });
+});
 
-  await waitForHealth(baseUrl);
-
-  await runResolvedReplayScenario({
-    baseUrl,
-    root,
-    sessionStateCache,
-    label: "continue byte-stable immediate replay scenario",
-    decisionType: "RETURN_CONTINUE",
-    requireByteStableImmediateReplay: true
+test("API regression: RETURN_SKIP replay rejection leaves /events and /state byte-stable across immediate re-post", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip byte-stable immediate replay scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true
+    });
   });
 });
