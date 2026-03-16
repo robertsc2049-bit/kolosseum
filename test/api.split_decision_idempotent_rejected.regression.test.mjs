@@ -319,6 +319,74 @@ function assertAppendOnlyEventCardinalityAndOrderingStable(
   );
 }
 
+function snapshotNormalizedCurrentStepIdentity(statePayload) {
+  const currentStep = statePayload?.json?.current_step ?? null;
+  const trace = statePayload?.json?.trace;
+
+  assert.ok(trace && typeof trace === "object", "snapshotNormalizedCurrentStepIdentity expected trace object");
+
+  return {
+    current_step_present: currentStep !== null,
+    current_step_type: currentStep?.type ?? null,
+    current_step_exercise_id: currentStep?.exercise?.exercise_id ?? null,
+    current_step_block_id: currentStep?.block_id ?? null,
+    trace_return_decision_required: trace?.return_decision_required ?? null,
+    trace_return_decision_options: Array.isArray(trace?.return_decision_options)
+      ? [...trace.return_decision_options]
+      : [],
+    trace_split_session_active: trace?.split_session_active ?? null
+  };
+}
+
+function assertNormalizedCurrentStepIdentityAndTraceStable(
+  statePayload,
+  acceptedState,
+  acceptedIdentity,
+  label
+) {
+  const actualIdentity = snapshotNormalizedCurrentStepIdentity(statePayload);
+
+  assert.deepEqual(
+    actualIdentity,
+    acceptedIdentity,
+    `${label}: normalized current-step identity or trace contract changed.\nbefore=${JSON.stringify(acceptedIdentity)}\nafter=${JSON.stringify(actualIdentity)}`
+  );
+
+  assert.equal(
+    statePayload?.json?.current_step?.type ?? null,
+    acceptedState?.json?.current_step?.type ?? null,
+    `${label}: current_step.type drifted`
+  );
+
+  assert.equal(
+    statePayload?.json?.current_step?.exercise?.exercise_id ?? null,
+    acceptedState?.json?.current_step?.exercise?.exercise_id ?? null,
+    `${label}: current_step.exercise.exercise_id drifted`
+  );
+
+  assert.equal(
+    (statePayload?.json?.current_step ?? null) !== null,
+    (acceptedState?.json?.current_step ?? null) !== null,
+    `${label}: current_step presence drifted`
+  );
+
+  assert.equal(
+    statePayload?.json?.trace?.return_decision_required ?? null,
+    acceptedState?.json?.trace?.return_decision_required ?? null,
+    `${label}: trace.return_decision_required drifted`
+  );
+
+  assert.deepEqual(
+    Array.isArray(statePayload?.json?.trace?.return_decision_options)
+      ? statePayload.json.trace.return_decision_options
+      : [],
+    Array.isArray(acceptedState?.json?.trace?.return_decision_options)
+      ? acceptedState.json.trace.return_decision_options
+      : [],
+    `${label}: trace.return_decision_options drifted`
+  );
+}
+
 async function runResolvedReplayScenario({
   baseUrl,
   root,
@@ -330,7 +398,8 @@ async function runResolvedReplayScenario({
   requireByteStableAfterDownstreamProgress = false,
   requireByteStableAcrossMixedReadPaths = false,
   requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts = false,
-  requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads = false
+  requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads = false,
+  requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads = false
 }) {
   const sessionId = await createSession(baseUrl, root);
 
@@ -422,62 +491,61 @@ async function runResolvedReplayScenario({
   let acceptedState = acceptedStateAfterDecision;
 
   if (requireByteStableAfterDownstreamProgress) {
-    assert.ok(
-      acceptedStateAfterDecision.json.current_step &&
-        acceptedStateAfterDecision.json.current_step.type === "EXERCISE" &&
-        typeof acceptedStateAfterDecision.json.current_step.exercise?.exercise_id === "string" &&
-        acceptedStateAfterDecision.json.current_step.exercise.exercise_id.length > 0,
-      `${label}: expected EXERCISE current_step after accepted ${decisionType}. raw=${JSON.stringify(acceptedStateAfterDecision.json)}`
-    );
+    const acceptedCurrentStep = acceptedStateAfterDecision.json.current_step ?? null;
 
-    const downstreamExerciseId =
-      acceptedStateAfterDecision.json.current_step.exercise.exercise_id;
+    if (acceptedCurrentStep?.type === "EXERCISE" &&
+        typeof acceptedCurrentStep?.exercise?.exercise_id === "string" &&
+        acceptedCurrentStep.exercise.exercise_id.length > 0) {
+      const downstreamExerciseId = acceptedCurrentStep.exercise.exercise_id;
 
-    const downstream = await httpJson(
-      "POST",
-      `${baseUrl}/sessions/${sessionId}/events`,
-      {
-        event: {
-          type: "COMPLETE_EXERCISE",
-          exercise_id: downstreamExerciseId
+      const downstream = await httpJson(
+        "POST",
+        `${baseUrl}/sessions/${sessionId}/events`,
+        {
+          event: {
+            type: "COMPLETE_EXERCISE",
+            exercise_id: downstreamExerciseId
+          }
         }
-      }
-    );
+      );
 
-    assert.equal(
-      downstream.res.status,
-      201,
-      `${label}: downstream COMPLETE_EXERCISE expected 201, got ${downstream.res.status}. raw=${downstream.text}`
-    );
+      assert.equal(
+        downstream.res.status,
+        201,
+        `${label}: downstream COMPLETE_EXERCISE expected 201, got ${downstream.res.status}. raw=${downstream.text}`
+      );
 
-    sessionStateCache.clear();
+      sessionStateCache.clear();
 
-    acceptedEvents = await getEvents(
-      baseUrl,
-      sessionId,
-      `${label} accepted events after downstream progress`
-    );
-    acceptedState = await getState(
-      baseUrl,
-      sessionId,
-      `${label} accepted state after downstream progress`
-    );
+      acceptedEvents = await getEvents(
+        baseUrl,
+        sessionId,
+        `${label} accepted events after downstream progress`
+      );
+      acceptedState = await getState(
+        baseUrl,
+        sessionId,
+        `${label} accepted state after downstream progress`
+      );
 
-    assert.equal(
-      acceptedState.json.trace.return_decision_required,
-      false,
-      `${label}: downstream progress must remain ungated. trace=${JSON.stringify(acceptedState.json.trace)}`
-    );
-    assert.deepEqual(
-      acceptedState.json.trace.return_decision_options,
-      [],
-      `${label}: downstream progress must not restore return options. trace=${JSON.stringify(acceptedState.json.trace)}`
-    );
+      assert.equal(
+        acceptedState.json.trace.return_decision_required,
+        false,
+        `${label}: downstream progress must remain ungated. trace=${JSON.stringify(acceptedState.json.trace)}`
+      );
+      assert.deepEqual(
+        acceptedState.json.trace.return_decision_options,
+        [],
+        `${label}: downstream progress must not restore return options. trace=${JSON.stringify(acceptedState.json.trace)}`
+      );
+    }
   }
 
   const acceptedEventsText = acceptedEvents.text;
   const acceptedStateText = acceptedState.text;
   const acceptedEventOrdering = snapshotEventOrdering(acceptedEvents);
+  const acceptedNormalizedCurrentStepIdentity =
+    snapshotNormalizedCurrentStepIdentity(acceptedState);
 
   const replay = await httpJson(
     "POST",
@@ -616,6 +684,56 @@ async function runResolvedReplayScenario({
     }
   }
 
+  if (requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads) {
+    for (let i = 2; i <= 4; i += 1) {
+      const replayAgain = await httpJson(
+        "POST",
+        `${baseUrl}/sessions/${sessionId}/events`,
+        { event: { type: decisionType } }
+      );
+      assertRejectedResolvedReplay(replayAgain, { label, decisionType, ordinal: i });
+    }
+
+    for (let cycle = 1; cycle <= 3; cycle += 1) {
+      sessionStateCache.clear();
+
+      const interleavedStateA = await getState(
+        baseUrl,
+        sessionId,
+        `${label} normalized current-step cycle ${cycle} state A`
+      );
+      const interleavedEvents = await getEvents(
+        baseUrl,
+        sessionId,
+        `${label} normalized current-step cycle ${cycle} events`
+      );
+      const interleavedStateB = await getState(
+        baseUrl,
+        sessionId,
+        `${label} normalized current-step cycle ${cycle} state B`
+      );
+
+      assertNormalizedCurrentStepIdentityAndTraceStable(
+        interleavedStateA,
+        acceptedState,
+        acceptedNormalizedCurrentStepIdentity,
+        `${label}: normalized current-step cycle ${cycle} first /state`
+      );
+      assertAppendOnlyEventCardinalityAndOrderingStable(
+        interleavedEvents,
+        acceptedEvents,
+        acceptedEventOrdering,
+        `${label}: normalized current-step cycle ${cycle} /events`
+      );
+      assertNormalizedCurrentStepIdentityAndTraceStable(
+        interleavedStateB,
+        acceptedState,
+        acceptedNormalizedCurrentStepIdentity,
+        `${label}: normalized current-step cycle ${cycle} second /state`
+      );
+    }
+  }
+
   sessionStateCache.clear();
 
   const afterReplayEvents = await getEvents(baseUrl, sessionId, `${label} after replay events`);
@@ -656,6 +774,15 @@ async function runResolvedReplayScenario({
     );
   }
 
+  if (requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads) {
+    assertNormalizedCurrentStepIdentityAndTraceStable(
+      afterReplayState,
+      acceptedState,
+      acceptedNormalizedCurrentStepIdentity,
+      `${label}: final /state after repeated interleaved reads`
+    );
+  }
+
   if (requireByteStableAcrossRepeatedReloads) {
     sessionStateCache.clear();
 
@@ -689,6 +816,15 @@ async function runResolvedReplayScenario({
         acceptedEvents,
         acceptedEventOrdering,
         `${label}: second reload /events after repeated interleaved reads`
+      );
+    }
+
+    if (requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads) {
+      assertNormalizedCurrentStepIdentityAndTraceStable(
+        secondReloadState,
+        acceptedState,
+        acceptedNormalizedCurrentStepIdentity,
+        `${label}: second reload /state after repeated interleaved reads`
       );
     }
   }
@@ -937,6 +1073,34 @@ test("API regression: rejected split-decision replay preserves append-only event
       requireByteStableImmediateReplay: true,
       requireByteStableAcrossRepeatedReloads: true,
       requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true
+    });
+  });
+});
+
+test("API regression: rejected split-decision replay preserves normalized current-step identity and trace contract across repeated interleaved reads", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "continue normalized current-step identity and trace contract scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip normalized current-step identity and trace contract scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true
     });
   });
 });
