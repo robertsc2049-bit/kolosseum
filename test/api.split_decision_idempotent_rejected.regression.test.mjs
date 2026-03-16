@@ -1342,6 +1342,23 @@ test("API regression: rejected split-decision replay preserves normalized curren
   });
 });
 
+test("API regression: rejected RETURN_SKIP replay preserves terminal-state shape and no-resurrection invariants under fresh uncached reload after merge-to-main parity", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip terminal-state shape fresh uncached reload parity scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads: true
+    });
+  });
+});
+
 test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
