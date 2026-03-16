@@ -1653,6 +1653,35 @@ test("API regression: compile-created session flow preserves byte-stable /state 
     });
   });
 });
+test("API regression: compile-created session flow preserves no-resurrection and terminal-shape invariants across alternating fresh process restarts after downstream progress", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session continue no-resurrection terminal-shape alternating fresh restarts after downstream progress scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session skip no-resurrection terminal-shape alternating fresh restarts after downstream progress scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
+    });
+  });
+});
 test("API regression: compile-created session flow preserves deterministic terminal parity across alternating fresh process restarts after downstream progress", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
