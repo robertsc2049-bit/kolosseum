@@ -213,7 +213,8 @@ async function runResolvedReplayScenario({
   decisionType,
   requireByteStableImmediateReplay = false,
   requireByteStableAcrossRepeatedReloads = false,
-  requireByteStableAfterDownstreamProgress = false
+  requireByteStableAfterDownstreamProgress = false,
+  requireByteStableAcrossMixedReadPaths = false
 }) {
   const sessionId = await createSession(baseUrl, root);
 
@@ -386,6 +387,46 @@ async function runResolvedReplayScenario({
     `PHASE6_RUNTIME_RESOLVED_RETURN_DECISION_REPLAY: ${decisionType}`,
     `${label}: expected explicit cause for resolved replay. raw=${replay.text}`
   );
+
+  if (requireByteStableAcrossMixedReadPaths) {
+    sessionStateCache.clear();
+
+    const mixedHydratedState = await getState(
+      baseUrl,
+      sessionId,
+      `${label} mixed hydrated state`
+    );
+
+    sessionStateCache.clear();
+
+    const mixedHydratedEvents = await getEvents(
+      baseUrl,
+      sessionId,
+      `${label} mixed hydrated events`
+    );
+
+    assert.equal(
+      mixedHydratedState.text,
+      acceptedStateText,
+      `${label}: /state raw payload changed across mixed cache/hydrated reads after rejected replay.\nbefore=${acceptedStateText}\nafter=${mixedHydratedState.text}`
+    );
+    assert.equal(
+      mixedHydratedEvents.text,
+      acceptedEventsText,
+      `${label}: /events raw payload changed across mixed cache/hydrated reads after rejected replay.\nbefore=${acceptedEventsText}\nafter=${mixedHydratedEvents.text}`
+    );
+
+    assert.deepEqual(
+      mixedHydratedState.json,
+      acceptedState.json,
+      `${label}: /state JSON changed across mixed cache/hydrated reads after rejected replay.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(mixedHydratedState.json)}`
+    );
+    assert.deepEqual(
+      mixedHydratedEvents.json,
+      acceptedEvents.json,
+      `${label}: /events JSON changed across mixed cache/hydrated reads after rejected replay.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(mixedHydratedEvents.json)}`
+    );
+  }
 
   sessionStateCache.clear();
 
@@ -623,6 +664,30 @@ test("API regression: rejected RETURN_CONTINUE replay remains byte-stable after 
       decisionType: "RETURN_CONTINUE",
       requireByteStableImmediateReplay: true,
       requireByteStableAfterDownstreamProgress: true
+    });
+  });
+});
+
+test("API regression: rejected split-decision replay remains byte-stable across mixed cache/hydrated reads", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "continue mixed-read byte-stable replay scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossMixedReadPaths: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip mixed-read byte-stable replay scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossMixedReadPaths: true
     });
   });
 });
