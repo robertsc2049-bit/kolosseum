@@ -212,7 +212,8 @@ async function runResolvedReplayScenario({
   label,
   decisionType,
   requireByteStableImmediateReplay = false,
-  requireByteStableAcrossRepeatedReloads = false
+  requireByteStableAcrossRepeatedReloads = false,
+  requireByteStableAfterDownstreamProgress = false
 }) {
   const sessionId = await createSession(baseUrl, root);
 
@@ -278,19 +279,84 @@ async function runResolvedReplayScenario({
     );
   }
 
-  const acceptedEvents = await getEvents(baseUrl, sessionId, `${label} accepted events`);
-  const acceptedState = await getState(baseUrl, sessionId, `${label} accepted state`);
+  const acceptedEventsAfterDecision = await getEvents(
+    baseUrl,
+    sessionId,
+    `${label} accepted events after decision`
+  );
+  const acceptedStateAfterDecision = await getState(
+    baseUrl,
+    sessionId,
+    `${label} accepted state after decision`
+  );
 
   assert.equal(
-    acceptedState.json.trace.return_decision_required,
+    acceptedStateAfterDecision.json.trace.return_decision_required,
     false,
-    `${label}: expected gate cleared after first ${decisionType}. trace=${JSON.stringify(acceptedState.json.trace)}`
+    `${label}: expected gate cleared after first ${decisionType}. trace=${JSON.stringify(acceptedStateAfterDecision.json.trace)}`
   );
   assert.deepEqual(
-    acceptedState.json.trace.return_decision_options,
+    acceptedStateAfterDecision.json.trace.return_decision_options,
     [],
-    `${label}: expected no return options after first ${decisionType}. trace=${JSON.stringify(acceptedState.json.trace)}`
+    `${label}: expected no return options after first ${decisionType}. trace=${JSON.stringify(acceptedStateAfterDecision.json.trace)}`
   );
+
+  let acceptedEvents = acceptedEventsAfterDecision;
+  let acceptedState = acceptedStateAfterDecision;
+
+  if (requireByteStableAfterDownstreamProgress) {
+    assert.ok(
+      acceptedStateAfterDecision.json.current_step &&
+        acceptedStateAfterDecision.json.current_step.type === "EXERCISE" &&
+        typeof acceptedStateAfterDecision.json.current_step.exercise?.exercise_id === "string" &&
+        acceptedStateAfterDecision.json.current_step.exercise.exercise_id.length > 0,
+      `${label}: expected EXERCISE current_step after accepted ${decisionType}. raw=${JSON.stringify(acceptedStateAfterDecision.json)}`
+    );
+
+    const downstreamExerciseId =
+      acceptedStateAfterDecision.json.current_step.exercise.exercise_id;
+
+    const downstream = await httpJson(
+      "POST",
+      `${baseUrl}/sessions/${sessionId}/events`,
+      {
+        event: {
+          type: "COMPLETE_EXERCISE",
+          exercise_id: downstreamExerciseId
+        }
+      }
+    );
+
+    assert.equal(
+      downstream.res.status,
+      201,
+      `${label}: downstream COMPLETE_EXERCISE expected 201, got ${downstream.res.status}. raw=${downstream.text}`
+    );
+
+    sessionStateCache.clear();
+
+    acceptedEvents = await getEvents(
+      baseUrl,
+      sessionId,
+      `${label} accepted events after downstream progress`
+    );
+    acceptedState = await getState(
+      baseUrl,
+      sessionId,
+      `${label} accepted state after downstream progress`
+    );
+
+    assert.equal(
+      acceptedState.json.trace.return_decision_required,
+      false,
+      `${label}: downstream progress must remain ungated. trace=${JSON.stringify(acceptedState.json.trace)}`
+    );
+    assert.deepEqual(
+      acceptedState.json.trace.return_decision_options,
+      [],
+      `${label}: downstream progress must not restore return options. trace=${JSON.stringify(acceptedState.json.trace)}`
+    );
+  }
 
   const acceptedEventsText = acceptedEvents.text;
   const acceptedStateText = acceptedState.text;
@@ -543,6 +609,30 @@ test("API regression: rejected split-decision replay remains byte-stable across 
       decisionType: "RETURN_SKIP",
       requireByteStableImmediateReplay: true,
       requireByteStableAcrossRepeatedReloads: true
+    });
+  });
+});
+
+test("API regression: rejected split-decision replay remains byte-stable after accepted downstream progress", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "continue downstream-progress byte-stable replay scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAfterDownstreamProgress: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip downstream-progress byte-stable replay scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAfterDownstreamProgress: true
     });
   });
 });
