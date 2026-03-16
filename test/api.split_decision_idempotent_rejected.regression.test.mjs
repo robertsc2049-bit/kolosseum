@@ -387,6 +387,134 @@ function assertNormalizedCurrentStepIdentityAndTraceStable(
   );
 }
 
+function snapshotTerminalStateShape(statePayload) {
+  const currentStep = statePayload?.json?.current_step ?? null;
+  const trace = statePayload?.json?.trace;
+
+  assert.ok(trace && typeof trace === "object", "snapshotTerminalStateShape expected trace object");
+
+  return {
+    terminal_current_step_present: currentStep !== null,
+    terminal_current_step_type: currentStep?.type ?? null,
+    terminal_current_step_exercise_id: currentStep?.exercise?.exercise_id ?? null,
+    terminal_current_step_block_id: currentStep?.block_id ?? null,
+    terminal_trace_return_decision_required: trace?.return_decision_required ?? null,
+    terminal_trace_return_decision_options: Array.isArray(trace?.return_decision_options)
+      ? [...trace.return_decision_options]
+      : [],
+    terminal_trace_split_session_active: trace?.split_session_active ?? null
+  };
+}
+
+function assertTerminalStateShapeAndNoResurrectionStable(
+  statePayload,
+  acceptedTerminalState,
+  acceptedTerminalShape,
+  label
+) {
+  const actualShape = snapshotTerminalStateShape(statePayload);
+
+  assert.deepEqual(
+    actualShape,
+    acceptedTerminalShape,
+    `${label}: terminal-state shape changed.\nbefore=${JSON.stringify(acceptedTerminalShape)}\nafter=${JSON.stringify(actualShape)}`
+  );
+
+  assert.equal(
+    statePayload?.json?.current_step ?? null,
+    null,
+    `${label}: current_step resurrected in terminal state`
+  );
+
+  assert.equal(
+    statePayload?.json?.trace?.return_decision_required ?? null,
+    false,
+    `${label}: terminal return gate resurrected`
+  );
+
+  assert.deepEqual(
+    Array.isArray(statePayload?.json?.trace?.return_decision_options)
+      ? statePayload.json.trace.return_decision_options
+      : [],
+    [],
+    `${label}: terminal return decision options resurrected`
+  );
+
+  assert.equal(
+    acceptedTerminalState?.json?.current_step ?? null,
+    null,
+    `${label}: accepted terminal baseline was not terminal`
+  );
+}
+
+async function advanceSessionToTerminalState({
+  baseUrl,
+  sessionId,
+  sessionStateCache,
+  label,
+  maxSteps = 20
+}) {
+  let attempts = 0;
+
+  while (attempts < maxSteps) {
+    attempts += 1;
+
+    sessionStateCache.clear();
+    const state = await getState(
+      baseUrl,
+      sessionId,
+      `${label} terminal advance state ${attempts}`
+    );
+
+    const currentStep = state.json.current_step ?? null;
+    if (currentStep === null) {
+      assert.equal(
+        state.json.trace.return_decision_required,
+        false,
+        `${label}: terminal state must remain ungated. trace=${JSON.stringify(state.json.trace)}`
+      );
+      assert.deepEqual(
+        Array.isArray(state.json.trace.return_decision_options)
+          ? state.json.trace.return_decision_options
+          : [],
+        [],
+        `${label}: terminal state must not expose return options. trace=${JSON.stringify(state.json.trace)}`
+      );
+      return state;
+    }
+
+    assert.equal(
+      currentStep.type,
+      "EXERCISE",
+      `${label}: expected EXERCISE while advancing to terminal state. raw=${JSON.stringify(state.json)}`
+    );
+    assert.ok(
+      typeof currentStep.exercise?.exercise_id === "string" &&
+        currentStep.exercise.exercise_id.length > 0,
+      `${label}: expected exercise_id while advancing to terminal state. raw=${JSON.stringify(state.json)}`
+    );
+
+    const complete = await httpJson(
+      "POST",
+      `${baseUrl}/sessions/${sessionId}/events`,
+      {
+        event: {
+          type: "COMPLETE_EXERCISE",
+          exercise_id: currentStep.exercise.exercise_id
+        }
+      }
+    );
+
+    assert.equal(
+      complete.res.status,
+      201,
+      `${label}: COMPLETE_EXERCISE while advancing to terminal expected 201, got ${complete.res.status}. raw=${complete.text}`
+    );
+  }
+
+  throw new Error(`${label}: failed to reach terminal state within ${maxSteps} exercise completions`);
+}
+
 async function runResolvedReplayScenario({
   baseUrl,
   root,
@@ -399,7 +527,8 @@ async function runResolvedReplayScenario({
   requireByteStableAcrossMixedReadPaths = false,
   requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts = false,
   requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads = false,
-  requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads = false
+  requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads = false,
+  requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads = false
 }) {
   const sessionId = await createSession(baseUrl, root);
 
@@ -493,9 +622,11 @@ async function runResolvedReplayScenario({
   if (requireByteStableAfterDownstreamProgress) {
     const acceptedCurrentStep = acceptedStateAfterDecision.json.current_step ?? null;
 
-    if (acceptedCurrentStep?.type === "EXERCISE" &&
-        typeof acceptedCurrentStep?.exercise?.exercise_id === "string" &&
-        acceptedCurrentStep.exercise.exercise_id.length > 0) {
+    if (
+      acceptedCurrentStep?.type === "EXERCISE" &&
+      typeof acceptedCurrentStep?.exercise?.exercise_id === "string" &&
+      acceptedCurrentStep.exercise.exercise_id.length > 0
+    ) {
       const downstreamExerciseId = acceptedCurrentStep.exercise.exercise_id;
 
       const downstream = await httpJson(
@@ -732,6 +863,108 @@ async function runResolvedReplayScenario({
         `${label}: normalized current-step cycle ${cycle} second /state`
       );
     }
+  }
+
+  if (requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads) {
+    const acceptedTerminalState = await advanceSessionToTerminalState({
+      baseUrl,
+      sessionId,
+      sessionStateCache,
+      label: `${label} terminal advance`
+    });
+
+    sessionStateCache.clear();
+    acceptedEvents = await getEvents(
+      baseUrl,
+      sessionId,
+      `${label} accepted terminal events`
+    );
+    acceptedState = acceptedTerminalState;
+
+    const acceptedTerminalStateText = acceptedState.text;
+    const acceptedTerminalEventsText = acceptedEvents.text;
+    const acceptedTerminalShape = snapshotTerminalStateShape(acceptedState);
+    const acceptedTerminalOrdering = snapshotEventOrdering(acceptedEvents);
+
+    for (let i = 2; i <= 4; i += 1) {
+      const replayAgain = await httpJson(
+        "POST",
+        `${baseUrl}/sessions/${sessionId}/events`,
+        { event: { type: decisionType } }
+      );
+      assertRejectedResolvedReplay(replayAgain, { label, decisionType, ordinal: i });
+    }
+
+    for (let cycle = 1; cycle <= 3; cycle += 1) {
+      sessionStateCache.clear();
+
+      const interleavedEventsA = await getEvents(
+        baseUrl,
+        sessionId,
+        `${label} terminal cycle ${cycle} events A`
+      );
+      const interleavedState = await getState(
+        baseUrl,
+        sessionId,
+        `${label} terminal cycle ${cycle} state`
+      );
+      const interleavedEventsB = await getEvents(
+        baseUrl,
+        sessionId,
+        `${label} terminal cycle ${cycle} events B`
+      );
+
+      assertAppendOnlyEventCardinalityAndOrderingStable(
+        interleavedEventsA,
+        acceptedEvents,
+        acceptedTerminalOrdering,
+        `${label}: terminal cycle ${cycle} first /events`
+      );
+      assertTerminalStateShapeAndNoResurrectionStable(
+        interleavedState,
+        acceptedState,
+        acceptedTerminalShape,
+        `${label}: terminal cycle ${cycle} /state`
+      );
+      assertAppendOnlyEventCardinalityAndOrderingStable(
+        interleavedEventsB,
+        acceptedEvents,
+        acceptedTerminalOrdering,
+        `${label}: terminal cycle ${cycle} second /events`
+      );
+    }
+
+    sessionStateCache.clear();
+
+    const afterTerminalReplayEvents = await getEvents(
+      baseUrl,
+      sessionId,
+      `${label} after terminal replay events`
+    );
+    const afterTerminalReplayState = await getState(
+      baseUrl,
+      sessionId,
+      `${label} after terminal replay state`
+    );
+
+    assertByteStableEvents(
+      afterTerminalReplayEvents,
+      acceptedEvents,
+      acceptedTerminalEventsText,
+      `${label}: terminal /events after rejected replay`
+    );
+    assertByteStableState(
+      afterTerminalReplayState,
+      acceptedState,
+      acceptedTerminalStateText,
+      `${label}: terminal /state after rejected replay`
+    );
+    assertTerminalStateShapeAndNoResurrectionStable(
+      afterTerminalReplayState,
+      acceptedState,
+      acceptedTerminalShape,
+      `${label}: final terminal /state after repeated interleaved reads`
+    );
   }
 
   sessionStateCache.clear();
@@ -1101,6 +1334,36 @@ test("API regression: rejected split-decision replay preserves normalized curren
       requireByteStableAcrossRepeatedReloads: true,
       requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
       requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true
+    });
+  });
+});
+
+test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "continue terminal-state shape and no-resurrection scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "skip terminal-state shape and no-resurrection scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossRepeatedInterleavedReads: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads: true
     });
   });
 });
