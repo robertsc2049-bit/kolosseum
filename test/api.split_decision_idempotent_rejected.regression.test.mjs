@@ -1832,6 +1832,37 @@ test("API regression: compile-created session flow preserves normalized current-
     });
   });
 });
+test("API regression: compile-created session explicit API lifecycle matrix remains terminal-contract stable after redundant terminal re-post attempts", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session continue explicit api lifecycle matrix remains terminal contract stable after redundant terminal repost attempts scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      acceptedDownstreamProgressMutationCount: 2,
+      requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads: true,
+      requireTerminalParityAcrossAlternatingFreshProcessRestarts: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session skip explicit api lifecycle matrix remains terminal contract stable after redundant terminal repost attempts scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      acceptedDownstreamProgressMutationCount: 2,
+      requireTerminalStateShapeAndNoResurrectionAcrossRepeatedInterleavedReads: true,
+      requireTerminalParityAcrossAlternatingFreshProcessRestarts: true
+    });
+  });
+});
 test("API regression: compile-created session explicit API lifecycle matrix preserves terminal contracts across cached, uncached, and restarted read paths", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
