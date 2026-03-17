@@ -1910,45 +1910,6 @@ test("API regression: compile-created session operator path preserves stable con
     });
   });
 });
-test("API regression: compile-created session operator path preserves stable contracts from creation through downstream progress to terminal state", async (t) => {
-  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
-    await runResolvedReplayScenario({
-      baseUrl,
-      root,
-      sessionStateCache,
-      label: "compile-created session continue operator path stable contracts creation through downstream progress to terminal state scenario",
-      decisionType: "RETURN_CONTINUE",
-      requireByteStableImmediateReplay: true,
-      requireByteStableAcrossRepeatedReloads: true,
-      requireByteStableAfterDownstreamProgress: true,
-      acceptedDownstreamProgressMutationCount: 2,
-      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
-      requireAppendOnlyEventCardinalityAndOrderingAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
-      requireByteStableStateAndEventsSnapshotsAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
-      requireNormalizedCurrentStepIdentityAndTraceContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
-      requireTerminalStateShapeAndNoResurrectionAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
-      requireFullTerminalContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
-    });
-
-    await runResolvedReplayScenario({
-      baseUrl,
-      root,
-      sessionStateCache,
-      label: "compile-created session skip operator path stable contracts creation through downstream progress to terminal state scenario",
-      decisionType: "RETURN_SKIP",
-      requireByteStableImmediateReplay: true,
-      requireByteStableAcrossRepeatedReloads: true,
-      requireByteStableAfterDownstreamProgress: true,
-      acceptedDownstreamProgressMutationCount: 2,
-      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
-      requireAppendOnlyEventCardinalityAndOrderingAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
-      requireByteStableStateAndEventsSnapshotsAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
-      requireNormalizedCurrentStepIdentityAndTraceContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
-      requireTerminalStateShapeAndNoResurrectionAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
-      requireFullTerminalContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
-    });
-  });
-});
 test("API regression: compile-created session flow preserves full terminal contract across alternating fresh process restarts after multiple downstream progress mutations", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
