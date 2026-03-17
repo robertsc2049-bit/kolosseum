@@ -525,6 +525,7 @@ async function runResolvedReplayScenario({
   requireByteStableImmediateReplay = false,
   requireByteStableAcrossRepeatedReloads = false,
   requireByteStableAfterDownstreamProgress = false,
+  acceptedDownstreamProgressMutationCount = 1,
   requireByteStableAcrossMixedReadPaths = false,
   requireByteStableAcrossAlternatingReadCyclesAfterMultipleRejectedReposts = false,
   requireAppendOnlyEventCardinalityAndOrderingAcrossRepeatedInterleavedReads = false,
@@ -622,13 +623,25 @@ async function runResolvedReplayScenario({
   let acceptedState = acceptedStateAfterDecision;
 
   if (requireByteStableAfterDownstreamProgress) {
-    const acceptedCurrentStep = acceptedStateAfterDecision.json.current_step ?? null;
+    assert.ok(
+      Number.isInteger(acceptedDownstreamProgressMutationCount) &&
+        acceptedDownstreamProgressMutationCount >= 1,
+      `${label}: acceptedDownstreamProgressMutationCount must be an integer >= 1. got ${JSON.stringify(acceptedDownstreamProgressMutationCount)}`
+    );
 
-    if (
-      acceptedCurrentStep?.type === "EXERCISE" &&
-      typeof acceptedCurrentStep?.exercise?.exercise_id === "string" &&
-      acceptedCurrentStep.exercise.exercise_id.length > 0
-    ) {
+    for (let downstreamStep = 1; downstreamStep <= acceptedDownstreamProgressMutationCount; downstreamStep += 1) {
+      const acceptedCurrentStep = acceptedState.json.current_step ?? null;
+
+      if (
+        !(
+          acceptedCurrentStep?.type === "EXERCISE" &&
+          typeof acceptedCurrentStep?.exercise?.exercise_id === "string" &&
+          acceptedCurrentStep.exercise.exercise_id.length > 0
+        )
+      ) {
+        break;
+      }
+
       const downstreamExerciseId = acceptedCurrentStep.exercise.exercise_id;
 
       const downstream = await httpJson(
@@ -645,7 +658,7 @@ async function runResolvedReplayScenario({
       assert.equal(
         downstream.res.status,
         201,
-        `${label}: downstream COMPLETE_EXERCISE expected 201, got ${downstream.res.status}. raw=${downstream.text}`
+        `${label}: downstream COMPLETE_EXERCISE step ${downstreamStep} expected 201, got ${downstream.res.status}. raw=${downstream.text}`
       );
 
       sessionStateCache.clear();
@@ -653,23 +666,23 @@ async function runResolvedReplayScenario({
       acceptedEvents = await getEvents(
         baseUrl,
         sessionId,
-        `${label} accepted events after downstream progress`
+        `${label} accepted events after downstream progress step ${downstreamStep}`
       );
       acceptedState = await getState(
         baseUrl,
         sessionId,
-        `${label} accepted state after downstream progress`
+        `${label} accepted state after downstream progress step ${downstreamStep}`
       );
 
       assert.equal(
         acceptedState.json.trace.return_decision_required,
         false,
-        `${label}: downstream progress must remain ungated. trace=${JSON.stringify(acceptedState.json.trace)}`
+        `${label}: downstream progress step ${downstreamStep} must remain ungated. trace=${JSON.stringify(acceptedState.json.trace)}`
       );
       assert.deepEqual(
         acceptedState.json.trace.return_decision_options,
         [],
-        `${label}: downstream progress must not restore return options. trace=${JSON.stringify(acceptedState.json.trace)}`
+        `${label}: downstream progress step ${downstreamStep} must not restore return options. trace=${JSON.stringify(acceptedState.json.trace)}`
       );
     }
   }
