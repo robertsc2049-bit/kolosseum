@@ -1832,6 +1832,45 @@ test("API regression: compile-created session flow preserves normalized current-
     });
   });
 });
+test("API regression: compile-created session preserves terminal contract matrix across cached, uncached, and restarted API read paths", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session continue preserves terminal contract matrix across cached uncached and restarted api read paths scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      acceptedDownstreamProgressMutationCount: 2,
+      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireByteStableStateAndEventsSnapshotsAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireFullTerminalContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session skip preserves terminal contract matrix across cached uncached and restarted api read paths scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      acceptedDownstreamProgressMutationCount: 2,
+      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireByteStableStateAndEventsSnapshotsAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireFullTerminalContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
+    });
+  });
+});
 test("API regression: compile-created session terminal current-step identity and full response contract remain normalized across fresh process restart plus alternating explicit API lifecycle re-reads after terminalization", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
