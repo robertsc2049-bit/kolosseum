@@ -1819,7 +1819,7 @@ test("API regression: compile-created session flow preserves normalized current-
     });
   });
 });
-
+test("API regression: compile-created session flow preserves deterministic terminal parity across alternating fresh process restarts after downstream progress", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
       baseUrl,
