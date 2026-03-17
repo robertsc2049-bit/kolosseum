@@ -1832,6 +1832,45 @@ test("API regression: compile-created session flow preserves normalized current-
     });
   });
 });
+test("API regression: compile-created session terminal readback remains byte-stable across repeated explicit API lifecycle re-reads after terminalization", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session continue terminal readback remains byte stable across repeated explicit api lifecycle rereads after terminalization scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      acceptedDownstreamProgressMutationCount: 2,
+      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireByteStableStateAndEventsSnapshotsAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireFullTerminalContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session skip terminal readback remains byte stable across repeated explicit api lifecycle rereads after terminalization scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      acceptedDownstreamProgressMutationCount: 2,
+      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireAppendOnlyEventCardinalityAndOrderingAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireByteStableStateAndEventsSnapshotsAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireNormalizedCurrentStepIdentityAndTraceContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireFullTerminalContractAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
+    });
+  });
+});
 test("API regression: compile-created session executes to terminal state and preserves persisted readback contract across explicit API lifecycle", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
