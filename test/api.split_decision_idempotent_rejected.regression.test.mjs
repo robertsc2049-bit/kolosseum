@@ -1832,6 +1832,37 @@ test("API regression: compile-created session flow preserves normalized current-
     });
   });
 });
+test("API regression: compile-created session flow preserves no-resurrection and terminal-state shape across alternating fresh process restarts after multiple downstream progress mutations", async (t) => {
+  await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session continue no-resurrection terminal-state shape alternating fresh restarts after multiple downstream progress mutations scenario",
+      decisionType: "RETURN_CONTINUE",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      acceptedDownstreamProgressMutationCount: 2,
+      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
+    });
+
+    await runResolvedReplayScenario({
+      baseUrl,
+      root,
+      sessionStateCache,
+      label: "compile-created session skip no-resurrection terminal-state shape alternating fresh restarts after multiple downstream progress mutations scenario",
+      decisionType: "RETURN_SKIP",
+      requireByteStableImmediateReplay: true,
+      requireByteStableAcrossRepeatedReloads: true,
+      requireByteStableAfterDownstreamProgress: true,
+      acceptedDownstreamProgressMutationCount: 2,
+      requireByteStableAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true,
+      requireTerminalStateShapeAndNoResurrectionAcrossAlternatingFreshProcessRestartsAfterDownstreamProgress: true
+    });
+  });
+});
 test("API regression: compile-created session flow preserves normalized current-step identity and trace contract across alternating fresh process restarts after multiple downstream progress mutations", async (t) => {
   await withServer(t, async ({ baseUrl, root, sessionStateCache }) => {
     await runResolvedReplayScenario({
