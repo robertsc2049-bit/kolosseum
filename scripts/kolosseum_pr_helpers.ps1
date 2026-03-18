@@ -408,3 +408,88 @@ function Wait-KolosseumMainPostMergeRuns {
   }
 }
 # endregion post-merge-main-run-selection-override
+
+# region Merge-KolosseumPr override: already-merged PRs exit cleanly
+function Merge-KolosseumPr {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [int]$PrNumber
+  )
+
+  function Get-KolosseumPrInfoJson {
+    param(
+      [Parameter(Mandatory = $true)]
+      [int]$Number
+    )
+
+    $json = gh pr view $Number --json number,title,state,mergeable,mergeStateStatus,reviewDecision,url,mergedAt
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($json)) {
+      throw "Unable to load PR #$Number via gh pr view."
+    }
+
+    return $json
+  }
+
+  function Get-KolosseumPrInfo {
+    param(
+      [Parameter(Mandatory = $true)]
+      [int]$Number
+    )
+
+    return (Get-KolosseumPrInfoJson -Number $Number | ConvertFrom-Json)
+  }
+
+  $prInfo = Get-KolosseumPrInfo -Number $PrNumber
+
+  if ($prInfo.state -eq "MERGED") {
+    Write-Host "PR #$PrNumber already merged: $($prInfo.title)"
+    if ($prInfo.mergedAt) {
+      Write-Host "mergedAt=$($prInfo.mergedAt)"
+    }
+    Write-Host "url=$($prInfo.url)"
+    return
+  }
+
+  gh pr checks $PrNumber --watch
+  if ($LASTEXITCODE -ne 0) {
+    throw "gh pr checks failed for PR #$PrNumber"
+  }
+
+  $prInfo = Get-KolosseumPrInfo -Number $PrNumber
+
+  if ($prInfo.state -eq "MERGED") {
+    Write-Host "PR #$PrNumber already merged: $($prInfo.title)"
+    if ($prInfo.mergedAt) {
+      Write-Host "mergedAt=$($prInfo.mergedAt)"
+    }
+    Write-Host "url=$($prInfo.url)"
+    return
+  }
+
+  if (
+    $prInfo.state -ne "OPEN" -or
+    $prInfo.mergeable -ne "MERGEABLE" -or
+    $prInfo.mergeStateStatus -eq "BLOCKED" -or
+    $prInfo.reviewDecision -eq "REVIEW_REQUIRED"
+  ) {
+    throw "PR #$PrNumber is not mergeable. mergeable=$($prInfo.mergeable) mergeStateStatus=$($prInfo.mergeStateStatus) reviewDecision=$($prInfo.reviewDecision) url=$($prInfo.url)"
+  }
+
+  gh pr merge $PrNumber --squash --delete-branch
+  if ($LASTEXITCODE -ne 0) {
+    throw "gh pr merge failed for PR #$PrNumber"
+  }
+
+  $postMergeInfo = Get-KolosseumPrInfo -Number $PrNumber
+  if ($postMergeInfo.state -ne "MERGED") {
+    throw "PR #$PrNumber merge command finished but PR state is $($postMergeInfo.state)"
+  }
+
+  Write-Host "Merged PR #${PrNumber}: $($postMergeInfo.title)"
+  if ($postMergeInfo.mergedAt) {
+    Write-Host "mergedAt=$($postMergeInfo.mergedAt)"
+  }
+  Write-Host "url=$($postMergeInfo.url)"
+}
+# endregion Merge-KolosseumPr override: already-merged PRs exit cleanly
