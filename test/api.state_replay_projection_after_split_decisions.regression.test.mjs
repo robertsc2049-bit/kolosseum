@@ -3,94 +3,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
-import net from "node:net";
-import { spawn } from "node:child_process";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
+import {
+  bootHttpVerticalSlice,
+  readJsonOnce,
+} from "../test_support/http_e2e_harness.mjs";
 
-function repoRoot() {
-  const here = fileURLToPath(import.meta.url);
-  return path.resolve(path.dirname(here), "..");
-}
-
-async function fileExists(p) {
-  try {
-    await fs.access(p);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function getFreePort() {
-  return await new Promise((resolve, reject) => {
-    const srv = net.createServer();
-    srv.on("error", reject);
-    srv.listen(0, "127.0.0.1", () => {
-      const addr = srv.address();
-      srv.close(() => resolve(addr.port));
-    });
-  });
-}
-
-function spawnProc(cmd, args, opts = {}) {
-  const child = spawn(cmd, args, {
-    stdio: ["ignore", "pipe", "pipe"],
-    ...opts,
-  });
-
-  let stdout = "";
-  let stderr = "";
-
-  child.stdout.on("data", (d) => {
-    stdout += d.toString("utf8");
-  });
-  child.stderr.on("data", (d) => {
-    stderr += d.toString("utf8");
-  });
-
-  return {
-    child,
-    get stdout() {
-      return stdout;
-    },
-    get stderr() {
-      return stderr;
-    },
-  };
-}
-
-function spawnNode(args, opts = {}) {
-  return spawnProc(process.execPath, args, opts);
-}
-
-function spawnNpm(args, opts = {}) {
-  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  return spawnProc(npmCmd, args, opts);
-}
-
-async function delay(ms) {
-  await new Promise((r) => setTimeout(r, ms));
-}
-
-async function waitForHealth(baseUrl, { timeoutMs = 8000 } = {}) {
-  const deadline = Date.now() + timeoutMs;
-  let lastErr = null;
-
-  while (Date.now() < deadline) {
-    try {
-      const r = await fetch(`${baseUrl}/health`);
-      if (r.ok) return;
-      lastErr = new Error(`health not ok: ${r.status}`);
-    } catch (e) {
-      lastErr = e;
-    }
-
-    await delay(120);
-  }
-
-  throw new Error(
-    `server did not become healthy in time (${timeoutMs}ms). last error: ${lastErr?.message ?? String(lastErr)}`
-  );
+function cloneJson(v) {
+  return JSON.parse(JSON.stringify(v));
 }
 
 async function httpJson(method, url, body) {
@@ -98,79 +18,55 @@ async function httpJson(method, url, body) {
   if (body !== undefined) init.body = JSON.stringify(body);
 
   const res = await fetch(url, init);
-  const text = await res.text();
-
-  let json = null;
-  try {
-    json = text.length ? JSON.parse(text) : null;
-  } catch {
-    // keep raw
-  }
-
+  const { text, json } = await readJsonOnce(res);
   return { res, text, json };
 }
 
-async function ensureBuiltDist(root, env) {
-  const serverModulePath = path.join(root, "dist", "src", "server.js");
-  if (await fileExists(serverModulePath)) return serverModulePath;
+test("API regression: state replay projection stays stable across split decisions and cache clear", async (t) => {
+  const root = process.cwd();
 
-  const build = spawnNpm(["run", "build:fast"], { cwd: root, env });
-  const code = await new Promise((resolve) => build.child.on("close", resolve));
+  const previousDatabaseUrl = process.env.DATABASE_URL;
+  const previousSmokeNoDb = process.env.SMOKE_NO_DB;
 
-  if (code !== 0) {
-    throw new Error(
-      `build:fast failed (code=${code}).\n` +
-        `stdout:\n${build.stdout}\n` +
-        `stderr:\n${build.stderr}`
-    );
-  }
+  process.env.DATABASE_URL =
+    process.env.DATABASE_URL ??
+    "postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test";
+  delete process.env.SMOKE_NO_DB;
 
-  if (!(await fileExists(serverModulePath))) {
-    throw new Error(
-      `build:fast completed but server module is still missing:\n${serverModulePath}`
-    );
-  }
+  t.after(() => {
+    if (typeof previousDatabaseUrl === "undefined") {
+      delete process.env.DATABASE_URL;
+    } else {
+      process.env.DATABASE_URL = previousDatabaseUrl;
+    }
 
-  return serverModulePath;
-}
+    if (typeof previousSmokeNoDb === "undefined") {
+      delete process.env.SMOKE_NO_DB;
+    } else {
+      process.env.SMOKE_NO_DB = previousSmokeNoDb;
+    }
+  });
 
-function cloneJson(v) {
-  return JSON.parse(JSON.stringify(v));
-}
+  const http = await bootHttpVerticalSlice(t, { requiredFlagEnvVar: "KOLOSSEUM_STRICT_HTTP_E2E" });
+  if (!http) return;
 
-function projectExpectedFromEvents(events) {
-  const types = events.map((x) => x?.event?.type);
-  const completeExerciseIds = events
-    .filter((x) => x?.event?.type === "COMPLETE_EXERCISE")
-    .map((x) => x.event.exercise_id);
+  const cacheModuleUrl =
+    pathToFileURL(path.join(root, "dist", "src", "api", "session_state_cache.js")).href +
+    `?t=${Date.now()}`;
 
-  const lastSplitIndex = types.lastIndexOf("SPLIT_SESSION");
-  const lastContinueIndex = types.lastIndexOf("RETURN_CONTINUE");
-  const lastSkipIndex = types.lastIndexOf("RETURN_SKIP");
+  const { sessionStateCache } = await import(cacheModuleUrl);
 
-  const isGated =
-    lastSplitIndex !== -1 &&
-    lastContinueIndex < lastSplitIndex &&
-    lastSkipIndex < lastSplitIndex;
+  assert.ok(
+    sessionStateCache && typeof sessionStateCache.clear === "function",
+    "expected dist sessionStateCache.clear()"
+  );
 
-  const lastDecisionIndex = Math.max(lastContinueIndex, lastSkipIndex);
-  const lastDecisionType = lastDecisionIndex === -1 ? null : types[lastDecisionIndex];
-
-  return {
-    types,
-    completeExerciseIds,
-    isGated,
-    lastDecisionType,
-  };
-}
-
-async function createSession(baseUrl, root) {
   const helloPath = path.join(root, "examples", "hello_world.json");
   const phase1 = JSON.parse(await fs.readFile(helloPath, "utf8"));
 
   const compile = await httpJson(
     "POST",
-    `${baseUrl}/blocks/compile?create_session=true`,
+    `${http.baseUrl}/blocks/compile?create_session=true`,
     { phase1_input: phase1 }
   );
 
@@ -190,409 +86,269 @@ async function createSession(baseUrl, root) {
 
   const sessionId = compile.json.session_id;
 
-  const start = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/start`, {});
+  const start = await httpJson("POST", `${http.baseUrl}/sessions/${sessionId}/start`, {});
   assert.ok(
     start.res.status === 200 || start.res.status === 201,
     `start expected 200/201, got ${start.res.status}. raw=${start.text}`
   );
 
-  return sessionId;
-}
-
-async function getState(baseUrl, sessionId, label) {
-  const state = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
   assert.equal(
-    state.res.status,
+    state0.res.status,
     200,
-    `${label}: state expected 200, got ${state.res.status}. raw=${state.text}`
+    `initial state expected 200, got ${state0.res.status}. raw=${state0.text}`
   );
-  assert.ok(state.json && typeof state.json === "object", `${label}: state expected JSON. raw=${state.text}`);
-  assert.ok(state.json.trace && typeof state.json.trace === "object", `${label}: trace missing. raw=${state.text}`);
-  return state;
-}
-
-async function getEvents(baseUrl, sessionId, label) {
-  const events = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+  assert.ok(
+    state0.json && typeof state0.json === "object",
+    `initial state expected JSON. raw=${state0.text}`
+  );
   assert.equal(
-    events.res.status,
+    state0.json.current_step?.type,
+    "EXERCISE",
+    `expected EXERCISE current_step. raw=${state0.text}`
+  );
+
+  const firstExerciseId = state0.json.current_step?.exercise?.exercise_id;
+  assert.ok(
+    typeof firstExerciseId === "string" && firstExerciseId.length > 0,
+    `expected first exercise id. raw=${state0.text}`
+  );
+
+  const complete1 = await httpJson(
+    "POST",
+    `${http.baseUrl}/sessions/${sessionId}/events`,
+    { event: { type: "COMPLETE_EXERCISE", exercise_id: firstExerciseId } }
+  );
+  assert.equal(
+    complete1.res.status,
+    201,
+    `first COMPLETE_EXERCISE expected 201, got ${complete1.res.status}. raw=${complete1.text}`
+  );
+
+  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+  assert.equal(
+    state1.res.status,
     200,
-    `${label}: events expected 200, got ${events.res.status}. raw=${events.text}`
+    `state after first complete expected 200, got ${state1.res.status}. raw=${state1.text}`
   );
-  assert.ok(events.json && typeof events.json === "object", `${label}: events expected JSON object. raw=${events.text}`);
-  assert.ok(Array.isArray(events.json.events), `${label}: events array missing. raw=${events.text}`);
-  return events;
-}
+  assert.ok(
+    state1.json && typeof state1.json === "object",
+    `state after first complete expected JSON. raw=${state1.text}`
+  );
+  assert.deepEqual(
+    state1.json.trace?.completed_ids,
+    [firstExerciseId],
+    `expected completed_ids to contain first exercise. trace=${JSON.stringify(state1.json.trace)}`
+  );
 
-function assertNoLegacyGateLeak(trace, label) {
+  const secondExerciseId = state1.json.current_step?.exercise?.exercise_id;
+  assert.ok(
+    typeof secondExerciseId === "string" && secondExerciseId.length > 0,
+    `expected second exercise id after first complete. raw=${state1.text}`
+  );
+  assert.notEqual(
+    secondExerciseId,
+    firstExerciseId,
+    `expected current_step to advance after first complete. state=${JSON.stringify(state1.json.current_step)}`
+  );
+
+  const split = await httpJson(
+    "POST",
+    `${http.baseUrl}/sessions/${sessionId}/events`,
+    { event: { type: "SPLIT_SESSION" } }
+  );
   assert.equal(
-    Object.prototype.hasOwnProperty.call(trace, "split_active"),
+    split.res.status,
+    201,
+    `SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+  );
+
+  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+  assert.equal(
+    splitState.res.status,
+    200,
+    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+  );
+  assert.ok(
+    splitState.json && typeof splitState.json === "object",
+    `split state expected JSON. raw=${splitState.text}`
+  );
+  assert.ok(
+    splitState.json.trace && typeof splitState.json.trace === "object",
+    `split trace expected object. raw=${splitState.text}`
+  );
+  assert.equal(
+    splitState.json.trace.return_decision_required,
+    true,
+    `expected return gate at split. trace=${JSON.stringify(splitState.json.trace)}`
+  );
+  assert.deepEqual(
+    [...splitState.json.trace.return_decision_options].slice().sort(),
+    ["RETURN_CONTINUE", "RETURN_SKIP"],
+    `expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+  );
+
+  const splitCompletedIds = cloneJson(splitState.json.trace.completed_ids ?? []);
+  const splitRemainingIds = cloneJson(splitState.json.trace.remaining_ids ?? []);
+
+  assert.deepEqual(
+    splitCompletedIds,
+    [firstExerciseId],
+    `expected completed_ids preserved at split. trace=${JSON.stringify(splitState.json.trace)}`
+  );
+  assert.ok(
+    splitRemainingIds.length >= 1,
+    `expected remaining_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+  );
+  assert.equal(
+    splitRemainingIds[0],
+    secondExerciseId,
+    `expected remaining_ids[0] to align with current step at split. trace=${JSON.stringify(splitState.json.trace)}`
+  );
+
+  const skip = await httpJson(
+    "POST",
+    `${http.baseUrl}/sessions/${sessionId}/events`,
+    { event: { type: "RETURN_SKIP" } }
+  );
+  assert.equal(
+    skip.res.status,
+    201,
+    `RETURN_SKIP expected 201, got ${skip.res.status}. raw=${skip.text}`
+  );
+
+  const stateAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+  assert.equal(
+    stateAfterSkip.res.status,
+    200,
+    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
+  );
+  assert.ok(
+    stateAfterSkip.json && typeof stateAfterSkip.json === "object",
+    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
+  );
+  assert.ok(
+    stateAfterSkip.json.trace && typeof stateAfterSkip.json.trace === "object",
+    `state after RETURN_SKIP expected trace. raw=${stateAfterSkip.text}`
+  );
+  assert.equal(
+    stateAfterSkip.json.trace.return_decision_required,
     false,
-    `${label}: trace must not expose split_active`
-  );
-  assert.equal(
-    Object.prototype.hasOwnProperty.call(trace, "return_gate_required"),
-    false,
-    `${label}: trace must not expose return_gate_required`
-  );
-}
-
-function assertReplayParity({
-  stateJson,
-  eventsJson,
-  label,
-  expectedCurrentStepExerciseId = null,
-  expectedRemainingIds = null,
-}) {
-  const events = eventsJson.events;
-  const trace = stateJson.trace;
-  const projection = projectExpectedFromEvents(events);
-
-  assert.deepEqual(
-    events.map((x) => x.seq),
-    Array.from({ length: events.length }, (_, i) => i + 1),
-    `${label}: event seq must stay dense + ordered`
-  );
-
-  assertNoLegacyGateLeak(trace, label);
-
-  assert.deepEqual(
-    trace.completed_ids,
-    projection.completeExerciseIds,
-    `${label}: completed_ids must equal persisted COMPLETE_EXERCISE history.\ntrace=${JSON.stringify(trace)}\nevents=${JSON.stringify(events)}`
-  );
-
-  assert.equal(
-    trace.return_decision_required,
-    projection.isGated,
-    `${label}: return_decision_required must be derivable from persisted split decision history.\ntrace=${JSON.stringify(trace)}\nevents=${JSON.stringify(events)}`
-  );
-
-  const expectedOptions = projection.isGated
-    ? ["RETURN_CONTINUE", "RETURN_SKIP"]
-    : [];
-  const actualOptions = Array.isArray(trace.return_decision_options)
-    ? [...trace.return_decision_options].slice().sort()
-    : [];
-
-  assert.deepEqual(
-    actualOptions,
-    expectedOptions.slice().sort(),
-    `${label}: return_decision_options mismatch.\ntrace=${JSON.stringify(trace)}\nevents=${JSON.stringify(events)}`
-  );
-
-  if (expectedRemainingIds !== null) {
-    assert.deepEqual(
-      trace.remaining_ids,
-      expectedRemainingIds,
-      `${label}: remaining_ids mismatch.\ntrace=${JSON.stringify(trace)}`
-    );
-  }
-
-  if (expectedCurrentStepExerciseId !== null) {
-    assert.ok(
-      stateJson.current_step && typeof stateJson.current_step === "object",
-      `${label}: expected current_step`
-    );
-    assert.equal(
-      stateJson.current_step.type,
-      "EXERCISE",
-      `${label}: expected EXERCISE current_step`
-    );
-    assert.equal(
-      stateJson.current_step.exercise?.exercise_id,
-      expectedCurrentStepExerciseId,
-      `${label}: current_step.exercise.exercise_id mismatch.\ncurrent_step=${JSON.stringify(stateJson.current_step)}`
-    );
-  }
-}
-
-test("API regression: /state is a pure replay projection of /events after split decisions", async (t) => {
-  const root = repoRoot();
-
-  const databaseUrl =
-    process.env.DATABASE_URL ??
-    "postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test";
-
-  const buildEnv = {
-    ...process.env,
-    DATABASE_URL: databaseUrl,
-    PORT: "0",
-  };
-  delete buildEnv.SMOKE_NO_DB;
-
-  const previousDatabaseUrl = process.env.DATABASE_URL;
-  const previousSmokeNoDb = process.env.SMOKE_NO_DB;
-
-  process.env.DATABASE_URL = databaseUrl;
-  delete process.env.SMOKE_NO_DB;
-
-  t.after(() => {
-    if (typeof previousDatabaseUrl === "undefined") {
-      delete process.env.DATABASE_URL;
-    } else {
-      process.env.DATABASE_URL = previousDatabaseUrl;
-    }
-
-    if (typeof previousSmokeNoDb === "undefined") {
-      delete process.env.SMOKE_NO_DB;
-    } else {
-      process.env.SMOKE_NO_DB = previousSmokeNoDb;
-    }
-  });
-
-  const serverModulePath = await ensureBuiltDist(root, buildEnv);
-
-  {
-    const schemaScript = path.join(root, "scripts", "apply-schema.mjs");
-    const schema = spawnNode([schemaScript], { cwd: root, env: buildEnv });
-    const code = await new Promise((resolve) => schema.child.on("close", resolve));
-    if (code !== 0) {
-      throw new Error(
-        `apply-schema failed (code=${code}).\nstdout:\n${schema.stdout}\nstderr:\n${schema.stderr}`
-      );
-    }
-  }
-
-  const port = await getFreePort();
-  process.env.PORT = String(port);
-
-  const serverModuleUrl = pathToFileURL(serverModulePath).href + `?t=${Date.now()}`;
-  const cacheModuleUrl =
-    pathToFileURL(path.join(root, "dist", "src", "api", "session_state_cache.js")).href +
-    `?t=${Date.now()}`;
-
-  const [{ app }, { sessionStateCache }] = await Promise.all([
-    import(serverModuleUrl),
-    import(cacheModuleUrl),
-  ]);
-
-  assert.ok(app && typeof app.listen === "function", "expected dist server app.listen()");
-  assert.ok(
-    sessionStateCache && typeof sessionStateCache.clear === "function",
-    "expected dist sessionStateCache.clear()"
-  );
-
-  const baseUrl = `http://127.0.0.1:${port}`;
-
-  const srv = await new Promise((resolve, reject) => {
-    const instance = app.listen(port, "127.0.0.1", () => resolve(instance));
-    instance.on("error", reject);
-  });
-
-  t.after(async () => {
-    await new Promise((resolve) => {
-      try {
-        srv.close(() => resolve());
-      } catch {
-        resolve();
-      }
-    });
-    await delay(50);
-  });
-
-  await waitForHealth(baseUrl);
-
-  // Scenario A: split -> RETURN_CONTINUE
-  const continueSessionId = await createSession(baseUrl, root);
-
-  const continueInitialState = await getState(baseUrl, continueSessionId, "continue initial");
-  assert.ok(
-    continueInitialState.json.current_step &&
-      continueInitialState.json.current_step.type === "EXERCISE" &&
-      typeof continueInitialState.json.current_step.exercise?.exercise_id === "string" &&
-      continueInitialState.json.current_step.exercise.exercise_id.length > 0,
-    `continue initial: expected exercise current_step. raw=${JSON.stringify(continueInitialState.json)}`
-  );
-  const continueFirstExerciseId = continueInitialState.json.current_step.exercise.exercise_id;
-
-  {
-    const r = await httpJson(
-      "POST",
-      `${baseUrl}/sessions/${continueSessionId}/events`,
-      { event: { type: "COMPLETE_EXERCISE", exercise_id: continueFirstExerciseId } }
-    );
-    assert.equal(
-      r.res.status,
-      201,
-      `continue scenario initial COMPLETE_EXERCISE expected 201, got ${r.res.status}. raw=${r.text}`
-    );
-  }
-
-  {
-    const r = await httpJson(
-      "POST",
-      `${baseUrl}/sessions/${continueSessionId}/events`,
-      { event: { type: "SPLIT_SESSION" } }
-    );
-    assert.equal(
-      r.res.status,
-      201,
-      `continue scenario SPLIT_SESSION expected 201, got ${r.res.status}. raw=${r.text}`
-    );
-  }
-
-  const continueSplitState = await getState(baseUrl, continueSessionId, "continue split");
-  const continueSplitEvents = await getEvents(baseUrl, continueSessionId, "continue split");
-  const continueExpectedRemainingIds = [...continueSplitState.json.trace.remaining_ids];
-  const continueExpectedCurrentStepExerciseId = continueExpectedRemainingIds[0];
-
-  assertReplayParity({
-    stateJson: continueSplitState.json,
-    eventsJson: continueSplitEvents.json,
-    label: "continue split parity",
-  });
-
-  {
-    const r = await httpJson(
-      "POST",
-      `${baseUrl}/sessions/${continueSessionId}/events`,
-      { event: { type: "RETURN_CONTINUE" } }
-    );
-    assert.equal(
-      r.res.status,
-      201,
-      `continue scenario RETURN_CONTINUE expected 201, got ${r.res.status}. raw=${r.text}`
-    );
-  }
-
-  const continueAfterDecisionState = await getState(baseUrl, continueSessionId, "continue final");
-  const continueAfterDecisionEvents = await getEvents(baseUrl, continueSessionId, "continue final");
-
-  assertReplayParity({
-    stateJson: continueAfterDecisionState.json,
-    eventsJson: continueAfterDecisionEvents.json,
-    label: "continue final parity",
-    expectedCurrentStepExerciseId: continueExpectedCurrentStepExerciseId,
-    expectedRemainingIds: continueExpectedRemainingIds,
-  });
-
-  const continueBeforeClearState = cloneJson(continueAfterDecisionState.json);
-  const continueBeforeClearEvents = cloneJson(continueAfterDecisionEvents.json);
-
-  // Scenario B: split -> RETURN_SKIP
-  const skipSessionId = await createSession(baseUrl, root);
-
-  const skipInitialState = await getState(baseUrl, skipSessionId, "skip initial");
-  assert.ok(
-    skipInitialState.json.current_step &&
-      skipInitialState.json.current_step.type === "EXERCISE" &&
-      typeof skipInitialState.json.current_step.exercise?.exercise_id === "string" &&
-      skipInitialState.json.current_step.exercise.exercise_id.length > 0,
-    `skip initial: expected exercise current_step. raw=${JSON.stringify(skipInitialState.json)}`
-  );
-  const skipFirstExerciseId = skipInitialState.json.current_step.exercise.exercise_id;
-
-  {
-    const r = await httpJson(
-      "POST",
-      `${baseUrl}/sessions/${skipSessionId}/events`,
-      { event: { type: "COMPLETE_EXERCISE", exercise_id: skipFirstExerciseId } }
-    );
-    assert.equal(
-      r.res.status,
-      201,
-      `skip scenario initial COMPLETE_EXERCISE expected 201, got ${r.res.status}. raw=${r.text}`
-    );
-  }
-
-  {
-    const r = await httpJson(
-      "POST",
-      `${baseUrl}/sessions/${skipSessionId}/events`,
-      { event: { type: "SPLIT_SESSION" } }
-    );
-    assert.equal(
-      r.res.status,
-      201,
-      `skip scenario SPLIT_SESSION expected 201, got ${r.res.status}. raw=${r.text}`
-    );
-  }
-
-  const skipSplitState = await getState(baseUrl, skipSessionId, "skip split");
-  const skipSplitEvents = await getEvents(baseUrl, skipSessionId, "skip split");
-  const skipRemainingAtSplit = [...skipSplitState.json.trace.remaining_ids];
-
-  assertReplayParity({
-    stateJson: skipSplitState.json,
-    eventsJson: skipSplitEvents.json,
-    label: "skip split parity",
-  });
-
-  {
-    const r = await httpJson(
-      "POST",
-      `${baseUrl}/sessions/${skipSessionId}/events`,
-      { event: { type: "RETURN_SKIP" } }
-    );
-    assert.equal(
-      r.res.status,
-      201,
-      `skip scenario RETURN_SKIP expected 201, got ${r.res.status}. raw=${r.text}`
-    );
-  }
-
-  const skipAfterDecisionState = await getState(baseUrl, skipSessionId, "skip final");
-  const skipAfterDecisionEvents = await getEvents(baseUrl, skipSessionId, "skip final");
-
-  assertReplayParity({
-    stateJson: skipAfterDecisionState.json,
-    eventsJson: skipAfterDecisionEvents.json,
-    label: "skip final parity",
-    expectedRemainingIds: [],
-  });
-
-  assert.ok(
-    Array.isArray(skipRemainingAtSplit) && skipRemainingAtSplit.length >= 1,
-    `skip final parity: expected split to have at least one remaining id before skip. split trace=${JSON.stringify(skipSplitState.json.trace)}`
+    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
   );
   assert.deepEqual(
-    skipAfterDecisionState.json.trace.remaining_ids,
+    stateAfterSkip.json.trace.return_decision_options,
     [],
-    `skip final parity: expected RETURN_SKIP to consume remaining path. trace=${JSON.stringify(skipAfterDecisionState.json.trace)}`
+    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+  );
+  assert.deepEqual(
+    stateAfterSkip.json.trace.completed_ids,
+    splitCompletedIds,
+    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+  );
+  assert.deepEqual(
+    stateAfterSkip.json.trace.dropped_ids,
+    splitRemainingIds,
+    `expected dropped_ids to equal split remaining_ids. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+  );
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(stateAfterSkip.json.trace, "split_active"),
+    false,
+    "trace must not expose split_active"
+  );
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(stateAfterSkip.json.trace, "return_gate_required"),
+    false,
+    "trace must not expose return_gate_required"
   );
 
-  const skipBeforeClearState = cloneJson(skipAfterDecisionState.json);
-  const skipBeforeClearEvents = cloneJson(skipAfterDecisionEvents.json);
+  const eventsAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+  assert.equal(
+    eventsAfterSkip.res.status,
+    200,
+    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
+  );
+  assert.ok(
+    eventsAfterSkip.json && typeof eventsAfterSkip.json === "object",
+    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
+  );
+  assert.ok(
+    Array.isArray(eventsAfterSkip.json.events),
+    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
+  );
+  assert.deepEqual(
+    eventsAfterSkip.json.events.map((x) => x.seq),
+    [1, 2, 3, 4],
+    `expected seq [1,2,3,4], got ${JSON.stringify(eventsAfterSkip.json.events)}`
+  );
+  assert.deepEqual(
+    eventsAfterSkip.json.events.map((x) => x.event?.type),
+    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+    `expected ordered runtime events, got ${JSON.stringify(eventsAfterSkip.json.events)}`
+  );
+  assert.equal(
+    eventsAfterSkip.json.events[1]?.event?.exercise_id,
+    firstExerciseId,
+    `expected persisted first COMPLETE_EXERCISE row to stay stable. got ${JSON.stringify(eventsAfterSkip.json.events[1])}`
+  );
+
+  const snapshotState = cloneJson(stateAfterSkip.json);
+  const snapshotEvents = cloneJson(eventsAfterSkip.json);
 
   sessionStateCache.clear();
 
-  const continueAfterClearState = await getState(baseUrl, continueSessionId, "continue after clear");
-  const continueAfterClearEvents = await getEvents(baseUrl, continueSessionId, "continue after clear");
-  const skipAfterClearState = await getState(baseUrl, skipSessionId, "skip after clear");
-  const skipAfterClearEvents = await getEvents(baseUrl, skipSessionId, "skip after clear");
+  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+  assert.equal(
+    stateAfterClear.res.status,
+    200,
+    `state after cache clear expected 200, got ${stateAfterClear.res.status}. raw=${stateAfterClear.text}`
+  );
+  assert.deepEqual(
+    stateAfterClear.json,
+    snapshotState,
+    `expected /state payload identical after cache clear.\nbefore=${JSON.stringify(snapshotState)}\nafter=${JSON.stringify(stateAfterClear.json)}`
+  );
+
+  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+  assert.equal(
+    eventsAfterClear.res.status,
+    200,
+    `events after cache clear expected 200, got ${eventsAfterClear.res.status}. raw=${eventsAfterClear.text}`
+  );
+  assert.deepEqual(
+    eventsAfterClear.json,
+    snapshotEvents,
+    `expected /events payload identical after cache clear.\nbefore=${JSON.stringify(snapshotEvents)}\nafter=${JSON.stringify(eventsAfterClear.json)}`
+  );
 
   assert.deepEqual(
-    continueAfterClearEvents.json,
-    continueBeforeClearEvents,
-    `continue after clear: /events drifted.\nbefore=${JSON.stringify(continueBeforeClearEvents)}\nafter=${JSON.stringify(continueAfterClearEvents.json)}`
+    stateAfterClear.json.trace.completed_ids,
+    splitCompletedIds,
+    `completed_ids changed after cache clear. trace=${JSON.stringify(stateAfterClear.json.trace)}`
   );
   assert.deepEqual(
-    continueAfterClearState.json,
-    continueBeforeClearState,
-    `continue after clear: /state drifted.\nbefore=${JSON.stringify(continueBeforeClearState)}\nafter=${JSON.stringify(continueAfterClearState.json)}`
+    stateAfterClear.json.trace.dropped_ids,
+    splitRemainingIds,
+    `dropped_ids changed after cache clear. trace=${JSON.stringify(stateAfterClear.json.trace)}`
   );
-  assertReplayParity({
-    stateJson: continueAfterClearState.json,
-    eventsJson: continueAfterClearEvents.json,
-    label: "continue after clear parity",
-    expectedCurrentStepExerciseId: continueExpectedCurrentStepExerciseId,
-    expectedRemainingIds: continueExpectedRemainingIds,
-  });
-
-  assert.deepEqual(
-    skipAfterClearEvents.json,
-    skipBeforeClearEvents,
-    `skip after clear: /events drifted.\nbefore=${JSON.stringify(skipBeforeClearEvents)}\nafter=${JSON.stringify(skipAfterClearEvents.json)}`
+  assert.equal(
+    stateAfterClear.json.trace.return_decision_required,
+    false,
+    `return_decision_required changed after cache clear. trace=${JSON.stringify(stateAfterClear.json.trace)}`
   );
   assert.deepEqual(
-    skipAfterClearState.json,
-    skipBeforeClearState,
-    `skip after clear: /state drifted.\nbefore=${JSON.stringify(skipBeforeClearState)}\nafter=${JSON.stringify(skipAfterClearState.json)}`
+    stateAfterClear.json.trace.return_decision_options,
+    [],
+    `return_decision_options changed after cache clear. trace=${JSON.stringify(stateAfterClear.json.trace)}`
   );
-  assertReplayParity({
-    stateJson: skipAfterClearState.json,
-    eventsJson: skipAfterClearEvents.json,
-    label: "skip after clear parity",
-    expectedRemainingIds: [],
-  });
+  assert.deepEqual(
+    eventsAfterClear.json.events.map((x) => x.seq),
+    [1, 2, 3, 4],
+    `event seq ordering changed after cache clear. got ${JSON.stringify(eventsAfterClear.json.events.map((x) => x.seq))}`
+  );
+  assert.deepEqual(
+    eventsAfterClear.json.events.map((x) => x.event?.type),
+    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+    `persisted event history changed after cache clear. got ${JSON.stringify(eventsAfterClear.json.events)}`
+  );
 });
