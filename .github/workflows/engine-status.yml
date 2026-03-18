@@ -3,8 +3,8 @@
 # ----------------------------------------------------------
 # engine-status.yml
 # - Runs on:
-#     • push to ALL branches
-#     • pull_request
+#     â€¢ push to ALL branches
+#     â€¢ pull_request
 # - Lightweight signal for feature branches.
 # - Complements (does not replace) green/ci gates.
 # ==========================================================
@@ -37,12 +37,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -63,12 +63,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
