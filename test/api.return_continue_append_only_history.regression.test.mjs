@@ -3,94 +3,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
-import net from "node:net";
-import { spawn } from "node:child_process";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
+import {
+  bootHttpVerticalSlice,
+  readJsonOnce,
+} from "../test_support/http_e2e_harness.mjs";
 
-function repoRoot() {
-  const here = fileURLToPath(import.meta.url);
-  return path.resolve(path.dirname(here), "..");
-}
-
-async function fileExists(p) {
-  try {
-    await fs.access(p);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function getFreePort() {
-  return await new Promise((resolve, reject) => {
-    const srv = net.createServer();
-    srv.on("error", reject);
-    srv.listen(0, "127.0.0.1", () => {
-      const addr = srv.address();
-      srv.close(() => resolve(addr.port));
-    });
-  });
-}
-
-function spawnProc(cmd, args, opts = {}) {
-  const child = spawn(cmd, args, {
-    stdio: ["ignore", "pipe", "pipe"],
-    ...opts,
-  });
-
-  let stdout = "";
-  let stderr = "";
-
-  child.stdout.on("data", (d) => {
-    stdout += d.toString("utf8");
-  });
-  child.stderr.on("data", (d) => {
-    stderr += d.toString("utf8");
-  });
-
-  return {
-    child,
-    get stdout() {
-      return stdout;
-    },
-    get stderr() {
-      return stderr;
-    },
-  };
-}
-
-function spawnNode(args, opts = {}) {
-  return spawnProc(process.execPath, args, opts);
-}
-
-function spawnNpm(args, opts = {}) {
-  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  return spawnProc(npmCmd, args, opts);
-}
-
-async function delay(ms) {
-  await new Promise((r) => setTimeout(r, ms));
-}
-
-async function waitForHealth(baseUrl, { timeoutMs = 8000 } = {}) {
-  const deadline = Date.now() + timeoutMs;
-  let lastErr = null;
-
-  while (Date.now() < deadline) {
-    try {
-      const r = await fetch(`${baseUrl}/health`);
-      if (r.ok) return;
-      lastErr = new Error(`health not ok: ${r.status}`);
-    } catch (e) {
-      lastErr = e;
-    }
-
-    await delay(120);
-  }
-
-  throw new Error(
-    `server did not become healthy in time (${timeoutMs}ms). last error: ${lastErr?.message ?? String(lastErr)}`
-  );
+function cloneJson(v) {
+  return JSON.parse(JSON.stringify(v));
 }
 
 async function httpJson(method, url, body) {
@@ -98,64 +18,19 @@ async function httpJson(method, url, body) {
   if (body !== undefined) init.body = JSON.stringify(body);
 
   const res = await fetch(url, init);
-  const text = await res.text();
-
-  let json = null;
-  try {
-    json = text.length ? JSON.parse(text) : null;
-  } catch {
-    // keep raw
-  }
-
+  const { text, json } = await readJsonOnce(res);
   return { res, text, json };
 }
 
-async function ensureBuiltDist(root, env) {
-  const serverModulePath = path.join(root, "dist", "src", "server.js");
-  if (await fileExists(serverModulePath)) return serverModulePath;
-
-  const build = spawnNpm(["run", "build:fast"], { cwd: root, env });
-  const code = await new Promise((resolve) => build.child.on("close", resolve));
-
-  if (code !== 0) {
-    throw new Error(
-      `build:fast failed (code=${code}).\n` +
-        `stdout:\n${build.stdout}\n` +
-        `stderr:\n${build.stderr}`
-    );
-  }
-
-  if (!(await fileExists(serverModulePath))) {
-    throw new Error(
-      `build:fast completed but server module is still missing:\n${serverModulePath}`
-    );
-  }
-
-  return serverModulePath;
-}
-
-function cloneJson(v) {
-  return JSON.parse(JSON.stringify(v));
-}
-
 test("API regression: RETURN_CONTINUE preserves append-only history and ungates state without rewriting prior events", async (t) => {
-  const root = repoRoot();
-
-  const databaseUrl =
-    process.env.DATABASE_URL ??
-    "postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test";
-
-  const buildEnv = {
-    ...process.env,
-    DATABASE_URL: databaseUrl,
-    PORT: "0",
-  };
-  delete buildEnv.SMOKE_NO_DB;
+  const root = process.cwd();
 
   const previousDatabaseUrl = process.env.DATABASE_URL;
   const previousSmokeNoDb = process.env.SMOKE_NO_DB;
 
-  process.env.DATABASE_URL = databaseUrl;
+  process.env.DATABASE_URL =
+    process.env.DATABASE_URL ??
+    "postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test";
   delete process.env.SMOKE_NO_DB;
 
   t.after(() => {
@@ -172,64 +47,26 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
     }
   });
 
-  const serverModulePath = await ensureBuiltDist(root, buildEnv);
+  const http = await bootHttpVerticalSlice(t, { requiredFlagEnvVar: "KOLOSSEUM_STRICT_HTTP_E2E" });
+  if (!http) return;
 
-  {
-    const schemaScript = path.join(root, "scripts", "apply-schema.mjs");
-    const schema = spawnNode([schemaScript], { cwd: root, env: buildEnv });
-    const code = await new Promise((resolve) => schema.child.on("close", resolve));
-    if (code !== 0) {
-      throw new Error(
-        `apply-schema failed (code=${code}).\nstdout:\n${schema.stdout}\nstderr:\n${schema.stderr}`
-      );
-    }
-  }
-
-  const port = await getFreePort();
-  process.env.PORT = String(port);
-
-  const serverModuleUrl = pathToFileURL(serverModulePath).href + `?t=${Date.now()}`;
   const cacheModuleUrl =
     pathToFileURL(path.join(root, "dist", "src", "api", "session_state_cache.js")).href +
     `?t=${Date.now()}`;
 
-  const [{ app }, { sessionStateCache }] = await Promise.all([
-    import(serverModuleUrl),
-    import(cacheModuleUrl),
-  ]);
+  const { sessionStateCache } = await import(cacheModuleUrl);
 
-  assert.ok(app && typeof app.listen === "function", "expected dist server app.listen()");
   assert.ok(
     sessionStateCache && typeof sessionStateCache.clear === "function",
     "expected dist sessionStateCache.clear()"
   );
-
-  const baseUrl = `http://127.0.0.1:${port}`;
-
-  const srv = await new Promise((resolve, reject) => {
-    const instance = app.listen(port, "127.0.0.1", () => resolve(instance));
-    instance.on("error", reject);
-  });
-
-  t.after(async () => {
-    await new Promise((resolve) => {
-      try {
-        srv.close(() => resolve());
-      } catch {
-        resolve();
-      }
-    });
-    await delay(50);
-  });
-
-  await waitForHealth(baseUrl);
 
   const helloPath = path.join(root, "examples", "hello_world.json");
   const phase1 = JSON.parse(await fs.readFile(helloPath, "utf8"));
 
   const compile = await httpJson(
     "POST",
-    `${baseUrl}/blocks/compile?create_session=true`,
+    `${http.baseUrl}/blocks/compile?create_session=true`,
     { phase1_input: phase1 }
   );
 
@@ -249,13 +86,13 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
 
   const sessionId = compile.json.session_id;
 
-  const start = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/start`, {});
+  const start = await httpJson("POST", `${http.baseUrl}/sessions/${sessionId}/start`, {});
   assert.ok(
     start.res.status === 200 || start.res.status === 201,
     `start expected 200/201, got ${start.res.status}. raw=${start.text}`
   );
 
-  const initialState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+  const initialState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
   assert.equal(
     initialState.res.status,
     200,
@@ -284,7 +121,7 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
 
   const evCompleteFirst = await httpJson(
     "POST",
-    `${baseUrl}/sessions/${sessionId}/events`,
+    `${http.baseUrl}/sessions/${sessionId}/events`,
     { event: { type: "COMPLETE_EXERCISE", exercise_id: firstExerciseId } }
   );
   assert.equal(
@@ -293,7 +130,7 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
     `initial COMPLETE_EXERCISE expected 201, got ${evCompleteFirst.res.status}. raw=${evCompleteFirst.text}`
   );
 
-  const eventsAfterFirstComplete = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+  const eventsAfterFirstComplete = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
   assert.equal(
     eventsAfterFirstComplete.res.status,
     200,
@@ -322,7 +159,7 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
 
   const evSplit = await httpJson(
     "POST",
-    `${baseUrl}/sessions/${sessionId}/events`,
+    `${http.baseUrl}/sessions/${sessionId}/events`,
     { event: { type: "SPLIT_SESSION" } }
   );
   assert.equal(
@@ -331,7 +168,7 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
     `SPLIT_SESSION expected 201, got ${evSplit.res.status}. raw=${evSplit.text}`
   );
 
-  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
   assert.equal(
     splitState.res.status,
     200,
@@ -370,7 +207,7 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
 
   const evContinue = await httpJson(
     "POST",
-    `${baseUrl}/sessions/${sessionId}/events`,
+    `${http.baseUrl}/sessions/${sessionId}/events`,
     { event: { type: "RETURN_CONTINUE" } }
   );
   assert.equal(
@@ -379,7 +216,7 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
     `RETURN_CONTINUE expected 201, got ${evContinue.res.status}. raw=${evContinue.text}`
   );
 
-  const eventsAfterContinue = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+  const eventsAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
   assert.equal(
     eventsAfterContinue.res.status,
     200,
@@ -417,7 +254,7 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
     `expected persisted COMPLETE_EXERCISE to remain stable. got ${JSON.stringify(eventRows[1])}`
   );
 
-  const stateAfterContinue = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+  const stateAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
   assert.equal(
     stateAfterContinue.res.status,
     200,
@@ -482,7 +319,7 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
 
   sessionStateCache.clear();
 
-  const eventsAfterClear = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
   assert.equal(
     eventsAfterClear.res.status,
     200,
@@ -494,7 +331,7 @@ test("API regression: RETURN_CONTINUE preserves append-only history and ungates 
     `expected /events payload to be identical after cache clear.\nbefore=${JSON.stringify(beforeClearEvents)}\nafter=${JSON.stringify(eventsAfterClear.json)}`
   );
 
-  const stateAfterClear = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
   assert.equal(
     stateAfterClear.res.status,
     200,
