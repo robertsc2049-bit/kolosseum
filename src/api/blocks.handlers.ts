@@ -2,7 +2,6 @@
 import type { Request, Response } from "express";
 import crypto from "node:crypto";
 import { selectCanonicalHash } from "./canonical_hash.js";
-import { pool } from "../db/pool.js";
 
 import type { Phase6SessionOutput } from "@kolosseum/engine/phases/phase6.js";
 import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_event.js";
@@ -16,6 +15,7 @@ import { phase6ProduceSessionOutput } from "@kolosseum/engine/phases/phase6.js";
 import { validateWireRuntimeEvent } from "@kolosseum/engine/runtime/session_summary.js";
 
 import { badRequest, notFound, internalError } from "./http_errors.js";
+import { getBlockByIdQuery } from "./block_query_service.js";
 import { createSessionFromBlockMutation } from "./block_session_write_service.js";
 import { listBlockSessionsQuery } from "./block_session_query_service.js";
 import { persistCompiledBlockAndMaybeCreateSession } from "./block_compile_write_service.js";
@@ -290,34 +290,10 @@ export async function getBlock(req: Request, res: Response) {
   const block_id = asString(req.params?.block_id);
   if (!block_id) throw badRequest("Missing block_id");
 
-  const r = await pool.query(
-    `
-    SELECT
-      block_id,
-      created_at,
-      engine_version,
-      canonical_hash,
-      phase1_input,
-      phase2_canonical,
-      phase3_output,
-      phase4_program,
-      phase5_adjustments
-    FROM blocks
-    WHERE block_id = $1
-    `,
-    [block_id]
-  );
+  const payload = await getBlockByIdQuery(block_id);
+  if (!payload) throw notFound("Block not found");
 
-  if ((r.rowCount ?? 0) === 0) throw notFound("Block not found");
-
-  const row = r.rows[0];
-  const p2c: any = (row as any).phase2_canonical;
-
-  return res.json({
-    ...row,
-    phase2_canonical_json: typeof p2c?.phase2_canonical_json === "string" ? p2c.phase2_canonical_json : undefined,
-    phase2_hash: typeof p2c?.phase2_hash === "string" ? p2c.phase2_hash : undefined
-  });
+  return res.json(payload);
 }
 
 /**
