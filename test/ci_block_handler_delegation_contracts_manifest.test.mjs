@@ -7,8 +7,10 @@ test("block handler delegation contracts manifest remains present in composed te
   const { commands } = composeTestCiFromIndex(repo);
 
   for (const cmd of [
+    "node test/api_handlers_get_block_delegation.test.mjs",
     "node test/api_handlers_create_session_from_block_delegation.test.mjs",
     "node test/api_handlers_list_block_sessions_delegation.test.mjs",
+    "node test/ci_api_get_block_executed_handler_http_contract_wrapper.test.mjs",
     "node test/ci_api_create_session_from_block_executed_handler_http_contract_wrapper.test.mjs",
     "node test/ci_api_list_block_sessions_executed_handler_http_contract_wrapper.test.mjs"
   ]) {
