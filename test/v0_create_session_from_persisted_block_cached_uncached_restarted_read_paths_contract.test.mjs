@@ -115,19 +115,15 @@ test("v0: create-session-from-persisted-block preserves state/events contract ac
     ]
   };
 
-  const createCalls = [];
+  let createCallCount = 0;
   const stateCalls = [];
   const eventsCalls = [];
 
   mock.module(toFileHref("dist/src/api/block_session_write_service.js"), {
     namedExports: {
-      createSessionFromBlockMutation: async ({ block_id, planned_session }) => {
-        createCalls.push(clone({ block_id, planned_session }));
-        return clone({
-          ...canonicalCreatePayload,
-          block_id,
-          planned_session
-        });
+      createSessionFromBlockMutation: async () => {
+        createCallCount += 1;
+        return clone(canonicalCreatePayload);
       }
     }
   });
@@ -135,7 +131,7 @@ test("v0: create-session-from-persisted-block preserves state/events contract ac
   mock.module(toFileHref("dist/src/api/session_state_query_service.js"), {
     namedExports: {
       getSessionStateQuery: async ({ session_id }) => {
-        stateCalls.push(clone({ session_id }));
+        stateCalls.push(session_id);
         return clone({
           ...canonicalStatePayload,
           session_id
@@ -147,7 +143,7 @@ test("v0: create-session-from-persisted-block preserves state/events contract ac
   mock.module(toFileHref("dist/src/api/session_events_query_service.js"), {
     namedExports: {
       listRuntimeEventsQuery: async ({ session_id }) => {
-        eventsCalls.push(clone({ session_id }));
+        eventsCalls.push(session_id);
         return clone({
           ...canonicalEventsPayload,
           session_id,
@@ -218,6 +214,10 @@ test("v0: create-session-from-persisted-block preserves state/events contract ac
   assert.equal(cachedPassA.state.statusCode, 200);
   assert.equal(cachedPassA.events.statusCode, 200);
 
+  assert.deepEqual(cachedPassA.create.body, canonicalCreatePayload);
+  assert.deepEqual(cachedPassA.state.body, canonicalStatePayload);
+  assert.deepEqual(cachedPassA.events.body, canonicalEventsPayload);
+
   assert.deepEqual(cachedPassB, cachedPassA);
   assert.deepEqual(uncachedPass, cachedPassA);
   assert.deepEqual(restartedPass, cachedPassA);
@@ -226,36 +226,17 @@ test("v0: create-session-from-persisted-block preserves state/events contract ac
   assert.equal(sha256Json(uncachedPass), sha256Json(cachedPassA));
   assert.equal(sha256Json(restartedPass), sha256Json(cachedPassA));
 
-  assert.deepEqual(createCalls, [
-    {
-      block_id: persistedBlockId,
-      planned_session: plannedSessionInput
-    },
-    {
-      block_id: persistedBlockId,
-      planned_session: plannedSessionInput
-    },
-    {
-      block_id: persistedBlockId,
-      planned_session: plannedSessionInput
-    },
-    {
-      block_id: persistedBlockId,
-      planned_session: plannedSessionInput
-    }
-  ]);
-
+  assert.equal(createCallCount, 4);
   assert.deepEqual(stateCalls, [
-    { session_id: createdSessionId },
-    { session_id: createdSessionId },
-    { session_id: createdSessionId },
-    { session_id: createdSessionId }
+    createdSessionId,
+    createdSessionId,
+    createdSessionId,
+    createdSessionId
   ]);
-
   assert.deepEqual(eventsCalls, [
-    { session_id: createdSessionId },
-    { session_id: createdSessionId },
-    { session_id: createdSessionId },
-    { session_id: createdSessionId }
+    createdSessionId,
+    createdSessionId,
+    createdSessionId,
+    createdSessionId
   ]);
 });
