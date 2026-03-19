@@ -9,7 +9,7 @@ Rules:
 - Every new slice must map to exactly one primary v0 gate.
 - If a slice does not close a listed gap, harden a listed proof, or unblock a listed gate, it is not v0 work.
 - A gate is only DONE when its required proof exists in code, tests, docs, and CI evidence where applicable.
-- Scope expansion is forbidden. Missing work must be written as a gap inside this matrix, not smuggled in as a “small extra”.
+- Scope expansion is forbidden. Missing work must be written as a gap inside this matrix, not smuggled in as a â€œsmall extraâ€.
 
 ## Status key
 
@@ -25,8 +25,8 @@ Rules:
 |---|---|---|---|---|---|---|
 | V0-G01 | Compile path is deterministic and contract-pinned | v0 dies if compile results drift | stable request/response contract, golden stability, contract guard coverage, explicit docs | HARDEN | assign next compile-proof slice here | |
 | V0-G02 | Session creation and persistence are authoritative | sessions must be replayable and non-ambiguous | create-session persistence tests, state/events parity, terminal-state invariants | HARDEN | assign next session-proof slice here | |
-| V0-G03 | Runtime event append/read path is append-only and replay-safe | no resurrection, no hidden mutation | repeated /state -> /events -> /state proof, restart parity, idempotency coverage | HARDEN | assign next runtime-proof slice here | |
-| V0-G04 | Split + RETURN gate path is safe and deterministic | this is one of the core sovereign behaviors | continue/skip decision proofs, dropped-work handling, terminal shape stability | HARDEN | assign next split-proof slice here | |
+| V0-G03 | Runtime event append/read path is append-only and replay-safe | no resurrection, no hidden mutation | repeated /state -> /events -> /state proof, restart parity, idempotency coverage | HARDEN | test(v0): prove repeated mixed /state -> /events -> /state reads after rejected split-decision replay preserve terminal-state shape and no-resurrection invariants | Audit-backed target pinned |
+| V0-G04 | Split + RETURN gate path is safe and deterministic | this is one of the core sovereign behaviors | continue/skip decision proofs, dropped-work handling, terminal shape stability | HARDEN | test(v0): prove repeated mixed /state -> /events -> /state reads after rejected split-decision replay preserve terminal-state shape and no-resurrection invariants | Primary next release-critical proof seam |
 | V0-G05 | Registry bundle is law-bound and pinned | bad registry data must fail hard | registry schema presence, FK law, bundle guard, law negatives/positives | DONE | none | Keep changes small and law-backed only |
 | V0-G06 | API boundary does not trust caller-owned engine truth | authority stays server-side | canonical-hash proof, handler delegation proof, explicit allowlists | HARDEN | assign next API-boundary slice here | |
 | V0-G07 | CI/green path is single-owner and trustworthy | a dirty pipeline destroys release trust | green parity, guard coverage, no-footgun, no-CRLF/BOM, clean-tree discipline | DONE | none | Preserve existing standards |
@@ -47,7 +47,7 @@ These are the only kinds of slices allowed next.
 
 ## Slice intake checklist
 
-Before starting any new branch, answer all of these with “yes”:
+Before starting any new branch, answer all of these with â€œyesâ€:
 
 1. Does the slice map to one primary gate above?
 2. Does it close a real gap or strengthen required proof?
@@ -55,7 +55,7 @@ Before starting any new branch, answer all of these with “yes”:
 4. Would failing to do this meaningfully weaken the v0 release?
 5. Is this work already implied by the release spine rather than being a new idea?
 
-If any answer is “no”, it is not a v0 slice.
+If any answer is â€œnoâ€, it is not a v0 slice.
 
 ## Current recommendation
 

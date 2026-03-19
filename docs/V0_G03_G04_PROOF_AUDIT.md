@@ -1,23 +1,17 @@
 # V0 G03/G04 Proof Audit
 
-Generated: 2026-03-19 18:51:37
-Base commit: fc080ce
+Generated: 2026-03-19 19:02:41
+Base commit: d54d34f
 
 Purpose: inventory the repo's current proof surface for:
 - V0-G03 Runtime event append/read path is append-only and replay-safe
 - V0-G04 Split + RETURN gate path is safe and deterministic
 
 Primary source docs:
-- docs/V0_RELEASE_SPINE.md
-- docs/V0_RELEASE_GAP_MATRIX.md
 
 ## Audit method
 
 This file was generated from repo search hits over:
-- 	est
-- src
-- docs
-- ci
 
 The audit searched for these proof-signaling terms:
 - return_skip
@@ -38,9 +32,470 @@ The audit searched for these proof-signaling terms:
 
 ## V0-G03 candidate proof files
 
+- `ci\contracts\compile_runtime_trace_ci_cluster.json`
+- `ci\contracts\dev_session_api_ci_cluster.json`
+- `ci\contracts\runtime_trace_return_gate_ci_cluster.json`
+- `ci\contracts\test_ci_composition.json`
+- `ci\contracts\test_ci_integration_api_regression_cluster_manifest.json`
+- `ci\docs\ci-baseline.txt`
+- `docs\V0_G03_G04_PROOF_AUDIT.md`
+- `docs\V0_RELEASE_GAP_MATRIX.md`
+- `docs\V0_RELEASE_SPINE.md`
+- `src\api\block_compile_write_service.ts`
+- `src\api\block_session_write_service.ts`
+- `src\api\blocks.handlers.ts`
+- `src\api\session_events_query_service.ts`
+- `src\api\session_state_query_service.ts`
+- `src\api\session_state_write_service.ts`
+- `src\api\sessions.handlers.ts`
+- `src\api\sessions.routes.ts`
+- `src\db\schema.sql`
+- `src\domain\session_event_sequence.ts`
+- `test\api.apply_unknown_maps_500.regression.test.mjs`
+- `test\api.blocks_compile_apply_unknown_maps_500.regression.test.mjs`
+- `test\api.blocks_compile_runtime_trace_contract.regression.test.mjs`
+- `test\api.complete_step_events_state_parity.regression.test.mjs`
+- `test\api.events_append_only_history.regression.test.mjs`
+- `test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs`
+- `test\api.return_continue_append_only_history.regression.test.mjs`
+- `test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs`
+- `test\api.return_gate.regression.test.mjs`
+- `test\api.return_skip.persisted_replay.regression.test.mjs`
+- `test\api.return_skip.regression.test.mjs`
+- `test\api.runtime_events_state_parity.regression.test.mjs`
+- `test\api.split_decision_idempotent_rejected.regression.test.mjs`
+- `test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs`
+- `test\api.split_decision_replay_idempotency.regression.test.mjs`
+- `test\api.state.cache_reset_http.regression.test.mjs`
+- `test\api.state_replay_projection_after_return_continue.regression.test.mjs`
+- `test\api.state_replay_projection_after_split_decisions.regression.test.mjs`
+- `test\api_append_runtime_event_executed_handler_http_contract.test.mjs`
+- `test\api_block_compile_write_service.contract.test.mjs`
+- `test\api_block_session_write_service.contract.test.mjs`
+- `test\api_compile_block_executed_handler_http_contract.test.mjs`
+- `test\api_get_session_state_executed_handler_http_contract.test.mjs`
+- `test\api_handlers_append_runtime_event_delegation.test.mjs`
+- `test\api_handlers_compile_block_response_allowlist_contract.test.mjs`
+- `test\api_handlers_compile_block_response_contract.test.mjs`
+- `test\api_handlers_compile_block_runtime_event_error_contract.test.mjs`
+- `test\api_handlers_get_session_state_delegation.test.mjs`
+- `test\api_handlers_list_runtime_events_delegation.test.mjs`
+- `test\api_list_runtime_events_executed_handler_http_contract.test.mjs`
+- `test\api_session_event_seq_init_contract.test.mjs`
+- `test\api_session_event_seq_runtime_wiring_guard.test.mjs`
+- `test\api_session_events_query_service.contract.test.mjs`
+- `test\api_session_state_cache_v1.test.mjs`
+- `test\api_session_state_corrupt_snapshot_hardening.test.mjs`
+- `test\api_session_state_public_trace_contract.regression.test.mjs`
+- `test\api_session_state_query_service.contract.test.mjs`
+- `test\api_session_state_return_decision_upgrade.test.mjs`
+- `test\api_session_state_upgrade_parity.test.mjs`
+- `test\api_session_state_write_service.contract.test.mjs`
+- `test\api_session_wire_apply_unexpected_500.test.mjs`
+- `test\api_start_session_executed_handler_http_contract.test.mjs`
+- `test\ci_api_append_runtime_event_executed_handler_http_contract_wrapper.test.mjs`
+- `test\ci_api_get_session_state_executed_handler_http_contract_wrapper.test.mjs`
+- `test\ci_api_list_runtime_events_executed_handler_http_contract_wrapper.test.mjs`
+- `test\ci_compile_runtime_trace_cluster_manifest.test.mjs`
+- `test\ci_compile_runtime_trace_cluster_manifest_file.test.mjs`
+- `test\ci_compile_runtime_trace_manifest.test.mjs`
+- `test\ci_compile_runtime_trace_manifest_file.test.mjs`
+- `test\ci_runtime_trace_return_gate_cluster_manifest.test.mjs`
+- `test\ci_runtime_trace_return_gate_cluster_manifest_file.test.mjs`
+- `test\ci_runtime_trace_return_gate_manifest.test.mjs`
+- `test\ci_runtime_trace_return_gate_manifest_file.test.mjs`
+- `test\phase6_runtime_reducer.test.mjs`
+- `test\phase6_runtime_trace_return_skip.test.mjs`
+- `test\session_event_sequence.contract.test.mjs`
+- `test\smoke_vertical_slice_plan_start_state.test.mjs`
+- `test\v0_compile_created_session_block_linkage_readback_parity.test.mjs`
+- `test\v0_compile_created_session_cache_parity.test.mjs`
+- `test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs`
+- `test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs`
+- `test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs`
+- `test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs`
+- `test\v0_compile_created_session_lifecycle_contract_stability.test.mjs`
+- `test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs`
+- `test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs`
+- `test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs`
+- `test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs`
+- `test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs`
+- `test\v0_create_session_from_persisted_block_cached_uncached_restarted_read_paths_contract.test.mjs`
+- `test\v0_create_session_from_persisted_block_mixed_read_order_parity.test.mjs`
+- `test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs`
+- `test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs`
+- `test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs`
+- `test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs`
+- `test\vertical_slice.api_http_complete_step.e2e.test.mjs`
+- `test\vertical_slice.api_http_unknown_engine_error_500.e2e.test.mjs`
+
+## V0-G04 candidate proof files
+
+- `ci\contracts\split_invariant_normalize_ci_cluster.json`
+- `ci\contracts\test_ci_composition.json`
+- `ci\contracts\test_ci_integration_api_regression_cluster_manifest.json`
+- `ci\contracts\test_ci_integration_vertical_slice_cluster_manifest.json`
+- `ci\docs\ci-baseline.txt`
+- `ci\guards\ban_engine_status_guard.mjs`
+- `ci\guards\clean_tree_guard.mjs`
+- `ci\guards\diff_line_endings_guard.mjs`
+- `ci\guards\guards_entrypoint_coverage_guard.mjs`
+- `ci\guards\guards_index_guard.mjs`
+- `ci\guards\lockfile_note_guard.mjs`
+- `ci\guards\no_bom_guard.mjs`
+- `ci\guards\no_crlf_guard.mjs`
+- `ci\guards\no_legacy_constraints.mjs`
+- `ci\guards\workflow_policy_header_guard.mjs`
+- `ci\scripts\ci_select.mjs`
+- `ci\scripts\ci_write_summary.mjs`
+- `ci\scripts\compose_test_ci_from_index.mjs`
+- `ci\scripts\diff_filtered.mjs`
+- `ci\scripts\e2e_golden.mjs`
+- `ci\scripts\evidence_seal.mjs`
+- `ci\scripts\golden_update_safe.mjs`
+- `ci\scripts\green.mjs`
+- `ci\scripts\precommit_smart.mjs`
+- `ci\scripts\prepush_smart.mjs`
+- `ci\scripts\run_test_ci_from_index.mjs`
+- `ci\scripts\sha256_guard.mjs`
+- `ci\scripts\write_golden_manifest.mjs`
+- `docs\V0_G03_G04_PROOF_AUDIT.md`
+- `docs\V0_RELEASE_GAP_MATRIX.md`
+- `docs\V0_RELEASE_SPINE.md`
+- `src\api\blocks.handlers.ts`
+- `src\api\session_state_read_model.ts`
+- `src\api\session_state_write_service.ts`
+- `src\session_runtime_cli.ts`
+- `test\api.apply_unknown_maps_500.regression.test.mjs`
+- `test\api.blocks_compile_apply_unknown_maps_500.regression.test.mjs`
+- `test\api.blocks_compile_runtime_trace_contract.regression.test.mjs`
+- `test\api.complete_step_events_state_parity.regression.test.mjs`
+- `test\api.events_append_only_history.regression.test.mjs`
+- `test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs`
+- `test\api.return_continue_append_only_history.regression.test.mjs`
+- `test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs`
+- `test\api.return_gate.regression.test.mjs`
+- `test\api.return_skip.persisted_replay.regression.test.mjs`
+- `test\api.return_skip.regression.test.mjs`
+- `test\api.runtime_events_state_parity.regression.test.mjs`
+- `test\api.split_decision_idempotent_rejected.regression.test.mjs`
+- `test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs`
+- `test\api.split_decision_replay_idempotency.regression.test.mjs`
+- `test\api.state.cache_reset_http.regression.test.mjs`
+- `test\api.state_replay_projection_after_return_continue.regression.test.mjs`
+- `test\api.state_replay_projection_after_split_decisions.regression.test.mjs`
+- `test\api_compile_block_executed_handler_http_contract.test.mjs`
+- `test\api_list_runtime_events_executed_handler_http_contract.test.mjs`
+- `test\api_plan_session_supported_activity_contract.test.mjs`
+- `test\api_session_state_cache_v1.test.mjs`
+- `test\api_session_state_corrupt_snapshot_hardening.test.mjs`
+- `test\api_session_state_public_trace_contract.regression.test.mjs`
+- `test\api_session_state_query_service.contract.test.mjs`
+- `test\api_session_state_return_decision_upgrade.test.mjs`
+- `test\api_session_state_upgrade_parity.test.mjs`
+- `test\api_session_state_write_service.contract.test.mjs`
+- `test\ci_split_invariant_normalize_cluster_manifest.test.mjs`
+- `test\ci_split_invariant_normalize_cluster_manifest_file.test.mjs`
+- `test\ci_split_invariant_normalize_manifest.test.mjs`
+- `test\ci_split_invariant_normalize_manifest_file.test.mjs`
+- `test\ci_test_ci_composition_file.test.mjs`
+- `test\ci_test_ci_integration_composition.test.mjs`
+- `test\dev_fast_clean_tree_negative.test.mjs`
+- `test\e2e_phase6_runtime_split_return.test.mjs`
+- `test\phase6_return_decision_gate.test.mjs`
+- `test\phase6_runtime_reducer.test.mjs`
+- `test\phase6_runtime_trace_return_gate.test.mjs`
+- `test\phase6_runtime_trace_return_skip.test.mjs`
+- `test\phase6_split_invariant_normalize.test.mjs`
+- `test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs`
+- `test\phase6_split_invariant_normalize_active_empty.test.mjs`
+- `test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs`
+- `test\phase6_split_invariant_normalize_garbage_types.test.mjs`
+- `test\phase6_split_invariant_normalize_inactive_arrays.test.mjs`
+- `test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs`
+- `test\v0_compile_created_session_block_linkage_readback_parity.test.mjs`
+- `test\v0_compile_created_session_cache_parity.test.mjs`
+- `test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs`
+- `test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs`
+- `test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs`
+- `test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs`
+- `test\v0_compile_created_session_lifecycle_contract_stability.test.mjs`
+- `test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs`
+- `test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs`
+- `test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs`
+- `test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs`
+- `test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs`
+- `test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs`
+- `test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs`
+- `test\vertical_slice.api_http_complete_step.e2e.test.mjs`
+- `test\vertical_slice.api_http_return_gate.e2e.test.mjs`
+- `test\vertical_slice.api_http_return_skip.e2e.test.mjs`
+
 ## Raw match log
 
 ### G03 raw matches
+
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:100:- [/events] test\api.return_skip.regression.test.mjs:305:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:101:- [/events] test\api.runtime_events_state_parity.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:102:- [/events] test\api.runtime_events_state_parity.regression.test.mjs:161:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:103:- [/events] test\api.runtime_events_state_parity.regression.test.mjs:208:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:104:- [/events] test\api.runtime_events_state_parity.regression.test.mjs:217:  const eventsAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:105:- [/events] test\api.runtime_events_state_parity.regression.test.mjs:25:test("API regression: runtime /events and /state stay aligned across split/continue and cache clear", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:106:- [/events] test\api.runtime_events_state_parity.regression.test.mjs:302:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:107:- [/events] test\api.runtime_events_state_parity.regression.test.mjs:311:    `expected /events payload identical after cache clear.\nbefore=${JSON.stringify(snapshotEvents)}\nafter=${JSON.stringify(eventsAfterClear.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:108:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1011:        `${label}: terminal cycle ${cycle} second /events`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:109:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1032:      `${label}: terminal /events after rejected replay`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:110:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1060:          `${label}: fresh restart cycle ${cycle} /events`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:1103:- [return_skip] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:111:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1066:          `${label}: fresh restart cycle ${cycle} /events byte parity`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:112:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1094:      `${label}: /events after rejected replay`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:113:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1106:      `${label}: /events changed after rejected replay.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(afterReplayEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:114:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1120:      `${label}: final /events after repeated interleaved reads`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:115:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1151:      `${label}: /events across repeated reloads after rejected replay`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:116:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1165:        `${label}: second reload /events after repeated interleaved reads`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:117:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:118:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:119:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:191:  const events = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:120:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:251:    `${label}: /events raw payload changed.\nbefore=${acceptedEventsText}\nafter=${eventsPayload.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:121:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:256:    `${label}: /events JSON changed.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(eventsPayload.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:122:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:499:      `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:1220:- [split] docs\V0_RELEASE_SPINE.md:12:A coach can generate a session, start it, run it, split it, return to it, continue or skip safely, and trust the state/events contract before and after restart.
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:123:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:611:      `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:124:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:624:      `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:1247:- [split] test\api.apply_unknown_maps_500.regression.test.mjs:137:  const ev = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, { event: { type: "SPLIT_SESSION" } });
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:125:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:649:      `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:126:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:708:        `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:127:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:757:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:1270:- [split] test\api.events_append_only_history.regression.test.mjs:25:test("API regression: /events remains append-only and byte-stable across split/continue and cache clear", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:128:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:789:      `${label}: /events across mixed cache/hydrated reads after rejected replay`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:129:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:797:        `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:130:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:831:        `${label}: alternating cycle ${cycle} /events after multiple rejected re-posts`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:131:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:846:        `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:132:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:875:        `${label}: interleaved cycle ${cycle} first /events`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:133:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:887:        `${label}: interleaved cycle ${cycle} second /events`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:134:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:896:        `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:1344:- [split] test\api.return_gate.regression.test.mjs:241:  const evSplit = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:135:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:931:        `${label}: normalized current-step cycle ${cycle} /events`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:136:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:970:        `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:137:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:999:        `${label}: terminal cycle ${cycle} first /events`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:138:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:139:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:157:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:140:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:211:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:141:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:265:  const eventsAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:142:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:297:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:1422:- [split] test\api.runtime_events_state_parity.regression.test.mjs:25:test("API regression: runtime /events and /state stay aligned across split/continue and cache clear", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:143:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:325:  const eventsAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:1432:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:144:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:358:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:145:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:367:    `expected /events payload identical after cache clear.` +
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:146:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:147:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:157:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:148:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:211:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:149:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:270:  const eventsAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:150:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:302:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:151:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:330:  const eventsAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:152:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:363:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:153:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:372:    `expected /events payload identical after cache clear.` +
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:154:- [/events] test\api.state.cache_reset_http.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:155:- [/events] test\api.state.cache_reset_http.regression.test.mjs:174:  const eventsAfterProgress = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:156:- [/events] test\api.state.cache_reset_http.regression.test.mjs:221:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:157:- [/events] test\api.state.cache_reset_http.regression.test.mjs:230:    `expected /events payload identical after cache clear.\nbefore=${JSON.stringify(beforeClearEvents)}\nafter=${JSON.stringify(eventsAfterClear.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:158:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:159:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:157:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:160:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:211:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:161:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:270:  const eventsAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:162:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:319:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:163:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:328:    `expected /events payload identical after cache clear.` +
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:164:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:165:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:157:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:166:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:211:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:167:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:265:  const eventsAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:168:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:312:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:169:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:321:    `expected /events payload identical after cache clear.\nbefore=${JSON.stringify(snapshotEvents)}\nafter=${JSON.stringify(eventsAfterClear.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:170:- [/events] test\api_handlers_compile_block_runtime_event_error_contract.test.mjs:13:    /if\s*\(!Array\.isArray\(raw\)\)\s*throw badRequest\("Invalid runtime_events\/events \(expected array\)"\);/,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:171:- [/events] test\api_handlers_compile_block_runtime_event_error_contract.test.mjs:14:    "expected non-array runtime_events/events to be rejected with the explicit badRequest contract"
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:172:- [/events] test\api_handlers_compile_block_runtime_event_error_contract.test.mjs:19:    /throw badRequest\("Invalid runtime_events\/events \(event failed validation\)",\s*\{\s*index:\s*i\s*\}\);/,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:173:- [/events] test\api_session_wire_apply_unexpected_500.test.mjs:103:test("POST /sessions/:id/events returns 500 when wire apply throws unexpected error (no 4xx misclassification)", async () => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:174:- [/events] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:175:- [/events] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:255:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:176:- [/events] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:260:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:177:- [/events] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:333:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:178:- [/events] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:493:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:179:- [/events] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:516:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:180:- [/events] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:561:  assertByteStableEvents(terminalReloadEvents, terminalEvents, `${label}: terminal reload /events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:181:- [/events] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:595:  assertByteStableEvents(fresh.events, terminalEvents, `${label}: fresh restart /events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:182:- [/events] test\v0_compile_created_session_cache_parity.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:183:- [/events] test\v0_compile_created_session_cache_parity.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:184:- [/events] test\v0_compile_created_session_cache_parity.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:185:- [/events] test\v0_compile_created_session_cache_parity.test.mjs:283:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:186:- [/events] test\v0_compile_created_session_cache_parity.test.mjs:446:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:187:- [/events] test\v0_compile_created_session_cache_parity.test.mjs:471:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:188:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:189:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:190:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:1906:1. repeated mixed /state -> /events -> /state reads after split decision replay
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:191:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:331:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:192:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:469:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:193:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:491:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:194:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:532:  assertByteStableEvents(terminalReloadEvents, terminalEvents, `${label}: terminal reload /events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:195:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:553:  assertByteStableEvents(fresh.events, terminalEvents, `${label}: fresh restart /events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:196:- [/events] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:197:- [/events] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:198:- [/events] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:199:- [/events] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:283:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:200:- [/events] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:412:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:201:- [/events] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:431:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:202:- [/events] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:203:- [/events] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:204:- [/events] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:205:- [/events] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:294:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:206:- [/events] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:423:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:207:- [/events] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:442:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:208:- [/events] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:497:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:209:- [/events] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:544:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:210:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:211:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:212:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:213:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:283:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:214:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:458:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:215:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:481:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:216:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:217:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:218:- [/events] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:219:- [/events] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:218:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:220:- [/events] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:223:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:221:- [/events] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:297:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:222:- [/events] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:496:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:223:- [/events] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:531:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:224:- [/events] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:614:    `${label}: terminal reload /events`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:225:- [/events] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:636:  assertByteStableEvents(fresh.events, terminalEvents, `${label}: fresh restart /events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:226:- [/events] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:227:- [/events] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:228:- [/events] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:229:- [/events] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:283:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:230:- [/events] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:484:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:231:- [/events] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:505:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:232:- [/events] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:233:- [/events] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:260:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:234:- [/events] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:265:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:235:- [/events] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:310:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:236:- [/events] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:384:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:237:- [/events] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:535:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:238:- [/events] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:573:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:239:- [/events] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:240:- [/events] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:198:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:241:- [/events] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:203:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:242:- [/events] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:298:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:243:- [/events] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:400:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:244:- [/events] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:481:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:245:- [/events] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:525:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:246:- [/events] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:582:  assertByteStableEvents(terminalReloadEvents, terminalEvents, `${label}: terminal reload /events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:247:- [/events] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:603:  assertByteStableEvents(fresh.events, terminalEvents, `${label}: fresh restart /events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:248:- [/events] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:249:- [/events] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:268:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:250:- [/events] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:273:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:251:- [/events] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:372:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:252:- [/events] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:529:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:253:- [/events] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:548:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:254:- [/events] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:255:- [/events] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:256:- [/events] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:257:- [/events] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:294:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:258:- [/events] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:449:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:259:- [/events] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:468:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:260:- [/events] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:512:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:261:- [/events] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:524:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:262:- [/events] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:531:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:263:- [/events] test\v0_create_session_from_persisted_block_cached_uncached_restarted_read_paths_contract.test.mjs:58:test("v0: create-session-from-persisted-block preserves state/events contract across cached, uncached, and restarted read paths", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:264:- [/events] test\v0_create_session_from_persisted_block_mixed_read_order_parity.test.mjs:50:test("v0: create-session-from-persisted-block state/events parity survives repeated mixed read order", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:265:- [/events] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:91:test("v0 restart-chain wiring: persisted block -> create-session-from-block -> state/events remains wired across repeated fresh artifact reads", async () => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:266:- [/events] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:50:test("v0: create-session-from-persisted-block preserves state/events contract across restarted read paths", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:267:- [/events] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:268:- [/events] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:269:- [/events] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:270:- [/events] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:294:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:271:- [/events] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:423:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:272:- [/events] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:442:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:273:- [/events] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:497:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:274:- [/events] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:542:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:275:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:276:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:277:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:278:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:294:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:279:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:423:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:280:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:442:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:281:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:497:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:282:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:542:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:283:- [/events] test\vertical_slice.api_http_unknown_engine_error_500.e2e.test.mjs:24:    const ev = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:284:- [/state] docs\V0_RELEASE_GAP_MATRIX.md:28:| V0-G03 | Runtime event append/read path is append-only and replay-safe | no resurrection, no hidden mutation | repeated /state -> /events -> /state proof, restart parity, idempotency coverage | HARDEN | assign next runtime-proof slice here | |
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:289:- [/state] test\api.complete_step_events_state_parity.regression.test.mjs:25:test("API regression: COMPLETE_EXERCISE preserves /events and /state parity across cache clear", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:324:- [/state] test\api.runtime_events_state_parity.regression.test.mjs:25:test("API regression: runtime /events and /state stay aligned across split/continue and cache clear", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:338:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:339:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:34:- /events
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:409:- [/state] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:410:- [/state] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:44:- [/events] docs\V0_RELEASE_GAP_MATRIX.md:27:| V0-G02 | Session creation and persistence are authoritative | sessions must be replayable and non-ambiguous | create-session persistence tests, state/events parity, terminal-state invariants | HARDEN | assign next session-proof slice here | |
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:444:- [appendRuntimeEvent] src\api\sessions.routes.ts:19:sessionsRouter.post("/:session_id/events", asyncHandler(appendRuntimeEvent));
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:45:- [/events] docs\V0_RELEASE_GAP_MATRIX.md:28:| V0-G03 | Runtime event append/read path is append-only and replay-safe | no resurrection, no hidden mutation | repeated /state -> /events -> /state proof, restart parity, idempotency coverage | HARDEN | assign next runtime-proof slice here | |
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:46:- [/events] docs\V0_RELEASE_SPINE.md:102:3. Read state/events
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:47:- [/events] docs\V0_RELEASE_SPINE.md:107:8. Read live state/events
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:48:- [/events] docs\V0_RELEASE_SPINE.md:109:10. Read state/events again
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:49:- [/events] docs\V0_RELEASE_SPINE.md:12:A coach can generate a session, start it, run it, split it, return to it, continue or skip safely, and trust the state/events contract before and after restart.
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:50:- [/events] docs\V0_RELEASE_SPINE.md:23:6. Read `/sessions/:id/events`.
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:51:- [/events] docs\V0_RELEASE_SPINE.md:28:11. Read live state/events and verify cache parity.
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:52:- [/events] docs\V0_RELEASE_SPINE.md:30:13. Re-read live state/events and verify restart parity.
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:53:- [/events] docs\V0_RELEASE_SPINE.md:50:- [ ] `GET /sessions/:id/events` succeeds.
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:54:- [/events] docs\V0_RELEASE_SPINE.md:86:3. Read state/events
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:55:- [/events] docs\V0_RELEASE_SPINE.md:91:8. Read live state/events
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:56:- [/events] docs\V0_RELEASE_SPINE.md:93:10. Read state/events again
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:57:- [/events] src\api\blocks.handlers.ts:63:  if (!Array.isArray(raw)) throw badRequest("Invalid runtime_events/events (expected array)");
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:58:- [/events] src\api\blocks.handlers.ts:72:      throw badRequest("Invalid runtime_events/events (event failed validation)", { index: i });
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:585:- [listRuntimeEvents] src\api\sessions.routes.ts:20:sessionsRouter.get("/:session_id/events", asyncHandler(listRuntimeEvents));
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:59:- [/events] src\api\sessions.routes.ts:19:sessionsRouter.post("/:session_id/events", asyncHandler(appendRuntimeEvent));
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:60:- [/events] src\api\sessions.routes.ts:20:sessionsRouter.get("/:session_id/events", asyncHandler(listRuntimeEvents));
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:61:- [/events] test\api.apply_unknown_maps_500.regression.test.mjs:137:  const ev = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, { event: { type: "SPLIT_SESSION" } });
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:62:- [/events] test\api.complete_step_events_state_parity.regression.test.mjs:121:  const eventsBefore = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:63:- [/events] test\api.complete_step_events_state_parity.regression.test.mjs:148:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:635:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:64:- [/events] test\api.complete_step_events_state_parity.regression.test.mjs:157:  const eventsAfter = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:65:- [/events] test\api.complete_step_events_state_parity.regression.test.mjs:25:test("API regression: COMPLETE_EXERCISE preserves /events and /state parity across cache clear", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:66:- [/events] test\api.complete_step_events_state_parity.regression.test.mjs:252:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:67:- [/events] test\api.complete_step_events_state_parity.regression.test.mjs:261:    `expected /events payload identical after cache clear.\nbefore=${JSON.stringify(snapshotEvents)}\nafter=${JSON.stringify(eventsAfterClear.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:68:- [/events] test\api.events_append_only_history.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:69:- [/events] test\api.events_append_only_history.regression.test.mjs:128:  const events1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:70:- [/events] test\api.events_append_only_history.regression.test.mjs:162:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:71:- [/events] test\api.events_append_only_history.regression.test.mjs:198:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:72:- [/events] test\api.events_append_only_history.regression.test.mjs:207:  const events2 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:73:- [/events] test\api.events_append_only_history.regression.test.mjs:25:test("API regression: /events remains append-only and byte-stable across split/continue and cache clear", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:74:- [/events] test\api.events_append_only_history.regression.test.mjs:266:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:75:- [/events] test\api.events_append_only_history.regression.test.mjs:275:    `expected /events payload identical after cache clear.\nbefore=${JSON.stringify(beforeClearEvents)}\nafter=${JSON.stringify(eventsAfterClear.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:76:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:165:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:77:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:203:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:776:- [terminal-state] docs\V0_RELEASE_GAP_MATRIX.md:27:| V0-G02 | Session creation and persistence are authoritative | sessions must be replayable and non-ambiguous | create-session persistence tests, state/events parity, terminal-state invariants | HARDEN | assign next session-proof slice here | |
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:78:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:257:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:79:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:302:  const eventsAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:80:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:334:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:81:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:363:  const eventsAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:82:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:397:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:83:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:406:    `expected /events payload identical after cache clear.` +
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:84:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:124:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:85:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:133:  const eventsAfterFirstComplete = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:86:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:162:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:87:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:210:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:88:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:219:  const eventsAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:89:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:322:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:90:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:331:    `expected /events payload to be identical after cache clear.\nbefore=${JSON.stringify(beforeClearEvents)}\nafter=${JSON.stringify(eventsAfterClear.json)}`
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:91:- [/events] test\api.return_gate.regression.test.mjs:241:  const evSplit = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:92:- [/events] test\api.return_gate.regression.test.mjs:285:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:93:- [/events] test\api.return_gate.regression.test.mjs:312:  const evReturn = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:933:- [return_continue] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:94:- [/events] test\api.return_gate.regression.test.mjs:318:  const evComplete = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, {
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:95:- [/events] test\api.return_skip.persisted_replay.regression.test.mjs:248:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:96:- [/events] test\api.return_skip.persisted_replay.regression.test.mjs:259:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:97:- [/events] test\api.return_skip.persisted_replay.regression.test.mjs:305:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:98:- [/events] test\api.return_skip.regression.test.mjs:248:    `${baseUrl}/sessions/${sessionId}/events`,
+- [/events] docs\V0_G03_G04_PROOF_AUDIT.md:99:- [/events] test\api.return_skip.regression.test.mjs:259:    `${baseUrl}/sessions/${sessionId}/events`,
 - [/events] docs\V0_RELEASE_GAP_MATRIX.md:27:| V0-G02 | Session creation and persistence are authoritative | sessions must be replayable and non-ambiguous | create-session persistence tests, state/events parity, terminal-state invariants | HARDEN | assign next session-proof slice here | |
 - [/events] docs\V0_RELEASE_GAP_MATRIX.md:28:| V0-G03 | Runtime event append/read path is append-only and replay-safe | no resurrection, no hidden mutation | repeated /state -> /events -> /state proof, restart parity, idempotency coverage | HARDEN | assign next runtime-proof slice here | |
 - [/events] docs\V0_RELEASE_SPINE.md:102:3. Read state/events
@@ -281,6 +736,190 @@ The audit searched for these proof-signaling terms:
 - [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:497:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
 - [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:542:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
 - [/events] test\vertical_slice.api_http_unknown_engine_error_500.e2e.test.mjs:24:    const ev = await fetch(`${baseUrl}/sessions/${encodeURIComponent(sessionId)}/events`, {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:105:- [/events] test\api.runtime_events_state_parity.regression.test.mjs:25:test("API regression: runtime /events and /state stay aligned across split/continue and cache clear", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1103:- [return_skip] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:117:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:118:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1256:- [split] test\api.events_append_only_history.regression.test.mjs:171:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1277:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:212:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1314:- [split] test\api.return_continue_append_only_history.regression.test.mjs:171:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1354:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1380:- [split] test\api.return_skip.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1405:- [split] test\api.runtime_events_state_parity.regression.test.mjs:170:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1422:- [split] test\api.runtime_events_state_parity.regression.test.mjs:25:test("API regression: runtime /events and /state stay aligned across split/continue and cache clear", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1432:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1451:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1485:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1519:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1551:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1615:- [split] test\api_session_state_return_decision_upgrade.test.mjs:94: test("GET /sessions/:id/state upgrades legacy split_active into explicit return_decision_* contract (no response-time inference)", async () => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:1906:1. repeated mixed /state -> /events -> /state reads after split decision replay
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:216:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:217:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:284:- [/state] docs\V0_RELEASE_GAP_MATRIX.md:28:| V0-G03 | Runtime event append/read path is append-only and replay-safe | no resurrection, no hidden mutation | repeated /state -> /events -> /state proof, restart parity, idempotency coverage | HARDEN | assign next runtime-proof slice here | |
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:285:- [/state] docs\V0_RELEASE_SPINE.md:22:5. Read `/sessions/:id/state`.
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:286:- [/state] docs\V0_RELEASE_SPINE.md:49:- [ ] `GET /sessions/:id/state` succeeds.
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:287:- [/state] src\api\sessions.routes.ts:21:sessionsRouter.get("/:session_id/state", asyncHandler(getSessionState));
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:288:- [/state] test\api.complete_step_events_state_parity.regression.test.mjs:187:  const stateAfter = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:289:- [/state] test\api.complete_step_events_state_parity.regression.test.mjs:25:test("API regression: COMPLETE_EXERCISE preserves /events and /state parity across cache clear", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:290:- [/state] test\api.complete_step_events_state_parity.regression.test.mjs:264:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:291:- [/state] test\api.complete_step_events_state_parity.regression.test.mjs:273:    `expected /state payload identical after cache clear.\nbefore=${JSON.stringify(snapshotState)}\nafter=${JSON.stringify(stateAfterClear.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:292:- [/state] test\api.complete_step_events_state_parity.regression.test.mjs:95:  const stateBefore = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:293:- [/state] test\api.events_append_only_history.regression.test.mjs:171:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:294:- [/state] test\api.events_append_only_history.regression.test.mjs:245:  const stateAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:295:- [/state] test\api.events_append_only_history.regression.test.mjs:278:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:296:- [/state] test\api.events_append_only_history.regression.test.mjs:287:    `expected /state payload identical after cache clear.\nbefore=${JSON.stringify(beforeClearState)}\nafter=${JSON.stringify(stateAfterClear.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:297:- [/state] test\api.events_append_only_history.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:298:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:141:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:299:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:174:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:300:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:212:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:301:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:266:  const stateAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:302:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:348:  const stateAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:303:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:382:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:304:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:391:    `expected /state payload identical after cache clear.` +
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:305:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:171:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:306:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:257:  const stateAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:307:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:334:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:308:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:343:    `expected /state payload to be identical after cache clear.\nbefore=${JSON.stringify(beforeClearState)}\nafter=${JSON.stringify(stateAfterClear.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:309:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:95:  const initialState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:310:- [/state] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:64:test("v0 proof: RETURN_CONTINUE is idempotent-rejected after ungate and preserves append-only event/state parity across repeated reloads", async () => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:311:- [/state] test\api.return_gate.regression.test.mjs:250:  const st1 = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:312:- [/state] test\api.return_gate.regression.test.mjs:324:  const st2 = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:313:- [/state] test\api.return_skip.persisted_replay.regression.test.mjs:229:  const initialState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:314:- [/state] test\api.return_skip.persisted_replay.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:315:- [/state] test\api.return_skip.persisted_replay.regression.test.mjs:314:  const finalState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:316:- [/state] test\api.return_skip.persisted_replay.regression.test.mjs:365:  const finalStateAgain = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:317:- [/state] test\api.return_skip.regression.test.mjs:229:  const initialState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:318:- [/state] test\api.return_skip.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:319:- [/state] test\api.return_skip.regression.test.mjs:314:  const finalState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:320:- [/state] test\api.return_skip.regression.test.mjs:365:  const finalStateAgain = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:321:- [/state] test\api.runtime_events_state_parity.regression.test.mjs:128:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:322:- [/state] test\api.runtime_events_state_parity.regression.test.mjs:170:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:323:- [/state] test\api.runtime_events_state_parity.regression.test.mjs:247:  const stateAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:324:- [/state] test\api.runtime_events_state_parity.regression.test.mjs:25:test("API regression: runtime /events and /state stay aligned across split/continue and cache clear", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:325:- [/state] test\api.runtime_events_state_parity.regression.test.mjs:314:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:326:- [/state] test\api.runtime_events_state_parity.regression.test.mjs:323:    `expected /state payload identical after cache clear.\nbefore=${JSON.stringify(snapshotState)}\nafter=${JSON.stringify(stateAfterClear.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:327:- [/state] test\api.runtime_events_state_parity.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:328:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1005:        `${label}: terminal cycle ${cycle} /state`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:329:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1038:      `${label}: terminal /state after rejected replay`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:33:- /state
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:330:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1044:      `${label}: final terminal /state after repeated interleaved reads`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:331:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1072:          `${label}: fresh restart cycle ${cycle} /state byte parity`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:332:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1078:          `${label}: fresh restart cycle ${cycle} /state`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:333:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1100:      `${label}: /state after rejected replay`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:334:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1111:      `${label}: /state changed after rejected replay.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(afterReplayState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:335:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1129:      `${label}: final /state after repeated interleaved reads`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:336:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1157:      `${label}: /state across repeated reloads after rejected replay`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:337:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1174:        `${label}: second reload /state after repeated interleaved reads`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:338:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:339:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:340:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:173:  const state = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:341:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:238:    `${label}: /state raw payload changed.\nbefore=${acceptedStateText}\nafter=${statePayload.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:342:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:243:    `${label}: /state JSON changed.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(statePayload.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:343:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:783:      `${label}: /state across mixed cache/hydrated reads after rejected replay`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:344:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:825:        `${label}: alternating cycle ${cycle} first /state after multiple rejected re-posts`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:345:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:837:        `${label}: alternating cycle ${cycle} second /state after multiple rejected re-posts`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:346:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:881:        `${label}: interleaved cycle ${cycle} /state`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:347:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:925:        `${label}: normalized current-step cycle ${cycle} first /state`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:348:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:937:        `${label}: normalized current-step cycle ${cycle} second /state`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:349:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:128:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:350:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:351:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:220:  const stateAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:352:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:311:  const stateAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:353:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:344:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:354:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:353:    `expected /state payload identical after cache clear.` +
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:355:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:356:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:128:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:357:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:358:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:220:  const stateAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:359:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:316:  const stateAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:360:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:349:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:361:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:358:    `expected /state payload identical after cache clear.` +
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:362:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:363:- [/state] test\api.state.cache_reset_http.regression.test.mjs:128:  const stateAfterProgress = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:364:- [/state] test\api.state.cache_reset_http.regression.test.mjs:209:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:365:- [/state] test\api.state.cache_reset_http.regression.test.mjs:218:    `expected /state payload identical after cache clear.\nbefore=${JSON.stringify(beforeClearState)}\nafter=${JSON.stringify(stateAfterClear.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:366:- [/state] test\api.state.cache_reset_http.regression.test.mjs:25:test("API regression: /state remains byte-stable across cache reset after runtime progress", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:367:- [/state] test\api.state.cache_reset_http.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:368:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:128:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:369:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:370:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:220:  const stateAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:371:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:305:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:372:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:314:    `expected /state payload identical after cache clear.` +
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:373:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:374:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:128:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:375:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:376:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:220:  const stateAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:377:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:300:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:378:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:309:    `expected /state payload identical after cache clear.\nbefore=${JSON.stringify(snapshotState)}\nafter=${JSON.stringify(stateAfterClear.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:379:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:380:- [/state] test\api_session_state_cache_v1.test.mjs:186:test("GET /sessions/:id/state is cached (second call avoids DB connect/select)", async () => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:381:- [/state] test\api_session_state_public_trace_contract.regression.test.mjs:27:test("GET /sessions/:id/state exposes only explicit public return decision trace fields", async () => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:382:- [/state] test\api_session_state_return_decision_upgrade.test.mjs:94: test("GET /sessions/:id/state upgrades legacy split_active into explicit return_decision_* contract (no response-time inference)", async () => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:383:- [/state] test\api_session_state_upgrade_parity.test.mjs:32:  // Normalize (this is what GET /state relies on before deriveTrace)
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:384:- [/state] test\smoke_vertical_slice_plan_start_state.test.mjs:152:    const stateRes = await fetch(baseUrl + "/sessions/" + sessionId + "/state");
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:385:- [/state] test\smoke_vertical_slice_plan_start_state.test.mjs:155:      throw new Error("sessions/state failed: " + stateRes.status + " body=" + JSON.stringify(body).slice(0, 2000));
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:386:- [/state] test\smoke_vertical_slice_plan_start_state.test.mjs:87:test("SMOKE (Tier-1): /blocks/compile?create_session=true -> /sessions/:id/start -> /sessions/:id/state", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:387:- [/state] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:388:- [/state] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:242:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:389:- [/state] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:247:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:390:- [/state] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:560:  assertByteStableState(terminalReloadState, terminalState, `${label}: terminal reload /state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:391:- [/state] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:594:  assertByteStableState(fresh.state, terminalState, `${label}: fresh restart /state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:392:- [/state] test\v0_compile_created_session_cache_parity.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:393:- [/state] test\v0_compile_created_session_cache_parity.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:394:- [/state] test\v0_compile_created_session_cache_parity.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:395:- [/state] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:396:- [/state] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:397:- [/state] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:398:- [/state] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:531:  assertByteStableState(terminalReloadState, terminalState, `${label}: terminal reload /state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:399:- [/state] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:552:  assertByteStableState(fresh.state, terminalState, `${label}: fresh restart /state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:400:- [/state] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:401:- [/state] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:402:- [/state] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:403:- [/state] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:404:- [/state] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:405:- [/state] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:406:- [/state] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:407:- [/state] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:408:- [/state] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:409:- [/state] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:410:- [/state] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:411:- [/state] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:412:- [/state] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:205:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:413:- [/state] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:210:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:414:- [/state] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:609:    `${label}: terminal reload /state`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:415:- [/state] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:635:  assertByteStableState(fresh.state, terminalState, `${label}: fresh restart /state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:416:- [/state] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:417:- [/state] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:418:- [/state] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:419:- [/state] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:420:- [/state] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:247:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:421:- [/state] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:252:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:422:- [/state] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:423:- [/state] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:185:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:424:- [/state] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:190:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:425:- [/state] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:581:  assertByteStableState(terminalReloadState, terminalState, `${label}: terminal reload /state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:426:- [/state] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:602:  assertByteStableState(fresh.state, terminalState, `${label}: fresh restart /state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:427:- [/state] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:428:- [/state] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:255:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:429:- [/state] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:260:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:430:- [/state] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:605:    `${label}: terminal /state should expose null current_step`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:431:- [/state] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:432:- [/state] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:433:- [/state] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:434:- [/state] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:435:- [/state] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:436:- [/state] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:437:- [/state] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:438:- [/state] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:439:- [/state] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:45:- [/events] docs\V0_RELEASE_GAP_MATRIX.md:28:| V0-G03 | Runtime event append/read path is append-only and replay-safe | no resurrection, no hidden mutation | repeated /state -> /events -> /state proof, restart parity, idempotency coverage | HARDEN | assign next runtime-proof slice here | |
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:498:- [getSessionState] src\api\sessions.routes.ts:21:sessionsRouter.get("/:session_id/state", asyncHandler(getSessionState));
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:566:- [idempotent] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:64:test("v0 proof: RETURN_CONTINUE is idempotent-rejected after ungate and preserves append-only event/state parity across repeated reloads", async () => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:635:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:65:- [/events] test\api.complete_step_events_state_parity.regression.test.mjs:25:test("API regression: COMPLETE_EXERCISE preserves /events and /state parity across cache clear", async (t) => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:830:- [return_continue] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:64:test("v0 proof: RETURN_CONTINUE is idempotent-rejected after ungate and preserves append-only event/state parity across repeated reloads", async () => {
+- [/state] docs\V0_G03_G04_PROOF_AUDIT.md:933:- [return_continue] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
 - [/state] docs\V0_RELEASE_GAP_MATRIX.md:28:| V0-G03 | Runtime event append/read path is append-only and replay-safe | no resurrection, no hidden mutation | repeated /state -> /events -> /state proof, restart parity, idempotency coverage | HARDEN | assign next runtime-proof slice here | |
 - [/state] docs\V0_RELEASE_SPINE.md:22:5. Read `/sessions/:id/state`.
 - [/state] docs\V0_RELEASE_SPINE.md:49:- [ ] `GET /sessions/:id/state` succeeds.
@@ -437,6 +1076,63 @@ The audit searched for these proof-signaling terms:
 - [/state] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
 - [/state] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
 - [/state] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:35:- appendRuntimeEvent
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:440:- [appendRuntimeEvent] src\api\session_state_write_service.ts:210:export async function appendRuntimeEventMutation(session_id: string, raw: unknown) {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:441:- [appendRuntimeEvent] src\api\sessions.handlers.ts:45:export async function appendRuntimeEvent(req: Request, res: Response) {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:442:- [appendRuntimeEvent] src\api\sessions.handlers.ts:50:  const result = await appendRuntimeEventMutation(session_id, raw);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:443:- [appendRuntimeEvent] src\api\sessions.handlers.ts:7:  appendRuntimeEventMutation,
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:444:- [appendRuntimeEvent] src\api\sessions.routes.ts:19:sessionsRouter.post("/:session_id/events", asyncHandler(appendRuntimeEvent));
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:445:- [appendRuntimeEvent] src\api\sessions.routes.ts:6:  appendRuntimeEvent,
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:446:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:113:test("appendRuntimeEvent executed path: returns 201 with delegated JSON payload when mutation succeeds", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:447:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:130:  const { appendRuntimeEvent } = await import(`${distHandlerUrl}?case=ok`);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:448:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:144:  await appendRuntimeEvent(req, res);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:449:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:157:test("appendRuntimeEvent executed path: missing session_id throws 400 badRequest", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:450:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:161:  const { appendRuntimeEvent } = await import(`${distHandlerUrl}?case=missing_session_id`);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:451:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:173:    () => appendRuntimeEvent(req, res),
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:452:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:178:test("appendRuntimeEvent executed path: extractRawEventFromBody validation failure preserves explicit error contract", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:453:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:189:  const { appendRuntimeEvent } = await import(`${distHandlerUrl}?case=invalid_body`);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:454:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:201:    () => appendRuntimeEvent(req, res),
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:455:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:209:test("appendRuntimeEvent executed path: delegated mutation error preserves explicit error contract", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:456:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:224:  const { appendRuntimeEvent } = await import(`${distHandlerUrl}?case=mutation_not_found`);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:457:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:239:    () => appendRuntimeEvent(req, res),
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:458:- [appendRuntimeEvent] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:71:      async appendRuntimeEventMutation(sessionId, raw) {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:459:- [appendRuntimeEvent] test\api_get_session_state_executed_handler_http_contract.test.mjs:67:      async appendRuntimeEventMutation() {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:460:- [appendRuntimeEvent] test\api_handlers_append_runtime_event_delegation.test.mjs:13:    /import\s*\{[\s\S]*\bappendRuntimeEventMutation\b[\s\S]*\bextractRawEventFromBody\b[\s\S]*\}\s*from\s*"\.\/session_state_write_service\.js"/,
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:461:- [appendRuntimeEvent] test\api_handlers_append_runtime_event_delegation.test.mjs:14:    "expected handler to import appendRuntimeEventMutation and extractRawEventFromBody from extracted write service"
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:462:- [appendRuntimeEvent] test\api_handlers_append_runtime_event_delegation.test.mjs:20:    "expected appendRuntimeEvent to read params.session_id"
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:463:- [appendRuntimeEvent] test\api_handlers_append_runtime_event_delegation.test.mjs:26:    "expected appendRuntimeEvent to preserve missing session_id guard"
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:464:- [appendRuntimeEvent] test\api_handlers_append_runtime_event_delegation.test.mjs:32:    "expected appendRuntimeEvent to normalize request body through extractRawEventFromBody"
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:465:- [appendRuntimeEvent] test\api_handlers_append_runtime_event_delegation.test.mjs:37:    /const\s+result\s*=\s*await\s+appendRuntimeEventMutation\(session_id,\s*raw\);/,
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:466:- [appendRuntimeEvent] test\api_handlers_append_runtime_event_delegation.test.mjs:38:    "expected appendRuntimeEvent to delegate to appendRuntimeEventMutation(session_id, raw)"
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:467:- [appendRuntimeEvent] test\api_handlers_append_runtime_event_delegation.test.mjs:44:    "expected appendRuntimeEvent to preserve 201 JSON response contract"
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:468:- [appendRuntimeEvent] test\api_handlers_append_runtime_event_delegation.test.mjs:6:test("sessions.handlers source contract: appendRuntimeEvent extracts raw body event, delegates once, and returns 201", () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:469:- [appendRuntimeEvent] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:67:      async appendRuntimeEventMutation() {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:470:- [appendRuntimeEvent] test\api_session_state_cache_v1.test.mjs:167:const { getSessionState, appendRuntimeEvent } = await import(distHandlerUrl);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:471:- [appendRuntimeEvent] test\api_session_state_cache_v1.test.mjs:214:test("appendRuntimeEvent invalidates session state cache (next state call hits DB again)", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:472:- [appendRuntimeEvent] test\api_session_state_cache_v1.test.mjs:231:  await appendRuntimeEvent(reqEv, resEv);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:473:- [appendRuntimeEvent] test\api_session_state_cache_v1.test.mjs:52:      // loadSessionForUpdate() in appendRuntimeEvent()
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:474:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:203:const { startSessionMutation, appendRuntimeEventMutation } = await import(distWriteServiceUrl);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:475:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:298:test("appendRuntimeEventMutation auto-starts not-yet-started session before appending requested event", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:476:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:355:  const out = await appendRuntimeEventMutation("s_append_autostart", {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:477:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:367:test("appendRuntimeEventMutation maps COMPLETE_STEP to COMPLETE_EXERCISE for first remaining id", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:478:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:407:  const out = await appendRuntimeEventMutation("s_complete_step", { type: "COMPLETE_STEP" });
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:479:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:415:test("appendRuntimeEventMutation rejects START_SESSION on append path", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:480:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:420:    await appendRuntimeEventMutation("s_reject_start", { type: "START_SESSION" });
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:481:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:430:test("appendRuntimeEventMutation maps await-return-decision engine error to 400 token", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:482:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:458:    await appendRuntimeEventMutation("s_gate", { type: "COMPLETE_EXERCISE", exercise_id: "ex1" });
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:483:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:471:test("appendRuntimeEventMutation maps unknown engine event error to 400 token", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:484:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:499:    await appendRuntimeEventMutation("s_unknown", { type: "COMPLETE_EXERCISE", exercise_id: "ex1" });
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:485:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:509:test("appendRuntimeEventMutation maps invalid event error to 400 token", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:486:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:537:    await appendRuntimeEventMutation("s_invalid", { type: "COMPLETE_EXERCISE", exercise_id: "ex1" });
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:487:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:547:test("appendRuntimeEventMutation maps unexpected engine error to 500", async () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:488:- [appendRuntimeEvent] test\api_session_state_write_service.contract.test.mjs:575:    await appendRuntimeEventMutation("s_bug", { type: "COMPLETE_EXERCISE", exercise_id: "ex1" });
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:489:- [appendRuntimeEvent] test\api_session_wire_apply_unexpected_500.test.mjs:101:const { appendRuntimeEvent } = await import(distHandlerUrl);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:490:- [appendRuntimeEvent] test\api_session_wire_apply_unexpected_500.test.mjs:118:    await appendRuntimeEvent(req, res);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:491:- [appendRuntimeEvent] test\api_session_wire_apply_unexpected_500.test.mjs:26:            // loadSessionForUpdate() in appendRuntimeEvent()
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:492:- [appendRuntimeEvent] test\api_start_session_executed_handler_http_contract.test.mjs:67:      async appendRuntimeEventMutation() {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:493:- [appendRuntimeEvent] test\ci_api_append_runtime_event_executed_handler_http_contract_wrapper.test.mjs:6:test("CI wrapper: appendRuntimeEvent executed handler http contract test passes with experimental module mocks", () => {
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:520:- [getSessionState] test\api_session_state_cache_v1.test.mjs:167:const { getSessionState, appendRuntimeEvent } = await import(distHandlerUrl);
+- [appendRuntimeEvent] docs\V0_G03_G04_PROOF_AUDIT.md:59:- [/events] src\api\sessions.routes.ts:19:sessionsRouter.post("/:session_id/events", asyncHandler(appendRuntimeEvent));
 - [appendRuntimeEvent] src\api\session_state_write_service.ts:210:export async function appendRuntimeEventMutation(session_id: string, raw: unknown) {
 - [appendRuntimeEvent] src\api\sessions.handlers.ts:45:export async function appendRuntimeEvent(req: Request, res: Response) {
 - [appendRuntimeEvent] src\api\sessions.handlers.ts:50:  const result = await appendRuntimeEventMutation(session_id, raw);
@@ -491,6 +1187,76 @@ The audit searched for these proof-signaling terms:
 - [appendRuntimeEvent] test\api_session_wire_apply_unexpected_500.test.mjs:26:            // loadSessionForUpdate() in appendRuntimeEvent()
 - [appendRuntimeEvent] test\api_start_session_executed_handler_http_contract.test.mjs:67:      async appendRuntimeEventMutation() {
 - [appendRuntimeEvent] test\ci_api_append_runtime_event_executed_handler_http_contract_wrapper.test.mjs:6:test("CI wrapper: appendRuntimeEvent executed handler http contract test passes with experimental module mocks", () => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:287:- [/state] src\api\sessions.routes.ts:21:sessionsRouter.get("/:session_id/state", asyncHandler(getSessionState));
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:36:- getSessionState
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:470:- [appendRuntimeEvent] test\api_session_state_cache_v1.test.mjs:167:const { getSessionState, appendRuntimeEvent } = await import(distHandlerUrl);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:494:- [getSessionState] src\api\session_state_query_service.ts:20:export async function getSessionStateQuery(session_id: string) {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:495:- [getSessionState] src\api\sessions.handlers.ts:13:import { getSessionStateQuery } from "./session_state_query_service.js";
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:496:- [getSessionState] src\api\sessions.handlers.ts:62:export async function getSessionState(req: Request, res: Response) {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:497:- [getSessionState] src\api\sessions.handlers.ts:66:  const payload = await getSessionStateQuery(session_id);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:498:- [getSessionState] src\api\sessions.routes.ts:21:sessionsRouter.get("/:session_id/state", asyncHandler(getSessionState));
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:499:- [getSessionState] src\api\sessions.routes.ts:8:  getSessionState,
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:500:- [getSessionState] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:106:      async getSessionStateQuery() {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:501:- [getSessionState] test\api_get_session_state_executed_handler_http_contract.test.mjs:112:test("getSessionState executed path: returns 200 with delegated JSON payload when query succeeds", async () => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:502:- [getSessionState] test\api_get_session_state_executed_handler_http_contract.test.mjs:125:  const { getSessionState } = await import(`${distHandlerUrl}?case=ok`);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:503:- [getSessionState] test\api_get_session_state_executed_handler_http_contract.test.mjs:133:  await getSessionState(req, res);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:504:- [getSessionState] test\api_get_session_state_executed_handler_http_contract.test.mjs:146:test("getSessionState executed path: missing session_id throws 400 badRequest", async () => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:505:- [getSessionState] test\api_get_session_state_executed_handler_http_contract.test.mjs:150:  const { getSessionState } = await import(`${distHandlerUrl}?case=missing_session_id`);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:506:- [getSessionState] test\api_get_session_state_executed_handler_http_contract.test.mjs:155:    () => getSessionState(req, res),
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:507:- [getSessionState] test\api_get_session_state_executed_handler_http_contract.test.mjs:160:test("getSessionState executed path: delegated not-found error preserves explicit error contract", async () => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:508:- [getSessionState] test\api_get_session_state_executed_handler_http_contract.test.mjs:171:  const { getSessionState } = await import(`${distHandlerUrl}?case=not_found`);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:509:- [getSessionState] test\api_get_session_state_executed_handler_http_contract.test.mjs:180:    () => getSessionState(req, res),
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:510:- [getSessionState] test\api_get_session_state_executed_handler_http_contract.test.mjs:94:      async getSessionStateQuery(sessionId) {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:511:- [getSessionState] test\api_handlers_get_session_state_delegation.test.mjs:13:    /import\s*\{\s*getSessionStateQuery\s*\}\s*from\s*"\.\/session_state_query_service\.js"/,
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:512:- [getSessionState] test\api_handlers_get_session_state_delegation.test.mjs:14:    "expected handler to import getSessionStateQuery from extracted query service"
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:513:- [getSessionState] test\api_handlers_get_session_state_delegation.test.mjs:20:    "expected getSessionState to read params.session_id"
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:514:- [getSessionState] test\api_handlers_get_session_state_delegation.test.mjs:26:    "expected getSessionState to preserve missing session_id guard"
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:515:- [getSessionState] test\api_handlers_get_session_state_delegation.test.mjs:31:    /const\s+payload\s*=\s*await\s+getSessionStateQuery\(session_id\);/,
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:516:- [getSessionState] test\api_handlers_get_session_state_delegation.test.mjs:32:    "expected getSessionState to delegate to getSessionStateQuery(session_id)"
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:517:- [getSessionState] test\api_handlers_get_session_state_delegation.test.mjs:38:    "expected getSessionState to preserve direct JSON response contract"
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:518:- [getSessionState] test\api_handlers_get_session_state_delegation.test.mjs:6:test("sessions.handlers source contract: getSessionState delegates params.session_id to getSessionStateQuery and preserves JSON payload", () => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:519:- [getSessionState] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:106:      async getSessionStateQuery() {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:520:- [getSessionState] test\api_session_state_cache_v1.test.mjs:167:const { getSessionState, appendRuntimeEvent } = await import(distHandlerUrl);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:521:- [getSessionState] test\api_session_state_cache_v1.test.mjs:191:  await getSessionState(req, res1);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:522:- [getSessionState] test\api_session_state_cache_v1.test.mjs:194:  await getSessionState(req, res2);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:523:- [getSessionState] test\api_session_state_cache_v1.test.mjs:220:  await getSessionState(reqState, resPrime);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:524:- [getSessionState] test\api_session_state_cache_v1.test.mjs:235:  await getSessionState(reqState, resAfter);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:525:- [getSessionState] test\api_session_state_cache_v1.test.mjs:27:      // loadSession() in getSessionState()
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:526:- [getSessionState] test\api_session_state_public_trace_contract.regression.test.mjs:70:    const { getSessionState } = await import(distHandlerUrl);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:527:- [getSessionState] test\api_session_state_public_trace_contract.regression.test.mjs:74:    await getSessionState(req, res);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:528:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:111:  const first = await getSessionStateQuery("s_query_cache");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:529:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:112:  const second = await getSessionStateQuery("s_query_cache");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:530:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:128:test("getSessionStateQuery throws 404 when session does not exist", async () => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:531:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:133:    await getSessionStateQuery("missing_session");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:532:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:144:test("getSessionStateQuery persists legacy return-decision upgrade and exposes only public trace fields", async () => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:533:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:167:  const payload = await getSessionStateQuery("s_query_upgrade");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:534:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:200:  const cached = await getSessionStateQuery("s_query_upgrade");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:535:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:205:test("getSessionStateQuery preserves deterministic replay projection across uncached reloads", async () => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:536:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:231:  const first = await getSessionStateQuery("s_query_replay_invariants");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:537:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:260:  const second = await getSessionStateQuery("s_query_replay_invariants");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:538:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:79:const { getSessionStateQuery } = await import(distQueryServiceUrl);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:539:- [getSessionState] test\api_session_state_query_service.contract.test.mjs:90:test("getSessionStateQuery caches projected payload after first successful load", async () => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:540:- [getSessionState] test\api_session_state_return_decision_upgrade.test.mjs:101:   await getSessionState(req, res);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:541:- [getSessionState] test\api_session_state_return_decision_upgrade.test.mjs:22:             // loadSession() query in getSessionState()
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:542:- [getSessionState] test\api_session_state_return_decision_upgrade.test.mjs:92: const { getSessionState } = await import(distHandlerUrl);
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:543:- [getSessionState] test\api_start_session_executed_handler_http_contract.test.mjs:101:      async getSessionStateQuery() {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:544:- [getSessionState] test\ci_api_get_session_state_executed_handler_http_contract_wrapper.test.mjs:6:test("CI wrapper: getSessionState executed handler http contract test passes with experimental module mocks", () => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:545:- [getSessionState] test\v0_create_session_from_persisted_block_cached_uncached_restarted_read_paths_contract.test.mjs:133:      getSessionStateQuery: async ({ session_id }) => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:546:- [getSessionState] test\v0_create_session_from_persisted_block_cached_uncached_restarted_read_paths_contract.test.mjs:161:    assert.equal(typeof sessionsHandlers.getSessionState, "function");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:547:- [getSessionState] test\v0_create_session_from_persisted_block_cached_uncached_restarted_read_paths_contract.test.mjs:177:    await sessionsHandlers.getSessionState(
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:548:- [getSessionState] test\v0_create_session_from_persisted_block_mixed_read_order_parity.test.mjs:123:      getSessionStateQuery: async ({ session_id }) => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:549:- [getSessionState] test\v0_create_session_from_persisted_block_mixed_read_order_parity.test.mjs:143:  assert.equal(typeof sessionsHandlers.getSessionState, "function");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:550:- [getSessionState] test\v0_create_session_from_persisted_block_mixed_read_order_parity.test.mjs:175:      await sessionsHandlers.getSessionState(
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:551:- [getSessionState] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:51:  requireMatch(srcSessionsHandlers, /\bgetSessionStateQuery\b/, "src/api/sessions.handlers.ts");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:552:- [getSessionState] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:53:  requireMatch(srcSessionsHandlers, /\bexport\s+(?:async\s+)?function\s+getSessionState\b|\bexport\s+const\s+getSessionState\b/, "src/api/sessions.handlers.ts");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:553:- [getSessionState] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:56:  requireMatch(srcSessionStateQuery, /\bexport\s+(?:async\s+)?function\s+getSessionStateQuery\b|\bexport\s+const\s+getSessionStateQuery\b/, "src/api/session_state_query_service.ts");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:554:- [getSessionState] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:61:  requireMatch(distSessionsHandlers, /\bgetSessionStateQuery\b/, "dist/src/api/sessions.handlers.js");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:555:- [getSessionState] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:72:        stateReadbackDelegatesToQuery: /\bgetSessionStateQuery\b/.test(srcSessionsHandlers),
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:556:- [getSessionState] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:78:        stateReadbackDelegatesToQuery: /\bgetSessionStateQuery\b/.test(distSessionsHandlers),
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:557:- [getSessionState] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:85:      srcSessionsGetSessionStateExported: /\bexport\s+(?:async\s+)?function\s+getSessionState\b|\bexport\s+const\s+getSessionState\b/.test(srcSessionsHandlers),
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:558:- [getSessionState] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:141:      getSessionStateQuery: async ({ session_id }) => {
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:559:- [getSessionState] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:172:    assert.equal(typeof sessionsHandlers.getSessionState, "function");
+- [getSessionState] docs\V0_G03_G04_PROOF_AUDIT.md:560:- [getSessionState] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:189:    await sessionsHandlers.getSessionState(
 - [getSessionState] src\api\session_state_query_service.ts:20:export async function getSessionStateQuery(session_id: string) {
 - [getSessionState] src\api\sessions.handlers.ts:13:import { getSessionStateQuery } from "./session_state_query_service.js";
 - [getSessionState] src\api\sessions.handlers.ts:62:export async function getSessionState(req: Request, res: Response) {
@@ -560,6 +1326,145 @@ The audit searched for these proof-signaling terms:
 - [getSessionState] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:189:    await sessionsHandlers.getSessionState(
 - [idempotent] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:12:                     "node test/api.split_decision_idempotent_rejected.regression.test.mjs",
 - [idempotent] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:14:                     "node test/api.return_continue_idempotent_after_ungate_wrapper.test.mjs"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1028:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1286:        label: buildOptions("RETURN_SKIP").label,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1029:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1287:        decisionType: "RETURN_SKIP",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1030:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1288:        ...buildOptions("RETURN_SKIP").options
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1031:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:642:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1042:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_SKIP and remains byte-stable across cache clear", async (t) => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:108:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1011:        `${label}: terminal cycle ${cycle} second /events`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:109:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1032:      `${label}: terminal /events after rejected replay`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:110:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1060:          `${label}: fresh restart cycle ${cycle} /events`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:111:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1066:          `${label}: fresh restart cycle ${cycle} /events byte parity`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:112:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1094:      `${label}: /events after rejected replay`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:113:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1106:      `${label}: /events changed after rejected replay.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(afterReplayEvents.json)}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1137:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:157:test("Vertical slice (HTTP): RETURN_SKIP is idempotent-rejected after ungate and preserves dropped_ids across repeated reloads", async (t) => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1138:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:173:      t.skip("RETURN_SKIP idempotent rejection proof requires an active RETURN_DECISION gate for this fixture/runtime path.");
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:114:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1120:      `${label}: final /events after repeated interleaved reads`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:115:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1151:      `${label}: /events across repeated reloads after rejected replay`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:116:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1165:        `${label}: second reload /events after repeated interleaved reads`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:117:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1171:- [split] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:12:                     "node test/api.split_decision_idempotent_rejected.regression.test.mjs",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:118:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:119:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:191:  const events = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:120:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:251:    `${label}: /events raw payload changed.\nbefore=${acceptedEventsText}\nafter=${eventsPayload.text}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:121:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:256:    `${label}: /events JSON changed.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(eventsPayload.json)}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:122:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:499:      `${baseUrl}/sessions/${sessionId}/events`,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:123:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:611:      `${baseUrl}/sessions/${sessionId}/events`,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:124:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:624:      `${baseUrl}/sessions/${sessionId}/events`,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:125:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:649:      `${baseUrl}/sessions/${sessionId}/events`,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:126:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:708:        `${baseUrl}/sessions/${sessionId}/events`,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:127:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:757:    `${baseUrl}/sessions/${sessionId}/events`,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:128:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:789:      `${label}: /events across mixed cache/hydrated reads after rejected replay`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:129:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:797:        `${baseUrl}/sessions/${sessionId}/events`,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:130:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:831:        `${label}: alternating cycle ${cycle} /events after multiple rejected re-posts`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:131:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:846:        `${baseUrl}/sessions/${sessionId}/events`,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:132:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:875:        `${label}: interleaved cycle ${cycle} first /events`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:133:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:887:        `${label}: interleaved cycle ${cycle} second /events`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:134:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:896:        `${baseUrl}/sessions/${sessionId}/events`,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1340:- [split] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:65:  await assertPass("test/api.split_decision_idempotent_rejected.regression.test.mjs");
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1341:- [split] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:67:  await assertPass("test/api.state_replay_projection_after_split_decisions.regression.test.mjs");
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:135:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:931:        `${label}: normalized current-step cycle ${cycle} /events`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:136:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:970:        `${baseUrl}/sessions/${sessionId}/events`,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:137:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:999:        `${label}: terminal cycle ${cycle} first /events`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1428:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1:/* test/api.split_decision_idempotent_rejected.regression.test.mjs */
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1429:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1295:  "API regression: split decision commands are idempotent-rejected after gate resolution",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1430:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1303:  "API regression: rejected split-decision replay remains byte-stable across immediate replay and repeated reloads",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1431:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1317:  "API regression: rejected split-decision replay remains byte-stable across mixed cache and hydrated reads",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1432:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1433:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1345:  "API regression: rejected split-decision replay preserves append-only event cardinality and ordering across repeated interleaved reads",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1434:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1360:  "API regression: rejected split-decision replay preserves normalized current-step identity and trace contract across repeated interleaved reads",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1435:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1436:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1393:  "API regression: rejected resolved split-decision replays preserve terminal-state parity across alternating fresh process restarts",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1437:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:337:    trace_split_session_active: trace?.split_session_active ?? null
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1438:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:405:    terminal_trace_split_session_active: trace?.split_session_active ?? null
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1439:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:625:      { event: { type: "SPLIT_SESSION" } }
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1440:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:630:      `${label}: SPLIT_SESSION expected 201, got ${r.res.status}. raw=${r.text}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1441:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:634:  const splitState = await getState(baseUrl, sessionId, `${label} split`);
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1442:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:636:    splitState.json.trace.return_decision_required,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1443:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:638:    `${label}: expected gated split trace. trace=${JSON.stringify(splitState.json.trace)}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1444:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:641:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1445:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:643:    `${label}: expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1471:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_SKIP and remains byte-stable across cache clear", async (t) => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:1505:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_CONTINUE and remains byte-stable across cache clear", async (t) => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:310:- [/state] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:64:test("v0 proof: RETURN_CONTINUE is idempotent-rejected after ungate and preserves append-only event/state parity across repeated reloads", async () => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:32:- idempotent
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:328:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1005:        `${label}: terminal cycle ${cycle} /state`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:329:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1038:      `${label}: terminal /state after rejected replay`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:330:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1044:      `${label}: final terminal /state after repeated interleaved reads`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:331:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1072:          `${label}: fresh restart cycle ${cycle} /state byte parity`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:332:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1078:          `${label}: fresh restart cycle ${cycle} /state`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:333:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1100:      `${label}: /state after rejected replay`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:334:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1111:      `${label}: /state changed after rejected replay.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(afterReplayState.json)}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:335:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1129:      `${label}: final /state after repeated interleaved reads`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:336:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1157:      `${label}: /state across repeated reloads after rejected replay`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:337:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1174:        `${label}: second reload /state after repeated interleaved reads`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:338:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:339:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:340:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:173:  const state = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:341:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:238:    `${label}: /state raw payload changed.\nbefore=${acceptedStateText}\nafter=${statePayload.text}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:342:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:243:    `${label}: /state JSON changed.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(statePayload.json)}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:343:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:783:      `${label}: /state across mixed cache/hydrated reads after rejected replay`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:344:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:825:        `${label}: alternating cycle ${cycle} first /state after multiple rejected re-posts`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:345:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:837:        `${label}: alternating cycle ${cycle} second /state after multiple rejected re-posts`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:346:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:881:        `${label}: interleaved cycle ${cycle} /state`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:347:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:925:        `${label}: normalized current-step cycle ${cycle} first /state`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:348:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:937:        `${label}: normalized current-step cycle ${cycle} second /state`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:561:- [idempotent] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:12:                     "node test/api.split_decision_idempotent_rejected.regression.test.mjs",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:562:- [idempotent] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:14:                     "node test/api.return_continue_idempotent_after_ungate_wrapper.test.mjs"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:563:- [idempotent] src\db\schema.sql:38:-- Bring defaults in line with API expectations (idempotent)
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:564:- [idempotent] test\api.apply_unknown_maps_500.regression.test.mjs:88:  // Apply schema (idempotent)
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:565:- [idempotent] test\api.blocks_compile_apply_unknown_maps_500.regression.test.mjs:86:  // Apply schema (idempotent)
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:566:- [idempotent] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:64:test("v0 proof: RETURN_CONTINUE is idempotent-rejected after ungate and preserves append-only event/state parity across repeated reloads", async () => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:567:- [idempotent] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:65:  await assertPass("test/api.split_decision_idempotent_rejected.regression.test.mjs");
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:568:- [idempotent] test\api.return_gate.regression.test.mjs:155:  // ---- Apply schema (idempotent) ----
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:569:- [idempotent] test\api.split_decision_idempotent_rejected.regression.test.mjs:1:/* test/api.split_decision_idempotent_rejected.regression.test.mjs */
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:570:- [idempotent] test\api.split_decision_idempotent_rejected.regression.test.mjs:1295:  "API regression: split decision commands are idempotent-rejected after gate resolution",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:571:- [idempotent] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_SKIP and remains byte-stable across cache clear", async (t) => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:572:- [idempotent] test\api.split_decision_replay_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_CONTINUE and remains byte-stable across cache clear", async (t) => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:573:- [idempotent] test\api_session_state_corrupt_snapshot_hardening.test.mjs:59:  // Stability: repeated normalize must be idempotent and not reorder
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:574:- [idempotent] test\api_session_state_write_service.contract.test.mjs:266:test("startSessionMutation is idempotent for already-started sessions", async () => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:575:- [idempotent] test\phase6_runtime_reducer.test.mjs:45:test("Phase6 runtime reducer: idempotent complete/skip never resurrects", async () => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:576:- [idempotent] test\vertical_slice.api_http_complete_step.e2e.test.mjs:157:test("Vertical slice (HTTP): RETURN_SKIP is idempotent-rejected after ungate and preserves dropped_ids across repeated reloads", async (t) => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:577:- [idempotent] test\vertical_slice.api_http_complete_step.e2e.test.mjs:173:      t.skip("RETURN_SKIP idempotent rejection proof requires an active RETURN_DECISION gate for this fixture/runtime path.");
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:578:- [idempotent] test\vertical_slice.api_http_complete_step.e2e.test.mjs:203:      "idempotent rejection after ungate must not still be the return-decision gate"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:579:- [idempotent] test\vertical_slice.api_http_complete_step.e2e.test.mjs:222:      "dropped_ids should survive repeated reloads after idempotent rejection"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:580:- [idempotent] test\vertical_slice.api_http_complete_step.e2e.test.mjs:227:      "repeated reloads should keep the session ungated after idempotent rejection"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:632:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:633:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1380:        ? "continue terminal-state shape and no-resurrection scenario"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:634:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1381:        : "skip terminal-state shape and no-resurrection scenario",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:635:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:636:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1433:        ? "compile-created session continue terminal no-resurrection alternating read cycles after downstream progress scenario"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:637:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1434:        : "compile-created session skip terminal no-resurrection alternating read cycles after downstream progress scenario",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:720:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:266:    session_event_seq: event?.session_event_seq ?? null,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:721:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:297:  const actualSeqs = actualOrdering.map((x) => x.session_event_seq);
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:722:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:298:  const expectedSeqs = acceptedOrdering.map((x) => x.session_event_seq);
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:723:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:302:    `${label}: session_event_seq order drifted.\nbefore=${JSON.stringify(expectedSeqs)}\nafter=${JSON.stringify(actualSeqs)}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:778:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:779:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1380:        ? "continue terminal-state shape and no-resurrection scenario"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:780:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1381:        : "skip terminal-state shape and no-resurrection scenario",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:781:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1393:  "API regression: rejected resolved split-decision replays preserve terminal-state parity across alternating fresh process restarts",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:782:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1397:        ? "continue terminal-state parity across alternating fresh process restarts scenario"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:783:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1398:        : "skip terminal-state parity across alternating fresh process restarts scenario",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:784:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:420:    `${label}: terminal-state shape changed.\nbefore=${JSON.stringify(acceptedTerminalShape)}\nafter=${JSON.stringify(actualShape)}`
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:788:- [return_continue] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:14:                     "node test/api.return_continue_idempotent_after_ungate_wrapper.test.mjs"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:830:- [return_continue] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:64:test("v0 proof: RETURN_CONTINUE is idempotent-rejected after ungate and preserves append-only event/state parity across repeated reloads", async () => {
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:831:- [return_continue] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:66:  await assertPass("test/api.return_continue_append_only_history.regression.test.mjs");
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:844:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1277:        label: buildOptions("RETURN_CONTINUE").label,
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:845:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1278:        decisionType: "RETURN_CONTINUE",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:846:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1279:        ...buildOptions("RETURN_CONTINUE").options
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:847:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1297:    label: decisionType === "RETURN_CONTINUE" ? "continue scenario" : "skip scenario",
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:848:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1306:      decisionType === "RETURN_CONTINUE"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:849:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1320:      decisionType === "RETURN_CONTINUE"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:850:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1334:      decisionType === "RETURN_CONTINUE"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:851:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1348:      decisionType === "RETURN_CONTINUE"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:852:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1363:      decisionType === "RETURN_CONTINUE"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:853:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1379:      decisionType === "RETURN_CONTINUE"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:854:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1396:      decisionType === "RETURN_CONTINUE"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:855:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1414:      decisionType === "RETURN_CONTINUE"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:856:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1432:      decisionType === "RETURN_CONTINUE"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:857:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1452:      decisionType === "RETURN_CONTINUE"
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:858:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:642:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [idempotent] docs\V0_G03_G04_PROOF_AUDIT.md:869:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_CONTINUE and remains byte-stable across cache clear", async (t) => {
 - [idempotent] src\db\schema.sql:38:-- Bring defaults in line with API expectations (idempotent)
 - [idempotent] test\api.apply_unknown_maps_500.regression.test.mjs:88:  // Apply schema (idempotent)
 - [idempotent] test\api.blocks_compile_apply_unknown_maps_500.regression.test.mjs:86:  // Apply schema (idempotent)
@@ -578,6 +1483,57 @@ The audit searched for these proof-signaling terms:
 - [idempotent] test\vertical_slice.api_http_complete_step.e2e.test.mjs:203:      "idempotent rejection after ungate must not still be the return-decision gate"
 - [idempotent] test\vertical_slice.api_http_complete_step.e2e.test.mjs:222:      "dropped_ids should survive repeated reloads after idempotent rejection"
 - [idempotent] test\vertical_slice.api_http_complete_step.e2e.test.mjs:227:      "repeated reloads should keep the session ungated after idempotent rejection"
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:37:- listRuntimeEvents
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:581:- [listRuntimeEvents] src\api\session_events_query_service.ts:5:export async function listRuntimeEventsQuery(session_id: string) {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:582:- [listRuntimeEvents] src\api\sessions.handlers.ts:12:import { listRuntimeEventsQuery } from "./session_events_query_service.js";
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:583:- [listRuntimeEvents] src\api\sessions.handlers.ts:54:export async function listRuntimeEvents(req: Request, res: Response) {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:584:- [listRuntimeEvents] src\api\sessions.handlers.ts:58:  const payload = await listRuntimeEventsQuery(session_id);
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:585:- [listRuntimeEvents] src\api\sessions.routes.ts:20:sessionsRouter.get("/:session_id/events", asyncHandler(listRuntimeEvents));
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:586:- [listRuntimeEvents] src\api\sessions.routes.ts:7:  listRuntimeEvents,
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:587:- [listRuntimeEvents] test\api_append_runtime_event_executed_handler_http_contract.test.mjs:98:      async listRuntimeEventsQuery() {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:588:- [listRuntimeEvents] test\api_get_session_state_executed_handler_http_contract.test.mjs:86:      async listRuntimeEventsQuery() {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:589:- [listRuntimeEvents] test\api_handlers_list_runtime_events_delegation.test.mjs:13:    /import\s*\{\s*listRuntimeEventsQuery\s*\}\s*from\s*"\.\/session_events_query_service\.js"/,
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:590:- [listRuntimeEvents] test\api_handlers_list_runtime_events_delegation.test.mjs:14:    "expected handler to import listRuntimeEventsQuery from extracted events query service"
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:591:- [listRuntimeEvents] test\api_handlers_list_runtime_events_delegation.test.mjs:20:    "expected listRuntimeEvents to read params.session_id"
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:592:- [listRuntimeEvents] test\api_handlers_list_runtime_events_delegation.test.mjs:26:    "expected listRuntimeEvents to preserve missing session_id guard"
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:593:- [listRuntimeEvents] test\api_handlers_list_runtime_events_delegation.test.mjs:31:    /const\s+payload\s*=\s*await\s+listRuntimeEventsQuery\(session_id\);/,
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:594:- [listRuntimeEvents] test\api_handlers_list_runtime_events_delegation.test.mjs:32:    "expected listRuntimeEvents to delegate to listRuntimeEventsQuery(session_id)"
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:595:- [listRuntimeEvents] test\api_handlers_list_runtime_events_delegation.test.mjs:38:    "expected listRuntimeEvents to preserve direct JSON response contract"
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:596:- [listRuntimeEvents] test\api_handlers_list_runtime_events_delegation.test.mjs:6:test("sessions.handlers source contract: listRuntimeEvents delegates params.session_id to listRuntimeEventsQuery and preserves JSON payload", () => {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:597:- [listRuntimeEvents] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:113:test("listRuntimeEvents executed path: returns 200 with delegated JSON payload when query succeeds", async () => {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:598:- [listRuntimeEvents] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:131:  const { listRuntimeEvents } = await import(`${distHandlerUrl}?case=ok`);
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:599:- [listRuntimeEvents] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:139:  await listRuntimeEvents(req, res);
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:60:- [/events] src\api\sessions.routes.ts:20:sessionsRouter.get("/:session_id/events", asyncHandler(listRuntimeEvents));
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:600:- [listRuntimeEvents] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:157:test("listRuntimeEvents executed path: missing session_id throws 400 badRequest", async () => {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:601:- [listRuntimeEvents] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:161:  const { listRuntimeEvents } = await import(`${distHandlerUrl}?case=missing_session_id`);
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:602:- [listRuntimeEvents] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:166:    () => listRuntimeEvents(req, res),
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:603:- [listRuntimeEvents] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:171:test("listRuntimeEvents executed path: delegated not-found error preserves explicit error contract", async () => {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:604:- [listRuntimeEvents] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:182:  const { listRuntimeEvents } = await import(`${distHandlerUrl}?case=not_found`);
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:605:- [listRuntimeEvents] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:191:    () => listRuntimeEvents(req, res),
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:606:- [listRuntimeEvents] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:86:      async listRuntimeEventsQuery(sessionId) {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:607:- [listRuntimeEvents] test\api_session_events_query_service.contract.test.mjs:44:const { listRuntimeEventsQuery } = await import(distQueryServiceUrl);
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:608:- [listRuntimeEvents] test\api_session_events_query_service.contract.test.mjs:46:test("listRuntimeEventsQuery returns ordered runtime events payload unchanged", async () => {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:609:- [listRuntimeEvents] test\api_session_events_query_service.contract.test.mjs:49:  const out = await listRuntimeEventsQuery("s_events");
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:610:- [listRuntimeEvents] test\api_session_events_query_service.contract.test.mjs:67:test("listRuntimeEventsQuery returns empty events array when no runtime events exist", async () => {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:611:- [listRuntimeEvents] test\api_session_events_query_service.contract.test.mjs:70:  const out = await listRuntimeEventsQuery("s_empty");
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:612:- [listRuntimeEvents] test\api_start_session_executed_handler_http_contract.test.mjs:93:      async listRuntimeEventsQuery() {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:613:- [listRuntimeEvents] test\ci_api_list_runtime_events_executed_handler_http_contract_wrapper.test.mjs:6:test("CI wrapper: listRuntimeEvents executed handler http contract test passes with experimental module mocks", () => {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:614:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_cached_uncached_restarted_read_paths_contract.test.mjs:145:      listRuntimeEventsQuery: async ({ session_id }) => {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:615:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_cached_uncached_restarted_read_paths_contract.test.mjs:162:    assert.equal(typeof sessionsHandlers.listRuntimeEvents, "function");
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:616:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_cached_uncached_restarted_read_paths_contract.test.mjs:185:    await sessionsHandlers.listRuntimeEvents(
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:617:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_mixed_read_order_parity.test.mjs:132:      listRuntimeEventsQuery: async ({ session_id }) => {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:618:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_mixed_read_order_parity.test.mjs:144:  assert.equal(typeof sessionsHandlers.listRuntimeEvents, "function");
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:619:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_mixed_read_order_parity.test.mjs:188:    await sessionsHandlers.listRuntimeEvents(
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:620:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:52:  requireMatch(srcSessionsHandlers, /\blistRuntimeEventsQuery\b/, "src/api/sessions.handlers.ts");
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:621:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:54:  requireMatch(srcSessionsHandlers, /\bexport\s+(?:async\s+)?function\s+listRuntimeEvents\b|\bexport\s+const\s+listRuntimeEvents\b/, "src/api/sessions.handlers.ts");
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:622:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:57:  requireMatch(srcSessionEventsQuery, /\bexport\s+(?:async\s+)?function\s+listRuntimeEventsQuery\b|\bexport\s+const\s+listRuntimeEventsQuery\b/, "src/api/session_events_query_service.ts");
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:623:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:62:  requireMatch(distSessionsHandlers, /\blistRuntimeEventsQuery\b/, "dist/src/api/sessions.handlers.js");
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:624:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:73:        eventsReadbackDelegatesToQuery: /\blistRuntimeEventsQuery\b/.test(srcSessionsHandlers)
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:625:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:79:        eventsReadbackDelegatesToQuery: /\blistRuntimeEventsQuery\b/.test(distSessionsHandlers)
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:626:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_restart_wiring_contract.test.mjs:86:      srcSessionsListRuntimeEventsExported: /\bexport\s+(?:async\s+)?function\s+listRuntimeEvents\b|\bexport\s+const\s+listRuntimeEvents\b/.test(srcSessionsHandlers)
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:627:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:153:      listRuntimeEventsQuery: async ({ session_id }) => {
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:628:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:173:    assert.equal(typeof sessionsHandlers.listRuntimeEvents, "function");
+- [listRuntimeEvents] docs\V0_G03_G04_PROOF_AUDIT.md:629:- [listRuntimeEvents] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:197:    await sessionsHandlers.listRuntimeEvents(
 - [listRuntimeEvents] src\api\session_events_query_service.ts:5:export async function listRuntimeEventsQuery(session_id: string) {
 - [listRuntimeEvents] src\api\sessions.handlers.ts:12:import { listRuntimeEventsQuery } from "./session_events_query_service.js";
 - [listRuntimeEvents] src\api\sessions.handlers.ts:54:export async function listRuntimeEvents(req: Request, res: Response) {
@@ -627,6 +1583,26 @@ The audit searched for these proof-signaling terms:
 - [listRuntimeEvents] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:153:      listRuntimeEventsQuery: async ({ session_id }) => {
 - [listRuntimeEvents] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:173:    assert.equal(typeof sessionsHandlers.listRuntimeEvents, "function");
 - [listRuntimeEvents] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:197:    await sessionsHandlers.listRuntimeEvents(
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:118:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:1217:- [split] docs\V0_RELEASE_GAP_MATRIX.md:43:| P0 | Missing proof on split/RETURN edge cases | V0-G04 | new tests proving skip/continue terminal and no-resurrection behavior |
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:1308:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:1435:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:1907:2. terminal no-resurrection after RETURN_SKIP
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:1908:3. terminal no-resurrection after RETURN_CONTINUE
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:31:- no-resurrection
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:339:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:630:- [no-resurrection] docs\V0_RELEASE_GAP_MATRIX.md:43:| P0 | Missing proof on split/RETURN edge cases | V0-G04 | new tests proving skip/continue terminal and no-resurrection behavior |
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:631:- [no-resurrection] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:632:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:633:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1380:        ? "continue terminal-state shape and no-resurrection scenario"
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:634:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1381:        : "skip terminal-state shape and no-resurrection scenario",
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:635:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:636:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1433:        ? "compile-created session continue terminal no-resurrection alternating read cycles after downstream progress scenario"
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:637:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1434:        : "compile-created session skip terminal no-resurrection alternating read cycles after downstream progress scenario",
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:777:- [terminal-state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:778:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:779:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1380:        ? "continue terminal-state shape and no-resurrection scenario"
+- [no-resurrection] docs\V0_G03_G04_PROOF_AUDIT.md:780:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1381:        : "skip terminal-state shape and no-resurrection scenario",
 - [no-resurrection] docs\V0_RELEASE_GAP_MATRIX.md:43:| P0 | Missing proof on split/RETURN edge cases | V0-G04 | new tests proving skip/continue terminal and no-resurrection behavior |
 - [no-resurrection] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
 - [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
@@ -663,6 +1639,92 @@ The audit searched for these proof-signaling terms:
 - [runtime_trace] ci\docs\ci-baseline.txt:57:test/ci_runtime_trace_return_gate_manifest.test.mjs:7:test("runtime trace return gate manifest remains present in composed test:ci command set", () => {
 - [runtime_trace] ci\docs\ci-baseline.txt:58:test/ci_runtime_trace_return_gate_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
 - [runtime_trace] ci\docs\ci-baseline.txt:99:test/ci_compile_runtime_trace_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned compile runtime trace cluster manifest and adjacent guard pair", () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1082:- [RETURN_SKIP] test\phase6_runtime_trace_return_gate.test.mjs:33:  assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1083:- [return_skip] test\phase6_runtime_trace_return_gate.test.mjs:65:test("Phase6 runtime trace: return_skip clears explicit return decision contract", async () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1084:- [RETURN_SKIP] test\phase6_runtime_trace_return_gate.test.mjs:79:    { type: "RETURN_SKIP" }
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1085:- [RETURN_SKIP] test\phase6_runtime_trace_return_skip.test.mjs:18:    { type: "RETURN_SKIP" }
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1086:- [return_skip] test\phase6_runtime_trace_return_skip.test.mjs:8:test("Phase6 runtime trace: return_skip clears explicit return decision contract and advances state with partial/skip semantics", () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1249:- [split] test\api.blocks_compile_runtime_trace_contract.regression.test.mjs:14:    /const\s*\{\s*[\s\S]*split_active:\s*_legacySplitActive[\s\S]*remaining_at_split_ids:\s*_legacyRemainingAtSplitIds[\s\S]*return_gate_required:\s*_legacyReturnGateRequired[\s\S]*return_decision_required:\s*_derivedReturnDecisionRequired[\s\S]*return_decision_options:\s*_derivedReturnDecisionOptions[\s\S]*\.\.\.traceBase[\s\S]*\}\s*=\s*rt\s+as\s+Record<string,\s*any>;/,
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1250:- [split] test\api.blocks_compile_runtime_trace_contract.regression.test.mjs:26:    /delete\s+runtime_state\.split_active|delete\s+runtime_state\.remaining_at_split_ids|delete\s+runtime_state\.return_gate_required|delete\s+rt\.split_active|delete\s+rt\.remaining_at_split_ids|delete\s+rt\.return_gate_required/,
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1660:- [split] test\phase6_runtime_trace_return_gate.test.mjs:12:test("Phase6 runtime trace: split session emits explicit return decision contract only", async () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1661:- [split] test\phase6_runtime_trace_return_gate.test.mjs:27:    { type: "SPLIT_SESSION" }
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1662:- [split] test\phase6_runtime_trace_return_gate.test.mjs:34:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "split_active"), false);
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1663:- [split] test\phase6_runtime_trace_return_gate.test.mjs:35:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"), false);
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1664:- [split] test\phase6_runtime_trace_return_gate.test.mjs:52:    { type: "SPLIT_SESSION" },
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1665:- [split] test\phase6_runtime_trace_return_gate.test.mjs:60:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "split_active"), false);
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1666:- [split] test\phase6_runtime_trace_return_gate.test.mjs:61:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"), false);
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1667:- [split] test\phase6_runtime_trace_return_gate.test.mjs:78:    { type: "SPLIT_SESSION" },
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1668:- [split] test\phase6_runtime_trace_return_gate.test.mjs:86:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "split_active"), false);
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:1669:- [split] test\phase6_runtime_trace_return_gate.test.mjs:87:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"), false);
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:28:- runtime_trace
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:638:- [runtime_trace] ci\contracts\compile_runtime_trace_ci_cluster.json:3:    "node test/api.blocks_compile_runtime_trace_contract.regression.test.mjs"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:639:- [runtime_trace] ci\contracts\runtime_trace_return_gate_ci_cluster.json:3:    "node test/phase6_runtime_trace_return_gate.test.mjs"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:640:- [runtime_trace] ci\contracts\test_ci_composition.json:169:                      "path":  "ci/contracts/runtime_trace_return_gate_ci_cluster.json"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:641:- [runtime_trace] ci\contracts\test_ci_composition.json:173:                      "value":  "node test/ci_runtime_trace_return_gate_cluster_manifest_file.test.mjs"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:642:- [runtime_trace] ci\contracts\test_ci_composition.json:177:                      "value":  "node test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:643:- [runtime_trace] ci\contracts\test_ci_composition.json:181:                      "value":  "node test/ci_runtime_trace_return_gate_manifest_file.test.mjs"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:644:- [runtime_trace] ci\contracts\test_ci_composition.json:185:                      "value":  "node test/ci_runtime_trace_return_gate_manifest.test.mjs"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:645:- [runtime_trace] ci\contracts\test_ci_composition.json:189:                      "path":  "ci/contracts/compile_runtime_trace_ci_cluster.json"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:646:- [runtime_trace] ci\contracts\test_ci_composition.json:193:                      "value":  "node test/ci_compile_runtime_trace_cluster_manifest_file.test.mjs"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:647:- [runtime_trace] ci\contracts\test_ci_composition.json:197:                      "value":  "node test/ci_compile_runtime_trace_cluster_manifest.test.mjs"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:648:- [runtime_trace] ci\contracts\test_ci_composition.json:201:                      "value":  "node test/ci_compile_runtime_trace_manifest_file.test.mjs"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:649:- [runtime_trace] ci\contracts\test_ci_composition.json:205:                      "value":  "node test/ci_compile_runtime_trace_manifest.test.mjs"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:650:- [runtime_trace] ci\docs\ci-baseline.txt:100:test/ci_compile_runtime_trace_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:651:- [runtime_trace] ci\docs\ci-baseline.txt:101:test/ci_compile_runtime_trace_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:652:- [runtime_trace] ci\docs\ci-baseline.txt:102:test/ci_compile_runtime_trace_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:653:- [runtime_trace] ci\docs\ci-baseline.txt:103:test/ci_compile_runtime_trace_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected canonical hash API cluster manifest in composition index");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:654:- [runtime_trace] ci\docs\ci-baseline.txt:134:test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned runtime trace return gate cluster manifest and adjacent guard pair", () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:655:- [runtime_trace] ci\docs\ci-baseline.txt:135:test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:656:- [runtime_trace] ci\docs\ci-baseline.txt:136:test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:11:  assert.ok(index && typeof index === "object" && !Array.isArray(index), "expected composition object");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:657:- [runtime_trace] ci\docs\ci-baseline.txt:137:test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(index.items), "expected composition.items array");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:658:- [runtime_trace] ci\docs\ci-baseline.txt:138:test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:18:  assert.notEqual(manifestIdx, -1, "expected runtime trace return gate cluster manifest in composition index");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:659:- [runtime_trace] ci\docs\ci-baseline.txt:35:test/ci_compile_runtime_trace_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned compile runtime trace cluster manifest and adjacent guard pair", () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:660:- [runtime_trace] ci\docs\ci-baseline.txt:36:test/ci_compile_runtime_trace_manifest.test.mjs:7:test("compile runtime trace manifest remains present in composed test:ci command set", () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:661:- [runtime_trace] ci\docs\ci-baseline.txt:37:test/ci_compile_runtime_trace_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:662:- [runtime_trace] ci\docs\ci-baseline.txt:56:test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned runtime trace return gate cluster manifest and adjacent guard pair", () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:663:- [runtime_trace] ci\docs\ci-baseline.txt:57:test/ci_runtime_trace_return_gate_manifest.test.mjs:7:test("runtime trace return gate manifest remains present in composed test:ci command set", () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:664:- [runtime_trace] ci\docs\ci-baseline.txt:58:test/ci_runtime_trace_return_gate_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:665:- [runtime_trace] ci\docs\ci-baseline.txt:99:test/ci_compile_runtime_trace_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned compile runtime trace cluster manifest and adjacent guard pair", () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:666:- [runtime_trace] src\api\blocks.handlers.ts:184:      const rt = runtime_state.runtime_trace;
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:667:- [runtime_trace] src\api\blocks.handlers.ts:195:        runtime_state.runtime_trace = traceBase;
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:668:- [runtime_trace] src\api\blocks.handlers.ts:234:  const runtime_trace_from_engine = {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:669:- [runtime_trace] src\api\blocks.handlers.ts:279:    runtime_trace: runtime_trace_from_engine
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:670:- [runtime_trace] test\api.blocks_compile_runtime_trace_contract.regression.test.mjs:1:/* test/api.blocks_compile_runtime_trace_contract.regression.test.mjs */
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:671:- [runtime_trace] test\api.blocks_compile_runtime_trace_contract.regression.test.mjs:15:    "expected compile handler to rebuild runtime_trace from an allowlisted projection"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:672:- [runtime_trace] test\api.blocks_compile_runtime_trace_contract.regression.test.mjs:20:    /const\s+runtime_trace_from_engine\s*=\s*\{\s*[\s\S]*remaining_ids,\s*[\s\S]*completed_ids,\s*[\s\S]*dropped_ids,\s*[\s\S]*return_decision_required,\s*[\s\S]*return_decision_options\s*[\s\S]*\};/,
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:673:- [runtime_trace] test\api.blocks_compile_runtime_trace_contract.regression.test.mjs:21:    "expected compile response runtime_trace to contain only explicit public fields"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:674:- [runtime_trace] test\api.blocks_compile_runtime_trace_contract.regression.test.mjs:7:test("API regression: compile runtime_trace is allowlisted and does not leak legacy gate fields", async () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:675:- [runtime_trace] test\api_compile_block_executed_handler_http_contract.test.mjs:173:          runtime_trace: {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:676:- [runtime_trace] test\api_compile_block_executed_handler_http_contract.test.mjs:244:    runtime_trace: {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:677:- [runtime_trace] test\api_handlers_compile_block_response_allowlist_contract.test.mjs:13:    /const\s+payload:\s*any\s*=\s*\{[\s\S]*block_id:\s*persisted\.persisted_block_id,[\s\S]*engine_version,[\s\S]*canonical_hash,[\s\S]*planned_session:\s*planned_session_applied,[\s\S]*runtime_trace:\s*runtime_trace_from_engine[\s\S]*\};/,
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:678:- [runtime_trace] test\api_handlers_compile_block_response_allowlist_contract.test.mjs:14:    "expected compileBlock payload allowlist to stay limited to block_id, engine_version, canonical_hash, planned_session, and runtime_trace"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:679:- [runtime_trace] test\api_handlers_compile_block_response_contract.test.mjs:25:    /const\s+payload:\s*any\s*=\s*\{[\s\S]*block_id:\s*persisted\.persisted_block_id,[\s\S]*engine_version,[\s\S]*canonical_hash,[\s\S]*planned_session:\s*planned_session_applied,[\s\S]*runtime_trace:\s*runtime_trace_from_engine[\s\S]*\};/,
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:680:- [runtime_trace] test\api_handlers_compile_block_response_contract.test.mjs:26:    "expected compileBlock response payload to preserve block_id, engine_version, canonical_hash, planned_session, and runtime_trace after delegation"
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:681:- [runtime_trace] test\api_session_state_public_trace_contract.regression.test.mjs:54:            runtime_trace: {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:682:- [runtime_trace] test\ci_compile_runtime_trace_cluster_manifest.test.mjs:15:  const manifestPath = "ci/contracts/compile_runtime_trace_ci_cluster.json";
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:683:- [runtime_trace] test\ci_compile_runtime_trace_cluster_manifest.test.mjs:23:      { kind: "manifest", path: "ci/contracts/compile_runtime_trace_ci_cluster.json" },
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:684:- [runtime_trace] test\ci_compile_runtime_trace_cluster_manifest.test.mjs:24:      { kind: "command", value: "node test/ci_compile_runtime_trace_cluster_manifest_file.test.mjs" },
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:685:- [runtime_trace] test\ci_compile_runtime_trace_cluster_manifest.test.mjs:25:      { kind: "command", value: "node test/ci_compile_runtime_trace_cluster_manifest.test.mjs" },
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:686:- [runtime_trace] test\ci_compile_runtime_trace_cluster_manifest.test.mjs:26:      { kind: "command", value: "node test/ci_compile_runtime_trace_manifest_file.test.mjs" },
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:687:- [runtime_trace] test\ci_compile_runtime_trace_cluster_manifest.test.mjs:27:      { kind: "command", value: "node test/ci_compile_runtime_trace_manifest.test.mjs" }
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:688:- [runtime_trace] test\ci_compile_runtime_trace_cluster_manifest_file.test.mjs:8:  const manifestPath = path.join(repo, "ci", "contracts", "compile_runtime_trace_ci_cluster.json");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:689:- [runtime_trace] test\ci_compile_runtime_trace_manifest.test.mjs:9:  const manifestPath = path.join(repo, "ci", "contracts", "compile_runtime_trace_ci_cluster.json");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:690:- [runtime_trace] test\ci_compile_runtime_trace_manifest_file.test.mjs:8:  const manifestPath = path.join(repo, "ci", "contracts", "compile_runtime_trace_ci_cluster.json");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:691:- [runtime_trace] test\ci_runtime_trace_return_gate_cluster_manifest.test.mjs:15:  const manifestPath = "ci/contracts/runtime_trace_return_gate_ci_cluster.json";
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:692:- [runtime_trace] test\ci_runtime_trace_return_gate_cluster_manifest.test.mjs:23:      { kind: "manifest", path: "ci/contracts/runtime_trace_return_gate_ci_cluster.json" },
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:693:- [runtime_trace] test\ci_runtime_trace_return_gate_cluster_manifest.test.mjs:24:      { kind: "command", value: "node test/ci_runtime_trace_return_gate_cluster_manifest_file.test.mjs" },
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:694:- [runtime_trace] test\ci_runtime_trace_return_gate_cluster_manifest.test.mjs:25:      { kind: "command", value: "node test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs" }
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:695:- [runtime_trace] test\ci_runtime_trace_return_gate_cluster_manifest_file.test.mjs:8:  const manifestPath = path.join(repo, "ci", "contracts", "runtime_trace_return_gate_ci_cluster.json");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:696:- [runtime_trace] test\ci_runtime_trace_return_gate_manifest.test.mjs:9:  const manifestPath = path.join(repo, "ci", "contracts", "runtime_trace_return_gate_ci_cluster.json");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:697:- [runtime_trace] test\ci_runtime_trace_return_gate_manifest_file.test.mjs:8:  const manifestPath = path.join(repo, "ci", "contracts", "runtime_trace_return_gate_ci_cluster.json");
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:698:- [runtime_trace] test\phase6_runtime_trace_return_skip.test.mjs:5:import { compileRuntimeTrace } from "../src/phase6/compile_runtime_trace.js";
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:699:- [runtime_trace] test\v0_create_session_from_persisted_block_cached_uncached_restarted_read_paths_contract.test.mjs:101:    runtime_trace: {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:700:- [runtime_trace] test\v0_create_session_from_persisted_block_mixed_read_order_parity.test.mjs:92:    runtime_trace: {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:701:- [runtime_trace] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:92:    runtime_trace: {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:913:- [RETURN_CONTINUE] test\phase6_runtime_trace_return_gate.test.mjs:33:  assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:914:- [return_continue] test\phase6_runtime_trace_return_gate.test.mjs:39:test("Phase6 runtime trace: return_continue clears explicit return decision contract", async () => {
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:915:- [RETURN_CONTINUE] test\phase6_runtime_trace_return_gate.test.mjs:53:    { type: "RETURN_CONTINUE" }
+- [runtime_trace] docs\V0_G03_G04_PROOF_AUDIT.md:916:- [return_continue] test\phase6_runtime_trace_return_skip.test.mjs:10:    // mirror the arrange block from the existing RETURN_CONTINUE test
 - [runtime_trace] src\api\blocks.handlers.ts:184:      const rt = runtime_state.runtime_trace;
 - [runtime_trace] src\api\blocks.handlers.ts:195:        runtime_state.runtime_trace = traceBase;
 - [runtime_trace] src\api\blocks.handlers.ts:234:  const runtime_trace_from_engine = {
@@ -700,6 +1762,104 @@ The audit searched for these proof-signaling terms:
 - [runtime_trace] test\v0_create_session_from_persisted_block_mixed_read_order_parity.test.mjs:92:    runtime_trace: {
 - [runtime_trace] test\v0_create_session_from_persisted_block_restarted_read_paths_contract.test.mjs:92:    runtime_trace: {
 - [session_event_seq] ci\contracts\dev_session_api_ci_cluster.json:4:    "node test/api_session_event_seq_init_contract.test.mjs",
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:1093:- [RETURN_SKIP] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:1094:- [RETURN_SKIP] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:680:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_SKIP)", async (t) => {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:1095:- [return_skip] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:687:      decisionType: "RETURN_SKIP",
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:1799:- [split] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:467:  const split = await httpJson(
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:1800:- [split] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:470:    { event: { type: "SPLIT_SESSION" } }
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:1801:- [split] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:473:    split.res.status,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:1802:- [split] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:475:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:188:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:189:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:190:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:191:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:331:    `${baseUrl}/sessions/${sessionId}/events`,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:192:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:469:    `${baseUrl}/sessions/${sessionId}/events`,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:193:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:491:    `${baseUrl}/sessions/${sessionId}/events`,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:194:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:532:  assertByteStableEvents(terminalReloadEvents, terminalEvents, `${label}: terminal reload /events`);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:195:- [/events] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:553:  assertByteStableEvents(fresh.events, terminalEvents, `${label}: fresh restart /events`);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:29:- session_event_seq
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:395:- [/state] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:396:- [/state] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:397:- [/state] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:398:- [/state] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:531:  assertByteStableState(terminalReloadState, terminalState, `${label}: terminal reload /state`);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:399:- [/state] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:552:  assertByteStableState(fresh.state, terminalState, `${label}: fresh restart /state`);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:702:- [session_event_seq] ci\contracts\dev_session_api_ci_cluster.json:4:    "node test/api_session_event_seq_init_contract.test.mjs",
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:703:- [session_event_seq] src\api\block_compile_write_service.ts:87:          INSERT INTO session_event_seq (session_id, next_seq)
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:704:- [session_event_seq] src\api\block_compile_write_service.ts:95:        if (!/relation .*session_event_seq.* does not exist/i.test(msg)) throw e;
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:705:- [session_event_seq] src\api\block_session_write_service.ts:39:      INSERT INTO session_event_seq (session_id, next_seq)
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:706:- [session_event_seq] src\api\block_session_write_service.ts:47:    if (!/relation .*session_event_seq.* does not exist/i.test(msg)) throw e;
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:707:- [session_event_seq] src\api\session_state_write_service.ts:4:import { assertNextSessionEventSequence } from "../domain/session_event_sequence.js";
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:708:- [session_event_seq] src\api\session_state_write_service.ts:59:    `INSERT INTO session_event_seq(session_id, next_seq)
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:709:- [session_event_seq] src\api\session_state_write_service.ts:66:    `UPDATE session_event_seq
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:710:- [session_event_seq] src\db\schema.sql:62:CREATE TABLE IF NOT EXISTS session_event_seq (
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:711:- [session_event_seq] src\db\schema.sql:67:ALTER TABLE session_event_seq
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:712:- [session_event_seq] src\domain\session_event_sequence.ts:14:export const SESSION_EVENT_SEQUENCE_TOKENS = Object.freeze({
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:713:- [session_event_seq] src\domain\session_event_sequence.ts:149:      error.token = SESSION_EVENT_SEQUENCE_TOKENS.SEQ_INVALID;
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:714:- [session_event_seq] src\domain\session_event_sequence.ts:158:      error.token = SESSION_EVENT_SEQUENCE_TOKENS.SEQ_INVALID;
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:715:- [session_event_seq] src\domain\session_event_sequence.ts:38:      token: SESSION_EVENT_SEQUENCE_TOKENS.SEQ_INVALID,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:716:- [session_event_seq] src\domain\session_event_sequence.ts:47:      token: SESSION_EVENT_SEQUENCE_TOKENS.SEQ_INVALID,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:717:- [session_event_seq] src\domain\session_event_sequence.ts:62:      token: SESSION_EVENT_SEQUENCE_TOKENS.SEQ_DUPLICATE,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:718:- [session_event_seq] src\domain\session_event_sequence.ts:71:      token: SESSION_EVENT_SEQUENCE_TOKENS.SEQ_REWIND,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:719:- [session_event_seq] src\domain\session_event_sequence.ts:79:    token: SESSION_EVENT_SEQUENCE_TOKENS.SEQ_GAP,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:720:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:266:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:721:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:297:  const actualSeqs = actualOrdering.map((x) => x.session_event_seq);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:722:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:298:  const expectedSeqs = acceptedOrdering.map((x) => x.session_event_seq);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:723:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:302:    `${label}: session_event_seq order drifted.\nbefore=${JSON.stringify(expectedSeqs)}\nafter=${JSON.stringify(actualSeqs)}`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:724:- [session_event_seq] test\api_block_compile_write_service.contract.test.mjs:117:test("persistCompiledBlockAndMaybeCreateSession creates session and initializes session_event_seq when create_session=true", async () => {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:725:- [session_event_seq] test\api_block_compile_write_service.contract.test.mjs:139:  const seqInit = state.queries.find((x) => /INSERT INTO session_event_seq/i.test(x.sql));
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:726:- [session_event_seq] test\api_block_compile_write_service.contract.test.mjs:140:  assert.ok(seqInit, "expected session_event_seq init query");
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:727:- [session_event_seq] test\api_block_compile_write_service.contract.test.mjs:155:test("persistCompiledBlockAndMaybeCreateSession tolerates missing session_event_seq relation", async () => {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:728:- [session_event_seq] test\api_block_compile_write_service.contract.test.mjs:57:          /INSERT INTO session_event_seq/i.test(String(sql))
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:729:- [session_event_seq] test\api_block_compile_write_service.contract.test.mjs:59:          throw new Error('relation "session_event_seq" does not exist');
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:730:- [session_event_seq] test\api_block_session_write_service.contract.test.mjs:34:    if (/INSERT INTO session_event_seq/i.test(text)) {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:731:- [session_event_seq] test\api_block_session_write_service.contract.test.mjs:36:        throw new Error('relation "session_event_seq" does not exist');
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:732:- [session_event_seq] test\api_block_session_write_service.contract.test.mjs:62:  assert.ok(poolState.queryCalls.some((x) => /INSERT INTO session_event_seq/i.test(x.sql)));
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:733:- [session_event_seq] test\api_block_session_write_service.contract.test.mjs:83:test("createSessionFromBlockMutation tolerates missing session_event_seq relation", async () => {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:734:- [session_event_seq] test\api_session_event_seq_init_contract.test.mjs:10:    /INSERT\s+INTO\s+session_event_seq[\s\S]*?VALUES\s*\(\$1,\s*1\)/g,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:735:- [session_event_seq] test\api_session_event_seq_init_contract.test.mjs:11:    "block_compile_write_service.ts must not initialize session_event_seq.next_seq to 1 (it creates a seq gap)"
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:736:- [session_event_seq] test\api_session_event_seq_init_contract.test.mjs:15:    /INSERT\s+INTO\s+session_event_seq[\s\S]*?VALUES\s*\(\$1,\s*0\)/g
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:737:- [session_event_seq] test\api_session_event_seq_init_contract.test.mjs:21:    `block_compile_write_service.ts must initialize session_event_seq.next_seq to 0 at the compile-session call site (found ${init0.length})`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:738:- [session_event_seq] test\api_session_event_seq_init_contract.test.mjs:5:test("API persistence contract: session_event_seq is initialized at 0 in block_compile_write_service for compile-session creation", () => {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:739:- [session_event_seq] test\api_session_event_seq_runtime_wiring_guard.test.mjs:13:    /import\s+\{\s*assertNextSessionEventSequence\s*\}\s+from\s+"\.\.\/domain\/session_event_sequence\.js";/,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:740:- [session_event_seq] test\api_session_state_cache_v1.test.mjs:78:      if (/INSERT INTO session_event_seq\(session_id, next_seq\)/i.test(s)) {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:741:- [session_event_seq] test\api_session_state_cache_v1.test.mjs:83:      if (/UPDATE session_event_seq\s+SET next_seq = next_seq \+ 1/i.test(s)) {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:742:- [session_event_seq] test\api_session_state_write_service.contract.test.mjs:62:      if (/INSERT INTO session_event_seq\(session_id, next_seq\)/i.test(s)) {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:743:- [session_event_seq] test\api_session_state_write_service.contract.test.mjs:66:      if (/UPDATE session_event_seq\s+SET next_seq = next_seq \+ 1/i.test(s)) {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:744:- [session_event_seq] test\api_session_wire_apply_unexpected_500.test.mjs:45:            if (/INSERT INTO session_event_seq\(session_id, next_seq\)/i.test(s)) {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:745:- [session_event_seq] test\api_session_wire_apply_unexpected_500.test.mjs:50:            if (/UPDATE session_event_seq\s+SET next_seq = next_seq \+ 1/i.test(s)) {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:746:- [session_event_seq] test\session_event_sequence.contract.test.mjs:107:      assert.equal(err.token, SESSION_EVENT_SEQUENCE_TOKENS.SEQ_INVALID);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:747:- [session_event_seq] test\session_event_sequence.contract.test.mjs:27:  assert.equal(result.token, SESSION_EVENT_SEQUENCE_TOKENS.SEQ_GAP);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:748:- [session_event_seq] test\session_event_sequence.contract.test.mjs:36:  assert.equal(result.token, SESSION_EVENT_SEQUENCE_TOKENS.SEQ_DUPLICATE);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:749:- [session_event_seq] test\session_event_sequence.contract.test.mjs:45:  assert.equal(result.token, SESSION_EVENT_SEQUENCE_TOKENS.SEQ_REWIND);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:750:- [session_event_seq] test\session_event_sequence.contract.test.mjs:5:  SESSION_EVENT_SEQUENCE_TOKENS,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:751:- [session_event_seq] test\session_event_sequence.contract.test.mjs:55:      assert.equal(err.token, SESSION_EVENT_SEQUENCE_TOKENS.SEQ_GAP);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:752:- [session_event_seq] test\session_event_sequence.contract.test.mjs:9:} from "../src/domain/session_event_sequence.js";
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:753:- [session_event_seq] test\session_event_sequence.contract.test.mjs:96:      assert.equal(err.token, SESSION_EVENT_SEQUENCE_TOKENS.SEQ_GAP);
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:754:- [session_event_seq] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:212:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:755:- [session_event_seq] test\v0_compile_created_session_cache_parity.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:756:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:1:/* test/v0_compile_created_session_event_seq_monotonic_parity.test.mjs */
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:757:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:758:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:284:    const seq = event?.session_event_seq;
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:759:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:290:      `${label}: session_event_seq must be integer at index ${i}. raw=${JSON.stringify(event)}`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:760:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:295:      `${label}: session_event_seq must be >= 0 at index ${i}. raw=${JSON.stringify(event)}`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:761:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:300:      `${label}: session_event_seq must be strictly increasing at index ${i}. previous=${previous} current=${seq}`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:762:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:305:      `${label}: duplicate session_event_seq detected: ${seq}`
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:763:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:667:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_CONTINUE)", async (t) => {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:764:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:680:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_SKIP)", async (t) => {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:765:- [session_event_seq] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:766:- [session_event_seq] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:767:- [session_event_seq] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:768:- [session_event_seq] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:175:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:769:- [session_event_seq] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:770:- [session_event_seq] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:237:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:771:- [session_event_seq] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:175:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:772:- [session_event_seq] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:245:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:773:- [session_event_seq] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:774:- [session_event_seq] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:775:- [session_event_seq] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:923:- [return_continue] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:924:- [return_continue] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:667:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_CONTINUE)", async (t) => {
+- [session_event_seq] docs\V0_G03_G04_PROOF_AUDIT.md:925:- [RETURN_CONTINUE] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:674:      decisionType: "RETURN_CONTINUE",
 - [session_event_seq] src\api\block_compile_write_service.ts:87:          INSERT INTO session_event_seq (session_id, next_seq)
 - [session_event_seq] src\api\block_compile_write_service.ts:95:        if (!/relation .*session_event_seq.* does not exist/i.test(msg)) throw e;
 - [session_event_seq] src\api\block_session_write_service.ts:39:      INSERT INTO session_event_seq (session_id, next_seq)
@@ -773,6 +1933,24 @@ The audit searched for these proof-signaling terms:
 - [session_event_seq] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
 - [session_event_seq] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
 - [session_event_seq] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:1308:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:1435:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:1436:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1393:  "API regression: rejected resolved split-decision replays preserve terminal-state parity across alternating fresh process restarts",
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:30:- terminal-state
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:44:- [/events] docs\V0_RELEASE_GAP_MATRIX.md:27:| V0-G02 | Session creation and persistence are authoritative | sessions must be replayable and non-ambiguous | create-session persistence tests, state/events parity, terminal-state invariants | HARDEN | assign next session-proof slice here | |
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:631:- [no-resurrection] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:632:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:633:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1380:        ? "continue terminal-state shape and no-resurrection scenario"
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:634:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1381:        : "skip terminal-state shape and no-resurrection scenario",
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:776:- [terminal-state] docs\V0_RELEASE_GAP_MATRIX.md:27:| V0-G02 | Session creation and persistence are authoritative | sessions must be replayable and non-ambiguous | create-session persistence tests, state/events parity, terminal-state invariants | HARDEN | assign next session-proof slice here | |
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:777:- [terminal-state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:778:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:779:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1380:        ? "continue terminal-state shape and no-resurrection scenario"
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:780:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1381:        : "skip terminal-state shape and no-resurrection scenario",
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:781:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1393:  "API regression: rejected resolved split-decision replays preserve terminal-state parity across alternating fresh process restarts",
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:782:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1397:        ? "continue terminal-state parity across alternating fresh process restarts scenario"
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:783:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1398:        : "skip terminal-state parity across alternating fresh process restarts scenario",
+- [terminal-state] docs\V0_G03_G04_PROOF_AUDIT.md:784:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:420:    `${label}: terminal-state shape changed.\nbefore=${JSON.stringify(acceptedTerminalShape)}\nafter=${JSON.stringify(actualShape)}`
 - [terminal-state] docs\V0_RELEASE_GAP_MATRIX.md:27:| V0-G02 | Session creation and persistence are authoritative | sessions must be replayable and non-ambiguous | create-session persistence tests, state/events parity, terminal-state invariants | HARDEN | assign next session-proof slice here | |
 - [terminal-state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
 - [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
@@ -784,374 +1962,1087 @@ The audit searched for these proof-signaling terms:
 - [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:420:    `${label}: terminal-state shape changed.\nbefore=${JSON.stringify(acceptedTerminalShape)}\nafter=${JSON.stringify(actualShape)}`
 
 ### G04 raw matches
+
 - [return_continue] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:10:                     "node test/api.return_continue_append_only_history.regression.test.mjs",
 - [return_continue] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:14:                     "node test/api.return_continue_idempotent_after_ungate_wrapper.test.mjs"
-- [RETURN_CONTINUE] docs\V0_RELEASE_SPINE.md:149:- `RETURN_CONTINUE`
-- [return_continue] docs\V0_RELEASE_SPINE.md:27:10. Resolve gate with `RETURN_CONTINUE` or `RETURN_SKIP`.
-- [return_continue] docs\V0_RELEASE_SPINE.md:57:- [ ] `RETURN_CONTINUE` ungates correctly.
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1005:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:341:    `replayed RETURN_CONTINUE must be rejected after RETURN_SKIP. raw=${replayContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1007:- [RETURN_SKIP] test\api.return_continue_append_only_history.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1008:- [RETURN_SKIP] test\api.return_gate.regression.test.mjs:268:  assert.equal(opts1, "RETURN_CONTINUE,RETURN_SKIP", `expected both return options, got ${opts1}`);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1011:- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1020:- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1027:- [RETURN_SKIP] test\api.runtime_events_state_parity.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1031:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:642:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1033:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1051:- [RETURN_SKIP] test\api.split_decision_replay_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1052:- [return_skip] test\api.state_replay_projection_after_return_continue.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1053:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1067:- [return_skip] test\api_session_state_public_trace_contract.regression.test.mjs:50:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1068:- [RETURN_SKIP] test\api_session_state_public_trace_contract.regression.test.mjs:56:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1069:- [RETURN_SKIP] test\api_session_state_public_trace_contract.regression.test.mjs:83:    assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1070:- [RETURN_SKIP] test\api_session_state_query_service.contract.test.mjs:175:  assert.deepEqual(payload.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1071:- [RETURN_SKIP] test\api_session_state_query_service.contract.test.mjs:198:  assert.deepEqual(persisted.runtime.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1072:- [RETURN_SKIP] test\api_session_state_return_decision_upgrade.test.mjs:105:   assert.deepEqual(res._json.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1073:- [RETURN_SKIP] test\api_session_state_write_service.contract.test.mjs:171:            return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1074:- [RETURN_SKIP] test\api_session_state_write_service.contract.test.mjs:447:        return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1082:- [RETURN_SKIP] test\phase6_runtime_trace_return_gate.test.mjs:33:  assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1087:- [return_skip] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:277:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1090:- [return_skip] test\v0_compile_created_session_cache_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1093:- [RETURN_SKIP] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1096:- [RETURN_SKIP] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1099:- [RETURN_SKIP] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1102:- [return_skip] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1105:- [RETURN_SKIP] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:239:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1109:- [RETURN_SKIP] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1112:- [RETURN_SKIP] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:193:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1115:- [RETURN_SKIP] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:251:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1118:- [return_skip] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:201:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1121:- [RETURN_SKIP] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1124:- [return_skip] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1127:- [return_skip] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1150:- [RETURN_SKIP] test\vertical_slice.api_http_return_gate.e2e.test.mjs:41:      "expected RETURN_CONTINUE and RETURN_SKIP options"
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1156:- [return_skip] test\vertical_slice.api_http_return_skip.e2e.test.mjs:12:  // then swap RETURN_CONTINUE for RETURN_SKIP
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1269:- [split] test\api.events_append_only_history.regression.test.mjs:236:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1271:- [split] test\api.events_append_only_history.regression.test.mjs:297:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1309:- [split] test\api.return_continue_append_only_history.regression.test.mjs:158:  const snapshotBeforeSplit = cloneJson(eventsAfterFirstComplete.json);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1310:- [split] test\api.return_continue_append_only_history.regression.test.mjs:160:  const evSplit = await httpJson(
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1311:- [split] test\api.return_continue_append_only_history.regression.test.mjs:163:    { event: { type: "SPLIT_SESSION" } }
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1312:- [split] test\api.return_continue_append_only_history.regression.test.mjs:166:    evSplit.res.status,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1313:- [split] test\api.return_continue_append_only_history.regression.test.mjs:168:    `SPLIT_SESSION expected 201, got ${evSplit.res.status}. raw=${evSplit.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1314:- [split] test\api.return_continue_append_only_history.regression.test.mjs:171:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1315:- [split] test\api.return_continue_append_only_history.regression.test.mjs:173:    splitState.res.status,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1316:- [split] test\api.return_continue_append_only_history.regression.test.mjs:175:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1317:- [split] test\api.return_continue_append_only_history.regression.test.mjs:178:    splitState.json && typeof splitState.json === "object",
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1318:- [split] test\api.return_continue_append_only_history.regression.test.mjs:179:    `split state expected JSON. raw=${splitState.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1319:- [split] test\api.return_continue_append_only_history.regression.test.mjs:182:  const traceAtSplit = splitState.json.trace;
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1320:- [split] test\api.return_continue_append_only_history.regression.test.mjs:183:  assert.ok(traceAtSplit && typeof traceAtSplit === "object", `split trace missing. raw=${splitState.text}`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1321:- [split] test\api.return_continue_append_only_history.regression.test.mjs:185:    traceAtSplit.return_decision_required,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1322:- [split] test\api.return_continue_append_only_history.regression.test.mjs:187:    `expected gated trace at split. got ${JSON.stringify(traceAtSplit)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1323:- [split] test\api.return_continue_append_only_history.regression.test.mjs:190:    [...traceAtSplit.return_decision_options].slice().sort(),
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1324:- [split] test\api.return_continue_append_only_history.regression.test.mjs:192:    `expected both return options at split. got ${JSON.stringify(traceAtSplit.return_decision_options)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1325:- [split] test\api.return_continue_append_only_history.regression.test.mjs:195:    traceAtSplit.completed_ids,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1326:- [split] test\api.return_continue_append_only_history.regression.test.mjs:197:    `expected completed_ids to preserve first completed exercise. got ${JSON.stringify(traceAtSplit.completed_ids)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1327:- [split] test\api.return_continue_append_only_history.regression.test.mjs:200:    Array.isArray(traceAtSplit.remaining_ids) && traceAtSplit.remaining_ids.length >= 1,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1328:- [split] test\api.return_continue_append_only_history.regression.test.mjs:201:    `expected at least one remaining exercise at split. got ${JSON.stringify(traceAtSplit.remaining_ids)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1329:- [split] test\api.return_continue_append_only_history.regression.test.mjs:204:  const expectedCompletedIds = [...traceAtSplit.completed_ids];
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1330:- [split] test\api.return_continue_append_only_history.regression.test.mjs:205:  const expectedRemainingIdsAtSplit = [...traceAtSplit.remaining_ids];
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1331:- [split] test\api.return_continue_append_only_history.regression.test.mjs:206:  const expectedNextExerciseId = expectedRemainingIdsAtSplit[0];
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1332:- [split] test\api.return_continue_append_only_history.regression.test.mjs:238:    snapshotBeforeSplit.events,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1333:- [split] test\api.return_continue_append_only_history.regression.test.mjs:239:    "historical rows must remain unchanged after split/continue appends"
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1334:- [split] test\api.return_continue_append_only_history.regression.test.mjs:248:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1335:- [split] test\api.return_continue_append_only_history.regression.test.mjs:288:    expectedRemainingIdsAtSplit,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1336:- [split] test\api.return_continue_append_only_history.regression.test.mjs:292:    Object.prototype.hasOwnProperty.call(traceAfterContinue, "split_active"),
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1337:- [split] test\api.return_continue_append_only_history.regression.test.mjs:294:    "trace must not expose split_active"
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1338:- [split] test\api.return_continue_append_only_history.regression.test.mjs:353:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1339:- [split] test\api.return_continue_append_only_history.regression.test.mjs:363:    expectedRemainingIdsAtSplit,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1340:- [split] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:65:  await assertPass("test/api.split_decision_idempotent_rejected.regression.test.mjs");
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1341:- [split] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:67:  await assertPass("test/api.state_replay_projection_after_split_decisions.regression.test.mjs");
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1342:- [split] test\api.return_gate.regression.test.mjs:136:test("API regression: split return decision gate blocks events until RETURN_CONTINUE", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1421:- [split] test\api.runtime_events_state_parity.regression.test.mjs:238:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1426:- [split] test\api.runtime_events_state_parity.regression.test.mjs:333:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1505:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_CONTINUE and remains byte-stable across cache clear", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1509:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1512:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:409:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1515:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:155:  const split = await httpJson(
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1516:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:158:    { event: { type: "SPLIT_SESSION" } }
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1517:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:161:    split.res.status,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1518:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:163:    `SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1519:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1520:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:168:    splitState.res.status,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1521:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:170:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1522:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:173:    splitState.json && typeof splitState.json === "object",
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1523:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:174:    `split state expected JSON. raw=${splitState.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1524:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:177:    splitState.json.trace && typeof splitState.json.trace === "object",
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1525:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:178:    `split trace expected object. raw=${splitState.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1526:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:181:    splitState.json.trace.return_decision_required,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1527:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:183:    `expected return gate at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1528:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:186:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1529:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:188:    `expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1530:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:191:  const splitCompletedIds = cloneJson(splitState.json.trace.completed_ids ?? []);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1531:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:192:  const splitRemainingIds = cloneJson(splitState.json.trace.remaining_ids ?? []);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1532:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:195:    splitCompletedIds,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1533:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:197:    `expected completed_ids preserved at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1534:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:200:    splitRemainingIds.length >= 1,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1535:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:201:    `expected remaining_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1536:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:204:    splitRemainingIds[0],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1537:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:206:    `expected remaining_ids[0] to align with current step at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1538:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:246:    splitCompletedIds,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1539:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:251:    splitRemainingIds,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1540:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:255:    Object.prototype.hasOwnProperty.call(stateAfterContinue.json.trace, "split_active"),
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1541:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:257:    "trace must not expose split_active"
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1542:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1543:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:335:    splitCompletedIds,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1544:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:340:    splitRemainingIds,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1545:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:365:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:158:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:159:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:157:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:160:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:211:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:161:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:270:  const eventsAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:162:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:319:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:163:- [/events] test\api.state_replay_projection_after_return_continue.regression.test.mjs:328:    `expected /events payload identical after cache clear.` +
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1836:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:558:      `${label}: RETURN_CONTINUE should preserve remaining_ids from split. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1838:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:568:      `${label}: RETURN_CONTINUE should realign current step with split remaining_ids[0]. raw=${JSON.stringify(stateAfterDecision.json)}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1841:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:733:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_CONTINUE)", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:1892:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:700:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:1908:3. terminal no-resurrection after RETURN_CONTINUE
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:216:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:24:- return_continue
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:26:- RETURN_CONTINUE
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:305:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:171:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:306:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:257:  const stateAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:307:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:334:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:308:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:343:    `expected /state payload to be identical after cache clear.\nbefore=${JSON.stringify(beforeClearState)}\nafter=${JSON.stringify(stateAfterClear.json)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:309:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:95:  const initialState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:310:- [/state] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:64:test("v0 proof: RETURN_CONTINUE is idempotent-rejected after ungate and preserves append-only event/state parity across repeated reloads", async () => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:368:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:128:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:369:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:370:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:220:  const stateAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:371:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:305:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:372:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:314:    `expected /state payload identical after cache clear.` +
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:373:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:409:- [/state] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:562:- [idempotent] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:14:                     "node test/api.return_continue_idempotent_after_ungate_wrapper.test.mjs"
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:566:- [idempotent] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:64:test("v0 proof: RETURN_CONTINUE is idempotent-rejected after ungate and preserves append-only event/state parity across repeated reloads", async () => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:567:- [idempotent] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:65:  await assertPass("test/api.split_decision_idempotent_rejected.regression.test.mjs");
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:572:- [idempotent] test\api.split_decision_replay_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_CONTINUE and remains byte-stable across cache clear", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:763:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:667:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_CONTINUE)", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:787:- [return_continue] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:10:                     "node test/api.return_continue_append_only_history.regression.test.mjs",
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:788:- [return_continue] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:14:                     "node test/api.return_continue_idempotent_after_ungate_wrapper.test.mjs"
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:789:- [RETURN_CONTINUE] docs\V0_RELEASE_SPINE.md:149:- `RETURN_CONTINUE`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:790:- [return_continue] docs\V0_RELEASE_SPINE.md:27:10. Resolve gate with `RETURN_CONTINUE` or `RETURN_SKIP`.
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:791:- [return_continue] docs\V0_RELEASE_SPINE.md:57:- [ ] `RETURN_CONTINUE` ungates correctly.
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:792:- [return_continue] docs\V0_RELEASE_SPINE.md:90:7. Resolve with `RETURN_CONTINUE`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:793:- [return_continue] src\api\blocks.handlers.ts:227:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:794:- [RETURN_CONTINUE] src\api\blocks.handlers.ts:231:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:795:- [RETURN_CONTINUE] src\api\session_state_read_model.ts:139:    rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:796:- [return_continue] src\api\session_state_read_model.ts:144:      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:797:- [return_continue] src\api\session_state_read_model.ts:162:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:798:- [RETURN_CONTINUE] src\api\session_state_read_model.ts:166:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:799:- [return_continue] src\api\session_state_read_model.ts:75: *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:800:- [return_continue] src\api\session_state_write_service.ts:109:function isReturnDecisionEventType(t: string | null): t is "RETURN_CONTINUE" | "RETURN_SKIP" {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:801:- [return_continue] src\api\session_state_write_service.ts:110:  return t === "RETURN_CONTINUE" || t === "RETURN_SKIP";
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:802:- [RETURN_CONTINUE] test\api.events_append_only_history.regression.test.mjs:192:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:803:- [return_continue] test\api.events_append_only_history.regression.test.mjs:199:    { event: { type: "RETURN_CONTINUE" } }
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:804:- [return_continue] test\api.events_append_only_history.regression.test.mjs:204:    `RETURN_CONTINUE expected 201, got ${ev3.res.status}. raw=${ev3.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:805:- [RETURN_CONTINUE] test\api.events_append_only_history.regression.test.mjs:236:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:806:- [RETURN_CONTINUE] test\api.events_append_only_history.regression.test.mjs:297:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:807:- [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:233:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:808:- [return_continue] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:335:    { event: { type: "RETURN_CONTINUE" } }
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:809:- [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:341:    `replayed RETURN_CONTINUE must be rejected after RETURN_SKIP. raw=${replayContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:810:- [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:345:    `replayed RETURN_CONTINUE expected 400/409/422, got ${replayContinue.res.status}. raw=${replayContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:811:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:1:/* test/api.return_continue_append_only_history.regression.test.mjs */
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:812:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:813:- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:211:    { event: { type: "RETURN_CONTINUE" } }
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:814:- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:216:    `RETURN_CONTINUE expected 201, got ${evContinue.res.status}. raw=${evContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:815:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:223:    `events after RETURN_CONTINUE expected 200, got ${eventsAfterContinue.res.status}. raw=${eventsAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:816:- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:227:    `events after RETURN_CONTINUE expected JSON object. raw=${eventsAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:817:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:231:    `expected events array after RETURN_CONTINUE. raw=${eventsAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:818:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:235:  assert.equal(eventRows.length, 4, `expected 4 events after RETURN_CONTINUE, got ${eventRows.length}`);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:819:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:248:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:820:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:25:test("API regression: RETURN_CONTINUE preserves append-only history and ungates state without rewriting prior events", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:821:- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:261:    `state after RETURN_CONTINUE expected 200, got ${stateAfterContinue.res.status}. raw=${stateAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:822:- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:265:    `state after RETURN_CONTINUE expected JSON. raw=${stateAfterContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:823:- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:274:    `expected gate cleared after RETURN_CONTINUE, got ${traceAfterContinue.return_decision_required}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:824:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:279:    `expected no return options after RETURN_CONTINUE, got ${JSON.stringify(traceAfterContinue.return_decision_options)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:825:- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:284:    `expected completed_ids preserved after RETURN_CONTINUE, got ${JSON.stringify(traceAfterContinue.completed_ids)}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:826:- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:289:    `expected remaining_ids restored after RETURN_CONTINUE, got ${JSON.stringify(traceAfterContinue.remaining_ids)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:827:- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:304:    `expected current_step after RETURN_CONTINUE. raw=${stateAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:828:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:309:    `expected EXERCISE current_step after RETURN_CONTINUE. raw=${stateAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:829:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:353:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:830:- [return_continue] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:64:test("v0 proof: RETURN_CONTINUE is idempotent-rejected after ungate and preserves append-only event/state parity across repeated reloads", async () => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:831:- [return_continue] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:66:  await assertPass("test/api.return_continue_append_only_history.regression.test.mjs");
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:832:- [RETURN_CONTINUE] test\api.return_gate.regression.test.mjs:136:test("API regression: split return decision gate blocks events until RETURN_CONTINUE", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:833:- [return_continue] test\api.return_gate.regression.test.mjs:268:  assert.equal(opts1, "RETURN_CONTINUE,RETURN_SKIP", `expected both return options, got ${opts1}`);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:834:- [RETURN_CONTINUE] test\api.return_gate.regression.test.mjs:311:  // ---- 3) RETURN_CONTINUE clears gate ----
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:835:- [return_continue] test\api.return_gate.regression.test.mjs:313:    event: { type: "RETURN_CONTINUE" },
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:836:- [RETURN_CONTINUE] test\api.return_gate.regression.test.mjs:315:  assert.equal(evReturn.res.status, 201, `RETURN_CONTINUE expected 201, got ${evReturn.res.status}. raw=${evReturn.text}`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:837:- [return_continue] test\api.return_skip.persisted_replay.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:838:- [RETURN_CONTINUE] test\api.return_skip.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:839:- [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:84:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:124:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:840:- [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:209:    { event: { type: "RETURN_CONTINUE" } }
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:841:- [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:214:    `RETURN_CONTINUE expected 201, got ${continueRes.res.status}. raw=${continueRes.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:842:- [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:238:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:843:- [RETURN_CONTINUE] test\api.runtime_events_state_parity.regression.test.mjs:333:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:844:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1277:        label: buildOptions("RETURN_CONTINUE").label,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:845:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1278:        decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:846:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1279:        ...buildOptions("RETURN_CONTINUE").options
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:847:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1297:    label: decisionType === "RETURN_CONTINUE" ? "continue scenario" : "skip scenario",
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:848:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1306:      decisionType === "RETURN_CONTINUE"
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:849:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1320:      decisionType === "RETURN_CONTINUE"
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:85:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:133:  const eventsAfterFirstComplete = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:850:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1334:      decisionType === "RETURN_CONTINUE"
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:851:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1348:      decisionType === "RETURN_CONTINUE"
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:852:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1363:      decisionType === "RETURN_CONTINUE"
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:853:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1379:      decisionType === "RETURN_CONTINUE"
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:854:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1396:      decisionType === "RETURN_CONTINUE"
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:855:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1414:      decisionType === "RETURN_CONTINUE"
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:856:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1432:      decisionType === "RETURN_CONTINUE"
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:857:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1452:      decisionType === "RETURN_CONTINUE"
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:858:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:642:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:859:- [return_continue] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:86:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:162:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:860:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:861:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:212:    { event: { type: "RETURN_CONTINUE" } }
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:862:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:217:    `RETURN_CONTINUE expected 201, got ${continueRes.res.status}. raw=${continueRes.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:863:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:224:    `state after RETURN_CONTINUE expected 200, got ${stateAfterContinue.res.status}. raw=${stateAfterContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:864:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:228:    `state after RETURN_CONTINUE expected JSON. raw=${stateAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:865:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:232:    `state after RETURN_CONTINUE expected trace. raw=${stateAfterContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:866:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:237:    `expected gate cleared after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:867:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:242:    `expected no return options after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:868:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:869:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_CONTINUE and remains byte-stable across cache clear", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:87:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:210:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:870:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:252:    `expected remaining_ids restored after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:871:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:267:    `expected current_step to realign with remaining_ids[0] after RETURN_CONTINUE. current_step=${JSON.stringify(stateAfterContinue.json.current_step)} trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:872:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:274:    `events after RETURN_CONTINUE expected 200, got ${eventsAfterContinue.res.status}. raw=${eventsAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:873:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:278:    `events after RETURN_CONTINUE expected JSON object. raw=${eventsAfterContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:874:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:282:    `events after RETURN_CONTINUE expected events array. raw=${eventsAfterContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:875:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:876:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:303:    { event: { type: "RETURN_CONTINUE" } }
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:877:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:309:    `replayed RETURN_CONTINUE must be rejected after ungate. raw=${replayContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:878:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:313:    `replayed RETURN_CONTINUE expected 400/409/422, got ${replayContinue.res.status}. raw=${replayContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:879:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:409:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:88:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:219:  const eventsAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:880:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:1:/* test/api.state_replay_projection_after_return_continue.regression.test.mjs */
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:881:- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:882:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:212:    { event: { type: "RETURN_CONTINUE" } }
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:883:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:217:    `RETURN_CONTINUE expected 201, got ${continueRes.res.status}. raw=${continueRes.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:884:- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:224:    `state after RETURN_CONTINUE expected 200, got ${stateAfterContinue.res.status}. raw=${stateAfterContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:885:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:228:    `state after RETURN_CONTINUE expected JSON. raw=${stateAfterContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:886:- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:232:    `state after RETURN_CONTINUE expected trace. raw=${stateAfterContinue.text}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:887:- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:237:    `expected gate cleared after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:888:- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:242:    `expected no return options after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:889:- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:89:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:322:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:890:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:25:test("API regression: state replay projection stays stable across RETURN_CONTINUE and cache clear", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:891:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:252:    `expected remaining_ids restored after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:892:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:267:    `expected current_step to realign with remaining_ids[0] after RETURN_CONTINUE. current_step=${JSON.stringify(stateAfterContinue.json.current_step)} trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:893:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:274:    `events after RETURN_CONTINUE expected 200, got ${eventsAfterContinue.res.status}. raw=${eventsAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:894:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:278:    `events after RETURN_CONTINUE expected JSON object. raw=${eventsAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:895:- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:282:    `events after RETURN_CONTINUE expected events array. raw=${eventsAfterContinue.text}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:896:- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:897:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:365:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:898:- [RETURN_CONTINUE] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:899:- [return_continue] test\api_compile_block_executed_handler_http_contract.test.mjs:308:      runtime_events: [{ type: "RETURN_CONTINUE" }]
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:90:- [/events] test\api.return_continue_append_only_history.regression.test.mjs:331:    `expected /events payload to be identical after cache clear.\nbefore=${JSON.stringify(beforeClearEvents)}\nafter=${JSON.stringify(eventsAfterClear.json)}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:900:- [return_continue] test\api_session_state_public_trace_contract.regression.test.mjs:50:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:901:- [RETURN_CONTINUE] test\api_session_state_public_trace_contract.regression.test.mjs:56:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:902:- [return_continue] test\api_session_state_public_trace_contract.regression.test.mjs:83:    assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:903:- [return_continue] test\api_session_state_query_service.contract.test.mjs:175:  assert.deepEqual(payload.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:904:- [return_continue] test\api_session_state_query_service.contract.test.mjs:198:  assert.deepEqual(persisted.runtime.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:905:- [RETURN_CONTINUE] test\api_session_state_return_decision_upgrade.test.mjs:105:   assert.deepEqual(res._json.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:906:- [RETURN_CONTINUE] test\api_session_state_write_service.contract.test.mjs:171:            return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:907:- [return_continue] test\api_session_state_write_service.contract.test.mjs:447:        return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:908:- [return_continue] test\e2e_phase6_runtime_split_return.test.mjs:129:    { type: "RETURN_CONTINUE" }
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:909:- [return_continue] test\e2e_phase6_runtime_split_return.test.mjs:38:    { type: "RETURN_CONTINUE" }
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:910:- [return_continue] test\phase6_return_decision_gate.test.mjs:25:test("Phase6 runtime: RETURN_CONTINUE clears gate and allows progress", () => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:911:- [return_continue] test\phase6_return_decision_gate.test.mjs:30:    { type: "RETURN_CONTINUE" },
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:912:- [RETURN_CONTINUE] test\phase6_runtime_reducer.test.mjs:32:    { type: "RETURN_CONTINUE" },
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:913:- [RETURN_CONTINUE] test\phase6_runtime_trace_return_gate.test.mjs:33:  assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:914:- [return_continue] test\phase6_runtime_trace_return_gate.test.mjs:39:test("Phase6 runtime trace: return_continue clears explicit return decision contract", async () => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:915:- [RETURN_CONTINUE] test\phase6_runtime_trace_return_gate.test.mjs:53:    { type: "RETURN_CONTINUE" }
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:916:- [return_continue] test\phase6_runtime_trace_return_skip.test.mjs:10:    // mirror the arrange block from the existing RETURN_CONTINUE test
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:917:- [RETURN_CONTINUE] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:277:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:918:- [return_continue] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:705:test("v0 linkage: compile-created session block/session readback stays stable through runtime and fresh restart parity (RETURN_CONTINUE)", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:919:- [RETURN_CONTINUE] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:712:      decisionType: "RETURN_CONTINUE",
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:920:- [RETURN_CONTINUE] test\v0_compile_created_session_cache_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:921:- [return_continue] test\v0_compile_created_session_cache_parity.test.mjs:645:test("v0 cache parity: compile-created session preserves cached and uncached lifecycle parity (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:922:- [RETURN_CONTINUE] test\v0_compile_created_session_cache_parity.test.mjs:652:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:923:- [return_continue] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:924:- [return_continue] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:667:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:925:- [RETURN_CONTINUE] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:674:      decisionType: "RETURN_CONTINUE",
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:926:- [return_continue] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:927:- [RETURN_CONTINUE] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:645:test("v0 fresh restart live progress: compile-created live session advances coherently after fresh restart (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:928:- [return_continue] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:652:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:929:- [RETURN_CONTINUE] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:930:- [return_continue] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:699:test("v0 fresh restart replay safety: compile-created live session rejects duplicate progress replay after accepted restart write (RETURN_CONTINUE)", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:931:- [return_continue] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:706:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:932:- [RETURN_CONTINUE] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:933:- [return_continue] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:934:- [RETURN_CONTINUE] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:654:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:935:- [RETURN_CONTINUE] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:239:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:936:- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:545:    expectCurrentStep: decisionType === "RETURN_CONTINUE" ? "EXERCISE" : "EXERCISE"
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:937:- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:554:  if (decisionType === "RETURN_CONTINUE") {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:938:- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:558:      `${label}: RETURN_CONTINUE should preserve remaining_ids from split. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:939:- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:563:      `${label}: RETURN_CONTINUE should not create dropped_ids. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:940:- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:568:      `${label}: RETURN_CONTINUE should realign current step with split remaining_ids[0]. raw=${JSON.stringify(stateAfterDecision.json)}`
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:941:- [RETURN_CONTINUE] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:733:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:942:- [RETURN_CONTINUE] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:740:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:943:- [return_continue] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:944:- [return_continue] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:662:test("v0 progress-after-read: compile-created session cannot resurrect stale state after downstream progress (RETURN_CONTINUE)", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:945:- [return_continue] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:669:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:946:- [return_continue] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:193:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:947:- [RETURN_CONTINUE] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:772:test("v0 cache parity: rejected runtime mutations preserve cached and uncached lifecycle parity (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:948:- [return_continue] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:779:      decisionType: "RETURN_CONTINUE",
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:949:- [return_continue] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:251:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:950:- [RETURN_CONTINUE] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:700:test("v0 lifecycle: compile-created session rejected runtime mutations fail fast and preserve persisted lifecycle contract (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:951:- [RETURN_CONTINUE] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:707:      decisionType: "RETURN_CONTINUE",
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:952:- [return_continue] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:201:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:953:- [RETURN_CONTINUE] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:715:test("v0 terminal coherence: compile-created session stays cross-endpoint coherent after terminalization (RETURN_CONTINUE)", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:954:- [return_continue] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:722:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:955:- [RETURN_CONTINUE] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:956:- [RETURN_CONTINUE] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:673:test("v0 terminal restart closure: compile-created session remains mutation-closed after fresh restart (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:957:- [RETURN_CONTINUE] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:680:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:958:- [return_continue] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:959:- [RETURN_CONTINUE] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:700:test("v0 fresh restart decision replay safety: compile-created live session rejects stale RETURN_CONTINUE replay after accepted live progress", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:960:- [RETURN_CONTINUE] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:707:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:961:- [return_continue] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:962:- [return_continue] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:700:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_CONTINUE)", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:963:- [return_continue] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:707:      decisionType: "RETURN_CONTINUE",
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:964:- [return_continue] test\vertical_slice.api_http_complete_step.e2e.test.mjs:11:test("Vertical slice (HTTP): COMPLETE_STEP is rejected during RETURN_DECISION and accepted immediately after RETURN_CONTINUE", async (t) => {
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:965:- [return_continue] test\vertical_slice.api_http_complete_step.e2e.test.mjs:36:      const continueEvent = await postEvent(baseUrl, sessionId, { type: "RETURN_CONTINUE" });
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:966:- [RETURN_CONTINUE] test\vertical_slice.api_http_complete_step.e2e.test.mjs:40:      assert.equal(st2.trace.return_decision_required, false, "RETURN_CONTINUE should immediately ungate the state");
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:967:- [return_continue] test\vertical_slice.api_http_complete_step.e2e.test.mjs:41:      assert.equal(st2.current_step?.type, "EXERCISE", "expected EXERCISE step immediately after RETURN_CONTINUE");
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:968:- [RETURN_CONTINUE] test\vertical_slice.api_http_complete_step.e2e.test.mjs:42:      assert.ok(st2.current_step?.exercise?.exercise_id, "expected exercise after RETURN_CONTINUE");
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:969:- [RETURN_CONTINUE] test\vertical_slice.api_http_complete_step.e2e.test.mjs:51:        `expected completed_exercises +1 after RETURN_CONTINUE then COMPLETE_STEP (before=${beforeCompleted}, after=${afterCompleted})`
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:970:- [RETURN_CONTINUE] test\vertical_slice.api_http_return_gate.e2e.test.mjs:39:      s1.trace.return_decision_options.includes("RETURN_CONTINUE") &&
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:971:- [RETURN_CONTINUE] test\vertical_slice.api_http_return_gate.e2e.test.mjs:41:      "expected RETURN_CONTINUE and RETURN_SKIP options"
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:972:- [RETURN_CONTINUE] test\vertical_slice.api_http_return_gate.e2e.test.mjs:44:    const evContinue = await postEvent(baseUrl, sessionId, { type: "RETURN_CONTINUE" });
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:973:- [return_continue] test\vertical_slice.api_http_return_skip.e2e.test.mjs:12:  // then swap RETURN_CONTINUE for RETURN_SKIP
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:979:- [RETURN_SKIP] docs\V0_RELEASE_SPINE.md:27:10. Resolve gate with `RETURN_CONTINUE` or `RETURN_SKIP`.
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:981:- [RETURN_SKIP] src\api\blocks.handlers.ts:227:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:982:- [return_skip] src\api\blocks.handlers.ts:231:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:983:- [RETURN_SKIP] src\api\session_state_read_model.ts:139:    rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:984:- [return_skip] src\api\session_state_read_model.ts:144:      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:985:- [return_skip] src\api\session_state_read_model.ts:162:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:986:- [return_skip] src\api\session_state_read_model.ts:166:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+- [return_continue] docs\V0_G03_G04_PROOF_AUDIT.md:987:- [return_skip] src\api\session_state_read_model.ts:75: *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:988:- [return_skip] src\api\session_state_write_service.ts:109:function isReturnDecisionEventType(t: string | null): t is "RETURN_CONTINUE" | "RETURN_SKIP" {
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:989:- [RETURN_SKIP] src\api\session_state_write_service.ts:110:  return t === "RETURN_CONTINUE" || t === "RETURN_SKIP";
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:990:- [RETURN_SKIP] test\api.events_append_only_history.regression.test.mjs:192:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] docs\V0_G03_G04_PROOF_AUDIT.md:991:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:233:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] docs\V0_RELEASE_SPINE.md:149:- `RETURN_CONTINUE`
+- [RETURN_CONTINUE] docs\V0_RELEASE_SPINE.md:27:10. Resolve gate with `RETURN_CONTINUE` or `RETURN_SKIP`.
+- [RETURN_CONTINUE] docs\V0_RELEASE_SPINE.md:57:- [ ] `RETURN_CONTINUE` ungates correctly.
 - [return_continue] docs\V0_RELEASE_SPINE.md:90:7. Resolve with `RETURN_CONTINUE`
 - [return_continue] src\api\blocks.handlers.ts:227:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
-- [RETURN_CONTINUE] src\api\blocks.handlers.ts:231:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+- [return_continue] src\api\blocks.handlers.ts:231:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
 - [RETURN_CONTINUE] src\api\session_state_read_model.ts:139:    rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
-- [return_continue] src\api\session_state_read_model.ts:144:      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
-- [return_continue] src\api\session_state_read_model.ts:162:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+- [RETURN_CONTINUE] src\api\session_state_read_model.ts:144:      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
+- [RETURN_CONTINUE] src\api\session_state_read_model.ts:162:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
 - [RETURN_CONTINUE] src\api\session_state_read_model.ts:166:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
-- [return_continue] src\api\session_state_read_model.ts:75: *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
-- [return_continue] src\api\session_state_write_service.ts:109:function isReturnDecisionEventType(t: string | null): t is "RETURN_CONTINUE" | "RETURN_SKIP" {
-- [return_continue] src\api\session_state_write_service.ts:110:  return t === "RETURN_CONTINUE" || t === "RETURN_SKIP";
+- [RETURN_CONTINUE] src\api\session_state_read_model.ts:75: *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
+- [RETURN_CONTINUE] src\api\session_state_write_service.ts:109:function isReturnDecisionEventType(t: string | null): t is "RETURN_CONTINUE" | "RETURN_SKIP" {
+- [RETURN_CONTINUE] src\api\session_state_write_service.ts:110:  return t === "RETURN_CONTINUE" || t === "RETURN_SKIP";
 - [RETURN_CONTINUE] test\api.events_append_only_history.regression.test.mjs:192:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_continue] test\api.events_append_only_history.regression.test.mjs:199:    { event: { type: "RETURN_CONTINUE" } }
 - [return_continue] test\api.events_append_only_history.regression.test.mjs:204:    `RETURN_CONTINUE expected 201, got ${ev3.res.status}. raw=${ev3.text}`
 - [RETURN_CONTINUE] test\api.events_append_only_history.regression.test.mjs:236:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
-- [RETURN_CONTINUE] test\api.events_append_only_history.regression.test.mjs:297:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] test\api.events_append_only_history.regression.test.mjs:297:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
 - [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:233:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_continue] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:335:    { event: { type: "RETURN_CONTINUE" } }
-- [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:341:    `replayed RETURN_CONTINUE must be rejected after RETURN_SKIP. raw=${replayContinue.text}`
+- [return_continue] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:341:    `replayed RETURN_CONTINUE must be rejected after RETURN_SKIP. raw=${replayContinue.text}`
 - [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:345:    `replayed RETURN_CONTINUE expected 400/409/422, got ${replayContinue.res.status}. raw=${replayContinue.text}`
 - [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:1:/* test/api.return_continue_append_only_history.regression.test.mjs */
 - [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:211:    { event: { type: "RETURN_CONTINUE" } }
+- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:211:    { event: { type: "RETURN_CONTINUE" } }
 - [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:216:    `RETURN_CONTINUE expected 201, got ${evContinue.res.status}. raw=${evContinue.text}`
-- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:223:    `events after RETURN_CONTINUE expected 200, got ${eventsAfterContinue.res.status}. raw=${eventsAfterContinue.text}`
+- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:223:    `events after RETURN_CONTINUE expected 200, got ${eventsAfterContinue.res.status}. raw=${eventsAfterContinue.text}`
 - [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:227:    `events after RETURN_CONTINUE expected JSON object. raw=${eventsAfterContinue.text}`
 - [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:231:    `expected events array after RETURN_CONTINUE. raw=${eventsAfterContinue.text}`
-- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:235:  assert.equal(eventRows.length, 4, `expected 4 events after RETURN_CONTINUE, got ${eventRows.length}`);
-- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:248:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
-- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:25:test("API regression: RETURN_CONTINUE preserves append-only history and ungates state without rewriting prior events", async (t) => {
+- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:235:  assert.equal(eventRows.length, 4, `expected 4 events after RETURN_CONTINUE, got ${eventRows.length}`);
+- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:248:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:25:test("API regression: RETURN_CONTINUE preserves append-only history and ungates state without rewriting prior events", async (t) => {
 - [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:261:    `state after RETURN_CONTINUE expected 200, got ${stateAfterContinue.res.status}. raw=${stateAfterContinue.text}`
-- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:265:    `state after RETURN_CONTINUE expected JSON. raw=${stateAfterContinue.text}`
+- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:265:    `state after RETURN_CONTINUE expected JSON. raw=${stateAfterContinue.text}`
 - [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:274:    `expected gate cleared after RETURN_CONTINUE, got ${traceAfterContinue.return_decision_required}`
 - [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:279:    `expected no return options after RETURN_CONTINUE, got ${JSON.stringify(traceAfterContinue.return_decision_options)}`
-- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:284:    `expected completed_ids preserved after RETURN_CONTINUE, got ${JSON.stringify(traceAfterContinue.completed_ids)}`
-- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:289:    `expected remaining_ids restored after RETURN_CONTINUE, got ${JSON.stringify(traceAfterContinue.remaining_ids)}`
+- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:284:    `expected completed_ids preserved after RETURN_CONTINUE, got ${JSON.stringify(traceAfterContinue.completed_ids)}`
+- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:289:    `expected remaining_ids restored after RETURN_CONTINUE, got ${JSON.stringify(traceAfterContinue.remaining_ids)}`
 - [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:304:    `expected current_step after RETURN_CONTINUE. raw=${stateAfterContinue.text}`
-- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:309:    `expected EXERCISE current_step after RETURN_CONTINUE. raw=${stateAfterContinue.text}`
-- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:353:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:309:    `expected EXERCISE current_step after RETURN_CONTINUE. raw=${stateAfterContinue.text}`
+- [RETURN_CONTINUE] test\api.return_continue_append_only_history.regression.test.mjs:353:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
 - [return_continue] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:64:test("v0 proof: RETURN_CONTINUE is idempotent-rejected after ungate and preserves append-only event/state parity across repeated reloads", async () => {
 - [return_continue] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:66:  await assertPass("test/api.return_continue_append_only_history.regression.test.mjs");
 - [RETURN_CONTINUE] test\api.return_gate.regression.test.mjs:136:test("API regression: split return decision gate blocks events until RETURN_CONTINUE", async (t) => {
-- [return_continue] test\api.return_gate.regression.test.mjs:268:  assert.equal(opts1, "RETURN_CONTINUE,RETURN_SKIP", `expected both return options, got ${opts1}`);
+- [RETURN_CONTINUE] test\api.return_gate.regression.test.mjs:268:  assert.equal(opts1, "RETURN_CONTINUE,RETURN_SKIP", `expected both return options, got ${opts1}`);
 - [RETURN_CONTINUE] test\api.return_gate.regression.test.mjs:311:  // ---- 3) RETURN_CONTINUE clears gate ----
-- [return_continue] test\api.return_gate.regression.test.mjs:313:    event: { type: "RETURN_CONTINUE" },
+- [RETURN_CONTINUE] test\api.return_gate.regression.test.mjs:313:    event: { type: "RETURN_CONTINUE" },
 - [RETURN_CONTINUE] test\api.return_gate.regression.test.mjs:315:  assert.equal(evReturn.res.status, 201, `RETURN_CONTINUE expected 201, got ${evReturn.res.status}. raw=${evReturn.text}`);
 - [return_continue] test\api.return_skip.persisted_replay.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_CONTINUE] test\api.return_skip.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] test\api.return_skip.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:209:    { event: { type: "RETURN_CONTINUE" } }
 - [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:214:    `RETURN_CONTINUE expected 201, got ${continueRes.res.status}. raw=${continueRes.text}`
-- [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:238:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
-- [RETURN_CONTINUE] test\api.runtime_events_state_parity.regression.test.mjs:333:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
-- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1277:        label: buildOptions("RETURN_CONTINUE").label,
-- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1278:        decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] test\api.runtime_events_state_parity.regression.test.mjs:238:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:333:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1277:        label: buildOptions("RETURN_CONTINUE").label,
+- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1278:        decisionType: "RETURN_CONTINUE",
 - [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1279:        ...buildOptions("RETURN_CONTINUE").options
 - [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1297:    label: decisionType === "RETURN_CONTINUE" ? "continue scenario" : "skip scenario",
-- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1306:      decisionType === "RETURN_CONTINUE"
+- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1306:      decisionType === "RETURN_CONTINUE"
 - [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1320:      decisionType === "RETURN_CONTINUE"
-- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1334:      decisionType === "RETURN_CONTINUE"
+- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1334:      decisionType === "RETURN_CONTINUE"
 - [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1348:      decisionType === "RETURN_CONTINUE"
 - [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1363:      decisionType === "RETURN_CONTINUE"
-- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1379:      decisionType === "RETURN_CONTINUE"
-- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1396:      decisionType === "RETURN_CONTINUE"
+- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1379:      decisionType === "RETURN_CONTINUE"
+- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1396:      decisionType === "RETURN_CONTINUE"
 - [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1414:      decisionType === "RETURN_CONTINUE"
 - [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1432:      decisionType === "RETURN_CONTINUE"
 - [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1452:      decisionType === "RETURN_CONTINUE"
 - [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:642:    ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_continue] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:212:    { event: { type: "RETURN_CONTINUE" } }
 - [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:217:    `RETURN_CONTINUE expected 201, got ${continueRes.res.status}. raw=${continueRes.text}`
-- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:224:    `state after RETURN_CONTINUE expected 200, got ${stateAfterContinue.res.status}. raw=${stateAfterContinue.text}`
-- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:228:    `state after RETURN_CONTINUE expected JSON. raw=${stateAfterContinue.text}`
-- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:232:    `state after RETURN_CONTINUE expected trace. raw=${stateAfterContinue.text}`
+- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:224:    `state after RETURN_CONTINUE expected 200, got ${stateAfterContinue.res.status}. raw=${stateAfterContinue.text}`
+- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:228:    `state after RETURN_CONTINUE expected JSON. raw=${stateAfterContinue.text}`
+- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:232:    `state after RETURN_CONTINUE expected trace. raw=${stateAfterContinue.text}`
 - [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:237:    `expected gate cleared after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
 - [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:242:    `expected no return options after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
-- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
 - [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_CONTINUE and remains byte-stable across cache clear", async (t) => {
-- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:252:    `expected remaining_ids restored after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
-- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:267:    `expected current_step to realign with remaining_ids[0] after RETURN_CONTINUE. current_step=${JSON.stringify(stateAfterContinue.json.current_step)} trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:252:    `expected remaining_ids restored after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:267:    `expected current_step to realign with remaining_ids[0] after RETURN_CONTINUE. current_step=${JSON.stringify(stateAfterContinue.json.current_step)} trace=${JSON.stringify(stateAfterContinue.json.trace)}`
 - [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:274:    `events after RETURN_CONTINUE expected 200, got ${eventsAfterContinue.res.status}. raw=${eventsAfterContinue.text}`
 - [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:278:    `events after RETURN_CONTINUE expected JSON object. raw=${eventsAfterContinue.text}`
-- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:282:    `events after RETURN_CONTINUE expected events array. raw=${eventsAfterContinue.text}`
-- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
-- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:303:    { event: { type: "RETURN_CONTINUE" } }
-- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:309:    `replayed RETURN_CONTINUE must be rejected after ungate. raw=${replayContinue.text}`
+- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:282:    `events after RETURN_CONTINUE expected events array. raw=${eventsAfterContinue.text}`
+- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:303:    { event: { type: "RETURN_CONTINUE" } }
+- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:309:    `replayed RETURN_CONTINUE must be rejected after ungate. raw=${replayContinue.text}`
 - [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:313:    `replayed RETURN_CONTINUE expected 400/409/422, got ${replayContinue.res.status}. raw=${replayContinue.text}`
-- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:409:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:409:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
 - [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:1:/* test/api.state_replay_projection_after_return_continue.regression.test.mjs */
 - [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:212:    { event: { type: "RETURN_CONTINUE" } }
-- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:217:    `RETURN_CONTINUE expected 201, got ${continueRes.res.status}. raw=${continueRes.text}`
+- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:212:    { event: { type: "RETURN_CONTINUE" } }
+- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:217:    `RETURN_CONTINUE expected 201, got ${continueRes.res.status}. raw=${continueRes.text}`
 - [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:224:    `state after RETURN_CONTINUE expected 200, got ${stateAfterContinue.res.status}. raw=${stateAfterContinue.text}`
 - [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:228:    `state after RETURN_CONTINUE expected JSON. raw=${stateAfterContinue.text}`
 - [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:232:    `state after RETURN_CONTINUE expected trace. raw=${stateAfterContinue.text}`
-- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:237:    `expected gate cleared after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
-- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:242:    `expected no return options after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:237:    `expected gate cleared after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:242:    `expected no return options after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
 - [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
-- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:25:test("API regression: state replay projection stays stable across RETURN_CONTINUE and cache clear", async (t) => {
-- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:252:    `expected remaining_ids restored after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:25:test("API regression: state replay projection stays stable across RETURN_CONTINUE and cache clear", async (t) => {
+- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:252:    `expected remaining_ids restored after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
 - [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:267:    `expected current_step to realign with remaining_ids[0] after RETURN_CONTINUE. current_step=${JSON.stringify(stateAfterContinue.json.current_step)} trace=${JSON.stringify(stateAfterContinue.json.trace)}`
 - [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:274:    `events after RETURN_CONTINUE expected 200, got ${eventsAfterContinue.res.status}. raw=${eventsAfterContinue.text}`
-- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:278:    `events after RETURN_CONTINUE expected JSON object. raw=${eventsAfterContinue.text}`
-- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:282:    `events after RETURN_CONTINUE expected events array. raw=${eventsAfterContinue.text}`
+- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:278:    `events after RETURN_CONTINUE expected JSON object. raw=${eventsAfterContinue.text}`
+- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:282:    `events after RETURN_CONTINUE expected events array. raw=${eventsAfterContinue.text}`
 - [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
-- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:365:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
-- [RETURN_CONTINUE] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_continue] test\api_compile_block_executed_handler_http_contract.test.mjs:308:      runtime_events: [{ type: "RETURN_CONTINUE" }]
-- [return_continue] test\api_session_state_public_trace_contract.regression.test.mjs:50:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:365:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [return_continue] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] test\api_compile_block_executed_handler_http_contract.test.mjs:308:      runtime_events: [{ type: "RETURN_CONTINUE" }]
+- [RETURN_CONTINUE] test\api_session_state_public_trace_contract.regression.test.mjs:50:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_CONTINUE] test\api_session_state_public_trace_contract.regression.test.mjs:56:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_continue] test\api_session_state_public_trace_contract.regression.test.mjs:83:    assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_CONTINUE] test\api_session_state_public_trace_contract.regression.test.mjs:83:    assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
 - [return_continue] test\api_session_state_query_service.contract.test.mjs:175:  assert.deepEqual(payload.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
-- [return_continue] test\api_session_state_query_service.contract.test.mjs:198:  assert.deepEqual(persisted.runtime.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_CONTINUE] test\api_session_state_query_service.contract.test.mjs:198:  assert.deepEqual(persisted.runtime.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
 - [RETURN_CONTINUE] test\api_session_state_return_decision_upgrade.test.mjs:105:   assert.deepEqual(res._json.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
-- [RETURN_CONTINUE] test\api_session_state_write_service.contract.test.mjs:171:            return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
+- [return_continue] test\api_session_state_write_service.contract.test.mjs:171:            return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
 - [return_continue] test\api_session_state_write_service.contract.test.mjs:447:        return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
-- [return_continue] test\e2e_phase6_runtime_split_return.test.mjs:129:    { type: "RETURN_CONTINUE" }
+- [RETURN_CONTINUE] test\e2e_phase6_runtime_split_return.test.mjs:129:    { type: "RETURN_CONTINUE" }
 - [return_continue] test\e2e_phase6_runtime_split_return.test.mjs:38:    { type: "RETURN_CONTINUE" }
-- [return_continue] test\phase6_return_decision_gate.test.mjs:25:test("Phase6 runtime: RETURN_CONTINUE clears gate and allows progress", () => {
+- [RETURN_CONTINUE] test\phase6_return_decision_gate.test.mjs:25:test("Phase6 runtime: RETURN_CONTINUE clears gate and allows progress", () => {
 - [return_continue] test\phase6_return_decision_gate.test.mjs:30:    { type: "RETURN_CONTINUE" },
-- [RETURN_CONTINUE] test\phase6_runtime_reducer.test.mjs:32:    { type: "RETURN_CONTINUE" },
+- [return_continue] test\phase6_runtime_reducer.test.mjs:32:    { type: "RETURN_CONTINUE" },
 - [RETURN_CONTINUE] test\phase6_runtime_trace_return_gate.test.mjs:33:  assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
 - [return_continue] test\phase6_runtime_trace_return_gate.test.mjs:39:test("Phase6 runtime trace: return_continue clears explicit return decision contract", async () => {
-- [RETURN_CONTINUE] test\phase6_runtime_trace_return_gate.test.mjs:53:    { type: "RETURN_CONTINUE" }
+- [return_continue] test\phase6_runtime_trace_return_gate.test.mjs:53:    { type: "RETURN_CONTINUE" }
 - [return_continue] test\phase6_runtime_trace_return_skip.test.mjs:10:    // mirror the arrange block from the existing RETURN_CONTINUE test
-- [RETURN_CONTINUE] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:277:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_continue] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:705:test("v0 linkage: compile-created session block/session readback stays stable through runtime and fresh restart parity (RETURN_CONTINUE)", async (t) => {
+- [return_continue] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:277:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:705:test("v0 linkage: compile-created session block/session readback stays stable through runtime and fresh restart parity (RETURN_CONTINUE)", async (t) => {
 - [RETURN_CONTINUE] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:712:      decisionType: "RETURN_CONTINUE",
-- [RETURN_CONTINUE] test\v0_compile_created_session_cache_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] test\v0_compile_created_session_cache_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_continue] test\v0_compile_created_session_cache_parity.test.mjs:645:test("v0 cache parity: compile-created session preserves cached and uncached lifecycle parity (RETURN_CONTINUE)", async (t) => {
-- [RETURN_CONTINUE] test\v0_compile_created_session_cache_parity.test.mjs:652:      decisionType: "RETURN_CONTINUE",
+- [return_continue] test\v0_compile_created_session_cache_parity.test.mjs:652:      decisionType: "RETURN_CONTINUE",
 - [return_continue] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_continue] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:667:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_CONTINUE)", async (t) => {
-- [RETURN_CONTINUE] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:674:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:667:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_CONTINUE)", async (t) => {
+- [return_continue] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:674:      decisionType: "RETURN_CONTINUE",
 - [return_continue] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_CONTINUE] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:645:test("v0 fresh restart live progress: compile-created live session advances coherently after fresh restart (RETURN_CONTINUE)", async (t) => {
-- [return_continue] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:652:      decisionType: "RETURN_CONTINUE",
-- [RETURN_CONTINUE] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:652:      decisionType: "RETURN_CONTINUE",
+- [return_continue] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_continue] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:699:test("v0 fresh restart replay safety: compile-created live session rejects duplicate progress replay after accepted restart write (RETURN_CONTINUE)", async (t) => {
-- [return_continue] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:706:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:706:      decisionType: "RETURN_CONTINUE",
 - [RETURN_CONTINUE] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_continue] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
-- [RETURN_CONTINUE] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:654:      decisionType: "RETURN_CONTINUE",
-- [RETURN_CONTINUE] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:239:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:647:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_CONTINUE)", async (t) => {
+- [return_continue] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:654:      decisionType: "RETURN_CONTINUE",
+- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:239:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:545:    expectCurrentStep: decisionType === "RETURN_CONTINUE" ? "EXERCISE" : "EXERCISE"
 - [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:554:  if (decisionType === "RETURN_CONTINUE") {
 - [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:558:      `${label}: RETURN_CONTINUE should preserve remaining_ids from split. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
-- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:563:      `${label}: RETURN_CONTINUE should not create dropped_ids. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
-- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:568:      `${label}: RETURN_CONTINUE should realign current step with split remaining_ids[0]. raw=${JSON.stringify(stateAfterDecision.json)}`
-- [RETURN_CONTINUE] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:733:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_CONTINUE)", async (t) => {
-- [RETURN_CONTINUE] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:740:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:563:      `${label}: RETURN_CONTINUE should not create dropped_ids. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
+- [RETURN_CONTINUE] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:568:      `${label}: RETURN_CONTINUE should realign current step with split remaining_ids[0]. raw=${JSON.stringify(stateAfterDecision.json)}`
+- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:733:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_CONTINUE)", async (t) => {
+- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:740:      decisionType: "RETURN_CONTINUE",
 - [return_continue] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_continue] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:662:test("v0 progress-after-read: compile-created session cannot resurrect stale state after downstream progress (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:662:test("v0 progress-after-read: compile-created session cannot resurrect stale state after downstream progress (RETURN_CONTINUE)", async (t) => {
 - [return_continue] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:669:      decisionType: "RETURN_CONTINUE",
-- [return_continue] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:193:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_CONTINUE] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:772:test("v0 cache parity: rejected runtime mutations preserve cached and uncached lifecycle parity (RETURN_CONTINUE)", async (t) => {
-- [return_continue] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:779:      decisionType: "RETURN_CONTINUE",
-- [return_continue] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:251:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_CONTINUE] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:700:test("v0 lifecycle: compile-created session rejected runtime mutations fail fast and preserve persisted lifecycle contract (RETURN_CONTINUE)", async (t) => {
-- [RETURN_CONTINUE] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:707:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:193:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:772:test("v0 cache parity: rejected runtime mutations preserve cached and uncached lifecycle parity (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:779:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:251:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:700:test("v0 lifecycle: compile-created session rejected runtime mutations fail fast and preserve persisted lifecycle contract (RETURN_CONTINUE)", async (t) => {
+- [return_continue] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:707:      decisionType: "RETURN_CONTINUE",
 - [return_continue] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:201:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_CONTINUE] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:715:test("v0 terminal coherence: compile-created session stays cross-endpoint coherent after terminalization (RETURN_CONTINUE)", async (t) => {
-- [return_continue] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:722:      decisionType: "RETURN_CONTINUE",
-- [RETURN_CONTINUE] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_CONTINUE] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:673:test("v0 terminal restart closure: compile-created session remains mutation-closed after fresh restart (RETURN_CONTINUE)", async (t) => {
+- [return_continue] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:715:test("v0 terminal coherence: compile-created session stays cross-endpoint coherent after terminalization (RETURN_CONTINUE)", async (t) => {
+- [RETURN_CONTINUE] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:722:      decisionType: "RETURN_CONTINUE",
+- [return_continue] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:673:test("v0 terminal restart closure: compile-created session remains mutation-closed after fresh restart (RETURN_CONTINUE)", async (t) => {
 - [RETURN_CONTINUE] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:680:      decisionType: "RETURN_CONTINUE",
-- [return_continue] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_CONTINUE] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:700:test("v0 fresh restart decision replay safety: compile-created live session rejects stale RETURN_CONTINUE replay after accepted live progress", async (t) => {
-- [RETURN_CONTINUE] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:707:      decisionType: "RETURN_CONTINUE",
-- [return_continue] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_CONTINUE] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_continue] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:700:test("v0 fresh restart decision replay safety: compile-created live session rejects stale RETURN_CONTINUE replay after accepted live progress", async (t) => {
+- [return_continue] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:707:      decisionType: "RETURN_CONTINUE",
+- [RETURN_CONTINUE] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_continue] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:700:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_CONTINUE)", async (t) => {
 - [return_continue] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:707:      decisionType: "RETURN_CONTINUE",
-- [return_continue] test\vertical_slice.api_http_complete_step.e2e.test.mjs:11:test("Vertical slice (HTTP): COMPLETE_STEP is rejected during RETURN_DECISION and accepted immediately after RETURN_CONTINUE", async (t) => {
-- [return_continue] test\vertical_slice.api_http_complete_step.e2e.test.mjs:36:      const continueEvent = await postEvent(baseUrl, sessionId, { type: "RETURN_CONTINUE" });
-- [RETURN_CONTINUE] test\vertical_slice.api_http_complete_step.e2e.test.mjs:40:      assert.equal(st2.trace.return_decision_required, false, "RETURN_CONTINUE should immediately ungate the state");
+- [RETURN_CONTINUE] test\vertical_slice.api_http_complete_step.e2e.test.mjs:11:test("Vertical slice (HTTP): COMPLETE_STEP is rejected during RETURN_DECISION and accepted immediately after RETURN_CONTINUE", async (t) => {
+- [RETURN_CONTINUE] test\vertical_slice.api_http_complete_step.e2e.test.mjs:36:      const continueEvent = await postEvent(baseUrl, sessionId, { type: "RETURN_CONTINUE" });
+- [return_continue] test\vertical_slice.api_http_complete_step.e2e.test.mjs:40:      assert.equal(st2.trace.return_decision_required, false, "RETURN_CONTINUE should immediately ungate the state");
 - [return_continue] test\vertical_slice.api_http_complete_step.e2e.test.mjs:41:      assert.equal(st2.current_step?.type, "EXERCISE", "expected EXERCISE step immediately after RETURN_CONTINUE");
-- [RETURN_CONTINUE] test\vertical_slice.api_http_complete_step.e2e.test.mjs:42:      assert.ok(st2.current_step?.exercise?.exercise_id, "expected exercise after RETURN_CONTINUE");
-- [RETURN_CONTINUE] test\vertical_slice.api_http_complete_step.e2e.test.mjs:51:        `expected completed_exercises +1 after RETURN_CONTINUE then COMPLETE_STEP (before=${beforeCompleted}, after=${afterCompleted})`
+- [return_continue] test\vertical_slice.api_http_complete_step.e2e.test.mjs:42:      assert.ok(st2.current_step?.exercise?.exercise_id, "expected exercise after RETURN_CONTINUE");
+- [return_continue] test\vertical_slice.api_http_complete_step.e2e.test.mjs:51:        `expected completed_exercises +1 after RETURN_CONTINUE then COMPLETE_STEP (before=${beforeCompleted}, after=${afterCompleted})`
 - [RETURN_CONTINUE] test\vertical_slice.api_http_return_gate.e2e.test.mjs:39:      s1.trace.return_decision_options.includes("RETURN_CONTINUE") &&
-- [RETURN_CONTINUE] test\vertical_slice.api_http_return_gate.e2e.test.mjs:41:      "expected RETURN_CONTINUE and RETURN_SKIP options"
-- [RETURN_CONTINUE] test\vertical_slice.api_http_return_gate.e2e.test.mjs:44:    const evContinue = await postEvent(baseUrl, sessionId, { type: "RETURN_CONTINUE" });
-- [return_continue] test\vertical_slice.api_http_return_skip.e2e.test.mjs:12:  // then swap RETURN_CONTINUE for RETURN_SKIP
+- [return_continue] test\vertical_slice.api_http_return_gate.e2e.test.mjs:41:      "expected RETURN_CONTINUE and RETURN_SKIP options"
+- [return_continue] test\vertical_slice.api_http_return_gate.e2e.test.mjs:44:    const evContinue = await postEvent(baseUrl, sessionId, { type: "RETURN_CONTINUE" });
+- [RETURN_CONTINUE] test\vertical_slice.api_http_return_skip.e2e.test.mjs:12:  // then swap RETURN_CONTINUE for RETURN_SKIP
 - [return_skip] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:5:                     "node test/api.return_skip.regression.test.mjs",
 - [return_skip] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:6:                     "node test/api.return_skip.persisted_replay.regression.test.mjs",
 - [return_skip] ci\contracts\test_ci_integration_vertical_slice_cluster_manifest.json:6:    "node test/vertical_slice.api_http_return_skip.e2e.test.mjs",
-- [RETURN_SKIP] docs\V0_RELEASE_SPINE.md:106:7. Resolve with `RETURN_SKIP`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:100:- [/events] test\api.return_skip.regression.test.mjs:305:    `${baseUrl}/sessions/${sessionId}/events`,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1000:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:300:  assertNoResurrection(stateAfterSkip.json, splitRemainingIds, "after RETURN_SKIP");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1001:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:306:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1002:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:310:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1003:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:314:    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1004:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:323:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1005:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:341:    `replayed RETURN_CONTINUE must be rejected after RETURN_SKIP. raw=${replayContinue.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1006:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:438:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1007:- [RETURN_SKIP] test\api.return_continue_append_only_history.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1008:- [RETURN_SKIP] test\api.return_gate.regression.test.mjs:268:  assert.equal(opts1, "RETURN_CONTINUE,RETURN_SKIP", `expected both return options, got ${opts1}`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1009:- [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:1:/* test/api.return_skip.regression.test.mjs */
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1010:- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:135:test("API regression: persisted RETURN_SKIP replay preserves ordered dropped_ids after fresh state reload", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1011:- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1012:- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:306:    { event: { type: "RETURN_SKIP" } }
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1013:- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:311:    `RETURN_SKIP expected 201, got ${evSkip.res.status}. raw=${evSkip.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1014:- [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:328:    `expected gate cleared after RETURN_SKIP, got ${traceFinal.return_decision_required}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1015:- [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:333:    `expected no return options after RETURN_SKIP, got ${JSON.stringify(traceFinal.return_decision_options)}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1016:- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:338:    `expected completed_ids preserved after RETURN_SKIP, got ${JSON.stringify(traceFinal.completed_ids)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1017:- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:361:      `RETURN_SKIP must not leave current_step at RETURN_DECISION. got ${JSON.stringify(finalState.json.current_step)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1018:- [return_skip] test\api.return_skip.regression.test.mjs:1:/* test/api.return_skip.regression.test.mjs */
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1019:- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:135:test("API regression: RETURN_SKIP drops remaining-at-split deterministically and leaves state ungated", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1020:- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1021:- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:306:    { event: { type: "RETURN_SKIP" } }
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1022:- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:311:    `RETURN_SKIP expected 201, got ${evSkip.res.status}. raw=${evSkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1023:- [return_skip] test\api.return_skip.regression.test.mjs:328:    `expected gate cleared after RETURN_SKIP, got ${traceFinal.return_decision_required}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1024:- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:333:    `expected no return options after RETURN_SKIP, got ${JSON.stringify(traceFinal.return_decision_options)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1025:- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:338:    `expected completed_ids preserved after RETURN_SKIP, got ${JSON.stringify(traceFinal.completed_ids)}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1026:- [return_skip] test\api.return_skip.regression.test.mjs:361:      `RETURN_SKIP must not leave current_step at RETURN_DECISION. got ${JSON.stringify(finalState.json.current_step)}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1027:- [RETURN_SKIP] test\api.runtime_events_state_parity.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1028:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1286:        label: buildOptions("RETURN_SKIP").label,
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1029:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1287:        decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1030:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1288:        ...buildOptions("RETURN_SKIP").options
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1031:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:642:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1032:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:1:/* test/api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs */
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1033:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1034:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:212:    { event: { type: "RETURN_SKIP" } }
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1035:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:217:    `RETURN_SKIP expected 201, got ${skipRes.res.status}. raw=${skipRes.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1036:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:224:    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1037:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:228:    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1038:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:232:    `state after RETURN_SKIP expected trace. raw=${stateAfterSkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1039:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:237:    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1040:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:242:    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1041:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1042:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_SKIP and remains byte-stable across cache clear", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1043:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:269:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1044:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:273:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1045:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:277:    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1046:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:286:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1047:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:298:    { event: { type: "RETURN_SKIP" } }
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1048:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:304:    `replayed RETURN_SKIP must be rejected after ungate. raw=${replaySkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1049:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:308:    `replayed RETURN_SKIP expected 400/409/422, got ${replaySkip.res.status}. raw=${replaySkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1050:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:399:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1051:- [RETURN_SKIP] test\api.split_decision_replay_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1052:- [return_skip] test\api.state_replay_projection_after_return_continue.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1053:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1054:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:212:    { event: { type: "RETURN_SKIP" } }
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1055:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:217:    `RETURN_SKIP expected 201, got ${skip.res.status}. raw=${skip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1056:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:224:    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1057:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:228:    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1058:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:232:    `state after RETURN_SKIP expected trace. raw=${stateAfterSkip.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1059:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:237:    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1060:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:242:    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1061:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1062:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:269:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1063:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:273:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1064:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:277:    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1065:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:286:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1066:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:351:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1067:- [return_skip] test\api_session_state_public_trace_contract.regression.test.mjs:50:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1068:- [RETURN_SKIP] test\api_session_state_public_trace_contract.regression.test.mjs:56:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1069:- [RETURN_SKIP] test\api_session_state_public_trace_contract.regression.test.mjs:83:    assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1070:- [RETURN_SKIP] test\api_session_state_query_service.contract.test.mjs:175:  assert.deepEqual(payload.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1071:- [RETURN_SKIP] test\api_session_state_query_service.contract.test.mjs:198:  assert.deepEqual(persisted.runtime.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1072:- [RETURN_SKIP] test\api_session_state_return_decision_upgrade.test.mjs:105:   assert.deepEqual(res._json.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1073:- [RETURN_SKIP] test\api_session_state_write_service.contract.test.mjs:171:            return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1074:- [RETURN_SKIP] test\api_session_state_write_service.contract.test.mjs:447:        return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1075:- [return_skip] test\ci_test_ci_integration_composition.test.mjs:20:    "node test/api.return_skip.regression.test.mjs",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1076:- [return_skip] test\ci_test_ci_integration_composition.test.mjs:26:    "node test/vertical_slice.api_http_return_skip.e2e.test.mjs",
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1077:- [RETURN_SKIP] test\e2e_phase6_runtime_split_return.test.mjs:62:    { type: "RETURN_SKIP" }
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1078:- [RETURN_SKIP] test\phase6_return_decision_gate.test.mjs:38:test("Phase6 runtime: RETURN_SKIP drops remaining deterministically (Phase 1 fallback: drop all remaining)", () => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1079:- [RETURN_SKIP] test\phase6_return_decision_gate.test.mjs:43:    { type: "RETURN_SKIP" },
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1080:- [RETURN_SKIP] test\phase6_runtime_reducer.test.mjs:71:  // RETURN_SKIP should drop whatever remained at split time (B,C).
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1081:- [RETURN_SKIP] test\phase6_runtime_reducer.test.mjs:72:  s = applyRuntimeEvent(s, { type: "RETURN_SKIP" });
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1082:- [RETURN_SKIP] test\phase6_runtime_trace_return_gate.test.mjs:33:  assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1083:- [return_skip] test\phase6_runtime_trace_return_gate.test.mjs:65:test("Phase6 runtime trace: return_skip clears explicit return decision contract", async () => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1084:- [RETURN_SKIP] test\phase6_runtime_trace_return_gate.test.mjs:79:    { type: "RETURN_SKIP" }
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1085:- [RETURN_SKIP] test\phase6_runtime_trace_return_skip.test.mjs:18:    { type: "RETURN_SKIP" }
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1086:- [return_skip] test\phase6_runtime_trace_return_skip.test.mjs:8:test("Phase6 runtime trace: return_skip clears explicit return decision contract and advances state with partial/skip semantics", () => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1087:- [return_skip] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:277:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1088:- [RETURN_SKIP] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:718:test("v0 linkage: compile-created session block/session readback stays stable through runtime and fresh restart parity (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1089:- [RETURN_SKIP] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:725:      decisionType: "RETURN_SKIP",
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1090:- [return_skip] test\v0_compile_created_session_cache_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1091:- [RETURN_SKIP] test\v0_compile_created_session_cache_parity.test.mjs:658:test("v0 cache parity: compile-created session preserves cached and uncached lifecycle parity (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1092:- [return_skip] test\v0_compile_created_session_cache_parity.test.mjs:665:      decisionType: "RETURN_SKIP",
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1093:- [RETURN_SKIP] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1094:- [RETURN_SKIP] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:680:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1095:- [return_skip] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:687:      decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1096:- [RETURN_SKIP] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1097:- [RETURN_SKIP] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:658:test("v0 fresh restart live progress: compile-created live session advances coherently after fresh restart (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1098:- [return_skip] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:665:      decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1099:- [RETURN_SKIP] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1100:- [return_skip] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:712:test("v0 fresh restart replay safety: compile-created live session rejects duplicate progress replay after accepted restart write (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1101:- [return_skip] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:719:      decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1102:- [return_skip] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1103:- [return_skip] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1104:- [return_skip] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:667:      decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1105:- [RETURN_SKIP] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:239:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1106:- [RETURN_SKIP] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:574:      `${label}: RETURN_SKIP should move split remaining_ids into dropped_ids. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1107:- [return_skip] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:746:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1108:- [return_skip] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:753:      decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1109:- [RETURN_SKIP] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1110:- [return_skip] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:675:test("v0 progress-after-read: compile-created session cannot resurrect stale state after downstream progress (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1111:- [return_skip] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:682:      decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1112:- [RETURN_SKIP] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:193:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1113:- [RETURN_SKIP] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:785:test("v0 cache parity: rejected runtime mutations preserve cached and uncached lifecycle parity (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1114:- [RETURN_SKIP] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:792:      decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1115:- [RETURN_SKIP] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:251:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1116:- [return_skip] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:713:test("v0 lifecycle: compile-created session rejected runtime mutations fail fast and preserve persisted lifecycle contract (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1117:- [return_skip] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:720:      decisionType: "RETURN_SKIP",
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1118:- [return_skip] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:201:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1119:- [RETURN_SKIP] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:728:test("v0 terminal coherence: compile-created session stays cross-endpoint coherent after terminalization (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1120:- [RETURN_SKIP] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:735:      decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1121:- [RETURN_SKIP] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1122:- [RETURN_SKIP] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:686:test("v0 terminal restart closure: compile-created session remains mutation-closed after fresh restart (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1123:- [return_skip] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:693:      decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1124:- [return_skip] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1125:- [return_skip] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:713:test("v0 fresh restart decision replay safety: compile-created live session rejects stale RETURN_SKIP replay after accepted live progress", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1126:- [RETURN_SKIP] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:720:      decisionType: "RETURN_SKIP",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1127:- [return_skip] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1128:- [RETURN_SKIP] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:713:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1129:- [RETURN_SKIP] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:720:      decisionType: "RETURN_SKIP",
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1130:- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:101:    const skipEvent = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1131:- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:105:    assert.equal(st2.trace.return_decision_required, false, "RETURN_SKIP should ungate the session");
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1132:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:106:    assert.ok(Array.isArray(st2.dropped_ids), "expected dropped_ids array after RETURN_SKIP");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1133:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:107:    assert.ok(st2.dropped_ids.length > 0, "expected RETURN_SKIP to persist at least one dropped id");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1134:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:117:    assert.equal(st3.trace.return_decision_required, false, "reloaded state should remain ungated after RETURN_SKIP");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1135:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:128:        "accepted COMPLETE_STEP after ungate must not rewrite dropped_ids chosen by RETURN_SKIP"
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1136:- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:137:      "post-RETURN_SKIP rejection must not still be the return-decision gate"
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1137:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:157:test("Vertical slice (HTTP): RETURN_SKIP is idempotent-rejected after ungate and preserves dropped_ids across repeated reloads", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1138:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:173:      t.skip("RETURN_SKIP idempotent rejection proof requires an active RETURN_DECISION gate for this fixture/runtime path.");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1139:- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:180:    const firstSkip = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1140:- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:184:    assert.equal(st2.trace.return_decision_required, false, "first RETURN_SKIP should ungate the session");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1141:- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:185:    assert.ok(Array.isArray(st2.dropped_ids), "expected dropped_ids after first RETURN_SKIP");
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1142:- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:186:    assert.ok(st2.dropped_ids.length > 0, "expected first RETURN_SKIP to persist at least one dropped id");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1143:- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:194:      "dropped_ids should survive first reload after RETURN_SKIP"
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1144:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:198:    const secondSkip = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1145:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:210:      "second RETURN_SKIP rejection must not rewrite dropped_ids"
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1146:- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:215:      "second RETURN_SKIP rejection must keep the session ungated"
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1147:- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:74:test("Vertical slice (HTTP): RETURN_SKIP rejects COMPLETE_STEP before ungate and preserves dropped_ids after reload", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1148:- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:90:      t.skip("RETURN_SKIP proof requires an active RETURN_DECISION gate for this fixture/runtime path.");
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1149:- [return_skip] test\vertical_slice.api_http_return_gate.e2e.test.mjs:40:        s1.trace.return_decision_options.includes("RETURN_SKIP"),
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1150:- [RETURN_SKIP] test\vertical_slice.api_http_return_gate.e2e.test.mjs:41:      "expected RETURN_CONTINUE and RETURN_SKIP options"
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1151:- [RETURN_SKIP] test\vertical_slice.api_http_return_gate.e2e.test.mjs:62:test("Vertical slice (HTTP): RETURN_SKIP clears gate and advances session state", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1152:- [return_skip] test\vertical_slice.api_http_return_gate.e2e.test.mjs:82:    assert.ok(state1.trace.return_decision_options.includes("RETURN_SKIP"));
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1153:- [return_skip] test\vertical_slice.api_http_return_gate.e2e.test.mjs:84:    const evSkip = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1154:- [RETURN_SKIP] test\vertical_slice.api_http_return_gate.e2e.test.mjs:93:    assert.ok(Array.isArray(s2.trace.dropped_ids), "expected dropped_ids after RETURN_SKIP");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1155:- [return_skip] test\vertical_slice.api_http_return_gate.e2e.test.mjs:96:      `expected at least one dropped_id after RETURN_SKIP; trace=` + JSON.stringify(s2.trace)
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1156:- [return_skip] test\vertical_slice.api_http_return_skip.e2e.test.mjs:12:  // then swap RETURN_CONTINUE for RETURN_SKIP
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1157:- [RETURN_SKIP] test\vertical_slice.api_http_return_skip.e2e.test.mjs:6:test("Vertical slice (HTTP): RETURN_SKIP clears gate and advances session state", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1301:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:300:  assertNoResurrection(stateAfterSkip.json, splitRemainingIds, "after RETURN_SKIP");
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1302:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:323:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1307:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:438:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1350:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:257:  const evSplit = await httpJson(
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1351:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:260:    { event: { type: "SPLIT_SESSION" } }
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1352:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:263:    evSplit.res.status,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1353:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:265:    `SPLIT_SESSION expected 201, got ${evSplit.res.status}. raw=${evSplit.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1354:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1355:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:270:    splitState.res.status,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1356:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:272:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1357:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:274:  assert.ok(splitState.json && typeof splitState.json === "object", `split state expected JSON. raw=${splitState.text}`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1358:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:276:  const traceAtSplit = splitState.json.trace;
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1359:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:277:  assert.ok(traceAtSplit && typeof traceAtSplit === "object", `split trace missing. raw=${splitState.text}`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1360:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:279:    traceAtSplit.return_decision_required,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1361:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:281:    `expected gated trace at split. got ${JSON.stringify(traceAtSplit)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1362:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:284:    [...traceAtSplit.return_decision_options].slice().sort(),
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1363:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:286:    `expected both return options at split. got ${JSON.stringify(traceAtSplit.return_decision_options)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1364:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:288:  assert.ok(Array.isArray(traceAtSplit.completed_ids), "expected completed_ids array at split");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1365:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:289:  assert.ok(Array.isArray(traceAtSplit.remaining_ids), "expected remaining_ids array at split");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1366:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:291:    traceAtSplit.completed_ids,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1367:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:293:    `expected completed_ids to preserve first completed exercise. got ${JSON.stringify(traceAtSplit.completed_ids)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1368:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:296:    traceAtSplit.remaining_ids.length >= 1,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1369:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:297:    `expected at least one remaining exercise at split. got ${JSON.stringify(traceAtSplit.remaining_ids)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1370:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:300:  const expectedCompletedIds = [...traceAtSplit.completed_ids];
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1371:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:301:  const expectedDroppedIds = [...traceAtSplit.remaining_ids];
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1372:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:343:    `expected dropped_ids to equal remaining_ids captured at split, got ${JSON.stringify(traceFinal.dropped_ids)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1373:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:352:    Object.prototype.hasOwnProperty.call(traceFinal, "split_active"),
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1374:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:354:    "trace must not expose split_active"
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1375:- [split] test\api.return_skip.regression.test.mjs:135:test("API regression: RETURN_SKIP drops remaining-at-split deterministically and leaves state ungated", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1376:- [split] test\api.return_skip.regression.test.mjs:257:  const evSplit = await httpJson(
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1377:- [split] test\api.return_skip.regression.test.mjs:260:    { event: { type: "SPLIT_SESSION" } }
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1378:- [split] test\api.return_skip.regression.test.mjs:263:    evSplit.res.status,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1379:- [split] test\api.return_skip.regression.test.mjs:265:    `SPLIT_SESSION expected 201, got ${evSplit.res.status}. raw=${evSplit.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:138:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1380:- [split] test\api.return_skip.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1381:- [split] test\api.return_skip.regression.test.mjs:270:    splitState.res.status,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1382:- [split] test\api.return_skip.regression.test.mjs:272:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1383:- [split] test\api.return_skip.regression.test.mjs:274:  assert.ok(splitState.json && typeof splitState.json === "object", `split state expected JSON. raw=${splitState.text}`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1384:- [split] test\api.return_skip.regression.test.mjs:276:  const traceAtSplit = splitState.json.trace;
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1385:- [split] test\api.return_skip.regression.test.mjs:277:  assert.ok(traceAtSplit && typeof traceAtSplit === "object", `split trace missing. raw=${splitState.text}`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1386:- [split] test\api.return_skip.regression.test.mjs:279:    traceAtSplit.return_decision_required,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1387:- [split] test\api.return_skip.regression.test.mjs:281:    `expected gated trace at split. got ${JSON.stringify(traceAtSplit)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1388:- [split] test\api.return_skip.regression.test.mjs:284:    [...traceAtSplit.return_decision_options].slice().sort(),
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1389:- [split] test\api.return_skip.regression.test.mjs:286:    `expected both return options at split. got ${JSON.stringify(traceAtSplit.return_decision_options)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:139:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:157:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1390:- [split] test\api.return_skip.regression.test.mjs:288:  assert.ok(Array.isArray(traceAtSplit.completed_ids), "expected completed_ids array at split");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1391:- [split] test\api.return_skip.regression.test.mjs:289:  assert.ok(Array.isArray(traceAtSplit.remaining_ids), "expected remaining_ids array at split");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1392:- [split] test\api.return_skip.regression.test.mjs:291:    traceAtSplit.completed_ids,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1393:- [split] test\api.return_skip.regression.test.mjs:293:    `expected completed_ids to preserve first completed exercise. got ${JSON.stringify(traceAtSplit.completed_ids)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1394:- [split] test\api.return_skip.regression.test.mjs:296:    traceAtSplit.remaining_ids.length >= 1,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1395:- [split] test\api.return_skip.regression.test.mjs:297:    `expected at least one remaining exercise at split. got ${JSON.stringify(traceAtSplit.remaining_ids)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1396:- [split] test\api.return_skip.regression.test.mjs:300:  const expectedCompletedIds = [...traceAtSplit.completed_ids];
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1397:- [split] test\api.return_skip.regression.test.mjs:301:  const expectedDroppedIds = [...traceAtSplit.remaining_ids];
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1398:- [split] test\api.return_skip.regression.test.mjs:343:    `expected dropped_ids to equal remaining_ids captured at split, got ${JSON.stringify(traceFinal.dropped_ids)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1399:- [split] test\api.return_skip.regression.test.mjs:352:    Object.prototype.hasOwnProperty.call(traceFinal, "split_active"),
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:140:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:211:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1400:- [split] test\api.return_skip.regression.test.mjs:354:    "trace must not expose split_active"
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:141:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:265:  const eventsAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:142:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:297:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:143:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:325:  const eventsAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:144:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:358:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1446:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:1:/* test/api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs */
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1447:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:155:  const split = await httpJson(
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1448:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:158:    { event: { type: "SPLIT_SESSION" } }
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1449:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:161:    split.res.status,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:145:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:367:    `expected /events payload identical after cache clear.` +
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1450:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:163:    `SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1451:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1452:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:168:    splitState.res.status,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1453:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:170:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1454:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:173:    splitState.json && typeof splitState.json === "object",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1455:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:174:    `split state expected JSON. raw=${splitState.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1456:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:177:    splitState.json.trace && typeof splitState.json.trace === "object",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1457:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:178:    `split trace expected object. raw=${splitState.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1458:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:181:    splitState.json.trace.return_decision_required,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1459:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:183:    `expected return gate at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1460:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:186:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1461:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:188:    `expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1462:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:191:  const splitCompletedIds = cloneJson(splitState.json.trace.completed_ids ?? []);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1463:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:192:  const splitRemainingIds = cloneJson(splitState.json.trace.remaining_ids ?? []);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1464:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:195:    splitCompletedIds,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1465:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:197:    `expected completed_ids preserved at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1466:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:200:    splitRemainingIds.length >= 1,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1467:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:201:    `expected remaining_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1468:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:204:    splitRemainingIds[0],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1469:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:206:    `expected remaining_ids[0] to align with current step at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1470:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:246:    splitCompletedIds,
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1471:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_SKIP and remains byte-stable across cache clear", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1472:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:251:    splitRemainingIds,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1473:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:252:    `expected dropped_ids to equal split remaining_ids. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1474:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:255:    Object.prototype.hasOwnProperty.call(stateAfterSkip.json.trace, "split_active"),
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1475:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:257:    "trace must not expose split_active"
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1476:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:286:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1477:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:374:    splitCompletedIds,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1478:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:379:    splitRemainingIds,
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1479:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:399:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1576:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:286:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1579:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:351:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1659:- [split] test\phase6_runtime_reducer.test.mjs:71:  // RETURN_SKIP should drop whatever remained at split time (B,C).
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1840:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:574:      `${label}: RETURN_SKIP should move split remaining_ids into dropped_ids. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1842:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:746:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:1894:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:713:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:1907:2. terminal no-resurrection after RETURN_SKIP
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:217:- [/events] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:23:- return_skip
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:25:- RETURN_SKIP
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:313:- [/state] test\api.return_skip.persisted_replay.regression.test.mjs:229:  const initialState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:314:- [/state] test\api.return_skip.persisted_replay.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:315:- [/state] test\api.return_skip.persisted_replay.regression.test.mjs:314:  const finalState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:316:- [/state] test\api.return_skip.persisted_replay.regression.test.mjs:365:  const finalStateAgain = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:317:- [/state] test\api.return_skip.regression.test.mjs:229:  const initialState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:318:- [/state] test\api.return_skip.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:319:- [/state] test\api.return_skip.regression.test.mjs:314:  const finalState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:320:- [/state] test\api.return_skip.regression.test.mjs:365:  const finalStateAgain = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:349:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:128:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:350:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:351:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:220:  const stateAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:352:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:311:  const stateAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:353:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:344:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:354:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:353:    `expected /state payload identical after cache clear.` +
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:355:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:410:- [/state] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:571:- [idempotent] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_SKIP and remains byte-stable across cache clear", async (t) => {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:576:- [idempotent] test\vertical_slice.api_http_complete_step.e2e.test.mjs:157:test("Vertical slice (HTTP): RETURN_SKIP is idempotent-rejected after ungate and preserves dropped_ids across repeated reloads", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:577:- [idempotent] test\vertical_slice.api_http_complete_step.e2e.test.mjs:173:      t.skip("RETURN_SKIP idempotent rejection proof requires an active RETURN_DECISION gate for this fixture/runtime path.");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:698:- [runtime_trace] test\phase6_runtime_trace_return_skip.test.mjs:5:import { compileRuntimeTrace } from "../src/phase6/compile_runtime_trace.js";
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:764:- [session_event_seq] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:680:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_SKIP)", async (t) => {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:790:- [return_continue] docs\V0_RELEASE_SPINE.md:27:10. Resolve gate with `RETURN_CONTINUE` or `RETURN_SKIP`.
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:793:- [return_continue] src\api\blocks.handlers.ts:227:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:794:- [RETURN_CONTINUE] src\api\blocks.handlers.ts:231:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:795:- [RETURN_CONTINUE] src\api\session_state_read_model.ts:139:    rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:796:- [return_continue] src\api\session_state_read_model.ts:144:      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:797:- [return_continue] src\api\session_state_read_model.ts:162:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:798:- [RETURN_CONTINUE] src\api\session_state_read_model.ts:166:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:799:- [return_continue] src\api\session_state_read_model.ts:75: *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:800:- [return_continue] src\api\session_state_write_service.ts:109:function isReturnDecisionEventType(t: string | null): t is "RETURN_CONTINUE" | "RETURN_SKIP" {
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:801:- [return_continue] src\api\session_state_write_service.ts:110:  return t === "RETURN_CONTINUE" || t === "RETURN_SKIP";
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:802:- [RETURN_CONTINUE] test\api.events_append_only_history.regression.test.mjs:192:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:807:- [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:233:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:809:- [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:341:    `replayed RETURN_CONTINUE must be rejected after RETURN_SKIP. raw=${replayContinue.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:812:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:833:- [return_continue] test\api.return_gate.regression.test.mjs:268:  assert.equal(opts1, "RETURN_CONTINUE,RETURN_SKIP", `expected both return options, got ${opts1}`);
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:837:- [return_continue] test\api.return_skip.persisted_replay.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:838:- [RETURN_CONTINUE] test\api.return_skip.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:839:- [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:858:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:642:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:859:- [return_continue] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:860:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:881:- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:898:- [RETURN_CONTINUE] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:900:- [return_continue] test\api_session_state_public_trace_contract.regression.test.mjs:50:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:901:- [RETURN_CONTINUE] test\api_session_state_public_trace_contract.regression.test.mjs:56:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:902:- [return_continue] test\api_session_state_public_trace_contract.regression.test.mjs:83:    assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:903:- [return_continue] test\api_session_state_query_service.contract.test.mjs:175:  assert.deepEqual(payload.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:904:- [return_continue] test\api_session_state_query_service.contract.test.mjs:198:  assert.deepEqual(persisted.runtime.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:905:- [RETURN_CONTINUE] test\api_session_state_return_decision_upgrade.test.mjs:105:   assert.deepEqual(res._json.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:906:- [RETURN_CONTINUE] test\api_session_state_write_service.contract.test.mjs:171:            return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:907:- [return_continue] test\api_session_state_write_service.contract.test.mjs:447:        return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:913:- [RETURN_CONTINUE] test\phase6_runtime_trace_return_gate.test.mjs:33:  assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:916:- [return_continue] test\phase6_runtime_trace_return_skip.test.mjs:10:    // mirror the arrange block from the existing RETURN_CONTINUE test
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:917:- [RETURN_CONTINUE] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:277:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:920:- [RETURN_CONTINUE] test\v0_compile_created_session_cache_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:923:- [return_continue] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:926:- [return_continue] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:929:- [RETURN_CONTINUE] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:932:- [RETURN_CONTINUE] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:935:- [RETURN_CONTINUE] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:239:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:943:- [return_continue] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:946:- [return_continue] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:193:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:949:- [return_continue] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:251:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:95:- [/events] test\api.return_skip.persisted_replay.regression.test.mjs:248:    `${baseUrl}/sessions/${sessionId}/events`,
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:952:- [return_continue] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:201:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:955:- [RETURN_CONTINUE] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:958:- [return_continue] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:96:- [/events] test\api.return_skip.persisted_replay.regression.test.mjs:259:    `${baseUrl}/sessions/${sessionId}/events`,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:961:- [return_continue] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:97:- [/events] test\api.return_skip.persisted_replay.regression.test.mjs:305:    `${baseUrl}/sessions/${sessionId}/events`,
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:971:- [RETURN_CONTINUE] test\vertical_slice.api_http_return_gate.e2e.test.mjs:41:      "expected RETURN_CONTINUE and RETURN_SKIP options"
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:973:- [return_continue] test\vertical_slice.api_http_return_skip.e2e.test.mjs:12:  // then swap RETURN_CONTINUE for RETURN_SKIP
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:974:- [return_skip] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:5:                     "node test/api.return_skip.regression.test.mjs",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:975:- [return_skip] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:6:                     "node test/api.return_skip.persisted_replay.regression.test.mjs",
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:976:- [return_skip] ci\contracts\test_ci_integration_vertical_slice_cluster_manifest.json:6:    "node test/vertical_slice.api_http_return_skip.e2e.test.mjs",
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:977:- [RETURN_SKIP] docs\V0_RELEASE_SPINE.md:106:7. Resolve with `RETURN_SKIP`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:978:- [RETURN_SKIP] docs\V0_RELEASE_SPINE.md:150:- `RETURN_SKIP`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:979:- [RETURN_SKIP] docs\V0_RELEASE_SPINE.md:27:10. Resolve gate with `RETURN_CONTINUE` or `RETURN_SKIP`.
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:98:- [/events] test\api.return_skip.regression.test.mjs:248:    `${baseUrl}/sessions/${sessionId}/events`,
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:980:- [RETURN_SKIP] docs\V0_RELEASE_SPINE.md:58:- [ ] `RETURN_SKIP` ungates correctly.
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:981:- [RETURN_SKIP] src\api\blocks.handlers.ts:227:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:982:- [return_skip] src\api\blocks.handlers.ts:231:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:983:- [RETURN_SKIP] src\api\session_state_read_model.ts:139:    rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:984:- [return_skip] src\api\session_state_read_model.ts:144:      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:985:- [return_skip] src\api\session_state_read_model.ts:162:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:986:- [return_skip] src\api\session_state_read_model.ts:166:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:987:- [return_skip] src\api\session_state_read_model.ts:75: *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:988:- [return_skip] src\api\session_state_write_service.ts:109:function isReturnDecisionEventType(t: string | null): t is "RETURN_CONTINUE" | "RETURN_SKIP" {
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:989:- [RETURN_SKIP] src\api\session_state_write_service.ts:110:  return t === "RETURN_CONTINUE" || t === "RETURN_SKIP";
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:99:- [/events] test\api.return_skip.regression.test.mjs:259:    `${baseUrl}/sessions/${sessionId}/events`,
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:990:- [RETURN_SKIP] test\api.events_append_only_history.regression.test.mjs:192:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:991:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:233:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:992:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:258:    { event: { type: "RETURN_SKIP" } }
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:993:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:263:    `RETURN_SKIP expected 201, got ${skipRes.res.status}. raw=${skipRes.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:994:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:270:    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:995:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:274:    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:996:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:278:    `state after RETURN_SKIP expected trace. raw=${stateAfterSkip.text}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:997:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:283:    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [RETURN_SKIP] docs\V0_G03_G04_PROOF_AUDIT.md:998:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:288:    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [return_skip] docs\V0_G03_G04_PROOF_AUDIT.md:999:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:293:    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [return_skip] docs\V0_RELEASE_SPINE.md:106:7. Resolve with `RETURN_SKIP`
 - [RETURN_SKIP] docs\V0_RELEASE_SPINE.md:150:- `RETURN_SKIP`
 - [RETURN_SKIP] docs\V0_RELEASE_SPINE.md:27:10. Resolve gate with `RETURN_CONTINUE` or `RETURN_SKIP`.
-- [RETURN_SKIP] docs\V0_RELEASE_SPINE.md:58:- [ ] `RETURN_SKIP` ungates correctly.
+- [return_skip] docs\V0_RELEASE_SPINE.md:58:- [ ] `RETURN_SKIP` ungates correctly.
 - [RETURN_SKIP] src\api\blocks.handlers.ts:227:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
 - [return_skip] src\api\blocks.handlers.ts:231:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
-- [RETURN_SKIP] src\api\session_state_read_model.ts:139:    rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
-- [return_skip] src\api\session_state_read_model.ts:144:      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
-- [return_skip] src\api\session_state_read_model.ts:162:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
-- [return_skip] src\api\session_state_read_model.ts:166:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
-- [return_skip] src\api\session_state_read_model.ts:75: *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
-- [return_skip] src\api\session_state_write_service.ts:109:function isReturnDecisionEventType(t: string | null): t is "RETURN_CONTINUE" | "RETURN_SKIP" {
+- [return_skip] src\api\session_state_read_model.ts:139:    rt.return_decision_options = rt.return_decision_required === true ? ["RETURN_CONTINUE", "RETURN_SKIP"] : [];
+- [RETURN_SKIP] src\api\session_state_read_model.ts:144:      .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
+- [RETURN_SKIP] src\api\session_state_read_model.ts:162:  const return_decision_options: Array<"RETURN_CONTINUE" | "RETURN_SKIP"> =
+- [RETURN_SKIP] src\api\session_state_read_model.ts:166:          .filter((x: string) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP")
+- [RETURN_SKIP] src\api\session_state_read_model.ts:75: *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
+- [RETURN_SKIP] src\api\session_state_write_service.ts:109:function isReturnDecisionEventType(t: string | null): t is "RETURN_CONTINUE" | "RETURN_SKIP" {
 - [RETURN_SKIP] src\api\session_state_write_service.ts:110:  return t === "RETURN_CONTINUE" || t === "RETURN_SKIP";
-- [RETURN_SKIP] test\api.events_append_only_history.regression.test.mjs:192:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] test\api.events_append_only_history.regression.test.mjs:192:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:233:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:258:    { event: { type: "RETURN_SKIP" } }
-- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:263:    `RETURN_SKIP expected 201, got ${skipRes.res.status}. raw=${skipRes.text}`
+- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:263:    `RETURN_SKIP expected 201, got ${skipRes.res.status}. raw=${skipRes.text}`
 - [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:270:    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
 - [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:274:    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
 - [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:278:    `state after RETURN_SKIP expected trace. raw=${stateAfterSkip.text}`
 - [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:283:    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
-- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:288:    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
-- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:293:    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:288:    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:293:    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
 - [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:300:  assertNoResurrection(stateAfterSkip.json, splitRemainingIds, "after RETURN_SKIP");
-- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:306:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
-- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:310:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
+- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:306:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
+- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:310:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
 - [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:314:    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
-- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:323:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
-- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:341:    `replayed RETURN_CONTINUE must be rejected after RETURN_SKIP. raw=${replayContinue.text}`
+- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:323:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:341:    `replayed RETURN_CONTINUE must be rejected after RETURN_SKIP. raw=${replayContinue.text}`
 - [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:438:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
 - [RETURN_SKIP] test\api.return_continue_append_only_history.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_SKIP] test\api.return_gate.regression.test.mjs:268:  assert.equal(opts1, "RETURN_CONTINUE,RETURN_SKIP", `expected both return options, got ${opts1}`);
+- [return_skip] test\api.return_gate.regression.test.mjs:268:  assert.equal(opts1, "RETURN_CONTINUE,RETURN_SKIP", `expected both return options, got ${opts1}`);
 - [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:1:/* test/api.return_skip.regression.test.mjs */
-- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:135:test("API regression: persisted RETURN_SKIP replay preserves ordered dropped_ids after fresh state reload", async (t) => {
-- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:135:test("API regression: persisted RETURN_SKIP replay preserves ordered dropped_ids after fresh state reload", async (t) => {
+- [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:306:    { event: { type: "RETURN_SKIP" } }
-- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:311:    `RETURN_SKIP expected 201, got ${evSkip.res.status}. raw=${evSkip.text}`
-- [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:328:    `expected gate cleared after RETURN_SKIP, got ${traceFinal.return_decision_required}`
-- [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:333:    `expected no return options after RETURN_SKIP, got ${JSON.stringify(traceFinal.return_decision_options)}`
-- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:338:    `expected completed_ids preserved after RETURN_SKIP, got ${JSON.stringify(traceFinal.completed_ids)}`
-- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:361:      `RETURN_SKIP must not leave current_step at RETURN_DECISION. got ${JSON.stringify(finalState.json.current_step)}`
+- [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:311:    `RETURN_SKIP expected 201, got ${evSkip.res.status}. raw=${evSkip.text}`
+- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:328:    `expected gate cleared after RETURN_SKIP, got ${traceFinal.return_decision_required}`
+- [RETURN_SKIP] test\api.return_skip.persisted_replay.regression.test.mjs:333:    `expected no return options after RETURN_SKIP, got ${JSON.stringify(traceFinal.return_decision_options)}`
+- [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:338:    `expected completed_ids preserved after RETURN_SKIP, got ${JSON.stringify(traceFinal.completed_ids)}`
+- [return_skip] test\api.return_skip.persisted_replay.regression.test.mjs:361:      `RETURN_SKIP must not leave current_step at RETURN_DECISION. got ${JSON.stringify(finalState.json.current_step)}`
 - [return_skip] test\api.return_skip.regression.test.mjs:1:/* test/api.return_skip.regression.test.mjs */
-- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:135:test("API regression: RETURN_SKIP drops remaining-at-split deterministically and leaves state ungated", async (t) => {
+- [return_skip] test\api.return_skip.regression.test.mjs:135:test("API regression: RETURN_SKIP drops remaining-at-split deterministically and leaves state ungated", async (t) => {
 - [RETURN_SKIP] test\api.return_skip.regression.test.mjs:285:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_SKIP] test\api.return_skip.regression.test.mjs:306:    { event: { type: "RETURN_SKIP" } }
 - [RETURN_SKIP] test\api.return_skip.regression.test.mjs:311:    `RETURN_SKIP expected 201, got ${evSkip.res.status}. raw=${evSkip.text}`
 - [return_skip] test\api.return_skip.regression.test.mjs:328:    `expected gate cleared after RETURN_SKIP, got ${traceFinal.return_decision_required}`
-- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:333:    `expected no return options after RETURN_SKIP, got ${JSON.stringify(traceFinal.return_decision_options)}`
-- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:338:    `expected completed_ids preserved after RETURN_SKIP, got ${JSON.stringify(traceFinal.completed_ids)}`
-- [return_skip] test\api.return_skip.regression.test.mjs:361:      `RETURN_SKIP must not leave current_step at RETURN_DECISION. got ${JSON.stringify(finalState.json.current_step)}`
+- [return_skip] test\api.return_skip.regression.test.mjs:333:    `expected no return options after RETURN_SKIP, got ${JSON.stringify(traceFinal.return_decision_options)}`
+- [return_skip] test\api.return_skip.regression.test.mjs:338:    `expected completed_ids preserved after RETURN_SKIP, got ${JSON.stringify(traceFinal.completed_ids)}`
+- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:361:      `RETURN_SKIP must not leave current_step at RETURN_DECISION. got ${JSON.stringify(finalState.json.current_step)}`
 - [RETURN_SKIP] test\api.runtime_events_state_parity.regression.test.mjs:191:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1286:        label: buildOptions("RETURN_SKIP").label,
 - [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1287:        decisionType: "RETURN_SKIP",
-- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1288:        ...buildOptions("RETURN_SKIP").options
+- [RETURN_SKIP] test\api.split_decision_idempotent_rejected.regression.test.mjs:1288:        ...buildOptions("RETURN_SKIP").options
 - [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:642:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:1:/* test/api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs */
 - [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:212:    { event: { type: "RETURN_SKIP" } }
-- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:217:    `RETURN_SKIP expected 201, got ${skipRes.res.status}. raw=${skipRes.text}`
+- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:212:    { event: { type: "RETURN_SKIP" } }
+- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:217:    `RETURN_SKIP expected 201, got ${skipRes.res.status}. raw=${skipRes.text}`
 - [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:224:    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
-- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:228:    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
+- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:228:    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
 - [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:232:    `state after RETURN_SKIP expected trace. raw=${stateAfterSkip.text}`
 - [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:237:    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
 - [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:242:    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
 - [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
 - [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_SKIP and remains byte-stable across cache clear", async (t) => {
-- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:269:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
+- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:269:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
 - [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:273:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
 - [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:277:    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
 - [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:286:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
 - [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:298:    { event: { type: "RETURN_SKIP" } }
 - [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:304:    `replayed RETURN_SKIP must be rejected after ungate. raw=${replaySkip.text}`
 - [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:308:    `replayed RETURN_SKIP expected 400/409/422, got ${replaySkip.res.status}. raw=${replaySkip.text}`
-- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:399:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:399:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
 - [RETURN_SKIP] test\api.split_decision_replay_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_skip] test\api.state_replay_projection_after_return_continue.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] test\api.state_replay_projection_after_return_continue.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:212:    { event: { type: "RETURN_SKIP" } }
-- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:217:    `RETURN_SKIP expected 201, got ${skip.res.status}. raw=${skip.text}`
-- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:224:    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
+- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:217:    `RETURN_SKIP expected 201, got ${skip.res.status}. raw=${skip.text}`
+- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:224:    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
 - [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:228:    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
 - [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:232:    `state after RETURN_SKIP expected trace. raw=${stateAfterSkip.text}`
-- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:237:    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:237:    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
 - [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:242:    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
 - [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
-- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:269:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
-- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:273:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
-- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:277:    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
+- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:269:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
+- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:273:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
+- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:277:    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
 - [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:286:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
 - [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:351:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
 - [return_skip] test\api_session_state_public_trace_contract.regression.test.mjs:50:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_SKIP] test\api_session_state_public_trace_contract.regression.test.mjs:56:              return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_SKIP] test\api_session_state_public_trace_contract.regression.test.mjs:83:    assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
-- [RETURN_SKIP] test\api_session_state_query_service.contract.test.mjs:175:  assert.deepEqual(payload.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_skip] test\api_session_state_public_trace_contract.regression.test.mjs:83:    assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+- [return_skip] test\api_session_state_query_service.contract.test.mjs:175:  assert.deepEqual(payload.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
 - [RETURN_SKIP] test\api_session_state_query_service.contract.test.mjs:198:  assert.deepEqual(persisted.runtime.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
 - [RETURN_SKIP] test\api_session_state_return_decision_upgrade.test.mjs:105:   assert.deepEqual(res._json.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
 - [RETURN_SKIP] test\api_session_state_write_service.contract.test.mjs:171:            return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
-- [RETURN_SKIP] test\api_session_state_write_service.contract.test.mjs:447:        return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
+- [return_skip] test\api_session_state_write_service.contract.test.mjs:447:        return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"]
 - [return_skip] test\ci_test_ci_integration_composition.test.mjs:20:    "node test/api.return_skip.regression.test.mjs",
 - [return_skip] test\ci_test_ci_integration_composition.test.mjs:26:    "node test/vertical_slice.api_http_return_skip.e2e.test.mjs",
 - [RETURN_SKIP] test\e2e_phase6_runtime_split_return.test.mjs:62:    { type: "RETURN_SKIP" }
 - [RETURN_SKIP] test\phase6_return_decision_gate.test.mjs:38:test("Phase6 runtime: RETURN_SKIP drops remaining deterministically (Phase 1 fallback: drop all remaining)", () => {
 - [RETURN_SKIP] test\phase6_return_decision_gate.test.mjs:43:    { type: "RETURN_SKIP" },
 - [RETURN_SKIP] test\phase6_runtime_reducer.test.mjs:71:  // RETURN_SKIP should drop whatever remained at split time (B,C).
-- [RETURN_SKIP] test\phase6_runtime_reducer.test.mjs:72:  s = applyRuntimeEvent(s, { type: "RETURN_SKIP" });
+- [return_skip] test\phase6_runtime_reducer.test.mjs:72:  s = applyRuntimeEvent(s, { type: "RETURN_SKIP" });
 - [RETURN_SKIP] test\phase6_runtime_trace_return_gate.test.mjs:33:  assert.deepEqual(trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
 - [return_skip] test\phase6_runtime_trace_return_gate.test.mjs:65:test("Phase6 runtime trace: return_skip clears explicit return decision contract", async () => {
 - [RETURN_SKIP] test\phase6_runtime_trace_return_gate.test.mjs:79:    { type: "RETURN_SKIP" }
-- [RETURN_SKIP] test\phase6_runtime_trace_return_skip.test.mjs:18:    { type: "RETURN_SKIP" }
+- [return_skip] test\phase6_runtime_trace_return_skip.test.mjs:18:    { type: "RETURN_SKIP" }
 - [return_skip] test\phase6_runtime_trace_return_skip.test.mjs:8:test("Phase6 runtime trace: return_skip clears explicit return decision contract and advances state with partial/skip semantics", () => {
 - [return_skip] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:277:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_SKIP] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:718:test("v0 linkage: compile-created session block/session readback stays stable through runtime and fresh restart parity (RETURN_SKIP)", async (t) => {
-- [RETURN_SKIP] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:725:      decisionType: "RETURN_SKIP",
+- [return_skip] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:725:      decisionType: "RETURN_SKIP",
 - [return_skip] test\v0_compile_created_session_cache_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_SKIP] test\v0_compile_created_session_cache_parity.test.mjs:658:test("v0 cache parity: compile-created session preserves cached and uncached lifecycle parity (RETURN_SKIP)", async (t) => {
+- [return_skip] test\v0_compile_created_session_cache_parity.test.mjs:658:test("v0 cache parity: compile-created session preserves cached and uncached lifecycle parity (RETURN_SKIP)", async (t) => {
 - [return_skip] test\v0_compile_created_session_cache_parity.test.mjs:665:      decisionType: "RETURN_SKIP",
 - [RETURN_SKIP] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_SKIP] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:680:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_SKIP)", async (t) => {
-- [return_skip] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:687:      decisionType: "RETURN_SKIP",
+- [return_skip] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:680:test("v0 events: compile-created session preserves monotonic session_event_seq and append-only event identity across lifecycle parity (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:687:      decisionType: "RETURN_SKIP",
 - [RETURN_SKIP] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_SKIP] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:658:test("v0 fresh restart live progress: compile-created live session advances coherently after fresh restart (RETURN_SKIP)", async (t) => {
-- [return_skip] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:665:      decisionType: "RETURN_SKIP",
-- [RETURN_SKIP] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:665:      decisionType: "RETURN_SKIP",
+- [return_skip] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_skip] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:712:test("v0 fresh restart replay safety: compile-created live session rejects duplicate progress replay after accepted restart write (RETURN_SKIP)", async (t) => {
 - [return_skip] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:719:      decisionType: "RETURN_SKIP",
-- [return_skip] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_skip] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
-- [return_skip] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:667:      decisionType: "RETURN_SKIP",
-- [RETURN_SKIP] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:239:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:660:test("v0 reads: compile-created session stays byte-stable across interleaved /state -> /events -> /state cycles (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:667:      decisionType: "RETURN_SKIP",
+- [return_skip] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:239:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_SKIP] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:574:      `${label}: RETURN_SKIP should move split remaining_ids into dropped_ids. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
-- [return_skip] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:746:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:746:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_SKIP)", async (t) => {
 - [return_skip] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:753:      decisionType: "RETURN_SKIP",
-- [RETURN_SKIP] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_skip] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:675:test("v0 progress-after-read: compile-created session cannot resurrect stale state after downstream progress (RETURN_SKIP)", async (t) => {
-- [return_skip] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:682:      decisionType: "RETURN_SKIP",
-- [RETURN_SKIP] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:193:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:682:      decisionType: "RETURN_SKIP",
+- [return_skip] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:193:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_SKIP] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:785:test("v0 cache parity: rejected runtime mutations preserve cached and uncached lifecycle parity (RETURN_SKIP)", async (t) => {
 - [RETURN_SKIP] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:792:      decisionType: "RETURN_SKIP",
 - [RETURN_SKIP] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:251:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [return_skip] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:713:test("v0 lifecycle: compile-created session rejected runtime mutations fail fast and preserve persisted lifecycle contract (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:713:test("v0 lifecycle: compile-created session rejected runtime mutations fail fast and preserve persisted lifecycle contract (RETURN_SKIP)", async (t) => {
 - [return_skip] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:720:      decisionType: "RETURN_SKIP",
-- [return_skip] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:201:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [RETURN_SKIP] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:201:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [RETURN_SKIP] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:728:test("v0 terminal coherence: compile-created session stays cross-endpoint coherent after terminalization (RETURN_SKIP)", async (t) => {
 - [RETURN_SKIP] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:735:      decisionType: "RETURN_SKIP",
-- [RETURN_SKIP] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_SKIP] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:686:test("v0 terminal restart closure: compile-created session remains mutation-closed after fresh restart (RETURN_SKIP)", async (t) => {
-- [return_skip] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:693:      decisionType: "RETURN_SKIP",
-- [return_skip] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [return_skip] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:686:test("v0 terminal restart closure: compile-created session remains mutation-closed after fresh restart (RETURN_SKIP)", async (t) => {
+- [RETURN_SKIP] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:693:      decisionType: "RETURN_SKIP",
+- [RETURN_SKIP] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
 - [return_skip] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:713:test("v0 fresh restart decision replay safety: compile-created live session rejects stale RETURN_SKIP replay after accepted live progress", async (t) => {
-- [RETURN_SKIP] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:720:      decisionType: "RETURN_SKIP",
+- [return_skip] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:720:      decisionType: "RETURN_SKIP",
 - [return_skip] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
-- [RETURN_SKIP] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:713:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_SKIP)", async (t) => {
-- [RETURN_SKIP] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:720:      decisionType: "RETURN_SKIP",
-- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:101:    const skipEvent = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
-- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:105:    assert.equal(st2.trace.return_decision_required, false, "RETURN_SKIP should ungate the session");
-- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:106:    assert.ok(Array.isArray(st2.dropped_ids), "expected dropped_ids array after RETURN_SKIP");
-- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:107:    assert.ok(st2.dropped_ids.length > 0, "expected RETURN_SKIP to persist at least one dropped id");
+- [return_skip] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:713:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_SKIP)", async (t) => {
+- [return_skip] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:720:      decisionType: "RETURN_SKIP",
+- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:101:    const skipEvent = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
+- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:105:    assert.equal(st2.trace.return_decision_required, false, "RETURN_SKIP should ungate the session");
+- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:106:    assert.ok(Array.isArray(st2.dropped_ids), "expected dropped_ids array after RETURN_SKIP");
+- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:107:    assert.ok(st2.dropped_ids.length > 0, "expected RETURN_SKIP to persist at least one dropped id");
 - [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:117:    assert.equal(st3.trace.return_decision_required, false, "reloaded state should remain ungated after RETURN_SKIP");
-- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:128:        "accepted COMPLETE_STEP after ungate must not rewrite dropped_ids chosen by RETURN_SKIP"
+- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:128:        "accepted COMPLETE_STEP after ungate must not rewrite dropped_ids chosen by RETURN_SKIP"
 - [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:137:      "post-RETURN_SKIP rejection must not still be the return-decision gate"
 - [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:157:test("Vertical slice (HTTP): RETURN_SKIP is idempotent-rejected after ungate and preserves dropped_ids across repeated reloads", async (t) => {
-- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:173:      t.skip("RETURN_SKIP idempotent rejection proof requires an active RETURN_DECISION gate for this fixture/runtime path.");
-- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:180:    const firstSkip = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
-- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:184:    assert.equal(st2.trace.return_decision_required, false, "first RETURN_SKIP should ungate the session");
+- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:173:      t.skip("RETURN_SKIP idempotent rejection proof requires an active RETURN_DECISION gate for this fixture/runtime path.");
+- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:180:    const firstSkip = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
+- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:184:    assert.equal(st2.trace.return_decision_required, false, "first RETURN_SKIP should ungate the session");
 - [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:185:    assert.ok(Array.isArray(st2.dropped_ids), "expected dropped_ids after first RETURN_SKIP");
-- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:186:    assert.ok(st2.dropped_ids.length > 0, "expected first RETURN_SKIP to persist at least one dropped id");
-- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:194:      "dropped_ids should survive first reload after RETURN_SKIP"
+- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:186:    assert.ok(st2.dropped_ids.length > 0, "expected first RETURN_SKIP to persist at least one dropped id");
+- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:194:      "dropped_ids should survive first reload after RETURN_SKIP"
 - [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:198:    const secondSkip = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
 - [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:210:      "second RETURN_SKIP rejection must not rewrite dropped_ids"
-- [return_skip] test\vertical_slice.api_http_complete_step.e2e.test.mjs:215:      "second RETURN_SKIP rejection must keep the session ungated"
+- [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:215:      "second RETURN_SKIP rejection must keep the session ungated"
 - [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:74:test("Vertical slice (HTTP): RETURN_SKIP rejects COMPLETE_STEP before ungate and preserves dropped_ids after reload", async (t) => {
 - [RETURN_SKIP] test\vertical_slice.api_http_complete_step.e2e.test.mjs:90:      t.skip("RETURN_SKIP proof requires an active RETURN_DECISION gate for this fixture/runtime path.");
-- [return_skip] test\vertical_slice.api_http_return_gate.e2e.test.mjs:40:        s1.trace.return_decision_options.includes("RETURN_SKIP"),
-- [RETURN_SKIP] test\vertical_slice.api_http_return_gate.e2e.test.mjs:41:      "expected RETURN_CONTINUE and RETURN_SKIP options"
+- [RETURN_SKIP] test\vertical_slice.api_http_return_gate.e2e.test.mjs:40:        s1.trace.return_decision_options.includes("RETURN_SKIP"),
+- [return_skip] test\vertical_slice.api_http_return_gate.e2e.test.mjs:41:      "expected RETURN_CONTINUE and RETURN_SKIP options"
 - [RETURN_SKIP] test\vertical_slice.api_http_return_gate.e2e.test.mjs:62:test("Vertical slice (HTTP): RETURN_SKIP clears gate and advances session state", async (t) => {
-- [return_skip] test\vertical_slice.api_http_return_gate.e2e.test.mjs:82:    assert.ok(state1.trace.return_decision_options.includes("RETURN_SKIP"));
+- [RETURN_SKIP] test\vertical_slice.api_http_return_gate.e2e.test.mjs:82:    assert.ok(state1.trace.return_decision_options.includes("RETURN_SKIP"));
 - [return_skip] test\vertical_slice.api_http_return_gate.e2e.test.mjs:84:    const evSkip = await postEvent(baseUrl, sessionId, { type: "RETURN_SKIP" });
-- [RETURN_SKIP] test\vertical_slice.api_http_return_gate.e2e.test.mjs:93:    assert.ok(Array.isArray(s2.trace.dropped_ids), "expected dropped_ids after RETURN_SKIP");
+- [return_skip] test\vertical_slice.api_http_return_gate.e2e.test.mjs:93:    assert.ok(Array.isArray(s2.trace.dropped_ids), "expected dropped_ids after RETURN_SKIP");
 - [return_skip] test\vertical_slice.api_http_return_gate.e2e.test.mjs:96:      `expected at least one dropped_id after RETURN_SKIP; trace=` + JSON.stringify(s2.trace)
 - [return_skip] test\vertical_slice.api_http_return_skip.e2e.test.mjs:12:  // then swap RETURN_CONTINUE for RETURN_SKIP
 - [RETURN_SKIP] test\vertical_slice.api_http_return_skip.e2e.test.mjs:6:test("Vertical slice (HTTP): RETURN_SKIP clears gate and advances session state", async (t) => {
@@ -1213,6 +3104,1030 @@ The audit searched for these proof-signaling terms:
 - [split] ci\scripts\run_test_ci_from_index.mjs:18:    const absTestPath = path.join(repo, ...testPath.split("/"));
 - [split] ci\scripts\sha256_guard.mjs:14:  .split("\n")
 - [split] ci\scripts\write_golden_manifest.mjs:48:  return path.relative(repoRoot, absPath).split(path.sep).join("/");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1000:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:300:  assertNoResurrection(stateAfterSkip.json, splitRemainingIds, "after RETURN_SKIP");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1001:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:306:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1002:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:310:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1003:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:314:    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1004:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:323:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1005:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:341:    `replayed RETURN_CONTINUE must be rejected after RETURN_SKIP. raw=${replayContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1006:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:438:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1019:- [RETURN_SKIP] test\api.return_skip.regression.test.mjs:135:test("API regression: RETURN_SKIP drops remaining-at-split deterministically and leaves state ungated", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1028:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1286:        label: buildOptions("RETURN_SKIP").label,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1029:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1287:        decisionType: "RETURN_SKIP",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1030:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:1288:        ...buildOptions("RETURN_SKIP").options
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1031:- [return_skip] test\api.split_decision_idempotent_rejected.regression.test.mjs:642:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1032:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:1:/* test/api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs */
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1033:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1034:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:212:    { event: { type: "RETURN_SKIP" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1035:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:217:    `RETURN_SKIP expected 201, got ${skipRes.res.status}. raw=${skipRes.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1036:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:224:    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1037:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:228:    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1038:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:232:    `state after RETURN_SKIP expected trace. raw=${stateAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1039:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:237:    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1040:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:242:    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1041:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1042:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_SKIP and remains byte-stable across cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1043:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:269:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1044:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:273:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1045:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:277:    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1046:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:286:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1047:- [return_skip] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:298:    { event: { type: "RETURN_SKIP" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1048:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:304:    `replayed RETURN_SKIP must be rejected after ungate. raw=${replaySkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1049:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:308:    `replayed RETURN_SKIP expected 400/409/422, got ${replaySkip.res.status}. raw=${replaySkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:105:- [/events] test\api.runtime_events_state_parity.regression.test.mjs:25:test("API regression: runtime /events and /state stay aligned across split/continue and cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1050:- [RETURN_SKIP] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:399:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1051:- [RETURN_SKIP] test\api.split_decision_replay_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1053:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1054:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:212:    { event: { type: "RETURN_SKIP" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1055:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:217:    `RETURN_SKIP expected 201, got ${skip.res.status}. raw=${skip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1056:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:224:    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1057:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:228:    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1058:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:232:    `state after RETURN_SKIP expected trace. raw=${stateAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1059:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:237:    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1060:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:242:    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1061:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1062:- [return_skip] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:269:    `events after RETURN_SKIP expected 200, got ${eventsAfterSkip.res.status}. raw=${eventsAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1063:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:273:    `events after RETURN_SKIP expected JSON object. raw=${eventsAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1064:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:277:    `events after RETURN_SKIP expected events array. raw=${eventsAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1065:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:286:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1066:- [RETURN_SKIP] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:351:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1077:- [RETURN_SKIP] test\e2e_phase6_runtime_split_return.test.mjs:62:    { type: "RETURN_SKIP" }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:108:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1011:        `${label}: terminal cycle ${cycle} second /events`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1080:- [RETURN_SKIP] test\phase6_runtime_reducer.test.mjs:71:  // RETURN_SKIP should drop whatever remained at split time (B,C).
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:109:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1032:      `${label}: terminal /events after rejected replay`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:110:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1060:          `${label}: fresh restart cycle ${cycle} /events`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1106:- [RETURN_SKIP] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:574:      `${label}: RETURN_SKIP should move split remaining_ids into dropped_ids. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1107:- [return_skip] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:746:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_SKIP)", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:111:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1066:          `${label}: fresh restart cycle ${cycle} /events byte parity`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:112:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1094:      `${label}: /events after rejected replay`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1127:- [return_skip] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1128:- [RETURN_SKIP] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:713:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_SKIP)", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1129:- [RETURN_SKIP] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:720:      decisionType: "RETURN_SKIP",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:113:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1106:      `${label}: /events changed after rejected replay.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(afterReplayEvents.json)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:114:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1120:      `${label}: final /events after repeated interleaved reads`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:115:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1151:      `${label}: /events across repeated reloads after rejected replay`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1158:- [split] ci\contracts\split_invariant_normalize_ci_cluster.json:3:    "node test/phase6_split_invariant_normalize.test.mjs",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1159:- [split] ci\contracts\split_invariant_normalize_ci_cluster.json:4:    "node test/phase6_split_invariant_normalize_active_empty.test.mjs",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:116:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1165:        `${label}: second reload /events after repeated interleaved reads`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1160:- [split] ci\contracts\split_invariant_normalize_ci_cluster.json:5:    "node test/phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1161:- [split] ci\contracts\split_invariant_normalize_ci_cluster.json:6:    "node test/phase6_split_invariant_normalize_garbage_types.test.mjs",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1162:- [split] ci\contracts\split_invariant_normalize_ci_cluster.json:7:    "node test/phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1163:- [split] ci\contracts\split_invariant_normalize_ci_cluster.json:8:    "node test/phase6_split_invariant_normalize_inactive_garbage_types.test.mjs",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1164:- [split] ci\contracts\split_invariant_normalize_ci_cluster.json:9:    "node test/phase6_split_invariant_normalize_inactive_arrays.test.mjs"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1165:- [split] ci\contracts\test_ci_composition.json:105:                      "path":  "ci/contracts/split_invariant_normalize_ci_cluster.json"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1166:- [split] ci\contracts\test_ci_composition.json:109:                      "value":  "node test/ci_split_invariant_normalize_cluster_manifest_file.test.mjs"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1167:- [split] ci\contracts\test_ci_composition.json:113:                      "value":  "node test/ci_split_invariant_normalize_cluster_manifest.test.mjs"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1168:- [split] ci\contracts\test_ci_composition.json:117:                      "value":  "node test/ci_split_invariant_normalize_manifest_file.test.mjs"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1169:- [split] ci\contracts\test_ci_composition.json:121:                      "value":  "node test/ci_split_invariant_normalize_manifest.test.mjs"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:117:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1170:- [split] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:11:                     "node test/api.state_replay_projection_after_split_decisions.regression.test.mjs",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1171:- [split] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:12:                     "node test/api.split_decision_idempotent_rejected.regression.test.mjs",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1172:- [split] ci\docs\ci-baseline.txt:139:test/ci_split_invariant_normalize_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned split invariant normalize cluster manifest and adjacent guard pair", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1173:- [split] ci\docs\ci-baseline.txt:140:test/ci_split_invariant_normalize_cluster_manifest.test.mjs:8:  const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1174:- [split] ci\docs\ci-baseline.txt:141:test/ci_split_invariant_normalize_cluster_manifest.test.mjs:12:  assert.ok(Array.isArray(items), "expected composition items array");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1175:- [split] ci\docs\ci-baseline.txt:142:test/ci_split_invariant_normalize_cluster_manifest.test.mjs:22:    "expected split invariant normalize cluster manifest in composition index"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1176:- [split] ci\docs\ci-baseline.txt:59:test/ci_split_invariant_normalize_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned split invariant normalize cluster manifest and adjacent guard pair", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1177:- [split] ci\docs\ci-baseline.txt:60:test/ci_split_invariant_normalize_manifest.test.mjs:7:test("split invariant normalize manifest remains present in composed test:ci command set", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1178:- [split] ci\docs\ci-baseline.txt:61:test/ci_split_invariant_normalize_manifest.test.mjs:24:    assert.ok(commands.includes(cmd), `expected ${cmd} in composed test:ci command set`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1179:- [split] ci\guards\ban_engine_status_guard.mjs:22:    .split("\0")
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:118:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1180:- [split] ci\guards\clean_tree_guard.mjs:154:    for (const f of diffNames.split(/\r?\n/).filter(Boolean)) parts.push(" " + f);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1181:- [split] ci\guards\clean_tree_guard.mjs:169:    for (const f of stagedNames.split(/\r?\n/).filter(Boolean)) parts.push(" " + f);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1182:- [split] ci\guards\clean_tree_guard.mjs:78:const lines = porcelain.split(/\r?\n/).filter(Boolean);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1183:- [split] ci\guards\diff_line_endings_guard.mjs:36:  .split("\n")
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1184:- [split] ci\guards\diff_line_endings_guard.mjs:49:    const first = out.split("\n")[0].split("\t")[0];
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1185:- [split] ci\guards\guards_entrypoint_coverage_guard.mjs:132:    const base = p.split("/").pop();
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1186:- [split] ci\guards\guards_index_guard.mjs:56:  const lines = lf(txt).split("\n").slice(0, 160);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1187:- [split] ci\guards\lockfile_note_guard.mjs:19:  return out.split("\n").map(s => s.trim()).filter(Boolean);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1188:- [split] ci\guards\no_bom_guard.mjs:21:    .split(/\r?\n/)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1189:- [split] ci\guards\no_crlf_guard.mjs:20:    .split(/\r?\n/)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:119:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:191:  const events = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1190:- [split] ci\guards\no_legacy_constraints.mjs:44:  return p.split(path.sep).join("/");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1191:- [split] ci\guards\workflow_policy_header_guard.mjs:40:  const lines = s.split("\n");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1192:- [split] ci\scripts\ci_select.mjs:18:  .split(/\r?\n/)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1193:- [split] ci\scripts\ci_write_summary.mjs:25:    .split(/\r?\n/)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1194:- [split] ci\scripts\compose_test_ci_from_index.mjs:46:      const manifestPath = path.join(repo, ...item.path.split("/"));
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1195:- [split] ci\scripts\diff_filtered.mjs:15:const files = sh("git diff --name-only").split(/\r?\n/).filter(Boolean);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1196:- [split] ci\scripts\e2e_golden.mjs:84:  const e = expectedText.split("\n");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1197:- [split] ci\scripts\e2e_golden.mjs:85:  const a = actualText.split("\n");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1198:- [split] ci\scripts\evidence_seal.mjs:53:  return p.split(path.sep).join("/");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1199:- [split] ci\scripts\golden_update_safe.mjs:43:  const rows = num.split(/\r?\n/).filter(Boolean);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:120:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:251:    `${label}: /events raw payload changed.\nbefore=${acceptedEventsText}\nafter=${eventsPayload.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1200:- [split] ci\scripts\golden_update_safe.mjs:46:    const [a, d] = r.split(/\s+/);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1201:- [split] ci\scripts\green.mjs:121:  const baseLines = splitLines(basePorcelain);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1202:- [split] ci\scripts\green.mjs:122:  const nowLines = splitLines(now);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1203:- [split] ci\scripts\green.mjs:152:const baseLines = splitLines(base);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1204:- [split] ci\scripts\green.mjs:69:function splitLines(p) {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1205:- [split] ci\scripts\green.mjs:70:  return p.split(/\r?\n/).filter(Boolean);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1206:- [split] ci\scripts\precommit_smart.mjs:12:    .split(/\r?\n/)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1207:- [split] ci\scripts\prepush_smart.mjs:188:        .split(/\r?\n/)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1208:- [split] ci\scripts\prepush_smart.mjs:207:      .split(/\r?\n/)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1209:- [split] ci\scripts\prepush_smart.mjs:225:        .split(/\r?\n/)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:121:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:256:    `${label}: /events JSON changed.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(eventsPayload.json)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1210:- [split] ci\scripts\prepush_smart.mjs:237:        .split(/\r?\n/)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1211:- [split] ci\scripts\prepush_smart.mjs:55:    .split(/\r?\n/)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1212:- [split] ci\scripts\prepush_smart.mjs:61:    const parts = line.split(/\s+/);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1213:- [split] ci\scripts\run_test_ci_from_index.mjs:18:    const absTestPath = path.join(repo, ...testPath.split("/"));
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1214:- [split] ci\scripts\sha256_guard.mjs:14:  .split("\n")
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1215:- [split] ci\scripts\write_golden_manifest.mjs:48:  return path.relative(repoRoot, absPath).split(path.sep).join("/");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1216:- [split] docs\V0_RELEASE_GAP_MATRIX.md:29:| V0-G04 | Split + RETURN gate path is safe and deterministic | this is one of the core sovereign behaviors | continue/skip decision proofs, dropped-work handling, terminal shape stability | HARDEN | assign next split-proof slice here | |
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1217:- [split] docs\V0_RELEASE_GAP_MATRIX.md:43:| P0 | Missing proof on split/RETURN edge cases | V0-G04 | new tests proving skip/continue terminal and no-resurrection behavior |
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1218:- [split] docs\V0_RELEASE_GAP_MATRIX.md:66:- split/RETURN and replay safety are the most sovereign runtime behaviors in the current v0 path
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1219:- [split] docs\V0_RELEASE_SPINE.md:104:5. Split session
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:122:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:499:      `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1220:- [split] docs\V0_RELEASE_SPINE.md:12:A coach can generate a session, start it, run it, split it, return to it, continue or skip safely, and trust the state/events contract before and after restart.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1221:- [split] docs\V0_RELEASE_SPINE.md:25:8. Split the session.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1222:- [split] docs\V0_RELEASE_SPINE.md:56:- [ ] `SPLIT_SESSION` gates the session correctly.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1223:- [split] docs\V0_RELEASE_SPINE.md:69:- [ ] Replayed stale split is rejected.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1224:- [split] docs\V0_RELEASE_SPINE.md:88:5. Split session
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1225:- [split] src\api\blocks.handlers.ts:187:          split_active: _legacySplitActive,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1226:- [split] src\api\blocks.handlers.ts:188:          remaining_at_split_ids: _legacyRemainingAtSplitIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1227:- [split] src\api\session_state_read_model.ts:100:  if (typeof runtimeSplitActive !== "boolean") {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1228:- [split] src\api\session_state_read_model.ts:119:      const sa = coerceLegacyBool(t?.split_active);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1229:- [split] src\api\session_state_read_model.ts:120:      if (typeof rg === "boolean") derivedSplitActive = rg;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:123:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:611:      `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1230:- [split] src\api\session_state_read_model.ts:121:      else if (typeof sa === "boolean") derivedSplitActive = sa;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1231:- [split] src\api\session_state_read_model.ts:124:      derivedSplitActive = undefined;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1232:- [split] src\api\session_state_read_model.ts:128:  const splitActive: boolean =
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1233:- [split] src\api\session_state_read_model.ts:129:    typeof runtimeSplitActive === "boolean"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1234:- [split] src\api\session_state_read_model.ts:130:      ? runtimeSplitActive
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1235:- [split] src\api\session_state_read_model.ts:131:      : (typeof derivedSplitActive === "boolean" ? derivedSplitActive : false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1236:- [split] src\api\session_state_read_model.ts:134:    rt.return_decision_required = splitActive === true;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1237:- [split] src\api\session_state_read_model.ts:147:  // IMPORTANT: do NOT delete rt.split_active here.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1238:- [split] src\api\session_state_read_model.ts:170:    split_active: _legacySplitActive,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1239:- [split] src\api\session_state_read_model.ts:171:    remaining_at_split_ids: _legacyRemainingAtSplitIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:124:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:624:      `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1240:- [split] src\api\session_state_read_model.ts:73: * Legacy carrier (engine/internal): runtime.split_active (boolean) and/or trace.split_active (boolean)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1241:- [split] src\api\session_state_read_model.ts:78: * - split_active must NEVER escape the API surface.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1242:- [split] src\api\session_state_read_model.ts:79: * - BUT: do NOT delete runtime.split_active while the engine may still rely on it as the state carrier.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1243:- [split] src\api\session_state_read_model.ts:96:  const runtimeSplitActivePresent = typeof rt.split_active === "boolean";
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1244:- [split] src\api\session_state_read_model.ts:97:  const runtimeSplitActive = runtimeSplitActivePresent ? rt.split_active : undefined;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1245:- [split] src\api\session_state_read_model.ts:99:  let derivedSplitActive: boolean | undefined = undefined;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1246:- [split] src\session_runtime_cli.ts:150:    split_active: Boolean(t?.split_active)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1247:- [split] test\api.apply_unknown_maps_500.regression.test.mjs:137:  const ev = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, { event: { type: "SPLIT_SESSION" } });
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1248:- [split] test\api.blocks_compile_apply_unknown_maps_500.regression.test.mjs:122:      runtime_events: [{ type: "SPLIT_SESSION" }]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1249:- [split] test\api.blocks_compile_runtime_trace_contract.regression.test.mjs:14:    /const\s*\{\s*[\s\S]*split_active:\s*_legacySplitActive[\s\S]*remaining_at_split_ids:\s*_legacyRemainingAtSplitIds[\s\S]*return_gate_required:\s*_legacyReturnGateRequired[\s\S]*return_decision_required:\s*_derivedReturnDecisionRequired[\s\S]*return_decision_options:\s*_derivedReturnDecisionOptions[\s\S]*\.\.\.traceBase[\s\S]*\}\s*=\s*rt\s+as\s+Record<string,\s*any>;/,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:125:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:649:      `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1250:- [split] test\api.blocks_compile_runtime_trace_contract.regression.test.mjs:26:    /delete\s+runtime_state\.split_active|delete\s+runtime_state\.remaining_at_split_ids|delete\s+runtime_state\.return_gate_required|delete\s+rt\.split_active|delete\s+rt\.remaining_at_split_ids|delete\s+rt\.return_gate_required/,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1251:- [split] test\api.complete_step_events_state_parity.regression.test.mjs:216:    Object.prototype.hasOwnProperty.call(stateAfter.json.trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1252:- [split] test\api.complete_step_events_state_parity.regression.test.mjs:218:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1253:- [split] test\api.events_append_only_history.regression.test.mjs:158:  const snapshotBeforeSplit = cloneJson(events1.json);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1254:- [split] test\api.events_append_only_history.regression.test.mjs:163:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1255:- [split] test\api.events_append_only_history.regression.test.mjs:168:    `SPLIT_SESSION expected 201, got ${ev2.res.status}. raw=${ev2.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1256:- [split] test\api.events_append_only_history.regression.test.mjs:171:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1257:- [split] test\api.events_append_only_history.regression.test.mjs:173:    splitState.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1258:- [split] test\api.events_append_only_history.regression.test.mjs:175:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1259:- [split] test\api.events_append_only_history.regression.test.mjs:178:    splitState.json && typeof splitState.json === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:126:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:708:        `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1260:- [split] test\api.events_append_only_history.regression.test.mjs:179:    `split state expected JSON. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1261:- [split] test\api.events_append_only_history.regression.test.mjs:182:    splitState.json.trace && typeof splitState.json.trace === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1262:- [split] test\api.events_append_only_history.regression.test.mjs:183:    `split trace expected object. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1263:- [split] test\api.events_append_only_history.regression.test.mjs:186:    splitState.json.trace.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1264:- [split] test\api.events_append_only_history.regression.test.mjs:188:    `expected split to gate return decision. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1265:- [split] test\api.events_append_only_history.regression.test.mjs:191:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1266:- [split] test\api.events_append_only_history.regression.test.mjs:193:    `expected both return options. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1267:- [split] test\api.events_append_only_history.regression.test.mjs:226:    snapshotBeforeSplit.events,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1268:- [split] test\api.events_append_only_history.regression.test.mjs:227:    "historical event rows must remain unchanged after split/continue appends"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1269:- [split] test\api.events_append_only_history.regression.test.mjs:236:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:127:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:757:    `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1270:- [split] test\api.events_append_only_history.regression.test.mjs:25:test("API regression: /events remains append-only and byte-stable across split/continue and cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1271:- [split] test\api.events_append_only_history.regression.test.mjs:297:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1272:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:1:/* test/api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs */
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1273:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:201:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1274:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:204:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1275:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:207:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1276:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:209:    `SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1277:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:212:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1278:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:214:    splitState.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1279:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:216:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:128:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:789:      `${label}: /events across mixed cache/hydrated reads after rejected replay`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1280:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:219:    splitState.json && typeof splitState.json === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1281:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:220:    `split state expected JSON. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1282:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:223:    splitState.json.trace && typeof splitState.json.trace === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1283:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:224:    `split trace expected object. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1284:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:227:    splitState.json.trace.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1285:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:229:    `expected return gate at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1286:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:232:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1287:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:234:    `expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1288:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:237:  const splitCompletedIds = cloneJson(splitState.json.trace.completed_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1289:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:238:  const splitRemainingIds = cloneJson(splitState.json.trace.remaining_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:129:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:797:        `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1290:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:241:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1291:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:243:    `expected completed_ids preserved at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1292:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:246:    splitRemainingIds.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1293:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:247:    `expected remaining_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1294:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:250:    splitRemainingIds[0],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1295:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:252:    `expected remaining_ids[0] to align with current step at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1296:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:27:    Object.prototype.hasOwnProperty.call(trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1297:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:29:    `${label}: trace must not expose split_active`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1298:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:292:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1299:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:297:    splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:130:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:831:        `${label}: alternating cycle ${cycle} /events after multiple rejected re-posts`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1300:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:298:    `expected dropped_ids to equal split remaining_ids. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1301:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:300:  assertNoResurrection(stateAfterSkip.json, splitRemainingIds, "after RETURN_SKIP");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1302:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:323:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1303:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:361:  assertNoResurrection(stateAfterReplayReject.json, splitRemainingIds, "after rejected replay");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1304:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:395:  assertNoResurrection(stateAfterClear.json, splitRemainingIds, "after cache clear");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1305:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:413:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1306:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:418:    splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1307:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:438:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1308:- [split] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1309:- [split] test\api.return_continue_append_only_history.regression.test.mjs:158:  const snapshotBeforeSplit = cloneJson(eventsAfterFirstComplete.json);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:131:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:846:        `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1310:- [split] test\api.return_continue_append_only_history.regression.test.mjs:160:  const evSplit = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1311:- [split] test\api.return_continue_append_only_history.regression.test.mjs:163:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1312:- [split] test\api.return_continue_append_only_history.regression.test.mjs:166:    evSplit.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1313:- [split] test\api.return_continue_append_only_history.regression.test.mjs:168:    `SPLIT_SESSION expected 201, got ${evSplit.res.status}. raw=${evSplit.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1314:- [split] test\api.return_continue_append_only_history.regression.test.mjs:171:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1315:- [split] test\api.return_continue_append_only_history.regression.test.mjs:173:    splitState.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1316:- [split] test\api.return_continue_append_only_history.regression.test.mjs:175:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1317:- [split] test\api.return_continue_append_only_history.regression.test.mjs:178:    splitState.json && typeof splitState.json === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1318:- [split] test\api.return_continue_append_only_history.regression.test.mjs:179:    `split state expected JSON. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1319:- [split] test\api.return_continue_append_only_history.regression.test.mjs:182:  const traceAtSplit = splitState.json.trace;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:132:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:875:        `${label}: interleaved cycle ${cycle} first /events`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1320:- [split] test\api.return_continue_append_only_history.regression.test.mjs:183:  assert.ok(traceAtSplit && typeof traceAtSplit === "object", `split trace missing. raw=${splitState.text}`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1321:- [split] test\api.return_continue_append_only_history.regression.test.mjs:185:    traceAtSplit.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1322:- [split] test\api.return_continue_append_only_history.regression.test.mjs:187:    `expected gated trace at split. got ${JSON.stringify(traceAtSplit)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1323:- [split] test\api.return_continue_append_only_history.regression.test.mjs:190:    [...traceAtSplit.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1324:- [split] test\api.return_continue_append_only_history.regression.test.mjs:192:    `expected both return options at split. got ${JSON.stringify(traceAtSplit.return_decision_options)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1325:- [split] test\api.return_continue_append_only_history.regression.test.mjs:195:    traceAtSplit.completed_ids,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1326:- [split] test\api.return_continue_append_only_history.regression.test.mjs:197:    `expected completed_ids to preserve first completed exercise. got ${JSON.stringify(traceAtSplit.completed_ids)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1327:- [split] test\api.return_continue_append_only_history.regression.test.mjs:200:    Array.isArray(traceAtSplit.remaining_ids) && traceAtSplit.remaining_ids.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1328:- [split] test\api.return_continue_append_only_history.regression.test.mjs:201:    `expected at least one remaining exercise at split. got ${JSON.stringify(traceAtSplit.remaining_ids)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1329:- [split] test\api.return_continue_append_only_history.regression.test.mjs:204:  const expectedCompletedIds = [...traceAtSplit.completed_ids];
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:133:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:887:        `${label}: interleaved cycle ${cycle} second /events`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1330:- [split] test\api.return_continue_append_only_history.regression.test.mjs:205:  const expectedRemainingIdsAtSplit = [...traceAtSplit.remaining_ids];
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1331:- [split] test\api.return_continue_append_only_history.regression.test.mjs:206:  const expectedNextExerciseId = expectedRemainingIdsAtSplit[0];
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1332:- [split] test\api.return_continue_append_only_history.regression.test.mjs:238:    snapshotBeforeSplit.events,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1333:- [split] test\api.return_continue_append_only_history.regression.test.mjs:239:    "historical rows must remain unchanged after split/continue appends"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1334:- [split] test\api.return_continue_append_only_history.regression.test.mjs:248:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1335:- [split] test\api.return_continue_append_only_history.regression.test.mjs:288:    expectedRemainingIdsAtSplit,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1336:- [split] test\api.return_continue_append_only_history.regression.test.mjs:292:    Object.prototype.hasOwnProperty.call(traceAfterContinue, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1337:- [split] test\api.return_continue_append_only_history.regression.test.mjs:294:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1338:- [split] test\api.return_continue_append_only_history.regression.test.mjs:353:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1339:- [split] test\api.return_continue_append_only_history.regression.test.mjs:363:    expectedRemainingIdsAtSplit,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:134:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:896:        `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1340:- [split] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:65:  await assertPass("test/api.split_decision_idempotent_rejected.regression.test.mjs");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1341:- [split] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:67:  await assertPass("test/api.state_replay_projection_after_split_decisions.regression.test.mjs");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1342:- [split] test\api.return_gate.regression.test.mjs:136:test("API regression: split return decision gate blocks events until RETURN_CONTINUE", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1343:- [split] test\api.return_gate.regression.test.mjs:240:  // ---- 1) SPLIT_SESSION arms gate ----
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1344:- [split] test\api.return_gate.regression.test.mjs:241:  const evSplit = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1345:- [split] test\api.return_gate.regression.test.mjs:242:    event: { type: "SPLIT_SESSION" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1346:- [split] test\api.return_gate.regression.test.mjs:245:    evSplit.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1347:- [split] test\api.return_gate.regression.test.mjs:247:    `SPLIT_SESSION expected 201, got ${evSplit.res.status}. raw=${evSplit.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1348:- [split] test\api.return_gate.regression.test.mjs:277:    Object.prototype.hasOwnProperty.call(trace1, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1349:- [split] test\api.return_gate.regression.test.mjs:279:    "trace must not expose split_active (no inference/legacy semantics leak)"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:135:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:931:        `${label}: normalized current-step cycle ${cycle} /events`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1350:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:257:  const evSplit = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1351:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:260:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1352:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:263:    evSplit.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1353:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:265:    `SPLIT_SESSION expected 201, got ${evSplit.res.status}. raw=${evSplit.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1354:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1355:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:270:    splitState.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1356:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:272:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1357:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:274:  assert.ok(splitState.json && typeof splitState.json === "object", `split state expected JSON. raw=${splitState.text}`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1358:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:276:  const traceAtSplit = splitState.json.trace;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1359:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:277:  assert.ok(traceAtSplit && typeof traceAtSplit === "object", `split trace missing. raw=${splitState.text}`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:136:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:970:        `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1360:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:279:    traceAtSplit.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1361:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:281:    `expected gated trace at split. got ${JSON.stringify(traceAtSplit)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1362:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:284:    [...traceAtSplit.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1363:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:286:    `expected both return options at split. got ${JSON.stringify(traceAtSplit.return_decision_options)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1364:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:288:  assert.ok(Array.isArray(traceAtSplit.completed_ids), "expected completed_ids array at split");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1365:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:289:  assert.ok(Array.isArray(traceAtSplit.remaining_ids), "expected remaining_ids array at split");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1366:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:291:    traceAtSplit.completed_ids,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1367:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:293:    `expected completed_ids to preserve first completed exercise. got ${JSON.stringify(traceAtSplit.completed_ids)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1368:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:296:    traceAtSplit.remaining_ids.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1369:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:297:    `expected at least one remaining exercise at split. got ${JSON.stringify(traceAtSplit.remaining_ids)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:137:- [/events] test\api.split_decision_idempotent_rejected.regression.test.mjs:999:        `${label}: terminal cycle ${cycle} first /events`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1370:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:300:  const expectedCompletedIds = [...traceAtSplit.completed_ids];
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1371:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:301:  const expectedDroppedIds = [...traceAtSplit.remaining_ids];
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1372:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:343:    `expected dropped_ids to equal remaining_ids captured at split, got ${JSON.stringify(traceFinal.dropped_ids)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1373:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:352:    Object.prototype.hasOwnProperty.call(traceFinal, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1374:- [split] test\api.return_skip.persisted_replay.regression.test.mjs:354:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1375:- [split] test\api.return_skip.regression.test.mjs:135:test("API regression: RETURN_SKIP drops remaining-at-split deterministically and leaves state ungated", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1376:- [split] test\api.return_skip.regression.test.mjs:257:  const evSplit = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1377:- [split] test\api.return_skip.regression.test.mjs:260:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1378:- [split] test\api.return_skip.regression.test.mjs:263:    evSplit.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1379:- [split] test\api.return_skip.regression.test.mjs:265:    `SPLIT_SESSION expected 201, got ${evSplit.res.status}. raw=${evSplit.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:138:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1380:- [split] test\api.return_skip.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1381:- [split] test\api.return_skip.regression.test.mjs:270:    splitState.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1382:- [split] test\api.return_skip.regression.test.mjs:272:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1383:- [split] test\api.return_skip.regression.test.mjs:274:  assert.ok(splitState.json && typeof splitState.json === "object", `split state expected JSON. raw=${splitState.text}`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1384:- [split] test\api.return_skip.regression.test.mjs:276:  const traceAtSplit = splitState.json.trace;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1385:- [split] test\api.return_skip.regression.test.mjs:277:  assert.ok(traceAtSplit && typeof traceAtSplit === "object", `split trace missing. raw=${splitState.text}`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1386:- [split] test\api.return_skip.regression.test.mjs:279:    traceAtSplit.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1387:- [split] test\api.return_skip.regression.test.mjs:281:    `expected gated trace at split. got ${JSON.stringify(traceAtSplit)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1388:- [split] test\api.return_skip.regression.test.mjs:284:    [...traceAtSplit.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1389:- [split] test\api.return_skip.regression.test.mjs:286:    `expected both return options at split. got ${JSON.stringify(traceAtSplit.return_decision_options)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:139:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:157:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1390:- [split] test\api.return_skip.regression.test.mjs:288:  assert.ok(Array.isArray(traceAtSplit.completed_ids), "expected completed_ids array at split");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1391:- [split] test\api.return_skip.regression.test.mjs:289:  assert.ok(Array.isArray(traceAtSplit.remaining_ids), "expected remaining_ids array at split");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1392:- [split] test\api.return_skip.regression.test.mjs:291:    traceAtSplit.completed_ids,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1393:- [split] test\api.return_skip.regression.test.mjs:293:    `expected completed_ids to preserve first completed exercise. got ${JSON.stringify(traceAtSplit.completed_ids)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1394:- [split] test\api.return_skip.regression.test.mjs:296:    traceAtSplit.remaining_ids.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1395:- [split] test\api.return_skip.regression.test.mjs:297:    `expected at least one remaining exercise at split. got ${JSON.stringify(traceAtSplit.remaining_ids)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1396:- [split] test\api.return_skip.regression.test.mjs:300:  const expectedCompletedIds = [...traceAtSplit.completed_ids];
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1397:- [split] test\api.return_skip.regression.test.mjs:301:  const expectedDroppedIds = [...traceAtSplit.remaining_ids];
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1398:- [split] test\api.return_skip.regression.test.mjs:343:    `expected dropped_ids to equal remaining_ids captured at split, got ${JSON.stringify(traceFinal.dropped_ids)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1399:- [split] test\api.return_skip.regression.test.mjs:352:    Object.prototype.hasOwnProperty.call(traceFinal, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:140:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:211:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1400:- [split] test\api.return_skip.regression.test.mjs:354:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1401:- [split] test\api.runtime_events_state_parity.regression.test.mjs:159:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1402:- [split] test\api.runtime_events_state_parity.regression.test.mjs:162:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1403:- [split] test\api.runtime_events_state_parity.regression.test.mjs:165:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1404:- [split] test\api.runtime_events_state_parity.regression.test.mjs:167:    `SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1405:- [split] test\api.runtime_events_state_parity.regression.test.mjs:170:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1406:- [split] test\api.runtime_events_state_parity.regression.test.mjs:172:    splitState.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1407:- [split] test\api.runtime_events_state_parity.regression.test.mjs:174:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1408:- [split] test\api.runtime_events_state_parity.regression.test.mjs:177:    splitState.json && typeof splitState.json === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1409:- [split] test\api.runtime_events_state_parity.regression.test.mjs:178:    `split state expected JSON. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:141:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:265:  const eventsAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1410:- [split] test\api.runtime_events_state_parity.regression.test.mjs:181:    splitState.json.trace && typeof splitState.json.trace === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1411:- [split] test\api.runtime_events_state_parity.regression.test.mjs:182:    `split trace expected object. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1412:- [split] test\api.runtime_events_state_parity.regression.test.mjs:185:    splitState.json.trace.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1413:- [split] test\api.runtime_events_state_parity.regression.test.mjs:187:    `expected return gate at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1414:- [split] test\api.runtime_events_state_parity.regression.test.mjs:190:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1415:- [split] test\api.runtime_events_state_parity.regression.test.mjs:192:    `expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1416:- [split] test\api.runtime_events_state_parity.regression.test.mjs:195:  const remainingAtSplit = cloneJson(splitState.json.trace.remaining_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1417:- [split] test\api.runtime_events_state_parity.regression.test.mjs:197:    remainingAtSplit.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1418:- [split] test\api.runtime_events_state_parity.regression.test.mjs:198:    `expected remaining_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1419:- [split] test\api.runtime_events_state_parity.regression.test.mjs:201:    remainingAtSplit[0],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:142:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:297:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1420:- [split] test\api.runtime_events_state_parity.regression.test.mjs:203:    `expected remaining_ids[0] to match current step at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1421:- [split] test\api.runtime_events_state_parity.regression.test.mjs:238:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1422:- [split] test\api.runtime_events_state_parity.regression.test.mjs:25:test("API regression: runtime /events and /state stay aligned across split/continue and cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1423:- [split] test\api.runtime_events_state_parity.regression.test.mjs:278:    remainingAtSplit,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1424:- [split] test\api.runtime_events_state_parity.regression.test.mjs:282:    Object.prototype.hasOwnProperty.call(stateAfterContinue.json.trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1425:- [split] test\api.runtime_events_state_parity.regression.test.mjs:284:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1426:- [split] test\api.runtime_events_state_parity.regression.test.mjs:333:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1427:- [split] test\api.runtime_events_state_parity.regression.test.mjs:348:    remainingAtSplit,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1428:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1:/* test/api.split_decision_idempotent_rejected.regression.test.mjs */
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1429:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1295:  "API regression: split decision commands are idempotent-rejected after gate resolution",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:143:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:325:  const eventsAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1430:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1303:  "API regression: rejected split-decision replay remains byte-stable across immediate replay and repeated reloads",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1431:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1317:  "API regression: rejected split-decision replay remains byte-stable across mixed cache and hydrated reads",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1432:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1433:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1345:  "API regression: rejected split-decision replay preserves append-only event cardinality and ordering across repeated interleaved reads",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1434:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1360:  "API regression: rejected split-decision replay preserves normalized current-step identity and trace contract across repeated interleaved reads",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1435:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1436:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:1393:  "API regression: rejected resolved split-decision replays preserve terminal-state parity across alternating fresh process restarts",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1437:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:337:    trace_split_session_active: trace?.split_session_active ?? null
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1438:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:405:    terminal_trace_split_session_active: trace?.split_session_active ?? null
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1439:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:625:      { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:144:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:358:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1440:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:630:      `${label}: SPLIT_SESSION expected 201, got ${r.res.status}. raw=${r.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1441:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:634:  const splitState = await getState(baseUrl, sessionId, `${label} split`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1442:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:636:    splitState.json.trace.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1443:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:638:    `${label}: expected gated split trace. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1444:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:641:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1445:- [split] test\api.split_decision_idempotent_rejected.regression.test.mjs:643:    `${label}: expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1446:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:1:/* test/api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs */
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1447:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:155:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1448:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:158:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1449:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:161:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:145:- [/events] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:367:    `expected /events payload identical after cache clear.` +
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1450:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:163:    `SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1451:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1452:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:168:    splitState.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1453:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:170:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1454:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:173:    splitState.json && typeof splitState.json === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1455:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:174:    `split state expected JSON. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1456:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:177:    splitState.json.trace && typeof splitState.json.trace === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1457:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:178:    `split trace expected object. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1458:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:181:    splitState.json.trace.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1459:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:183:    `expected return gate at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:146:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1460:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:186:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1461:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:188:    `expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1462:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:191:  const splitCompletedIds = cloneJson(splitState.json.trace.completed_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1463:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:192:  const splitRemainingIds = cloneJson(splitState.json.trace.remaining_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1464:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:195:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1465:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:197:    `expected completed_ids preserved at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1466:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:200:    splitRemainingIds.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1467:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:201:    `expected remaining_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1468:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:204:    splitRemainingIds[0],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1469:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:206:    `expected remaining_ids[0] to align with current step at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:147:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:157:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1470:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:246:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1471:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_SKIP and remains byte-stable across cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1472:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:251:    splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1473:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:252:    `expected dropped_ids to equal split remaining_ids. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1474:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:255:    Object.prototype.hasOwnProperty.call(stateAfterSkip.json.trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1475:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:257:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1476:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:286:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1477:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:374:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1478:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:379:    splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1479:- [split] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:399:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:148:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:211:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1480:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:1:/* test/api.split_decision_replay_idempotency.regression.test.mjs */
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1481:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:155:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1482:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:158:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1483:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:161:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1484:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:163:    `SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1485:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1486:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:168:    splitState.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1487:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:170:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1488:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:173:    splitState.json && typeof splitState.json === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1489:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:174:    `split state expected JSON. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:149:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:270:  const eventsAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1490:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:177:    splitState.json.trace && typeof splitState.json.trace === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1491:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:178:    `split trace expected object. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1492:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:181:    splitState.json.trace.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1493:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:183:    `expected return gate at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1494:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:186:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1495:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:188:    `expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1496:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:191:  const splitCompletedIds = cloneJson(splitState.json.trace.completed_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1497:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:192:  const splitRemainingIds = cloneJson(splitState.json.trace.remaining_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1498:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:195:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1499:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:197:    `expected completed_ids preserved at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:150:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:302:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1500:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:200:    splitRemainingIds.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1501:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:201:    `expected remaining_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1502:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:204:    splitRemainingIds[0],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1503:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:206:    `expected remaining_ids[0] to align with current step at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1504:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:246:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1505:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_CONTINUE and remains byte-stable across cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1506:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:251:    splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1507:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:255:    Object.prototype.hasOwnProperty.call(stateAfterContinue.json.trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1508:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:257:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1509:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:151:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:330:  const eventsAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1510:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:379:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1511:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:384:    splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1512:- [split] test\api.split_decision_replay_idempotency.regression.test.mjs:409:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1513:- [split] test\api.state.cache_reset_http.regression.test.mjs:153:    Object.prototype.hasOwnProperty.call(stateAfterProgress.json.trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1514:- [split] test\api.state.cache_reset_http.regression.test.mjs:155:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1515:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:155:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1516:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:158:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1517:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:161:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1518:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:163:    `SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1519:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:152:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:363:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1520:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:168:    splitState.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1521:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:170:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1522:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:173:    splitState.json && typeof splitState.json === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1523:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:174:    `split state expected JSON. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1524:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:177:    splitState.json.trace && typeof splitState.json.trace === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1525:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:178:    `split trace expected object. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1526:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:181:    splitState.json.trace.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1527:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:183:    `expected return gate at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1528:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:186:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1529:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:188:    `expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:153:- [/events] test\api.split_decision_replay_idempotency.regression.test.mjs:372:    `expected /events payload identical after cache clear.` +
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1530:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:191:  const splitCompletedIds = cloneJson(splitState.json.trace.completed_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1531:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:192:  const splitRemainingIds = cloneJson(splitState.json.trace.remaining_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1532:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:195:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1533:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:197:    `expected completed_ids preserved at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1534:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:200:    splitRemainingIds.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1535:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:201:    `expected remaining_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1536:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:204:    splitRemainingIds[0],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1537:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:206:    `expected remaining_ids[0] to align with current step at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1538:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:246:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1539:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:251:    splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1540:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:255:    Object.prototype.hasOwnProperty.call(stateAfterContinue.json.trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1541:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:257:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1542:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1543:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:335:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1544:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:340:    splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1545:- [split] test\api.state_replay_projection_after_return_continue.regression.test.mjs:365:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1546:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:1:/* test/api.state_replay_projection_after_split_decisions.regression.test.mjs */
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1547:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:155:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1548:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:158:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1549:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:161:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1550:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:163:    `SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1551:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1552:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:168:    splitState.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1553:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:170:    `split state expected 200, got ${splitState.res.status}. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1554:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:173:    splitState.json && typeof splitState.json === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1555:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:174:    `split state expected JSON. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1556:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:177:    splitState.json.trace && typeof splitState.json.trace === "object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1557:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:178:    `split trace expected object. raw=${splitState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1558:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:181:    splitState.json.trace.return_decision_required,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1559:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:183:    `expected return gate at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1560:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:186:    [...splitState.json.trace.return_decision_options].slice().sort(),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1561:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:188:    `expected both return options at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1562:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:191:  const splitCompletedIds = cloneJson(splitState.json.trace.completed_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1563:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:192:  const splitRemainingIds = cloneJson(splitState.json.trace.remaining_ids ?? []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1564:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:195:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1565:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:197:    `expected completed_ids preserved at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1566:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:200:    splitRemainingIds.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1567:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:201:    `expected remaining_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1568:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:204:    splitRemainingIds[0],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1569:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:206:    `expected remaining_ids[0] to align with current step at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1570:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:246:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1571:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:25:test("API regression: state replay projection stays stable across split decisions and cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1572:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:251:    splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1573:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:252:    `expected dropped_ids to equal split remaining_ids. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1574:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:255:    Object.prototype.hasOwnProperty.call(stateAfterSkip.json.trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1575:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:257:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1576:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:286:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1577:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:326:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1578:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:331:    splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1579:- [split] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:351:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1580:- [split] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:125:          type: "SPLIT_SESSION"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1581:- [split] test\api_list_runtime_events_executed_handler_http_contract.test.mjs:151:        type: "SPLIT_SESSION"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1582:- [split] test\api_plan_session_supported_activity_contract.test.mjs:18:      .split(",")
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1583:- [split] test\api_session_state_cache_v1.test.mjs:203:  assert.equal(Object.prototype.hasOwnProperty.call(res1._json.trace, "split_active"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1584:- [split] test\api_session_state_cache_v1.test.mjs:204:  assert.equal(Object.prototype.hasOwnProperty.call(res1._json.trace, "remaining_at_split_ids"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1585:- [split] test\api_session_state_cache_v1.test.mjs:209:  assert.equal(Object.prototype.hasOwnProperty.call(res2._json.trace, "split_active"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1586:- [split] test\api_session_state_cache_v1.test.mjs:210:  assert.equal(Object.prototype.hasOwnProperty.call(res2._json.trace, "remaining_at_split_ids"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1587:- [split] test\api_session_state_cache_v1.test.mjs:242:  assert.equal(Object.prototype.hasOwnProperty.call(resPrime._json.trace, "split_active"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1588:- [split] test\api_session_state_cache_v1.test.mjs:243:  assert.equal(Object.prototype.hasOwnProperty.call(resPrime._json.trace, "remaining_at_split_ids"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1589:- [split] test\api_session_state_cache_v1.test.mjs:248:  assert.equal(Object.prototype.hasOwnProperty.call(resAfter._json.trace, "split_active"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1590:- [split] test\api_session_state_cache_v1.test.mjs:249:  assert.equal(Object.prototype.hasOwnProperty.call(resAfter._json.trace, "remaining_at_split_ids"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1591:- [split] test\api_session_state_corrupt_snapshot_hardening.test.mjs:26:      split: {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1592:- [split] test\api_session_state_corrupt_snapshot_hardening.test.mjs:28:        remaining_at_split: ["exC", "exC", "exD", "exJUNK", "exD"]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1593:- [split] test\api_session_state_corrupt_snapshot_hardening.test.mjs:47:  // split restored from stored data after scoping/uniq => active true, remaining_at_split ["exC","exD"]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1594:- [split] test\api_session_state_corrupt_snapshot_hardening.test.mjs:53:    split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1595:- [split] test\api_session_state_corrupt_snapshot_hardening.test.mjs:54:    remaining_at_split_ids: ["exC", "exD"]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1596:- [split] test\api_session_state_public_trace_contract.regression.test.mjs:51:              split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1597:- [split] test\api_session_state_public_trace_contract.regression.test.mjs:52:              remaining_at_split_ids: ["exC", "exD"]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1598:- [split] test\api_session_state_public_trace_contract.regression.test.mjs:57:              split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1599:- [split] test\api_session_state_public_trace_contract.regression.test.mjs:58:              remaining_at_split_ids: ["exC", "exD"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1600:- [split] test\api_session_state_public_trace_contract.regression.test.mjs:86:      Object.prototype.hasOwnProperty.call(trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1601:- [split] test\api_session_state_public_trace_contract.regression.test.mjs:88:      "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1602:- [split] test\api_session_state_public_trace_contract.regression.test.mjs:92:      Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1603:- [split] test\api_session_state_public_trace_contract.regression.test.mjs:94:      "trace must not expose remaining_at_split_ids"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1604:- [split] test\api_session_state_query_service.contract.test.mjs:123:  assert.equal(Object.prototype.hasOwnProperty.call(first.trace, "split_active"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1605:- [split] test\api_session_state_query_service.contract.test.mjs:124:  assert.equal(Object.prototype.hasOwnProperty.call(first.trace, "remaining_at_split_ids"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1606:- [split] test\api_session_state_query_service.contract.test.mjs:159:        split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1607:- [split] test\api_session_state_query_service.contract.test.mjs:178:    Object.prototype.hasOwnProperty.call(payload.trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1608:- [split] test\api_session_state_query_service.contract.test.mjs:180:    "trace must not expose split_active"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1609:- [split] test\api_session_state_query_service.contract.test.mjs:183:    Object.prototype.hasOwnProperty.call(payload.trace, "remaining_at_split_ids"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1610:- [split] test\api_session_state_query_service.contract.test.mjs:185:    "trace must not expose remaining_at_split_ids"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1611:- [split] test\api_session_state_query_service.contract.test.mjs:254:  assert.equal(Object.prototype.hasOwnProperty.call(first.trace, "split_active"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1612:- [split] test\api_session_state_query_service.contract.test.mjs:255:  assert.equal(Object.prototype.hasOwnProperty.call(first.trace, "remaining_at_split_ids"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1613:- [split] test\api_session_state_return_decision_upgrade.test.mjs:33:                     // Legacy runtime: split_active exists; explicit return_decision_* missing
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1614:- [split] test\api_session_state_return_decision_upgrade.test.mjs:37:                         split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1615:- [split] test\api_session_state_return_decision_upgrade.test.mjs:94: test("GET /sessions/:id/state upgrades legacy split_active into explicit return_decision_* contract (no response-time inference)", async () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1616:- [split] test\api_session_state_upgrade_parity.test.mjs:14:test("API summary upgrade: legacy V2(+split) normalizes to V3 and matches reducer replay", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1617:- [split] test\api_session_state_upgrade_parity.test.mjs:19:  // When: legacy V2 summary + split snapshot
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1618:- [split] test\api_session_state_upgrade_parity.test.mjs:21:  // complete exA, skip exB, then split_start => remaining_at_split [exC, exD]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1619:- [split] test\api_session_state_upgrade_parity.test.mjs:28:    split: { active: true, remaining_at_split_ids: ["exC", "exD"] },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1620:- [split] test\api_session_state_upgrade_parity.test.mjs:44:  st = applyRuntimeEvent(st, { type: "split_start" });
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1621:- [split] test\api_session_state_upgrade_parity.test.mjs:46:  // Legacy split snapshot is treated as stored runtime data.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1622:- [split] test\api_session_state_upgrade_parity.test.mjs:47:  // It should match the reducer-produced split for this scenario.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1623:- [split] test\api_session_state_upgrade_parity.test.mjs:58:test("API summary upgrade: legacy V1 normalizes to V3 and matches reducer replay (no split)", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1624:- [split] test\api_session_state_write_service.contract.test.mjs:150:      const inferredRequired = rt.split_active === true || trace?.return_decision_required === true;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1625:- [split] test\ci_split_invariant_normalize_cluster_manifest.test.mjs:14:  const manifestPath = "ci/contracts/split_invariant_normalize_ci_cluster.json";
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1626:- [split] test\ci_split_invariant_normalize_cluster_manifest.test.mjs:22:    "expected split invariant normalize cluster manifest in composition index"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1627:- [split] test\ci_split_invariant_normalize_cluster_manifest.test.mjs:28:      { kind: "manifest", path: "ci/contracts/split_invariant_normalize_ci_cluster.json" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1628:- [split] test\ci_split_invariant_normalize_cluster_manifest.test.mjs:29:      { kind: "command", value: "node test/ci_split_invariant_normalize_cluster_manifest_file.test.mjs" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1629:- [split] test\ci_split_invariant_normalize_cluster_manifest.test.mjs:30:      { kind: "command", value: "node test/ci_split_invariant_normalize_cluster_manifest.test.mjs" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1630:- [split] test\ci_split_invariant_normalize_cluster_manifest.test.mjs:31:      { kind: "command", value: "node test/ci_split_invariant_normalize_manifest_file.test.mjs" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1631:- [split] test\ci_split_invariant_normalize_cluster_manifest.test.mjs:32:      { kind: "command", value: "node test/ci_split_invariant_normalize_manifest.test.mjs" }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1632:- [split] test\ci_split_invariant_normalize_cluster_manifest.test.mjs:34:    "expected split invariant normalize cluster manifest followed by its adjacent guard pair and legacy manifest guards"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1633:- [split] test\ci_split_invariant_normalize_cluster_manifest.test.mjs:6:test("test:ci composition index includes pinned split invariant normalize cluster manifest and adjacent guard pair", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1634:- [split] test\ci_split_invariant_normalize_cluster_manifest_file.test.mjs:14:  }, "expected split invariant normalize cluster CI manifest to be valid JSON");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1635:- [split] test\ci_split_invariant_normalize_cluster_manifest_file.test.mjs:6:test("split invariant normalize cluster CI manifest file is well-formed, non-empty, unique, and node-test-only", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1636:- [split] test\ci_split_invariant_normalize_cluster_manifest_file.test.mjs:8:  const manifestPath = path.join(repo, "ci", "contracts", "split_invariant_normalize_ci_cluster.json");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1637:- [split] test\ci_split_invariant_normalize_manifest.test.mjs:15:  assert.ok(manifest.cluster.length > 0, "expected non-empty split invariant normalize cluster manifest");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1638:- [split] test\ci_split_invariant_normalize_manifest.test.mjs:7:test("split invariant normalize manifest remains present in composed test:ci command set", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1639:- [split] test\ci_split_invariant_normalize_manifest.test.mjs:9:  const manifestPath = path.join(repo, "ci", "contracts", "split_invariant_normalize_ci_cluster.json");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:164:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:119:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1640:- [split] test\ci_split_invariant_normalize_manifest_file.test.mjs:14:  }, "expected split invariant normalize CI manifest to be valid JSON");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1641:- [split] test\ci_split_invariant_normalize_manifest_file.test.mjs:6:test("split invariant normalize CI manifest file is well-formed, non-empty, unique, and node-test-only", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1642:- [split] test\ci_split_invariant_normalize_manifest_file.test.mjs:8:  const manifestPath = path.join(repo, "ci", "contracts", "split_invariant_normalize_ci_cluster.json");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1643:- [split] test\ci_test_ci_composition_file.test.mjs:45:    const manifestPath = path.join(repo, ...item.path.split("/"));
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1644:- [split] test\dev_fast_clean_tree_negative.test.mjs:14:  const lines = porcelain.split(/\r?\n/).filter(Boolean);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1645:- [split] test\e2e_phase6_runtime_split_return.test.mjs:128:    { type: "SPLIT_SESSION" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1646:- [split] test\e2e_phase6_runtime_split_return.test.mjs:32:test("Phase6 runtime: split -> return continue preserves remaining work", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1647:- [split] test\e2e_phase6_runtime_split_return.test.mjs:37:    { type: "SPLIT_SESSION" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1648:- [split] test\e2e_phase6_runtime_split_return.test.mjs:56:test("Phase6 runtime: split -> return skip drops remaining work", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1649:- [split] test\e2e_phase6_runtime_split_return.test.mjs:61:    { type: "SPLIT_SESSION" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:165:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:157:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1650:- [split] test\phase6_return_decision_gate.test.mjs:10:test("Phase6 runtime: after SPLIT_SESSION, COMPLETE_EXERCISE is forbidden until RETURN decision", () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1651:- [split] test\phase6_return_decision_gate.test.mjs:15:      { type: "SPLIT_SESSION" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1652:- [split] test\phase6_return_decision_gate.test.mjs:29:    { type: "SPLIT_SESSION" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1653:- [split] test\phase6_return_decision_gate.test.mjs:42:    { type: "SPLIT_SESSION" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1654:- [split] test\phase6_runtime_reducer.test.mjs:30:    // Split introduces an explicit return gate. No progress events allowed until RETURN_*.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1655:- [split] test\phase6_runtime_reducer.test.mjs:31:    { type: "SPLIT_SESSION" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1656:- [split] test\phase6_runtime_reducer.test.mjs:60:test("Phase6 runtime reducer: split return skip drops remaining at split", async () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1657:- [split] test\phase6_runtime_reducer.test.mjs:66:  // Complete A first. Then split captures remaining at split time (B,C).
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1658:- [split] test\phase6_runtime_reducer.test.mjs:69:  s = applyRuntimeEvent(s, { type: "SPLIT_SESSION" });
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1659:- [split] test\phase6_runtime_reducer.test.mjs:71:  // RETURN_SKIP should drop whatever remained at split time (B,C).
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:166:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:211:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1660:- [split] test\phase6_runtime_trace_return_gate.test.mjs:12:test("Phase6 runtime trace: split session emits explicit return decision contract only", async () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1661:- [split] test\phase6_runtime_trace_return_gate.test.mjs:27:    { type: "SPLIT_SESSION" }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1662:- [split] test\phase6_runtime_trace_return_gate.test.mjs:34:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "split_active"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1663:- [split] test\phase6_runtime_trace_return_gate.test.mjs:35:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1664:- [split] test\phase6_runtime_trace_return_gate.test.mjs:52:    { type: "SPLIT_SESSION" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1665:- [split] test\phase6_runtime_trace_return_gate.test.mjs:60:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "split_active"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1666:- [split] test\phase6_runtime_trace_return_gate.test.mjs:61:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1667:- [split] test\phase6_runtime_trace_return_gate.test.mjs:78:    { type: "SPLIT_SESSION" },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1668:- [split] test\phase6_runtime_trace_return_gate.test.mjs:86:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "split_active"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1669:- [split] test\phase6_runtime_trace_return_gate.test.mjs:87:  assert.equal(Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"), false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:167:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:265:  const eventsAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1670:- [split] test\phase6_split_invariant_normalize.test.mjs:18:// If split_active === false then remaining_at_split_ids MUST be [] after normalize/restore.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1671:- [split] test\phase6_split_invariant_normalize.test.mjs:26:    split_active: false,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1672:- [split] test\phase6_split_invariant_normalize.test.mjs:27:    remaining_at_split_ids: ["ex1"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1673:- [split] test\phase6_split_invariant_normalize.test.mjs:29:    // Also include legacy nested split to ensure back-compat input doesn't bypass invariant.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1674:- [split] test\phase6_split_invariant_normalize.test.mjs:30:    split: { active: false, remaining_at_split: ["ex1"] }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1675:- [split] test\phase6_split_invariant_normalize.test.mjs:38:  assert.equal(needsUpgrade, true, "normalize should upgrade/repair invalid split shape");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1676:- [split] test\phase6_split_invariant_normalize.test.mjs:40:  assert.equal(summary.runtime.split_active, false);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1677:- [split] test\phase6_split_invariant_normalize.test.mjs:41:  assert.deepEqual(summary.runtime.remaining_at_split_ids, [], "inactive split must clear remaining_at_split_ids");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1678:- [split] test\phase6_split_invariant_normalize.test.mjs:43:  // Back-compat emission: split should be omitted when inactive+empty.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1679:- [split] test\phase6_split_invariant_normalize.test.mjs:44:  assert.ok(!("split" in summary.runtime), "inactive split should not emit nested split object");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:168:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:312:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1680:- [split] test\phase6_split_invariant_normalize.test.mjs:47:console.log("PASS phase6_split_invariant_normalize.test.mjs");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1681:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:102:    // Back-compat emission policy: if nested split exists, it MUST agree with runtime split state.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1682:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:103:    if ("split" in summary.runtime) {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1683:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:104:      assert.equal(summary.runtime.split.active, true, c.name + " (nested split must be active)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1684:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:105:      const s = summary.runtime.split.remaining_at_split;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1685:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:108:        assert.deepEqual(s, ["ex1", "ex2"], c.name + " (nested split remaining must match canonical)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1686:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:111:        if (Array.isArray(summary.runtime.remaining_at_split_ids) && summary.runtime.remaining_at_split_ids.length === 0) {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1687:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:112:          assert.deepEqual(s, [], c.name + " (nested split remaining must be empty if runtime kept empty)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1688:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:114:          assert.deepEqual(s, ["ex1", "ex2"], c.name + " (nested split remaining must match repaired canonical)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1689:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:121:console.log("PASS phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:169:- [/events] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:321:    `expected /events payload identical after cache clear.\nbefore=${JSON.stringify(snapshotEvents)}\nafter=${JSON.stringify(eventsAfterClear.json)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1690:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:19:// Active split canonical should NOT cry upgrade.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1691:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:20:// - If split_active === true and remaining_at_split_ids exactly matches the deterministic canonical value, needsUpgrade MUST be false.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1692:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:21:// - If split_active === true and remaining_at_split_ids is present but [], contract-dependent:
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1693:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:25:// (This kills ├ö├ç┬úalways-upgrade while mid-split├ö├ç├ÿ loops.)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1694:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:31:      name: "active split + remaining_at_split_ids is canonical planned remaining -> no upgrade",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1695:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:37:        split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1696:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:38:        remaining_at_split_ids: ["ex1", "ex2"]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1697:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:43:      name: "active split + remaining_at_split_ids present but empty (contract-dependent)",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1698:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:49:        split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1699:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:50:        remaining_at_split_ids: []
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1700:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:64:    assert.equal(summary.runtime.split_active, true, c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1701:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:66:    const has = Object.prototype.hasOwnProperty.call(summary.runtime, "remaining_at_split_ids");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1702:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:67:    assert.equal(has, true, c.name + " (field should exist for active split)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1703:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:70:      assert.deepEqual(summary.runtime.remaining_at_split_ids, ["ex1", "ex2"], c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1704:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:74:        "normalize must NOT claim upgrade when active split remaining_at_split_ids is already canonical: " + c.name
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1705:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:78:      const out = summary.runtime.remaining_at_split_ids;
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1706:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:85:          "normalize kept empty remaining_at_split_ids; must NOT claim upgrade: " + c.name
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1707:- [split] test\phase6_split_invariant_normalize_active_canonical_no_upgrade.test.mjs:92:          "normalize repaired empty remaining_at_split_ids; must claim upgrade: " + c.name
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1708:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:18:// If split_active === true then remaining_at_split_ids MUST exist and be [] (not missing / undefined)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1709:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:19:// after normalize/restore, and split_active stays true.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1710:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:23:  // Deliberately omit remaining_at_split_ids and legacy nested split to simulate partial/older/buggy storage.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1711:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:28:    split_active: true
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1712:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:38:  assert.equal(needsUpgrade, true, "normalize should upgrade/repair missing remaining_at_split_ids");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1713:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:40:  assert.equal(summary.runtime.split_active, true);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1714:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:42:    summary.runtime.remaining_at_split_ids,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1715:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:44:    "active split with missing remaining_at_split_ids must normalize to []"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1716:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:47:  // Back-compat emission: active split SHOULD emit nested split object even if remaining_at_split is empty.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1717:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:48:  assert.ok("split" in summary.runtime, "active split should emit nested split object");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1718:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:49:  assert.equal(summary.runtime.split.active, true);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1719:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:50:  assert.deepEqual(summary.runtime.split.remaining_at_split, []);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1720:- [split] test\phase6_split_invariant_normalize_active_empty.test.mjs:53:console.log("PASS phase6_split_invariant_normalize_active_empty.test.mjs");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1721:- [split] test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs:18:// If split_active === true and remaining_at_split_ids is present but NOT an array (e.g. string/object),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1722:- [split] test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs:25:      name: "remaining_at_split_ids has non-string elements",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1723:- [split] test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs:31:        split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1724:- [split] test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs:32:        remaining_at_split_ids: [123, null]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1725:- [split] test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs:36:      name: "remaining_at_split_ids is object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1726:- [split] test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs:42:        split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1727:- [split] test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs:43:        remaining_at_split_ids: [123, null]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1728:- [split] test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs:57:    assert.equal(needsUpgrade, true, "normalize should upgrade/repair invalid remaining_at_split_ids: [123, null]split" in summary.runtime, c.name + " (split must be emitted when active)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1729:- [split] test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs:58:    assert.equal(summary.runtime.split.active, true, c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1730:- [split] test\phase6_split_invariant_normalize_active_partial_garbage_array.test.mjs:59:    assert.deepEqual(summary.runtime.split.remaining_at_split, [], c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1731:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:18:// If split_active === true and remaining_at_split_ids is present but NOT an array (e.g. string/object),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1732:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:25:      name: "remaining_at_split_ids is string",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1733:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:31:        split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1734:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:32:        remaining_at_split_ids: "ex1"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1735:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:36:      name: "remaining_at_split_ids is object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1736:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:42:        split_active: true,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1737:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:43:        remaining_at_split_ids: {}
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1738:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:57:    assert.equal(needsUpgrade, true, "normalize should upgrade/repair invalid remaining_at_split_ids: " + c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1739:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:59:    assert.equal(summary.runtime.split_active, true, c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1740:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:60:    assert.deepEqual(summary.runtime.remaining_at_split_ids, [], c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1741:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:62:    // Back-compat emission: active split SHOULD emit nested split object even if remaining_at_split is empty.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1742:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:63:    assert.ok("split" in summary.runtime, c.name + " (split must be emitted when active)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1743:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:64:    assert.equal(summary.runtime.split.active, true, c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1744:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:65:    assert.deepEqual(summary.runtime.split.remaining_at_split, [], c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1745:- [split] test\phase6_split_invariant_normalize_garbage_types.test.mjs:69:console.log("PASS phase6_split_invariant_normalize_garbage_types.test.mjs");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1746:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:101:      assert.deepEqual(summary.runtime.remaining_at_split_ids, [], c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1747:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:105:      assert.deepEqual(summary.runtime.remaining_at_split_ids, [], c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1748:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:109:        "normalize must NOT claim upgrade when remaining_at_split_ids is already canonical [] under inactive split: " + c.name
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1749:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:118:          "normalize emitted remaining_at_split_ids despite being absent; must claim upgrade: " + c.name
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1750:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:120:        assert.deepEqual(summary.runtime.remaining_at_split_ids, [], c.name + " (if emitted, must be [])");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1751:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:126:          "normalize omitted remaining_at_split_ids and should NOT claim upgrade: " + c.name
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1752:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:131:    // Back-compat emission policy: if nested split exists, it MUST be inactive and empty.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1753:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:132:    if ("split" in summary.runtime) {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1754:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:133:      assert.equal(summary.runtime.split.active, false, c.name + " (nested split must be inactive)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1755:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:134:      assert.deepEqual(summary.runtime.split.remaining_at_split, [], c.name + " (nested split must be empty)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1756:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:139:console.log("PASS phase6_split_invariant_normalize_inactive_arrays.test.mjs");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1757:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:19:// If split_active === false, remaining_at_split_ids MUST normalize to [].
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1758:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:20:// - If remaining_at_split_ids is present and non-empty (even if "valid"), normalize MUST clear it to [] and set needsUpgrade=true.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1759:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:21:// - If remaining_at_split_ids is present but contains garbage (wrong ids, empty strings, nulls, numbers, dupes), normalize MUST clear it to [] and set needsUpgrade=true.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1760:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:22:// - If remaining_at_split_ids is present and already [] (canonical), normalize MUST NOT claim an upgrade (needsUpgrade=false).
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1761:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:23:// - If remaining_at_split_ids is missing entirely and split is inactive:
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1762:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:32:      name: "inactive split + remaining_at_split_ids array contains garbage",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1763:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:38:        split_active: false,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1764:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:39:        remaining_at_split_ids: ["ex999", "", null, 123, "ex1", "ex1"]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1765:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:44:      name: "inactive split + remaining_at_split_ids is non-empty but valid planned ids",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1766:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:50:        split_active: false,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1767:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:51:        remaining_at_split_ids: ["ex1"]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1768:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:56:      name: "inactive split + remaining_at_split_ids present and already canonical empty",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1769:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:62:        split_active: false,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1770:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:63:        remaining_at_split_ids: []
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1771:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:68:      name: "inactive split + remaining_at_split_ids missing entirely",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1772:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:74:        split_active: false
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1773:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:89:    assert.equal(summary.runtime.split_active, false, c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1774:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:91:    const has = Object.prototype.hasOwnProperty.call(summary.runtime, "remaining_at_split_ids");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1775:- [split] test\phase6_split_invariant_normalize_inactive_arrays.test.mjs:98:        "normalize must claim upgrade when clearing present+non-empty remaining_at_split_ids under inactive split: " + c.name
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1776:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:18:// If split_active === false and remaining_at_split_ids is present but NOT an array (e.g. string/object),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1777:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:26:      name: "inactive split + remaining_at_split_ids is string",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1778:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:32:        split_active: false,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1779:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:33:        remaining_at_split_ids: "ex1"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1780:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:37:      name: "inactive split + remaining_at_split_ids is object",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1781:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:43:        split_active: false,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1782:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:44:        remaining_at_split_ids: {}
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1783:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:61:      "normalize should upgrade/repair invalid remaining_at_split_ids when split is inactive: " + c.name
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1784:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:64:    assert.equal(summary.runtime.split_active, false, c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1785:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:65:    assert.deepEqual(summary.runtime.remaining_at_split_ids, [], c.name);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1786:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:67:    // Back-compat emission policy: if nested split exists, it MUST be inactive and empty.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1787:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:68:    if ("split" in summary.runtime) {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1788:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:69:      assert.equal(summary.runtime.split.active, false, c.name + " (nested split must be inactive)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1789:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:70:      assert.deepEqual(summary.runtime.split.remaining_at_split, [], c.name + " (nested split must be empty)");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1790:- [split] test\phase6_split_invariant_normalize_inactive_garbage_types.test.mjs:75:console.log("PASS phase6_split_invariant_normalize_inactive_garbage_types.test.mjs");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1791:- [split] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:491:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1792:- [split] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:494:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1793:- [split] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:497:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1794:- [split] test\v0_compile_created_session_block_linkage_readback_parity.test.mjs:499:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1795:- [split] test\v0_compile_created_session_cache_parity.test.mjs:444:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1796:- [split] test\v0_compile_created_session_cache_parity.test.mjs:447:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1797:- [split] test\v0_compile_created_session_cache_parity.test.mjs:450:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1798:- [split] test\v0_compile_created_session_cache_parity.test.mjs:452:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1799:- [split] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:467:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1800:- [split] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:470:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1801:- [split] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:473:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1802:- [split] test\v0_compile_created_session_event_seq_monotonic_parity.test.mjs:475:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1803:- [split] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:410:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1804:- [split] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:413:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1805:- [split] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:416:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1806:- [split] test\v0_compile_created_session_fresh_restart_live_progress_coherence.test.mjs:418:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1807:- [split] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:421:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1808:- [split] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:424:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1809:- [split] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:427:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1810:- [split] test\v0_compile_created_session_fresh_restart_progress_replay_safe.test.mjs:429:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1811:- [split] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:456:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1812:- [split] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:459:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1813:- [split] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:462:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1814:- [split] test\v0_compile_created_session_interleaved_read_cycle_parity.test.mjs:464:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1815:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:277:    Object.prototype.hasOwnProperty.call(trace, "split_active"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1816:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:279:    `${label}: trace must not expose split_active`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1817:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:282:    Object.prototype.hasOwnProperty.call(trace, "remaining_at_split_ids"),
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1818:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:284:    `${label}: trace must not expose remaining_at_split_ids`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1819:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:494:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1820:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:497:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1821:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:500:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1822:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:502:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1823:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:506:  const splitState = await getState(baseUrl, sessionId, `${label} split state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1824:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:507:  assertLifecycleStateContract(splitState, {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1825:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:508:    label: `${label} split state`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1826:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:513:  const splitRemainingIds = Array.isArray(splitState.json.trace.remaining_ids)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1827:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:514:    ? [...splitState.json.trace.remaining_ids]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1828:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:516:  const splitCompletedIds = Array.isArray(splitState.json.trace.completed_ids)
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1829:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:517:    ? [...splitState.json.trace.completed_ids]
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1830:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:521:    splitCompletedIds.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1831:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:522:    `${label}: expected completed_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1832:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:525:    splitRemainingIds.length >= 1,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1833:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:526:    `${label}: expected remaining_ids at split. trace=${JSON.stringify(splitState.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1834:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:550:    splitCompletedIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1835:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:557:      splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1836:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:558:      `${label}: RETURN_CONTINUE should preserve remaining_ids from split. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1837:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:567:      splitRemainingIds[0] ?? null,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1838:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:568:      `${label}: RETURN_CONTINUE should realign current step with split remaining_ids[0]. raw=${JSON.stringify(stateAfterDecision.json)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1839:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:573:      splitRemainingIds,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1840:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:574:      `${label}: RETURN_SKIP should move split remaining_ids into dropped_ids. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1841:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:733:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_CONTINUE)", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1842:- [split] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:746:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_SKIP)", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1843:- [split] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:482:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1844:- [split] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:485:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1845:- [split] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:488:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1846:- [split] test\v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs:490:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1847:- [split] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:533:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1848:- [split] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:536:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1849:- [split] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:539:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1850:- [split] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:541:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1851:- [split] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:549:    mutationLabel: `${label} reject duplicate split while gated`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1852:- [split] test\v0_compile_created_session_rejected_mutation_cache_parity.test.mjs:550:    mutationBody: { event: { type: "SPLIT_SESSION" } },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1853:- [split] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:479:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1854:- [split] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:482:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1855:- [split] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:485:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1856:- [split] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:487:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1857:- [split] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:498:    mutationLabel: `${label} reject duplicate split while gated`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1858:- [split] test\v0_compile_created_session_rejected_runtime_mutation_contract.test.mjs:499:    mutationBody: { event: { type: "SPLIT_SESSION" } },
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1859:- [split] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:527:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1860:- [split] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:530:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1861:- [split] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:533:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1862:- [split] test\v0_compile_created_session_terminal_cross_endpoint_coherence.test.mjs:535:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1863:- [split] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:447:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1864:- [split] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:450:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1865:- [split] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:453:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1866:- [split] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:455:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1867:- [split] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:529:    const rejectedSplitReplay = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1868:- [split] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:532:      { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1869:- [split] test\v0_compile_created_session_terminal_restart_mutation_closure.test.mjs:534:    assertRejectedMutation(rejectedSplitReplay, `${label} rejected split replay after restart`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1870:- [split] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:421:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1871:- [split] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:424:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1872:- [split] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:427:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1873:- [split] test\v0_fresh_restart_decision_replay_rejected_after_live_progress.test.mjs:429:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1874:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:1:/* test/v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs */
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1875:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:421:  const split = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1876:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:424:    { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1877:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:427:    split.res.status,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1878:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:429:    `${label}: SPLIT_SESSION expected 201, got ${split.res.status}. raw=${split.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1879:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:540:    const replaySplit = await httpJson(
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1880:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:543:      { event: { type: "SPLIT_SESSION" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1881:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:546:      replaySplit,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1882:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:547:      `${label} rejected replay of stale SPLIT_SESSION after live progress`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1883:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:554:      `${label} after rejected split replay`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1884:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:556:    assertLivePairStable(afterRejected, { label: `${label} after rejected split replay` });
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1885:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:561:      `${label}: rejected split replay must not drift uncached state`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1886:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:566:      `${label}: rejected split replay must not drift uncached events`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1887:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:571:      `${label}: rejected split replay must not drift cached state`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1888:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:576:      `${label}: rejected split replay must not drift cached events`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1889:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:581:      `${label}: rejected split replay must preserve event identity/order`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1890:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:588:      `${label} reload after rejected split replay`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1891:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:590:    assertLivePairStable(reloadAfterRejected, { label: `${label} reload after rejected split replay` });
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1892:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:700:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_CONTINUE)", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1893:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:708:      label: "return-continue fresh restart split replay rejected after live progress scenario"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1894:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:713:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_SKIP)", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1895:- [split] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:721:      label: "return-skip fresh restart split replay rejected after live progress scenario"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1896:- [split] test\vertical_slice.api_http_return_gate.e2e.test.mjs:25:    const evSplit = await postEvent(baseUrl, sessionId, { type: "SPLIT_SESSION" });
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1897:- [split] test\vertical_slice.api_http_return_gate.e2e.test.mjs:26:    assert.equal(evSplit.res.status, 201, evSplit.body.text);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1898:- [split] test\vertical_slice.api_http_return_gate.e2e.test.mjs:76:    const evSplit = await postEvent(baseUrl, sessionId, { type: "SPLIT_SESSION" });
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1899:- [split] test\vertical_slice.api_http_return_gate.e2e.test.mjs:77:    assert.equal(evSplit.res.status, 201, evSplit.body.text);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:1906:1. repeated mixed /state -> /events -> /state reads after split decision replay
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:27:- split
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:275:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:152:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:276:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:249:    `${label}: /events raw payload drifted.\nbefore=${acceptedEvents.text}\nafter=${actualEvents.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:277:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:254:    `${label}: /events JSON drifted.\nbefore=${JSON.stringify(acceptedEvents.json)}\nafter=${JSON.stringify(actualEvents.json)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:278:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:294:    `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:279:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:423:    `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:280:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:442:    `${baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:281:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:497:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:282:- [/events] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:542:      `${freshServer.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:293:- [/state] test\api.events_append_only_history.regression.test.mjs:171:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:298:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:141:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:299:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:174:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:300:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:212:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:301:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:266:  const stateAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:302:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:348:  const stateAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:303:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:382:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:304:- [/state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:391:    `expected /state payload identical after cache clear.` +
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:305:- [/state] test\api.return_continue_append_only_history.regression.test.mjs:171:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:314:- [/state] test\api.return_skip.persisted_replay.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:318:- [/state] test\api.return_skip.regression.test.mjs:268:  const splitState = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:322:- [/state] test\api.runtime_events_state_parity.regression.test.mjs:170:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:324:- [/state] test\api.runtime_events_state_parity.regression.test.mjs:25:test("API regression: runtime /events and /state stay aligned across split/continue and cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:328:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1005:        `${label}: terminal cycle ${cycle} /state`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:329:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1038:      `${label}: terminal /state after rejected replay`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:330:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1044:      `${label}: final terminal /state after repeated interleaved reads`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:331:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1072:          `${label}: fresh restart cycle ${cycle} /state byte parity`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:332:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1078:          `${label}: fresh restart cycle ${cycle} /state`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:333:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1100:      `${label}: /state after rejected replay`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:334:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1111:      `${label}: /state changed after rejected replay.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(afterReplayState.json)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:335:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1129:      `${label}: final /state after repeated interleaved reads`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:336:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1157:      `${label}: /state across repeated reloads after rejected replay`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:337:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1174:        `${label}: second reload /state after repeated interleaved reads`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:338:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1331:  "API regression: rejected split-decision replay remains byte-stable across alternating /state -> /events -> /state cycles after multiple rejected re-posts",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:339:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:340:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:173:  const state = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:341:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:238:    `${label}: /state raw payload changed.\nbefore=${acceptedStateText}\nafter=${statePayload.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:342:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:243:    `${label}: /state JSON changed.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(statePayload.json)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:343:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:783:      `${label}: /state across mixed cache/hydrated reads after rejected replay`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:344:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:825:        `${label}: alternating cycle ${cycle} first /state after multiple rejected re-posts`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:345:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:837:        `${label}: alternating cycle ${cycle} second /state after multiple rejected re-posts`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:346:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:881:        `${label}: interleaved cycle ${cycle} /state`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:347:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:925:        `${label}: normalized current-step cycle ${cycle} first /state`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:348:- [/state] test\api.split_decision_idempotent_rejected.regression.test.mjs:937:        `${label}: normalized current-step cycle ${cycle} second /state`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:349:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:128:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:350:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:351:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:220:  const stateAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:352:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:311:  const stateAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:353:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:344:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:354:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:353:    `expected /state payload identical after cache clear.` +
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:355:- [/state] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:356:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:128:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:357:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:358:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:220:  const stateAfterContinue = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:359:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:316:  const stateAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:360:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:349:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:361:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:358:    `expected /state payload identical after cache clear.` +
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:362:- [/state] test\api.split_decision_replay_idempotency.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:369:- [/state] test\api.state_replay_projection_after_return_continue.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:374:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:128:  const state1 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:375:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:166:  const splitState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:376:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:220:  const stateAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:377:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:300:  const stateAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:378:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:309:    `expected /state payload identical after cache clear.\nbefore=${JSON.stringify(snapshotState)}\nafter=${JSON.stringify(stateAfterClear.json)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:379:- [/state] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:95:  const state0 = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:382:- [/state] test\api_session_state_return_decision_upgrade.test.mjs:94: test("GET /sessions/:id/state upgrades legacy split_active into explicit return_decision_* contract (no response-time inference)", async () => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:437:- [/state] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:134:  const payload = await httpJson("GET", `${baseUrl}/sessions/${sessionId}/state`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:438:- [/state] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:236:    `${label}: /state raw payload drifted.\nbefore=${acceptedState.text}\nafter=${actualState.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:439:- [/state] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:241:    `${label}: /state JSON drifted.\nbefore=${JSON.stringify(acceptedState.json)}\nafter=${JSON.stringify(actualState.json)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:49:- [/events] docs\V0_RELEASE_SPINE.md:12:A coach can generate a session, start it, run it, split it, return to it, continue or skip safely, and trust the state/events contract before and after restart.
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:561:- [idempotent] ci\contracts\test_ci_integration_api_regression_cluster_manifest.json:12:                     "node test/api.split_decision_idempotent_rejected.regression.test.mjs",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:567:- [idempotent] test\api.return_continue_idempotent_after_ungate_wrapper.test.mjs:65:  await assertPass("test/api.split_decision_idempotent_rejected.regression.test.mjs");
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:569:- [idempotent] test\api.split_decision_idempotent_rejected.regression.test.mjs:1:/* test/api.split_decision_idempotent_rejected.regression.test.mjs */
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:570:- [idempotent] test\api.split_decision_idempotent_rejected.regression.test.mjs:1295:  "API regression: split decision commands are idempotent-rejected after gate resolution",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:571:- [idempotent] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_SKIP and remains byte-stable across cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:572:- [idempotent] test\api.split_decision_replay_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_CONTINUE and remains byte-stable across cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:61:- [/events] test\api.apply_unknown_maps_500.regression.test.mjs:137:  const ev = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, { event: { type: "SPLIT_SESSION" } });
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:630:- [no-resurrection] docs\V0_RELEASE_GAP_MATRIX.md:43:| P0 | Missing proof on split/RETURN edge cases | V0-G04 | new tests proving skip/continue terminal and no-resurrection behavior |
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:631:- [no-resurrection] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:632:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:633:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1380:        ? "continue terminal-state shape and no-resurrection scenario"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:634:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1381:        : "skip terminal-state shape and no-resurrection scenario",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:635:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1429:  "API regression: compile-created session flow preserves terminal no-resurrection invariants across alternating /state -> /events -> /state cycles after downstream progress",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:636:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1433:        ? "compile-created session continue terminal no-resurrection alternating read cycles after downstream progress scenario"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:637:- [no-resurrection] test\api.split_decision_idempotent_rejected.regression.test.mjs:1434:        : "compile-created session skip terminal no-resurrection alternating read cycles after downstream progress scenario",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:720:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:266:    session_event_seq: event?.session_event_seq ?? null,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:721:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:297:  const actualSeqs = actualOrdering.map((x) => x.session_event_seq);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:722:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:298:  const expectedSeqs = acceptedOrdering.map((x) => x.session_event_seq);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:723:- [session_event_seq] test\api.split_decision_idempotent_rejected.regression.test.mjs:302:    `${label}: session_event_seq order drifted.\nbefore=${JSON.stringify(expectedSeqs)}\nafter=${JSON.stringify(actualSeqs)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:73:- [/events] test\api.events_append_only_history.regression.test.mjs:25:test("API regression: /events remains append-only and byte-stable across split/continue and cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:76:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:165:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:77:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:203:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:775:- [session_event_seq] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:226:    session_event_seq: event?.session_event_seq ?? null,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:777:- [terminal-state] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:71:test("API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:778:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1376:  "API regression: rejected split-decision replay preserves terminal-state shape and no-resurrection invariants across repeated interleaved reads",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:779:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1380:        ? "continue terminal-state shape and no-resurrection scenario"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:78:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:257:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:780:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1381:        : "skip terminal-state shape and no-resurrection scenario",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:781:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1393:  "API regression: rejected resolved split-decision replays preserve terminal-state parity across alternating fresh process restarts",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:782:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1397:        ? "continue terminal-state parity across alternating fresh process restarts scenario"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:783:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:1398:        : "skip terminal-state parity across alternating fresh process restarts scenario",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:784:- [terminal-state] test\api.split_decision_idempotent_rejected.regression.test.mjs:420:    `${label}: terminal-state shape changed.\nbefore=${JSON.stringify(acceptedTerminalShape)}\nafter=${JSON.stringify(actualShape)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:79:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:302:  const eventsAfterSkip = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:8:- V0-G04 Split + RETURN gate path is safe and deterministic
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:80:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:334:    `${http.baseUrl}/sessions/${sessionId}/events`,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:805:- [RETURN_CONTINUE] test\api.events_append_only_history.regression.test.mjs:236:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:806:- [RETURN_CONTINUE] test\api.events_append_only_history.regression.test.mjs:297:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:807:- [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:233:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:808:- [return_continue] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:335:    { event: { type: "RETURN_CONTINUE" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:809:- [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:341:    `replayed RETURN_CONTINUE must be rejected after RETURN_SKIP. raw=${replayContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:81:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:363:  const eventsAfterReplayReject = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:810:- [RETURN_CONTINUE] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:345:    `replayed RETURN_CONTINUE expected 400/409/422, got ${replayContinue.res.status}. raw=${replayContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:819:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:248:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:82:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:397:  const eventsAfterClear = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:829:- [return_continue] test\api.return_continue_append_only_history.regression.test.mjs:353:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:83:- [/events] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:406:    `expected /events payload identical after cache clear.` +
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:832:- [RETURN_CONTINUE] test\api.return_gate.regression.test.mjs:136:test("API regression: split return decision gate blocks events until RETURN_CONTINUE", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:842:- [return_continue] test\api.runtime_events_state_parity.regression.test.mjs:238:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:843:- [RETURN_CONTINUE] test\api.runtime_events_state_parity.regression.test.mjs:333:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:844:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1277:        label: buildOptions("RETURN_CONTINUE").label,
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:845:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1278:        decisionType: "RETURN_CONTINUE",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:846:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1279:        ...buildOptions("RETURN_CONTINUE").options
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:847:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1297:    label: decisionType === "RETURN_CONTINUE" ? "continue scenario" : "skip scenario",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:848:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1306:      decisionType === "RETURN_CONTINUE"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:849:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1320:      decisionType === "RETURN_CONTINUE"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:850:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1334:      decisionType === "RETURN_CONTINUE"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:851:- [RETURN_CONTINUE] test\api.split_decision_idempotent_rejected.regression.test.mjs:1348:      decisionType === "RETURN_CONTINUE"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:852:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1363:      decisionType === "RETURN_CONTINUE"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:853:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1379:      decisionType === "RETURN_CONTINUE"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:854:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1396:      decisionType === "RETURN_CONTINUE"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:855:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1414:      decisionType === "RETURN_CONTINUE"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:856:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1432:      decisionType === "RETURN_CONTINUE"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:857:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:1452:      decisionType === "RETURN_CONTINUE"
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:858:- [return_continue] test\api.split_decision_idempotent_rejected.regression.test.mjs:642:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:859:- [return_continue] test\api.split_decision_replay_after_return_skip_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:860:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:861:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:212:    { event: { type: "RETURN_CONTINUE" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:862:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:217:    `RETURN_CONTINUE expected 201, got ${continueRes.res.status}. raw=${continueRes.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:863:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:224:    `state after RETURN_CONTINUE expected 200, got ${stateAfterContinue.res.status}. raw=${stateAfterContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:864:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:228:    `state after RETURN_CONTINUE expected JSON. raw=${stateAfterContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:865:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:232:    `state after RETURN_CONTINUE expected trace. raw=${stateAfterContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:866:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:237:    `expected gate cleared after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:867:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:242:    `expected no return options after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:868:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:247:    `expected completed_ids preserved after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:869:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:25:test("API regression: split-decision replay is idempotent-rejected after RETURN_CONTINUE and remains byte-stable across cache clear", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:870:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:252:    `expected remaining_ids restored after RETURN_CONTINUE. trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:871:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:267:    `expected current_step to realign with remaining_ids[0] after RETURN_CONTINUE. current_step=${JSON.stringify(stateAfterContinue.json.current_step)} trace=${JSON.stringify(stateAfterContinue.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:872:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:274:    `events after RETURN_CONTINUE expected 200, got ${eventsAfterContinue.res.status}. raw=${eventsAfterContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:873:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:278:    `events after RETURN_CONTINUE expected JSON object. raw=${eventsAfterContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:874:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:282:    `events after RETURN_CONTINUE expected events array. raw=${eventsAfterContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:875:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:876:- [RETURN_CONTINUE] test\api.split_decision_replay_idempotency.regression.test.mjs:303:    { event: { type: "RETURN_CONTINUE" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:877:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:309:    `replayed RETURN_CONTINUE must be rejected after ungate. raw=${replayContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:878:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:313:    `replayed RETURN_CONTINUE expected 400/409/422, got ${replayContinue.res.status}. raw=${replayContinue.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:879:- [return_continue] test\api.split_decision_replay_idempotency.regression.test.mjs:409:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:896:- [RETURN_CONTINUE] test\api.state_replay_projection_after_return_continue.regression.test.mjs:291:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:897:- [return_continue] test\api.state_replay_projection_after_return_continue.regression.test.mjs:365:    ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:898:- [RETURN_CONTINUE] test\api.state_replay_projection_after_split_decisions.regression.test.mjs:187:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:908:- [return_continue] test\e2e_phase6_runtime_split_return.test.mjs:129:    { type: "RETURN_CONTINUE" }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:909:- [return_continue] test\e2e_phase6_runtime_split_return.test.mjs:38:    { type: "RETURN_CONTINUE" }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:91:- [/events] test\api.return_gate.regression.test.mjs:241:  const evSplit = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:938:- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:558:      `${label}: RETURN_CONTINUE should preserve remaining_ids from split. trace=${JSON.stringify(stateAfterDecision.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:940:- [return_continue] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:568:      `${label}: RETURN_CONTINUE should realign current step with split remaining_ids[0]. raw=${JSON.stringify(stateAfterDecision.json)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:941:- [RETURN_CONTINUE] test\v0_compile_created_session_lifecycle_contract_stability.test.mjs:733:test("v0 lifecycle: compile-created session stays contract-stable across block readback, session creation/readback, runtime progression, split decision resolution, and terminal reload parity (RETURN_CONTINUE)", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:961:- [return_continue] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:182:      ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:962:- [return_continue] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:700:test("v0 fresh restart split replay safety: compile-created live session rejects stale SPLIT_SESSION replay after accepted live progress (RETURN_CONTINUE)", async (t) => {
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:963:- [return_continue] test\v0_fresh_restart_split_replay_rejected_after_live_progress.test.mjs:707:      decisionType: "RETURN_CONTINUE",
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:991:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:233:    ["RETURN_CONTINUE", "RETURN_SKIP"],
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:992:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:258:    { event: { type: "RETURN_SKIP" } }
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:993:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:263:    `RETURN_SKIP expected 201, got ${skipRes.res.status}. raw=${skipRes.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:994:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:270:    `state after RETURN_SKIP expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:995:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:274:    `state after RETURN_SKIP expected JSON. raw=${stateAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:996:- [return_skip] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:278:    `state after RETURN_SKIP expected trace. raw=${stateAfterSkip.text}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:997:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:283:    `expected gate cleared after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:998:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:288:    `expected no return options after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
+- [split] docs\V0_G03_G04_PROOF_AUDIT.md:999:- [RETURN_SKIP] test\api.rejected_split_decision_replay_terminal_no_resurrection.regression.test.mjs:293:    `expected completed_ids preserved after RETURN_SKIP. trace=${JSON.stringify(stateAfterSkip.json.trace)}`
 - [split] docs\V0_RELEASE_GAP_MATRIX.md:29:| V0-G04 | Split + RETURN gate path is safe and deterministic | this is one of the core sovereign behaviors | continue/skip decision proofs, dropped-work handling, terminal shape stability | HARDEN | assign next split-proof slice here | |
 - [split] docs\V0_RELEASE_GAP_MATRIX.md:43:| P0 | Missing proof on split/RETURN edge cases | V0-G04 | new tests proving skip/continue terminal and no-resurrection behavior |
 - [split] docs\V0_RELEASE_GAP_MATRIX.md:66:- split/RETURN and replay safety are the most sovereign runtime behaviors in the current v0 path
@@ -1898,20 +4813,22 @@ The audit searched for these proof-signaling terms:
 - [split] test\vertical_slice.api_http_return_gate.e2e.test.mjs:76:    const evSplit = await postEvent(baseUrl, sessionId, { type: "SPLIT_SESSION" });
 - [split] test\vertical_slice.api_http_return_gate.e2e.test.mjs:77:    assert.equal(evSplit.res.status, 201, evSplit.body.text);
 
-## Targeting rule for the next engineering slice
+## Pinned next proof target
 
-Choose exactly one primary invariant to harden next.
+Primary next slice:
+- test(v0): prove repeated mixed /state -> /events -> /state reads after rejected split-decision replay preserve terminal-state shape and no-resurrection invariants
 
-Preferred order:
-1. repeated mixed /state -> /events -> /state reads after split decision replay
-2. terminal no-resurrection after RETURN_SKIP
-3. terminal no-resurrection after RETURN_CONTINUE
-4. restart parity across fresh-process read paths after downstream progress
-5. byte-stable runtime-trace / state shape across repeated interleaved reads
+Secondary fallback slice:
+- test(v0): prove fresh-process read parity remains stable after split decision replay and downstream progress
+
+Reason:
+- this seam sits directly across both V0-G03 and V0-G04
+- it hardens replay safety and split/RETURN determinism together
+- it is more release-critical than adding new surface area
 
 ## Exit criteria for this audit slice
 
 This slice is complete only if:
-- the audit file exists
-- candidate proof files are listed for G03 and G04
-- the next proof target can be chosen from concrete repo evidence instead of guesswork
+- candidate proof files are actually listed for G03 and G04
+- the next proof target is pinned explicitly
+- the gap matrix points to the same next blocking slice
