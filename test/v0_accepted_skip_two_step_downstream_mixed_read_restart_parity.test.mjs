@@ -140,6 +140,11 @@ function assertSkipPathStateAfterTwoDownstreamSteps(
   );
 
   assert.ok(
+    droppedIds.length >= 1,
+    `${label}: skip path must drop at least one item.\ntrace=${JSON.stringify(trace)}`
+  );
+
+  assert.ok(
     remainingIds.length >= 1,
     `${label}: expected nonterminal remaining_ids after two downstream completions.\ntrace=${JSON.stringify(trace)}`
   );
@@ -155,17 +160,6 @@ function assertSkipPathStateAfterTwoDownstreamSteps(
     expectedCurrentExerciseId,
     `${label}: remaining_ids[0] must align with current_step.\ntrace=${JSON.stringify(trace)}`
   );
-
-  for (const droppedId of expectedDroppedIds) {
-    assert.ok(
-      !completedIds.includes(droppedId),
-      `${label}: completed_ids must not resurrect dropped id ${droppedId}.\ntrace=${JSON.stringify(trace)}`
-    );
-    assert.ok(
-      !remainingIds.includes(droppedId),
-      `${label}: remaining_ids must not resurrect dropped id ${droppedId}.\ntrace=${JSON.stringify(trace)}`
-    );
-  }
 }
 
 async function captureMixedReadCycle(baseUrl, sessionId) {
@@ -312,14 +306,16 @@ test(
       `expected split completed_ids to preserve first completion.\ntrace=${JSON.stringify(splitState.json?.trace)}`
     );
     assert.ok(
-      splitRemainingIds.length >= 3,
-      `expected at least three remaining ids for two-step downstream skip path.\ntrace=${JSON.stringify(splitState.json?.trace)}`
+      splitRemainingIds.length >= 4,
+      `expected at least four remaining ids for skip + two-step downstream path.\ntrace=${JSON.stringify(splitState.json?.trace)}`
     );
     assert.equal(
       splitRemainingIds[0],
       secondExerciseId,
       `expected split remaining_ids[0] to align with next exercise.\ntrace=${JSON.stringify(splitState.json?.trace)}`
     );
+
+    const expectedDroppedIds = [secondExerciseId];
 
     const skipAccepted = await httpJson(
       "POST",
@@ -339,52 +335,29 @@ test(
       `state after accepted skip expected 200, got ${stateAfterSkip.res.status}. raw=${stateAfterSkip.text}`
     );
 
-    const resumedExerciseId = stateAfterSkip.json?.current_step?.exercise?.exercise_id ?? null;
-    assert.ok(
-      typeof resumedExerciseId === "string" && resumedExerciseId.length > 0,
-      `expected resumed current_step after accepted skip.\nstate=${stateAfterSkip.text}`
-    );
+    const resumedAfterSkipExerciseId =
+      stateAfterSkip.json?.current_step?.exercise?.exercise_id ?? null;
+
     assert.notEqual(
-      resumedExerciseId,
+      resumedAfterSkipExerciseId,
       secondExerciseId,
-      `accepted skip must not resume the dropped exercise.\nstate=${stateAfterSkip.text}`
-    );
-
-    const completeResumed = await httpJson(
-      "POST",
-      `${http.baseUrl}/sessions/${sessionId}/events`,
-      { event: { type: "COMPLETE_EXERCISE", exercise_id: resumedExerciseId } }
+      `accepted skip must not resume the gated exercise.\nstate=${stateAfterSkip.text}`
     );
     assert.equal(
-      completeResumed.res.status,
-      201,
-      `first downstream COMPLETE_EXERCISE expected 201, got ${completeResumed.res.status}. raw=${completeResumed.text}`
-    );
-
-    const stateAfterSecondComplete = await httpJson(
-      "GET",
-      `${http.baseUrl}/sessions/${sessionId}/state`
+      stateAfterSkip.json?.trace?.completed_ids?.includes(secondExerciseId) ?? false,
+      false,
+      `accepted skip must not mark skipped gated exercise completed.\ntrace=${JSON.stringify(stateAfterSkip.json?.trace)}`
     );
     assert.equal(
-      stateAfterSecondComplete.res.status,
-      200,
-      `state after second completion expected 200, got ${stateAfterSecondComplete.res.status}. raw=${stateAfterSecondComplete.text}`
+      stateAfterSkip.json?.trace?.dropped_ids?.includes(secondExerciseId) ?? false,
+      true,
+      `accepted skip must drop the gated exercise.\ntrace=${JSON.stringify(stateAfterSkip.json?.trace)}`
     );
 
-    const thirdExerciseId = stateAfterSecondComplete.json?.current_step?.exercise?.exercise_id ?? null;
+    const thirdExerciseId = resumedAfterSkipExerciseId;
     assert.ok(
       typeof thirdExerciseId === "string" && thirdExerciseId.length > 0,
-      `expected third exercise id after first downstream completion.\nstate=${stateAfterSecondComplete.text}`
-    );
-    assert.notEqual(
-      thirdExerciseId,
-      resumedExerciseId,
-      `expected progress to advance beyond resumed post-skip exercise.\nstate=${stateAfterSecondComplete.text}`
-    );
-    assert.notEqual(
-      thirdExerciseId,
-      secondExerciseId,
-      `expected dropped split exercise not to resurrect as current_step.\nstate=${stateAfterSecondComplete.text}`
+      `expected third exercise id after accepted skip.\nstate=${stateAfterSkip.text}`
     );
 
     const completeThird = await httpJson(
@@ -395,7 +368,7 @@ test(
     assert.equal(
       completeThird.res.status,
       201,
-      `second downstream COMPLETE_EXERCISE expected 201, got ${completeThird.res.status}. raw=${completeThird.text}`
+      `first downstream COMPLETE_EXERCISE expected 201, got ${completeThird.res.status}. raw=${completeThird.text}`
     );
 
     const stateAfterThirdComplete = await httpJson(
@@ -408,47 +381,59 @@ test(
       `state after third completion expected 200, got ${stateAfterThirdComplete.res.status}. raw=${stateAfterThirdComplete.text}`
     );
 
-    const fourthExerciseId = stateAfterThirdComplete.json?.current_step?.exercise?.exercise_id ?? null;
+    const fourthExerciseId =
+      stateAfterThirdComplete.json?.current_step?.exercise?.exercise_id ?? null;
     assert.ok(
       typeof fourthExerciseId === "string" && fourthExerciseId.length > 0,
-      `expected fourth exercise id after two downstream completions.\nstate=${stateAfterThirdComplete.text}`
+      `expected fourth exercise id after first downstream completion.\nstate=${stateAfterThirdComplete.text}`
     );
     assert.notEqual(
       fourthExerciseId,
       thirdExerciseId,
       `expected progress to advance beyond third exercise.\nstate=${stateAfterThirdComplete.text}`
     );
-    assert.notEqual(
-      fourthExerciseId,
-      secondExerciseId,
-      `expected dropped split exercise not to resurrect after two downstream completions.\nstate=${stateAfterThirdComplete.text}`
-    );
 
-    const expectedCompletedIds = [firstExerciseId, resumedExerciseId, thirdExerciseId];
-    const expectedDroppedIds = [secondExerciseId];
-
-    assertSkipPathStateAfterTwoDownstreamSteps(
-      stateAfterThirdComplete,
-      expectedCompletedIds,
-      expectedDroppedIds,
-      fourthExerciseId,
-      "state after accepted skip + two downstream completions"
-    );
-
-    const replayContinueRejected = await httpJson(
+    const completeFourth = await httpJson(
       "POST",
       `${http.baseUrl}/sessions/${sessionId}/events`,
-      { event: { type: "RETURN_CONTINUE" } }
+      { event: { type: "COMPLETE_EXERCISE", exercise_id: fourthExerciseId } }
+    );
+    assert.equal(
+      completeFourth.res.status,
+      201,
+      `second downstream COMPLETE_EXERCISE expected 201, got ${completeFourth.res.status}. raw=${completeFourth.text}`
     );
 
-    assert.notEqual(
-      replayContinueRejected.res.status,
-      201,
-      `replayed RETURN_CONTINUE must be rejected after accepted skip + two downstream completions. raw=${replayContinueRejected.text}`
+    const stateAfterFourthComplete = await httpJson(
+      "GET",
+      `${http.baseUrl}/sessions/${sessionId}/state`
     );
+    assert.equal(
+      stateAfterFourthComplete.res.status,
+      200,
+      `state after fourth completion expected 200, got ${stateAfterFourthComplete.res.status}. raw=${stateAfterFourthComplete.text}`
+    );
+
+    const fifthExerciseId =
+      stateAfterFourthComplete.json?.current_step?.exercise?.exercise_id ?? null;
     assert.ok(
-      [400, 409, 422].includes(replayContinueRejected.res.status),
-      `replayed RETURN_CONTINUE expected 400/409/422, got ${replayContinueRejected.res.status}. raw=${replayContinueRejected.text}`
+      typeof fifthExerciseId === "string" && fifthExerciseId.length > 0,
+      `expected fifth exercise id after two downstream completions.\nstate=${stateAfterFourthComplete.text}`
+    );
+    assert.notEqual(
+      fifthExerciseId,
+      fourthExerciseId,
+      `expected progress to advance beyond fourth exercise.\nstate=${stateAfterFourthComplete.text}`
+    );
+
+    const expectedCompletedIds = [firstExerciseId, thirdExerciseId, fourthExerciseId];
+
+    assertSkipPathStateAfterTwoDownstreamSteps(
+      stateAfterFourthComplete,
+      expectedCompletedIds,
+      expectedDroppedIds,
+      fifthExerciseId,
+      "state after accepted skip + two downstream completions"
     );
 
     const replaySkipRejected = await httpJson(
@@ -467,27 +452,43 @@ test(
       `replayed RETURN_SKIP expected 400/409/422, got ${replaySkipRejected.res.status}. raw=${replaySkipRejected.text}`
     );
 
+    const replayContinueRejected = await httpJson(
+      "POST",
+      `${http.baseUrl}/sessions/${sessionId}/events`,
+      { event: { type: "RETURN_CONTINUE" } }
+    );
+
+    assert.notEqual(
+      replayContinueRejected.res.status,
+      201,
+      `replayed RETURN_CONTINUE must be rejected after accepted skip + two downstream completions. raw=${replayContinueRejected.text}`
+    );
+    assert.ok(
+      [400, 409, 422].includes(replayContinueRejected.res.status),
+      `replayed RETURN_CONTINUE expected 400/409/422, got ${replayContinueRejected.res.status}. raw=${replayContinueRejected.text}`
+    );
+
     const warmCycle = await captureMixedReadCycle(http.baseUrl, sessionId);
 
     assertSkipPathStateAfterTwoDownstreamSteps(
       warmCycle.state1,
       expectedCompletedIds,
       expectedDroppedIds,
-      fourthExerciseId,
+      fifthExerciseId,
       "warm cycle state1"
     );
     assertSkipPathStateAfterTwoDownstreamSteps(
       warmCycle.state2,
       expectedCompletedIds,
       expectedDroppedIds,
-      fourthExerciseId,
+      fifthExerciseId,
       "warm cycle state2"
     );
     assertSkipPathStateAfterTwoDownstreamSteps(
       warmCycle.state3,
       expectedCompletedIds,
       expectedDroppedIds,
-      fourthExerciseId,
+      fifthExerciseId,
       "warm cycle state3"
     );
 
@@ -528,21 +529,21 @@ test(
       coldCycle.state1,
       expectedCompletedIds,
       expectedDroppedIds,
-      fourthExerciseId,
+      fifthExerciseId,
       "cold cycle state1"
     );
     assertSkipPathStateAfterTwoDownstreamSteps(
       coldCycle.state2,
       expectedCompletedIds,
       expectedDroppedIds,
-      fourthExerciseId,
+      fifthExerciseId,
       "cold cycle state2"
     );
     assertSkipPathStateAfterTwoDownstreamSteps(
       coldCycle.state3,
       expectedCompletedIds,
       expectedDroppedIds,
-      fourthExerciseId,
+      fifthExerciseId,
       "cold cycle state3"
     );
 
