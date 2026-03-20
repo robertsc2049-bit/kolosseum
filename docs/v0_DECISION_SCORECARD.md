@@ -2,8 +2,8 @@
 
 ## Status
 
-Authoritative decision-control document  
-Scope: v0 only  
+Authoritative decision-control document
+Scope: v0 only
 Purpose: convert the current v0 control stack into a hard decision surface for whether v0 is done, almost done, or still blocked
 
 ---
@@ -52,6 +52,7 @@ This scorecard must be read against these documents:
 - `docs/v0_REMAINING_BLOCKERS.md`
 - `docs/v0_AUTHORITATIVE_SHIP_BOUNDARY.md`
 - `docs/v0_CONTROL_STACK_ALIGNMENT.md`
+- `docs/v0_FINAL_DECISION_NOTE.md`
 
 If a later document conflicts with these and is not authoritative, ignore it for scoring.
 
@@ -89,7 +90,7 @@ The repo has executable proof for the present v0 runtime boundary across:
 Pass
 
 ### Why
-The runtime proof matrix now records the major terminal-runtime seams for the current Phase 1-6 boundary as materially closed on main.
+The runtime proof matrix records the major terminal-runtime seams for the current Phase 1-6 boundary as materially closed on main.
 
 ---
 
@@ -105,7 +106,7 @@ There is one authoritative ship-boundary document and the repo uses it as the co
 Pass
 
 ### Why
-`docs/v0_AUTHORITATIVE_SHIP_BOUNDARY.md` now provides that authority.
+`docs/v0_AUTHORITATIVE_SHIP_BOUNDARY.md` provides that authority.
 
 ---
 
@@ -121,7 +122,7 @@ The blocker ledger is bounded, bucketed, and readable as a real release control 
 Pass
 
 ### Why
-`docs/v0_REMAINING_BLOCKERS.md` now provides explicit Required, Optional, and Post-v0 buckets.
+`docs/v0_REMAINING_BLOCKERS.md` provides explicit Required, Optional, and Post-v0 buckets.
 
 ---
 
@@ -162,15 +163,11 @@ No Required blocker is explicitly open, but one or more decision questions could
 One or more Required blockers are explicitly open.
 
 ### Current assessment
-Partial
+Pass
 
 ### Why
-The ledger now marks the named Required items as Closed.
-However, the ledger still leaves one live decision question:
-
-- is there any still-unstated item that truly belongs in Required for v0?
-
-That is not the same as an open blocker, but it is still unresolved enough to stop a fully clean "done" call.
+The blocker ledger now has no Required blocker left open.
+The final decision note also records that no additional unnamed item is currently being promoted into Required.
 
 ---
 
@@ -186,7 +183,7 @@ Optional and post-v0 items are explicitly named and not treated as hidden blocke
 Pass
 
 ### Why
-The blocker ledger, readiness rebaseline, ship-boundary doc, and alignment pass all reinforce the same containment rule.
+The blocker ledger, readiness rebaseline, ship-boundary doc, alignment pass, and final decision note all reinforce the same containment rule.
 
 ---
 
@@ -198,24 +195,24 @@ The blocker ledger, readiness rebaseline, ship-boundary doc, and alignment pass 
 | Ship Boundary Explicitness | Pass |
 | Blocker Finiteness | Pass |
 | Control Stack Alignment | Pass |
-| Required Blockers Still Open | Partial |
+| Required Blockers Still Open | Pass |
 | Optional / Post-v0 Containment | Pass |
 
 ---
 
 ## Current Decision
 
-## Decision State: v0 Almost Done
+## Decision State: v0 Done
 
-### Why not "Blocked"
-Because the major runtime core is materially strong, the ship boundary is explicit, the blocker ledger is finite, and the current named Required blockers are closed.
+### Why
+Because:
 
-### Why not "Done"
-Because there is still one unresolved release-decision question left:
-
-- whether any still-unstated item must actually be promoted into the Required bucket before a legitimate v0 completion call can be made
-
-That is now the last serious ambiguity.
+- the major runtime core is materially strong
+- the ship boundary is explicit
+- the blocker ledger is finite
+- the control stack is aligned
+- the Required lane is closed
+- no additional concrete item is currently justified as Required
 
 ---
 
@@ -223,37 +220,27 @@ That is now the last serious ambiguity.
 
 The best current reading is:
 
-- runtime no longer justifies delay by default
-- control docs are now strong enough to support a real completion decision
-- the remaining gap is not engineering fog
-- the remaining gap is a final explicit decision on whether there is any true Required blocker left that has not yet been named
+- runtime no longer justifies delay
+- the control stack is strong enough to support a hard completion call
+- no named Required blocker remains open
+- optional and post-v0 work remain available, but they do not block v0
 
-If the answer is **no**, v0 is very close to a valid done call.
+That means the correct repo reading is now:
 
-If the answer is **yes**, that item must be named explicitly and inserted into the Required bucket.
+## v0 is done.
 
 ---
 
 ## What Must Happen Next
 
-Only one of these two paths is valid now.
+The next work should no longer be framed as "finish v0" unless a real new blocker is discovered.
 
-### Path A - Promote a real remaining blocker
-Use this path only if there is a concrete item that truly must be Required for v0.
+Valid next directions are now:
 
-Required action:
-- name it explicitly
-- explain why it is Required
-- add it to `docs/v0_REMAINING_BLOCKERS.md`
-- rescore this document
-
-### Path B - Confirm no further Required blockers exist
-Use this path if no concrete hidden blocker can be defended.
-
-Required action:
-- record that no additional Required item is being promoted
-- update this scorecard from "Almost Done" to "Done"
-- ensure the blocker ledger reflects that state cleanly
+- selective optional hardening
+- post-v0 planning
+- wider-scope execution after v0
+- later boundary expansion by explicit decision
 
 ---
 
@@ -261,41 +248,42 @@ Required action:
 
 Do not do any of the following by default:
 
-- add more routine runtime seam tests
-- widen into post-v0 proof surfaces
-- create polish docs that avoid the real decision
-- keep v0 in limbo because of vague unease
-- treat optional hardening as a fake blocker
-
----
-
-## Preferred Immediate Next Slice
-
-The next highest-value slice after this document lands is:
-
-- a final v0 completion decision note that answers:
-  - no further Required blockers exist, therefore v0 is done
-  - or
-  - one newly named Required blocker exists, therefore v0 is not done yet
-
-That slice should be short, explicit, and binary.
+- reopen v0 because of vague discomfort
+- invent hidden blockers after the fact
+- relabel optional work as mandatory without an explicit decision
+- widen into post-v0 surfaces and pretend v0 was never actually closed
+- continue seam-chasing just because more tests could be written
 
 ---
 
 ## Working Status Language
 
-Until the next decision slice lands, the preferred language is:
+Use this language now:
 
-**v0 is almost done.**  
-The runtime core is materially strong, the ship boundary is explicit, the control stack is aligned, and the named Required blockers are closed. The only remaining serious question is whether any still-unstated item truly belongs in the Required bucket.
+**v0 is done for the current authoritative boundary.**
+
+You may also say:
+
+- runtime core is materially strong on main
+- the Required blocker lane is closed
+- remaining work is optional hardening or post-v0 unless explicitly reclassified
+
+Avoid this language:
+
+- "v0 is basically done"
+- "v0 is almost done"
+- "v0 is done except for some unnamed concerns"
+
+If a concern is real enough to block v0, it must be named and promoted explicitly.
+Otherwise it does not block v0.
 
 ---
 
 ## Update Rule
 
-Update this document whenever:
+Update this document only if:
 
 - a new Required blocker is explicitly added
-- a decision question is resolved into Required, Optional, or Post-v0
-- the current state changes from Almost Done to Done
+- the authoritative boundary changes
+- the final decision note is formally reversed or replaced
 - the control stack falls out of alignment again

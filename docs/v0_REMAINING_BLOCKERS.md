@@ -2,8 +2,8 @@
 
 ## Status
 
-Working blocker ledger  
-Scope: v0 only  
+Working blocker ledger
+Scope: v0 only
 Purpose: name the real remaining blockers after runtime proof closure
 
 ---
@@ -92,15 +92,32 @@ There is no material conflict on:
 
 ---
 
-## Required items still needing decision
+### R4. Final v0 completion decision
+Status: Closed
 
-At this moment, no additional Required blocker is explicitly open in this ledger beyond keeping the control stack aligned and avoiding fake blocker promotion.
+Need a final authoritative note that resolves whether v0 is actually done or whether a newly named Required blocker still exists.
 
-That means the remaining question is now mainly a decision question:
+**Why this blocks**
+Without the final call, the repo stays trapped in "almost done" ambiguity.
 
-- is there any other item that truly must be promoted into Required for v0?
+**Done when**
+There is one authoritative final decision note that either:
 
-If the answer is no, the path to a v0 completion call is much shorter.
+- declares v0 done for the current authoritative boundary
+- or names the still-open Required blocker that prevents completion
+
+**Current anchor**
+- `docs/v0_FINAL_DECISION_NOTE.md`
+
+---
+
+## Required items still open
+
+None.
+
+Under the current authoritative control stack, no Required blocker remains open in this ledger.
+
+That means v0 is not currently blocked by any named Required item.
 
 ---
 
@@ -154,17 +171,29 @@ These are not blockers by themselves until resolved into a bucket.
 ### Q1
 Is exact post-terminal rejection token/body/status pinning required for v0, or just useful?
 
+Current default:
+- Optional
+
 ### Q2
 Are any reporting/evidence artifacts part of the chosen v0 law, or explicitly post-v0?
+
+Current default:
+- Post-v0 unless explicitly promoted
 
 ### Q3
 Is launch readiness being judged as engineering-complete, runtime-complete, or release-complete?
 
+Current default reading:
+- v0 completion is judged against the authoritative boundary currently defined in repo control docs
+
 ### Q4
 Is there any still-unstated required blocker not yet promoted into the Required bucket?
 
-If yes, it must be named explicitly.
-If no, v0 should be judged against the already-closed Required items and the authoritative ship boundary.
+Current answer:
+- No named item currently justifies promotion
+
+If that changes, it must be named explicitly.
+Until then, it does not block v0.
 
 ---
 
@@ -180,8 +209,8 @@ When choosing the next slice:
 
 ## Immediate Next Slice Recommendation
 
-Best next control-doc slice after this one:
+Best next slice after this one:
 
-- create a v0 decision scorecard that answers whether v0 is now done, almost done, or still blocked by a newly named Required item
+- move from v0 completion control docs into post-v0 planning or selectively chosen optional hardening
 
-That is higher value than more terminal-runtime seam work.
+More v0 blocker-chasing is no longer the default highest-value move because the Required lane is now closed.
