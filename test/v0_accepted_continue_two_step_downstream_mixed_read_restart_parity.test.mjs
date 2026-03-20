@@ -127,15 +127,15 @@ function assertContinuePathStateAfterTwoDownstreamSteps(
   );
 
   assert.deepEqual(
-    droppedIds,
-    [],
-    `${label}: continue path must not drop work.\ntrace=${JSON.stringify(trace)}`
-  );
-
-  assert.deepEqual(
     completedIds,
     expectedCompletedIds,
     `${label}: completed_ids drifted.\ntrace=${JSON.stringify(trace)}`
+  );
+
+  assert.deepEqual(
+    droppedIds,
+    [],
+    `${label}: continue path must not drop work.\ntrace=${JSON.stringify(trace)}`
   );
 
   assert.ok(
@@ -331,7 +331,7 @@ test(
     assert.equal(
       resumedExerciseId,
       secondExerciseId,
-      `accepted continue must resume the previously gated exercise.\nstate=${stateAfterContinue.text}`
+      `accepted continue must resume the gated exercise.\nstate=${stateAfterContinue.text}`
     );
 
     const completeResumed = await httpJson(
@@ -362,8 +362,8 @@ test(
     );
     assert.notEqual(
       thirdExerciseId,
-      secondExerciseId,
-      `expected progress to advance beyond resumed second exercise.\nstate=${stateAfterSecondComplete.text}`
+      resumedExerciseId,
+      `expected progress to advance beyond resumed continued exercise.\nstate=${stateAfterSecondComplete.text}`
     );
 
     const completeThird = await httpJson(
@@ -398,13 +398,29 @@ test(
       `expected progress to advance beyond third exercise.\nstate=${stateAfterThirdComplete.text}`
     );
 
-    const expectedCompletedIds = [firstExerciseId, secondExerciseId, thirdExerciseId];
+    const expectedCompletedIds = [firstExerciseId, resumedExerciseId, thirdExerciseId];
 
     assertContinuePathStateAfterTwoDownstreamSteps(
       stateAfterThirdComplete,
       expectedCompletedIds,
       fourthExerciseId,
       "state after accepted continue + two downstream completions"
+    );
+
+    const replayContinueRejected = await httpJson(
+      "POST",
+      `${http.baseUrl}/sessions/${sessionId}/events`,
+      { event: { type: "RETURN_CONTINUE" } }
+    );
+
+    assert.notEqual(
+      replayContinueRejected.res.status,
+      201,
+      `replayed RETURN_CONTINUE must be rejected after accepted continue + two downstream completions. raw=${replayContinueRejected.text}`
+    );
+    assert.ok(
+      [400, 409, 422].includes(replayContinueRejected.res.status),
+      `replayed RETURN_CONTINUE expected 400/409/422, got ${replayContinueRejected.res.status}. raw=${replayContinueRejected.text}`
     );
 
     const replaySkipRejected = await httpJson(
