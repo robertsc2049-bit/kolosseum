@@ -31,8 +31,12 @@ This matrix tracks proof of:
 - terminal partial state
 - state readback
 - events readback
+- repeated-read parity
+- mixed read-order parity
 - post-terminal rejection behavior
 - restart read parity
+- return-continue downstream completion contract
+- restart + mixed-read grouped matrix
 
 This matrix does **not** claim proof for:
 
@@ -210,6 +214,77 @@ This matrix does **not** claim proof for:
 
 ---
 
+### I. Mixed read-order parity after terminalization
+
+**Covered**
+
+- `/state -> /events -> /state` stays stable for completed terminal sessions
+- `/events -> /state -> /events` stays stable for completed terminal sessions
+- `/state -> /events -> /state` stays stable for partial terminal sessions
+- `/events -> /state -> /events` stays stable for partial terminal sessions
+- longer alternating read sequences stay stable
+- read order does not alter terminal state or event projections
+
+**Primary executable slice**
+
+- `test/v0_terminal_mixed_read_order_parity.test.mjs`
+
+**What this proves**
+
+- terminal projections do not depend on read order
+- state and events surfaces are observational only after terminalization
+- completed and partial terminals remain stable under alternating reads
+
+---
+
+### J. Return-continue terminal downstream contract
+
+**Covered**
+
+- split emits explicit return decision contract
+- `RETURN_CONTINUE` clears the return decision gate
+- continue path remains live before terminal completion
+- continue path does not drop work
+- continue path reaches lawful completed terminal state
+- downstream repeated `/state` parity holds after continue path
+- downstream repeated `/events` parity holds after continue path
+
+**Primary executable slice**
+
+- `test/v0_return_continue_terminal_contract.test.mjs`
+
+**What this proves**
+
+- the continue branch is now defended, not just the skip branch
+- split -> return_continue -> lawful completion is stable and contract-safe
+- the major branch asymmetry inside current v0 runtime is closed
+
+---
+
+### K. Restart + mixed-read grouped matrix
+
+**Covered**
+
+- completed terminal state survives fresh process restart and mixed read order
+- completed terminal events survive fresh process restart and mixed read order
+- partial terminal state survives fresh process restart and mixed read order
+- partial terminal events survive fresh process restart and mixed read order
+- completed terminal semantics remain clean after restart and alternating reads
+- partial dropped-work semantics remain intact after restart and alternating reads
+- cleared return-gate semantics remain intact after restart and alternating reads
+
+**Primary executable slice**
+
+- `test/v0_terminal_restart_mixed_read_matrix.test.mjs`
+
+**What this proves**
+
+- grouped restart + mixed-read proof now exists on main
+- the strongest remaining terminal runtime summary seam inside the current v0 boundary is closed
+- current runtime terminal projections are strongly defended across lawful paths and read patterns
+
+---
+
 ## Runtime Surfaces Covered
 
 ### Covered endpoint surfaces
@@ -225,6 +300,7 @@ This matrix does **not** claim proof for:
 - `COMPLETE_EXERCISE`
 - `SPLIT_SESSION`
 - `RETURN_SKIP`
+- `RETURN_CONTINUE`
 
 ### Covered terminal outcomes
 
@@ -237,49 +313,20 @@ This matrix does **not** claim proof for:
 - no resurrection
 - repeated state parity
 - repeated events parity
+- mixed read-order parity
 - stable rejection shape
 - grouped contract matrix
 - restart parity
+- continue-path downstream completion contract
+- restart + mixed-read grouped matrix
 
 ---
 
-## Runtime Surfaces Not Yet Proved Enough
+## Runtime Surfaces Still Not Fully Locked
 
-These are the main uncovered seams.
+These are the remaining runtime proof opportunities, but they are no longer the primary v0 bottleneck.
 
-### 1. Mixed read ordering contract
-
-Need stronger grouped proof for:
-
-- `/state -> /events -> /state`
-- `/events -> /state -> /events`
-- alternating reads after terminalization
-- stable projection across mixed read order, not only repeated same-endpoint reads
-
-This is now the highest-value remaining seam.
-
-**Formal slice contract**
-
-- `docs/contracts/v0_terminal_mixed_read_order_parity_contract.md`
-
-### 2. RETURN_CONTINUE terminal downstream contract
-
-Current proof heavily covers return skip.
-Return continue still needs broader grouped proof around:
-
-- terminal completed via continue path
-- downstream state parity after continue path
-- no drift vs expected completion contract
-
-### 3. Restart + mixed read order combined
-
-Need proof that:
-
-- after fresh boot
-- with mixed read order
-- both completed and partial terminal sessions stay byte-stable at the projection level
-
-### 4. Exact error token / body contract pinning
+### 1. Exact rejection token / body contract pinning
 
 Current proof checks stable error shape.
 Still useful to pin:
@@ -289,94 +336,97 @@ Still useful to pin:
 - exact failure token contract
 - exact absence of drift in response body if that contract is intended to be locked
 
-### 5. Continue-path grouped matrix
+### 2. Higher-density grouped summary matrix
 
-Need one grouped contract slice for continue-path terminal completion so it reaches parity with return-skip proof density.
+A broader grouped summary slice could still combine more proved seams into one matrix-style artifact for audit convenience, but this is now secondary because the underlying branches and read patterns are already defended.
+
+### 3. Wider-than-v0 runtime surfaces
+
+Potential future proof work beyond current v0 boundary may include:
+
+- Phase 7 reporting surfaces
+- Phase 8 evidence surfaces
+- export / seal runtime projections
+- broader org runtime
+
+These are outside current v0 runtime proof scope.
 
 ---
 
 ## Runtime Risks Still Open
 
-### Open Risk A — read-order bias
+### Open Risk A — exact rejection body pinning not yet locked
 
-Current parity is strong for repeated reads and restart reads, but alternating read order is not yet proved enough.
+Rejection exists and its shape is stable, but exact body/token pinning is not yet the top-level locked contract.
 
-### Open Risk B — continue-path undercoverage
+### Open Risk B — wider release readiness may now dominate
 
-Return skip is well proved.
-Return continue still needs broader terminal proof density.
-
-### Open Risk C — grouped proof beyond same-surface repetitions
-
-The grouped matrix exists for terminal contracts, but mixed-read and continue-path grouped proofs do not yet exist.
+Core terminal runtime proof is strong.
+The bigger remaining risks for calling v0 done may now sit outside terminal runtime proof and inside release boundary, readiness, reporting, evidence, and ship-law clarity.
 
 ---
 
 ## Recommended Next 5 Slices
 
-Ordered by value.
+Ordered by value **after** current runtime seam closure.
 
-### 1. Mixed read-order parity after terminalization
+### 1. Update v0 readiness and ship-boundary docs
 
 **Target**
 
-Prove alternating `/state` and `/events` read order does not drift for completed and partial terminals.
+Reflect that major current-boundary runtime proof seams are now closed on main.
 
 **Why first**
 
-This is now the biggest remaining runtime proof seam.
-
-**Formal contract**
-
-- `docs/contracts/v0_terminal_mixed_read_order_parity_contract.md`
+This improves decision quality immediately and prevents outdated status reporting.
 
 ---
 
-### 2. Return-continue terminal completion contract
+### 2. Exact post-terminal rejection contract pin
 
 **Target**
 
-Prove split -> return continue -> lawful completion path preserves completed terminal contract.
+Pin exact rejection token/body/status if that response contract is intended to remain fixed.
 
 **Why second**
 
-Return skip is already strong. Continue needs matching depth.
+This is now the cleanest remaining runtime-detail hardening slice.
 
 ---
 
-### 3. Restart + mixed-read grouped matrix
+### 3. Reassess true non-runtime v0 blockers
 
 **Target**
 
-One grouped slice asserting restart parity plus alternating read-order parity for both completed and partial terminal outcomes.
+Move focus from terminal runtime proof to remaining v0 ship blockers outside the now-strong runtime spine.
 
 **Why third**
 
-This becomes a stronger runtime summary proof.
+This prevents local optimisation in an area that is already well defended.
 
 ---
 
-### 4. Exact post-terminal rejection contract pin
+### 4. Optional grouped audit summary artifact
 
 **Target**
 
-Pin exact rejection token/body/status if the response contract is intended to remain fixed.
+Create a compact grouped summary of the now-proved runtime spine for audit / release-law convenience.
 
 **Why fourth**
 
-Now worth doing because restart parity is closed.
+This is useful, but lower value than readiness clarity.
 
 ---
 
-### 5. Continue-path grouped matrix
+### 5. Post-v0 / wider-boundary planning
 
 **Target**
 
-One grouped slice asserting continue-path completion, repeated-read parity, and post-terminal rejection in the same matrix style used for completed/partial skip contracts.
+Only after v0 readiness is re-evaluated, decide whether Phase 7/8 or export/evidence surfaces should become the next formal proof frontier.
 
 **Why fifth**
 
-This closes the biggest remaining branch asymmetry.
+Do not widen scope before cashing in the proof already earned.
 
 ---
 
@@ -388,25 +438,32 @@ Current v0 runtime proof is now strong on:
 - completed terminal hard boundary
 - partial terminal hard boundary
 - repeated read parity in-process
+- mixed read-order parity
 - stable post-terminal rejection
 - grouped terminal contract summary
 - fresh-process restart parity
+- return-continue downstream contract
+- restart + mixed-read grouped matrix
 
-Current weakest seam is:
+Current runtime conclusion:
 
-- mixed read ordering after terminalization
+- the major terminal-runtime proof seams inside the current v0 Phase 1–6 boundary are materially closed on main
 
-That should be the next runtime slice.
+Current likely next v0 bottleneck:
+
+- not terminal runtime proof density
+- but overall v0 readiness, release boundary clarity, and any non-runtime ship blockers
 
 ---
 
 ## Rule for Future Runtime Proof Work
 
-Do not add more narrow terminal slices until one of the following is true:
+Do not keep adding narrow terminal-runtime slices by default.
 
-- mixed read-order parity is proved
-- return-continue contract reaches parity with return-skip coverage
-- restart + mixed-read grouped proof exists
+Before adding more runtime-proof density, first ask:
+
+- does this close a real remaining contract hole?
+- or is v0 now more constrained by release/readiness/document-law gaps?
 
 This prevents local optimisation and proof duplication.
 
@@ -422,12 +479,17 @@ This prevents local optimisation and proof duplication.
 - `test/v0_post_terminal_rejection_error_shape_parity.test.mjs`
 - `test/v0_terminal_contract_matrix.test.mjs`
 - `test/v0_terminal_restart_read_parity.test.mjs`
+- `test/v0_terminal_mixed_read_order_parity.test.mjs`
+- `test/v0_return_continue_terminal_contract.test.mjs`
+- `test/v0_terminal_restart_mixed_read_matrix.test.mjs`
 
 ---
 
-## Planned Next Proof Contract Anchors
+## Planned / Historical Contract Anchors
 
 - `docs/contracts/v0_terminal_mixed_read_order_parity_contract.md`
+
+This contract is now materially backed by executable proof on main and remains useful as a design anchor.
 
 ---
 
@@ -439,3 +501,4 @@ Update it whenever:
 - a runtime proof slice lands on main
 - a proof seam is closed
 - a next-slice priority changes
+- the true v0 bottleneck shifts away from runtime proof and toward release readiness
