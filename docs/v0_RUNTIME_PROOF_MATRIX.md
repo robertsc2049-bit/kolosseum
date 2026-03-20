@@ -32,6 +32,7 @@ This matrix tracks proof of:
 - state readback
 - events readback
 - post-terminal rejection behavior
+- restart read parity
 
 This matrix does **not** claim proof for:
 
@@ -187,6 +188,28 @@ This matrix does **not** claim proof for:
 
 ---
 
+### H. Fresh-process restart parity
+
+**Covered**
+
+- completed terminal `/state` survives fresh process restart without drift
+- completed terminal `/events` survives fresh process restart without drift
+- partial terminal `/state` survives fresh process restart without drift
+- partial terminal `/events` survives fresh process restart without drift
+- dropped-work semantics survive restart
+- return-gate semantics stay cleared after restart
+
+**Primary executable slice**
+
+- `test/v0_terminal_restart_read_parity.test.mjs`
+
+**What this proves**
+
+- terminal projections survive a fresh harness boot without drift
+- persistence-backed terminal read surfaces remain stable across restart
+
+---
+
 ## Runtime Surfaces Covered
 
 ### Covered endpoint surfaces
@@ -216,6 +239,7 @@ This matrix does **not** claim proof for:
 - repeated events parity
 - stable rejection shape
 - grouped contract matrix
+- restart parity
 
 ---
 
@@ -223,15 +247,16 @@ This matrix does **not** claim proof for:
 
 These are the main uncovered seams.
 
-### 1. Fresh-process / restart parity
+### 1. Mixed read ordering contract
 
-Not yet sufficiently proved:
+Need stronger grouped proof for:
 
-- terminal state parity after process restart
-- terminal events parity after process restart
-- completed + partial restart parity under fresh boot
+- `/state -> /events -> /state`
+- `/events -> /state -> /events`
+- alternating reads after terminalization
+- stable projection across mixed read order, not only repeated same-endpoint reads
 
-This is the highest-value remaining seam.
+This is now the highest-value remaining seam.
 
 ### 2. RETURN_CONTINUE terminal downstream contract
 
@@ -242,16 +267,7 @@ Return continue still needs broader grouped proof around:
 - downstream state parity after continue path
 - no drift vs expected completion contract
 
-### 3. Mixed read ordering contract
-
-Need stronger grouped proof for:
-
-- `/state -> /events -> /state`
-- `/events -> /state -> /events`
-- alternating reads after terminalization
-- stable projection across mixed read order, not only repeated same-endpoint reads
-
-### 4. Restart + alternating read order combined
+### 3. Restart + mixed read order combined
 
 Need proof that:
 
@@ -259,7 +275,7 @@ Need proof that:
 - with mixed read order
 - both completed and partial terminal sessions stay byte-stable at the projection level
 
-### 5. Exact error token / body contract pinning
+### 4. Exact error token / body contract pinning
 
 Current proof checks stable error shape.
 Still useful to pin:
@@ -269,23 +285,26 @@ Still useful to pin:
 - exact failure token contract
 - exact absence of drift in response body if that contract is intended to be locked
 
+### 5. Continue-path grouped matrix
+
+Need one grouped contract slice for continue-path terminal completion so it reaches parity with return-skip proof density.
+
 ---
 
 ## Runtime Risks Still Open
 
-### Open Risk A — live-process bias
+### Open Risk A — read-order bias
 
-Current repeated-read parity is strong, but mostly same-process.
-A restart seam can still hide persistence/read-model drift.
+Current parity is strong for repeated reads and restart reads, but alternating read order is not yet proved enough.
 
 ### Open Risk B — continue-path undercoverage
 
 Return skip is well proved.
 Return continue still needs broader terminal proof density.
 
-### Open Risk C — grouped proof vs isolated proof
+### Open Risk C — grouped proof beyond same-surface repetitions
 
-The grouped matrix now exists for terminal contracts, but restart and mixed-read grouped proofs do not yet exist.
+The grouped matrix exists for terminal contracts, but mixed-read and continue-path grouped proofs do not yet exist.
 
 ---
 
@@ -293,63 +312,63 @@ The grouped matrix now exists for terminal contracts, but restart and mixed-read
 
 Ordered by value.
 
-### 1. Fresh-process restart parity for completed + partial terminal sessions
-
-**Target**
-
-Prove completed and partial terminal `/state` and `/events` parity survives fresh process restart.
-
-**Why first**
-
-This is the biggest remaining runtime proof seam.
-
----
-
-### 2. Mixed read-order parity after terminalization
+### 1. Mixed read-order parity after terminalization
 
 **Target**
 
 Prove alternating `/state` and `/events` read order does not drift for completed and partial terminals.
 
-**Why second**
+**Why first**
 
-It closes read-surface ordering risk.
+This is now the biggest remaining runtime proof seam.
 
 ---
 
-### 3. Return-continue terminal completion contract
+### 2. Return-continue terminal completion contract
 
 **Target**
 
 Prove split -> return continue -> lawful completion path preserves completed terminal contract.
 
-**Why third**
+**Why second**
 
 Return skip is already strong. Continue needs matching depth.
 
 ---
 
-### 4. Restart + mixed-read grouped matrix
+### 3. Restart + mixed-read grouped matrix
 
 **Target**
 
 One grouped slice asserting restart parity plus alternating read-order parity for both completed and partial terminal outcomes.
 
-**Why fourth**
+**Why third**
 
-This becomes a strong runtime summary proof.
+This becomes a stronger runtime summary proof.
 
 ---
 
-### 5. Exact post-terminal rejection contract pin
+### 4. Exact post-terminal rejection contract pin
 
 **Target**
 
 Pin exact rejection token/body/status if the response contract is intended to remain fixed.
 
+**Why fourth**
+
+Now worth doing because restart parity is closed.
+
+---
+
+### 5. Continue-path grouped matrix
+
+**Target**
+
+One grouped slice asserting continue-path completion, repeated-read parity, and post-terminal rejection in the same matrix style used for completed/partial skip contracts.
+
 **Why fifth**
 
-Only worth doing after restart/read seams are closed.
+This closes the biggest remaining branch asymmetry.
 
 ---
 
@@ -363,10 +382,11 @@ Current v0 runtime proof is now strong on:
 - repeated read parity in-process
 - stable post-terminal rejection
 - grouped terminal contract summary
+- fresh-process restart parity
 
 Current weakest seam is:
 
-- fresh-process restart parity
+- mixed read ordering after terminalization
 
 That should be the next runtime slice.
 
@@ -376,9 +396,9 @@ That should be the next runtime slice.
 
 Do not add more narrow terminal slices until one of the following is true:
 
-- fresh-process restart parity is proved
 - mixed read-order parity is proved
 - return-continue contract reaches parity with return-skip coverage
+- restart + mixed-read grouped proof exists
 
 This prevents local optimisation and proof duplication.
 
@@ -393,6 +413,7 @@ This prevents local optimisation and proof duplication.
 - `test/v0_completed_terminal_state_events_read_parity.test.mjs`
 - `test/v0_post_terminal_rejection_error_shape_parity.test.mjs`
 - `test/v0_terminal_contract_matrix.test.mjs`
+- `test/v0_terminal_restart_read_parity.test.mjs`
 
 ---
 
