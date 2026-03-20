@@ -258,6 +258,10 @@ Need stronger grouped proof for:
 
 This is now the highest-value remaining seam.
 
+**Formal slice contract**
+
+- `docs/contracts/v0_terminal_mixed_read_order_parity_contract.md`
+
 ### 2. RETURN_CONTINUE terminal downstream contract
 
 Current proof heavily covers return skip.
@@ -321,6 +325,10 @@ Prove alternating `/state` and `/events` read order does not drift for completed
 **Why first**
 
 This is now the biggest remaining runtime proof seam.
+
+**Formal contract**
+
+- `docs/contracts/v0_terminal_mixed_read_order_parity_contract.md`
 
 ---
 
@@ -414,6 +422,12 @@ This prevents local optimisation and proof duplication.
 - `test/v0_post_terminal_rejection_error_shape_parity.test.mjs`
 - `test/v0_terminal_contract_matrix.test.mjs`
 - `test/v0_terminal_restart_read_parity.test.mjs`
+
+---
+
+## Planned Next Proof Contract Anchors
+
+- `docs/contracts/v0_terminal_mixed_read_order_parity_contract.md`
 
 ---
 
