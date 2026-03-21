@@ -200,4 +200,106 @@ export function projectSessionStatePayload(
     trace,
     event_log: []
   };
+}//
+// ============================
+// v1 TICKET-A PROJECTION BUILDER (RUN_ID HAPPY PATH)
+// ============================
+//
+// NOTE:
+// - deterministic
+// - read-only
+// - no endpoint concerns
+// - no ambiguity resolution
+//
+
+export type CoachSessionDecisionSummary = {
+  schema: Record<string, unknown>
+  identity: {
+    run_id: string
+  }
+  currentness: {
+    state: "current" | "stale" | "superseded" | "incomplete"
+  }
+  outcome: Record<string, unknown>
+  drivers: unknown[]
+  timeline: Record<string, unknown>
+  audit: Record<string, unknown>
+  issues: unknown[]
+}
+
+export async function buildCoachSessionDecisionSummaryFromRunId(
+  runId: string
+): Promise<CoachSessionDecisionSummary> {
+  if (!runId || runId.trim() === "") {
+    throw new Error("invalid_input: run_id required")
+  }
+
+  // ---- LOAD AUTHORITATIVE TRUTH ----
+  // IMPORTANT:
+  // This must come from your existing persistence layer.
+  // Using existing engine_run_persistence_service as source.
+
+  const run = await getEngineRunById(runId)
+
+  if (!run) {
+    throw new Error("not_found: run_id")
+  }
+
+  // ---- PROJECTION (DETERMINISTIC) ----
+
+  const isStale = Boolean(run.is_stale)
+  const isSuperseded = Boolean(run.is_superseded)
+  const isIncomplete = Boolean(run.is_incomplete)
+
+  let currentness: "current" | "stale" | "superseded" | "incomplete" = "current"
+
+  if (isIncomplete) {
+    currentness = "incomplete"
+  } else if (isSuperseded) {
+    currentness = "superseded"
+  } else if (isStale) {
+    currentness = "stale"
+  }
+
+  return {
+    schema: {
+      version: "v1"
+    },
+
+    identity: {
+      run_id: runId
+    },
+
+    currentness: {
+      state: currentness
+    },
+
+    outcome: {
+      decision: run.decision ?? null
+    },
+
+    drivers: run.drivers ?? [],
+
+    timeline: {
+      created_at: run.created_at ?? null,
+      completed_at: run.completed_at ?? null
+    },
+
+    audit: {
+      source: "engine_run",
+      resolved_from: "run_id"
+    },
+
+    issues: run.issues ?? []
+  }
+}
+
+// ---- DEPENDENCY (existing service) ----
+// MUST EXIST already. If not, wire later in next slice.
+
+async function getEngineRunById(runId: string): Promise<any> {
+  const svc = await import("./engine_run_persistence_service")
+  return svc.getEngineRunById
+    ? svc.getEngineRunById(runId)
+    : null
 }
