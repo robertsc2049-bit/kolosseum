@@ -27,6 +27,8 @@ app.use(express.json({ limit: "1mb" }));
  * Minimal built-in UI (static, no framework)
  * - /ui/session.html?session_id=...
  * - /ui/session/:session_id (redirect convenience)
+ * - /ui/decision-summary.html?run_id=...
+ * - /ui/decision-summary/:run_id (redirect convenience)
  */
 const publicDir = path.resolve(process.cwd(), "public");
 app.use("/ui", express.static(publicDir));
@@ -35,6 +37,12 @@ app.get("/ui/session/:session_id", (req, res) => {
   const sid = String(req.params.session_id ?? "").trim();
   if (!sid) return res.redirect("/ui/session.html");
   return res.redirect(`/ui/session.html?session_id=${encodeURIComponent(sid)}`);
+});
+
+app.get("/ui/decision-summary/:run_id", (req, res) => {
+  const runId = String(req.params.run_id ?? "").trim();
+  if (!runId) return res.redirect("/ui/decision-summary.html");
+  return res.redirect(`/ui/decision-summary.html?run_id=${encodeURIComponent(runId)}`);
 });
 
 app.use("/sessions", sessionsRouter);
