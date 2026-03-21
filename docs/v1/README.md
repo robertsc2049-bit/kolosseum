@@ -17,6 +17,9 @@ This folder exists to keep V1 work narrow, explicit, and testable.
 1. `V1_SLICE_001_DECISION_SUMMARY_READBACK.md`
    - Goal: lock single-run coach session decision summary readback by `run_id`
 
+2. `V1_SLICE_002_DECISION_SUMMARY_HTTP_CONTRACT.md`
+   - Goal: expose the decision summary readback through one stable read-only API handler/endpoint contract by `run_id`
+
 ## Operating intent
 
 V1 should progress through small slices that:
