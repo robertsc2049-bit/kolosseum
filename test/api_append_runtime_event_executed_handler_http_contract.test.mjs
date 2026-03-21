@@ -102,12 +102,21 @@ function installCommonMocks({ normalizedRaw, mutationResult, extractError, mutat
   });
 
   mock.module(distSessionStateQueryUrl, {
-    namedExports: {
-      async getSessionStateQuery() {
-        throw new Error("not used in this test");
-      }
+  namedExports: {
+    async getSessionStateQuery(sessionId) {
+      return {
+        session_id: sessionId,
+        trace: {}
+      };
+    },
+    async getDecisionSummaryByRunIdQuery(runId) {
+      return {
+        identity: { run_id: runId },
+        audit: { source: "engine_run", resolved_from: "run_id" }
+      };
     }
-  });
+  }
+});
 }
 
 test("appendRuntimeEvent executed path: returns 201 with delegated JSON payload when mutation succeeds", async () => {

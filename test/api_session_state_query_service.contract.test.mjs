@@ -1,5 +1,6 @@
 import test, { mock } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 
 const distPoolUrl = new URL("../dist/src/db/pool.js", import.meta.url).href;
 const distHttpErrorsUrl = new URL("../dist/src/api/http_errors.js", import.meta.url).href;
@@ -265,5 +266,45 @@ test("getSessionStateQuery preserves deterministic replay projection across unca
     second,
     first,
     "uncached reload must reproduce the exact same public payload"
+  );
+});
+
+test("decision summary query source contract: delegates run_id readback to the projection builder with explicit error mapping", () => {
+  const src = fs.readFileSync("src/api/session_state_query_service.ts", "utf8");
+
+  assert.match(
+    src,
+    /import\s*\{[\s\S]*buildCoachSessionDecisionSummaryFromRunId[\s\S]*\}\s*from\s*"\.\/session_state_read_model\.js";/,
+    "expected query service to import buildCoachSessionDecisionSummaryFromRunId from the read model"
+  );
+
+  assert.match(
+    src,
+    /export\s+async\s+function\s+getDecisionSummaryByRunIdQuery\s*\(\s*run_id:\s*string\s*\)\s*\{/,
+    "expected getDecisionSummaryByRunIdQuery(run_id) export"
+  );
+
+  assert.match(
+    src,
+    /return\s+await\s+buildCoachSessionDecisionSummaryFromRunId\(run_id\);/,
+    "expected query service to delegate success path directly to the projection builder"
+  );
+
+  assert.match(
+    src,
+    /if\s*\(message === "invalid_input: run_id required"\)\s*\{\s*throw badRequest\("Missing run_id",\s*\{\s*failure_token:\s*"decision_summary_run_id_required"\s*\}\);\s*\}/s,
+    "expected invalid_input to map to explicit badRequest contract"
+  );
+
+  assert.match(
+    src,
+    /if\s*\(message === "not_found: run_id"\)\s*\{\s*throw notFound\("Engine run not found",\s*\{\s*failure_token:\s*"decision_summary_run_id_not_found"\s*\}\);\s*\}/s,
+    "expected missing run_id source to map to explicit notFound contract"
+  );
+
+  assert.match(
+    src,
+    /if\s*\(message === "invalid_source: engine_run output required"\)\s*\{\s*throw internalError\("Invalid decision summary source",\s*\{[\s\S]*failure_token:\s*"decision_summary_invalid_source"[\s\S]*\}\);\s*\}/s,
+    "expected malformed persisted source to map to explicit internalError contract"
   );
 });

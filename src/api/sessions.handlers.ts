@@ -10,7 +10,10 @@ import {
 } from "./session_state_write_service.js";
 import { planSessionService } from "./plan_session_service.js";
 import { listRuntimeEventsQuery } from "./session_events_query_service.js";
-import { getSessionStateQuery } from "./session_state_query_service.js";
+import {
+  getDecisionSummaryByRunIdQuery,
+  getSessionStateQuery
+} from "./session_state_query_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -64,5 +67,13 @@ export async function getSessionState(req: Request, res: Response) {
   if (!session_id) throw badRequest("Missing session_id");
 
   const payload = await getSessionStateQuery(session_id);
+  return res.json(payload);
+}
+
+export async function getDecisionSummaryByRunId(req: Request, res: Response) {
+  const run_id = asString(req.params?.run_id);
+  if (!run_id) throw badRequest("Missing run_id");
+
+  const payload = await getDecisionSummaryByRunIdQuery(run_id);
   return res.json(payload);
 }
