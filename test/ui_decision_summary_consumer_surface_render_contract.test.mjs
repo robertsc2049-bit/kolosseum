@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-test("decision summary consumer surface render contract: enter key submits, stale summary is reset, state pill is updated, and raw payload is rendered", () => {
+test("decision summary consumer surface render contract: enter key submits, stale summary is reset, centralized surface state is updated, and raw payload is rendered", () => {
   const repo = process.cwd();
   const jsSrc = fs.readFileSync(path.join(repo, "public", "decision-summary.js"), "utf8");
 
@@ -34,37 +34,43 @@ test("decision summary consumer surface render contract: enter key submits, stal
   assert.match(
     jsSrc,
     /function setStatePill\(kind,\s*text\) \{/,
-    "expected consumer surface to centralise state-pill updates"
+    "expected consumer surface to keep a dedicated state-pill helper"
   );
 
   assert.match(
     jsSrc,
-    /setStatePill\("loading",\s*"loading"\);/,
-    "expected loading state to be surfaced in the state pill"
+    /function setSurfaceState\(kind,\s*text,\s*runId\) \{/,
+    "expected state updates to be centralized through setSurfaceState"
   );
 
   assert.match(
     jsSrc,
-    /setStatePill\("success",\s*"success"\);/,
-    "expected success state to be surfaced in the state pill"
+    /setSurfaceState\("loading",\s*"loading",\s*runId\);/,
+    "expected loading state to be surfaced through the centralized surface-state helper"
   );
 
   assert.match(
     jsSrc,
-    /setStatePill\("bad",\s*"bad_request"\);/,
-    "expected bad-request state to be surfaced in the state pill"
+    /setSurfaceState\("success",\s*"success",\s*runId\);/,
+    "expected success state to be surfaced through the centralized surface-state helper"
   );
 
   assert.match(
     jsSrc,
-    /setStatePill\("not-found",\s*"not_found"\);/,
-    "expected not-found state to be surfaced in the state pill"
+    /setSurfaceState\("bad",\s*"bad_request",\s*runId\);/,
+    "expected bad-request state to be surfaced through the centralized surface-state helper"
   );
 
   assert.match(
     jsSrc,
-    /setStatePill\("invalid",\s*"invalid_source"\);/,
-    "expected invalid-source state to be surfaced in the state pill"
+    /setSurfaceState\("not-found",\s*"not_found",\s*runId\);/,
+    "expected not-found state to be surfaced through the centralized surface-state helper"
+  );
+
+  assert.match(
+    jsSrc,
+    /setSurfaceState\("invalid",\s*"invalid_source",\s*runId\);/,
+    "expected invalid-source state to be surfaced through the centralized surface-state helper"
   );
 
   assert.match(
@@ -87,7 +93,7 @@ test("decision summary consumer surface render contract: enter key submits, stal
 
   assert.match(
     jsSrc,
-    /setStatePill\("idle",\s*"idle"\);/,
+    /setSurfaceState\("idle",\s*"idle",\s*readRunId\(\)\);/,
     "expected consumer surface to boot into an explicit idle state"
   );
 });

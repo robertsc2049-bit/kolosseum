@@ -144,19 +144,19 @@ test("decision summary consumer surface source contract: server exposes redirect
 
   assert.match(
     jsSrc,
-    /if \(result\.status === 400\) \{\s*renderBadRequest\(message\);/s,
+    /if \(result\.status === 400\) \{\s*renderBadRequest\(message,\s*runId\);/s,
     "expected explicit bad-request mapping"
   );
 
   assert.match(
     jsSrc,
-    /if \(result\.status === 404\) \{\s*renderNotFound\(message\);/s,
+    /if \(result\.status === 404\) \{\s*renderNotFound\(message,\s*runId\);/s,
     "expected explicit not-found mapping"
   );
 
   assert.match(
     jsSrc,
-    /renderInvalidSource\(message\);/,
+    /renderInvalidSource\(message,\s*runId\);/,
     "expected explicit invalid-source or internal-failure mapping"
   );
 });

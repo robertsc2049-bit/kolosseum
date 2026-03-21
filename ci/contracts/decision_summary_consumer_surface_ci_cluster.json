@@ -1,6 +1,7 @@
 {
   "cluster": [
     "node test/ui_decision_summary_consumer_surface_source_contract.test.mjs",
-    "node test/ui_decision_summary_consumer_surface_render_contract.test.mjs"
+    "node test/ui_decision_summary_consumer_surface_render_contract.test.mjs",
+    "node test/ui_decision_summary_consumer_surface_request_guard_contract.test.mjs"
   ]
 }

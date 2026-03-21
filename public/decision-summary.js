@@ -35,6 +35,8 @@
   const initialRunId = qs.get("run_id");
   if (initialRunId) elRunId.value = initialRunId;
 
+  let activeRequestSeq = 0;
+
   function log(line) {
     const ts = new Date().toISOString();
     elLog.textContent = `[${ts}] ${line}\n` + elLog.textContent;
@@ -65,9 +67,24 @@
     window.history.replaceState({}, "", next.toString());
   }
 
+  function setDocumentTitle(stateText, runId) {
+    const suffix = runId ? ` — ${runId}` : "";
+    document.title = `Kolosseum — Decision Summary — ${stateText}${suffix}`;
+  }
+
   function setStatePill(kind, text) {
     elStatePill.className = "pill state-pill " + kind;
     elStatePill.textContent = "State: " + text;
+  }
+
+  function setSurfaceState(kind, text, runId) {
+    setStatePill(kind, text);
+    setDocumentTitle(text, runId);
+  }
+
+  function setLoadingUi(isLoading) {
+    elBtnLoad.disabled = isLoading;
+    elBtnLoad.textContent = isLoading ? "Loading..." : "Load";
   }
 
   function hideAllStates() {
@@ -115,10 +132,10 @@
     }
   }
 
-  function renderSuccess(payload) {
+  function renderSuccess(payload, runId) {
     hideAllStates();
     elSuccessCard.classList.remove("hidden");
-    setStatePill("success", "success");
+    setSurfaceState("success", "success", runId);
 
     elRunIdValue.textContent = asText(payload?.identity?.run_id);
     elCurrentness.textContent = asText(payload?.currentness?.state);
@@ -133,23 +150,23 @@
     renderList(elIssuesList, payload?.issues, "No issues reported.");
   }
 
-  function renderBadRequest(message) {
+  function renderBadRequest(message, runId) {
     hideAllStates();
-    setStatePill("bad", "bad_request");
+    setSurfaceState("bad", "bad_request", runId);
     elBadRequestText.textContent = asText(message, "Enter a valid run_id to load a decision summary.");
     elStateBadRequest.classList.remove("hidden");
   }
 
-  function renderNotFound(message) {
+  function renderNotFound(message, runId) {
     hideAllStates();
-    setStatePill("not-found", "not_found");
+    setSurfaceState("not-found", "not_found", runId);
     elNotFoundText.textContent = asText(message, "No persisted engine run matched that run_id.");
     elStateNotFound.classList.remove("hidden");
   }
 
-  function renderInvalidSource(message) {
+  function renderInvalidSource(message, runId) {
     hideAllStates();
-    setStatePill("invalid", "invalid_source");
+    setSurfaceState("invalid", "invalid_source", runId);
     elInvalidSourceText.textContent = asText(message, "The persisted source could not be projected safely.");
     elStateInvalidSource.classList.remove("hidden");
   }
@@ -183,49 +200,66 @@
     resetRenderedSummary();
 
     if (!runId) {
-      renderBadRequest("A valid run_id is required.");
+      renderBadRequest("A valid run_id is required.", runId);
       log("load blocked: missing run_id");
       return;
     }
 
+    const requestSeq = ++activeRequestSeq;
+
     hideAllStates();
-    setStatePill("loading", "loading");
+    setSurfaceState("loading", "loading", runId);
+    setLoadingUi($true);
     elStateLoading.classList.remove("hidden");
 
-    const result = await httpJson(`/sessions/decision-summary/${encodeURIComponent(runId)}`);
-    const payload = result.json ?? {};
-    const message = payload?.message ?? payload?.extras?.failure_token ?? `HTTP ${result.status}`;
+    try {
+      const result = await httpJson(`/sessions/decision-summary/${encodeURIComponent(runId)}`);
+      const payload = result.json ?? {};
+      const message = payload?.message ?? payload?.extras?.failure_token ?? `HTTP ${result.status}`;
 
-    if (result.ok) {
-      renderSuccess(payload);
-      log(`decision summary loaded: ${runId}`);
-      return;
+      if (requestSeq !== activeRequestSeq) {
+        log(`stale response ignored: ${runId}`);
+        return;
+      }
+
+      if (result.ok) {
+        renderSuccess(payload, runId);
+        log(`decision summary loaded: ${runId}`);
+        return;
+      }
+
+      if (result.status === 400) {
+        renderBadRequest(message, runId);
+        log(`bad request: ${message}`);
+        return;
+      }
+
+      if (result.status === 404) {
+        renderNotFound(message, runId);
+        log(`not found: ${message}`);
+        return;
+      }
+
+      renderInvalidSource(message, runId);
+      log(`invalid source/internal failure: ${message}`);
+    } catch (error) {
+      if (requestSeq !== activeRequestSeq) {
+        log(`stale failure ignored: ${runId}`);
+        return;
+      }
+
+      const message = error && error.message ? error.message : String(error);
+      renderInvalidSource(message, runId);
+      log(`unexpected failure: ${message}`);
+    } finally {
+      if (requestSeq === activeRequestSeq) {
+        setLoadingUi($false);
+      }
     }
-
-    if (result.status === 400) {
-      renderBadRequest(message);
-      log(`bad request: ${message}`);
-      return;
-    }
-
-    if (result.status === 404) {
-      renderNotFound(message);
-      log(`not found: ${message}`);
-      return;
-    }
-
-    renderInvalidSource(message);
-    log(`invalid source/internal failure: ${message}`);
   }
 
   elBtnLoad.addEventListener("click", async () => {
-    try {
-      await loadSummary();
-    } catch (error) {
-      const message = error && error.message ? error.message : String(error);
-      renderInvalidSource(message);
-      log(`unexpected failure: ${message}`);
-    }
+    await loadSummary();
   });
 
   elRunId.addEventListener("keydown", async (event) => {
@@ -234,7 +268,8 @@
     elBtnLoad.click();
   });
 
-  setStatePill("idle", "idle");
+  setSurfaceState("idle", "idle", readRunId());
+  setLoadingUi($false);
   resetRenderedSummary();
 
   if (initialRunId) {
