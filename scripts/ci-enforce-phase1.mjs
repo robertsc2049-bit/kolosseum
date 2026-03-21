@@ -3,42 +3,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 const DEFAULT_INPUT_PATH = "test/fixtures/phase1.valid.json";
-
-const TOP_LEVEL_ALLOWED_FIELDS = new Set([
-  "consent_granted",
-  "age_declaration",
-  "jurisdiction_acknowledged",
-  "actor_type",
-  "execution_scope",
-  "governing_authority_id",
-  "activity_id",
-  "location_type",
-  "nd_mode",
-  "instruction_density",
-  "exposure_prompt_density",
-  "bias_mode",
-  "baseline_metrics"
-]);
-
-const METRIC_ALLOWED_FIELDS = new Set([
-  "metric_id",
-  "activity_id",
-  "value",
-  "recorded_at",
-  "linked_exercise_token_id",
-  "source",
-  "notes"
-]);
-
-const ALLOWED_ACTOR_TYPES = new Set(["individual_user", "coach"]);
-const ALLOWED_EXECUTION_SCOPES = new Set(["individual", "coach_managed"]);
-const ALLOWED_ACTIVITIES = new Set(["powerlifting", "rugby_union", "general_strength"]);
-const ALLOWED_AGE_DECLARATIONS = new Set(["adult", "minor"]);
-const ALLOWED_LOCATION_TYPES = new Set(["home", "gym", "field", "track", "facility"]);
-const ALLOWED_INSTRUCTION_DENSITY = new Set(["minimal", "standard", "detailed"]);
-const ALLOWED_EXPOSURE_PROMPT_DENSITY = new Set(["minimal", "standard", "detailed"]);
-const ALLOWED_BIAS_MODE = new Set(["consistency", "variety", "neutral"]);
-const ALLOWED_METRIC_SOURCES = new Set(["user_manual", "coach_entered", "imported"]);
+const TRUTH_SURFACE_PATH = "ci/contracts/phase1_v0_truth_surface.json";
 
 function fail(code, msg) {
   console.error(`CI_FAIL::${code}::${msg}`);
@@ -49,9 +14,9 @@ function ok(msg) {
   console.log(`CI_OK::${msg}`);
 }
 
-function readJson(filePath) {
+function readJson(filePath, missingCode, invalidCode) {
   if (!fs.existsSync(filePath)) {
-    fail("missing_phase1", `Input not found: ${filePath}`);
+    fail(missingCode, filePath);
   }
 
   const raw = fs.readFileSync(filePath, "utf8");
@@ -60,22 +25,54 @@ function readJson(filePath) {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    fail("invalid_json", `Input is not valid JSON: ${filePath}`);
+    fail(invalidCode, filePath);
   }
 
   if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
-    fail("invalid_shape", "Phase 1 root must be an object");
+    fail(invalidCode, filePath);
   }
 
   return parsed;
 }
 
-function ensureNoUnknownTopLevelFields(data) {
-  for (const key of Object.keys(data)) {
-    if (!TOP_LEVEL_ALLOWED_FIELDS.has(key)) {
-      fail("unknown_field", key);
+function readTruthSurface() {
+  const truthPath = path.resolve(process.cwd(), TRUTH_SURFACE_PATH);
+  const truth = readJson(truthPath, "missing_truth_surface", "invalid_truth_surface");
+
+  const requiredArrayFields = [
+    "top_level_allowed_fields",
+    "baseline_metric_allowed_fields",
+    "allowed_actor_types",
+    "allowed_execution_scopes",
+    "allowed_activities",
+    "allowed_age_declarations",
+    "allowed_location_types",
+    "allowed_instruction_density",
+    "allowed_exposure_prompt_density",
+    "allowed_bias_mode",
+    "allowed_metric_sources"
+  ];
+
+  for (const key of requiredArrayFields) {
+    if (!Array.isArray(truth[key]) || truth[key].some((v) => typeof v !== "string" || v.length === 0)) {
+      fail("invalid_truth_surface", `invalid array field: ${key}`);
     }
   }
+
+  return {
+    truthPath,
+    topLevelAllowedFields: new Set(truth.top_level_allowed_fields),
+    baselineMetricAllowedFields: new Set(truth.baseline_metric_allowed_fields),
+    allowedActorTypes: new Set(truth.allowed_actor_types),
+    allowedExecutionScopes: new Set(truth.allowed_execution_scopes),
+    allowedActivities: new Set(truth.allowed_activities),
+    allowedAgeDeclarations: new Set(truth.allowed_age_declarations),
+    allowedLocationTypes: new Set(truth.allowed_location_types),
+    allowedInstructionDensity: new Set(truth.allowed_instruction_density),
+    allowedExposurePromptDensity: new Set(truth.allowed_exposure_prompt_density),
+    allowedBiasMode: new Set(truth.allowed_bias_mode),
+    allowedMetricSources: new Set(truth.allowed_metric_sources)
+  };
 }
 
 function ensureStringEnum(name, value, allowedSet, failureCode) {
@@ -90,7 +87,7 @@ function ensureBooleanTrue(name, value, failureCode) {
   }
 }
 
-function validateBaselineMetrics(rootActivityId, baselineMetrics) {
+function validateBaselineMetrics(rootActivityId, baselineMetrics, truth) {
   if (!Array.isArray(baselineMetrics)) {
     fail("metrics_not_array", "baseline_metrics must be an array");
   }
@@ -104,7 +101,7 @@ function validateBaselineMetrics(rootActivityId, baselineMetrics) {
     }
 
     for (const key of Object.keys(metric)) {
-      if (!METRIC_ALLOWED_FIELDS.has(key)) {
+      if (!truth.baselineMetricAllowedFields.has(key)) {
         fail("unknown_metric_field", `${prefix}.${key}`);
       }
     }
@@ -133,7 +130,7 @@ function validateBaselineMetrics(rootActivityId, baselineMetrics) {
       fail("metric_invalid_linked_exercise", `${prefix}.linked_exercise_token_id must be string`);
     }
 
-    if ("source" in metric && !ALLOWED_METRIC_SOURCES.has(metric.source)) {
+    if ("source" in metric && !truth.allowedMetricSources.has(metric.source)) {
       fail("metric_invalid_source", `${prefix}.source=${String(metric.source)}`);
     }
 
@@ -144,22 +141,27 @@ function validateBaselineMetrics(rootActivityId, baselineMetrics) {
 }
 
 function main() {
+  const truth = readTruthSurface();
   const inputPath = path.resolve(process.cwd(), process.env.PHASE1_INPUT_PATH || DEFAULT_INPUT_PATH);
-  const data = readJson(inputPath);
+  const data = readJson(inputPath, "missing_phase1", "invalid_json");
 
-  ensureNoUnknownTopLevelFields(data);
+  for (const key of Object.keys(data)) {
+    if (!truth.topLevelAllowedFields.has(key)) {
+      fail("unknown_field", key);
+    }
+  }
 
   ensureBooleanTrue("consent_granted", data.consent_granted, "consent_not_granted");
   ensureBooleanTrue("jurisdiction_acknowledged", data.jurisdiction_acknowledged, "jurisdiction_not_acknowledged");
 
-  ensureStringEnum("age_declaration", data.age_declaration, ALLOWED_AGE_DECLARATIONS, "invalid_age_declaration");
-  ensureStringEnum("actor_type", data.actor_type, ALLOWED_ACTOR_TYPES, "invalid_actor_type");
-  ensureStringEnum("execution_scope", data.execution_scope, ALLOWED_EXECUTION_SCOPES, "invalid_execution_scope");
-  ensureStringEnum("activity_id", data.activity_id, ALLOWED_ACTIVITIES, "invalid_activity_id");
-  ensureStringEnum("location_type", data.location_type, ALLOWED_LOCATION_TYPES, "invalid_location_type");
-  ensureStringEnum("instruction_density", data.instruction_density, ALLOWED_INSTRUCTION_DENSITY, "invalid_instruction_density");
-  ensureStringEnum("exposure_prompt_density", data.exposure_prompt_density, ALLOWED_EXPOSURE_PROMPT_DENSITY, "invalid_exposure_prompt_density");
-  ensureStringEnum("bias_mode", data.bias_mode, ALLOWED_BIAS_MODE, "invalid_bias_mode");
+  ensureStringEnum("age_declaration", data.age_declaration, truth.allowedAgeDeclarations, "invalid_age_declaration");
+  ensureStringEnum("actor_type", data.actor_type, truth.allowedActorTypes, "invalid_actor_type");
+  ensureStringEnum("execution_scope", data.execution_scope, truth.allowedExecutionScopes, "invalid_execution_scope");
+  ensureStringEnum("activity_id", data.activity_id, truth.allowedActivities, "invalid_activity_id");
+  ensureStringEnum("location_type", data.location_type, truth.allowedLocationTypes, "invalid_location_type");
+  ensureStringEnum("instruction_density", data.instruction_density, truth.allowedInstructionDensity, "invalid_instruction_density");
+  ensureStringEnum("exposure_prompt_density", data.exposure_prompt_density, truth.allowedExposurePromptDensity, "invalid_exposure_prompt_density");
+  ensureStringEnum("bias_mode", data.bias_mode, truth.allowedBiasMode, "invalid_bias_mode");
 
   if (typeof data.nd_mode !== "boolean") {
     fail("invalid_nd_mode", "nd_mode must be boolean");
@@ -174,7 +176,7 @@ function main() {
   }
 
   if ("baseline_metrics" in data) {
-    validateBaselineMetrics(data.activity_id, data.baseline_metrics);
+    validateBaselineMetrics(data.activity_id, data.baseline_metrics, truth);
   }
 
   const canonicalHash = crypto
@@ -186,7 +188,7 @@ function main() {
     fail("hashing_failed", "canonical hash not generated");
   }
 
-  ok(`phase1_valid::sha256=${canonicalHash}`);
+  ok(`phase1_valid::sha256=${canonicalHash}::truth=${TRUTH_SURFACE_PATH}`);
 }
 
 main();
