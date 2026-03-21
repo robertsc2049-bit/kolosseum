@@ -13,7 +13,10 @@
           <div class="h1">Decision Summary</div>
           <div class="sub">Consumer-facing read surface for one engine run</div>
         </div>
-        <div class="pill">API: <span id="apiBaseText"></span></div>
+        <div class="top-right">
+          <div class="pill">API: <span id="apiBaseText"></span></div>
+          <div id="statePill" class="pill state-pill idle">State: idle</div>
+        </div>
       </header>
 
       <section class="card">
@@ -23,7 +26,7 @@
           <button id="btnLoad" class="btn">Load</button>
         </div>
         <div class="hint">
-          Tip: open <span class="mono">/ui/decision-summary/&lt;run_id&gt;</span> for a shortcut redirect.
+          Tip: open <span class="mono">/ui/decision-summary/&lt;run_id&gt;</span> for a shortcut redirect. Press <span class="mono">Enter</span> in the input to load.
         </div>
       </section>
 
@@ -91,6 +94,11 @@
             <div class="h2">Issues</div>
             <ul class="list" id="issuesList"></ul>
           </div>
+        </section>
+
+        <section class="card">
+          <div class="h2">Raw Payload</div>
+          <pre class="pre" id="rawPayload">{}</pre>
         </section>
       </section>
 

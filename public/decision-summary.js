@@ -4,6 +4,7 @@
   const elRunId = $("runId");
   const elBtnLoad = $("btnLoad");
   const elApiBaseText = $("apiBaseText");
+  const elStatePill = $("statePill");
 
   const elStateLoading = $("stateLoading");
   const elStateBadRequest = $("stateBadRequest");
@@ -24,6 +25,7 @@
   const elAuditResolvedFrom = $("vAuditResolvedFrom");
   const elDriversList = $("driversList");
   const elIssuesList = $("issuesList");
+  const elRawPayload = $("rawPayload");
   const elLog = $("log");
 
   const apiBase = window.location.origin;
@@ -63,12 +65,30 @@
     window.history.replaceState({}, "", next.toString());
   }
 
+  function setStatePill(kind, text) {
+    elStatePill.className = "pill state-pill " + kind;
+    elStatePill.textContent = "State: " + text;
+  }
+
   function hideAllStates() {
     elStateLoading.classList.add("hidden");
     elStateBadRequest.classList.add("hidden");
     elStateNotFound.classList.add("hidden");
     elStateInvalidSource.classList.add("hidden");
     elSuccessCard.classList.add("hidden");
+  }
+
+  function resetRenderedSummary() {
+    elRunIdValue.textContent = "-";
+    elCurrentness.textContent = "-";
+    elCreatedAt.textContent = "-";
+    elCompletedAt.textContent = "-";
+    elOutcome.textContent = "{}";
+    elAuditSource.textContent = "-";
+    elAuditResolvedFrom.textContent = "-";
+    elRawPayload.textContent = "{}";
+    renderList(elDriversList, [], "No drivers reported.");
+    renderList(elIssuesList, [], "No issues reported.");
   }
 
   function renderList(el, values, emptyText) {
@@ -98,6 +118,7 @@
   function renderSuccess(payload) {
     hideAllStates();
     elSuccessCard.classList.remove("hidden");
+    setStatePill("success", "success");
 
     elRunIdValue.textContent = asText(payload?.identity?.run_id);
     elCurrentness.textContent = asText(payload?.currentness?.state);
@@ -106,6 +127,7 @@
     elOutcome.textContent = safeJson(payload?.outcome ?? {});
     elAuditSource.textContent = asText(payload?.audit?.source);
     elAuditResolvedFrom.textContent = asText(payload?.audit?.resolved_from);
+    elRawPayload.textContent = safeJson(payload ?? {});
 
     renderList(elDriversList, payload?.drivers, "No drivers reported.");
     renderList(elIssuesList, payload?.issues, "No issues reported.");
@@ -113,18 +135,21 @@
 
   function renderBadRequest(message) {
     hideAllStates();
+    setStatePill("bad", "bad_request");
     elBadRequestText.textContent = asText(message, "Enter a valid run_id to load a decision summary.");
     elStateBadRequest.classList.remove("hidden");
   }
 
   function renderNotFound(message) {
     hideAllStates();
+    setStatePill("not-found", "not_found");
     elNotFoundText.textContent = asText(message, "No persisted engine run matched that run_id.");
     elStateNotFound.classList.remove("hidden");
   }
 
   function renderInvalidSource(message) {
     hideAllStates();
+    setStatePill("invalid", "invalid_source");
     elInvalidSourceText.textContent = asText(message, "The persisted source could not be projected safely.");
     elStateInvalidSource.classList.remove("hidden");
   }
@@ -155,6 +180,7 @@
   async function loadSummary() {
     const runId = readRunId();
     syncUrl(runId);
+    resetRenderedSummary();
 
     if (!runId) {
       renderBadRequest("A valid run_id is required.");
@@ -163,6 +189,7 @@
     }
 
     hideAllStates();
+    setStatePill("loading", "loading");
     elStateLoading.classList.remove("hidden");
 
     const result = await httpJson(`/sessions/decision-summary/${encodeURIComponent(runId)}`);
@@ -200,6 +227,15 @@
       log(`unexpected failure: ${message}`);
     }
   });
+
+  elRunId.addEventListener("keydown", async (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    elBtnLoad.click();
+  });
+
+  setStatePill("idle", "idle");
+  resetRenderedSummary();
 
   if (initialRunId) {
     elBtnLoad.click();
