@@ -7,9 +7,10 @@ import {
   normalizeSummary
 } from "@kolosseum/engine/runtime/session_summary.js";
 
-import { notFound } from "./http_errors.js";
+import { badRequest, internalError, notFound } from "./http_errors.js";
 import {
   type PlannedSession,
+  buildCoachSessionDecisionSummaryFromRunId,
   ensureReturnDecisionContract,
   loadSessionStateRow,
   projectSessionStatePayload,
@@ -49,5 +50,38 @@ export async function getSessionStateQuery(session_id: string) {
     return payload;
   } finally {
     client.release();
+  }
+}
+
+function remapDecisionSummaryReadbackError(error: unknown): never {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+
+  if (message === "invalid_input: run_id required") {
+    throw badRequest("Missing run_id", {
+      failure_token: "decision_summary_run_id_required"
+    });
+  }
+
+  if (message === "not_found: run_id") {
+    throw notFound("Engine run not found", {
+      failure_token: "decision_summary_run_id_not_found"
+    });
+  }
+
+  if (message === "invalid_source: engine_run output required") {
+    throw internalError("Invalid decision summary source", {
+      failure_token: "decision_summary_invalid_source",
+      cause: message
+    });
+  }
+
+  throw error;
+}
+
+export async function getDecisionSummaryByRunIdQuery(run_id: string) {
+  try {
+    return await buildCoachSessionDecisionSummaryFromRunId(run_id);
+  } catch (error) {
+    remapDecisionSummaryReadbackError(error);
   }
 }
