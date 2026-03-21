@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "tests": [
+    "test/phase6_output_contract_pin_contract.test.mjs"
+  ]
+}
