@@ -6,82 +6,38 @@
       {
         "instancePath": "",
         "keyword": "required",
-        "message": "must have required property 'engine_version'",
+        "message": "must have required property 'consent_granted'",
         "params": {
-          "missingProperty": "engine_version"
+          "missingProperty": "consent_granted"
         },
         "schemaPath": "#/required"
       },
       {
-        "instancePath": "",
-        "keyword": "required",
-        "message": "must have required property 'enum_bundle_version'",
+        "instancePath": "/engine_version",
+        "keyword": "const",
+        "message": "must be equal to constant",
         "params": {
-          "missingProperty": "enum_bundle_version"
+          "allowedValue": "EB2-1.0.0"
         },
-        "schemaPath": "#/required"
+        "schemaPath": "#/properties/engine_version/const"
       },
       {
-        "instancePath": "",
-        "keyword": "required",
-        "message": "must have required property 'phase1_schema_version'",
+        "instancePath": "/enum_bundle_version",
+        "keyword": "const",
+        "message": "must be equal to constant",
         "params": {
-          "missingProperty": "phase1_schema_version"
+          "allowedValue": "EB2-1.0.0"
         },
-        "schemaPath": "#/required"
+        "schemaPath": "#/properties/enum_bundle_version/const"
       },
       {
-        "instancePath": "",
-        "keyword": "additionalProperties",
-        "message": "must NOT have additional properties",
+        "instancePath": "/phase1_schema_version",
+        "keyword": "const",
+        "message": "must be equal to constant",
         "params": {
-          "additionalProperty": "age_declaration"
+          "allowedValue": "1.0.0"
         },
-        "schemaPath": "#/additionalProperties"
-      },
-      {
-        "instancePath": "",
-        "keyword": "additionalProperties",
-        "message": "must NOT have additional properties",
-        "params": {
-          "additionalProperty": "jurisdiction_acknowledged"
-        },
-        "schemaPath": "#/additionalProperties"
-      },
-      {
-        "instancePath": "",
-        "keyword": "additionalProperties",
-        "message": "must NOT have additional properties",
-        "params": {
-          "additionalProperty": "location_type"
-        },
-        "schemaPath": "#/additionalProperties"
-      },
-      {
-        "instancePath": "/actor_type",
-        "keyword": "enum",
-        "message": "must be equal to one of the allowed values",
-        "params": {
-          "allowedValues": [
-            "athlete",
-            "coach",
-            "org_admin"
-          ]
-        },
-        "schemaPath": "#/properties/actor_type/enum"
-      },
-      {
-        "instancePath": "/bias_mode",
-        "keyword": "enum",
-        "message": "must be equal to one of the allowed values",
-        "params": {
-          "allowedValues": [
-            "none",
-            "consistency",
-            "variety"
-          ]
-        },
-        "schemaPath": "#/properties/bias_mode/enum"
+        "schemaPath": "#/properties/phase1_schema_version/const"
       }
     ],
     "failure_token": "type_mismatch",
