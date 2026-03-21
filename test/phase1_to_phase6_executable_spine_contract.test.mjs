@@ -19,21 +19,22 @@ function hasBuiltPipeline() {
   return candidates.some((candidate) => fs.existsSync(candidate));
 }
 
-test("phase1 to phase6 executable spine source contract: script and fixtures exist and are wired to built pipeline candidates", () => {
+test("phase1 to phase6 executable spine source contract: script asserts semantic success, semantic failure, and normalized determinism", () => {
   const jsSrc = fs.readFileSync(scriptPath, "utf8");
 
   assert.equal(fs.existsSync(scriptPath), true, "expected executable spine runner to exist");
   assert.equal(fs.existsSync(positiveFixture), true, "expected positive spine fixture to exist");
   assert.equal(fs.existsSync(negativeFixture), true, "expected negative spine fixture to exist");
 
-  assert.match(jsSrc, /dist", "src", "run_pipeline\.js"/, "expected dist/src candidate");
-  assert.match(jsSrc, /dist", "engine", "src", "run_pipeline\.js"/, "expected dist/engine/src candidate");
-  assert.match(jsSrc, /PHASE1_TO_PHASE6_EXPECT/, "expected expectation env support");
-  assert.match(jsSrc, /same Phase1 input produced different serialized outputs/, "expected determinism guard");
+  assert.match(jsSrc, /function normalize\(value\)/, "expected normalized-key determinism helper");
+  assert.match(jsSrc, /expected ok=true, got ok=/, "expected semantic success assertion");
+  assert.match(jsSrc, /expected ok=false, got ok=/, "expected semantic failure assertion");
+  assert.match(jsSrc, /failure result must include non-empty failure_token/, "expected explicit failure_token assertion");
+  assert.doesNotMatch(jsSrc, /hasFailureMarker\(/, "did not expect regex-based failure detection");
 });
 
 test(
-  "phase1 to phase6 executable spine contract: positive fixture executes deterministically through built pipeline",
+  "phase1 to phase6 executable spine contract: positive fixture executes deterministically and returns ok=true",
   { skip: !hasBuiltPipeline() },
   () => {
     const run = spawnSync(process.execPath, [scriptPath], {
@@ -50,14 +51,14 @@ test(
     assert.match(
       run.stdout,
       /^SPINE_OK::phase1_to_phase6_success::module=.*run_pipeline\.js::sha256=[a-f0-9]{64}\r?\n?$/,
-      "expected deterministic executable success line"
+      "expected deterministic semantic success line"
     );
     assert.equal(run.stderr, "", "expected no stderr for positive executable slice");
   }
 );
 
 test(
-  "phase1 to phase6 executable spine contract: negative fixture is rejected by built pipeline",
+  "phase1 to phase6 executable spine contract: negative fixture executes deterministically and returns ok=false with failure_token",
   { skip: !hasBuiltPipeline() },
   () => {
     const run = spawnSync(process.execPath, [scriptPath], {
@@ -73,9 +74,9 @@ test(
     assert.equal(run.status, 0, `expected zero exit code, got ${run.status}\nSTDERR:\n${run.stderr}`);
     assert.match(
       run.stdout,
-      /^SPINE_OK::phase1_to_phase6_failure::module=.*run_pipeline\.js::mode=(threw|returned_failure_marker)\r?\n?$/,
-      "expected executable failure observation line"
+      /^SPINE_OK::phase1_to_phase6_failure::module=.*run_pipeline\.js::failure_token=[^:\r\n]+::sha256=[a-f0-9]{64}\r?\n?$/,
+      "expected deterministic semantic failure line"
     );
-    assert.equal(run.stderr, "", "expected no stderr when failure is correctly observed");
+    assert.equal(run.stderr, "", "expected no stderr for negative executable slice");
   }
 );

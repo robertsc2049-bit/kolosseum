@@ -3,27 +3,36 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { pathToFileURL } from "node:url";
 
-const DEFAULT_INPUT_PATH = "test/fixtures/phase1_to_phase6.valid.general_strength.individual.json";
-const EXPECTATION = process.env.PHASE1_TO_PHASE6_EXPECT || "success";
+const DEFAULT_INPUT_PATH = "test/fixtures/phase1_to_phase6.invalid.unsupported-activity.json";
+const DEFAULT_PIN_PATH = "ci/golden/phase1_to_phase6_unsupported_activity_contract.json";
+const WRITE_MODE = process.argv.includes("--write");
 
 function fail(code, msg) {
-  console.error(`SPINE_FAIL::${code}::${msg}`);
+  console.error(`PHASE6_UNSUPPORTED_PIN_FAIL::${code}::${msg}`);
   process.exit(1);
 }
 
 function ok(msg) {
-  console.log(`SPINE_OK::${msg}`);
+  console.log(`PHASE6_UNSUPPORTED_PIN_OK::${msg}`);
 }
 
-function readJson(filePath) {
+function written(msg) {
+  console.log(`PHASE6_UNSUPPORTED_PIN_WRITTEN::${msg}`);
+}
+
+function ensureDirFor(filePath) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+}
+
+function readJson(filePath, missingCode, invalidCode) {
   if (!fs.existsSync(filePath)) {
-    fail("missing_input", filePath);
+    fail(missingCode, filePath);
   }
 
   try {
     return JSON.parse(fs.readFileSync(filePath, "utf8"));
   } catch {
-    fail("invalid_json", filePath);
+    fail(invalidCode, filePath);
   }
 }
 
@@ -49,20 +58,6 @@ function stableStringify(value) {
 
 function sha256(text) {
   return crypto.createHash("sha256").update(text).digest("hex");
-}
-
-function assertSemanticSuccess(result) {
-  if (result === null || typeof result !== "object" || Array.isArray(result)) {
-    fail("invalid_success_shape", "success result must be an object");
-  }
-
-  if (result.ok !== true) {
-    fail("semantic_not_ok", `expected ok=true, got ok=${String(result.ok)}`);
-  }
-
-  if (typeof result.failure_token === "string" && result.failure_token.length > 0) {
-    fail("unexpected_failure_token", `success result carried failure_token=${result.failure_token}`);
-  }
 }
 
 function assertSemanticFailure(result) {
@@ -96,7 +91,10 @@ async function resolveRunPipeline() {
     const fn = mod.runPipeline ?? mod.default?.runPipeline ?? mod.default;
 
     if (typeof fn === "function") {
-      return { runPipeline: fn, modulePath: path.relative(repo, candidate).replace(/\\/g, "/") };
+      return {
+        runPipeline: fn,
+        modulePath: path.relative(repo, candidate).replace(/\\/g, "/")
+      };
     }
   }
 
@@ -106,21 +104,20 @@ async function resolveRunPipeline() {
   );
 }
 
-async function main() {
-  const inputPath = path.resolve(process.cwd(), process.env.PHASE1_TO_PHASE6_INPUT_PATH || DEFAULT_INPUT_PATH);
-  const input = readJson(inputPath);
-  const { runPipeline, modulePath } = await resolveRunPipeline();
+async function buildPinnedPayload() {
+  const repo = process.cwd();
+  const inputPath = path.resolve(repo, process.env.PHASE1_TO_PHASE6_INPUT_PATH || DEFAULT_INPUT_PATH);
+  const fixture = readJson(inputPath, "missing_input", "invalid_input");
+  const fixturePath = path.relative(repo, inputPath).replace(/\\/g, "/");
 
-  if (!["success", "failure"].includes(EXPECTATION)) {
-    fail("invalid_expectation", `PHASE1_TO_PHASE6_EXPECT=${EXPECTATION}`);
-  }
+  const { runPipeline, modulePath } = await resolveRunPipeline();
 
   let first;
   let second;
 
   try {
-    first = await runPipeline(input);
-    second = await runPipeline(input);
+    first = await runPipeline(fixture);
+    second = await runPipeline(fixture);
   } catch (error) {
     fail("unexpected_throw", error instanceof Error ? error.message : String(error));
   }
@@ -131,17 +128,44 @@ async function main() {
   const secondJson = stableStringify(secondNorm);
 
   if (firstJson !== secondJson) {
-    fail("nondeterministic_output", "same Phase1 input produced different normalized outputs");
-  }
-
-  if (EXPECTATION === "success") {
-    assertSemanticSuccess(firstNorm);
-    ok(`phase1_to_phase6_success::module=${modulePath}::sha256=${sha256(firstJson)}`);
-    return;
+    fail("nondeterministic_output", "same unsupported-activity fixture produced different normalized outputs");
   }
 
   assertSemanticFailure(firstNorm);
-  ok(`phase1_to_phase6_failure::module=${modulePath}::failure_token=${firstNorm.failure_token}::sha256=${sha256(firstJson)}`);
+
+  return {
+    schema_version: "kolosseum.phase6.unsupported-activity-contract-pin.v1",
+    fixture_path: fixturePath,
+    module_path: modulePath,
+    output: firstNorm
+  };
+}
+
+async function main() {
+  const repo = process.cwd();
+  const pinPath = path.resolve(repo, process.env.PHASE1_TO_PHASE6_UNSUPPORTED_PIN_PATH || DEFAULT_PIN_PATH);
+  const payload = await buildPinnedPayload();
+  const serialized = stableStringify(payload);
+  const digest = sha256(serialized);
+  const relativePinPath = path.relative(repo, pinPath).replace(/\\/g, "/");
+
+  if (WRITE_MODE) {
+    ensureDirFor(pinPath);
+    fs.writeFileSync(pinPath, serialized, "utf8");
+    written(`sha256=${digest}::pin=${relativePinPath}`);
+    return;
+  }
+
+  if (!fs.existsSync(pinPath)) {
+    fail("missing_pin", relativePinPath);
+  }
+
+  const expected = fs.readFileSync(pinPath, "utf8");
+  if (expected !== serialized) {
+    fail("pin_mismatch", `pin=${relativePinPath}`);
+  }
+
+  ok(`sha256=${digest}::pin=${relativePinPath}`);
 }
 
 await main();

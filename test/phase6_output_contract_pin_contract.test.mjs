@@ -19,7 +19,7 @@ function hasBuiltPipeline() {
   return candidates.some((candidate) => fs.existsSync(candidate));
 }
 
-test("phase6 output contract pin source contract: script exposes write mode, pin path, and built pipeline candidates", () => {
+test("phase6 output contract pin source contract: script exposes write mode, pin path, semantic success assertion, and built pipeline candidates", () => {
   const jsSrc = fs.readFileSync(scriptPath, "utf8");
 
   assert.equal(fs.existsSync(scriptPath), true, "expected phase6 pin script to exist");
@@ -27,12 +27,11 @@ test("phase6 output contract pin source contract: script exposes write mode, pin
 
   assert.match(jsSrc, /const DEFAULT_PIN_PATH = "ci\/golden\/phase1_to_phase6_output_contract\.json";/, "expected default pin path");
   assert.match(jsSrc, /process\.argv\.includes\("--write"\)/, "expected write mode");
-  assert.match(jsSrc, /dist", "src", "run_pipeline\.js"/, "expected dist\/src candidate");
-  assert.match(jsSrc, /dist", "engine", "src", "run_pipeline\.js"/, "expected dist\/engine\/src candidate");
+  assert.match(jsSrc, /expected ok=true, got ok=/, "expected semantic success assertion");
   assert.match(jsSrc, /same positive fixture produced different normalized outputs/, "expected determinism failure guard");
 });
 
-test("phase6 output contract pin file is present and pinned to the positive executable fixture", () => {
+test("phase6 output contract pin file is present and pinned to a successful positive executable fixture", () => {
   const pin = JSON.parse(fs.readFileSync(pinPath, "utf8"));
 
   assert.equal(pin.schema_version, "kolosseum.phase6.output-contract-pin.v1");
@@ -40,6 +39,8 @@ test("phase6 output contract pin file is present and pinned to the positive exec
   assert.equal(typeof pin.module_path, "string");
   assert.ok(pin.module_path.endsWith("run_pipeline.js"), "expected pinned module path to end with run_pipeline.js");
   assert.equal(pin.output !== null && typeof pin.output === "object" && !Array.isArray(pin.output), true, "expected pinned output object");
+  assert.equal(pin.output.ok, true, "expected pinned successful output");
+  assert.equal(typeof pin.output.failure_token, "undefined", "did not expect failure_token on pinned success output");
 });
 
 test(
