@@ -20,6 +20,9 @@ This folder exists to keep V1 work narrow, explicit, and testable.
 2. `V1_SLICE_002_DECISION_SUMMARY_HTTP_CONTRACT.md`
    - Goal: expose the decision summary readback through one stable read-only API handler/endpoint contract by `run_id`
 
+3. `V1_SLICE_003_DECISION_SUMMARY_CONSUMER_SURFACE.md`
+   - Goal: define the first consumer-facing surface contract that consumes the stable decision summary endpoint without widening scope into list/search/auth redesign
+
 ## Operating intent
 
 V1 should progress through small slices that:
