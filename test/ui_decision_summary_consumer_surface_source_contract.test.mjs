@@ -66,6 +66,12 @@ test("decision summary consumer surface source contract: server exposes redirect
 
   assert.match(
     htmlSrc,
+    /id="statePill"/,
+    "expected consumer surface to expose a visible state pill"
+  );
+
+  assert.match(
+    htmlSrc,
     /id="vRunId"/,
     "expected success surface to display identity.run_id"
   );
@@ -116,6 +122,12 @@ test("decision summary consumer surface source contract: server exposes redirect
     htmlSrc,
     /id="issuesList"/,
     "expected success surface to display issues"
+  );
+
+  assert.match(
+    htmlSrc,
+    /id="rawPayload"/,
+    "expected success surface to expose the raw payload panel"
   );
 
   assert.match(

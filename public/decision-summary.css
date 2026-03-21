@@ -8,6 +8,7 @@
   --warn: #f39c12;
   --danger: #ff4d4f;
   --loading: #2f81f7;
+  --idle: #64748b;
 }
 
 * { box-sizing: border-box; }
@@ -27,6 +28,14 @@ body {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 18px;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.2px; }
@@ -78,6 +87,37 @@ body {
   border: 1px solid var(--line);
   padding: 8px 10px;
   border-radius: 999px;
+  background: #0b121b;
+}
+
+.state-pill {
+  color: var(--text);
+}
+
+.state-pill.idle {
+  border-color: rgba(100,116,139,0.45);
+  background: rgba(100,116,139,0.10);
+}
+
+.state-pill.loading {
+  border-color: rgba(47,129,247,0.45);
+  background: rgba(47,129,247,0.10);
+}
+
+.state-pill.success {
+  border-color: rgba(46,204,113,0.45);
+  background: rgba(46,204,113,0.10);
+}
+
+.state-pill.bad,
+.state-pill.not-found {
+  border-color: rgba(243,156,18,0.45);
+  background: rgba(243,156,18,0.10);
+}
+
+.state-pill.invalid {
+  border-color: rgba(255,77,79,0.45);
+  background: rgba(255,77,79,0.10);
 }
 
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
@@ -162,4 +202,6 @@ body {
 @media (max-width: 900px) {
   .grid { grid-template-columns: 1fr; }
   .label { width: 70px; }
+  .top { align-items: flex-start; }
+  .top-right { justify-content: flex-start; }
 }
