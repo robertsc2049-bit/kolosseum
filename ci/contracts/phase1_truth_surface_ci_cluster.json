@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "tests": [
+    "test/phase1_ci_enforcer_contract.test.mjs",
+    "test/phase1_v0_truth_surface_drift_guard.test.mjs"
+  ]
+}
