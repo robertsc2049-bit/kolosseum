@@ -1,0 +1,172 @@
+name: Protect main (auto-revert on CI failure)
+
+on:
+  workflow_run:
+    workflows:
+      - green
+      - ci
+      - runnable-v0
+      - vertical-slice
+      - engine-status
+    types:
+      - completed
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+concurrency:
+  group: protect-main-auto-revert
+  cancel-in-progress: false
+
+jobs:
+  maybe-open-revert-pr:
+    if: >
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Capture failed main context
+        id: ctx
+        shell: bash
+        run: |
+          set -euo pipefail
+          FAILED_SHA="${{ github.event.workflow_run.head_sha }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          BRANCH_NAME="auto/revert-main-${FAILED_SHA:0:8}"
+          echo "failed_sha=$FAILED_SHA" >> "$GITHUB_OUTPUT"
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "workflow_name=$WORKFLOW_NAME" >> "$GITHUB_OUTPUT"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if failed SHA is no longer HEAD of main
+        id: headcheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --prune
+          CURRENT_MAIN_SHA="$(git rev-parse origin/main)"
+          echo "current_main_sha=$CURRENT_MAIN_SHA" >> "$GITHUB_OUTPUT"
+
+          if [ "$CURRENT_MAIN_SHA" != "${{ steps.ctx.outputs.failed_sha }}" ]; then
+            echo "skip_revert=true" >> "$GITHUB_OUTPUT"
+            echo "Main has moved on; not opening revert PR."
+          else
+            echo "skip_revert=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip if revert branch already exists
+        if: steps.headcheck.outputs.skip_revert == 'false'
+        id: branchexists
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin "${{ steps.ctx.outputs.branch_name }}" >/dev/null 2>&1; then
+            echo "branch_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create revert branch and commit
+        if: steps.headcheck.outputs.skip_revert == 'false' && steps.branchexists.outputs.branch_exists == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git switch --create "${{ steps.ctx.outputs.branch_name }}" origin/main
+          git revert --no-edit "${{ steps.ctx.outputs.failed_sha }}"
+
+      - name: Push revert branch
+        if: steps.headcheck.outputs.skip_revert == 'false' && steps.branchexists.outputs.branch_exists == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git push origin "HEAD:${{ steps.ctx.outputs.branch_name }}"
+
+      - name: Check for existing open PR from revert branch
+        if: steps.headcheck.outputs.skip_revert == 'false'
+        id: existingpr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PR_NUMBER="$(gh pr list \
+            --repo "${{ github.repository }}" \
+            --head "${{ steps.ctx.outputs.branch_name }}" \
+            --base main \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')"
+
+          if [ -n "$PR_NUMBER" ]; then
+            echo "pr_exists=true" >> "$GITHUB_OUTPUT"
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          else
+            echo "pr_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open revert PR
+        if: steps.headcheck.outputs.skip_revert == 'false' && steps.existingpr.outputs.pr_exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BODY_FILE="$(mktemp)"
+          cat > "$BODY_FILE" <<'EOF'
+          Emergency revert PR opened automatically because a push to `main` failed required checks.
+
+          Failure context:
+          - Failed SHA: `${{ steps.ctx.outputs.failed_sha }}`
+          - Workflow: `${{ steps.ctx.outputs.workflow_name }}`
+          - Run ID: `${{ steps.ctx.outputs.run_id }}`
+
+          This PR reverts the failing `main` commit through the normal protected PR path instead of pushing directly to `main`.
+          EOF
+
+          gh pr create \
+            --repo "${{ github.repository }}" \
+            --base main \
+            --head "${{ steps.ctx.outputs.branch_name }}" \
+            --title "revert: failing main commit ${{ steps.ctx.outputs.failed_sha }}" \
+            --body-file "$BODY_FILE"
+
+      - name: Add labels to revert PR
+        if: steps.headcheck.outputs.skip_revert == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER="$(gh pr list \
+            --repo "${{ github.repository }}" \
+            --head "${{ steps.ctx.outputs.branch_name }}" \
+            --base main \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')"
+
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr edit "$PR_NUMBER" \
+              --repo "${{ github.repository }}" \
+              --add-label "auto-revert" \
+              --add-label "main-red"
+          fi
