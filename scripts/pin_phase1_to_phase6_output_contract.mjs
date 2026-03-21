@@ -61,6 +61,20 @@ function sha256(text) {
   return crypto.createHash("sha256").update(text).digest("hex");
 }
 
+function assertSemanticSuccess(result) {
+  if (result === null || typeof result !== "object" || Array.isArray(result)) {
+    fail("invalid_success_shape", "success result must be an object");
+  }
+
+  if (result.ok !== true) {
+    fail("semantic_not_ok", `expected ok=true, got ok=${String(result.ok)}`);
+  }
+
+  if (typeof result.failure_token === "string" && result.failure_token.length > 0) {
+    fail("unexpected_failure_token", `success result carried failure_token=${result.failure_token}`);
+  }
+}
+
 async function resolveRunPipeline() {
   const repo = process.cwd();
   const candidates = [
@@ -111,13 +125,14 @@ async function buildPinnedPayload() {
 
   const firstNorm = normalize(first);
   const secondNorm = normalize(second);
-
   const firstJson = stableStringify(firstNorm);
   const secondJson = stableStringify(secondNorm);
 
   if (firstJson !== secondJson) {
     fail("nondeterministic_output", "same positive fixture produced different normalized outputs");
   }
+
+  assertSemanticSuccess(firstNorm);
 
   return {
     schema_version: "kolosseum.phase6.output-contract-pin.v1",
