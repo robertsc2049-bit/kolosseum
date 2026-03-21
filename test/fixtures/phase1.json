@@ -1,0 +1,17 @@
+{
+  "consent_granted": true,
+  "age_declaration": "adult",
+  "jurisdiction_acknowledged": true,
+  "activity_id": "general_strength",
+  "baseline_metrics": [
+    {
+      "metric_id": "bench_press_1rm",
+      "activity_id": "general_strength",
+      "value": {
+        "load": 100,
+        "unit": "kg"
+      },
+      "recorded_at": "2026-03-21"
+    }
+  ]
+}
