@@ -1,13 +1,13 @@
 {
+  "engine_version": "EB2-1.0.0",
+  "enum_bundle_version": "EB2-1.0.0",
+  "phase1_schema_version": "1.0.0",
   "consent_granted": true,
-  "age_declaration": "adult",
-  "jurisdiction_acknowledged": true,
-  "actor_type": "individual_user",
+  "actor_type": "athlete",
   "execution_scope": "individual",
   "activity_id": "general_strength",
-  "location_type": "gym",
   "nd_mode": false,
   "instruction_density": "standard",
   "exposure_prompt_density": "minimal",
-  "bias_mode": "neutral"
+  "bias_mode": "consistency"
 }
