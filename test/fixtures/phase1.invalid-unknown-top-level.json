@@ -1,0 +1,14 @@
+{
+  "consent_granted": true,
+  "age_declaration": "adult",
+  "jurisdiction_acknowledged": true,
+  "actor_type": "individual_user",
+  "execution_scope": "individual",
+  "activity_id": "general_strength",
+  "location_type": "gym",
+  "nd_mode": false,
+  "instruction_density": "standard",
+  "exposure_prompt_density": "minimal",
+  "bias_mode": "neutral",
+  "forbidden_extra_field": true
+}

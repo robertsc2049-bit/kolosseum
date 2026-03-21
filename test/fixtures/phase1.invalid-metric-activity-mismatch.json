@@ -1,0 +1,25 @@
+{
+  "consent_granted": true,
+  "age_declaration": "adult",
+  "jurisdiction_acknowledged": true,
+  "actor_type": "individual_user",
+  "execution_scope": "individual",
+  "activity_id": "general_strength",
+  "location_type": "gym",
+  "nd_mode": false,
+  "instruction_density": "standard",
+  "exposure_prompt_density": "minimal",
+  "bias_mode": "neutral",
+  "baseline_metrics": [
+    {
+      "metric_id": "bench_press_1rm",
+      "activity_id": "rugby_union",
+      "value": {
+        "load": 100,
+        "unit": "kg"
+      },
+      "recorded_at": "2026-03-21",
+      "source": "user_manual"
+    }
+  ]
+}
