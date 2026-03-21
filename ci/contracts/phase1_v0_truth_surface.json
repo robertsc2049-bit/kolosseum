@@ -1,0 +1,71 @@
+{
+  "schema_version": "kolosseum.phase1.v0.truth-surface.v1",
+  "top_level_allowed_fields": [
+    "consent_granted",
+    "age_declaration",
+    "jurisdiction_acknowledged",
+    "actor_type",
+    "execution_scope",
+    "governing_authority_id",
+    "activity_id",
+    "location_type",
+    "nd_mode",
+    "instruction_density",
+    "exposure_prompt_density",
+    "bias_mode",
+    "baseline_metrics"
+  ],
+  "baseline_metric_allowed_fields": [
+    "metric_id",
+    "activity_id",
+    "value",
+    "recorded_at",
+    "linked_exercise_token_id",
+    "source",
+    "notes"
+  ],
+  "allowed_actor_types": [
+    "individual_user",
+    "coach"
+  ],
+  "allowed_execution_scopes": [
+    "individual",
+    "coach_managed"
+  ],
+  "allowed_activities": [
+    "powerlifting",
+    "rugby_union",
+    "general_strength"
+  ],
+  "allowed_age_declarations": [
+    "adult",
+    "minor"
+  ],
+  "allowed_location_types": [
+    "home",
+    "gym",
+    "field",
+    "track",
+    "facility"
+  ],
+  "allowed_instruction_density": [
+    "minimal",
+    "standard",
+    "detailed"
+  ],
+  "allowed_exposure_prompt_density": [
+    "minimal",
+    "standard",
+    "detailed"
+  ],
+  "allowed_bias_mode": [
+    "consistency",
+    "variety",
+    "neutral"
+  ],
+  "allowed_metric_sources": [
+    "user_manual",
+    "coach_entered",
+    "imported"
+  ]
+}

@@ -6,11 +6,13 @@ import { spawnSync } from "node:child_process";
 
 const repo = process.cwd();
 const scriptPath = path.join(repo, "scripts", "ci-enforce-phase1.mjs");
+const truthPath = path.join(repo, "ci", "contracts", "phase1_v0_truth_surface.json");
 
-function runFixture(name) {
+function runFixture(name, extraEnv = {}) {
   const fixturePath = path.join(repo, "test", "fixtures", name);
 
   assert.equal(fs.existsSync(scriptPath), true, "expected scripts/ci-enforce-phase1.mjs to exist");
+  assert.equal(fs.existsSync(truthPath), true, "expected repo truth surface to exist");
   assert.equal(fs.existsSync(fixturePath), true, `expected fixture ${name} to exist`);
 
   return spawnSync(process.execPath, [scriptPath], {
@@ -18,16 +20,40 @@ function runFixture(name) {
     encoding: "utf8",
     env: {
       ...process.env,
-      PHASE1_INPUT_PATH: fixturePath
+      PHASE1_INPUT_PATH: fixturePath,
+      ...extraEnv
     }
   });
 }
 
-test("phase1 enforcer contract: valid v0 fixture succeeds with deterministic success line", () => {
+test("phase1 enforcer contract: source reads repo truth surface instead of embedded private truth", () => {
+  const jsSrc = fs.readFileSync(scriptPath, "utf8");
+
+  assert.match(jsSrc, /const TRUTH_SURFACE_PATH = "ci\/contracts\/phase1_v0_truth_surface\.json";/, "expected fixed repo truth surface path");
+  assert.match(jsSrc, /readTruthSurface\(\)/, "expected repo truth surface loader");
+  assert.doesNotMatch(jsSrc, /const ALLOWED_ACTOR_TYPES = new Set\(/, "did not expect embedded actor allowlist");
+  assert.doesNotMatch(jsSrc, /const ALLOWED_EXECUTION_SCOPES = new Set\(/, "did not expect embedded execution scope allowlist");
+  assert.doesNotMatch(jsSrc, /const ALLOWED_ACTIVITIES = new Set\(/, "did not expect embedded activity allowlist");
+});
+
+test("phase1 enforcer contract: repo truth surface is well-formed and includes current v0 domain", () => {
+  const truth = JSON.parse(fs.readFileSync(truthPath, "utf8"));
+
+  assert.equal(truth.schema_version, "kolosseum.phase1.v0.truth-surface.v1");
+  assert.deepEqual(truth.allowed_actor_types, ["individual_user", "coach"]);
+  assert.deepEqual(truth.allowed_execution_scopes, ["individual", "coach_managed"]);
+  assert.deepEqual(truth.allowed_activities, ["powerlifting", "rugby_union", "general_strength"]);
+});
+
+test("phase1 enforcer contract: valid v0 fixture succeeds with deterministic success line and truth echo", () => {
   const run = runFixture("phase1.valid.json");
 
   assert.equal(run.status, 0, `expected zero exit code, got ${run.status}\nSTDERR:\n${run.stderr}`);
-  assert.match(run.stdout, /^CI_OK::phase1_valid::sha256=[a-f0-9]{64}\r?\n?$/, "expected canonical success line with sha256");
+  assert.match(
+    run.stdout,
+    /^CI_OK::phase1_valid::sha256=[a-f0-9]{64}::truth=ci\/contracts\/phase1_v0_truth_surface\.json\r?\n?$/,
+    "expected canonical success line with sha256 and truth echo"
+  );
   assert.equal(run.stderr, "", "expected no stderr for valid fixture");
 });
 
