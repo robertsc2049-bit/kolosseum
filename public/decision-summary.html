@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kolosseum — Decision Summary</title>
+    <link rel="stylesheet" href="/ui/decision-summary.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <div>
+          <div class="h1">Decision Summary</div>
+          <div class="sub">Consumer-facing read surface for one engine run</div>
+        </div>
+        <div class="pill">API: <span id="apiBaseText"></span></div>
+      </header>
+
+      <section class="card">
+        <div class="row">
+          <label class="label" for="runId">run_id</label>
+          <input id="runId" class="input" placeholder="e.g. er_..." autocomplete="off" />
+          <button id="btnLoad" class="btn">Load</button>
+        </div>
+        <div class="hint">
+          Tip: open <span class="mono">/ui/decision-summary/&lt;run_id&gt;</span> for a shortcut redirect.
+        </div>
+      </section>
+
+      <section id="stateLoading" class="card state loading hidden">
+        <div class="state-title">Loading</div>
+        <div class="state-sub">Requesting decision summary from the stable read endpoint.</div>
+      </section>
+
+      <section id="stateBadRequest" class="card state bad hidden">
+        <div class="state-title">Valid run_id required</div>
+        <div id="badRequestText" class="state-sub">Enter a valid run_id to load a decision summary.</div>
+      </section>
+
+      <section id="stateNotFound" class="card state warn hidden">
+        <div class="state-title">Run not found</div>
+        <div id="notFoundText" class="state-sub">No persisted engine run matched that run_id.</div>
+      </section>
+
+      <section id="stateInvalidSource" class="card state danger hidden">
+        <div class="state-title">Invalid decision summary source</div>
+        <div id="invalidSourceText" class="state-sub">The persisted source could not be projected safely.</div>
+      </section>
+
+      <section id="successCard" class="hidden">
+        <section class="grid">
+          <div class="card">
+            <div class="h2">Identity</div>
+            <div class="kv">
+              <div class="k">run_id</div><div class="v mono" id="vRunId">-</div>
+              <div class="k">currentness.state</div><div class="v" id="vCurrentness">-</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="h2">Timeline</div>
+            <div class="kv">
+              <div class="k">created_at</div><div class="v mono" id="vCreatedAt">-</div>
+              <div class="k">completed_at</div><div class="v mono" id="vCompletedAt">-</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid">
+          <div class="card">
+            <div class="h2">Outcome</div>
+            <pre class="pre" id="vOutcome">{}</pre>
+          </div>
+
+          <div class="card">
+            <div class="h2">Audit</div>
+            <div class="kv">
+              <div class="k">source</div><div class="v" id="vAuditSource">-</div>
+              <div class="k">resolved_from</div><div class="v" id="vAuditResolvedFrom">-</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid">
+          <div class="card">
+            <div class="h2">Drivers</div>
+            <ul class="list" id="driversList"></ul>
+          </div>
+
+          <div class="card">
+            <div class="h2">Issues</div>
+            <ul class="list" id="issuesList"></ul>
+          </div>
+        </section>
+      </section>
+
+      <section class="card">
+        <div class="h2">Console</div>
+        <pre class="pre" id="log"></pre>
+      </section>
+    </div>
+
+    <script src="/ui/decision-summary.js"></script>
+  </body>
+</html>
