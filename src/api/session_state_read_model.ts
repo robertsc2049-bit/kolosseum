@@ -200,7 +200,8 @@ export function projectSessionStatePayload(
     trace,
     event_log: []
   };
-}//
+}
+
 // ============================
 // v1 TICKET-A PROJECTION BUILDER (RUN_ID HAPPY PATH)
 // ============================
@@ -227,6 +228,47 @@ export type CoachSessionDecisionSummary = {
   issues: unknown[]
 }
 
+type NormalizedDecisionSummaryRun = {
+  run_id: string
+  created_at: unknown
+  completed_at: unknown
+  decision: unknown
+  drivers: unknown[]
+  issues: unknown[]
+  is_stale: boolean
+  is_superseded: boolean
+  is_incomplete: boolean
+}
+
+function coerceBooleanFlag(value: unknown): boolean {
+  return value === true;
+}
+
+function normalizeDecisionSummarySource(rawRun: any, runId: string): NormalizedDecisionSummaryRun {
+  const output = rawRun?.output;
+
+  if (!output || typeof output !== "object" || Array.isArray(output)) {
+    throw new Error("invalid_source: engine_run output required");
+  }
+
+  const timeline =
+    output.timeline && typeof output.timeline === "object" && !Array.isArray(output.timeline)
+      ? output.timeline
+      : {};
+
+  return {
+    run_id: runId,
+    created_at: rawRun.created_at ?? timeline.created_at ?? null,
+    completed_at: output.completed_at ?? timeline.completed_at ?? null,
+    decision: output.decision ?? null,
+    drivers: Array.isArray(output.drivers) ? output.drivers : [],
+    issues: Array.isArray(output.issues) ? output.issues : [],
+    is_stale: coerceBooleanFlag(output.is_stale ?? rawRun.is_stale),
+    is_superseded: coerceBooleanFlag(output.is_superseded ?? rawRun.is_superseded),
+    is_incomplete: coerceBooleanFlag(output.is_incomplete ?? rawRun.is_incomplete)
+  };
+}
+
 export async function buildCoachSessionDecisionSummaryFromRunId(
   runId: string
 ): Promise<CoachSessionDecisionSummary> {
@@ -239,11 +281,13 @@ export async function buildCoachSessionDecisionSummaryFromRunId(
   // This must come from your existing persistence layer.
   // Using existing engine_run_persistence_service as source.
 
-  const run = await getEngineRunById(runId)
+  const rawRun = await getEngineRunById(runId)
 
-  if (!run) {
+  if (!rawRun) {
     throw new Error("not_found: run_id")
   }
+
+  const run = normalizeDecisionSummarySource(rawRun, runId)
 
   // ---- PROJECTION (DETERMINISTIC) ----
 
