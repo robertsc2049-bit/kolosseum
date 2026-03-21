@@ -48,3 +48,21 @@ export async function persistEngineRunBestEffort(kind: string, input: any, outpu
     // best-effort
   }
 }
+
+export async function getEngineRunById(runId: string): Promise<any | null> {
+  try {
+    await ensureEngineRunsTable();
+
+    const result = await pool.query(
+      `SELECT id, kind, input_hash, input, output, created_at
+       FROM engine_runs
+       WHERE id = $1
+       LIMIT 1`,
+      [runId]
+    );
+
+    return result.rows[0] ?? null;
+  } catch {
+    return null;
+  }
+}
