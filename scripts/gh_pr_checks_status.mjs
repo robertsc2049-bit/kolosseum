@@ -95,6 +95,39 @@ export function parseGhPrChecksText(text) {
   };
 }
 
+export function parseGhPrChecksProcessResult(result) {
+  const stdout = toNormalizedText(result?.stdout ?? "");
+  const stderr = toNormalizedText(result?.stderr ?? "");
+  const combined = `${stdout}${stderr}`.trim();
+
+  if (!combined) {
+    return {
+      parsed: parseGhPrChecksText(""),
+      text: "",
+      fatal: true,
+      fatalMessage: "gh pr checks returned no output."
+    };
+  }
+
+  const parsed = parseGhPrChecksText(combined);
+
+  if (parsed.ok) {
+    return {
+      parsed,
+      text: combined,
+      fatal: false,
+      fatalMessage: null
+    };
+  }
+
+  return {
+    parsed,
+    text: combined,
+    fatal: true,
+    fatalMessage: combined
+  };
+}
+
 function parseArgs(argv) {
   const args = {
     stdin: false,
@@ -155,14 +188,13 @@ function readInputText(args) {
       { encoding: "utf8" }
     );
 
-    const combined = `${gh.stdout ?? ""}${gh.stderr ?? ""}`;
+    const interpreted = parseGhPrChecksProcessResult(gh);
 
-    if (gh.status !== 0) {
-      process.stderr.write(combined);
-      process.exit(gh.status ?? 1);
+    if (interpreted.fatal) {
+      throw new Error(interpreted.fatalMessage);
     }
 
-    return combined;
+    return interpreted.text;
   }
 
   throw new Error("Provide one of: --stdin, --file <path>, or --repo <repo> --pr <number>.");

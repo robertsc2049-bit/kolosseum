@@ -4,7 +4,10 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { parseGhPrChecksText } from "../scripts/gh_pr_checks_status.mjs";
+import {
+  parseGhPrChecksText,
+  parseGhPrChecksProcessResult
+} from "../scripts/gh_pr_checks_status.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,6 +75,69 @@ ci      pass    30s     https://example.test/ci
   assert.equal(parsed.failingCount, 1);
 });
 
+test("gh pr checks process result treats non-zero pending gh output as parseable and non-fatal", () => {
+  const result = {
+    status: 1,
+    stdout: `
+integration     pending 0       https://example.test/integration
+ci      pass    30s     https://example.test/ci
+    `.trim(),
+    stderr: ""
+  };
+
+  const interpreted = parseGhPrChecksProcessResult(result);
+
+  assert.equal(interpreted.fatal, false);
+  assert.equal(interpreted.parsed.source, "rows");
+  assert.equal(interpreted.parsed.hasPending, true);
+  assert.equal(interpreted.parsed.isGreen, false);
+  assert.match(interpreted.text, /integration\s+pending/i);
+});
+
+test("gh pr checks process result treats non-zero failing gh output as parseable and non-fatal", () => {
+  const result = {
+    status: 1,
+    stdout: `
+integration     fail    2m58s   https://example.test/integration
+ci      pass    30s     https://example.test/ci
+    `.trim(),
+    stderr: ""
+  };
+
+  const interpreted = parseGhPrChecksProcessResult(result);
+
+  assert.equal(interpreted.fatal, false);
+  assert.equal(interpreted.parsed.source, "rows");
+  assert.equal(interpreted.parsed.hasFailing, true);
+  assert.equal(interpreted.parsed.isGreen, false);
+  assert.match(interpreted.text, /integration\s+fail/i);
+});
+
+test("gh pr checks process result treats empty gh output as fatal", () => {
+  const interpreted = parseGhPrChecksProcessResult({
+    status: 1,
+    stdout: "",
+    stderr: ""
+  });
+
+  assert.equal(interpreted.fatal, true);
+  assert.equal(interpreted.parsed.ok, false);
+  assert.equal(interpreted.parsed.source, "empty");
+  assert.match(interpreted.fatalMessage, /returned no output/i);
+});
+
+test("gh pr checks process result treats unparseable gh error text as fatal", () => {
+  const interpreted = parseGhPrChecksProcessResult({
+    status: 1,
+    stdout: "",
+    stderr: "HTTP 404: Not Found"
+  });
+
+  assert.equal(interpreted.fatal, true);
+  assert.equal(interpreted.parsed.ok, false);
+  assert.match(interpreted.fatalMessage, /404/i);
+});
+
 test("gh pr checks cli exits zero for green stdin input", () => {
   const text = `
 ci      pass    30s     https://example.test/ci
@@ -89,7 +155,7 @@ integration     pass    2m58s   https://example.test/integration
   assert.equal(parsed.isGreen, true);
 });
 
-test("gh pr checks cli exits non-zero for pending stdin input", () => {
+test("gh pr checks cli exits non-zero for pending stdin input and still prints json", () => {
   const text = `
 integration     pending 0       https://example.test/integration
 ci      pass    30s     https://example.test/ci
@@ -103,5 +169,22 @@ ci      pass    30s     https://example.test/ci
   assert.equal(out.status, 1);
   const parsed = JSON.parse(out.stdout.trim());
   assert.equal(parsed.hasPending, true);
+  assert.equal(parsed.isGreen, false);
+});
+
+test("gh pr checks cli exits non-zero for failing stdin input and still prints json", () => {
+  const text = `
+integration     fail    2m58s   https://example.test/integration
+ci      pass    30s     https://example.test/ci
+  `.trim();
+
+  const out = spawnSync(process.execPath, [scriptPath, "--stdin", "--json"], {
+    input: text,
+    encoding: "utf8"
+  });
+
+  assert.equal(out.status, 1);
+  const parsed = JSON.parse(out.stdout.trim());
+  assert.equal(parsed.hasFailing, true);
   assert.equal(parsed.isGreen, false);
 });
