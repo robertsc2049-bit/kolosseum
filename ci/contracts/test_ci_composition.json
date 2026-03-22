@@ -1,300 +1,316 @@
 {
-    "items":  [
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/core_smoke_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_core_smoke_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_core_smoke_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_core_smoke_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_core_smoke_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_test_ci_composition_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_test_ci_composition.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/plan_registry_contract_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_plan_registry_contract_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_plan_registry_contract_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/registry_law_negative_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_registry_law_negative_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_registry_law_negative_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_registry_law_negative_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_registry_law_negative_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/registry_law_positive_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_registry_law_positive_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_registry_law_positive_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_registry_law_positive_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_registry_law_positive_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/phase1_docs_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_phase1_docs_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_phase1_docs_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_phase1_docs_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_phase1_docs_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/split_invariant_normalize_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_split_invariant_normalize_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_split_invariant_normalize_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_split_invariant_normalize_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_split_invariant_normalize_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_ban_set_content_utf8_guard_outfile_negative.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/canonical_hash_api_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_canonical_hash_api_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_canonical_hash_api_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_canonical_hash_api_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_canonical_hash_api_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/dev_session_api_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_dev_session_api_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_dev_session_api_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_dev_session_api_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_dev_session_api_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/runtime_trace_return_gate_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_runtime_trace_return_gate_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_runtime_trace_return_gate_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_runtime_trace_return_gate_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/compile_runtime_trace_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_compile_runtime_trace_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_compile_runtime_trace_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_compile_runtime_trace_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_compile_runtime_trace_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/compile_block_persistence_delegation_contracts_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_compile_block_persistence_delegation_contracts_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_compile_block_persistence_delegation_contracts_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_compile_block_persistence_delegation_contracts_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_compile_block_persistence_delegation_contracts_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/block_handler_delegation_contracts_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_block_handler_delegation_contracts_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_block_handler_delegation_contracts_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_block_handler_delegation_contracts_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_block_handler_delegation_contracts_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/handler_delegation_contracts_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_handler_delegation_contracts_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_handler_delegation_contracts_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_handler_delegation_contracts_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_handler_delegation_contracts_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/decision_summary_consumer_surface_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_decision_summary_consumer_surface_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_decision_summary_consumer_surface_cluster_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_decision_summary_consumer_surface_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_decision_summary_consumer_surface_manifest.test.mjs"
-                  },
-                  {
-                      "kind":  "manifest",
-                      "path":  "ci/contracts/phase1_to_phase6_failure_token_canonical_ci_cluster.json"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_phase1_to_phase6_failure_token_canonical_cluster_manifest_file.test.mjs"
-                  },
-                  {
-                      "kind":  "command",
-                      "value":  "node test/ci_phase1_to_phase6_failure_token_canonical_cluster_manifest.test.mjs"
-                  }
-              ]
+  "items": [
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/core_smoke_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_core_smoke_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_core_smoke_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_core_smoke_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_core_smoke_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_test_ci_composition_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_test_ci_composition.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/plan_registry_contract_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_plan_registry_contract_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_plan_registry_contract_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/registry_law_negative_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_registry_law_negative_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_registry_law_negative_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_registry_law_negative_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_registry_law_negative_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/registry_law_positive_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_registry_law_positive_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_registry_law_positive_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_registry_law_positive_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_registry_law_positive_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/phase1_docs_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_phase1_docs_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_phase1_docs_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_phase1_docs_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_phase1_docs_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/split_invariant_normalize_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_split_invariant_normalize_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_split_invariant_normalize_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_split_invariant_normalize_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_split_invariant_normalize_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_ban_set_content_utf8_guard_outfile_negative.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/canonical_hash_api_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_canonical_hash_api_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_canonical_hash_api_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_canonical_hash_api_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_canonical_hash_api_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/dev_session_api_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_dev_session_api_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_dev_session_api_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_dev_session_api_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_dev_session_api_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/runtime_trace_return_gate_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_runtime_trace_return_gate_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_runtime_trace_return_gate_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_runtime_trace_return_gate_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_runtime_trace_return_gate_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/compile_runtime_trace_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_compile_runtime_trace_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_compile_runtime_trace_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_compile_runtime_trace_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_compile_runtime_trace_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/compile_block_persistence_delegation_contracts_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_compile_block_persistence_delegation_contracts_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_compile_block_persistence_delegation_contracts_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_compile_block_persistence_delegation_contracts_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_compile_block_persistence_delegation_contracts_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/block_handler_delegation_contracts_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_block_handler_delegation_contracts_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_block_handler_delegation_contracts_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_block_handler_delegation_contracts_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_block_handler_delegation_contracts_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/handler_delegation_contracts_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_handler_delegation_contracts_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_handler_delegation_contracts_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_handler_delegation_contracts_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_handler_delegation_contracts_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/decision_summary_consumer_surface_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_decision_summary_consumer_surface_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_decision_summary_consumer_surface_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_decision_summary_consumer_surface_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_decision_summary_consumer_surface_manifest.test.mjs"
+    },
+    {
+      "kind": "manifest",
+      "path": "ci/contracts/phase1_to_phase6_failure_token_canonical_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_phase1_to_phase6_failure_token_canonical_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_phase1_to_phase6_failure_token_canonical_cluster_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_test_affected_composition.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_test_affected_script.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_test_affected_mode_semantics_source_contract.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_precommit_smart_workflow_source_contract.test.mjs"
+    }
+  ]
 }
