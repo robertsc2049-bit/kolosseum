@@ -32,21 +32,18 @@ files = stagedFiles();
 
 const isDoc = (f) => f.startsWith("docs/") || /\.(md|txt)$/i.test(f);
 
-const touchesEngine = (f) =>
-  f.startsWith("engine/") || f.startsWith("cli/") || f.startsWith("src/");
+const touchesSharedInfra = (f) =>
+  f.startsWith(".github/workflows/") ||
+  f.startsWith("ci/guards/") ||
+  f.startsWith("ci/scripts/") ||
+  f.startsWith("scripts/") ||
+  f.startsWith("tools/");
 
-const touchesContracts = (f) =>
+const touchesSchemaSurface = (f) =>
   f === "ENGINE_CONTRACT.md" ||
   f === "schema.sql" ||
   f.startsWith("ci/schemas/") ||
-  f.startsWith("registries/") ||
-  /contract|schema/i.test(f);
-
-const touchesCIInfra = (f) =>
-  f.startsWith(".github/workflows/") ||
-  f.startsWith("ci/") ||
-  f.startsWith("scripts/") ||
-  f.startsWith("tools/");
+  f.startsWith("registries/");
 
 const touchesBuildMeta = (f) =>
   f === "package.json" ||
@@ -55,22 +52,35 @@ const touchesBuildMeta = (f) =>
   f === ".npmrc" ||
   f === ".nvmrc";
 
+const touchesEngineCore = (f) =>
+  f.startsWith("engine/") || f.startsWith("cli/");
+
+const touchesAppOrTestSurface = (f) =>
+  f.startsWith("src/") ||
+  f.startsWith("test/") ||
+  f.startsWith("ci/contracts/");
+
 const DOC_ONLY = files.every(isDoc);
-const RISK =
-  files.some(touchesEngine) ||
-  files.some(touchesContracts) ||
-  files.some(touchesCIInfra) ||
-  files.some(touchesBuildMeta);
+const FULL_GATE =
+  files.some(touchesSharedInfra) ||
+  files.some(touchesSchemaSurface) ||
+  files.some(touchesBuildMeta) ||
+  files.some(touchesEngineCore);
+const AFFECTED_GATE = files.some(touchesAppOrTestSurface);
 
 if (DOC_ONLY) {
   console.log("[pre-commit] docs-only -> lint:fast");
   sh("npm run lint:fast");
-} else if (!RISK) {
+} else if (FULL_GATE) {
+  console.log("[pre-commit] shared/full-risk surface -> green:fast");
+  sh("npm run green:fast");
+} else if (AFFECTED_GATE) {
+  console.log("[pre-commit] app/test surface -> build:fast + test:affected");
+  sh("npm run build:fast");
+  sh("npm run test:affected");
+} else {
   console.log("[pre-commit] low-risk change -> lint:fast");
   sh("npm run lint:fast");
-} else {
-  console.log("[pre-commit] risk surface touched -> green:fast");
-  sh("npm run green:fast");
 }
 
 // Refuse hook side-effects that left unstaged changes behind.
