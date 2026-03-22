@@ -19,7 +19,7 @@ function hasBuiltPipeline() {
   return candidates.some((candidate) => fs.existsSync(candidate));
 }
 
-test("phase1 to phase6 executable spine source contract: script asserts semantic success, semantic failure, and normalized determinism", () => {
+test("phase1 to phase6 executable spine source contract: script asserts semantic success, semantic failure, exact output shape, and normalized determinism", () => {
   const jsSrc = fs.readFileSync(scriptPath, "utf8");
 
   assert.equal(fs.existsSync(scriptPath), true, "expected executable spine runner to exist");
@@ -29,12 +29,14 @@ test("phase1 to phase6 executable spine source contract: script asserts semantic
   assert.match(jsSrc, /function normalize\(value\)/, "expected normalized-key determinism helper");
   assert.match(jsSrc, /expected ok=true, got ok=/, "expected semantic success assertion");
   assert.match(jsSrc, /expected ok=false, got ok=/, "expected semantic failure assertion");
+  assert.match(jsSrc, /success result must have exact top-level keys ok,result/, "expected exact success shape lock");
+  assert.match(jsSrc, /failure result must have exact top-level keys failure_token,ok/, "expected exact failure shape lock");
   assert.match(jsSrc, /failure result must include non-empty failure_token/, "expected explicit failure_token assertion");
   assert.doesNotMatch(jsSrc, /hasFailureMarker\(/, "did not expect regex-based failure detection");
 });
 
 test(
-  "phase1 to phase6 executable spine contract: positive fixture executes deterministically and returns ok=true",
+  "phase1 to phase6 executable spine contract: positive fixture executes deterministically and returns exact ok/result schema",
   { skip: !hasBuiltPipeline() },
   () => {
     const run = spawnSync(process.execPath, [scriptPath], {
@@ -58,7 +60,7 @@ test(
 );
 
 test(
-  "phase1 to phase6 executable spine contract: negative fixture executes deterministically and returns ok=false with failure_token",
+  "phase1 to phase6 executable spine contract: negative fixture executes deterministically and returns exact ok/failure_token schema",
   { skip: !hasBuiltPipeline() },
   () => {
     const run = spawnSync(process.execPath, [scriptPath], {
