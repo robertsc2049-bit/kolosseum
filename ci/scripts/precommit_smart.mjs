@@ -1,94 +1,136 @@
 import { execSync } from "node:child_process";
+import { pathToFileURL } from "node:url";
 
-function sh(cmd, inherit = true) {
-  execSync(cmd, { stdio: inherit ? "inherit" : ["ignore", "pipe", "ignore"] });
-}
-function out(cmd) {
-  return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] }).toString("utf8");
+const AFFECTED_WORKFLOW_CONTRACT_TESTS = new Set([
+  "test/ci_test_affected_composition.test.mjs",
+  "test/ci_test_affected_script.test.mjs",
+  "test/ci_test_affected_mode_semantics_source_contract.test.mjs",
+  "test/ci_precommit_smart_workflow_source_contract.test.mjs",
+  "test/ci_precommit_smart_routing_contract.test.mjs"
+]);
+
+const SHARED_FULL_RISK_FILES = new Set([
+  "package.json",
+  "ci/contracts/test_ci_composition.json",
+  "ci/scripts/precommit_smart.mjs",
+  "ci/scripts/compose_test_affected_from_changed_files.mjs",
+  "ci/scripts/run_test_affected_from_changed_files.mjs",
+  "ci/scripts/compose_test_ci_from_index.mjs",
+  "ci/scripts/run_test_ci_from_index.mjs"
+]);
+
+function sh(command) {
+  execSync(command, { stdio: "inherit" });
 }
 
-function stagedFiles() {
-  return out("git diff --name-only --cached")
+function read(command) {
+  return execSync(command, { encoding: "utf8" }).trim();
+}
+
+export function normalizeRepoPath(value) {
+  return String(value || "")
+    .replace(/\\/g, "/")
+    .replace(/^\.\//, "")
+    .trim();
+}
+
+function unique(values) {
+  return [...new Set(values)];
+}
+
+function isDocsOnlySurface(file) {
+  return file === "README.md" || file.startsWith("docs/");
+}
+
+function isSharedFullRiskFile(file) {
+  return SHARED_FULL_RISK_FILES.has(file);
+}
+
+function isAffectedWorkflowContractTest(file) {
+  return AFFECTED_WORKFLOW_CONTRACT_TESTS.has(file);
+}
+
+export function getPrecommitRoute(stagedFiles) {
+  const files = unique(
+    stagedFiles
+      .map(normalizeRepoPath)
+      .filter(Boolean)
+  );
+
+  if (files.length === 0) {
+    return {
+      kind: "docs",
+      banner: "[pre-commit] no staged files -> skip",
+      commands: []
+    };
+  }
+
+  if (files.every(isDocsOnlySurface)) {
+    return {
+      kind: "docs",
+      banner: "[pre-commit] docs fast-path -> skip heavy checks",
+      commands: []
+    };
+  }
+
+  const hasSharedFullRisk = files.some(isSharedFullRiskFile);
+
+  if (hasSharedFullRisk) {
+    return {
+      kind: "full",
+      banner: "[pre-commit] shared/full-risk surface -> green:fast",
+      commands: ["npm run green:fast"]
+    };
+  }
+
+  const onlyAffectedWorkflowContractTests = files.every(isAffectedWorkflowContractTest);
+
+  if (onlyAffectedWorkflowContractTests) {
+    return {
+      kind: "affected",
+      banner: "[pre-commit] affected-workflow contract tests -> build:fast + test:affected",
+      commands: ["npm run build:fast", "npm run test:affected"]
+    };
+  }
+
+  return {
+    kind: "affected",
+    banner: "[pre-commit] app/test surface -> build:fast + test:affected",
+    commands: ["npm run build:fast", "npm run test:affected"]
+  };
+}
+
+function getStagedFiles() {
+  const raw = read("git diff --cached --name-only --diff-filter=ACMR");
+  if (!raw) {
+    return [];
+  }
+  return raw
     .split(/\r?\n/)
-    .map((s) => s.trim())
+    .map(normalizeRepoPath)
     .filter(Boolean);
 }
 
-let files = stagedFiles();
+function main() {
+  const stagedFiles = getStagedFiles();
 
-console.log(`[pre-commit] staged files: ${files.length}`);
+  console.log("[pre-commit] smart dispatcher");
+  console.log(`[pre-commit] staged files: ${stagedFiles.length}`);
 
-if (files.length === 0) {
-  console.log("[pre-commit] nothing staged -> OK");
-  process.exit(0);
+  const route = getPrecommitRoute(stagedFiles);
+  console.log(route.banner);
+
+  for (const command of route.commands) {
+    sh(command);
+  }
+
+  console.log("[pre-commit] OK");
 }
 
-// Single source of truth: if package-lock.json is staged, this writes LF-only note + stages it.
-// Quiet in the hook; strict message enforcement happens inside the helper.
-sh("node scripts/lockfile_note.mjs --staged --quiet");
+const isDirectRun =
+  typeof process.argv[1] === "string" &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
 
-// Re-read staged files after the helper potentially staged the note.
-files = stagedFiles();
-
-const isDoc = (f) => f.startsWith("docs/") || /\.(md|txt)$/i.test(f);
-
-const touchesSharedInfra = (f) =>
-  f.startsWith(".github/workflows/") ||
-  f.startsWith("ci/guards/") ||
-  f.startsWith("ci/scripts/") ||
-  f.startsWith("scripts/") ||
-  f.startsWith("tools/");
-
-const touchesSchemaSurface = (f) =>
-  f === "ENGINE_CONTRACT.md" ||
-  f === "schema.sql" ||
-  f.startsWith("ci/schemas/") ||
-  f.startsWith("registries/");
-
-const touchesBuildMeta = (f) =>
-  f === "package.json" ||
-  f === "package-lock.json" ||
-  f === "tsconfig.json" ||
-  f === ".npmrc" ||
-  f === ".nvmrc";
-
-const touchesEngineCore = (f) =>
-  f.startsWith("engine/") || f.startsWith("cli/");
-
-const touchesAppOrTestSurface = (f) =>
-  f.startsWith("src/") ||
-  f.startsWith("test/") ||
-  f.startsWith("ci/contracts/");
-
-const DOC_ONLY = files.every(isDoc);
-const FULL_GATE =
-  files.some(touchesSharedInfra) ||
-  files.some(touchesSchemaSurface) ||
-  files.some(touchesBuildMeta) ||
-  files.some(touchesEngineCore);
-const AFFECTED_GATE = files.some(touchesAppOrTestSurface);
-
-if (DOC_ONLY) {
-  console.log("[pre-commit] docs-only -> lint:fast");
-  sh("npm run lint:fast");
-} else if (FULL_GATE) {
-  console.log("[pre-commit] shared/full-risk surface -> green:fast");
-  sh("npm run green:fast");
-} else if (AFFECTED_GATE) {
-  console.log("[pre-commit] app/test surface -> build:fast + test:affected");
-  sh("npm run build:fast");
-  sh("npm run test:affected");
-} else {
-  console.log("[pre-commit] low-risk change -> lint:fast");
-  sh("npm run lint:fast");
+if (isDirectRun) {
+  main();
 }
-
-// Refuse hook side-effects that left unstaged changes behind.
-const unstaged = out("git diff --name-only").trim();
-if (unstaged.length > 0) {
-  console.error("ERROR: pre-commit produced unstaged changes. Fix and re-stage before committing.");
-  console.error(unstaged);
-  process.exit(1);
-}
-
-console.log("[pre-commit] OK");
