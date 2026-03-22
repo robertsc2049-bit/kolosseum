@@ -91,7 +91,9 @@
     "smoke:blocks:run": "node scripts/ps-runner.mjs --file scripts/smoke-blocks-run.ps1",
     "smoke:api": "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1",
     "smoke:api:run": "node scripts/ps-runner.mjs --file scripts/smoke-api-run.ps1",
-    "test:watch:mocks": "node --test --experimental-test-module-mocks --watch"
+    "test:watch:mocks": "node --test --experimental-test-module-mocks --watch",
+    "test:affected": "node ci/scripts/run_test_affected_from_changed_files.mjs",
+    "test:affected:print": "node ci/scripts/compose_test_affected_from_changed_files.mjs"
   },
   "dependencies": {
     "@kolosseum/engine": "file:engine",
