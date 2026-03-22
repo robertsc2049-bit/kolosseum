@@ -34,7 +34,12 @@ export async function planSession(req: Request, res: Response) {
   else throw badRequest("Invalid JSON body (expected object)");
 
   const out = await planSessionService(input);
-  return res.status(200).json(out);
+
+  return res.status(200).json({
+    ok: out?.ok === true,
+    session: out?.result?.session ?? null,
+    trace: out?.trace ?? null
+  });
 }
 
 export async function startSession(req: Request, res: Response) {
