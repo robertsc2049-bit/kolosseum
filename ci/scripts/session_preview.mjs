@@ -10,205 +10,122 @@ function printHeader(title) {
   console.log(`== ${title} ==`);
 }
 
-function isScalar(value) {
-  return value === null || ["string", "number", "boolean"].includes(typeof value);
-}
-
 function safeString(value, fallback = "?") {
   if (value === undefined || value === null || value === "") {
     return fallback;
   }
-  if (typeof value === "string") {
-    return value;
+  return String(value);
+}
+
+function formatIntensity(value) {
+  if (value === undefined || value === null) {
+    return "?";
   }
+
+  if (typeof value === "number" || typeof value === "string") {
+    return String(value);
+  }
+
+  if (typeof value === "object") {
+    if (value.type === "percent_1rm" && value.value !== undefined) {
+      return `${value.value}% 1RM`;
+    }
+    if (value.type === "rpe" && value.value !== undefined) {
+      return `RPE ${value.value}`;
+    }
+    if (value.type && value.value !== undefined) {
+      return `${value.type}:${value.value}`;
+    }
+  }
+
   return JSON.stringify(value);
 }
 
-function pathToString(parts) {
-  return parts
-    .map((part) => {
-      if (typeof part === "number") {
-        return `[${part}]`;
-      }
-      return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(part) ? `.${part}` : `["${String(part)}"]`;
-    })
-    .join("")
-    .replace(/^\./, "");
-}
-
-function appendPath(parts, next) {
-  return [...parts, next];
-}
-
-function collectNoteLines(node, parts = ["notes"], acc = []) {
-  if (node === undefined) {
-    return acc;
-  }
-
-  if (isScalar(node)) {
-    acc.push(`- ${pathToString(parts)}: ${safeString(node)}`);
+function collectNotes(node, acc = []) {
+  if (!node || typeof node !== "object") {
     return acc;
   }
 
   if (Array.isArray(node)) {
-    if (node.length === 0) {
-      acc.push(`- ${pathToString(parts)}: []`);
-      return acc;
+    for (const item of node) {
+      collectNotes(item, acc);
     }
-    node.forEach((item, index) => collectNoteLines(item, appendPath(parts, index), acc));
     return acc;
   }
 
-  const keys = Object.keys(node).sort();
-  if (keys.length === 0) {
-    acc.push(`- ${pathToString(parts)}: {}`);
-    return acc;
+  if (Array.isArray(node.notes)) {
+    for (const item of node.notes) {
+      acc.push(item);
+    }
   }
 
-  for (const key of keys) {
-    collectNoteLines(node[key], appendPath(parts, key), acc);
+  for (const value of Object.values(node)) {
+    collectNotes(value, acc);
   }
 
   return acc;
 }
 
-function firstDefined(obj, keys) {
-  for (const key of keys) {
-    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
-      return obj[key];
-    }
-  }
-  return undefined;
-}
-
-function looksLikeRenderableSessionLine(node) {
-  if (!node || typeof node !== "object" || Array.isArray(node)) {
-    return false;
+function collectExercisesFromSession(session) {
+  if (!session || typeof session !== "object") {
+    return [];
   }
 
-  const label = firstDefined(node, [
-    "exercise_name",
-    "exercise",
-    "name",
-    "title",
-    "label",
-    "movement",
-    "exercise_id",
-    "id"
-  ]);
+  if (Array.isArray(session.exercises)) {
+    return session.exercises.map((exercise, index) => ({
+      exercise,
+      path: `session.exercises[${index}]`
+    }));
+  }
 
-  const metricsPresent = [
-    "sets",
-    "reps",
-    "load",
-    "load_kg",
-    "weight",
-    "weight_kg",
-    "intensity",
-    "rpe",
-    "seconds",
-    "duration_seconds",
-    "distance_m"
-  ].some((key) => node[key] !== undefined && node[key] !== null && node[key] !== "");
+  if (Array.isArray(session.blocks)) {
+    const acc = [];
+    session.blocks.forEach((block, blockIndex) => {
+      if (Array.isArray(block?.exercises)) {
+        block.exercises.forEach((exercise, exerciseIndex) => {
+          acc.push({
+            exercise,
+            path: `session.blocks[${blockIndex}].exercises[${exerciseIndex}]`
+          });
+        });
+      }
+    });
+    return acc;
+  }
 
-  return label !== undefined && metricsPresent;
+  return [];
 }
 
-function renderSessionLine(node, parts, index) {
-  const label = safeString(
-    firstDefined(node, [
-      "exercise_name",
-      "exercise",
-      "name",
-      "title",
-      "label",
-      "movement",
-      "exercise_id",
-      "id"
-    ]),
-    "unknown"
+function renderExerciseLine(exercise, index, pathLabel) {
+  const name =
+    exercise.exercise_name ??
+    exercise.name ??
+    exercise.exercise_id ??
+    exercise.id ??
+    "unknown";
+
+  const sets = safeString(exercise.sets);
+  const reps = safeString(exercise.reps);
+  const intensity = formatIntensity(
+    exercise.intensity ??
+    exercise.load ??
+    exercise.load_kg ??
+    exercise.weight ??
+    exercise.weight_kg
   );
 
-  const metrics = [];
-  const orderedMetricKeys = [
-    ["sets", "sets"],
-    ["reps", "reps"],
-    ["load", "load"],
-    ["load_kg", "load_kg"],
-    ["weight", "weight"],
-    ["weight_kg", "weight_kg"],
-    ["intensity", "intensity"],
-    ["rpe", "rpe"],
-    ["seconds", "seconds"],
-    ["duration_seconds", "duration_seconds"],
-    ["distance_m", "distance_m"]
-  ];
-
-  for (const [key, labelKey] of orderedMetricKeys) {
-    if (node[key] !== undefined && node[key] !== null && node[key] !== "") {
-      metrics.push(`${labelKey}=${safeString(node[key])}`);
-    }
-  }
-
-  const pathLabel = pathToString(parts);
-  return `${index + 1}. ${label} — ${metrics.join(" | ")} (${pathLabel})`;
+  return `${index + 1}. ${name} — sets=${sets} | reps=${reps} | intensity=${intensity} (${pathLabel})`;
 }
 
-function collectSessionRenderableLines(node, parts = ["session"], acc = []) {
-  if (node === undefined || node === null) {
-    return acc;
-  }
-
-  if (Array.isArray(node)) {
-    node.forEach((item, index) => collectSessionRenderableLines(item, appendPath(parts, index), acc));
-    return acc;
-  }
-
-  if (typeof node !== "object") {
-    return acc;
-  }
-
-  if (looksLikeRenderableSessionLine(node)) {
-    acc.push(renderSessionLine(node, parts, acc.length));
-  }
-
-  for (const key of Object.keys(node).sort()) {
-    collectSessionRenderableLines(node[key], appendPath(parts, key), acc);
-  }
-
-  return acc;
-}
-
-function collectSessionLeafLines(node, parts = ["session"], acc = []) {
-  if (node === undefined) {
-    return acc;
-  }
-
-  if (isScalar(node)) {
-    acc.push(`- ${pathToString(parts)}: ${safeString(node)}`);
-    return acc;
-  }
-
-  if (Array.isArray(node)) {
-    if (node.length === 0) {
-      acc.push(`- ${pathToString(parts)}: []`);
-      return acc;
+function sumWorkSets(exercises) {
+  return exercises.reduce((sum, item) => {
+    const raw = item?.exercise?.sets;
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed)) {
+      return sum + parsed;
     }
-    node.forEach((item, index) => collectSessionLeafLines(item, appendPath(parts, index), acc));
-    return acc;
-  }
-
-  const keys = Object.keys(node).sort();
-  if (keys.length === 0) {
-    acc.push(`- ${pathToString(parts)}: {}`);
-    return acc;
-  }
-
-  for (const key of keys) {
-    collectSessionLeafLines(node[key], appendPath(parts, key), acc);
-  }
-
-  return acc;
+    return sum;
+  }, 0);
 }
 
 function main() {
@@ -260,37 +177,29 @@ function main() {
   }
 
   const result = parsed?.result ?? parsed;
+  const notes = collectNotes(result);
+  const exercises = collectExercisesFromSession(result?.session);
 
-  const noteLines = collectNoteLines(result?.notes);
-  if (noteLines.length > 0) {
-    printHeader("NOTES");
-    for (const line of noteLines) {
-      console.log(line);
-    }
+  printHeader("SUMMARY");
+  console.log(`Exercise count: ${exercises.length}`);
+  console.log(`Total work sets: ${sumWorkSets(exercises)}`);
+
+  printHeader("NOTES");
+  if (notes.length === 0) {
+    console.log("(none)");
+  } else {
+    notes.forEach((note, index) => {
+      console.log(`- notes[${index}]: ${safeString(note)}`);
+    });
   }
 
   printHeader("SESSION");
-  if (result?.session === undefined) {
-    console.log("(session missing)");
+  if (exercises.length === 0) {
+    console.log("(no visible session lines found)");
   } else {
-    const renderableLines = collectSessionRenderableLines(result.session);
-    if (renderableLines.length > 0) {
-      for (const line of renderableLines) {
-        console.log(line);
-      }
-    } else {
-      const fallbackLines = collectSessionLeafLines(result.session);
-      if (fallbackLines.length === 0) {
-        console.log("(session empty)");
-      } else {
-        for (const line of fallbackLines.slice(0, 80)) {
-          console.log(line);
-        }
-        if (fallbackLines.length > 80) {
-          console.log(`... (${fallbackLines.length - 80} more session lines)`);
-        }
-      }
-    }
+    exercises.forEach(({ exercise, path }, index) => {
+      console.log(renderExerciseLine(exercise, index, path));
+    });
   }
 
   printHeader("RAW RESULT KEYS");
