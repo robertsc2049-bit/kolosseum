@@ -1,0 +1,8 @@
+{
+  "cluster": [
+    "node test/phase1_to_phase6_executable_spine_contract.test.mjs",
+    "node test/phase6_output_contract_pin_contract.test.mjs",
+    "node test/phase6_unsupported_activity_contract_pin_contract.test.mjs",
+    "node test/phase1_to_phase6_failure_token_canonical_contract.test.mjs"
+  ]
+}

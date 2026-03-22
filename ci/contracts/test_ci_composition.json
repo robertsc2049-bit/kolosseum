@@ -263,8 +263,7 @@
                   {
                       "kind":  "command",
                       "value":  "node test/ci_handler_delegation_contracts_manifest.test.mjs"
-                  }
-                  ,
+                  },
                   {
                       "kind":  "manifest",
                       "path":  "ci/contracts/decision_summary_consumer_surface_ci_cluster.json"
@@ -284,6 +283,18 @@
                   {
                       "kind":  "command",
                       "value":  "node test/ci_decision_summary_consumer_surface_manifest.test.mjs"
+                  },
+                  {
+                      "kind":  "manifest",
+                      "path":  "ci/contracts/phase1_to_phase6_failure_token_canonical_ci_cluster.json"
+                  },
+                  {
+                      "kind":  "command",
+                      "value":  "node test/ci_phase1_to_phase6_failure_token_canonical_cluster_manifest_file.test.mjs"
+                  },
+                  {
+                      "kind":  "command",
+                      "value":  "node test/ci_phase1_to_phase6_failure_token_canonical_cluster_manifest.test.mjs"
                   }
               ]
 }
