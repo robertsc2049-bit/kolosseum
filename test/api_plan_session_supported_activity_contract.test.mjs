@@ -83,7 +83,15 @@ for (const [specifier, symbols] of imports.entries()) {
       namedExports: {
         planSessionService: async (input) => {
           planSessionServiceCalls.push(input);
-          return makeSupportedActivityResponse(input?.user?.activity);
+
+          const serviceOut = makeSupportedActivityResponse(input?.user?.activity);
+          return {
+            ok: true,
+            result: {
+              session: serviceOut.session
+            },
+            trace: serviceOut.trace
+          };
         }
       }
     });

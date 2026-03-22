@@ -31,8 +31,10 @@ let normalizedInputSnapshots = new Map();
 function makeRunnerSuccessOutput() {
   return {
     ok: true,
-    session: {
-      exercises: [{ exercise_id: "ex1", source: "program" }]
+    result: {
+      session: {
+        exercises: [{ exercise_id: "ex1", source: "program" }]
+      }
     },
     trace: { source: "runner-ok" }
   };
@@ -59,9 +61,10 @@ function resetState() {
 
 function isInvalidPlanSessionOutput(out) {
   return !out || out.ok !== true ||
-    !out.session ||
-    !Array.isArray(out.session.exercises) ||
-    out.session.exercises.length < 1;
+    !out.result ||
+    !out.result.session ||
+    !Array.isArray(out.result.session.exercises) ||
+    out.result.session.exercises.length < 1;
 }
 
 mock.module(distEngineRunnerServiceUrl, {
@@ -141,8 +144,8 @@ test("planSessionService delegates request normalization, output validation, and
   const out = await planSessionService({});
 
   assert.equal(out.ok, true);
-  assert.ok(Array.isArray(out.session.exercises));
-  assert.equal(out.session.exercises.length, 1);
+  assert.ok(Array.isArray(out.result.session.exercises));
+  assert.equal(out.result.session.exercises.length, 1);
 
   assert.equal(normalizationCalls.length, 1, "expected request normalization helper to be invoked once");
   assert.deepEqual(normalizationCalls[0], {}, "expected raw input to be passed to normalization helper");
@@ -152,7 +155,7 @@ test("planSessionService delegates request normalization, output validation, and
 
   assert.equal(validationCalls.length, 1, "expected validation helper to be invoked once");
   assert.equal(validationCalls[0].ok, true);
-  assert.ok(Array.isArray(validationCalls[0].session.exercises));
+  assert.ok(Array.isArray(validationCalls[0].result.session.exercises));
 
   assert.equal(persistenceCalls.length, 1, "expected persistence helper to be invoked once");
   assert.equal(persistenceCalls[0].kind, "plan_session");
@@ -203,11 +206,13 @@ test("planSessionService preserves orchestration order and returns the validated
   };
   runnerReturnValue = {
     ok: true,
-    session: {
-      exercises: [
-        { exercise_id: "squat", source: "program" },
-        { exercise_id: "bench_press", source: "program" }
-      ]
+    result: {
+      session: {
+        exercises: [
+          { exercise_id: "squat", source: "program" },
+          { exercise_id: "bench_press", source: "program" }
+        ]
+      }
     },
     trace: { source: "runner-custom" }
   };
@@ -229,10 +234,12 @@ test("planSessionService persistence is strictly post-validation and never obser
   };
   runnerReturnValue = {
     ok: true,
-    session: {
-      exercises: [
-        { exercise_id: "deadlift", source: "program" }
-      ]
+    result: {
+      session: {
+        exercises: [
+          { exercise_id: "deadlift", source: "program" }
+        ]
+      }
     },
     trace: { source: "runner-post-validation-only" }
   };
@@ -257,12 +264,14 @@ test("planSessionService returns the exact validated runner object identity with
   };
   runnerReturnValue = {
     ok: true,
-    session: {
-      exercises: [
-        { exercise_id: "squat", source: "program" },
-        { exercise_id: "bench_press", source: "program" },
-        { exercise_id: "row", source: "accessory" }
-      ]
+    result: {
+      session: {
+        exercises: [
+          { exercise_id: "squat", source: "program" },
+          { exercise_id: "bench_press", source: "program" },
+          { exercise_id: "row", source: "accessory" }
+        ]
+      }
     },
     trace: {
       source: "runner-identity-stable",
@@ -295,11 +304,13 @@ test("planSessionService invokes persistence exactly once for validated success 
   };
   runnerReturnValue = {
     ok: true,
-    session: {
-      exercises: [
-        { exercise_id: "deadlift", source: "program" },
-        { exercise_id: "bench_press", source: "program" }
-      ]
+    result: {
+      session: {
+        exercises: [
+          { exercise_id: "deadlift", source: "program" },
+          { exercise_id: "bench_press", source: "program" }
+        ]
+      }
     },
     trace: {
       source: "runner-single-persist-success",
@@ -327,11 +338,13 @@ test("planSessionService never validates more than once on validated success pat
   };
   runnerReturnValue = {
     ok: true,
-    session: {
-      exercises: [
-        { exercise_id: "deadlift", source: "program" },
-        { exercise_id: "bench_press", source: "program" }
-      ]
+    result: {
+      session: {
+        exercises: [
+          { exercise_id: "deadlift", source: "program" },
+          { exercise_id: "bench_press", source: "program" }
+        ]
+      }
     },
     trace: {
       source: "runner-single-validate-success",
@@ -357,10 +370,12 @@ test("planSessionService never persists before validation even when validation i
   };
   runnerReturnValue = {
     ok: true,
-    session: {
-      exercises: [
-        { exercise_id: "deadlift", source: "program" }
-      ]
+    result: {
+      session: {
+        exercises: [
+          { exercise_id: "deadlift", source: "program" }
+        ]
+      }
     },
     trace: {
       source: "runner-validation-noop-success",
@@ -404,11 +419,13 @@ test("planSessionService preserves the exact normalized input reference across r
 
   runnerReturnValue = {
     ok: true,
-    session: {
-      exercises: [
-        { exercise_id: "deadlift", source: "program" },
-        { exercise_id: "bench_press", source: "program" }
-      ]
+    result: {
+      session: {
+        exercises: [
+          { exercise_id: "deadlift", source: "program" },
+          { exercise_id: "bench_press", source: "program" }
+        ]
+      }
     },
     trace: {
       source: "runner-normalized-input-reference-stable"
@@ -456,11 +473,13 @@ test("planSessionService never mutates normalized input before runner or persist
 
   runnerReturnValue = {
     ok: true,
-    session: {
-      exercises: [
-        { exercise_id: "deadlift", source: "program" },
-        { exercise_id: "bench_press", source: "program" }
-      ]
+    result: {
+      session: {
+        exercises: [
+          { exercise_id: "deadlift", source: "program" },
+          { exercise_id: "bench_press", source: "program" }
+        ]
+      }
     },
     trace: {
       source: "runner-normalized-input-stable"
@@ -490,8 +509,10 @@ test("planSessionService never persists on any non-success response shape reject
   };
   runnerReturnValue = {
     ok: false,
-    session: {
-      exercises: []
+    result: {
+      session: {
+        exercises: []
+      }
     },
     trace: {
       source: "runner-non-success-shape",
@@ -521,11 +542,13 @@ test("planSessionService persistence failure never alters call ordering or retur
   };
   runnerReturnValue = {
     ok: true,
-    session: {
-      exercises: [
-        { exercise_id: "deadlift", source: "program" },
-        { exercise_id: "row", source: "accessory" }
-      ]
+    result: {
+      session: {
+        exercises: [
+          { exercise_id: "deadlift", source: "program" },
+          { exercise_id: "row", source: "accessory" }
+        ]
+      }
     },
     trace: {
       source: "runner-persistence-failure-order-stable",
@@ -558,10 +581,12 @@ test("planSessionService persistence failure mode remains non-fatal and preserve
   };
   runnerReturnValue = {
     ok: true,
-    session: {
-      exercises: [
-        { exercise_id: "deadlift", source: "program" }
-      ]
+    result: {
+      session: {
+        exercises: [
+          { exercise_id: "deadlift", source: "program" }
+        ]
+      }
     },
     trace: { source: "runner-persistence-failure-mode" }
   };
@@ -627,8 +652,10 @@ test("planSessionService failure boundary: invalid runner output fails at valida
   normalizedInputValue = { user: { activity: "general_strength" } };
   runnerReturnValue = {
     ok: false,
-    session: {
-      exercises: []
+    result: {
+      session: {
+        exercises: []
+      }
     },
     trace: { source: "runner-invalid" }
   };
