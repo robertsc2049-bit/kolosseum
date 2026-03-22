@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-test("sessions.handlers source contract: planSession delegates body.input ?? body to planSessionService and returns 200", () => {
+test("sessions.handlers source contract: planSession delegates body.input ?? body to planSessionService and preserves flattened 200 http response contract", () => {
   const repo = process.cwd();
   const file = path.join(repo, "src", "api", "sessions.handlers.ts");
   const src = fs.readFileSync(file, "utf8");
@@ -28,7 +28,7 @@ test("sessions.handlers source contract: planSession delegates body.input ?? bod
 
   assert.match(
     src,
-    /return\s+res\.status\(200\)\.json\(out\);/,
-    "expected planSession to preserve 200 JSON response contract"
+    /return\s+res\.status\(200\)\.json\(\{\s*ok:\s*out\?\.\s*ok\s*===\s*true,\s*session:\s*out\?\.\s*result\?\.\s*session\s*\?\?\s*null,\s*trace:\s*out\?\.\s*trace\s*\?\?\s*null\s*\}\);/s,
+    "expected planSession to preserve flattened 200 http response contract"
   );
 });

@@ -67,8 +67,9 @@ jobs:
               process.exit(2);
             }
 
-            if (!out.session || !Array.isArray(out.session.exercises) || out.session.exercises.length < 1) {
-              console.error("Unexpected output (missing session.exercises):");
+            const session = out && out.result && out.result.session;
+            if (!session || !Array.isArray(session.exercises) || session.exercises.length < 1) {
+              console.error("Unexpected output (missing result.session.exercises):");
               console.error(JSON.stringify(out, null, 2));
               process.exit(3);
             }
