@@ -93,7 +93,8 @@
     "smoke:api:run": "node scripts/ps-runner.mjs --file scripts/smoke-api-run.ps1",
     "test:watch:mocks": "node --test --experimental-test-module-mocks --watch",
     "test:affected": "node ci/scripts/run_test_affected_from_changed_files.mjs",
-    "test:affected:print": "node ci/scripts/compose_test_affected_from_changed_files.mjs"
+    "test:affected:print": "node ci/scripts/compose_test_affected_from_changed_files.mjs",
+    "precommit:inspect": "node ci/scripts/precommit_inspect.mjs"
   },
   "dependencies": {
     "@kolosseum/engine": "file:engine",
