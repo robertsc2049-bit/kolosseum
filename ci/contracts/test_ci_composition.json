@@ -315,6 +315,14 @@
     {
       "kind": "command",
       "value": "node test/ci_precommit_smart_routing_contract.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_precommit_inspect_runtime_contract.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_precommit_inspect_source_contract.test.mjs"
     }
   ]
 }
