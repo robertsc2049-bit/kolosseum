@@ -1,15 +1,4 @@
 {
-  "details": [
-    {
-      "instancePath": "",
-      "keyword": "additionalProperties",
-      "message": "must NOT have additional properties",
-      "params": {
-        "additionalProperty": "__unknown_field__"
-      },
-      "schemaPath": "#/additionalProperties"
-    }
-  ],
   "failure_token": "type_mismatch",
   "ok": false
 }

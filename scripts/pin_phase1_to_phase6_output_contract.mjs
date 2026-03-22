@@ -70,6 +70,15 @@ function assertSemanticSuccess(result) {
     fail("semantic_not_ok", `expected ok=true, got ok=${String(result.ok)}`);
   }
 
+  const keys = Object.keys(result).sort();
+  if (JSON.stringify(keys) !== JSON.stringify(["ok", "result"])) {
+    fail("unexpected_success_keys", `success result must have exact top-level keys ok,result; got ${keys.join(",")}`);
+  }
+
+  if (result.result === null || typeof result.result !== "object" || Array.isArray(result.result)) {
+    fail("missing_result_object", "success result must include result object");
+  }
+
   if (typeof result.failure_token === "string" && result.failure_token.length > 0) {
     fail("unexpected_failure_token", `success result carried failure_token=${result.failure_token}`);
   }
@@ -135,7 +144,7 @@ async function buildPinnedPayload() {
   assertSemanticSuccess(firstNorm);
 
   return {
-    schema_version: "kolosseum.phase6.output-contract-pin.v1",
+    schema_version: "kolosseum.phase6.output-contract-pin.v2",
     fixture_path: fixturePath,
     module_path: modulePath,
     output: firstNorm

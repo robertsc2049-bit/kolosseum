@@ -2,62 +2,6 @@
   "fixture_path": "test/fixtures/phase1_to_phase6.invalid.unsupported-activity.json",
   "module_path": "dist/src/run_pipeline.js",
   "output": {
-    "details": [
-      {
-        "instancePath": "",
-        "keyword": "required",
-        "message": "must have required property 'engine_version'",
-        "params": {
-          "missingProperty": "engine_version"
-        },
-        "schemaPath": "#/required"
-      },
-      {
-        "instancePath": "",
-        "keyword": "required",
-        "message": "must have required property 'enum_bundle_version'",
-        "params": {
-          "missingProperty": "enum_bundle_version"
-        },
-        "schemaPath": "#/required"
-      },
-      {
-        "instancePath": "",
-        "keyword": "required",
-        "message": "must have required property 'phase1_schema_version'",
-        "params": {
-          "missingProperty": "phase1_schema_version"
-        },
-        "schemaPath": "#/required"
-      },
-      {
-        "instancePath": "",
-        "keyword": "additionalProperties",
-        "message": "must NOT have additional properties",
-        "params": {
-          "additionalProperty": "age_declaration"
-        },
-        "schemaPath": "#/additionalProperties"
-      },
-      {
-        "instancePath": "",
-        "keyword": "additionalProperties",
-        "message": "must NOT have additional properties",
-        "params": {
-          "additionalProperty": "jurisdiction_acknowledged"
-        },
-        "schemaPath": "#/additionalProperties"
-      },
-      {
-        "instancePath": "",
-        "keyword": "additionalProperties",
-        "message": "must NOT have additional properties",
-        "params": {
-          "additionalProperty": "location_type"
-        },
-        "schemaPath": "#/additionalProperties"
-      }
-    ],
     "failure_token": "type_mismatch",
     "ok": false
   },

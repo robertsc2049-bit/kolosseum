@@ -6,14 +6,37 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
+function assertExactSuccessEnvelope(out, label) {
+  assert(out && typeof out === "object" && !Array.isArray(out), `${label} must be object`);
+  assert(out.ok === true, `${label} must be ok=true`);
+
+  const keys = Object.keys(out).sort();
+  assert(
+    JSON.stringify(keys) === JSON.stringify(["ok", "result"]),
+    `${label} must have exact top-level keys ok,result; got ${keys.join(",")}`
+  );
+
+  assert(out.result && typeof out.result === "object" && !Array.isArray(out.result), `${label}.result must exist`);
+  assert(!Object.prototype.hasOwnProperty.call(out, "rendered_text"), `${label} must not expose top-level rendered_text`);
+}
+
 function assertNoRendered(out) {
-  assert(!out.rendered_text, "rendered_text must NOT exist");
+  assertExactSuccessEnvelope(out, "output");
+  assert(!Object.prototype.hasOwnProperty.call(out.result, "rendered_text"), "result.rendered_text must NOT exist");
 }
 
 function assertHasRendered(out) {
-  assert(!!out.rendered_text, "rendered_text must exist");
-  assert(Array.isArray(out.rendered_text.lines), "rendered_text.lines must be array");
-  assert(out.rendered_text.lines.every((x) => typeof x === "string"), "rendered_text.lines must be string[]");
+  assertExactSuccessEnvelope(out, "output");
+  assert(
+    Object.prototype.hasOwnProperty.call(out.result, "rendered_text"),
+    "result.rendered_text must exist"
+  );
+  assert(out.result.rendered_text && typeof out.result.rendered_text === "object", "result.rendered_text must be object");
+  assert(Array.isArray(out.result.rendered_text.lines), "result.rendered_text.lines must be array");
+  assert(
+    out.result.rendered_text.lines.every((x) => typeof x === "string"),
+    "result.rendered_text.lines must be string[]"
+  );
 }
 
 // Build dist if missing or stale vs relevant sources.
@@ -43,8 +66,6 @@ function buildNow(reason) {
   let p;
 
   if (process.platform === "win32") {
-    // On this repo, `npm` resolves to npm.ps1 (PowerShell), not npm.cmd.
-    // So we must build via PowerShell.
     p = spawnSync(
       "powershell.exe",
       ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", "npm run build:fast"],
@@ -65,14 +86,13 @@ function buildNow(reason) {
 }
 
 function runCli(args, stdinText) {
-  // Hermetic env: prevent dev machine env from changing return phase.
   const env = { ...process.env };
   delete env.KOLOSSEUM_RETURN_PHASE;
 
   const p = spawnSync("node", ["dist/src/run_pipeline_cli.js", ...args], {
     input: stdinText ?? undefined,
     encoding: "utf8",
-    env,
+    env
   });
 
   const stdout = (p.stdout ?? "").trim();
@@ -108,7 +128,7 @@ function runCli(args, stdinText) {
   assert(debugRes.out.ok === true, "debug run must be ok");
   assertHasRendered(debugRes.out);
 
-  const first = debugRes.out.rendered_text.lines[0];
+  const first = debugRes.out.result.rendered_text.lines[0];
   const expected = "1) bench_press \u2014 4x5 @ 75% rest 180s";
   assert(first === expected, `unexpected first rendered line: ${first}`);
 
