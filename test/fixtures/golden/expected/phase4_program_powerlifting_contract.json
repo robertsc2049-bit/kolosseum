@@ -1,4 +1,15 @@
 {
+  "details": [
+    {
+      "instancePath": "",
+      "keyword": "additionalProperties",
+      "message": "must NOT have additional properties",
+      "params": {
+        "additionalProperty": "debug_return_phase"
+      },
+      "schemaPath": "#/additionalProperties"
+    }
+  ],
   "failure_token": "type_mismatch",
   "ok": false
 }

@@ -1,4 +1,5 @@
 {
+  "details": "PHASE_1: constraints envelope present but not an object",
   "failure_token": "constraints_type_invalid",
   "ok": false
 }

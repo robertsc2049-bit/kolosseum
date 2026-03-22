@@ -1,136 +1,134 @@
 {
+  "notes": [
+    "PHASE_6: emitted session from planned_items (deduped)"
+  ],
   "ok": true,
-  "result": {
-    "notes": [
-      "PHASE_6: emitted session from planned_items (deduped)"
-    ],
-    "phase2_debug": {
-      "canonical_input_hash": "dd15f86b3b646184e22a245f06665ee2dccba8084be830ab14b85f8beaae7f74",
+  "phase2_debug": {
+    "canonical_input_hash": "dd15f86b3b646184e22a245f06665ee2dccba8084be830ab14b85f8beaae7f74",
+    "constraints": {
+      "available_equipment": [
+        "eq_barbell"
+      ],
+      "banned_equipment": [
+        "eq_barbell"
+      ],
+      "constraints_version": "1.0.0"
+    },
+    "phase2_canonical_json": "{\"activity_id\":\"powerlifting\",\"actor_type\":\"athlete\",\"bias_mode\":\"none\",\"consent_granted\":true,\"constraints\":{\"available_equipment\":[\"eq_barbell\"],\"banned_equipment\":[\"eq_barbell\"],\"constraints_version\":\"1.0.0\"},\"engine_version\":\"EB2-1.0.0\",\"enum_bundle_version\":\"EB2-1.0.0\",\"execution_scope\":\"individual\",\"exposure_prompt_density\":\"standard\",\"instruction_density\":\"standard\",\"nd_mode\":false,\"phase1_schema_version\":\"1.0.0\"}",
+    "phase2_hash": "dd15f86b3b646184e22a245f06665ee2dccba8084be830ab14b85f8beaae7f74"
+  },
+  "phase3_debug": {
+    "payload": {
       "constraints": {
-        "available_equipment": [
-          "eq_barbell"
-        ],
+        "available_equipment": [],
         "banned_equipment": [
           "eq_barbell"
-        ],
-        "constraints_version": "1.0.0"
+        ]
       },
-      "phase2_canonical_json": "{\"activity_id\":\"powerlifting\",\"actor_type\":\"athlete\",\"bias_mode\":\"none\",\"consent_granted\":true,\"constraints\":{\"available_equipment\":[\"eq_barbell\"],\"banned_equipment\":[\"eq_barbell\"],\"constraints_version\":\"1.0.0\"},\"engine_version\":\"EB2-1.0.0\",\"enum_bundle_version\":\"EB2-1.0.0\",\"execution_scope\":\"individual\",\"exposure_prompt_density\":\"standard\",\"instruction_density\":\"standard\",\"nd_mode\":false,\"phase1_schema_version\":\"1.0.0\"}",
-      "phase2_hash": "dd15f86b3b646184e22a245f06665ee2dccba8084be830ab14b85f8beaae7f74"
-    },
-    "phase3_debug": {
-      "payload": {
-        "constraints": {
-          "available_equipment": [],
-          "banned_equipment": [
-            "eq_barbell"
-          ]
-        },
-        "constraints_resolution": {
-          "removed_from_available_equipment": [
-            "eq_barbell"
-          ],
-          "rules_applied": [
-            "banned_over_available_equipment"
-          ]
-        },
-        "constraints_resolved": true,
-        "loaded_registries": [
-          "activity",
-          "movement",
-          "exercise",
-          "program"
+      "constraints_resolution": {
+        "removed_from_available_equipment": [
+          "eq_barbell"
         ],
-        "notes": [
-          "PHASE_3: registries loaded",
-          "PHASE_3: constraints envelope present — canonicalized (v1)"
-        ],
-        "registry_index_version": "1.0.0"
-      }
-    },
-    "session": {
-      "exercises": [
-        {
-          "block_id": "B0",
-          "exercise_id": "bench_press",
-          "intensity": {
-            "type": "percent_1rm",
-            "value": 75
-          },
-          "item_id": "B0_I0",
-          "reps": 5,
-          "rest_seconds": 180,
-          "sets": 4,
-          "source": "program"
-        },
-        {
-          "block_id": "B0",
-          "exercise_id": "back_squat",
-          "intensity": {
-            "type": "percent_1rm",
-            "value": 75
-          },
-          "item_id": "B0_I1",
-          "reps": 5,
-          "rest_seconds": 180,
-          "sets": 4,
-          "source": "program"
-        },
-        {
-          "block_id": "B0",
-          "exercise_id": "deadlift",
-          "intensity": {
-            "type": "percent_1rm",
-            "value": 75
-          },
-          "item_id": "B0_I2",
-          "reps": 5,
-          "rest_seconds": 180,
-          "sets": 4,
-          "source": "program"
-        },
-        {
-          "block_id": "B0",
-          "exercise_id": "overhead_press",
-          "intensity": {
-            "type": "percent_1rm",
-            "value": 75
-          },
-          "item_id": "B0_I3",
-          "reps": 5,
-          "rest_seconds": 180,
-          "sets": 4,
-          "source": "program"
-        },
-        {
-          "block_id": "B0",
-          "exercise_id": "incline_bench_press",
-          "intensity": {
-            "type": "percent_1rm",
-            "value": 60
-          },
-          "item_id": "B0_I4",
-          "reps": 10,
-          "rest_seconds": 90,
-          "sets": 3,
-          "source": "program"
-        },
-        {
-          "block_id": "B0",
-          "exercise_id": "push_up",
-          "intensity": {
-            "type": "percent_1rm",
-            "value": 60
-          },
-          "item_id": "B0_I5",
-          "reps": 10,
-          "rest_seconds": 90,
-          "sets": 3,
-          "source": "program"
-        }
+        "rules_applied": [
+          "banned_over_available_equipment"
+        ]
+      },
+      "constraints_resolved": true,
+      "loaded_registries": [
+        "activity",
+        "movement",
+        "exercise",
+        "program"
       ],
-      "session_id": "SESSION_V1",
-      "status": "ready"
+      "notes": [
+        "PHASE_3: registries loaded",
+        "PHASE_3: constraints envelope present — canonicalized (v1)"
+      ],
+      "registry_index_version": "1.0.0"
     }
+  },
+  "session": {
+    "exercises": [
+      {
+        "block_id": "B0",
+        "exercise_id": "bench_press",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 75
+        },
+        "item_id": "B0_I0",
+        "reps": 5,
+        "rest_seconds": 180,
+        "sets": 4,
+        "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "back_squat",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 75
+        },
+        "item_id": "B0_I1",
+        "reps": 5,
+        "rest_seconds": 180,
+        "sets": 4,
+        "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "deadlift",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 75
+        },
+        "item_id": "B0_I2",
+        "reps": 5,
+        "rest_seconds": 180,
+        "sets": 4,
+        "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "overhead_press",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 75
+        },
+        "item_id": "B0_I3",
+        "reps": 5,
+        "rest_seconds": 180,
+        "sets": 4,
+        "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "incline_bench_press",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 60
+        },
+        "item_id": "B0_I4",
+        "reps": 10,
+        "rest_seconds": 90,
+        "sets": 3,
+        "source": "program"
+      },
+      {
+        "block_id": "B0",
+        "exercise_id": "push_up",
+        "intensity": {
+          "type": "percent_1rm",
+          "value": 60
+        },
+        "item_id": "B0_I5",
+        "reps": 10,
+        "rest_seconds": 90,
+        "sets": 3,
+        "source": "program"
+      }
+    ],
+    "session_id": "SESSION_V1",
+    "status": "ready"
   }
 }

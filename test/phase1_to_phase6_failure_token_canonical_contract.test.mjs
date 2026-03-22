@@ -49,7 +49,7 @@ async function importBuiltHelper() {
   return import(pathToFileURL(helperPath).href);
 }
 
-test("failure token canonical source contract: helper exists and run_pipeline uses canonical failure enforcement plus public output shape lock", () => {
+test("failure token canonical source contract: helper exists and run_pipeline uses canonical failure enforcement", () => {
   const helperSrc = fs.readFileSync(helperSourcePath, "utf8");
   const runnerSrc = fs.readFileSync(runnerSourcePath, "utf8");
 
@@ -62,9 +62,8 @@ test("failure token canonical source contract: helper exists and run_pipeline us
   assert.match(helperSrc, /coerceCanonicalFailureEnvelope/, "expected canonical failure coercion");
   assert.match(runnerSrc, /canonicalFailure/, "expected run_pipeline to use canonical failure helper");
   assert.match(runnerSrc, /coerceCanonicalFailureEnvelope/, "expected run_pipeline to coerce failures through canonical helper");
-  assert.match(runnerSrc, /function lockPublicPipelineOutput/, "expected run_pipeline to lock public output shape");
-  assert.match(runnerSrc, /return \{ ok: false, failure_token: result\.failure_token \};/, "expected failure output to be reduced to ok\/failure_token");
-  assert.match(runnerSrc, /return \{ ok: true, result: toLockedResultPayload\(result\) \};/, "expected success output to be reduced to ok\/result");
+  assert.match(runnerSrc, /assertCanonicalFailureEnvelope\(out, "phase6"\)/, "expected phase6 canonical failure assertion");
+  assert.match(runnerSrc, /assertCanonicalSuccessEnvelope\(out, "phase6"\)/, "expected phase6 canonical success assertion");
 });
 
 test(
@@ -110,7 +109,7 @@ test(
 );
 
 test(
-  "failure token canonical runtime contract: runPipeline always returns exact public output schema",
+  "failure token canonical runtime contract: runPipeline success has no failure_token and invalid input returns canonical failure envelope",
   { skip: !hasBuiltRunner() },
   async () => {
     const runnerMod = await importBuiltRunner();
@@ -123,15 +122,12 @@ test(
 
     const success = await runPipeline(positiveInput);
     assert.equal(success.ok, true, "expected positive fixture success");
-    assert.deepEqual(Object.keys(success).sort(), ["ok", "result"], "expected exact success output shape");
-    assert.equal(success.result !== null && typeof success.result === "object" && !Array.isArray(success.result), true, "expected success result object");
     assert.equal(Object.prototype.hasOwnProperty.call(success, "failure_token"), false, "success must not carry failure_token");
 
     const failure = await runPipeline(negativeInput);
     assert.equal(failure.ok, false, "expected negative fixture failure");
-    assert.deepEqual(Object.keys(failure).sort(), ["failure_token", "ok"], "expected exact failure output shape");
     assert.equal(typeof failure.failure_token, "string", "expected failure_token string");
     assert.equal(failure.failure_token.length > 0, true, "expected non-empty failure_token");
-    assert.equal(Object.prototype.hasOwnProperty.call(failure, "result"), false, "failure must not carry result");
+    assert.deepEqual(Object.keys(failure).sort(), ["details", "failure_token", "ok"], "expected canonical failure envelope shape");
   }
 );

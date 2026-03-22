@@ -35,18 +35,6 @@ export type RunPipelineOptions = {
   return_phase?: ReturnPhase | null;
 };
 
-export type LockedPipelineSuccess = {
-  ok: true;
-  result: Record<string, unknown>;
-};
-
-export type LockedPipelineFailure = {
-  ok: false;
-  failure_token: string;
-};
-
-export type LockedPipelineResult = LockedPipelineSuccess | LockedPipelineFailure;
-
 function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
@@ -68,7 +56,6 @@ function pickOneOrHeuristic(
   }
 
   const fns = callableExports(mod);
-
   if (fns.length === 1) return fns[0].fn;
 
   const patterns = [
@@ -93,7 +80,6 @@ function pickOneOrHeuristic(
 
   const keys = Object.keys(mod).sort().join(", ");
   const fnKeys = fns.map((x) => x.key).sort().join(", ");
-
   throw new Error(
     `runPipeline: could not resolve phase${phaseNum} callable export. ` +
       `Callable exports: [${fnKeys || "(none)"}]. All exports: [${keys}]`
@@ -116,7 +102,6 @@ function stripRunnerFlags(input: unknown) {
     if (k === "debug_emit_phase3") continue;
     cleaned[k] = v;
   }
-
   return { cleaned, flags };
 }
 
@@ -221,43 +206,7 @@ function normReturnPhase(v: unknown): ReturnPhase | null {
   return null;
 }
 
-function toLockedResultPayload(result: Record<string, unknown>): Record<string, unknown> {
-  const payload: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(result)) {
-    if (key === "ok") continue;
-    if (key === "failure_token") continue;
-    payload[key] = value;
-  }
-  return payload;
-}
-
-function lockPublicPipelineOutput(
-  result: unknown,
-  label = "pipeline result"
-): LockedPipelineResult {
-  if (!isRecord(result)) {
-    throw new Error(`${label} must be an object`);
-  }
-
-  if (result.ok === false) {
-    assertCanonicalFailureEnvelope(result, label);
-    return { ok: false, failure_token: result.failure_token };
-  }
-
-  assertCanonicalSuccessEnvelope(result, label);
-  return { ok: true, result: toLockedResultPayload(result) };
-}
-
-function publicFailure(
-  failure_token: Parameters<typeof canonicalFailure>[0]
-): LockedPipelineFailure {
-  return { ok: false, failure_token };
-}
-
-export async function runPipeline(
-  phase1Input: unknown,
-  opts: RunPipelineOptions = {}
-): Promise<LockedPipelineResult> {
+export async function runPipeline(phase1Input: unknown, opts: RunPipelineOptions = {}) {
   const want: ReturnPhase = normReturnPhase(opts.return_phase) || "phase6";
 
   const phase1 = pickOneOrHeuristic(P1 as any, 1, ["phase1Validate"]);
@@ -270,43 +219,28 @@ export async function runPipeline(
   const { cleaned: phase1InputClean, flags } = stripRunnerFlags(phase1Input);
 
   const r1 = await phase1(phase1InputClean);
-  if (!isRecord(r1)) return publicFailure("phase1_failed_non_object");
-  if ((r1 as any).ok !== true) {
-    return lockPublicPipelineOutput(
-      coerceCanonicalFailureEnvelope(r1, "phase1_failed_non_object", "phase1"),
-      "phase1"
-    );
-  }
+  if (!isRecord(r1)) return canonicalFailure("phase1_failed_non_object");
+  if ((r1 as any).ok !== true) return coerceCanonicalFailureEnvelope(r1, "phase1_failed_non_object", "phase1");
   assertCanonicalSuccessEnvelope(r1, "phase1");
-  if (want === "phase1") return lockPublicPipelineOutput(r1, "phase1");
+  if (want === "phase1") return r1;
 
   const p1 = unwrapPayload(r1, ["canonical_input", "canonical", "phase1", "output"]);
   const phase1CanonicalForP6 = p1;
 
   const r2 = await phase2(p1);
-  if (!isRecord(r2)) return publicFailure("phase2_failed_non_object");
-  if ((r2 as any).ok !== true) {
-    return lockPublicPipelineOutput(
-      coerceCanonicalFailureEnvelope(r2, "phase2_failed_non_object", "phase2"),
-      "phase2"
-    );
-  }
+  if (!isRecord(r2)) return canonicalFailure("phase2_failed_non_object");
+  if ((r2 as any).ok !== true) return coerceCanonicalFailureEnvelope(r2, "phase2_failed_non_object", "phase2");
   assertCanonicalSuccessEnvelope(r2, "phase2");
-  if (want === "phase2") return lockPublicPipelineOutput(r2, "phase2");
+  if (want === "phase2") return r2;
 
   const p2Canonical = extractPhase2CanonicalObject(r2);
-  if (!p2Canonical) return publicFailure("phase2_canonical_parse_failed");
+  if (!p2Canonical) return canonicalFailure("phase2_canonical_parse_failed");
 
   const r3 = await phase3(p2Canonical);
-  if (!isRecord(r3)) return publicFailure("phase3_failed_non_object");
-  if ((r3 as any).ok !== true) {
-    return lockPublicPipelineOutput(
-      coerceCanonicalFailureEnvelope(r3, "phase3_failed_non_object", "phase3"),
-      "phase3"
-    );
-  }
+  if (!isRecord(r3)) return canonicalFailure("phase3_failed_non_object");
+  if ((r3 as any).ok !== true) return coerceCanonicalFailureEnvelope(r3, "phase3_failed_non_object", "phase3");
   assertCanonicalSuccessEnvelope(r3, "phase3");
-  if (want === "phase3") return lockPublicPipelineOutput(r3, "phase3");
+  if (want === "phase3") return r3;
 
   const p3 = unwrapPayload(r3, ["phase3", "canonical", "output"]);
 
@@ -324,29 +258,18 @@ export async function runPipeline(
       }
     }
   }
-
-  if (!isRecord(r4)) return publicFailure("phase4_failed_non_object");
-  if ((r4 as any).ok !== true) {
-    return lockPublicPipelineOutput(
-      coerceCanonicalFailureEnvelope(r4, "phase4_failed_non_object", "phase4"),
-      "phase4"
-    );
-  }
+  if (!isRecord(r4)) return canonicalFailure("phase4_failed_non_object");
+  if ((r4 as any).ok !== true) return coerceCanonicalFailureEnvelope(r4, "phase4_failed_non_object", "phase4");
   assertCanonicalSuccessEnvelope(r4, "phase4");
-  if (want === "phase4") return lockPublicPipelineOutput(r4, "phase4");
+  if (want === "phase4") return r4;
 
   const program = unwrapPayload(r4, ["phase4", "output", "program", "plan", "canonical"]);
 
   const r5 = await phase5(program);
-  if (!isRecord(r5)) return publicFailure("phase5_failed_non_object");
-  if ((r5 as any).ok !== true) {
-    return lockPublicPipelineOutput(
-      coerceCanonicalFailureEnvelope(r5, "phase5_failed_non_object", "phase5"),
-      "phase5"
-    );
-  }
+  if (!isRecord(r5)) return canonicalFailure("phase5_failed_non_object");
+  if ((r5 as any).ok !== true) return coerceCanonicalFailureEnvelope(r5, "phase5_failed_non_object", "phase5");
   assertCanonicalSuccessEnvelope(r5, "phase5");
-  if (want === "phase5") return lockPublicPipelineOutput(r5, "phase5");
+  if (want === "phase5") return r5;
 
   const p5Envelope = r5;
 
@@ -373,7 +296,13 @@ export async function runPipeline(
     throw new Error("phase6 returned non-object result");
   }
 
-  return lockPublicPipelineOutput(out, "phase6");
+  if ((out as any).ok === false) {
+    assertCanonicalFailureEnvelope(out, "phase6");
+    return out;
+  }
+
+  assertCanonicalSuccessEnvelope(out, "phase6");
+  return out;
 }
 
 export default runPipeline;
