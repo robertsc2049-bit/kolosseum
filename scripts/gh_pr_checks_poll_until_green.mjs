@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 function toNormalizedText(value) {
@@ -146,6 +147,15 @@ export function parseStatusHelperProcessResult(result) {
   };
 }
 
+export function resolveStatusHelperScript() {
+  const override = process.env.KOLOSSEUM_GH_PR_CHECKS_STATUS_SCRIPT;
+  if (override) {
+    return override;
+  }
+
+  return path.join("scripts", "gh_pr_checks_status.mjs");
+}
+
 export function pollUntilGreen({
   repo,
   pr,
@@ -184,9 +194,10 @@ export function pollUntilGreen({
 }
 
 export function defaultRunStatus({ repo, pr }) {
+  const statusScript = resolveStatusHelperScript();
   const result = spawnSync(
     process.execPath,
-    ["scripts/gh_pr_checks_status.mjs", "--repo", String(repo), "--pr", String(pr), "--json"],
+    [statusScript, "--repo", String(repo), "--pr", String(pr), "--json"],
     { encoding: "utf8" }
   );
 

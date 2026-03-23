@@ -339,6 +339,14 @@
                   {
                       "kind":  "command",
                       "value":  "node test/ci_gh_powershell_json_contract.test.mjs"
+                  },
+                  {
+                      "kind":  "command",
+                      "value":  "node test/gh_pr_checks_status_json_contract.test.mjs"
+                  },
+                  {
+                      "kind":  "command",
+                      "value":  "node test/gh_pr_checks_poll_until_green_json_contract.test.mjs"
                   }
               ]
 }
