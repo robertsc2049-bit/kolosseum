@@ -6,7 +6,7 @@ applyDefaultNodeTestReporterEnv();
 
 function run() {
   const repo = process.cwd();
-  const result = composeTestAffectedFromChangedFiles({ repoRoot: repo });
+  const result = composeTestAffectedFromChangedFiles(repo);
 
   console.log(`test:affected mode=${result.mode} count=${result.commands.length}`);
   console.log(`test:affected changed=${result.changedFiles.join(", ") || "(none)"}`);
