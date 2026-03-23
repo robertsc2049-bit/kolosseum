@@ -51,8 +51,7 @@ Try-Run {
 Write-Headline "gh repo view (source of truth)"
 Try-Run {
   $repoView = Invoke-GhJson -Arguments @(
-    "repo", "view",
-    "--repo", $repoName,
+    "repo", "view", $repoName,
     "--json", "nameWithOwner,url"
   )
   Write-Host $repoView.nameWithOwner
