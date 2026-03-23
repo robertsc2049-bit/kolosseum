@@ -476,7 +476,7 @@ function Merge-KolosseumPr {
     throw "PR #$PrNumber is not mergeable. mergeable=$($prInfo.mergeable) mergeStateStatus=$($prInfo.mergeStateStatus) reviewDecision=$($prInfo.reviewDecision) url=$($prInfo.url)"
   }
 
-  gh pr merge $PrNumber --squash --delete-branch
+  gh pr merge $PrNumber --squash --delete-branch --admin
   if ($LASTEXITCODE -ne 0) {
     throw "gh pr merge failed for PR #$PrNumber"
   }
