@@ -335,6 +335,10 @@
                   {
                       "kind":  "command",
                       "value":  "node test/ci_session_preview_source_contract.test.mjs"
+                  },
+                  {
+                      "kind":  "command",
+                      "value":  "node test/ci_gh_powershell_json_contract.test.mjs"
                   }
               ]
 }
