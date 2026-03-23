@@ -15,6 +15,24 @@ function writeTempText(name, text) {
   return file;
 }
 
+function writeFakeGhScript(output, exitCode) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kol-gh-fake-"));
+  const normalized = output.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+  const file = path.join(dir, "fake-gh.js");
+  const body = `
+const text = ${JSON.stringify(normalized)};
+process.stdout.write(text);
+if (!text.endsWith("\\n")) {
+  process.stdout.write("\\n");
+}
+process.exit(${exitCode});
+`.trimStart();
+
+  fs.writeFileSync(file, body, "utf8");
+  return file;
+}
+
 function runStatusJsonFromFile(file) {
   const result = spawnSync(
     process.execPath,
@@ -28,8 +46,42 @@ function runStatusJsonFromFile(file) {
   let parsed;
   try {
     parsed = JSON.parse(stdout);
-  } catch (error) {
+  } catch {
     throw new Error(`Expected JSON stdout, got: ${stdout}`);
+  }
+
+  return {
+    status: result.status,
+    stdout,
+    stderr: String(result.stderr ?? ""),
+    parsed
+  };
+}
+
+function runStatusJsonViaFakeGh(output, exitCode) {
+  const fakeGhScript = writeFakeGhScript(output, exitCode);
+  const result = spawnSync(
+    process.execPath,
+    [statusScript, "--repo", "robertsc2049-bit/kolosseum", "--pr", "389", "--json"],
+    {
+      cwd: repoRoot,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        KOLOSSEUM_GH_BIN: process.execPath,
+        KOLOSSEUM_GH_BIN_ARGV1: fakeGhScript
+      }
+    }
+  );
+
+  const stdout = String(result.stdout ?? "").trim();
+  assert.notEqual(stdout, "", `expected JSON stdout from gh_pr_checks_status live mode; stderr=${String(result.stderr ?? "").trim()}`);
+
+  let parsed;
+  try {
+    parsed = JSON.parse(stdout);
+  } catch {
+    throw new Error(`Expected JSON stdout in live mode, got: ${stdout}`);
   }
 
   return {
@@ -122,11 +174,75 @@ test("gh_pr_checks_status executable contract: green summary text normalizes to 
   });
 });
 
-test("gh_pr_checks_status source contract: repo/pr path shells to gh pr checks and json mode emits JSON only", () => {
+test("gh_pr_checks_status live contract: pending repo/pr mode emits canonical JSON only with no raw gh rows leaked", () => {
+  const fixture = [
+    "Some checks are still pending",
+    "0 cancelled, 0 failing, 9 successful, 0 skipped, and 1 pending checks",
+    "",
+    "   NAME                                            DESCRIPTION  ELAPSED  URL",
+    "*  green/integration (pull_request)                                      https://example.invalid/run/1",
+    "✓  green/unit (pull_request)                                    33s      https://example.invalid/run/2"
+  ].join("\n");
+
+  const result = runStatusJsonViaFakeGh(fixture, 1);
+
+  assert.equal(result.status, 1);
+  assert.deepEqual(result.parsed, {
+    ok: true,
+    isGreen: false,
+    hasPending: true,
+    hasFailing: false,
+    successfulCount: 9,
+    pendingCount: 1,
+    failingCount: 0,
+    cancelledCount: 0,
+    skippedCount: 0,
+    source: "summary"
+  });
+
+  assert.doesNotMatch(result.stdout, /NAME\s+DESCRIPTION/);
+  assert.doesNotMatch(result.stdout, /https:\/\/example\.invalid/);
+  assert.doesNotMatch(result.stdout, /Some checks are still pending/);
+});
+
+test("gh_pr_checks_status live contract: failing repo/pr mode emits canonical JSON only with no raw gh rows leaked", () => {
+  const fixture = [
+    "Some checks failed",
+    "0 cancelled, 2 failing, 7 successful, 0 skipped, and 0 pending checks",
+    "",
+    "   NAME                                            DESCRIPTION  ELAPSED  URL",
+    "X  green/integration (pull_request)                             2m53s    https://example.invalid/run/1"
+  ].join("\n");
+
+  const result = runStatusJsonViaFakeGh(fixture, 1);
+
+  assert.equal(result.status, 1);
+  assert.deepEqual(result.parsed, {
+    ok: true,
+    isGreen: false,
+    hasPending: false,
+    hasFailing: true,
+    successfulCount: 7,
+    pendingCount: 0,
+    failingCount: 2,
+    cancelledCount: 0,
+    skippedCount: 0,
+    source: "summary"
+  });
+
+  assert.doesNotMatch(result.stdout, /NAME\s+DESCRIPTION/);
+  assert.doesNotMatch(result.stdout, /https:\/\/example\.invalid/);
+  assert.doesNotMatch(result.stdout, /Some checks failed/);
+});
+
+test("gh_pr_checks_status source contract: live repo/pr path captures gh stdout only and json mode emits canonical JSON only", () => {
   const source = fs.readFileSync(statusScript, "utf8");
 
-  assert.match(source, /spawnSync\(\s*"gh"/);
-  assert.match(source, /\["pr", "checks", String\(args\.pr\), "--repo", String\(args\.repo\)\]/);
-  assert.match(source, /if \(args\.json\) \{\s*process\.stdout\.write\(`\$\{JSON\.stringify\(parsed\)\}\\n`\);/s);
-  assert.doesNotMatch(source, /gh pr checks --watch/);
+  assert.match(source, /function resolveGhCommand\(\)/);
+  assert.match(source, /process\.env\.KOLOSSEUM_GH_BIN/);
+  assert.match(source, /const rawText = String\(ghResult\.stdout \?\? ""\);/);
+  assert.match(source, /if \(rawText\.trim\(\) === ""\)/);
+  assert.match(source, /process\.stdout\.write\(`\$\{JSON\.stringify\(parsed\)\}\\n`\);/);
+  assert.doesNotMatch(source, /return stderrText;/);
+  assert.doesNotMatch(source, /stdio:\s*"inherit"/);
 });
