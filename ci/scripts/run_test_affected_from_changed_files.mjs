@@ -1,40 +1,26 @@
-import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { composeTestAffectedFromChangedFiles } from "./compose_test_affected_from_changed_files.mjs";
+import { applyDefaultNodeTestReporterEnv } from "./test_reporter_env.mjs";
 
-const NODE_TEST_CMD_RE = /^node (test\/[A-Za-z0-9._/-]+\.test\.mjs)$/;
+applyDefaultNodeTestReporterEnv();
 
 function run() {
   const repo = process.cwd();
-  const explicitFiles = process.argv.slice(2);
-  const { mode, commands, changedFiles } = composeTestAffectedFromChangedFiles(
-    repo,
-    explicitFiles.length > 0 ? explicitFiles : undefined
-  );
+  const result = composeTestAffectedFromChangedFiles({ repoRoot: repo });
 
-  if (commands.length === 0) {
-    console.log("test:affected mode=empty count=0");
-    console.log("AFFECTED_TESTS_OK: no affected tests to run.");
+  console.log(`test:affected mode=${result.mode} count=${result.commands.length}`);
+  console.log(`test:affected changed=${result.changedFiles.join(", ") || "(none)"}`);
+
+  if (result.commands.length === 0) {
+    console.log("AFFECTED_TESTS_OK: no affected tests.");
     return;
   }
 
-  console.log(`test:affected mode=${mode} count=${commands.length}`);
-  if (changedFiles.length > 0) {
-    console.log(`test:affected changed=${changedFiles.join(", ")}`);
-  }
-
-  for (const command of commands) {
-    const match = NODE_TEST_CMD_RE.exec(command);
-    if (!match) {
-      throw new Error(`unsupported affected command for runner: ${command}`);
-    }
-
-    const testPath = match[1];
-    const absTestPath = path.join(repo, ...testPath.split("/"));
-
-    const child = spawnSync(process.execPath, [absTestPath], {
+  for (const command of result.commands) {
+    const child = spawnSync(command, {
       cwd: repo,
       stdio: "inherit",
+      shell: true,
       env: process.env
     });
 
@@ -52,7 +38,6 @@ function run() {
     }
   }
 
-  console.log("");
   console.log("AFFECTED_TESTS_OK: all affected tests passed.");
 }
 

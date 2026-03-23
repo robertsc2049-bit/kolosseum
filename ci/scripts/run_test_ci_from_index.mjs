@@ -1,8 +1,11 @@
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { composeTestCiFromIndex } from "./compose_test_ci_from_index.mjs";
+import { applyDefaultNodeTestReporterEnv } from "./test_reporter_env.mjs";
 
 const NODE_TEST_CMD_RE = /^node (test\/[A-Za-z0-9._/-]+\.test\.mjs)$/;
+
+applyDefaultNodeTestReporterEnv();
 
 function run() {
   const repo = process.cwd();
