@@ -1,219 +1,178 @@
-import { spawnSync } from "node:child_process";
-import { pathToFileURL } from "node:url";
 import fs from "node:fs";
+import process from "node:process";
+import { spawnSync } from "node:child_process";
 
-function toNormalizedText(value) {
-  return String(value ?? "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-}
-
-export function parseGhPrChecksText(text) {
-  const normalized = toNormalizedText(text).trim();
-
-  if (!normalized) {
-    return {
-      ok: false,
-      isGreen: false,
-      hasPending: false,
-      hasFailing: false,
-      successfulCount: 0,
-      pendingCount: 0,
-      failingCount: 0,
-      cancelledCount: 0,
-      skippedCount: 0,
-      source: "empty"
-    };
+function usage(message) {
+  if (message) {
+    process.stderr.write(`${message}\n`);
   }
-
-  const summaryMatch = normalized.match(
-    /(\d+)\s+cancelled,\s+(\d+)\s+failing,\s+(\d+)\s+successful,\s+(\d+)\s+skipped,\s+and\s+(\d+)\s+pending\s+checks/i
+  process.stderr.write(
+    "Usage:\n" +
+    "  node scripts/gh_pr_checks_status.mjs --file <path> [--json]\n" +
+    "  node scripts/gh_pr_checks_status.mjs --repo <owner/name> --pr <number> [--json]\n"
   );
-
-  if (summaryMatch) {
-    const cancelledCount = Number(summaryMatch[1]);
-    const failingCount = Number(summaryMatch[2]);
-    const successfulCount = Number(summaryMatch[3]);
-    const skippedCount = Number(summaryMatch[4]);
-    const pendingCount = Number(summaryMatch[5]);
-
-    return {
-      ok: true,
-      isGreen: failingCount === 0 && pendingCount === 0 && successfulCount > 0,
-      hasPending: pendingCount > 0,
-      hasFailing: failingCount > 0,
-      successfulCount,
-      pendingCount,
-      failingCount,
-      cancelledCount,
-      skippedCount,
-      source: "summary"
-    };
-  }
-
-  const rowMatches = Array.from(
-    normalized.matchAll(/^\S+\s+(pass|pending|fail|error|cancel|skipping)\b/gim)
-  );
-
-  if (rowMatches.length > 0) {
-    const states = rowMatches.map((match) => match[1].toLowerCase());
-
-    const successfulCount = states.filter((state) => state === "pass").length;
-    const pendingCount = states.filter((state) => state === "pending").length;
-    const failingCount = states.filter((state) => state === "fail" || state === "error").length;
-    const cancelledCount = states.filter((state) => state === "cancel").length;
-    const skippedCount = states.filter((state) => state === "skipping").length;
-
-    return {
-      ok: true,
-      isGreen: failingCount === 0 && pendingCount === 0 && successfulCount > 0,
-      hasPending: pendingCount > 0,
-      hasFailing: failingCount > 0,
-      successfulCount,
-      pendingCount,
-      failingCount,
-      cancelledCount,
-      skippedCount,
-      source: "rows"
-    };
-  }
-
-  const lower = normalized.toLowerCase();
-  const mentionsSuccess = lower.includes("all checks were successful");
-  const mentionsPending = lower.includes("pending");
-  const mentionsFailing = lower.includes("failing") || lower.includes("some checks failed");
-
-  return {
-    ok: mentionsSuccess || mentionsPending || mentionsFailing,
-    isGreen: mentionsSuccess && !mentionsPending && !mentionsFailing,
-    hasPending: mentionsPending && !mentionsSuccess,
-    hasFailing: mentionsFailing,
-    successfulCount: mentionsSuccess ? 1 : 0,
-    pendingCount: mentionsPending && !mentionsSuccess ? 1 : 0,
-    failingCount: mentionsFailing ? 1 : 0,
-    cancelledCount: 0,
-    skippedCount: 0,
-    source: "fallback"
-  };
-}
-
-export function parseGhPrChecksProcessResult(result) {
-  const stdout = toNormalizedText(result?.stdout ?? "");
-  const stderr = toNormalizedText(result?.stderr ?? "");
-  const combined = `${stdout}${stderr}`.trim();
-
-  if (!combined) {
-    return {
-      parsed: parseGhPrChecksText(""),
-      text: "",
-      fatal: true,
-      fatalMessage: "gh pr checks returned no output."
-    };
-  }
-
-  const parsed = parseGhPrChecksText(combined);
-
-  if (parsed.ok) {
-    return {
-      parsed,
-      text: combined,
-      fatal: false,
-      fatalMessage: null
-    };
-  }
-
-  return {
-    parsed,
-    text: combined,
-    fatal: true,
-    fatalMessage: combined
-  };
+  process.exit(2);
 }
 
 function parseArgs(argv) {
   const args = {
-    stdin: false,
-    json: false,
     file: null,
     repo: null,
-    pr: null
+    pr: null,
+    json: false
   };
 
-  for (let i = 0; i < argv.length; i += 1) {
-    const token = argv[i];
+  for (let index = 0; index < argv.length; index += 1) {
+    const token = argv[index];
 
-    if (token === "--stdin") {
-      args.stdin = true;
-      continue;
+    switch (token) {
+      case "--file": {
+        index += 1;
+        if (index >= argv.length) usage("Missing value for --file.");
+        args.file = argv[index];
+        break;
+      }
+      case "--repo": {
+        index += 1;
+        if (index >= argv.length) usage("Missing value for --repo.");
+        args.repo = argv[index];
+        break;
+      }
+      case "--pr": {
+        index += 1;
+        if (index >= argv.length) usage("Missing value for --pr.");
+        const parsed = Number.parseInt(argv[index], 10);
+        if (!Number.isInteger(parsed) || parsed <= 0) {
+          usage(`Invalid --pr value '${argv[index]}'.`);
+        }
+        args.pr = parsed;
+        break;
+      }
+      case "--json": {
+        args.json = true;
+        break;
+      }
+      default: {
+        usage(`Unknown argument '${token}'.`);
+      }
     }
+  }
 
-    if (token === "--json") {
-      args.json = true;
-      continue;
-    }
+  const hasFileMode = Boolean(args.file);
+  const hasRepoPrMode = Boolean(args.repo) || args.pr !== null;
 
-    if (token === "--file") {
-      args.file = argv[i + 1] ?? null;
-      i += 1;
-      continue;
-    }
+  if (hasFileMode && hasRepoPrMode) {
+    usage("Use either --file or --repo/--pr, not both.");
+  }
 
-    if (token === "--repo") {
-      args.repo = argv[i + 1] ?? null;
-      i += 1;
-      continue;
-    }
+  if (!hasFileMode && !hasRepoPrMode) {
+    usage("You must provide either --file or --repo/--pr.");
+  }
 
-    if (token === "--pr") {
-      args.pr = argv[i + 1] ?? null;
-      i += 1;
-      continue;
-    }
+  if (hasRepoPrMode && (!args.repo || args.pr === null)) {
+    usage("Both --repo and --pr are required for live mode.");
   }
 
   return args;
 }
 
-function readInputText(args) {
-  if (args.stdin) {
-    return fs.readFileSync(0, "utf8");
+function readTextFromFile(filePath) {
+  return fs.readFileSync(filePath, "utf8");
+}
+
+function resolveGhCommand() {
+  const override = process.env.KOLOSSEUM_GH_BIN;
+  if (override && override.trim() !== "") {
+    return override.trim();
+  }
+  return "gh";
+}
+
+function readTextFromGh(repo, pr) {
+  const ghCommand = resolveGhCommand();
+  const ghArgs = process.env.KOLOSSEUM_GH_BIN_ARGV1 && process.env.KOLOSSEUM_GH_BIN_ARGV1.trim() !== ""
+    ? [process.env.KOLOSSEUM_GH_BIN_ARGV1.trim()]
+    : ["pr", "checks", String(pr), "--repo", String(repo)];
+
+  const ghResult = spawnSync(ghCommand, ghArgs, {
+    cwd: process.cwd(),
+    encoding: "utf8",
+    env: process.env,
+    shell: process.platform === "win32" && ghCommand.toLowerCase().endsWith(".cmd")
+  });
+
+  if (ghResult.error) {
+    throw ghResult.error;
   }
 
-  if (args.file) {
-    return fs.readFileSync(args.file, "utf8");
-  }
-
-  if (args.repo && args.pr) {
-    const gh = spawnSync(
-      "gh",
-      ["pr", "checks", String(args.pr), "--repo", String(args.repo)],
-      { encoding: "utf8" }
+  const rawText = String(ghResult.stdout ?? "");
+  if (rawText.trim() === "") {
+    const stderrText = String(ghResult.stderr ?? "").trim();
+    const exitCode = typeof ghResult.status === "number" ? ghResult.status : "null";
+    throw new Error(
+      stderrText === ""
+        ? `gh pr checks produced no stdout (exit=${exitCode}).`
+        : `gh pr checks produced no stdout (exit=${exitCode}): ${stderrText}`
     );
-
-    const interpreted = parseGhPrChecksProcessResult(gh);
-
-    if (interpreted.fatal) {
-      throw new Error(interpreted.fatalMessage);
-    }
-
-    return interpreted.text;
   }
 
-  throw new Error("Provide one of: --stdin, --file <path>, or --repo <repo> --pr <number>.");
+  return rawText;
+}
+
+function parseSummary(text) {
+  const raw = String(text ?? "");
+  const normalized = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+
+  if (normalized === "") {
+    throw new Error("Unable to parse gh pr checks output: empty text.");
+  }
+
+  const countsMatch = normalized.match(
+    /(\d+)\s+cancelled,\s+(\d+)\s+failing,\s+(\d+)\s+successful,\s+(\d+)\s+skipped,\s+and\s+(\d+)\s+pending checks/i
+  );
+
+  if (!countsMatch) {
+    throw new Error(`Unable to parse gh pr checks summary counts from: ${normalized}`);
+  }
+
+  const cancelledCount = Number.parseInt(countsMatch[1], 10);
+  const failingCount = Number.parseInt(countsMatch[2], 10);
+  const successfulCount = Number.parseInt(countsMatch[3], 10);
+  const skippedCount = Number.parseInt(countsMatch[4], 10);
+  const pendingCount = Number.parseInt(countsMatch[5], 10);
+
+  return {
+    ok: true,
+    isGreen: failingCount === 0 && pendingCount === 0,
+    hasPending: pendingCount > 0,
+    hasFailing: failingCount > 0,
+    successfulCount,
+    pendingCount,
+    failingCount,
+    cancelledCount,
+    skippedCount,
+    source: "summary"
+  };
 }
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const text = readInputText(args);
-  const parsed = parseGhPrChecksText(text);
+  const rawText = args.file
+    ? readTextFromFile(args.file)
+    : readTextFromGh(args.repo, args.pr);
+
+  const parsed = parseSummary(rawText);
 
   if (args.json) {
     process.stdout.write(`${JSON.stringify(parsed)}\n`);
-  } else {
-    process.stdout.write(`${parsed.isGreen ? "GREEN" : parsed.hasPending ? "PENDING" : parsed.hasFailing ? "FAILING" : "UNKNOWN"}\n`);
+    process.exit(parsed.isGreen ? 0 : 1);
   }
 
+  process.stdout.write(rawText);
+  if (!String(rawText).endsWith("\n")) {
+    process.stdout.write("\n");
+  }
   process.exit(parsed.isGreen ? 0 : 1);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main();
-}
+main();
