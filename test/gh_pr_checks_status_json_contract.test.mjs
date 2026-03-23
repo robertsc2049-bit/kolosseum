@@ -15,12 +15,12 @@ function writeTempText(name, text) {
   return file;
 }
 
-function writeFakeGhScript(output, exitCode) {
+function writeFakeGhCommand(output, exitCode) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kol-gh-fake-"));
   const normalized = output.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
-  const file = path.join(dir, "fake-gh.js");
-  const body = `
+  const scriptFile = path.join(dir, "fake-gh.js");
+  const scriptBody = `
 const text = ${JSON.stringify(normalized)};
 process.stdout.write(text);
 if (!text.endsWith("\\n")) {
@@ -28,9 +28,21 @@ if (!text.endsWith("\\n")) {
 }
 process.exit(${exitCode});
 `.trimStart();
+  fs.writeFileSync(scriptFile, scriptBody, "utf8");
 
-  fs.writeFileSync(file, body, "utf8");
-  return file;
+  const commandFile = path.join(dir, process.platform === "win32" ? "gh.cmd" : "gh");
+  const commandBody =
+    process.platform === "win32"
+      ? `@echo off\r\n"${process.execPath}" "${scriptFile}" %*\r\n`
+      : `#!/usr/bin/env sh\nexec "${process.execPath}" "${scriptFile}" "$@"\n`;
+
+  fs.writeFileSync(commandFile, commandBody, "utf8");
+
+  if (process.platform !== "win32") {
+    fs.chmodSync(commandFile, 0o755);
+  }
+
+  return commandFile;
 }
 
 function runStatusJsonFromFile(file) {
@@ -59,17 +71,16 @@ function runStatusJsonFromFile(file) {
 }
 
 function runStatusJsonViaFakeGh(output, exitCode) {
-  const fakeGhScript = writeFakeGhScript(output, exitCode);
+  const fakeGhCommand = writeFakeGhCommand(output, exitCode);
   const result = spawnSync(
     process.execPath,
-    [statusScript, "--repo", "robertsc2049-bit/kolosseum", "--pr", "389", "--json"],
+    [statusScript, "--repo", "robertsc2049-bit/kolosseum", "--pr", "390", "--json"],
     {
       cwd: repoRoot,
       encoding: "utf8",
       env: {
         ...process.env,
-        KOLOSSEUM_GH_BIN: process.execPath,
-        KOLOSSEUM_GH_BIN_ARGV1: fakeGhScript
+        KOLOSSEUM_GH_BIN: fakeGhCommand
       }
     }
   );
@@ -235,14 +246,46 @@ test("gh_pr_checks_status live contract: failing repo/pr mode emits canonical JS
   assert.doesNotMatch(result.stdout, /Some checks failed/);
 });
 
-test("gh_pr_checks_status source contract: live repo/pr path captures gh stdout only and json mode emits canonical JSON only", () => {
+test("gh_pr_checks_status live contract: green repo/pr mode emits canonical JSON only with no raw gh rows leaked", () => {
+  const fixture = [
+    "All checks were successful",
+    "0 cancelled, 0 failing, 10 successful, 0 skipped, and 0 pending checks",
+    "",
+    "   NAME                                            DESCRIPTION  ELAPSED  URL",
+    "✓  green/integration (pull_request)                             2m53s    https://example.invalid/run/1"
+  ].join("\n");
+
+  const result = runStatusJsonViaFakeGh(fixture, 0);
+
+  assert.equal(result.status, 0);
+  assert.deepEqual(result.parsed, {
+    ok: true,
+    isGreen: true,
+    hasPending: false,
+    hasFailing: false,
+    successfulCount: 10,
+    pendingCount: 0,
+    failingCount: 0,
+    cancelledCount: 0,
+    skippedCount: 0,
+    source: "summary"
+  });
+
+  assert.doesNotMatch(result.stdout, /NAME\s+DESCRIPTION/);
+  assert.doesNotMatch(result.stdout, /https:\/\/example\.invalid/);
+  assert.doesNotMatch(result.stdout, /All checks were successful/);
+});
+
+test("gh_pr_checks_status source contract: live repo/pr path keeps gh override binary only and has no argv shim seam", () => {
   const source = fs.readFileSync(statusScript, "utf8");
 
   assert.match(source, /function resolveGhCommand\(\)/);
   assert.match(source, /process\.env\.KOLOSSEUM_GH_BIN/);
+  assert.match(source, /const ghArgs = \["pr", "checks", String\(pr\), "--repo", String\(repo\)\];/);
   assert.match(source, /const rawText = String\(ghResult\.stdout \?\? ""\);/);
   assert.match(source, /if \(rawText\.trim\(\) === ""\)/);
   assert.match(source, /process\.stdout\.write\(`\$\{JSON\.stringify\(parsed\)\}\\n`\);/);
+  assert.doesNotMatch(source, /KOLOSSEUM_GH_BIN_ARGV1/);
   assert.doesNotMatch(source, /return stderrText;/);
   assert.doesNotMatch(source, /stdio:\s*"inherit"/);
 });
