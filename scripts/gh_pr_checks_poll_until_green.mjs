@@ -1,6 +1,10 @@
 import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
+function toNormalizedText(value) {
+  return String(value ?? "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+}
+
 function sleep(ms) {
   if (!Number.isFinite(ms) || ms < 0) {
     throw new Error("sleep requires a non-negative finite millisecond value.");
@@ -118,6 +122,30 @@ export function interpretPollResult(parsed, attempt, attempts) {
   };
 }
 
+export function parseStatusHelperProcessResult(result) {
+  const stdout = toNormalizedText(result?.stdout ?? "").trim();
+  const stderr = toNormalizedText(result?.stderr ?? "").trim();
+
+  if (!stdout) {
+    const detail = stderr || "gh_pr_checks_status returned no stdout.";
+    throw new Error(detail);
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(stdout);
+  } catch {
+    throw new Error(`gh_pr_checks_status emitted non-JSON output: ${stdout}`);
+  }
+
+  return {
+    parsed,
+    stdout,
+    stderr,
+    exitCode: Number.isInteger(result?.status) ? result.status : null
+  };
+}
+
 export function pollUntilGreen({
   repo,
   pr,
@@ -162,19 +190,8 @@ export function defaultRunStatus({ repo, pr }) {
     { encoding: "utf8" }
   );
 
-  const stdout = String(result.stdout ?? "").trim();
-  const stderr = String(result.stderr ?? "").trim();
-
-  if (!stdout) {
-    const detail = stderr || "gh_pr_checks_status returned no stdout.";
-    throw new Error(detail);
-  }
-
-  try {
-    return JSON.parse(stdout);
-  } catch (error) {
-    throw new Error(`gh_pr_checks_status emitted non-JSON output: ${stdout}`);
-  }
+  const interpreted = parseStatusHelperProcessResult(result);
+  return interpreted.parsed;
 }
 
 function emit(result, asJson) {

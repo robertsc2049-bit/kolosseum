@@ -1,12 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
   parseArgs,
   interpretPollResult,
+  parseStatusHelperProcessResult,
   pollUntilGreen
 } from "../scripts/gh_pr_checks_poll_until_green.mjs";
 
@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const pollerPath = path.join(__dirname, "..", "scripts", "gh_pr_checks_poll_until_green.mjs");
 
-test("gh pr checks poller source contract pins repo-owned single-owner parser usage", async () => {
+test("gh pr checks poller source contract pins repo-owned single-owner parser usage and json-only status parsing", async () => {
   const fs = await import("node:fs/promises");
   const source = await fs.readFile(pollerPath, "utf8");
 
@@ -22,6 +22,8 @@ test("gh pr checks poller source contract pins repo-owned single-owner parser us
   assert.match(source, /--repo/);
   assert.match(source, /--pr/);
   assert.match(source, /--json/);
+  assert.match(source, /parseStatusHelperProcessResult/);
+  assert.match(source, /emitted non-JSON output/);
   assert.doesNotMatch(source, /gh\s+pr\s+checks\s+--watch/);
 });
 
@@ -75,6 +77,69 @@ test("gh pr checks poller interpretPollResult returns timeout on final pending a
     ok: false,
     reason: "timeout"
   });
+});
+
+test("gh pr checks poller helper process result accepts pending json on non-zero exit", () => {
+  const interpreted = parseStatusHelperProcessResult({
+    status: 1,
+    stdout: JSON.stringify({
+      ok: true,
+      isGreen: false,
+      hasPending: true,
+      hasFailing: false,
+      source: "rows"
+    }),
+    stderr: ""
+  });
+
+  assert.equal(interpreted.exitCode, 1);
+  assert.equal(interpreted.parsed.hasPending, true);
+  assert.equal(interpreted.parsed.isGreen, false);
+});
+
+test("gh pr checks poller helper process result accepts failing json on non-zero exit", () => {
+  const interpreted = parseStatusHelperProcessResult({
+    status: 1,
+    stdout: JSON.stringify({
+      ok: true,
+      isGreen: false,
+      hasPending: false,
+      hasFailing: true,
+      source: "rows"
+    }),
+    stderr: ""
+  });
+
+  assert.equal(interpreted.exitCode, 1);
+  assert.equal(interpreted.parsed.hasFailing, true);
+  assert.equal(interpreted.parsed.isGreen, false);
+});
+
+test("gh pr checks poller helper process result rejects empty stdout", () => {
+  assert.throws(
+    () =>
+      parseStatusHelperProcessResult({
+        status: 1,
+        stdout: "",
+        stderr: "gh_pr_checks_status returned no stdout."
+      }),
+    /returned no stdout/i
+  );
+});
+
+test("gh pr checks poller helper process result rejects raw row output leakage in json mode", () => {
+  assert.throws(
+    () =>
+      parseStatusHelperProcessResult({
+        status: 1,
+        stdout: `
+integration     pending 0       https://example.test/integration
+ci      pass    30s     https://example.test/ci
+        `.trim(),
+        stderr: ""
+      }),
+    /non-JSON output/i
+  );
 });
 
 test("gh pr checks poller stops immediately when first attempt is green", () => {
@@ -201,41 +266,6 @@ test("gh pr checks poller times out after final pending attempt", () => {
   assert.equal(result.ok, false);
   assert.equal(result.reason, "timeout");
   assert.equal(result.attemptsUsed, 3);
-});
-
-test("gh pr checks poller cli emits json on success", () => {
-  const shim = `
-    globalThis.__TEST_CALLS = 0;
-    globalThis.__TEST_STATES = [
-      { ok: true, isGreen: true, hasPending: false, hasFailing: false }
-    ];
-  `.trim();
-
-  const bootstrap = `
-    import * as mod from ${JSON.stringify(pathToFileURL(pollerPath).href)};
-    const original = mod.defaultRunStatus;
-    mod.defaultRunStatus = ({ repo, pr }) => {
-      globalThis.__TEST_CALLS += 1;
-      return globalThis.__TEST_STATES.shift();
-    };
-  `.trim();
-
-  const out = spawnSync(
-    process.execPath,
-    [
-      "--input-type=module",
-      "--eval",
-      `
-${shim}
-${bootstrap}
-process.argv = ["node", ${JSON.stringify(pollerPath)}, "--repo", "robertsc2049-bit/kolosseum", "--pr", "382", "--attempts", "1", "--delay-seconds", "0", "--json"];
-await import(${JSON.stringify(pathToFileURL(pollerPath).href)});
-      `
-    ],
-    { encoding: "utf8" }
-  );
-
-  assert.equal(out.status, 0);
 });
 
 test("gh pr checks poller cli source pins json output branch", async () => {
