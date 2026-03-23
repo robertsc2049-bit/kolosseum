@@ -90,9 +90,7 @@ function resolveGhCommand() {
 
 function readTextFromGh(repo, pr) {
   const ghCommand = resolveGhCommand();
-  const ghArgs = process.env.KOLOSSEUM_GH_BIN_ARGV1 && process.env.KOLOSSEUM_GH_BIN_ARGV1.trim() !== ""
-    ? [process.env.KOLOSSEUM_GH_BIN_ARGV1.trim()]
-    : ["pr", "checks", String(pr), "--repo", String(repo)];
+  const ghArgs = ["pr", "checks", String(pr), "--repo", String(repo)];
 
   const ghResult = spawnSync(ghCommand, ghArgs, {
     cwd: process.cwd(),
