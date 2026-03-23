@@ -19,7 +19,14 @@ $repo = (git rev-parse --show-toplevel).Trim()
 if (-not $repo) { throw "git rev-parse --show-toplevel failed." }
 Set-Location $repo
 
+$helperPath = Join-Path $repo "scripts/gh_json_helpers.ps1"
+if (-not (Test-Path $helperPath)) {
+  throw "Missing helper: $helperPath"
+}
+. $helperPath
+
 $canonical = "https://github.com/robertsc2049-bit/kolosseum.git"
+$repoName = "robertsc2049-bit/kolosseum"
 
 Write-Headline "origin url (fetch+push) must be canonical"
 $fetch = (git remote get-url origin).Trim()
@@ -43,7 +50,13 @@ Try-Run {
 
 Write-Headline "gh repo view (source of truth)"
 Try-Run {
-  gh repo view --json nameWithOwner,url -q '.nameWithOwner, .url'
+  $repoView = Invoke-GhJson -Arguments @(
+    "repo", "view",
+    "--repo", $repoName,
+    "--json", "nameWithOwner,url"
+  )
+  Write-Host $repoView.nameWithOwner
+  Write-Host $repoView.url
 }
 
 Write-Headline "gh run list (latest 10)"
