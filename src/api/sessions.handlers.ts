@@ -29,8 +29,19 @@ export async function planSession(req: Request, res: Response) {
   const bodyUnknown = req.body as unknown;
 
   let input: any;
-  if (isRecord(bodyUnknown)) input = (bodyUnknown as any).input ?? bodyUnknown;
-  else if (typeof bodyUnknown === "undefined" || bodyUnknown === null) input = {};
+  if (isRecord(bodyUnknown)) {
+    const body = bodyUnknown as JsonRecord;
+    const hasTopLevelInput = Object.prototype.hasOwnProperty.call(body, "input");
+    const undeclaredTopLevelFields = hasTopLevelInput
+      ? Object.keys(body).filter((key) => key !== "input").sort()
+      : [];
+
+    if (undeclaredTopLevelFields.length > 0) {
+      throw badRequest(`Unexpected top-level field(s): ${undeclaredTopLevelFields.join(", ")}`);
+    }
+
+    input = (body as any).input ?? body;
+  } else if (typeof bodyUnknown === "undefined" || bodyUnknown === null) input = {};
   else throw badRequest("Invalid JSON body (expected object)");
 
   const out = await planSessionService(input);
