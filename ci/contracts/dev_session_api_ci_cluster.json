@@ -14,6 +14,7 @@
     "node test/ci_api_plan_session_input_envelope_vs_direct_body_runtime_contract_wrapper.test.mjs",
     "node test/ci_api_plan_session_nested_input_precedence_boundary_runtime_contract_wrapper.test.mjs",
     "node test/ci_api_plan_session_envelope_only_allowlist_boundary_runtime_contract_wrapper.test.mjs",
+    "node test/ci_api_start_session_empty_body_boundary_runtime_contract_wrapper.test.mjs",
     "node test/ci_api_append_runtime_event_executed_handler_http_contract_wrapper.test.mjs",
     "node test/ci_api_get_session_state_executed_handler_http_contract_wrapper.test.mjs",
     "node test/ci_api_list_runtime_events_executed_handler_http_contract_wrapper.test.mjs",
