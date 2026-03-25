@@ -162,9 +162,10 @@ function repairReturnDecisionSummary(beforeSummary: any, afterSummary: any, even
   }
 
   if (eventType === "RETURN_SKIP") {
-    const gatedExerciseId = beforeRemaining.length > 0 ? beforeRemaining[0] : null;
-    const resumedRemaining = gatedExerciseId ? beforeRemaining.slice(1) : beforeRemaining.slice();
-    const repairedDropped = gatedExerciseId ? unionStable(beforeDropped, [gatedExerciseId]) : beforeDropped;
+    const frozenRemainingAtSplit = runtimeIds(beforeSummary, "remaining_at_split_ids");
+    const idsToDrop = frozenRemainingAtSplit.length > 0 ? frozenRemainingAtSplit : beforeRemaining;
+    const resumedRemaining = beforeRemaining.filter((id) => !idsToDrop.includes(id));
+    const repairedDropped = unionStable(beforeDropped, idsToDrop);
 
     stampSplitLifecycle(next, "skip");
     runtime.split_active = false;
