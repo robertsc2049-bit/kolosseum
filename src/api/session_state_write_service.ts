@@ -21,6 +21,166 @@ import {
   validateWireRuntimeEvent
 } from "@kolosseum/engine/runtime/session_summary.js";
 
+function cloneJson<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function ensureRuntimeCarrier(summary: any): any {
+  if (!summary || typeof summary !== "object") return { runtime: {} };
+  if (!summary.runtime || typeof summary.runtime !== "object" || Array.isArray(summary.runtime)) {
+    summary.runtime = {};
+  }
+  return summary.runtime;
+}
+
+function readSummaryTrace(summary: any): any {
+  try {
+    return deriveTrace(summary as any) as any;
+  } catch {
+    return {};
+  }
+}
+
+function runtimeIds(summary: any, key: string): string[] {
+  const runtime = ensureRuntimeCarrier(summary);
+  const direct = uniqStable(runtime?.[key]);
+  if (direct.length > 0) return direct;
+  const trace = readSummaryTrace(summary);
+  return uniqStable(trace?.[key]);
+}
+
+function writeRuntimeIds(summary: any, key: string, ids: string[]): void {
+  const runtime = ensureRuntimeCarrier(summary);
+  runtime[key] = uniqStable(ids);
+}
+
+function writeRuntimeSetAlias(summary: any, key: string, ids: string[]): void {
+  const runtime = ensureRuntimeCarrier(summary);
+  runtime[key] = uniqStable(ids);
+}
+
+function unionStable(a: string[], b: string[]): string[] {
+  return uniqStable([...(a ?? []), ...(b ?? [])]);
+}
+
+function stampSplitLifecycle(summary: any, decision: "continue" | "skip" | null): any {
+  const runtime = ensureRuntimeCarrier(summary);
+  runtime.split_entered = true;
+  if (decision) {
+    runtime.split_return_decision = decision;
+    runtime.return_decision = decision;
+  }
+  return summary;
+}
+
+function readPersistedSplitDecision(summary: any): "continue" | "skip" | null {
+  const runtime = ensureRuntimeCarrier(summary);
+  const raw =
+    runtime.split_return_decision ??
+    runtime.return_decision ??
+    null;
+
+  if (raw === null || typeof raw === "undefined") return null;
+  const s = String(raw).trim().toLowerCase();
+  if (s.includes("continue")) { return "continue"; }
+  if (s.includes("skip")) { return "skip"; }
+  return null;
+}
+
+function preserveSplitLifecycle(beforeSummary: any, afterSummary: any): any {
+  const next = cloneJson(afterSummary);
+  const beforeRt = ensureRuntimeCarrier(beforeSummary);
+  const nextRt = ensureRuntimeCarrier(next);
+
+  if (beforeRt.split_entered === true) {
+    nextRt.split_entered = true;
+  }
+
+  const priorDecision = readPersistedSplitDecision(beforeSummary);
+  if (priorDecision) {
+    nextRt.split_return_decision = priorDecision;
+    nextRt.return_decision = priorDecision;
+  }
+
+  return next;
+}
+
+function normalizeIncomingExerciseId(exerciseId: string, planned: PlannedSession, summary: any): string {
+  const raw = String(exerciseId ?? "").trim();
+  if (!raw) return raw;
+
+  const trace = readSummaryTrace(summary);
+  const knownIds = new Set<string>([
+    ...uniqStable(trace?.remaining_ids),
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+
+  const plannedExercises = Array.isArray(planned?.exercises) ? planned.exercises : [];
+  for (const ex of plannedExercises) {
+    const plannedId = typeof ex?.exercise_id === "string" ? ex.exercise_id : "";
+    if (plannedId) knownIds.add(plannedId);
+  }
+
+  if (knownIds.has(raw)) return raw;
+
+  if (raw.startsWith("ex_barbell_")) {
+    const candidate = raw.substring("ex_barbell_".length);
+    if (knownIds.has(candidate)) return candidate;
+  }
+
+  if (raw.startsWith("ex_")) {
+    const candidate = raw.substring(3);
+    if (knownIds.has(candidate)) return candidate;
+  }
+
+  return raw;
+}
+
+function repairReturnDecisionSummary(beforeSummary: any, afterSummary: any, eventType: string): any {
+  const next = cloneJson(afterSummary);
+  const runtime = ensureRuntimeCarrier(next);
+
+  const beforeRemaining = runtimeIds(beforeSummary, "remaining_ids");
+  const beforeCompleted = runtimeIds(beforeSummary, "completed_ids");
+  const beforeDropped = unionStable(
+    runtimeIds(beforeSummary, "dropped_ids"),
+    runtimeIds(beforeSummary, "skipped_ids")
+  );
+
+  if (eventType === "RETURN_CONTINUE") {
+    stampSplitLifecycle(next, "continue");
+    runtime.split_active = false;
+    runtime.remaining_at_split_ids = [];
+    runtime.return_decision_required = false;
+    runtime.return_decision_options = [];
+    writeRuntimeIds(next, "remaining_ids", beforeRemaining);
+    writeRuntimeIds(next, "completed_ids", beforeCompleted);
+    writeRuntimeIds(next, "dropped_ids", beforeDropped);
+    writeRuntimeSetAlias(next, "skipped_ids", beforeDropped);
+    return next;
+  }
+
+  if (eventType === "RETURN_SKIP") {
+    const gatedExerciseId = beforeRemaining.length > 0 ? beforeRemaining[0] : null;
+    const resumedRemaining = gatedExerciseId ? beforeRemaining.slice(1) : beforeRemaining.slice();
+    const repairedDropped = gatedExerciseId ? unionStable(beforeDropped, [gatedExerciseId]) : beforeDropped;
+
+    stampSplitLifecycle(next, "skip");
+    runtime.split_active = false;
+    runtime.remaining_at_split_ids = [];
+    runtime.return_decision_required = false;
+    runtime.return_decision_options = [];
+    writeRuntimeIds(next, "remaining_ids", resumedRemaining);
+    writeRuntimeIds(next, "completed_ids", beforeCompleted);
+    writeRuntimeIds(next, "dropped_ids", repairedDropped);
+    writeRuntimeSetAlias(next, "skipped_ids", repairedDropped);
+    return next;
+  }
+
+  return next;
+}
+
 function __kolosseumWireSentinel(evt: any) {
   if (process.env.KOLOSSEUM_TEST_FORCE_WIRE_APPLY_THROW !== "1") return;
   const t = typeof evt?.type === "string" ? String(evt.type).toUpperCase() : "";
@@ -110,6 +270,10 @@ function isReturnDecisionEventType(t: string | null): t is "RETURN_CONTINUE" | "
   return t === "RETURN_CONTINUE" || t === "RETURN_SKIP";
 }
 
+function isExerciseProgressEventType(t: string | null): t is "COMPLETE_EXERCISE" | "SKIP_EXERCISE" {
+  return t === "COMPLETE_EXERCISE" || t === "SKIP_EXERCISE";
+}
+
 function isReturnDecisionGateOpen(summary: any): boolean {
   const explicit = summary?.runtime?.return_decision_required;
   if (typeof explicit === "boolean") return explicit;
@@ -132,9 +296,52 @@ function ensureResolvedReturnDecisionReplayRejected(summary: any, raw: unknown):
   });
 }
 
+function ensureExerciseReplayRejected(summary: any, raw: unknown): void {
+  const t = rawEventType(raw);
+  if (!isExerciseProgressEventType(t)) return;
+
+  const exerciseId = typeof (raw as any)?.exercise_id === "string" ? String((raw as any).exercise_id) : "";
+  if (!exerciseId) {
+    throw badRequest("Missing/invalid event");
+  }
+
+  const trace = readSummaryTrace(summary);
+  const remainingIds = uniqStable(trace?.remaining_ids);
+  const completedIds = uniqStable(trace?.completed_ids);
+  const droppedIds = uniqStable(trace?.dropped_ids);
+
+  if (completedIds.includes(exerciseId) || droppedIds.includes(exerciseId)) {
+    throw conflict("Runtime event rejected (exercise replay after resolution)", {
+      failure_token: "phase6_runtime_resolved_exercise_replay",
+      cause: `PHASE6_RUNTIME_RESOLVED_EXERCISE_REPLAY: ${t}:${exerciseId}`
+    });
+  }
+
+  if (remainingIds.length === 0) {
+    throw conflict("Runtime event rejected (terminal exercise replay)", {
+      failure_token: "phase6_runtime_terminal_exercise_replay",
+      cause: `PHASE6_RUNTIME_TERMINAL_EXERCISE_REPLAY: ${t}:${exerciseId}`
+    });
+  }
+}
+
 export function extractRawEventFromBody(body: unknown): unknown {
   if (!body || typeof body !== "object" || Array.isArray(body)) return null;
-  return (body as any).event ?? null;
+
+  const directType = (body as any).type;
+  if (typeof directType === "string" && directType.length > 0) {
+    return body;
+  }
+
+  const nested = (body as any).event;
+  if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+    const nestedType = (nested as any).type;
+    if (typeof nestedType === "string" && nestedType.length > 0) {
+      return nested;
+    }
+  }
+
+  return null;
 }
 
 export async function startSessionMutation(session_id: string) {
@@ -184,6 +391,7 @@ export async function startSessionMutation(session_id: string) {
     }
 
     nextSummary.last_seq = seq;
+    nextSummary = preserveSplitLifecycle(upgraded0.summary, nextSummary);
     const upgraded1 = ensureReturnDecisionContract(nextSummary, deriveTrace);
 
     await client.query(
@@ -254,6 +462,7 @@ export async function appendRuntimeEventMutation(session_id: string, raw: unknow
       }
 
       workingSummary.last_seq = startSeq;
+      workingSummary = preserveSplitLifecycle(upgraded0.summary, workingSummary);
       workingSummary = ensureReturnDecisionContract(workingSummary, deriveTrace).summary;
 
       await client.query(
@@ -292,7 +501,15 @@ export async function appendRuntimeEventMutation(session_id: string, raw: unknow
       event = validated;
     }
 
+    if (typeof event?.exercise_id === "string" && event.exercise_id.length > 0) {
+      event = {
+        ...event,
+        exercise_id: normalizeIncomingExerciseId(event.exercise_id, planned, workingSummary)
+      };
+    }
+
     ensureResolvedReturnDecisionReplayRejected(workingSummary, event);
+    ensureExerciseReplayRejected(workingSummary, event);
 
     const seq = await allocNextSeq(client, session_id);
 
@@ -310,6 +527,16 @@ export async function appendRuntimeEventMutation(session_id: string, raw: unknow
       mapEngineWireApplyError(e);
     }
 
+    nextSummary = preserveSplitLifecycle(workingSummary, nextSummary);
+
+    const eventType = rawEventType(event);
+    if (eventType === "SPLIT_SESSION") {
+      nextSummary = stampSplitLifecycle(nextSummary, null);
+    } else if (eventType === "RETURN_CONTINUE" || eventType === "RETURN_SKIP") {
+      nextSummary = repairReturnDecisionSummary(workingSummary, nextSummary, eventType);
+    }
+
+    nextSummary = preserveSplitLifecycle(workingSummary, nextSummary);
     nextSummary.last_seq = seq;
     nextSummary = ensureReturnDecisionContract(nextSummary, deriveTrace).summary;
 

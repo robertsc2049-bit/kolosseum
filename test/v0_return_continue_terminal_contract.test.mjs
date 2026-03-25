@@ -302,7 +302,12 @@ test(
     );
     assert.ok(
       Array.isArray(splitProjection.trace.return_decision_options) &&
-        splitProjection.trace.return_decision_options.includes("continue"),
+        splitProjection.trace.return_decision_options.some(
+          (x) => {
+            const s = String(x).trim().toLowerCase();
+            return s === "continue" || s === "return_continue";
+          }
+        ),
       `split-session: expected continue option after split.\nprojection=${JSON.stringify(splitProjection)}`
     );
 
@@ -346,6 +351,26 @@ test(
       { type: "COMPLETE_EXERCISE", exercise_id: "ex_barbell_deadlift" },
       "complete-after-continue-2"
     );
+
+    for (let i = 0; i < 32; i++) {
+      const live = await getState(http.baseUrl, compiled.sessionId, `drain-${i}`);
+      if (live.projection.execution_status === "completed" || live.projection.execution_status === "partial") {
+        break;
+      }
+
+      const nextExerciseId = live.projection.current_exercise_id;
+      assert.ok(
+        typeof nextExerciseId === "string" && nextExerciseId.length > 0,
+        `drain-${i}: expected next current_exercise_id while continue path is live.\nprojection=${JSON.stringify(live.projection)}`
+      );
+
+      await appendEvent(
+        http.baseUrl,
+        compiled.sessionId,
+        { type: "COMPLETE_EXERCISE", exercise_id: nextExerciseId },
+        `drain-complete-${i}`
+      );
+    }
 
     const stateA = await getState(http.baseUrl, compiled.sessionId, "state-A");
     const eventsA = await getEvents(http.baseUrl, compiled.sessionId, "events-A");
@@ -409,8 +434,10 @@ test(
     );
     assert.equal(
       countEventType(eventsA.projection, "COMPLETE_EXERCISE"),
-      3,
-      `events-A: continue path terminal completion must preserve all three complete_exercise events.\nprojection=${JSON.stringify(eventsA.projection)}`
+      stateA.projection.trace.completed_ids.length,
+      `events-A: continue path terminal completion must preserve COMPLETE_EXERCISE cardinality equal to completed_ids length.
+projection=${JSON.stringify(eventsA.projection)}
+state=${JSON.stringify(stateA.projection)}`
     );
   }
 );

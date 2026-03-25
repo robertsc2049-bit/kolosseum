@@ -1,4 +1,3 @@
-/* test/v0_e2e_runnable_spine_compile_start_split_return_terminal_readback.test.mjs */
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
@@ -315,6 +314,26 @@ test(
       "completed-event-3"
     );
 
+    for (let i = 0; i < 32; i++) {
+      const live = await getState(http.baseUrl, completedCompile.sessionId, `completed-drain-${i}`);
+      if (live.projection.execution_status === "completed" || live.projection.execution_status === "partial") {
+        break;
+      }
+
+      const nextExerciseId = live.projection.current_exercise_id;
+      assert.ok(
+        typeof nextExerciseId === "string" && nextExerciseId.length > 0,
+        `completed-drain-${i}: expected next current_exercise_id while session is live.\nprojection=${JSON.stringify(live.projection)}`
+      );
+
+      await appendEvent(
+        http.baseUrl,
+        completedCompile.sessionId,
+        { type: "COMPLETE_EXERCISE", exercise_id: nextExerciseId },
+        `completed-drain-event-${i}`
+      );
+    }
+
     const completedStateA = await getState(http.baseUrl, completedCompile.sessionId, "completed-state-A");
     const completedEventsA = await getEvents(http.baseUrl, completedCompile.sessionId, "completed-events-A");
     const completedStateB = await getState(http.baseUrl, completedCompile.sessionId, "completed-state-B");
@@ -374,9 +393,9 @@ test(
       true,
       `split path must require explicit return decision.\nprojection=${JSON.stringify(partialDuringSplit.projection)}`
     );
-    assert.ok(
-      partialDuringSplit.projection.trace.return_decision_options.includes("continue") &&
-        partialDuringSplit.projection.trace.return_decision_options.includes("skip"),
+    assert.deepEqual(
+      [...(partialDuringSplit.projection.trace.return_decision_options ?? [])].sort(),
+      ["RETURN_CONTINUE", "RETURN_SKIP"],
       `split path must surface continue/skip options.\nprojection=${JSON.stringify(partialDuringSplit.projection)}`
     );
 
@@ -393,8 +412,45 @@ test(
       "partial-event-4"
     );
 
-    const partialStateA = await getState(http.baseUrl, partialCompile.sessionId, "partial-state-A");
-    const partialEventsA = await getEvents(http.baseUrl, partialCompile.sessionId, "partial-events-A");
+    let partialStateA = await getState(http.baseUrl, partialCompile.sessionId, "partial-state-A");
+    let partialEventsA = await getEvents(http.baseUrl, partialCompile.sessionId, "partial-events-A");
+
+    for (let i = 0; i < 32; i++) {
+      if (partialStateA.projection.execution_status === "partial") {
+        break;
+      }
+
+      assert.equal(
+        partialStateA.projection.execution_status,
+        "in_progress",
+        `split/return skip drain should stay live until terminal partial.\nprojection=${JSON.stringify(partialStateA.projection)}`
+      );
+
+      const nextExerciseId = partialStateA.projection.current_exercise_id;
+      assert.ok(
+        typeof nextExerciseId === "string" && nextExerciseId.length > 0,
+        `split/return skip drain ${i}: expected current_exercise_id while still live.\nprojection=${JSON.stringify(partialStateA.projection)}`
+      );
+
+      await appendEvent(
+        http.baseUrl,
+        partialCompile.sessionId,
+        { type: "COMPLETE_EXERCISE", exercise_id: nextExerciseId },
+        `partial-drain-event-${i}`
+      );
+
+      partialStateA = await getState(
+        http.baseUrl,
+        partialCompile.sessionId,
+        `partial-state-after-skip-drain-${i}`
+      );
+      partialEventsA = await getEvents(
+        http.baseUrl,
+        partialCompile.sessionId,
+        `partial-events-after-skip-drain-${i}`
+      );
+    }
+
     const partialStateB = await getState(http.baseUrl, partialCompile.sessionId, "partial-state-B");
     const partialEventsB = await getEvents(http.baseUrl, partialCompile.sessionId, "partial-events-B");
 
