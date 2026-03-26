@@ -27,20 +27,20 @@ function cloneJson(v) {
 }
 
 function pickSessionId(payload, label) {
-  const candidates = [
-    payload?.json?.session_id,
-    payload?.json?.session?.session_id,
-    payload?.json?.created_session?.session_id,
-    payload?.json?.runtime?.session_id,
-    payload?.json?.result?.session_id,
-  ].filter(Boolean);
+  const sessionId =
+    payload?.json?.session_id ??
+    payload?.json?.created_session?.session_id ??
+    payload?.json?.session?.session_id ??
+    payload?.json?.runtime?.session_id ??
+    payload?.json?.result?.session_id ??
+    null;
 
   assert.ok(
-    candidates.length >= 1,
-    `${label}: expected compile response to expose session_id. raw=${payload?.text}`
+    typeof sessionId === "string" && sessionId.length > 0,
+    `${label}: expected compile/create response to expose a persisted session_id. raw=${payload.text ?? JSON.stringify(payload?.json ?? payload)}`
   );
 
-  return String(candidates[0]);
+  return sessionId;
 }
 
 function pickStateEnvelope(payload, label) {
@@ -161,21 +161,22 @@ function projectEvents(events) {
 }
 
 async function compileWithSession(baseUrl, phase1Input, label) {
-  const payload = await httpJson("POST", `${baseUrl}/blocks/compile`, {
-    phase1_input: phase1Input,
-    runtime_events: [],
-    create_session: true,
-  });
-
-  assert.ok(
-    payload.res.status === 200 || payload.res.status === 201,
-    `${label}: compile expected 200/201, got ${payload.res.status}. raw=${payload.text}`
+  const compile = await httpJson(
+    "POST",
+    `${baseUrl}/blocks/compile?create_session=true`,
+    {
+      phase1_input: phase1Input,
+      runtime_events: []
+    }
   );
 
-  return {
-    payload,
-    sessionId: pickSessionId(payload, label),
-  };
+  assert.ok(
+    compile.res.status === 200 || compile.res.status === 201,
+    `${label}: compile expected 200/201, got ${compile.res.status}. raw=${compile.text}`
+  );
+
+  const sessionId = pickSessionId(compile, label);
+  return { compile, sessionId };
 }
 
 async function startSession(baseUrl, sessionId, label) {
