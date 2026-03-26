@@ -5,11 +5,13 @@ import { sessionStateCache } from "./session_state_cache.js";
 export type PlannedExercise = {
   exercise_id: string;
   source: "program";
+  [k: string]: unknown;
 };
 
 export type PlannedSession = {
   exercises: PlannedExercise[];
   notes?: unknown[];
+  [k: string]: unknown;
 };
 
 const SESSION_STATE_CACHE_TTL_MS = 2000;
@@ -68,18 +70,6 @@ function toPlannedExercisesFromIds(planned: PlannedSession, ids: string[]): Plan
   return out;
 }
 
-/**
- * Contract upgrade:
- * Legacy carrier (engine/internal): runtime.split_active (boolean) and/or trace.split_active (boolean)
- * New (persisted + API): runtime.return_decision_required (boolean)
- *                    runtime.return_decision_options  ("RETURN_CONTINUE" | "RETURN_SKIP")[]
- *
- * Hard rules:
- * - split_active must NEVER escape the API surface.
- * - BUT: do NOT delete runtime.split_active while the engine may still rely on it as the state carrier.
- *   Keep it as internal persisted state until the engine fully migrates.
- * - Server upgrades missing explicit fields here; API emits only explicit fields.
- */
 export function ensureReturnDecisionContract(
   summary: any,
   deriveTraceFn: (summary: any) => any
@@ -92,7 +82,6 @@ export function ensureReturnDecisionContract(
 
   let changed = false;
 
-  // Prefer persisted legacy carrier; otherwise allow upgrade from derived legacy trace.
   const runtimeSplitActivePresent = typeof rt.split_active === "boolean";
   const runtimeSplitActive = runtimeSplitActivePresent ? rt.split_active : undefined;
 
@@ -120,7 +109,6 @@ export function ensureReturnDecisionContract(
       if (typeof rg === "boolean") derivedSplitActive = rg;
       else if (typeof sa === "boolean") derivedSplitActive = sa;
     } catch {
-      // deriveTrace should be stable, but never let upgrade crash the API.
       derivedSplitActive = undefined;
     }
   }
@@ -144,8 +132,117 @@ export function ensureReturnDecisionContract(
       .filter((x) => x === "RETURN_CONTINUE" || x === "RETURN_SKIP");
   }
 
-  // IMPORTANT: do NOT delete rt.split_active here.
   return { summary, changed };
+}
+
+function readSplitReturnDecision(
+  summary: any,
+  trace?: Record<string, any>
+): "continue" | "skip" | null {
+  const runtime = summary?.runtime ?? {};
+  const raw =
+    runtime?.split_return_decision ??
+    runtime?.return_decision ??
+    summary?.split_return_decision ??
+    summary?.return_decision ??
+    null;
+
+  if (!(raw === null || typeof raw === "undefined")) {
+    const s = String(raw).trim().toLowerCase();
+    if (s.includes("continue")) return "continue";
+    if (s.includes("skip")) return "skip";
+  }
+
+  const splitEntered =
+    runtime?.split_entered === true ||
+    summary?.split_entered === true ||
+    (Array.isArray(runtime?.remaining_at_split_ids) && runtime.remaining_at_split_ids.length > 0) ||
+    typeof runtime?.split_active === "boolean";
+
+  if (!splitEntered) return null;
+
+  const droppedIds = uniqStable(trace?.dropped_ids ?? runtime?.dropped_ids);
+  const completedIds = uniqStable(trace?.completed_ids ?? runtime?.completed_ids);
+  const returnDecisionRequired =
+    typeof runtime?.return_decision_required === "boolean"
+      ? runtime.return_decision_required
+      : false;
+
+  if (returnDecisionRequired === true) return null;
+  if (droppedIds.length > 0) return "skip";
+  if (completedIds.length > 0) return "continue";
+
+  return null;
+}
+
+function readSplitEntered(summary: any): boolean {
+  const runtime = summary?.runtime ?? {};
+  if (runtime?.split_entered === true) return true;
+  if (readSplitReturnDecision(summary) !== null) return true;
+  if (typeof runtime?.split_active === "boolean") return true;
+  if (Array.isArray(runtime?.remaining_at_split_ids) && runtime.remaining_at_split_ids.length > 0) return true;
+  if (summary?.split_entered === true) return true;
+  return false;
+}
+
+function deriveExecutionStatus(
+  remainingIds: string[],
+  completedIds: string[],
+  droppedIds: string[],
+  started: boolean
+): "ready" | "in_progress" | "completed" | "partial" {
+  const doneCount = completedIds.length;
+  const droppedCount = droppedIds.length;
+  const remainingCount = remainingIds.length;
+  const total = doneCount + droppedCount + remainingCount;
+
+  if (!started) return "ready";
+  if (remainingCount > 0) return "in_progress";
+  if (total > 0 && droppedCount === 0 && doneCount === total) return "completed";
+  return "partial";
+}
+
+function buildSessionExecutionSummary(
+  trace: Record<string, any>,
+  executionStatus: "ready" | "in_progress" | "completed" | "partial",
+  splitEntered: boolean,
+  splitReturnDecision: "continue" | "skip" | null
+) {
+  const remainingIds = uniqStable(trace.remaining_ids);
+  const completedIds = uniqStable(trace.completed_ids);
+  const droppedIds = uniqStable(trace.dropped_ids);
+
+  const work_items_done = completedIds.length;
+  const work_items_total = completedIds.length + droppedIds.length + remainingIds.length;
+
+  return [
+    {
+      session_ended: executionStatus === "completed" || executionStatus === "partial",
+      work_items_done,
+      work_items_total,
+      split_entered: splitEntered,
+      split_return_decision: splitReturnDecision,
+      execution_status: executionStatus
+    }
+  ];
+}
+
+function buildBlockExecutionSummary(
+  trace: Record<string, any>,
+  executionStatus: "ready" | "in_progress" | "completed" | "partial"
+) {
+  const remainingIds = uniqStable(trace.remaining_ids);
+  const completedIds = uniqStable(trace.completed_ids);
+  const droppedIds = uniqStable(trace.dropped_ids);
+
+  return [
+    {
+      sessions_total: 1,
+      sessions_ended: executionStatus === "completed" || executionStatus === "partial" ? 1 : 0,
+      work_items_done: completedIds.length,
+      work_items_total: completedIds.length + droppedIds.length + remainingIds.length
+    }
+  ];
 }
 
 export function projectSessionStatePayload(
@@ -181,14 +278,40 @@ export function projectSessionStatePayload(
     return_decision_options
   };
 
-  const remaining_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.remaining_ids));
-  const completed_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.completed_ids));
-  const dropped_exercises = toPlannedExercisesFromIds(planned, uniqStable(trace.dropped_ids));
+  const remainingIds = uniqStable(trace.remaining_ids);
+  const completedIds = uniqStable(trace.completed_ids);
+  const droppedIds = uniqStable(trace.dropped_ids);
+
+  const remaining_exercises = toPlannedExercisesFromIds(planned, remainingIds);
+  const completed_exercises = toPlannedExercisesFromIds(planned, completedIds);
+  const dropped_exercises = toPlannedExercisesFromIds(planned, droppedIds);
 
   const current_step =
     return_decision_required === true
       ? { type: "RETURN_DECISION", options: return_decision_options }
       : (remaining_exercises.length > 0 ? { type: "EXERCISE", exercise: remaining_exercises[0] } : null);
+
+  const execution_status = deriveExecutionStatus(
+    remainingIds,
+    completedIds,
+    droppedIds,
+    trace.started === true
+  );
+
+  const split_return_decision = readSplitReturnDecision(summary, trace);
+  const split_entered = readSplitEntered(summary);
+
+  const session_execution_summary = buildSessionExecutionSummary(
+    trace,
+    execution_status,
+    split_entered,
+    split_return_decision
+  );
+
+  const block_execution_summary = buildBlockExecutionSummary(
+    trace,
+    execution_status
+  );
 
   return {
     session_id,
@@ -198,6 +321,9 @@ export function projectSessionStatePayload(
     completed_exercises,
     dropped_exercises,
     trace,
+    execution_status,
+    session_execution_summary,
+    block_execution_summary,
     event_log: []
   };
 }
@@ -205,13 +331,6 @@ export function projectSessionStatePayload(
 // ============================
 // v1 TICKET-A PROJECTION BUILDER (RUN_ID HAPPY PATH)
 // ============================
-//
-// NOTE:
-// - deterministic
-// - read-only
-// - no endpoint concerns
-// - no ambiguity resolution
-//
 
 export type CoachSessionDecisionSummary = {
   schema: Record<string, unknown>
@@ -276,11 +395,6 @@ export async function buildCoachSessionDecisionSummaryFromRunId(
     throw new Error("invalid_input: run_id required")
   }
 
-  // ---- LOAD AUTHORITATIVE TRUTH ----
-  // IMPORTANT:
-  // This must come from your existing persistence layer.
-  // Using existing engine_run_persistence_service as source.
-
   const rawRun = await getEngineRunById(runId)
 
   if (!rawRun) {
@@ -288,8 +402,6 @@ export async function buildCoachSessionDecisionSummaryFromRunId(
   }
 
   const run = normalizeDecisionSummarySource(rawRun, runId)
-
-  // ---- PROJECTION (DETERMINISTIC) ----
 
   const isStale = Boolean(run.is_stale)
   const isSuperseded = Boolean(run.is_superseded)
@@ -337,9 +449,6 @@ export async function buildCoachSessionDecisionSummaryFromRunId(
     issues: run.issues ?? []
   }
 }
-
-// ---- DEPENDENCY (existing service) ----
-// MUST EXIST already. If not, wire later in next slice.
 
 async function getEngineRunById(runId: string): Promise<any> {
   const svc = await import("./engine_run_persistence_service")

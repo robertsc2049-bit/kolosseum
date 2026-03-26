@@ -41,8 +41,11 @@ export async function planSession(req: Request, res: Response) {
     }
 
     input = (body as any).input ?? body;
-  } else if (typeof bodyUnknown === "undefined" || bodyUnknown === null) input = {};
-  else throw badRequest("Invalid JSON body (expected object)");
+  } else if (typeof bodyUnknown === "undefined" || bodyUnknown === null) {
+    input = {};
+  } else {
+    throw badRequest("Invalid JSON body (expected object)");
+  }
 
   const out = await planSessionService(input);
 
@@ -67,7 +70,14 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
 
   const raw = extractRawEventFromBody(req.body);
   const result = await appendRuntimeEventMutation(session_id, raw);
-  return res.status(201).json(result);
+  const statePayload = await getSessionStateQuery(session_id);
+
+  return res.status(201).json({
+    ...statePayload,
+    ok: result?.ok === true,
+    session_id: result?.session_id ?? session_id,
+    seq: result?.seq ?? null
+  });
 }
 
 export async function listRuntimeEvents(req: Request, res: Response) {

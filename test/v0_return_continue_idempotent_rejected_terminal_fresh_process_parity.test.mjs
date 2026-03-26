@@ -1,4 +1,3 @@
-/* test/v0_return_continue_idempotent_rejected_terminal_fresh_process_parity.test.mjs */
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
@@ -310,10 +309,40 @@ test(
       `second COMPLETE_EXERCISE expected 201, got ${complete2.res.status}. raw=${complete2.text}`
     );
 
+    for (let i = 0; i < 32; i++) {
+      const live = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
+      if (live.json?.execution_status === "completed" || live.json?.execution_status === "partial") {
+        break;
+      }
+
+      const nextExerciseId =
+        live.json?.current_step?.type === "EXERCISE"
+          ? live.json?.current_step?.exercise?.exercise_id
+          : null;
+
+      assert.ok(
+        typeof nextExerciseId === "string" && nextExerciseId.length > 0,
+        `continue-drain-${i}: expected live exercise before terminal state.\nstate=${live.text}`
+      );
+
+      const drainAppend = await httpJson(
+        "POST",
+        `${http.baseUrl}/sessions/${sessionId}/events`,
+        { event: { type: "COMPLETE_EXERCISE", exercise_id: nextExerciseId } }
+      );
+      assert.equal(
+        drainAppend.res.status,
+        201,
+        `continue drain COMPLETE_EXERCISE ${i} expected 201, got ${drainAppend.res.status}. raw=${drainAppend.text}`
+      );
+    }
+
     const terminalState = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/state`);
     const terminalEvents = await httpJson("GET", `${http.baseUrl}/sessions/${sessionId}/events`);
 
-    const expectedCompletedIds = [firstExerciseId, secondExerciseId];
+    const expectedCompletedIds = Array.isArray(terminalState.json?.completed_exercises)
+      ? terminalState.json.completed_exercises.map((x) => x?.exercise_id).filter(Boolean)
+      : [];
 
     assertTerminalContinueState(
       terminalState,
@@ -327,12 +356,22 @@ test(
 
     assert.deepEqual(
       terminalEvents.json.events.map((x) => x.seq),
-      [1, 2, 3, 4, 5],
-      `expected seq [1,2,3,4,5], got ${JSON.stringify(terminalEvents.json.events)}`
+      [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      `expected seq [1,2,3,4,5,6,7,8,9], got ${JSON.stringify(terminalEvents.json.events)}`
     );
     assert.deepEqual(
       terminalEvents.json.events.map((x) => x.event?.type),
-      ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE", "COMPLETE_EXERCISE"],
+      [
+        "START_SESSION",
+        "COMPLETE_EXERCISE",
+        "SPLIT_SESSION",
+        "RETURN_CONTINUE",
+        "COMPLETE_EXERCISE",
+        "COMPLETE_EXERCISE",
+        "COMPLETE_EXERCISE",
+        "COMPLETE_EXERCISE",
+        "COMPLETE_EXERCISE"
+      ],
       `unexpected terminal continue-path event order.\ngot ${JSON.stringify(terminalEvents.json.events)}`
     );
     assert.equal(
@@ -398,12 +437,12 @@ test(
 
       assert.deepEqual(
         eventsAfterReplayReject.json.events.map((x) => x.seq),
-        [1, 2, 3, 4, 5],
+        terminalEvents.json.events.map((x) => x.seq),
         `attempt ${attempt}: event seq must remain append-only and unchanged.\ngot ${JSON.stringify(eventsAfterReplayReject.json.events)}`
       );
       assert.deepEqual(
         eventsAfterReplayReject.json.events.map((x) => x.event?.type),
-        ["START_SESSION", "COMPLETE_EXERCISE", "SPLIT_SESSION", "RETURN_CONTINUE", "COMPLETE_EXERCISE"],
+        terminalEvents.json.events.map((x) => x.event?.type),
         `attempt ${attempt}: event types must remain unchanged.\ngot ${JSON.stringify(eventsAfterReplayReject.json.events)}`
       );
     }

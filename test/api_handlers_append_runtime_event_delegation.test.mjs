@@ -10,8 +10,14 @@ test("sessions.handlers source contract: appendRuntimeEvent extracts raw body ev
 
   assert.match(
     src,
-    /import\s*\{[\s\S]*\bappendRuntimeEventMutation\b[\s\S]*\bextractRawEventFromBody\b[\s\S]*\}\s*from\s*"\.\/session_state_write_service\.js"/,
+    /import\s*\{[\s\S]*\bappendRuntimeEventMutation\b[\s\S]*\bextractRawEventFromBody\b[\s\S]*\bstartSessionMutation\b[\s\S]*\}\s*from\s*"\.\/session_state_write_service\.js"/,
     "expected handler to import appendRuntimeEventMutation and extractRawEventFromBody from extracted write service"
+  );
+
+  assert.match(
+    src,
+    /import\s*\{[\s\S]*\bgetDecisionSummaryByRunIdQuery\b[\s\S]*\bgetSessionStateQuery\b[\s\S]*\}\s*from\s*"\.\/session_state_query_service\.js"/,
+    "expected handler to import getSessionStateQuery from session_state_query_service"
   );
 
   assert.match(
@@ -40,7 +46,13 @@ test("sessions.handlers source contract: appendRuntimeEvent extracts raw body ev
 
   assert.match(
     src,
-    /return\s+res\.status\(201\)\.json\(result\);/,
-    "expected appendRuntimeEvent to preserve 201 JSON response contract"
+    /const\s+statePayload\s*=\s*await\s+getSessionStateQuery\(session_id\);/,
+    "expected appendRuntimeEvent to read back projected session state after mutation"
+  );
+
+  assert.match(
+    src,
+    /return\s+res\.status\(201\)\.json\(\s*\{\s*\.\.\.statePayload\s*,\s*ok:\s*result\?\.ok\s*===\s*true\s*,\s*session_id:\s*result\?\.session_id\s*\?\?\s*session_id\s*,\s*seq:\s*result\?\.seq\s*\?\?\s*null\s*\}\s*\);/s,
+    "expected appendRuntimeEvent to preserve state-plus-ack 201 JSON response contract"
   );
 });

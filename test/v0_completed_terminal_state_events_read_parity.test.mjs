@@ -294,6 +294,26 @@ test(
       "complete-3"
     );
 
+    for (let i = 0; i < 32; i++) {
+      const live = await getState(http.baseUrl, compiled.sessionId, `drain-${i}`);
+      if (live.projection.execution_status === "completed" || live.projection.execution_status === "partial") {
+        break;
+      }
+
+      const nextExerciseId = live.projection.current_exercise_id;
+      assert.ok(
+        typeof nextExerciseId === "string" && nextExerciseId.length > 0,
+        `drain-${i}: expected next current_exercise_id while session is live.\nprojection=${JSON.stringify(live.projection)}`
+      );
+
+      await appendEvent(
+        http.baseUrl,
+        compiled.sessionId,
+        { type: "COMPLETE_EXERCISE", exercise_id: nextExerciseId },
+        `drain-complete-${i}`
+      );
+    }
+
     const stateA = await getState(http.baseUrl, compiled.sessionId, "state-A");
     const eventsA = await getEvents(http.baseUrl, compiled.sessionId, "events-A");
     const stateB = await getState(http.baseUrl, compiled.sessionId, "state-B");

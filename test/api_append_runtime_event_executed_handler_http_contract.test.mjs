@@ -128,11 +128,8 @@ test("appendRuntimeEvent executed path: returns 201 with delegated JSON payload 
     },
     mutationResult: {
       session_id: "sess_123",
-      accepted: true,
-      event: {
-        type: "COMPLETE_EXERCISE",
-        exercise_id: "ex_a"
-      }
+      ok: true,
+      seq: 7
     }
   });
 
@@ -155,11 +152,9 @@ test("appendRuntimeEvent executed path: returns 201 with delegated JSON payload 
   assert.equal(res.statusCode, 201);
   assert.deepEqual(res.jsonBody, {
     session_id: "sess_123",
-    accepted: true,
-    event: {
-      type: "COMPLETE_EXERCISE",
-      exercise_id: "ex_a"
-    }
+    trace: {},
+    ok: true,
+    seq: 7
   });
 });
 

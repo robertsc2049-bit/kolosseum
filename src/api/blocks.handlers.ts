@@ -28,6 +28,8 @@ type CompileBlockBody = {
   phase5_input?: unknown;
   runtime_events?: unknown;
   events?: unknown;
+  create_session?: unknown;
+  createSession?: unknown;
 };
 
 type JsonRecord = Record<string, unknown>;
@@ -42,9 +44,30 @@ function asString(v: unknown): string | undefined {
 
 function asBoolQuery(v: unknown): boolean {
   if (typeof v === "boolean") return v;
+  if (typeof v === "number") return v === 1;
   if (typeof v !== "string") return false;
   const s = v.trim().toLowerCase();
   return s === "1" || s === "true" || s === "yes" || s === "y" || s === "on";
+}
+
+function queryHasTruthyFlag(req: Request, ...names: string[]): boolean {
+  for (const name of names) {
+    const queryValue = (req.query as any)?.[name];
+    if (Array.isArray(queryValue)) {
+      if (queryValue.some((x) => asBoolQuery(x))) return true;
+    } else if (asBoolQuery(queryValue)) {
+      return true;
+    }
+
+    const bodyValue = (req.body as any)?.[name];
+    if (asBoolQuery(bodyValue)) return true;
+
+    const originalUrl = typeof req.originalUrl === "string" ? req.originalUrl : "";
+    const pattern = new RegExp(`(?:[?&])${name}=(?:1|true|yes|y|on)(?:&|$)`, "i");
+    if (pattern.test(originalUrl)) return true;
+  }
+
+  return false;
 }
 
 function id(prefix: string): string {
@@ -278,6 +301,7 @@ export async function compileBlock(req: Request, res: Response) {
     planned_session: planned_session_applied,
     runtime_trace: runtime_trace_from_engine
   };
+
   if (persisted.session_id) payload.session_id = persisted.session_id;
 
   return res.status(status).json(payload);

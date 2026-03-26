@@ -254,8 +254,8 @@ test(
       `state-during-split: expected explicit return decision gate.\nprojection=${JSON.stringify(splitState.projection)}`
     );
     assert.ok(
-      splitState.projection.trace.return_decision_options.includes("continue") &&
-        splitState.projection.trace.return_decision_options.includes("skip"),
+      splitState.projection.trace.return_decision_options.includes("RETURN_CONTINUE") &&
+        splitState.projection.trace.return_decision_options.includes("RETURN_SKIP"),
       `state-during-split: expected continue/skip options.\nprojection=${JSON.stringify(splitState.projection)}`
     );
 
@@ -281,6 +281,25 @@ test(
       `complete-2: expected success, got ${finalComplete.res.status}. raw=${finalComplete.text}`
     );
 
+    for (let i = 0; i < 32; i++) {
+      const live = await getState(http.baseUrl, compiled.sessionId, `skip-drain-${i}`);
+      if (live.projection.execution_status === "completed" || live.projection.execution_status === "partial") {
+        break;
+      }
+
+      const nextExerciseId = live.projection.current_exercise_id;
+      assert.ok(
+        typeof nextExerciseId === "string" && nextExerciseId.length > 0,
+        `skip-drain-${i}: expected next current_exercise_id while session is live.\nprojection=${JSON.stringify(live.projection)}`
+      );
+
+      await appendEvent(
+        http.baseUrl,
+        compiled.sessionId,
+        { type: "COMPLETE_EXERCISE", exercise_id: nextExerciseId },
+        `skip-drain-complete-${i}`
+      );
+    }
     const terminalBefore = await getState(http.baseUrl, compiled.sessionId, "terminal-before");
     assert.equal(
       terminalBefore.projection.execution_status,
