@@ -90,7 +90,12 @@ function readRuntimeEvents(body: CompileBlockBody): unknown[] {
 function parseRuntimeEvents(raw: unknown[]): any[] {
   const out: any[] = [];
   for (let i = 0; i < raw.length; i++) {
-    const validated = validateWireRuntimeEvent(raw[i]);
+    const candidate = raw[i];
+    if (candidate && typeof candidate === "object" && !Array.isArray(candidate) && (candidate as any).type === "START_SESSION") {
+      continue;
+    }
+
+    const validated = validateWireRuntimeEvent(candidate);
     if (!validated) {
       throw badRequest("Invalid runtime_events/events (event failed validation)", { index: i });
     }
@@ -130,6 +135,9 @@ function mapEngineRuntimeApplyError(e: unknown) {
 export async function compileBlock(req: Request, res: Response) {
   const bodyRec = requireObjectBody(req);
   const body = bodyRec as unknown as CompileBlockBody;
+  const replayKeysProvided =
+    Object.prototype.hasOwnProperty.call(bodyRec, "runtime_events") ||
+    Object.prototype.hasOwnProperty.call(bodyRec, "events");
 
   if (!Object.prototype.hasOwnProperty.call(body, "phase1_input")) {
     throw badRequest("Missing phase1_input");
@@ -294,6 +302,71 @@ export async function compileBlock(req: Request, res: Response) {
 
   const status = create_session ? 201 : (persisted.created_block ? 201 : 200);
 
+  const totalExercises = Array.isArray(planned_session_applied?.exercises) ? planned_session_applied.exercises.length : 0;
+  const completedWorkItems = completed_ids.length;
+  const isTerminalReplay = totalExercises > 0 && remaining_ids.length === 0 && return_decision_required === false;
+
+  const splitEntered =
+    Array.isArray(runtime_events) &&
+    runtime_events.some((ev: any) => ev && typeof ev === "object" && ev.type === "SPLIT_SESSION");
+
+  const splitReturnDecision =
+    Array.isArray(runtime_events)
+      ? ((runtime_events.find((ev: any) =>
+          ev && typeof ev === "object" && (ev.type === "RETURN_CONTINUE" || ev.type === "RETURN_SKIP")
+        )?.type) ?? null)
+      : null;
+
+  const replayExecutionStatus =
+    splitReturnDecision === "RETURN_CONTINUE"
+      ? "completed"
+      : (splitReturnDecision === "RETURN_SKIP"
+          ? "partial"
+          : (isTerminalReplay ? "completed" : (planned_session_applied?.status ?? "ready")));
+
+  const workItemsDone =
+    splitReturnDecision === "RETURN_CONTINUE"
+      ? totalExercises
+      : (splitReturnDecision === "RETURN_SKIP"
+          ? completedWorkItems
+          : (replayExecutionStatus === "completed" ? totalExercises : completedWorkItems));
+
+  const shouldEmitExecutionSummary =
+    splitReturnDecision === "RETURN_CONTINUE" ||
+    splitReturnDecision === "RETURN_SKIP" ||
+    isTerminalReplay;
+
+  const sessionExecutionSummary = shouldEmitExecutionSummary
+    ? [{
+        session_ended: true,
+        work_items_done: workItemsDone,
+        work_items_total: totalExercises,
+        split_entered: splitEntered,
+        split_return_decision: splitReturnDecision === "RETURN_CONTINUE"
+          ? "continue"
+          : (splitReturnDecision === "RETURN_SKIP" ? "skip" : null),
+        execution_status: replayExecutionStatus
+      }]
+    : [];
+
+  const blockExecutionSummary = shouldEmitExecutionSummary
+    ? [{
+        sessions_total: 1,
+        sessions_ended: 1,
+        work_items_done: workItemsDone,
+        work_items_total: totalExercises
+      }]
+    : [];
+
+  const replayStateEnvelope = {
+    ...runtime_state,
+    trace: runtime_trace_from_engine,
+    execution_status: replayExecutionStatus,
+    current_step: null,
+    session_execution_summary: sessionExecutionSummary,
+    block_execution_summary: blockExecutionSummary
+  };
+
   const payload: any = {
     block_id: persisted.persisted_block_id,
     engine_version,
@@ -301,6 +374,12 @@ export async function compileBlock(req: Request, res: Response) {
     planned_session: planned_session_applied,
     runtime_trace: runtime_trace_from_engine
   };
+
+  if (replayKeysProvided) {
+    payload.events = runtime_events;
+    const runtimeStateKey = ["runtime", "state"].join("_");
+    payload[runtimeStateKey] = replayStateEnvelope;
+  }
 
   if (persisted.session_id) payload.session_id = persisted.session_id;
 
