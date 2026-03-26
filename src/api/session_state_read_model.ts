@@ -245,6 +245,131 @@ function buildBlockExecutionSummary(
   ];
 }
 
+function readNumberOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0
+    ? value
+    : null;
+}
+
+function readExplicitExecutionStatus(value: unknown): "ready" | "in_progress" | "completed" | "partial" | null {
+  return value === "ready" || value === "in_progress" || value === "completed" || value === "partial"
+    ? value
+    : null;
+}
+
+function deriveTotalEvents(
+  trace: Record<string, any>,
+  runtime: Record<string, any>,
+  eventLog: unknown
+): number {
+  const traceEventCount = readNumberOrNull(trace.event_count);
+  if (traceEventCount !== null) return traceEventCount;
+
+  const runtimeEventCount = readNumberOrNull(runtime.event_count);
+  if (runtimeEventCount !== null) return runtimeEventCount;
+
+  if (Array.isArray(eventLog)) return eventLog.length;
+
+  const eventTypeCounts =
+    trace.event_type_counts && typeof trace.event_type_counts === "object" && !Array.isArray(trace.event_type_counts)
+      ? trace.event_type_counts
+      : runtime.event_type_counts && typeof runtime.event_type_counts === "object" && !Array.isArray(runtime.event_type_counts)
+        ? runtime.event_type_counts
+        : null;
+
+  if (eventTypeCounts) {
+    let total = 0;
+    for (const value of Object.values(eventTypeCounts)) {
+      if (typeof value === "number" && Number.isFinite(value) && value >= 0) {
+        total += value;
+      }
+    }
+    return total;
+  }
+
+  return 0;
+}
+
+function deriveSplitCount(
+  trace: Record<string, any>,
+  runtime: Record<string, any>
+): number {
+  const eventTypeCounts =
+    trace.event_type_counts && typeof trace.event_type_counts === "object" && !Array.isArray(trace.event_type_counts)
+      ? trace.event_type_counts
+      : runtime.event_type_counts && typeof runtime.event_type_counts === "object" && !Array.isArray(runtime.event_type_counts)
+        ? runtime.event_type_counts
+        : null;
+
+  const splitFromCounts =
+    eventTypeCounts && typeof eventTypeCounts.SPLIT_SESSION === "number" && Number.isFinite(eventTypeCounts.SPLIT_SESSION)
+      ? Math.max(0, Math.trunc(eventTypeCounts.SPLIT_SESSION))
+      : null;
+
+  if (splitFromCounts !== null) return splitFromCounts;
+
+  if (runtime.split_entered === true || runtime.split_active === true) return 1;
+
+  return 0;
+}
+
+export type NeutralSessionAggregation = {
+  total_events: number;
+  total_completed_exercises: number;
+  total_dropped_exercises: number;
+  split_count: number;
+  has_return_decision: boolean;
+  last_event_seq: number | null;
+  completed_ids_count: number;
+  dropped_ids_count: number;
+  remaining_ids_count: number;
+  execution_status: "ready" | "in_progress" | "completed" | "partial" | null;
+};
+
+export function buildNeutralSessionAggregation(source: {
+  trace?: unknown;
+  runtime?: unknown;
+  execution_status?: unknown;
+  event_log?: unknown;
+}): NeutralSessionAggregation {
+  const trace =
+    source?.trace && typeof source.trace === "object" && !Array.isArray(source.trace)
+      ? (source.trace as Record<string, any>)
+      : {};
+  const runtime =
+    source?.runtime && typeof source.runtime === "object" && !Array.isArray(source.runtime)
+      ? (source.runtime as Record<string, any>)
+      : {};
+
+  const completedIds = uniqStable(trace.completed_ids ?? runtime.completed_ids);
+  const droppedIds = uniqStable(trace.dropped_ids ?? runtime.dropped_ids);
+  const remainingIds = uniqStable(trace.remaining_ids ?? runtime.remaining_ids);
+
+  const returnDecisionRequired =
+    typeof runtime.return_decision_required === "boolean"
+      ? runtime.return_decision_required
+      : (typeof trace.return_decision_required === "boolean" ? trace.return_decision_required : false);
+
+  const lastEventSeq = readNumberOrNull(trace.last_seq_no) ?? readNumberOrNull(runtime.last_seq_no);
+  const executionStatus =
+    readExplicitExecutionStatus(source?.execution_status) ??
+    readExplicitExecutionStatus(runtime.execution_status) ??
+    readExplicitExecutionStatus(trace.execution_status);
+
+  return {
+    total_events: deriveTotalEvents(trace, runtime, source?.event_log),
+    total_completed_exercises: completedIds.length,
+    total_dropped_exercises: droppedIds.length,
+    split_count: deriveSplitCount(trace, runtime),
+    has_return_decision: returnDecisionRequired,
+    last_event_seq: lastEventSeq,
+    completed_ids_count: completedIds.length,
+    dropped_ids_count: droppedIds.length,
+    remaining_ids_count: remainingIds.length,
+    execution_status: executionStatus
+  };
+}
+
 export function projectSessionStatePayload(
   session_id: string,
   planned: PlannedSession,
