@@ -23,20 +23,20 @@ async function httpJson(method, url, body) {
 }
 
 function pickSessionId(payload, label) {
-  const candidates = [
-    payload?.json?.session_id,
-    payload?.json?.session?.session_id,
-    payload?.json?.created_session?.session_id,
-    payload?.json?.runtime?.session_id,
-    payload?.json?.result?.session_id,
-  ].filter(Boolean);
+  const sessionId =
+    payload?.json?.session_id ??
+    payload?.json?.created_session?.session_id ??
+    payload?.json?.session?.session_id ??
+    payload?.json?.runtime?.session_id ??
+    payload?.json?.result?.session_id ??
+    null;
 
   assert.ok(
-    candidates.length >= 1,
-    `${label}: expected compile response to expose session_id. raw=${payload?.text}`
+    typeof sessionId === "string" && sessionId.length > 0,
+    `${label}: expected compile/create response to expose a persisted session_id. raw=${payload.text ?? JSON.stringify(payload?.json ?? payload)}`
   );
 
-  return String(candidates[0]);
+  return sessionId;
 }
 
 function pickStateEnvelope(payload, label) {
@@ -130,21 +130,22 @@ function assertNoLegacyGateLeak(stateLike, label) {
 }
 
 async function compileWithSession(baseUrl, phase1Input, label) {
-  const payload = await httpJson("POST", `${baseUrl}/blocks/compile`, {
-    phase1_input: phase1Input,
-    runtime_events: [],
-    create_session: true,
-  });
-
-  assert.ok(
-    payload.res.status === 200 || payload.res.status === 201,
-    `${label}: compile expected 200/201, got ${payload.res.status}. raw=${payload.text}`
+  const compile = await httpJson(
+    "POST",
+    `${baseUrl}/blocks/compile?create_session=true`,
+    {
+      phase1_input: phase1Input,
+      runtime_events: []
+    }
   );
 
-  return {
-    payload,
-    sessionId: pickSessionId(payload, label),
-  };
+  assert.ok(
+    compile.res.status === 200 || compile.res.status === 201,
+    `${label}: compile expected 200/201, got ${compile.res.status}. raw=${compile.text}`
+  );
+
+  const sessionId = pickSessionId(compile, label);
+  return { compile, sessionId };
 }
 
 async function startSession(baseUrl, sessionId, label) {
@@ -270,16 +271,42 @@ test(
       `return-skip: expected success, got ${returnSkip.res.status}. raw=${returnSkip.text}`
     );
 
-    const finalComplete = await appendEvent(
-      http.baseUrl,
-      compiled.sessionId,
-      { type: "COMPLETE_EXERCISE", exercise_id: "ex_barbell_deadlift" },
-      "complete-2"
-    );
-    assert.ok(
-      finalComplete.res.status === 200 || finalComplete.res.status === 201,
-      `complete-2: expected success, got ${finalComplete.res.status}. raw=${finalComplete.text}`
-    );
+    const liveAfterSkip = await getState(http.baseUrl, compiled.sessionId, "live-after-skip");
+    const liveExercise2Id = liveAfterSkip.projection.current_exercise_id;
+
+    if (liveExercise2Id === null) {
+      assert.equal(
+        liveAfterSkip.projection.execution_status,
+        "partial",
+        `live-after-skip: expected partial terminal state when no current exercise remains after RETURN_SKIP.\nprojection=${JSON.stringify(liveAfterSkip.projection)}`
+      );
+      assert.deepEqual(
+        liveAfterSkip.projection.trace.remaining_ids,
+        [],
+        `live-after-skip: expected no remaining ids in partial terminal skip path.\nprojection=${JSON.stringify(liveAfterSkip.projection)}`
+      );
+    } else {
+      assert.ok(
+        typeof liveExercise2Id === "string" && liveExercise2Id.length > 0,
+        `live-after-skip: expected current live exercise after RETURN_SKIP.\nprojection=${JSON.stringify(liveAfterSkip.projection)}`
+      );
+      assert.notEqual(
+        liveExercise2Id,
+        "ex_barbell_deadlift",
+        `live-after-skip: deadlift should not be the next legal exercise after RETURN_SKIP.\nprojection=${JSON.stringify(liveAfterSkip.projection)}`
+      );
+
+      const finalComplete = await appendEvent(
+        http.baseUrl,
+        compiled.sessionId,
+        { type: "COMPLETE_EXERCISE", exercise_id: liveExercise2Id },
+        "complete-2"
+      );
+      assert.ok(
+        finalComplete.res.status === 200 || finalComplete.res.status === 201,
+        `complete-2: expected success, got ${finalComplete.res.status}. raw=${finalComplete.text}`
+      );
+    }
 
     for (let i = 0; i < 32; i++) {
       const live = await getState(http.baseUrl, compiled.sessionId, `skip-drain-${i}`);
