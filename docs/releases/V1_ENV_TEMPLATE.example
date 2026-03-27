@@ -1,0 +1,8 @@
+# Kolosseum v1 operator environment template
+# Placeholder values only.
+# This file is a release-operation template, not a deployment manifest.
+
+DATABASE_URL=<set_me>
+RELEASE_COMMIT_SHA=<set_me>
+RELEASE_TAG=<set_me_or_leave_blank>
+RELEASE_OPERATOR=<set_me>
