@@ -1,0 +1,8 @@
+{
+  "release": "v1",
+  "artefacts": {
+    "release_notes": "docs/releases/V1_RELEASE_NOTES.md",
+    "release_checklist": "docs/releases/V1_RELEASE_CHECKLIST.md",
+    "version_contract": "docs/releases/V1_VERSION_AND_TAG.md"
+  }
+}
