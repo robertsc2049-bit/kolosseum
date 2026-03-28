@@ -1,0 +1,14 @@
+{
+  "name": "v1_promotion_artefact_set",
+  "artefacts": [
+    "docs/releases/V1_PROMOTION_FLOW.md",
+    "docs/releases/V1_PACKAGING_PROMOTION_PR_BODY_TEMPLATE.md",
+    "docs/releases/V1_RELEASE_ARTEFACT_NAMING_CONTRACT.md",
+    "docs/releases/V1_RELEASE_CHECKLIST.md",
+    "docs/releases/V1_RELEASE_NOTES.md",
+    "docs/releases/V1_ROLLBACK.md",
+    "docs/releases/V1_VERSION_AND_TAG.md",
+    "ci/scripts/run_postv1_merge_readiness_verifier.mjs",
+    "ci/scripts/run_postv1_mainline_post_merge_verification.mjs"
+  ]
+}
