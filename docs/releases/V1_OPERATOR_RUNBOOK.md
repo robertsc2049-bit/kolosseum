@@ -31,3 +31,10 @@ It does not imply automated deployment, automated publication, or automated roll
 - no automatic deployment is claimed here
 - no automatic publication is claimed here
 - no automatic rollback is claimed here
+## Runbook scope
+
+This runbook is limited to declared release operations boundary content only.
+
+This runbook does not introduce any extra operational surface outside the declared boundary.
+
+All operator actions in this runbook must map to repo-declared release artefacts, checks, or operator steps.
