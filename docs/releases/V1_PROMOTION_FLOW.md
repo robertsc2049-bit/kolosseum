@@ -1,18 +1,15 @@
-# V1 promotion flow
+# V1 Promotion Flow
 
-This note records the internal repo-known promotion path from a completed packaging boundary to a merged release branch.
+1. Confirm packaging is complete against the declared packaging surfaces.
+2. Confirm evidence is present and sealed in the declared evidence surfaces.
+3. Confirm acceptance is satisfied through the declared acceptance pack, signoff, and checklist surfaces.
+4. Confirm merge readiness through the declared merge readiness verifier.
+5. Only then promote using the declared promotion surfaces.
 
-## Promotion path
-1. Confirm the packaging boundary proof for the slice is green.
-2. Stage only the intended repo files for that slice.
-3. Commit the slice on its ticket branch.
-4. Push the ticket branch to origin.
-5. Open a pull request into main.
-6. Wait for required pull request checks to pass.
-7. Merge the pull request into main using the repo-approved merge path.
-8. Sync local main to origin/main.
-9. Confirm the pull request is merged and the working tree is clean.
+## Legal chain
 
-## Boundary
-This note describes repository, branch, pull request, and merge steps only.
-It does not describe deployment, rollout, publishing, or customer-facing release activity.
+Promotion is legal only when packaging, evidence, acceptance, and merge readiness are all satisfied in that order.
+
+## Illegal bypass
+
+Promotion cannot bypass packaging, evidence, acceptance, or merge readiness.
