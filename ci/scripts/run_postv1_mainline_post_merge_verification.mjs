@@ -7,8 +7,15 @@ function run(bin, args) {
   }).trim();
 }
 
-function runInherited(bin, args) {
-  execFileSync(bin, args, {
+function runCommand(command) {
+  if (process.platform === 'win32') {
+    execFileSync('cmd.exe', ['/d', '/s', '/c', command], {
+      stdio: 'inherit',
+    });
+    return;
+  }
+
+  execFileSync('npm', command.split(' '), {
     stdio: 'inherit',
   });
 }
@@ -25,9 +32,7 @@ if (branch !== 'main') fail(`Post-merge verification must run on main, got ${bra
 const status = run('git', ['status', '--short']);
 if (status !== '') fail('Working tree must be clean');
 
-const npmBin = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-
-runInherited(npmBin, ['run', 'lint:fast']);
-runInherited(npmBin, ['run', 'build:fast']);
+runCommand('npm run lint:fast');
+runCommand('npm run build:fast');
 
 console.log('POSTV1_MAINLINE_POST_MERGE_VERIFICATION_OK');
