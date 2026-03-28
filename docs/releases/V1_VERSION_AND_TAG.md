@@ -1,34 +1,13 @@
-# Kolosseum v1 version and tag contract
+# V1 Version And Tag
 
-## Purpose
-This document defines the truthful operator procedure for version confirmation and git tagging.
-It does not create, imply, or simulate release automation.
+Version: 1.0.0
+Tag: v1.0.0
 
-## Authority boundaries
+## Binding
 
-### 1. Version authority
-- the repository package version is the version string authority
-- the git tag is a release marker attached by an operator
-- the release notes document is descriptive and does not override package or git history
+- Accepted release state is declared through `V1_ACCEPTANCE_ARTEFACT_SET.json`, `V1_ACCEPTANCE_PACK_INDEX.md`, `V1_ACCEPTANCE_SIGNOFF.md`, and `V1_RELEASE_CHECKLIST.md`.
+- Release evidence is declared through `V1_MAINLINE_GREEN_RUN_EVIDENCE.md`, `V1_PACKAGING_EVIDENCE_MANIFEST.json`, and `V1_EVIDENCE_SURFACE_REGISTRY.json`.
 
-### 2. Tag authority
-- a tag is not considered part of the release record unless it points to a merged main commit
-- a tag must be created intentionally by an operator
-- annotated tags are preferred for release visibility and traceability
+## Drift prohibition
 
-## Operator procedure
-- [ ] hard-sync local main to origin/main
-- [ ] confirm release notes artefact exists
-- [ ] confirm release checklist artefact exists
-- [ ] confirm CI for the intended release commit is fully green
-- [ ] confirm the package version matches intended release naming
-- [ ] create an annotated git tag on the merged main release commit
-- [ ] push the tag to origin
-- [ ] verify the tag resolves to the intended main commit
-
-## Explicit non-claims
-- no claim of automatic version bumping
-- no claim of automatic tag creation
-- no claim of automatic deployment
-- no claim of app-store publication
-- no claim that a tag alone proves runtime correctness or release approval
+The version/tag declaration is legal only when it remains bound to the accepted release state and the declared release evidence surfaces.
