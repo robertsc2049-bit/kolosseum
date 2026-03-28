@@ -26,6 +26,9 @@
 
     { "path": "ci/scripts/run_postv1_final_acceptance_gate.mjs", "role": "supporting" },
     { "path": "ci/scripts/run_postv1_release_operations_boundary.mjs", "role": "supporting" },
-    { "path": "ci/scripts/run_release_claim_validator.mjs", "role": "supporting" }
+    { "path": "ci/scripts/run_release_claim_validator.mjs", "role": "supporting" },
+    { "path": "ci/scripts/run_postv1_acceptance_pack_composition_verifier.mjs", "role": "supporting" },
+    { "path": "ci/scripts/run_postv1_release_note_claim_boundary_verifier.mjs", "role": "supporting" },
+    { "path": "ci/scripts/run_postv1_merge_readiness_verifier.mjs", "role": "supporting" }
   ]
 }
