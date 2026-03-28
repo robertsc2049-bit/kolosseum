@@ -25,7 +25,9 @@ if (branch !== 'main') fail(`Post-merge verification must run on main, got ${bra
 const status = run('git', ['status', '--short']);
 if (status !== '') fail('Working tree must be clean');
 
-runInherited('npm', ['run', 'lint:fast']);
-runInherited('npm', ['run', 'build:fast']);
+const npmBin = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+
+runInherited(npmBin, ['run', 'lint:fast']);
+runInherited(npmBin, ['run', 'build:fast']);
 
 console.log('POSTV1_MAINLINE_POST_MERGE_VERIFICATION_OK');
