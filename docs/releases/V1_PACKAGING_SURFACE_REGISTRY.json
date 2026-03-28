@@ -3,6 +3,7 @@
   "surfaces": [
     "ci/scripts/build_postv1_packaging_evidence.mjs",
     "ci/scripts/run_postv1_acceptance_artefact_completeness_verifier.mjs",
+    "ci/scripts/run_postv1_evidence_surface_verifier.mjs",
     "ci/scripts/run_postv1_final_acceptance_gate.mjs",
     "ci/scripts/run_postv1_mainline_post_merge_verification.mjs",
     "ci/scripts/run_postv1_merge_readiness_verifier.mjs",
@@ -14,6 +15,7 @@
     "docs/releases/V1_ACCEPTANCE_PACK_INDEX.md",
     "docs/releases/V1_ACCEPTANCE_SIGNOFF.md",
     "docs/releases/V1_ARTEFACT_MANIFEST.json",
+    "docs/releases/V1_EVIDENCE_SURFACE_REGISTRY.json",
     "docs/releases/V1_MAINLINE_GREEN_RUN_EVIDENCE.md",
     "docs/releases/V1_OPERATOR_EXECUTION_ORDER.md",
     "docs/releases/V1_OPERATOR_RUNBOOK.md",
