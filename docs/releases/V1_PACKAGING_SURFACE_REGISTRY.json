@@ -3,6 +3,7 @@
   "surfaces": [
     "ci/scripts/build_postv1_packaging_evidence.mjs",
     "ci/scripts/run_postv1_acceptance_artefact_completeness_verifier.mjs",
+    "ci/scripts/run_postv1_acceptance_pack_composition_verifier.mjs",
     "ci/scripts/run_postv1_evidence_surface_verifier.mjs",
     "ci/scripts/run_postv1_final_acceptance_gate.mjs",
     "ci/scripts/run_postv1_mainline_post_merge_verification.mjs",

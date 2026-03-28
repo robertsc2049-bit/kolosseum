@@ -1,16 +1,31 @@
 {
-  "name": "v1_acceptance_artefact_set",
+  "name": "V1 acceptance artefact set",
   "artefacts": [
-    "docs/releases/V1_ACCEPTANCE_PACK_INDEX.md",
-    "docs/releases/V1_ACCEPTANCE_SIGNOFF.md",
-    "docs/releases/V1_RELEASE_CHECKLIST.md",
-    "docs/releases/V1_MAINLINE_GREEN_RUN_EVIDENCE.md",
-    "docs/releases/V1_PACKAGING_EVIDENCE_MANIFEST.json",
-    "docs/releases/V1_OPERATOR_EXECUTION_ORDER.md",
-    "docs/releases/V1_RELEASE_OPERATIONS_BOUNDARY.json",
-    "ci/scripts/run_postv1_final_acceptance_gate.mjs",
-    "ci/scripts/run_postv1_packaging_evidence_manifest_verifier.mjs",
-    "ci/scripts/run_postv1_release_operations_boundary.mjs",
-    "ci/scripts/run_release_claim_validator.mjs"
+    { "path": "docs/releases/V1_ACCEPTANCE_PACK_INDEX.md", "role": "index" },
+    { "path": "docs/releases/V1_ACCEPTANCE_SIGNOFF.md", "role": "signoff" },
+    { "path": "docs/releases/V1_RELEASE_CHECKLIST.md", "role": "checklist" },
+
+    { "path": "docs/releases/V1_MAINLINE_GREEN_RUN_EVIDENCE.md", "role": "evidence" },
+    { "path": "docs/releases/V1_PACKAGING_EVIDENCE_MANIFEST.json", "role": "evidence" },
+    { "path": "docs/releases/V1_EVIDENCE_SURFACE_REGISTRY.json", "role": "evidence" },
+    { "path": "ci/scripts/run_postv1_packaging_evidence_manifest_verifier.mjs", "role": "evidence" },
+
+    { "path": "docs/releases/V1_ROLLBACK.md", "role": "rollback" },
+    { "path": "docs/releases/V1_PROMOTION_FLOW.md", "role": "promotion" },
+
+    { "path": "docs/releases/V1_OPERATOR_EXECUTION_ORDER.md", "role": "supporting" },
+    { "path": "docs/releases/V1_OPERATOR_RUNBOOK.md", "role": "supporting" },
+    { "path": "docs/releases/V1_RELEASE_OPERATIONS_BOUNDARY.json", "role": "supporting" },
+    { "path": "docs/releases/V1_ARTEFACT_MANIFEST.json", "role": "supporting" },
+    { "path": "docs/releases/V1_PACKAGING_SURFACE_REGISTRY.json", "role": "supporting" },
+    { "path": "docs/releases/V1_PACKAGING_PROMOTION_PR_BODY_TEMPLATE.md", "role": "supporting" },
+    { "path": "docs/releases/V1_PROMOTION_ARTEFACT_SET.json", "role": "supporting" },
+    { "path": "docs/releases/V1_RELEASE_ARTEFACT_NAMING_CONTRACT.md", "role": "supporting" },
+    { "path": "docs/releases/V1_RELEASE_NOTES.md", "role": "supporting" },
+    { "path": "docs/releases/V1_VERSION_AND_TAG.md", "role": "supporting" },
+
+    { "path": "ci/scripts/run_postv1_final_acceptance_gate.mjs", "role": "supporting" },
+    { "path": "ci/scripts/run_postv1_release_operations_boundary.mjs", "role": "supporting" },
+    { "path": "ci/scripts/run_release_claim_validator.mjs", "role": "supporting" }
   ]
 }
