@@ -6,6 +6,7 @@
     "ci/scripts/run_postv1_evidence_surface_verifier.mjs",
     "ci/scripts/run_postv1_final_acceptance_gate.mjs",
     "ci/scripts/run_postv1_mainline_post_merge_verification.mjs",
+    "ci/scripts/run_postv1_mainline_verification_dependency_verifier.mjs",
     "ci/scripts/run_postv1_merge_readiness_verifier.mjs",
     "ci/scripts/run_postv1_packaging_evidence_manifest_verifier.mjs",
     "ci/scripts/run_postv1_promotion_artefact_completeness_verifier.mjs",
