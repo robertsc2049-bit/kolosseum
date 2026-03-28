@@ -22,3 +22,10 @@ It is an operator guidance artefact only and does not represent an automated rol
 - no infrastructure rollback mechanism is claimed here
 - no database rollback mechanism is claimed here
 - no guarantee is made that a git tag alone is sufficient for recovery
+## Rollback boundary
+
+Rollback is limited to repo-known rollback artefacts and declared operator steps.
+
+Rollback does not claim any rollback capability outside the declared release boundary.
+
+Rollback claims are limited to files, checks, and steps that exist in this repository and are explicitly declared in the release artefacts.
