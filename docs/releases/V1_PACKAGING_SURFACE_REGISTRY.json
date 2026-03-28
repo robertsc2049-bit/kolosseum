@@ -32,6 +32,7 @@
                      "docs/releases/V1_ROLLBACK.md",
                      "docs/releases/V1_VERSION_AND_TAG.md",
                      "ci/scripts/run_postv1_release_note_claim_boundary_verifier.mjs",
-                     "ci/scripts/run_postv1_promotion_flow_legality_chain_verifier.mjs"
+                     "ci/scripts/run_postv1_promotion_flow_legality_chain_verifier.mjs",
+                     "ci/scripts/run_postv1_release_version_tag_evidence_binding_verifier.mjs"
                  ]
 }
