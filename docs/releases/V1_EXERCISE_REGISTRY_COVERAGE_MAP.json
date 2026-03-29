@@ -1,0 +1,75 @@
+{
+  "coverage_map_id": "v1_exercise_registry_coverage_map",
+  "required_surfaces": [
+    "ci/scripts/run_postv1_exercise_registry_coverage_expansion_gate_verifier.mjs",
+    "docs/releases/V1_EXERCISE_REGISTRY_COVERAGE_MAP.json"
+  ],
+  "mvp_required_coverage": [
+    {
+      "movement_class": "squat",
+      "movement_pattern": "bilateral_knee_dominant"
+    },
+    {
+      "movement_class": "hinge",
+      "movement_pattern": "bilateral_hip_dominant"
+    },
+    {
+      "movement_class": "horizontal_push",
+      "movement_pattern": "bilateral_upper_push_horizontal"
+    },
+    {
+      "movement_class": "horizontal_pull",
+      "movement_pattern": "bilateral_upper_pull_horizontal"
+    },
+    {
+      "movement_class": "vertical_push",
+      "movement_pattern": "bilateral_upper_push_vertical"
+    },
+    {
+      "movement_class": "vertical_pull",
+      "movement_pattern": "bilateral_upper_pull_vertical"
+    },
+    {
+      "movement_class": "carry",
+      "movement_pattern": "locomotion_loaded"
+    },
+    {
+      "movement_class": "core",
+      "movement_pattern": "trunk_stability"
+    }
+  ],
+  "declared_mvp_coverage": [
+    {
+      "movement_class": "squat",
+      "movement_pattern": "bilateral_knee_dominant"
+    },
+    {
+      "movement_class": "hinge",
+      "movement_pattern": "bilateral_hip_dominant"
+    },
+    {
+      "movement_class": "horizontal_push",
+      "movement_pattern": "bilateral_upper_push_horizontal"
+    },
+    {
+      "movement_class": "horizontal_pull",
+      "movement_pattern": "bilateral_upper_pull_horizontal"
+    },
+    {
+      "movement_class": "vertical_push",
+      "movement_pattern": "bilateral_upper_push_vertical"
+    },
+    {
+      "movement_class": "vertical_pull",
+      "movement_pattern": "bilateral_upper_pull_vertical"
+    },
+    {
+      "movement_class": "carry",
+      "movement_pattern": "locomotion_loaded"
+    },
+    {
+      "movement_class": "core",
+      "movement_pattern": "trunk_stability"
+    }
+  ]
+}
