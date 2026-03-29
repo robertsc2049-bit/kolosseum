@@ -57,24 +57,32 @@ function createFixture() {
       {
         movement_class: "squat",
         movement_pattern: "bilateral_knee_dominant",
-        minimum_exercise_count: 1
+        minimum_exercise_count: 3
       },
       {
         movement_class: "hinge",
         movement_pattern: "bilateral_hip_dominant",
-        minimum_exercise_count: 1
+        minimum_exercise_count: 3
       }
     ],
     declared_population: [
       {
         movement_class: "squat",
         movement_pattern: "bilateral_knee_dominant",
-        exercise_ids: ["ex_barbell_back_squat"]
+        exercise_ids: [
+          "ex_barbell_back_squat",
+          "ex_paused_back_squat",
+          "ex_safety_bar_squat"
+        ]
       },
       {
         movement_class: "hinge",
         movement_pattern: "bilateral_hip_dominant",
-        exercise_ids: ["ex_barbell_deadlift"]
+        exercise_ids: [
+          "ex_barbell_deadlift",
+          "ex_romanian_deadlift",
+          "ex_stiff_leg_deadlift"
+        ]
       }
     ]
   });
@@ -104,19 +112,23 @@ test("P60: exercise registry population gate fails when an MVP lane exists but h
       {
         movement_class: "squat",
         movement_pattern: "bilateral_knee_dominant",
-        minimum_exercise_count: 1
+        minimum_exercise_count: 3
       },
       {
         movement_class: "hinge",
         movement_pattern: "bilateral_hip_dominant",
-        minimum_exercise_count: 1
+        minimum_exercise_count: 3
       }
     ],
     declared_population: [
       {
         movement_class: "squat",
         movement_pattern: "bilateral_knee_dominant",
-        exercise_ids: ["ex_barbell_back_squat"]
+        exercise_ids: [
+          "ex_barbell_back_squat",
+          "ex_paused_back_squat",
+          "ex_safety_bar_squat"
+        ]
       },
       {
         movement_class: "hinge",

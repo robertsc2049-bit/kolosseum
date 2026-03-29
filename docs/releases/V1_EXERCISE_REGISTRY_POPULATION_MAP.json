@@ -1,91 +1,123 @@
 {
-  "population_map_id": "v1_exercise_registry_population_map",
-  "required_surfaces": [
-    "ci/scripts/run_postv1_exercise_registry_population_gate_verifier.mjs",
-    "docs/releases/V1_EXERCISE_REGISTRY_POPULATION_MAP.json"
-  ],
-  "mvp_required_population": [
-    {
-      "movement_class": "squat",
-      "movement_pattern": "bilateral_knee_dominant",
-      "minimum_exercise_count": 1
-    },
-    {
-      "movement_class": "hinge",
-      "movement_pattern": "bilateral_hip_dominant",
-      "minimum_exercise_count": 1
-    },
-    {
-      "movement_class": "horizontal_push",
-      "movement_pattern": "bilateral_upper_push_horizontal",
-      "minimum_exercise_count": 1
-    },
-    {
-      "movement_class": "horizontal_pull",
-      "movement_pattern": "bilateral_upper_pull_horizontal",
-      "minimum_exercise_count": 1
-    },
-    {
-      "movement_class": "vertical_push",
-      "movement_pattern": "bilateral_upper_push_vertical",
-      "minimum_exercise_count": 1
-    },
-    {
-      "movement_class": "vertical_pull",
-      "movement_pattern": "bilateral_upper_pull_vertical",
-      "minimum_exercise_count": 1
-    },
-    {
-      "movement_class": "carry",
-      "movement_pattern": "locomotion_loaded",
-      "minimum_exercise_count": 1
-    },
-    {
-      "movement_class": "core",
-      "movement_pattern": "trunk_stability",
-      "minimum_exercise_count": 1
-    }
-  ],
-  "declared_population": [
-    {
-      "movement_class": "squat",
-      "movement_pattern": "bilateral_knee_dominant",
-      "exercise_ids": ["ex_barbell_back_squat"]
-    },
-    {
-      "movement_class": "hinge",
-      "movement_pattern": "bilateral_hip_dominant",
-      "exercise_ids": ["ex_barbell_deadlift"]
-    },
-    {
-      "movement_class": "horizontal_push",
-      "movement_pattern": "bilateral_upper_push_horizontal",
-      "exercise_ids": ["ex_barbell_bench_press"]
-    },
-    {
-      "movement_class": "horizontal_pull",
-      "movement_pattern": "bilateral_upper_pull_horizontal",
-      "exercise_ids": ["ex_barbell_row"]
-    },
-    {
-      "movement_class": "vertical_push",
-      "movement_pattern": "bilateral_upper_push_vertical",
-      "exercise_ids": ["ex_barbell_overhead_press"]
-    },
-    {
-      "movement_class": "vertical_pull",
-      "movement_pattern": "bilateral_upper_pull_vertical",
-      "exercise_ids": ["ex_pull_up"]
-    },
-    {
-      "movement_class": "carry",
-      "movement_pattern": "locomotion_loaded",
-      "exercise_ids": ["ex_farmers_carry"]
-    },
-    {
-      "movement_class": "core",
-      "movement_pattern": "trunk_stability",
-      "exercise_ids": ["ex_front_plank"]
-    }
-  ]
+    "population_map_id":  "v1_exercise_registry_population_map",
+    "required_surfaces":  [
+                              "ci/scripts/run_postv1_exercise_registry_population_gate_verifier.mjs",
+                              "docs/releases/V1_EXERCISE_REGISTRY_POPULATION_MAP.json"
+                          ],
+    "mvp_required_population":  [
+                                    {
+                                        "movement_class":  "squat",
+                                        "movement_pattern":  "bilateral_knee_dominant",
+                                        "minimum_exercise_count":  3
+                                    },
+                                    {
+                                        "movement_class":  "hinge",
+                                        "movement_pattern":  "bilateral_hip_dominant",
+                                        "minimum_exercise_count":  3
+                                    },
+                                    {
+                                        "movement_class":  "horizontal_push",
+                                        "movement_pattern":  "bilateral_upper_push_horizontal",
+                                        "minimum_exercise_count":  3
+                                    },
+                                    {
+                                        "movement_class":  "horizontal_pull",
+                                        "movement_pattern":  "bilateral_upper_pull_horizontal",
+                                        "minimum_exercise_count":  3
+                                    },
+                                    {
+                                        "movement_class":  "vertical_push",
+                                        "movement_pattern":  "bilateral_upper_push_vertical",
+                                        "minimum_exercise_count":  3
+                                    },
+                                    {
+                                        "movement_class":  "vertical_pull",
+                                        "movement_pattern":  "bilateral_upper_pull_vertical",
+                                        "minimum_exercise_count":  3
+                                    },
+                                    {
+                                        "movement_class":  "carry",
+                                        "movement_pattern":  "locomotion_loaded",
+                                        "minimum_exercise_count":  3
+                                    },
+                                    {
+                                        "movement_class":  "core",
+                                        "movement_pattern":  "trunk_stability",
+                                        "minimum_exercise_count":  3
+                                    }
+                                ],
+    "declared_population":  [
+                                {
+                                    "movement_class":  "squat",
+                                    "movement_pattern":  "bilateral_knee_dominant",
+                                    "exercise_ids":  [
+                                                         "ex_barbell_back_squat",
+                                                         "ex_paused_back_squat",
+                                                         "ex_safety_bar_squat"
+                                                     ]
+                                },
+                                {
+                                    "movement_class":  "hinge",
+                                    "movement_pattern":  "bilateral_hip_dominant",
+                                    "exercise_ids":  [
+                                                         "ex_barbell_deadlift",
+                                                         "ex_romanian_deadlift",
+                                                         "ex_stiff_leg_deadlift"
+                                                     ]
+                                },
+                                {
+                                    "movement_class":  "horizontal_push",
+                                    "movement_pattern":  "bilateral_upper_push_horizontal",
+                                    "exercise_ids":  [
+                                                         "ex_barbell_bench_press",
+                                                         "ex_close_grip_bench_press",
+                                                         "ex_dumbbell_bench_press"
+                                                     ]
+                                },
+                                {
+                                    "movement_class":  "horizontal_pull",
+                                    "movement_pattern":  "bilateral_upper_pull_horizontal",
+                                    "exercise_ids":  [
+                                                         "ex_barbell_row",
+                                                         "ex_pendlay_row",
+                                                         "ex_seal_row"
+                                                     ]
+                                },
+                                {
+                                    "movement_class":  "vertical_push",
+                                    "movement_pattern":  "bilateral_upper_push_vertical",
+                                    "exercise_ids":  [
+                                                         "ex_barbell_overhead_press",
+                                                         "ex_strict_press",
+                                                         "ex_seated_dumbbell_press"
+                                                     ]
+                                },
+                                {
+                                    "movement_class":  "vertical_pull",
+                                    "movement_pattern":  "bilateral_upper_pull_vertical",
+                                    "exercise_ids":  [
+                                                         "ex_pull_up",
+                                                         "ex_weighted_pull_up",
+                                                         "ex_lat_pulldown"
+                                                     ]
+                                },
+                                {
+                                    "movement_class":  "carry",
+                                    "movement_pattern":  "locomotion_loaded",
+                                    "exercise_ids":  [
+                                                         "ex_farmers_carry",
+                                                         "ex_front_rack_carry",
+                                                         "ex_overhead_carry"
+                                                     ]
+                                },
+                                {
+                                    "movement_class":  "core",
+                                    "movement_pattern":  "trunk_stability",
+                                    "exercise_ids":  [
+                                                         "ex_front_plank",
+                                                         "ex_side_plank",
+                                                         "ex_dead_bug"
+                                                     ]
+                                }
+                            ]
 }
