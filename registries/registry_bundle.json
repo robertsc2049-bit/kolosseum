@@ -259,6 +259,25 @@
             "shoulder_low"
           ]
         },
+        "single_arm_dumbbell_press": {
+          "exercise_id": "single_arm_dumbbell_press",
+          "pattern": "horizontal_push",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
+          "equipment": [
+            "dumbbells",
+            "bench"
+          ],
+          "equipment_tags": [
+            "dumbbell"
+          ],
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder_medium"
+          ]
+        },
         "overhead_press": {
           "exercise_id": "overhead_press",
           "pattern": "vertical_push",
@@ -283,6 +302,24 @@
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "semi_stable",
+          "equipment": [
+            "dumbbells"
+          ],
+          "equipment_tags": [
+            "dumbbell"
+          ],
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder_medium"
+          ]
+        },
+        "single_arm_overhead_press": {
+          "exercise_id": "single_arm_overhead_press",
+          "pattern": "vertical_push",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
           "equipment": [
             "dumbbells"
           ],
@@ -334,6 +371,27 @@
             "hip_low"
           ]
         },
+        "split_squat": {
+          "exercise_id": "split_squat",
+          "pattern": "squat",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
+          "equipment": [
+            "bodyweight",
+            "dumbbells"
+          ],
+          "equipment_tags": [
+            "bodyweight",
+            "dumbbell"
+          ],
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "knee_low",
+            "hip_low"
+          ]
+        },
         "deadlift": {
           "exercise_id": "deadlift",
           "pattern": "hinge",
@@ -367,6 +425,29 @@
           ],
           "equipment_tier": "TIER_3",
           "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "back_low",
+            "hip_low"
+          ]
+        },
+        "single_leg_rdl": {
+          "exercise_id": "single_leg_rdl",
+          "pattern": "hinge",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
+          "equipment": [
+            "bodyweight",
+            "dumbbells",
+            "kettlebell"
+          ],
+          "equipment_tags": [
+            "bodyweight",
+            "dumbbell",
+            "kettlebell"
+          ],
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
           "joint_stress_tags": [
             "back_low",
             "hip_low"
