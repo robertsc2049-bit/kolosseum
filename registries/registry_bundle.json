@@ -157,6 +157,45 @@
             "sacroiliac_medium",
             "sacroiliac_high"
           ]
+        },
+        "anti_rotation": {
+          "movement_id": "anti_rotation",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "thoracic_low",
+            "lumbar_low"
+          ]
+        },
+        "loaded_flexion": {
+          "movement_id": "loaded_flexion",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "thoracic_low",
+            "lumbar_low"
+          ]
+        },
+        "rotational_work": {
+          "movement_id": "rotational_work",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "thoracic_low",
+            "lumbar_low"
+          ]
         }
       }
     },
@@ -451,6 +490,63 @@
           "joint_stress_tags": [
             "back_low",
             "hip_low"
+          ]
+        },
+        "pallof_press": {
+          "exercise_id": "pallof_press",
+          "pattern": "anti_rotation",
+          "stimulus_intent": "strength",
+          "rom": "partial",
+          "stability": "stable",
+          "equipment": [
+            "cable"
+          ],
+          "equipment_tags": [
+            "bodyweight"
+          ],
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "thoracic_low",
+            "lumbar_low"
+          ]
+        },
+        "cable_crunch": {
+          "exercise_id": "cable_crunch",
+          "pattern": "loaded_flexion",
+          "stimulus_intent": "strength",
+          "rom": "partial",
+          "stability": "stable",
+          "equipment": [
+            "cable"
+          ],
+          "equipment_tags": [
+            "bodyweight"
+          ],
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "thoracic_low",
+            "lumbar_low"
+          ]
+        },
+        "cable_woodchop": {
+          "exercise_id": "cable_woodchop",
+          "pattern": "rotational_work",
+          "stimulus_intent": "strength",
+          "rom": "partial",
+          "stability": "stable",
+          "equipment": [
+            "cable"
+          ],
+          "equipment_tags": [
+            "bodyweight"
+          ],
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "thoracic_low",
+            "lumbar_low"
           ]
         }
       }
