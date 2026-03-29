@@ -1,0 +1,25 @@
+{
+  "boundary_id": "v1_final_acceptance_boundary",
+  "checks": [
+    {
+      "check_id": "release_claim",
+      "script_path": "ci/scripts/run_postv1_release_claim_validator_boundary_adapter.mjs"
+    },
+    {
+      "check_id": "acceptance_pack_composition",
+      "script_path": "ci/scripts/run_postv1_acceptance_pack_composition_verifier.mjs"
+    },
+    {
+      "check_id": "acceptance_artefact_completeness",
+      "script_path": "ci/scripts/run_postv1_acceptance_artefact_completeness_boundary_adapter.mjs"
+    },
+    {
+      "check_id": "promotion_flow_legality_chain",
+      "script_path": "ci/scripts/run_postv1_promotion_flow_legality_chain_verifier.mjs"
+    },
+    {
+      "check_id": "release_version_tag_evidence_binding",
+      "script_path": "ci/scripts/run_postv1_release_version_tag_evidence_binding_verifier.mjs"
+    }
+  ]
+}
