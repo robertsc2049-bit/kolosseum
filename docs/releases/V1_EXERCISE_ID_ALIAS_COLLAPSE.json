@@ -1,0 +1,18 @@
+{
+  "exercise_id_alias_collapse_id": "v1_exercise_id_alias_collapse",
+  "source_map_path": "docs/releases/V1_EXERCISE_ID_CANONICALIZATION_MAP.json",
+  "collapse_strategy_enum": [
+    "retire_aliases_to_primary"
+  ],
+  "entries": [
+    {
+      "collapse_id": "collapse__ex_barbell_incline_bench_press",
+      "canonical_exercise_id": "ex_barbell_incline_bench_press",
+      "primary_current_exercise_id": "incline_barbell_bench_press",
+      "alias_current_exercise_ids": [
+        "incline_bench_press"
+      ],
+      "collapse_strategy": "retire_aliases_to_primary"
+    }
+  ]
+}

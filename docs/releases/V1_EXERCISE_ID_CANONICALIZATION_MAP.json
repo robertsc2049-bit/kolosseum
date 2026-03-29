@@ -26,12 +26,12 @@
     },
     {
       "current_exercise_id": "dumbbell_bench_press",
-      "canonical_exercise_id": "ex_dumbbells_dumbbell_bench_press",
+      "canonical_exercise_id": "ex_dumbbell_bench_press",
       "status": "pending_migration"
     },
     {
       "current_exercise_id": "dumbbell_overhead_press",
-      "canonical_exercise_id": "ex_dumbbells_dumbbell_overhead_press",
+      "canonical_exercise_id": "ex_dumbbell_overhead_press",
       "status": "pending_migration"
     },
     {
@@ -41,12 +41,12 @@
     },
     {
       "current_exercise_id": "goblet_squat",
-      "canonical_exercise_id": "ex_dumbbells_goblet_squat",
+      "canonical_exercise_id": "ex_dumbbell_goblet_squat",
       "status": "pending_migration"
     },
     {
       "current_exercise_id": "incline_barbell_bench_press",
-      "canonical_exercise_id": "ex_barbell_incline_barbell_bench_press",
+      "canonical_exercise_id": "ex_barbell_incline_bench_press",
       "status": "pending_migration"
     },
     {
@@ -56,7 +56,7 @@
     },
     {
       "current_exercise_id": "kettlebell_deadlift",
-      "canonical_exercise_id": "ex_kettlebell_kettlebell_deadlift",
+      "canonical_exercise_id": "ex_kettlebell_deadlift",
       "status": "pending_migration"
     },
     {
@@ -66,7 +66,7 @@
     },
     {
       "current_exercise_id": "machine_chest_press",
-      "canonical_exercise_id": "ex_machine_machine_chest_press",
+      "canonical_exercise_id": "ex_machine_chest_press",
       "status": "pending_migration"
     },
     {
@@ -116,12 +116,12 @@
     },
     {
       "current_exercise_id": "seated_barbell_press",
-      "canonical_exercise_id": "ex_barbell_seated_barbell_press",
+      "canonical_exercise_id": "ex_barbell_seated_press",
       "status": "pending_migration"
     },
     {
       "current_exercise_id": "seated_dumbbell_press",
-      "canonical_exercise_id": "ex_dumbbells_seated_dumbbell_press",
+      "canonical_exercise_id": "ex_dumbbell_seated_press",
       "status": "pending_migration"
     },
     {
@@ -149,5 +149,6 @@
       "canonical_exercise_id": "ex_pullup_bar_weighted_pull_up",
       "status": "pending_migration"
     }
-  ]
+  ],
+  "normalized_by": "ci/scripts/normalize_postv1_exercise_id_canonical_targets.mjs"
 }
