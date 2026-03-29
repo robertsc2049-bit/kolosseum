@@ -157,6 +157,45 @@
             "sacroiliac_medium",
             "sacroiliac_high"
           ]
+        },
+        "anti_rotation": {
+          "movement_id": "anti_rotation",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "thoracic_low",
+            "lumbar_low"
+          ]
+        },
+        "loaded_flexion": {
+          "movement_id": "loaded_flexion",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "thoracic_low",
+            "lumbar_low"
+          ]
+        },
+        "rotational_work": {
+          "movement_id": "rotational_work",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "thoracic_low",
+            "lumbar_low"
+          ]
         }
       }
     },
