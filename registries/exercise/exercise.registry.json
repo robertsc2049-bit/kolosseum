@@ -13,6 +13,9 @@
         "bench",
         "rack"
       ],
+      "equipment_tags": [
+        "barbell"
+      ],
       "equipment_tier": "TIER_1",
       "joint_stress_tags": [
         "shoulder_high"
@@ -29,6 +32,9 @@
         "incline_bench",
         "rack"
       ],
+      "equipment_tags": [
+        "barbell"
+      ],
       "equipment_tier": "TIER_1",
       "joint_stress_tags": [
         "shoulder_high"
@@ -44,6 +50,9 @@
         "dumbbells",
         "bench"
       ],
+      "equipment_tags": [
+        "dumbbell"
+      ],
       "equipment_tier": "TIER_2",
       "joint_stress_tags": [
         "shoulder_medium"
@@ -56,6 +65,9 @@
       "rom": "full",
       "stability": "unstable",
       "equipment": [
+        "bodyweight"
+      ],
+      "equipment_tags": [
         "bodyweight"
       ],
       "equipment_tier": "TIER_4",
@@ -72,6 +84,9 @@
       "equipment": [
         "machine"
       ],
+      "equipment_tags": [
+        "machine"
+      ],
       "equipment_tier": "TIER_3",
       "joint_stress_tags": [
         "shoulder_low"
@@ -84,6 +99,9 @@
       "rom": "full",
       "stability": "stable",
       "equipment": [
+        "barbell"
+      ],
+      "equipment_tags": [
         "barbell"
       ],
       "equipment_tier": "TIER_2",
@@ -100,6 +118,9 @@
       "equipment": [
         "dumbbells"
       ],
+      "equipment_tags": [
+        "dumbbell"
+      ],
       "equipment_tier": "TIER_3",
       "joint_stress_tags": [
         "shoulder_medium"
@@ -114,6 +135,9 @@
       "equipment": [
         "barbell",
         "rack"
+      ],
+      "equipment_tags": [
+        "barbell"
       ],
       "equipment_tier": "TIER_1",
       "joint_stress_tags": [
@@ -130,6 +154,9 @@
       "equipment": [
         "dumbbells"
       ],
+      "equipment_tags": [
+        "dumbbell"
+      ],
       "equipment_tier": "TIER_3",
       "joint_stress_tags": [
         "knee_low",
@@ -145,6 +172,9 @@
       "equipment": [
         "barbell"
       ],
+      "equipment_tags": [
+        "barbell"
+      ],
       "equipment_tier": "TIER_1",
       "joint_stress_tags": [
         "back_medium",
@@ -158,6 +188,9 @@
       "rom": "full",
       "stability": "stable",
       "equipment": [
+        "kettlebell"
+      ],
+      "equipment_tags": [
         "kettlebell"
       ],
       "equipment_tier": "TIER_3",

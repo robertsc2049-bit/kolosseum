@@ -21,6 +21,7 @@
           "rom",
           "stability",
           "equipment",
+          "equipment_tags",
           "equipment_tier",
           "joint_stress_tags"
         ],
@@ -34,6 +35,22 @@
             "type": "array",
             "minItems": 1,
             "items": { "type": "string", "minLength": 1 }
+          },
+          "equipment_tags": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "barbell",
+                "dumbbell",
+                "bodyweight",
+                "machine",
+                "strongman",
+                "kettlebell"
+              ]
+            }
           },
           "equipment_tier": { "type": "string", "minLength": 1 },
           "joint_stress_tags": {
