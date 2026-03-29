@@ -116,6 +116,10 @@
                       {
                           "path":  "docs/releases/V1_RELEASE_CLOSURE.json",
                           "role":  "support"
+                      },
+                      {
+                          "path":  "docs/releases/V1_EXERCISE_REGISTRY_POPULATION_MAP.json",
+                          "role":  "support"
                       }
                   ]
 }
