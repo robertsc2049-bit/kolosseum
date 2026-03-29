@@ -41,6 +41,8 @@
                      "ci/scripts/run_postv1_promotion_readiness_runner.mjs",
                      "docs/releases/V1_PROMOTION_READINESS.json",
                      "ci/scripts/run_postv1_release_closure_verifier.mjs",
-                     "docs/releases/V1_RELEASE_CLOSURE.json"
+                     "docs/releases/V1_RELEASE_CLOSURE.json",
+                     "ci/scripts/run_postv1_release_boundary_doc_script_parity_verifier.mjs",
+                     "docs/releases/V1_RELEASE_BOUNDARY_DOC_SCRIPT_PARITY.json"
                  ]
 }
