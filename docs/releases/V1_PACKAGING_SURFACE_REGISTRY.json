@@ -33,6 +33,10 @@
                      "docs/releases/V1_VERSION_AND_TAG.md",
                      "ci/scripts/run_postv1_release_note_claim_boundary_verifier.mjs",
                      "ci/scripts/run_postv1_promotion_flow_legality_chain_verifier.mjs",
-                     "ci/scripts/run_postv1_release_version_tag_evidence_binding_verifier.mjs"
+                     "ci/scripts/run_postv1_release_version_tag_evidence_binding_verifier.mjs",
+                     "ci/scripts/run_postv1_final_acceptance_boundary_runner.mjs",
+                     "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json",
+                     "ci/scripts/run_postv1_release_claim_validator_boundary_adapter.mjs",
+                     "ci/scripts/run_postv1_acceptance_artefact_completeness_boundary_adapter.mjs"
                  ]
 }

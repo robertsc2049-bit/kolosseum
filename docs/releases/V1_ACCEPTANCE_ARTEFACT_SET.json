@@ -1,9 +1,9 @@
 {
-    "name":  "V1 acceptance artefact set",
+    "name":  "v1_acceptance_artefact_set",
     "artefacts":  [
                       {
                           "path":  "docs/releases/V1_ACCEPTANCE_ARTEFACT_SET.json",
-                          "role":  "index"
+                          "role":  "supporting"
                       },
                       {
                           "path":  "docs/releases/V1_ACCEPTANCE_PACK_INDEX.md",
@@ -104,6 +104,10 @@
                       {
                           "path":  "ci/scripts/run_postv1_merge_readiness_verifier.mjs",
                           "role":  "supporting"
+                      },
+                      {
+                          "path":  "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json",
+                          "role":  "boundary"
                       }
                   ]
 }
