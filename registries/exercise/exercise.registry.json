@@ -290,6 +290,63 @@
         "back_low",
         "hip_low"
       ]
+    },
+    "farmers_carry": {
+      "exercise_id": "farmers_carry",
+      "pattern": "carry",
+      "stimulus_intent": "strength",
+      "rom": "partial",
+      "stability": "stable",
+      "equipment": [
+        "dumbbell"
+      ],
+      "equipment_tags": [
+        "dumbbell"
+      ],
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "grip",
+        "shoulder"
+      ]
+    },
+    "sandbag_carry": {
+      "exercise_id": "sandbag_carry",
+      "pattern": "carry",
+      "stimulus_intent": "strength",
+      "rom": "partial",
+      "stability": "stable",
+      "equipment": [
+        "sandbag"
+      ],
+      "equipment_tags": [
+        "strongman"
+      ],
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "grip",
+        "thoracic_low"
+      ]
+    },
+    "yoke_carry": {
+      "exercise_id": "yoke_carry",
+      "pattern": "carry",
+      "stimulus_intent": "strength",
+      "rom": "partial",
+      "stability": "stable",
+      "equipment": [
+        "yoke"
+      ],
+      "equipment_tags": [
+        "strongman"
+      ],
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "lumbar_low"
+      ]
     }
   }
 }
