@@ -34,6 +34,14 @@
                   },
                   {
                       "kind":  "command",
+                      "value":  "node test/ci_plan_registry_contract_cluster_manifest_file.test.mjs"
+                  },
+                  {
+                      "kind":  "command",
+                      "value":  "node test/ci_plan_registry_contract_cluster_manifest.test.mjs"
+                  },
+                  {
+                      "kind":  "command",
                       "value":  "node test/ci_plan_registry_contract_manifest_file.test.mjs"
                   },
                   {
