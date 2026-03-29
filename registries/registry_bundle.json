@@ -157,6 +157,26 @@
             "sacroiliac_medium",
             "sacroiliac_high"
           ]
+        },
+        "carry": {
+          "movement_id": "carry",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "kettlebell",
+            "trap_bar",
+            "sandbag",
+            "yoke",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "grip",
+            "lumbar_low",
+            "thoracic_low",
+            "hip"
+          ]
         }
       }
     },
