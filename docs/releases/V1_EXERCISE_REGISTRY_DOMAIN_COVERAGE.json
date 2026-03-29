@@ -1,0 +1,19 @@
+{
+  "coverage_id": "v1_exercise_registry_domain_coverage",
+  "required_surfaces": [
+    "ci/scripts/run_postv1_exercise_registry_domain_coverage_verifier.mjs",
+    "docs/releases/V1_EXERCISE_REGISTRY_DOMAIN_COVERAGE.json"
+  ],
+  "required_registry_domains": [
+    "exercise_registry_3a",
+    "exercise_token_registry_3b",
+    "exercise_alias_registry_3c",
+    "exercise_variant_applicability_registry_3d"
+  ],
+  "declared_registry_domain_claims": [
+    "exercise_registry_3a",
+    "exercise_token_registry_3b",
+    "exercise_alias_registry_3c",
+    "exercise_variant_applicability_registry_3d"
+  ]
+}

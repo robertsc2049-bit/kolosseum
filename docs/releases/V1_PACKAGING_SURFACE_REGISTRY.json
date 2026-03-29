@@ -41,6 +41,8 @@
                      "ci/scripts/run_postv1_promotion_readiness_runner.mjs",
                      "docs/releases/V1_PROMOTION_READINESS.json",
                      "ci/scripts/run_postv1_release_closure_verifier.mjs",
-                     "docs/releases/V1_RELEASE_CLOSURE.json"
+                     "docs/releases/V1_RELEASE_CLOSURE.json",
+                     "ci/scripts/run_postv1_exercise_registry_domain_coverage_verifier.mjs",
+                     "docs/releases/V1_EXERCISE_REGISTRY_DOMAIN_COVERAGE.json"
                  ]
 }
