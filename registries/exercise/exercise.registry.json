@@ -290,6 +290,60 @@
         "back_low",
         "hip_low"
       ]
+    },
+    "leg_press": {
+      "exercise_id": "leg_press",
+      "pattern": "squat",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment": [
+        "machine"
+      ],
+      "equipment_tags": [
+        "machine"
+      ],
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "knee"
+      ]
+    },
+    "back_extension": {
+      "exercise_id": "back_extension",
+      "pattern": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment": [
+        "machine"
+      ],
+      "equipment_tags": [
+        "machine"
+      ],
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "lumbar_low"
+      ]
+    },
+    "shoulder_press_machine": {
+      "exercise_id": "shoulder_press_machine",
+      "pattern": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment": [
+        "machine"
+      ],
+      "equipment_tags": [
+        "machine"
+      ],
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder_low"
+      ]
     }
   }
 }
