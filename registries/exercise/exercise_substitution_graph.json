@@ -1,0 +1,15 @@
+{
+  "graph_id": "exercise_substitution_graph",
+  "version": "1.0.0",
+  "edges": {
+    "back_squat": [
+      "goblet_squat"
+    ],
+    "bench_press": [
+      "dumbbell_bench_press"
+    ],
+    "overhead_press": [
+      "dumbbell_overhead_press"
+    ]
+  }
+}
