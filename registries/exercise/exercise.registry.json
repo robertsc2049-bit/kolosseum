@@ -13,7 +13,11 @@
         "bench",
         "rack"
       ],
+      "equipment_tags": [
+        "barbell"
+      ],
       "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder_high"
       ]
@@ -29,7 +33,11 @@
         "incline_bench",
         "rack"
       ],
+      "equipment_tags": [
+        "barbell"
+      ],
       "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder_high"
       ]
@@ -44,7 +52,11 @@
         "dumbbells",
         "bench"
       ],
+      "equipment_tags": [
+        "dumbbell"
+      ],
       "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder_medium"
       ]
@@ -58,7 +70,11 @@
       "equipment": [
         "bodyweight"
       ],
+      "equipment_tags": [
+        "bodyweight"
+      ],
       "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
       "joint_stress_tags": [
         "shoulder_low"
       ]
@@ -72,7 +88,11 @@
       "equipment": [
         "machine"
       ],
+      "equipment_tags": [
+        "machine"
+      ],
       "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
       "joint_stress_tags": [
         "shoulder_low"
       ]
@@ -86,7 +106,11 @@
       "equipment": [
         "barbell"
       ],
+      "equipment_tags": [
+        "barbell"
+      ],
       "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder_high"
       ]
@@ -100,7 +124,11 @@
       "equipment": [
         "dumbbells"
       ],
+      "equipment_tags": [
+        "dumbbell"
+      ],
       "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder_medium"
       ]
@@ -115,7 +143,11 @@
         "barbell",
         "rack"
       ],
+      "equipment_tags": [
+        "barbell"
+      ],
       "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "knee_medium",
         "hip_medium"
@@ -130,7 +162,11 @@
       "equipment": [
         "dumbbells"
       ],
+      "equipment_tags": [
+        "dumbbell"
+      ],
       "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
       "joint_stress_tags": [
         "knee_low",
         "hip_low"
@@ -145,7 +181,11 @@
       "equipment": [
         "barbell"
       ],
+      "equipment_tags": [
+        "barbell"
+      ],
       "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
       "joint_stress_tags": [
         "back_medium",
         "hip_medium"
@@ -160,7 +200,11 @@
       "equipment": [
         "kettlebell"
       ],
+      "equipment_tags": [
+        "kettlebell"
+      ],
       "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
       "joint_stress_tags": [
         "back_low",
         "hip_low"
