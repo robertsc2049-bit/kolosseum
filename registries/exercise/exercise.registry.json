@@ -17,6 +17,7 @@
         "barbell"
       ],
       "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder_high"
       ]
@@ -36,6 +37,7 @@
         "barbell"
       ],
       "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder_high"
       ]
@@ -54,6 +56,7 @@
         "dumbbell"
       ],
       "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder_medium"
       ]
@@ -71,6 +74,7 @@
         "bodyweight"
       ],
       "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
       "joint_stress_tags": [
         "shoulder_low"
       ]
@@ -88,6 +92,7 @@
         "machine"
       ],
       "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
       "joint_stress_tags": [
         "shoulder_low"
       ]
@@ -105,6 +110,7 @@
         "barbell"
       ],
       "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder_high"
       ]
@@ -122,6 +128,7 @@
         "dumbbell"
       ],
       "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder_medium"
       ]
@@ -140,6 +147,7 @@
         "barbell"
       ],
       "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "knee_medium",
         "hip_medium"
@@ -158,6 +166,7 @@
         "dumbbell"
       ],
       "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
       "joint_stress_tags": [
         "knee_low",
         "hip_low"
@@ -176,6 +185,7 @@
         "barbell"
       ],
       "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
       "joint_stress_tags": [
         "back_medium",
         "hip_medium"
@@ -194,6 +204,7 @@
         "kettlebell"
       ],
       "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
       "joint_stress_tags": [
         "back_low",
         "hip_low"

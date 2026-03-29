@@ -23,6 +23,7 @@
           "equipment",
           "equipment_tags",
           "equipment_tier",
+          "difficulty_tier",
           "joint_stress_tags"
         ],
         "properties": {
@@ -53,6 +54,14 @@
             }
           },
           "equipment_tier": { "type": "string", "minLength": 1 },
+          "difficulty_tier": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced"
+            ]
+          },
           "joint_stress_tags": {
             "type": "array",
             "minItems": 1,
