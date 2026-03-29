@@ -37,6 +37,10 @@
                      "ci/scripts/run_postv1_final_acceptance_boundary_runner.mjs",
                      "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json",
                      "ci/scripts/run_postv1_release_claim_validator_boundary_adapter.mjs",
-                     "ci/scripts/run_postv1_acceptance_artefact_completeness_boundary_adapter.mjs"
+                     "ci/scripts/run_postv1_acceptance_artefact_completeness_boundary_adapter.mjs",
+                     "ci/scripts/run_postv1_promotion_readiness_runner.mjs",
+                     "docs/releases/V1_PROMOTION_READINESS.json",
+                     "ci/scripts/run_postv1_release_closure_verifier.mjs",
+                     "docs/releases/V1_RELEASE_CLOSURE.json"
                  ]
 }

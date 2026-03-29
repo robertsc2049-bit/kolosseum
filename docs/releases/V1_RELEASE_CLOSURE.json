@@ -1,0 +1,26 @@
+{
+  "closure_id": "v1_release_closure",
+  "required_release_surfaces": [
+    "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json",
+    "docs/releases/V1_PROMOTION_FLOW.md",
+    "docs/releases/V1_PROMOTION_READINESS.json",
+    "docs/releases/V1_ACCEPTANCE_ARTEFACT_SET.json",
+    "docs/releases/V1_PACKAGING_SURFACE_REGISTRY.json"
+  ],
+  "post_merge_checks": [
+    {
+      "check_id": "final_acceptance_boundary",
+      "script_path": "ci/scripts/run_postv1_final_acceptance_boundary_runner.mjs",
+      "args": [
+        "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json"
+      ]
+    },
+    {
+      "check_id": "promotion_readiness",
+      "script_path": "ci/scripts/run_postv1_promotion_readiness_runner.mjs",
+      "args": [
+        "docs/releases/V1_PROMOTION_READINESS.json"
+      ]
+    }
+  ]
+}

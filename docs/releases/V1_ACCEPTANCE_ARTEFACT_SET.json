@@ -108,6 +108,14 @@
                       {
                           "path":  "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json",
                           "role":  "boundary"
+                      },
+                      {
+                          "path":  "docs/releases/V1_PROMOTION_READINESS.json",
+                          "role":  "support"
+                      },
+                      {
+                          "path":  "docs/releases/V1_RELEASE_CLOSURE.json",
+                          "role":  "support"
                       }
                   ]
 }

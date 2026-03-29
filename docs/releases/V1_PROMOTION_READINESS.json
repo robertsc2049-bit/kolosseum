@@ -1,0 +1,20 @@
+{
+  "readiness_id": "v1_promotion_readiness",
+  "prerequisites": [
+    {
+      "prereq_id": "promotion_flow_legality_chain",
+      "script_path": "ci/scripts/run_postv1_promotion_flow_legality_chain_verifier.mjs"
+    },
+    {
+      "prereq_id": "release_version_tag_evidence_binding",
+      "script_path": "ci/scripts/run_postv1_release_version_tag_evidence_binding_verifier.mjs"
+    },
+    {
+      "prereq_id": "final_acceptance_boundary",
+      "script_path": "ci/scripts/run_postv1_final_acceptance_boundary_runner.mjs",
+      "args": [
+        "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json"
+      ]
+    }
+  ]
+}
