@@ -420,6 +420,22 @@
                                          "joint_stress_tags":  [
                                                                    "shoulder_low"
                                                                ]
-                                     }
+                                     },
+                    "front_squat":  {
+                                        "exercise_id":  "front_squat",
+                                        "pattern":  "squat",
+                                        "stimulus_intent":  "strength",
+                                        "rom":  "full",
+                                        "stability":  "stable",
+                                        "equipment":  [
+                                                          "barbell",
+                                                          "rack"
+                                                      ],
+                                        "equipment_tier":  "TIER_1",
+                                        "joint_stress_tags":  [
+                                                                  "knee_medium",
+                                                                  "hip_medium"
+                                                              ]
+                                    }
                 }
 }

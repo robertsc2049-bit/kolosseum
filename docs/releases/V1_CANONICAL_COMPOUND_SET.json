@@ -1,0 +1,36 @@
+{
+  "canonical_compound_set_id": "v1_canonical_compound_set",
+  "required_surfaces": [
+    "ci/scripts/run_postv1_canonical_compound_set_guard_verifier.mjs",
+    "docs/releases/V1_CANONICAL_COMPOUND_SET.json",
+    "registries/exercise/exercise.registry.json"
+  ],
+  "locked_compounds": [
+    {
+      "movement_class": "squat",
+      "exercise_ids": [
+        "back_squat",
+        "front_squat"
+      ]
+    },
+    {
+      "movement_class": "hinge",
+      "exercise_ids": [
+        "deadlift",
+        "romanian_deadlift"
+      ]
+    },
+    {
+      "movement_class": "horizontal_push",
+      "exercise_ids": [
+        "bench_press"
+      ]
+    },
+    {
+      "movement_class": "vertical_push",
+      "exercise_ids": [
+        "overhead_press"
+      ]
+    }
+  ]
+}
