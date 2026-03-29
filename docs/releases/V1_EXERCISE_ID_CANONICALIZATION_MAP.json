@@ -1,0 +1,153 @@
+{
+  "exercise_id_canonicalization_map_id": "v1_exercise_id_canonicalization_map",
+  "source_registry_path": "registries/exercise/exercise.registry.json",
+  "canonical_pattern": "ex_<equipment>_<movement>_<variant?>",
+  "generated_by": "ci/scripts/generate_postv1_exercise_id_canonicalization_map.mjs",
+  "entries": [
+    {
+      "current_exercise_id": "back_squat",
+      "canonical_exercise_id": "ex_barbell_back_squat",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "bench_press",
+      "canonical_exercise_id": "ex_barbell_bench_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "close_grip_bench_press",
+      "canonical_exercise_id": "ex_barbell_close_grip_bench_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "deadlift",
+      "canonical_exercise_id": "ex_barbell_deadlift",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "dumbbell_bench_press",
+      "canonical_exercise_id": "ex_dumbbells_dumbbell_bench_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "dumbbell_overhead_press",
+      "canonical_exercise_id": "ex_dumbbells_dumbbell_overhead_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "front_squat",
+      "canonical_exercise_id": "ex_barbell_front_squat",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "goblet_squat",
+      "canonical_exercise_id": "ex_dumbbells_goblet_squat",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "incline_barbell_bench_press",
+      "canonical_exercise_id": "ex_barbell_incline_barbell_bench_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "incline_bench_press",
+      "canonical_exercise_id": "ex_barbell_incline_bench_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "kettlebell_deadlift",
+      "canonical_exercise_id": "ex_kettlebell_kettlebell_deadlift",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "lat_pulldown",
+      "canonical_exercise_id": "ex_machine_lat_pulldown",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "machine_chest_press",
+      "canonical_exercise_id": "ex_machine_machine_chest_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "meadows_row",
+      "canonical_exercise_id": "ex_barbell_meadows_row",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "neutral_grip_pull_up",
+      "canonical_exercise_id": "ex_pullup_bar_neutral_grip_pull_up",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "overhead_press",
+      "canonical_exercise_id": "ex_barbell_overhead_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "paused_back_squat",
+      "canonical_exercise_id": "ex_barbell_paused_back_squat",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "pendlay_row",
+      "canonical_exercise_id": "ex_barbell_pendlay_row",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "push_up",
+      "canonical_exercise_id": "ex_bodyweight_push_up",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "romanian_deadlift",
+      "canonical_exercise_id": "ex_barbell_romanian_deadlift",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "safety_bar_squat",
+      "canonical_exercise_id": "ex_barbell_safety_bar_squat",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "seal_row",
+      "canonical_exercise_id": "ex_barbell_seal_row",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "seated_barbell_press",
+      "canonical_exercise_id": "ex_barbell_seated_barbell_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "seated_dumbbell_press",
+      "canonical_exercise_id": "ex_dumbbells_seated_dumbbell_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "snatch_grip_deadlift",
+      "canonical_exercise_id": "ex_barbell_snatch_grip_deadlift",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "stiff_leg_deadlift",
+      "canonical_exercise_id": "ex_barbell_stiff_leg_deadlift",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "strict_press",
+      "canonical_exercise_id": "ex_barbell_strict_press",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "tempo_back_squat",
+      "canonical_exercise_id": "ex_barbell_tempo_back_squat",
+      "status": "pending_migration"
+    },
+    {
+      "current_exercise_id": "weighted_pull_up",
+      "canonical_exercise_id": "ex_pullup_bar_weighted_pull_up",
+      "status": "pending_migration"
+    }
+  ]
+}
