@@ -35,7 +35,8 @@
           "equipment_tier",
           "difficulty_tier",
           "joint_stress_tags",
-          "instruction"
+          "instruction",
+          "fast_execution"
         ],
         "properties": {
           "exercise_id": {
@@ -130,6 +131,9 @@
                 }
               }
             }
+          },
+          "fast_execution": {
+            "type": "boolean"
           }
         }
       }
