@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.registry_seal_lifecycle.v1",
+  "title": "Kolosseum Registry Seal Lifecycle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "lifecycle_id",
+    "lifecycle_version",
+    "current_state",
+    "allowed_transitions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "kolosseum.registry_seal_lifecycle.v1"
+    },
+    "lifecycle_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lifecycle_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "current_state": {
+      "type": "string",
+      "enum": [
+        "pre_seal",
+        "sealed"
+      ]
+    },
+    "allowed_transitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from",
+          "to"
+        ],
+        "properties": {
+          "from": {
+            "type": "string",
+            "enum": [
+              "pre_seal",
+              "sealed"
+            ]
+          },
+          "to": {
+            "type": "string",
+            "enum": [
+              "pre_seal",
+              "sealed"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

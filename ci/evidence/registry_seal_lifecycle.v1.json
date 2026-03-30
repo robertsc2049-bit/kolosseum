@@ -1,0 +1,12 @@
+{
+  "schema_version": "kolosseum.registry_seal_lifecycle.v1",
+  "lifecycle_id": "launch_registry_seal_lifecycle",
+  "lifecycle_version": "1.0.0",
+  "current_state": "pre_seal",
+  "allowed_transitions": [
+    {
+      "from": "pre_seal",
+      "to": "sealed"
+    }
+  ]
+}
