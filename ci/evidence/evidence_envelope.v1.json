@@ -86,6 +86,10 @@
         "sha256": "C686F8A96C8333FE7BC6D70C8B34CF8FF121893C78198BEBA687D7F9002B25BD"
       },
       {
+        "path": "ci/schemas/registry_seal_ledger.v1.schema.json",
+        "sha256": "DDE924B58C92942549D521184530B554C2B3A8FB6E32B03D0061D80F6C2F2E37"
+      },
+      {
         "path": "ci/schemas/registry_seal.v1.schema.json",
         "sha256": "82E3DFA3130E3E35215944CC747078919E9BDC7D13CB000F8154949FADBFAFD5"
       }
