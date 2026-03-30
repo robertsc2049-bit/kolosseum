@@ -452,6 +452,24 @@
             "back_low",
             "hip_low"
           ]
+        },
+        "pike_push_up": {
+          "exercise_id": "pike_push_up",
+          "pattern": "vertical_push",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
+          "equipment": [
+            "bodyweight"
+          ],
+          "equipment_tags": [
+            "bodyweight"
+          ],
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "shoulder_low"
+          ]
         }
       }
     },
