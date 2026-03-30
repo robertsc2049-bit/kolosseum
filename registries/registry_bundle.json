@@ -182,7 +182,8 @@
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
             "shoulder_high"
-          ]
+          ],
+          "tempo_capability": "paused_and_tempo"
         },
         "incline_bench_press": {
           "exercise_id": "incline_bench_press",
@@ -202,7 +203,8 @@
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
             "shoulder_high"
-          ]
+          ],
+          "tempo_capability": "paused_and_tempo"
         },
         "dumbbell_bench_press": {
           "exercise_id": "dumbbell_bench_press",
@@ -221,7 +223,8 @@
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
             "shoulder_medium"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "push_up": {
           "exercise_id": "push_up",
@@ -239,7 +242,8 @@
           "difficulty_tier": "beginner",
           "joint_stress_tags": [
             "shoulder_low"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "machine_chest_press": {
           "exercise_id": "machine_chest_press",
@@ -257,7 +261,8 @@
           "difficulty_tier": "beginner",
           "joint_stress_tags": [
             "shoulder_low"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "single_arm_dumbbell_press": {
           "exercise_id": "single_arm_dumbbell_press",
@@ -276,7 +281,8 @@
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
             "shoulder_medium"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "overhead_press": {
           "exercise_id": "overhead_press",
@@ -294,7 +300,8 @@
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
             "shoulder_high"
-          ]
+          ],
+          "tempo_capability": "paused_and_tempo"
         },
         "dumbbell_overhead_press": {
           "exercise_id": "dumbbell_overhead_press",
@@ -312,7 +319,8 @@
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
             "shoulder_medium"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "single_arm_overhead_press": {
           "exercise_id": "single_arm_overhead_press",
@@ -330,7 +338,8 @@
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
             "shoulder_medium"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "back_squat": {
           "exercise_id": "back_squat",
@@ -350,7 +359,8 @@
           "joint_stress_tags": [
             "knee_medium",
             "hip_medium"
-          ]
+          ],
+          "tempo_capability": "paused_and_tempo"
         },
         "goblet_squat": {
           "exercise_id": "goblet_squat",
@@ -369,7 +379,8 @@
           "joint_stress_tags": [
             "knee_low",
             "hip_low"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "split_squat": {
           "exercise_id": "split_squat",
@@ -390,7 +401,8 @@
           "joint_stress_tags": [
             "knee_low",
             "hip_low"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "deadlift": {
           "exercise_id": "deadlift",
@@ -409,7 +421,8 @@
           "joint_stress_tags": [
             "back_medium",
             "hip_medium"
-          ]
+          ],
+          "tempo_capability": "paused"
         },
         "kettlebell_deadlift": {
           "exercise_id": "kettlebell_deadlift",
@@ -428,7 +441,8 @@
           "joint_stress_tags": [
             "back_low",
             "hip_low"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "single_leg_rdl": {
           "exercise_id": "single_leg_rdl",
@@ -451,7 +465,8 @@
           "joint_stress_tags": [
             "back_low",
             "hip_low"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "pike_push_up": {
           "exercise_id": "pike_push_up",
@@ -469,7 +484,8 @@
           "difficulty_tier": "beginner",
           "joint_stress_tags": [
             "shoulder_low"
-          ]
+          ],
+          "tempo_capability": "tempo"
         },
         "box_squat": {
           "exercise_id": "box_squat",
@@ -489,7 +505,8 @@
           "joint_stress_tags": [
             "knee_low",
             "hip_low"
-          ]
+          ],
+          "tempo_capability": "paused"
         },
         "pin_press": {
           "exercise_id": "pin_press",
@@ -509,7 +526,8 @@
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
             "shoulder_medium"
-          ]
+          ],
+          "tempo_capability": "paused"
         },
         "partial_deadlift": {
           "exercise_id": "partial_deadlift",
@@ -528,7 +546,8 @@
           "joint_stress_tags": [
             "back_low",
             "hip_low"
-          ]
+          ],
+          "tempo_capability": "paused"
         }
       }
     },
