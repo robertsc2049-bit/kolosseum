@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.registry_seal_live_surface.v1",
+  "title": "Kolosseum Registry Seal Live Surface v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "surface_id",
+    "surface_version",
+    "seal_scope",
+    "entries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "kolosseum.registry_seal_live_surface.v1"
+    },
+    "surface_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surface_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "seal_scope": {
+      "const": "registry_bundle"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
