@@ -1,0 +1,42 @@
+{
+  "registry_header": {
+    "document_id": "exercise_warmup_mapping_registry",
+    "document_title": "Exercise Warm-up Mapping Registry",
+    "document_type": "registry",
+    "document_version": "1.0.0",
+    "status": "authoritative",
+    "engine_compatibility": "EB2-1.0.0",
+    "scope_class": "closed_world",
+    "rewrite_policy": "rewrite_only"
+  },
+  "entries": {
+    "horizontal_push": {
+      "lane": "horizontal_push",
+      "warm_up_ids": [
+        "push_up",
+        "dumbbell_bench_press"
+      ]
+    },
+    "vertical_push": {
+      "lane": "vertical_push",
+      "warm_up_ids": [
+        "pike_push_up",
+        "dumbbell_overhead_press"
+      ]
+    },
+    "squat": {
+      "lane": "squat",
+      "warm_up_ids": [
+        "goblet_squat",
+        "box_squat"
+      ]
+    },
+    "hinge": {
+      "lane": "hinge",
+      "warm_up_ids": [
+        "kettlebell_deadlift",
+        "single_leg_rdl"
+      ]
+    }
+  }
+}

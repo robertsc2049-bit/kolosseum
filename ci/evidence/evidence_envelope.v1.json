@@ -50,6 +50,10 @@
         "sha256": "45646395EC5813CF32137B10C9C571402A013A1CBA902D97A1DCF8F2A2983B0A"
       },
       {
+        "path": "ci/schemas/exercise_warmup_mapping.registry.schema.json",
+        "sha256": "D204BCD2AF303710656AC627E8962C24B24B3E1B8D8AF7DE7932DCAEF625FA1E"
+      },
+      {
         "path": "ci/schemas/exercise.registry.schema.json",
         "sha256": "45646395EC5813CF32137B10C9C571402A013A1CBA902D97A1DCF8F2A2983B0A"
       },
