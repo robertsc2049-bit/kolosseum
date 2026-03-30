@@ -186,7 +186,8 @@
           "tempo_capability": "paused_and_tempo",
           "instruction": {
             "short": "Lower bar to chest, then press to full extension"
-          }
+          },
+          "fast_execution": false
         },
         "incline_bench_press": {
           "exercise_id": "incline_bench_press",
@@ -210,7 +211,8 @@
           "tempo_capability": "paused_and_tempo",
           "instruction": {
             "short": "Lower dumbbells or bar to upper chest, then press to full extension"
-          }
+          },
+          "fast_execution": false
         },
         "dumbbell_bench_press": {
           "exercise_id": "dumbbell_bench_press",
@@ -233,7 +235,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Lower dumbbells to chest level, then press to full extension"
-          }
+          },
+          "fast_execution": true
         },
         "push_up": {
           "exercise_id": "push_up",
@@ -255,7 +258,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Lower chest toward floor, then press back to the start position"
-          }
+          },
+          "fast_execution": true
         },
         "machine_chest_press": {
           "exercise_id": "machine_chest_press",
@@ -277,7 +281,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Lower handles under control, then press to full extension"
-          }
+          },
+          "fast_execution": false
         },
         "single_arm_dumbbell_press": {
           "exercise_id": "single_arm_dumbbell_press",
@@ -300,7 +305,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Lower dumbbell to chest level, then press to full extension with one arm"
-          }
+          },
+          "fast_execution": true
         },
         "overhead_press": {
           "exercise_id": "overhead_press",
@@ -322,7 +328,8 @@
           "tempo_capability": "paused_and_tempo",
           "instruction": {
             "short": "Press bar overhead to lockout, then lower under control"
-          }
+          },
+          "fast_execution": false
         },
         "dumbbell_overhead_press": {
           "exercise_id": "dumbbell_overhead_press",
@@ -344,7 +351,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Press dumbbells overhead to lockout, then lower under control"
-          }
+          },
+          "fast_execution": true
         },
         "single_arm_overhead_press": {
           "exercise_id": "single_arm_overhead_press",
@@ -366,7 +374,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Press dumbbell overhead to lockout with one arm, then lower under control"
-          }
+          },
+          "fast_execution": true
         },
         "back_squat": {
           "exercise_id": "back_squat",
@@ -390,7 +399,8 @@
           "tempo_capability": "paused_and_tempo",
           "instruction": {
             "short": "Squat down to target depth, then stand back up to full extension"
-          }
+          },
+          "fast_execution": false
         },
         "goblet_squat": {
           "exercise_id": "goblet_squat",
@@ -413,7 +423,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Squat down holding the weight at chest height, then stand to full extension"
-          }
+          },
+          "fast_execution": true
         },
         "split_squat": {
           "exercise_id": "split_squat",
@@ -438,7 +449,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Lower into the split stance, then drive back up to the start position"
-          }
+          },
+          "fast_execution": true
         },
         "deadlift": {
           "exercise_id": "deadlift",
@@ -461,7 +473,8 @@
           "tempo_capability": "paused",
           "instruction": {
             "short": "Pull bar from floor to lockout, then return it under control"
-          }
+          },
+          "fast_execution": false
         },
         "kettlebell_deadlift": {
           "exercise_id": "kettlebell_deadlift",
@@ -484,7 +497,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Pull kettlebell from floor to standing lockout, then lower under control"
-          }
+          },
+          "fast_execution": true
         },
         "single_leg_rdl": {
           "exercise_id": "single_leg_rdl",
@@ -511,7 +525,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Hinge on one leg until target range, then return to upright balance"
-          }
+          },
+          "fast_execution": true
         },
         "pike_push_up": {
           "exercise_id": "pike_push_up",
@@ -533,7 +548,8 @@
           "tempo_capability": "tempo",
           "instruction": {
             "short": "Lower head toward the floor, then press back to the start position"
-          }
+          },
+          "fast_execution": true
         },
         "box_squat": {
           "exercise_id": "box_squat",
@@ -557,7 +573,8 @@
           "tempo_capability": "paused",
           "instruction": {
             "short": "Sit back to the box under control, then stand to full extension"
-          }
+          },
+          "fast_execution": true
         },
         "pin_press": {
           "exercise_id": "pin_press",
@@ -581,7 +598,8 @@
           "tempo_capability": "paused",
           "instruction": {
             "short": "Press bar from the pins to lockout, then return it to the pins under control"
-          }
+          },
+          "fast_execution": false
         },
         "partial_deadlift": {
           "exercise_id": "partial_deadlift",
@@ -604,7 +622,8 @@
           "tempo_capability": "paused",
           "instruction": {
             "short": "Pull bar from the set height to lockout, then return under control"
-          }
+          },
+          "fast_execution": true
         }
       }
     },
