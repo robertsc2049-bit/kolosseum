@@ -90,6 +90,10 @@
         "sha256": "DDE924B58C92942549D521184530B554C2B3A8FB6E32B03D0061D80F6C2F2E37"
       },
       {
+        "path": "ci/schemas/registry_seal_lifecycle.v1.schema.json",
+        "sha256": "582DCF36A381549F0D9A910EAAF6C61E0C91A89A1C253FFC035E5B5F16AA4B39"
+      },
+      {
         "path": "ci/schemas/registry_seal_live_surface.v1.schema.json",
         "sha256": "91C7AB083D402C3B7E6CC031B429B75B788746A50A473D64A5EFDED3896BA95F"
       },
