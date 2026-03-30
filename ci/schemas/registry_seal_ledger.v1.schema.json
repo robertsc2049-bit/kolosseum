@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.registry_seal_ledger.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "ledger_id",
+    "ledger_version",
+    "seal_scope",
+    "entries"
+  ],
+  "properties": {
+    "schema_version": { "const": "kolosseum.registry_seal_ledger.v1" },
+    "ledger_id": { "type": "string", "minLength": 1 },
+    "ledger_version": { "type": "string", "minLength": 1 },
+    "seal_scope": { "const": "registry_bundle" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "seal_id",
+          "seal_version",
+          "registry_bundle_hash",
+          "recorded_at"
+        ],
+        "properties": {
+          "seal_id": { "type": "string", "minLength": 1 },
+          "seal_version": { "type": "string", "minLength": 1 },
+          "registry_bundle_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "recorded_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}
