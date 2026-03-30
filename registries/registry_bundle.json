@@ -470,6 +470,65 @@
           "joint_stress_tags": [
             "shoulder_low"
           ]
+        },
+        "box_squat": {
+          "exercise_id": "box_squat",
+          "pattern": "squat",
+          "stimulus_intent": "strength",
+          "rom": "partial",
+          "stability": "stable",
+          "equipment": [
+            "barbell",
+            "rack"
+          ],
+          "equipment_tags": [
+            "barbell"
+          ],
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "knee_low",
+            "hip_low"
+          ]
+        },
+        "pin_press": {
+          "exercise_id": "pin_press",
+          "pattern": "horizontal_push",
+          "stimulus_intent": "strength",
+          "rom": "partial",
+          "stability": "stable",
+          "equipment": [
+            "barbell",
+            "bench",
+            "rack"
+          ],
+          "equipment_tags": [
+            "barbell"
+          ],
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder_medium"
+          ]
+        },
+        "partial_deadlift": {
+          "exercise_id": "partial_deadlift",
+          "pattern": "hinge",
+          "stimulus_intent": "strength",
+          "rom": "partial",
+          "stability": "stable",
+          "equipment": [
+            "barbell"
+          ],
+          "equipment_tags": [
+            "barbell"
+          ],
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "back_low",
+            "hip_low"
+          ]
         }
       }
     },
