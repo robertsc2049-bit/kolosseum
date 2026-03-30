@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.registry_seal.v1",
+  "title": "Kolosseum Registry Seal v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "seal_id",
+    "seal_version",
+    "registry_bundle_hash",
+    "created_at",
+    "engine_compatibility",
+    "enum_bundle_version",
+    "seal_scope",
+    "signature"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "kolosseum.registry_seal.v1"
+    },
+    "seal_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "seal_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "registry_bundle_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "engine_compatibility": {
+      "const": "EB2-1.0.0"
+    },
+    "enum_bundle_version": {
+      "const": "EB2-1.0.0"
+    },
+    "seal_scope": {
+      "const": "registry_bundle"
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}
