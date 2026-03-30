@@ -1,0 +1,17 @@
+{
+  "schema_version": "kolosseum.registry_seal_manifest.v1",
+  "manifest_id": "launch_registry_surface",
+  "manifest_version": "1.0.0",
+  "seal_scope": "registry_bundle",
+  "entries": [
+    {
+      "path": "registries/registry_bundle.json"
+    },
+    {
+      "path": "ci/schemas/registry_seal.v1.schema.json"
+    },
+    {
+      "path": "ci/evidence/registry_seal.v1.json"
+    }
+  ]
+}
