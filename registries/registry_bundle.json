@@ -183,7 +183,10 @@
           "joint_stress_tags": [
             "shoulder_high"
           ],
-          "tempo_capability": "paused_and_tempo"
+          "tempo_capability": "paused_and_tempo",
+          "instruction": {
+            "short": "Lower bar to chest, then press to full extension"
+          }
         },
         "incline_bench_press": {
           "exercise_id": "incline_bench_press",
@@ -204,7 +207,10 @@
           "joint_stress_tags": [
             "shoulder_high"
           ],
-          "tempo_capability": "paused_and_tempo"
+          "tempo_capability": "paused_and_tempo",
+          "instruction": {
+            "short": "Lower dumbbells or bar to upper chest, then press to full extension"
+          }
         },
         "dumbbell_bench_press": {
           "exercise_id": "dumbbell_bench_press",
@@ -224,7 +230,10 @@
           "joint_stress_tags": [
             "shoulder_medium"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Lower dumbbells to chest level, then press to full extension"
+          }
         },
         "push_up": {
           "exercise_id": "push_up",
@@ -243,7 +252,10 @@
           "joint_stress_tags": [
             "shoulder_low"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Lower chest toward floor, then press back to the start position"
+          }
         },
         "machine_chest_press": {
           "exercise_id": "machine_chest_press",
@@ -262,7 +274,10 @@
           "joint_stress_tags": [
             "shoulder_low"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Lower handles under control, then press to full extension"
+          }
         },
         "single_arm_dumbbell_press": {
           "exercise_id": "single_arm_dumbbell_press",
@@ -282,7 +297,10 @@
           "joint_stress_tags": [
             "shoulder_medium"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Lower dumbbell to chest level, then press to full extension with one arm"
+          }
         },
         "overhead_press": {
           "exercise_id": "overhead_press",
@@ -301,7 +319,10 @@
           "joint_stress_tags": [
             "shoulder_high"
           ],
-          "tempo_capability": "paused_and_tempo"
+          "tempo_capability": "paused_and_tempo",
+          "instruction": {
+            "short": "Press bar overhead to lockout, then lower under control"
+          }
         },
         "dumbbell_overhead_press": {
           "exercise_id": "dumbbell_overhead_press",
@@ -320,7 +341,10 @@
           "joint_stress_tags": [
             "shoulder_medium"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Press dumbbells overhead to lockout, then lower under control"
+          }
         },
         "single_arm_overhead_press": {
           "exercise_id": "single_arm_overhead_press",
@@ -339,7 +363,10 @@
           "joint_stress_tags": [
             "shoulder_medium"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Press dumbbell overhead to lockout with one arm, then lower under control"
+          }
         },
         "back_squat": {
           "exercise_id": "back_squat",
@@ -360,7 +387,10 @@
             "knee_medium",
             "hip_medium"
           ],
-          "tempo_capability": "paused_and_tempo"
+          "tempo_capability": "paused_and_tempo",
+          "instruction": {
+            "short": "Squat down to target depth, then stand back up to full extension"
+          }
         },
         "goblet_squat": {
           "exercise_id": "goblet_squat",
@@ -380,7 +410,10 @@
             "knee_low",
             "hip_low"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Squat down holding the weight at chest height, then stand to full extension"
+          }
         },
         "split_squat": {
           "exercise_id": "split_squat",
@@ -402,7 +435,10 @@
             "knee_low",
             "hip_low"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Lower into the split stance, then drive back up to the start position"
+          }
         },
         "deadlift": {
           "exercise_id": "deadlift",
@@ -422,7 +458,10 @@
             "back_medium",
             "hip_medium"
           ],
-          "tempo_capability": "paused"
+          "tempo_capability": "paused",
+          "instruction": {
+            "short": "Pull bar from floor to lockout, then return it under control"
+          }
         },
         "kettlebell_deadlift": {
           "exercise_id": "kettlebell_deadlift",
@@ -442,7 +481,10 @@
             "back_low",
             "hip_low"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Pull kettlebell from floor to standing lockout, then lower under control"
+          }
         },
         "single_leg_rdl": {
           "exercise_id": "single_leg_rdl",
@@ -466,7 +508,10 @@
             "back_low",
             "hip_low"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Hinge on one leg until target range, then return to upright balance"
+          }
         },
         "pike_push_up": {
           "exercise_id": "pike_push_up",
@@ -485,7 +530,10 @@
           "joint_stress_tags": [
             "shoulder_low"
           ],
-          "tempo_capability": "tempo"
+          "tempo_capability": "tempo",
+          "instruction": {
+            "short": "Lower head toward the floor, then press back to the start position"
+          }
         },
         "box_squat": {
           "exercise_id": "box_squat",
@@ -506,7 +554,10 @@
             "knee_low",
             "hip_low"
           ],
-          "tempo_capability": "paused"
+          "tempo_capability": "paused",
+          "instruction": {
+            "short": "Sit back to the box under control, then stand to full extension"
+          }
         },
         "pin_press": {
           "exercise_id": "pin_press",
@@ -527,7 +578,10 @@
           "joint_stress_tags": [
             "shoulder_medium"
           ],
-          "tempo_capability": "paused"
+          "tempo_capability": "paused",
+          "instruction": {
+            "short": "Press bar from the pins to lockout, then return it to the pins under control"
+          }
         },
         "partial_deadlift": {
           "exercise_id": "partial_deadlift",
@@ -547,7 +601,10 @@
             "back_low",
             "hip_low"
           ],
-          "tempo_capability": "paused"
+          "tempo_capability": "paused",
+          "instruction": {
+            "short": "Pull bar from the set height to lockout, then return under control"
+          }
         }
       }
     },
