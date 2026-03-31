@@ -46,6 +46,25 @@ The machine-checking gate is:
 
 - `ci/scripts/run_registry_seal_gate.mjs`
 
+The operator activation command is:
+
+- `ci/scripts/run_registry_seal_freeze.mjs`
+
+## Freeze command law
+
+The freeze command MUST:
+
+- read the lifecycle artefact deterministically
+- write `current_state: "sealed"` deterministically when the repo is in `pre_seal`
+- verify the sealed state immediately after write
+- return a lawful no-op if rerun while already sealed
+
+The freeze command MUST NOT:
+
+- invent transitions
+- skip post-write verification
+- silently tolerate invalid lifecycle structure
+
 ## Final rule
 
 If lifecycle state is ambiguous, missing, or requests a transition outside `pre_seal` -> `sealed`, the registry seal lifecycle is invalid and CI must fail.
