@@ -3,10 +3,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import crypto from "node:crypto";
 import { spawnSync } from "node:child_process";
 
 const FREEZE_SCRIPT = path.resolve("ci", "scripts", "run_registry_seal_freeze.mjs");
 const GATE_SCRIPT = path.resolve("ci", "scripts", "run_registry_seal_gate.mjs");
+const REPORTER_SCRIPT = path.resolve("ci", "scripts", "run_registry_seal_drift_diff_reporter.mjs");
 
 function writeJson(filePath, value) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -16,6 +18,10 @@ function writeJson(filePath, value) {
 function writeText(filePath, value) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, value, "utf8");
+}
+
+function sha256Text(value) {
+  return crypto.createHash("sha256").update(Buffer.from(value, "utf8")).digest("hex");
 }
 
 function makeLifecycle(currentState) {
@@ -34,9 +40,32 @@ function makeLifecycle(currentState) {
 }
 
 function writeRequiredSealedArtefacts(cwd) {
-  writeText(path.join(cwd, "ci/evidence/registry_seal_manifest.v1.json"), "{}\n");
-  writeText(path.join(cwd, "ci/evidence/registry_seal_live_surface.v1.json"), "{}\n");
+  const relPath = "registries/registry_bundle.json";
+  const fileBody = "{\n  \"ok\": true\n}\n";
+
+  writeJson(path.join(cwd, "ci/evidence/registry_seal_manifest.v1.json"), {
+    schema_version: "kolosseum.registry_seal_manifest.v1",
+    manifest_id: "launch_registry_surface",
+    manifest_version: "1.0.0",
+    seal_scope: "registry_bundle",
+    entries: [{ path: relPath }]
+  });
+  writeJson(path.join(cwd, "ci/evidence/registry_seal_live_surface.v1.json"), {
+    schema_version: "kolosseum.registry_seal_live_surface.v1",
+    surface_id: "launch_registry_live_surface",
+    surface_version: "1.0.0",
+    seal_scope: "registry_bundle",
+    entries: [{ path: relPath }]
+  });
+  writeJson(path.join(cwd, "ci/evidence/registry_seal_snapshot.v1.json"), {
+    schema_version: "kolosseum.registry_seal_snapshot.v1",
+    snapshot_id: "launch_registry_seal_snapshot",
+    snapshot_version: "1.0.0",
+    seal_scope: "registry_bundle",
+    entries: [{ path: relPath, sha256: sha256Text(fileBody) }]
+  });
   writeText(path.join(cwd, "ci/evidence/registry_seal.v1.json"), "{}\n");
+  writeText(path.join(cwd, relPath), fileBody);
 }
 
 function runFreeze(cwd, extraEnv = {}) {
@@ -46,6 +75,7 @@ function runFreeze(cwd, extraEnv = {}) {
     env: {
       ...process.env,
       KOLOSSEUM_REGISTRY_SEAL_GATE_PATH: GATE_SCRIPT,
+      KOLOSSEUM_REGISTRY_SEAL_DRIFT_REPORTER_PATH: REPORTER_SCRIPT,
       ...extraEnv
     }
   });
@@ -54,7 +84,11 @@ function runFreeze(cwd, extraEnv = {}) {
 function runGate(cwd) {
   return spawnSync(process.execPath, [GATE_SCRIPT], {
     cwd,
-    encoding: "utf8"
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      KOLOSSEUM_REGISTRY_SEAL_DRIFT_REPORTER_PATH: REPORTER_SCRIPT
+    }
   });
 }
 

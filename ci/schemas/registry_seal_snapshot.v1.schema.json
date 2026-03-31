@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.registry_seal_snapshot.v1",
+  "title": "Kolosseum Registry Seal Snapshot v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "snapshot_version",
+    "seal_scope",
+    "entries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "kolosseum.registry_seal_snapshot.v1"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "snapshot_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "seal_scope": {
+      "const": "registry_bundle"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    }
+  }
+}

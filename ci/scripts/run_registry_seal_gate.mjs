@@ -1,18 +1,26 @@
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 
 const TOKEN = {
   STRUCTURE: "CI_REGISTRY_SEAL_LIFECYCLE_STRUCTURE_INVALID",
   ILLEGAL_TRANSITION: "CI_REGISTRY_SEAL_LIFECYCLE_ILLEGAL_TRANSITION",
-  MISSING_SEALED_ARTEFACT: "CI_REGISTRY_SEAL_LIFECYCLE_SEALED_MISSING_ARTEFACT"
+  MISSING_SEALED_ARTEFACT: "CI_REGISTRY_SEAL_LIFECYCLE_SEALED_MISSING_ARTEFACT",
+  DRIFT_REPORTER_FAILED: "CI_REGISTRY_SEAL_DRIFT_REPORTER_FAILED"
 };
 
 const STATES = new Set(["pre_seal", "sealed"]);
 const LIFECYCLE_PATH = path.resolve("ci/evidence/registry_seal_lifecycle.v1.json");
+const DEFAULT_DRIFT_REPORTER_PATH = path.resolve("ci/scripts/run_registry_seal_drift_diff_reporter.mjs");
+const DRIFT_REPORTER_PATH = process.env.KOLOSSEUM_REGISTRY_SEAL_DRIFT_REPORTER_PATH
+  ? path.resolve(process.env.KOLOSSEUM_REGISTRY_SEAL_DRIFT_REPORTER_PATH)
+  : DEFAULT_DRIFT_REPORTER_PATH;
+
 const REQUIRED_SEALED_ARTEFACTS = [
   "ci/evidence/registry_seal_manifest.v1.json",
   "ci/evidence/registry_seal_live_surface.v1.json",
-  "ci/evidence/registry_seal.v1.json"
+  "ci/evidence/registry_seal.v1.json",
+  "ci/evidence/registry_seal_snapshot.v1.json"
 ];
 
 function fail(token, details, extras = {}) {
@@ -179,6 +187,43 @@ function assertSealedArtefactsPresent() {
   }
 }
 
+function runDriftReporter() {
+  if (!fs.existsSync(DRIFT_REPORTER_PATH)) {
+    fail(
+      TOKEN.DRIFT_REPORTER_FAILED,
+      `Registry seal drift reporter does not exist at '${DRIFT_REPORTER_PATH}'.`,
+      { reporter_path: DRIFT_REPORTER_PATH }
+    );
+  }
+
+  const result = spawnSync(process.execPath, [DRIFT_REPORTER_PATH], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+    env: process.env
+  });
+
+  if (result.status === 0) {
+    return;
+  }
+
+  const stderr = result.stderr.trim();
+
+  try {
+    const payload = JSON.parse(stderr);
+    process.stderr.write(`${JSON.stringify(payload, null, 2)}\n`);
+    process.exit(1);
+  } catch {
+    fail(
+      TOKEN.DRIFT_REPORTER_FAILED,
+      "Registry seal drift reporter failed without valid JSON output.",
+      {
+        reporter_path: DRIFT_REPORTER_PATH,
+        reporter_stderr: stderr
+      }
+    );
+  }
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const lifecycleDoc = readJson(LIFECYCLE_PATH, "registry seal lifecycle");
@@ -219,6 +264,7 @@ function main() {
 
   if (lifecycle.currentState === "sealed") {
     assertSealedArtefactsPresent();
+    runDriftReporter();
     process.stdout.write(`${JSON.stringify({
       ok: true,
       mode: "sealed",
