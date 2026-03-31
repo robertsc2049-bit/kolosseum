@@ -5,13 +5,22 @@
   "seal_scope": "registry_bundle",
   "entries": [
     {
-      "path": "registries/registry_bundle.json"
+      "path": "registries/activity/activity.registry.json"
     },
     {
-      "path": "ci/schemas/registry_seal.v1.schema.json"
+      "path": "registries/exercise/exercise.registry.json"
     },
     {
-      "path": "ci/evidence/registry_seal.v1.json"
+      "path": "registries/exercise/exercise_substitution_graph.json"
+    },
+    {
+      "path": "registries/exercise/exercise_warmup_mapping.registry.json"
+    },
+    {
+      "path": "registries/movement/movement.registry.json"
+    },
+    {
+      "path": "registries/program/program.registry.json"
     }
   ]
 }

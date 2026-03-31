@@ -1,20 +1,32 @@
 {
-    "schema_version":  "kolosseum.registry_seal_snapshot.v1",
-    "snapshot_id":  "launch_registry_seal_snapshot",
-    "snapshot_version":  "1.0.0",
-    "seal_scope":  "registry_bundle",
-    "entries":  [
-                    {
-                        "path":  "registries/registry_bundle.json",
-                        "sha256":  "3ae38479b85aad2bbf03ec1ea9613d17d9ee97997b529bacbfdd9d41773e61df"
-                    },
-                    {
-                        "path":  "ci/schemas/registry_seal.v1.schema.json",
-                        "sha256":  "82e3dfa3130e3e35215944cc747078919e9bdc7d13cb000f8154949fadbfafd5"
-                    },
-                    {
-                        "path":  "ci/evidence/registry_seal.v1.json",
-                        "sha256":  "ece8776943e96fd1f229ba547ab38be1106c1d33118843f5acfa3e9e1c074153"
-                    }
-                ]
+  "schema_version": "kolosseum.registry_seal_snapshot.v1",
+  "snapshot_id": "launch_registry_seal_snapshot",
+  "snapshot_version": "1.0.0",
+  "seal_scope": "registry_bundle",
+  "entries": [
+    {
+      "path": "registries/activity/activity.registry.json",
+      "sha256": "b50c8b5568d0b47dae29f7cba5435fe85b7a2df28dec06db3ae6b4579437c126"
+    },
+    {
+      "path": "registries/exercise/exercise.registry.json",
+      "sha256": "69d778018220fca668afb2ddb915da24e0fd146f8e58c5e8b138fd1cfa54e514"
+    },
+    {
+      "path": "registries/exercise/exercise_substitution_graph.json",
+      "sha256": "8d97eab5a2149e6e8634f7bf82f3179ae78c2906825bc46fe6588c1d984852c9"
+    },
+    {
+      "path": "registries/exercise/exercise_warmup_mapping.registry.json",
+      "sha256": "11f7c41e7b87f8bf0fc9a7470c777497dd5081b5aa6a7d59c6ac5e044ef16829"
+    },
+    {
+      "path": "registries/movement/movement.registry.json",
+      "sha256": "e98a7e0dd6be1bf6c1020cddfd394f6682e0ee2044acb193e0f196a36a6aa8d0"
+    },
+    {
+      "path": "registries/program/program.registry.json",
+      "sha256": "f7c43076c43c54048c3a2c80f8c29cea224f8447051b56f7598187abc0f5437c"
+    }
+  ]
 }

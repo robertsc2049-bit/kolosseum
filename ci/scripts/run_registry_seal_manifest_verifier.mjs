@@ -111,7 +111,7 @@ function validateSnapshot(snapshot, manifest) {
     fail(TOKEN.STRUCTURE, "Snapshot must be a JSON object.");
   }
 
-  const required = ["schema_version", "manifest_id", "manifest_version", "seal_scope", "entries"];
+  const required = ["schema_version", "snapshot_id", "snapshot_version", "seal_scope", "entries"];
   const allowed = new Set(required);
 
   for (const key of required) {
@@ -130,12 +130,16 @@ function validateSnapshot(snapshot, manifest) {
     fail(TOKEN.STRUCTURE, "Snapshot schema_version mismatch.", { path: "schema_version" });
   }
 
-  if (snapshot.manifest_id !== manifest.manifest_id) {
-    fail(TOKEN.STRUCTURE, "Snapshot manifest_id mismatch.", { path: "manifest_id" });
+  if (typeof snapshot.snapshot_id !== "string" || snapshot.snapshot_id.length === 0) {
+    fail(TOKEN.STRUCTURE, "Snapshot snapshot_id must be a non-empty string.", { path: "snapshot_id" });
   }
 
-  if (snapshot.manifest_version !== manifest.manifest_version) {
-    fail(TOKEN.STRUCTURE, "Snapshot manifest_version mismatch.", { path: "manifest_version" });
+  if (snapshot.snapshot_version !== manifest.manifest_version) {
+    fail(TOKEN.STRUCTURE, "Snapshot snapshot_version mismatch.", {
+      path: "snapshot_version",
+      expected_snapshot_version: manifest.manifest_version,
+      actual_snapshot_version: snapshot.snapshot_version
+    });
   }
 
   if (snapshot.seal_scope !== manifest.seal_scope) {
@@ -225,6 +229,8 @@ function main() {
     ok: true,
     manifest_id: manifest.manifest_id,
     manifest_version: manifest.manifest_version,
+    snapshot_id: snapshot.snapshot_id,
+    snapshot_version: snapshot.snapshot_version,
     entry_count: expectedEntries.length
   }, null, 2)}\n`);
 }
