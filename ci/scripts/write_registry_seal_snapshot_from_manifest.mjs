@@ -38,8 +38,8 @@ const manifest = readJson(manifestPath, "manifest");
 
 const snapshot = {
   schema_version: "kolosseum.registry_seal_snapshot.v1",
-  manifest_id: manifest.manifest_id,
-  manifest_version: manifest.manifest_version,
+  snapshot_id: "launch_registry_seal_snapshot",
+  snapshot_version: manifest.manifest_version,
   seal_scope: manifest.seal_scope,
   entries: manifest.entries.map((entry) => {
     const filePath = path.resolve(entry.path);
