@@ -1,0 +1,36 @@
+{
+  "registry_surface_classification": {
+    "version": "1.0.0",
+    "engine_compatibility": "EB2-1.0.0",
+    "classification": [
+      {
+        "document_id": "activity.registry",
+        "class": "launch_critical"
+      },
+      {
+        "document_id": "exercise.registry",
+        "class": "launch_critical"
+      },
+      {
+        "document_id": "exercise_substitution_graph",
+        "class": "launch_critical"
+      },
+      {
+        "document_id": "exercise_warmup_mapping_registry",
+        "class": "launch_critical"
+      },
+      {
+        "document_id": "movement.registry",
+        "class": "launch_critical"
+      },
+      {
+        "document_id": "program.registry",
+        "class": "launch_critical"
+      },
+      {
+        "document_id": "registry_index",
+        "class": "excluded"
+      }
+    ]
+  }
+}
