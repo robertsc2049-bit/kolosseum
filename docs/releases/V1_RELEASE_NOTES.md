@@ -31,3 +31,6 @@ It must not claim unmerged work, planned work, dormant work, or broader platform
 ## Notes
 These release notes are a packaging artefact, not an authority source.
 If this file conflicts with merged code, tests, CI, or canonical law, this file loses.
+
+## Active registry seal binding
+registry_seal_manifest.v1.json: 7936f1866f49043d9bf4a11a34623b52bfe2e9b384e3731daaa27ea582cbd296
