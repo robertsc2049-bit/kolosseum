@@ -27,6 +27,7 @@
                      "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json",
                      "docs/releases/V1_MAINLINE_GREEN_RUN_EVIDENCE.md",
                      "docs/releases/V1_OPERATOR_EXECUTION_ORDER.md",
+                     "docs/releases/V1_OPERATOR_FREEZE_RUNBOOK.md",
                      "docs/releases/V1_OPERATOR_RUNBOOK.md",
                      "docs/releases/V1_PACKAGING_EVIDENCE_MANIFEST.json",
                      "docs/releases/V1_PACKAGING_PROMOTION_PR_BODY_TEMPLATE.md",
