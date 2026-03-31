@@ -3,7 +3,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import crypto from "node:crypto";
 import { spawnSync } from "node:child_process";
+
+const REPORTER_SCRIPT = path.resolve("ci", "scripts", "run_registry_seal_drift_diff_reporter.mjs");
 
 function writeJson(filePath, value) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -15,11 +18,19 @@ function writeText(filePath, value) {
   fs.writeFileSync(filePath, value, "utf8");
 }
 
+function sha256Text(value) {
+  return crypto.createHash("sha256").update(Buffer.from(value, "utf8")).digest("hex");
+}
+
 function runGate(cwd, args = []) {
   const scriptPath = path.resolve("ci", "scripts", "run_registry_seal_gate.mjs");
   return spawnSync(process.execPath, [scriptPath, ...args], {
     cwd,
-    encoding: "utf8"
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      KOLOSSEUM_REGISTRY_SEAL_DRIFT_REPORTER_PATH: REPORTER_SCRIPT
+    }
   });
 }
 
@@ -113,10 +124,33 @@ test("P85: sealed mode requires sealed artefacts", () => {
 
 test("P85: sealed mode passes when sealed artefacts exist", () => {
   const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "p85-sealed-pass-"));
+  const relPath = "registries/registry_bundle.json";
+  const fileBody = "{\n  \"ok\": true\n}\n";
+
   writeJson(path.join(cwd, "ci/evidence/registry_seal_lifecycle.v1.json"), makeLifecycle("sealed"));
-  writeText(path.join(cwd, "ci/evidence/registry_seal_manifest.v1.json"), "{}\n");
-  writeText(path.join(cwd, "ci/evidence/registry_seal_live_surface.v1.json"), "{}\n");
+  writeJson(path.join(cwd, "ci/evidence/registry_seal_manifest.v1.json"), {
+    schema_version: "kolosseum.registry_seal_manifest.v1",
+    manifest_id: "launch_registry_surface",
+    manifest_version: "1.0.0",
+    seal_scope: "registry_bundle",
+    entries: [{ path: relPath }]
+  });
+  writeJson(path.join(cwd, "ci/evidence/registry_seal_live_surface.v1.json"), {
+    schema_version: "kolosseum.registry_seal_live_surface.v1",
+    surface_id: "launch_registry_live_surface",
+    surface_version: "1.0.0",
+    seal_scope: "registry_bundle",
+    entries: [{ path: relPath }]
+  });
+  writeJson(path.join(cwd, "ci/evidence/registry_seal_snapshot.v1.json"), {
+    schema_version: "kolosseum.registry_seal_snapshot.v1",
+    snapshot_id: "launch_registry_seal_snapshot",
+    snapshot_version: "1.0.0",
+    seal_scope: "registry_bundle",
+    entries: [{ path: relPath, sha256: sha256Text(fileBody) }]
+  });
   writeText(path.join(cwd, "ci/evidence/registry_seal.v1.json"), "{}\n");
+  writeText(path.join(cwd, relPath), fileBody);
 
   const r = runGate(cwd);
   assert.equal(r.status, 0, r.stderr);

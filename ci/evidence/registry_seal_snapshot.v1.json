@@ -1,20 +1,20 @@
 {
-  "schema_version": "kolosseum.registry_seal_snapshot.v1",
-  "manifest_id": "launch_registry_surface",
-  "manifest_version": "1.0.0",
-  "seal_scope": "registry_bundle",
-  "entries": [
-    {
-      "path": "registries/registry_bundle.json",
-      "sha256": "3ae38479b85aad2bbf03ec1ea9613d17d9ee97997b529bacbfdd9d41773e61df"
-    },
-    {
-      "path": "ci/schemas/registry_seal.v1.schema.json",
-      "sha256": "82e3dfa3130e3e35215944cc747078919e9bdc7d13cb000f8154949fadbfafd5"
-    },
-    {
-      "path": "ci/evidence/registry_seal.v1.json",
-      "sha256": "ece8776943e96fd1f229ba547ab38be1106c1d33118843f5acfa3e9e1c074153"
-    }
-  ]
+    "schema_version":  "kolosseum.registry_seal_snapshot.v1",
+    "snapshot_id":  "launch_registry_seal_snapshot",
+    "snapshot_version":  "1.0.0",
+    "seal_scope":  "registry_bundle",
+    "entries":  [
+                    {
+                        "path":  "registries/registry_bundle.json",
+                        "sha256":  "3ae38479b85aad2bbf03ec1ea9613d17d9ee97997b529bacbfdd9d41773e61df"
+                    },
+                    {
+                        "path":  "ci/schemas/registry_seal.v1.schema.json",
+                        "sha256":  "82e3dfa3130e3e35215944cc747078919e9bdc7d13cb000f8154949fadbfafd5"
+                    },
+                    {
+                        "path":  "ci/evidence/registry_seal.v1.json",
+                        "sha256":  "ece8776943e96fd1f229ba547ab38be1106c1d33118843f5acfa3e9e1c074153"
+                    }
+                ]
 }
