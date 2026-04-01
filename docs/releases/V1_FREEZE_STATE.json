@@ -3,5 +3,6 @@
   "freeze_state": "sealed",
   "freeze_declared": true,
   "freeze_state_declared_by": "registry_seal_lifecycle",
+  "previous_freeze_state": "pre_seal",
   "notes": "Machine-readable freeze state declaration. Freeze state must be declared as an artefact and not inferred from prose."
 }

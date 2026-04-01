@@ -6,6 +6,10 @@ This document defines the only lawful lifecycle for registry seal activation in 
 
 The lifecycle is explicit, machine-checkable, and closed-world.
 
+## Active Lifecycle State
+
+registry seal lifecycle state: sealed
+
 ## States
 
 ### pre_seal
