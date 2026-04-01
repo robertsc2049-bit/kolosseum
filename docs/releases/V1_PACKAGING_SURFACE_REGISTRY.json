@@ -8,6 +8,8 @@
     "ci/scripts/run_postv1_evidence_surface_verifier.mjs",
     "ci/scripts/run_postv1_final_acceptance_boundary_runner.mjs",
     "ci/scripts/run_postv1_final_acceptance_gate.mjs",
+    "ci/scripts/run_postv1_freeze_evidence_manifest_verifier.mjs",
+    "ci/scripts/run_postv1_freeze_readiness_runner.mjs",
     "ci/scripts/run_postv1_mainline_post_merge_verification.mjs",
     "ci/scripts/run_postv1_mainline_verification_dependency_verifier.mjs",
     "ci/scripts/run_postv1_merge_readiness_verifier.mjs",
@@ -27,6 +29,9 @@
     "docs/releases/V1_EVIDENCE_SURFACE_REGISTRY.json",
     "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json",
     "docs/releases/V1_FREEZE_ARTEFACT_SET.json",
+    "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    "docs/releases/V1_FREEZE_READINESS.json",
     "docs/releases/V1_HANDOFF_INDEX.md",
     "docs/releases/V1_MAINLINE_GREEN_RUN_EVIDENCE.md",
     "docs/releases/V1_OPERATOR_EXECUTION_ORDER.md",
@@ -44,10 +49,6 @@
     "docs/releases/V1_RELEASE_NOTES.md",
     "docs/releases/V1_RELEASE_OPERATIONS_BOUNDARY.json",
     "docs/releases/V1_ROLLBACK.md",
-    "docs/releases/V1_VERSION_AND_TAG.md",
-    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
-    "ci/scripts/run_postv1_freeze_evidence_manifest_verifier.mjs",
-    "docs/releases/V1_FREEZE_READINESS.json",
-    "ci/scripts/run_postv1_freeze_readiness_runner.mjs"
+    "docs/releases/V1_VERSION_AND_TAG.md"
   ]
 }
