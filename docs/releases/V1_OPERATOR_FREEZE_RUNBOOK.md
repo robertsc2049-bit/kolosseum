@@ -49,3 +49,18 @@ node .\ci\scripts\run_registry_seal_drift_diff_reporter.mjs
 - pre_seal -> sealed
 - sealed -> pre_seal is forbidden
 - Unfreeze is not allowed.
+
+## Canonical Operator Freeze Command Order
+
+The following command snippet is the only canonical operator freeze command order.
+CI verifies this block exactly. Reordering is illegal.
+
+<!-- OPERATOR_FREEZE_COMMAND_ORDER_START -->
+```text
+node .\ci\scripts\run_registry_seal_freeze.mjs
+node .\ci\scripts\run_registry_seal_manifest_verifier.mjs
+node .\ci\scripts\run_registry_seal_scope_completeness_verifier.mjs
+node .\ci\scripts\run_registry_seal_gate.mjs
+node .\ci\scripts\run_registry_seal_drift_diff_reporter.mjs
+```
+<!-- OPERATOR_FREEZE_COMMAND_ORDER_END -->
