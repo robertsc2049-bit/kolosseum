@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "verifier_id": "freeze_rollback_compatibility_verifier",
+  "checked_at_utc": "2026-04-01T19:00:19.905Z",
+  "root": "C:/Users/rober/kolosseum",
+  "rollback_files_checked": [
+    "docs/releases/V1_ROLLBACK.md",
+    "docs/releases/V1_ROLLBACK_RUNBOOK.md"
+  ],
+  "freeze_files_checked": [
+    "docs/releases/V1_FREEZE_ARTEFACT_SET.json",
+    "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    "docs/releases/V1_FREEZE_EXIT_CRITERIA.json",
+    "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
+    "docs/releases/V1_FREEZE_READINESS.json",
+    "docs/releases/V1_FREEZE_STATE.json",
+    "docs/releases/V1_OPERATOR_FREEZE_COMMAND_ORDER.json",
+    "docs/releases/V1_OPERATOR_FREEZE_RUNBOOK.md"
+  ],
+  "invariant": "rollback may affect operational access only; it must not alter truth, legality, determinism, replay, evidence, registry immutability, or dormant proof-layer reachability",
+  "violations": []
+}
