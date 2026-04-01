@@ -1,0 +1,9 @@
+{
+  "schema_version": "kolosseum.freeze_drift_evidence.v1",
+  "base_ref": "origin/main",
+  "freeze_drift_attested": "true",
+  "freeze_surface_changes": [
+    "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json"
+  ],
+  "notes": "Update this file whenever freeze-sensitive surfaces change after merge-base."
+}

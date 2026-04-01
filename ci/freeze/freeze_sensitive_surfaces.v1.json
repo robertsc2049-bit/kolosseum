@@ -1,0 +1,11 @@
+{
+  "schema_version": "kolosseum.freeze_sensitive_surfaces.v1",
+  "freeze_sensitive_surfaces": [
+    "docs/releases/**",
+    "ci/evidence/**",
+    "ci/freeze/**",
+    "ci/scripts/run_freeze_*",
+    "ci/scripts/run_release_*",
+    ".github/PULL_REQUEST_TEMPLATE/promotion.md"
+  ]
+}
