@@ -31,3 +31,12 @@ Unmerged work, inferred readiness, and generic release wishes do not count.
 - [ ] checklist does not claim safety, correctness, suitability, optimisation, or approval
 - [ ] checklist does not claim unmerged scope
 - [ ] checklist does not broaden replay proof beyond what the runner and CI actually prove
+
+## Freeze runbook acknowledgement
+
+- Review V1_OPERATOR_FREEZE_RUNBOOK.md before release.
+- Run node .\ci\scripts\run_registry_seal_freeze.mjs
+- Run node .\ci\scripts\run_registry_seal_manifest_verifier.mjs
+- Run node .\ci\scripts\run_registry_seal_scope_completeness_verifier.mjs
+- Run node .\ci\scripts\run_registry_seal_gate.mjs
+- Run node .\ci\scripts\run_registry_seal_drift_diff_reporter.mjs
