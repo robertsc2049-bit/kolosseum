@@ -1,0 +1,19 @@
+{
+  "schema_version": "kolosseum.freeze_exit_criteria.v1",
+  "freeze_exit_permitted": false,
+  "freeze_exit_declared_by": "freeze_exit_criteria_law",
+  "required_exit_checks": [
+    "freeze_state_bound_to_lifecycle",
+    "promotion_readiness_bound_to_freeze_state",
+    "freeze_drift_evidence_present",
+    "freeze_packaging_composition_closed_world"
+  ],
+  "required_exit_artefacts": [
+    "docs/releases/V1_FREEZE_STATE.json",
+    "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
+    "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
+    "docs/releases/V1_PROMOTION_READINESS.json"
+  ],
+  "allowed_exit_transition": "sealed -> released",
+  "notes": "Freeze exit is lawful only when exit criteria remain explicit, machine-readable, and complete. Freeze cannot be exited informally from surrounding prose."
+}
