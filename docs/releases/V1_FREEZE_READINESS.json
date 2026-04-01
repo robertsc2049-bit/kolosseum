@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "release_id": "V1",
+  "phase": "freeze",
+  "checks": [
+    {
+      "check_id": "freeze_evidence_manifest",
+      "script": "ci/scripts/run_postv1_freeze_evidence_manifest_verifier.mjs",
+      "ok": true,
+      "exit_code": 0
+    }
+  ]
+}
