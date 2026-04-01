@@ -1,0 +1,12 @@
+{
+  "runbook_path": "docs/releases/V1_OPERATOR_FREEZE_RUNBOOK.md",
+  "start_marker": "<!-- OPERATOR_FREEZE_COMMAND_ORDER_START -->",
+  "end_marker": "<!-- OPERATOR_FREEZE_COMMAND_ORDER_END -->",
+  "commands": [
+    "node .\\ci\\scripts\\run_registry_seal_freeze.mjs",
+    "node .\\ci\\scripts\\run_registry_seal_manifest_verifier.mjs",
+    "node .\\ci\\scripts\\run_registry_seal_scope_completeness_verifier.mjs",
+    "node .\\ci\\scripts\\run_registry_seal_gate.mjs",
+    "node .\\ci\\scripts\\run_registry_seal_drift_diff_reporter.mjs"
+  ]
+}
