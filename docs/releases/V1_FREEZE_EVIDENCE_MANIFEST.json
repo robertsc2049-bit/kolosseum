@@ -1,0 +1,29 @@
+{
+  "schema_version": "kolosseum.release.freeze_evidence_manifest.v1",
+  "manifest_id": "v1_freeze_evidence_manifest",
+  "release_id": "V1",
+  "scope": "freeze_phase",
+  "artefacts": [
+    {
+      "evidence_id": "freeze_artefact_set",
+      "path": "docs/releases/V1_FREEZE_ARTEFACT_SET.json",
+      "content_type": "json",
+      "required": true
+    },
+    {
+      "evidence_id": "packaging_surface_registry",
+      "path": "docs/releases/V1_PACKAGING_SURFACE_REGISTRY.json",
+      "content_type": "json",
+      "required": true
+    }
+  ],
+  "discovery": {
+    "include_globs": [
+      "docs/releases/V1_FREEZE_*.json"
+    ],
+    "exclude_paths": [
+      "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+      "docs/releases/V1_FREEZE_READINESS.json"
+    ]
+  }
+}
