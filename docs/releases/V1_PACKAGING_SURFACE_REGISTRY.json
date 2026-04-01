@@ -25,6 +25,7 @@
     "docs/releases/V1_ARTEFACT_MANIFEST.json",
     "docs/releases/V1_EVIDENCE_SURFACE_REGISTRY.json",
     "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json",
+    "docs/releases/V1_HANDOFF_INDEX.md",
     "docs/releases/V1_MAINLINE_GREEN_RUN_EVIDENCE.md",
     "docs/releases/V1_OPERATOR_EXECUTION_ORDER.md",
     "docs/releases/V1_OPERATOR_FREEZE_COMMAND_ORDER.json",
