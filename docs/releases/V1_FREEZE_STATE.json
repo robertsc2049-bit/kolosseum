@@ -1,0 +1,7 @@
+{
+  "schema_version": "kolosseum.freeze_state_declaration.v1",
+  "freeze_state": "sealed",
+  "freeze_declared": true,
+  "freeze_state_declared_by": "registry_seal_lifecycle",
+  "notes": "Machine-readable freeze state declaration. Freeze state must be declared as an artefact and not inferred from prose."
+}
