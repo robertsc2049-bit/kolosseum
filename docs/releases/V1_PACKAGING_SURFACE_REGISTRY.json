@@ -46,6 +46,7 @@
                      "docs/releases/V1_FREEZE_PROOF_INDEX.json",
                      "docs/releases/V1_FREEZE_PROOF_INDEX_COMPLETENESS.json",
                      "docs/releases/V1_FREEZE_READINESS.json",
+                     "docs/releases/V1_FREEZE_REQUIRED_PROOF_SET.json",
                      "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
                      "docs/releases/V1_FREEZE_STATE.json",
                      "docs/releases/V1_HANDOFF_INDEX.md",
