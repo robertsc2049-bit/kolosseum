@@ -89,11 +89,12 @@
     },
     {
       "path": "docs/releases/V1_PACKAGING_SURFACE_REGISTRY.json",
-      "sha256": "9fcbef4c39d3154902faf7239f8d1bbc5e39185723cf2db0b8afdee8139d5fb8"
+      "sha256": "2042a96ef6da13d0ff3f8c40e2f6d6d078ca761e839ab5dc1d2431c32077df6c"
     },
     {
       "path": "docs/releases/V1_RELEASE_CHECKLIST.md",
       "sha256": "175a4fdac064f54d3fcdc6b1e0d316911ef52584430d1e6b821de5ae8682ad0c"
     }
-  ]
+  ],
+  "manifest_self_hash": "8e046fa1ba89329f59e6491678cd0a53589aaabde8b8d148ca289acf61009110"
 }
