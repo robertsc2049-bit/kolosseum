@@ -40,6 +40,7 @@
     "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json",
     "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
     "docs/releases/V1_FREEZE_PACK_REBUILD_CLEANLINESS.json",
+    "docs/releases/V1_FREEZE_PROOF_INDEX.json",
     "docs/releases/V1_FREEZE_READINESS.json",
     "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
     "docs/releases/V1_FREEZE_STATE.json",
