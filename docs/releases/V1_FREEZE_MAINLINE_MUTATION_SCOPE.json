@@ -1,0 +1,25 @@
+{
+  "schema_version": "kolosseum.freeze.mainline_mutation_scope.v1",
+  "freeze_scope_paths": [
+    "docs/releases/V1_FREEZE_MAINLINE_MUTATION_SCOPE.json",
+    "docs/releases/V1_FREEZE_PROMOTION_PACKET_SET.json",
+    "docs/releases/V1_FREEZE_ROLLBACK_PACKET_SET.json",
+    "docs/releases/V1_FREEZE_ROLLBACK_RUNBOOK.json",
+    "docs/releases/V1_FREEZE_STATE.json",
+    "ci/scripts/build_freeze_promotion_packet.mjs",
+    "ci/scripts/run_freeze_promotion_packet_preservation_verifier.mjs",
+    "ci/scripts/run_freeze_promotion_packet_cleanliness_guard.mjs",
+    "ci/scripts/build_freeze_rollback_packet.mjs",
+    "ci/scripts/run_freeze_rollback_packet_compatibility_verifier.mjs",
+    "ci/scripts/run_freeze_mainline_mutation_scope_verifier.mjs",
+    "test/freeze_promotion_packet_builder.test.mjs",
+    "test/freeze_promotion_packet_preservation_verifier.test.mjs",
+    "test/freeze_promotion_packet_cleanliness_guard.test.mjs",
+    "test/freeze_rollback_packet_builder.test.mjs",
+    "test/freeze_rollback_packet_compatibility_verifier.test.mjs",
+    "test/freeze_mainline_mutation_scope_verifier.test.mjs"
+  ],
+  "allowlisted_paths": [
+    "LOCKFILE_CHANGE_NOTE.md"
+  ]
+}
