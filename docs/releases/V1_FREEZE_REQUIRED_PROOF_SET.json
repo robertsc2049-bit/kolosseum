@@ -1,0 +1,10 @@
+{
+  "schema_version": "kolosseum.freeze.required_proof_set.v1",
+  "required_proof_ids_in_order": [
+    "p134_freeze_promotion_packet_preservation",
+    "p135_freeze_promotion_packet_cleanliness",
+    "p136_freeze_rollback_packet_builder",
+    "p137_freeze_rollback_packet_compatibility",
+    "p138_freeze_mainline_mutation_scope"
+  ]
+}
