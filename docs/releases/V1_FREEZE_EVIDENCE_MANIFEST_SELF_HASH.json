@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "verifier_id": "freeze_evidence_manifest_self_hash_verifier",
+  "checked_at_utc": "2026-04-02T08:32:41.039Z",
+  "manifest": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+  "invariant": "freeze evidence manifest cannot drift structurally without fresh governed artefact recomputation",
+  "recomputed_manifest_self_hash": "8e046fa1ba89329f59e6491678cd0a53589aaabde8b8d148ca289acf61009110",
+  "failures": []
+}

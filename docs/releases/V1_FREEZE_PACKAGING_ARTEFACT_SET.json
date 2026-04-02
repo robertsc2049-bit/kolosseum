@@ -1,0 +1,10 @@
+{
+  "schema_version": "kolosseum.freeze_packaging_artefact_set.v1",
+  "freeze_packaging_required_surfaces": [
+    "docs/releases/V1_FREEZE_ARTEFACT_SET.json",
+    "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
+    "docs/releases/V1_FREEZE_READINESS.json"
+  ]
+}

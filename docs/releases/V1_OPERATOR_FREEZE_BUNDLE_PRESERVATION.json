@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "verifier_id": "operator_freeze_bundle_preservation_verifier",
+  "checked_at_utc": "2026-04-02T08:11:07.797Z",
+  "set": "docs/releases/V1_OPERATOR_FREEZE_ARTEFACT_SET.json",
+  "builder": "ci/scripts/build_operator_freeze_pack.mjs",
+  "output_dir": "artifacts/operator-freeze-pack",
+  "invariant": "operator freeze bundle rebuild must not drift from governed source artefacts",
+  "first_rebuild_directory_sha256": "281ef935ac3a2a80f21d039885c67d7b1b8b3e0b1321189992ca1e70da9e253a",
+  "second_rebuild_directory_sha256": "281ef935ac3a2a80f21d039885c67d7b1b8b3e0b1321189992ca1e70da9e253a",
+  "failures": []
+}

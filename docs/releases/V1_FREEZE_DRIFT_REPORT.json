@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "verifier_id": "freeze_drift_report_builder",
+  "checked_at_utc": "2026-04-02T12:58:31.504Z",
+  "invariant": "freeze state must be inspectable from one bounded report",
+  "child_report_count": 4,
+  "child_reports": [
+    {
+      "path": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
+      "ok": true,
+      "verifier_id": "freeze_evidence_manifest_completeness_verifier",
+      "checked_at_utc": "2026-04-02T08:22:38.437Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
+      "ok": true,
+      "verifier_id": "freeze_rollback_compatibility_verifier",
+      "checked_at_utc": "2026-04-01T19:00:19.905Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json",
+      "ok": true,
+      "verifier_id": "mainline_freeze_preservation_verifier",
+      "checked_at_utc": "2026-04-02T07:53:32.240Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json",
+      "ok": true,
+      "verifier_id": "operator_freeze_bundle_preservation_verifier",
+      "checked_at_utc": "2026-04-02T08:11:07.797Z",
+      "failure_count": 0
+    }
+  ],
+  "failures": []
+}

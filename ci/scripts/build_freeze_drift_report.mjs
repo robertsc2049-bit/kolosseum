@@ -5,20 +5,13 @@ import path from "node:path";
 function parseArgs(argv) {
   const args = {
     root: process.cwd(),
-    outputPath: "docs/releases/V1_PROMOTION_READINESS.json",
+    reportPath: "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
     writeReport: true,
-    requiredReports: [
+    childReports: [
       "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
       "docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json",
       "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json",
-      "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
-      "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json",
-      "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_SURFACE_COMPLETENESS.json",
-      "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json",
-      "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json",
-      "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
-      "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json",
-      "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"
+      "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json"
     ]
   };
 
@@ -29,18 +22,18 @@ function parseArgs(argv) {
       i += 1;
       continue;
     }
-    if (arg === "--output") {
-      args.outputPath = argv[i + 1];
+    if (arg === "--report") {
+      args.reportPath = argv[i + 1];
       i += 1;
       continue;
     }
-    if (arg === "--required-report") {
-      args.requiredReports.push(argv[i + 1]);
+    if (arg === "--child-report") {
+      args.childReports.push(argv[i + 1]);
       i += 1;
       continue;
     }
-    if (arg === "--replace-required-reports") {
-      args.requiredReports = [];
+    if (arg === "--replace-child-reports") {
+      args.childReports = [];
       continue;
     }
     if (arg === "--no-write-report") {
@@ -64,16 +57,17 @@ function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
-function writeJson(filePath, value) {
-  ensureDir(path.dirname(filePath));
-  fs.writeFileSync(filePath, JSON.stringify(value, null, 2) + "\n", "utf8");
+function writeReport(root, reportPath, report) {
+  const absolute = path.join(root, reportPath);
+  ensureDir(path.dirname(absolute));
+  fs.writeFileSync(absolute, JSON.stringify(report, null, 2) + "\n", "utf8");
 }
 
 function buildFailure(token, file, details, extra = {}) {
   return { token, file, details, ...extra };
 }
 
-function summarizeReport(relPath, parsed) {
+function summarizeChildReport(relPath, parsed) {
   return {
     path: relPath,
     ok: parsed?.ok === true,
@@ -85,14 +79,14 @@ function summarizeReport(relPath, parsed) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const requiredReports = Array.from(
-    new Set(args.requiredReports.map((entry) => normalizeRel(entry)).filter(Boolean))
+  const failures = [];
+  const childSummaries = [];
+
+  const uniqueChildReports = Array.from(
+    new Set(args.childReports.map((entry) => normalizeRel(entry)).filter(Boolean))
   ).sort((a, b) => a.localeCompare(b));
 
-  const failures = [];
-  const checks = [];
-
-  for (const relPath of requiredReports) {
+  for (const relPath of uniqueChildReports) {
     const absolute = path.join(args.root, relPath);
 
     if (!fs.existsSync(absolute)) {
@@ -100,34 +94,24 @@ function main() {
         buildFailure(
           "CI_SPINE_MISSING_DOC",
           relPath,
-          "Promotion readiness requires this freeze proof report, but it is missing."
+          "Required freeze child report missing."
         )
       );
-
-      checks.push({
-        path: relPath,
-        ok: false,
-        verifier_id: null,
-        checked_at_utc: null,
-        failure_count: null
-      });
       continue;
     }
 
     const parsed = readJson(absolute);
-    const summary = summarizeReport(relPath, parsed);
-    checks.push(summary);
+    childSummaries.push(summarizeChildReport(relPath, parsed));
 
     if (parsed?.ok !== true) {
       failures.push(
         buildFailure(
           "CI_MISSING_REQUIRED_PROOF",
           relPath,
-          "Promotion readiness is blocked because a required freeze proof report is absent or failing.",
+          "Freeze drift report requires all child reports to be present and passing.",
           {
-            verifier_id: summary.verifier_id,
-            child_ok: summary.ok,
-            failure_count: summary.failure_count
+            verifier_id: typeof parsed?.verifier_id === "string" ? parsed.verifier_id : null,
+            child_ok: parsed?.ok === true
           }
         )
       );
@@ -136,15 +120,16 @@ function main() {
 
   const report = {
     ok: failures.length === 0,
-    verifier_id: "postv1_promotion_readiness_runner",
+    verifier_id: "freeze_drift_report_builder",
     checked_at_utc: new Date().toISOString(),
-    invariant: "promotion readiness must depend on completed freeze proof chain",
-    required_reports: checks,
+    invariant: "freeze state must be inspectable from one bounded report",
+    child_report_count: uniqueChildReports.length,
+    child_reports: childSummaries,
     failures
   };
 
   if (args.writeReport) {
-    writeJson(path.join(args.root, args.outputPath), report);
+    writeReport(args.root, args.reportPath, report);
   }
 
   if (!report.ok) {

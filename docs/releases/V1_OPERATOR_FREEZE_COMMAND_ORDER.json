@@ -8,5 +8,31 @@
     "node .\\ci\\scripts\\run_registry_seal_scope_completeness_verifier.mjs",
     "node .\\ci\\scripts\\run_registry_seal_gate.mjs",
     "node .\\ci\\scripts\\run_registry_seal_drift_diff_reporter.mjs"
+  ],
+  "steps": [
+    {
+      "script": "docs/releases/V1_FREEZE_STATE.json"
+    },
+    {
+      "script": "ci/scripts/run_freeze_evidence_manifest_completeness_verifier.mjs"
+    },
+    {
+      "script": "ci/scripts/run_freeze_evidence_manifest_self_hash_verifier.mjs"
+    },
+    {
+      "script": "ci/scripts/run_mainline_freeze_preservation_verifier.mjs"
+    },
+    {
+      "script": "ci/scripts/build_operator_freeze_pack.mjs"
+    },
+    {
+      "script": "ci/scripts/run_operator_freeze_pack_composition_verifier.mjs"
+    },
+    {
+      "script": "ci/scripts/run_operator_freeze_bundle_preservation_verifier.mjs"
+    },
+    {
+      "script": "ci/scripts/run_operator_freeze_bundle_surface_completeness_verifier.mjs"
+    }
   ]
 }
