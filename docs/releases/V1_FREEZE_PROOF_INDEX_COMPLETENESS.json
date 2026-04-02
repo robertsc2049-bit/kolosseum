@@ -1,0 +1,125 @@
+{
+  "ok": true,
+  "verifier": "freeze_proof_index_completeness",
+  "generated_at_utc": "2026-04-02T14:03:28.037Z",
+  "compared_against": {
+    "packaging_surface_registry": "docs/releases/V1_PACKAGING_SURFACE_REGISTRY.json",
+    "freeze_proof_index": "docs/releases/V1_FREEZE_PROOF_INDEX.json"
+  },
+  "invariants": [
+    "every tracked freeze proof report must be indexed",
+    "every tracked freeze proof runner must be indexed",
+    "no stale extra proof index entry may remain after proof surface removal"
+  ],
+  "tracked_freeze_proof_surfaces": [
+    {
+      "path": "docs/releases/V1_FREEZE_ARTEFACT_SET.json",
+      "sha256": "d1fe649ccd544ae063a344283be6983ceab4b76ba3145260edb88f994868a0a6"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json",
+      "sha256": "2612da1c6f4f189d872eaf176067ddb9e9b2e13f42a841f19b56347008619df9"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
+      "sha256": "88a5c816a2c08a0a92888a51ae65f898381916bf57084d7c4bf8f47abe016dc9"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+      "sha256": "6955d000fe794128e9301a012aaf98b74811176d5b2a6a37349981c18b5f0e11"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json",
+      "sha256": "a77917f53c460b6ef343443ab44979ba238a0dadeef99e023a94e36cde5ceed3"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+      "sha256": "1594988f8bd93cefe76460a8fc99873cbc5ce997ee08542fc55953eb68260b8f"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
+      "sha256": "bfb34b4e208cab19d70c41a9ec1fe02aaceeaa21a179d5492272dd79e48abcfd"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json",
+      "sha256": "db46c08bee649afe9d4c797485ffdb4a5c22b677d8555df43b258d051052e4e1"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_EXIT_CRITERIA.json",
+      "sha256": "a265bb504d6a9c625da23dae641246f316b4fabffb5ad8fc02dae52ba606f5f2"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json",
+      "sha256": "17936ae6bfa27ece49ec1236e09d9cd845c57593b0412c2b4e5cdd239984ec31"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
+      "sha256": "ffa44acb405d8c8cfdd17f39fad78f3f4b0706626f8377b2f5d6edb0af86af6f"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_PACK_REBUILD_CLEANLINESS.json",
+      "sha256": "76ff1e35d2368671e6c12678ac35e83a17309edb68c7da680d5f2e5bb40c8c17"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_READINESS.json",
+      "sha256": "ae8a14b89d961da3a6a645dd6e8a8d63e2ee7239737e3ccccbe487ee30c94d9c"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
+      "sha256": "b39b43bac039ec5a846aff6c7320a06947f174fac600e0d047668f41811d1038"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_STATE.json",
+      "sha256": "571202d79cb5a5fb625d48fb85590290c32c197c8282398b876c11af8654c64f"
+    }
+  ],
+  "indexed_freeze_proof_surfaces": [
+    {
+      "path": "docs/releases/V1_FREEZE_ARTEFACT_SET.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_DRIFT_REPORT.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_PACK_REBUILD_CLEANLINESS.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_READINESS.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json"
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_STATE.json"
+    }
+  ],
+  "missing_index_entries": [],
+  "stale_extra_entries": []
+}

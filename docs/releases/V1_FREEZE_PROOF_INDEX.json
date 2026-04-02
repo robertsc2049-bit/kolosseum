@@ -1,87 +1,110 @@
 {
-  "ok": true,
-  "verifier_id": "freeze_proof_index_verifier",
-  "checked_at_utc": "2026-04-02T13:30:00.000Z",
-  "invariant": "freeze governance must be inspectable from one authoritative proof map",
-  "proof_entry_count": 13,
-  "proof_entries": [
-    {
-      "slice_id": "P114",
-      "proof_surface": "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
-      "invariant": "freeze rollback must stay compatible with sealed freeze semantics",
-      "proof_type": "verifier_report"
-    },
-    {
-      "slice_id": "P115",
-      "proof_surface": "docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json",
-      "invariant": "mainline freeze preservation must remain byte-stable across governed surfaces",
-      "proof_type": "verifier_report"
-    },
-    {
-      "slice_id": "P116",
-      "proof_surface": "docs/releases/V1_OPERATOR_FREEZE_ARTEFACT_SET.json",
-      "invariant": "operator freeze bundle input surface must stay deterministic and bounded",
-      "proof_type": "bundle_spec"
-    },
-    {
-      "slice_id": "P117",
-      "proof_surface": "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json",
-      "invariant": "operator freeze bundle rebuild must not drift from governed source artefacts",
-      "proof_type": "verifier_report"
-    },
-    {
-      "slice_id": "P118",
-      "proof_surface": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
-      "invariant": "freeze manifest must fully enumerate governed byte identities",
-      "proof_type": "verifier_report"
-    },
-    {
-      "slice_id": "P119",
-      "proof_surface": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json",
-      "invariant": "freeze evidence manifest cannot drift structurally without fresh governed artefact recomputation",
-      "proof_type": "verifier_report"
-    },
-    {
-      "slice_id": "P120",
-      "proof_surface": "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_SURFACE_COMPLETENESS.json",
-      "invariant": "handoff bundle must be minimal and sufficient",
-      "proof_type": "verifier_report"
-    },
-    {
-      "slice_id": "P121",
-      "proof_surface": "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json",
-      "invariant": "freeze packaging and preservation checks must not run before freeze state + manifest integrity are established",
-      "proof_type": "verifier_report"
-    },
-    {
-      "slice_id": "P122",
-      "proof_surface": "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json",
-      "invariant": "sealed freeze surfaces cannot change silently on mainline",
-      "proof_type": "verifier_report"
-    },
-    {
-      "slice_id": "P123",
-      "proof_surface": "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
-      "invariant": "freeze state must be inspectable from one bounded report",
-      "proof_type": "aggregate_report"
-    },
-    {
-      "slice_id": "P124",
-      "proof_surface": "docs/releases/V1_FREEZE_EXIT_CRITERIA.json",
-      "invariant": "freeze cannot be declared complete while any freeze-proof surface is absent or failing",
-      "proof_type": "verifier_report"
-    },
-    {
-      "slice_id": "P125",
-      "proof_surface": "docs/releases/V1_PROMOTION_READINESS.json",
-      "invariant": "promotion readiness must depend on completed freeze proof chain",
-      "proof_type": "readiness_report"
-    },
-    {
-      "slice_id": "P126",
-      "proof_surface": "docs/releases/V1_FREEZE_PACK_REBUILD_CLEANLINESS.json",
-      "invariant": "standard freeze build path must leave clean working tree",
-      "proof_type": "verifier_report"
-    }
-  ]
+    "ok":  true,
+    "verifier_id":  "freeze_proof_index_verifier",
+    "checked_at_utc":  "2026-04-02T13:30:00.000Z",
+    "invariant":  "freeze governance must be inspectable from one authoritative proof map",
+    "proof_entry_count":  13,
+    "proof_entries":  [
+                          {
+                              "slice_id":  "P114",
+                              "proof_surface":  "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
+                              "invariant":  "freeze rollback must stay compatible with sealed freeze semantics",
+                              "proof_type":  "verifier_report"
+                          },
+                          {
+                              "slice_id":  "P115",
+                              "proof_surface":  "docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json",
+                              "invariant":  "mainline freeze preservation must remain byte-stable across governed surfaces",
+                              "proof_type":  "verifier_report"
+                          },
+                          {
+                              "slice_id":  "P116",
+                              "proof_surface":  "docs/releases/V1_OPERATOR_FREEZE_ARTEFACT_SET.json",
+                              "invariant":  "operator freeze bundle input surface must stay deterministic and bounded",
+                              "proof_type":  "bundle_spec"
+                          },
+                          {
+                              "slice_id":  "P117",
+                              "proof_surface":  "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json",
+                              "invariant":  "operator freeze bundle rebuild must not drift from governed source artefacts",
+                              "proof_type":  "verifier_report"
+                          },
+                          {
+                              "slice_id":  "P118",
+                              "proof_surface":  "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
+                              "invariant":  "freeze manifest must fully enumerate governed byte identities",
+                              "proof_type":  "verifier_report"
+                          },
+                          {
+                              "slice_id":  "P119",
+                              "proof_surface":  "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json",
+                              "invariant":  "freeze evidence manifest cannot drift structurally without fresh governed artefact recomputation",
+                              "proof_type":  "verifier_report"
+                          },
+                          {
+                              "slice_id":  "P120",
+                              "proof_surface":  "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_SURFACE_COMPLETENESS.json",
+                              "invariant":  "handoff bundle must be minimal and sufficient",
+                              "proof_type":  "verifier_report"
+                          },
+                          {
+                              "slice_id":  "P121",
+                              "proof_surface":  "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json",
+                              "invariant":  "freeze packaging and preservation checks must not run before freeze state + manifest integrity are established",
+                              "proof_type":  "verifier_report"
+                          },
+                          {
+                              "slice_id":  "P122",
+                              "proof_surface":  "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json",
+                              "invariant":  "sealed freeze surfaces cannot change silently on mainline",
+                              "proof_type":  "verifier_report"
+                          },
+                          {
+                              "slice_id":  "P123",
+                              "proof_surface":  "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+                              "invariant":  "freeze state must be inspectable from one bounded report",
+                              "proof_type":  "aggregate_report"
+                          },
+                          {
+                              "slice_id":  "P124",
+                              "proof_surface":  "docs/releases/V1_FREEZE_EXIT_CRITERIA.json",
+                              "invariant":  "freeze cannot be declared complete while any freeze-proof surface is absent or failing",
+                              "proof_type":  "verifier_report"
+                          },
+                          {
+                              "slice_id":  "P125",
+                              "proof_surface":  "docs/releases/V1_PROMOTION_READINESS.json",
+                              "invariant":  "promotion readiness must depend on completed freeze proof chain",
+                              "proof_type":  "readiness_report"
+                          },
+                          {
+                              "slice_id":  "P126",
+                              "proof_surface":  "docs/releases/V1_FREEZE_PACK_REBUILD_CLEANLINESS.json",
+                              "invariant":  "standard freeze build path must leave clean working tree",
+                              "proof_type":  "verifier_report"
+                          }
+                      ],
+    "freeze_proof_reports":  [
+                                 {
+                                     "path":  "docs/releases/V1_FREEZE_ARTEFACT_SET.json"
+                                 },
+                                 {
+                                     "path":  "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json"
+                                 },
+                                 {
+                                     "path":  "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"
+                                 },
+                                 {
+                                     "path":  "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json"
+                                 },
+                                 {
+                                     "path":  "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json"
+                                 },
+                                 {
+                                     "path":  "docs/releases/V1_FREEZE_READINESS.json"
+                                 },
+                                 {
+                                     "path":  "docs/releases/V1_FREEZE_STATE.json"
+                                 }
+                             ]
 }
