@@ -1,66 +1,45 @@
 # V1 Operator Freeze Runbook
 
+Status: Authoritative
+Scope: Operator freeze execution and handoff
+Applies to: V1 sealed freeze surfaces
+
 ## Purpose
 
-Give one canonical operator flow for freeze, verify, and explicit no-unfreeze handling.
+This runbook defines the operator-controlled freeze execution surface and the minimum handoff surfaces required to operate, verify, and preserve a sealed freeze state.
 
-## Invariant
+## Required operator law surfaces
 
-- operator flow is fixed and auditable
-- Unfreeze is not allowed.
-- Only lawful transition: pre_seal -> sealed.
+The operator freeze bundle is lawful only when it contains all of the following required surfaces:
 
-## Canonical command sequence
+- docs/releases/V1_OPERATOR_FREEZE_RUNBOOK.md
+- docs/releases/V1_OPERATOR_FREEZE_COMMAND_ORDER.json
+- docs/releases/V1_OPERATOR_EXECUTION_ORDER.md
+- docs/releases/V1_HANDOFF_INDEX.md
+- docs/releases/V1_RELEASE_CHECKLIST.md
+- docs/releases/V1_ROLLBACK_RUNBOOK.md
+- ci/scripts/run_operator_freeze_command_order_verifier.mjs
+- ci/scripts/run_operator_freeze_handoff_index_completeness_verifier.mjs
+- ci/scripts/run_operator_freeze_release_checklist_binding_verifier.mjs
+- ci/scripts/run_operator_freeze_runbook_execution_order_binding_verifier.mjs
+- ci/scripts/run_operator_freeze_runbook_surface_completeness_verifier.mjs
+- ci/scripts/run_freeze_rollback_compatibility_verifier.mjs
 
-```powershell
-Set-Location C:\Users\rober\kolosseum
-$ErrorActionPreference = "Stop"
-$PSNativeCommandUseErrorActionPreference = $true
-Set-StrictMode -Version Latest
+## Surface roles
 
-node .\ci\scripts\run_registry_seal_manifest_verifier.mjs
-node .\ci\scripts\run_registry_seal_scope_completeness_verifier.mjs
-node .\ci\scripts\run_registry_seal_drift_diff_reporter.mjs
-node .\ci\scripts\run_registry_seal_gate.mjs
-node .\ci\scripts\run_registry_seal_freeze.mjs
-node .\ci\scripts\run_registry_seal_gate.mjs
-node .\ci\scripts\run_registry_seal_drift_diff_reporter.mjs
-```
+- docs/releases/V1_OPERATOR_FREEZE_COMMAND_ORDER.json is the machine-readable freeze command sequence.
+- docs/releases/V1_OPERATOR_EXECUTION_ORDER.md is the operator-readable execution order companion.
+- docs/releases/V1_HANDOFF_INDEX.md is the freeze handoff entrypoint.
+- docs/releases/V1_RELEASE_CHECKLIST.md is the release checklist bound to operator freeze.
+- docs/releases/V1_ROLLBACK_RUNBOOK.md is the lawful rollback surface for freeze-controlled release operation.
+- ci/scripts/run_operator_freeze_command_order_verifier.mjs proves command-order integrity.
+- ci/scripts/run_operator_freeze_handoff_index_completeness_verifier.mjs proves handoff index completeness.
+- ci/scripts/run_operator_freeze_release_checklist_binding_verifier.mjs proves release checklist binding.
+- ci/scripts/run_operator_freeze_runbook_execution_order_binding_verifier.mjs proves runbook ↔ execution-order binding.
+- ci/scripts/run_operator_freeze_runbook_surface_completeness_verifier.mjs proves runbook surface completeness.
+- ci/scripts/run_freeze_rollback_compatibility_verifier.mjs proves rollback compatibility with freeze semantics.
 
-## Operator interpretation
+## Final rule
 
-1. Verify manifest integrity first.
-2. Verify live surface completeness against manifest.
-3. Verify no drift exists before freeze.
-4. Verify current lifecycle/gate state.
-5. Execute freeze.
-6. Re-verify gate after freeze.
-7. Re-verify drift after freeze.
-
-## Forbidden actions
-
-- Do not invent alternate freeze command sequences.
-- Do not skip the pre-freeze verification steps.
-- Do not attempt reverse transition.
-- Do not document or execute any unfreeze flow.
-
-## Lawful lifecycle
-
-- pre_seal -> sealed
-- sealed -> pre_seal is forbidden
-- Unfreeze is not allowed.
-
-## Canonical Operator Freeze Command Order
-
-The following command snippet is the only canonical operator freeze command order.
-CI verifies this block exactly. Reordering is illegal.
-
-<!-- OPERATOR_FREEZE_COMMAND_ORDER_START -->
-```text
-node .\ci\scripts\run_registry_seal_freeze.mjs
-node .\ci\scripts\run_registry_seal_manifest_verifier.mjs
-node .\ci\scripts\run_registry_seal_scope_completeness_verifier.mjs
-node .\ci\scripts\run_registry_seal_gate.mjs
-node .\ci\scripts\run_registry_seal_drift_diff_reporter.mjs
-```
-<!-- OPERATOR_FREEZE_COMMAND_ORDER_END -->
+If a surface is required for operator freeze execution, verification, rollback compatibility, or handoff,
+it must be explicitly named in operator law and must be present in the operator freeze bundle.
