@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "verifier_id": "freeze_pack_rebuild_cleanliness_guard",
+  "checked_at_utc": "2026-04-02T13:25:11.147Z",
+  "builder": "ci/scripts/build_operator_freeze_pack.mjs",
+  "artefact_set": "docs/releases/V1_OPERATOR_FREEZE_ARTEFACT_SET.json",
+  "disposable_output_dir": "../AppData/Local/Temp/freeze-pack-cleanliness-fvMbwy/operator-freeze-pack",
+  "invariant": "standard freeze build path must leave clean working tree",
+  "before_status": [
+    " M ci/scripts/build_operator_freeze_pack.mjs",
+    " M docs/releases/V1_PACKAGING_SURFACE_REGISTRY.json",
+    "?? ci/scripts/run_freeze_pack_rebuild_cleanliness_guard.mjs",
+    "?? docs/releases/V1_FREEZE_PACK_REBUILD_CLEANLINESS.json",
+    "?? test/freeze_pack_rebuild_cleanliness_guard.test.mjs"
+  ],
+  "after_status": [
+    " M ci/scripts/build_operator_freeze_pack.mjs",
+    " M docs/releases/V1_PACKAGING_SURFACE_REGISTRY.json",
+    "?? ci/scripts/run_freeze_pack_rebuild_cleanliness_guard.mjs",
+    "?? docs/releases/V1_FREEZE_PACK_REBUILD_CLEANLINESS.json",
+    "?? test/freeze_pack_rebuild_cleanliness_guard.test.mjs"
+  ],
+  "failures": []
+}

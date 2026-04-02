@@ -6,7 +6,8 @@ import crypto from "node:crypto";
 function parseArgs(argv) {
   const args = {
     root: process.cwd(),
-    setPath: "docs/releases/V1_OPERATOR_FREEZE_ARTEFACT_SET.json"
+    setPath: "docs/releases/V1_OPERATOR_FREEZE_ARTEFACT_SET.json",
+    outputDirOverride: null
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -18,6 +19,11 @@ function parseArgs(argv) {
     }
     if (arg === "--set") {
       args.setPath = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg === "--out-dir") {
+      args.outputDirOverride = argv[i + 1];
       i += 1;
       continue;
     }
@@ -108,7 +114,9 @@ function main() {
   const artefactSet = readJson(setAbsolute);
   validateArtefactSet(artefactSet);
 
-  const outputDirRel = normalizeRel(artefactSet.output_dir.trim());
+  const outputDirRel = args.outputDirOverride
+    ? normalizeRel(args.outputDirOverride)
+    : normalizeRel(artefactSet.output_dir.trim());
   const outputDirAbs = path.join(args.root, outputDirRel);
 
   fs.rmSync(outputDirAbs, { recursive: true, force: true });
