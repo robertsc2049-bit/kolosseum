@@ -1,257 +1,263 @@
+#!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 
-const TOKEN = "CI_FREEZE_DRIFT_SINCE_MERGE_BASE";
-const DEFAULT_MANIFEST_PATH = "ci/freeze/freeze_sensitive_surfaces.v1.json";
-const DEFAULT_EVIDENCE_PATH = "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json";
-
-function fail(details, extra = {}) {
-  return {
-    ok: false,
-    failures: [
-      {
-        token: TOKEN,
-        details,
-        ...extra,
-      },
-    ],
+function parseArgs(argv) {
+  const args = {
+    root: process.cwd(),
+    manifestPath: "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    driftReportPath: "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    reportPath: "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json",
+    baseRef: "origin/main",
+    changedFiles: [],
+    writeReport: true
   };
+
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === "--root") {
+      args.root = path.resolve(argv[i + 1]);
+      i += 1;
+      continue;
+    }
+    if (arg === "--manifest") {
+      args.manifestPath = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg === "--drift-report") {
+      args.driftReportPath = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg === "--report") {
+      args.reportPath = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg === "--base-ref") {
+      args.baseRef = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg === "--changed-file") {
+      args.changedFiles.push(argv[i + 1]);
+      i += 1;
+      continue;
+    }
+    if (arg === "--no-write-report") {
+      args.writeReport = false;
+      continue;
+    }
+  }
+
+  return args;
 }
 
-function ok(meta = {}) {
-  return { ok: true, ...meta };
+function normalizeRel(input) {
+  return String(input).replace(/\\/g, "/").trim();
 }
 
-function normalizePath(value) {
-  return String(value ?? "").replace(/\\/g, "/").replace(/^\.\//, "").trim();
+function ensureDir(dirPath) {
+  fs.mkdirSync(dirPath, { recursive: true });
 }
 
 function readJson(filePath) {
-  try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { __read_error__: `Failed to read JSON at ${filePath}: ${message}` };
-  }
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
-function git(repoRoot, args, options = {}) {
-  return execFileSync("git", args, {
-    cwd: repoRoot,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-    ...options,
-  }).trim();
+function writeReport(root, reportPath, report) {
+  const absolute = path.join(root, reportPath);
+  ensureDir(path.dirname(absolute));
+  fs.writeFileSync(absolute, JSON.stringify(report, null, 2) + "\n", "utf8");
 }
 
-function escapeRegex(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function buildFailure(token, file, details, extra = {}) {
+  return { token, file, details, ...extra };
 }
 
-function globToRegex(glob) {
-  let pattern = escapeRegex(normalizePath(glob));
-  pattern = pattern.replace(/\\\*\\\*/g, "__DOUBLE_STAR__");
-  pattern = pattern.replace(/\\\*/g, "__SINGLE_STAR__");
-  pattern = pattern.replace(/\\\?/g, "__QMARK__");
-  pattern = pattern.replace(/__DOUBLE_STAR__/g, ".*");
-  pattern = pattern.replace(/__SINGLE_STAR__/g, "[^/]*");
-  pattern = pattern.replace(/__QMARK__/g, ".");
-  return new RegExp(`^${pattern}$`);
-}
-
-function ensureArray(value) {
-  return Array.isArray(value) ? value : [];
-}
-
-function uniqueNormalized(items) {
-  return [...new Set(ensureArray(items).map((item) => normalizePath(item)).filter(Boolean))];
-}
-
-function getMergeBase(repoRoot, baseRef) {
-  try {
-    return git(repoRoot, ["merge-base", "HEAD", baseRef]);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to compute merge-base against '${baseRef}': ${message}`);
-  }
-}
-
-function getChangedFilesSince(repoRoot, baseSha) {
-  const output = git(repoRoot, ["diff", "--name-only", `${baseSha}..HEAD`]);
-  return uniqueNormalized(output.split(/\r?\n/));
-}
-
-function fileMatchesAnyGlob(filePath, globs) {
-  return globs.some((glob) => globToRegex(glob).test(filePath));
-}
-
-function resolveFreezeSensitiveChanges(changedFiles, surfaceGlobs) {
-  return changedFiles.filter((filePath) => fileMatchesAnyGlob(filePath, surfaceGlobs));
-}
-
-function verifyFreezeDrift({
-  baseRef,
-  manifestPath,
-  evidencePath,
-  repoRoot,
-}) {
-  const resolvedRepoRoot = path.resolve(repoRoot ?? process.cwd());
-
-  const manifest = readJson(manifestPath);
-  if (manifest.__read_error__) {
-    return fail(manifest.__read_error__, { path: normalizePath(manifestPath) });
+function collectGovernedPaths(manifest) {
+  if (!Array.isArray(manifest.governed_artefacts)) {
+    throw new Error("Freeze evidence manifest must contain governed_artefacts array.");
   }
 
-  const evidence = readJson(evidencePath);
-  if (evidence.__read_error__) {
-    return fail(evidence.__read_error__, { path: normalizePath(evidencePath) });
-  }
-
-  const surfaceGlobs = uniqueNormalized(
-    manifest.freeze_sensitive_surfaces ??
-    manifest.freeze_surface_globs ??
-    manifest.surface_globs
-  );
-
-  if (surfaceGlobs.length === 0) {
-    return fail(
-      "Freeze-sensitive manifest must declare at least one surface glob.",
-      { path: normalizePath(manifestPath) }
-    );
-  }
-
-  const declaredBaseRef = String(
-    evidence.base_ref ??
-    evidence.merge_base_ref ??
-    ""
-  ).trim();
-
-  if (declaredBaseRef && declaredBaseRef !== baseRef) {
-    return fail(
-      `Freeze drift evidence base ref '${declaredBaseRef}' does not match verifier base ref '${baseRef}'.`,
-      { path: normalizePath(evidencePath) }
-    );
-  }
-
-  let mergeBase;
-  let changedFiles;
-  try {
-    mergeBase = getMergeBase(resolvedRepoRoot, baseRef);
-    changedFiles = getChangedFilesSince(resolvedRepoRoot, mergeBase);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return fail(message);
-  }
-
-  const changedFreezeSensitiveFiles = resolveFreezeSensitiveChanges(changedFiles, surfaceGlobs);
-  const declaredFreezeChanges = uniqueNormalized(
-    evidence.freeze_surface_changes ??
-    evidence.changed_freeze_surfaces ??
-    evidence.changed_files
-  );
-  const attestation = String(
-    evidence.freeze_drift_attested ??
-    evidence.freeze_surface_drift_attested ??
-    ""
-  ).trim().toLowerCase();
-
-  if (changedFreezeSensitiveFiles.length === 0) {
-    return ok({
-      repo_root: normalizePath(resolvedRepoRoot),
-      base_ref: baseRef,
-      merge_base: mergeBase,
-      changed_freeze_sensitive_files: [],
-      evidence_path: normalizePath(evidencePath),
-      manifest_path: normalizePath(manifestPath),
-      reason: "No freeze-sensitive drift detected since merge-base.",
-    });
-  }
-
-  if (attestation !== "true") {
-    return fail(
-      "Freeze-sensitive drift detected since merge-base but freeze drift evidence is not explicitly attested.",
-      {
-        path: normalizePath(evidencePath),
-        changed_freeze_sensitive_files: changedFreezeSensitiveFiles,
-      }
-    );
-  }
-
-  for (const changedFile of changedFreezeSensitiveFiles) {
-    if (!declaredFreezeChanges.includes(changedFile)) {
-      return fail(
-        `Freeze-sensitive file '${changedFile}' changed since merge-base without corresponding evidence entry.`,
-        {
-          path: normalizePath(evidencePath),
-          changed_freeze_sensitive_files: changedFreezeSensitiveFiles,
-        }
-      );
+  const out = [];
+  for (const entry of manifest.governed_artefacts) {
+    const relPath = normalizeRel(entry?.path ?? "");
+    if (!relPath) {
+      throw new Error("governed_artefacts entry missing path.");
     }
+    out.push(relPath);
   }
 
-  for (const declaredFile of declaredFreezeChanges) {
-    if (!changedFreezeSensitiveFiles.includes(declaredFile)) {
-      return fail(
-        `Freeze drift evidence declares '${declaredFile}' but it is not changed since merge-base.`,
-        {
-          path: normalizePath(evidencePath),
-          changed_freeze_sensitive_files: changedFreezeSensitiveFiles,
-        }
-      );
-    }
-  }
+  return Array.from(new Set(out)).sort((a, b) => a.localeCompare(b));
+}
 
-  return ok({
-    repo_root: normalizePath(resolvedRepoRoot),
-    base_ref: baseRef,
-    merge_base: mergeBase,
-    changed_freeze_sensitive_files: changedFreezeSensitiveFiles,
-    evidence_path: normalizePath(evidencePath),
-    manifest_path: normalizePath(manifestPath),
-    attested: true,
+function detectChangedFiles(root, baseRef) {
+  const mergeBase = spawnSync("git", ["merge-base", baseRef, "HEAD"], {
+    cwd: root,
+    encoding: "utf8"
   });
+
+  if (mergeBase.status !== 0) {
+    throw new Error(`git merge-base failed for ${baseRef}: ${mergeBase.stderr || mergeBase.stdout}`);
+  }
+
+  const baseSha = String(mergeBase.stdout).trim();
+  if (!baseSha) {
+    throw new Error(`git merge-base returned empty sha for ${baseRef}`);
+  }
+
+  const diff = spawnSync("git", ["diff", "--name-only", `${baseSha}..HEAD`], {
+    cwd: root,
+    encoding: "utf8"
+  });
+
+  if (diff.status !== 0) {
+    throw new Error(`git diff failed: ${diff.stderr || diff.stdout}`);
+  }
+
+  return {
+    mergeBase: baseSha,
+    changedFiles: String(diff.stdout)
+      .split(/\r?\n/)
+      .map((line) => normalizeRel(line))
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b))
+  };
 }
 
 function main() {
-  const args = process.argv.slice(2);
+  const args = parseArgs(process.argv.slice(2));
+  const failures = [];
 
-  if (args.length > 4) {
-    process.stderr.write(
-      JSON.stringify(
-        fail(
-          "Usage: node ci/scripts/run_freeze_drift_since_merge_base_verifier.mjs [baseRef] [manifestPath] [evidencePath] [repoRoot]"
-        ),
-        null,
-        2
-      ) + "\n"
-    );
+  const manifestAbs = path.join(args.root, args.manifestPath);
+  const driftReportAbs = path.join(args.root, args.driftReportPath);
+
+  if (!fs.existsSync(manifestAbs)) {
+    failures.push(buildFailure("CI_SPINE_MISSING_DOC", normalizeRel(args.manifestPath), "Freeze evidence manifest missing."));
+  }
+  if (!fs.existsSync(driftReportAbs)) {
+    failures.push(buildFailure("CI_SPINE_MISSING_DOC", normalizeRel(args.driftReportPath), "Freeze drift report missing."));
+  }
+
+  let governedPaths = [];
+  let mergeBase = null;
+  let changedFiles = [];
+  let changedGovernedPaths = [];
+  let driftReport = null;
+
+  if (failures.length === 0) {
+    const manifest = readJson(manifestAbs);
+    governedPaths = collectGovernedPaths(manifest);
+
+    if (args.changedFiles.length > 0) {
+      changedFiles = Array.from(
+        new Set(args.changedFiles.map((entry) => normalizeRel(entry)).filter(Boolean))
+      ).sort((a, b) => a.localeCompare(b));
+    } else {
+      const detected = detectChangedFiles(args.root, args.baseRef);
+      mergeBase = detected.mergeBase;
+      changedFiles = detected.changedFiles;
+    }
+
+    const governedSet = new Set(governedPaths);
+    changedGovernedPaths = changedFiles.filter((file) => governedSet.has(file));
+
+    driftReport = readJson(driftReportAbs);
+
+    if (driftReport?.ok !== true) {
+      failures.push(
+        buildFailure(
+          "CI_MISSING_REQUIRED_PROOF",
+          normalizeRel(args.driftReportPath),
+          "Freeze drift since merge-base requires a passing aggregated freeze drift report.",
+          {
+            drift_report_ok: driftReport?.ok === true
+          }
+        )
+      );
+    }
+
+    if (!Array.isArray(driftReport?.child_reports)) {
+      failures.push(
+        buildFailure(
+          "CI_REGISTRY_STRUCTURE_INVALID",
+          normalizeRel(args.driftReportPath),
+          "Freeze drift report must contain child_reports array."
+        )
+      );
+    }
+
+    if (Array.isArray(driftReport?.child_reports) && driftReport.child_reports.length === 0) {
+      failures.push(
+        buildFailure(
+          "CI_REGISTRY_STRUCTURE_INVALID",
+          normalizeRel(args.driftReportPath),
+          "Freeze drift report must enumerate at least one child report."
+        )
+      );
+    }
+
+    if (changedGovernedPaths.length > 0 && driftReport?.ok === true) {
+      const requiredChildPaths = [
+        "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
+        "docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json",
+        "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json",
+        "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json"
+      ];
+
+      const reportedChildPaths = new Set(
+        Array.isArray(driftReport.child_reports)
+          ? driftReport.child_reports
+              .map((entry) => normalizeRel(entry?.path ?? ""))
+              .filter(Boolean)
+          : []
+      );
+
+      for (const relPath of requiredChildPaths) {
+        if (!reportedChildPaths.has(relPath)) {
+          failures.push(
+            buildFailure(
+              "CI_MISSING_REQUIRED_PROOF",
+              relPath,
+              "Freeze drift report is not fresh enough for governed drift because a required child proof is absent from the aggregate.",
+              {
+                changed_governed_paths: changedGovernedPaths
+              }
+            )
+          );
+        }
+      }
+    }
+  }
+
+  const report = {
+    ok: failures.length === 0,
+    verifier_id: "freeze_drift_since_merge_base_verifier",
+    checked_at_utc: new Date().toISOString(),
+    manifest: normalizeRel(args.manifestPath),
+    drift_report: normalizeRel(args.driftReportPath),
+    base_ref: args.baseRef,
+    merge_base: mergeBase,
+    invariant: "freeze-governed drift since merge-base must not exist without a fresh aggregated freeze report",
+    governed_paths: governedPaths,
+    changed_files: changedFiles,
+    changed_governed_paths: changedGovernedPaths,
+    failures
+  };
+
+  if (args.writeReport) {
+    writeReport(args.root, args.reportPath, report);
+  }
+
+  if (!report.ok) {
+    process.stderr.write(JSON.stringify(report, null, 2) + "\n");
     process.exit(1);
   }
 
-  const baseRef = String(args[0] ?? "origin/main").trim();
-  const manifestPath = path.resolve(args[1] ?? DEFAULT_MANIFEST_PATH);
-  const evidencePath = path.resolve(args[2] ?? DEFAULT_EVIDENCE_PATH);
-  const repoRoot = path.resolve(args[3] ?? process.cwd());
-
-  const result = verifyFreezeDrift({
-    baseRef,
-    manifestPath,
-    evidencePath,
-    repoRoot,
-  });
-
-  const target = result.ok ? process.stdout : process.stderr;
-  target.write(JSON.stringify(result, null, 2) + "\n");
-  process.exit(result.ok ? 0 : 1);
+  process.stdout.write(JSON.stringify(report, null, 2) + "\n");
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
-}
-
-export {
-  DEFAULT_EVIDENCE_PATH,
-  DEFAULT_MANIFEST_PATH,
-  verifyFreezeDrift,
-};
+main();

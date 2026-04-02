@@ -32,6 +32,7 @@
     "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json",
     "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
     "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json",
     "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
     "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
     "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json",

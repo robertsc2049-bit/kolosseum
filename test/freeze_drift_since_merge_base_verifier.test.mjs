@@ -3,200 +3,237 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
-import { verifyFreezeDrift } from "../ci/scripts/run_freeze_drift_since_merge_base_verifier.mjs";
+import { spawnSync } from "node:child_process";
 
-function normalizeText(value) {
-  return String(value).replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+function writeFile(root, relativePath, content) {
+  const fullPath = path.join(root, relativePath);
+  fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+  fs.writeFileSync(fullPath, content.replace(/\r\n/g, "\n"), "utf8");
 }
 
-function writeText(filePath, content) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, normalizeText(content), "utf8");
+function runNode(scriptRelative, args = []) {
+  const scriptPath = path.resolve(scriptRelative);
+  return spawnSync(process.execPath, [scriptPath, ...args], { encoding: "utf8" });
 }
 
-function writeJson(filePath, value) {
-  writeText(filePath, JSON.stringify(value, null, 2) + "\n");
+function goodChild(pathValue) {
+  return {
+    path: pathValue,
+    ok: true,
+    verifier_id: path.basename(pathValue, ".json"),
+    checked_at_utc: "2026-04-02T00:00:00.000Z",
+    failure_count: 0
+  };
 }
 
-function git(cwd, args) {
-  return execFileSync("git", args, {
-    cwd,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  }).trim();
-}
+test("passes when no governed files changed", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "freeze-drift-since-base-pass-nodrift-"));
 
-function initRepo() {
-  const repoDir = fs.mkdtempSync(path.join(os.tmpdir(), "p108-"));
-  git(repoDir, ["init"]);
-  git(repoDir, ["config", "user.name", "Kolosseum Test"]);
-  git(repoDir, ["config", "user.email", "test@example.com"]);
-
-  writeText(path.join(repoDir, "README.md"), "# test\n");
-  git(repoDir, ["add", "README.md"]);
-  git(repoDir, ["commit", "-m", "initial"]);
-
-  git(repoDir, ["branch", "-M", "main"]);
-  git(repoDir, ["update-ref", "refs/remotes/origin/main", "HEAD"]);
-
-  return repoDir;
-}
-
-function runVerifier(cwd, manifest, evidence) {
-  const manifestPath = path.join(cwd, "ci", "freeze", "freeze_sensitive_surfaces.v1.json");
-  const evidencePath = path.join(cwd, "docs", "releases", "V1_FREEZE_DRIFT_EVIDENCE.json");
-
-  writeJson(manifestPath, manifest);
-  writeJson(evidencePath, evidence);
-
-  return verifyFreezeDrift({
-    baseRef: "origin/main",
-    manifestPath,
-    evidencePath,
-    repoRoot: cwd,
-  });
-}
-
-test("passes when no freeze-sensitive files changed since merge-base", (t) => {
-  const repoDir = initRepo();
-  t.after(() => fs.rmSync(repoDir, { recursive: true, force: true }));
-
-  writeText(path.join(repoDir, "src", "feature.txt"), "ok\n");
-  git(repoDir, ["add", "src/feature.txt"]);
-  git(repoDir, ["commit", "-m", "non-freeze change"]);
-
-  const result = runVerifier(
-    repoDir,
-    {
-      schema_version: "kolosseum.freeze_sensitive_surfaces.v1",
-      freeze_sensitive_surfaces: ["docs/releases/**", "ci/evidence/**"],
-    },
-    {
-      schema_version: "kolosseum.freeze_drift_evidence.v1",
-      base_ref: "origin/main",
-      freeze_drift_attested: "false",
-      freeze_surface_changes: [],
-    }
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    JSON.stringify(
+      {
+        governed_artefacts: [
+          { path: "docs/releases/V1_FREEZE_STATE.json", sha256: "a".repeat(64) }
+        ]
+      },
+      null,
+      2
+    ) + "\n"
   );
 
-  assert.equal(result.ok, true);
-  assert.deepEqual(result.changed_freeze_sensitive_files, []);
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    JSON.stringify(
+      {
+        ok: true,
+        child_reports: [
+          goodChild("docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json"),
+          goodChild("docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json"),
+          goodChild("docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json"),
+          goodChild("docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json")
+        ]
+      },
+      null,
+      2
+    ) + "\n"
+  );
+
+  const result = runNode("ci/scripts/run_freeze_drift_since_merge_base_verifier.mjs", [
+    "--root", tempRoot,
+    "--manifest", "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    "--drift-report", "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    "--changed-file", "src/app.ts",
+    "--report", "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"
+  ]);
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
 });
 
-test("fails when freeze-sensitive drift exists without attestation", (t) => {
-  const repoDir = initRepo();
-  t.after(() => fs.rmSync(repoDir, { recursive: true, force: true }));
+test("passes when governed files changed and aggregate is present with required child proofs", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "freeze-drift-since-base-pass-proof-"));
 
-  writeText(path.join(repoDir, "docs", "releases", "V1_RELEASE_NOTES.md"), "freeze notes\n");
-  git(repoDir, ["add", "docs/releases/V1_RELEASE_NOTES.md"]);
-  git(repoDir, ["commit", "-m", "freeze notes change"]);
-
-  const result = runVerifier(
-    repoDir,
-    {
-      schema_version: "kolosseum.freeze_sensitive_surfaces.v1",
-      freeze_sensitive_surfaces: ["docs/releases/**"],
-    },
-    {
-      schema_version: "kolosseum.freeze_drift_evidence.v1",
-      base_ref: "origin/main",
-      freeze_drift_attested: "false",
-      freeze_surface_changes: [],
-    }
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    JSON.stringify(
+      {
+        governed_artefacts: [
+          { path: "docs/releases/V1_FREEZE_STATE.json", sha256: "a".repeat(64) }
+        ]
+      },
+      null,
+      2
+    ) + "\n"
   );
 
-  assert.equal(result.ok, false);
-  assert.equal(result.failures[0].token, "CI_FREEZE_DRIFT_SINCE_MERGE_BASE");
-  assert.match(result.failures[0].details, /not explicitly attested/i);
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    JSON.stringify(
+      {
+        ok: true,
+        child_reports: [
+          goodChild("docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json"),
+          goodChild("docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json"),
+          goodChild("docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json"),
+          goodChild("docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json")
+        ]
+      },
+      null,
+      2
+    ) + "\n"
+  );
+
+  const result = runNode("ci/scripts/run_freeze_drift_since_merge_base_verifier.mjs", [
+    "--root", tempRoot,
+    "--manifest", "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    "--drift-report", "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    "--changed-file", "docs/releases/V1_FREEZE_STATE.json",
+    "--report", "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"
+  ]);
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
 });
 
-test("fails when changed freeze-sensitive file is not listed in evidence", (t) => {
-  const repoDir = initRepo();
-  t.after(() => fs.rmSync(repoDir, { recursive: true, force: true }));
+test("fails when governed files changed and aggregate report is missing", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "freeze-drift-since-base-missing-report-"));
 
-  writeText(path.join(repoDir, "docs", "releases", "V1_RELEASE_NOTES.md"), "freeze notes\n");
-  git(repoDir, ["add", "docs/releases/V1_RELEASE_NOTES.md"]);
-  git(repoDir, ["commit", "-m", "freeze notes change"]);
-
-  const result = runVerifier(
-    repoDir,
-    {
-      schema_version: "kolosseum.freeze_sensitive_surfaces.v1",
-      freeze_sensitive_surfaces: ["docs/releases/**"],
-    },
-    {
-      schema_version: "kolosseum.freeze_drift_evidence.v1",
-      base_ref: "origin/main",
-      freeze_drift_attested: "true",
-      freeze_surface_changes: ["docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json"],
-    }
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    JSON.stringify(
+      {
+        governed_artefacts: [
+          { path: "docs/releases/V1_FREEZE_STATE.json", sha256: "a".repeat(64) }
+        ]
+      },
+      null,
+      2
+    ) + "\n"
   );
 
-  assert.equal(result.ok, false);
-  assert.equal(result.failures[0].token, "CI_FREEZE_DRIFT_SINCE_MERGE_BASE");
-  assert.match(result.failures[0].details, /without corresponding evidence entry/i);
+  const result = runNode("ci/scripts/run_freeze_drift_since_merge_base_verifier.mjs", [
+    "--root", tempRoot,
+    "--manifest", "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    "--drift-report", "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    "--changed-file", "docs/releases/V1_FREEZE_STATE.json",
+    "--report", "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"
+  ]);
+
+  assert.notEqual(result.status, 0, "expected verifier failure");
+  const report = JSON.parse(fs.readFileSync(path.join(tempRoot, "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"), "utf8"));
+  assert.equal(report.failures.some((x) => x.token === "CI_SPINE_MISSING_DOC"), true);
 });
 
-test("fails when evidence lists a file not changed since merge-base", (t) => {
-  const repoDir = initRepo();
-  t.after(() => fs.rmSync(repoDir, { recursive: true, force: true }));
+test("fails when governed files changed and aggregate report is not ok", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "freeze-drift-since-base-bad-report-"));
 
-  writeText(path.join(repoDir, "docs", "releases", "V1_RELEASE_NOTES.md"), "freeze notes\n");
-  git(repoDir, ["add", "docs/releases/V1_RELEASE_NOTES.md"]);
-  git(repoDir, ["commit", "-m", "freeze notes change"]);
-
-  const result = runVerifier(
-    repoDir,
-    {
-      schema_version: "kolosseum.freeze_sensitive_surfaces.v1",
-      freeze_sensitive_surfaces: ["docs/releases/**"],
-    },
-    {
-      schema_version: "kolosseum.freeze_drift_evidence.v1",
-      base_ref: "origin/main",
-      freeze_drift_attested: "true",
-      freeze_surface_changes: [
-        "docs/releases/V1_RELEASE_NOTES.md",
-        "docs/releases/NOT_CHANGED.md"
-      ],
-    }
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    JSON.stringify(
+      {
+        governed_artefacts: [
+          { path: "docs/releases/V1_FREEZE_STATE.json", sha256: "a".repeat(64) }
+        ]
+      },
+      null,
+      2
+    ) + "\n"
   );
 
-  assert.equal(result.ok, false);
-  assert.equal(result.failures[0].token, "CI_FREEZE_DRIFT_SINCE_MERGE_BASE");
-  assert.match(result.failures[0].details, /not changed since merge-base/i);
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    JSON.stringify(
+      {
+        ok: false,
+        child_reports: []
+      },
+      null,
+      2
+    ) + "\n"
+  );
+
+  const result = runNode("ci/scripts/run_freeze_drift_since_merge_base_verifier.mjs", [
+    "--root", tempRoot,
+    "--manifest", "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    "--drift-report", "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    "--changed-file", "docs/releases/V1_FREEZE_STATE.json",
+    "--report", "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"
+  ]);
+
+  assert.notEqual(result.status, 0, "expected verifier failure");
+  const report = JSON.parse(fs.readFileSync(path.join(tempRoot, "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"), "utf8"));
+  assert.equal(report.failures.some((x) => x.token === "CI_MISSING_REQUIRED_PROOF"), true);
 });
 
-test("passes when changed freeze-sensitive files are fully attested in evidence", (t) => {
-  const repoDir = initRepo();
-  t.after(() => fs.rmSync(repoDir, { recursive: true, force: true }));
+test("fails when governed files changed and aggregate omits required child proof", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "freeze-drift-since-base-missing-child-"));
 
-  writeText(path.join(repoDir, "docs", "releases", "V1_RELEASE_NOTES.md"), "freeze notes\n");
-  writeText(path.join(repoDir, "ci", "evidence", "freeze.txt"), "evidence\n");
-  git(repoDir, ["add", "docs/releases/V1_RELEASE_NOTES.md", "ci/evidence/freeze.txt"]);
-  git(repoDir, ["commit", "-m", "freeze-sensitive change"]);
-
-  const result = runVerifier(
-    repoDir,
-    {
-      schema_version: "kolosseum.freeze_sensitive_surfaces.v1",
-      freeze_sensitive_surfaces: ["docs/releases/**", "ci/evidence/**"],
-    },
-    {
-      schema_version: "kolosseum.freeze_drift_evidence.v1",
-      base_ref: "origin/main",
-      freeze_drift_attested: "true",
-      freeze_surface_changes: [
-        "ci/evidence/freeze.txt",
-        "docs/releases/V1_RELEASE_NOTES.md"
-      ],
-    }
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    JSON.stringify(
+      {
+        governed_artefacts: [
+          { path: "docs/releases/V1_FREEZE_STATE.json", sha256: "a".repeat(64) }
+        ]
+      },
+      null,
+      2
+    ) + "\n"
   );
 
-  assert.equal(result.ok, true);
-  assert.deepEqual(
-    result.changed_freeze_sensitive_files.sort(),
-    ["ci/evidence/freeze.txt", "docs/releases/V1_RELEASE_NOTES.md"].sort()
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    JSON.stringify(
+      {
+        ok: true,
+        child_reports: [
+          goodChild("docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json"),
+          goodChild("docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json"),
+          goodChild("docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json")
+        ]
+      },
+      null,
+      2
+    ) + "\n"
   );
+
+  const result = runNode("ci/scripts/run_freeze_drift_since_merge_base_verifier.mjs", [
+    "--root", tempRoot,
+    "--manifest", "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
+    "--drift-report", "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    "--changed-file", "docs/releases/V1_FREEZE_STATE.json",
+    "--report", "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"
+  ]);
+
+  assert.notEqual(result.status, 0, "expected verifier failure");
+  const report = JSON.parse(fs.readFileSync(path.join(tempRoot, "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"), "utf8"));
+  assert.equal(report.failures.some((x) => x.token === "CI_MISSING_REQUIRED_PROOF"), true);
 });
