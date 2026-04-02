@@ -1,0 +1,50 @@
+{
+  "ok": true,
+  "verifier_id": "freeze_command_sequence_gate_verifier",
+  "checked_at_utc": "2026-04-02T12:46:08.207Z",
+  "command_order": "docs/releases/V1_OPERATOR_FREEZE_COMMAND_ORDER.json",
+  "invariant": "freeze packaging and preservation checks must not run before freeze state + manifest integrity are established",
+  "required_sequence": [
+    {
+      "key": "freeze_state_established",
+      "path": "docs/releases/V1_FREEZE_STATE.json",
+      "index": 0
+    },
+    {
+      "key": "manifest_completeness_verified",
+      "path": "ci/scripts/run_freeze_evidence_manifest_completeness_verifier.mjs",
+      "index": 1
+    },
+    {
+      "key": "manifest_self_hash_verified",
+      "path": "ci/scripts/run_freeze_evidence_manifest_self_hash_verifier.mjs",
+      "index": 2
+    },
+    {
+      "key": "mainline_preservation_verified",
+      "path": "ci/scripts/run_mainline_freeze_preservation_verifier.mjs",
+      "index": 3
+    },
+    {
+      "key": "operator_bundle_built",
+      "path": "ci/scripts/build_operator_freeze_pack.mjs",
+      "index": 4
+    },
+    {
+      "key": "operator_bundle_composition_verified",
+      "path": "ci/scripts/run_operator_freeze_pack_composition_verifier.mjs",
+      "index": 5
+    },
+    {
+      "key": "operator_bundle_preservation_verified",
+      "path": "ci/scripts/run_operator_freeze_bundle_preservation_verifier.mjs",
+      "index": 6
+    },
+    {
+      "key": "operator_bundle_surface_completeness_verified",
+      "path": "ci/scripts/run_operator_freeze_bundle_surface_completeness_verifier.mjs",
+      "index": 7
+    }
+  ],
+  "failures": []
+}

@@ -29,6 +29,7 @@
     "docs/releases/V1_EVIDENCE_SURFACE_REGISTRY.json",
     "docs/releases/V1_FINAL_ACCEPTANCE_BOUNDARY.json",
     "docs/releases/V1_FREEZE_ARTEFACT_SET.json",
+    "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json",
     "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
     "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST.json",
     "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
