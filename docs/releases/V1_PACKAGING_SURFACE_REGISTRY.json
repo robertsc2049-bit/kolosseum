@@ -35,6 +35,7 @@
     "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
     "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json",
     "docs/releases/V1_FREEZE_EXIT_CRITERIA.json",
+    "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json",
     "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
     "docs/releases/V1_FREEZE_READINESS.json",
     "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
