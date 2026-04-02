@@ -20,6 +20,18 @@
     {
       "proof_id": "p138_freeze_mainline_mutation_scope",
       "script_path": "ci/scripts/run_freeze_mainline_mutation_scope_verifier.mjs"
+    },
+    {
+      "proof_id": "p139_freeze_proof_runner_entrypoint",
+      "script_path": "ci/scripts/run_freeze_proof_chain.mjs"
+    },
+    {
+      "proof_id": "p140_freeze_proof_chain_completeness",
+      "script_path": "ci/scripts/run_freeze_proof_chain_completeness_verifier.mjs"
+    },
+    {
+      "proof_id": "p141_freeze_proof_runner_parity",
+      "script_path": "ci/scripts/run_freeze_proof_runner_parity_guard.mjs"
     }
   ]
 }

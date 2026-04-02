@@ -34,7 +34,16 @@ function seedProofChain(repoRoot, proofIds) {
 
 test("passes when runner stages match proof chain and required proof set exactly", () => {
   const repoRoot = makeRepo();
-  const proofIds = ["p134", "p135", "p136"];
+  const proofIds = [
+    "p134_freeze_promotion_packet_preservation",
+    "p135_freeze_promotion_packet_cleanliness",
+    "p136_freeze_rollback_packet_builder",
+    "p137_freeze_rollback_packet_compatibility",
+    "p138_freeze_mainline_mutation_scope",
+    "p139_freeze_proof_runner_entrypoint",
+    "p140_freeze_proof_chain_completeness",
+    "p141_freeze_proof_runner_parity"
+  ];
 
   seedRequiredProofSet(repoRoot, proofIds);
   seedProofChain(repoRoot, proofIds);
