@@ -1,296 +1,158 @@
+#!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
-import { fileURLToPath, pathToFileURL } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const REPO_ROOT = path.resolve(__dirname, "..", "..");
-const OUTPUT_PATH = path.join(REPO_ROOT, "docs", "releases", "V1_PROMOTION_READINESS.json");
+function parseArgs(argv) {
+  const args = {
+    root: process.cwd(),
+    outputPath: "docs/releases/V1_PROMOTION_READINESS.json",
+    writeReport: true,
+    requiredReports: [
+      "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
+      "docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json",
+      "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json",
+      "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
+      "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json",
+      "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_SURFACE_COMPLETENESS.json",
+      "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json",
+      "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json",
+      "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+      "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json",
+      "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"
+    ]
+  };
 
-function isPlainObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function sortValue(value) {
-  if (Array.isArray(value)) {
-    return value.map(sortValue);
-  }
-
-  if (isPlainObject(value)) {
-    return Object.keys(value)
-      .sort()
-      .reduce((acc, key) => {
-        acc[key] = sortValue(value[key]);
-        return acc;
-      }, {});
-  }
-
-  return value;
-}
-
-export function canonicalJson(value) {
-  return JSON.stringify(sortValue(value), null, 2) + "\n";
-}
-
-function listFilesSafe(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    return [];
-  }
-
-  return fs.readdirSync(dirPath, { withFileTypes: true })
-    .filter((entry) => entry.isFile())
-    .map((entry) => path.join(dirPath, entry.name));
-}
-
-function toRepoRelativePosix(absolutePath) {
-  const relative = path.relative(REPO_ROOT, absolutePath);
-  return relative.split(path.sep).join("/");
-}
-
-function rankFreezeVerifier(filePath) {
-  const name = path.basename(filePath).toLowerCase();
-  let score = 0;
-
-  if (name.includes("freeze")) score += 10;
-  if (name.includes("artefact") || name.includes("artifact")) score += 8;
-  if (name.includes("registry")) score += 6;
-  if (name.includes("surface")) score += 2;
-  if (name.includes("completeness")) score += 1;
-  if (name.includes("verifier")) score += 10;
-
-  return score;
-}
-
-function rankFreezeArtefact(filePath) {
-  const name = path.basename(filePath).toLowerCase();
-  let score = 0;
-
-  if (name.includes("freeze")) score += 10;
-  if (name.includes("artefact") || name.includes("artifact")) score += 8;
-  if (name.includes("registry")) score += 6;
-  if (name.includes("surface")) score += 2;
-
-  return score;
-}
-
-function selectUniqueBest(candidates, rankFn, label) {
-  if (candidates.length === 0) {
-    throw new Error(`No ${label} candidates found.`);
-  }
-
-  const scored = candidates
-    .map((filePath) => ({ filePath, score: rankFn(filePath) }))
-    .sort((a, b) => {
-      if (b.score !== a.score) {
-        return b.score - a.score;
-      }
-      return a.filePath.localeCompare(b.filePath);
-    });
-
-  const top = scored[0];
-  if (!top || top.score <= 0) {
-    throw new Error(
-      `No usable ${label} candidate found. Candidates were:\n${candidates.join("\n")}`
-    );
-  }
-
-  const ties = scored.filter((item) => item.score === top.score);
-  if (ties.length !== 1) {
-    throw new Error(
-      `Ambiguous ${label} candidate:\n${ties.map((item) => `${item.score} :: ${item.filePath}`).join("\n")}`
-    );
-  }
-
-  return top.filePath;
-}
-
-export function makePrerequisites() {
-  const scriptCandidates = listFilesSafe(path.join(REPO_ROOT, "ci", "scripts"))
-    .filter((filePath) => filePath.toLowerCase().includes("freeze") && filePath.toLowerCase().includes("verifier"));
-
-  const artefactCandidates = listFilesSafe(path.join(REPO_ROOT, "docs", "releases"))
-    .filter((filePath) => filePath.toLowerCase().includes("freeze") && filePath.toLowerCase().endsWith(".json"));
-
-  const runnerScriptAbs = selectUniqueBest(scriptCandidates, rankFreezeVerifier, "freeze verifier script");
-  const requiredArtefactAbs = selectUniqueBest(artefactCandidates, rankFreezeArtefact, "freeze readiness artefact");
-
-  return [
-    {
-      prerequisite_id: "freeze_readiness",
-      description: "Freeze readiness is mandatory for promotion readiness.",
-      runner_script: toRepoRelativePosix(runnerScriptAbs),
-      required_artefact: toRepoRelativePosix(requiredArtefactAbs)
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === "--root") {
+      args.root = path.resolve(argv[i + 1]);
+      i += 1;
+      continue;
     }
-  ];
+    if (arg === "--output") {
+      args.outputPath = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg === "--required-report") {
+      args.requiredReports.push(argv[i + 1]);
+      i += 1;
+      continue;
+    }
+    if (arg === "--replace-required-reports") {
+      args.requiredReports = [];
+      continue;
+    }
+    if (arg === "--no-write-report") {
+      args.writeReport = false;
+      continue;
+    }
+  }
+
+  return args;
 }
 
-function runPrerequisite(repoRoot, prerequisite) {
-  const runnerScriptAbs = path.join(repoRoot, prerequisite.runner_script);
-  const requiredArtefactAbs = path.join(repoRoot, prerequisite.required_artefact);
+function normalizeRel(input) {
+  return String(input).replace(/\\/g, "/").trim();
+}
 
-  if (!fs.existsSync(runnerScriptAbs)) {
-    return {
-      prerequisite_id: prerequisite.prerequisite_id,
-      ok: false,
-      runner_script: prerequisite.runner_script,
-      required_artefact: prerequisite.required_artefact,
-      failure_reason: "runner_script_missing",
-      details: prerequisite.runner_script
-    };
-  }
+function ensureDir(dirPath) {
+  fs.mkdirSync(dirPath, { recursive: true });
+}
 
-  if (!fs.existsSync(requiredArtefactAbs)) {
-    return {
-      prerequisite_id: prerequisite.prerequisite_id,
-      ok: false,
-      runner_script: prerequisite.runner_script,
-      required_artefact: prerequisite.required_artefact,
-      failure_reason: "required_artefact_missing",
-      details: prerequisite.required_artefact
-    };
-  }
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
 
-  const result = spawnSync(process.execPath, [runnerScriptAbs], {
-    cwd: repoRoot,
-    encoding: "utf8"
-  });
+function writeJson(filePath, value) {
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, JSON.stringify(value, null, 2) + "\n", "utf8");
+}
 
-  const stdout = (result.stdout ?? "").trim();
-  const stderr = (result.stderr ?? "").trim();
+function buildFailure(token, file, details, extra = {}) {
+  return { token, file, details, ...extra };
+}
 
-  if (result.error) {
-    return {
-      prerequisite_id: prerequisite.prerequisite_id,
-      ok: false,
-      runner_script: prerequisite.runner_script,
-      required_artefact: prerequisite.required_artefact,
-      failure_reason: "runner_spawn_failed",
-      details: String(result.error)
-    };
-  }
-
-  if (result.status !== 0) {
-    return {
-      prerequisite_id: prerequisite.prerequisite_id,
-      ok: false,
-      runner_script: prerequisite.runner_script,
-      required_artefact: prerequisite.required_artefact,
-      failure_reason: "runner_exit_nonzero",
-      details: stderr || stdout || "Runner exited non-zero."
-    };
-  }
-
-  let parsed;
-  try {
-    parsed = JSON.parse(stdout);
-  } catch {
-    return {
-      prerequisite_id: prerequisite.prerequisite_id,
-      ok: false,
-      runner_script: prerequisite.runner_script,
-      required_artefact: prerequisite.required_artefact,
-      failure_reason: "runner_output_not_json",
-      details: stdout || "Runner produced empty stdout."
-    };
-  }
-
-  if (!isPlainObject(parsed)) {
-    return {
-      prerequisite_id: prerequisite.prerequisite_id,
-      ok: false,
-      runner_script: prerequisite.runner_script,
-      required_artefact: prerequisite.required_artefact,
-      failure_reason: "runner_output_not_object",
-      details: "Runner JSON output must be an object."
-    };
-  }
-
-  if (parsed.ok !== true) {
-    return {
-      prerequisite_id: prerequisite.prerequisite_id,
-      ok: false,
-      runner_script: prerequisite.runner_script,
-      required_artefact: prerequisite.required_artefact,
-      failure_reason: "prerequisite_not_ready",
-      details: canonicalJson(parsed).trim()
-    };
-  }
-
+function summarizeReport(relPath, parsed) {
   return {
-    prerequisite_id: prerequisite.prerequisite_id,
-    ok: true,
-    runner_script: prerequisite.runner_script,
-    required_artefact: prerequisite.required_artefact,
-    prerequisite_output: parsed
+    path: relPath,
+    ok: parsed?.ok === true,
+    verifier_id: typeof parsed?.verifier_id === "string" ? parsed.verifier_id : null,
+    checked_at_utc: typeof parsed?.checked_at_utc === "string" ? parsed.checked_at_utc : null,
+    failure_count: Array.isArray(parsed?.failures) ? parsed.failures.length : 0
   };
 }
 
-export function buildPromotionReadiness({ repoRoot = REPO_ROOT, prerequisites = null } = {}) {
-  let resolvedPrerequisites;
+function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const requiredReports = Array.from(
+    new Set(args.requiredReports.map((entry) => normalizeRel(entry)).filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b));
 
-  try {
-    resolvedPrerequisites = prerequisites ?? makePrerequisites();
-  } catch (error) {
-    return {
-      schema_version: "kolosseum.v1.promotion_readiness.v1",
-      release_id: "v1",
-      readiness_id: "promotion_readiness",
-      ok: false,
-      promotion_ready: false,
-      failure: {
-        prerequisite_id: "freeze_readiness",
-        reason: "freeze_prerequisite_discovery_failed",
-        details: error instanceof Error ? error.message : String(error)
-      },
-      prerequisites: []
-    };
+  const failures = [];
+  const checks = [];
+
+  for (const relPath of requiredReports) {
+    const absolute = path.join(args.root, relPath);
+
+    if (!fs.existsSync(absolute)) {
+      failures.push(
+        buildFailure(
+          "CI_SPINE_MISSING_DOC",
+          relPath,
+          "Promotion readiness requires this freeze proof report, but it is missing."
+        )
+      );
+
+      checks.push({
+        path: relPath,
+        ok: false,
+        verifier_id: null,
+        checked_at_utc: null,
+        failure_count: null
+      });
+      continue;
+    }
+
+    const parsed = readJson(absolute);
+    const summary = summarizeReport(relPath, parsed);
+    checks.push(summary);
+
+    if (parsed?.ok !== true) {
+      failures.push(
+        buildFailure(
+          "CI_MISSING_REQUIRED_PROOF",
+          relPath,
+          "Promotion readiness is blocked because a required freeze proof report is absent or failing.",
+          {
+            verifier_id: summary.verifier_id,
+            child_ok: summary.ok,
+            failure_count: summary.failure_count
+          }
+        )
+      );
+    }
   }
 
-  const evaluated = resolvedPrerequisites.map((prerequisite) => runPrerequisite(repoRoot, prerequisite));
-  const failed = evaluated.find((item) => item.ok !== true);
-
-  if (failed) {
-    return {
-      schema_version: "kolosseum.v1.promotion_readiness.v1",
-      release_id: "v1",
-      readiness_id: "promotion_readiness",
-      ok: false,
-      promotion_ready: false,
-      required_prerequisite_ids: resolvedPrerequisites.map((item) => item.prerequisite_id),
-      failure: {
-        prerequisite_id: failed.prerequisite_id,
-        reason: failed.failure_reason,
-        details: failed.details
-      },
-      prerequisites: evaluated
-    };
-  }
-
-  return {
-    schema_version: "kolosseum.v1.promotion_readiness.v1",
-    release_id: "v1",
-    readiness_id: "promotion_readiness",
-    ok: true,
-    promotion_ready: true,
-    required_prerequisite_ids: resolvedPrerequisites.map((item) => item.prerequisite_id),
-    prerequisites: evaluated
+  const report = {
+    ok: failures.length === 0,
+    verifier_id: "postv1_promotion_readiness_runner",
+    checked_at_utc: new Date().toISOString(),
+    invariant: "promotion readiness must depend on completed freeze proof chain",
+    required_reports: checks,
+    failures
   };
+
+  if (args.writeReport) {
+    writeJson(path.join(args.root, args.outputPath), report);
+  }
+
+  if (!report.ok) {
+    process.stderr.write(JSON.stringify(report, null, 2) + "\n");
+    process.exit(1);
+  }
+
+  process.stdout.write(JSON.stringify(report, null, 2) + "\n");
 }
 
-export function writePromotionReadiness(outputPath, readiness) {
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, canonicalJson(readiness), "utf8");
-}
-
-export function main() {
-  const readiness = buildPromotionReadiness();
-  writePromotionReadiness(OUTPUT_PATH, readiness);
-  process.stdout.write(canonicalJson(readiness));
-  process.exitCode = readiness.ok ? 0 : 1;
-}
-
-const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : null;
-if (invokedPath && pathToFileURL(invokedPath).href === import.meta.url) {
-  main();
-}
+main();
