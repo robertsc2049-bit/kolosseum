@@ -2,6 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
+export const RUNNER_STAGE_IDS_IN_ORDER = Object.freeze([
+  "p134_freeze_promotion_packet_preservation",
+  "p135_freeze_promotion_packet_cleanliness",
+  "p136_freeze_rollback_packet_builder",
+  "p137_freeze_rollback_packet_compatibility",
+  "p138_freeze_mainline_mutation_scope"
+]);
+
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
@@ -21,6 +29,28 @@ function ensureArray(value, code, message, details = {}) {
 
 function toAbs(repoRoot, repoRelativePath) {
   return path.resolve(repoRoot, repoRelativePath);
+}
+
+function normalizeOrderedStringArray(values, code, label) {
+  ensureArray(values, code, `${label} must be an array.`);
+  const seen = new Set();
+  const ordered = [];
+
+  for (const value of values) {
+    if (typeof value !== "string" || value.trim().length === 0) {
+      fail(code, `${label} entries must be non-empty strings.`, { value });
+    }
+
+    const normalized = value.trim();
+    if (seen.has(normalized)) {
+      fail(code, `${label} contains duplicate entry '${normalized}'.`, { value: normalized });
+    }
+
+    seen.add(normalized);
+    ordered.push(normalized);
+  }
+
+  return ordered;
 }
 
 function normalizeProofSteps(value) {
@@ -142,6 +172,37 @@ function loadProofChain(repoRoot, proofChainPath) {
   };
 }
 
+function verifyProofStepsMatchRunnerOrder(proofSteps, runnerStageIds) {
+  const chainIds = proofSteps.map((step) => step.proof_id);
+
+  if (chainIds.length !== runnerStageIds.length) {
+    fail(
+      "FREEZE_PROOF_CHAIN_RUNNER_ORDER_LENGTH_MISMATCH",
+      "Freeze proof chain manifest length differs from runner stage order.",
+      {
+        chain_proof_ids_in_order: chainIds,
+        runner_stage_ids_in_order: runnerStageIds
+      }
+    );
+  }
+
+  for (let i = 0; i < chainIds.length; i += 1) {
+    if (chainIds[i] !== runnerStageIds[i]) {
+      fail(
+        "FREEZE_PROOF_CHAIN_RUNNER_ORDER_MISMATCH",
+        "Freeze proof chain manifest order differs from runner stage order.",
+        {
+          index: i,
+          chain_proof_id: chainIds[i],
+          runner_stage_id: runnerStageIds[i],
+          chain_proof_ids_in_order: chainIds,
+          runner_stage_ids_in_order: runnerStageIds
+        }
+      );
+    }
+  }
+}
+
 function runChildProof(repoRoot, step) {
   const scriptAbs = toAbs(repoRoot, step.script_path);
   if (!fs.existsSync(scriptAbs)) {
@@ -192,32 +253,32 @@ function runChildProof(repoRoot, step) {
 
   const stdout = child.stdout ?? "";
   const stderr = child.stderr ?? "";
-
-  let parsed = null;
   const trimmedStdout = stdout.trim();
-  if (trimmedStdout.length > 0) {
-    try {
-      parsed = JSON.parse(trimmedStdout);
-    } catch {
-      fail(
-        "FREEZE_PROOF_CHAIN_CHILD_OUTPUT_INVALID_JSON",
-        `Freeze proof child '${step.proof_id}' did not emit valid JSON.`,
-        {
-          proof_id: step.proof_id,
-          script_path: step.script_path,
-          stdout,
-          stderr,
-          exit_code: child.status
-        }
-      );
-    }
-  } else {
+
+  if (trimmedStdout.length === 0) {
     fail(
       "FREEZE_PROOF_CHAIN_CHILD_OUTPUT_EMPTY",
       `Freeze proof child '${step.proof_id}' emitted no JSON output.`,
       {
         proof_id: step.proof_id,
         script_path: step.script_path,
+        stderr,
+        exit_code: child.status
+      }
+    );
+  }
+
+  let parsed = null;
+  try {
+    parsed = JSON.parse(trimmedStdout);
+  } catch {
+    fail(
+      "FREEZE_PROOF_CHAIN_CHILD_OUTPUT_INVALID_JSON",
+      `Freeze proof child '${step.proof_id}' did not emit valid JSON.`,
+      {
+        proof_id: step.proof_id,
+        script_path: step.script_path,
+        stdout,
         stderr,
         exit_code: child.status
       }
@@ -262,11 +323,19 @@ function runChildProof(repoRoot, step) {
 
 export function runFreezeProofChain({
   repoRoot = process.cwd(),
-  proofChainPath = "docs/releases/V1_FREEZE_PROOF_CHAIN.json"
+  proofChainPath = "docs/releases/V1_FREEZE_PROOF_CHAIN.json",
+  runnerStageIds = RUNNER_STAGE_IDS_IN_ORDER
 } = {}) {
-  const chain = loadProofChain(repoRoot, proofChainPath);
-  const results = [];
+  const normalizedRunnerStageIds = normalizeOrderedStringArray(
+    runnerStageIds,
+    "FREEZE_PROOF_CHAIN_RUNNER_STAGE_IDS_INVALID",
+    "runnerStageIds"
+  );
 
+  const chain = loadProofChain(repoRoot, proofChainPath);
+  verifyProofStepsMatchRunnerOrder(chain.proof_steps, normalizedRunnerStageIds);
+
+  const results = [];
   for (const step of chain.proof_steps) {
     results.push(runChildProof(repoRoot, step));
   }
@@ -275,6 +344,7 @@ export function runFreezeProofChain({
     ok: true,
     schema_version: "kolosseum.freeze.proof_chain_report.v1",
     proof_chain_path: proofChainPath,
+    runner_stage_ids_in_order: normalizedRunnerStageIds,
     proof_count: results.length,
     results
   };
