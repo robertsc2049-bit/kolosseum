@@ -67,6 +67,7 @@
                      "docs/releases/V1_ROLLBACK.md",
                      "docs/releases/V1_ROLLBACK_RUNBOOK.md",
                      "docs/releases/V1_VERSION_AND_TAG.md",
-                     "docs/releases/V1_FREEZE_PROOF_INDEX_COMPLETENESS.json"
+                     "docs/releases/V1_FREEZE_PROOF_INDEX_COMPLETENESS.json",
+                     "docs/releases/V1_FREEZE_PROOF_CHAIN_ORDER.json"
                  ]
 }
