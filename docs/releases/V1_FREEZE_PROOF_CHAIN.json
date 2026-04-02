@@ -1,0 +1,25 @@
+{
+  "schema_version": "kolosseum.freeze.proof_chain.v1",
+  "proof_steps": [
+    {
+      "proof_id": "p134_freeze_promotion_packet_preservation",
+      "script_path": "ci/scripts/run_freeze_promotion_packet_preservation_verifier.mjs"
+    },
+    {
+      "proof_id": "p135_freeze_promotion_packet_cleanliness",
+      "script_path": "ci/scripts/run_freeze_promotion_packet_cleanliness_guard.mjs"
+    },
+    {
+      "proof_id": "p136_freeze_rollback_packet_builder",
+      "script_path": "ci/scripts/build_freeze_rollback_packet.mjs"
+    },
+    {
+      "proof_id": "p137_freeze_rollback_packet_compatibility",
+      "script_path": "ci/scripts/run_freeze_rollback_packet_compatibility_verifier.mjs"
+    },
+    {
+      "proof_id": "p138_freeze_mainline_mutation_scope",
+      "script_path": "ci/scripts/run_freeze_mainline_mutation_scope_verifier.mjs"
+    }
+  ]
+}

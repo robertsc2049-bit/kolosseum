@@ -41,6 +41,7 @@
                      "docs/releases/V1_FREEZE_MAINLINE_MUTATION_SCOPE.json",
                      "docs/releases/V1_FREEZE_PACK_REBUILD_CLEANLINESS.json",
                      "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
+                     "docs/releases/V1_FREEZE_PROOF_CHAIN.json",
                      "docs/releases/V1_FREEZE_PROOF_CHAIN_ORDER.json",
                      "docs/releases/V1_FREEZE_PROOF_INDEX.json",
                      "docs/releases/V1_FREEZE_PROOF_INDEX_COMPLETENESS.json",
