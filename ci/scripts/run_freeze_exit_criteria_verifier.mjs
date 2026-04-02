@@ -1,267 +1,197 @@
+#!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
 
-const TOKEN = "CI_FREEZE_EXIT_CRITERIA_INVALID";
-const DEFAULT_CRITERIA_PATH = "docs/releases/V1_FREEZE_EXIT_CRITERIA.json";
-const DEFAULT_FREEZE_STATE_PATH = "docs/releases/V1_FREEZE_STATE.json";
-
-const REQUIRED_KEYS = [
-  "schema_version",
-  "freeze_exit_permitted",
-  "freeze_exit_declared_by",
-  "required_exit_checks",
-  "required_exit_artefacts",
-  "allowed_exit_transition",
-  "notes",
-];
-
-const REQUIRED_EXIT_CHECKS = [
-  "freeze_state_bound_to_lifecycle",
-  "promotion_readiness_bound_to_freeze_state",
-  "freeze_drift_evidence_present",
-  "freeze_packaging_composition_closed_world",
-];
-
-const REQUIRED_EXIT_ARTEFACTS = [
-  "docs/releases/V1_FREEZE_STATE.json",
-  "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
-  "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
-  "docs/releases/V1_PROMOTION_READINESS.json",
-];
-
-function fail(details, extra = {}) {
-  return {
-    ok: false,
-    failures: [
-      {
-        token: TOKEN,
-        details,
-        ...extra,
-      },
-    ],
+function parseArgs(argv) {
+  const args = {
+    root: process.cwd(),
+    freezeStatePath: "docs/releases/V1_FREEZE_STATE.json",
+    reportPath: "docs/releases/V1_FREEZE_EXIT_CRITERIA.json",
+    writeReport: true
   };
+
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === "--root") {
+      args.root = path.resolve(argv[i + 1]);
+      i += 1;
+      continue;
+    }
+    if (arg === "--freeze-state") {
+      args.freezeStatePath = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg === "--report") {
+      args.reportPath = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (arg === "--no-write-report") {
+      args.writeReport = false;
+      continue;
+    }
+  }
+
+  return args;
 }
 
-function ok(meta = {}) {
-  return { ok: true, ...meta };
+function normalizeRel(input) {
+  return String(input).replace(/\\/g, "/").trim();
 }
 
-function normalizePath(value) {
-  return String(value ?? "")
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n")
-    .replace(/\\/g, "/")
-    .replace(/^\.\//, "")
-    .trim();
-}
-
-function uniqueSortedStrings(values) {
-  return [...new Set((Array.isArray(values) ? values : []).map((value) => String(value).trim()).filter(Boolean))].sort();
-}
-
-function uniqueSortedPaths(values) {
-  return [...new Set((Array.isArray(values) ? values : []).map((value) => normalizePath(value)).filter(Boolean))].sort();
+function ensureDir(dirPath) {
+  fs.mkdirSync(dirPath, { recursive: true });
 }
 
 function readJson(filePath) {
-  try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { __read_error__: `Failed to read JSON at ${filePath}: ${message}` };
-  }
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
-function isPlainObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
+function writeReport(root, reportPath, report) {
+  const absolute = path.join(root, reportPath);
+  ensureDir(path.dirname(absolute));
+  fs.writeFileSync(absolute, JSON.stringify(report, null, 2) + "\n", "utf8");
 }
 
-function verifyFreezeExitCriteria({
-  criteriaPath,
-  freezeStatePath,
-}) {
-  const criteria = readJson(criteriaPath);
-  if (criteria.__read_error__) {
-    return fail(criteria.__read_error__, { path: normalizePath(criteriaPath) });
-  }
+function buildFailure(token, file, details, extra = {}) {
+  return { token, file, details, ...extra };
+}
 
-  if (!isPlainObject(criteria)) {
-    return fail(
-      "Freeze exit criteria artefact must be a JSON object.",
-      { path: normalizePath(criteriaPath) }
-    );
-  }
+function summarizeProofReport(relPath, parsed) {
+  return {
+    path: relPath,
+    ok: parsed?.ok === true,
+    verifier_id: typeof parsed?.verifier_id === "string" ? parsed.verifier_id : null,
+    checked_at_utc: typeof parsed?.checked_at_utc === "string" ? parsed.checked_at_utc : null,
+    failure_count: Array.isArray(parsed?.failures) ? parsed.failures.length : 0
+  };
+}
 
-  const freezeState = readJson(freezeStatePath);
-  if (freezeState.__read_error__) {
-    return fail(freezeState.__read_error__, { path: normalizePath(freezeStatePath) });
-  }
-
-  if (!isPlainObject(freezeState)) {
-    return fail(
-      "Freeze state artefact must be a JSON object.",
-      { path: normalizePath(freezeStatePath) }
-    );
-  }
-
-  for (const key of REQUIRED_KEYS) {
-    if (!(key in criteria)) {
-      return fail(
-        `Freeze exit criteria is missing required field '${key}'.`,
-        {
-          path: normalizePath(criteriaPath),
-          field: key,
-        }
-      );
-    }
-  }
-
-  const allowedKeys = new Set(REQUIRED_KEYS);
-  for (const key of Object.keys(criteria)) {
-    if (!allowedKeys.has(key)) {
-      return fail(
-        `Freeze exit criteria contains unknown field '${key}'.`,
-        {
-          path: normalizePath(criteriaPath),
-          field: key,
-        }
-      );
-    }
-  }
-
-  if (criteria.schema_version !== "kolosseum.freeze_exit_criteria.v1") {
-    return fail(
-      "Freeze exit criteria schema_version must equal 'kolosseum.freeze_exit_criteria.v1'.",
-      {
-        path: normalizePath(criteriaPath),
-        field: "schema_version",
-      }
-    );
-  }
-
-  if (criteria.freeze_exit_permitted !== false) {
-    return fail(
-      "Freeze exit criteria freeze_exit_permitted must be false until a lawful exit artefact explicitly changes it.",
-      {
-        path: normalizePath(criteriaPath),
-        field: "freeze_exit_permitted",
-      }
-    );
-  }
-
-  const declaredBy = String(criteria.freeze_exit_declared_by ?? "").trim();
-  if (!declaredBy) {
-    return fail(
-      "Freeze exit criteria freeze_exit_declared_by must be a non-empty string.",
-      {
-        path: normalizePath(criteriaPath),
-        field: "freeze_exit_declared_by",
-      }
-    );
-  }
-
-  const requiredExitChecks = uniqueSortedStrings(criteria.required_exit_checks);
-  const missingChecks = REQUIRED_EXIT_CHECKS.filter((item) => !requiredExitChecks.includes(item));
-  if (requiredExitChecks.length === 0 || missingChecks.length > 0) {
-    return fail(
-      `Freeze exit criteria required_exit_checks is incomplete. Missing: ${missingChecks.join(", ")}`,
-      {
-        path: normalizePath(criteriaPath),
-        field: "required_exit_checks",
-        missing_required_exit_checks: missingChecks,
-      }
-    );
-  }
-
-  const requiredExitArtefacts = uniqueSortedPaths(criteria.required_exit_artefacts);
-  const missingArtefacts = REQUIRED_EXIT_ARTEFACTS.filter((item) => !requiredExitArtefacts.includes(item));
-  if (requiredExitArtefacts.length === 0 || missingArtefacts.length > 0) {
-    return fail(
-      `Freeze exit criteria required_exit_artefacts is incomplete. Missing: ${missingArtefacts.join(", ")}`,
-      {
-        path: normalizePath(criteriaPath),
-        field: "required_exit_artefacts",
-        missing_required_exit_artefacts: missingArtefacts,
-      }
-    );
-  }
-
-  const allowedExitTransition = String(criteria.allowed_exit_transition ?? "").trim();
-  if (allowedExitTransition !== "sealed -> released") {
-    return fail(
-      "Freeze exit criteria allowed_exit_transition must equal 'sealed -> released'.",
-      {
-        path: normalizePath(criteriaPath),
-        field: "allowed_exit_transition",
-      }
-    );
-  }
-
-  if (typeof criteria.notes !== "string" || !criteria.notes.trim()) {
-    return fail(
-      "Freeze exit criteria notes must be a non-empty string.",
-      {
-        path: normalizePath(criteriaPath),
-        field: "notes",
-      }
-    );
-  }
-
-  const freezeStateValue = String(freezeState.freeze_state ?? "").trim().toLowerCase();
-  if (freezeStateValue !== "sealed") {
-    return fail(
-      `Freeze exit criteria can only be evaluated from freeze_state 'sealed'. Received '${freezeStateValue}'.`,
-      {
-        path: normalizePath(freezeStatePath),
-        field: "freeze_state",
-      }
-    );
-  }
-
-  return ok({
-    criteria_path: normalizePath(criteriaPath),
-    freeze_state_path: normalizePath(freezeStatePath),
-    freeze_state: freezeStateValue,
-    allowed_exit_transition: allowedExitTransition,
-    freeze_exit_permitted: false,
-  });
+function requiredFreezeProofReports() {
+  return [
+    "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
+    "docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json",
+    "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json",
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json",
+    "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_SURFACE_COMPLETENESS.json",
+    "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json",
+    "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json",
+    "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"
+  ];
 }
 
 function main() {
-  const args = process.argv.slice(2);
+  const args = parseArgs(process.argv.slice(2));
+  const failures = [];
+  const freezeStateAbs = path.join(args.root, args.freezeStatePath);
+  const proofPaths = requiredFreezeProofReports();
+  const proofSummaries = [];
 
-  if (args.length > 2) {
-    process.stderr.write(
-      JSON.stringify(
-        fail(
-          "Usage: node ci/scripts/run_freeze_exit_criteria_verifier.mjs [criteriaPath] [freezeStatePath]"
-        ),
-        null,
-        2
-      ) + "\n"
+  let freezeState = null;
+  let freezeDeclared = null;
+
+  if (!fs.existsSync(freezeStateAbs)) {
+    failures.push(
+      buildFailure(
+        "CI_SPINE_MISSING_DOC",
+        normalizeRel(args.freezeStatePath),
+        "Freeze state declaration missing."
+      )
     );
+  } else {
+    const parsedState = readJson(freezeStateAbs);
+    freezeState = typeof parsedState?.freeze_state === "string" ? parsedState.freeze_state : null;
+    freezeDeclared = parsedState?.freeze_declared === true;
+
+    if (freezeState !== "sealed") {
+      failures.push(
+        buildFailure(
+          "CI_MISSING_REQUIRED_PROOF",
+          normalizeRel(args.freezeStatePath),
+          "Freeze exit criteria requires freeze_state to be sealed.",
+          { actual_freeze_state: freezeState }
+        )
+      );
+    }
+
+    if (freezeDeclared !== true) {
+      failures.push(
+        buildFailure(
+          "CI_MISSING_REQUIRED_PROOF",
+          normalizeRel(args.freezeStatePath),
+          "Freeze exit criteria requires freeze_declared=true.",
+          { freeze_declared: freezeDeclared }
+        )
+      );
+    }
+  }
+
+  for (const relPath of proofPaths) {
+    const absolute = path.join(args.root, relPath);
+
+    if (!fs.existsSync(absolute)) {
+      failures.push(
+        buildFailure(
+          "CI_SPINE_MISSING_DOC",
+          relPath,
+          "Required freeze proof report missing."
+        )
+      );
+      proofSummaries.push({
+        path: relPath,
+        ok: false,
+        verifier_id: null,
+        checked_at_utc: null,
+        failure_count: null
+      });
+      continue;
+    }
+
+    const parsed = readJson(absolute);
+    const summary = summarizeProofReport(relPath, parsed);
+    proofSummaries.push(summary);
+
+    if (parsed?.ok !== true) {
+      failures.push(
+        buildFailure(
+          "CI_MISSING_REQUIRED_PROOF",
+          relPath,
+          "Freeze cannot be declared complete while a required freeze proof report is absent or failing.",
+          {
+            verifier_id: summary.verifier_id,
+            child_ok: summary.ok,
+            failure_count: summary.failure_count
+          }
+        )
+      );
+    }
+  }
+
+  const report = {
+    ok: failures.length === 0,
+    verifier_id: "freeze_exit_criteria_verifier",
+    checked_at_utc: new Date().toISOString(),
+    invariant: "freeze cannot be declared complete while any freeze-proof surface is absent or failing",
+    freeze_state_path: normalizeRel(args.freezeStatePath),
+    freeze_state: freezeState,
+    freeze_declared: freezeDeclared,
+    required_freeze_proof_reports: proofSummaries,
+    failures
+  };
+
+  if (args.writeReport) {
+    writeReport(args.root, args.reportPath, report);
+  }
+
+  if (!report.ok) {
+    process.stderr.write(JSON.stringify(report, null, 2) + "\n");
     process.exit(1);
   }
 
-  const criteriaPath = path.resolve(args[0] ?? DEFAULT_CRITERIA_PATH);
-  const freezeStatePath = path.resolve(args[1] ?? DEFAULT_FREEZE_STATE_PATH);
-
-  const result = verifyFreezeExitCriteria({
-    criteriaPath,
-    freezeStatePath,
-  });
-
-  const target = result.ok ? process.stdout : process.stderr;
-  target.write(JSON.stringify(result, null, 2) + "\n");
-  process.exit(result.ok ? 0 : 1);
+  process.stdout.write(JSON.stringify(report, null, 2) + "\n");
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
-}
-
-export {
-  DEFAULT_CRITERIA_PATH,
-  DEFAULT_FREEZE_STATE_PATH,
-  verifyFreezeExitCriteria,
-};
+main();

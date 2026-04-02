@@ -1,19 +1,82 @@
 {
-  "schema_version": "kolosseum.freeze_exit_criteria.v1",
-  "freeze_exit_permitted": false,
-  "freeze_exit_declared_by": "freeze_exit_criteria_law",
-  "required_exit_checks": [
-    "freeze_state_bound_to_lifecycle",
-    "promotion_readiness_bound_to_freeze_state",
-    "freeze_drift_evidence_present",
-    "freeze_packaging_composition_closed_world"
+  "ok": true,
+  "verifier_id": "freeze_exit_criteria_verifier",
+  "checked_at_utc": "2026-04-02T13:11:11.711Z",
+  "invariant": "freeze cannot be declared complete while any freeze-proof surface is absent or failing",
+  "freeze_state_path": "docs/releases/V1_FREEZE_STATE.json",
+  "freeze_state": "sealed",
+  "freeze_declared": true,
+  "required_freeze_proof_reports": [
+    {
+      "path": "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
+      "ok": true,
+      "verifier_id": "freeze_rollback_compatibility_verifier",
+      "checked_at_utc": "2026-04-01T19:00:19.905Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json",
+      "ok": true,
+      "verifier_id": "mainline_freeze_preservation_verifier",
+      "checked_at_utc": "2026-04-02T07:53:32.240Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json",
+      "ok": true,
+      "verifier_id": "operator_freeze_bundle_preservation_verifier",
+      "checked_at_utc": "2026-04-02T08:11:07.797Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
+      "ok": true,
+      "verifier_id": "freeze_evidence_manifest_completeness_verifier",
+      "checked_at_utc": "2026-04-02T08:22:38.437Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json",
+      "ok": true,
+      "verifier_id": "freeze_evidence_manifest_self_hash_verifier",
+      "checked_at_utc": "2026-04-02T08:32:41.039Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_SURFACE_COMPLETENESS.json",
+      "ok": true,
+      "verifier_id": "operator_freeze_bundle_surface_completeness_verifier",
+      "checked_at_utc": "2026-04-02T08:43:37.663Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json",
+      "ok": true,
+      "verifier_id": "freeze_command_sequence_gate_verifier",
+      "checked_at_utc": "2026-04-02T12:46:08.207Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json",
+      "ok": true,
+      "verifier_id": "freeze_mainline_entry_guard",
+      "checked_at_utc": "2026-04-02T12:52:54.964Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+      "ok": true,
+      "verifier_id": "freeze_drift_report_builder",
+      "checked_at_utc": "2026-04-02T12:58:31.504Z",
+      "failure_count": 0
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json",
+      "ok": true,
+      "verifier_id": "freeze_drift_since_merge_base_verifier",
+      "checked_at_utc": "2026-04-02T13:04:38.864Z",
+      "failure_count": 0
+    }
   ],
-  "required_exit_artefacts": [
-    "docs/releases/V1_FREEZE_STATE.json",
-    "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
-    "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
-    "docs/releases/V1_PROMOTION_READINESS.json"
-  ],
-  "allowed_exit_transition": "sealed -> released",
-  "notes": "Freeze exit is lawful only when exit criteria remain explicit, machine-readable, and complete. Freeze cannot be exited informally from surrounding prose."
+  "failures": []
 }

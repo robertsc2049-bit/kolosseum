@@ -3,205 +3,205 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { verifyFreezeExitCriteria } from "../ci/scripts/run_freeze_exit_criteria_verifier.mjs";
+import { spawnSync } from "node:child_process";
 
-function writeJson(dir, name, value) {
-  const filePath = path.join(dir, name);
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(value, null, 2) + "\n", "utf8");
-  return filePath;
+function writeFile(root, relativePath, content) {
+  const fullPath = path.join(root, relativePath);
+  fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+  fs.writeFileSync(fullPath, content.replace(/\r\n/g, "\n"), "utf8");
 }
 
-function runCase(t, criteriaDoc, freezeStateDoc) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "p113-"));
-  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-
-  const criteriaPath = writeJson(dir, "criteria.json", criteriaDoc);
-  const freezeStatePath = writeJson(dir, "freeze-state.json", freezeStateDoc);
-
-  return verifyFreezeExitCriteria({
-    criteriaPath,
-    freezeStatePath,
-  });
+function runNode(scriptRelative, args = []) {
+  const scriptPath = path.resolve(scriptRelative);
+  return spawnSync(process.execPath, [scriptPath, ...args], { encoding: "utf8" });
 }
 
-test("passes when freeze exit criteria are complete and freeze state is sealed", (t) => {
-  const result = runCase(
-    t,
+function goodReport(verifierId) {
+  return JSON.stringify(
     {
-      schema_version: "kolosseum.freeze_exit_criteria.v1",
-      freeze_exit_permitted: false,
-      freeze_exit_declared_by: "freeze_exit_criteria_law",
-      required_exit_checks: [
-        "freeze_state_bound_to_lifecycle",
-        "promotion_readiness_bound_to_freeze_state",
-        "freeze_drift_evidence_present",
-        "freeze_packaging_composition_closed_world"
-      ],
-      required_exit_artefacts: [
-        "docs/releases/V1_FREEZE_STATE.json",
-        "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
-        "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
-        "docs/releases/V1_PROMOTION_READINESS.json"
-      ],
-      allowed_exit_transition: "sealed -> released",
-      notes: "ok"
+      ok: true,
+      verifier_id: verifierId,
+      checked_at_utc: "2026-04-02T00:00:00.000Z",
+      failures: []
     },
-    {
-      schema_version: "kolosseum.freeze_state_declaration.v1",
-      freeze_state: "sealed",
-      freeze_declared: true,
-      freeze_state_declared_by: "registry_seal_lifecycle"
-    }
+    null,
+    2
+  ) + "\n";
+}
+
+function requiredReportPaths() {
+  return [
+    "docs/releases/V1_FREEZE_ROLLBACK_COMPATIBILITY.json",
+    "docs/releases/V1_MAINLINE_FREEZE_PRESERVATION.json",
+    "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json",
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_COMPLETENESS.json",
+    "docs/releases/V1_FREEZE_EVIDENCE_MANIFEST_SELF_HASH.json",
+    "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_SURFACE_COMPLETENESS.json",
+    "docs/releases/V1_FREEZE_COMMAND_SEQUENCE_GATE.json",
+    "docs/releases/V1_FREEZE_MAINLINE_ENTRY_GUARD.json",
+    "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    "docs/releases/V1_FREEZE_DRIFT_SINCE_MERGE_BASE.json"
+  ];
+}
+
+test("passes when freeze state is sealed and every required freeze proof report is present and ok", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "freeze-exit-criteria-pass-"));
+
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_STATE.json",
+    JSON.stringify(
+      {
+        freeze_state: "sealed",
+        freeze_declared: true
+      },
+      null,
+      2
+    ) + "\n"
   );
 
-  assert.equal(result.ok, true);
-  assert.equal(result.freeze_state, "sealed");
-});
+  for (const relPath of requiredReportPaths()) {
+    writeFile(tempRoot, relPath, goodReport(path.basename(relPath, ".json")));
+  }
 
-test("fails when required exit checks are incomplete", (t) => {
-  const result = runCase(
-    t,
-    {
-      schema_version: "kolosseum.freeze_exit_criteria.v1",
-      freeze_exit_permitted: false,
-      freeze_exit_declared_by: "freeze_exit_criteria_law",
-      required_exit_checks: [
-        "freeze_state_bound_to_lifecycle"
-      ],
-      required_exit_artefacts: [
-        "docs/releases/V1_FREEZE_STATE.json",
-        "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
-        "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
-        "docs/releases/V1_PROMOTION_READINESS.json"
-      ],
-      allowed_exit_transition: "sealed -> released",
-      notes: "ok"
-    },
-    {
-      schema_version: "kolosseum.freeze_state_declaration.v1",
-      freeze_state: "sealed",
-      freeze_declared: true,
-      freeze_state_declared_by: "registry_seal_lifecycle"
-    }
+  const result = runNode("ci/scripts/run_freeze_exit_criteria_verifier.mjs", [
+    "--root", tempRoot,
+    "--freeze-state", "docs/releases/V1_FREEZE_STATE.json",
+    "--report", "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"
+  ]);
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const report = JSON.parse(
+    fs.readFileSync(path.join(tempRoot, "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"), "utf8")
   );
 
-  assert.equal(result.ok, false);
-  assert.equal(result.failures[0].token, "CI_FREEZE_EXIT_CRITERIA_INVALID");
-  assert.match(result.failures[0].details, /required_exit_checks is incomplete/i);
+  assert.equal(report.ok, true);
+  assert.equal(report.failures.length, 0);
+  assert.equal(report.required_freeze_proof_reports.length, 10);
 });
 
-test("fails when required exit artefacts are incomplete", (t) => {
-  const result = runCase(
-    t,
-    {
-      schema_version: "kolosseum.freeze_exit_criteria.v1",
-      freeze_exit_permitted: false,
-      freeze_exit_declared_by: "freeze_exit_criteria_law",
-      required_exit_checks: [
-        "freeze_state_bound_to_lifecycle",
-        "promotion_readiness_bound_to_freeze_state",
-        "freeze_drift_evidence_present",
-        "freeze_packaging_composition_closed_world"
-      ],
-      required_exit_artefacts: [
-        "docs/releases/V1_FREEZE_STATE.json"
-      ],
-      allowed_exit_transition: "sealed -> released",
-      notes: "ok"
-    },
-    {
-      schema_version: "kolosseum.freeze_state_declaration.v1",
-      freeze_state: "sealed",
-      freeze_declared: true,
-      freeze_state_declared_by: "registry_seal_lifecycle"
-    }
+test("fails when a required freeze proof report is missing", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "freeze-exit-criteria-missing-"));
+
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_STATE.json",
+    JSON.stringify(
+      {
+        freeze_state: "sealed",
+        freeze_declared: true
+      },
+      null,
+      2
+    ) + "\n"
   );
 
-  assert.equal(result.ok, false);
-  assert.equal(result.failures[0].token, "CI_FREEZE_EXIT_CRITERIA_INVALID");
-  assert.match(result.failures[0].details, /required_exit_artefacts is incomplete/i);
-});
+  const paths = requiredReportPaths();
+  for (let i = 0; i < paths.length - 1; i += 1) {
+    writeFile(tempRoot, paths[i], goodReport(path.basename(paths[i], ".json")));
+  }
 
-test("fails when exit transition is not pinned to sealed -> released", (t) => {
-  const result = runCase(
-    t,
-    {
-      schema_version: "kolosseum.freeze_exit_criteria.v1",
-      freeze_exit_permitted: false,
-      freeze_exit_declared_by: "freeze_exit_criteria_law",
-      required_exit_checks: [
-        "freeze_state_bound_to_lifecycle",
-        "promotion_readiness_bound_to_freeze_state",
-        "freeze_drift_evidence_present",
-        "freeze_packaging_composition_closed_world"
-      ],
-      required_exit_artefacts: [
-        "docs/releases/V1_FREEZE_STATE.json",
-        "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
-        "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
-        "docs/releases/V1_PROMOTION_READINESS.json"
-      ],
-      allowed_exit_transition: "sealed -> pre_seal",
-      notes: "ok"
-    },
-    {
-      schema_version: "kolosseum.freeze_state_declaration.v1",
-      freeze_state: "sealed",
-      freeze_declared: true,
-      freeze_state_declared_by: "registry_seal_lifecycle"
-    }
+  const result = runNode("ci/scripts/run_freeze_exit_criteria_verifier.mjs", [
+    "--root", tempRoot,
+    "--freeze-state", "docs/releases/V1_FREEZE_STATE.json",
+    "--report", "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"
+  ]);
+
+  assert.notEqual(result.status, 0, "expected verifier failure");
+
+  const report = JSON.parse(
+    fs.readFileSync(path.join(tempRoot, "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"), "utf8")
   );
 
-  assert.equal(result.ok, false);
-  assert.equal(result.failures[0].token, "CI_FREEZE_EXIT_CRITERIA_INVALID");
-  assert.match(result.failures[0].details, /allowed_exit_transition must equal 'sealed -> released'/i);
+  assert.equal(report.ok, false);
+  assert.equal(report.failures.some((x) => x.token === "CI_SPINE_MISSING_DOC"), true);
 });
 
-test("fails when freeze state is not sealed", (t) => {
-  const result = runCase(
-    t,
-    {
-      schema_version: "kolosseum.freeze_exit_criteria.v1",
-      freeze_exit_permitted: false,
-      freeze_exit_declared_by: "freeze_exit_criteria_law",
-      required_exit_checks: [
-        "freeze_state_bound_to_lifecycle",
-        "promotion_readiness_bound_to_freeze_state",
-        "freeze_drift_evidence_present",
-        "freeze_packaging_composition_closed_world"
-      ],
-      required_exit_artefacts: [
-        "docs/releases/V1_FREEZE_STATE.json",
-        "docs/releases/V1_FREEZE_DRIFT_EVIDENCE.json",
-        "docs/releases/V1_FREEZE_PACKAGING_ARTEFACT_SET.json",
-        "docs/releases/V1_PROMOTION_READINESS.json"
-      ],
-      allowed_exit_transition: "sealed -> released",
-      notes: "ok"
-    },
-    {
-      schema_version: "kolosseum.freeze_state_declaration.v1",
-      freeze_state: "pre_seal",
-      freeze_declared: true,
-      freeze_state_declared_by: "registry_seal_lifecycle"
-    }
+test("fails when a required freeze proof report exists but is not ok", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "freeze-exit-criteria-bad-proof-"));
+
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_STATE.json",
+    JSON.stringify(
+      {
+        freeze_state: "sealed",
+        freeze_declared: true
+      },
+      null,
+      2
+    ) + "\n"
   );
 
-  assert.equal(result.ok, false);
-  assert.equal(result.failures[0].token, "CI_FREEZE_EXIT_CRITERIA_INVALID");
-  assert.match(result.failures[0].details, /can only be evaluated from freeze_state 'sealed'/i);
+  const paths = requiredReportPaths();
+  for (const relPath of paths) {
+    writeFile(tempRoot, relPath, goodReport(path.basename(relPath, ".json")));
+  }
+
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_DRIFT_REPORT.json",
+    JSON.stringify(
+      {
+        ok: false,
+        verifier_id: "freeze_drift_report_builder",
+        checked_at_utc: "2026-04-02T00:00:00.000Z",
+        failures: [{ token: "X" }]
+      },
+      null,
+      2
+    ) + "\n"
+  );
+
+  const result = runNode("ci/scripts/run_freeze_exit_criteria_verifier.mjs", [
+    "--root", tempRoot,
+    "--freeze-state", "docs/releases/V1_FREEZE_STATE.json",
+    "--report", "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"
+  ]);
+
+  assert.notEqual(result.status, 0, "expected verifier failure");
+
+  const report = JSON.parse(
+    fs.readFileSync(path.join(tempRoot, "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"), "utf8")
+  );
+
+  assert.equal(report.ok, false);
+  assert.equal(report.failures.some((x) => x.token === "CI_MISSING_REQUIRED_PROOF"), true);
 });
 
-test("repo freeze exit criteria and freeze state pass verifier", () => {
-  const criteriaPath = path.resolve("docs/releases/V1_FREEZE_EXIT_CRITERIA.json");
-  const freezeStatePath = path.resolve("docs/releases/V1_FREEZE_STATE.json");
+test("fails when freeze state is not sealed", () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "freeze-exit-criteria-state-"));
 
-  const result = verifyFreezeExitCriteria({
-    criteriaPath,
-    freezeStatePath,
-  });
+  writeFile(
+    tempRoot,
+    "docs/releases/V1_FREEZE_STATE.json",
+    JSON.stringify(
+      {
+        freeze_state: "pre_seal",
+        freeze_declared: true
+      },
+      null,
+      2
+    ) + "\n"
+  );
 
-  assert.equal(result.ok, true);
-  assert.equal(result.freeze_state, "sealed");
+  for (const relPath of requiredReportPaths()) {
+    writeFile(tempRoot, relPath, goodReport(path.basename(relPath, ".json")));
+  }
+
+  const result = runNode("ci/scripts/run_freeze_exit_criteria_verifier.mjs", [
+    "--root", tempRoot,
+    "--freeze-state", "docs/releases/V1_FREEZE_STATE.json",
+    "--report", "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"
+  ]);
+
+  assert.notEqual(result.status, 0, "expected verifier failure");
+
+  const report = JSON.parse(
+    fs.readFileSync(path.join(tempRoot, "docs/releases/V1_FREEZE_EXIT_CRITERIA.json"), "utf8")
+  );
+
+  assert.equal(report.ok, false);
+  assert.equal(report.failures.some((x) => x.details.includes("freeze_state to be sealed")), true);
 });
