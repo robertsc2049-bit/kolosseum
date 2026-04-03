@@ -1,0 +1,63 @@
+{
+  "schema_version": "kolosseum.founder_demo_path_contract.v1.0.0",
+  "demo_id": "founder_demo_v0_coach_managed_single_athlete",
+  "version": "1.0.0",
+  "engine_compatibility": "EB2-1.0.0",
+  "release_scope": "v0",
+  "actor_type": "coach",
+  "execution_scope": "coach_managed",
+  "runtime_shape": "single_athlete",
+  "activity_id": "powerlifting",
+  "active_phases": [1, 2, 3, 4, 5, 6],
+  "forbidden_surfaces": [
+    "phase7",
+    "phase8",
+    "evidence_envelope",
+    "export",
+    "org_managed_runtime",
+    "team_runtime",
+    "unit_runtime",
+    "dashboards",
+    "analytics",
+    "rankings",
+    "advisory_copy"
+  ],
+  "required_surfaces": [
+    "docs/demo/FOUNDER_DEMO_PATH.md",
+    "fixtures/founder_demo/founder_demo_v0.fixture.json",
+    "test/founder_demo_path_contract.test.mjs"
+  ],
+  "flow": {
+    "declaration_fixture_id": "founder_demo_phase1_powerlifting_coach_managed_v0",
+    "return_decision": "continue_where_i_left_off",
+    "coach_note_mode": "non_binding_only"
+  },
+  "visible_checkpoints": [
+    "Declaration accepted",
+    "Canonical hash locked",
+    "Legal path confirmed",
+    "Session compiled",
+    "Session started",
+    "Split recorded",
+    "Return decision required",
+    "Continue where I left off selected",
+    "Session resumed",
+    "Session completed",
+    "Coach artefact visible",
+    "Coach note saved as non-binding"
+  ],
+  "expected_visible_path": [
+    "Declaration accepted",
+    "Canonical hash locked",
+    "Legal path confirmed",
+    "Session compiled",
+    "Session started",
+    "Split recorded",
+    "Return decision required",
+    "Continue where I left off selected",
+    "Session resumed",
+    "Session completed",
+    "Coach artefact visible",
+    "Coach note saved as non-binding"
+  ]
+}
