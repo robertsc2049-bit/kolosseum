@@ -1,0 +1,29 @@
+{
+  "schema_version": "kolosseum.demo_fixture_pack_registry.v1.0.0",
+  "registry_id": "demo_fixture_pack_v0",
+  "version": "1.0.0",
+  "engine_compatibility": "EB2-1.0.0",
+  "release_scope": "v0",
+  "supported_activities": [
+    "powerlifting",
+    "rugby_union",
+    "general_strength"
+  ],
+  "fixtures": [
+    {
+      "activity_id": "powerlifting",
+      "fixture_id": "powerlifting_demo_v0",
+      "path": "fixtures/demo_pack/powerlifting.demo.fixture.json"
+    },
+    {
+      "activity_id": "rugby_union",
+      "fixture_id": "rugby_union_demo_v0",
+      "path": "fixtures/demo_pack/rugby_union.demo.fixture.json"
+    },
+    {
+      "activity_id": "general_strength",
+      "fixture_id": "general_strength_demo_v0",
+      "path": "fixtures/demo_pack/general_strength.demo.fixture.json"
+    }
+  ]
+}

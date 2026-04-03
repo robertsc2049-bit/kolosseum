@@ -1,0 +1,24 @@
+{
+  "schema_version": "kolosseum.demo_fixture.v1.0.0",
+  "fixture_id": "general_strength_demo_v0",
+  "engine_compatibility": "EB2-1.0.0",
+  "release_scope": "v0",
+  "active_phases": [1, 2, 3, 4, 5, 6],
+  "actor_type": "athlete",
+  "execution_scope": "individual",
+  "activity_id": "general_strength",
+  "phase1_candidate": {
+    "engine_version": "EB2-1.0.0",
+    "enum_bundle_version": "EB2-1.0.0",
+    "phase1_schema_version": "1.0.0",
+    "consent_granted": true,
+    "actor_type": "athlete",
+    "execution_scope": "individual",
+    "activity_id": "general_strength",
+    "location_type": "gym",
+    "nd_mode": false,
+    "instruction_density": "standard",
+    "exposure_prompt_density": "standard",
+    "bias_mode": "consistency"
+  }
+}
