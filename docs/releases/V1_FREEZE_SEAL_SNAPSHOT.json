@@ -31,6 +31,7 @@
     }
   },
   "generated_at_utc": "2026-04-03T12:00:00Z",
+  "self_hash_sha256": "4b777a4b1fece97480ee71d1d773ec2fa23395257c07f4af1f1d120535bead88",
   "snapshot_id": "v1_freeze_seal_snapshot",
   "snapshot_version": "1.0.0"
 }
