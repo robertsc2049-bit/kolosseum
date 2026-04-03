@@ -1,0 +1,50 @@
+{
+  "ok": true,
+  "verifier_id": "freeze_evidence_pack_index",
+  "checked_at_utc": "2026-04-03T00:00:00.000Z",
+  "invariant": "human freeze review must be possible from one declared evidence pack index without repo spelunking",
+  "review_pack_id": "v1_freeze_evidence_pack",
+  "review_surfaces": [
+    {
+      "id": "operator_runbook",
+      "path": "docs/releases/V1_OPERATOR_FREEZE_RUNBOOK.md",
+      "role": "operator_runbook"
+    },
+    {
+      "id": "freeze_proof_index",
+      "path": "docs/releases/V1_FREEZE_PROOF_INDEX.json",
+      "role": "proof_index"
+    },
+    {
+      "id": "freeze_proof_chain",
+      "path": "docs/releases/V1_FREEZE_PROOF_CHAIN.json",
+      "role": "proof_chain"
+    },
+    {
+      "id": "freeze_drift_status",
+      "path": "docs/releases/V1_FREEZE_DRIFT_STATUS.json",
+      "role": "drift_status"
+    },
+    {
+      "id": "freeze_bundle_preservation",
+      "path": "docs/releases/V1_OPERATOR_FREEZE_BUNDLE_PRESERVATION.json",
+      "role": "packet_integrity"
+    },
+    {
+      "id": "freeze_pack_cleanliness",
+      "path": "docs/releases/V1_FREEZE_PACK_REBUILD_CLEANLINESS.json",
+      "role": "cleanliness"
+    },
+    {
+      "id": "freeze_exit_criteria",
+      "path": "docs/releases/V1_FREEZE_EXIT_CRITERIA.json",
+      "role": "exit_criteria"
+    },
+    {
+      "id": "promotion_readiness",
+      "path": "docs/releases/V1_PROMOTION_READINESS.json",
+      "role": "promotion_readiness"
+    }
+  ],
+  "failures": []
+}
