@@ -1,7 +1,7 @@
 {
   "ok": true,
   "verifier_id": "postv1_promotion_readiness_runner",
-  "checked_at_utc": "2026-04-02T13:17:13.561Z",
+  "checked_at_utc": "2026-04-03T16:15:01.826Z",
   "invariant": "promotion readiness must depend on completed freeze proof chain",
   "required_reports": [
     {
@@ -82,5 +82,12 @@
       "failure_count": 0
     }
   ],
-  "failures": []
+  "failures": [],
+  "closure_gate": {
+    "invoked": true,
+    "ok": true,
+    "verifier_id": "freeze_governance_closure_gate",
+    "closure_count": 7,
+    "promotion_payload_kind": "required_reports"
+  }
 }
