@@ -1,0 +1,37 @@
+{
+  "completeness": {
+    "all_present": true,
+    "required_components": [
+      "proof_index",
+      "readiness",
+      "drift",
+      "mainline_guard"
+    ]
+  },
+  "engine_compatibility": "EB2-1.0.0",
+  "freeze_state": {
+    "drift": {
+      "ok": true,
+      "path": "docs/releases/V1_FREEZE_DRIFT_STATUS.json",
+      "sha256": "c60ea7dd699fa085cc90d9ade62305f4894752e220ad0e02720f900d0d6932ff"
+    },
+    "mainline_guard": {
+      "ok": true,
+      "path": "docs/releases/V1_FREEZE_MAINLINE_GUARD_STATE.json",
+      "sha256": "753fa1225dabaae34d140e73dbec2bf391ddaeb5958988bbc5873876ad86b4cc"
+    },
+    "proof_index": {
+      "path": "docs/releases/V1_FREEZE_PROOF_INDEX.json",
+      "sha256": "9da3f99113197b7415784ed3d4eeae64303094fff1ea09cece7ffcc8c12a60f6"
+    },
+    "readiness": {
+      "ok": true,
+      "path": "docs/releases/V1_FREEZE_READINESS.json",
+      "sha256": "3ebaf741342e8c494277bebd2836bf9f87472d00400dd3483be5401c36d7b0d3"
+    }
+  },
+  "generated_at_utc": "2026-04-03T12:00:00Z",
+  "self_hash_sha256": "4b777a4b1fece97480ee71d1d773ec2fa23395257c07f4af1f1d120535bead88",
+  "snapshot_id": "v1_freeze_seal_snapshot",
+  "snapshot_version": "1.0.0"
+}
