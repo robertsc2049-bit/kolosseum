@@ -1,0 +1,89 @@
+{
+    "schema_version":  "kolosseum.v0.first_sale_demo_checklist_registry.v1.0.0",
+    "generated_by":  "ticket/p162-first-sale-demo-checklist",
+    "required_artifacts":  [
+                               "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+                               "docs/commercial/V0_COACH_TIER_VALUE_CLAIM_REGISTRY.json",
+                               "docs/v1/V1_FOUNDER_DEMO_UI_COPY_LOCK.md",
+                               "docs/v1/V1_DECLARATION_ERROR_UX_CONTRACT.md",
+                               "docs/v1/V1_EXPORT_NOTHING_V0_GUARD.md"
+                           ],
+    "demo_steps":  [
+                       {
+                           "step_id":  "proof_pack_gate",
+                           "order":  1,
+                           "label":  "Confirm coach tier value proof pack claims only.",
+                           "surface_ids":  [
+                                               "coach.proof_pack.read"
+                                           ]
+                       },
+                       {
+                           "step_id":  "assignment_surface",
+                           "order":  2,
+                           "label":  "Show assignment surface.",
+                           "surface_ids":  [
+                                               "coach.assignment.read",
+                                               "coach.assignment.write"
+                                           ]
+                       },
+                       {
+                           "step_id":  "execution_view_surface",
+                           "order":  3,
+                           "label":  "Show factual execution view surface.",
+                           "surface_ids":  [
+                                               "coach.execution.summary.read",
+                                               "coach.execution.state.read"
+                                           ]
+                       },
+                       {
+                           "step_id":  "notes_boundary_surface",
+                           "order":  4,
+                           "label":  "Show non-binding coach notes boundary.",
+                           "surface_ids":  [
+                                               "coach.notes.non_binding",
+                                               "coach.notes.boundary.read"
+                                           ]
+                       },
+                       {
+                           "step_id":  "history_counts_surface",
+                           "order":  5,
+                           "label":  "Show factual history counts surface.",
+                           "surface_ids":  [
+                                               "coach.history.counts.read"
+                                           ]
+                       },
+                       {
+                           "step_id":  "declaration_error_boundary",
+                           "order":  6,
+                           "label":  "State declaration error UX boundary if asked about failures.",
+                           "surface_ids":  [
+                                               "declaration.error.ux.contract"
+                                           ]
+                       },
+                       {
+                           "step_id":  "no_export_boundary",
+                           "order":  7,
+                           "label":  "Do not show export, evidence, proof, replay, or compliance surfaces.",
+                           "surface_ids":  [
+                                               "v0.export_nothing.guard"
+                                           ]
+                       }
+                   ],
+    "allowed_claims":  [
+                           "Coach can assign work within the active v0 coach path.",
+                           "Coach can view factual execution artefacts and summaries only.",
+                           "Coach notes are non-binding and do not alter engine legality or execution authority.",
+                           "Coach can view factual history counts only where the v0 surface exposes counts."
+                       ],
+    "banned_claims":  [
+                          "compliance monitoring",
+                          "athlete accountability enforcement",
+                          "readiness scoring",
+                          "performance improvement claims",
+                          "evidence export",
+                          "proof replay",
+                          "override authority",
+                          "legal or safety assurance",
+                          "automatic coaching decisions"
+                      ]
+}
