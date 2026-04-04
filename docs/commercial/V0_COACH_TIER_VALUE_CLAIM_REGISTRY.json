@@ -1,0 +1,61 @@
+{
+    "schema_version":  "kolosseum.v0.coach_tier_value_claim_registry.v1.0.0",
+    "generated_by":  "ticket/p161-coach-tier-value-proof-pack",
+    "claims":  [
+                   {
+                       "claim_id":  "assignment",
+                       "claim_text":  "Coach can assign work within the active v0 coach path.",
+                       "implemented_now":  true,
+                       "surface_ids":  [
+                                           "coach.assignment.write",
+                                           "coach.assignment.read"
+                                       ],
+                       "prohibited_implications":  [
+                                                       "override authority",
+                                                       "compliance monitoring",
+                                                       "automatic coaching decisions"
+                                                   ]
+                   },
+                   {
+                       "claim_id":  "execution_view",
+                       "claim_text":  "Coach can view factual execution artefacts and summaries only.",
+                       "implemented_now":  true,
+                       "surface_ids":  [
+                                           "coach.execution.summary.read",
+                                           "coach.execution.state.read"
+                                       ],
+                       "prohibited_implications":  [
+                                                       "performance improvement",
+                                                       "readiness scoring",
+                                                       "automatic coaching decisions"
+                                                   ]
+                   },
+                   {
+                       "claim_id":  "notes_boundary",
+                       "claim_text":  "Coach notes are non-binding and do not alter engine legality or execution authority.",
+                       "implemented_now":  true,
+                       "surface_ids":  [
+                                           "coach.notes.non_binding",
+                                           "coach.notes.boundary.read"
+                                       ],
+                       "prohibited_implications":  [
+                                                       "override authority",
+                                                       "engine mutation",
+                                                       "legal authority transfer"
+                                                   ]
+                   },
+                   {
+                       "claim_id":  "history_counts",
+                       "claim_text":  "Coach can view factual history counts only where the v0 surface exposes counts.",
+                       "implemented_now":  true,
+                       "surface_ids":  [
+                                           "coach.history.counts.read"
+                                       ],
+                       "prohibited_implications":  [
+                                                       "analytics dashboard",
+                                                       "trend scoring",
+                                                       "compliance monitoring"
+                                                   ]
+                   }
+               ]
+}
