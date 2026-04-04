@@ -1,0 +1,81 @@
+{
+    "schema_version":  "kolosseum.v0.founder_demo_script_lock.v1.0.0",
+    "generated_by":  "ticket/p165-founder-demo-script-lock",
+    "source_claim_registry":  "docs/commercial/V0_COACH_DEMO_SURFACE_CLAIM_MATRIX_REGISTRY.json",
+    "spoken_sections":  [
+                            {
+                                "section_id":  "opening",
+                                "allowed_claim_ids":  [
+
+                                                      ],
+                                "script_lines":  [
+                                                     "Today I will show only what is implemented in active v0 for a coach.",
+                                                     "I will stay inside assignment, factual execution view, non-binding notes boundary, and factual history counts.",
+                                                     "If you ask about anything outside that boundary, I will mark it as not part of the current v0 demo."
+                                                 ]
+                            },
+                            {
+                                "section_id":  "assignment",
+                                "allowed_claim_ids":  [
+                                                          "assignment"
+                                                      ],
+                                "script_lines":  [
+                                                     "Coach can assign work within the active v0 coach path.",
+                                                     "That is the claim I am making here, and nothing broader."
+                                                 ]
+                            },
+                            {
+                                "section_id":  "execution_view",
+                                "allowed_claim_ids":  [
+                                                          "execution_view"
+                                                      ],
+                                "script_lines":  [
+                                                     "Coach can view factual execution artefacts and summaries only.",
+                                                     "This is a factual view surface, not a scoring or advisory layer."
+                                                 ]
+                            },
+                            {
+                                "section_id":  "notes_boundary",
+                                "allowed_claim_ids":  [
+                                                          "notes_boundary"
+                                                      ],
+                                "script_lines":  [
+                                                     "Coach notes are non-binding and do not alter engine legality or execution authority.",
+                                                     "Notes can exist, but they do not override the engine boundary."
+                                                 ]
+                            },
+                            {
+                                "section_id":  "history_counts",
+                                "allowed_claim_ids":  [
+                                                          "history_counts"
+                                                      ],
+                                "script_lines":  [
+                                                     "Coach can view factual history counts only where the v0 surface exposes counts.",
+                                                     "This is a factual count surface, not a trend or compliance layer."
+                                                 ]
+                            },
+                            {
+                                "section_id":  "close",
+                                "allowed_claim_ids":  [
+
+                                                      ],
+                                "script_lines":  [
+                                                     "That is the implemented coach demo boundary in active v0.",
+                                                     "I am not claiming compliance monitoring, accountability enforcement, readiness scoring, export, replay, override authority, or automatic coaching decisions."
+                                                 ]
+                            }
+                        ],
+    "banned_drift_terms":  [
+                               "compliance monitoring",
+                               "athlete accountability enforcement",
+                               "readiness scoring",
+                               "performance improvement claims",
+                               "evidence export",
+                               "proof replay",
+                               "override authority",
+                               "legal or safety assurance",
+                               "automatic coaching decisions",
+                               "analytics dashboard",
+                               "trend scoring"
+                           ]
+}
