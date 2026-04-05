@@ -1,0 +1,86 @@
+{
+    "schema_version":  "kolosseum.demo_recovery_manifest.v1",
+    "artifact_id":  "p171_live_demo_failure_recovery_manifest",
+    "engine_compatibility":  "EB2-1.0.0",
+    "release_scope":  "v0",
+    "allowed_target_surface_types":  [
+                                         "ui_surface",
+                                         "factual_artefact",
+                                         "proof_doc",
+                                         "stop"
+                                     ],
+    "steps":  [
+                  {
+                      "step_id":  "step_01_continue_primary",
+                      "fallback_order_index":  1,
+                      "trigger_surface_id":  "demo_primary_surface_ok",
+                      "target_artefact_id":  "docs/demo/P171_LIVE_DEMO_FAILURE_RECOVERY_RUNBOOK.md",
+                      "target_surface_type":  "proof_doc",
+                      "allowed_in_v0":  true,
+                      "live_required":  true,
+                      "terminal":  false,
+                      "next_step_id":  "step_02_switch_to_factual_artefact",
+                      "notes":  null
+                  },
+                  {
+                      "step_id":  "step_02_switch_to_factual_artefact",
+                      "fallback_order_index":  2,
+                      "trigger_surface_id":  "demo_surface_visual_or_interaction_failure",
+                      "target_artefact_id":  "docs/demo/P150_COACH_ASSIGNMENT_PROOF.md",
+                      "target_surface_type":  "factual_artefact",
+                      "allowed_in_v0":  true,
+                      "live_required":  true,
+                      "terminal":  false,
+                      "next_step_id":  "step_03_switch_to_completed_execution_proof",
+                      "notes":  null
+                  },
+                  {
+                      "step_id":  "step_03_switch_to_completed_execution_proof",
+                      "fallback_order_index":  3,
+                      "trigger_surface_id":  "demo_execution_surface_unstable",
+                      "target_artefact_id":  "docs/demo/P167_COACH_OBJECTION_HANDLING_PACK.md",
+                      "target_surface_type":  "factual_artefact",
+                      "allowed_in_v0":  true,
+                      "live_required":  true,
+                      "terminal":  false,
+                      "next_step_id":  "step_04_switch_to_adjacent_coach_proof",
+                      "notes":  null
+                  },
+                  {
+                      "step_id":  "step_04_switch_to_adjacent_coach_proof",
+                      "fallback_order_index":  4,
+                      "trigger_surface_id":  "demo_coach_surface_unstable",
+                      "target_artefact_id":  "docs/demo/P168_COACH_NOTES_BOUNDARY_PROOF.md",
+                      "target_surface_type":  "factual_artefact",
+                      "allowed_in_v0":  true,
+                      "live_required":  true,
+                      "terminal":  false,
+                      "next_step_id":  "step_05_switch_to_history_counts_proof",
+                      "notes":  null
+                  },
+                  {
+                      "step_id":  "step_05_switch_to_history_counts_proof",
+                      "fallback_order_index":  5,
+                      "trigger_surface_id":  "demo_history_or_neutral_summary_surface_unstable",
+                      "target_artefact_id":  "docs/demo/P169_COACH_HISTORY_COUNTS_DEMO.md",
+                      "target_surface_type":  "factual_artefact",
+                      "allowed_in_v0":  true,
+                      "live_required":  true,
+                      "terminal":  false,
+                      "next_step_id":  "step_06_terminal_stop",
+                      "notes":  null
+                  },
+                  {
+                      "step_id":  "step_06_terminal_stop",
+                      "fallback_order_index":  6,
+                      "trigger_surface_id":  "demo_no_lawful_live_v0_recovery_surface_remaining",
+                      "target_artefact_id":  "docs/demo/P171_LIVE_DEMO_FAILURE_RECOVERY_RUNBOOK.md",
+                      "target_surface_type":  "stop",
+                      "allowed_in_v0":  true,
+                      "live_required":  true,
+                      "terminal":  true,
+                      "next_step_id":  null,
+                      "notes":  null
+                  }
+              ]
+}
