@@ -1,0 +1,136 @@
+{
+  "pack_id": "p170_first_coach_objection_handling_pack",
+  "pack_version": "1.0.0",
+  "engine_compatibility": "EB2-1.0.0",
+  "scope": "current_v0_only",
+  "mapping_types_allowed": [
+    "proven_surface",
+    "explicit_boundary"
+  ],
+  "forbidden_claims": [
+    "coach_override_engine_decisions",
+    "coach_alter_legality",
+    "coach_influence_selection",
+    "coach_edit_phase1_truth_after_acceptance",
+    "readiness_scoring_in_current_v0",
+    "analytics_dashboards_in_current_v0",
+    "organisation_team_unit_gym_runtime_in_current_v0",
+    "evidence_envelopes_in_current_v0",
+    "exportable_proof_artefacts_in_current_v0",
+    "medical_safety_suitability_or_optimisation_advice"
+  ],
+  "items": [
+    {
+      "id": "coach_objection_01",
+      "objection": "This handcuffs me. I need to actually coach.",
+      "mapping_type": "proven_surface",
+      "anchors": [
+        "coach_assignment",
+        "factual_artefact_viewing",
+        "history_counts",
+        "non_binding_coach_notes",
+        "no_coach_override_of_engine_truth"
+      ]
+    },
+    {
+      "id": "coach_objection_02",
+      "objection": "If I can't override the engine, what's the point of me?",
+      "mapping_type": "explicit_boundary",
+      "anchors": [
+        "coach_notes_non_binding",
+        "coach_notes_non_executable",
+        "coach_input_separate_from_engine_truth",
+        "deterministic_engine_boundary"
+      ]
+    },
+    {
+      "id": "coach_objection_03",
+      "objection": "Can I edit what the athlete declared if they got it wrong?",
+      "mapping_type": "explicit_boundary",
+      "anchors": [
+        "phase1_only_lawful_truth_entry",
+        "no_inference",
+        "no_defaults",
+        "no_silent_correction",
+        "coach_must_not_alter_phase1_declarations"
+      ]
+    },
+    {
+      "id": "coach_objection_04",
+      "objection": "So coach notes are useless then?",
+      "mapping_type": "proven_surface",
+      "anchors": [
+        "coach_notes_exist",
+        "coach_notes_non_binding",
+        "coach_notes_non_authoritative",
+        "coach_notes_non_executable"
+      ]
+    },
+    {
+      "id": "coach_objection_05",
+      "objection": "Can I see what my athlete actually did, or just what was planned?",
+      "mapping_type": "proven_surface",
+      "anchors": [
+        "coach_viewing_of_execution_artefacts",
+        "history_view_counts_only",
+        "factual_session_execution_output"
+      ]
+    },
+    {
+      "id": "coach_objection_06",
+      "objection": "Can I compare athletes and run broader team oversight from this?",
+      "mapping_type": "explicit_boundary",
+      "anchors": [
+        "individual_user_and_coach_only",
+        "individual_and_coach_managed_only",
+        "org_team_unit_gym_runtime_excluded"
+      ]
+    },
+    {
+      "id": "coach_objection_07",
+      "objection": "Will it give me readiness scores or tell me who is progressing?",
+      "mapping_type": "explicit_boundary",
+      "anchors": [
+        "readiness_scoring_excluded",
+        "rankings_excluded",
+        "dashboards_excluded",
+        "analytics_excluded",
+        "outcome_evaluation_excluded",
+        "factual_runtime_execution_only"
+      ]
+    },
+    {
+      "id": "coach_objection_08",
+      "objection": "Will it explain why it chose something or why it substituted something?",
+      "mapping_type": "explicit_boundary",
+      "anchors": [
+        "not_a_coaching_system",
+        "not_a_recommendation_engine",
+        "no_advice",
+        "no_optimisation",
+        "factual_outputs_only"
+      ]
+    },
+    {
+      "id": "coach_objection_09",
+      "objection": "Can I use this for my club, school, team, military unit, or gym right now?",
+      "mapping_type": "explicit_boundary",
+      "anchors": [
+        "current_v0_actor_limit",
+        "current_v0_execution_scope_limit",
+        "org_team_unit_gym_excluded"
+      ]
+    },
+    {
+      "id": "coach_objection_10",
+      "objection": "Can I export proof, replay evidence, or audit packs for clients now?",
+      "mapping_type": "explicit_boundary",
+      "anchors": [
+        "phase7_excluded_from_current_v0",
+        "phase8_excluded_from_current_v0",
+        "evidence_envelopes_excluded_from_current_v0",
+        "proof_layer_belongs_to_later_milestone"
+      ]
+    }
+  ]
+}
