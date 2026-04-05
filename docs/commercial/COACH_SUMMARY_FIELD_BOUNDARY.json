@@ -1,0 +1,38 @@
+{
+  "schema_version": "kolosseum.coach_summary_field_boundary.v1.0.0",
+  "scope": "active_v0_only",
+  "allowed_fields": [
+    "execution_status",
+    "execution_state",
+    "block_execution_summary[].block_id",
+    "block_execution_summary[].block_index",
+    "block_execution_summary[].sessions_total",
+    "block_execution_summary[].sessions_ended",
+    "block_execution_summary[].work_items_total",
+    "block_execution_summary[].work_items_done",
+    "session_execution_summary[].session_id",
+    "session_execution_summary[].block_id",
+    "session_execution_summary[].session_index_global",
+    "session_execution_summary[].session_index_in_block",
+    "session_execution_summary[].session_ended",
+    "session_execution_summary[].work_items_total",
+    "session_execution_summary[].work_items_done",
+    "session_execution_summary[].pain_flag_count",
+    "session_execution_summary[].split_entered",
+    "session_execution_summary[].split_return_decision"
+  ],
+  "forbidden_fields": [
+    "export_id",
+    "report_id",
+    "report_url",
+    "download_url",
+    "file_name",
+    "mime_type",
+    "evidence_envelope",
+    "seal_id",
+    "artifact_hash",
+    "pdf_path",
+    "printable_summary",
+    "share_token"
+  ]
+}

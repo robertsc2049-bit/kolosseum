@@ -1,0 +1,12 @@
+{
+  "schema_version": "kolosseum.coach_summary_copy_surface.v1.0.0",
+  "scope": "active_v0_only",
+  "phrases": [
+    "View summary.",
+    "Session summary.",
+    "Execution summary.",
+    "Block summary.",
+    "Read-only summary.",
+    "View factual session state."
+  ]
+}
