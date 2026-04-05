@@ -1,0 +1,150 @@
+{
+  "schema_version": "kolosseum.minimal_coach_onboarding_step_registry.v1.0.0",
+  "scope": "active_v0_only",
+  "tier_id": "coach_16",
+  "steps": [
+    {
+      "step_id": "accept_platform_legal_gate",
+      "step_order": 1,
+      "step_title": "Accept platform legal gate.",
+      "step_type": "manual_operator_step",
+      "surface_id": "legal_gate_acceptance_recorded",
+      "goal": "Record that the coach entered through the platform legal gate.",
+      "prompts": [],
+      "required_fields": [
+        "coach_id",
+        "accepted_at"
+      ],
+      "forbidden_semantics": [],
+      "status": "allowed"
+    },
+    {
+      "step_id": "create_coach_platform_identity",
+      "step_order": 2,
+      "step_title": "Create coach platform identity.",
+      "step_type": "live_surface",
+      "surface_id": "coach_account_create",
+      "goal": "Create the coach operator account with minimal access identity data.",
+      "prompts": [
+        "First name.",
+        "Last name.",
+        "Email address."
+      ],
+      "required_fields": [
+        "first_name",
+        "last_name",
+        "email"
+      ],
+      "forbidden_semantics": [],
+      "status": "allowed"
+    },
+    {
+      "step_id": "apply_coach_role",
+      "step_order": 3,
+      "step_title": "Apply coach role.",
+      "step_type": "manual_operator_step",
+      "surface_id": "coach_role_assignment",
+      "goal": "Assign the explicit coach role.",
+      "prompts": [],
+      "required_fields": [
+        "coach_id",
+        "role_id"
+      ],
+      "forbidden_semantics": [],
+      "status": "allowed"
+    },
+    {
+      "step_id": "apply_coach_16_entitlement",
+      "step_order": 4,
+      "step_title": "Apply coach_16 entitlement.",
+      "step_type": "manual_operator_step",
+      "surface_id": "coach_16_entitlement_assignment",
+      "goal": "Apply the active v0 coach entitlement without adding authority beyond access.",
+      "prompts": [],
+      "required_fields": [
+        "coach_id",
+        "tier_id"
+      ],
+      "forbidden_semantics": [],
+      "status": "allowed"
+    },
+    {
+      "step_id": "create_explicit_coach_athlete_link",
+      "step_order": 5,
+      "step_title": "Create explicit coach-athlete link.",
+      "step_type": "manual_operator_step",
+      "surface_id": "coach_athlete_link_create",
+      "goal": "Create the explicit coach-to-athlete relationship.",
+      "prompts": [],
+      "required_fields": [
+        "coach_id",
+        "athlete_id",
+        "link_state"
+      ],
+      "forbidden_semantics": [],
+      "status": "allowed"
+    },
+    {
+      "step_id": "confirm_live_coach_surface",
+      "step_order": 6,
+      "step_title": "Confirm live coach surface.",
+      "step_type": "live_surface",
+      "surface_id": "coach_surface_confirmation",
+      "goal": "Confirm the coach sees only the active v0 coach surface.",
+      "prompts": [
+        "Assign within system limits.",
+        "View factual execution artefacts."
+      ],
+      "required_fields": [
+        "coach_id"
+      ],
+      "forbidden_semantics": [],
+      "status": "allowed"
+    },
+    {
+      "step_id": "enter_first_lawful_coach_managed_run",
+      "step_order": 7,
+      "step_title": "Enter first lawful coach-managed run.",
+      "step_type": "live_surface",
+      "surface_id": "phase1_onboarding_form",
+      "goal": "Enter the first lawful coach-managed run path using current v0 declarations only.",
+      "prompts": [
+        "Select athlete.",
+        "Select activity.",
+        "Select location type."
+      ],
+      "required_fields": [
+        "actor_type",
+        "execution_scope",
+        "governing_authority_id",
+        "subject_id",
+        "activity_id",
+        "location_type"
+      ],
+      "forbidden_semantics": [],
+      "status": "allowed"
+    }
+  ],
+  "forbidden_prompt_patterns": [
+    {
+      "pattern_id": "forbidden_medical_safety",
+      "regex": "\\b(injur(?:y|ies)|diagnos(?:is|es)|treat(?:ment)?|therapy|rehab(?:ilit(?:ation)?)?|medical|clinical|safe|safer|safety|risk|prevent(?:ion)?|protect(?:ion)?)\\b",
+      "token": "CI_LINT_FORBIDDEN_LANGUAGE_FOUND"
+    },
+    {
+      "pattern_id": "forbidden_readiness_suitability",
+      "regex": "\\b(readiness|ready|suitable|suitability|appropriate|ideal for you|right for you)\\b",
+      "token": "CI_LINT_FORBIDDEN_CLAIM_SEMANTIC"
+    },
+    {
+      "pattern_id": "forbidden_optimisation",
+      "regex": "\\b(optimi[sz](?:e|ed|es|ing|ation)|maximi[sz](?:e|ed|es|ing|ation)|best|better outcomes?|improve(?:d|ment|s)?)\\b",
+      "token": "CI_LINT_FORBIDDEN_CLAIM_SEMANTIC"
+    },
+    {
+      "pattern_id": "forbidden_future_scope",
+      "regex": "\\b(replay|evidence|audit export|dashboard|analytics|messaging|organisation|team setup|unit setup|registry access|substitution authority|progression authority)\\b",
+      "token": "CI_PRODUCT_BEHAVIOUR_LEAK"
+    }
+  ]
+}

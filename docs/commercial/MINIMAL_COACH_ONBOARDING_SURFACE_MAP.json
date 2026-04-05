@@ -1,0 +1,80 @@
+{
+  "schema_version": "kolosseum.minimal_coach_onboarding_surface_map.v1.0.0",
+  "scope": "active_v0_only",
+  "allowed_live_surfaces": [
+    {
+      "surface_id": "coach_account_create",
+      "surface_type": "live_surface",
+      "summary": "Creates coach platform identity with minimal account fields."
+    },
+    {
+      "surface_id": "coach_surface_confirmation",
+      "surface_type": "live_surface",
+      "summary": "Shows the active v0 coach surface only."
+    },
+    {
+      "surface_id": "phase1_onboarding_form",
+      "surface_type": "live_surface",
+      "summary": "Current declaration path for the first lawful coach-managed run."
+    }
+  ],
+  "allowed_manual_operator_steps": [
+    {
+      "surface_id": "legal_gate_acceptance_recorded",
+      "surface_type": "manual_operator_step",
+      "summary": "Manual operator record of legal gate acceptance."
+    },
+    {
+      "surface_id": "coach_role_assignment",
+      "surface_type": "manual_operator_step",
+      "summary": "Manual role assignment of coach."
+    },
+    {
+      "surface_id": "coach_16_entitlement_assignment",
+      "surface_type": "manual_operator_step",
+      "summary": "Manual coach_16 entitlement assignment."
+    },
+    {
+      "surface_id": "coach_athlete_link_create",
+      "surface_type": "manual_operator_step",
+      "summary": "Manual explicit coach-athlete relationship creation."
+    }
+  ],
+  "step_to_surface_map": [
+    {
+      "step_id": "accept_platform_legal_gate",
+      "surface_id": "legal_gate_acceptance_recorded",
+      "surface_type": "manual_operator_step"
+    },
+    {
+      "step_id": "create_coach_platform_identity",
+      "surface_id": "coach_account_create",
+      "surface_type": "live_surface"
+    },
+    {
+      "step_id": "apply_coach_role",
+      "surface_id": "coach_role_assignment",
+      "surface_type": "manual_operator_step"
+    },
+    {
+      "step_id": "apply_coach_16_entitlement",
+      "surface_id": "coach_16_entitlement_assignment",
+      "surface_type": "manual_operator_step"
+    },
+    {
+      "step_id": "create_explicit_coach_athlete_link",
+      "surface_id": "coach_athlete_link_create",
+      "surface_type": "manual_operator_step"
+    },
+    {
+      "step_id": "confirm_live_coach_surface",
+      "surface_id": "coach_surface_confirmation",
+      "surface_type": "live_surface"
+    },
+    {
+      "step_id": "enter_first_lawful_coach_managed_run",
+      "surface_id": "phase1_onboarding_form",
+      "surface_type": "live_surface"
+    }
+  ]
+}
