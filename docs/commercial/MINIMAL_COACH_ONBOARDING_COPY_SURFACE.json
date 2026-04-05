@@ -1,0 +1,15 @@
+{
+  "schema_version": "kolosseum.minimal_coach_onboarding_copy_surface.v1.0.0",
+  "scope": "active_v0_only",
+  "phrases": [
+    "Create coach access.",
+    "Assign coach role.",
+    "Apply coach_16 access.",
+    "Link coach to athlete explicitly.",
+    "Confirm current coach surfaces.",
+    "Start first lawful coach-managed run.",
+    "Assign within system limits.",
+    "View factual execution artefacts.",
+    "Write non-binding coach notes."
+  ]
+}
