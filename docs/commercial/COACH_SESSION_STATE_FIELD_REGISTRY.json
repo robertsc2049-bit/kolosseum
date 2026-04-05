@@ -1,0 +1,132 @@
+{
+  "schema_version": "kolosseum.coach_session_state_field_registry.v1.0.0",
+  "scope": "active_v0_only",
+  "fields": [
+    {
+      "field_id": "canonical_input_hash",
+      "path": "canonical_input_hash",
+      "field_class": "truth_reference",
+      "allowed": true
+    },
+    {
+      "field_id": "selection_hash",
+      "path": "selection_hash",
+      "field_class": "truth_reference",
+      "allowed": true
+    },
+    {
+      "field_id": "execution_status",
+      "path": "execution_status",
+      "field_class": "execution_state",
+      "allowed": true
+    },
+    {
+      "field_id": "execution_state",
+      "path": "execution_state",
+      "field_class": "execution_state",
+      "allowed": true
+    },
+    {
+      "field_id": "runtime_events",
+      "path": "runtime_events",
+      "field_class": "runtime_events",
+      "allowed": true
+    },
+    {
+      "field_id": "block_execution_summary_block_id",
+      "path": "block_execution_summary[].block_id",
+      "field_class": "block_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "block_execution_summary_block_index",
+      "path": "block_execution_summary[].block_index",
+      "field_class": "block_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "block_execution_summary_sessions_total",
+      "path": "block_execution_summary[].sessions_total",
+      "field_class": "block_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "block_execution_summary_sessions_ended",
+      "path": "block_execution_summary[].sessions_ended",
+      "field_class": "block_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "block_execution_summary_work_items_total",
+      "path": "block_execution_summary[].work_items_total",
+      "field_class": "block_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "block_execution_summary_work_items_done",
+      "path": "block_execution_summary[].work_items_done",
+      "field_class": "block_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "session_execution_summary_session_id",
+      "path": "session_execution_summary[].session_id",
+      "field_class": "session_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "session_execution_summary_block_id",
+      "path": "session_execution_summary[].block_id",
+      "field_class": "session_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "session_execution_summary_session_index_global",
+      "path": "session_execution_summary[].session_index_global",
+      "field_class": "session_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "session_execution_summary_session_index_in_block",
+      "path": "session_execution_summary[].session_index_in_block",
+      "field_class": "session_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "session_execution_summary_session_ended",
+      "path": "session_execution_summary[].session_ended",
+      "field_class": "session_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "session_execution_summary_work_items_total",
+      "path": "session_execution_summary[].work_items_total",
+      "field_class": "session_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "session_execution_summary_work_items_done",
+      "path": "session_execution_summary[].work_items_done",
+      "field_class": "session_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "session_execution_summary_pain_flag_count",
+      "path": "session_execution_summary[].pain_flag_count",
+      "field_class": "session_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "session_execution_summary_split_entered",
+      "path": "session_execution_summary[].split_entered",
+      "field_class": "session_summary",
+      "allowed": true
+    },
+    {
+      "field_id": "session_execution_summary_split_return_decision",
+      "path": "session_execution_summary[].split_return_decision",
+      "field_class": "session_summary",
+      "allowed": true
+    }
+  ]
+}
