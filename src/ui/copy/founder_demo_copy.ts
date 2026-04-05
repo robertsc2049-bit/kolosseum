@@ -1,0 +1,25 @@
+export const FOUNDER_DEMO_COPY = {
+  demo_title: "Founder demo",
+  session_ready: "Session ready.",
+  based_on_declarations: "Based on what you selected.",
+  within_declared_limits: "Within your declared limits.",
+  using_available_equipment: "Using available equipment.",
+  continue_where_left_off: "Continue where you left off.",
+  skip_and_move_on: "Skip and move on.",
+  stop_recorded: "Stop recorded.",
+  extra_work_recorded: "Extra work recorded.",
+  substitution_required: "Substitution required.",
+  work_dropped: "Work dropped.",
+  no_executable_session: "No executable session can be generated from current declarations.",
+  action_not_permitted: "This action is not permitted.",
+  option_not_available_current_setup: "This option is not available with the current setup.",
+  no_options_current_setup: "No options are available with the current setup.",
+  summary_title: "Session summary",
+  summary_completed: "Completed",
+  summary_skipped: "Skipped",
+  summary_remaining: "Remaining",
+  summary_extra_work: "Extra work",
+  summary_runtime_events: "Runtime events",
+} as const;
+
+export type FounderDemoCopyId = keyof typeof FOUNDER_DEMO_COPY;

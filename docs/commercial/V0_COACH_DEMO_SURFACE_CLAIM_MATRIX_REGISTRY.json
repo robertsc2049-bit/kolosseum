@@ -1,0 +1,77 @@
+{
+    "schema_version":  "kolosseum.v0.coach_demo_surface_claim_matrix.v1.0.0",
+    "generated_by":  "ticket/p164-coach-demo-surface-claim-matrix",
+    "claims":  [
+                   {
+                       "claim_id":  "assignment",
+                       "claim_text":  "Coach can assign work within the active v0 coach path.",
+                       "surface_ids":  [
+                                           "coach.assignment.read",
+                                           "coach.assignment.write"
+                                       ],
+                       "doc_surfaces":  [
+                                            "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+                                            "docs/commercial/V0_FIRST_SALE_DEMO_CHECKLIST.md",
+                                            "docs/commercial/V0_COACH_DEMO_ARTEFACT_INDEX.md"
+                                        ],
+                       "proof_ids":  [
+                                         "test/coach_tier_value_proof_pack.test.mjs",
+                                         "test/first_sale_demo_checklist.test.mjs",
+                                         "test/coach_demo_artefact_index_lock.test.mjs"
+                                     ]
+                   },
+                   {
+                       "claim_id":  "execution_view",
+                       "claim_text":  "Coach can view factual execution artefacts and summaries only.",
+                       "surface_ids":  [
+                                           "coach.execution.state.read",
+                                           "coach.execution.summary.read"
+                                       ],
+                       "doc_surfaces":  [
+                                            "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+                                            "docs/commercial/V0_FIRST_SALE_DEMO_CHECKLIST.md",
+                                            "docs/commercial/V0_COACH_DEMO_ARTEFACT_INDEX.md"
+                                        ],
+                       "proof_ids":  [
+                                         "test/coach_tier_value_proof_pack.test.mjs",
+                                         "test/first_sale_demo_checklist.test.mjs",
+                                         "test/coach_demo_artefact_index_lock.test.mjs"
+                                     ]
+                   },
+                   {
+                       "claim_id":  "notes_boundary",
+                       "claim_text":  "Coach notes are non-binding and do not alter engine legality or execution authority.",
+                       "surface_ids":  [
+                                           "coach.notes.boundary.read",
+                                           "coach.notes.non_binding"
+                                       ],
+                       "doc_surfaces":  [
+                                            "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+                                            "docs/commercial/V0_FIRST_SALE_DEMO_CHECKLIST.md",
+                                            "docs/commercial/V0_COACH_DEMO_ARTEFACT_INDEX.md"
+                                        ],
+                       "proof_ids":  [
+                                         "test/coach_tier_value_proof_pack.test.mjs",
+                                         "test/first_sale_demo_checklist.test.mjs",
+                                         "test/coach_demo_artefact_index_lock.test.mjs"
+                                     ]
+                   },
+                   {
+                       "claim_id":  "history_counts",
+                       "claim_text":  "Coach can view factual history counts only where the v0 surface exposes counts.",
+                       "surface_ids":  [
+                                           "coach.history.counts.read"
+                                       ],
+                       "doc_surfaces":  [
+                                            "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+                                            "docs/commercial/V0_FIRST_SALE_DEMO_CHECKLIST.md",
+                                            "docs/commercial/V0_COACH_DEMO_ARTEFACT_INDEX.md"
+                                        ],
+                       "proof_ids":  [
+                                         "test/coach_tier_value_proof_pack.test.mjs",
+                                         "test/first_sale_demo_checklist.test.mjs",
+                                         "test/coach_demo_artefact_index_lock.test.mjs"
+                                     ]
+                   }
+               ]
+}

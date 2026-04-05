@@ -1,0 +1,91 @@
+{
+    "schema_version":  "kolosseum.v0.coach_assignment_walkthrough_proof.v1.0.0",
+    "generated_by":  "ticket/p167-coach-assignment-walkthrough-proof",
+    "required_step_ids":  [
+                              "step_01_open_boundary",
+                              "step_02_assign_work",
+                              "step_03_view_execution",
+                              "step_04_confirm_boundary"
+                          ],
+    "walkthrough_steps":  [
+                              {
+                                  "step_id":  "step_01_open_boundary",
+                                  "step_order":  1,
+                                  "action":  "Open the active v0 coach demo boundary before touching assignment.",
+                                  "surface_ids":  [
+                                                      "coach.assignment.read",
+                                                      "coach.assignment.write"
+                                                  ],
+                                  "doc_surfaces":  [
+                                                       "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+                                                       "docs/commercial/V0_FIRST_SALE_DEMO_CHECKLIST.md",
+                                                       "docs/commercial/V0_COACH_DEMO_SURFACE_CLAIM_MATRIX.md",
+                                                       "docs/commercial/V0_FOUNDER_DEMO_SCRIPT_LOCK.md"
+                                                   ],
+                                  "proof_ids":  [
+                                                    "test/coach_tier_value_proof_pack.test.mjs",
+                                                    "test/first_sale_demo_checklist.test.mjs",
+                                                    "test/coach_demo_surface_claim_matrix.test.mjs",
+                                                    "test/founder_demo_script_lock.test.mjs"
+                                                ]
+                              },
+                              {
+                                  "step_id":  "step_02_assign_work",
+                                  "step_order":  2,
+                                  "action":  "Demonstrate the coach assignment step using the active v0 assignment claim only.",
+                                  "surface_ids":  [
+                                                      "coach.assignment.write"
+                                                  ],
+                                  "doc_surfaces":  [
+                                                       "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+                                                       "docs/commercial/V0_COACH_DEMO_SURFACE_CLAIM_MATRIX.md",
+                                                       "docs/commercial/V0_COACH_ASSIGNMENT_WALKTHROUGH_PROOF.md"
+                                                   ],
+                                  "proof_ids":  [
+                                                    "test/coach_tier_value_proof_pack.test.mjs",
+                                                    "test/coach_demo_surface_claim_matrix.test.mjs",
+                                                    "test/coach_assignment_walkthrough_proof.test.mjs"
+                                                ]
+                              },
+                              {
+                                  "step_id":  "step_03_view_execution",
+                                  "step_order":  3,
+                                  "action":  "Show the factual execution view that follows the assignment step.",
+                                  "surface_ids":  [
+                                                      "coach.execution.state.read",
+                                                      "coach.execution.summary.read"
+                                                  ],
+                                  "doc_surfaces":  [
+                                                       "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+                                                       "docs/commercial/V0_COACH_DEMO_SURFACE_CLAIM_MATRIX.md",
+                                                       "docs/commercial/V0_COACH_ASSIGNMENT_WALKTHROUGH_PROOF.md"
+                                                   ],
+                                  "proof_ids":  [
+                                                    "test/coach_tier_value_proof_pack.test.mjs",
+                                                    "test/coach_demo_surface_claim_matrix.test.mjs",
+                                                    "test/coach_assignment_walkthrough_proof.test.mjs"
+                                                ]
+                              },
+                              {
+                                  "step_id":  "step_04_confirm_boundary",
+                                  "step_order":  4,
+                                  "action":  "Confirm the loop closes with factual confirmation only, not scoring, override, or automation.",
+                                  "surface_ids":  [
+                                                      "coach.execution.summary.read",
+                                                      "coach.notes.non_binding"
+                                                  ],
+                                  "doc_surfaces":  [
+                                                       "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+                                                       "docs/commercial/V0_COACH_DEMO_SURFACE_CLAIM_MATRIX.md",
+                                                       "docs/commercial/V0_FOUNDER_DEMO_SCRIPT_LOCK.md",
+                                                       "docs/commercial/V0_COACH_ASSIGNMENT_WALKTHROUGH_PROOF.md"
+                                                   ],
+                                  "proof_ids":  [
+                                                    "test/coach_tier_value_proof_pack.test.mjs",
+                                                    "test/coach_demo_surface_claim_matrix.test.mjs",
+                                                    "test/founder_demo_script_lock.test.mjs",
+                                                    "test/coach_assignment_walkthrough_proof.test.mjs"
+                                                ]
+                              }
+                          ]
+}

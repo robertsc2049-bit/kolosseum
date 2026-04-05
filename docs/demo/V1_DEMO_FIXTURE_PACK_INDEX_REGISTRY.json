@@ -1,0 +1,42 @@
+{
+    "schema_version":  "kolosseum.v1.demo_fixture_pack_index.v1.0.0",
+    "generated_by":  "ticket/p166-demo-fixture-pack-v1",
+    "fixture_groups":  [
+                           {
+                               "group_id":  "founder_demo_path_contract",
+                               "artefacts":  [
+                                                 "docs/demo/FOUNDER_DEMO_PATH.md"
+                                             ]
+                           },
+                           {
+                               "group_id":  "demo_fixture_pack_contract",
+                               "artefacts":  [
+                                                 "docs/demo/DEMO_FIXTURE_PACK.md"
+                                             ]
+                           },
+                           {
+                               "group_id":  "fixture_data",
+                               "artefacts":  [
+                                                 "docs/demo/V1_DEMO_FIXTURE_PACK_INDEX_REGISTRY.json"
+                                             ]
+                           },
+                           {
+                               "group_id":  "fixture_support_surfaces",
+                               "artefacts":  [
+                                                 "docs/commercial/V0_FIRST_SALE_DEMO_CHECKLIST.md",
+                                                 "docs/commercial/V0_COACH_DEMO_ARTEFACT_INDEX.md",
+                                                 "docs/commercial/V0_COACH_DEMO_SURFACE_CLAIM_MATRIX.md",
+                                                 "docs/commercial/V0_FOUNDER_DEMO_SCRIPT_LOCK.md"
+                                             ]
+                           },
+                           {
+                               "group_id":  "fixture_proof_surfaces",
+                               "artefacts":  [
+                                                 "test/first_sale_demo_checklist.test.mjs",
+                                                 "test/coach_demo_artefact_index_lock.test.mjs",
+                                                 "test/coach_demo_surface_claim_matrix.test.mjs",
+                                                 "test/founder_demo_script_lock.test.mjs"
+                                             ]
+                           }
+                       ]
+}

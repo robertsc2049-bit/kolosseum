@@ -1,0 +1,51 @@
+{
+    "schema_version":  "kolosseum.v0_export_nothing_scope.v1.0.0",
+    "generated_by":  "ticket/p160-export-nothing-v0-guard",
+    "runtime_roots":  [
+                          "app",
+                          "src/api",
+                          "src/ui",
+                          "src/web"
+                      ],
+    "excluded_path_patterns":  [
+                                   "(^|/|\\\\)dist(/|\\\\|$)",
+                                   "(^|/|\\\\)build(/|\\\\|$)",
+                                   "(^|/|\\\\)coverage(/|\\\\|$)",
+                                   "(^|/|\\\\)node_modules(/|\\\\|$)",
+                                   "(^|/|\\\\)\\.next(/|\\\\|$)",
+                                   "(^|/|\\\\)test(/|\\\\|$)",
+                                   "(^|/|\\\\)tests(/|\\\\|$)",
+                                   "(^|/|\\\\)__tests__(/|\\\\|$)",
+                                   "(^|/|\\\\)fixtures(/|\\\\|$)",
+                                   "(^|/|\\\\)snapshots(/|\\\\|$)"
+                               ],
+    "forbidden_filename_regexes":  [
+                                       "(^|[\\\\/])(export|exports)([._-]|[\\\\/]|$)",
+                                       "(^|[\\\\/])evidence([._-]|[\\\\/]|$)",
+                                       "(^|[\\\\/])proof([._-]|[\\\\/]|$)",
+                                       "(^|[\\\\/])seal([._-]|[\\\\/]|$)",
+                                       "(^|[\\\\/])envelope([._-]|[\\\\/]|$)"
+                                   ],
+    "forbidden_content_regexes":  [
+                                      "[\"\u0027]/(?:api/)?export(?:s)?(?:/|[\"\u0027])",
+                                      "[\"\u0027]/(?:api/)?evidence(?:/|[\"\u0027])",
+                                      "[\"\u0027]/(?:api/)?proof(?:/|[\"\u0027])",
+                                      "[\"\u0027]/(?:api/)?seal(?:/|[\"\u0027])",
+                                      "[\"\u0027]/(?:api/)?envelope(?:/|[\"\u0027])",
+                                      "\\bdownloadEvidence\\b",
+                                      "\\bdownloadExport\\b",
+                                      "\\bexportEvidence\\b",
+                                      "\\bexportBundle\\b",
+                                      "\\bexportEnvelope\\b",
+                                      "\\bevidenceDownload\\b",
+                                      "\\bevidenceExport\\b",
+                                      "\\bevidenceSeal\\b",
+                                      "\\bevidenceEnvelope\\b",
+                                      "\\bshowExport\\b",
+                                      "\\bshowEvidence\\b",
+                                      "\\bopenExport\\b",
+                                      "\\bopenEvidence\\b",
+                                      "\\bExportButton\\b",
+                                      "\\bEvidenceButton\\b"
+                                  ]
+}
