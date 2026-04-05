@@ -1,0 +1,36 @@
+{
+  "schema_version": "kolosseum.coach_session_state_copy_surface.v1.0.0",
+  "scope": "active_v0_only",
+  "phrases": [
+    "Session active.",
+    "Session complete.",
+    "Execution state: partial.",
+    "Work items done: 4 of 6.",
+    "Pain flags recorded: 1.",
+    "Split entered: yes.",
+    "Return decision: continue."
+  ],
+  "demo_fields": [
+    "canonical_input_hash",
+    "selection_hash",
+    "execution_status",
+    "execution_state",
+    "runtime_events",
+    "block_execution_summary[].block_id",
+    "block_execution_summary[].block_index",
+    "block_execution_summary[].sessions_total",
+    "block_execution_summary[].sessions_ended",
+    "block_execution_summary[].work_items_total",
+    "block_execution_summary[].work_items_done",
+    "session_execution_summary[].session_id",
+    "session_execution_summary[].block_id",
+    "session_execution_summary[].session_index_global",
+    "session_execution_summary[].session_index_in_block",
+    "session_execution_summary[].session_ended",
+    "session_execution_summary[].work_items_total",
+    "session_execution_summary[].work_items_done",
+    "session_execution_summary[].pain_flag_count",
+    "session_execution_summary[].split_entered",
+    "session_execution_summary[].split_return_decision"
+  ]
+}
