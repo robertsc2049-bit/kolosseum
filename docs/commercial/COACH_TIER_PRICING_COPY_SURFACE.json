@@ -1,0 +1,17 @@
+{
+  "schema_version": "kolosseum.coach_tier_pricing_copy_surface.v1.0.0",
+  "tier_id": "coach_16",
+  "phrases": [
+    "£59.99 per month.",
+    "Manage up to 16 athletes.",
+    "Assign programs within system limits.",
+    "View athlete execution artefacts.",
+    "Write non-binding coach notes.",
+    "Observational only.",
+    "Coaches may comment, never decide.",
+    "Does not allow overriding engine decisions.",
+    "Does not allow changing constraints.",
+    "Does not allow triggering substitutions.",
+    "Does not include replay or evidence access."
+  ]
+}

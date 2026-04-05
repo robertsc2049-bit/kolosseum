@@ -1,0 +1,159 @@
+{
+  "schema_version": "kolosseum.coach_tier_pricing_claim_registry.v1.0.0",
+  "scope": "active_v0_only",
+  "tier_id": "coach_16",
+  "claims": [
+    {
+      "claim_id": "coach_16_price_month",
+      "tier_id": "coach_16",
+      "claim_text": "£59.99 per month.",
+      "claim_class": "price_fact",
+      "proof_ids": [
+        "proof_pricing_row_coach_16"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    },
+    {
+      "claim_id": "coach_16_capacity",
+      "tier_id": "coach_16",
+      "claim_text": "Manage up to 16 athletes.",
+      "claim_class": "seat_cap_fact",
+      "proof_ids": [
+        "proof_pricing_row_coach_16"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    },
+    {
+      "claim_id": "coach_assign_within_system_limits",
+      "tier_id": "coach_16",
+      "claim_text": "Assign programs within system limits.",
+      "claim_class": "access_fact",
+      "proof_ids": [
+        "proof_coach_gets_assign_within_system_limits"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    },
+    {
+      "claim_id": "coach_view_execution_artefacts",
+      "tier_id": "coach_16",
+      "claim_text": "View athlete execution artefacts.",
+      "claim_class": "visibility_fact",
+      "proof_ids": [
+        "proof_coach_gets_view_execution_artefacts"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    },
+    {
+      "claim_id": "coach_write_non_binding_notes",
+      "tier_id": "coach_16",
+      "claim_text": "Write non-binding coach notes.",
+      "claim_class": "proof_scoped_value",
+      "proof_ids": [
+        "proof_coach_gets_non_binding_notes",
+        "proof_coach_notes_non_authoritative"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    },
+    {
+      "claim_id": "coach_observational_only",
+      "tier_id": "coach_16",
+      "claim_text": "Observational only.",
+      "claim_class": "authority_limit",
+      "proof_ids": [
+        "proof_coach_authority_observational_only"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    },
+    {
+      "claim_id": "coach_comment_never_decide",
+      "tier_id": "coach_16",
+      "claim_text": "Coaches may comment, never decide.",
+      "claim_class": "authority_limit",
+      "proof_ids": [
+        "proof_coach_core_rule_comment_never_decide"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    },
+    {
+      "claim_id": "coach_cannot_override_engine",
+      "tier_id": "coach_16",
+      "claim_text": "Does not allow overriding engine decisions.",
+      "claim_class": "authority_limit",
+      "proof_ids": [
+        "proof_coach_does_not_get_override_engine_decisions",
+        "proof_coach_must_not_override_engine_decisions"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    },
+    {
+      "claim_id": "coach_cannot_change_constraints",
+      "tier_id": "coach_16",
+      "claim_text": "Does not allow changing constraints.",
+      "claim_class": "authority_limit",
+      "proof_ids": [
+        "proof_coach_does_not_get_change_constraints"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    },
+    {
+      "claim_id": "coach_cannot_trigger_substitutions",
+      "tier_id": "coach_16",
+      "claim_text": "Does not allow triggering substitutions.",
+      "claim_class": "authority_limit",
+      "proof_ids": [
+        "proof_coach_does_not_get_trigger_substitutions",
+        "proof_coach_must_not_trigger_substitutions"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    },
+    {
+      "claim_id": "coach_cannot_access_replay_or_evidence",
+      "tier_id": "coach_16",
+      "claim_text": "Does not include replay or evidence access.",
+      "claim_class": "authority_limit",
+      "proof_ids": [
+        "proof_coach_does_not_get_replay_access",
+        "proof_coach_does_not_get_evidence_access"
+      ],
+      "v0_scope_only": true,
+      "status": "allowed"
+    }
+  ],
+  "forbidden_semantic_patterns": [
+    {
+      "pattern_id": "forbidden_outcome_improvement",
+      "regex": "\\b(better outcomes?|improve(?:d|ment|s)?|performance gains?|results?)\\b",
+      "token": "CI_LINT_FORBIDDEN_CLAIM_SEMANTIC"
+    },
+    {
+      "pattern_id": "forbidden_optimisation",
+      "regex": "\\b(optimi[sz](?:e|ed|es|ing|ation)|maximi[sz](?:e|ed|es|ing|ation)|best|faster|proven)\\b",
+      "token": "CI_LINT_FORBIDDEN_CLAIM_SEMANTIC"
+    },
+    {
+      "pattern_id": "forbidden_safety_medical",
+      "regex": "\\b(safe|safer|safety|injur(?:y|ies)|rehab(?:ilit(?:ation)?)?|medical|clinical|therapy|treatment|protect(?:ion)?|prevent(?:ion)?)\\b",
+      "token": "CI_LINT_FORBIDDEN_CLAIM_SEMANTIC"
+    },
+    {
+      "pattern_id": "forbidden_suitability_readiness",
+      "regex": "\\b(suitable|suitability|appropriate|readiness|ready|right for you|ideal for you)\\b",
+      "token": "CI_LINT_FORBIDDEN_CLAIM_SEMANTIC"
+    },
+    {
+      "pattern_id": "forbidden_hidden_authority",
+      "regex": "\\b(override|control legality|change legality|trigger substitutions?|edit registr(?:y|ies)|edit phase[- ]?1|proof[- ]backed authority|evidence[- ]backed authority|replay[- ]backed authority)\\b",
+      "token": "CI_LINT_FORBIDDEN_CLAIM_SEMANTIC"
+    }
+  ]
+}

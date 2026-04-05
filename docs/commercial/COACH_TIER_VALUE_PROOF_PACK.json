@@ -1,0 +1,133 @@
+{
+  "schema_version": "kolosseum.coach_tier_value_proof_pack.v1.0.0",
+  "scope": "active_v0_only",
+  "proofs": [
+    {
+      "proof_id": "proof_pricing_row_coach_16",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach Pricing Table / Coach 16",
+      "summary": "Coach 16 is priced at £59.99 per month and covers 7-16 athletes.",
+      "supported_claim_ids": [
+        "coach_16_price_month",
+        "coach_16_capacity"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_gets_assign_within_system_limits",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach / Gets / Assign programs within system limits",
+      "summary": "Coach tier includes assigning programs within system limits.",
+      "supported_claim_ids": [
+        "coach_assign_within_system_limits"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_gets_view_execution_artefacts",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach / Gets / View athlete execution artefacts",
+      "summary": "Coach tier includes viewing athlete execution artefacts.",
+      "supported_claim_ids": [
+        "coach_view_execution_artefacts"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_gets_non_binding_notes",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach / Gets / Write coach notes (non-binding)",
+      "summary": "Coach tier includes non-binding coach notes.",
+      "supported_claim_ids": [
+        "coach_write_non_binding_notes"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_authority_observational_only",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach / Authority: Observational only (per law)",
+      "summary": "Coach tier authority is observational only.",
+      "supported_claim_ids": [
+        "coach_observational_only"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_core_rule_comment_never_decide",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach / Core rule",
+      "summary": "The coach core rule states that coaches may comment, never decide.",
+      "supported_claim_ids": [
+        "coach_comment_never_decide"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_does_not_get_override_engine_decisions",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach / Does NOT get / Override engine decisions",
+      "summary": "Coach tier does not allow overriding engine decisions.",
+      "supported_claim_ids": [
+        "coach_cannot_override_engine"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_does_not_get_change_constraints",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach / Does NOT get / Change constraints",
+      "summary": "Coach tier does not allow changing constraints.",
+      "supported_claim_ids": [
+        "coach_cannot_change_constraints"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_does_not_get_trigger_substitutions",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach / Does NOT get / Trigger substitutions",
+      "summary": "Coach tier does not allow triggering substitutions.",
+      "supported_claim_ids": [
+        "coach_cannot_trigger_substitutions"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_does_not_get_replay_access",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach / Does NOT get / Evidence / replay access",
+      "summary": "Coach tier does not include replay access.",
+      "supported_claim_ids": [
+        "coach_cannot_access_replay_or_evidence"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_does_not_get_evidence_access",
+      "source_doc": "_commercial_pricing - v0 fenced.docx",
+      "source_anchor": "Coach / Does NOT get / Evidence / replay access",
+      "summary": "Coach tier does not include evidence access.",
+      "supported_claim_ids": [
+        "coach_cannot_access_replay_or_evidence"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_notes_non_authoritative",
+      "source_doc": "coach_relationship_authority_law",
+      "source_anchor": "Section 3.1 Coach Notes",
+      "summary": "Coach notes are non-binding, non-authoritative, non-executable, and must not influence execution or evidence.",
+      "supported_claim_ids": [
+        "coach_write_non_binding_notes"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_must_not_override_engine_decisions",
+      "source_doc": "coach_relationship_authority_law",
+      "source_anchor": "Section 2.2 What a Coach MUST NOT Do",
+      "summary": "Coach authority excludes overriding engine decisions.",
+      "supported_claim_ids": [
+        "coach_cannot_override_engine"
+      ]
+    },
+    {
+      "proof_id": "proof_coach_must_not_trigger_substitutions",
+      "source_doc": "coach_relationship_authority_law",
+      "source_anchor": "Section 2.2 What a Coach MUST NOT Do",
+      "summary": "Coach authority excludes triggering substitutions.",
+      "supported_claim_ids": [
+        "coach_cannot_trigger_substitutions"
+      ]
+    }
+  ]
+}
