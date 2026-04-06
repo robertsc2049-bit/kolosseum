@@ -1,0 +1,160 @@
+{
+    "registry_id":  "commercial_artefact_registry",
+    "registry_version":  "1.0.0",
+    "engine_compatibility":  "EB2-1.0.0",
+    "scope_class":  "closed_world",
+    "rewrite_policy":  "rewrite_only",
+    "purpose":  "Pinned CI-only registry for commercial-facing docs and packs. This registry grants no engine authority and no runtime reachability.",
+    "scan_roots":  [
+                       "docs/commercial"
+                   ],
+    "allowed_extensions":  [
+                               ".md",
+                               ".json",
+                               ".txt",
+                               ".pdf",
+                               ".docx"
+                           ],
+    "artefacts":  [
+                      {
+                          "artefact_id":  "coach_session_state_copy_surface",
+                          "path":  "docs/commercial/COACH_SESSION_STATE_COPY_SURFACE.json",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "coach_session_state_demo_contract",
+                          "path":  "docs/commercial/COACH_SESSION_STATE_DEMO_CONTRACT.md",
+                          "class":  "commercial_law"
+                      },
+                      {
+                          "artefact_id":  "coach_session_state_field_registry",
+                          "path":  "docs/commercial/COACH_SESSION_STATE_FIELD_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "coach_summary_copy_surface",
+                          "path":  "docs/commercial/COACH_SUMMARY_COPY_SURFACE.json",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "coach_summary_export_ban_reinforcement",
+                          "path":  "docs/commercial/COACH_SUMMARY_EXPORT_BAN_REINFORCEMENT.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "coach_summary_field_boundary",
+                          "path":  "docs/commercial/COACH_SUMMARY_FIELD_BOUNDARY.json",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "coach_tier_pricing_boundary_lock",
+                          "path":  "docs/commercial/COACH_TIER_PRICING_BOUNDARY_LOCK.md",
+                          "class":  "commercial_law"
+                      },
+                      {
+                          "artefact_id":  "coach_tier_pricing_claim_registry",
+                          "path":  "docs/commercial/COACH_TIER_PRICING_CLAIM_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "coach_tier_pricing_copy_surface",
+                          "path":  "docs/commercial/COACH_TIER_PRICING_COPY_SURFACE.json",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "coach_tier_value_proof_pack",
+                          "path":  "docs/commercial/COACH_TIER_VALUE_PROOF_PACK.json",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "minimal_coach_onboarding_copy_surface",
+                          "path":  "docs/commercial/MINIMAL_COACH_ONBOARDING_COPY_SURFACE.json",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "minimal_coach_onboarding_pack",
+                          "path":  "docs/commercial/MINIMAL_COACH_ONBOARDING_PACK.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "minimal_coach_onboarding_step_registry",
+                          "path":  "docs/commercial/MINIMAL_COACH_ONBOARDING_STEP_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "minimal_coach_onboarding_surface_map",
+                          "path":  "docs/commercial/MINIMAL_COACH_ONBOARDING_SURFACE_MAP.json",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "v0_coach_assignment_walkthrough_proof",
+                          "path":  "docs/commercial/V0_COACH_ASSIGNMENT_WALKTHROUGH_PROOF.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "v0_coach_assignment_walkthrough_proof_registry",
+                          "path":  "docs/commercial/V0_COACH_ASSIGNMENT_WALKTHROUGH_PROOF_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "v0_coach_demo_artefact_index",
+                          "path":  "docs/commercial/V0_COACH_DEMO_ARTEFACT_INDEX.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "v0_coach_demo_artefact_index_registry",
+                          "path":  "docs/commercial/V0_COACH_DEMO_ARTEFACT_INDEX_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "v0_coach_demo_surface_claim_matrix",
+                          "path":  "docs/commercial/V0_COACH_DEMO_SURFACE_CLAIM_MATRIX.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "v0_coach_demo_surface_claim_matrix_registry",
+                          "path":  "docs/commercial/V0_COACH_DEMO_SURFACE_CLAIM_MATRIX_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "v0_coach_notes_boundary_demo_proof",
+                          "path":  "docs/commercial/V0_COACH_NOTES_BOUNDARY_DEMO_PROOF.md",
+                          "class":  "commercial_law"
+                      },
+                      {
+                          "artefact_id":  "v0_coach_notes_boundary_demo_proof_registry",
+                          "path":  "docs/commercial/V0_COACH_NOTES_BOUNDARY_DEMO_PROOF_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "v0_coach_tier_value_claim_registry",
+                          "path":  "docs/commercial/V0_COACH_TIER_VALUE_CLAIM_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "v0_coach_tier_value_proof_pack",
+                          "path":  "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "v0_first_sale_demo_checklist",
+                          "path":  "docs/commercial/V0_FIRST_SALE_DEMO_CHECKLIST.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "v0_first_sale_demo_checklist_registry",
+                          "path":  "docs/commercial/V0_FIRST_SALE_DEMO_CHECKLIST_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "v0_founder_demo_script_lock",
+                          "path":  "docs/commercial/V0_FOUNDER_DEMO_SCRIPT_LOCK.md",
+                          "class":  "commercial_law"
+                      },
+                      {
+                          "artefact_id":  "v0_founder_demo_script_lock_registry",
+                          "path":  "docs/commercial/V0_FOUNDER_DEMO_SCRIPT_LOCK_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      }
+                  ]
+}
