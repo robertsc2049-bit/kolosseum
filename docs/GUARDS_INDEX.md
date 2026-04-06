@@ -45,6 +45,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/registry_schema_presence_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/repo_contract.mjs` | Contracts | high | repo | --- package.json contract --- |
 | `ci/guards/run_pipeline_contract_version_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/run_v0_boundary_claim_consistency_guard.mjs` | V0 Boundary Pack | high | repo |  |
 | `ci/guards/runtime-boundary.guard.ps1` | Repo Governance | medium | repo |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | Not a tag build -> no-op |
 | `ci/guards/workflow_policy_header_guard.mjs` | Repo Governance | medium | repo |  |

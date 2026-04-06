@@ -1,0 +1,179 @@
+{
+  "schema_version": "kolosseum.v0_boundary_exclusions.v1",
+  "release_scope": "v0",
+  "pack_id": "not_included_in_v0_boundary_pack",
+  "items": [
+    {
+      "boundary_id": "V0-EX-001",
+      "expectation": "Evidence envelopes, proof export, or sealing",
+      "included_in_v0": false,
+      "status": "v1_or_post_v0",
+      "reason_not_in_v0": "Current v0 is limited to Phase 1 through Phase 6 and excludes proof-layer artefacts.",
+      "grounded_in": [
+        "Kolosseum_v0_redefinition",
+        "BUILD_TARGET_v0"
+      ],
+      "forbidden_claim_tokens": [
+        "evidence_envelope",
+        "evidence_sealing",
+        "proof_export",
+        "audit_export",
+        "lawful_proof_release"
+      ]
+    },
+    {
+      "boundary_id": "V0-EX-002",
+      "expectation": "Team, unit, gym, or organisation execution runtime",
+      "included_in_v0": false,
+      "status": "dormant_or_not_implemented",
+      "reason_not_in_v0": "Current v0 supports only individual and coach_managed execution scopes.",
+      "grounded_in": [
+        "Kolosseum_v0_redefinition",
+        "BUILD_TARGET_v0",
+        "PRODUCT_REQUIREMENTS_DOCUMENT"
+      ],
+      "forbidden_claim_tokens": [
+        "team_runtime",
+        "unit_runtime",
+        "gym_runtime",
+        "organisation_runtime",
+        "org_managed_execution"
+      ]
+    },
+    {
+      "boundary_id": "V0-EX-003",
+      "expectation": "Coach override of engine legality or session decisions",
+      "included_in_v0": false,
+      "status": "forbidden",
+      "reason_not_in_v0": "Coach authority is observational and non-binding only.",
+      "grounded_in": [
+        "COACH_RELATIONSHIP_AUTHORITY_LAW",
+        "Kolosseum_v0_redefinition"
+      ],
+      "forbidden_claim_tokens": [
+        "coach_override",
+        "coach_legality_override",
+        "coach_selection_override",
+        "coach_decides_execution"
+      ]
+    },
+    {
+      "boundary_id": "V0-EX-004",
+      "expectation": "Coach editing athlete Phase-1 truth after declaration",
+      "included_in_v0": false,
+      "status": "forbidden",
+      "reason_not_in_v0": "Phase-1 declarations are the only lawful truth entry and are immutable for that execution.",
+      "grounded_in": [
+        "PHASE_1_INPUT_DECLARATION_CONSENT",
+        "COACH_RELATIONSHIP_AUTHORITY_LAW"
+      ],
+      "forbidden_claim_tokens": [
+        "coach_edits_phase1",
+        "coach_mutates_truth",
+        "coach_changes_athlete_declaration"
+      ]
+    },
+    {
+      "boundary_id": "V0-EX-005",
+      "expectation": "Readiness scoring, rankings, dashboards, or analytics judgement",
+      "included_in_v0": false,
+      "status": "not_implemented",
+      "reason_not_in_v0": "Current v0 excludes scoring, rankings, and broader dashboard surfaces.",
+      "grounded_in": [
+        "Kolosseum_v0_redefinition",
+        "BUILD_TARGET_v0",
+        "PRODUCT_REQUIREMENTS_DOCUMENT"
+      ],
+      "forbidden_claim_tokens": [
+        "readiness_scoring",
+        "performance_ranking",
+        "org_dashboard",
+        "judgement_analytics"
+      ]
+    },
+    {
+      "boundary_id": "V0-EX-006",
+      "expectation": "Messaging, chat, or broad communication workflows",
+      "included_in_v0": false,
+      "status": "not_implemented",
+      "reason_not_in_v0": "Current v0 surface is execution-first and minimal.",
+      "grounded_in": [
+        "Kolosseum_v0_redefinition",
+        "PRODUCT_REQUIREMENTS_DOCUMENT"
+      ],
+      "forbidden_claim_tokens": [
+        "messaging",
+        "chat",
+        "in_app_communication",
+        "broadcast_messaging"
+      ]
+    },
+    {
+      "boundary_id": "V0-EX-007",
+      "expectation": "Medical, rehab, safety, or suitability framing",
+      "included_in_v0": false,
+      "status": "forbidden_claim_class",
+      "reason_not_in_v0": "These semantics are outside permitted system language and representation.",
+      "grounded_in": [
+        "CL_GATES",
+        "MASTER_CI_GATES",
+        "PRODUCT_REQUIREMENTS_DOCUMENT"
+      ],
+      "forbidden_claim_tokens": [
+        "medical_guidance",
+        "rehab_guidance",
+        "safety_claim",
+        "suitability_claim"
+      ]
+    },
+    {
+      "boundary_id": "V0-EX-008",
+      "expectation": "Adaptive coaching, optimisation, or auto-progression decisioning",
+      "included_in_v0": false,
+      "status": "forbidden_or_not_implemented",
+      "reason_not_in_v0": "Current v0 is deterministic and non-optimising.",
+      "grounded_in": [
+        "PRODUCT_REQUIREMENTS_DOCUMENT",
+        "BUILD_TARGET_v0"
+      ],
+      "forbidden_claim_tokens": [
+        "adaptive_coaching",
+        "auto_progression",
+        "optimising_engine",
+        "recommendation_engine"
+      ]
+    },
+    {
+      "boundary_id": "V0-EX-009",
+      "expectation": "Billing or tier state changing engine behaviour",
+      "included_in_v0": false,
+      "status": "forbidden",
+      "reason_not_in_v0": "Product/payment state must not alter engine truth.",
+      "grounded_in": [
+        "PRODUCT_PAYMENTS_ORGANISATIONAL_CAPABILITIES_LAW",
+        "PRODUCT_REQUIREMENTS_DOCUMENT"
+      ],
+      "forbidden_claim_tokens": [
+        "tier_changes_engine",
+        "payment_changes_legality",
+        "billing_unlocks_engine_logic"
+      ]
+    },
+    {
+      "boundary_id": "V0-EX-010",
+      "expectation": "Registry editing UI or runtime registry mutation",
+      "included_in_v0": false,
+      "status": "forbidden",
+      "reason_not_in_v0": "Registries are read-only artefacts in current scope.",
+      "grounded_in": [
+        "BUILD_TARGET_v0",
+        "REGISTRY_LAW_CANONICAL_STRUCTURE"
+      ],
+      "forbidden_claim_tokens": [
+        "registry_editing_ui",
+        "runtime_registry_mutation",
+        "live_registry_authoring"
+      ]
+    }
+  ]
+}
