@@ -1,0 +1,48 @@
+{
+  "schema_version": "kolosseum.v0_allowed_claims.v1",
+  "release_scope": "v0",
+  "claims": [
+    {
+      "claim_id": "V0-CL-001",
+      "claim_text": "v0 supports deterministic execution for individual and coach-managed sessions.",
+      "claim_tokens": [
+        "deterministic_execution",
+        "individual_execution",
+        "coach_managed_execution"
+      ]
+    },
+    {
+      "claim_id": "V0-CL-002",
+      "claim_text": "Coaches can assign within system limits, view factual artefacts, and write non-binding notes.",
+      "claim_tokens": [
+        "coach_assignment_within_limits",
+        "factual_artefact_viewing",
+        "non_binding_coach_notes"
+      ]
+    },
+    {
+      "claim_id": "V0-CL-003",
+      "claim_text": "v0 includes split/return flow and partial completion handling.",
+      "claim_tokens": [
+        "split_return",
+        "partial_completion"
+      ]
+    },
+    {
+      "claim_id": "V0-CL-004",
+      "claim_text": "v0 is limited to powerlifting, rugby_union, and general_strength.",
+      "claim_tokens": [
+        "activity_powerlifting",
+        "activity_rugby_union",
+        "activity_general_strength"
+      ]
+    },
+    {
+      "claim_id": "V0-CL-005",
+      "claim_text": "v0 is Phase 1 through Phase 6 only.",
+      "claim_tokens": [
+        "phase_1_to_6_only"
+      ]
+    }
+  ]
+}
