@@ -1,0 +1,136 @@
+{
+  "document_id": "p178_capability_matrix_v0_coach_extract_map",
+  "document_version": "1.0.0",
+  "status": "pinned",
+  "scope": "current_v0_only",
+  "allowed_statuses": [
+    "tested_surface",
+    "explicit_exclusion"
+  ],
+  "entries": [
+    {
+      "id": "C01",
+      "status": "tested_surface",
+      "line": "Coach exists in current v0 as a supported actor.",
+      "sources": [
+        "Kolosseum_v0_redefinition.docx",
+        "BUILD_TARGET_v0.md"
+      ],
+      "rationale": "Current v0 supports individual_user and coach only."
+    },
+    {
+      "id": "C02",
+      "status": "tested_surface",
+      "line": "Coach-facing execution is limited to current v0 execution boundaries: individual and coach_managed only.",
+      "sources": [
+        "Kolosseum_v0_redefinition.docx",
+        "BUILD_TARGET_v0.md",
+        "phase_1"
+      ],
+      "rationale": "Current v0 allows only individual and coach_managed execution scopes."
+    },
+    {
+      "id": "C03",
+      "status": "tested_surface",
+      "line": "Coach-facing activity scope is limited to powerlifting, rugby_union, and general_strength only.",
+      "sources": [
+        "Kolosseum_v0_redefinition.docx",
+        "BUILD_TARGET_v0.md"
+      ],
+      "rationale": "Current v0 supports exactly three activities."
+    },
+    {
+      "id": "C04",
+      "status": "explicit_exclusion",
+      "line": "Coach-facing runtime scope is limited to Phase 1-6 only; do not claim Phase 7 truth projection or Phase 8 evidence sealing.",
+      "sources": [
+        "Kolosseum_v0_redefinition.docx",
+        "BUILD_TARGET_v0.md",
+        "phase_1"
+      ],
+      "rationale": "Phase 7 and Phase 8 are excluded from current v0 shipping."
+    },
+    {
+      "id": "C05",
+      "status": "tested_surface",
+      "line": "Coach may assign programs within current system limits.",
+      "sources": [
+        "Kolosseum_v0_redefinition.docx",
+        "_commercial_pricing - v0 fenced.docx"
+      ],
+      "rationale": "Coach assignment is in current v0 surface; assignment wording appears in coach-facing packaging."
+    },
+    {
+      "id": "C06",
+      "status": "tested_surface",
+      "line": "Coach may view factual execution artefacts for managed athletes within granted scope.",
+      "sources": [
+        "Kolosseum_v0_redefinition.docx",
+        "COACH_RELATIONSHIP_AUTHORITY_LAW",
+        "_commercial_pricing - v0 fenced.docx"
+      ],
+      "rationale": "Current v0 includes factual artefact viewing; coach visibility remains within granted relationship scope."
+    },
+    {
+      "id": "C07",
+      "status": "tested_surface",
+      "line": "Coach may write non-binding coach notes only.",
+      "sources": [
+        "Kolosseum_v0_redefinition.docx",
+        "COACH_RELATIONSHIP_AUTHORITY_LAW"
+      ],
+      "rationale": "Coach notes are explicitly non-binding and non-executable."
+    },
+    {
+      "id": "C08",
+      "status": "explicit_exclusion",
+      "line": "Coach may not override engine decisions, alter legality, alter Phase-1 declarations, trigger substitutions, trigger progression changes, or modify registries.",
+      "sources": [
+        "COACH_RELATIONSHIP_AUTHORITY_LAW"
+      ],
+      "rationale": "Coach authority is observational only with hard non-authority boundaries."
+    },
+    {
+      "id": "C09",
+      "status": "explicit_exclusion",
+      "line": "Coach-facing history in current v0 is factual and minimal; do not claim dashboards, analytics, rankings, messaging, or broad coaching intelligence.",
+      "sources": [
+        "Kolosseum_v0_redefinition.docx",
+        "PRODUCT REQUIREMENTS DOCUMENT (PRD)"
+      ],
+      "rationale": "Current v0 surface is minimal; broader analytics/messaging capabilities are excluded."
+    },
+    {
+      "id": "C10",
+      "status": "explicit_exclusion",
+      "line": "Coach-facing commercial / organisational powers described outside the active v0 scope are dormant and excluded unless a later build target activates them.",
+      "sources": [
+        "Kolosseum_v0_redefinition.docx",
+        "KOLOSSEUM — PRICING & ENTITLEMENT TIERS",
+        "PRODUCT REQUIREMENTS DOCUMENT (PRD)"
+      ],
+      "rationale": "Broader commercial/platform powers are dormant unless current build target activates them."
+    },
+    {
+      "id": "C11",
+      "status": "explicit_exclusion",
+      "line": "Coach does not get evidence / replay access in current v0.",
+      "sources": [
+        "_commercial_pricing - v0 fenced.docx",
+        "Kolosseum_v0_redefinition.docx"
+      ],
+      "rationale": "Coach-facing packaging excludes evidence/replay access and current v0 excludes proof-layer surface."
+    },
+    {
+      "id": "C12",
+      "status": "explicit_exclusion",
+      "line": "Organisation, team, unit, gym, and broader governance runtime are not part of the current v0 coach extract.",
+      "sources": [
+        "Kolosseum_v0_redefinition.docx",
+        "BUILD_TARGET_v0.md",
+        "PRODUCT REQUIREMENTS DOCUMENT (PRD)"
+      ],
+      "rationale": "Broader org/runtime structures are dormant or excluded from current v0 ship scope."
+    }
+  ]
+}
