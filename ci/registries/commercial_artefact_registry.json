@@ -155,6 +155,11 @@
                           "artefact_id":  "v0_founder_demo_script_lock_registry",
                           "path":  "docs/commercial/V0_FOUNDER_DEMO_SCRIPT_LOCK_REGISTRY.json",
                           "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p180_first_paid_pilot_setup_checklist",
+                          "path":  "docs/commercial/P180_FIRST_PAID_PILOT_SETUP_CHECKLIST.md",
+                          "class":  "commercial_surface"
                       }
                   ]
 }
