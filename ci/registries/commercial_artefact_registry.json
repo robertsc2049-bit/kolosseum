@@ -160,6 +160,21 @@
                           "artefact_id":  "p180_first_paid_pilot_setup_checklist",
                           "path":  "docs/commercial/P180_FIRST_PAID_PILOT_SETUP_CHECKLIST.md",
                           "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p181_pilot_success_evidence_pack",
+                          "path":  "docs/commercial/P181_PILOT_SUCCESS_EVIDENCE_PACK.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p181_pilot_success_evidence_registry",
+                          "path":  "docs/commercial/P181_PILOT_SUCCESS_EVIDENCE_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p181_pilot_success_claim_blacklist",
+                          "path":  "docs/commercial/P181_PILOT_SUCCESS_CLAIM_BLACKLIST.json",
+                          "class":  "commercial_registry"
                       }
                   ]
 }

@@ -1,0 +1,56 @@
+{
+  "artefact_id": "p181_pilot_success_claim_blacklist",
+  "version": "1.0.0",
+  "ban_rule": "claims_fail_if_they_imply_outcome_improvement_inference_or_proof_layer_completion",
+  "banned_claim_groups": [
+    {
+      "group_id": "outcome_claims",
+      "items": [
+        "improved performance",
+        "got stronger",
+        "better results",
+        "improved compliance",
+        "improved readiness",
+        "improved recovery",
+        "reduced injury risk",
+        "safer training",
+        "better outcomes",
+        "more effective programming"
+      ]
+    },
+    {
+      "group_id": "inference_claims",
+      "items": [
+        "athletes engaged better",
+        "coaches coached better",
+        "athletes were more motivated",
+        "this proved retention",
+        "this proved demand",
+        "this increased adherence",
+        "this improved discipline"
+      ]
+    },
+    {
+      "group_id": "proof_layer_inflation",
+      "items": [
+        "evidence-complete",
+        "audit-proof",
+        "sealed evidence",
+        "lawful proof pack",
+        "exportable proof",
+        "fully proven execution trail"
+      ]
+    },
+    {
+      "group_id": "broader_surface_inflation",
+      "items": [
+        "team analytics",
+        "organisation reporting",
+        "dashboard insights",
+        "athlete ranking",
+        "readiness dashboard",
+        "messaging response data"
+      ]
+    }
+  ]
+}

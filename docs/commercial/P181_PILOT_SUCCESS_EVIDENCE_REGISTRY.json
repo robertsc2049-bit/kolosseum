@@ -1,0 +1,82 @@
+{
+  "artefact_id": "p181_pilot_success_evidence_registry",
+  "version": "1.0.0",
+  "scope": "current_v0_only",
+  "invariant": "factual_minimal_non_inferential_only",
+  "allowed_evidence": [
+    {
+      "evidence_id": "pilot_configuration",
+      "allowed_items": [
+        "coach_tier_used",
+        "athlete_count",
+        "activity_lane_used",
+        "pilot_start_date",
+        "pilot_status"
+      ],
+      "maps_to": [
+        "commercial_tier_surface",
+        "pilot_operator_record"
+      ]
+    },
+    {
+      "evidence_id": "onboarding_facts",
+      "allowed_items": [
+        "lawful_onboarding_completed_count",
+        "onboarding_rejected_count",
+        "accepted_declaration_count",
+        "rejected_declaration_count"
+      ],
+      "maps_to": [
+        "phase1_onboarding_surface"
+      ]
+    },
+    {
+      "evidence_id": "execution_facts",
+      "allowed_items": [
+        "sessions_assigned_count",
+        "sessions_started_count",
+        "sessions_completed_count",
+        "partial_completion_count",
+        "split_return_count"
+      ],
+      "maps_to": [
+        "coach_assignment_surface",
+        "session_execution_surface",
+        "partial_completion_flow",
+        "split_return_flow"
+      ]
+    },
+    {
+      "evidence_id": "surface_examples",
+      "allowed_items": [
+        "onboarding_surface_example",
+        "coach_assignment_surface_example",
+        "factual_execution_artefact_example",
+        "history_counts_surface_example",
+        "non_binding_coach_note_surface_example"
+      ],
+      "maps_to": [
+        "phase1_onboarding_surface",
+        "coach_assignment_surface",
+        "factual_artefact_view",
+        "history_counts_surface",
+        "coach_notes_surface"
+      ]
+    },
+    {
+      "evidence_id": "bounded_system_statements",
+      "allowed_items": [
+        "deterministic_execution_alpha",
+        "factual_runtime_execution",
+        "ci_enforced_boundaries",
+        "coach_operable_within_current_v0_limits",
+        "replay_honest_within_current_v0_scope_only"
+      ],
+      "maps_to": [
+        "approved_commercial_copy_only"
+      ]
+    }
+  ],
+  "mapping_rule": "every_allowed_item_must_map_to_existing_v0_surface",
+  "forbidden_if_unmapped": true
+}
