@@ -175,6 +175,26 @@
                           "artefact_id":  "p181_pilot_success_claim_blacklist",
                           "path":  "docs/commercial/P181_PILOT_SUCCESS_CLAIM_BLACKLIST.json",
                           "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p182_sales_handoff_pack",
+                          "path":  "docs/commercial/P182_SALES_HANDOFF_PACK.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p182_sales_handoff_contents_registry",
+                          "path":  "docs/commercial/P182_SALES_HANDOFF_CONTENTS_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p182_sales_handoff_claim_guardrails",
+                          "path":  "docs/commercial/P182_SALES_HANDOFF_CLAIM_GUARDRAILS.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p182_sales_handoff_link_map",
+                          "path":  "docs/commercial/P182_SALES_HANDOFF_LINK_MAP.json",
+                          "class":  "commercial_registry"
                       }
                   ]
 }

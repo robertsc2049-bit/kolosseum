@@ -1,0 +1,37 @@
+{
+  "artefact_id": "p182_sales_handoff_claim_guardrails",
+  "version": "1.0.0",
+  "rule": "any_unbacked_follow_up_claim_fails",
+  "allowed_claim_classes": [
+    "current_v0_scope_statement",
+    "bounded_pilot_offer_statement",
+    "factual_surface_statement",
+    "factual_usage_statement",
+    "explicit_exclusion_statement"
+  ],
+  "banned_claim_classes": [
+    "outcome_claim",
+    "improvement_claim",
+    "safety_claim",
+    "optimisation_claim",
+    "readiness_claim",
+    "proof_layer_completion_claim",
+    "organisation_capability_claim",
+    "dashboard_or_analytics_claim",
+    "inferred_sentiment_or_retention_claim"
+  ],
+  "banned_examples": [
+    "improved performance",
+    "better compliance",
+    "more effective programming",
+    "safer training",
+    "reduced injury risk",
+    "improved readiness",
+    "proved retention",
+    "proved demand",
+    "evidence-complete",
+    "exportable proof",
+    "team analytics",
+    "organisation reporting"
+  ]
+}

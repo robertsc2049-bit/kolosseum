@@ -1,0 +1,38 @@
+{
+  "artefact_id": "p182_sales_handoff_contents_registry",
+  "version": "1.0.0",
+  "scope": "current_v0_demo_truth_only",
+  "required_sections": [
+    "demo_truth_summary",
+    "pilot_offer_block",
+    "what_the_buyer_gets",
+    "what_the_buyer_does_not_get",
+    "pilot_success_evidence_excerpt",
+    "allowed_summary_sentence",
+    "buyer_next_step",
+    "failure_conditions"
+  ],
+  "allowed_offer_items": [
+    "one_coach",
+    "coach_16_tier",
+    "one_activity_lane",
+    "bounded_early_pilot",
+    "three_to_sixteen_athletes",
+    "current_v0_surface_only"
+  ],
+  "required_exclusions": [
+    "phase7_truth_projection",
+    "phase8_evidence_sealing",
+    "dashboards",
+    "analytics",
+    "rankings",
+    "readiness_scoring",
+    "messaging",
+    "organisation_reporting",
+    "team_runtime",
+    "unit_runtime",
+    "gym_runtime",
+    "organisation_runtime",
+    "exportable_proof"
+  ]
+}
