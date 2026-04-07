@@ -195,6 +195,21 @@
                           "artefact_id":  "p182_sales_handoff_link_map",
                           "path":  "docs/commercial/P182_SALES_HANDOFF_LINK_MAP.json",
                           "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p183_post_demo_reply_templates",
+                          "path":  "docs/commercial/P183_POST_DEMO_REPLY_TEMPLATES.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p183_post_demo_reply_variant_registry",
+                          "path":  "docs/commercial/P183_POST_DEMO_REPLY_VARIANT_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p183_post_demo_reply_claim_guardrails",
+                          "path":  "docs/commercial/P183_POST_DEMO_REPLY_CLAIM_GUARDRAILS.json",
+                          "class":  "commercial_registry"
                       }
                   ]
 }

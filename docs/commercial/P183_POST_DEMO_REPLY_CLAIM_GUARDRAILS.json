@@ -1,0 +1,37 @@
+{
+  "artefact_id": "p183_post_demo_reply_claim_guardrails",
+  "version": "1.0.0",
+  "rule": "reply_templates_fail_if_they_outrun_demo_truth_or_current_v0_scope",
+  "allowed_claim_classes": [
+    "bounded_pilot_offer_statement",
+    "current_v0_scope_statement",
+    "factual_surface_statement",
+    "explicit_exclusion_statement",
+    "next_step_request"
+  ],
+  "banned_claim_classes": [
+    "outcome_claim",
+    "improvement_claim",
+    "safety_claim",
+    "optimisation_claim",
+    "readiness_claim",
+    "organisation_capability_claim",
+    "dashboard_or_analytics_claim",
+    "proof_layer_or_export_claim",
+    "inferred_sentiment_or_retention_claim"
+  ],
+  "banned_examples": [
+    "improved performance",
+    "better outcomes",
+    "safer training",
+    "improved compliance",
+    "improved readiness",
+    "more effective programming",
+    "organisation-ready",
+    "dashboard insights",
+    "exportable proof",
+    "evidence-complete",
+    "proven retention",
+    "increased adherence"
+  ]
+}
