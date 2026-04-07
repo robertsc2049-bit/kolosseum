@@ -1,0 +1,66 @@
+{
+  "artefact_id": "p183_post_demo_reply_variant_registry",
+  "version": "1.0.0",
+  "scope": "current_v0_demo_truth_only",
+  "variants": [
+    {
+      "variant_id": "warm_lead",
+      "use_when": [
+        "lead_engaged",
+        "lead_asked_setup_questions",
+        "lead_close_to_pilot_discussion"
+      ],
+      "must_include": [
+        "bounded_early_pilot",
+        "one_coach",
+        "one_activity_lane",
+        "three_to_sixteen_athletes",
+        "current_scope_list",
+        "current_exclusions_list",
+        "clean_next_step_request"
+      ]
+    },
+    {
+      "variant_id": "cold_lead",
+      "use_when": [
+        "lead_polite_non_committal",
+        "light_follow_up_required",
+        "low_pressure_reengagement"
+      ],
+      "must_include": [
+        "bounded_v0_positioning",
+        "current_scope_list",
+        "current_exclusions_list",
+        "light_cta"
+      ]
+    },
+    {
+      "variant_id": "hesitant_lead",
+      "use_when": [
+        "lead_scope_concern",
+        "lead_fit_concern",
+        "lead_ready_enough_concern"
+      ],
+      "must_include": [
+        "bounded_v0_positioning",
+        "what_it_does_already",
+        "what_it_does_not_do",
+        "commercial_usefulness_question",
+        "clean_next_step_request"
+      ]
+    },
+    {
+      "variant_id": "tight_nudge",
+      "use_when": [
+        "no_reply_after_first_follow_up"
+      ],
+      "must_include": [
+        "bounded_early_pilot",
+        "one_coach",
+        "one_activity_lane",
+        "three_to_sixteen_athletes",
+        "short_cta"
+      ]
+    }
+  ]
+}
