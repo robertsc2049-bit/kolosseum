@@ -1,0 +1,66 @@
+{
+  "artefact_id": "p184_pilot_qualification_filter_registry",
+  "version": "1.0.0",
+  "scope": "current_v0_only",
+  "filters": [
+    {
+      "filter_id": "coach_type",
+      "question": "Are you the single coach who would run the pilot directly?",
+      "pass": [
+        "single_coach_yes"
+      ],
+      "fail": [
+        "multi_coach_requirement_now",
+        "org_controlled_coaching_structure_now"
+      ]
+    },
+    {
+      "filter_id": "activity_lane",
+      "question": "Is one activity lane enough for the first pilot?",
+      "pass": [
+        "powerlifting",
+        "rugby_union",
+        "general_strength"
+      ],
+      "fail": [
+        "multi_activity_requirement_now",
+        "unsupported_activity"
+      ]
+    },
+    {
+      "filter_id": "athlete_count",
+      "question": "Roughly how many athletes would be in the first pilot?",
+      "pass": [
+        "3_to_16"
+      ],
+      "yellow": [
+        "likely_within_range_but_unclear"
+      ],
+      "fail": [
+        "needs_large_rollout_now",
+        "needs_org_or_team_runtime_now"
+      ]
+    },
+    {
+      "filter_id": "surface_need",
+      "question": "Is a bounded early pilot enough if it stays inside current v0 surfaces only?",
+      "pass": [
+        "bounded_v0_is_enough"
+      ],
+      "fail": [
+        "needs_dashboards",
+        "needs_analytics",
+        "needs_rankings",
+        "needs_readiness_scoring",
+        "needs_messaging",
+        "needs_org_team_runtime",
+        "needs_proof_export"
+      ]
+    }
+  ],
+  "outputs": [
+    "green_good_v0_pilot_fit_now",
+    "yellow_possible_v0_fit_only_with_explicit_scope_lock",
+    "red_not_current_v0_fit"
+  ]
+}

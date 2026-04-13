@@ -1,0 +1,21 @@
+{
+  "artefact_id": "p184_pilot_qualification_exclusion_list",
+  "version": "1.0.0",
+  "rule": "lead_fails_if_any_excluded_need_is_required_now",
+  "excluded_needs": [
+    "team_runtime",
+    "unit_runtime",
+    "gym_runtime",
+    "organisation_runtime",
+    "dashboards",
+    "analytics",
+    "rankings",
+    "readiness_scoring",
+    "messaging",
+    "exportable_proof",
+    "sealed_evidence",
+    "outcome_reporting",
+    "multi_activity_rollout_now",
+    "broad_multi_coach_structure_now"
+  ]
+}
