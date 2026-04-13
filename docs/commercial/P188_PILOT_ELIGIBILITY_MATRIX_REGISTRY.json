@@ -1,0 +1,37 @@
+{
+  "artefact_id": "p188_pilot_eligibility_matrix_registry",
+  "version": "1.0.0",
+  "scope": "current_v0_only",
+  "green": {
+    "coach_model": "one_coach",
+    "activity_lane": "one_activity_lane",
+    "athlete_count_min": 3,
+    "athlete_count_max": 16,
+    "runtime_requirement": "none_beyond_bounded_coach_pilot",
+    "reporting_requirement": "history_counts_only",
+    "proof_requirement": "no_proof_export_need",
+    "outcome_requirement": "factual_execution_only"
+  },
+  "yellow": [
+    "athlete_count_not_exact_but_likely_within_range",
+    "one_coach_now_broader_expansion_later",
+    "one_activity_lane_now_broader_use_later",
+    "future_questions_but_bounded_current_pilot_accepted",
+    "current_v0_pilot_acceptable_as_narrow_starting_step"
+  ],
+  "red": [
+    "organisation_runtime",
+    "dashboards",
+    "messaging",
+    "analytics",
+    "proof_exports",
+    "team_runtime_now",
+    "unit_runtime_now",
+    "gym_runtime_now",
+    "multi_coach_now",
+    "multi_activity_now",
+    "athlete_comparison_required",
+    "rankings_required",
+    "outcome_tracking_required"
+  ]
+}
