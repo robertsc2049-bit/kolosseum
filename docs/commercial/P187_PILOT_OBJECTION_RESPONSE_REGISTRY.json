@@ -1,0 +1,43 @@
+{
+  "artefact_id": "p187_pilot_objection_response_registry",
+  "version": "1.0.0",
+  "scope": "current_v0_only",
+  "objections": [
+    {
+      "objection_id": "dashboards",
+      "question": "Do you have dashboards?",
+      "truth_bound_answer": "No. Current v0 does not include dashboards.",
+      "fit_result_if_required_now": "red"
+    },
+    {
+      "objection_id": "teams",
+      "question": "Can this work for teams?",
+      "truth_bound_answer": "No as team runtime. Current v0 is a bounded one-coach pilot.",
+      "fit_result_if_required_now": "red"
+    },
+    {
+      "objection_id": "compare_athletes",
+      "question": "Can I compare athletes?",
+      "truth_bound_answer": "No as comparison or ranking tooling. Current v0 supports factual surfaces and history counts only.",
+      "fit_result_if_required_now": "red"
+    },
+    {
+      "objection_id": "export_proof",
+      "question": "Can I export proof?",
+      "truth_bound_answer": "No. Current v0 does not include proof export or evidence sealing.",
+      "fit_result_if_required_now": "red"
+    },
+    {
+      "objection_id": "track_outcomes",
+      "question": "Can this track outcomes?",
+      "truth_bound_answer": "No. Current v0 is not an outcome tracking or performance proof layer.",
+      "fit_result_if_required_now": "red"
+    }
+  ],
+  "response_pattern": [
+    "answer_directly",
+    "state_current_truth",
+    "state_boundary",
+    "restate_bounded_pilot_if_still_relevant"
+  ]
+}

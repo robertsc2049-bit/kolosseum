@@ -1,0 +1,34 @@
+{
+  "artefact_id": "p187_pilot_objection_claim_guardrails",
+  "version": "1.0.0",
+  "rule": "objection_answers_fail_if_they_imply_capability_beyond_current_v0_truth",
+  "allowed_claim_classes": [
+    "direct_no_answer",
+    "bounded_v0_scope_statement",
+    "explicit_exclusion_statement",
+    "fit_result_statement"
+  ],
+  "banned_claim_classes": [
+    "coming_soon_claim",
+    "soft_yes_without_capability",
+    "workaround_claim",
+    "roadmap_as_current_truth_claim",
+    "comparison_claim",
+    "proof_export_claim",
+    "outcome_tracking_claim",
+    "team_runtime_claim"
+  ],
+  "banned_examples": [
+    "coming soon",
+    "nearly there",
+    "basically yes",
+    "we can probably do that",
+    "we can work around that",
+    "it is in the roadmap so yes",
+    "we can treat it like a team setup",
+    "you can infer that from the data",
+    "export is not built but we can sort something",
+    "outcomes can be estimated",
+    "dashboards are not there yet but the same thing is available"
+  ]
+}
