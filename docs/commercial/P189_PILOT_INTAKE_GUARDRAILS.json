@@ -1,0 +1,46 @@
+{
+  "artefact_id": "p189_pilot_intake_guardrails",
+  "version": "1.0.0",
+  "rule": "intake_fails_if_it_collects_beyond_current_v0_setup_need",
+  "allowed_field_classes": [
+    "single_coach_identity_field",
+    "single_coach_contact_field",
+    "activity_lane_field",
+    "bounded_athlete_count_field",
+    "preferred_start_window_field",
+    "coach_tier_field",
+    "optional_setup_note_field",
+    "optional_billing_contact_field"
+  ],
+  "banned_field_classes": [
+    "organisation_structure_field",
+    "team_structure_field",
+    "unit_structure_field",
+    "gym_structure_field",
+    "dashboard_requirement_field",
+    "analytics_requirement_field",
+    "messaging_requirement_field",
+    "readiness_requirement_field",
+    "proof_export_requirement_field",
+    "comparison_requirement_field",
+    "outcome_goal_field",
+    "retention_goal_field",
+    "multi_coach_rollout_field",
+    "multi_activity_rollout_field"
+  ],
+  "banned_examples": [
+    "organisation hierarchy",
+    "team hierarchy",
+    "unit structure",
+    "gym structure",
+    "dashboard requirements",
+    "analytics requirements",
+    "messaging requirements",
+    "proof export requirements",
+    "athlete comparison requirements",
+    "outcome goals",
+    "retention goals",
+    "multi-coach rollout planning",
+    "multi-activity rollout planning"
+  ]
+}

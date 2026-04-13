@@ -1,0 +1,63 @@
+{
+  "artefact_id": "p189_pilot_intake_fields_registry",
+  "version": "1.0.0",
+  "scope": "current_v0_only",
+  "required_fields": [
+    {
+      "field_id": "coach_full_name",
+      "required": true
+    },
+    {
+      "field_id": "coach_email",
+      "required": true
+    },
+    {
+      "field_id": "activity_lane",
+      "required": true,
+      "allowed_values": [
+        "powerlifting",
+        "rugby_union",
+        "general_strength"
+      ]
+    },
+    {
+      "field_id": "athlete_count",
+      "required": true,
+      "allowed_values": [
+        "bounded_current_pilot_tier_only"
+      ]
+    },
+    {
+      "field_id": "preferred_start_window",
+      "required": true,
+      "allowed_values": [
+        "simple_timing_answer",
+        "specific_week",
+        "specific_date_window",
+        "this_month",
+        "next_month"
+      ]
+    },
+    {
+      "field_id": "coach_tier",
+      "required": true,
+      "allowed_values": [
+        "coach_16"
+      ]
+    }
+  ],
+  "optional_fields": [
+    {
+      "field_id": "short_setup_note",
+      "required": false
+    },
+    {
+      "field_id": "billing_contact_name",
+      "required": false
+    },
+    {
+      "field_id": "billing_contact_email",
+      "required": false
+    }
+  ]
+}
