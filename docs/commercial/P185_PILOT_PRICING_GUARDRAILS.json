@@ -1,0 +1,35 @@
+{
+  "artefact_id": "p185_pilot_pricing_guardrails",
+  "version": "1.0.0",
+  "rule": "pricing_pack_fails_if_it_outruns_current_v0_coach_16_offer",
+  "allowed_claim_classes": [
+    "bounded_pilot_offer_statement",
+    "price_statement",
+    "seat_cap_statement",
+    "included_surface_statement",
+    "explicit_exclusion_statement",
+    "payment_access_only_statement"
+  ],
+  "banned_claim_classes": [
+    "team_pricing_claim",
+    "gym_pricing_claim",
+    "unit_pricing_claim",
+    "organisation_pricing_claim",
+    "dashboard_or_analytics_claim",
+    "proof_or_audit_claim",
+    "engine_authority_claim",
+    "multi_coach_or_multi_activity_claim"
+  ],
+  "banned_examples": [
+    "team package",
+    "club package",
+    "organisation package",
+    "dashboard insights",
+    "analytics included",
+    "audit pack",
+    "exportable proof",
+    "multi-coach rollout",
+    "multi-activity rollout",
+    "payment changes engine behaviour"
+  ]
+}
