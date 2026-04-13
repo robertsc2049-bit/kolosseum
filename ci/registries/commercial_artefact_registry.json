@@ -285,6 +285,21 @@
                           "artefact_id":  "p188_pilot_eligibility_exclusions",
                           "path":  "docs/commercial/P188_PILOT_ELIGIBILITY_EXCLUSIONS.json",
                           "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p189_pilot_intake_form_spec",
+                          "path":  "docs/commercial/P189_PILOT_INTAKE_FORM_SPEC.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p189_pilot_intake_fields_registry",
+                          "path":  "docs/commercial/P189_PILOT_INTAKE_FIELDS_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p189_pilot_intake_guardrails",
+                          "path":  "docs/commercial/P189_PILOT_INTAKE_GUARDRAILS.json",
+                          "class":  "commercial_registry"
                       }
                   ]
 }
