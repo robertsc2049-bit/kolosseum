@@ -1,0 +1,38 @@
+{
+  "artefact_id": "p186_demo_to_pilot_cta_fields_registry",
+  "version": "1.0.0",
+  "scope": "current_v0_only",
+  "cta_fields": [
+    {
+      "field_id": "activity_lane",
+      "allowed_values": [
+        "powerlifting",
+        "rugby_union",
+        "general_strength"
+      ]
+    },
+    {
+      "field_id": "athlete_count",
+      "allowed_values": [
+        "bounded_pilot_count_only"
+      ]
+    },
+    {
+      "field_id": "preferred_start_window",
+      "allowed_values": [
+        "simple_timing_answer",
+        "specific_week",
+        "specific_date_window",
+        "this_month",
+        "next_month"
+      ]
+    },
+    {
+      "field_id": "coach_tier",
+      "allowed_values": [
+        "coach_16"
+      ]
+    }
+  ],
+  "field_count_required": 4
+}

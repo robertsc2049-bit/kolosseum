@@ -240,6 +240,21 @@
                           "artefact_id":  "p185_pilot_pricing_guardrails",
                           "path":  "docs/commercial/P185_PILOT_PRICING_GUARDRAILS.json",
                           "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p186_demo_to_pilot_cta_contract",
+                          "path":  "docs/commercial/P186_DEMO_TO_PILOT_CTA_CONTRACT.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p186_demo_to_pilot_cta_fields_registry",
+                          "path":  "docs/commercial/P186_DEMO_TO_PILOT_CTA_FIELDS_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p186_demo_to_pilot_cta_guardrails",
+                          "path":  "docs/commercial/P186_DEMO_TO_PILOT_CTA_GUARDRAILS.json",
+                          "class":  "commercial_registry"
                       }
                   ]
 }
