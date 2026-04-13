@@ -255,6 +255,21 @@
                           "artefact_id":  "p186_demo_to_pilot_cta_guardrails",
                           "path":  "docs/commercial/P186_DEMO_TO_PILOT_CTA_GUARDRAILS.json",
                           "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p187_pilot_objection_handling_pack_v2",
+                          "path":  "docs/commercial/P187_PILOT_OBJECTION_HANDLING_PACK_V2.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p187_pilot_objection_response_registry",
+                          "path":  "docs/commercial/P187_PILOT_OBJECTION_RESPONSE_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p187_pilot_objection_claim_guardrails",
+                          "path":  "docs/commercial/P187_PILOT_OBJECTION_CLAIM_GUARDRAILS.json",
+                          "class":  "commercial_registry"
                       }
                   ]
 }
