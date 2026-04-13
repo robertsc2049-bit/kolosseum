@@ -225,6 +225,21 @@
                           "artefact_id":  "p184_pilot_qualification_exclusion_list",
                           "path":  "docs/commercial/P184_PILOT_QUALIFICATION_EXCLUSION_LIST.json",
                           "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p185_pilot_pricing_send_pack",
+                          "path":  "docs/commercial/P185_PILOT_PRICING_SEND_PACK.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p185_pilot_pricing_registry",
+                          "path":  "docs/commercial/P185_PILOT_PRICING_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p185_pilot_pricing_guardrails",
+                          "path":  "docs/commercial/P185_PILOT_PRICING_GUARDRAILS.json",
+                          "class":  "commercial_registry"
                       }
                   ]
 }

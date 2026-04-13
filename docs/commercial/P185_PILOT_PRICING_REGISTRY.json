@@ -1,0 +1,42 @@
+{
+  "artefact_id": "p185_pilot_pricing_registry",
+  "version": "1.0.0",
+  "scope": "current_v0_coach_16_only",
+  "offer": {
+    "tier_id": "coach_16",
+    "price_gbp_monthly": 59.99,
+    "activity_lanes_included": 1,
+    "coach_count_included": 1,
+    "athlete_range": {
+      "min": 7,
+      "max": 16
+    }
+  },
+  "included_surfaces": [
+    "lawful_onboarding",
+    "coach_assignment",
+    "factual_session_execution",
+    "split_return",
+    "partial_completion",
+    "coach_viewable_factual_artefacts",
+    "history_counts",
+    "non_binding_coach_notes",
+    "athlete_list_management_up_to_tier_cap"
+  ],
+  "excluded_surfaces": [
+    "dashboards",
+    "analytics",
+    "rankings",
+    "readiness_scoring",
+    "messaging",
+    "team_runtime",
+    "unit_runtime",
+    "gym_runtime",
+    "organisation_runtime",
+    "evidence_sealing",
+    "exportable_proof",
+    "replay_or_audit_product_claims",
+    "multi_coach_rollout",
+    "multi_activity_rollout"
+  ]
+}
