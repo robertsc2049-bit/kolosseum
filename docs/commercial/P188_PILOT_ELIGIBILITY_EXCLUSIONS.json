@@ -1,0 +1,20 @@
+{
+  "artefact_id": "p188_pilot_eligibility_exclusions",
+  "version": "1.0.0",
+  "rule": "lead_is_red_if_any_hard_exclusion_is_true",
+  "hard_red_exclusions": [
+    "organisation_runtime",
+    "dashboards",
+    "messaging",
+    "analytics",
+    "proof_exports",
+    "team_runtime",
+    "unit_runtime",
+    "gym_runtime",
+    "multi_coach_pilot_now",
+    "multi_activity_pilot_now",
+    "athlete_comparison_must_have",
+    "rankings_must_have",
+    "outcome_tracking_must_have"
+  ]
+}

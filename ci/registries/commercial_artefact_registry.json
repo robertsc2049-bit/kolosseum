@@ -270,6 +270,21 @@
                           "artefact_id":  "p187_pilot_objection_claim_guardrails",
                           "path":  "docs/commercial/P187_PILOT_OBJECTION_CLAIM_GUARDRAILS.json",
                           "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p188_pilot_eligibility_matrix",
+                          "path":  "docs/commercial/P188_PILOT_ELIGIBILITY_MATRIX.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p188_pilot_eligibility_matrix_registry",
+                          "path":  "docs/commercial/P188_PILOT_ELIGIBILITY_MATRIX_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p188_pilot_eligibility_exclusions",
+                          "path":  "docs/commercial/P188_PILOT_ELIGIBILITY_EXCLUSIONS.json",
+                          "class":  "commercial_registry"
                       }
                   ]
 }
