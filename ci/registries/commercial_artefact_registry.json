@@ -210,6 +210,21 @@
                           "artefact_id":  "p183_post_demo_reply_claim_guardrails",
                           "path":  "docs/commercial/P183_POST_DEMO_REPLY_CLAIM_GUARDRAILS.json",
                           "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p184_pilot_qualification_gate",
+                          "path":  "docs/commercial/P184_PILOT_QUALIFICATION_GATE.md",
+                          "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p184_pilot_qualification_filter_registry",
+                          "path":  "docs/commercial/P184_PILOT_QUALIFICATION_FILTER_REGISTRY.json",
+                          "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p184_pilot_qualification_exclusion_list",
+                          "path":  "docs/commercial/P184_PILOT_QUALIFICATION_EXCLUSION_LIST.json",
+                          "class":  "commercial_registry"
                       }
                   ]
 }
