@@ -1,0 +1,26 @@
+{
+  "artefact_id": "p186_demo_to_pilot_cta_guardrails",
+  "version": "1.0.0",
+  "rule": "cta_fails_if_it_asks_for_anything_beyond_the_four_pinned_fields",
+  "allowed_asks": [
+    "activity_lane",
+    "athlete_count",
+    "preferred_start_window",
+    "coach_tier"
+  ],
+  "banned_asks": [
+    "team_structure",
+    "organisation_hierarchy",
+    "unit_structure",
+    "gym_structure",
+    "dashboard_requirements",
+    "analytics_requirements",
+    "messaging_requirements",
+    "readiness_requirements",
+    "proof_export_requirements",
+    "injury_goals",
+    "outcome_goals",
+    "retention_goals",
+    "extra_discovery_questions"
+  ]
+}
