@@ -17,7 +17,7 @@ Every answer in this pack is mapped to exactly one of two lawful classes:
 - `proven_surface`
 - `explicit_boundary`
 
-Any answer that implies hidden coach override power, unimplemented product capability, proof-layer availability, broader organisational runtime, readiness scoring, analytics, or advice outside current v0 is non-canonical.
+Any answer that implies hidden coach alteration power, unimplemented product capability, proof-layer availability, broader organisational runtime, status scoring, analytics, or advice outside current v0 is non-canonical.
 
 ## Active Truth Boundary
 
@@ -28,14 +28,14 @@ Current v0 is the Deterministic Execution Alpha:
 - activities: `powerlifting`, `rugby_union`, and `general_strength` only
 - phases: Phase 1–6 only
 - included surface: onboarding forms, session execution UI, history counts, coach assignment, factual artefact viewing, non-binding coach notes
-- excluded: Phase 7 truth projection, Phase 8 evidence sealing, evidence envelopes, export, org/team/unit/gym execution, dashboards, analytics, rankings, messaging, readiness scoring, outcome evaluation, medical/safety claims
+- excluded: Phase 7 truth projection, Phase 8 evidence sealing, evidence envelopes, export, org/team/unit/gym execution, dashboards, analytics, rankings, messaging, status scoring, outcome evaluation, medical/suitability claims
 
 ## Objection Pack
 
 ### 1) "This handcuffs me. I need to actually coach."
 
 **Answer**  
-It handcuffs hidden override power, not legitimate coach use. In current v0 the coach can assign within system limits, view factual execution artefacts, review history counts, and write non-binding coach notes. The coach does not override legality, selection, or engine truth.
+It handcuffs hidden alteration power, not legitimate coach use. In current v0 the coach can assign within system limits, view factual execution artefacts, review history counts, and write non-binding coach notes. The coach does not alter legality, selection, or engine truth.
 
 **Mapping**  
 `proven_surface`
@@ -45,14 +45,14 @@ It handcuffs hidden override power, not legitimate coach use. In current v0 the 
 - factual artefact viewing
 - history counts
 - non-binding coach notes
-- no coach override of engine truth
+- no coach alteration of engine truth
 
 ---
 
-### 2) "If I can't override the engine, what's the point of me?"
+### 2) "If I cannot change engine truth, what is the point of me?"
 
 **Answer**  
-The point is controlled operation, not covert mutation. The coach can assign work, observe outputs, and add commentary outside engine truth. Coach input is kept separate from deterministic execution so the system stays lawful and stable.
+The point is bounded operation, not covert mutation. The coach can assign work, observe outputs, and add commentary outside engine truth. Coach input is kept separate from deterministic execution so the system stays lawful and stable.
 
 **Mapping**  
 `explicit_boundary`
@@ -85,7 +85,7 @@ No. Phase 1 is the only lawful truth entry point. A coach must not alter Phase-1
 ### 4) "So coach notes are useless then?"
 
 **Answer**  
-No. They are useful precisely because they are non-binding. They let the coach annotate, comment, and review without contaminating engine truth. They are commentary, not execution control.
+No. They are useful precisely because they are non-binding. They let the coach annotate, comment, and review without contaminating engine truth. They are commentary, not execution authority.
 
 **Mapping**  
 `proven_surface`
@@ -128,16 +128,16 @@ Not in current active v0. Stay narrow: the current shipped truth is coach assign
 
 ---
 
-### 7) "Will it give me readiness scores or tell me who is progressing?"
+### 7) "Will it give me status scores or tell me who is progressing?"
 
 **Answer**  
-No. Current v0 excludes readiness scoring, rankings, dashboards, analytics, and outcome evaluation. It records and shows factual execution only.
+No. Current v0 excludes status scoring, rankings, dashboards, analytics, and outcome evaluation. It records and shows factual execution only.
 
 **Mapping**  
 `explicit_boundary`
 
 **Anchors**  
-- readiness scoring excluded
+- status scoring excluded
 - rankings excluded
 - dashboards excluded
 - analytics excluded
@@ -196,23 +196,23 @@ No. Phase 7 truth projection and Phase 8 evidence sealing are excluded from curr
 
 Use only this level of claim:
 
-"Kolosseum v0 is a coach-operable deterministic execution alpha. Coaches can assign, view factual artefacts, review history counts, and add non-binding notes. They cannot override engine truth, legality, or selection."
+"Kolosseum v0 is a coach-operable deterministic execution alpha. Coaches can assign, view factual artefacts, review history counts, and add non-binding notes. They cannot alter engine truth, legality, or selection."
 
 ## Forbidden Overreach
 
 The following claims are forbidden in this pack:
 
-- coach can override engine decisions
+- coach can alter engine decisions
 - coach can alter legality
 - coach can influence selection
 - coach can edit Phase-1 truth after acceptance
-- readiness scoring exists in current v0
+- status scoring exists in current v0
 - analytics dashboards exist in current v0
 - organisation, team, unit, or gym runtime exists in current v0
 - evidence envelopes exist in current v0
 - exportable proof artefacts exist in current v0
-- the system gives medical, safety, suitability, or optimisation advice
+- the system gives medical, suitability, appropriateness, or selection advice
 
 ## Proof Statement
 
-This pack is valid only if every objection answer maps to a proven surface or an explicit boundary and no answer implies capability outside the current v0 scope.
+This pack is valid only if every objection answer maps to a current surface or an explicit boundary and no answer implies capability outside the current v0 scope.

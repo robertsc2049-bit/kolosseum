@@ -1,0 +1,1 @@
+Kolosseum provides safer substitutions and reduces injury risk during execution.

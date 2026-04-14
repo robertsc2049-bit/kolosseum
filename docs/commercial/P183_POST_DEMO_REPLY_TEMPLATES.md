@@ -17,7 +17,7 @@ Purpose: exact post-demo reply templates for warm, cold, and hesitant leads that
 ## Proof
 
 - reply templates pinned
-- claim-safe variants pinned
+- claim-bounded variants pinned
 - banned follow-up claims pinned
 - anything outside demo truth is excluded
 
@@ -27,7 +27,7 @@ Purpose: exact post-demo reply templates for warm, cold, and hesitant leads that
 
 These reply templates may only reference what is true now.
 
-Current v0 demo-safe truth:
+Current v0 demo-bounded truth:
 - deterministic execution alpha
 - one coach pilot
 - coach_16 as the default bounded pilot tier
@@ -46,14 +46,14 @@ These templates must not claim:
 - dashboards
 - analytics
 - rankings
-- readiness scoring
+- status scoring
 - messaging
 - organisation runtime
 - team runtime
 - unit runtime
 - proof exports
 - evidence sealing
-- outcome improvement
+- outcome uplift
 
 **Hard rule:** if a sentence says more than the demo proved, it must not be used.
 
@@ -89,7 +89,7 @@ What is not in scope right now:
 - dashboards
 - analytics
 - rankings
-- readiness scoring
+- status scoring
 - messaging
 - organisation / team runtime
 - evidence export
@@ -145,7 +145,7 @@ Chris
 
 ## 4. Hesitant lead reply
 
-Use when the lead liked the idea but is concerned about scope, fit, or whether it is "ready enough."
+Use when the lead liked the idea but is concerned about scope, fit, or whether it is mature enough for current use.
 
 Template:
 
@@ -169,7 +169,7 @@ What it does not pretend to do yet:
 - dashboards
 - analytics
 - rankings
-- readiness scoring
+- status scoring
 - messaging
 - organisation runtime
 - proof exports
@@ -213,7 +213,7 @@ Chris
 
 ## 6. Allowed phrases
 
-Safe phrases:
+Bounded phrases:
 - bounded early pilot
 - deterministic execution alpha
 - current v0 surface
@@ -230,17 +230,17 @@ Safe phrases:
 ## 7. Banned phrases
 
 Do not use:
-- improved performance
-- better outcomes
-- safer training
-- improved compliance
-- improved readiness
+- raised performance
+- stronger outcome wording
+- bounded training wording
+- changed compliance state
+- changed status state
 - more effective programming
-- organisation-ready
+- organisation-state
 - dashboard insights
 - exportable proof
 - evidence-complete
-- proven retention
+- current retention signal only
 - increased adherence
 
 ---

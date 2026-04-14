@@ -16,7 +16,7 @@ This pack exists to:
 - reduce onboarding friction
 - explain the athlete’s first steps clearly
 - set correct expectations about what the current product does
-- avoid unsupported claims about safety, outcomes, optimisation, or readiness
+- avoid unsupported claims about suitability language, outcome wording, selection logic, or status judgement
 
 ---
 
@@ -31,11 +31,11 @@ It MUST:
 - keep wording descriptive and operational
 
 It MUST NOT:
-- imply safety, suitability, or readiness claims
-- imply guaranteed outcomes
+- imply suitability language, appropriateness, or status-state claims
+- imply stated outcomes
 - imply hidden defaults, silent corrections, or auto-completion
 - imply broad platform features that do not exist in current v0
-- imply that the coach can override engine truth on the athlete’s behalf
+- imply that the coach can change engine truth on the athlete side
 
 ---
 
@@ -47,7 +47,7 @@ This pack is correct only if all of the following are true:
 - the wording remains neutral and descriptive
 - the first actions are executable now
 - the copy does not widen v0 scope
-- no line implies safety, outcome, optimisation, or readiness judgement
+- no line implies suitability language, outcome wording, selection logic, or status judgement
 
 ---
 
@@ -118,7 +118,7 @@ This invite does not mean:
 - your session already exists
 - missing information will be filled in for you automatically
 - your coach can bypass your declaration on your behalf
-- the system is making safety, readiness, or outcome claims
+- the system is making suitability, status-state, or outcome claims
 - broader dashboards, messaging, rankings, or proof-layer features are part of your current pilot path
 
 ### Your first 3 actions
@@ -147,11 +147,11 @@ Your coach can:
 - add non-binding notes
 
 Your coach cannot:
-- silently change your declaration inside the engine path
-- override engine truth
+- silently alter your declaration inside the engine path
+- alter engine truth
 - force a session into existence before the declaration path is valid
 
-### What “ready” means in practice
+### What “available” means in practice
 
 For this pilot, your path is live only when:
 
@@ -160,7 +160,7 @@ For this pilot, your path is live only when:
 - your first executable session exists
 - you can open that session in your athlete view
 
-If one of those is missing, your live execution path is not ready yet.
+If one of those is missing, your live execution path is not available yet.
 
 ### If something looks wrong
 
@@ -218,7 +218,7 @@ What you can do now:
 What this does not mean:
 - no automatic filling of missing information
 - no coach override of your declaration path
-- no safety, readiness, or outcome claims
+- no suitability, status-state, or outcome claims
 - no wider platform features beyond the current pilot scope
 
 Your first 3 actions:
@@ -234,8 +234,8 @@ If something is missing, treat it as an access, declaration, or compile issue.
 
 This pack does not:
 - explain internal engine phases in depth
-- promise training outcomes
-- imply safety or suitability
+- promise training changes
+- imply suitability language or appropriateness
 - widen v0 scope
 - describe future platform surfaces as current pilot features
 
