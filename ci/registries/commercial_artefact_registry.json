@@ -310,6 +310,11 @@
                           "artefact_id":  "p201_not_included_commercial_boundary_pack_v2",
                           "path":  "docs/commercial/P201_NOT_INCLUDED_COMMERCIAL_BOUNDARY_PACK_V2.md",
                           "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p202_pilot_conversion_proof_pack",
+                          "path":  "docs/commercial/P202_PILOT_CONVERSION_PROOF_PACK.md",
+                          "class":  "commercial_surface"
                       }
                   ]
 }
