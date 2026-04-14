@@ -17,7 +17,7 @@ Purpose: define the only lawful success evidence that may be collected and reuse
 ## Proof
 
 - allowed evidence list pinned
-- banned outcome and improvement claims pinned
+- banned outcome and uplift claims pinned
 - every allowed item maps to an existing v0 surface
 - anything outside current v0 surfaces is excluded
 
@@ -43,7 +43,7 @@ Not allowed in this pack:
 - dashboards
 - analytics
 - rankings
-- readiness scoring
+- status scoring
 - outcome evaluation
 - organisation / team / unit reporting
 - messaging evidence
@@ -84,8 +84,8 @@ Only the following evidence types are allowed.
 - one example of a non-binding coach note surface
 
 ### E. Bounded system statements
-- deterministic execution alpha
-- factual runtime execution
+- deterministic system record
+- factual session record
 - CI-enforced boundaries
 - coach-operable within current v0 limits
 - replay-honest within current v0 scope only
@@ -117,15 +117,15 @@ Every allowed evidence item must map directly to an existing v0 surface.
 The following claim classes are banned and must not appear in any success evidence pack, summary, screenshot caption, founder note, sales page, or follow-up pitch.
 
 ### A. Outcome claims
-- improved performance
+- raised performance
 - got stronger
-- better results
-- improved compliance
-- improved readiness
-- improved recovery
+- stronger results wording
+- changed compliance state
+- changed status state
+- changed recovery state
 - reduced injury risk
-- safer training
-- better outcomes
+- bounded training wording
+- stronger outcome wording
 - more effective programming
 
 ### B. Inference claims
@@ -135,7 +135,7 @@ The following claim classes are banned and must not appear in any success eviden
 - this proved retention
 - this proved demand
 - this increased adherence
-- this improved discipline
+- this changed discipline visibility
 
 ### C. Proof-layer inflation
 - evidence-complete
@@ -143,17 +143,17 @@ The following claim classes are banned and must not appear in any success eviden
 - sealed evidence
 - lawful proof pack
 - exportable proof
-- fully proven execution trail
+- current execution trail only
 
 ### D. Broader surface inflation
 - team analytics
 - organisation reporting
 - dashboard insights
 - athlete ranking
-- readiness dashboard
+- status dashboard
 - messaging response data
 
-**Hard rule:** if the claim implies improvement, outcome, safety, readiness, organisational capability, or proof-layer completeness, it is banned.
+**Hard rule:** if the claim implies outcome change, condition labelling, organisational capability, or proof-layer completeness, it is banned.
 
 ---
 
@@ -172,9 +172,9 @@ Do not add outcomes, judgement, or implied benefits.
 This pack exists to support the next sale using factual usage proof only.
 
 It does not exist to prove:
-- athlete improvement
+- athlete change claim
 - coaching quality
-- medical or safety value
+- medical or suitability value
 - retention quality
 - broader platform maturity
 
@@ -195,7 +195,7 @@ A reusable pilot success evidence pack must contain only:
 
 No extra analysis.
 No interpretation.
-No improvements language.
+No uplift language.
 
 ---
 

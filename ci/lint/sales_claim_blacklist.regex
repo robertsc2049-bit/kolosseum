@@ -1,0 +1,19 @@
+# KOLOSSEUM SALES CLAIM BLACKLIST — v1.0.0
+# Case-insensitive. Any match = CI FAIL.
+# Scope: commercial, sales, marketing, decks, pricing, founder collateral, externally visible copy.
+
+(?i)\b(improve|improves|improved|improvement|improvements)\b
+(?i)\b(boost|boosts|boosted|boosting)\b
+(?i)\b(better results|better performance|better outcomes)\b
+(?i)\b(increase(?:s|d)? performance|increase(?:s|d)? readiness)\b
+(?i)\b(performance improvement|outcome improvement)\b
+
+(?i)\b(safe|safer|safety|risk[- ]free|reduce(?:s|d)? risk|minimi[sz]e(?:s|d)? risk|prevent(?:s|ed|ion)? injury|injury prevention|protect(?:s|ed|ion)?)\b
+
+(?i)\b(ready|readiness|prepared|preparedness|game[- ]ready|competition[- ]ready|match[- ]ready|season[- ]ready|deployment[- ]ready|operationally ready)\b
+
+(?i)\b(organi[sz]ation[- ]ready|team[- ]ready|club[- ]ready|federation[- ]ready|enterprise[- ]ready)\b
+(?i)\b(runtime control|live control|live governance|operational command|compliance control|enforcement control)\b
+(?i)\b(real[- ]time governance|real[- ]time enforcement|real[- ]time compliance)\b
+
+(?i)\b(optimi[sz]e\w*|maximi[sz]e\w*|guarantee(?:d)?|proven|best)\b

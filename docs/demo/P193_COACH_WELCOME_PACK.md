@@ -13,7 +13,7 @@ Last updated: 2026-04-13
 Define the first coach-facing welcome pack a paid coach receives after activation.
 
 This pack exists to:
-- improve first-use activation
+- raise first-use activation
 - reduce confusion about scope and authority
 - get a paid coach to first useful action quickly
 - avoid implying unsupported product behaviour
@@ -31,9 +31,9 @@ It MUST:
 - avoid promising unsupported product, org, audit, replay, or evidence features
 
 It MUST NOT:
-- imply coaching authority over engine truth
+- imply coaching authority to alter engine truth
 - imply declaration editing
-- imply engine override power
+- imply engine alteration power
 - imply dashboards, messaging, rankings, or org runtime features
 - imply proof-complete, evidence, audit, or export behaviour beyond v0
 
@@ -46,8 +46,8 @@ This pack is correct only if all of the following are true:
 - every stated coach capability exists in current v0
 - every excluded capability is clearly stated
 - the first three actions are executable in the current product path
-- the wording improves activation without widening scope
-- no sentence implies safety, recommendation, optimisation, or unsupported authority
+- the wording raises activation without widening scope
+- no sentence implies suitability language, recommendation, selection logic, or unsupported authority
 
 ---
 
@@ -87,7 +87,7 @@ The wording must stay materially the same across surfaces.
 
 You now have access to the current coach surface in Kolosseum.
 
-Kolosseum is built to keep execution, records, and boundaries clear. Your coach access is designed to let you work with athletes inside the current system limits without giving you hidden override power over engine truth.
+Kolosseum is built to keep execution, records, and boundaries clear. Your coach access is designed to let you work with athletes inside the current system limits without giving you hidden alteration power over engine truth.
 
 ### What you get right now
 
@@ -108,7 +108,7 @@ Your current coach access does not include:
 - changing legality, constraints, or substitutions at engine level
 - registry access or logic editing
 - cross-athlete access outside your assigned scope
-- dashboards, rankings, messaging, or broader org runtime controls
+- dashboards, rankings, messaging, or broader organisation runtime surfaces
 - proof, evidence, replay, or export authority beyond the current v0 surface
 
 ### How to think about your role
@@ -121,8 +121,8 @@ That means you can:
 - add context through notes
 
 It also means you cannot:
-- rewrite engine truth
-- force outcomes through hidden controls
+- alter engine truth
+- force outcomes through hidden system behaviour
 - change athlete declarations on their behalf inside the engine path
 
 ### Your first 3 actions
@@ -136,20 +136,20 @@ You should only see athletes who are explicitly assigned to your coach scope. If
 Before a session can exist, the athlete must have a lawful accepted declaration.
 
 Your immediate job is to check who is:
-- ready for execution
+- available for execution
 - still pending onboarding
 - blocked before compile
 
 Do not try to bypass missing declarations. If Phase 1 is not accepted, the engine path does not exist yet for that athlete.
 
 #### 3. Open the first executable session and use notes only where needed
-For athletes who are ready, open the first executable session and review the factual artefact.
+For athletes who are available for execution, open the first executable session and review the factual artefact.
 
 Where useful, add a non-binding coach note. Keep notes for context and communication, not for trying to steer engine behaviour.
 
-### What “ready” means in practice
+### What “available for execution” means in practice
 
-An athlete is coach-ready only when:
+An athlete is coach-visible for execution only when:
 - they are linked to you
 - their declaration is accepted
 - the first executable session exists
@@ -177,17 +177,17 @@ It is built for:
 - non-binding notes
 - clean operational use
 
-It is not yet a broad coaching platform with full org controls, messaging, or proof-layer outputs.
+It is not yet a broad coaching platform with full organisation surfaces, messaging, or proof-layer outputs.
 
 ### Bottom line
 
 Use Kolosseum to work cleanly inside the declared system path:
 
 - confirm assignment
-- confirm athlete readiness
+- confirm athlete execution availability
 - open the executable session
 - add notes where useful
-- do not try to override the engine path
+- do not try to alter the engine path
 
 That is the fastest route to productive use in the current version.
 
@@ -209,7 +209,7 @@ What you can do:
 
 What you cannot do:
 - edit athlete declarations
-- override engine decisions
+- alter engine decisions
 - change logic or registries
 - access wider dashboards, rankings, or proof-layer surfaces
 

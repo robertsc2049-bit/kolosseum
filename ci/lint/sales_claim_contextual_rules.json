@@ -1,0 +1,64 @@
+{
+  "schema_version": "kolosseum.ci.sales_claim_contextual_rules.v1.0.0",
+  "case_insensitive": true,
+  "window_chars": 80,
+  "rules": [
+    {
+      "id": "SCX001",
+      "name": "improvement_near_performance_or_outcomes",
+      "verbs": [
+        "improve", "improves", "improved", "improvement", "improvements",
+        "boost", "boosts", "boosted", "boosting",
+        "increase", "increases", "increased", "increasing"
+      ],
+      "targets": [
+        "performance", "perform", "results", "outcomes", "output",
+        "training", "execution", "athlete", "athletes", "team", "teams"
+      ]
+    },
+    {
+      "id": "SCX002",
+      "name": "safety_near_substitution_or_training",
+      "verbs": [
+        "safe", "safer", "safety",
+        "protect", "protects", "protected", "protection",
+        "prevent", "prevents", "prevented", "prevention",
+        "reduce risk", "reduced risk", "minimise risk", "minimize risk"
+      ],
+      "targets": [
+        "training", "execution", "substitution", "substitutions",
+        "adjustment", "adjustments", "adaptation", "adaptations",
+        "session", "sessions", "athlete", "athletes", "team", "teams"
+      ]
+    },
+    {
+      "id": "SCX003",
+      "name": "readiness_near_competition_or_return",
+      "verbs": [
+        "ready", "readiness", "prepared", "preparedness",
+        "game-ready", "competition-ready", "match-ready", "season-ready",
+        "deployment-ready", "operationally ready"
+      ],
+      "targets": [
+        "competition", "match", "meet", "season", "return",
+        "play", "performance", "deploy", "deployment", "operation"
+      ]
+    },
+    {
+      "id": "SCX004",
+      "name": "org_runtime_inflation",
+      "verbs": [
+        "govern", "governs", "governed", "governance",
+        "control", "controls", "controlled",
+        "enforce", "enforces", "enforced", "enforcement",
+        "command", "commands", "commanded",
+        "override", "overrides", "overridden"
+      ],
+      "targets": [
+        "runtime", "live", "organisation", "organization", "org",
+        "team", "club", "federation", "enterprise", "unit",
+        "execution", "sessions", "athletes", "engine"
+      ]
+    }
+  ]
+}

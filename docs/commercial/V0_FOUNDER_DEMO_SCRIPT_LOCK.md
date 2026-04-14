@@ -36,8 +36,8 @@ This is a factual view surface, not a scoring or advisory layer.
 
 ### notes_boundary
 
-Coach notes are non-binding and do not alter engine legality or execution authority.
-Notes can exist, but they do not override the engine boundary.
+Coach notes are non-binding and do not alter engine legality or engine truth.
+Notes can exist, but they do not change the engine boundary.
 
 ### history_counts
 
@@ -47,18 +47,18 @@ This is a factual count surface, not a trend or compliance layer.
 ### close
 
 That is the implemented coach demo boundary in active v0.
-I am not claiming compliance monitoring, accountability enforcement, readiness scoring, export, replay, override authority, or automatic coaching decisions.
+I am not claiming compliance monitoring, accountability tracking, status scoring, export, replay, authority to alter engine truth, or automatic coaching decisions.
 
 ## Banned commercial drift reference
 
 - compliance monitoring
-- athlete accountability enforcement
-- readiness scoring
-- performance improvement claims
+- athlete accountability tracking
+- status scoring
+- performance uplift claims
 - evidence export
 - proof replay
 - override authority
-- legal or safety assurance
+- legal or suitability assurance
 - automatic coaching decisions
 - analytics dashboard
 - trend scoring
