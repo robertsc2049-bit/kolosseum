@@ -305,6 +305,11 @@
                           "artefact_id":  "p189_pilot_intake_form_spec",
                           "path":  "docs/commercial/P200_FOUNDER_DEMO_SCRIPT_V2.md",
                           "class":  "commercial_surface"
+                      },
+                      {
+                          "artefact_id":  "p201_not_included_commercial_boundary_pack_v2",
+                          "path":  "docs/commercial/P201_NOT_INCLUDED_COMMERCIAL_BOUNDARY_PACK_V2.md",
+                          "class":  "commercial_surface"
                       }
                   ]
 }
