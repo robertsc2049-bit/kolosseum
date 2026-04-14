@@ -300,6 +300,11 @@
                           "artefact_id":  "p189_pilot_intake_guardrails",
                           "path":  "docs/commercial/P189_PILOT_INTAKE_GUARDRAILS.json",
                           "class":  "commercial_registry"
+                      },
+                      {
+                          "artefact_id":  "p189_pilot_intake_form_spec",
+                          "path":  "docs/commercial/P200_FOUNDER_DEMO_SCRIPT_V2.md",
+                          "class":  "commercial_surface"
                       }
                   ]
 }
