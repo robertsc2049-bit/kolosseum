@@ -81,7 +81,7 @@ export const ALLOWED_PILOT_LIFECYCLE_TRANSITIONS = Object.freeze({
 
 function assertKnownState(state, label) {
   if (!PILOT_LIFECYCLE_STATE_LIST.includes(state)) {
-    throw new Error("${label}_unknown:${String(state)}");
+    throw new Error(label + "_unknown:" + String(state));
   }
 }
 
@@ -111,7 +111,7 @@ export function canTransitionPilotLifecycle(fromState, toState) {
 
 export function assertPilotLifecycleTransitionAllowed(fromState, toState) {
   if (!canTransitionPilotLifecycle(fromState, toState)) {
-    throw new Error("pilot_lifecycle_transition_forbidden:${fromState}->${toState}");
+    throw new Error("pilot_lifecycle_transition_forbidden:" + fromState + "->" + toState);
   }
 }
 
@@ -181,9 +181,14 @@ export function assertPilotLifecycleTransitionMatchesContext(fromState, toState,
   assertPilotLifecycleTransitionAllowed(fromState, toState);
 
   const resolvedTargetState = resolvePilotLifecycleState(context);
-  if (resolvedTargetState resolvedTargetState !== toState) {
+  if (resolvedTargetState !== toState) {
     throw new Error(
-      "pilot_lifecycle_transition_context_mismatch:${fromState}->${toState} resolved=${resolvedTargetState}",
+      "pilot_lifecycle_transition_context_mismatch:" +
+        fromState +
+        "->" +
+        toState +
+        " resolved=" +
+        resolvedTargetState,
     );
   }
 
