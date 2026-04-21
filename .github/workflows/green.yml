@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      NODE_VERSION: "24.12.0"
+      NODE_VERSION: "25.9.0"
 
     steps:
       - name: Checkout
@@ -60,7 +60,7 @@ jobs:
     needs: [unit]
 
     env:
-      NODE_VERSION: "24.12.0"
+      NODE_VERSION: "25.9.0"
       DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test
 
     services:

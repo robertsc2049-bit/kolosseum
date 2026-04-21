@@ -25,7 +25,7 @@
   },
   "contract": "kolosseum:evidence_envelope@1",
   "engine": {
-    "node": "24.12.0",
+    "node": "25.9.0",
     "version": "0.1.23"
   },
   "inputs": {
