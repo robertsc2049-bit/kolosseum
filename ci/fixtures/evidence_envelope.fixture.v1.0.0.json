@@ -2,7 +2,7 @@
   "contract": "kolosseum:evidence_envelope@1",
   "engine": {
     "version": "0.1.23",
-    "node": "24.12.0"
+    "node": "25.9.0"
   },
   "inputs": {
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",

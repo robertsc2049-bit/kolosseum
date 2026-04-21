@@ -6,7 +6,7 @@ function die(msg) {
   process.exit(1);
 }
 
-const REQUIRED = "24.12.0";
+const REQUIRED = "25.9.0";
 const actual = process.versions.node;
 
 const allow = process.env.NODE_ALLOW_MISMATCH === "1" || process.env.NODE_ALLOW_MISMATCH === "true";
