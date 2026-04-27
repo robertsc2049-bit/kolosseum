@@ -1,0 +1,88 @@
+{
+  "slice": "S37",
+  "proof_name": "coach_assignment_execution_pack",
+  "coach_id": "coach_manual_v0_001",
+  "athlete_id": "athlete_manual_v0_001",
+  "link_id": "link_manual_v0_001",
+  "link_status": "accepted",
+  "session_id": "session_manual_v0_001",
+  "assignment_id": "assignment_manual_v0_001",
+  "assignment_scope": "coach_managed",
+  "availability_status": "available_to_athlete",
+  "linked_athlete_only": true,
+  "unlinked_assignment_blocked": true,
+  "pending_link_assignment_blocked": true,
+  "revoked_link_assignment_blocked": true,
+  "engine_authority_created": false,
+  "phase1_mutated": false,
+  "recompilation_triggered": false,
+  "legality_changed": false,
+  "engine_output_overridden": false,
+  "readiness_claim_present": false,
+  "safety_claim_present": false,
+  "recommendation_present": false,
+  "event_count": 4,
+  "events": [
+    {
+      "event_id": "evt_s37_001",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "coach_assignment_requested",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:00:00Z"
+    },
+    {
+      "event_id": "evt_s37_002",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "coach_athlete_link_verified",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:01:00Z",
+      "link_id": "link_manual_v0_001",
+      "link_status": "accepted"
+    },
+    {
+      "event_id": "evt_s37_003",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "coach_assignment_recorded",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:02:00Z",
+      "assignment_id": "assignment_manual_v0_001",
+      "assignment_scope": "coach_managed"
+    },
+    {
+      "event_id": "evt_s37_004",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "athlete_session_available",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:03:00Z",
+      "availability_status": "available_to_athlete"
+    }
+  ],
+  "blocked_cases": [
+    {
+      "case_id": "s37_block_unlinked_athlete",
+      "link_status": "missing",
+      "blocked_reason": "link_missing",
+      "assignment_recorded": false
+    },
+    {
+      "case_id": "s37_block_pending_link",
+      "link_status": "pending",
+      "blocked_reason": "link_pending",
+      "assignment_recorded": false
+    },
+    {
+      "case_id": "s37_block_revoked_link",
+      "link_status": "revoked",
+      "blocked_reason": "link_revoked",
+      "assignment_recorded": false
+    }
+  ]
+}
