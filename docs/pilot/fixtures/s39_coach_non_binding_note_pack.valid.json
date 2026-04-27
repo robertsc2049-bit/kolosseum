@@ -1,0 +1,103 @@
+{
+  "slice": "S39",
+  "proof_name": "coach_non_binding_note_pack",
+  "coach_id": "coach_manual_v0_001",
+  "athlete_id": "athlete_manual_v0_001",
+  "link_id": "link_manual_v0_001",
+  "link_status": "accepted",
+  "note_id": "note_manual_v0_001",
+  "note_storage_scope": "platform_metadata_only",
+  "engine_readable": false,
+  "engine_truth_mutated": false,
+  "future_effect": false,
+  "required_coach_ui_copy_present": true,
+  "required_athlete_ui_copy_present": true,
+  "unlinked_note_blocked": true,
+  "pending_link_note_blocked": true,
+  "revoked_link_note_blocked": true,
+  "engine_authority_created": false,
+  "phase1_mutated": false,
+  "recompilation_triggered": false,
+  "legality_changed": false,
+  "engine_output_overridden": false,
+  "readiness_claim_present": false,
+  "safety_claim_present": false,
+  "recommendation_present": false,
+  "judgement_present": false,
+  "score_present": false,
+  "ranking_present": false,
+  "coach_ui_copy": "Coach notes are non-binding. They are stored outside engine truth and do not change session legality, compilation, substitutions, progression, or future sessions.",
+  "athlete_ui_copy": "This coach note is non-binding. It does not change your engine-generated session or future sessions.",
+  "event_count": 4,
+  "events": [
+    {
+      "event_id": "evt_s39_001",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "note_id": "note_manual_v0_001",
+      "event_type": "coach_note_surface_opened",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:00:00Z"
+    },
+    {
+      "event_id": "evt_s39_002",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "note_id": "note_manual_v0_001",
+      "event_type": "coach_athlete_link_verified",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:01:00Z",
+      "link_id": "link_manual_v0_001",
+      "link_status": "accepted"
+    },
+    {
+      "event_id": "evt_s39_003",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "note_id": "note_manual_v0_001",
+      "event_type": "coach_note_saved",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:02:00Z",
+      "note_storage_scope": "platform_metadata_only",
+      "engine_readable": false,
+      "engine_truth_mutated": false,
+      "future_effect": false
+    },
+    {
+      "event_id": "evt_s39_004",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "note_id": "note_manual_v0_001",
+      "event_type": "coach_note_visibility_recorded",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:03:00Z",
+      "visibility_status": "visible_to_authoring_coach_and_linked_athlete",
+      "ui_copy_id": "s39_non_binding_note_copy"
+    }
+  ],
+  "blocked_cases": [
+    {
+      "case_id": "s39_block_unlinked_athlete",
+      "link_status": "missing",
+      "blocked_reason": "link_missing",
+      "note_saved": false
+    },
+    {
+      "case_id": "s39_block_pending_link",
+      "link_status": "pending",
+      "blocked_reason": "link_pending",
+      "note_saved": false
+    },
+    {
+      "case_id": "s39_block_revoked_link",
+      "link_status": "revoked",
+      "blocked_reason": "link_revoked",
+      "note_saved": false
+    },
+    {
+      "case_id": "s39_block_engine_readable_note",
+      "blocked_reason": "engine_readable_note_attempt",
+      "note_saved": false
+    }
+  ]
+}
