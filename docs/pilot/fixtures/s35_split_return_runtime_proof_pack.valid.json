@@ -1,0 +1,126 @@
+{
+  "slice": "S35",
+  "proof_name": "split_return_runtime_proof_pack",
+  "pilot_id": "pilot_manual_v0_001",
+  "athlete_id": "athlete_manual_v0_001",
+  "session_id": "session_manual_v0_001",
+  "initial_session_state": "in_progress",
+  "split_state": "split_recorded",
+  "return_choice_available": true,
+  "continue_choice_recorded": true,
+  "skip_choice_recorded": true,
+  "stop_choice_recorded": true,
+  "partial_session_state": "partially_completed",
+  "stopped_session_state": "stopped",
+  "append_only": true,
+  "phase1_mutated": false,
+  "recompilation_triggered": false,
+  "legality_changed": false,
+  "advisory_copy_present": false,
+  "event_count": 8,
+  "events": [
+    {
+      "event_id": "evt_s35_001",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "session_started",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:00:00Z"
+    },
+    {
+      "event_id": "evt_s35_002",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "work_item_available",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:01:00Z",
+      "work_item_id": "work_item_002"
+    },
+    {
+      "event_id": "evt_s35_003",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "session_split_recorded",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:02:00Z",
+      "work_item_id": "work_item_002",
+      "split_point": {
+        "after_event_id": "evt_s35_002",
+        "remaining_work_item_ids": [
+          "work_item_002",
+          "work_item_003"
+        ]
+      }
+    },
+    {
+      "event_id": "evt_s35_004",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "return_choice_available",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:03:00Z",
+      "allowed_return_choices": [
+        "continue_from_split_point",
+        "skip_remaining_work",
+        "stop_session"
+      ]
+    },
+    {
+      "event_id": "evt_s35_005",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "return_choice_recorded",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:04:00Z",
+      "return_choice": "continue_from_split_point"
+    },
+    {
+      "event_id": "evt_s35_006",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "session_continued",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:05:00Z",
+      "work_item_id": "work_item_002"
+    },
+    {
+      "event_id": "evt_s35_007",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "remaining_work_skipped",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:06:00Z",
+      "return_choice": "skip_remaining_work",
+      "remaining_work_item_ids": [
+        "work_item_002",
+        "work_item_003"
+      ]
+    },
+    {
+      "event_id": "evt_s35_008",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "session_partially_completed",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:07:00Z"
+    }
+  ],
+  "alternate_terminal_event": {
+    "event_id": "evt_s35_alt_001",
+    "pilot_id": "pilot_manual_v0_001",
+    "athlete_id": "athlete_manual_v0_001",
+    "session_id": "session_manual_v0_001",
+    "event_type": "session_stopped",
+    "actor": "athlete",
+    "occurred_at_utc": "2026-04-27T00:08:00Z",
+    "return_choice": "stop_session"
+  }
+}
