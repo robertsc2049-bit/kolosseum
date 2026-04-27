@@ -1,0 +1,216 @@
+{
+  "slice": "S40",
+  "proof_name": "blocked_state_support_pack",
+  "phase1_missing_blocked": true,
+  "no_session_blocked": true,
+  "no_link_blocked": true,
+  "revoked_link_blocked": true,
+  "return_missing_blocked": true,
+  "exact_operator_copy_present": true,
+  "blocked_action_refused": true,
+  "hidden_continuation_present": false,
+  "inferred_phase1_present": false,
+  "inferred_link_present": false,
+  "inferred_return_choice_present": false,
+  "engine_authority_created": false,
+  "phase1_mutated": false,
+  "recompilation_triggered": false,
+  "legality_changed": false,
+  "engine_output_overridden": false,
+  "readiness_claim_present": false,
+  "advice_present": false,
+  "recommendation_present": false,
+  "judgement_present": false,
+  "future_effect": false,
+  "blocked_case_count": 5,
+  "event_count": 15,
+  "blocked_cases": [
+    {
+      "case_id": "s40_phase1_missing",
+      "blocked_state": "phase1_missing",
+      "blocked_reason": "phase1_missing",
+      "operator_copy": "Blocked: Phase 1 declaration is missing. The pilot cannot continue until Phase 1 is accepted.",
+      "requested_action_continued": false
+    },
+    {
+      "case_id": "s40_no_session",
+      "blocked_state": "no_session",
+      "blocked_reason": "session_missing",
+      "operator_copy": "Blocked: no live session exists for this action.",
+      "requested_action_continued": false
+    },
+    {
+      "case_id": "s40_no_link",
+      "blocked_state": "no_link",
+      "blocked_reason": "coach_athlete_link_missing",
+      "operator_copy": "Blocked: no accepted coach athlete link exists.",
+      "requested_action_continued": false
+    },
+    {
+      "case_id": "s40_revoked_link",
+      "blocked_state": "revoked_link",
+      "blocked_reason": "coach_athlete_link_revoked",
+      "operator_copy": "Blocked: coach athlete link is revoked.",
+      "requested_action_continued": false
+    },
+    {
+      "case_id": "s40_return_missing",
+      "blocked_state": "return_missing",
+      "blocked_reason": "return_choice_missing",
+      "operator_copy": "Blocked: return data is missing.",
+      "requested_action_continued": false
+    }
+  ],
+  "events": [
+    {
+      "event_id": "evt_s40_001",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_state_checked",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:00:00Z",
+      "blocked_state": "phase1_missing",
+      "blocked_reason": "phase1_missing",
+      "requested_action": "start_live_session"
+    },
+    {
+      "event_id": "evt_s40_002",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_state_recorded",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:00:01Z",
+      "blocked_state": "phase1_missing",
+      "blocked_reason": "phase1_missing",
+      "requested_action": "start_live_session"
+    },
+    {
+      "event_id": "evt_s40_003",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_action_refused",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:00:02Z",
+      "blocked_state": "phase1_missing",
+      "blocked_reason": "phase1_missing",
+      "requested_action": "start_live_session"
+    },
+    {
+      "event_id": "evt_s40_004",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_state_checked",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:01:00Z",
+      "blocked_state": "no_session",
+      "blocked_reason": "session_missing",
+      "requested_action": "open_live_session"
+    },
+    {
+      "event_id": "evt_s40_005",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_state_recorded",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:01:01Z",
+      "blocked_state": "no_session",
+      "blocked_reason": "session_missing",
+      "requested_action": "open_live_session"
+    },
+    {
+      "event_id": "evt_s40_006",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_action_refused",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:01:02Z",
+      "blocked_state": "no_session",
+      "blocked_reason": "session_missing",
+      "requested_action": "open_live_session"
+    },
+    {
+      "event_id": "evt_s40_007",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_state_checked",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:02:00Z",
+      "blocked_state": "no_link",
+      "blocked_reason": "coach_athlete_link_missing",
+      "requested_action": "coach_assign_session"
+    },
+    {
+      "event_id": "evt_s40_008",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_state_recorded",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:02:01Z",
+      "blocked_state": "no_link",
+      "blocked_reason": "coach_athlete_link_missing",
+      "requested_action": "coach_assign_session"
+    },
+    {
+      "event_id": "evt_s40_009",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_action_refused",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:02:02Z",
+      "blocked_state": "no_link",
+      "blocked_reason": "coach_athlete_link_missing",
+      "requested_action": "coach_assign_session"
+    },
+    {
+      "event_id": "evt_s40_010",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_state_checked",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:03:00Z",
+      "blocked_state": "revoked_link",
+      "blocked_reason": "coach_athlete_link_revoked",
+      "requested_action": "coach_view_artefact"
+    },
+    {
+      "event_id": "evt_s40_011",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_state_recorded",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:03:01Z",
+      "blocked_state": "revoked_link",
+      "blocked_reason": "coach_athlete_link_revoked",
+      "requested_action": "coach_view_artefact"
+    },
+    {
+      "event_id": "evt_s40_012",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_action_refused",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:03:02Z",
+      "blocked_state": "revoked_link",
+      "blocked_reason": "coach_athlete_link_revoked",
+      "requested_action": "coach_view_artefact"
+    },
+    {
+      "event_id": "evt_s40_013",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_state_checked",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:04:00Z",
+      "blocked_state": "return_missing",
+      "blocked_reason": "return_choice_missing",
+      "requested_action": "return_to_split_session"
+    },
+    {
+      "event_id": "evt_s40_014",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_state_recorded",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:04:01Z",
+      "blocked_state": "return_missing",
+      "blocked_reason": "return_choice_missing",
+      "requested_action": "return_to_split_session"
+    },
+    {
+      "event_id": "evt_s40_015",
+      "pilot_id": "pilot_manual_v0_001",
+      "event_type": "blocked_action_refused",
+      "actor": "platform",
+      "occurred_at_utc": "2026-04-27T00:04:02Z",
+      "blocked_state": "return_missing",
+      "blocked_reason": "return_choice_missing",
+      "requested_action": "return_to_split_session"
+    }
+  ]
+}
