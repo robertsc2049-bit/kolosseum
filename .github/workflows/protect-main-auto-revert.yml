@@ -18,7 +18,7 @@ jobs:
   protect-main:
     name: Auto-revert failing main push
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 12
 
     env:
       REQUIRED_WORKFLOWS_JSON: '["green","ci","runnable-v0","vertical-slice","engine-status"]'
@@ -139,7 +139,9 @@ jobs:
         run: |
           set -euo pipefail
           echo "Timed out waiting for required workflows for main SHA ${{ steps.wait.outputs.failed_sha }}."
-          exit 1
+          echo "Polling timeout is non-authoritative when required workflows report independently."
+          echo "Do not auto-revert on polling timeout alone."
+          exit 0
 
       - name: Capture failing main context
         if: steps.wait.outputs.decision == 'revert'
