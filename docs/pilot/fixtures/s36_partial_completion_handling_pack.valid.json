@@ -1,0 +1,90 @@
+{
+  "slice": "S36",
+  "proof_name": "partial_completion_handling_pack",
+  "pilot_id": "pilot_manual_v0_001",
+  "athlete_id": "athlete_manual_v0_001",
+  "session_id": "session_manual_v0_001",
+  "initial_session_state": "in_progress",
+  "final_session_state": "partially_completed",
+  "completed_work_item_count": 1,
+  "skipped_work_item_count": 1,
+  "modified_work_item_count": 1,
+  "incomplete_work_item_count": 2,
+  "catch_up_claim_present": false,
+  "judgement_present": false,
+  "readiness_claim_present": false,
+  "recommendation_present": false,
+  "future_session_adjusted": false,
+  "append_only": true,
+  "phase1_mutated": false,
+  "recompilation_triggered": false,
+  "legality_changed": false,
+  "event_count": 6,
+  "events": [
+    {
+      "event_id": "evt_s36_001",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "session_started",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:00:00Z"
+    },
+    {
+      "event_id": "evt_s36_002",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "work_item_completed",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:01:00Z",
+      "work_item_id": "work_item_001"
+    },
+    {
+      "event_id": "evt_s36_003",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "work_item_skipped",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:02:00Z",
+      "work_item_id": "work_item_002"
+    },
+    {
+      "event_id": "evt_s36_004",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "work_item_modified",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:03:00Z",
+      "work_item_id": "work_item_003",
+      "recorded_payload": {
+        "declared_change": "load_changed",
+        "from_load": 100,
+        "to_load": 90,
+        "unit": "kg"
+      }
+    },
+    {
+      "event_id": "evt_s36_005",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "work_item_incomplete",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:04:00Z",
+      "work_item_id": "work_item_004",
+      "incomplete_reason": "session_ended_before_work_item"
+    },
+    {
+      "event_id": "evt_s36_006",
+      "pilot_id": "pilot_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "session_id": "session_manual_v0_001",
+      "event_type": "session_partially_completed",
+      "actor": "athlete",
+      "occurred_at_utc": "2026-04-27T00:05:00Z"
+    }
+  ]
+}
