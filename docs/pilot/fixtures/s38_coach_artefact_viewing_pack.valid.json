@@ -1,0 +1,106 @@
+{
+  "slice": "S38",
+  "proof_name": "coach_artefact_viewing_pack",
+  "coach_id": "coach_manual_v0_001",
+  "athlete_id": "athlete_manual_v0_001",
+  "link_id": "link_manual_v0_001",
+  "link_status": "accepted",
+  "artefact_id": "artefact_manual_v0_001",
+  "artefact_type": "session_started_event",
+  "view_mode": "read_only",
+  "visibility_status": "visible_to_linked_coach",
+  "factual_artefacts_only": true,
+  "analytics_present": false,
+  "readiness_claim_present": false,
+  "advice_present": false,
+  "recommendation_present": false,
+  "judgement_present": false,
+  "score_present": false,
+  "ranking_present": false,
+  "safety_claim_present": false,
+  "medical_claim_present": false,
+  "unlinked_artefact_view_blocked": true,
+  "pending_link_view_blocked": true,
+  "revoked_link_view_blocked": true,
+  "engine_authority_created": false,
+  "phase1_mutated": false,
+  "recompilation_triggered": false,
+  "legality_changed": false,
+  "engine_output_overridden": false,
+  "event_count": 3,
+  "events": [
+    {
+      "event_id": "evt_s38_001",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "artefact_id": "artefact_manual_v0_001",
+      "artefact_type": "session_started_event",
+      "event_type": "coach_artefact_view_requested",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:00:00Z"
+    },
+    {
+      "event_id": "evt_s38_002",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "artefact_id": "artefact_manual_v0_001",
+      "artefact_type": "session_started_event",
+      "event_type": "coach_athlete_link_verified",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:01:00Z",
+      "link_id": "link_manual_v0_001",
+      "link_status": "accepted"
+    },
+    {
+      "event_id": "evt_s38_003",
+      "coach_id": "coach_manual_v0_001",
+      "athlete_id": "athlete_manual_v0_001",
+      "artefact_id": "artefact_manual_v0_001",
+      "artefact_type": "session_started_event",
+      "event_type": "coach_artefact_view_rendered",
+      "actor": "coach",
+      "occurred_at_utc": "2026-04-27T00:02:00Z",
+      "view_mode": "read_only",
+      "visibility_status": "visible_to_linked_coach",
+      "displayed_field_count": 11,
+      "displayed_fields": [
+        "artefact_id",
+        "artefact_type",
+        "coach_id",
+        "athlete_id",
+        "link_id",
+        "session_id",
+        "event_id",
+        "event_type",
+        "occurred_at_utc",
+        "status",
+        "source_record_id"
+      ]
+    }
+  ],
+  "blocked_cases": [
+    {
+      "case_id": "s38_block_unlinked_athlete",
+      "link_status": "missing",
+      "blocked_reason": "link_missing",
+      "view_rendered": false
+    },
+    {
+      "case_id": "s38_block_pending_link",
+      "link_status": "pending",
+      "blocked_reason": "link_pending",
+      "view_rendered": false
+    },
+    {
+      "case_id": "s38_block_revoked_link",
+      "link_status": "revoked",
+      "blocked_reason": "link_revoked",
+      "view_rendered": false
+    },
+    {
+      "case_id": "s38_block_analytics_surface",
+      "blocked_reason": "analytics_surface_attempt",
+      "view_rendered": false
+    }
+  ]
+}
