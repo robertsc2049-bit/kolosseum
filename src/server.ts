@@ -31,6 +31,18 @@ app.use(express.json({ limit: "1mb" }));
  * - /ui/decision-summary/:run_id (redirect convenience)
  */
 const publicDir = path.resolve(process.cwd(), "public");
+/**
+ * Local diagnostic UI gate.
+ *
+ * The /ui files are retained for explicit local inspection only.
+ * They are disabled unless KOLOSSEUM_ENABLE_DIAGNOSTIC_UI=true.
+ */
+const diagnosticUiEnabled = process.env.KOLOSSEUM_ENABLE_DIAGNOSTIC_UI === "true";
+
+app.use("/ui", (req, res, next) => {
+  if (diagnosticUiEnabled) return next();
+  return res.status(404).json({ error: "diagnostic_ui_disabled" });
+});
 app.use("/ui", express.static(publicDir));
 
 app.get("/ui/session/:session_id", (req, res) => {
