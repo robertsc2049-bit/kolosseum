@@ -1,0 +1,35 @@
+{
+  "schema_version": "kolosseum.copy_surface.session_runtime.v1.0.0",
+  "surface_id": "session_execution_runtime",
+  "engine_compatibility": "EB2-1.0.0",
+  "scope_class": "closed_world",
+  "copy_policy": {
+    "inline_copy_forbidden": true,
+    "copy_registry_required": true,
+    "semantic_posture": "neutral_factual"
+  },
+  "copy": {
+    "session_runtime.title": "Session execution",
+    "session_runtime.start": "Start session",
+    "session_runtime.end": "End session",
+    "session_runtime.split": "Split session",
+    "session_runtime.return": "Return to session",
+    "session_runtime.resume": "Resume session",
+    "session_runtime.record_completion": "Record completion",
+    "session_runtime.record_not_completed": "Record not completed",
+    "session_runtime.record_partial": "Record partial amount",
+    "session_runtime.amount_recorded": "Amount recorded",
+    "session_runtime.item_complete": "Item complete",
+    "session_runtime.item_not_completed": "Item not completed",
+    "session_runtime.item_partial": "Item partial",
+    "session_runtime.session_started": "Session started",
+    "session_runtime.session_ended": "Session ended",
+    "session_runtime.action_not_available": "This action is not available.",
+    "session_runtime.continue_where_left": "Continue where I left off.",
+    "session_runtime.history_counts": "Session counts",
+    "session_runtime.completed_count": "Completed",
+    "session_runtime.not_completed_count": "Not completed",
+    "session_runtime.partial_count": "Partial",
+    "session_runtime.pending_count": "Pending"
+  }
+}
