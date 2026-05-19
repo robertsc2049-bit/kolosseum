@@ -1,0 +1,253 @@
+{
+  "test_suite_id": "phase1_acceptance_record_tests",
+  "test_suite_version": "1.0.0",
+  "status": "authoritative",
+  "engine_compatibility": "EB2-1.0.0",
+  "enum_bundle_version": "EB2-1.0.0",
+  "active_pins": {
+    "phase1_schema_version": "1.0.0",
+    "engine_compatibility": "EB2-1.0.0",
+    "enum_bundle_version": "EB2-1.0.0"
+  },
+  "valid_control_payload": {
+    "actor_type": "individual_user",
+    "execution_scope": "individual",
+    "activity_id": "powerlifting",
+    "phase1_schema_version": "1.0.0",
+    "engine_compatibility": "EB2-1.0.0",
+    "enum_bundle_version": "EB2-1.0.0",
+    "consent_granted": true,
+    "jurisdiction_acknowledged": true
+  },
+  "tests": [
+    {
+      "test_id": "valid_declaration_can_be_accepted_and_hashed",
+      "operation": "accept_declaration",
+      "payload": "valid_control_payload",
+      "expected_ok": true,
+      "assertions": {
+        "immutable": true,
+        "immutable_status": "immutable",
+        "sha256_pattern": "^[a-f0-9]{64}$",
+        "superseded_at": null
+      }
+    },
+    {
+      "test_id": "payload_field_extraction_matches_record",
+      "operation": "accept_declaration",
+      "payload": "valid_control_payload",
+      "expected_ok": true,
+      "assertions": {
+        "actor_type_matches_payload": true,
+        "execution_scope_matches_payload": true,
+        "activity_id_matches_payload": true,
+        "version_pins_match_payload": true
+      }
+    },
+    {
+      "test_id": "unknown_payload_field_refused",
+      "operation": "accept_declaration",
+      "payload": "valid_control_payload",
+      "payload_mutation": {
+        "add": {
+          "undeclared_field": "illegal"
+        }
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_PAYLOAD_INVALID"
+    },
+    {
+      "test_id": "missing_required_payload_field_refused",
+      "operation": "accept_declaration",
+      "payload": "valid_control_payload",
+      "payload_mutation": {
+        "remove": "activity_id"
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_PAYLOAD_INVALID"
+    },
+    {
+      "test_id": "consent_false_refused",
+      "operation": "accept_declaration",
+      "payload": "valid_control_payload",
+      "payload_mutation": {
+        "replace": {
+          "consent_granted": false
+        }
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_CONSENT_MISSING"
+    },
+    {
+      "test_id": "jurisdiction_false_refused",
+      "operation": "accept_declaration",
+      "payload": "valid_control_payload",
+      "payload_mutation": {
+        "replace": {
+          "jurisdiction_acknowledged": false
+        }
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_JURISDICTION_MISSING"
+    },
+    {
+      "test_id": "phase1_schema_version_mismatch_refused",
+      "operation": "accept_declaration",
+      "payload": "valid_control_payload",
+      "payload_mutation": {
+        "replace": {
+          "phase1_schema_version": "2.0.0"
+        }
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_VERSION_MISMATCH"
+    },
+    {
+      "test_id": "engine_compatibility_mismatch_refused",
+      "operation": "accept_declaration",
+      "payload": "valid_control_payload",
+      "payload_mutation": {
+        "replace": {
+          "engine_compatibility": "EB2-2.0.0"
+        }
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_VERSION_MISMATCH"
+    },
+    {
+      "test_id": "enum_bundle_version_mismatch_refused",
+      "operation": "accept_declaration",
+      "payload": "valid_control_payload",
+      "payload_mutation": {
+        "replace": {
+          "enum_bundle_version": "EB2-2.0.0"
+        }
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_VERSION_MISMATCH"
+    },
+    {
+      "test_id": "accepted_record_cannot_mutate_payload",
+      "operation": "update_record",
+      "payload": "valid_control_payload",
+      "record_mutation": {
+        "replace": {
+          "declaration_payload_json": {
+            "actor_type": "individual_user",
+            "execution_scope": "individual",
+            "activity_id": "rugby_union",
+            "phase1_schema_version": "1.0.0",
+            "engine_compatibility": "EB2-1.0.0",
+            "enum_bundle_version": "EB2-1.0.0",
+            "consent_granted": true,
+            "jurisdiction_acknowledged": true
+          }
+        }
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_RECORD_IMMUTABLE"
+    },
+    {
+      "test_id": "accepted_record_can_be_superseded_once",
+      "operation": "supersede_record",
+      "payload": "valid_control_payload",
+      "expected_ok": true,
+      "assertions": {
+        "superseded_at_not_null": true,
+        "payload_unchanged": true,
+        "hash_unchanged": true
+      }
+    },
+    {
+      "test_id": "compile_refuses_missing_declaration",
+      "operation": "compile_admission",
+      "scenario": "missing_declaration",
+      "expected_ok": false,
+      "expected_code": "PHASE1_COMPILE_BLOCKED_NO_ACCEPTED_DECLARATION"
+    },
+    {
+      "test_id": "compile_refuses_superseded_declaration",
+      "operation": "compile_admission",
+      "payload": "valid_control_payload",
+      "scenario": "superseded_declaration",
+      "expected_ok": false,
+      "expected_code": "PHASE1_COMPILE_BLOCKED_SUPERSEDED_DECLARATION"
+    },
+    {
+      "test_id": "compile_refuses_unaccepted_declaration",
+      "operation": "compile_admission",
+      "payload": "valid_control_payload",
+      "scenario": "unaccepted_declaration",
+      "expected_ok": false,
+      "expected_code": "PHASE1_COMPILE_BLOCKED_UNACCEPTED_DECLARATION"
+    },
+    {
+      "test_id": "compile_refuses_version_mismatch",
+      "operation": "compile_admission",
+      "payload": "valid_control_payload",
+      "scenario": "version_mismatch",
+      "expected_ok": false,
+      "expected_code": "PHASE1_COMPILE_BLOCKED_VERSION_MISMATCH"
+    },
+    {
+      "test_id": "compile_refuses_hash_mismatch",
+      "operation": "compile_admission",
+      "payload": "valid_control_payload",
+      "scenario": "hash_mismatch",
+      "expected_ok": false,
+      "expected_code": "PHASE1_COMPILE_BLOCKED_HASH_MISMATCH"
+    },
+    {
+      "test_id": "compile_refuses_activity_mismatch",
+      "operation": "compile_admission",
+      "payload": "valid_control_payload",
+      "scenario": "activity_mismatch",
+      "expected_ok": false,
+      "expected_code": "PHASE1_COMPILE_BLOCKED_ACTIVITY_MISMATCH"
+    },
+    {
+      "test_id": "compile_refuses_scope_mismatch",
+      "operation": "compile_admission",
+      "payload": "valid_control_payload",
+      "scenario": "scope_mismatch",
+      "expected_ok": false,
+      "expected_code": "PHASE1_COMPILE_BLOCKED_SCOPE_MISMATCH"
+    },
+    {
+      "test_id": "compile_allows_current_valid_declaration",
+      "operation": "compile_admission",
+      "payload": "valid_control_payload",
+      "scenario": "valid_current_declaration",
+      "expected_ok": true
+    },
+    {
+      "test_id": "hash_changes_when_engine_visible_declaration_changes",
+      "operation": "hash_comparison",
+      "payload": "valid_control_payload",
+      "payload_mutation": {
+        "replace": {
+          "activity_id": "rugby_union"
+        }
+      },
+      "expected_ok": true,
+      "assertions": {
+        "hashes_differ": true
+      }
+    },
+    {
+      "test_id": "payment_coach_and_presentation_state_do_not_mutate_record",
+      "operation": "external_state_mutation_attempt",
+      "payload": "valid_control_payload",
+      "external_state": {
+        "payment_status": "paid",
+        "coach_id": "00000000-0000-0000-0000-000000000002",
+        "presentation_density": "detailed"
+      },
+      "expected_ok": true,
+      "assertions": {
+        "record_unchanged": true,
+        "hash_unchanged": true
+      }
+    }
+  ]
+}
