@@ -1,5 +1,22 @@
-LOCKFILE CHANGE NOTE
+# LOCKFILE_CHANGE_NOTE.md
 
-- 2026-02-23: Added dev dependency js-yaml to locally validate GitHub Actions workflow YAML.
-- 2026-04-21: Intentional repository-wide Node toolchain contract bump from 24.12.0 to 25.9.0.
-  Context: package-lock metadata refreshed to match package.json and current toolchain contract.
+## Reason
+
+S31 adds Vitest as a development dependency because the first compile gate includes executable TypeScript test vectors.
+
+## Lockfile impact
+
+package-lock.json changed only to record the Vitest development dependency tree required for:
+
+- npm run test:s31:first-compile-gate
+
+## Runtime impact
+
+None.
+
+Vitest is test tooling only. It does not alter engine behaviour, compile admission logic, Phase 1 input, deterministic output, registry loading, payment/access semantics, or coach metadata boundaries.
+
+## Validation
+
+- npm run test:s31:first-compile-gate
+- npm run green:fast
