@@ -1,0 +1,274 @@
+{
+  "test_suite_id": "v0_active_scope_manifest_negative_tests",
+  "test_suite_version": "1.0.0",
+  "status": "authoritative",
+  "tests": [
+    {
+      "test_id": "neg_actor_org_admin",
+      "domain": "actor_type",
+      "input": {
+        "actor_type": "org_admin"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_ACTOR_TYPE"
+    },
+    {
+      "test_id": "neg_actor_team_admin",
+      "domain": "actor_type",
+      "input": {
+        "actor_type": "team_admin"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_ACTOR_TYPE"
+    },
+    {
+      "test_id": "neg_execution_scope_org_managed",
+      "domain": "execution_scope",
+      "input": {
+        "execution_scope": "org_managed"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_EXECUTION_SCOPE"
+    },
+    {
+      "test_id": "neg_execution_scope_team_managed",
+      "domain": "execution_scope",
+      "input": {
+        "execution_scope": "team_managed"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_EXECUTION_SCOPE"
+    },
+    {
+      "test_id": "neg_activity_football_soccer",
+      "domain": "activity_id",
+      "input": {
+        "activity_id": "football_soccer"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_ACTIVITY"
+    },
+    {
+      "test_id": "neg_activity_weightlifting",
+      "domain": "activity_id",
+      "input": {
+        "activity_id": "weightlifting"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_ACTIVITY"
+    },
+    {
+      "test_id": "neg_phase_7",
+      "domain": "engine_phase",
+      "input": {
+        "engine_phase": "phase_7"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_PHASE"
+    },
+    {
+      "test_id": "neg_phase_8",
+      "domain": "engine_phase",
+      "input": {
+        "engine_phase": "phase_8"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_PHASE"
+    },
+    {
+      "test_id": "neg_truth_projection_surface",
+      "domain": "product_surface",
+      "input": {
+        "product_surface": "truth_projection"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_PRODUCT_SURFACE"
+    },
+    {
+      "test_id": "neg_evidence_export_surface",
+      "domain": "product_surface",
+      "input": {
+        "product_surface": "evidence_export"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_PRODUCT_SURFACE"
+    },
+    {
+      "test_id": "neg_dashboard_surface",
+      "domain": "product_surface",
+      "input": {
+        "product_surface": "dashboards"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_PRODUCT_SURFACE"
+    },
+    {
+      "test_id": "neg_messaging_surface",
+      "domain": "product_surface",
+      "input": {
+        "product_surface": "messaging"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_PRODUCT_SURFACE"
+    },
+    {
+      "test_id": "neg_readiness_claim",
+      "domain": "claim_class",
+      "input": {
+        "claim_class": "readiness"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_CLAIM_CLASS"
+    },
+    {
+      "test_id": "neg_safety_claim",
+      "domain": "claim_class",
+      "input": {
+        "claim_class": "safety"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_CLAIM_CLASS"
+    },
+    {
+      "test_id": "neg_optimisation_claim",
+      "domain": "claim_class",
+      "input": {
+        "claim_class": "optimisation"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_CLAIM_CLASS"
+    },
+    {
+      "test_id": "neg_medical_claim",
+      "domain": "claim_class",
+      "input": {
+        "claim_class": "medical"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_CLAIM_CLASS"
+    },
+    {
+      "test_id": "neg_runtime_recommendation",
+      "domain": "runtime_semantic",
+      "input": {
+        "runtime_semantic": "recommendation"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_RUNTIME_SEMANTIC"
+    },
+    {
+      "test_id": "neg_runtime_progression_trigger",
+      "domain": "runtime_semantic",
+      "input": {
+        "runtime_semantic": "progression_trigger"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_RUNTIME_SEMANTIC"
+    },
+    {
+      "test_id": "neg_runtime_registry_mutation",
+      "domain": "runtime_semantic",
+      "input": {
+        "runtime_semantic": "runtime_registry_mutation"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_RUNTIME_SEMANTIC"
+    },
+    {
+      "test_id": "neg_coach_override",
+      "domain": "coach_authority",
+      "input": {
+        "coach_authority": "override_engine_decision"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_COACH_AUTHORITY"
+    },
+    {
+      "test_id": "neg_coach_phase1_edit",
+      "domain": "coach_authority",
+      "input": {
+        "coach_authority": "edit_phase1_declaration"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_COACH_AUTHORITY"
+    },
+    {
+      "test_id": "neg_coach_registry_modify",
+      "domain": "coach_authority",
+      "input": {
+        "coach_authority": "modify_registry"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_FORBIDDEN_COACH_AUTHORITY"
+    },
+    {
+      "test_id": "neg_unknown_actor_type",
+      "domain": "actor_type",
+      "input": {
+        "actor_type": "partner_admin"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_UNKNOWN_SCOPE_VALUE"
+    },
+    {
+      "test_id": "neg_unknown_execution_scope",
+      "domain": "execution_scope",
+      "input": {
+        "execution_scope": "partner_managed"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_UNKNOWN_SCOPE_VALUE"
+    },
+    {
+      "test_id": "neg_unknown_activity",
+      "domain": "activity_id",
+      "input": {
+        "activity_id": "strongman"
+      },
+      "expected_ok": false,
+      "expected_token": "V0_UNKNOWN_SCOPE_VALUE"
+    },
+    {
+      "test_id": "neg_prose_org_runtime",
+      "domain": "semantic_scan",
+      "input": "The organisation runtime dashboard controls live team execution.",
+      "expected_ok": false,
+      "expected_token": "V0_SCOPE_LEAK"
+    },
+    {
+      "test_id": "neg_prose_evidence_export",
+      "domain": "semantic_scan",
+      "input": "Export evidence envelopes for coach-managed sessions.",
+      "expected_ok": false,
+      "expected_token": "V0_SCOPE_LEAK"
+    },
+    {
+      "test_id": "neg_prose_readiness",
+      "domain": "semantic_scan",
+      "input": "The athlete readiness dashboard shows who is ready to train.",
+      "expected_ok": false,
+      "expected_token": "V0_SCOPE_LEAK"
+    },
+    {
+      "test_id": "neg_prose_safety",
+      "domain": "semantic_scan",
+      "input": "The system reduces injury risk by selecting safer options.",
+      "expected_ok": false,
+      "expected_token": "V0_SCOPE_LEAK"
+    },
+    {
+      "test_id": "neg_prose_coach_override",
+      "domain": "semantic_scan",
+      "input": "The coach can override engine decisions for linked athletes.",
+      "expected_ok": false,
+      "expected_token": "V0_SCOPE_LEAK"
+    },
+    {
+      "test_id": "neg_prose_payment_engine",
+      "domain": "semantic_scan",
+      "input": "Paid tiers unlock stronger engine progression and substitution rules.",
+      "expected_ok": false,
+      "expected_token": "V0_SCOPE_LEAK"
+    }
+  ]
+}

@@ -1,0 +1,277 @@
+{
+    "manifest_id":  "v0_active_scope_manifest",
+    "manifest_title":  "Kolosseum v0 Active Scope Manifest",
+    "manifest_version":  "1.0.0",
+    "status":  "authoritative",
+    "scope_class":  "closed_world",
+    "rewrite_policy":  "rewrite_only",
+    "release":  {
+                    "release_id":  "v0",
+                    "release_name":  "Deterministic Execution Alpha",
+                    "definition":  "Kolosseum v0 is a closed-world, coach-operable deterministic execution alpha for individual and coach-managed sessions across powerlifting, rugby_union, and general_strength, limited to Phase 1 through Phase 6 and factual runtime execution surfaces only."
+                },
+    "enforcement":  {
+                        "unknown_values_fail_closed":  true,
+                        "manifest_grants_engine_behaviour":  false,
+                        "manifest_controls_scope_only":  true,
+                        "ci_required":  true
+                    },
+    "allowed_actor_types":  [
+                                "individual_user",
+                                "coach"
+                            ],
+    "forbidden_actor_types":  [
+                                  "org_admin",
+                                  "team_admin",
+                                  "unit_admin",
+                                  "gym_admin",
+                                  "pti",
+                                  "federation_admin",
+                                  "state_admin",
+                                  "medical_user",
+                                  "auditor"
+                              ],
+    "allowed_execution_scopes":  [
+                                     "individual",
+                                     "coach_managed"
+                                 ],
+    "forbidden_execution_scopes":  [
+                                       "org_managed",
+                                       "team_managed",
+                                       "unit_managed",
+                                       "gym_managed",
+                                       "state_managed",
+                                       "federation_managed",
+                                       "group_execution"
+                                   ],
+    "allowed_activities":  [
+                               "powerlifting",
+                               "rugby_union",
+                               "general_strength"
+                           ],
+    "forbidden_activity_examples":  [
+                                        "football_soccer",
+                                        "american_football",
+                                        "weightlifting",
+                                        "crossfit",
+                                        "running",
+                                        "cycling",
+                                        "swimming",
+                                        "boxing",
+                                        "mma",
+                                        "hyrox",
+                                        "bodybuilding",
+                                        "military_fitness"
+                                    ],
+    "allowed_engine_phases":  [
+                                  "phase_1",
+                                  "phase_2",
+                                  "phase_3",
+                                  "phase_4",
+                                  "phase_5",
+                                  "phase_6"
+                              ],
+    "forbidden_engine_phases":  [
+                                    "phase_7",
+                                    "phase_8",
+                                    "truth_projection",
+                                    "evidence_generation",
+                                    "evidence_sealing"
+                                ],
+    "allowed_product_surfaces":  [
+                                     "onboarding",
+                                     "phase1_declaration",
+                                     "coach_assignment",
+                                     "coach_athlete_link",
+                                     "session_execution",
+                                     "factual_history_counts",
+                                     "factual_artefact_viewing",
+                                     "non_binding_coach_notes",
+                                     "split_return",
+                                     "partial_completion",
+                                     "operator_pilot_status"
+                                 ],
+    "forbidden_product_surfaces":  [
+                                       "organisation_runtime",
+                                       "team_runtime",
+                                       "unit_runtime",
+                                       "gym_runtime",
+                                       "dashboards",
+                                       "analytics",
+                                       "rankings",
+                                       "leaderboards",
+                                       "messaging",
+                                       "readiness_dashboard",
+                                       "performance_dashboard",
+                                       "evidence_export",
+                                       "proof_export",
+                                       "audit_export",
+                                       "medical_screening",
+                                       "rehab_workflow",
+                                       "injury_risk_workflow",
+                                       "program_optimisation",
+                                       "auto_progression",
+                                       "coach_override",
+                                       "registry_authoring_ui",
+                                       "registry_editing_ui",
+                                       "billing_driven_engine_behaviour",
+                                       "truth_projection",
+                                       "evidence_generation",
+                                       "evidence_sealing"
+                                   ],
+    "allowed_claim_classes":  [
+                                  "scope_fact",
+                                  "access_fact",
+                                  "visibility_fact",
+                                  "authority_limit",
+                                  "factual_runtime_surface",
+                                  "seat_cap_fact",
+                                  "price_fact",
+                                  "proof_scoped_value"
+                              ],
+    "forbidden_claim_classes":  [
+                                    "outcome_improvement",
+                                    "performance_improvement",
+                                    "optimisation",
+                                    "recommendation",
+                                    "safety",
+                                    "risk_reduction",
+                                    "injury_prevention",
+                                    "medical",
+                                    "rehab",
+                                    "readiness",
+                                    "suitability",
+                                    "compliance",
+                                    "correction",
+                                    "guarantee",
+                                    "best_result",
+                                    "evidence_complete",
+                                    "proof_export",
+                                    "coach_decision_authority",
+                                    "organisation_runtime_authority"
+                                ],
+    "allowed_runtime_events":  [
+                                   "session_started",
+                                   "work_item_completed",
+                                   "work_item_skipped",
+                                   "work_item_partially_completed",
+                                   "session_split",
+                                   "session_returned",
+                                   "session_resumed",
+                                   "session_ended",
+                                   "extra_work_recorded",
+                                   "work_modified_recorded"
+                               ],
+    "forbidden_runtime_semantics":  [
+                                        "advice",
+                                        "recommendation",
+                                        "correction",
+                                        "compensation",
+                                        "progression_trigger",
+                                        "readiness_assessment",
+                                        "safety_assessment",
+                                        "medical_assessment",
+                                        "rehab_assessment",
+                                        "risk_assessment",
+                                        "compliance_score",
+                                        "adherence_score",
+                                        "performance_score",
+                                        "ranking",
+                                        "optimisation",
+                                        "automatic_recompile_from_runtime_event",
+                                        "runtime_registry_mutation"
+                                    ],
+    "allowed_coach_authority":  [
+                                    "assign_within_system_limits",
+                                    "view_linked_athlete_factual_artefacts",
+                                    "write_non_binding_notes",
+                                    "view_linked_athlete_factual_history_counts"
+                                ],
+    "forbidden_coach_authority":  [
+                                      "override_engine_decision",
+                                      "alter_engine_legality",
+                                      "edit_phase1_declaration",
+                                      "trigger_substitution",
+                                      "force_progression",
+                                      "modify_registry",
+                                      "alter_compiled_output",
+                                      "edit_runtime_truth",
+                                      "view_unlinked_athletes",
+                                      "declare_readiness",
+                                      "declare_safety",
+                                      "issue_medical_advice",
+                                      "rank_athletes",
+                                      "create_org_runtime"
+                                  ],
+    "scan_targets":  {
+                         "paths":  [
+                                       "app",
+                                       "web",
+                                       "admin",
+                                       "server",
+                                       "shared",
+                                       "docs",
+                                       "marketing",
+                                       "emails",
+                                       "tests",
+                                       "fixtures"
+                                   ],
+                         "extensions":  [
+                                            ".js",
+                                            ".jsx",
+                                            ".ts",
+                                            ".tsx",
+                                            ".mjs",
+                                            ".cjs",
+                                            ".json",
+                                            ".md",
+                                            ".html",
+                                            ".css",
+                                            ".yml",
+                                            ".yaml"
+                                        ],
+                         "exclude_paths":  [
+                                               "node_modules",
+                                               "dist",
+                                               "build",
+                                               ".next",
+                                               ".git",
+                                               "coverage"
+                                           ],
+                         "allowlisted_scope_docs":  [
+                                                        "docs/v0/V0_ACTIVE_SCOPE_MANIFEST.json",
+                                                        "docs/v0/V0_ACTIVE_SCOPE_MANIFEST.md",
+                                                        "docs/v0/V0_ACTIVE_SCOPE_MANIFEST_CI_GUARD.md",
+                                                        "docs/v0/V0_ACTIVE_SCOPE_NEGATIVE_TESTS.json"
+                                                    ],
+                         "active_surface_paths":  [
+                                                      "app",
+                                                      "web",
+                                                      "admin",
+                                                      "server",
+                                                      "shared",
+                                                      "marketing",
+                                                      "emails"
+                                                  ],
+                         "report_only_paths":  [
+                                                   "docs",
+                                                   "tests",
+                                                   "fixtures"
+                                               ],
+                         "active_docs_marker":  "v0_scope_guard: active_surface",
+                         "boundary_docs_marker":  "v0_scope_guard: boundary_doc",
+                         "active_test_marker":  "v0_scope_guard: active_surface",
+                         "active_fixture_marker":  "v0_scope_guard: active_surface"
+                     },
+    "failure_policy":  {
+                           "on_forbidden_actor_type":  "fail",
+                           "on_forbidden_execution_scope":  "fail",
+                           "on_forbidden_activity":  "fail",
+                           "on_forbidden_phase":  "fail",
+                           "on_forbidden_product_surface":  "fail",
+                           "on_forbidden_claim_class":  "fail",
+                           "on_forbidden_runtime_semantic":  "fail",
+                           "on_forbidden_coach_authority":  "fail",
+                           "on_unknown_scope_value":  "fail"
+                       }
+}

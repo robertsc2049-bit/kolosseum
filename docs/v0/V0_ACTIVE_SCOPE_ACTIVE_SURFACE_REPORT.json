@@ -1,0 +1,22 @@
+{
+    "ok":  true,
+    "mode":  "active",
+    "candidate_files_found":  11,
+    "files_scanned":  11,
+    "scanned_files":  [
+                          "shared/pilot-lifecycle/coachOperableGateContract.mjs",
+                          "shared/pilot-lifecycle/coachOperableGateContract.test.mjs",
+                          "shared/pilot-lifecycle/declarationAcceptanceStateSurface.mjs",
+                          "shared/pilot-lifecycle/declarationAcceptanceStateSurface.test.mjs",
+                          "shared/pilot-lifecycle/onboardingStartGateContract.mjs",
+                          "shared/pilot-lifecycle/onboardingStartGateContract.test.mjs",
+                          "shared/pilot-lifecycle/pilotLifecycleStateMachine.mjs",
+                          "shared/pilot-lifecycle/pilotLifecycleStateMachine.test.mjs",
+                          "shared/pilot-lifecycle/pilotStatusReasonCodes.mjs",
+                          "shared/pilot-lifecycle/pilotStatusReasonCodes.test.mjs",
+                          "shared/presentation/nd_mode_execution_surface.mjs"
+                      ],
+    "failures":  [
+
+                 ]
+}

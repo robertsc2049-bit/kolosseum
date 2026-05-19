@@ -1,0 +1,115 @@
+{
+  "ok": true,
+  "test_suite_id": "phase1_acceptance_record_tests",
+  "test_suite_version": "1.0.0",
+  "total": 21,
+  "passed": 21,
+  "failed": 0,
+  "results": [
+    {
+      "test_id": "valid_declaration_can_be_accepted_and_hashed",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "payload_field_extraction_matches_record",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "unknown_payload_field_refused",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "missing_required_payload_field_refused",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "consent_false_refused",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "jurisdiction_false_refused",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "phase1_schema_version_mismatch_refused",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "engine_compatibility_mismatch_refused",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "enum_bundle_version_mismatch_refused",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "accepted_record_cannot_mutate_payload",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "accepted_record_can_be_superseded_once",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "compile_refuses_missing_declaration",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "compile_refuses_superseded_declaration",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "compile_refuses_unaccepted_declaration",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "compile_refuses_version_mismatch",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "compile_refuses_hash_mismatch",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "compile_refuses_activity_mismatch",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "compile_refuses_scope_mismatch",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "compile_allows_current_valid_declaration",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "hash_changes_when_engine_visible_declaration_changes",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "payment_coach_and_presentation_state_do_not_mutate_record",
+      "ok": true,
+      "failures": []
+    }
+  ]
+}
