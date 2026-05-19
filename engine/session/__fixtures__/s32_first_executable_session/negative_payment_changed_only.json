@@ -1,0 +1,14 @@
+{
+  "accepted_declaration": {
+    "declaration_id": "p1_decl_0001",
+    "status": "accepted",
+    "phase1_hash": "2f4d2d0f7aab7b9d8e7c4e2d0171b07f7d331729250d4f5d9f0d2a2a406a2c42",
+    "engine_compatibility": "EB2-1.0.0",
+    "activity_id": "powerlifting",
+    "execution_scope": "individual"
+  },
+  "payment_state": {
+    "tier_id": "coach_16",
+    "status": "paid"
+  }
+}
