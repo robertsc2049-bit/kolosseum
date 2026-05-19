@@ -1,0 +1,557 @@
+{
+    "test_suite_id":  "phase1_declaration_surface_negative_tests",
+    "test_suite_version":  "1.0.0",
+    "schema":  "phase1_declaration_surface.schema.json",
+    "status":  "authoritative",
+    "valid_control_payload":  {
+                                  "engine_version":  "EB2-1.0.0",
+                                  "enum_bundle_version":  "EB2-1.0.0",
+                                  "phase1_schema_version":  "1.0.0",
+                                  "consent_granted":  true,
+                                  "age_declaration":  "adult_18_or_over",
+                                  "jurisdiction_acknowledged":  true,
+                                  "actor_type":  "individual_user",
+                                  "execution_scope":  "individual",
+                                  "activity_id":  "general_strength",
+                                  "location_type":  "commercial_gym",
+                                  "equipment_profile_id":  "equipment_profile.standard_commercial_gym",
+                                  "baseline_metrics":  [
+
+                                                       ],
+                                  "personal_kit":  {
+                                                       "owned_item_ids":  [
+
+                                                                          ],
+                                                       "present_item_ids":  [
+
+                                                                            ]
+                                                   },
+                                  "capability_constraints":  [
+
+                                                             ],
+                                  "ui_preferences":  {
+                                                         "instruction_density":  "medium",
+                                                         "presentation_density":  "standard",
+                                                         "nd_mode":  false
+                                                     }
+                              },
+    "tests":  [
+                  {
+                      "test_id":  "valid_control_payload_accepts",
+                      "expected_ok":  true,
+                      "mutation":  null,
+                      "expected_failure":  null
+                  },
+                  {
+                      "test_id":  "unknown_top_level_field_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "add":  {
+                                                   "undeclared_field":  "illegal"
+                                               }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "unknown_nested_ui_field_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "add":  {
+                                                   "ui_preferences.theme":  "dark"
+                                               }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "missing_engine_version_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "remove":  "engine_version"
+                                   },
+                      "expected_failure":  "required"
+                  },
+                  {
+                      "test_id":  "engine_version_mismatch_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "engine_version":  "EB2-2.0.0"
+                                                   }
+                                   },
+                      "expected_failure":  "const"
+                  },
+                  {
+                      "test_id":  "missing_enum_bundle_version_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "remove":  "enum_bundle_version"
+                                   },
+                      "expected_failure":  "required"
+                  },
+                  {
+                      "test_id":  "missing_phase1_schema_version_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "remove":  "phase1_schema_version"
+                                   },
+                      "expected_failure":  "required"
+                  },
+                  {
+                      "test_id":  "consent_false_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "consent_granted":  false
+                                                   }
+                                   },
+                      "expected_failure":  "const"
+                  },
+                  {
+                      "test_id":  "consent_null_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "consent_granted":  null
+                                                   }
+                                   },
+                      "expected_failure":  "type"
+                  },
+                  {
+                      "test_id":  "missing_consent_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "remove":  "consent_granted"
+                                   },
+                      "expected_failure":  "required"
+                  },
+                  {
+                      "test_id":  "age_declaration_unknown_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "age_declaration":  "under_18"
+                                                   }
+                                   },
+                      "expected_failure":  "enum"
+                  },
+                  {
+                      "test_id":  "jurisdiction_false_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "jurisdiction_acknowledged":  false
+                                                   }
+                                   },
+                      "expected_failure":  "const"
+                  },
+                  {
+                      "test_id":  "actor_type_athlete_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "actor_type":  "athlete"
+                                                   }
+                                   },
+                      "expected_failure":  "enum"
+                  },
+                  {
+                      "test_id":  "actor_type_org_admin_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "actor_type":  "org_admin"
+                                                   }
+                                   },
+                      "expected_failure":  "enum"
+                  },
+                  {
+                      "test_id":  "execution_scope_org_managed_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "execution_scope":  "org_managed"
+                                                   }
+                                   },
+                      "expected_failure":  "enum"
+                  },
+                  {
+                      "test_id":  "coach_managed_without_governing_authority_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "actor_type":  "coach",
+                                                       "execution_scope":  "coach_managed"
+                                                   }
+                                   },
+                      "expected_failure":  "required"
+                  },
+                  {
+                      "test_id":  "individual_with_governing_authority_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "add":  {
+                                                   "governing_authority_id":  "coach.link.001"
+                                               }
+                                   },
+                      "expected_failure":  "not"
+                  },
+                  {
+                      "test_id":  "unsupported_activity_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "activity_id":  "football_soccer"
+                                                   }
+                                   },
+                      "expected_failure":  "enum"
+                  },
+                  {
+                      "test_id":  "missing_activity_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "remove":  "activity_id"
+                                   },
+                      "expected_failure":  "required"
+                  },
+                  {
+                      "test_id":  "location_type_team_facility_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "location_type":  "team_facility"
+                                                   }
+                                   },
+                      "expected_failure":  "enum"
+                  },
+                  {
+                      "test_id":  "equipment_profile_empty_string_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "equipment_profile_id":  ""
+                                                   }
+                                   },
+                      "expected_failure":  "minLength"
+                  },
+                  {
+                      "test_id":  "sport_role_null_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "add":  {
+                                                   "sport_role_id":  null
+                                               }
+                                   },
+                      "expected_failure":  "type"
+                  },
+                  {
+                      "test_id":  "variant_null_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "add":  {
+                                                   "variant_id":  null
+                                               }
+                                   },
+                      "expected_failure":  "type"
+                  },
+                  {
+                      "test_id":  "baseline_metrics_null_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "baseline_metrics":  null
+                                                   }
+                                   },
+                      "expected_failure":  "type"
+                  },
+                  {
+                      "test_id":  "baseline_metric_missing_metric_id_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "baseline_metrics":  [
+                                                                                {
+                                                                                    "activity_id":  "general_strength",
+                                                                                    "value":  {
+                                                                                                  "amount":  100,
+                                                                                                  "unit":  "kg"
+                                                                                              },
+                                                                                    "recorded_at":  "2026-05-19"
+                                                                                }
+                                                                            ]
+                                                   }
+                                   },
+                      "expected_failure":  "required"
+                  },
+                  {
+                      "test_id":  "baseline_metric_unknown_activity_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "baseline_metrics":  [
+                                                                                {
+                                                                                    "metric_id":  "metric.test",
+                                                                                    "activity_id":  "boxing",
+                                                                                    "value":  {
+                                                                                                  "amount":  100,
+                                                                                                  "unit":  "kg"
+                                                                                              },
+                                                                                    "recorded_at":  "2026-05-19"
+                                                                                }
+                                                                            ]
+                                                   }
+                                   },
+                      "expected_failure":  "enum"
+                  },
+                  {
+                      "test_id":  "baseline_metric_notes_free_text_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "baseline_metrics":  [
+                                                                                {
+                                                                                    "metric_id":  "metric.test",
+                                                                                    "activity_id":  "general_strength",
+                                                                                    "value":  {
+                                                                                                  "amount":  100,
+                                                                                                  "unit":  "kg"
+                                                                                              },
+                                                                                    "recorded_at":  "2026-05-19",
+                                                                                    "notes":  "felt easy"
+                                                                                }
+                                                                            ]
+                                                   }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "baseline_metric_estimated_flag_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "baseline_metrics":  [
+                                                                                {
+                                                                                    "metric_id":  "metric.test",
+                                                                                    "activity_id":  "general_strength",
+                                                                                    "value":  {
+                                                                                                  "amount":  100,
+                                                                                                  "unit":  "kg"
+                                                                                              },
+                                                                                    "recorded_at":  "2026-05-19",
+                                                                                    "estimated":  true
+                                                                                }
+                                                                            ]
+                                                   }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "baseline_metric_invalid_source_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "baseline_metrics":  [
+                                                                                {
+                                                                                    "metric_id":  "metric.test",
+                                                                                    "activity_id":  "general_strength",
+                                                                                    "value":  {
+                                                                                                  "amount":  100,
+                                                                                                  "unit":  "kg"
+                                                                                              },
+                                                                                    "recorded_at":  "2026-05-19",
+                                                                                    "source":  "inferred"
+                                                                                }
+                                                                            ]
+                                                   }
+                                   },
+                      "expected_failure":  "enum"
+                  },
+                  {
+                      "test_id":  "personal_kit_unknown_nested_field_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "personal_kit":  {
+                                                                            "owned_item_ids":  [
+
+                                                                                               ],
+                                                                            "present_item_ids":  [
+
+                                                                                                 ],
+                                                                            "notes":  "uses belt"
+                                                                        }
+                                                   }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "personal_kit_present_item_string_empty_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "personal_kit":  {
+                                                                            "owned_item_ids":  [
+                                                                                                   "belt"
+                                                                                               ],
+                                                                            "present_item_ids":  [
+                                                                                                     ""
+                                                                                                 ]
+                                                                        }
+                                                   }
+                                   },
+                      "expected_failure":  "minLength"
+                  },
+                  {
+                      "test_id":  "capability_constraint_unknown_value_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "capability_constraints":  [
+                                                                                      {
+                                                                                          "constraint_id":  "injury_history"
+                                                                                      }
+                                                                                  ]
+                                                   }
+                                   },
+                      "expected_failure":  "enum"
+                  },
+                  {
+                      "test_id":  "capability_constraint_free_text_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "capability_constraints":  [
+                                                                                      {
+                                                                                          "constraint_id":  "setup_modification_required",
+                                                                                          "reason":  "shoulder pain"
+                                                                                      }
+                                                                                  ]
+                                                   }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "ui_preferences_null_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "ui_preferences":  null
+                                                   }
+                                   },
+                      "expected_failure":  "type"
+                  },
+                  {
+                      "test_id":  "ui_preferences_unknown_field_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "ui_preferences":  {
+                                                                              "instruction_density":  "medium",
+                                                                              "presentation_density":  "standard",
+                                                                              "nd_mode":  false,
+                                                                              "coach_tone":  "strict"
+                                                                          }
+                                                   }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "ui_preferences_instruction_density_unknown_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "replace":  {
+                                                       "ui_preferences":  {
+                                                                              "instruction_density":  "very_high"
+                                                                          }
+                                                   }
+                                   },
+                      "expected_failure":  "enum"
+                  },
+                  {
+                      "test_id":  "prohibited_readiness_field_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "add":  {
+                                                   "readiness_score":  80
+                                               }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "prohibited_payment_status_field_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "add":  {
+                                                   "payment_status":  "paid"
+                                               }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "prohibited_team_id_field_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "add":  {
+                                                   "team_id":  "team.001"
+                                               }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "prohibited_coach_override_field_fails",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "add":  {
+                                                   "coach_override":  true
+                                               }
+                                   },
+                      "expected_failure":  "additionalProperties"
+                  },
+                  {
+                      "test_id":  "class_c_hash_inclusion_fails_ci",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "ci_assertion":  {
+                                                            "type":  "class_c_engine_inertness",
+                                                            "change_only":  "ui_preferences",
+                                                            "engine_output_changed":  true
+                                                        }
+                                   },
+                      "expected_failure":  "CLASS_C_ENGINE_OUTPUT_LEAK"
+                  },
+                  {
+                      "test_id":  "class_b_hash_exclusion_fails_ci",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "ci_assertion":  {
+                                                            "type":  "class_b_hash_affecting",
+                                                            "change_only":  "activity_id",
+                                                            "phase1_hash_unchanged":  true
+                                                        }
+                                   },
+                      "expected_failure":  "CLASS_B_HASH_MISSING"
+                  },
+                  {
+                      "test_id":  "defaulted_value_fails_ci",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "ci_assertion":  {
+                                                            "type":  "defaulted_value_entered_payload",
+                                                            "field":  "location_type",
+                                                            "source":  "ui_default"
+                                                        }
+                                   },
+                      "expected_failure":  "DEFAULTED_VALUE_ENTERED_PHASE1"
+                  },
+                  {
+                      "test_id":  "hidden_engine_field_fails_ci",
+                      "expected_ok":  false,
+                      "mutation":  {
+                                       "ci_assertion":  {
+                                                            "type":  "hidden_ui_field_entered_payload",
+                                                            "field":  "selection_bias"
+                                                        }
+                                   },
+                      "expected_failure":  "HIDDEN_ENGINE_FIELD_ENTERED_PHASE1"
+                  }
+              ]
+}
