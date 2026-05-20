@@ -1,0 +1,157 @@
+{
+  "schema_version": "kolosseum.s39.coach_assignment_within_limits.negative_tests.v1.0.0",
+  "slice": "S39",
+  "title": "Coach Assignment Within Limits Negative Tests",
+  "engine_compatibility": "EB2-1.0.0",
+  "scope_class": "closed_world",
+  "tests": [
+    {
+      "id": "S39_NEG_001_UNLINKED_COACH_CANNOT_ASSIGN",
+      "given": ["authenticated coach", "no accepted active coach-athlete link", "existing lawful artefact"],
+      "when": "coach attempts assignment",
+      "expect_error": "coach_link_not_accepted",
+      "must_not": ["create_assignment", "mutate_artefact", "change_artefact_hash", "call_compile"]
+    },
+    {
+      "id": "S39_NEG_002_INVITED_LINK_CANNOT_ASSIGN",
+      "given": ["authenticated coach", "coach-athlete link status invited"],
+      "when": "coach attempts assignment",
+      "expect_error": "coach_link_not_accepted",
+      "must_not": ["create_assignment", "mutate_artefact", "call_compile"]
+    },
+    {
+      "id": "S39_NEG_003_REVOKED_LINK_CANNOT_ASSIGN",
+      "given": ["authenticated coach", "coach-athlete link status revoked"],
+      "when": "coach attempts assignment",
+      "expect_error": "coach_link_not_accepted",
+      "must_not": ["create_assignment", "mutate_artefact", "call_compile"]
+    },
+    {
+      "id": "S39_NEG_004_EXPIRED_LINK_CANNOT_ASSIGN",
+      "given": ["authenticated coach", "coach-athlete link status expired"],
+      "when": "coach attempts assignment",
+      "expect_error": "coach_link_not_accepted",
+      "must_not": ["create_assignment", "mutate_artefact", "call_compile"]
+    },
+    {
+      "id": "S39_NEG_005_REJECTED_LINK_CANNOT_ASSIGN",
+      "given": ["authenticated coach", "coach-athlete link status rejected"],
+      "when": "coach attempts assignment",
+      "expect_error": "coach_link_not_accepted",
+      "must_not": ["create_assignment", "mutate_artefact", "call_compile"]
+    },
+    {
+      "id": "S39_NEG_006_BOTH_TARGETS_FORBIDDEN",
+      "given": ["accepted active link", "session_id present", "compiled_artefact_id present"],
+      "when": "coach creates assignment",
+      "expect_error": "exactly_one_assignment_target_required",
+      "must_not": ["create_assignment", "mutate_artefact"]
+    },
+    {
+      "id": "S39_NEG_007_NO_TARGET_FORBIDDEN",
+      "given": ["accepted active link", "session_id null", "compiled_artefact_id null"],
+      "when": "coach creates assignment",
+      "expect_error": "exactly_one_assignment_target_required",
+      "must_not": ["create_assignment", "mutate_artefact"]
+    },
+    {
+      "id": "S39_NEG_008_MISSING_TARGET_FAILS",
+      "given": ["accepted active link", "target id does not exist"],
+      "when": "coach creates assignment",
+      "expect_error": "assignment_target_not_found",
+      "must_not": ["create_assignment", "call_compile"]
+    },
+    {
+      "id": "S39_NEG_009_NON_LAWFUL_TARGET_FAILS",
+      "given": ["accepted active link", "target exists", "target not lawful"],
+      "when": "coach creates assignment",
+      "expect_error": "assignment_target_not_lawful",
+      "must_not": ["create_assignment", "repair_target", "call_compile"]
+    },
+    {
+      "id": "S39_NEG_010_ASSIGNMENT_CANNOT_EDIT_PHASE1",
+      "given": ["accepted active link", "existing lawful artefact"],
+      "when": "request includes phase1_patch",
+      "expect_error": "engine_mutation_forbidden",
+      "must_not": ["edit_phase1", "create_assignment", "mutate_artefact"]
+    },
+    {
+      "id": "S39_NEG_011_ASSIGNMENT_CANNOT_FORCE_SUBSTITUTION",
+      "given": ["accepted active link", "existing lawful artefact"],
+      "when": "request includes substitution instruction",
+      "expect_error": "engine_mutation_forbidden",
+      "must_not": ["trigger_substitution", "mutate_artefact", "change_artefact_hash"]
+    },
+    {
+      "id": "S39_NEG_012_ASSIGNMENT_CANNOT_BYPASS_COMPILE_GATE",
+      "given": ["accepted active link", "target missing compiled lawful state"],
+      "when": "coach attempts assignment",
+      "expect_error": "assignment_target_not_lawful",
+      "must_not": ["call_compile", "create_engine_output", "create_assignment"]
+    },
+    {
+      "id": "S39_NEG_013_ASSIGNMENT_CANNOT_CREATE_ENGINE_OUTPUT",
+      "given": ["accepted active link", "request contains program/session generation payload"],
+      "when": "coach attempts assignment",
+      "expect_error": "engine_mutation_forbidden",
+      "must_not": ["create_engine_output", "call_compile", "mutate_registries"]
+    },
+    {
+      "id": "S39_NEG_014_ASSIGNMENT_DOES_NOT_CHANGE_ARTEFACT_HASH",
+      "given": ["accepted active link", "existing lawful artefact", "hash_before recorded"],
+      "when": "assignment succeeds",
+      "expect_invariant": "hash_before == hash_after",
+      "must_not": ["change_artefact_hash", "mutate_artefact"]
+    },
+    {
+      "id": "S39_NEG_015_PAYMENT_STATE_CANNOT_CHANGE_ARTEFACT_CONTENT",
+      "given": ["existing lawful artefact", "payment state changes"],
+      "when": "assignment permission is evaluated",
+      "expect_invariant": "artefact_content_before == artefact_content_after",
+      "must_not": ["change_artefact_hash", "mutate_artefact", "alter_engine_legality"]
+    },
+    {
+      "id": "S39_NEG_016_TIER_CAP_DENIAL_CANNOT_CHANGE_ARTEFACT_CONTENT",
+      "given": ["accepted active link", "existing lawful artefact", "active tier cap exceeded"],
+      "when": "coach attempts assignment",
+      "expect_error": "coach_tier_seat_cap_exceeded",
+      "expect_invariant": "hash_before == hash_after",
+      "must_not": ["create_assignment", "mutate_artefact", "alter_engine_legality"]
+    },
+    {
+      "id": "S39_NEG_017_DUPLICATE_ACTIVE_ASSIGNMENT_FAILS",
+      "given": ["accepted active link", "active assignment already exists for same coach athlete target"],
+      "when": "coach attempts duplicate assignment",
+      "expect_error": "duplicate_active_assignment",
+      "must_not": ["create_duplicate_assignment", "mutate_artefact"]
+    },
+    {
+      "id": "S39_NEG_018_REVOKED_ASSIGNMENT_CANNOT_REACTIVATE_BY_ROW_MUTATION",
+      "given": ["revoked assignment row"],
+      "when": "status update attempts revoked to assigned",
+      "expect_error": "revoked_assignments_cannot_be_reactivated",
+      "must_not": ["reactivate_assignment", "mutate_artefact"]
+    },
+    {
+      "id": "S39_NEG_019_COACH_CANNOT_REVOKE_ANOTHER_COACH_ASSIGNMENT",
+      "given": ["authenticated coach", "assignment belongs to different coach"],
+      "when": "coach attempts revoke",
+      "expect_error": "assignment_not_owned_by_coach",
+      "must_not": ["revoke_assignment", "mutate_artefact"]
+    },
+    {
+      "id": "S39_NEG_020_ATHLETE_CANNOT_ASSIGN_THROUGH_COACH_ROUTE",
+      "given": ["authenticated individual_user"],
+      "when": "actor calls coach assignment create route",
+      "expect_error": "actor_not_coach",
+      "must_not": ["create_assignment", "mutate_artefact"]
+    },
+    {
+      "id": "S39_NEG_021_ASSIGNMENT_CANNOT_MUTATE_REGISTRIES",
+      "given": ["accepted active link", "request contains registry mutation payload"],
+      "when": "coach attempts assignment",
+      "expect_error": "engine_mutation_forbidden",
+      "must_not": ["mutate_registries", "create_assignment", "call_compile"]
+    }
+  ]
+}
