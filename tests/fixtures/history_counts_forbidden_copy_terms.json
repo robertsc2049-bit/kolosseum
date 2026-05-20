@@ -1,0 +1,23 @@
+{
+  "schema_version": "kolosseum.history_counts.negative_copy_fixture.v0.1",
+  "fixture_id": "history_counts_forbidden_copy_terms",
+  "tests_only": true,
+  "forbidden_terms": [
+    "trend",
+    "dashboard",
+    "graph",
+    "performance analysis",
+    "readiness",
+    "ranking",
+    "compliance",
+    "adherence scoring",
+    "improvement",
+    "prediction",
+    "recommendation",
+    "safety",
+    "medical interpretation",
+    "optimisation",
+    "optimization"
+  ],
+  "expected_failure": "CI_LINT_FORBIDDEN_CLAIM_SEMANTIC"
+}
