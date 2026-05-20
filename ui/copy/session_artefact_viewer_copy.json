@@ -1,0 +1,73 @@
+{
+  "schema_version": "kolosseum.copy.session_artefact_viewer.v1.0.0",
+  "engine_compatibility": "EB2-1.0.0",
+  "scope": "v0_session_artefact_viewer",
+  "copy_surface_id": "session_artefact_viewer",
+  "strings": [
+    {
+      "copy_id": "SESSION_ARTEFACT_VIEWER_TITLE",
+      "copy_text": "Session artefact",
+      "parameters": []
+    },
+    {
+      "copy_id": "SESSION_ARTEFACT_LOADING",
+      "copy_text": "Loading session artefact.",
+      "parameters": []
+    },
+    {
+      "copy_id": "SESSION_STATUS_LABEL",
+      "copy_text": "Session status",
+      "parameters": []
+    },
+    {
+      "copy_id": "WORK_ITEMS_LABEL",
+      "copy_text": "Work items",
+      "parameters": []
+    },
+    {
+      "copy_id": "FACTUAL_EVENTS_LABEL",
+      "copy_text": "Recorded events",
+      "parameters": []
+    },
+    {
+      "copy_id": "TIMESTAMPS_LABEL",
+      "copy_text": "Timestamps",
+      "parameters": []
+    },
+    {
+      "copy_id": "SOURCE_DECLARATION_HASH_LABEL",
+      "copy_text": "Source declaration hash",
+      "parameters": []
+    },
+    {
+      "copy_id": "ACTIVITY_ID_LABEL",
+      "copy_text": "Activity ID",
+      "parameters": []
+    },
+    {
+      "copy_id": "EXECUTION_SCOPE_LABEL",
+      "copy_text": "Execution scope",
+      "parameters": []
+    },
+    {
+      "copy_id": "NO_FACTUAL_EVENTS_RECORDED",
+      "copy_text": "No recorded events.",
+      "parameters": []
+    },
+    {
+      "copy_id": "ARTEFACT_ACCESS_DENIED",
+      "copy_text": "This artefact is not available.",
+      "parameters": []
+    },
+    {
+      "copy_id": "ARTEFACT_NOT_FOUND",
+      "copy_text": "Artefact not found.",
+      "parameters": []
+    },
+    {
+      "copy_id": "VIEWER_READ_ONLY",
+      "copy_text": "Viewer is read-only.",
+      "parameters": []
+    }
+  ]
+}
