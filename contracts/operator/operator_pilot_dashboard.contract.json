@@ -1,0 +1,337 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.operator_pilot_dashboard.v1",
+  "title": "Operator Pilot Dashboard Data Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pilot_id",
+    "generated_at",
+    "dashboard_status",
+    "coach",
+    "athlete",
+    "workspace_status",
+    "payment_access_status",
+    "coach_account_status",
+    "athlete_account_status",
+    "coach_athlete_link_status",
+    "scope_status",
+    "phase1_declaration_status",
+    "compile_status",
+    "first_executable_session_status",
+    "blocked_reason",
+    "next_factual_action",
+    "source_record_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "kolosseum.operator_pilot_dashboard.v1"
+    },
+    "pilot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dashboard_status": {
+      "enum": [
+        "blocked",
+        "in_progress",
+        "coach_ready",
+        "unknown"
+      ]
+    },
+    "coach": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coach_user_id",
+        "display_name"
+      ],
+      "properties": {
+        "coach_user_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "athlete": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "athlete_user_id",
+        "display_name"
+      ],
+      "properties": {
+        "athlete_user_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "workspace_status": {
+      "enum": [
+        "created",
+        "missing",
+        "unknown"
+      ]
+    },
+    "payment_access_status": {
+      "enum": [
+        "access_active",
+        "access_missing",
+        "access_suspended",
+        "unknown"
+      ]
+    },
+    "coach_account_status": {
+      "enum": [
+        "active",
+        "invited",
+        "missing",
+        "disabled",
+        "unknown"
+      ]
+    },
+    "athlete_account_status": {
+      "enum": [
+        "active",
+        "invited",
+        "missing",
+        "disabled",
+        "unknown"
+      ]
+    },
+    "coach_athlete_link_status": {
+      "enum": [
+        "invited",
+        "accepted",
+        "revoked",
+        "expired",
+        "rejected",
+        "missing",
+        "unknown"
+      ]
+    },
+    "scope_status": {
+      "enum": [
+        "locked_v0",
+        "pending",
+        "invalid",
+        "unknown"
+      ]
+    },
+    "phase1_declaration_status": {
+      "enum": [
+        "accepted",
+        "pending",
+        "missing",
+        "rejected",
+        "version_mismatch",
+        "unknown"
+      ]
+    },
+    "compile_status": {
+      "enum": [
+        "not_started",
+        "passed",
+        "failed",
+        "blocked",
+        "unknown"
+      ]
+    },
+    "first_executable_session_status": {
+      "enum": [
+        "exists",
+        "missing",
+        "not_applicable",
+        "unknown"
+      ]
+    },
+    "blocked_reason": {
+      "enum": [
+        "none",
+        "payment_missing",
+        "payment_suspended",
+        "workspace_missing",
+        "coach_account_missing",
+        "coach_account_inactive",
+        "athlete_account_missing",
+        "athlete_account_inactive",
+        "coach_athlete_link_missing",
+        "coach_athlete_link_not_accepted",
+        "scope_not_locked",
+        "scope_invalid",
+        "phase1_declaration_missing",
+        "phase1_declaration_not_accepted",
+        "compile_not_started",
+        "compile_failed",
+        "first_executable_session_missing",
+        "source_state_unknown"
+      ]
+    },
+    "next_factual_action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "copy_id",
+        "params"
+      ],
+      "properties": {
+        "copy_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "source_record_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pilot_record_id",
+        "workspace_record_id",
+        "payment_access_record_id",
+        "coach_user_record_id",
+        "athlete_user_record_id",
+        "coach_athlete_link_record_id",
+        "scope_lock_record_id",
+        "phase1_declaration_record_id",
+        "compile_attempt_record_id",
+        "first_executable_session_record_id"
+      ],
+      "properties": {
+        "pilot_record_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "workspace_record_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "payment_access_record_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "coach_user_record_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "athlete_user_record_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "coach_athlete_link_record_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scope_lock_record_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "phase1_declaration_record_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "compile_attempt_record_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "first_executable_session_record_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "x-kolosseum": {
+    "slice": "S41",
+    "surface": "operator_pilot_dashboard",
+    "closed_world": true,
+    "operator_only": true,
+    "factual_only": true,
+    "engine_mutation": false,
+    "prohibited_surface_classes": [
+      "PSC001",
+      "PSC002",
+      "PSC003",
+      "PSC004",
+      "PSC005",
+      "PSC006",
+      "PSC007"
+    ],
+    "coach_ready_preconditions": {
+      "payment_access_status": "access_active",
+      "workspace_status": "created",
+      "coach_account_status": "active",
+      "athlete_account_status": "active",
+      "coach_athlete_link_status": "accepted",
+      "scope_status": "locked_v0",
+      "phase1_declaration_status": "accepted",
+      "compile_status": "passed",
+      "first_executable_session_status": "exists",
+      "blocked_reason": "none"
+    },
+    "blocked_reason_priority": [
+      "source_state_unknown",
+      "payment_missing",
+      "payment_suspended",
+      "workspace_missing",
+      "coach_account_missing",
+      "coach_account_inactive",
+      "athlete_account_missing",
+      "athlete_account_inactive",
+      "coach_athlete_link_missing",
+      "coach_athlete_link_not_accepted",
+      "scope_invalid",
+      "scope_not_locked",
+      "phase1_declaration_missing",
+      "phase1_declaration_not_accepted",
+      "compile_failed",
+      "compile_not_started",
+      "first_executable_session_missing",
+      "none"
+    ]
+  }
+}
