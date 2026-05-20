@@ -1,0 +1,55 @@
+{
+  "schema_version": "kolosseum.copy.extra_work_deviation.v1.0.0",
+  "engine_compatibility": "EB2-1.0.0",
+  "scope": "v0_runtime_deviation_capture",
+  "copy_surface_id": "extra_work_deviation_event_capture",
+  "strings": [
+    {
+      "copy_id": "EXTRA_WORK_RECORDED",
+      "copy_text": "Extra work recorded.",
+      "parameters": []
+    },
+    {
+      "copy_id": "WORK_MODIFIED_RECORDED",
+      "copy_text": "Work modification recorded.",
+      "parameters": []
+    },
+    {
+      "copy_id": "DEVIATION_EVENT_RECORDED",
+      "copy_text": "Deviation event recorded.",
+      "parameters": []
+    },
+    {
+      "copy_id": "PLANNED_ITEM_UNCHANGED",
+      "copy_text": "Planned work item unchanged.",
+      "parameters": []
+    },
+    {
+      "copy_id": "FUTURE_COMPILE_UNCHANGED",
+      "copy_text": "Future compile unchanged.",
+      "parameters": []
+    },
+    {
+      "copy_id": "FACTUAL_RECORD_ONLY",
+      "copy_text": "This record is factual only.",
+      "parameters": []
+    },
+    {
+      "copy_id": "DOES_NOT_CHANGE_PLANNED_WORK",
+      "copy_text": "This record does not change planned work.",
+      "parameters": []
+    }
+  ],
+  "forbidden_surface_semantics": [
+    "correction",
+    "recommendation",
+    "compensation",
+    "compliance_score",
+    "progression_trigger",
+    "readiness_interpretation",
+    "safety_interpretation",
+    "outcome_interpretation",
+    "effort_judgement",
+    "behaviour_judgement"
+  ]
+}
