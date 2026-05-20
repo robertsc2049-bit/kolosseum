@@ -1,0 +1,73 @@
+{
+  "schema_version": "kolosseum.copy.coach_notes.v1.0.0",
+  "engine_compatibility": "EB2-1.0.0",
+  "scope": "v0_non_binding_coach_notes",
+  "copy_surface_id": "coach_notes",
+  "strings": [
+    {
+      "copy_id": "COACH_NOTES_PANEL_TITLE",
+      "copy_text": "Coach notes",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_NON_BINDING_LABEL",
+      "copy_text": "Non-binding note",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_PLATFORM_METADATA_LABEL",
+      "copy_text": "Platform metadata",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTES_EMPTY",
+      "copy_text": "No coach notes recorded.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_CREATED",
+      "copy_text": "Coach note saved.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_UPDATED",
+      "copy_text": "Coach note updated.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_DELETED",
+      "copy_text": "Coach note deleted.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_ACCESS_DENIED",
+      "copy_text": "Coach note is not available.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_INVALID_REQUEST",
+      "copy_text": "Coach note request is not available.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_NOT_FOUND",
+      "copy_text": "Coach note not found.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_STORED_SEPARATELY",
+      "copy_text": "This note is stored separately from factual artefacts.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_NOT_ENGINE_INPUT",
+      "copy_text": "This note is not used by the engine.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_NOTE_DOES_NOT_CHANGE_ARTEFACT",
+      "copy_text": "This note does not change the session artefact.",
+      "parameters": []
+    }
+  ]
+}
