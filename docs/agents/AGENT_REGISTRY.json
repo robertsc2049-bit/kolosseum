@@ -1,0 +1,62 @@
+{
+    "schema_version":  "kolosseum.agent_registry.v0.1.0",
+    "scope":  "v0_build_support_only",
+    "active_agents":  [
+                          "Scope Governor Agent",
+                          "Canonical Law Reader Agent",
+                          "Product Slice Planner Agent",
+                          "Engine Phase Agent",
+                          "Phase 1 Declaration Agent",
+                          "Schema Closure Agent",
+                          "Registry Integrity Agent",
+                          "CI Gate Agent",
+                          "Test Vector Agent",
+                          "Runtime Session Agent",
+                          "Coach Surface Agent",
+                          "Non-Binding Notes Agent",
+                          "Copy \u0026 Claims Guard Agent",
+                          "API Contract Agent",
+                          "Database Schema Agent",
+                          "UI Surface Agent",
+                          "Security/Auth Boundary Agent",
+                          "Pricing/Entitlement Boundary Agent",
+                          "Repo Implementation Agent",
+                          "PR Review Agent",
+                          "Release Readiness Agent",
+                          "Commercial Trust Agent",
+                          "Investor/Founder Narrative Agent",
+                          "Documentation Consolidation Agent",
+                          "Slice Orchestrator Agent"
+                      ],
+    "dormant_agents":  [
+                           "Evidence Envelope Agent",
+                           "Truth Projection Agent",
+                           "Export/Audit Pack Agent",
+                           "Organisation Runtime Agent",
+                           "Team Runtime Agent",
+                           "Gym Runtime Agent",
+                           "Analytics Dashboard Agent",
+                           "Replay Proof Packaging Agent"
+                       ],
+    "dangerous_agents":  [
+                             "Optimisation Agent",
+                             "Readiness Agent",
+                             "Safety/Medical Agent",
+                             "Coaching Advice Agent",
+                             "Outcome Prediction Agent",
+                             "Adaptive Progression Agent",
+                             "Heuristic Recovery Agent",
+                             "Auto-Fallback Agent",
+                             "Recommendation Agent",
+                             "UX Sentiment Agent",
+                             "Make It Work Agent"
+                         ],
+    "invariants":  [
+                       "agents_are_not_engine_authority",
+                       "v0_only",
+                       "phase_1_to_6_only",
+                       "no_evidence_export_or_org_runtime",
+                       "no_safety_readiness_optimisation_or_advice_claims",
+                       "no_fallback_or_heuristic_behaviour"
+                   ]
+}
