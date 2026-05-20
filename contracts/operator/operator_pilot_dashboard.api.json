@@ -1,0 +1,91 @@
+{
+  "schema_version": "kolosseum.operator_pilot_dashboard.api.v1",
+  "slice": "S41",
+  "surface_id": "operator_pilot_dashboard",
+  "route": {
+    "method": "GET",
+    "path": "/api/operator/pilots/{pilot_id}/dashboard",
+    "auth": {
+      "required": true,
+      "allowed_roles": [
+        "operator"
+      ],
+      "forbidden_roles": [
+        "coach",
+        "athlete",
+        "entity_admin",
+        "public"
+      ]
+    },
+    "path_params": {
+      "pilot_id": {
+        "type": "string",
+        "required": true,
+        "minLength": 1
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "description": "Factual operator pilot dashboard state.",
+      "body_schema_ref": "contracts/operator/operator_pilot_dashboard.contract.json"
+    },
+    "400": {
+      "description": "Invalid pilot id.",
+      "body": {
+        "error": "invalid_pilot_id"
+      }
+    },
+    "401": {
+      "description": "Unauthenticated.",
+      "body": {
+        "error": "unauthenticated"
+      }
+    },
+    "403": {
+      "description": "Operator access required.",
+      "body": {
+        "error": "operator_access_required"
+      }
+    },
+    "404": {
+      "description": "Pilot not found.",
+      "body": {
+        "error": "pilot_not_found"
+      }
+    }
+  },
+  "source_records": [
+    "pilot",
+    "workspace",
+    "payment_access",
+    "coach_user",
+    "athlete_user",
+    "coach_athlete_link",
+    "scope_lock",
+    "phase1_declaration",
+    "compile_attempt",
+    "first_executable_session"
+  ],
+  "forbidden_state_source_classes": [
+    "FSC001",
+    "FSC002",
+    "FSC003",
+    "FSC004",
+    "FSC005",
+    "FSC006",
+    "FSC007",
+    "FSC008",
+    "FSC009",
+    "FSC010"
+  ],
+  "invariants": [
+    "Dashboard state derives from source records only.",
+    "Unknown source state returns 200 with dashboard_status unknown and blocked_reason source_state_unknown unless transport cannot execute.",
+    "The route must not call the engine.",
+    "The route must not compile.",
+    "The route must not mutate Phase 1 declarations.",
+    "The route must not create executable sessions.",
+    "The route must not expose prohibited surface classes."
+  ]
+}

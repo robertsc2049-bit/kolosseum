@@ -1,0 +1,247 @@
+{
+  "schema_version": "kolosseum.copy.operator_pilot_dashboard.v1",
+  "surface_id": "operator_pilot_dashboard",
+  "slice": "S41",
+  "entries": {
+    "operator_dashboard.title": {
+      "text": "Operator pilot dashboard",
+      "params": []
+    },
+    "operator_dashboard.section.identity": {
+      "text": "Pilot identity",
+      "params": []
+    },
+    "operator_dashboard.section.status": {
+      "text": "Pilot status",
+      "params": []
+    },
+    "operator_dashboard.section.blocked": {
+      "text": "Blocked reason",
+      "params": []
+    },
+    "operator_dashboard.section.next_action": {
+      "text": "Next factual action",
+      "params": []
+    },
+    "operator_dashboard.label.pilot_id": {
+      "text": "Pilot ID",
+      "params": []
+    },
+    "operator_dashboard.label.coach": {
+      "text": "Coach",
+      "params": []
+    },
+    "operator_dashboard.label.athlete": {
+      "text": "Athlete",
+      "params": []
+    },
+    "operator_dashboard.label.workspace_status": {
+      "text": "Workspace status",
+      "params": []
+    },
+    "operator_dashboard.label.payment_access_status": {
+      "text": "Payment/access status",
+      "params": []
+    },
+    "operator_dashboard.label.coach_account_status": {
+      "text": "Coach account status",
+      "params": []
+    },
+    "operator_dashboard.label.athlete_account_status": {
+      "text": "Athlete account status",
+      "params": []
+    },
+    "operator_dashboard.label.coach_athlete_link_status": {
+      "text": "Coach-athlete link status",
+      "params": []
+    },
+    "operator_dashboard.label.scope_status": {
+      "text": "Scope status",
+      "params": []
+    },
+    "operator_dashboard.label.phase1_declaration_status": {
+      "text": "Phase 1 declaration status",
+      "params": []
+    },
+    "operator_dashboard.label.compile_status": {
+      "text": "Compile status",
+      "params": []
+    },
+    "operator_dashboard.label.first_executable_session_status": {
+      "text": "First executable session status",
+      "params": []
+    },
+    "operator_dashboard.status.blocked": {
+      "text": "Blocked",
+      "params": []
+    },
+    "operator_dashboard.status.in_progress": {
+      "text": "In progress",
+      "params": []
+    },
+    "operator_dashboard.status.coach_ready": {
+      "text": "Coach ready",
+      "params": []
+    },
+    "operator_dashboard.status.unknown": {
+      "text": "Unknown",
+      "params": []
+    },
+    "operator_dashboard.value.created": {
+      "text": "Created",
+      "params": []
+    },
+    "operator_dashboard.value.missing": {
+      "text": "Missing",
+      "params": []
+    },
+    "operator_dashboard.value.access_active": {
+      "text": "Access active",
+      "params": []
+    },
+    "operator_dashboard.value.access_missing": {
+      "text": "Access missing",
+      "params": []
+    },
+    "operator_dashboard.value.access_suspended": {
+      "text": "Access suspended",
+      "params": []
+    },
+    "operator_dashboard.value.active": {
+      "text": "Active",
+      "params": []
+    },
+    "operator_dashboard.value.invited": {
+      "text": "Invited",
+      "params": []
+    },
+    "operator_dashboard.value.disabled": {
+      "text": "Disabled",
+      "params": []
+    },
+    "operator_dashboard.value.accepted": {
+      "text": "Accepted",
+      "params": []
+    },
+    "operator_dashboard.value.revoked": {
+      "text": "Revoked",
+      "params": []
+    },
+    "operator_dashboard.value.expired": {
+      "text": "Expired",
+      "params": []
+    },
+    "operator_dashboard.value.rejected": {
+      "text": "Rejected",
+      "params": []
+    },
+    "operator_dashboard.value.locked_v0": {
+      "text": "Locked to v0",
+      "params": []
+    },
+    "operator_dashboard.value.pending": {
+      "text": "Pending",
+      "params": []
+    },
+    "operator_dashboard.value.invalid": {
+      "text": "Invalid",
+      "params": []
+    },
+    "operator_dashboard.value.version_mismatch": {
+      "text": "Version mismatch",
+      "params": []
+    },
+    "operator_dashboard.value.not_started": {
+      "text": "Not started",
+      "params": []
+    },
+    "operator_dashboard.value.passed": {
+      "text": "Passed",
+      "params": []
+    },
+    "operator_dashboard.value.failed": {
+      "text": "Failed",
+      "params": []
+    },
+    "operator_dashboard.value.exists": {
+      "text": "Exists",
+      "params": []
+    },
+    "operator_dashboard.value.not_applicable": {
+      "text": "Not applicable",
+      "params": []
+    },
+    "operator_dashboard.value.unknown": {
+      "text": "Unknown",
+      "params": []
+    },
+    "operator_dashboard.next_action.none": {
+      "text": "No operator action is required.",
+      "params": []
+    },
+    "operator_dashboard.next_action.review_source_state": {
+      "text": "Review source records for this pilot.",
+      "params": []
+    },
+    "operator_dashboard.next_action.confirm_payment_access": {
+      "text": "Confirm pilot access record.",
+      "params": []
+    },
+    "operator_dashboard.next_action.create_workspace": {
+      "text": "Create pilot workspace.",
+      "params": []
+    },
+    "operator_dashboard.next_action.activate_coach_account": {
+      "text": "Activate coach account.",
+      "params": []
+    },
+    "operator_dashboard.next_action.activate_athlete_account": {
+      "text": "Activate athlete account.",
+      "params": []
+    },
+    "operator_dashboard.next_action.obtain_link_acceptance": {
+      "text": "Record accepted coach-athlete link.",
+      "params": []
+    },
+    "operator_dashboard.next_action.lock_v0_scope": {
+      "text": "Record v0 scope lock.",
+      "params": []
+    },
+    "operator_dashboard.next_action.obtain_phase1_acceptance": {
+      "text": "Record accepted Phase 1 declaration.",
+      "params": []
+    },
+    "operator_dashboard.next_action.run_compile": {
+      "text": "Run first compile.",
+      "params": []
+    },
+    "operator_dashboard.next_action.review_compile_failure": {
+      "text": "Review compile failure record.",
+      "params": []
+    },
+    "operator_dashboard.next_action.create_first_executable_session": {
+      "text": "Create first executable session from passed compile.",
+      "params": []
+    }
+  },
+  "blocked_reason_to_next_action": {
+    "none": "operator_dashboard.next_action.none",
+    "payment_missing": "operator_dashboard.next_action.confirm_payment_access",
+    "payment_suspended": "operator_dashboard.next_action.confirm_payment_access",
+    "workspace_missing": "operator_dashboard.next_action.create_workspace",
+    "coach_account_missing": "operator_dashboard.next_action.activate_coach_account",
+    "coach_account_inactive": "operator_dashboard.next_action.activate_coach_account",
+    "athlete_account_missing": "operator_dashboard.next_action.activate_athlete_account",
+    "athlete_account_inactive": "operator_dashboard.next_action.activate_athlete_account",
+    "coach_athlete_link_missing": "operator_dashboard.next_action.obtain_link_acceptance",
+    "coach_athlete_link_not_accepted": "operator_dashboard.next_action.obtain_link_acceptance",
+    "scope_not_locked": "operator_dashboard.next_action.lock_v0_scope",
+    "scope_invalid": "operator_dashboard.next_action.lock_v0_scope",
+    "phase1_declaration_missing": "operator_dashboard.next_action.obtain_phase1_acceptance",
+    "phase1_declaration_not_accepted": "operator_dashboard.next_action.obtain_phase1_acceptance",
+    "compile_not_started": "operator_dashboard.next_action.run_compile",
+    "compile_failed": "operator_dashboard.next_action.review_compile_failure",
+    "first_executable_session_missing": "operator_dashboard.next_action.create_first_executable_session",
+    "source_state_unknown": "operator_dashboard.next_action.review_source_state"
+  }
+}
