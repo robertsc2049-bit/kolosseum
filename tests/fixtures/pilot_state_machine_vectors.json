@@ -1,0 +1,328 @@
+{
+  "schema_version": "kolosseum.pilot_state_machine_vectors.v1",
+  "slice": "S42",
+  "states": [
+    "accepted",
+    "commercial_pending",
+    "platform_pending",
+    "coach_pending",
+    "athlete_pending",
+    "link_pending",
+    "scope_pending",
+    "phase1_pending",
+    "compile_pending",
+    "coach_ready",
+    "active",
+    "paused",
+    "stopped",
+    "cancelled"
+  ],
+  "blocked_reasons": [
+    "payment_missing",
+    "workspace_missing",
+    "coach_missing",
+    "athlete_missing",
+    "link_not_accepted",
+    "scope_not_locked",
+    "phase1_missing",
+    "phase1_refused",
+    "compile_failed"
+  ],
+  "base_preconditions": {
+    "commercialAccepted": true,
+    "paymentAccessActive": true,
+    "workspaceCreated": true,
+    "coachAccountActive": true,
+    "athleteAccountActive": true,
+    "coachAthleteLinkAccepted": true,
+    "scopeLocked": true,
+    "phase1Accepted": true,
+    "phase1Refused": false,
+    "compilePassed": true,
+    "compileFailed": false,
+    "firstExecutableSessionExists": true,
+    "activationSignalReceived": false,
+    "pauseRequested": false,
+    "stopRequested": false,
+    "cancelRequested": false
+  },
+  "blocked_reason_vectors": [
+    {
+      "id": "BR001_payment_missing_when_commercial_not_accepted",
+      "patch": {
+        "commercialAccepted": false
+      },
+      "expected": "payment_missing"
+    },
+    {
+      "id": "BR002_payment_missing_when_access_not_active",
+      "patch": {
+        "paymentAccessActive": false
+      },
+      "expected": "payment_missing"
+    },
+    {
+      "id": "BR003_workspace_missing",
+      "patch": {
+        "workspaceCreated": false
+      },
+      "expected": "workspace_missing"
+    },
+    {
+      "id": "BR004_coach_missing",
+      "patch": {
+        "coachAccountActive": false
+      },
+      "expected": "coach_missing"
+    },
+    {
+      "id": "BR005_athlete_missing",
+      "patch": {
+        "athleteAccountActive": false
+      },
+      "expected": "athlete_missing"
+    },
+    {
+      "id": "BR006_link_not_accepted",
+      "patch": {
+        "coachAthleteLinkAccepted": false
+      },
+      "expected": "link_not_accepted"
+    },
+    {
+      "id": "BR007_scope_not_locked",
+      "patch": {
+        "scopeLocked": false
+      },
+      "expected": "scope_not_locked"
+    },
+    {
+      "id": "BR008_phase1_missing",
+      "patch": {
+        "phase1Accepted": false
+      },
+      "expected": "phase1_missing"
+    },
+    {
+      "id": "BR009_phase1_refused",
+      "patch": {
+        "phase1Accepted": false,
+        "phase1Refused": true
+      },
+      "expected": "phase1_refused"
+    },
+    {
+      "id": "BR010_compile_failed",
+      "patch": {
+        "compilePassed": false,
+        "compileFailed": true
+      },
+      "expected": "compile_failed"
+    }
+  ],
+  "derived_state_vectors": [
+    {
+      "id": "DS001_commercial_pending",
+      "from": "accepted",
+      "patch": {
+        "paymentAccessActive": false
+      },
+      "expected": "commercial_pending"
+    },
+    {
+      "id": "DS002_platform_pending",
+      "from": "commercial_pending",
+      "patch": {
+        "workspaceCreated": false
+      },
+      "expected": "platform_pending"
+    },
+    {
+      "id": "DS003_coach_pending",
+      "from": "platform_pending",
+      "patch": {
+        "coachAccountActive": false
+      },
+      "expected": "coach_pending"
+    },
+    {
+      "id": "DS004_athlete_pending",
+      "from": "coach_pending",
+      "patch": {
+        "athleteAccountActive": false
+      },
+      "expected": "athlete_pending"
+    },
+    {
+      "id": "DS005_link_pending",
+      "from": "athlete_pending",
+      "patch": {
+        "coachAthleteLinkAccepted": false
+      },
+      "expected": "link_pending"
+    },
+    {
+      "id": "DS006_scope_pending",
+      "from": "link_pending",
+      "patch": {
+        "scopeLocked": false
+      },
+      "expected": "scope_pending"
+    },
+    {
+      "id": "DS007_phase1_pending",
+      "from": "scope_pending",
+      "patch": {
+        "phase1Accepted": false
+      },
+      "expected": "phase1_pending"
+    },
+    {
+      "id": "DS008_compile_pending_when_compile_failed",
+      "from": "phase1_pending",
+      "patch": {
+        "compilePassed": false,
+        "compileFailed": true
+      },
+      "expected": "compile_pending"
+    },
+    {
+      "id": "DS009_compile_pending_when_session_missing",
+      "from": "compile_pending",
+      "patch": {
+        "compilePassed": true,
+        "firstExecutableSessionExists": false
+      },
+      "expected": "compile_pending"
+    },
+    {
+      "id": "DS010_coach_ready",
+      "from": "compile_pending",
+      "patch": {},
+      "expected": "coach_ready"
+    },
+    {
+      "id": "DS011_active",
+      "from": "coach_ready",
+      "patch": {
+        "activationSignalReceived": true
+      },
+      "expected": "active"
+    },
+    {
+      "id": "DS012_paused",
+      "from": "active",
+      "patch": {
+        "pauseRequested": true
+      },
+      "expected": "paused"
+    },
+    {
+      "id": "DS013_stopped",
+      "from": "active",
+      "patch": {
+        "stopRequested": true
+      },
+      "expected": "stopped"
+    },
+    {
+      "id": "DS014_cancelled",
+      "from": "accepted",
+      "patch": {
+        "cancelRequested": true
+      },
+      "expected": "cancelled"
+    }
+  ],
+  "legal_transitions": [
+    ["accepted", "commercial_pending"],
+    ["accepted", "platform_pending"],
+    ["accepted", "coach_pending"],
+    ["accepted", "athlete_pending"],
+    ["accepted", "link_pending"],
+    ["accepted", "scope_pending"],
+    ["accepted", "phase1_pending"],
+    ["accepted", "compile_pending"],
+    ["accepted", "coach_ready"],
+    ["accepted", "cancelled"],
+    ["commercial_pending", "platform_pending"],
+    ["commercial_pending", "coach_pending"],
+    ["commercial_pending", "athlete_pending"],
+    ["commercial_pending", "link_pending"],
+    ["commercial_pending", "scope_pending"],
+    ["commercial_pending", "phase1_pending"],
+    ["commercial_pending", "compile_pending"],
+    ["commercial_pending", "coach_ready"],
+    ["commercial_pending", "cancelled"],
+    ["platform_pending", "coach_pending"],
+    ["platform_pending", "athlete_pending"],
+    ["platform_pending", "link_pending"],
+    ["platform_pending", "scope_pending"],
+    ["platform_pending", "phase1_pending"],
+    ["platform_pending", "compile_pending"],
+    ["platform_pending", "coach_ready"],
+    ["platform_pending", "cancelled"],
+    ["coach_pending", "athlete_pending"],
+    ["coach_pending", "link_pending"],
+    ["coach_pending", "scope_pending"],
+    ["coach_pending", "phase1_pending"],
+    ["coach_pending", "compile_pending"],
+    ["coach_pending", "coach_ready"],
+    ["coach_pending", "cancelled"],
+    ["athlete_pending", "link_pending"],
+    ["athlete_pending", "scope_pending"],
+    ["athlete_pending", "phase1_pending"],
+    ["athlete_pending", "compile_pending"],
+    ["athlete_pending", "coach_ready"],
+    ["athlete_pending", "cancelled"],
+    ["link_pending", "scope_pending"],
+    ["link_pending", "phase1_pending"],
+    ["link_pending", "compile_pending"],
+    ["link_pending", "coach_ready"],
+    ["link_pending", "cancelled"],
+    ["scope_pending", "phase1_pending"],
+    ["scope_pending", "compile_pending"],
+    ["scope_pending", "coach_ready"],
+    ["scope_pending", "cancelled"],
+    ["phase1_pending", "compile_pending"],
+    ["phase1_pending", "coach_ready"],
+    ["phase1_pending", "cancelled"],
+    ["compile_pending", "coach_ready"],
+    ["compile_pending", "cancelled"],
+    ["coach_ready", "active"],
+    ["coach_ready", "stopped"],
+    ["coach_ready", "cancelled"],
+    ["active", "paused"],
+    ["active", "stopped"],
+    ["active", "cancelled"],
+    ["paused", "active"],
+    ["paused", "stopped"],
+    ["paused", "cancelled"]
+  ],
+  "illegal_transitions": [
+    ["commercial_pending", "accepted"],
+    ["platform_pending", "accepted"],
+    ["coach_pending", "commercial_pending"],
+    ["athlete_pending", "coach_pending"],
+    ["link_pending", "athlete_pending"],
+    ["scope_pending", "link_pending"],
+    ["phase1_pending", "scope_pending"],
+    ["compile_pending", "phase1_pending"],
+    ["coach_ready", "compile_pending"],
+    ["active", "coach_ready"],
+    ["paused", "coach_ready"],
+    ["stopped", "active"],
+    ["stopped", "coach_ready"],
+    ["cancelled", "active"],
+    ["cancelled", "coach_ready"],
+    ["accepted", "active"],
+    ["commercial_pending", "active"],
+    ["platform_pending", "active"],
+    ["coach_pending", "active"],
+    ["athlete_pending", "active"],
+    ["link_pending", "active"],
+    ["scope_pending", "active"],
+    ["phase1_pending", "active"],
+    ["compile_pending", "active"]
+  ]
+}
