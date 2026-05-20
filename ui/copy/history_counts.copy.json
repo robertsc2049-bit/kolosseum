@@ -1,0 +1,50 @@
+{
+  "schema_version": "kolosseum.copy_surface.history_counts.v0.1",
+  "surface_id": "history_counts_only",
+  "status": "active",
+  "copy": {
+    "history.title": "History",
+    "history.subtitle": "Factual session records.",
+    "history.count.sessions": "Sessions",
+    "history.count.completed_items": "Completed items",
+    "history.count.skipped_items": "Skipped items",
+    "history.count.partial_items": "Partial items",
+    "history.count.extra_work_events": "Extra work events",
+    "history.date.first_session": "First session",
+    "history.date.latest_session": "Latest session",
+    "history.sessions.title": "Sessions",
+    "history.session.status.not_started": "Not started",
+    "history.session.status.in_progress": "In progress",
+    "history.session.status.completed": "Completed",
+    "history.session.status.partially_completed": "Partially completed",
+    "history.session.status.stopped": "Stopped",
+    "history.empty": "No sessions recorded.",
+    "history.error.visibility_denied": "This history is not available.",
+    "history.error.unavailable": "History is unavailable."
+  },
+  "allowed_response_fields": {
+    "counts": [
+      "session_count",
+      "completed_item_count",
+      "skipped_item_count",
+      "partial_item_count",
+      "extra_work_event_count",
+      "first_session_at",
+      "latest_session_at"
+    ],
+    "sessions": [
+      "session_id",
+      "status",
+      "started_at",
+      "completed_at",
+      "created_at"
+    ]
+  },
+  "ui_rules": {
+    "inline_copy_allowed": false,
+    "graphs_allowed": false,
+    "analytics_language_allowed": false,
+    "valenced_labels_allowed": false,
+    "coach_recommendation_prompts_allowed": false
+  }
+}
