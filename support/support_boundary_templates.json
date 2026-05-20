@@ -1,0 +1,248 @@
+{
+  "schema_version": "kolosseum.support_boundary_templates.v1",
+  "slice": "S43",
+  "surface_id": "support_boundary_templates",
+  "closed_world": true,
+  "template_ids": [
+    "SBT001",
+    "SBT002",
+    "SBT003",
+    "SBT004",
+    "SBT005",
+    "SBT006",
+    "SBT007",
+    "SBT008",
+    "SBT009",
+    "SBT010",
+    "SBT011"
+  ],
+  "escalation_outcomes": [
+    "no_escalation",
+    "operator_note_only",
+    "founder_review_log",
+    "technical_support_review",
+    "governance_review_log"
+  ],
+  "templates": [
+    {
+      "template_id": "SBT001",
+      "excluded_ask_token_parts": ["team_", "org_runtime_request"],
+      "title": "Broader group runtime request",
+      "response": "Kolosseum v0 supports individual and coach-managed pilot operation only. This request is outside the current v0 boundary. The operator may continue with available individual or coach-managed pilot actions.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "founder_review_log",
+        "message": "Log the request for founder review without stating that the capability exists in v0."
+      },
+      "forbidden_implications": [
+        "current_support_not_stated",
+        "roadmap_promise",
+        "scope_expansion"
+      ]
+    },
+    {
+      "template_id": "SBT002",
+      "excluded_ask_token_parts": ["ana", "lytics_dashboard_request"],
+      "title": "Aggregate dashboard request",
+      "response": "Kolosseum v0 provides factual pilot operation surfaces only. This request is outside the current v0 boundary. The operator may provide available factual pilot status where permitted.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "founder_review_log",
+        "message": "Log the request without creating implied reporting capability."
+      },
+      "forbidden_implications": [
+        "current_support_not_stated",
+        "summary_claim",
+        "scope_expansion"
+      ]
+    },
+    {
+      "template_id": "SBT003",
+      "excluded_ask_token_parts": ["mess", "aging_request"],
+      "title": "In-app conversation request",
+      "response": "Kolosseum v0 does not provide in-app conversation tools. The operator may continue with available support and pilot status actions only.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "operator_note_only",
+        "message": "Record the request as an operator note only."
+      },
+      "forbidden_implications": [
+        "current_support_not_stated",
+        "hidden_channel",
+        "roadmap_promise"
+      ]
+    },
+    {
+      "template_id": "SBT004",
+      "excluded_ask_token_parts": ["read", "iness_request"],
+      "title": "Prepared-state request",
+      "response": "Kolosseum v0 does not state whether a person is prepared for an event or session. The operator may provide factual pilot status only.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "no_escalation",
+        "message": "Do not escalate unless the user reports a platform fault."
+      },
+      "forbidden_implications": [
+        "prepared_state",
+        "advisory_judgement",
+        "outcome_claim"
+      ]
+    },
+    {
+      "template_id": "SBT005",
+      "excluded_ask_token_parts": ["progress", "ion_request"],
+      "title": "Training change direction request",
+      "response": "Kolosseum v0 support does not direct training changes. The operator may provide factual pilot state and available execution records only.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "no_escalation",
+        "message": "Do not escalate unless the request identifies a platform fault."
+      },
+      "forbidden_implications": [
+        "training_direction",
+        "advisory_judgement",
+        "outcome_claim"
+      ]
+    },
+    {
+      "template_id": "SBT006",
+      "excluded_ask_token_parts": ["coach_over", "ride_request"],
+      "title": "Coach authority replacement request",
+      "response": "Kolosseum v0 keeps coach authority observational for engine purposes. A coach may comment, but the operator must not replace engine decisions through support.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "technical_support_review",
+        "message": "Escalate only if the user reports a platform defect. Escalation does not permit replacement of engine decisions."
+      },
+      "forbidden_implications": [
+        "engine_replacement",
+        "hidden_authority",
+        "scope_expansion"
+      ]
+    },
+    {
+      "template_id": "SBT007",
+      "excluded_ask_token_parts": ["phase1_", "edit_request"],
+      "title": "Accepted declaration change request",
+      "response": "Accepted Phase 1 declarations are immutable. Support cannot edit an accepted declaration. Where the app permits a new declaration, it must be captured as a new record.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "technical_support_review",
+        "message": "Escalate only for suspected platform record defects. Escalation must not edit accepted declaration content."
+      },
+      "forbidden_implications": [
+        "record_mutation",
+        "silent_correction",
+        "engine_input_change"
+      ]
+    },
+    {
+      "template_id": "SBT008",
+      "excluded_ask_token_parts": ["evi", "dence_export_request"],
+      "title": "Proof package request",
+      "response": "Kolosseum v0 does not provide downloadable proof packages through this support surface. The operator may provide available factual pilot status only.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "founder_review_log",
+        "message": "Log the request without stating that proof package delivery is part of v0."
+      },
+      "forbidden_implications": [
+        "current_support_not_stated",
+        "sealed_package",
+        "roadmap_promise"
+      ]
+    },
+    {
+      "template_id": "SBT009",
+      "excluded_ask_token_parts": ["medi", "cal_safe", "ty_request"],
+      "title": "Health-boundary request",
+      "response": "This request is outside Kolosseum v0 support scope. For urgent personal concerns, use appropriate professional or emergency channels. The operator may provide factual platform status only.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "no_escalation",
+        "message": "Do not escalate as a product capability request. Escalate only under ordinary platform abuse or incident procedure if applicable."
+      },
+      "forbidden_implications": [
+        "clinical_guidance",
+        "risk_judgement",
+        "outcome_claim"
+      ]
+    },
+    {
+      "template_id": "SBT010",
+      "excluded_ask_token_parts": ["opti", "misation_recom", "mendation_request"],
+      "title": "Comparative guidance request",
+      "response": "Kolosseum v0 support does not provide comparative guidance or training direction. The operator may provide factual pilot state and available execution records only.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "no_escalation",
+        "message": "Do not escalate unless the request identifies a platform fault."
+      },
+      "forbidden_implications": [
+        "comparative_guidance",
+        "training_direction",
+        "outcome_claim"
+      ]
+    },
+    {
+      "template_id": "SBT011",
+      "excluded_ask_token_parts": ["registry_", "change_request"],
+      "title": "Registry change request",
+      "response": "Runtime support cannot change registries. Registry changes require authorised repository governance outside this operator action.",
+      "allowed_operator_actions": [
+        "select_template",
+        "send_response",
+        "record_operator_note"
+      ],
+      "escalation": {
+        "outcome": "governance_review_log",
+        "message": "Log for governance review only. Escalation must not mutate runtime registry state."
+      },
+      "forbidden_implications": [
+        "runtime_mutation",
+        "operator_registry_edit",
+        "scope_expansion"
+      ]
+    }
+  ]
+}
