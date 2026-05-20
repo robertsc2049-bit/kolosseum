@@ -1,0 +1,60 @@
+{
+  "schema_version": "kolosseum.support_boundary_picker.contract.v1",
+  "slice": "S43",
+  "surface_id": "support_boundary_picker",
+  "closed_world": true,
+  "template_source": "support/support_boundary_templates.json",
+  "operator_picker": {
+    "allowed_inputs": [
+      "template_id",
+      "excluded_ask_key"
+    ],
+    "allowed_display_fields": [
+      "template_id",
+      "title",
+      "response",
+      "allowed_operator_actions",
+      "escalation"
+    ],
+    "forbidden_display_fields": [
+      "internal_notes",
+      "unreviewed_copy",
+      "free_text_rewrite"
+    ],
+    "allowed_actions": [
+      "select_template",
+      "copy_response",
+      "send_response",
+      "record_operator_note",
+      "log_escalation_outcome"
+    ],
+    "forbidden_actions": [
+      "edit_template_body",
+      "create_template_category",
+      "create_hidden_channel",
+      "change_engine_output",
+      "change_phase1_record",
+      "change_registry",
+      "change_compile_artifact",
+      "change_session_artifact"
+    ]
+  },
+  "escalation": {
+    "allowed_outcomes": [
+      "no_escalation",
+      "operator_note_only",
+      "founder_review_log",
+      "technical_support_review",
+      "governance_review_log"
+    ],
+    "rule": "Escalation is a routing outcome only and must not create implied current capability."
+  },
+  "invariants": [
+    "Each excluded ask maps to exactly one template.",
+    "Templates are factual and boundary-safe.",
+    "Templates do not promise future delivery.",
+    "Templates do not imply current v0 support for excluded requests.",
+    "Escalation does not create capability.",
+    "Pilot or support state does not alter engine output."
+  ]
+}
