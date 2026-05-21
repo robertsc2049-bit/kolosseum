@@ -1,0 +1,58 @@
+{
+  "schema_version": "kolosseum.public_sales_claim_registry_guard_fixtures.v1",
+  "slice": "S44",
+  "allowed_coach_16_claims": [
+    "£59.99 per month",
+    "Manage up to 16 athletes",
+    "Access to coach-managed pilot operation",
+    "View athlete execution artefacts",
+    "Assign programs within system limits",
+    "Write non-binding coach notes",
+    "Coaches may comment, never decide",
+    "Payment controls access only and does not change engine output",
+    "Factual pilot status only",
+    "Factual execution records only"
+  ],
+  "bad_claim_token_sets": [
+    {
+      "id": "BAD001_unknown_claim",
+      "parts": ["PUBLIC_CLAIM: Coaches ", "dec", "ide training changes"],
+      "expected_code": "PSCRG_UNKNOWN_PUBLIC_CLAIM"
+    },
+    {
+      "id": "BAD002_stronger_claim",
+      "parts": ["PUBLIC_CLAIM: Coaches help athletes im", "prove outcomes"],
+      "expected_code": "PSCRG_UNKNOWN_PUBLIC_CLAIM"
+    },
+    {
+      "id": "BAD003_public_proof_package_claim",
+      "parts": ["PUBLIC_CLAIM: Evi", "dence export is part of v0"],
+      "expected_code": "PSCRG_UNKNOWN_PUBLIC_CLAIM"
+    },
+    {
+      "id": "BAD004_forbidden_fsc_text",
+      "parts": ["This public page says Kolosseum can opti", "mise training choices."],
+      "expected_code": "PSCRG_FORBIDDEN_SEMANTIC"
+    },
+    {
+      "id": "BAD005_forbidden_prepared_state_text",
+      "parts": ["This public page states read", "iness for a session."],
+      "expected_code": "PSCRG_FORBIDDEN_SEMANTIC"
+    },
+    {
+      "id": "BAD006_forbidden_risk_text",
+      "parts": ["This public page claims risk reduc", "tion."],
+      "expected_code": "PSCRG_FORBIDDEN_SEMANTIC"
+    },
+    {
+      "id": "BAD007_forbidden_coach_context",
+      "parts": ["This public page says a coach can ", "decide engine outcomes."],
+      "expected_code": "PSCRG_FORBIDDEN_SEMANTIC"
+    },
+    {
+      "id": "BAD008_forbidden_payment_context",
+      "parts": ["This public page says payment changes ", "engine output."],
+      "expected_code": "PSCRG_FORBIDDEN_SEMANTIC"
+    }
+  ]
+}

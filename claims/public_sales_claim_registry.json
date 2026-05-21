@@ -1,0 +1,292 @@
+{
+  "schema_version": "kolosseum.public_sales_claim_registry.v1",
+  "registry_id": "public_sales_claim_registry",
+  "slice": "S44",
+  "closed_world": true,
+  "claim_marker": "PUBLIC_CLAIM:",
+  "allowed_claim_types": [
+    "price_fact",
+    "seat_cap_fact",
+    "access_fact",
+    "visibility_fact",
+    "authority_limit",
+    "proof_scoped_value",
+    "factual_runtime_surface"
+  ],
+  "proofs": [
+    {
+      "proof_id": "proof_pricing_row_coach_16",
+      "source": "coach_16_pricing_boundary",
+      "anchor": "price_and_seat_cap"
+    },
+    {
+      "proof_id": "proof_v0_coach_authority_limit",
+      "source": "v0_scope_manifest",
+      "anchor": "coach_authority_observational_only"
+    },
+    {
+      "proof_id": "proof_v0_access_visibility_scope",
+      "source": "v0_scope_manifest",
+      "anchor": "platform_access_and_visibility"
+    },
+    {
+      "proof_id": "proof_v0_payment_engine_separation",
+      "source": "v0_engine_boundary",
+      "anchor": "payment_does_not_change_engine_output"
+    },
+    {
+      "proof_id": "proof_v0_factual_runtime_surface",
+      "source": "v0_scope_manifest",
+      "anchor": "factual_operator_surfaces_only"
+    }
+  ],
+  "allowed_claims": [
+    {
+      "claim_id": "PSC_ALLOWED_001",
+      "claim_type": "price_fact",
+      "phrase": "£59.99 per month",
+      "proof_ids": [
+        "proof_pricing_row_coach_16"
+      ]
+    },
+    {
+      "claim_id": "PSC_ALLOWED_002",
+      "claim_type": "seat_cap_fact",
+      "phrase": "Manage up to 16 athletes",
+      "proof_ids": [
+        "proof_pricing_row_coach_16"
+      ]
+    },
+    {
+      "claim_id": "PSC_ALLOWED_003",
+      "claim_type": "access_fact",
+      "phrase": "Access to coach-managed pilot operation",
+      "proof_ids": [
+        "proof_v0_access_visibility_scope"
+      ]
+    },
+    {
+      "claim_id": "PSC_ALLOWED_004",
+      "claim_type": "visibility_fact",
+      "phrase": "View athlete execution artefacts",
+      "proof_ids": [
+        "proof_v0_access_visibility_scope"
+      ]
+    },
+    {
+      "claim_id": "PSC_ALLOWED_005",
+      "claim_type": "authority_limit",
+      "phrase": "Assign programs within system limits",
+      "proof_ids": [
+        "proof_v0_coach_authority_limit"
+      ]
+    },
+    {
+      "claim_id": "PSC_ALLOWED_006",
+      "claim_type": "authority_limit",
+      "phrase": "Write non-binding coach notes",
+      "proof_ids": [
+        "proof_v0_coach_authority_limit"
+      ]
+    },
+    {
+      "claim_id": "PSC_ALLOWED_007",
+      "claim_type": "authority_limit",
+      "phrase": "Coaches may comment, never decide",
+      "proof_ids": [
+        "proof_v0_coach_authority_limit"
+      ]
+    },
+    {
+      "claim_id": "PSC_ALLOWED_008",
+      "claim_type": "proof_scoped_value",
+      "phrase": "Payment controls access only and does not change engine output",
+      "proof_ids": [
+        "proof_v0_payment_engine_separation"
+      ]
+    },
+    {
+      "claim_id": "PSC_ALLOWED_009",
+      "claim_type": "factual_runtime_surface",
+      "phrase": "Factual pilot status only",
+      "proof_ids": [
+        "proof_v0_factual_runtime_surface"
+      ]
+    },
+    {
+      "claim_id": "PSC_ALLOWED_010",
+      "claim_type": "factual_runtime_surface",
+      "phrase": "Factual execution records only",
+      "proof_ids": [
+        "proof_v0_factual_runtime_surface"
+      ]
+    }
+  ],
+  "forbidden_semantics": {
+    "substring_rules": [
+      {
+        "rule_id": "FSC001",
+        "label": "forbidden_semantic_class_001",
+        "patterns": [
+          ["im", "prove"],
+          ["im", "proves"],
+          ["im", "proved"],
+          ["boo", "st"],
+          ["better out", "comes"]
+        ]
+      },
+      {
+        "rule_id": "FSC002",
+        "label": "forbidden_semantic_class_002",
+        "patterns": [
+          ["opti", "mise"],
+          ["opti", "mises"],
+          ["opti", "mised"],
+          ["opti", "misation"],
+          ["opti", "mize"],
+          ["opti", "mization"]
+        ]
+      },
+      {
+        "rule_id": "FSC003",
+        "label": "forbidden_semantic_class_003",
+        "patterns": [
+          ["risk reduc", "tion"],
+          ["reduces risk"],
+          ["safe", "r training"],
+          ["safe", "ty"]
+        ]
+      },
+      {
+        "rule_id": "FSC004",
+        "label": "forbidden_semantic_class_004",
+        "patterns": [
+          ["medi", "cal"],
+          ["re", "hab"],
+          ["clinical"]
+        ]
+      },
+      {
+        "rule_id": "FSC005",
+        "label": "forbidden_semantic_class_005",
+        "patterns": [
+          ["read", "iness"],
+          ["ready for training"],
+          ["suit", "ability"],
+          ["suit", "able for"]
+        ]
+      },
+      {
+        "rule_id": "FSC006",
+        "label": "forbidden_semantic_class_006",
+        "patterns": [
+          ["compli", "ance"],
+          ["correc", "tion"],
+          ["correc", "ts"],
+          ["recom", "mend"],
+          ["recom", "mendation"]
+        ]
+      },
+      {
+        "rule_id": "FSC007",
+        "label": "forbidden_semantic_class_007",
+        "patterns": [
+          ["coach decides"],
+          ["coach can decide"],
+          ["coach may decide"],
+          ["coach controls engine"],
+          ["coach changes engine"]
+        ]
+      },
+      {
+        "rule_id": "FSC008",
+        "label": "forbidden_semantic_class_008",
+        "patterns": [
+          ["org runtime"],
+          ["team runtime"],
+          ["gym runtime"],
+          ["unit runtime"],
+          ["organisation runtime"],
+          ["organization runtime"]
+        ]
+      },
+      {
+        "rule_id": "FSC009",
+        "label": "forbidden_semantic_class_009",
+        "patterns": [
+          ["evi", "dence export"],
+          ["proof export"],
+          ["downloadable proof pack"],
+          ["sealed export"]
+        ]
+      },
+      {
+        "rule_id": "FSC010",
+        "label": "forbidden_semantic_class_010",
+        "patterns": [
+          ["payment changes engine"],
+          ["payment alters engine"],
+          ["payment changes program validity"],
+          ["paid users get different engine output"]
+        ]
+      },
+      {
+        "rule_id": "FSC011",
+        "label": "forbidden_semantic_class_011",
+        "patterns": [
+          ["coach over", "ride"],
+          ["coach can over", "ride"],
+          ["coach may over", "ride"],
+          ["over", "ride engine"]
+        ]
+      }
+    ],
+    "context_rules": [
+      {
+        "rule_id": "CTX001",
+        "label": "payment_near_engine_change",
+        "window": 90,
+        "left_patterns": [
+          ["payment"],
+          ["paid"]
+        ],
+        "right_patterns": [
+          ["changes engine"],
+          ["alters engine"],
+          ["changes output"],
+          ["changes validity"]
+        ]
+      },
+      {
+        "rule_id": "CTX002",
+        "label": "coach_near_decision_authority",
+        "window": 90,
+        "left_patterns": [
+          ["coach"],
+          ["coaches"]
+        ],
+        "right_patterns": [
+          ["can decide"],
+          ["may decide"],
+          ["controls engine"],
+          ["over", "ride"]
+        ]
+      }
+    ]
+  },
+  "report_format": {
+    "ok": "boolean",
+    "registry_id": "string",
+    "scanned_files": "number",
+    "failures": [
+      {
+        "code": "string",
+        "path": "string",
+        "line": "number",
+        "rule_id": "string|null",
+        "claim": "string|null",
+        "excerpt": "string"
+      }
+    ]
+  }
+}
