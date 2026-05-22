@@ -1,0 +1,36 @@
+{
+  "schema_version": "kolosseum.pilot_signoff_record_negative_tests.v1",
+  "valid_fixture_name": "valid_coach_ready_record_passes",
+  "negative_tests": [
+    {
+      "name": "missing_required_item_fails",
+      "mutation": "set_required_readiness_item_failed",
+      "expect_pass": false,
+      "expected_failure_token": "PILOT_SIGNOFF_REQUIRED_ITEM_FAILED"
+    },
+    {
+      "name": "failed_negative_boundary_item_fails",
+      "mutation": "set_negative_boundary_failed",
+      "expect_pass": false,
+      "expected_failure_token": "PILOT_SIGNOFF_NEGATIVE_BOUNDARY_FAILED"
+    },
+    {
+      "name": "missing_source_artefact_fails",
+      "mutation": "remove_source_artefacts",
+      "expect_pass": false,
+      "expected_failure_token": "PILOT_SIGNOFF_SOURCE_ARTEFACT_MISSING"
+    },
+    {
+      "name": "unknown_status_fails",
+      "mutation": "set_unknown_status",
+      "expect_pass": false,
+      "expected_failure_token": "PILOT_SIGNOFF_UNKNOWN_STATUS"
+    },
+    {
+      "name": "record_hash_changes_when_content_changes",
+      "mutation": "change_signoff_content_without_updating_hash",
+      "expect_pass": false,
+      "expected_failure_token": "PILOT_SIGNOFF_RECORD_HASH_MISMATCH"
+    }
+  ]
+}
