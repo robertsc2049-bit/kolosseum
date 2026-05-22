@@ -1,0 +1,304 @@
+{
+  "checklist_id": "coach_ready_pilot_acceptance_checklist",
+  "slice_id": "S45",
+  "title": "Coach-Ready Pilot Acceptance Checklist",
+  "version": "1.0.0",
+  "status": "authoritative",
+  "scope": "kolosseum_v0_deterministic_execution_alpha",
+  "rewrite_policy": "rewrite_only",
+  "pass_rule": {
+    "mode": "fail_closed",
+    "required_readiness_items": "all_must_pass",
+    "negative_boundary_items": "all_must_pass",
+    "source_artefacts": "each_required_item_must_have_at_least_one",
+    "manual_override_allowed": false,
+    "partial_pass_allowed": false,
+    "warnings_allowed_to_pass": false
+  },
+  "v0_boundary": {
+    "actors": ["individual_user", "coach"],
+    "execution_scopes": ["individual", "coach_managed"],
+    "activities": ["powerlifting", "rugby_union", "general_strength"],
+    "engine_phases": ["phase_1", "phase_2", "phase_3", "phase_4", "phase_5", "phase_6"],
+    "coach_authority": "observational_only",
+    "payment_effect": "access_only"
+  },
+  "required_readiness_items": [
+    {
+      "id": "CRP-001",
+      "name": "payment/access confirmed",
+      "required": true,
+      "source_artefacts": ["commercial_access_record", "pilot_operator_state"],
+      "pass_condition": "paid pilot access state is confirmed before operation",
+      "fail_condition": "payment is missing, ambiguous, disputed, or treated as engine authority"
+    },
+    {
+      "id": "CRP-002",
+      "name": "workspace exists",
+      "required": true,
+      "source_artefacts": ["workspace_record", "pilot_operator_state"],
+      "pass_condition": "workspace is provisioned and addressable",
+      "fail_condition": "workspace is missing or inferred"
+    },
+    {
+      "id": "CRP-003",
+      "name": "coach account active",
+      "required": true,
+      "source_artefacts": ["coach_account_record", "pilot_operator_state"],
+      "pass_condition": "coach account is active",
+      "fail_condition": "coach account is invited-only, inactive, missing, or inferred"
+    },
+    {
+      "id": "CRP-004",
+      "name": "athlete account active",
+      "required": true,
+      "source_artefacts": ["athlete_account_record", "pilot_operator_state"],
+      "pass_condition": "athlete account is active",
+      "fail_condition": "athlete account is invited-only, inactive, missing, or inferred"
+    },
+    {
+      "id": "CRP-005",
+      "name": "coach-athlete link accepted",
+      "required": true,
+      "source_artefacts": ["coach_athlete_link_record", "coach_athlete_link_api_contract"],
+      "pass_condition": "link status is accepted and not revoked, rejected, expired, or inferred",
+      "fail_condition": "link is missing, pending, revoked, rejected, expired, or inferred"
+    },
+    {
+      "id": "CRP-006",
+      "name": "scope locked",
+      "required": true,
+      "source_artefacts": ["v0_scope_lock", "pilot_scope_record"],
+      "pass_condition": "pilot scope is locked to supported actor, execution scope, activity, and phase boundary",
+      "fail_condition": "scope is missing, broad, org/team/gym-based, or undefined"
+    },
+    {
+      "id": "CRP-007",
+      "name": "Phase 1 accepted",
+      "required": true,
+      "source_artefacts": ["phase1_acceptance_record", "phase1_acceptance_tests"],
+      "pass_condition": "current accepted immutable version-pinned Phase 1 declaration exists",
+      "fail_condition": "Phase 1 declaration is missing, unaccepted, superseded, mutable, mismatched, or inferred"
+    },
+    {
+      "id": "CRP-008",
+      "name": "first compile admitted",
+      "required": true,
+      "source_artefacts": ["first_compile_gate", "compile_admission_tests"],
+      "pass_condition": "compile admission passes only after accepted Phase 1 and valid scope/link preconditions",
+      "fail_condition": "compile is admitted without required preconditions"
+    },
+    {
+      "id": "CRP-009",
+      "name": "first executable session exists",
+      "required": true,
+      "source_artefacts": ["first_executable_session_record", "session_execution_contract"],
+      "pass_condition": "first executable session exists and is tied to lawful compile output",
+      "fail_condition": "session is missing, unbound, generated outside v0, or proof-layer dependent"
+    },
+    {
+      "id": "CRP-010",
+      "name": "session can be executed factually",
+      "required": true,
+      "source_artefacts": ["phase6_runtime_tests", "session_runtime_contract"],
+      "pass_condition": "start, work event, and terminal/factual state path are available",
+      "fail_condition": "execution requires coaching judgement, readiness, safety, optimisation, or messaging"
+    },
+    {
+      "id": "CRP-011",
+      "name": "split/return works if included",
+      "required": true,
+      "source_artefacts": ["split_return_runtime_tests", "runtime_trace_return_gate_contract"],
+      "pass_condition": "included split/return behaviour is factual and deterministic, or excluded and not claimed",
+      "fail_condition": "split/return is claimed without tested path"
+    },
+    {
+      "id": "CRP-012",
+      "name": "partial completion works if included",
+      "required": true,
+      "source_artefacts": ["partial_completion_runtime_tests", "partial_completion_truth_model"],
+      "pass_condition": "included partial completion records factual amount without altering planned truth, or excluded and not claimed",
+      "fail_condition": "partial completion changes engine legality or future decisions"
+    },
+    {
+      "id": "CRP-013",
+      "name": "coach can view factual artefact",
+      "required": true,
+      "source_artefacts": ["coach_artefact_viewer_contract", "linked_athlete_permission_check"],
+      "pass_condition": "coach can view factual execution artefact for linked athlete",
+      "fail_condition": "coach sees unlinked athlete, aggregate org data, evidence, export, or advisory data"
+    },
+    {
+      "id": "CRP-014",
+      "name": "coach can write non-binding note",
+      "required": true,
+      "source_artefacts": ["coach_notes_contract", "non_binding_note_boundary_tests"],
+      "pass_condition": "coach note is stored or displayed as non-binding comment only",
+      "fail_condition": "note changes engine truth, legality, substitution, progression, or runtime state"
+    },
+    {
+      "id": "CRP-015",
+      "name": "history counts show factual data only",
+      "required": true,
+      "source_artefacts": ["history_counts_contract", "counts_only_history_tests"],
+      "pass_condition": "history shows counts or factual summaries only",
+      "fail_condition": "history includes scoring, ranking, analytics, readiness, safety, or optimisation"
+    },
+    {
+      "id": "CRP-016",
+      "name": "support boundaries exist",
+      "required": true,
+      "source_artefacts": ["support_boundary_templates", "support_boundary_picker_contract"],
+      "pass_condition": "support copy refuses out-of-scope asks safely and factually",
+      "fail_condition": "support implies future delivery, hidden capability, or unsupported operation"
+    },
+    {
+      "id": "CRP-017",
+      "name": "sales/public claims are guarded",
+      "required": true,
+      "source_artefacts": ["public_sales_claim_registry_guard", "claim_proof_registry"],
+      "pass_condition": "public claims are exact-match, proof-linked, and fail closed",
+      "fail_condition": "claims mention outcome, safety, readiness, optimisation, evidence, org runtime, or coach override"
+    },
+    {
+      "id": "CRP-018",
+      "name": "no illegal v0 surface exposed",
+      "required": true,
+      "source_artefacts": ["v0_boundary_claim_consistency_guard", "negative_boundary_checklist"],
+      "pass_condition": "every excluded surface has a negative check and no exposed route/copy/surface contradicts v0",
+      "fail_condition": "any forbidden surface is reachable, claimed, or treated as current v0"
+    }
+  ],
+  "negative_boundary_checklist": [
+    {
+      "id": "CRP-N-001",
+      "excluded_surface": "Phase 7",
+      "negative_check": "No Phase 7 route, UI, acceptance requirement, pilot claim, or operator step is required for Coach Ready."
+    },
+    {
+      "id": "CRP-N-002",
+      "excluded_surface": "Phase 8",
+      "negative_check": "No Phase 8 route, UI, acceptance requirement, pilot claim, or operator step is required for Coach Ready."
+    },
+    {
+      "id": "CRP-N-003",
+      "excluded_surface": "evidence envelope",
+      "negative_check": "No evidence envelope is required, generated, exported, or claimed as part of v0 Coach Ready."
+    },
+    {
+      "id": "CRP-N-004",
+      "excluded_surface": "export proof",
+      "negative_check": "No proof export, audit export, or downloadable proof artefact is required or claimed."
+    },
+    {
+      "id": "CRP-N-005",
+      "excluded_surface": "organisation runtime",
+      "negative_check": "No organisation-managed execution surface is exposed as current v0."
+    },
+    {
+      "id": "CRP-N-006",
+      "excluded_surface": "team runtime",
+      "negative_check": "No team-managed execution surface is exposed as current v0."
+    },
+    {
+      "id": "CRP-N-007",
+      "excluded_surface": "gym runtime",
+      "negative_check": "No gym/facility runtime surface is exposed as current v0."
+    },
+    {
+      "id": "CRP-N-008",
+      "excluded_surface": "analytics/dashboard claims",
+      "negative_check": "No analytics, ranking, trend dashboard, or outcome dashboard is claimed as current v0 capability."
+    },
+    {
+      "id": "CRP-N-009",
+      "excluded_surface": "messaging",
+      "negative_check": "No coach-athlete messaging surface is required or claimed."
+    },
+    {
+      "id": "CRP-N-010",
+      "excluded_surface": "readiness",
+      "negative_check": "No readiness score, readiness state, return-to-play judgement, or competition-ready claim is present."
+    },
+    {
+      "id": "CRP-N-011",
+      "excluded_surface": "safety/medical",
+      "negative_check": "No medical, injury-prevention, safer-training, rehabilitation, or risk-reduction claim is present."
+    },
+    {
+      "id": "CRP-N-012",
+      "excluded_surface": "optimisation",
+      "negative_check": "No optimisation, performance improvement, auto-progression, or best-plan claim is present."
+    },
+    {
+      "id": "CRP-N-013",
+      "excluded_surface": "coach override",
+      "negative_check": "Coach cannot override engine decisions, legality, Phase 1 declarations, substitutions, progression, registries, or runtime truth."
+    }
+  ],
+  "operator_signoff_flow": [
+    {
+      "step_id": "SIGN-001",
+      "name": "prepare_pilot_record",
+      "required_fields": [
+        "pilot_id",
+        "workspace_id",
+        "coach_user_id",
+        "athlete_user_id",
+        "coach_athlete_link_id",
+        "accepted_phase1_declaration_id",
+        "first_compile_id",
+        "first_session_id",
+        "checklist_version",
+        "signoff_operator_id",
+        "signoff_timestamp_utc"
+      ]
+    },
+    {
+      "step_id": "SIGN-002",
+      "name": "verify_required_readiness_items",
+      "allowed_item_statuses": ["passed", "failed"],
+      "not_applicable_allowed": false
+    },
+    {
+      "step_id": "SIGN-003",
+      "name": "verify_negative_boundary_items",
+      "allowed_item_statuses": ["passed", "failed"],
+      "not_applicable_allowed": false
+    },
+    {
+      "step_id": "SIGN-004",
+      "name": "confirm_source_artefacts",
+      "rule": "every required readiness item must have at least one source artefact"
+    },
+    {
+      "step_id": "SIGN-005",
+      "name": "final_decision",
+      "allowed_final_statuses": ["coach_ready", "blocked"],
+      "coach_ready_requires": [
+        "all_required_readiness_items_passed",
+        "all_negative_boundary_items_passed",
+        "source_artefact_coverage_complete",
+        "no_forbidden_surface_exposed",
+        "v0_boundary_preserved"
+      ]
+    }
+  ],
+  "forbidden_acceptance_claims": [
+    "Phase 7",
+    "Phase 8",
+    "evidence envelope",
+    "export proof",
+    "org/team/gym runtime",
+    "analytics/dashboard claims",
+    "messaging",
+    "readiness",
+    "safety/medical",
+    "optimisation",
+    "coach override"
+  ],
+  "final_status_meaning": {
+    "coach_ready": "Paid coach pilot can be operated inside v0 boundaries only.",
+    "blocked": "One or more readiness or negative boundary checks failed."
+  }
+}
