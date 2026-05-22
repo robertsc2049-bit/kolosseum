@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.pilot_signoff_record.schema.v1",
+  "title": "Kolosseum Pilot Sign-Off Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "signoff_id",
+    "pilot_id",
+    "checklist_id",
+    "checklist_version",
+    "final_status",
+    "readiness_item_results",
+    "negative_boundary_results",
+    "source_artefact_refs",
+    "blocked_reasons",
+    "signed_by_operator_id",
+    "signed_at_utc",
+    "record_hash"
+  ],
+  "properties": {
+    "signoff_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^signoff_[a-z0-9_\\-]+$"
+    },
+    "pilot_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^pilot_[a-z0-9_\\-]+$"
+    },
+    "checklist_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^checklist_[a-z0-9_\\-]+$"
+    },
+    "checklist_version": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "final_status": {
+      "type": "string",
+      "enum": ["coach_ready", "blocked"]
+    },
+    "readiness_item_results": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["item_id", "required", "passed", "source_artefact_ref_ids"],
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9_\\-]+$"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "source_artefact_ref_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^artefact_[a-z0-9_\\-]+$"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "negative_boundary_results": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["boundary_id", "passed", "source_artefact_ref_ids"],
+        "properties": {
+          "boundary_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9_\\-]+$"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "source_artefact_ref_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^artefact_[a-z0-9_\\-]+$"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "source_artefact_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["artefact_ref_id", "artefact_type", "artefact_uri", "content_hash"],
+        "properties": {
+          "artefact_ref_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^artefact_[a-z0-9_\\-]+$"
+          },
+          "artefact_type": {
+            "type": "string",
+            "enum": [
+              "payment_confirmation",
+              "workspace_record",
+              "coach_account_record",
+              "athlete_account_record",
+              "coach_athlete_link_record",
+              "scope_lock_record",
+              "phase1_acceptance_record",
+              "compile_result_record",
+              "coach_surface_check_record",
+              "boundary_check_record",
+              "operator_note_record"
+            ]
+          },
+          "artefact_uri": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "blocked_reasons": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[a-z0-9_\\-]+$"
+      },
+      "uniqueItems": true
+    },
+    "signed_by_operator_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^operator_[a-z0-9_\\-]+$"
+    },
+    "signed_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "record_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "final_status": {
+            "const": "coach_ready"
+          }
+        },
+        "required": ["final_status"]
+      },
+      "then": {
+        "properties": {
+          "blocked_reasons": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "final_status": {
+            "const": "blocked"
+          }
+        },
+        "required": ["final_status"]
+      },
+      "then": {
+        "properties": {
+          "blocked_reasons": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}
