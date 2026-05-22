@@ -1,0 +1,225 @@
+{
+  "registry_id": "pilot_blocked_reason_registry",
+  "registry_version": "1.0.0",
+  "scope": "kolosseum.v0.paid_coach_pilot",
+  "closed_world": true,
+  "status_model": {
+    "allowed_final_statuses": ["coach_ready", "blocked"],
+    "blocked_requires_non_empty_reasons": true,
+    "coach_ready_requires_empty_reasons": true,
+    "unknown_blocked_reason_fails": true
+  },
+  "blocked_reasons": [
+    {
+      "blocked_reason_id": "payment_missing",
+      "category": "commercial",
+      "operator_meaning": "Required pilot payment confirmation is absent.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "workspace_missing",
+      "category": "platform",
+      "operator_meaning": "Required pilot workspace record is absent.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "coach_account_inactive",
+      "category": "platform",
+      "operator_meaning": "Coach account is absent or not active for the pilot.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "athlete_account_inactive",
+      "category": "platform",
+      "operator_meaning": "Athlete account is absent or not active for the pilot.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "coach_athlete_link_not_accepted",
+      "category": "relationship",
+      "operator_meaning": "Explicit coach-athlete link has not been accepted.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "scope_not_locked",
+      "category": "scope",
+      "operator_meaning": "Pilot v0 scope lock is absent.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "phase1_not_accepted",
+      "category": "declaration",
+      "operator_meaning": "Accepted Phase 1 declaration is absent.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "compile_not_admitted",
+      "category": "compile",
+      "operator_meaning": "Compile admission did not pass.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "first_session_missing",
+      "category": "session",
+      "operator_meaning": "First executable session record is absent.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "factual_execution_not_proven",
+      "category": "execution",
+      "operator_meaning": "Factual execution path was not demonstrated for the pilot.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "split_return_not_proven_if_claimed",
+      "category": "execution",
+      "operator_meaning": "Split-return path was claimed but not demonstrated.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "partial_completion_not_proven_if_claimed",
+      "category": "execution",
+      "operator_meaning": "Partial-completion path was claimed but not demonstrated.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "coach_artefact_view_missing",
+      "category": "coach_surface",
+      "operator_meaning": "Coach factual artefact view is absent.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "non_binding_note_missing",
+      "category": "coach_surface",
+      "operator_meaning": "Non-binding coach note path is absent.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "history_counts_not_factual",
+      "category": "history",
+      "operator_meaning": "History count surface is absent or not factual-only.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "support_boundary_missing",
+      "category": "support",
+      "operator_meaning": "Support boundary surface is absent.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "claim_guard_missing",
+      "category": "claim_control",
+      "operator_meaning": "Claim guard surface or enforcement is absent.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "forbidden_surface_exposed",
+      "category": "boundary",
+      "operator_meaning": "A surface outside the v0 pilot boundary is exposed.",
+      "allowed_for_final_status": ["blocked"]
+    },
+    {
+      "blocked_reason_id": "source_artefact_missing",
+      "category": "source_artefact",
+      "operator_meaning": "Required source artefact reference is absent.",
+      "allowed_for_final_status": ["blocked"]
+    }
+  ],
+  "s45_readiness_item_mappings": [
+    {
+      "s45_readiness_item_id": "payment_confirmed",
+      "blocked_reason_ids": ["payment_missing"]
+    },
+    {
+      "s45_readiness_item_id": "workspace_created",
+      "blocked_reason_ids": ["workspace_missing"]
+    },
+    {
+      "s45_readiness_item_id": "coach_active",
+      "blocked_reason_ids": ["coach_account_inactive"]
+    },
+    {
+      "s45_readiness_item_id": "athlete_active",
+      "blocked_reason_ids": ["athlete_account_inactive"]
+    },
+    {
+      "s45_readiness_item_id": "link_accepted",
+      "blocked_reason_ids": ["coach_athlete_link_not_accepted"]
+    },
+    {
+      "s45_readiness_item_id": "scope_locked",
+      "blocked_reason_ids": ["scope_not_locked"]
+    },
+    {
+      "s45_readiness_item_id": "phase1_accepted",
+      "blocked_reason_ids": ["phase1_not_accepted"]
+    },
+    {
+      "s45_readiness_item_id": "first_compile_passed",
+      "blocked_reason_ids": ["compile_not_admitted", "first_session_missing"]
+    },
+    {
+      "s45_readiness_item_id": "first_executable_session_exists",
+      "blocked_reason_ids": ["first_session_missing"]
+    },
+    {
+      "s45_readiness_item_id": "factual_execution_checked",
+      "blocked_reason_ids": ["factual_execution_not_proven"]
+    },
+    {
+      "s45_readiness_item_id": "split_return_checked_if_claimed",
+      "blocked_reason_ids": ["split_return_not_proven_if_claimed"]
+    },
+    {
+      "s45_readiness_item_id": "partial_completion_checked_if_claimed",
+      "blocked_reason_ids": ["partial_completion_not_proven_if_claimed"]
+    },
+    {
+      "s45_readiness_item_id": "coach_surface_checked",
+      "blocked_reason_ids": ["coach_artefact_view_missing", "non_binding_note_missing"]
+    },
+    {
+      "s45_readiness_item_id": "coach_artefact_view_checked",
+      "blocked_reason_ids": ["coach_artefact_view_missing"]
+    },
+    {
+      "s45_readiness_item_id": "non_binding_note_checked",
+      "blocked_reason_ids": ["non_binding_note_missing"]
+    },
+    {
+      "s45_readiness_item_id": "history_counts_checked",
+      "blocked_reason_ids": ["history_counts_not_factual"]
+    },
+    {
+      "s45_readiness_item_id": "support_boundary_checked",
+      "blocked_reason_ids": ["support_boundary_missing"]
+    },
+    {
+      "s45_readiness_item_id": "claim_guard_checked",
+      "blocked_reason_ids": ["claim_guard_missing"]
+    },
+    {
+      "s45_readiness_item_id": "source_artefacts_present",
+      "blocked_reason_ids": ["source_artefact_missing"]
+    }
+  ],
+  "s45_negative_boundary_failure_mapping": {
+    "blocked_reason_id": "forbidden_surface_exposed",
+    "applies_to_every_negative_boundary_failure": true,
+    "known_negative_boundary_ids": [
+      "no_phase7_surface",
+      "no_phase8_surface",
+      "no_org_runtime_surface",
+      "no_team_runtime_surface",
+      "no_gym_runtime_surface",
+      "no_analytics_surface",
+      "no_messaging_surface",
+      "no_claim_surface",
+      "no_medical_surface",
+      "no_safety_surface",
+      "no_optimisation_surface",
+      "no_coach_override_surface",
+      "no_forbidden_surface_exposed"
+    ]
+  }
+}
