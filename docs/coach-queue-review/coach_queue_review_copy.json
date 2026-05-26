@@ -1,0 +1,34 @@
+{
+  "copy_surface_id": "coach_queue_review_copy",
+  "version": "1.0.0",
+  "authority": "v0_engine_inert_platform_copy",
+  "strings": {
+    "coach_queue_title": "Coach queue",
+    "coach_queue_empty": "No review items.",
+    "coach_queue_review_required": "Review required.",
+    "coach_queue_available": "Record available.",
+    "coach_queue_blocked": "Blocked.",
+    "coach_queue_source_missing": "Source record missing.",
+    "coach_queue_link_missing": "Coach-athlete link missing.",
+    "coach_queue_link_revoked": "Coach-athlete link revoked.",
+    "coach_queue_open_record": "Open record.",
+    "coach_queue_review_item": "Review item."
+  },
+  "forbidden_semantics": [
+    "safe",
+    "safer",
+    "safety",
+    "injury",
+    "medical",
+    "clinical",
+    "optimal",
+    "optimised",
+    "best for you",
+    "tailored to you",
+    "guaranteed",
+    "proven",
+    "ready to train",
+    "performance prediction",
+    "readiness certification"
+  ]
+}
