@@ -1,31 +1,51 @@
 # Commands
 
-This repo intentionally has **one public human command** and **one CI entrypoint**.
+This repo intentionally keeps the normal human workflow narrow.
 
-## Public (humans)
+Use the public commands first. Use lower-level commands only when diagnosing a specific failing layer.
 
-Use this when you want one authoritative signal that your change is acceptable:
+## Public command
 
-`ash
-npm run verify
-`",
-  ",
-  
+Use this when you want one authoritative local signal that your change is acceptable:
 
-CI uses the CI entrypoint. Humans generally should not run this locally unless debugging CI behavior:
+    npm run verify
 
-`ash
-npm run ci
-`",
-  ",
-  
+This is the default command for normal development.
 
-These exist for hooks, guard composition, or advanced debugging. They are **not** part of the public contract:
+## CI entrypoint
 
-- green / green:fast / green:dev: internal verification runners used by hooks/CI wiring
-- lint:fast, test:unit, build:fast: composed steps used by the verification runner
-- guard:* : guard maintenance and deterministic index generation
-- diff:* : contract/golden inspection utilities
+CI uses this entrypoint:
 
-If you're unsure which to use: run 
-pm run verify.
+    npm run ci
+
+Humans generally should not run this unless checking CI parity or debugging CI behaviour.
+
+## Common diagnostic commands
+
+Use these only when you need to isolate a failure:
+
+    npm run lint:fast
+    npm run test:unit
+    npm run test:one -- test/some_test_file.test.mjs
+    npm run build:fast
+    npm run dev:status
+    npm run diff:summary
+    gh run list --limit 10
+
+## Script groups
+
+`green`, `green:fast`, and `green:dev` are verification runners used by hooks and CI wiring.
+
+`lint:fast`, `test:unit`, and `build:fast` are composed steps used by the verification runner.
+
+`guard:*` scripts are guard maintenance and deterministic index utilities.
+
+`diff:*` scripts are contract and golden inspection utilities.
+
+## Rule
+
+If you are unsure which command to use, run:
+
+    npm run verify
+
+Do not bypass failing guards. Fix the failing layer.
