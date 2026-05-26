@@ -151,15 +151,17 @@ Start here:
 1. README.md
 2. docs/COMMANDS.md
 3. CONTRIBUTING.md
-4. ENGINE_CONTRACT.md
-5. docs/product/CURRENT_PROJECT_DOCS_STATUS.md
-6. docs/product/V0_SURFACE_INDEX.md
-7. package.json
-8. .github/workflows/
-9. ci/guards/
-10. ci/scripts/
-11. src/
-12. test/
+4. docs/ARCHITECTURE.md
+5. docs/SENIOR_DEVELOPER_REVIEW_CHECKLIST.md
+6. ENGINE_CONTRACT.md
+7. docs/product/CURRENT_PROJECT_DOCS_STATUS.md
+8. docs/product/V0_SURFACE_INDEX.md
+9. package.json
+10. .github/workflows/
+11. ci/guards/
+12. ci/scripts/
+13. src/
+14. test/
 
 ## 10. Pull request standard
 
