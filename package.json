@@ -101,7 +101,8 @@
                     "agents:lint":  "node ci/agents/agent_prompt_lint.mjs \u0026\u0026 node ci/agents/agent_dormant_feature_guard.mjs \u0026\u0026 node ci/agents/agent_scope_guard.mjs",
                     "test:pilot-signoff":  "node scripts/run_pilot_signoff_record_tests.mjs",
                     "guard:pilot-blocked-reasons":  "node scripts/run_pilot_blocked_reason_registry_guard.mjs",
-                    "test:pilot-readiness-evaluator":  "node test/pilotReadinessEvaluator.test.mjs"
+                    "test:pilot-readiness-evaluator":  "node test/pilotReadinessEvaluator.test.mjs",
+                    "test:coach-queue-review":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewSurface.test.mjs"
                 },
     "dependencies":  {
                          "@kolosseum/engine":  "file:engine",
