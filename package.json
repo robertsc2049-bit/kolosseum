@@ -102,7 +102,8 @@
                     "test:pilot-signoff":  "node scripts/run_pilot_signoff_record_tests.mjs",
                     "guard:pilot-blocked-reasons":  "node scripts/run_pilot_blocked_reason_registry_guard.mjs",
                     "test:pilot-readiness-evaluator":  "node test/pilotReadinessEvaluator.test.mjs",
-                    "test:coach-queue-review":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewSurface.test.mjs"
+                    "test:coach-queue-review":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewSurface.test.mjs",
+                    "test:coach-queue-review-api-adapter":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewApiAdapter.test.mjs"
                 },
     "dependencies":  {
                          "@kolosseum/engine":  "file:engine",
