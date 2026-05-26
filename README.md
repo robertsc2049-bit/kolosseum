@@ -1,5 +1,7 @@
 # Kolosseum
 
+Docs index: see `docs/REPO_DOCS_INDEX.md`
+
 Commands: see `docs/COMMANDS.md`
 
 ## What this repo is
@@ -16,9 +18,7 @@ Work on a ticket branch, open a PR, wait for checks, then merge through the PR p
 
 Use one manual verification signal:
 
-```powershell
-npm run verify
-```
+    npm run verify
 
 That is the default supported local check.
 
@@ -26,12 +26,10 @@ That is the default supported local check.
 
 ### Start from main
 
-```powershell
-Set-Location C:\Users\rober\kolosseum
-git switch main
-git pull --ff-only
-git switch -c ticket/real-slice-name
-```
+    Set-Location C:\Users\rober\kolosseum
+    git switch main
+    git pull --ff-only
+    git switch -c ticket/real-slice-name
 
 Use a real branch name. Do not paste placeholder text into Git commands.
 
@@ -39,27 +37,22 @@ Use a real branch name. Do not paste placeholder text into Git commands.
 
 After changes, use the standard repo commands:
 
-```powershell
-npm run verify
-npm run dev:status
-gh run list --limit 10
-```
+    npm run verify
+    npm run dev:status
+    gh run list --limit 10
 
 ### Push through PR flow
 
-```powershell
-git push -u origin ticket/real-slice-name
-gh pr create
-gh pr checks --watch
-```
+    git push -u origin ticket/real-slice-name
+    gh pr create
+    gh pr checks --watch
 
 ### Merge through the supported helper
 
-```powershell
-Merge-KolosseumPr 123
-```
+    Merge-KolosseumPr 123
 
 That helper is expected to:
+
 - wait for PR checks
 - merge via PR
 - return local repo to `main`
@@ -81,15 +74,13 @@ That helper is expected to:
 
 Useful for isolating failures, not as the normal workflow:
 
-```powershell
-npm run lint:fast
-npm run test:unit
-npm run test:one -- test/some_test_file.test.mjs
-npm run build:fast
-npm run dev:status
-npm run diff:summary
-gh run list --limit 10
-```
+    npm run lint:fast
+    npm run test:unit
+    npm run test:one -- test/some_test_file.test.mjs
+    npm run build:fast
+    npm run dev:status
+    npm run diff:summary
+    gh run list --limit 10
 
 Use them to identify the failing layer. Use `npm run verify` when you want the single authoritative local signal.
 
@@ -113,7 +104,15 @@ That coverage is enforced through CI cluster manifests. When adding a new handle
 
 ## Where to look next
 
+Start with:
+
+- `docs/REPO_DOCS_INDEX.md` for the full documentation map
+- `docs/DEVELOPER_ONBOARDING.md` for safe learning/building workflow
+- `docs/ARCHITECTURE.md` for repo structure and boundaries
+- `docs/SENIOR_DEVELOPER_REVIEW_CHECKLIST.md` for PR review discipline
+- `docs/product/V0_SURFACE_INDEX.md` for the current v0 and pilot surface map
+- `docs/product/CURRENT_PROJECT_DOCS_STATUS.md` for current docs currency
 - `docs/COMMANDS.md` for command reference
 - `package.json` for supported scripts
 - `ci/contracts/` for CI composition manifests
-- `.github/workflows/` for GitHub Actions behavior
+- `.github/workflows/` for GitHub Actions behaviour

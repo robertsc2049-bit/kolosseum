@@ -149,19 +149,21 @@ They must not create engine capability.
 Start here:
 
 1. README.md
-2. docs/COMMANDS.md
-3. CONTRIBUTING.md
-4. docs/ARCHITECTURE.md
-5. docs/SENIOR_DEVELOPER_REVIEW_CHECKLIST.md
-6. ENGINE_CONTRACT.md
-7. docs/product/CURRENT_PROJECT_DOCS_STATUS.md
-8. docs/product/V0_SURFACE_INDEX.md
-9. package.json
-10. .github/workflows/
-11. ci/guards/
-12. ci/scripts/
-13. src/
-14. test/
+2. docs/REPO_DOCS_INDEX.md
+3. docs/COMMANDS.md
+4. CONTRIBUTING.md
+5. docs/DEVELOPER_ONBOARDING.md
+6. docs/ARCHITECTURE.md
+7. docs/SENIOR_DEVELOPER_REVIEW_CHECKLIST.md
+8. ENGINE_CONTRACT.md
+9. docs/product/CURRENT_PROJECT_DOCS_STATUS.md
+10. docs/product/V0_SURFACE_INDEX.md
+11. package.json
+12. .github/workflows/
+13. ci/guards/
+14. ci/scripts/
+15. src/
+16. test/
 
 ## 10. Pull request standard
 
