@@ -47,6 +47,7 @@ A described future surface that is not active v0 unless a later release definiti
 | S47 | Pilot blocked reason registry | Pilot/operator surface | None | Defines the closed-world blocked reason IDs for pilot sign-off. |
 | S48 | Pilot readiness evaluator | Pilot/operator surface | None | Pure evaluator that derives coach_ready or blocked from checklist and boundary data. |
 | S49 | Coach queue / review surface | Active v0 surface | None | Derives factual linked-coach review queue status without advice, scoring, ranking, readiness certification, or safety meaning. |
+| S50 | Coach queue / review API adapter | Active v0 surface | None | Exposes the S49 factual queue builder through a narrow in-memory adapter without storage, UI, advice, scoring, ranking, readiness certification, or safety meaning. |
 
 ## 4. Product and design references
 
