@@ -1,0 +1,71 @@
+{
+  "fixture_pack_id": "coach_queue_review_read_model_source_records",
+  "fixture_pack_version": "1.0.0",
+  "records": [
+    {
+      "queue_item_id": "queue_item_review_001",
+      "coach_id": "coach_fixture_primary",
+      "athlete_id": "athlete_alpha",
+      "coach_athlete_link_status": "linked",
+      "latest_session_record_status": "review_required",
+      "latest_checkin_record_status": "record_available",
+      "latest_coach_note_status": "none",
+      "history_count_status": "counts_available",
+      "source_record_refs": [
+        "session_record_alpha_001",
+        "checkin_record_alpha_001"
+      ]
+    },
+    {
+      "queue_item_id": "queue_item_available_001",
+      "coach_id": "coach_fixture_primary",
+      "athlete_id": "athlete_delta",
+      "coach_athlete_link_status": "linked",
+      "latest_session_record_status": "record_available",
+      "latest_checkin_record_status": "record_available",
+      "latest_coach_note_status": "note_available",
+      "history_count_status": "counts_available",
+      "source_record_refs": [
+        "session_record_delta_001",
+        "coach_note_delta_001"
+      ]
+    },
+    {
+      "queue_item_id": "queue_item_blocked_revoked_001",
+      "coach_id": "coach_fixture_primary",
+      "athlete_id": "athlete_beta",
+      "coach_athlete_link_status": "revoked",
+      "latest_session_record_status": "record_available",
+      "latest_checkin_record_status": "record_available",
+      "latest_coach_note_status": "none",
+      "history_count_status": "counts_available",
+      "source_record_refs": [
+        "session_record_beta_001"
+      ]
+    },
+    {
+      "queue_item_id": "queue_item_blocked_missing_source_001",
+      "coach_id": "coach_fixture_primary",
+      "athlete_id": "athlete_gamma",
+      "coach_athlete_link_status": "linked",
+      "latest_session_record_status": "record_available",
+      "latest_checkin_record_status": "missing",
+      "latest_coach_note_status": "none",
+      "history_count_status": "missing",
+      "source_record_refs": []
+    },
+    {
+      "queue_item_id": "queue_item_other_coach_001",
+      "coach_id": "coach_fixture_other",
+      "athlete_id": "athlete_omega",
+      "coach_athlete_link_status": "linked",
+      "latest_session_record_status": "review_required",
+      "latest_checkin_record_status": "record_available",
+      "latest_coach_note_status": "none",
+      "history_count_status": "counts_available",
+      "source_record_refs": [
+        "session_record_omega_001"
+      ]
+    }
+  ]
+}

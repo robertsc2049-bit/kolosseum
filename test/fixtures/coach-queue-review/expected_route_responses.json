@@ -1,0 +1,84 @@
+{
+  "fixture_pack_id": "coach_queue_review_expected_route_responses",
+  "fixture_pack_version": "1.0.0",
+  "responses": {
+    "primary_coach_queue": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "surface_id": "coach_queue_review_api_adapter",
+        "version": "1.0.0",
+        "coach_id": "coach_fixture_primary",
+        "items": [
+          {
+            "queue_item_id": "queue_item_review_001",
+            "coach_id": "coach_fixture_primary",
+            "athlete_id": "athlete_alpha",
+            "queue_status": "review_required",
+            "review_required": true,
+            "blocked_reasons": [],
+            "source_record_refs": [
+              "session_record_alpha_001",
+              "checkin_record_alpha_001"
+            ]
+          },
+          {
+            "queue_item_id": "queue_item_blocked_revoked_001",
+            "coach_id": "coach_fixture_primary",
+            "athlete_id": "athlete_beta",
+            "queue_status": "blocked",
+            "review_required": false,
+            "blocked_reasons": [
+              "coach_athlete_link_revoked"
+            ],
+            "source_record_refs": [
+              "session_record_beta_001"
+            ]
+          },
+          {
+            "queue_item_id": "queue_item_blocked_missing_source_001",
+            "coach_id": "coach_fixture_primary",
+            "athlete_id": "athlete_gamma",
+            "queue_status": "blocked",
+            "review_required": false,
+            "blocked_reasons": [
+              "source_record_missing"
+            ],
+            "source_record_refs": []
+          },
+          {
+            "queue_item_id": "queue_item_available_001",
+            "coach_id": "coach_fixture_primary",
+            "athlete_id": "athlete_delta",
+            "queue_status": "available",
+            "review_required": false,
+            "blocked_reasons": [],
+            "source_record_refs": [
+              "session_record_delta_001",
+              "coach_note_delta_001"
+            ]
+          }
+        ]
+      }
+    },
+    "empty_coach_queue": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "surface_id": "coach_queue_review_api_adapter",
+        "version": "1.0.0",
+        "coach_id": "coach_fixture_empty",
+        "items": []
+      }
+    },
+    "missing_coach_id": {
+      "status": 400,
+      "body": {
+        "ok": false,
+        "surface_id": "coach_queue_review_api_adapter",
+        "version": "1.0.0",
+        "error": "coach_id_required"
+      }
+    }
+  }
+}
