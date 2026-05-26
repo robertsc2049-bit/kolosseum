@@ -104,7 +104,8 @@
                     "test:pilot-readiness-evaluator":  "node test/pilotReadinessEvaluator.test.mjs",
                     "test:coach-queue-review":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewSurface.test.mjs",
                     "test:coach-queue-review-api-adapter":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewApiAdapter.test.mjs",
-                    "test:coach-queue-review-route-contract":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewRouteContract.test.mjs"
+                    "test:coach-queue-review-route-contract":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewRouteContract.test.mjs",
+                    "test:coach-queue-review-fixtures":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewFixturePack.test.mjs"
                 },
     "dependencies":  {
                          "@kolosseum/engine":  "file:engine",
