@@ -106,7 +106,9 @@
                     "test:coach-queue-review-api-adapter":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewApiAdapter.test.mjs",
                     "test:coach-queue-review-route-contract":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewRouteContract.test.mjs",
                     "test:coach-queue-review-fixtures":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewFixturePack.test.mjs",
-                    "test:coach-queue-review-ui-renderer":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewUiRenderer.test.mjs"
+                    "test:coach-queue-review-ui-renderer":  "npm run build:fast \u0026\u0026 node test/coachQueueReviewUiRenderer.test.mjs",
+                    "preview:coach-queue-review:static":  "npm run build:fast \u0026\u0026 node scripts/render_coach_queue_review_static_preview.mjs",
+                    "test:coach-queue-review-static-preview":  "npm run preview:coach-queue-review:static \u0026\u0026 node test/coachQueueReviewStaticPreview.test.mjs"
                 },
     "dependencies":  {
                          "@kolosseum/engine":  "file:engine",
