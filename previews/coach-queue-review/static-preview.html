@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coach Queue Review — Static Preview</title>
+<style>
+:root { color-scheme: dark; }
+body { margin: 0; font-family: Arial, sans-serif; background: #080b0a; color: #eef6ee; }
+.preview-shell { max-width: 1120px; margin: 0 auto; padding: 32px 20px 56px; }
+.preview-notice { border: 1px solid #314338; background: #101713; padding: 16px; border-radius: 12px; color: #c7d8ca; }
+.preview-example { margin-top: 24px; padding: 20px; border: 1px solid #233127; border-radius: 16px; background: #0d120f; }
+.kq-shell { display: grid; gap: 18px; }
+.kq-header, .kq-card, .kq-empty, .kq-error { border: 1px solid #26372c; border-radius: 14px; padding: 16px; background: #111812; }
+.kq-list { display: grid; gap: 14px; }
+.kq-card[data-status='review_required'] { border-color: #7ca86f; }
+.kq-card[data-status='blocked'] { border-color: #88704f; }
+.kq-card[data-status='available'] { border-color: #405444; }
+.kq-eyebrow, .kq-muted { color: #9fb3a3; }
+h1, h2, h3, h4, p { margin-top: 0; }
+ul { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<main class="preview-shell">
+<h1>Coach Queue Review — Static Preview</h1>
+<section class="preview-notice">
+<p><strong>Static non-production preview.</strong></p>
+<p>This page uses committed fixture responses and renderer output only. It has no live API, database, sign-in dependency, route registration, runtime queue integration, or production navigation.</p>
+</section>
+<section class="preview-example" data-example="Primary coach queue fixture">
+<h2>Primary coach queue fixture</h2>
+<section class="kq-shell" data-surface="coach_queue_review"><header class="kq-header"><h2>Coach queue</h2><p><strong>Coach ID:</strong> coach_fixture_primary</p><p><strong>Queue item count:</strong> 4</p></header><section class="kq-list"><article class="kq-card" data-status="review_required"><header><p class="kq-eyebrow">Queue item</p><h3>queue_item_review_001</h3></header><p><strong>Status:</strong> Review required</p><p><strong>Athlete ID:</strong> athlete_alpha</p><p><strong>Coach ID:</strong> coach_fixture_primary</p><div class="kq-section"><h4>Source records</h4><ul><li>session_record_alpha_001</li><li>checkin_record_alpha_001</li></ul></div></article><article class="kq-card" data-status="blocked"><header><p class="kq-eyebrow">Queue item</p><h3>queue_item_blocked_revoked_001</h3></header><p><strong>Status:</strong> Blocked</p><p><strong>Athlete ID:</strong> athlete_beta</p><p><strong>Coach ID:</strong> coach_fixture_primary</p><div class="kq-section"><h4>Source records</h4><ul><li>session_record_beta_001</li></ul></div><div class="kq-section"><h4>Blocked reasons</h4><ul><li>coach_athlete_link_revoked</li></ul></div></article><article class="kq-card" data-status="blocked"><header><p class="kq-eyebrow">Queue item</p><h3>queue_item_blocked_missing_source_001</h3></header><p><strong>Status:</strong> Blocked</p><p><strong>Athlete ID:</strong> athlete_gamma</p><p><strong>Coach ID:</strong> coach_fixture_primary</p><p class="kq-muted">Source records: none</p><div class="kq-section"><h4>Blocked reasons</h4><ul><li>source_record_missing</li></ul></div></article><article class="kq-card" data-status="available"><header><p class="kq-eyebrow">Queue item</p><h3>queue_item_available_001</h3></header><p><strong>Status:</strong> Record available</p><p><strong>Athlete ID:</strong> athlete_delta</p><p><strong>Coach ID:</strong> coach_fixture_primary</p><div class="kq-section"><h4>Source records</h4><ul><li>session_record_delta_001</li><li>coach_note_delta_001</li></ul></div></article></section></section>
+</section>
+<section class="preview-example" data-example="Empty coach queue fixture">
+<h2>Empty coach queue fixture</h2>
+<section class="kq-shell" data-surface="coach_queue_review"><header class="kq-header"><h2>Coach queue</h2><p><strong>Coach ID:</strong> coach_fixture_empty</p><p><strong>Queue item count:</strong> 0</p></header><section class="kq-list"><section class="kq-empty"><h3>No review items</h3></section></section></section>
+</section>
+<section class="preview-example" data-example="Missing coach identifier fixture">
+<h2>Missing coach identifier fixture</h2>
+<section class="kq-shell" data-surface="coach_queue_review"><header class="kq-header"><h2>Coach queue</h2></header><section class="kq-error"><h3>Required coach identifier missing</h3><p>coach_id_required</p></section></section>
+</section>
+</main>
+</body>
+</html>

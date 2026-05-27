@@ -51,6 +51,7 @@ A described future surface that is not active v0 unless a later release definiti
 | S51 | Coach queue / review route contract | Active v0 surface | None | Defines a handler-level route contract over S50 without Express registration, storage, UI, advice, scoring, ranking, readiness certification, or safety meaning. |
 | S52 | Coach queue / review read model fixture pack | Active v0 surface | None | Provides stable fake source records and expected route responses for the S49-S51 coach queue surface without UI, storage, advice, scoring, ranking, readiness certification, or safety meaning. |
 | S53 | Coach queue / review minimal UI read model renderer | Active v0 surface | None | Renders fixture-backed coach queue read-model states as deterministic safe HTML without live API, storage, route registration, advice, scoring, ranking, readiness certification, or safety meaning. |
+| S54 | Coach queue review static preview page | Active v0 surface | None | Provides a committed static non-production preview artifact generated from S52 fixtures and S53 renderer output without live API, database, route registration, auth, production navigation, advice, scoring, ranking, readiness certification, or safety meaning. |
 
 ## 4. Product and design references
 
