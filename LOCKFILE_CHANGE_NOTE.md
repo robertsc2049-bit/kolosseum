@@ -1,5 +1,8 @@
-LOCKFILE CHANGE NOTE
+# LOCKFILE CHANGE NOTE
 
-- 2026-02-23: Added dev dependency js-yaml to locally validate GitHub Actions workflow YAML.
-- 2026-04-21: Intentional repository-wide Node toolchain contract bump from 24.12.0 to 25.9.0.
-  Context: package-lock metadata refreshed to match package.json and current toolchain contract.
+Release: v0.1.24
+Commit amended from local release commit: 52342942df6f8572ff7e105e16145a90ede45761
+
+package-lock.json changed because package.json version was bumped from 0.1.23 to 0.1.24 for the immutable release tag.
+
+No dependency additions, removals, or version changes were intended in this release note.
