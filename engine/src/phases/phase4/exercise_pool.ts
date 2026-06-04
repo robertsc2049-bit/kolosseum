@@ -45,7 +45,7 @@ export function buildExercisePool(
 
   const exercise_pool: Record<string, ExerciseSignature> = {};
 
-  // Planned ids are guaranteed present (guarded before calling). Extras are best-effort.
+  // Planned ids are guaranteed present before calling. Optional extension ids are included only when registered.
   for (const id of poolIds) {
     if (entries[id]) {
       exercise_pool[id] = pick(entries, id);

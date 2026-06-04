@@ -71,7 +71,7 @@ function getStringArrayAny(obj: any, paths: string[]): string[] | undefined {
   return undefined;
 }
 
-// Signature field adapters (best-effort; not required for tests to pass)
+// Signature field adapters for optional registry fields.
 function getPatternId(ex: any): string | undefined {
   return getStringAny(ex, [
     "pattern_id",
@@ -194,7 +194,7 @@ function scoreCandidate(target: any, candidate: any): { score: number; reasons: 
     reasons.push(`id_token_overlap: ${tokenOverlap}`);
   }
 
-  // Extra “bench/press family” boost (covers typical fixtures)
+  // Extra bench/press family boost for fixture-compatible signature scoring.
   const tHasBench = tTokens.has("bench");
   const cHasBench = cTokens.has("bench");
   if (tHasBench && cHasBench) {
@@ -218,7 +218,7 @@ function scoreCandidate(target: any, candidate: any): { score: number; reasons: 
     reasons.push(`equipment_overlap: ${equipOverlap}`);
   }
 
-  // Penalize “regression to unequipped” when target appears equipped
+  // Penalize unequipped candidates when the target has declared equipment.
   if (tEquip.size > 0 && cEquip.size === 0) {
     score -= 5000;
     reasons.push("penalty: unequipped_candidate_for_equipped_target");

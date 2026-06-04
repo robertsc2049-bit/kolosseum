@@ -1,4 +1,4 @@
-// S48 â€” Pilot Readiness Evaluator
+// S48 - Pilot Acceptance Gate
 // Pure deterministic evaluator.
 // No database, no network, no generated timestamps, no randomness.
 

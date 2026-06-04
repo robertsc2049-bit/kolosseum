@@ -23,7 +23,7 @@ export type Phase5Result =
  * - Phase 5 MUST NOT re-parse constraints from canonicalInput.
  * - canonicalInput is accepted for signature stability (engine/CLI callers) but is not consumed.
  *
- * Ticket-030: timebox-safe targeting
+ * Ticket-030: timebox-bounded targeting
  * - Phase5 MUST respect Phase4's *pruned* plan ordering.
  * - Today: Phase4 exposes planned_exercise_ids (pruned). planned_items may be internal/added later.
  *
@@ -211,7 +211,7 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonica
     };
   }
 
-  // Target missing => pick against fallback target (keep planned_item_index for traceability)
+  // Target missing => evaluate against deterministic target candidate while preserving planned_item_index for traceability
   if (!target) {
     const fallbackTarget = candidates[0];
     const pick = pickBestSubstitute(fallbackTarget, candidates, constraints);
@@ -228,7 +228,7 @@ export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonica
       return {
         ok: true,
         adjustments: [],
-        notes: ["PHASE_5: target missing; best candidate equals fallback; no changes applied"]
+        notes: ["PHASE_5: target missing; selected candidate equals deterministic target candidate; no changes applied"]
       };
     }
 
