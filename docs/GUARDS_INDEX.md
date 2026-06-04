@@ -48,4 +48,5 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/run_v0_boundary_claim_consistency_guard.mjs` | V0 Boundary Pack | high | repo |  |
 | `ci/guards/runtime-boundary.guard.ps1` | Repo Governance | medium | repo |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | Not a tag build -> no-op |
+| `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
 | `ci/guards/workflow_policy_header_guard.mjs` | Repo Governance | medium | repo |  |
