@@ -1,4 +1,4 @@
-# P199 — v0 Completion Gate
+# P199 â€” v0 Completion Gate
 
 - Document ID: P199
 - Title: v0 Completion Gate
@@ -259,3 +259,16 @@ Explicit exclusions still out of scope:
 Final call: SHIP / HOLD
 
 v0 is complete only if every line above is explicitly GREEN and the final call is SHIP.
+
+## Committed completion gate manifest
+
+The committed v0 completion checklist is now consolidated in:
+
+- `docs/v0/V0_COMPLETION_GATE_MANIFEST.md`
+- `docs/v0/V0_COMPLETION_GATE_MANIFEST.json`
+
+The manifest is verified by:
+
+- `ci/scripts/run_v0_completion_gate_manifest_verifier.mjs`
+
+This binding is an index/discoverability layer only. It does not create new engine law, product scope, registry authority, copy authority, legal authority, or commercial authority.

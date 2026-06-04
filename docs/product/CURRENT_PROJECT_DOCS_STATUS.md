@@ -19,23 +19,23 @@ This is a docs-status reference only. Canonical engine, legal, CI, registry, and
 
 Current main includes work through:
 
-- PR #629 — Add brand feel parameters reference
-- PR #628 — Add brand feel parameters prompt
-- PR #627 — S48 pilot readiness evaluator
-- PR #626 — S47 pilot blocked reason registry
-- PR #625 — S46 pilot sign-off record
-- PR #624 — S45 coach-ready pilot acceptance pack
-- PR #623 — S44 public sales claim registry guard
-- PR #622 — S43 support boundary templates
-- PR #621 — S42 pilot state machine enforcement
-- PR #620 — S41 operator pilot dashboard
-- PR #619 — S40 history counts only
-- PR #618 — S39 coach assignment within limits
-- PR #617 — Kolosseum v0 agent operating system
-- PR #616 — S38 non-binding coach notes
-- PR #615 — S37 session artefact viewer
-- PR #614 — S36 extra work / deviation event capture
-- PR #613 — public UI diagnostics fence
+- PR #629 â€” Add brand feel parameters reference
+- PR #628 â€” Add brand feel parameters prompt
+- PR #627 â€” S48 pilot readiness evaluator
+- PR #626 â€” S47 pilot blocked reason registry
+- PR #625 â€” S46 pilot sign-off record
+- PR #624 â€” S45 coach-ready pilot acceptance pack
+- PR #623 â€” S44 public sales claim registry guard
+- PR #622 â€” S43 support boundary templates
+- PR #621 â€” S42 pilot state machine enforcement
+- PR #620 â€” S41 operator pilot dashboard
+- PR #619 â€” S40 history counts only
+- PR #618 â€” S39 coach assignment within limits
+- PR #617 â€” Kolosseum v0 agent operating system
+- PR #616 â€” S38 non-binding coach notes
+- PR #615 â€” S37 session artefact viewer
+- PR #614 â€” S36 extra work / deviation event capture
+- PR #613 â€” public UI diagnostics fence
 
 ## 3. Attached docs currency verdict
 
@@ -60,13 +60,13 @@ They do not fully reflect the completed S36-S48 implementation/documentation sli
 
 The following completed surfaces must be treated as current repo reality:
 
-### S36 — extra work / deviation event capture
+### S36 â€” extra work / deviation event capture
 
 Factual append-only runtime deviation events exist as a v0 slice.
 
 These events are engine-inert and must not mutate Phase 5, future compilation, constraints, progression, or registries.
 
-### S37 — session artefact viewer
+### S37 â€” session artefact viewer
 
 A read-only factual session artefact viewer exists as a v0 slice.
 
@@ -74,7 +74,7 @@ Access is limited to the athlete and linked coach where permitted.
 
 It does not create edit, override, Phase 1 mutation, or authority paths.
 
-### S38 — non-binding coach notes
+### S38 â€” non-binding coach notes
 
 Coach notes exist as observational platform metadata.
 
@@ -82,43 +82,43 @@ They are non-binding, non-authoritative, and engine-inert.
 
 They must not influence execution, artefacts, replay, or evidence.
 
-### S39 — coach assignment within limits
+### S39 â€” coach assignment within limits
 
 Coach assignment exists as platform visibility/access control only.
 
 It must not mutate engine output, Phase 1, substitutions, progression, registries, compilation, or history truth.
 
-### S40 — history counts only
+### S40 â€” history counts only
 
 Factual history count surfaces exist for athlete and linked coach views.
 
 These are counts only and must not become analytics, scoring, ranking, readiness, or outcome evaluation.
 
-### S41 — operator pilot dashboard
+### S41 â€” operator pilot dashboard
 
 A factual/operator-only pilot dashboard exists.
 
 It must fail closed on unknown source state and only allow Coach Ready when source-record preconditions are true.
 
-### S42 — pilot state machine enforcement
+### S42 â€” pilot state machine enforcement
 
 A pilot state machine exists for legal pilot transitions.
 
 It uses terminal fail-closed behaviour, unknown-state refusal, Coach Ready preconditions, and Active activation requirements.
 
-### S43 — support boundary templates
+### S43 â€” support boundary templates
 
 Support boundary templates exist as factual, boundary-safe app documentation and JSON templates.
 
 They avoid unsupported v0 capability claims.
 
-### S44 — public/sales claim registry guard
+### S44 â€” public/sales claim registry guard
 
 A public/sales claim registry guard exists.
 
 Public claims must be registered, proof-linked, fail closed if unknown, and boundary-safe.
 
-### S45 — coach-ready pilot acceptance pack
+### S45 â€” coach-ready pilot acceptance pack
 
 A coach-ready pilot acceptance pack exists.
 
@@ -126,7 +126,7 @@ It proves coach-ready acceptance only for the permitted pilot slice.
 
 It does not expand v0 into organisation, team, gym, proof, or evidence capability.
 
-### S46 — pilot sign-off record
+### S46 â€” pilot sign-off record
 
 A pilot sign-off record exists as a platform operator record.
 
@@ -134,7 +134,7 @@ It stores coach_ready or blocked outcomes, uses source artefact references, and 
 
 It is not an engine input, engine output, pricing claim, public claim surface, or coach authority surface.
 
-### S47 — pilot blocked reason registry
+### S47 â€” pilot blocked reason registry
 
 A closed-world pilot blocked reason registry exists.
 
@@ -142,7 +142,7 @@ Operators must use controlled blocked reason IDs only.
 
 No free-text blocked reasons are permitted for this surface.
 
-### S48 — pilot readiness evaluator
+### S48 â€” pilot readiness evaluator
 
 A pure pilot readiness evaluator exists.
 
@@ -233,3 +233,16 @@ The attached docs are not fully up to date.
 They are still useful for the core v0/v1 boundary, but they do not cover completed work through S48 or the brand-feel reference.
 
 The repo should treat this file as the current product/docs currency note until a fuller v0 surface index is created.
+
+## v0 completion gate manifest
+
+Current authoritative v0 completion checklist:
+
+- `docs/v0/V0_COMPLETION_GATE_MANIFEST.md`
+- `docs/v0/V0_COMPLETION_GATE_MANIFEST.json`
+
+Current verifier:
+
+- `ci/scripts/run_v0_completion_gate_manifest_verifier.mjs`
+
+Purpose: records the source documents, required commands, required guard presence, and required `lint:fast` wiring for v0 completion. This is checklist verification only and does not create new engine or product scope.
