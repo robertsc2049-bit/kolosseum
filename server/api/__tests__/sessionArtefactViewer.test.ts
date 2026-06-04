@@ -1,3 +1,4 @@
+// v0_scope_negative_test: true
 import assert from "node:assert/strict";
 import test from "node:test";
 import {

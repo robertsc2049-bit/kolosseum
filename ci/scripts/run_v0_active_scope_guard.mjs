@@ -82,12 +82,20 @@ function shouldSkipPath(filePath) {
 
 function isNegativeTest(filePath, text) {
   const normal = normalise(filePath);
-  const inNegativePath =
+  const hasNegativeMarker = text.includes("v0_scope_negative_test: true");
+
+  if (!hasNegativeMarker) return false;
+
+  return (
     normal.includes("tests/negative") ||
     normal.includes("fixtures/negative") ||
-    normal.includes("__tests__/negative");
-
-  return inNegativePath && text.includes("v0_scope_negative_test: true");
+    normal.includes("__tests__/negative") ||
+    normal.includes("__tests__") ||
+    normal.endsWith(".test.ts") ||
+    normal.endsWith(".test.tsx") ||
+    normal.endsWith(".test.mjs") ||
+    normal.endsWith(".test.js")
+  );
 }
 
 function isActiveModeEligible(filePath, text) {
