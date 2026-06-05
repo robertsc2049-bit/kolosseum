@@ -1,0 +1,4161 @@
+{
+  "schema_id": "kolosseum_doc_authority_classification",
+  "schema_version": "1.0.0",
+  "generated": "deterministic-local-classification",
+  "purpose": "Classify Kolosseum documentation files for navigation and later human review without rewriting, deleting, deprecating, or changing authority.",
+  "boundary": {
+    "classification_is_metadata_only": true,
+    "does_not_create_authority": true,
+    "does_not_deprecate_documents": true,
+    "does_not_delete_documents": true,
+    "does_not_rewrite_documents": true,
+    "does_not_change_product_scope": true,
+    "does_not_change_engine_behaviour": true,
+    "does_not_change_registry_behaviour": true,
+    "does_not_change_proof_behaviour": true,
+    "does_not_introduce_ai_or_rag_dependency": true
+  },
+  "categories": [
+    "release-boundary",
+    "engine-contract",
+    "registry-contract",
+    "proof-and-replay",
+    "slice-contract",
+    "developer-navigation",
+    "commercial-or-copy-boundary",
+    "historical-or-roadmap",
+    "review-needed",
+    "unclassified"
+  ],
+  "review_statuses": [
+    "classified",
+    "review-needed"
+  ],
+  "counts": {
+    "total_docs_classified": 245,
+    "by_category": {
+      "release-boundary": 22,
+      "engine-contract": 124,
+      "registry-contract": 31,
+      "proof-and-replay": 45,
+      "slice-contract": 4,
+      "developer-navigation": 12,
+      "commercial-or-copy-boundary": 2,
+      "historical-or-roadmap": 0,
+      "review-needed": 0,
+      "unclassified": 5
+    },
+    "by_review_status": {
+      "classified": 2,
+      "review-needed": 243
+    }
+  },
+  "entries": [
+    {
+      "path": "docs/agents/AGENT_HANDOFF_PROTOCOL.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "safe",
+        "readiness",
+        "fallback",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/AGENT_SCOPE_CLASSIFICATION.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "injury",
+        "readiness",
+        "fallback",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/KOLOSSEUM_AGENT_OPERATING_SYSTEM.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/api-contract-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/canonical-law-reader-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/ci-gate-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/coach-surface-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/commercial-trust-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/copy-claims-guard-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/database-schema-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/documentation-consolidation-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/engine-phase-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/investor-founder-narrative-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/non-binding-notes-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/phase-1-declaration-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/pr-review-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/pricing-entitlement-boundary-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/product-slice-planner-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/registry-integrity-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/release-readiness-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/repo-implementation-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/runtime-session-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/schema-closure-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/scope-governor-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/security-auth-boundary-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/slice-orchestrator-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/test-vector-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/prompts/ui-surface-agent.prompt.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/agents/runs/README.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "recommend",
+        "readiness"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "recommend",
+        "safe",
+        "risk",
+        "injury",
+        "readiness",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/BUILD_TARGET_v0.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/CLI_EXPORT.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/coach-queue-review/COACH_QUEUE_REVIEW_API_ADAPTER.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/coach-queue-review/COACH_QUEUE_REVIEW_FIXTURE_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/coach-queue-review/COACH_QUEUE_REVIEW_ROUTE_CONTRACT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/coach-queue-review/COACH_QUEUE_REVIEW_STATIC_PREVIEW.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/coach-queue-review/COACH_QUEUE_REVIEW_SURFACE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "optimal",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "readiness",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/coach-queue-review/COACH_QUEUE_REVIEW_UI_RENDERER.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/COMMANDS.md",
+      "primary_category": "unclassified",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error.",
+        "No deterministic category matched. Human review may classify later."
+      ]
+    },
+    {
+      "path": "docs/commercial/COACH_SESSION_STATE_DEMO_CONTRACT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "recommend",
+        "recommendation",
+        "safe",
+        "risk",
+        "fatigue",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/COACH_SUMMARY_EXPORT_BAN_REINFORCEMENT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/COACH_TIER_PRICING_BOUNDARY_LOCK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "recommend",
+        "recommendation",
+        "safe",
+        "injury",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/MINIMAL_COACH_ONBOARDING_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "future",
+        "safe",
+        "injury",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P180_FIRST_PAID_PILOT_SETUP_CHECKLIST.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "future",
+        "recommend",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "readiness",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P181_PILOT_SUCCESS_EVIDENCE_PACK.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "risk",
+        "injury",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P182_SALES_HANDOFF_PACK.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "future",
+        "safe",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P183_POST_DEMO_REPLY_TEMPLATES.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "future",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P184_PILOT_QUALIFICATION_GATE.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "future",
+        "later",
+        "recommend",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P185_PILOT_PRICING_SEND_PACK.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P186_DEMO_TO_PILOT_CTA_CONTRACT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "injury",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P187_PILOT_OBJECTION_HANDLING_PACK_V2.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "safe",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P188_PILOT_ELIGIBILITY_MATRIX.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "proposal",
+        "future",
+        "later",
+        "safe",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P189_PILOT_INTAKE_FORM_SPEC.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "injury",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P200_FOUNDER_DEMO_SCRIPT_V2.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "safe",
+        "readiness",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P201_NOT_INCLUDED_COMMERCIAL_BOUNDARY_PACK_V2.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "proposal",
+        "future",
+        "safe",
+        "injury",
+        "readiness",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/P202_PILOT_CONVERSION_PROOF_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "safe",
+        "readiness",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/V0_COACH_ASSIGNMENT_WALKTHROUGH_PROOF.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/V0_COACH_DEMO_ARTEFACT_INDEX.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "draft",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/V0_COACH_DEMO_SURFACE_CLAIM_MATRIX.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/V0_COACH_NOTES_BOUNDARY_DEMO_PROOF.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/V0_COACH_TIER_VALUE_PROOF_PACK.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "safe",
+        "readiness",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/V0_FIRST_SALE_DEMO_CHECKLIST.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "safe",
+        "readiness",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/commercial/V0_FOUNDER_DEMO_SCRIPT_LOCK.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/contracts/v0_terminal_mixed_read_order_parity_contract.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/contracts/v1_coach_session_decision_summary_contract.md",
+      "primary_category": "slice-contract",
+      "review_status": "classified",
+      "review_signals": [],
+      "authority_effect": "metadata-only",
+      "notes": []
+    },
+    {
+      "path": "docs/contracts/v1_coach_session_decision_summary_payload_contract.md",
+      "primary_category": "unclassified",
+      "review_status": "review-needed",
+      "review_signals": [
+        "infer"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error.",
+        "No deterministic category matched. Human review may classify later."
+      ]
+    },
+    {
+      "path": "docs/contracts/v1_coach_session_decision_summary_projection_contract.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "superseded",
+        "old",
+        "draft",
+        "later",
+        "safe",
+        "temporary",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/contracts/v1_coach_session_decision_summary_query_path_contract.md",
+      "primary_category": "slice-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "superseded",
+        "old",
+        "later",
+        "safe",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/contracts/v1_coach_session_decision_summary_read_endpoint_contract.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "superseded",
+        "safe",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/contracts/v1_neutral_session_summary_api_contract.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "recommend",
+        "recommendation",
+        "risk",
+        "fatigue",
+        "readiness",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/DEMO_FIXTURE_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/FOUNDER_DEMO_PATH.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P150_COACH_ASSIGNMENT_PROOF.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P167_COACH_OBJECTION_HANDLING_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P168_COACH_NOTES_BOUNDARY_PROOF.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P169_COACH_HISTORY_COUNTS_DEMO.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "safe",
+        "safer",
+        "risk",
+        "fatigue",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P170_COACH_OBJECTION_HANDLING_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "recommend",
+        "recommendation",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P171_LIVE_DEMO_FAILURE_RECOVERY_RUNBOOK.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "future",
+        "recommend",
+        "recommendation",
+        "safe",
+        "fallback",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P192_PILOT_START_RUNBOOK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "later",
+        "recommend",
+        "readiness",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P193_COACH_WELCOME_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "draft",
+        "future",
+        "recommend",
+        "recommendation",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P194_ATHLETE_INVITE_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "future",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P195_SCREENSHOT_CAPTURE_CHECKLIST.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "future",
+        "recommend",
+        "safe",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P196_SALES_CLAIM_REGISTRY.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "proposal",
+        "future",
+        "later",
+        "recommend",
+        "recommendation",
+        "optimal",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P196A_FOUNDER_SALES_SCRIPT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "future",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/P196B_FOUNDER_OBJECTION_HANDLING_CARD.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "future",
+        "later",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "readiness",
+        "fallback",
+        "temporary",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/demo/V1_DEMO_FIXTURE_PACK_INDEX.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/dev/AUTHORITY_CHAIN.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "old",
+        "draft",
+        "future",
+        "later",
+        "fallback",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/dev/CODE_COMMENT_POLICY.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "old",
+        "future",
+        "later",
+        "recommend",
+        "optimal",
+        "safe",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/dev/CRITICAL_CODE_SIGNPOSTING_MAP.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/dev/DOC_MAINTENANCE_RULES.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "old",
+        "future",
+        "recommend",
+        "optimal",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/dev/DOC_SEARCH_GUIDE.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "post-v1",
+        "recommend",
+        "optimal",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "fallback",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/dev/FUNCTION_DOCUMENTATION_POLICY.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "recommend",
+        "optimal",
+        "safe",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/dev/NEW_DEVELOPER_START_HERE.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "old",
+        "recommend",
+        "recommendation",
+        "safe",
+        "risk",
+        "fatigue",
+        "readiness",
+        "fallback",
+        "inference",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/dev/REPO_MAP.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "optimal",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "fallback",
+        "temporary",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/dev/slices/S6_FIRST_COMPILE_ELIGIBILITY_GATE.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/DEVELOPER_ONBOARDING.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/DEVX.md",
+      "primary_category": "unclassified",
+      "review_status": "classified",
+      "review_signals": [],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "No deterministic category matched. Human review may classify later."
+      ]
+    },
+    {
+      "path": "docs/diagnostics/PUBLIC_UI_DIAGNOSTIC_SURFACES.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/engine/S7_COACH_MANAGED_ATHLETE_LINK_TRUTH_MODEL.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "draft",
+        "fallback",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/EVIDENCE_SEALING.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/founder/P178_CAPABILITY_MATRIX_V0_COACH_EXTRACT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "safe",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/GUARDS_INDEX.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "legacy",
+        "old",
+        "later",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/INDEX.md",
+      "primary_category": "developer-navigation",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "post-v1",
+        "recommend",
+        "safe",
+        "risk",
+        "fatigue",
+        "readiness",
+        "fallback",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/operator/S30_PILOT_LAUNCH_CONTROL_CHECKLIST.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/operator/S31_PILOT_USER_PROVISIONING_PACK.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/ops/P200_FIRST_PAID_PILOT_OPERATIONAL_CLOSURE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "readiness",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/ops/P201_PILOT_FAILURE_RECOVERY_CLOSURE.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "readiness",
+        "temporary",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot-blocked-reasons/PILOT_BLOCKED_REASON_REGISTRY.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot-readiness-evaluator/PILOT_READINESS_EVALUATOR.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "readiness",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot-signoff/PILOT_SIGNOFF_RECORD.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "readiness",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot/COACH_READY_PILOT_ACCEPTANCE_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "superseded",
+        "future",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "readiness",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot/S33_FIRST_EXECUTABLE_SESSION_START_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot/S34_LIVE_SESSION_EXECUTION_CHECKLIST.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "fallback",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot/S35_SPLIT_RETURN_RUNTIME_PROOF_PACK.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "fallback",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot/S36_PARTIAL_COMPLETION_HANDLING_PACK.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "later",
+        "recommend",
+        "recommendation",
+        "readiness",
+        "fallback",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot/S37_COACH_ASSIGNMENT_EXECUTION_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "automatic",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot/S38_COACH_ARTEFACT_VIEWING_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "automatic",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot/S39_COACH_NON_BINDING_NOTE_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "automatic",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot/S40_BLOCKED_STATE_SUPPORT_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "fallback",
+        "automatic",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilot/S45_IMPLEMENTATION_PROMPT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilots/P190_PILOT_INTAKE_COPY_SURFACE.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "recommend",
+        "optimal",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilots/P191_DEMO_EVIDENCE_CAPTURE_CHECKLIST.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "recommend",
+        "safe",
+        "safer",
+        "readiness",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilots/P198_PILOT_STATUS_UPDATE_TEMPLATE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "optimal",
+        "safe",
+        "safer",
+        "risk",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/pilots/P199_PILOT_RENEWAL_EXPANSION_DECISION_GATE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "optimal",
+        "safe",
+        "safer",
+        "fatigue",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/POST_V0_TRANSITION_PLAN.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "risk",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/BRAND_FEEL_PARAMETERS_v0_PROMPT.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "optimal",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/BRAND_FEEL_PARAMETERS_v0.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "later",
+        "recommend",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "readiness",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/CURRENT_PROJECT_DOCS_STATUS.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "old",
+        "future",
+        "recommend",
+        "safe",
+        "risk",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/NOT_INCLUDED_IN_V0_BOUNDARY_PACK.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/P199_V0_COMPLETION_GATE.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "old",
+        "draft",
+        "recommend",
+        "recommendation",
+        "risk",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/S24_live_operator_dashboard_pack.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "recommend",
+        "recommendation",
+        "safe",
+        "risk",
+        "readiness",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/S25_V0_SUPPORT_BOUNDARY_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "future",
+        "temporary",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/S26_PILOT_EVIDENCE_PACK.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "safe",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/S27_COACH_FACING_V0_USAGE_PACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/S28_ATHLETE_FACING_V0_USAGE_PACK.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/S29_FOUNDER_GO_LIVE_DECISION_MEMO.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/V0_BOUNDARY_INDEX.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/product/V0_SURFACE_INDEX.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "legacy",
+        "old",
+        "future",
+        "later",
+        "safe",
+        "risk",
+        "readiness",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/prompts/S49_COACH_QUEUE_REVIEW_SURFACE_PROMPT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/prompts/S50_COACH_QUEUE_REVIEW_API_ADAPTER_PROMPT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/prompts/S51_COACH_QUEUE_REVIEW_ROUTE_CONTRACT_PROMPT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/prompts/S52_COACH_QUEUE_REVIEW_FIXTURE_PACK_PROMPT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/prompts/S53_COACH_QUEUE_REVIEW_UI_RENDERER_PROMPT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/prompts/S54_COACH_QUEUE_REVIEW_STATIC_PREVIEW_PROMPT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/proofs/v0/v0_manual_runtime_checklist_2026-04-21.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V0_1_24_RELEASE_EVIDENCE.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V0_RELEASE_LANE_CLOSED.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_ACCEPTANCE_PACK_INDEX.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_ACCEPTANCE_SIGNOFF.md",
+      "primary_category": "commercial-or-copy-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_SIGNOFF_SUMMARY_CONTRACT.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "readiness",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_FREEZE_SIGNOFF_SUMMARY.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_HANDOFF_INDEX.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_MAINLINE_GREEN_RUN_EVIDENCE.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_OPERATOR_EXECUTION_ORDER.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "post-v1",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_OPERATOR_FREEZE_RUNBOOK.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_OPERATOR_RUNBOOK.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_PACKAGING_PROMOTION_PR_BODY_TEMPLATE.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "post-v1",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_PROMOTION_FLOW.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_REGISTRY_SEAL_LIFECYCLE.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_RELEASE_ARTEFACT_NAMING_CONTRACT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_RELEASE_CHECKLIST.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_RELEASE_NOTES.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_ROLLBACK_RUNBOOK.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "fallback",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_ROLLBACK.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/releases/V1_VERSION_AND_TAG.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/REPO_DOCS_INDEX.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "superseded",
+        "old",
+        "future",
+        "recommend",
+        "safe",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/DEV_FUNCTION_NOTES_BASELINE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/DEV_NOTES_COMMENT_BASELINE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "safe",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_BOUNDARY_GUARD_SCAFFOLDING.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "later",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_COACH_ATHLETE_JOURNEY_MAP.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "superseded",
+        "historical",
+        "draft",
+        "future",
+        "later",
+        "recommend",
+        "recommendation",
+        "optimal",
+        "safe",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "automatic",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_DATA_MODEL_FREEZE_POINT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "deprecated",
+        "superseded",
+        "historical",
+        "old",
+        "draft",
+        "future",
+        "post-v1",
+        "recommend",
+        "recommendation",
+        "safe",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "automatic",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "old",
+        "future",
+        "later",
+        "post-v1",
+        "recommend",
+        "recommendation",
+        "optimal",
+        "safe",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "automatic",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_ENTRY_LANE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "post-v1",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_IMPLEMENTATION_READINESS_CHECKLIST.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "later",
+        "post-v1",
+        "safe",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "automatic",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_LOCKED_ACTIVITY_SET_GUARD.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_REGISTRY_CONTENT_PRODUCTION_CONTRACT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "draft",
+        "future",
+        "later",
+        "post-v1",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_REGISTRY_DOMAIN_SCAFFOLD.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_REGISTRY_EXPANSION_TARGET.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "later",
+        "recommend",
+        "recommendation",
+        "optimal",
+        "safe",
+        "risk",
+        "injury",
+        "fatigue",
+        "readiness",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_REGISTRY_SCHEMA_TARGET_HARDENING.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/runtime/EXTRA_WORK_DEVIATION_EVENT_CAPTURE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/runtime/NON_BINDING_COACH_NOTES.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "future",
+        "later",
+        "recommend",
+        "recommendation",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/runtime/PARTIAL_COMPLETION_TRUTH_MODEL.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "later",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/runtime/SESSION_ARTEFACT_VIEWER.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "future",
+        "later",
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/runtime/SESSION_EXECUTION_RUNTIME_SHELL.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "later",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/runtime/SPLIT_RETURN_RUNTIME.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/SENIOR_DEVELOPER_REVIEW_CHECKLIST.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "optimal",
+        "safe",
+        "safer",
+        "risk",
+        "injury",
+        "readiness",
+        "inference",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/slices/OPERATOR_PILOT_DASHBOARD.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/slices/PILOT_STATE_MACHINE_ENFORCEMENT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/slices/PUBLIC_SALES_CLAIM_REGISTRY_GUARD.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/slices/S39_COACH_ASSIGNMENT_WITHIN_LIMITS_PROMPT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/slices/S39_COACH_ASSIGNMENT_WITHIN_LIMITS.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "later",
+        "recommend",
+        "safe",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/slices/S40_HISTORY_COUNTS_ONLY.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "future",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/slices/SUPPORT_BOUNDARY_TEMPLATES_IN_APP.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "safe",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/specs/FIRST_EXECUTABLE_SESSION_STUB.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "later",
+        "recommend",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/SPINE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/TICKET_001_REGISTRY_EXERCISE_PHASE4_EMIT_EXERCISES.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "fatigue",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/TICKET_002_PHASE3_CONSTRAINT_EMISSION.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/TICKET_003_REGISTRY_EXPANSION_SUBSTITUTION.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/TICKET_004_PHASE6_SESSION_MAPPING.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/TICKET_005_PHASE5_TO_PHASE6_FLOW.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/TICKET_007_IMPLEMENTATION.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "superseded",
+        "historical",
+        "old",
+        "later",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/TICKET_008_PHASE6_PRECEDENCE_AND_TEST_ALIGNMENT.md",
+      "primary_category": "unclassified",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error.",
+        "No deterministic category matched. Human review may classify later."
+      ]
+    },
+    {
+      "path": "docs/TICKET_009.md",
+      "primary_category": "unclassified",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error.",
+        "No deterministic category matched. Human review may classify later."
+      ]
+    },
+    {
+      "path": "docs/TICKET_010_PHASE1_CONSTRAINT_ENVELOPE.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/TICKET_011_PHASE2_CANONICAL_ENVELOPE_PRESERVATION.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "fallback",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/TICKET_012_PHASE3_CONSTRAINT_PRECEDENCE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/TICKET_014_SUBSTITUTION_SCORING_ROBUSTNESS.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "safe",
+        "fallback",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0_AUTHORITATIVE_SHIP_BOUNDARY.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "later",
+        "readiness",
+        "automatic",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0_CONTROL_STACK_ALIGNMENT.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "later",
+        "risk",
+        "readiness",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0_DECISION_SCORECARD.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0_FINAL_DECISION_NOTE.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/V0_G03_G04_PROOF_AUDIT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "historical",
+        "legacy",
+        "old",
+        "safe",
+        "fallback",
+        "inference",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0_READINESS_REBASELINE.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "later",
+        "recommend",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/V0_RELEASE_GAP_MATRIX.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "future",
+        "recommend",
+        "recommendation",
+        "safe",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/V0_RELEASE_SPINE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "legacy",
+        "old",
+        "safe",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0_REMAINING_BLOCKERS.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "readiness",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0_RUNTIME_PROOF_MATRIX.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "old",
+        "future",
+        "recommend",
+        "safe",
+        "risk",
+        "readiness",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/P150_COACH_ASSIGNMENT_HAPPY_PATH_ACCEPTANCE.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/P151_SPLIT_RETURN_DEMO_READ_MODEL_SURFACE.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/P152_COACH_NOTES_BOUNDARY_PROOF.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/P153_V0_CAPABILITY_MATRIX.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/P154_OPERATOR_QUICKSTART_PACK.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "legacy",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/P155_SESSION_HISTORY_COUNTS_CONTRACT.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/PHASE1_ACCEPTANCE_RECORD_API_CONTRACT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "superseded",
+        "later",
+        "inference",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/PHASE1_ACCEPTANCE_RECORD_COMPILE_GATE_INTEGRATION_NOTES.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "superseded",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/PHASE1_ACCEPTANCE_RECORD.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "superseded",
+        "old",
+        "later",
+        "infer",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/PHASE1_DECLARATION_SURFACE_CI_VALIDATION_NOTES.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "automatic",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/PHASE1_DECLARATION_SURFACE_CONTRACT.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "safe",
+        "risk",
+        "injury",
+        "readiness",
+        "infer",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/V0_ACTIVE_SCOPE_GUARD_SCOPING_NOTE.md",
+      "primary_category": "commercial-or-copy-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/V0_ACTIVE_SCOPE_MANIFEST_CI_GUARD.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "safe",
+        "readiness",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/V0_ACTIVE_SCOPE_MANIFEST.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "recommend",
+        "recommendation",
+        "safe",
+        "risk",
+        "injury",
+        "readiness",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v0/V0_COMPLETION_GATE_MANIFEST.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "post-v1",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/V1_COACH_SESSION_DECISION_SUMMARY_FIRST_TICKET_SET.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "superseded",
+        "old",
+        "future",
+        "recommend",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/V1_COACH_SESSION_DECISION_SUMMARY_IMPLEMENTATION_TEST_MATRIX.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "superseded",
+        "old",
+        "recommend",
+        "risk",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/V1_ENTRY_CRITERIA.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "future",
+        "later",
+        "recommend",
+        "automatic",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/V1_LANE1_REPORTING_READ_MODEL_TARGET.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "recommend",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/V1_PHASE_OBJECTIVE_AND_FIRST_LANES.md",
+      "primary_category": "release-boundary",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "recommend",
+        "readiness",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v1/README.md",
+      "primary_category": "slice-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "old",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v1/V1_DECLARATION_ERROR_UX_CONTRACT.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "recommend",
+        "safe",
+        "safer",
+        "fatigue",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v1/V1_EXPORT_NOTHING_V0_GUARD.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v1/V1_FOUNDER_DEMO_UI_COPY_LOCK.md",
+      "primary_category": "registry-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "draft",
+        "recommend",
+        "safe",
+        "safer",
+        "fatigue",
+        "readiness",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v1/V1_SLICE_001_DECISION_SUMMARY_READBACK.md",
+      "primary_category": "engine-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "historical",
+        "old",
+        "future",
+        "later",
+        "safe",
+        "fallback",
+        "ai",
+        "rag"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v1/V1_SLICE_002_DECISION_SUMMARY_HTTP_CONTRACT.md",
+      "primary_category": "slice-contract",
+      "review_status": "review-needed",
+      "review_signals": [
+        "later",
+        "safe",
+        "fallback",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    },
+    {
+      "path": "docs/v1/V1_SLICE_003_DECISION_SUMMARY_CONSUMER_SURFACE.md",
+      "primary_category": "proof-and-replay",
+      "review_status": "review-needed",
+      "review_signals": [
+        "stale",
+        "old",
+        "future",
+        "later",
+        "safe",
+        "fallback",
+        "ai"
+      ],
+      "authority_effect": "metadata-only",
+      "notes": [
+        "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+      ]
+    }
+  ]
+}
