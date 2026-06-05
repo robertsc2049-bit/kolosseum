@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Defines explicit v1 boundary guard helpers before product flows depend on them.
+ * Boundary: Product-only state must not become deterministic engine input or replay truth.
+ * Determinism: The same explicit input must always produce the same pass result or failure token.
+ * Failure: Throws stable v1 boundary tokens when forbidden fields or unsupported activity ids are present.
+ */
 const TOKEN_PREFIX = "v1_boundary_guard_";
 
 const V1_SUPPORTED_ACTIVITIES = Object.freeze([

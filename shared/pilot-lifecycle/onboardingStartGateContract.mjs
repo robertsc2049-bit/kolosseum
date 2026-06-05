@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Defines the explicit gate for starting onboarding flow.
+ * Boundary: Onboarding gate state must not bypass declaration or relationship requirements.
+ * Determinism: The same declared inputs must produce the same start-gate result.
+ * Failure: Missing required state must stop the gate rather than infer eligibility.
+ */
 export const ONBOARDING_START_TRIGGER_EVENTS = Object.freeze([
   "coach_invite_sent",
   "athlete_invite_sent",

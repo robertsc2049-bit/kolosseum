@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Defines presentation support for reduced-burden execution surfaces.
+ * Boundary: Presentation choices must not mutate engine truth, replay truth, or proof truth.
+ * Determinism: The same explicit presentation inputs must produce the same surface output.
+ * Failure: Unsupported presentation state must fail visibly rather than alter deterministic behaviour.
+ */
 function cloneJson(value) {
   return JSON.parse(JSON.stringify(value));
 }

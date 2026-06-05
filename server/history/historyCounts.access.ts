@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Controls access to factual history count surfaces.
+ * Boundary: Access permission must gate viewing only and must not alter engine or history truth.
+ * Determinism: The same relationship and permission state must produce the same access result.
+ * Failure: Missing or invalid access context must deny rather than infer permission.
+ */
 import type { HistoryAccessDecision, HistoryRequesterRole } from "./historyCounts.contract";
 
 export type CoachAthleteLinkStatus = "invited" | "accepted" | "revoked" | "expired" | "rejected";

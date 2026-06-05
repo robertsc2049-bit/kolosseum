@@ -1,9 +1,10 @@
-// DEV NOTE:
-// This module is an inert v1 registry domain scaffold.
-// It defines domain ids and required field groups only.
-// It must not contain registry content rows, exercise records, equipment records,
-// substitution edges, template records, migrations, or UI state.
-
+/**
+ * DEV NOTE:
+ * Purpose: Defines inert v1 registry domains and required field groups before content records exist.
+ * Boundary: This file must not contain registry rows, templates, substitutions, migrations, or UI state.
+ * Determinism: The exported domain list and field groups must remain stable until changed by an accepted slice.
+ * Failure: CI rejects missing domains, empty field groups, extra activities, or content-like exports.
+ */
 const LOCKED_V1_ACTIVITY_IDS = Object.freeze([
   "powerlifting",
   "general_strength",

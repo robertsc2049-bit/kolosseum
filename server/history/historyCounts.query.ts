@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Builds factual history count read results from stored records.
+ * Boundary: Queries must not infer cause, judgement, or future action from recorded history.
+ * Determinism: The same stored records and filter inputs must return the same factual result.
+ * Failure: Missing data must remain explicit rather than being filled by assumption.
+ */
 import {
   HISTORY_COUNTS_SCHEMA_VERSION,
   assertHistoryResponseClosedWorld,

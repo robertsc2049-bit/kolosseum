@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Keeps lifecycle reason codes stable for factual status reporting.
+ * Boundary: Reason codes must describe state only and must not add judgement or action claims.
+ * Determinism: A reason code must keep the same meaning across reads and tests.
+ * Failure: Unknown reason codes must be rejected or surfaced explicitly.
+ */
 import {
   PILOT_LIFECYCLE_STATES,
   PILOT_LIFECYCLE_STATE_LIST,

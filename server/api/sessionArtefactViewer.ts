@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Serves factual session artefact views without creating new engine truth.
+ * Boundary: Viewing artefacts must not mutate sessions, runtime events, replay state, or proof state.
+ * Determinism: The same stored artefact reference must resolve to the same factual view state.
+ * Failure: Missing or unauthorised artefact references must fail without fallback fabrication.
+ */
 export type ViewerActorType = "athlete" | "coach";
 
 export type ViewerActorContext = {

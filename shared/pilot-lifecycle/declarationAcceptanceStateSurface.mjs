@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Represents declaration acceptance state for onboarding and compile eligibility.
+ * Boundary: Acceptance state must remain explicit and must not be created from product display state.
+ * Determinism: The same declaration state must produce the same acceptance surface.
+ * Failure: Unaccepted, superseded, or mismatched declarations must remain refused.
+ */
 export const DECLARATION_STATE = Object.freeze({
   PENDING: "pending",
   ACCEPTED: "accepted",

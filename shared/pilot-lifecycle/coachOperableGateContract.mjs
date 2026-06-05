@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Defines when coach-facing pilot operations are explicitly available.
+ * Boundary: Gate state must not imply engine truth or create hidden product permissions.
+ * Determinism: The same declared lifecycle state must produce the same operability result.
+ * Failure: Unknown or incomplete state must refuse operability rather than infer it.
+ */
 import { resolvePilotLifecycleState } from "./pilotLifecycleStateMachine.mjs";
 import { PILOT_STATUS_REASON_CODES } from "./pilotStatusReasonCodes.mjs";
 

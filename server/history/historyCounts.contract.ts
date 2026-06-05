@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Defines the factual history count contract used by read-model surfaces.
+ * Boundary: The contract must describe recorded facts only and must not add interpretation claims.
+ * Determinism: Field meaning must remain stable so stored history can be read consistently.
+ * Failure: Contract drift must be handled by explicit versioned change rather than silent reinterpretation.
+ */
 export const HISTORY_COUNTS_SCHEMA_VERSION = "kolosseum.history_counts.v0.1" as const;
 
 export const HISTORY_VISIBILITY_DENIED = "HISTORY_VISIBILITY_DENIED" as const;

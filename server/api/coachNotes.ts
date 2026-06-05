@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Keeps coach notes as product records for factual coach review surfaces.
+ * Boundary: Coach notes must not enter engine input, replay input, canonical hashes, or proof artefacts.
+ * Determinism: Note storage and retrieval must not change deterministic engine output.
+ * Failure: Rejects or avoids paths that would couple notes to engine-bound payloads.
+ */
 export type CoachNoteActorType = "coach" | "athlete";
 
 export type CoachNoteActorContext = {

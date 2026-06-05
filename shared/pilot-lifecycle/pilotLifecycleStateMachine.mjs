@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Defines explicit lifecycle transitions for pilot-state progression.
+ * Boundary: Lifecycle transitions must not create engine inputs or hidden acceptance state.
+ * Determinism: The same current state and explicit event must produce the same next state.
+ * Failure: Unknown states or invalid transitions must be refused with stable behaviour.
+ */
 export const PILOT_LIFECYCLE_STATES = Object.freeze({
   ACCEPTED: "accepted",
   COMMERCIAL_PENDING: "commercial_pending",
