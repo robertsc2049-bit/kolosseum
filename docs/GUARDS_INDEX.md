@@ -50,5 +50,6 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | Not a tag build -> no-op |
 | `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
 | `ci/guards/v1_locked_activity_set_guard.mjs` | Repo Governance | medium | repo | @law v1_locked_activity_set |
+| `ci/guards/v1_registry_domain_scaffold_guard.mjs` | Registry Law | high | registry | @law v1_registry_domain_scaffold |
 | `ci/guards/v1_registry_schema_target_guard.mjs` | Registry Law | high | registry | @law v1_registry_schema_target |
 | `ci/guards/workflow_policy_header_guard.mjs` | Repo Governance | medium | repo |  |
