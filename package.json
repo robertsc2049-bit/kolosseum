@@ -111,7 +111,9 @@
                     "test:coach-queue-review-static-preview":  "npm run preview:coach-queue-review:static \u0026\u0026 node test/coachQueueReviewStaticPreview.test.mjs",
                     "check:docs-index":  "node scripts/check-docs-index.mjs",
                     "audit:doc-authority":  "node scripts/audit-doc-authority.mjs",
-                    "check:doc-authority-audit":  "node scripts/check-doc-authority-audit.mjs"
+                    "check:doc-authority-audit":  "node scripts/check-doc-authority-audit.mjs",
+                    "classify:doc-authority":  "node scripts/classify-doc-authority.mjs",
+                    "check:doc-authority-classification":  "node scripts/check-doc-authority-classification.mjs"
                 },
     "dependencies":  {
                          "@kolosseum/engine":  "file:engine",

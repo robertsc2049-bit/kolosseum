@@ -198,8 +198,13 @@ function markdownTable(rows, headers) {
   return [header, divider, ...body].join("\n");
 }
 
+const generatedDocOutputs = new Set([
+  path.resolve(outputPath),
+  path.resolve(path.join(repoRoot, "docs", "dev", "DOC_AUTHORITY_CLASSIFICATION.md"))
+]);
+
 const markdownFiles = walk(docsRoot).filter((filePath) => {
-  return path.resolve(filePath) !== path.resolve(outputPath);
+  return !generatedDocOutputs.has(path.resolve(filePath));
 });
 
 const fileAnalyses = markdownFiles.map((filePath) => {
