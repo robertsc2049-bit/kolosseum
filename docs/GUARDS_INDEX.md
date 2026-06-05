@@ -49,4 +49,5 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/runtime-boundary.guard.ps1` | Repo Governance | medium | repo |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | Not a tag build -> no-op |
 | `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
+| `ci/guards/v1_locked_activity_set_guard.mjs` | Repo Governance | medium | repo | @law v1_locked_activity_set |
 | `ci/guards/workflow_policy_header_guard.mjs` | Repo Governance | medium | repo |  |
