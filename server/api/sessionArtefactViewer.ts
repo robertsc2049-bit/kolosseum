@@ -175,6 +175,16 @@ const ALLOWED_VIEWER_RESPONSE_KEYS = [
   "copy_ids"
 ];
 
+/**
+ * FUNCTION NOTE:
+ * Export: canViewSessionArtefact
+ * Purpose: Documents the exported entrypoint for factual session artefact viewing so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must not mutate session state, runtime events, replay state, or proof state.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function canViewSessionArtefact(
   actor: ViewerActorContext,
   artefact: SessionArtefactRecord,
@@ -195,6 +205,16 @@ export function canViewSessionArtefact(
   return false;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: getSessionArtefactViewer
+ * Purpose: Documents the exported entrypoint for factual session artefact viewing so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must not mutate session state, runtime events, replay state, or proof state.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function getSessionArtefactViewer(
   actor: ViewerActorContext,
   artefact_id: string,
@@ -228,6 +248,16 @@ export function getSessionArtefactViewer(
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: handleSessionArtefactViewerRequest
+ * Purpose: Documents the exported entrypoint for factual session artefact viewing so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must not mutate session state, runtime events, replay state, or proof state.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function handleSessionArtefactViewerRequest(
   request: SessionArtefactApiRequest,
   store: SessionArtefactViewerStore
@@ -257,12 +287,32 @@ export function handleSessionArtefactViewerRequest(
   return getSessionArtefactViewer(request.actor, artefactId, store);
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: parseArtefactIdFromPath
+ * Purpose: Documents the exported entrypoint for factual session artefact viewing so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must not mutate session state, runtime events, replay state, or proof state.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function parseArtefactIdFromPath(path: string): string | null {
   const match = /^\/v0\/session-artefacts\/([^/]+)(?:\/.*)?$/.exec(path);
   if (!match) return null;
   return decodeURIComponent(match[1]);
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: toViewerResponse
+ * Purpose: Documents the exported entrypoint for factual session artefact viewing so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must not mutate session state, runtime events, replay state, or proof state.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function toViewerResponse(
   artefact: SessionArtefactRecord
 ): SessionArtefactViewerResponse {
@@ -295,6 +345,16 @@ export function toViewerResponse(
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertViewerResponseFactualOnly
+ * Purpose: Documents the exported entrypoint for factual session artefact viewing so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must not mutate session state, runtime events, replay state, or proof state.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertViewerResponseFactualOnly(
   response: SessionArtefactViewerResponse
 ): true {

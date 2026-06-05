@@ -23,6 +23,16 @@ function hasOwn(value, key) {
   return Object.prototype.hasOwnProperty.call(Object(value), key);
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertRelationshipIsActive
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertRelationshipIsActive(input) {
   if (!input || input.relationshipState !== "relationship_active") {
     fail(`${TOKEN_PREFIX}relationship_not_active`, "relationship_active is required");
@@ -31,6 +41,16 @@ export function assertRelationshipIsActive(input) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertCoachCanViewAthlete
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertCoachCanViewAthlete(input) {
   assertRelationshipIsActive(input);
 
@@ -41,6 +61,16 @@ export function assertCoachCanViewAthlete(input) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertCoachCanAssignProgramme
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertCoachCanAssignProgramme(input) {
   assertCoachCanViewAthlete(input);
 
@@ -53,6 +83,16 @@ export function assertCoachCanAssignProgramme(input) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertAthleteOwnsDeclaration
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertAthleteOwnsDeclaration(input) {
   if (!input || !input.athleteId || !input.declarationAthleteId) {
     fail(`${TOKEN_PREFIX}declaration_identity_required`, "athleteId and declarationAthleteId are required");
@@ -65,6 +105,16 @@ export function assertAthleteOwnsDeclaration(input) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertEngineInputIsCanonical
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertEngineInputIsCanonical(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     fail(`${TOKEN_PREFIX}engine_input_not_object`, "engine input must be an object");
@@ -82,6 +132,16 @@ export function assertEngineInputIsCanonical(input) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertNoCoachNoteInEngineInput
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertNoCoachNoteInEngineInput(input) {
   const forbiddenKeys = ["coach_note", "coach_notes", "coachNote", "coachNotes"];
 
@@ -94,6 +154,16 @@ export function assertNoCoachNoteInEngineInput(input) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertNoBillingStateInEngineInput
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertNoBillingStateInEngineInput(input) {
   const forbiddenKeys = ["billing", "billing_state", "billingState", "payment", "payment_state", "paymentState", "subscription", "subscription_state", "subscriptionState"];
 
@@ -106,6 +176,16 @@ export function assertNoBillingStateInEngineInput(input) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertNoUiStateInEngineInput
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertNoUiStateInEngineInput(input) {
   const forbiddenKeys = ["ui", "ui_state", "uiState", "presentation", "presentation_state", "presentationState", "selected_tab", "selectedTab", "drawer_state", "drawerState"];
 
@@ -118,6 +198,16 @@ export function assertNoUiStateInEngineInput(input) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertRegistryIdIsKnown
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertRegistryIdIsKnown(registryId, knownIds) {
   if (!registryId) {
     fail(`${TOKEN_PREFIX}registry_id_required`, "registry id is required");
@@ -134,6 +224,16 @@ export function assertRegistryIdIsKnown(registryId, knownIds) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertActivityIsV1Supported
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertActivityIsV1Supported(activityId) {
   if (!V1_SUPPORTED_ACTIVITIES.includes(activityId)) {
     fail(`${TOKEN_PREFIX}unsupported_activity`, `unsupported v1 activity: ${activityId}`);
@@ -142,6 +242,16 @@ export function assertActivityIsV1Supported(activityId) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertSubstitutionEdgeIsAllowed
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertSubstitutionEdgeIsAllowed(input) {
   if (!input || !input.sourceExerciseId || !input.targetExerciseId || !input.substitutionEdgeId) {
     fail(`${TOKEN_PREFIX}substitution_edge_fields_required`, "sourceExerciseId, targetExerciseId, and substitutionEdgeId are required");
@@ -162,6 +272,16 @@ export function assertSubstitutionEdgeIsAllowed(input) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertCopyIdExists
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertCopyIdExists(copyId, knownCopyIds) {
   if (!copyId) {
     fail(`${TOKEN_PREFIX}copy_id_required`, "copy id is required");
@@ -178,6 +298,16 @@ export function assertCopyIdExists(copyId, knownCopyIds) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertLiveViewIsReadOnly
+ * Purpose: Documents the exported entrypoint for v1 boundary guard behaviour so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit boundary checks and must not widen activity, product-state, replay, or deterministic-input scope.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertLiveViewIsReadOnly(input) {
   if (!input || !input.action) {
     fail(`${TOKEN_PREFIX}live_view_action_required`, "live view action is required");

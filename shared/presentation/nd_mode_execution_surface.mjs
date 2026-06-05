@@ -144,6 +144,16 @@ function normalizeWorkItem(item, options) {
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: createTruthSignature
+ * Purpose: Documents the exported entrypoint for presentation surface boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep presentation choices outside engine truth, replay truth, and proof truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function createTruthSignature(session) {
   const workItems = Array.isArray(session?.work_items) ? session.work_items : [];
 
@@ -167,6 +177,16 @@ export function createTruthSignature(session) {
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: normalizeNdExecutionSurface
+ * Purpose: Documents the exported entrypoint for presentation surface boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep presentation choices outside engine truth, replay truth, and proof truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function normalizeNdExecutionSurface(session, options = {}) {
   const input = cloneJson(session ?? {});
   const workItems = Array.isArray(input?.work_items) ? input.work_items : [];
@@ -184,6 +204,16 @@ export function normalizeNdExecutionSurface(session, options = {}) {
   return normalized;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: computePresentationComplexity
+ * Purpose: Documents the exported entrypoint for presentation surface boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep presentation choices outside engine truth, replay truth, and proof truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function computePresentationComplexity(surface) {
   const workItems = Array.isArray(surface?.work_items) ? surface.work_items : [];
 

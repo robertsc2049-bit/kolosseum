@@ -19,6 +19,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/ban_engine_status_guard.mjs` | Runtime Boundary | high | engine |  |
 | `ci/guards/ban_set_content_utf8_guard.mjs` | Encoding Hygiene | high | repo |  |
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | We forbid: |
+| `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |
 | `ci/guards/diff_line_endings_guard.mjs` | Encoding Hygiene | high | repo |  |
 | `ci/guards/engine_contract_guard.mjs` | Runtime Boundary | high | engine | Content sanity: keeps accidental replacements from passing even if hash disabled later |

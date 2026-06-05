@@ -32,6 +32,16 @@ function isExpired(expiresAt: string | null, nowIso: string): boolean {
   return expiresAt !== null && expiresAt <= nowIso;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: decideHistoryAccess
+ * Purpose: Documents the exported entrypoint for history count access boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must gate viewing only and must not alter engine truth or stored history truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function decideHistoryAccess(input: {
   requester: HistoryRequesterContext;
   athlete_user_id: string;

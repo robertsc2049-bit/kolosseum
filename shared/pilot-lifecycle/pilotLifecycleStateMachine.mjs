@@ -5,6 +5,16 @@
  * Determinism: The same current state and explicit event must produce the same next state.
  * Failure: Unknown states or invalid transitions must be refused with stable behaviour.
  */
+/**
+ * FUNCTION NOTE:
+ * Export: PILOT_LIFECYCLE_STATES
+ * Purpose: Documents the exported entrypoint for pilot lifecycle transition boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit state transitions and must not create engine input or hidden acceptance.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const PILOT_LIFECYCLE_STATES = Object.freeze({
   ACCEPTED: "accepted",
   COMMERCIAL_PENDING: "commercial_pending",
@@ -22,6 +32,16 @@ export const PILOT_LIFECYCLE_STATES = Object.freeze({
   CANCELLED: "cancelled",
 });
 
+/**
+ * FUNCTION NOTE:
+ * Export: PILOT_LIFECYCLE_STATE_LIST
+ * Purpose: Documents the exported entrypoint for pilot lifecycle transition boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit state transitions and must not create engine input or hidden acceptance.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const PILOT_LIFECYCLE_STATE_LIST = Object.freeze(
   Object.values(PILOT_LIFECYCLE_STATES),
 );
@@ -32,6 +52,16 @@ const OPERABLE_STATES = new Set([
   PILOT_LIFECYCLE_STATES.PAUSED,
 ]);
 
+/**
+ * FUNCTION NOTE:
+ * Export: ALLOWED_PILOT_LIFECYCLE_TRANSITIONS
+ * Purpose: Documents the exported entrypoint for pilot lifecycle transition boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit state transitions and must not create engine input or hidden acceptance.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const ALLOWED_PILOT_LIFECYCLE_TRANSITIONS = Object.freeze({
   [PILOT_LIFECYCLE_STATES.ACCEPTED]: Object.freeze([
     PILOT_LIFECYCLE_STATES.COMMERCIAL_PENDING,
@@ -109,6 +139,16 @@ function coerceBooleanRecord(input = {}) {
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: canTransitionPilotLifecycle
+ * Purpose: Documents the exported entrypoint for pilot lifecycle transition boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit state transitions and must not create engine input or hidden acceptance.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function canTransitionPilotLifecycle(fromState, toState) {
   assertKnownState(fromState, "from_state");
   assertKnownState(toState, "to_state");
@@ -116,12 +156,32 @@ export function canTransitionPilotLifecycle(fromState, toState) {
   return ALLOWED_PILOT_LIFECYCLE_TRANSITIONS[fromState].includes(toState);
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertPilotLifecycleTransitionAllowed
+ * Purpose: Documents the exported entrypoint for pilot lifecycle transition boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit state transitions and must not create engine input or hidden acceptance.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertPilotLifecycleTransitionAllowed(fromState, toState) {
   if (!canTransitionPilotLifecycle(fromState, toState)) {
     throw new Error("pilot_lifecycle_transition_forbidden:" + fromState + "->" + toState);
   }
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: resolvePilotLifecycleState
+ * Purpose: Documents the exported entrypoint for pilot lifecycle transition boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit state transitions and must not create engine input or hidden acceptance.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function resolvePilotLifecycleState(context = {}) {
   const c = coerceBooleanRecord(context);
 
@@ -184,6 +244,16 @@ export function resolvePilotLifecycleState(context = {}) {
   return PILOT_LIFECYCLE_STATES.COMMERCIAL_PENDING;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertPilotLifecycleTransitionMatchesContext
+ * Purpose: Documents the exported entrypoint for pilot lifecycle transition boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must preserve explicit state transitions and must not create engine input or hidden acceptance.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertPilotLifecycleTransitionMatchesContext(fromState, toState, context = {}) {
   assertPilotLifecycleTransitionAllowed(fromState, toState);
 
