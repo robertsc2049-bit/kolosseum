@@ -19,7 +19,8 @@ const excludedDirectories = new Set([
 const generatedOutputs = new Set([
   normalisePath(jsonOutputPath),
   normalisePath(markdownOutputPath),
-  normalisePath(path.join(repoRoot, "docs", "dev", "DOC_AUTHORITY_AUDIT.md"))
+  normalisePath(path.join(repoRoot, "docs", "dev", "DOC_AUTHORITY_AUDIT.md")),
+  normalisePath(path.join(repoRoot, "docs", "dev", "DOC_REVIEW_PLAN.md"))
 ]);
 
 const categories = [

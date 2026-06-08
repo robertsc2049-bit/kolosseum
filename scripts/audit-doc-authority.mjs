@@ -200,7 +200,8 @@ function markdownTable(rows, headers) {
 
 const generatedDocOutputs = new Set([
   path.resolve(outputPath),
-  path.resolve(path.join(repoRoot, "docs", "dev", "DOC_AUTHORITY_CLASSIFICATION.md"))
+  path.resolve(path.join(repoRoot, "docs", "dev", "DOC_AUTHORITY_CLASSIFICATION.md")),
+  path.resolve(path.join(repoRoot, "docs", "dev", "DOC_REVIEW_PLAN.md"))
 ]);
 
 const markdownFiles = walk(docsRoot).filter((filePath) => {
