@@ -113,7 +113,9 @@
                     "audit:doc-authority":  "node scripts/audit-doc-authority.mjs",
                     "check:doc-authority-audit":  "node scripts/check-doc-authority-audit.mjs",
                     "classify:doc-authority":  "node scripts/classify-doc-authority.mjs",
-                    "check:doc-authority-classification":  "node scripts/check-doc-authority-classification.mjs"
+                    "check:doc-authority-classification":  "node scripts/check-doc-authority-classification.mjs",
+                    "generate:doc-review-plan":  "node scripts/generate-doc-review-plan.mjs",
+                    "check:doc-review-plan":  "node scripts/check-doc-review-plan.mjs"
                 },
     "dependencies":  {
                          "@kolosseum/engine":  "file:engine",
