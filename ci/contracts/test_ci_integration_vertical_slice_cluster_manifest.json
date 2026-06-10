@@ -1,12 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Integration vertical-slice cluster manifest. This file groups the exact commands that prove the plan-start-state smoke path and HTTP vertical-slice paths remain covered.",
-    "DEV NOTE: The label is descriptive only. It must not define behaviour, authority, release scope, or pass/fail semantics.",
-    "DEV NOTE: commands[] is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
-    "DEV NOTE: The smoke vertical-slice test protects the basic plan, start, and state path across the integrated surface.",
-    "DEV NOTE: The HTTP vertical-slice tests protect return-gate, return-skip, complete-step, and unknown-engine-error contract behaviour without redefining engine or API handler logic here.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "label": "test:ci:integration vertical slice cluster",
   "commands": [
     "node test/smoke_vertical_slice_plan_start_state.test.mjs",

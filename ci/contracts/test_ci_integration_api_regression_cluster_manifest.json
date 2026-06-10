@@ -1,13 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Integration API regression cluster manifest. This file groups the exact commands that protect return-gate, replay, runtime-event, state-parity, append-only history, split-decision, compile-error, and ungate-wrapper API regressions.",
-    "DEV NOTE: The label is descriptive only. It must not define behaviour, authority, release scope, or pass/fail semantics.",
-    "DEV NOTE: commands[] is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
-    "DEV NOTE: Return-gate and return-skip tests protect declared split/return decision behaviour across normal, persisted replay, and idempotent paths.",
-    "DEV NOTE: Runtime-event and state-parity tests protect append-only event history and projected state consistency without redefining runtime reducer or engine behaviour in this manifest.",
-    "DEV NOTE: Compile error-mapping and ungate-wrapper tests protect API regression boundaries where handler behaviour can drift from the declared contract.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "label": "test:ci:integration api regression cluster",
   "commands": [
     "node test/api.return_gate.regression.test.mjs",

@@ -1,13 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Registry seal snapshot fixture. This file records the pinned registry files and SHA-256 hashes that make up the launch registry bundle snapshot.",
-    "DEV NOTE: schema_version identifies the registry seal snapshot schema contract. Changing it is a contract change and must be reviewed deliberately.",
-    "DEV NOTE: snapshot_id and snapshot_version identify this snapshot record only. They must not define engine behaviour, registry law, release scope, or product authority.",
-    "DEV NOTE: seal_scope declares the sealing scope for this snapshot. registry_bundle means the listed registry entries and hashes are the intended bundle snapshot surface.",
-    "DEV NOTE: entries[] is an explicit closed list of registry path/hash pairs. Do not replace it with broad filesystem discovery, inferred registry inclusion, or hidden path expansion.",
-    "DEV NOTE: Each sha256 value pins the exact registry file content represented by this snapshot. Do not hand-edit hashes to make tests pass; regenerate the snapshot through the deterministic sealing path when registry content changes.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "schema_version": "kolosseum.registry_seal_snapshot.v1",
   "snapshot_id": "launch_registry_seal_snapshot",
   "snapshot_version": "1.0.0",

@@ -1,14 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Phase 4 output schema fixture. This file provides a compact v1.0.0 fixture for a successful prescription-ready Phase 4 programme output.",
-    "DEV NOTE: ok=true records fixture success state only. It must not bypass Phase 4 validation, registry checks, or downstream Phase 6 requirements.",
-    "DEV NOTE: program.program_id and program.version identify the fixture programme record. They must not define broader product scope or release authority.",
-    "DEV NOTE: planned_items[] is the important Phase 4 prescription surface here. Keep block_id, item_id, exercise_id, session_id, role, sets, reps, intensity, and rest_seconds explicit and reviewable.",
-    "DEV NOTE: planned_exercise_ids, exercises, exercise_pool, and target_exercise_id are fixture support fields used to prove schema shape and registry-linked exercise references.",
-    "DEV NOTE: constraints is empty in this fixture by design. Do not infer missing constraints or add defaults here to make tests pass.",
-    "DEV NOTE: notes[] records fixture explanation only. It must not define engine behaviour, phase law, registry law, product claims, or release readiness.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "ok": true,
   "program": {
     "program_id": "PROGRAM_POWERLIFTING_V1",

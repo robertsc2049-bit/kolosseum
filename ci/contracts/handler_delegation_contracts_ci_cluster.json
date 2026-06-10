@@ -1,12 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: CI cluster manifest for API handler delegation contracts. This file groups the exact tests that prove session and runtime-event API handlers delegate to their declared service or handler paths.",
-    "DEV NOTE: The label is descriptive only. It must not define behaviour, authority, or pass/fail semantics.",
-    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
-    "DEV NOTE: Handler delegation tests protect the API boundary. They should prove plan-session, start-session, append-event, list-events, and get-state handlers delegate without duplicating service or engine logic.",
-    "DEV NOTE: These tests must catch wrapper drift, bypasses, or accidental reimplementation at the handler layer while leaving engine truth inside the declared engine/service boundary.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "label": "handler delegation contracts ci cluster",
   "cluster": [
     "node test/api_handlers_plan_session_delegation.test.mjs",

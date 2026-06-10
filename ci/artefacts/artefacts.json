@@ -1,22 +1,21 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Artefact routing manifest. This file classifies changed paths into coarse route groups so local and CI checks can choose the smallest lawful proof route.",
-    "DEV NOTE: groups[].patterns are path classifiers only. They must not define engine behaviour, release scope, legal authority, or CI token meaning.",
-    "DEV NOTE: decision routes are execution shortcuts for developer feedback. They must not be treated as proof of release readiness unless the routed command itself is the required gate.",
-    "DEV NOTE: ENGINE_RISK and APP_RISK classifications are intentionally conservative. Prefer over-checking risk surfaces rather than silently downgrading them.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "version": 1,
   "groups": [
     {
       "id": "docs",
       "kind": "DOC",
-      "patterns": ["docs/**", "**/*.md", "**/*.txt"]
+      "patterns": [
+        "docs/**",
+        "**/*.md",
+        "**/*.txt"
+      ]
     },
     {
       "id": "workflows",
       "kind": "WORKFLOW",
-      "patterns": [".github/workflows/**"]
+      "patterns": [
+        ".github/workflows/**"
+      ]
     },
     {
       "id": "control_plane",
@@ -57,10 +56,25 @@
     }
   ],
   "decision": {
-    "when_docs_only": { "route": "lint:fast", "reason": "docs-only" },
-    "when_workflow_only": { "route": "green:fast", "reason": "workflow-only" },
-    "when_engine_risk": { "route": "green:ci", "reason": "engine-risk" },
-    "when_app_risk": { "route": "dev:fast", "reason": "app-risk" },
-    "default": { "route": "lint:fast", "reason": "non-risk" }
+    "when_docs_only": {
+      "route": "lint:fast",
+      "reason": "docs-only"
+    },
+    "when_workflow_only": {
+      "route": "green:fast",
+      "reason": "workflow-only"
+    },
+    "when_engine_risk": {
+      "route": "green:ci",
+      "reason": "engine-risk"
+    },
+    "when_app_risk": {
+      "route": "dev:fast",
+      "reason": "app-risk"
+    },
+    "default": {
+      "route": "lint:fast",
+      "reason": "non-risk"
+    }
   }
 }

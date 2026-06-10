@@ -1,13 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Evidence envelope schema fixture. This file provides a compact v1.0.0 fixture for the kolosseum:evidence_envelope@1 contract.",
-    "DEV NOTE: contract identifies the evidence envelope contract being represented. Changing this value is a contract change and must be reviewed deliberately.",
-    "DEV NOTE: engine records fixture metadata for engine and Node versions. These values are trace metadata, not release authority.",
-    "DEV NOTE: inputs records placeholder request, constraints, registry bundle, and schema hashes. Zero hashes are fixture placeholders and must not be treated as real sealed evidence.",
-    "DEV NOTE: artifacts.phase_outputs[] records the required phase output evidence shape for phases 1, 3, 4, and 6. These entries prove schema shape, not real production output.",
-    "DEV NOTE: validations.guards[] records the expected guard result shape. pass values in this fixture prove schema compatibility only and must not be treated as broader product approval.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "contract": "kolosseum:evidence_envelope@1",
   "engine": {
     "version": "0.1.23",
@@ -26,16 +17,38 @@
   },
   "artifacts": {
     "phase_outputs": [
-      { "phase": 1, "name": "phase1_envelope", "sha256": "0000000000000000000000000000000000000000000000000000000000000000" },
-      { "phase": 3, "name": "phase3_constraints", "sha256": "0000000000000000000000000000000000000000000000000000000000000000" },
-      { "phase": 4, "name": "phase4_program", "sha256": "0000000000000000000000000000000000000000000000000000000000000000" },
-      { "phase": 6, "name": "phase6_session", "sha256": "0000000000000000000000000000000000000000000000000000000000000000" }
+      {
+        "phase": 1,
+        "name": "phase1_envelope",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "phase": 3,
+        "name": "phase3_constraints",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "phase": 4,
+        "name": "phase4_program",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "phase": 6,
+        "name": "phase6_session",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
     ]
   },
   "validations": {
     "guards": [
-      { "name": "registry_law_guard", "result": "pass" },
-      { "name": "engine_contract_guard", "result": "pass" }
+      {
+        "name": "registry_law_guard",
+        "result": "pass"
+      },
+      {
+        "name": "engine_contract_guard",
+        "result": "pass"
+      }
     ]
   }
 }

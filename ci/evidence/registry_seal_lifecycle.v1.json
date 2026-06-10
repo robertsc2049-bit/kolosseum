@@ -1,13 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Registry seal lifecycle fixture. This file records the allowed lifecycle state movement for the v1 launch registry seal surface.",
-    "DEV NOTE: schema_version identifies the lifecycle schema contract. Changing it is a contract change and must be reviewed deliberately.",
-    "DEV NOTE: lifecycle_id and lifecycle_version identify this lifecycle record only. They must not define engine behaviour, registry law, release scope, or product authority.",
-    "DEV NOTE: current_state records the declared lifecycle state for this fixture. It should change only through an intentional lifecycle update.",
-    "DEV NOTE: allowed_transitions[] is a closed explicit transition list. Do not replace it with inferred state movement, broad state matching, or hidden transition generation.",
-    "DEV NOTE: The pre_seal to sealed transition is the only declared transition here. Additional lifecycle movement requires an explicit contract and test update.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "schema_version": "kolosseum.registry_seal_lifecycle.v1",
   "lifecycle_id": "launch_registry_seal_lifecycle",
   "lifecycle_version": "1.0.0",

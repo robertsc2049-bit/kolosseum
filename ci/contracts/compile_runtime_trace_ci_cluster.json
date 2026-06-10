@@ -1,11 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: CI cluster manifest for compile runtime trace proof. This file groups the exact test command that proves the block compile runtime trace contract remains stable.",
-    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, or environment-dependent command expansion.",
-    "DEV NOTE: This test protects the runtime trace contract. It should prove the API compile path emits the expected trace shape without redefining engine execution behaviour in the test manifest.",
-    "DEV NOTE: Runtime trace proof is observational. It records and checks the declared trace contract; it must not create new engine authority, scoring, analysis, or advisory behaviour.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "cluster": [
     "node test/api.blocks_compile_runtime_trace_contract.regression.test.mjs"
   ]

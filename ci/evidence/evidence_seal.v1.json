@@ -1,12 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Evidence seal fixture. This file records the deterministic seal shape for the declared kolosseum:evidence_seal@1 contract.",
-    "DEV NOTE: contract identifies the evidence seal contract being represented. Changing this value is a contract change and must be reviewed deliberately.",
-    "DEV NOTE: envelope_sha256 links this seal to the canonical evidence envelope hash. If the envelope changes, this value should change deliberately through the evidence/seal generation path.",
-    "DEV NOTE: seal_sha256 records the resulting seal hash. It is evidence metadata only and must not redefine engine behaviour, product scope, or release authority.",
-    "DEV NOTE: Do not hand-edit hash values to make tests pass. Regenerate the evidence/seal artefact through the intended deterministic path when source material changes.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "contract": "kolosseum:evidence_seal@1",
   "envelope_sha256": "D99E899ADDCE775E50A61BFD907AE3114CAE2D0359526A2D68DD5023D1972B26",
   "seal_sha256": "DF62A28546D5D4758C236722CE0145187D76B012F720E88415A19B81F80DB14D"

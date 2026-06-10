@@ -1,12 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Integration CI composition manifest. This file lists the integration cluster manifests and the exact guard commands that prove those manifests remain present and structurally valid.",
-    "DEV NOTE: items[] is an explicit composition list. Do not replace it with broad discovery, inferred manifests, environment-dependent expansion, or hidden command generation.",
-    "DEV NOTE: Each item id is descriptive routing identity only. It must not define engine behaviour, release scope, product authority, or pass/fail semantics.",
-    "DEV NOTE: manifest paths point to strict JSON cluster manifests owned elsewhere. This composition file should reference them, not duplicate their command lists.",
-    "DEV NOTE: guards[] contains the exact tests that protect each referenced manifest file and manifest contract. Keep guard commands explicit and reviewable.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "items": [
     {
       "id": "api_regression_cluster",

@@ -1,14 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Phase 1 to Phase 6 output contract pin. This file records the expected output shape for a deterministic full-pipeline run from the named fixture through the compiled run_pipeline module.",
-    "DEV NOTE: fixture_path identifies the source fixture used to produce this pinned output. Changing it changes the contract example and must be reviewed deliberately.",
-    "DEV NOTE: module_path identifies the compiled pipeline module used for this contract pin. It is trace metadata and must not define engine behaviour by itself.",
-    "DEV NOTE: output.ok=true records the expected successful pipeline result for this fixture only. It must not bypass validation, registry law, phase contracts, or runtime proof.",
-    "DEV NOTE: output.result.session.exercises[] is the important Phase 6 emitted-session surface here. Keep programme provenance, block_id, item_id, exercise_id, sets, reps, intensity, and rest_seconds explicit and reviewable.",
-    "DEV NOTE: source=program confirms each emitted exercise came from planned programme items. Do not replace this with inferred provenance or hidden mapping.",
-    "DEV NOTE: schema_version identifies this output-contract pin schema. Changing it is a contract change and must be reviewed deliberately.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "fixture_path": "test/fixtures/phase1_to_phase6.valid.general_strength.individual.json",
   "module_path": "dist/src/run_pipeline.js",
   "output": {

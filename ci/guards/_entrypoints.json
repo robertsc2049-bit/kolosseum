@@ -1,12 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Entrypoint manifest. This file lists the package.json scripts and workflow files that are treated as supported CI/developer entrypoints.",
-    "DEV NOTE: package_json_scripts[] is an explicit reviewable list. Do not replace it with broad package.json discovery, inferred script inclusion, or hidden command expansion.",
-    "DEV NOTE: workflow_files[] is an explicit reviewable list of workflow files that participate in the guarded CI surface.",
-    "DEV NOTE: This file helps guards prove that important command surfaces remain visible and intentionally owned. It must not define engine behaviour, registry law, product scope, or release authority by itself.",
-    "DEV NOTE: Adding or removing an entrypoint should be deliberate because it changes what future developers expect to be stable and supported.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "package_json_scripts": [
     "lint:fast",
     "dev:fast",

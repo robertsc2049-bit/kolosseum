@@ -1,12 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Phase 1 truth-surface CI manifest. This file lists the exact tests that protect Phase 1 enforcement and v0 truth-surface drift detection.",
-    "DEV NOTE: The version field is the manifest schema version only. It must not define engine phase authority, release readiness, or product scope.",
-    "DEV NOTE: The tests array is an explicit test list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent expansion.",
-    "DEV NOTE: The Phase 1 CI enforcer test protects the declared Phase 1 boundary. It should fail when required Phase 1 enforcement is weakened or bypassed.",
-    "DEV NOTE: The v0 truth-surface drift guard protects the exposed v0 truth surface from undocumented expansion or contraction.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "version": 1,
   "tests": [
     "test/phase1_ci_enforcer_contract.test.mjs",

@@ -1,12 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Phase 1-6 failure-token canonical CI cluster manifest. This file groups the exact commands that prove the executable spine, Phase 6 output pin, unsupported activity pin, and canonical failure-token contract.",
-    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
-    "DEV NOTE: The executable spine test protects the end-to-end Phase 1-6 path. It should prove the declared phase chain runs without creating authority outside the locked v0 engine boundary.",
-    "DEV NOTE: Phase 6 output and unsupported-activity pin tests protect stable output and rejection semantics. They should catch drift in the observable contract.",
-    "DEV NOTE: Failure-token canonical tests protect exact failure identity. They should preserve deterministic, machine-readable failure tokens rather than relying on prose error interpretation.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "cluster": [
     "node test/phase1_to_phase6_executable_spine_contract.test.mjs",
     "node test/phase6_output_contract_pin_contract.test.mjs",

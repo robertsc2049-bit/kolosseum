@@ -1,12 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Split-invariant normalisation CI cluster manifest. This file groups the exact Phase 6 tests that prove split invariant normalisation remains covered.",
-    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
-    "DEV NOTE: The active split tests protect normal, empty, canonical, garbage-type, and partial-garbage input cases at the Phase 6 split boundary.",
-    "DEV NOTE: The inactive split tests protect garbage-type and array input cases when split behaviour is not active.",
-    "DEV NOTE: These tests should prove normalisation preserves the declared invariant shape without upgrading, inferring, or accepting invalid split state beyond the contract.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "cluster": [
     "node test/phase6_split_invariant_normalize.test.mjs",
     "node test/phase6_split_invariant_normalize_active_empty.test.mjs",

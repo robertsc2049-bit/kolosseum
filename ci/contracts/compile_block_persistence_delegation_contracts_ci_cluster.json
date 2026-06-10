@@ -1,12 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: CI cluster manifest for compile-block persistence and delegation contracts. This file groups the exact tests that prove compile-block API handlers delegate correctly and preserve persistence/service boundaries.",
-    "DEV NOTE: The label is descriptive only. It must not define behaviour, authority, or pass/fail semantics.",
-    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, inferred tests, fallback commands, or environment-dependent expansion.",
-    "DEV NOTE: These tests protect the compile-block boundary: input argument contract, missing Phase 1 input handling, phase failure mapping, create-session response shape, runtime-event error mapping, response allowlisting, HTTP wrapper delegation, and write-service delegation.",
-    "DEV NOTE: Handler and service wrapper tests should prove delegation and contract preservation. They must not duplicate engine logic or redefine compile behaviour in the API layer.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "label": "compile block persistence delegation contracts ci cluster",
   "cluster": [
     "node test/api_handlers_compile_block_persistence_delegation.test.mjs",

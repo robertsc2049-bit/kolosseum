@@ -1,15 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Freeze-sensitive surfaces manifest. This file lists the path patterns that require extra care during freeze and release work.",
-    "DEV NOTE: schema_version identifies the freeze-sensitive-surface schema contract. Changing it is a contract change and must be reviewed deliberately.",
-    "DEV NOTE: freeze_sensitive_surfaces[] is an explicit closed list of protected path patterns. Do not replace it with broad repository scanning, inferred sensitivity, or hidden path expansion.",
-    "DEV NOTE: docs/releases/** protects release documentation because those files describe release state and historical decisions.",
-    "DEV NOTE: ci/evidence/** and ci/freeze/** protect evidence, seal, and freeze records because those files support reproducibility and release confidence.",
-    "DEV NOTE: ci/scripts/run_freeze_* and ci/scripts/run_release_* protect release/freeze execution scripts because command behaviour can affect release proof.",
-    "DEV NOTE: .github/PULL_REQUEST_TEMPLATE/promotion.md protects the promotion checklist because it controls human review expectations during release promotion.",
-    "DEV NOTE: This file defines review sensitivity only. It must not define engine behaviour, registry law, product scope, or release authority by itself.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "schema_version": "kolosseum.freeze_sensitive_surfaces.v1",
   "freeze_sensitive_surfaces": [
     "docs/releases/**",

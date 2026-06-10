@@ -1,11 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Phase 1/docs CI cluster manifest. This file groups the exact commands that protect Phase 1 negative behaviour and CLI export documentation contract coverage.",
-    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
-    "DEV NOTE: The Phase 1 plate-only collapse negative test protects against an invalid Phase 1 collapse path being accepted silently.",
-    "DEV NOTE: The CLI export docs contract test protects generated/exported documentation expectations without creating new engine authority.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "cluster": [
     "node test/phase1_plate_only_collapse_negative.test.mjs",
     "node test/cli_export_contract_docs.test.mjs"

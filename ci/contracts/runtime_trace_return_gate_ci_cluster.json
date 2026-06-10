@@ -1,11 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Runtime-trace return-gate CI cluster manifest. This file groups the exact test command that proves the Phase 6 runtime trace return gate remains enforced.",
-    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
-    "DEV NOTE: The runtime trace return-gate test protects the declared return-gate behaviour at the Phase 6/runtime-trace boundary.",
-    "DEV NOTE: This manifest must not define return-gate behaviour itself. It only lists the test that proves the behaviour remains covered.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "cluster": [
     "node test/phase6_runtime_trace_return_gate.test.mjs"
   ]

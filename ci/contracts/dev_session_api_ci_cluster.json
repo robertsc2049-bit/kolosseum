@@ -1,12 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Dev/session API CI cluster manifest. This file groups the exact commands that protect local dev cleanliness, session sequence initialisation, session state/event services, plan-session service contracts, and runtime session HTTP wrappers.",
-    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
-    "DEV NOTE: Clean-tree and service-wrapper tests protect the developer control plane and API boundary. They should prove the wrapper path delegates to the declared service without duplicating service or engine logic.",
-    "DEV NOTE: Plan-session body and envelope tests protect request-shape boundaries. They should prove invalid, undeclared, empty, direct, envelope, nested, and allowlisted inputs are handled by the declared contract.",
-    "DEV NOTE: Runtime event and session HTTP wrapper tests are boundary tests. They should prove start, append, state, and event-list wrappers preserve the declared runtime contract without creating new engine authority.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "cluster": [
     "node test/dev_fast_clean_tree_negative.test.mjs",
     "node test/api_session_event_seq_init_contract.test.mjs",

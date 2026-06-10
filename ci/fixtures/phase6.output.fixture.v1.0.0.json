@@ -1,14 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Phase 6 output schema fixture. This file provides a compact v1.0.0 fixture for a successful ready session emitted from planned programme items.",
-    "DEV NOTE: ok=true records fixture success state only. It must not bypass Phase 6 validation, runtime session rules, registry checks, or replay requirements.",
-    "DEV NOTE: session.session_id and session.status identify the fixture session record and ready state. They must not define broader product scope or release authority.",
-    "DEV NOTE: session.exercises[] is the important Phase 6 emitted-session surface here. Keep exercise_id, source, block_id, item_id, sets, reps, intensity, and rest_seconds explicit and reviewable.",
-    "DEV NOTE: source=program links each emitted exercise back to programme/planned-item origin. Do not replace this with inferred provenance or hidden mapping.",
-    "DEV NOTE: substituted_from records the fixture substitution trace for the affected exercise. It is evidence of declared substitution output shape, not permission to infer substitutions elsewhere.",
-    "DEV NOTE: notes[] records fixture explanation only. It must not define engine behaviour, phase law, registry law, product claims, or release readiness.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "ok": true,
   "session": {
     "session_id": "SESSION_V1",

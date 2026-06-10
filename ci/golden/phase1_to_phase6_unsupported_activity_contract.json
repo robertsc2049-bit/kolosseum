@@ -1,14 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: Phase 1 to Phase 6 unsupported-activity contract pin. This file records the expected failure shape for an invalid full-pipeline fixture using an unsupported activity.",
-    "DEV NOTE: fixture_path identifies the invalid source fixture used to produce this pinned failure output. Changing it changes the contract example and must be reviewed deliberately.",
-    "DEV NOTE: module_path identifies the compiled pipeline module used for this contract pin. It is trace metadata and must not define engine behaviour by itself.",
-    "DEV NOTE: output.ok=false is the expected result for this invalid fixture only. It must not be weakened into permissive activity handling, silent acceptance, or automatic activity substitution.",
-    "DEV NOTE: output.failure_token pins the expected error token for this unsupported-activity path. Do not rename or broaden it without updating the owning contract and tests deliberately.",
-    "DEV NOTE: schema_version identifies this unsupported-activity contract pin schema. Changing it is a contract change and must be reviewed deliberately.",
-    "DEV NOTE: This file protects closed-world activity handling. Unsupported activity input should fail deterministically rather than being inferred into a supported activity.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "fixture_path": "test/fixtures/phase1_to_phase6.invalid.unsupported-activity.json",
   "module_path": "dist/src/run_pipeline.js",
   "output": {

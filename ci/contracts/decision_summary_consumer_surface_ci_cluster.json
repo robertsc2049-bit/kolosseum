@@ -1,11 +1,4 @@
 {
-  "_dev_notes": [
-    "DEV NOTE: CI cluster manifest for the decision-summary consumer surface. This file groups the exact UI contract tests for source binding, render behaviour, and request guarding.",
-    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, or environment-dependent command expansion.",
-    "DEV NOTE: These tests protect the consumer-surface boundary. They should prove the UI reads from the declared decision-summary source and renders only the allowed contract shape.",
-    "DEV NOTE: Request guard tests should prove invalid or missing request inputs are blocked at the surface boundary before they become ambiguous UI state.",
-    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
-  ],
   "cluster": [
     "node test/ui_decision_summary_consumer_surface_source_contract.test.mjs",
     "node test/ui_decision_summary_consumer_surface_render_contract.test.mjs",
