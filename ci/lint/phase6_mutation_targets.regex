@@ -1,0 +1,5 @@
+\b(add_constraint|addConstraints|mutate_phase1|mutatePhase1)\b
+\b(merge_equipment|mergeEquipment|set_equipment_profile|setEquipmentProfile)\b
+\b(presence_update|presenceUpdate|update_presence|updatePresence)\b
+\b(re[-_ ]?enumerate|reEnumerate|recompute_legality|recomputeLegality)\b
+\b(trigger_substitution|triggerSubstitution|coach_override|coachOverride)\b

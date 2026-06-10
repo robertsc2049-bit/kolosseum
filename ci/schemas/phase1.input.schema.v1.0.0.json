@@ -20,103 +20,189 @@
     "constraints": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["constraints_version"],
+      "required": [
+        "constraints_version"
+      ],
       "properties": {
-        "constraints_version": { "type": "string", "const": "1.0.0" },
-
+        "constraints_version": {
+          "type": "string",
+          "const": "1.0.0"
+        },
         "goal_id": {
           "type": "string",
-          "enum": ["strength", "hypertrophy", "general_fitness", "rehab", "sport_performance"]
+          "enum": [
+            "strength",
+            "hypertrophy",
+            "general_fitness",
+            "rehab",
+            "sport_performance"
+          ]
         },
-
         "schedule": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "days_per_week": { "type": "integer", "minimum": 1, "maximum": 7 },
-            "session_timebox_minutes": { "type": "integer", "minimum": 10, "maximum": 240 }
+            "days_per_week": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 7
+            },
+            "session_timebox_minutes": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 240
+            }
           }
         },
-
         "preferences": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "consistency_variety": { "type": "string", "enum": ["consistency", "variety"] },
-            "volume_cap": { "type": "string", "enum": ["low", "standard", "high"] }
+            "consistency_variety": {
+              "type": "string",
+              "enum": [
+                "consistency",
+                "variety"
+              ]
+            },
+            "volume_cap": {
+              "type": "string",
+              "enum": [
+                "low",
+                "standard",
+                "high"
+              ]
+            }
           }
         },
-
         "pain_probe_state": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "has_active_pain": { "type": "boolean" },
+            "has_active_pain": {
+              "type": "boolean"
+            },
             "active_pain_sites": {
               "type": "array",
-              "items": { "type": "string" }
+              "items": {
+                "type": "string"
+              }
             },
-            "probe_consent": { "type": "boolean" }
+            "probe_consent": {
+              "type": "boolean"
+            }
           }
         },
-
         "avoid_joint_stress_tags": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "minItems": 1
         },
-
         "banned_equipment": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
-
         "available_equipment": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "minItems": 1
         }
       }
     },
-
-    "consent_granted": { "type": "boolean", "const": true },
-
-    "engine_version": { "type": "string", "const": "EB2-1.0.0" },
-    "enum_bundle_version": { "type": "string", "const": "EB2-1.0.0" },
-    "phase1_schema_version": { "type": "string", "const": "1.0.0" },
-
-    "actor_type": { "type": "string", "enum": ["athlete", "coach", "org_admin"] },
-    "execution_scope": { "type": "string", "enum": ["individual", "coach_managed", "org_managed"] },
-
-    "governing_authority_id": { "type": "string" },
-
-    "activity_id": { "type": "string", "minLength": 1 },
-    "sport_role_id": { "type": "string" },
-
-    "nd_mode": { "type": "boolean" },
-
+    "consent_granted": {
+      "type": "boolean",
+      "const": true
+    },
+    "engine_version": {
+      "type": "string",
+      "const": "EB2-1.0.0"
+    },
+    "enum_bundle_version": {
+      "type": "string",
+      "const": "EB2-1.0.0"
+    },
+    "phase1_schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "actor_type": {
+      "type": "string",
+      "enum": [
+        "athlete",
+        "coach"
+      ]
+    },
+    "execution_scope": {
+      "type": "string",
+      "enum": [
+        "individual",
+        "coach_managed"
+      ]
+    },
+    "governing_authority_id": {
+      "type": "string"
+    },
+    "activity_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sport_role_id": {
+      "type": "string"
+    },
+    "nd_mode": {
+      "type": "boolean"
+    },
     "instruction_density": {
       "type": "string",
-      "enum": ["minimal", "standard", "detailed"]
+      "enum": [
+        "minimal",
+        "standard",
+        "detailed"
+      ]
     },
-
     "exposure_prompt_density": {
       "type": "string",
-      "enum": ["minimal", "standard", "detailed"]
+      "enum": [
+        "minimal",
+        "standard",
+        "detailed"
+      ]
     },
-
     "bias_mode": {
       "type": "string",
-      "enum": ["none", "consistency", "variety"]
+      "enum": [
+        "none",
+        "consistency",
+        "variety"
+      ]
     }
   },
   "allOf": [
     {
       "if": {
-        "properties": { "execution_scope": { "enum": ["coach_managed", "org_managed"] } },
-        "required": ["execution_scope"]
+        "properties": {
+          "execution_scope": {
+            "enum": [
+              "coach_managed"
+            ]
+          }
+        },
+        "required": [
+          "execution_scope"
+        ],
+        "additionalProperties": false
       },
-      "then": { "required": ["governing_authority_id"] }
+      "then": {
+        "required": [
+          "governing_authority_id"
+        ]
+      }
     }
   ]
 }

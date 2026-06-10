@@ -1,0 +1,5 @@
+\b(injury|injuries|rehab|rehabilitat\w*|treat(?:ment)?|therapy|therapeutic|medical(?:ly)?|clinical(?:ly)?|diagnos\w*|heal(?:ing)?|recovery|pain[- ]free|cure|prescrib\w*)\b
+\b(safe|safer|safety|risk[- ]free|reduce risk|minimi[sz]e risk|prevent(?:ion)?|protect(?:ion)?|injury[- ]proof|harm)\b
+\b(suitable|suitability|appropriate|ready|readiness)\b
+\b(right for you|designed for you|tailored to you|fits your needs|matches your needs|ideal for you|best for you)\b
+\b(guarantee(?:d)?|results?|best results|optimal|optimi[sz]e\w*|maximi[sz]e|maximize|maximise|faster|quick(?:er)?|proven|recommend(?:ed|ation|s)?)\b

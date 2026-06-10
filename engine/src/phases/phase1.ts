@@ -19,8 +19,8 @@ export type Phase1CanonicalInput = {
   enum_bundle_version: "EB2-1.0.0";
   phase1_schema_version: "1.0.0";
 
-  actor_type: "athlete" | "coach" | "org_admin";
-  execution_scope: "individual" | "coach_managed" | "org_managed";
+  actor_type: "athlete" | "coach" ;
+  execution_scope: "individual" | "coach_managed" ;
 
   governing_authority_id?: string;
 

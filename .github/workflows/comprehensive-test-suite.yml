@@ -1,0 +1,30 @@
+name: comprehensive test suite
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  comprehensive-test-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Run comprehensive Kolosseum test suite
+        run: npm run test:full
