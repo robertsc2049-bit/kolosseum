@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # V1 Slice Register
 
 This folder exists to keep V1 work narrow, explicit, and testable.

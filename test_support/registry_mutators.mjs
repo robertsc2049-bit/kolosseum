@@ -1,3 +1,8 @@
+
+// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
+// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
+// broad discovery, or unreviewed boundary changes.
+
 /**
  * Mutators/utilities for registry test shaping.
  * Keep these tiny and boring. This file exists to prevent tests re-implementing

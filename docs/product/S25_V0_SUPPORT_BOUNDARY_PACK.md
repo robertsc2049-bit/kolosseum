@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # S25 — v0 support boundary pack
 
 Document ID: s25_v0_support_boundary_pack

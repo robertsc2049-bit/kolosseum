@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # COACH SESSION STATE DEMO CONTRACT
 
 Document ID: coach_session_state_demo_contract  

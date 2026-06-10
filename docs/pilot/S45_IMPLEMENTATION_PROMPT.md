@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # S45 IMPLEMENTATION PROMPT
 
 Use this prompt to recreate or review S45 in a separate ChatGPT session.

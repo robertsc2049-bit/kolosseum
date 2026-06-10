@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # V0 Release Gap Matrix
 
 Purpose: convert the v0 release spine into an operational board so each future slice maps to a specific release gate, proof requirement, and remaining gap.

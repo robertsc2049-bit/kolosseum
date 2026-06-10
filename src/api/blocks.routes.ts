@@ -1,3 +1,8 @@
+
+// DEV NOTE: API boundary surface. This file may expose or transport engine results, but must
+// not bypass engine package boundaries, infer hidden truth, or let UI/product state mutate
+// deterministic engine behaviour.
+
 import { Router } from "express";
 import {
   compileBlock,
@@ -17,4 +22,3 @@ blocksRouter.get("/:block_id", getBlock);
 // sessions are always created from an existing block
 blocksRouter.post("/:block_id/sessions", createSessionFromBlock);
 blocksRouter.get("/:block_id/sessions", listBlockSessions);
-

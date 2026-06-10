@@ -1,3 +1,8 @@
+
+// DEV NOTE: API boundary surface. This file may expose or transport engine results, but must
+// not bypass engine package boundaries, infer hidden truth, or let UI/product state mutate
+// deterministic engine behaviour.
+
 // src/api/block_compile_write_service.ts
 import crypto from "node:crypto";
 import { pool } from "../db/pool.js";

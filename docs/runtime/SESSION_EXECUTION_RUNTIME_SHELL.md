@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # SESSION_EXECUTION_RUNTIME_SHELL.md
 
 Document ID: session_execution_runtime_shell  

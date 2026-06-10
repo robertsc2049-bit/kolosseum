@@ -1,16 +1,38 @@
+# DEV NOTE: Main-branch protection workflow boundary.
+#
+# This workflow reacts after a push lands on main. It does not replace normal
+# PR checks, branch rules, or human review. Its only job is to detect a failing
+# main SHA, create a revert branch, and open a PR through the protected path.
+#
+# Keep this file operationally narrow:
+# - do not add engine rules here
+# - do not reinterpret CI failure meanings here
+# - do not push corrective commits directly to main
+# - do not turn polling timeout into a revert decision
 name: Protect main (auto-revert on CI failure)
 
 on:
+  # DEV NOTE: Trigger only after main receives a push.
+  #
+  # This keeps the workflow bound to main-state protection. It must not run on
+  # pull_request because PR checks already happen before merge and this workflow
+  # acts on a concrete main SHA.
   push:
     branches:
       - main
 
 permissions:
+  # DEV NOTE: Permissions are intentionally broad enough for branch creation,
+  # PR creation, and workflow-run inspection. Do not expand these unless a new
+  # step has a specific audited need.
   contents: write
   pull-requests: write
   actions: read
 
 concurrency:
+  # DEV NOTE: Scope concurrency by SHA, not branch, so independent main pushes
+  # can be evaluated separately. cancel-in-progress stays false so an older
+  # failing SHA is not silently dropped while it is being assessed.
   group: protect-main-${{ github.sha }}
   cancel-in-progress: false
 
@@ -21,9 +43,19 @@ jobs:
     timeout-minutes: 12
 
     env:
+      # DEV NOTE: This list is the workflow allowlist this guard observes.
+      #
+      # Names must match GitHub workflow names, not filenames. Adding or removing
+      # a required workflow changes the main protection contract and should be
+      # reviewed as a release-boundary change.
       REQUIRED_WORKFLOWS_JSON: '["green","ci","runnable-v0","vertical-slice","engine-status"]'
 
     steps:
+      # DEV NOTE: Checkout must target main with full history.
+      #
+      # git revert needs the failed commit and its parent available locally.
+      # persist-credentials remains true because later steps push the revert
+      # branch using the workflow token.
       - name: Checkout main
         uses: actions/checkout@v4
         with:
@@ -31,11 +63,19 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
+      # DEV NOTE: Revert commits must be clearly attributable to the GitHub bot.
+      # Do not use a human identity here; audit clarity matters more than style.
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      # DEV NOTE: This step makes the only revert/no-op/timeout decision.
+      #
+      # It observes the required workflow runs for exactly github.sha. It must not
+      # inspect unrelated branch state or infer success from missing data. Missing
+      # and pending workflows keep polling; completed non-success workflows trigger
+      # a revert decision.
       - name: Wait for required workflows for this main SHA
         id: wait
         env:
@@ -46,9 +86,16 @@ jobs:
         run: |
           set -euo pipefail
 
+          # DEV NOTE: Polling window is finite by design.
+          #
+          # A timeout is reported but does not create a revert PR. Required
+          # workflows remain the source of truth; this workflow only reacts once
+          # their run state is visible for the target SHA.
           max_attempts=80
           sleep_seconds=15
 
+          # DEV NOTE: jq is used to parse the JSON allowlist deterministically
+          # instead of relying on shell word splitting.
           required="$(jq -r '.[]' <<< '${{ env.REQUIRED_WORKFLOWS_JSON }}')"
 
           for attempt in $(seq 1 "$max_attempts"); do
@@ -125,6 +172,8 @@ jobs:
             echo "failure_names="
           } >> "$GITHUB_OUTPUT"
 
+      # DEV NOTE: Success path is intentionally observational only.
+      # It records that no revert PR is needed and does not modify the repository.
       - name: Report no-op success path
         if: steps.wait.outputs.decision == 'noop'
         shell: bash
@@ -133,6 +182,10 @@ jobs:
           echo "All required workflows passed for main SHA ${{ steps.wait.outputs.failed_sha }}."
           echo "No revert PR needed."
 
+      # DEV NOTE: Timeout is not treated as proof of a bad main SHA.
+      #
+      # This avoids creating revert PRs when GitHub Actions run discovery is late
+      # or incomplete. Independent workflow results remain authoritative.
       - name: Fail if workflow polling timed out
         if: steps.wait.outputs.decision == 'timeout'
         shell: bash
@@ -143,6 +196,9 @@ jobs:
           echo "Do not auto-revert on polling timeout alone."
           exit 0
 
+      # DEV NOTE: Capture immutable context before any branch work.
+      # Branch naming is derived from the failed SHA to make duplicate handling
+      # deterministic and easy to audit.
       - name: Capture failing main context
         if: steps.wait.outputs.decision == 'revert'
         id: ctx
@@ -155,6 +211,11 @@ jobs:
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
           echo "failure_names=${{ steps.wait.outputs.failure_names }}" >> "$GITHUB_OUTPUT"
 
+      # DEV NOTE: Do not revert stale main state.
+      #
+      # If main has moved after the failing SHA, a new push may already have
+      # corrected or superseded the state. This step prevents opening a PR against
+      # an obsolete commit.
       - name: Skip if failed SHA is no longer HEAD of main
         if: steps.wait.outputs.decision == 'revert'
         id: headcheck
@@ -172,6 +233,9 @@ jobs:
             echo "skip_revert=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # DEV NOTE: Idempotency guard for repeat workflow runs.
+      # If the revert branch already exists, later PR lookup handles the existing
+      # branch instead of creating another branch for the same failed SHA.
       - name: Skip if revert branch already exists
         if: steps.wait.outputs.decision == 'revert' && steps.headcheck.outputs.skip_revert == 'false'
         id: branchexists
@@ -184,6 +248,11 @@ jobs:
             echo "branch_exists=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # DEV NOTE: Revert is created on a branch, not pushed directly to main.
+      #
+      # This preserves the protected PR path and keeps the auto action reviewable.
+      # Keep --no-edit so the commit message is Git's standard revert message for
+      # the exact failed SHA.
       - name: Create revert branch and commit
         if: steps.wait.outputs.decision == 'revert' && steps.headcheck.outputs.skip_revert == 'false' && steps.branchexists.outputs.branch_exists == 'false'
         shell: bash
@@ -192,6 +261,9 @@ jobs:
           git switch --create "${{ steps.ctx.outputs.branch_name }}" origin/main
           git revert --no-edit "${{ steps.ctx.outputs.failed_sha }}"
 
+      # DEV NOTE: Push only the named revert branch.
+      # Do not change this to push main; main must remain governed by normal branch
+      # protection and review rules.
       - name: Push revert branch
         if: steps.wait.outputs.decision == 'revert' && steps.headcheck.outputs.skip_revert == 'false' && steps.branchexists.outputs.branch_exists == 'false'
         shell: bash
@@ -199,6 +271,9 @@ jobs:
           set -euo pipefail
           git push origin "HEAD:${{ steps.ctx.outputs.branch_name }}"
 
+      # DEV NOTE: PR idempotency guard.
+      # Multiple workflow attempts for the same branch should converge on one open
+      # revert PR instead of creating duplicate review surfaces.
       - name: Check for existing open PR from revert branch
         if: steps.wait.outputs.decision == 'revert' && steps.headcheck.outputs.skip_revert == 'false'
         id: existingpr
@@ -222,6 +297,11 @@ jobs:
             echo "pr_exists=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # DEV NOTE: Open the revert through GitHub's normal PR system.
+      #
+      # The PR body records the failed SHA and workflow names only. Do not add
+      # claims about root cause here; this workflow observes CI state, it does not
+      # diagnose failures.
       - name: Open revert PR
         if: steps.wait.outputs.decision == 'revert' && steps.headcheck.outputs.skip_revert == 'false' && steps.existingpr.outputs.pr_exists == 'false'
         env:
@@ -248,6 +328,8 @@ jobs:
             --title "revert: failing main commit ${{ steps.ctx.outputs.failed_sha }}" \
             --body-file "$BODY_FILE"
 
+      # DEV NOTE: Labels are operational triage only.
+      # They do not affect the revert decision, engine behaviour, or CI outcome.
       - name: Add labels to revert PR
         if: steps.wait.outputs.decision == 'revert' && steps.headcheck.outputs.skip_revert == 'false'
         env:
@@ -271,6 +353,8 @@ jobs:
               --add-label "main-red"
           fi
 
+      # DEV NOTE: Final report is informational.
+      # The authoritative artefact is the revert PR itself, not this log line.
       - name: Report revert outcome
         if: steps.wait.outputs.decision == 'revert'
         shell: bash

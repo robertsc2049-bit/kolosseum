@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # V0 Coach Notes Boundary Demo Proof
 
 Document ID: v0_coach_notes_boundary_demo_proof

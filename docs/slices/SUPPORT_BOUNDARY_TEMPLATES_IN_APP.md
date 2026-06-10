@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # S43 - Support Boundary Templates In App
 
 Document: SUPPORT_BOUNDARY_TEMPLATES_IN_APP.md

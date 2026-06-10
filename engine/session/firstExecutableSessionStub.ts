@@ -1,3 +1,8 @@
+
+// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
+// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
+// canonical registries, and validated contracts only.
+
 import { createHash } from "node:crypto";
 
 export const FIRST_EXECUTABLE_SESSION_STUB_VERSION = "1.0.0" as const;

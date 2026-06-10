@@ -1,3 +1,8 @@
+
+# DEV NOTE: Repository automation script. This file exists to make a repeatable repo operation
+# deterministic and reviewable. Keep side effects explicit, paths repo-root relative, and
+# failure output readable for PowerShell and CI users.
+
 [CmdletBinding()]
 param(
   [ValidateSet("patch","minor","major")]
@@ -98,4 +103,3 @@ Run "git push origin ""$tag"""
 
 Write-Host ""
 Write-Host "RELEASED $tag" -ForegroundColor Green
-

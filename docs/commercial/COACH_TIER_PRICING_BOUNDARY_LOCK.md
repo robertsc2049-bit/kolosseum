@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # COACH TIER PRICING BOUNDARY LOCK
 
 Document ID: coach_tier_pricing_boundary_lock  

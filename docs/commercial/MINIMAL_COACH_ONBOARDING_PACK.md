@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # MINIMAL COACH ONBOARDING PACK
 
 Document ID: minimal_coach_onboarding_pack  

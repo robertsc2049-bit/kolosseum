@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # V0 Active Scope Manifest CI Guard Specification
 
 Document ID: v0_active_scope_manifest_ci_guard

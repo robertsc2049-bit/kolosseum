@@ -1,3 +1,8 @@
+
+// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
+// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
+// broad discovery, or unreviewed boundary changes.
+
 /* test/v0_compile_created_session_progress_after_read_cycle_no_stale_resurrection.test.mjs */
 import test from "node:test";
 import assert from "node:assert/strict";
