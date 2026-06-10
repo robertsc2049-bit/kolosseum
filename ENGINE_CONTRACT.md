@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts, deterministic checks, and developer handover standards. Do not introduce hidden defaults, broad discovery, or unreviewed boundary changes. -->
-
 # Kolosseum Engine Contract (Phase1 → Phase6)
 
 This document defines the **contractual guarantees** for the deterministic engine spine and its CI runners.

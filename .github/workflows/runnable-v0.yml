@@ -1,16 +1,5 @@
-# DEV NOTE: runnable-v0 is the minimal executable-product guard.
-#
-# This workflow proves that the repository can build the current v0 path and
-# execute the vanilla golden input through the compiled runPipeline entrypoint.
-# Keep this file focused on runnable existence. Broader canonical, registry,
-# replay, release, and protection checks belong to their dedicated workflows.
 name: runnable-v0
 
-# DEV NOTE: Pull requests skip documentation-only changes on purpose.
-#
-# The runnable smoke test is a code-path guard. Documentation gates are handled
-# elsewhere, so markdown/text/doc-template-only edits should not consume this
-# workflow or create noise around executable status.
 on:
   pull_request:
     paths-ignore:
@@ -24,18 +13,9 @@ on:
       - main
   workflow_dispatch:
 
-# DEV NOTE: Read-only repository access is enough for this workflow.
-#
-# Do not add write permissions here. This job should prove build/run status only;
-# it must not mutate branches, labels, releases, artefacts, or repository state.
 permissions:
   contents: read
 
-# DEV NOTE: One runnable-v0 job per ref is deliberate.
-#
-# New commits supersede older smoke results on the same ref. Cancelling stale
-# runs reduces queue churn without changing the proof required for the latest
-# commit.
 concurrency:
   group: runnable-v0-${{ github.ref }}
   cancel-in-progress: true
@@ -46,10 +26,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      # DEV NOTE: These env vars mark this run as a green/runnable gate.
-      #
-      # They are workflow context only. They must not become hidden product
-      # features, engine inputs, legality selectors, or alternate execution paths.
       KOLOSSEUM_GREEN: "1"
       KOLOSSEUM_GREEN_ENTRYPOINT: "ci"
     steps:
@@ -59,50 +35,24 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
-          # DEV NOTE: Keep CI Node aligned with the locked development runtime.
-          #
-          # Changing this can alter build/runtime behaviour and should be treated
-          # as an explicit toolchain change, not a casual workflow cleanup.
           node-version: 24
           cache: npm
 
       - name: Install
-        # DEV NOTE: npm ci is intentional for deterministic dependency install.
-        #
-        # Do not replace this with npm install. CI should consume the lockfile
-        # exactly and fail when dependency state is inconsistent.
         run: npm ci
 
       - name: Build + runnable v0 smoke
-        # DEV NOTE: This is a smoke gate, not a behavioural oracle.
-        #
-        # The test proves three concrete facts:
-        # 1. the fast build produces dist/src/run_pipeline.js;
-        # 2. runPipeline is exported from the compiled bundle;
-        # 3. vanilla_minimal compiles to an ok result with at least one exercise.
-        #
-        # Do not expand this into registry law, replay proof, or release sealing.
-        # Those checks belong in their own gates so failures stay attributable.
         run: |
           npm run build:fast
           node - <<'NODE'
           const fs = require("fs");
           const path = require("path");
 
-          // DEV NOTE: The fixture path is intentionally explicit.
-          //
-          // runnable-v0 should prove the known golden minimal input still reaches
-          // the compiled pipeline. Do not search the filesystem for another input
-          // because discovery would hide fixture drift.
           const fixture = path.join(process.cwd(), "test", "fixtures", "golden", "inputs", "vanilla_minimal.json");
           if (!fs.existsSync(fixture)) throw new Error("Missing fixture: " + fixture);
 
           const input = JSON.parse(fs.readFileSync(fixture, "utf8"));
 
-          // DEV NOTE: This smoke test runs the compiled output, not source files.
-          //
-          // That confirms build:fast produced the runtime artefact that downstream
-          // callers expect. Source-level imports would weaken this gate.
           const runner = path.join(process.cwd(), "dist", "src", "run_pipeline.js");
           if (!fs.existsSync(runner)) throw new Error("Missing dist runner: " + runner);
 
@@ -111,19 +61,12 @@ jobs:
           if (!fn) throw new Error("Missing export runPipeline in " + runner);
 
           Promise.resolve(fn(input)).then((out) => {
-            // DEV NOTE: ok === true is the minimum existence contract here.
-            //
-            // Detailed output correctness belongs to targeted engine and replay
-            // tests. This guard should stay small so it remains a fast signal that
-            // the v0 executable path still exists.
             if (!out || out.ok !== true) {
               console.error("Unexpected output (ok !== true):");
               console.error(JSON.stringify(out, null, 2));
               process.exit(2);
             }
 
-            // DEV NOTE: Requiring at least one exercise prevents false green builds
-            // where the pipeline reports ok but emits no executable session body.
             const session = out && out.result && out.result.session;
             if (!session || !Array.isArray(session.exercises) || session.exercises.length < 1) {
               console.error("Unexpected output (missing result.session.exercises):");

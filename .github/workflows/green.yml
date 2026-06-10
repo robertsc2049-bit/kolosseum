@@ -11,18 +11,9 @@
 # This variant formally separates:
 #   1) unit (fast, no DB) -> runs npm run green:ci (parity guard requirement)
 #   2) integration (DB-backed, spawns dist server)
-#
-# DEV NOTE: This workflow is the main repository green gate.
-# Keep it behaviour-preserving and boring. Do not add feature-specific
-# shortcuts, temporary skips, soft-pass branches, or branch-dependent command
-# drift here. A passing green workflow should mean the same thing every time.
 # ==========================================================
 name: green
 
-# DEV NOTE: Trigger boundary.
-# Pull requests always run this gate. Main pushes run it after promotion.
-# Feature-branch pushes intentionally do not run this heavier workflow; local
-# pre-push hooks and targeted slice checks cover that path.
 on:
   pull_request: {}
   push:
@@ -30,15 +21,9 @@ on:
       - main
   workflow_dispatch: {}
 
-# DEV NOTE: Read-only repository access is enough for this workflow.
-# Do not widen permissions unless a future slice explicitly proves why the
-# workflow must write to GitHub state.
 permissions:
   contents: read
 
-# DEV NOTE: One green run per ref is enough.
-# Cancelling stale in-progress runs prevents old commits from consuming CI
-# capacity or producing misleading status after newer commits arrive.
 concurrency:
   group: green-${{ github.ref }}
   cancel-in-progress: true
@@ -49,16 +34,12 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # DEV NOTE: Node version is pinned to keep CI parity deterministic.
-      # Do not replace with latest, node, lts/*, or a version range.
       NODE_VERSION: "25.9.0"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          # DEV NOTE: Full history is intentional.
-          # Several repo guards may need tags, ancestry, or accurate diff context.
           fetch-depth: 0
 
       - name: Setup Node
@@ -68,14 +49,9 @@ jobs:
           cache: npm
 
       - name: Install
-        # DEV NOTE: npm ci is required for lockfile-exact installs.
-        # Do not change to npm install; that would weaken dependency parity.
         run: npm ci
 
       - name: Green (CI)
-        # DEV NOTE: This is the fast deterministic green gate.
-        # Keep the actual check set inside package scripts so local and CI
-        # execution remain aligned.
         run: npm run green:ci
 
   integration:
@@ -84,16 +60,11 @@ jobs:
     needs: [unit]
 
     env:
-      # DEV NOTE: Keep this pinned to the unit job version.
-      # Unit and integration must not prove different Node environments.
       NODE_VERSION: "25.9.0"
-      # DEV NOTE: Database URL targets the GitHub Actions postgres service below.
-      # This is integration-only infrastructure; it must not become engine input.
       DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test
 
     services:
       postgres:
-        # DEV NOTE: PostgreSQL version is pinned for CI reproducibility.
         image: postgres:16
         env:
           POSTGRES_PASSWORD: postgres
@@ -111,7 +82,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          # DEV NOTE: Match unit checkout depth to avoid split-brain CI context.
           fetch-depth: 0
 
       - name: Setup Node
@@ -121,28 +91,17 @@ jobs:
           cache: npm
 
       - name: Install
-        # DEV NOTE: Lockfile-exact install. Keep this aligned with the unit job.
         run: npm ci
 
       - name: Build (fast)
-        # DEV NOTE: Build before schema/application tests so integration runs
-        # against compiled artefacts, not ad hoc source execution.
         run: npm run build:fast
 
       - name: Apply schema
-        # DEV NOTE: Schema application belongs to the app/test database boundary.
-        # It must not mutate engine law, registry payloads, or canonical docs.
         run: node scripts/apply-schema.mjs --db-url "${DATABASE_URL}"
 
       - name: Integration (DB-backed)
         env:
-          # DEV NOTE: These flags explicitly enable covered HTTP E2E gates.
-          # They are test-scope switches only. They must not be used to alter
-          # production engine behaviour or soften failures.
           KOLOSSEUM_HTTP_E2E_RETURN_GATE: "1"
           KOLOSSEUM_HTTP_E2E_COMPLETE_STEP: "1"
           KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500: "1"
-        # DEV NOTE: DB-backed integration is intentionally downstream of unit.
-        # Unit failure should stop here; integration does not compensate for a
-        # failed fast gate.
         run: npm run test:ci:integration

@@ -1,8 +1,3 @@
-
-// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
-// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
-// broad discovery, or unreviewed boundary changes.
-
 /* test/s2_phase2_canonicalisation_lock_api.test.mjs */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -285,3 +280,6 @@ test("S2 phase2 canonicalisation lock: /blocks/compile deterministically replays
     `reordered: semantically identical accepted input must replay identical canonical_hash. first=${first.json.canonical_hash} reordered=${reordered.json.canonical_hash}`
   );
 });
+
+
+

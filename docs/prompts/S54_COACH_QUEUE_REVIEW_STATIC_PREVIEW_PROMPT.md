@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # S54 — Coach Queue Review Static Preview Page Prompt
 
 Build S54 as a narrow v0-safe static preview page for the S49-S53 coach queue review surface.

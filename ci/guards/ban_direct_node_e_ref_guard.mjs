@@ -1,37 +1,18 @@
 // @law: Repo Governance
 // @severity: medium
 // @scope: repo
-
-// DEV NOTE: Direct Node-from-PowerShell guard. This script protects repo patching
-// discipline by forcing ad-hoc Node execution through scripts/Invoke-NodeE.ps1.
-// The goal is one reviewable wrapper for Node patch behaviour, not scattered
-// node -e snippets or direct calls into implementation scripts.
-
 import fs from "node:fs";
 import path from "node:path";
 
-/**
- * DEV NOTE: Terminate with a stable message and non-zero exit code.
- * This guard reports policy breaches directly instead of throwing stack traces,
- * because failures should be readable in CI and local PowerShell output.
- */
 function die(msg) {
   console.error(msg);
   process.exit(1);
 }
 
-/**
- * DEV NOTE: Normalise CRLF to LF before regex checks.
- * The policy scans content semantics, not line-ending style; separate guards can
- * own LF-only formatting where required.
- */
 function lf(s){ return String(s).replace(/\r\n/g, "\n"); }
 
 const repo = process.cwd();
 
-// DEV NOTE: Scope is limited to scripts/ and ci/ because those are the surfaces
-// where PowerShell automation and guard execution live. This avoids unrelated app
-// files being pulled into a PowerShell Node invocation policy.
 const roots = [
   path.join(repo, "scripts"),
   path.join(repo, "ci"),
@@ -39,11 +20,6 @@ const roots = [
 
 const exts = new Set([".ps1", ".psm1"]);
 
-/**
- * DEV NOTE: Recursively collect PowerShell files from the guarded roots.
- * Generated/vendor folders are skipped so the policy checks repo-owned scripts
- * rather than build output or dependency content.
- */
 function walk(dir, out = []) {
   if (!fs.existsSync(dir)) return out;
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -58,10 +34,6 @@ function walk(dir, out = []) {
   return out;
 }
 
-/**
- * DEV NOTE: Convert absolute paths to repo-relative POSIX paths for stable output.
- * CI logs and guard allowlists should not depend on Windows path separators.
- */
 function relPosix(absPath){
   return path.relative(repo, absPath).replace(/\\/g, "/");
 }
@@ -80,10 +52,6 @@ const allowRel = new Set([
   "scripts/Invoke-NodeE.ps1",
   "scripts/_impl/node_runner.ps1",
 ]);
-
-// DEV NOTE: The allowlist is intentionally tiny. The public contract is the
-// Invoke-NodeE wrapper; node_runner.ps1 remains implementation-only so future
-// scripts cannot couple directly to its private path, parameters, or behaviour.
 
 // Any mention of these runner filenames/paths in other scripts is a policy breach.
 // Keep legacy names so old references get caught.
@@ -110,10 +78,6 @@ const rePwshFileNodeRunner =
 
 const offenders = [];
 
-// DEV NOTE: Each regex protects a different bypass path: legacy runner names,
-// direct internal runner filename references, pwsh -File execution, node -e,
-// stdin ESM, and _impl folder references. Keep these checks separate so failure
-// output tells the developer which policy boundary was crossed.
 for (const root of roots) {
   for (const file of walk(root)) {
     const rel = relPosix(file);
@@ -133,9 +97,6 @@ for (const root of roots) {
   }
 }
 
-// DEV NOTE: Offender output groups all hits per file to reduce noisy CI logs.
-// The message states the approved interface so a future developer knows the fix
-// is to use scripts/Invoke-NodeE.ps1 rather than weaken the guard.
 if (offenders.length) {
   const lines = [];
   lines.push("\u274C ban_direct_node_e_ref_guard: forbidden Node invocation detected in PowerShell.");

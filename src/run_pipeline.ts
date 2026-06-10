@@ -1,8 +1,3 @@
-
-// DEV NOTE: Application source surface. Keep product/UI behaviour separated from deterministic
-// engine truth. UI, notes, and workflow convenience must not change canonical engine inputs or
-// outputs unless routed through an explicit validated contract.
-
 /**
  * src/run_pipeline.ts
  * Deterministic Phase1 -> Phase6 runner for CI golden tests.

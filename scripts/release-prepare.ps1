@@ -1,8 +1,3 @@
-
-# DEV NOTE: Repository automation script. This file exists to make a repeatable repo operation
-# deterministic and reviewable. Keep side effects explicit, paths repo-root relative, and
-# failure output readable for PowerShell and CI users.
-
 # scripts/release-prepare.ps1
 # Purpose:
 #   - Enforce a clean, repeatable "bump -> build -> ci -> commit -> push" flow

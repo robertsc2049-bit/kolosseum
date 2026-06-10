@@ -1,8 +1,3 @@
-
-// DEV NOTE: Repository automation script. This file exists to make a repeatable repo operation
-// deterministic and reviewable. Keep side effects explicit, paths repo-root relative, and
-// failure output readable for PowerShell and CI users.
-
 import { spawnSync } from "node:child_process";
 import { composeTestAffectedFromChangedFiles } from "./compose_test_affected_from_changed_files.mjs";
 import { applyDefaultNodeTestReporterEnv } from "./test_reporter_env.mjs";

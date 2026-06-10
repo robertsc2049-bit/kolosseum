@@ -1,8 +1,3 @@
-
-// DEV NOTE: API boundary surface. This file may expose or transport engine results, but must
-// not bypass engine package boundaries, infer hidden truth, or let UI/product state mutate
-// deterministic engine behaviour.
-
 import assert from "node:assert/strict";
 import test from "node:test";
 import {

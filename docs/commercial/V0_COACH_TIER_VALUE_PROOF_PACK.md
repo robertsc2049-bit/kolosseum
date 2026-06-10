@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # V0 Coach Tier Value Proof Pack
 
 Document ID: v0_coach_tier_value_proof_pack

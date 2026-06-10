@@ -1,8 +1,3 @@
-
-// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
-// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
-// broad discovery, or unreviewed boundary changes.
-
 import { spawnSync } from "node:child_process";
 import { existsSync, statSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";

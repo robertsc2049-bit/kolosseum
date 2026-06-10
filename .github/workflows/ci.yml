@@ -8,54 +8,22 @@
 # - Does NOT run on feature branch pushes by design.
 # - Full CI enforcement happens on PR + main.
 # ==========================================================
-#
-# DEV NOTE: This workflow is the repository's default GitHub CI gate.
-# Keep it deliberately small. The workflow should schedule the canonical
-# repository checks; it should not redefine engine law, CI token meanings,
-# registry semantics, release scope, or failure interpretation.
-#
-# Boundary:
-# - GitHub Actions owns execution orchestration only.
-# - npm scripts own the actual proof/check contract.
-# - Canonical documents and CI scripts define what each check means.
-# - A failed command must fail the job. Do not add soft-pass behaviour.
-#
-# Behaviour-change warning:
-# Changing triggers, permissions, Node version, install mode, or npm scripts
-# changes the effective CI gate. Treat such edits as release-boundary changes,
-# not cosmetic workflow maintenance.
 name: ci
 
 on:
-  # DEV NOTE: Pull requests are the normal enforcement surface for feature work.
-  # Feature branch pushes are intentionally not listed below to avoid duplicate
-  # CI runs and to keep branch work lightweight until a PR exists.
   pull_request: {}
-
-  # DEV NOTE: Main receives CI after merge so the protected branch has a fresh
-  # proof signal. Tags that represent release markers are ignored here because
-  # release/tag validation should remain separate from this general CI workflow.
   push:
     branches:
       - main
     tags-ignore:
       - "v*"
       - "rc-*"
-
-  # DEV NOTE: Manual dispatch is retained for explicit human-triggered checks,
-  # especially after infrastructure or workflow changes. It must run the same
-  # job path as PR/main CI, not a weaker diagnostic path.
   workflow_dispatch: {}
 
 permissions:
-  # DEV NOTE: Read-only repository access is sufficient for this workflow.
-  # Do not broaden permissions unless a concrete job requires it; broad write
-  # permissions make CI a mutation surface rather than a proof surface.
   contents: read
 
 concurrency:
-  # DEV NOTE: One active CI run per ref is enough. Cancelling superseded runs
-  # prevents stale proof from competing with the newest commit on the same ref.
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
@@ -65,18 +33,12 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # DEV NOTE: Node is pinned so CI runs against a predictable runtime.
-      # Keep this aligned with the repo's documented local/dev runtime before
-      # changing it. Do not use floating values such as latest.
       NODE_VERSION: "25.9.0"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          # DEV NOTE: Full history is intentional. Several repo checks may need
-          # branch, tag, merge-base, or history context. Reducing this can create
-          # false local/CI parity or release-boundary failures.
           fetch-depth: 0
 
       - name: Setup Node
@@ -86,12 +48,7 @@ jobs:
           cache: npm
 
       - name: Install
-        # DEV NOTE: npm ci is the correct CI install command because it is
-        # lockfile-driven and deterministic. Do not replace with npm install.
         run: npm ci
 
       - name: Guard + Unit tests (ci)
-        # DEV NOTE: npm run ci is the canonical repository gate for this workflow.
-        # Add or remove checks inside the npm script/CI scripts, not by scattering
-        # additional ad hoc commands through this YAML.
         run: npm run ci

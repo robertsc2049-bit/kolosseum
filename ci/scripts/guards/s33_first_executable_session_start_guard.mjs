@@ -1,8 +1,3 @@
-
-// DEV NOTE: Repository automation script. This file exists to make a repeatable repo operation
-// deterministic and reviewable. Keep side effects explicit, paths repo-root relative, and
-// failure output readable for PowerShell and CI users.
-
 import fs from "node:fs";
 
 const docPath = "docs/pilot/S33_FIRST_EXECUTABLE_SESSION_START_PACK.md";
@@ -61,6 +56,6 @@ if (fixture.jurisdiction_acknowledged !== true) fail("Fixture jurisdiction_ackno
 if (fixture.compile_failure_token !== null) fail("Fixture compile_failure_token must be null.");
 if (fixture.pilot_status !== "coach_ready") fail("Fixture pilot_status must be coach_ready.");
 if (fixture.athlete_status !== "active") fail("Fixture athlete_status must be active.");
-if (fixture.executable_work_items_count < 1) fail("Fixture executable_work_items_count must be at least 1.");
+if (fixture.executable_work_items_count -lt 1) fail("Fixture executable_work_items_count must be at least 1.");
 
 console.log(JSON.stringify({ ok: true, slice: "S33", checked: [docPath, fixturePath] }, null, 2));

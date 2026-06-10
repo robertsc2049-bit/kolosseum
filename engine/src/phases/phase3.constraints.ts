@@ -1,8 +1,3 @@
-
-// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
-// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
-// canonical registries, and validated contracts only.
-
 /**
  * Phase3Constraints — canonical, closed-world constraint contract
  * EB2-1.0.0
@@ -26,3 +21,5 @@ export function isEmptyConstraints(c: Phase3Constraints | undefined): boolean {
   const d = c.available_equipment;
   return (!a || a.length === 0) && (!b || b.length === 0) && (!d || d.length === 0);
 }
+
+

@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # S53 — Coach Queue / Review Minimal UI Read Model Renderer Prompt
 
 Build S53 as a narrow v0-safe fixture-backed renderer for the S49-S52 coach queue review surface.

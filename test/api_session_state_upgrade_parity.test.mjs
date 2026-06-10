@@ -1,8 +1,3 @@
-
-// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
-// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
-// broad discovery, or unreviewed boundary changes.
-
 // test/api_session_state_upgrade_parity.test.mjs
 import test from "node:test";
 import assert from "node:assert/strict";

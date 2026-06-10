@@ -1,8 +1,3 @@
-
-// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
-// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
-// broad discovery, or unreviewed boundary changes.
-
 import assert from "node:assert/strict";
 import test from "node:test";
 import { runEngine } from "../dist/engine/src/index.js";
@@ -47,3 +42,4 @@ test("T018: Phase1 refuses missing/invalid constraints_version when envelope pre
   assert.equal(out.ok, false);
   assert.equal(out.failure_token, "constraints_version_invalid_or_missing");
 });
+

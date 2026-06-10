@@ -1,8 +1,3 @@
-
-// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
-// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
-// broad discovery, or unreviewed boundary changes.
-
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
@@ -37,7 +32,7 @@ test("test(v0): terminal state cannot be mutated or resurrected", async (t) => {
   const phase1 = JSON.parse(await fs.readFile(helloPath, "utf8"));
 
   // --- compile ---
-  const compile = await httpJson("POST", `${http.baseUrl}/blocks/compile`, {
+  const compile = await httpJson("POST", ${http.baseUrl}/blocks/compile, {
     phase1_input: phase1,
     runtime_events: [],
     create_session: true,
@@ -53,18 +48,18 @@ test("test(v0): terminal state cannot be mutated or resurrected", async (t) => {
   assert.ok(sessionId, "missing session_id");
 
   // --- start ---
-  await httpJson("POST", `${http.baseUrl}/sessions/${sessionId}/start`, {});
+  await httpJson("POST", ${http.baseUrl}/sessions//start, {});
 
   // --- complete all exercises ---
-  await httpJson("POST", `${http.baseUrl}/sessions/${sessionId}/events`, {
+  await httpJson("POST", ${http.baseUrl}/sessions//events, {
     type: "COMPLETE_EXERCISE",
     exercise_id: "ex_barbell_back_squat",
   });
-  await httpJson("POST", `${http.baseUrl}/sessions/${sessionId}/events`, {
+  await httpJson("POST", ${http.baseUrl}/sessions//events, {
     type: "COMPLETE_EXERCISE",
     exercise_id: "ex_barbell_bench_press",
   });
-  await httpJson("POST", `${http.baseUrl}/sessions/${sessionId}/events`, {
+  await httpJson("POST", ${http.baseUrl}/sessions//events, {
     type: "COMPLETE_EXERCISE",
     exercise_id: "ex_barbell_deadlift",
   });
@@ -72,7 +67,7 @@ test("test(v0): terminal state cannot be mutated or resurrected", async (t) => {
   // --- confirm terminal ---
   const terminal = await httpJson(
     "GET",
-    `${http.baseUrl}/sessions/${sessionId}/state`
+    ${http.baseUrl}/sessions//state
   );
 
   assert.equal(
@@ -84,20 +79,23 @@ test("test(v0): terminal state cannot be mutated or resurrected", async (t) => {
   // --- attempt mutation AFTER terminal ---
   const illegalEvent = await httpJson(
     "POST",
-    `${http.baseUrl}/sessions/${sessionId}/events`,
-    { type: "COMPLETE_WORK_ITEM", work_item_id: "after-terminal" }
+    ${http.baseUrl}/sessions//events,
+    {
+      type: "COMPLETE_EXERCISE",
+      exercise_id: "ex_barbell_back_squat",
+    }
   );
 
   // --- assert rejection ---
   assert.ok(
     illegalEvent.res.status >= 400,
-    "expected rejection after terminal, got " + illegalEvent.res.status
+    expected rejection after terminal, got 
   );
 
   // --- confirm state unchanged ---
   const after = await httpJson(
     "GET",
-    `${http.baseUrl}/sessions/${sessionId}/state`
+    ${http.baseUrl}/sessions//state
   );
 
   assert.deepEqual(

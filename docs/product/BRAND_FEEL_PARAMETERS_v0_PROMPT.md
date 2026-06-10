@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # BRAND_FEEL_PARAMETERS_v0 — Prompt
 
 I need you to create a formal internal product/design reference document called BRAND_FEEL_PARAMETERS_v0 for the Kolosseum ecosystem.

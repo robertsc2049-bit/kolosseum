@@ -8,46 +8,21 @@
 # - Lightweight signal for feature branches.
 # - Complements (does not replace) green/ci gates.
 # ==========================================================
-#
-# DEV NOTE: This workflow is a fast status signal, not the authoritative
-# release gate. Keep it lightweight. Do not add slow proof, promotion,
-# sealing, or release-boundary checks here; those belong in the canonical
-# green/ci gates.
-#
-# DEV NOTE: Behaviour preservation rule.
-# Comments may explain the workflow boundary, but changes to triggers,
-# permissions, concurrency, Node version, install command, or guard/smoke
-# commands alter CI semantics and must be treated as a real CI slice.
 name: engine-status
 
 on:
-  # DEV NOTE: Run on every branch push except release-style tags.
-  # This gives branch-level visibility without pretending this workflow is
-  # the final merge/release authority.
   push:
     branches:
       - "**"
     tags-ignore:
       - "v*"
       - "rc-*"
-
-  # DEV NOTE: Pull request execution is intentionally enabled so reviewers
-  # get the same lightweight signal before merge.
   pull_request: {}
-
-  # DEV NOTE: Manual dispatch is retained for operator verification when
-  # branch status needs to be rechecked without changing source files.
   workflow_dispatch: {}
 
-# DEV NOTE: Read-only permissions are deliberate.
-# This workflow must observe and report. It must not write artefacts,
-# mutate repository state, update releases, or perform promotion actions.
 permissions:
   contents: read
 
-# DEV NOTE: One engine-status run per ref is enough.
-# Cancelling superseded runs keeps feedback current and avoids wasting CI
-# minutes on stale branch states.
 concurrency:
   group: engine-status-${{ github.ref }}
   cancel-in-progress: true
@@ -58,18 +33,12 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # DEV NOTE: Keep Node aligned with the repo-supported runtime.
-      # Changing this can alter parser/runtime behaviour and should not be
-      # treated as a harmless workflow edit.
       NODE_VERSION: "25.9.0"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          # DEV NOTE: Full history is retained because guards may need branch,
-          # commit, or ancestry context. Do not reduce this unless the guard
-          # contract is explicitly changed.
           fetch-depth: 0
 
       - name: Setup Node
@@ -79,14 +48,9 @@ jobs:
           cache: npm
 
       - name: Install
-        # DEV NOTE: npm ci is intentional for lockfile-faithful installs.
-        # Do not replace with npm install; that weakens reproducibility.
         run: npm ci
 
       - name: "Guard: ban engine-status footgun"
-        # DEV NOTE: This guard protects the workflow from becoming a misleading
-        # substitute for stronger CI. If it fails, fix the workflow boundary
-        # rather than bypassing the guard.
         run: node ci/guards/ban_engine_status_guard.mjs
 
   smoke:
@@ -95,16 +59,12 @@ jobs:
     needs: guard
 
     env:
-      # DEV NOTE: Mirror the guard job runtime so guard and smoke execute under
-      # the same Node semantics.
       NODE_VERSION: "25.9.0"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          # DEV NOTE: Keep checkout depth consistent with guard unless a future
-          # slice proves shallow history is safe for this workflow.
           fetch-depth: 0
 
       - name: Setup Node
@@ -114,18 +74,10 @@ jobs:
           cache: npm
 
       - name: Install
-        # DEV NOTE: Lockfile-faithful install. This workflow should test the
-        # committed dependency graph, not resolve a new one.
         run: npm ci
 
       - name: Build (fast)
-        # DEV NOTE: Fast build is the intended scope of this workflow.
-        # Do not swap in full release build checks here; that would blur
-        # engine-status with the canonical gates.
         run: npm run build:fast
 
       - name: Engine smoke (no-build)
-        # DEV NOTE: The smoke check validates the built engine path against a
-        # known fixture without triggering another build. Keep --no-build unless
-        # the smoke contract is deliberately rewritten.
         run: node scripts/engine_smoke.mjs --fixture examples/hello_world.json --no-build

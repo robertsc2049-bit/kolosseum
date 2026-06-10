@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # Documentation Authority Classification
 
 Generated: deterministic-local-classification
@@ -43,8 +41,8 @@ It does not override active release boundaries, contracts, tests, registry rules
 
 ## Summary
 
-- Total docs classified: 246
-- Review-needed docs: 244
+- Total docs classified: 245
+- Review-needed docs: 243
 - Classified docs: 2
 
 ## Category Counts
@@ -56,7 +54,7 @@ It does not override active release boundaries, contracts, tests, registry rules
 | registry-contract | 31 |
 | proof-and-replay | 45 |
 | slice-contract | 4 |
-| developer-navigation | 13 |
+| developer-navigation | 12 |
 | commercial-or-copy-boundary | 2 |
 | historical-or-roadmap | 0 |
 | review-needed | 0 |
@@ -67,7 +65,7 @@ It does not override active release boundaries, contracts, tests, registry rules
 | Status | Count |
 | --- | --- |
 | classified | 2 |
-| review-needed | 244 |
+| review-needed | 243 |
 
 ## Classification Entries
 
@@ -163,7 +161,6 @@ It does not override active release boundaries, contracts, tests, registry rules
 | docs/dev/CODE_COMMENT_POLICY.md | developer-navigation | review-needed | 12 | Keyword review signal only. This does not prove conflict, staleness, deprecation, or error. |
 | docs/dev/CRITICAL_CODE_SIGNPOSTING_MAP.md | developer-navigation | review-needed | 5 | Keyword review signal only. This does not prove conflict, staleness, deprecation, or error. |
 | docs/dev/DOC_MAINTENANCE_RULES.md | developer-navigation | review-needed | 12 | Keyword review signal only. This does not prove conflict, staleness, deprecation, or error. |
-| docs/dev/DOC_MANUAL_REVIEW_RECORD.md | developer-navigation | review-needed | 23 | Keyword review signal only. This does not prove conflict, staleness, deprecation, or error. |
 | docs/dev/DOC_SEARCH_GUIDE.md | developer-navigation | review-needed | 12 | Keyword review signal only. This does not prove conflict, staleness, deprecation, or error. |
 | docs/dev/FUNCTION_DOCUMENTATION_POLICY.md | developer-navigation | review-needed | 9 | Keyword review signal only. This does not prove conflict, staleness, deprecation, or error. |
 | docs/dev/NEW_DEVELOPER_START_HERE.md | developer-navigation | review-needed | 13 | Keyword review signal only. This does not prove conflict, staleness, deprecation, or error. |

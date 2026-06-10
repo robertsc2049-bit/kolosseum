@@ -1,8 +1,3 @@
-
-// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
-// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
-// broad discovery, or unreviewed boundary changes.
-
 /* test/v0_api_replay_compile_repeat_byte_stable_full_response_surface.test.mjs */
 import test from "node:test";
 import assert from "node:assert/strict";

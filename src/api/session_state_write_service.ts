@@ -1,8 +1,3 @@
-
-// DEV NOTE: API boundary surface. This file may expose or transport engine results, but must
-// not bypass engine package boundaries, infer hidden truth, or let UI/product state mutate
-// deterministic engine behaviour.
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/api/session_state_write_service.ts
 import { pool } from "../db/pool.js";

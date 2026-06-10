@@ -1,32 +1,10 @@
 #!/bin/sh
 set -e
 
-# DEV NOTE: This hook is intentionally thin.
-#
-# Keep orchestration inside ci/scripts/prepush_green.mjs rather than expanding
-# shell logic here. The hook's job is only to anchor execution at the repository
-# root and delegate to the canonical pre-push gate.
-#
-# Boundary:
-# - No engine behaviour is defined here.
-# - No CI rule meanings are interpreted here.
-# - No fallback, retry, soft-pass, or partial-success behaviour belongs here.
-# - If the delegated script fails, this hook must fail the push.
-
-# DEV NOTE: Resolve the Git repository root before running the gate.
-#
-# Git hooks may execute from .git/hooks or from a caller-dependent working
-# directory. Running from the repository root keeps paths inside the Node gate
-# deterministic and prevents checks from accidentally resolving against the
-# wrong folder.
+# Always run from repo root.
 repo="$(git rev-parse --show-toplevel 2>/dev/null || echo "")"
 if [ -n "$repo" ]; then
   cd "$repo"
 fi
 
-# DEV NOTE: Delegation boundary.
-#
-# ci/scripts/prepush_green.mjs owns the actual pre-push contract. Do not duplicate
-# those checks here because duplicated shell-side logic will drift from the
-# canonical gate and make failures harder to reason about.
 node ci/scripts/prepush_green.mjs

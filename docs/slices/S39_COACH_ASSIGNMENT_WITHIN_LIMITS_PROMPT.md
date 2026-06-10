@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 S39 — Coach Assignment Within Limits
 
 You are creating S39 — Coach Assignment Within Limits for Kolosseum v0.

@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # S41 - Operator Pilot Dashboard
 
 Document: OPERATOR_PILOT_DASHBOARD.md

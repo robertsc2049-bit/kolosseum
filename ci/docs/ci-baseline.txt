@@ -1,11 +1,3 @@
-DEV NOTES
-
-- DEV NOTE: CI baseline report. This file records a point-in-time view of CI entrypoints, ownership, and composition so future developers can see how the test surface was wired when the baseline was captured.
-- DEV NOTE: Date, branch, and runtime are historical capture metadata only. They must not be treated as release authority, current branch state, or current CI duration.
-- DEV NOTE: Entrypoints lists where test:ci and related commands were referenced at capture time. It is diagnostic evidence, not a replacement for package.json, workflow files, or CI guards.
-- DEV NOTE: Ownership identifies the single-owner test:ci path and hook dispatcher expectation. Future changes should preserve one clear owner for composed CI execution.
-- DEV NOTE: Composition shows the indexed test-ci composition surface and adjacent guard coverage. It helps explain why manifest files and guard-pair tests exist.
-- DEV NOTE: This is a text baseline, not executable configuration. Do not make CI depend on parsing this file unless a separate explicit contract is added.
 Date: 2026-03-10T17:31:08
 Branch: ticket/v0-ci-index-review-surface
 

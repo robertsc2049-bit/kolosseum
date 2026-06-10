@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # P171 — Live Demo Failure Recovery Runbook
 
 Document ID: p171_live_demo_failure_recovery_runbook  

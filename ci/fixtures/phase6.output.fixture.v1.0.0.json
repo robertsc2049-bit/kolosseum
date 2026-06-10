@@ -11,10 +11,7 @@
         "item_id": "B0_I0",
         "sets": 3,
         "reps": 5,
-        "intensity": {
-          "type": "percent_1rm",
-          "value": 75
-        },
+        "intensity": { "type": "percent_1rm", "value": 75 },
         "rest_seconds": 180
       },
       {
@@ -24,10 +21,7 @@
         "item_id": "B0_I1",
         "sets": 4,
         "reps": 6,
-        "intensity": {
-          "type": "rpe",
-          "value": 7.5
-        },
+        "intensity": { "type": "rpe", "value": 7.5 },
         "rest_seconds": 150,
         "substituted_from": "DB_BENCH"
       }

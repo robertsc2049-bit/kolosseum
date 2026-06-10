@@ -1,8 +1,3 @@
-
-// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
-// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
-// canonical registries, and validated contracts only.
-
 export type SubstitutionConstraints = {
   avoid_joint_stress_tags?: string[];  // disqualifier tags on candidate
   banned_equipment?: string[];         // disqualifier equipment ids/types
@@ -22,3 +17,4 @@ export type ExerciseSignature = {
   joint_stress_tags?: string[];
   // ...keep your other fields
 };
+

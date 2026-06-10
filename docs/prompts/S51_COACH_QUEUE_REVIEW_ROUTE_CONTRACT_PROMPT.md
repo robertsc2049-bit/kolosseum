@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # S51 — Coach Queue / Review Route Contract Prompt
 
 Build S51 as a narrow v0-safe route/handler contract over the S50 Coach Queue / Review API Adapter.

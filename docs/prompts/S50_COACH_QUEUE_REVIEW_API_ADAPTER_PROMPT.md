@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # S50 — Coach Queue / Review API Adapter Prompt
 
 Build S50 as a narrow v0-safe API-style adapter over the S49 Coach Queue / Review Surface.

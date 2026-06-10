@@ -2,39 +2,19 @@
 // @severity: high
 // @scope: ci/guards + ci/artefacts
 
-// DEV NOTE: Artefacts map guard. This script validates ci/artefacts/artefacts.json so
-// the repo keeps a reviewable map of document, workflow, engine-risk, and app-risk surfaces.
-// It is intentionally small and deterministic: no filesystem discovery, no remote state,
-// and no inferred artefact ownership.
-
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
-/**
- * DEV NOTE: Terminate with a stable guard prefix and non-zero exit code.
- * CI and local scripts rely on this producing readable failure text rather
- * than throwing an unformatted stack trace for expected contract failures.
- */
 function die(msg, code = 1) {
   process.stderr.write(String(msg).trimEnd() + "\n");
   process.exit(code);
 }
 
-/**
- * DEV NOTE: Artefacts config must be plain JSON objects at key contract points.
- * Arrays, null, and primitive values are rejected so malformed configs cannot
- * accidentally pass through loose JavaScript truthiness.
- */
 function isPlainObject(x) {
   return !!x && typeof x === "object" && !Array.isArray(x);
 }
 
-/**
- * DEV NOTE: Read and parse the artefacts map from disk using strict JSON.
- * This guard deliberately rejects JSONC, comments, and malformed syntax because
- * the artefacts map is consumed as a CI contract, not as an editor convenience file.
- */
 function readJson(absPath) {
   let raw = "";
   try {
@@ -50,29 +30,14 @@ function readJson(absPath) {
   }
 }
 
-/**
- * DEV NOTE: Shared assertion helper keeps every failure under the same guard
- * namespace. That makes CI logs easier to search and prevents ambiguous generic
- * assertion messages from hiding which guard owns the failure.
- */
 function assert(cond, msg) {
   if (!cond) die(`artefacts_map_guard: ${msg}`, 2);
 }
 
-/**
- * DEV NOTE: Required string fields must be non-empty after trimming.
- * This blocks blank ids, kinds, routes, reasons, and patterns from becoming
- * silent wildcard-like placeholders.
- */
 function assertString(x, msg) {
   assert(typeof x === "string" && x.trim().length > 0, msg);
 }
 
-/**
- * DEV NOTE: Reject path patterns that could escape the repo, depend on a local
- * machine layout, or hide control characters. The artefacts map is review metadata,
- * so every pattern must stay repo-relative and readable in a PR diff.
- */
 function hasBadPathBits(p) {
   const s = String(p || "").replace(/\\/g, "/");
   if (!s) return true;
@@ -86,11 +51,6 @@ function hasBadPathBits(p) {
   return false;
 }
 
-/**
- * DEV NOTE: Convert the small supported glob subset into a case-insensitive regex.
- * This is not a general-purpose glob engine. It intentionally supports only the
- * pattern language this guard needs so behaviour remains auditable.
- */
 function globToRegex(glob) {
   const g = String(glob || "").replace(/\\/g, "/");
   let re = "^";
@@ -119,10 +79,6 @@ function globToRegex(glob) {
   return new RegExp(re, "i");
 }
 
-/**
- * DEV NOTE: Validate one artefact group. Groups are the public routing units in
- * artefacts.json, so id, kind, and explicit path patterns must all be present and safe.
- */
 function validateGroup(g, idx) {
   assert(isPlainObject(g), `groups[${idx}] must be an object`);
   assertString(g.id, `groups[${idx}].id must be a non-empty string`);
@@ -153,11 +109,6 @@ function validateGroup(g, idx) {
   }
 }
 
-/**
- * DEV NOTE: Validate the decision routing table used by the artefacts map.
- * Each route needs a human-readable reason so future developers can understand
- * why docs-only, workflow-only, engine-risk, app-risk, and default cases diverge.
- */
 function validateDecision(d) {
   assert(isPlainObject(d), "decision must be an object");
 
@@ -176,12 +127,6 @@ function validateDecision(d) {
   }
 }
 
-/**
- * DEV NOTE: Top-level artefacts map contract validator.
- * This function keeps the contract closed: version must be pinned, group ids must
- * be unique, kinds must be from the explicit allow-list, and file formatting must
- * stay LF-only with a final newline for deterministic diffs.
- */
 function validateArtefacts(json, absPath) {
   assert(isPlainObject(json), "root must be an object");
   assert(json.version === 1, `version must be 1 (got ${String(json.version)})`);
@@ -207,11 +152,6 @@ function validateArtefacts(json, absPath) {
   assert(!raw.includes("\r"), "artefacts.json must be LF-only (no CRLF)");
 }
 
-/**
- * DEV NOTE: Parse only the supported --path/-p override.
- * Defaulting to ci/artefacts/artefacts.json keeps local and CI usage stable while
- * still letting tests point the guard at fixtures.
- */
 function parseArgs(argv) {
   const args = { relPath: "ci/artefacts/artefacts.json" };
   for (let i = 0; i < argv.length; i++) {
@@ -229,8 +169,6 @@ function parseArgs(argv) {
 const args = parseArgs(process.argv.slice(2));
 const abs = path.resolve(process.cwd(), args.relPath);
 
-// DEV NOTE: Existence is checked before parsing so missing-map failures are explicit.
-// The resolved path remains anchored to the current working directory chosen by CI/local callers.
 if (!fs.existsSync(abs)) die(`artefacts_map_guard: missing file: ${args.relPath}`, 2);
 
 const json = readJson(abs);

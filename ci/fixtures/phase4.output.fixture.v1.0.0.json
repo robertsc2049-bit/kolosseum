@@ -13,10 +13,7 @@
         "role": "primary",
         "sets": 4,
         "reps": 5,
-        "intensity": {
-          "type": "percent_1rm",
-          "value": 75
-        },
+        "intensity": { "type": "percent_1rm", "value": 75 },
         "rest_seconds": 180
       },
       {
@@ -27,31 +24,15 @@
         "role": "primary",
         "sets": 4,
         "reps": 5,
-        "intensity": {
-          "type": "percent_1rm",
-          "value": 75
-        },
+        "intensity": { "type": "percent_1rm", "value": 75 },
         "rest_seconds": 180
       }
     ],
-    "planned_exercise_ids": [
-      "bench_press",
-      "back_squat"
-    ],
-    "exercises": [
-      {
-        "exercise_id": "bench_press"
-      }
-    ],
-    "exercise_pool": {
-      "bench_press": {
-        "exercise_id": "bench_press"
-      }
-    },
+    "planned_exercise_ids": ["bench_press", "back_squat"],
+    "exercises": [{ "exercise_id": "bench_press" }],
+    "exercise_pool": { "bench_press": { "exercise_id": "bench_press" } },
     "target_exercise_id": "bench_press",
     "constraints": {}
   },
-  "notes": [
-    "PHASE_4_V1: prescription-ready planned_items emitted"
-  ]
+  "notes": ["PHASE_4_V1: prescription-ready planned_items emitted"]
 }

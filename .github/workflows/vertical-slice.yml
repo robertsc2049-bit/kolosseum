@@ -1,13 +1,6 @@
-# DEV NOTE: This workflow proves the vertical product path, not broad release scope.
-# Keep this file focused on executable smoke coverage for the currently permitted
-# app/engine path. Do not add product, billing, organisation, or presentation
-# authority here; those belong behind their own explicit gates.
 name: vertical-slice
 
 on:
-  # DEV NOTE: Pull request execution intentionally ignores documentation-only
-  # changes. This workflow is for runnable product/code confidence, while
-  # documentation authority is checked by the dedicated doc/spine gates.
   pull_request:
     paths-ignore:
       - "**/*.md"
@@ -15,38 +8,24 @@ on:
       - "docs/**"
       - ".github/ISSUE_TEMPLATE/**"
       - ".github/PULL_REQUEST_TEMPLATE*"
-  # DEV NOTE: Main-branch execution keeps the vertical slice visible after merge.
-  # Do not remove this unless another main protection workflow proves the same
-  # app/engine route.
   push:
     branches:
       - main
-  # DEV NOTE: Manual dispatch exists for explicit operator proof during debug or
-  # release review. It must run the same commands as the automated path.
   workflow_dispatch:
 
-# DEV NOTE: Read-only repository access is enough for this workflow.
-# Raising permissions here would widen the workflow boundary without adding proof.
 permissions:
   contents: read
 
-# DEV NOTE: One vertical-slice run per ref is sufficient.
-# Newer commits cancel older runs so the reported result matches the current ref.
 concurrency:
   group: vertical-slice-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # DEV NOTE: This job proves the no-database plan-session HTTP path.
-  # It should remain narrow: build the app, start the compiled server, hit the
-  # endpoint, and assert the minimal executable response contract.
   plan_session_api:
     name: plan-session-api
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      # DEV NOTE: These environment flags identify CI execution and force the
-      # no-database smoke path. They must not alter engine truth.
       KOLOSSEUM_GREEN: "1"
       KOLOSSEUM_GREEN_ENTRYPOINT: "ci"
       SMOKE_NO_DB: "1"
@@ -58,33 +37,22 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
-          # DEV NOTE: Keep this pinned to the repo's supported Node major.
-          # Version drift here can create CI/local differences.
           node-version: 24
           cache: npm
 
       - name: Install
-        # DEV NOTE: npm ci is intentional. It installs exactly from the lockfile
-        # and fails if package metadata is not consistent.
         run: npm ci
 
       - name: Build
-        # DEV NOTE: Fast build is enough for this gate because the runtime proof
-        # below exercises the compiled server path.
         run: npm run build:fast
 
       - name: Start server
-        # DEV NOTE: Start the compiled output, not TypeScript source.
-        # Logs and PID are written to /tmp so readiness and cleanup steps have
-        # deterministic files to inspect.
         run: |
           rm -f /tmp/kolosseum-server.log /tmp/kolosseum-server.pid || true
           node dist/src/main.js >/tmp/kolosseum-server.log 2>&1 &
           echo $! > /tmp/kolosseum-server.pid
 
       - name: Wait for server readiness (port 3000)
-        # DEV NOTE: Port readiness is deliberately checked before HTTP assertions
-        # so startup failures show server logs rather than opaque fetch errors.
         run: |
           for i in {1..60}; do
             if (echo > /dev/tcp/127.0.0.1/3000) >/dev/null 2>&1; then
@@ -99,9 +67,6 @@ jobs:
           exit 1
 
       - name: Hit plan-session endpoint
-        # DEV NOTE: This inline Node assertion is the vertical-slice contract.
-        # It checks that /sessions/plan returns an executable session shape with
-        # at least one exercise. Do not expand this into broad behavioural law.
         run: |
           node - <<'NODE'
           const assert = (c, m) => { if (!c) { console.error(m); process.exit(1); } };
@@ -125,24 +90,17 @@ jobs:
 
       - name: Stop server
         if: always()
-        # DEV NOTE: Always stop the background server so later workflow cleanup
-        # is not affected by a live process from this job.
         run: |
           if [ -f /tmp/kolosseum-server.pid ]; then
             kill "$(cat /tmp/kolosseum-server.pid)" || true
           fi
           sleep 1
 
-  # DEV NOTE: This job proves the database-backed vertical path and the key HTTP
-  # runtime regressions. It is separate from plan_session_api because DB service
-  # setup is materially different from the no-database smoke path.
   tier1_smoke_db:
     name: tier1-smoke-db
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
-      # DEV NOTE: Postgres 16 is the CI database contract for this job.
-      # Keep the image/version aligned with the app schema and local dev setup.
       postgres:
         image: postgres:16
         env:
@@ -157,8 +115,6 @@ jobs:
           --health-timeout=3s
           --health-retries=30
     env:
-      # DEV NOTE: These flags enable the DB-backed HTTP e2e assertions in this
-      # workflow. They are test gates only and must not become engine authority.
       KOLOSSEUM_GREEN: "1"
       KOLOSSEUM_GREEN_ENTRYPOINT: "ci"
       PORT: "3000"
@@ -173,23 +129,16 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
-          # DEV NOTE: Keep this in lockstep with the no-database job so both
-          # vertical paths run against the same runtime.
           node-version: 24
           cache: npm
 
       - name: Install
-        # DEV NOTE: Lockfile install only. Do not replace with npm install.
         run: npm ci
 
       - name: Build
-        # DEV NOTE: Build before schema application so DB tests exercise the
-        # compiled runtime and scripts expected in CI.
         run: npm run build:fast
 
       - name: Wait for Postgres
-        # DEV NOTE: The service health check exists above, but this explicit port
-        # wait gives a simple failure point before schema application.
         run: |
           for i in {1..60}; do
             if (echo > /dev/tcp/127.0.0.1/5432) >/dev/null 2>&1; then
@@ -202,31 +151,19 @@ jobs:
           exit 1
 
       - name: Apply schema
-        # DEV NOTE: Schema application is part of this proof. The smoke tests
-        # below should not create schema objects implicitly.
         run: node scripts/apply-schema.mjs --db-url "${DATABASE_URL}"
 
       - name: Tier-1 smoke (vertical slice with DB)
-        # DEV NOTE: Proves plan/start/state across the DB-backed vertical slice.
         run: node --test test/smoke_vertical_slice_plan_start_state.test.mjs
 
       - name: API regression (compile runtime_trace contract)
-        # DEV NOTE: Protects the compile response contract used by runtime trace
-        # consumers. Keep this near the vertical slice because drift here breaks
-        # the same user-facing execution path.
         run: node --test test/api.blocks_compile_runtime_trace_contract.regression.test.mjs
 
       - name: HTTP e2e (return gate)
-        # DEV NOTE: Proves split/return gate behaviour through HTTP rather than
-        # only through lower-level engine tests.
         run: node --test test/vertical_slice.api_http_return_gate.e2e.test.mjs
 
       - name: HTTP e2e (COMPLETE_STEP)
-        # DEV NOTE: Proves the complete-step HTTP path remains wired to runtime
-        # state changes expected by the vertical slice.
         run: node --test test/vertical_slice.api_http_complete_step.e2e.test.mjs
 
       - name: HTTP e2e (unknown engine error => 500)
-        # DEV NOTE: Proves unknown engine errors surface as a server failure in
-        # this API path, rather than being hidden as success.
         run: node --test test/vertical_slice.api_http_unknown_engine_error_500.e2e.test.mjs
