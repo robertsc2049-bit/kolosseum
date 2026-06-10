@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 \# TICKET 003 — REGISTRY EXPANSION + SUBSTITUTION PROOF (v0)
 
 
@@ -119,6 +121,3 @@ These tests must be:
 \- `npm test` passes
 
 \- Running CLI with `phase1\_min.json` shows Phase 5 producing the expected substitution under Phase 3’s emitted constraints
-
-
-

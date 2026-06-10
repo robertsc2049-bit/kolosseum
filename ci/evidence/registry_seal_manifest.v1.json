@@ -1,4 +1,13 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Registry seal manifest fixture. This file records the registry files that make up the launch registry bundle manifest for seal checks.",
+    "DEV NOTE: schema_version identifies the registry seal manifest schema contract. Changing it is a contract change and must be reviewed deliberately.",
+    "DEV NOTE: manifest_id and manifest_version identify this manifest record only. They must not define engine behaviour, registry law, release scope, or product authority.",
+    "DEV NOTE: seal_scope declares the sealing scope for this manifest. registry_bundle means the listed registry entries are the intended bundle input surface for sealing.",
+    "DEV NOTE: entries[] is an explicit closed list of registry paths. Do not replace it with broad filesystem discovery, inferred registry inclusion, or hidden path expansion.",
+    "DEV NOTE: Each entry path should remain reviewable because adding, removing, or renaming a registry file changes the registry bundle that seal checks cover.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "schema_version": "kolosseum.registry_seal_manifest.v1",
   "manifest_id": "launch_registry_surface",
   "manifest_version": "1.0.0",

@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # Phase 1 Declaration Surface CI Validation Notes
 
 Document ID: phase1_declaration_surface_ci_validation_notes  

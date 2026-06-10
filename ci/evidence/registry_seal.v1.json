@@ -1,4 +1,13 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Registry seal fixture. This file records the v1 registry-seal state used by CI and registry integrity checks.",
+    "DEV NOTE: seal_version identifies the registry seal schema/version being represented. Changing it is a registry contract change and must be reviewed deliberately.",
+    "DEV NOTE: bundle_hash is UNSEALED until the deterministic registry sealing path writes the canonical bundle hash. Do not hand-edit it to make tests pass.",
+    "DEV NOTE: sealed_at is null while the seal is intentionally unsealed. A timestamp should only appear when the seal has been generated through the intended sealing process.",
+    "DEV NOTE: registry_count is null while unsealed. A concrete count should come from the registry sealing path, not manual estimation.",
+    "DEV NOTE: This file records seal state only. It must not define engine behaviour, registry law, release scope, or product authority.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "seal_version": "1.0.0",
   "bundle_hash": "UNSEALED",
   "sealed_at": null,

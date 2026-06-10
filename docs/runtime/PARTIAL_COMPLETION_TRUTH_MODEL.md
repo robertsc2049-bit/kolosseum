@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # PARTIAL_COMPLETION_TRUTH_MODEL.md
 
 Document ID: partial_completion_truth_model  

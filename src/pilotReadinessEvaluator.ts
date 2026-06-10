@@ -1,3 +1,8 @@
+
+// DEV NOTE: Application source surface. Keep product/UI behaviour separated from deterministic
+// engine truth. UI, notes, and workflow convenience must not change canonical engine inputs or
+// outputs unless routed through an explicit validated contract.
+
 // S48 - Pilot Acceptance Gate
 // Pure deterministic evaluator.
 // No database, no network, no generated timestamps, no randomness.

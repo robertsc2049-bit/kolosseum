@@ -1,4 +1,13 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Evidence envelope fixture. This file records a deterministic evidence-envelope shape for the declared kolosseum:evidence_envelope@1 contract.",
+    "DEV NOTE: artifacts.phase_outputs[] records named phase output hashes. These entries are evidence references only and must not redefine phase behaviour.",
+    "DEV NOTE: contract identifies the evidence envelope contract being represented. Changing this value is a contract change and must be reviewed deliberately.",
+    "DEV NOTE: engine records the Node and engine versions used for this envelope. These values are trace metadata, not release authority.",
+    "DEV NOTE: inputs records request, constraints, registry bundle, and schema hashes. Hash changes indicate source material changed and should be reviewed as evidence drift.",
+    "DEV NOTE: validations.guards[] records guard names and results. A pass result means the named guard passed for this envelope context; it must not be treated as broader product approval.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "artifacts": {
     "phase_outputs": [
       {

@@ -2,6 +2,11 @@
 // @severity: high
 // @scope: ci/guards
 // @rationale:
+
+// DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with
+// readable output. Do not weaken the guard to make a failing build pass; fix the underlying
+// boundary drift or update the canonical contract deliberately.
+
 //   Critical CI runners/entrypoints must never be missing or empty.
 //   We already saw an accidental zero-byte runner; this guard prevents recurrence.
 

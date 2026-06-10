@@ -1,4 +1,12 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Registry-law positive CI cluster manifest. This file groups the exact positive tests that prove valid registry-law fixtures pass the guard.",
+    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
+    "DEV NOTE: The registry-law pass test protects the expected valid registry path. It should prove the guard accepts a complete lawful registry bundle without weakening negative checks.",
+    "DEV NOTE: The neutral joint-tags positive test protects valid neutral joint-tag handling. It should prove neutral tagging remains accepted when the registry shape is otherwise lawful.",
+    "DEV NOTE: These are positive tests. A passing test means the guard accepted valid fixtures as intended, not that any new registry authority was created here.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "cluster": [
     "node test/ci_registry_law_guard_passes.test.mjs",
     "node test/ci_registry_law_guard_joint_tags_neutral_positive.test.mjs"

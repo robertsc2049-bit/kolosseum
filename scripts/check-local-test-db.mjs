@@ -1,3 +1,8 @@
+
+// DEV NOTE: Repository automation script. This file exists to make a repeatable repo operation
+// deterministic and reviewable. Keep side effects explicit, paths repo-root relative, and
+// failure output readable for PowerShell and CI users.
+
 import net from "node:net";
 
 const host = process.env.PGHOST || "127.0.0.1";

@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 \# TICKET 010 — Phase 1 Constraint Envelope (Closed-World · v0-safe)
 
 
@@ -69,6 +71,3 @@ constraints?: {
 \## Notes
 
 This ticket exposes constraints through Phase 1. It does NOT introduce defaults, inference, or coaching.
-
-
-

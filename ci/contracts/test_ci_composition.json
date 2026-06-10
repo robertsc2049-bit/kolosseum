@@ -1,4 +1,12 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Test CI composition manifest. This file lists the exact manifest references and direct test commands that make up the composed CI test surface.",
+    "DEV NOTE: items[] is an ordered composition list. Entries with kind=manifest point to another strict JSON cluster manifest; entries with kind=command are direct commands to run.",
+    "DEV NOTE: Manifest entries should keep cluster ownership visible instead of flattening every test into one large command list.",
+    "DEV NOTE: Command entries should remain explicit. Do not replace them with broad discovery, inferred commands, environment-dependent expansion, or hidden command generation.",
+    "DEV NOTE: This file coordinates CI coverage only. It must not define engine behaviour, release scope, product authority, or pass/fail meaning beyond the listed commands and manifests.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
     "items":  [
                   {
                       "kind":  "manifest",

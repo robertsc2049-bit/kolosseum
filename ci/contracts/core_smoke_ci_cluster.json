@@ -1,4 +1,11 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Core smoke CI cluster manifest. This file groups the smallest high-signal commands that check core guard behaviour, deterministic stringify behaviour, and CLI runner rendered output.",
+    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, or environment-dependent command expansion.",
+    "DEV NOTE: The guard tests protect CI control-plane boundaries. They should fail when blocked invocation patterns or direct node execution paths are reintroduced.",
+    "DEV NOTE: The stable stringify and CLI rendered-text tests protect deterministic developer-facing output. They must not redefine engine behaviour or add product authority.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "cluster": [
     "node test/ci_ban_engine_status_guard.test.mjs",
     "node test/ci_ban_direct_node_e_ref_guard_node_runner_negative.test.mjs",

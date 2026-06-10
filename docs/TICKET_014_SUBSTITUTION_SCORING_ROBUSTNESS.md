@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 \# TICKET 014 — Substitution scoring robustness (partial signatures + deterministic fallback)
 
 
@@ -55,6 +57,3 @@ Introduce a robustness fallback in the substitution scoring layer:
 \## Outcome
 
 Substitution selection matches expected intent under partial metadata while preserving safety-first filtering and determinism.
-
-
-

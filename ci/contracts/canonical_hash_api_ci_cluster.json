@@ -1,4 +1,11 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: CI cluster manifest for canonical hash API proof. This file groups the exact tests that prove API-level canonical hash determinism, override blocking, and handler wiring.",
+    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, inferred tests, fallback commands, or environment-dependent expansion.",
+    "DEV NOTE: These tests protect the canonical hash boundary. They should prove the API path preserves deterministic hash behaviour rather than redefining canonicalisation in the API layer.",
+    "DEV NOTE: Handler wiring tests are boundary tests. They should catch bypasses where API handlers skip, override, or reinterpret the canonical hash path.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "cluster": [
     "node test/api_compile_canonical_hash_determinism.test.mjs",
     "node test/api_canonical_hash_override_guard.test.mjs",

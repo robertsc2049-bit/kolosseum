@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 \# TICKET 009 — Ticket Ledger Normalisation + Baseline Tags
 
 
@@ -25,6 +27,3 @@ Backfill missing ticket docs (007/008) and anchor doc tags.
 \- Docs tracked in git
 
 \- Tags point at the commit containing those docs
-
-
-

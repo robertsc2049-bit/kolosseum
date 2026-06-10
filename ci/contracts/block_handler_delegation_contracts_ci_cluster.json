@@ -1,4 +1,11 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: CI cluster manifest for block handler delegation contracts. This file groups the exact tests that prove block API wrappers delegate to the intended executed handlers.",
+    "DEV NOTE: The label is descriptive only. It must not define behaviour, authority, or pass/fail semantics.",
+    "DEV NOTE: The cluster array is an explicit command list. Do not add dynamic discovery, glob expansion, inferred tests, or fallback commands here.",
+    "DEV NOTE: Handler delegation tests protect the API boundary. They should prove wrappers call the correct handler path without duplicating handler logic in the wrapper layer.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "label": "block handler delegation contracts ci cluster",
   "cluster": [
     "node test/api_handlers_get_block_delegation.test.mjs",

@@ -1,3 +1,8 @@
+
+// DEV NOTE: API boundary surface. This file may expose or transport engine results, but must
+// not bypass engine package boundaries, infer hidden truth, or let UI/product state mutate
+// deterministic engine behaviour.
+
 export type CapturedEventLike = {
   seq_no: number;
   event_type: string;

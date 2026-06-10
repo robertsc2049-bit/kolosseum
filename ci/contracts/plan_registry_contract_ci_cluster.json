@@ -1,4 +1,12 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Plan/registry contract CI cluster manifest. This file groups the exact commands that protect Phase 4 rich-plan minimum structure, exercise registry entry validity, and Phase 6 planned-item requirements.",
+    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
+    "DEV NOTE: The Phase 4 rich-plan minimum test protects the minimum planned structure expected before later phases consume the plan.",
+    "DEV NOTE: The registry exercise entries test protects registry content shape and presence without creating new exercise authority outside the declared registry contract.",
+    "DEV NOTE: The Phase 6 planned-items test protects the requirement that Phase 6 receives declared planned items rather than accepting incomplete plan output.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "cluster": [
     "node test/phase4_rich_plan_minimum.test.mjs",
     "node test/registry_exercise_entries.test.mjs",

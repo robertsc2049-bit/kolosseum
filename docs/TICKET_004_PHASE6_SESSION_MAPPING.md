@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 \# TICKET 004 — PHASE 6 SESSION MAPPING (v1 minimal)
 
 
@@ -93,6 +95,3 @@ If program is stub/non-substitutable:
 \- `npm test` passes
 
 \- CLI output shows Phase 6 exercises array populated when Phase 4 emits exercises
-
-
-

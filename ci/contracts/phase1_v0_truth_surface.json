@@ -1,4 +1,14 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Phase 1 v0 truth-surface manifest. This file defines the allowed Phase 1 input surface for v0 and should be treated as a drift-sensitive contract.",
+    "DEV NOTE: schema_version identifies this manifest shape. It must not be changed casually because CI and drift guards may rely on this exact contract identity.",
+    "DEV NOTE: top_level_allowed_fields is the closed list of accepted Phase 1 top-level fields. New product, organisation, analytics, advisory, or post-v0 fields must not be added here without an explicit release-boundary decision.",
+    "DEV NOTE: baseline_metric_allowed_fields is the closed list of accepted baseline metric fields. These fields record declared data only and must not imply assessment, scoring, readiness, suitability, or recommendations.",
+    "DEV NOTE: allowed_actor_types and allowed_execution_scopes keep v0 limited to individual_user, coach, individual, and coach_managed surfaces only.",
+    "DEV NOTE: allowed_activities keeps v0 limited to powerlifting, rugby_union, and general_strength. Adding sports here expands the truth surface and must be treated as scope change.",
+    "DEV NOTE: allowed_* arrays are exact enumerations. Do not replace them with inferred values, broad aliases, dynamic loading, or permissive matching.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "schema_version": "kolosseum.phase1.v0.truth-surface.v1",
   "top_level_allowed_fields": [
     "consent_granted",

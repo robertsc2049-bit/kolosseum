@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # Evidence Envelope + Seal (Phase 7/8)
 
 This repo contains a deterministic “evidence envelope” and a derived “seal” to anchor integrity of:

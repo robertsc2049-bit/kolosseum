@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # S52 — Coach Queue / Review Read Model Fixture Pack Prompt
 
 Build S52 as a narrow v0-safe fixture/read-model hardening slice for the S49-S51 coach queue review surface.

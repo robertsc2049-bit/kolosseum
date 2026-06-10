@@ -1,15 +1,38 @@
+# DEV NOTE: Release workflow boundary.
+#
+# This workflow runs only for explicit release tags or manual dispatch. Keep it
+# stricter than routine PR CI: release tags are treated as promotion artefacts,
+# not general development checks.
 name: release
 
 on:
   push:
     tags:
+      # DEV NOTE: Tag triggers are intentionally narrow.
+      #
+      # v* is the final release lane. rc-* is the release-candidate lane with
+      # extra deterministic proof below. Do not widen these patterns without a
+      # release-boundary decision because accidental tag matches can create false
+      # release confidence.
       - "v*"
       - "rc-*"
+  # DEV NOTE: Manual dispatch exists for controlled release verification only.
+  # It must not become a bypass for failed branch or PR gates.
   workflow_dispatch: {}
 
+# DEV NOTE: Read-only permissions are deliberate.
+#
+# This workflow verifies a release candidate/final release. It does not publish,
+# mutate repository state, write tags, or create release artefacts. Add write
+# permissions only in the same slice that introduces the corresponding audited
+# release action.
 permissions:
   contents: read
 
+# DEV NOTE: Release concurrency is per ref and non-cancelling.
+#
+# A release check should finish once started so its logs remain a stable record
+# for that tag. Do not switch cancel-in-progress on unless release policy changes.
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
@@ -21,6 +44,9 @@ jobs:
 
     services:
       postgres:
+        # DEV NOTE: Postgres is pinned to the CI/runtime validation database used
+        # by release gates. Changing this image can alter schema/drift behaviour,
+        # so treat version changes as release-affecting infrastructure changes.
         image: postgres:16
         env:
           POSTGRES_USER: postgres
@@ -28,6 +54,9 @@ jobs:
           POSTGRES_DB: kolosseum
         ports:
           - 5432:5432
+        # DEV NOTE: Health checks protect the release job from racing database
+        # startup. Keep retries explicit rather than hiding readiness failure in
+        # application-level errors later in the workflow.
         options: >-
           --health-cmd="pg_isready -U postgres -d kolosseum"
           --health-interval=5s
@@ -35,7 +64,11 @@ jobs:
           --health-retries=30
 
     env:
+      # DEV NOTE: Node version is part of the release execution environment.
+      # Keep it aligned with the project engine/runtime expectation and normal CI.
       NODE_VERSION: "25.9.0"
+      # DEV NOTE: DATABASE_URL points at the workflow-local Postgres service only.
+      # Release verification must not reach shared, staging, or production data.
       DATABASE_URL: "postgres://postgres:postgres@127.0.0.1:5432/kolosseum"
       PORT: "3000"
 
@@ -43,6 +76,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
+          # DEV NOTE: Full history is required so tag/version gates can inspect
+          # release ancestry accurately. Do not reduce this to shallow checkout
+          # unless version-gate no longer depends on tag/history context.
           fetch-depth: 0
 
       - name: Setup Node
@@ -52,27 +88,46 @@ jobs:
           cache: npm
 
       - name: Install
+        # DEV NOTE: npm ci is intentional for release reproducibility. Do not use
+        # npm install here because it may rewrite dependency state or tolerate
+        # lockfile drift.
         run: npm ci
 
       - name: Version gate
+        # DEV NOTE: This is the release identity gate. It binds the Git tag name
+        # to the project version rules before tests or runtime checks are treated
+        # as release evidence.
         run: node scripts/version-gate.mjs --tag "${GITHUB_REF_NAME}"
 
       - name: Guard + Unit tests (ci)
+        # DEV NOTE: The normal CI gate remains mandatory on release. Release-only
+        # checks add proof; they do not replace the ordinary guard/unit suite.
         run: npm run ci
 
       - name: Apply schema (drift guard)
+        # DEV NOTE: This applies schema to the disposable CI database to expose
+        # migration/schema drift. It must remain pointed at DATABASE_URL above and
+        # must not mutate persistent environments from a release verification job.
         run: node scripts/apply-schema.mjs --db-url "${DATABASE_URL}"
 
       # RC-only heavy gates
       - name: "RC: Determinism check"
+        # DEV NOTE: RC tags carry heavier proof obligations than final v* tags in
+        # this workflow. Preserve this condition unless release policy is changed
+        # deliberately; do not run heavy gates implicitly on unrelated tag shapes.
         if: startsWith(github.ref, 'refs/tags/rc-')
         run: npm run determinism:check
 
       - name: "RC: Golden fixtures"
+        # DEV NOTE: Golden fixtures are RC proof checks. They should fail closed
+        # on fixture drift rather than being updated inside CI.
         if: startsWith(github.ref, 'refs/tags/rc-')
         run: npm run e2e:golden
 
       - name: Start API
+        # DEV NOTE: API startup is used only for release health verification. The
+        # process id is written so the always() cleanup step can stop exactly the
+        # server started here.
         run: |
           rm -f server.log server.pid || true
           nohup node dist/src/main.js > server.log 2>&1 &
@@ -80,6 +135,9 @@ jobs:
           sleep 1
 
       - name: Wait for /health
+        # DEV NOTE: /health is the release smoke boundary. On failure, print the
+        # server log tail before exiting so future maintainers can diagnose the
+        # release failure without rerunning locally first.
         run: |
           for i in $(seq 1 60); do
             if curl -fsS "http://127.0.0.1:${PORT}/health" >/dev/null; then
@@ -94,6 +152,9 @@ jobs:
           exit 1
 
       - name: Stop API
+        # DEV NOTE: Cleanup must run even after failed gates. Keep this step
+        # tolerant because the server may already be stopped after startup or
+        # health-check failures.
         if: always()
         run: |
           if [ -f server.pid ]; then

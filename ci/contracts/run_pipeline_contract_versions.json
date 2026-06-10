@@ -1,15 +1,23 @@
 {
-    "meta":  {
-                 "created_utc":  "2026-02-08T18:41:59.682Z",
-                 "fixture":  "test/fixtures/golden/expected/vanilla_minimal.json",
-                 "tool":  "run_pipeline_contract_version_guard"
-             },
-    "request":  {
-                    "shape_sha256":  "aee17c07eff43e5eb8d934c7b2d1db04c3da22bee21b602355a135f1ce1fab4e",
-                    "version":  2
-                },
-    "response":  {
-                     "shape_sha256":  "9c4ea6e10592c7b180b006cfa9593aef7e202607b6e5bc879ec53a1c79c38bfc",
-                     "version":  2
-                 }
+  "_dev_notes": [
+    "DEV NOTE: Run-pipeline contract-version snapshot. This file records the expected request and response contract versions plus shape hashes for the guarded pipeline fixture.",
+    "DEV NOTE: meta.created_utc, meta.fixture, and meta.tool identify how this snapshot was produced. They are trace metadata only and must not define engine behaviour or release authority.",
+    "DEV NOTE: request.shape_sha256 and response.shape_sha256 are exact contract fingerprints. Changing either hash means the observable request or response shape changed and should be reviewed deliberately.",
+    "DEV NOTE: request.version and response.version are explicit contract-version pins. Do not auto-increment, infer, or silently normalise these values.",
+    "DEV NOTE: This file is evidence for contract drift detection. It must remain deterministic and machine-readable.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
+  "meta": {
+    "created_utc": "2026-02-08T18:41:59.682Z",
+    "fixture": "test/fixtures/golden/expected/vanilla_minimal.json",
+    "tool": "run_pipeline_contract_version_guard"
+  },
+  "request": {
+    "shape_sha256": "aee17c07eff43e5eb8d934c7b2d1db04c3da22bee21b602355a135f1ce1fab4e",
+    "version": 2
+  },
+  "response": {
+    "shape_sha256": "9c4ea6e10592c7b180b006cfa9593aef7e202607b6e5bc879ec53a1c79c38bfc",
+    "version": 2
+  }
 }

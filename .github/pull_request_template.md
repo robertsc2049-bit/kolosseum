@@ -1,15 +1,50 @@
+<!--
+DEV NOTE: This pull request template is an execution boundary, not product law.
+Use it to make each change reviewable against scope, proof, and rollback needs.
+Do not use this file to introduce engine behaviour, CI token meanings, registry rules,
+copy authority, or release-scope changes. Canonical documents and tests remain the source of truth.
+-->
+
 ## What changed
+<!--
+DEV NOTE: State the concrete repo changes only.
+Good: "Added registry FK guard for exercise_token_id resolution."
+Bad: broad product claims, future intent, or behaviour that is not implemented in this PR.
+Keep this section factual so reviewers can compare the diff against the declared slice.
+-->
 -
 
 ## Why
+<!--
+DEV NOTE: Link the change to the slice purpose, failing gate, canonical boundary, or handover need.
+This section should explain the reason for the change without redefining authority.
+If the change exists because CI failed, name the gate or test rather than reinterpreting the failure token.
+-->
 -
 
 ## Tests
+<!--
+DEV NOTE: Tick only checks actually run for this PR.
+Add any slice-specific checks beneath the existing baseline checks.
+If a check was not run, leave it unticked and state why in plain factual language.
+Do not mark manual inspection as equivalent to automated proof.
+-->
 - [ ] npm test
 - [ ] npm run lint
 
 ## Risk
+<!--
+DEV NOTE: Record practical review exposure: touched boundaries, migration impact, test gaps, or rollback complexity.
+Avoid product, medical, safety, suitability, optimisation, or outcome language.
+For engine-adjacent work, explicitly say whether the PR changes engine inputs, outputs, phase order, registry loading, CI gates, or copy surfaces.
+-->
 -
 
 ## Rollback plan
+<!--
+DEV NOTE: State the exact revert path.
+Prefer: revert commit / close PR / remove generated artefact / restore previous registry payload.
+Do not propose partial runtime recovery, silent bypasses, or manual production edits.
+If rollback requires data handling, state the data boundary precisely.
+-->
 -

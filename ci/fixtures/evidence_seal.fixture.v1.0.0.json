@@ -1,4 +1,13 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Evidence seal schema fixture. This file provides a compact v1.0.0 fixture for the kolosseum:evidence_seal@1 contract.",
+    "DEV NOTE: contract identifies the evidence seal contract being represented. Changing this value is a contract change and must be reviewed deliberately.",
+    "DEV NOTE: envelope_sha256 is a zero-hash fixture placeholder. It proves schema shape only and must not be treated as a real evidence envelope hash.",
+    "DEV NOTE: seal_sha256 is a zero-hash fixture placeholder. It proves schema shape only and must not be treated as a real generated seal hash.",
+    "DEV NOTE: Do not hand-edit fixture hashes to make production evidence pass. Real evidence and seal values should be generated through the deterministic evidence/seal path.",
+    "DEV NOTE: This fixture must not define engine behaviour, product scope, registry law, or release authority.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "contract": "kolosseum:evidence_seal@1",
   "envelope_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "seal_sha256": "0000000000000000000000000000000000000000000000000000000000000000"

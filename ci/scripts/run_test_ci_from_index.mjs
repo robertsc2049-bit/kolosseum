@@ -1,3 +1,8 @@
+
+// DEV NOTE: Repository automation script. This file exists to make a repeatable repo operation
+// deterministic and reviewable. Keep side effects explicit, paths repo-root relative, and
+// failure output readable for PowerShell and CI users.
+
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { composeTestCiFromIndex } from "./compose_test_ci_from_index.mjs";

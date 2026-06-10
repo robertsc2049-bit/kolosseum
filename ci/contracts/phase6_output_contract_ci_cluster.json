@@ -1,4 +1,11 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Phase 6 output contract CI manifest. This file lists the exact test that pins the observable Phase 6 output contract.",
+    "DEV NOTE: The version field is the manifest schema version only. It must not define engine phase authority, release readiness, or product scope.",
+    "DEV NOTE: The tests array is an explicit test list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent expansion.",
+    "DEV NOTE: The Phase 6 output contract pin test should catch drift in the declared output shape without redefining Phase 6 behaviour inside this manifest.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "version": 1,
   "tests": [
     "test/phase6_output_contract_pin_contract.test.mjs"

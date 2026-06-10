@@ -1,4 +1,12 @@
 {
+  "_dev_notes": [
+    "DEV NOTE: Registry-law negative CI cluster manifest. This file groups the exact negative tests that prove registry-law guard failures remain active and machine-visible.",
+    "DEV NOTE: The cluster array is an explicit command list. Do not replace it with glob discovery, broad test discovery, inferred commands, or environment-dependent command expansion.",
+    "DEV NOTE: FK negative tests protect registry closure. They should fail deliberately when exercise, stimulus, equipment, or joint-stress references are broken.",
+    "DEV NOTE: Equipment scoped and joint-tag missing negative tests protect registry shape boundaries. They should catch invalid registry entries before they can enter engine inputs.",
+    "DEV NOTE: These are negative tests. A passing test means the guard rejected the bad fixture as intended, not that the bad fixture is valid.",
+    "DEV NOTE: Keep this file strict JSON. Do not add comments, trailing commas, JSONC syntax, or parser-specific extensions."
+  ],
   "cluster": [
     "node test/ci_registry_law_guard_fk_negative.test.mjs",
     "node test/ci_registry_law_guard_stimulus_fk_negative.test.mjs",
