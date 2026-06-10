@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 \# TICKET 007 — Core Implementation Foundation (Phases 4–6)
 
 
@@ -85,3 +83,6 @@ These limitations were \*\*explicitly accepted\*\* to enable rapid validation of
 \## Status
 
 Closed — historical implementation record only.
+
+
+

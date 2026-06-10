@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 \# TICKET 008 — Phase 6 precedence + test alignment
 
 
@@ -25,3 +23,6 @@ Correct Phase 6 exercise precedence and align tests with closed-world Phase 1 sc
 \## Completion
 
 \- Tag: v0-post008-green
+
+
+

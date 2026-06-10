@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 \# TICKET\_012 — Phase3 Constraint Precedence \& Merge Law (Phase1 Sovereignty)
 
 
@@ -145,3 +143,6 @@ Add explicit tests:
 \- Phase 3 never injects defaults when Phase 1 constraints envelope exists
 
 \- One commit + tag `v0-ticket012`
+
+
+

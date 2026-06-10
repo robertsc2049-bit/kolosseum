@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # CLI Export Contract (run_pipeline_cli)
 
 This document defines the stable contract for the Kolosseum `run_pipeline` CLI.

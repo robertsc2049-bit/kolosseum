@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 \# TICKET 005 — PHASE 5 → PHASE 6 FLOW (minimal wiring + determinism)
 
 
@@ -151,3 +149,6 @@ If target is not found:
 \- `npm test` passes
 
 \- CLI run (powerlifting) shows Phase 5 substitution and Phase 6 session reflecting the substituted exercise id
+
+
+

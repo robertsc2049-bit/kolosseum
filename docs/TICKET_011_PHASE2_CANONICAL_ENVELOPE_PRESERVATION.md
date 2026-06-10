@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # TICKET_011 — Phase2 Canonical Envelope Preservation (Empty Constraints Must Persist)
 
 DATE: 2026-01-14  

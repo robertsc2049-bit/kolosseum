@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 # TICKET 001 — Registry v1: ExerciseSignature enforcement + Phase 4 emits program.exercises[]
 VERSION: v0
 GOAL: Remove CLI demo dependency by making Phase 4 emit a substitutable program shape.

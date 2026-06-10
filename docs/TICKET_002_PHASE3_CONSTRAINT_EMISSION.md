@@ -1,5 +1,3 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
-
 \# TICKET 002 — PHASE 3 CONSTRAINT EMISSION (v0)
 
 
@@ -131,3 +129,6 @@ This is intentionally simplistic; it exists to prove end-to-end propagation.
 \- `npm test` passes
 
 \- `npm run run:cli -- examples\\phase1\_min.json` prints Phase 3 with constraints present and registries listed
+
+
+
