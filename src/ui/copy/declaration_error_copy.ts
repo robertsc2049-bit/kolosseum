@@ -1,8 +1,3 @@
-
-// DEV NOTE: Application source surface. Keep product/UI behaviour separated from deterministic
-// engine truth. UI, notes, and workflow convenience must not change canonical engine inputs or
-// outputs unless routed through an explicit validated contract.
-
 export const DECLARATION_ERROR_COPY = {
   legal_refusal: "Execution not permitted.",
   technical_failure_prefix: "Declaration error.",
