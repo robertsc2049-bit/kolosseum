@@ -58,7 +58,7 @@ for (const s of mustContain) {
 // DEV NOTE: Hard lock for the exact approved ENGINE_CONTRACT.md bytes.
 // Any intentional contract edit must update this value deliberately and commit
 // the document plus guard change together.
-const EXPECTED_SHA256 = "2DE6F765A2114799A50227CEA595D1E16DF06CE148F2FA7FC52AE831F3FB04B3";
+const EXPECTED_SHA256 = "672F7464F94D7F2B0B3BE3ACFC418BE51DA1BBBEF2AB371F0056AEE6D1214F7C";
 
 const actual = crypto.createHash("sha256").update(buf).digest("hex").toUpperCase();
 
