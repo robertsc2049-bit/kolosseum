@@ -428,3 +428,100 @@ test("S-V0-14: invalid return decision event type is rejected without state muta
 
   assert.deepEqual(sV014Projection(state), before);
 });
+
+function sV015Ids(value) {
+  if (value instanceof Set) return Array.from(value.values()).sort();
+  if (Array.isArray(value)) {
+    return value.map((item) => {
+      if (typeof item === "string") return item;
+      if (item && typeof item === "object" && typeof item.exercise_id === "string") return item.exercise_id;
+      return null;
+    }).filter(Boolean).sort();
+  }
+  return [];
+}
+
+function sV015Projection(state) {
+  return {
+    remaining_ids: sV015Ids(state.remaining_ids),
+    completed_ids: sV015Ids(state.completed_ids),
+    skipped_ids: sV015Ids(state.skipped_ids),
+    dropped_ids: sV015Ids(state.dropped_ids),
+    remaining_at_split_ids: sV015Ids(state.remaining_at_split_ids),
+    return_decision_required: state.return_decision_required,
+    return_decision_options: Array.isArray(state.return_decision_options) ? [...state.return_decision_options].sort() : [],
+  };
+}
+
+function sV015Replay(makeRuntimeState, applyRuntimeEvent, ids, events) {
+  return events.reduce(
+    (state, event) => applyRuntimeEvent(state, event),
+    makeRuntimeState(ids)
+  );
+}
+
+test("S-V0-15: partial completion with skipped items is recorded as factual terminal state", async () => {
+  const { makeRuntimeState, applyRuntimeEvent } = await loadRuntime();
+
+  const ids = ["exA", "exB", "exC"];
+  const events = [
+    { type: "COMPLETE_EXERCISE", exercise_id: "exA" },
+    { type: "SKIP_EXERCISE", exercise_id: "exB" },
+    { type: "COMPLETE_EXERCISE", exercise_id: "exC" },
+  ];
+
+  const first = sV015Replay(makeRuntimeState, applyRuntimeEvent, ids, events);
+  const second = sV015Replay(makeRuntimeState, applyRuntimeEvent, ids, JSON.parse(JSON.stringify(events)));
+
+  assert.deepEqual(sV015Projection(first), {
+    remaining_ids: [],
+    completed_ids: ["exA", "exC"],
+    skipped_ids: ["exB"],
+    dropped_ids: ["exB"],
+    remaining_at_split_ids: [],
+    return_decision_required: false,
+    return_decision_options: [],
+  });
+
+  assert.deepEqual(sV015Projection(second), sV015Projection(first));
+});
+
+test("S-V0-15: unended session state remains factual and replayable", async () => {
+  const { makeRuntimeState, applyRuntimeEvent } = await loadRuntime();
+
+  const ids = ["exA", "exB", "exC"];
+  const events = [
+    { type: "COMPLETE_EXERCISE", exercise_id: "exA" },
+  ];
+
+  const first = sV015Replay(makeRuntimeState, applyRuntimeEvent, ids, events);
+  const second = sV015Replay(makeRuntimeState, applyRuntimeEvent, ids, JSON.parse(JSON.stringify(events)));
+
+  assert.deepEqual(sV015Projection(first), {
+    remaining_ids: ["exB", "exC"],
+    completed_ids: ["exA"],
+    skipped_ids: [],
+    dropped_ids: [],
+    remaining_at_split_ids: [],
+    return_decision_required: false,
+    return_decision_options: [],
+  });
+
+  assert.deepEqual(sV015Projection(second), sV015Projection(first));
+  assert.equal(Object.prototype.hasOwnProperty.call(first, "completion_judgement"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(first, "readiness"), false);
+});
+
+test("S-V0-15: unsupported stop event cannot create hidden session truth", async () => {
+  const { makeRuntimeState, applyRuntimeEvent } = await loadRuntime();
+
+  const state = makeRuntimeState(["exA", "exB"]);
+  const before = sV015Projection(state);
+
+  assert.throws(
+    () => applyRuntimeEvent(state, { type: "STOP_SESSION" }),
+    /PHASE6_RUNTIME_UNKNOWN_EVENT/
+  );
+
+  assert.deepEqual(sV015Projection(state), before);
+});
