@@ -1,7 +1,10 @@
 
-// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
-// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
-// canonical registries, and validated contracts only.
+// DEV NOTE: Phase 6 runtime reducer boundary.
+// This file is the engine-side reducer for factual session state. State is derived from
+// materialised planned ids plus explicit runtime events in caller-provided order. UI state,
+// coach notes, cache contents, product flags, payment state, and read projections must not
+// enter this reducer or mutate its output. Reads may project reducer output; they must not
+// create hidden session truth.
 
 type AnyRecord = Record<string, unknown>;
 
@@ -23,6 +26,14 @@ function dieUnknownEvent(t: string): never {
 
 function dieAwaitReturnDecision(t: string): never {
   throw new Error(`PHASE6_RUNTIME_AWAIT_RETURN_DECISION: ${t}`);
+}
+
+function dieInvalidEventOrder(t: string): never {
+  throw new Error(`PHASE6_RUNTIME_INVALID_EVENT_ORDER: ${t}`);
+}
+
+function dieUnknownWorkItem(id: string): never {
+  throw new Error(`PHASE6_RUNTIME_UNKNOWN_WORK_ITEM: ${id}`);
 }
 
 type CanonicalType =
@@ -428,6 +439,22 @@ export function makeRuntimeState(session: unknown): RuntimeStateInternal {
   return st;
 }
 
+function hasKnownExerciseId(st: RuntimeStateInternal, id: string): boolean {
+  return (
+    st.remaining_ids.includes(id) ||
+    st.remaining_at_split_ids.includes(id) ||
+    st.completed_ids.has(id) ||
+    st.skipped_ids.has(id) ||
+    st.dropped_ids.has(id)
+  );
+}
+
+function assertKnownExerciseId(st: RuntimeStateInternal, id: string): void {
+  if (!hasKnownExerciseId(st, id)) {
+    dieUnknownWorkItem(id);
+  }
+}
+
 export function applyRuntimeEvent(state: unknown, event: unknown): RuntimeStateInternal {
   validateEvent(event);
 
@@ -435,15 +462,24 @@ export function applyRuntimeEvent(state: unknown, event: unknown): RuntimeStateI
   const st = ensureStateShape(state, plannedFallback);
   const t = normalizeType((event as any).type);
 
-  // RETURN decision gate
+  // The split gate is explicit. Progress while split is open is illegal until a RETURN_* event resolves it.
   if (st.split_active && (t === "COMPLETE_EXERCISE" || t === "SKIP_EXERCISE")) {
     dieAwaitReturnDecision(t);
+  }
+
+  if (!st.split_active && (t === "RETURN_CONTINUE" || t === "RETURN_SKIP")) {
+    dieInvalidEventOrder(t);
+  }
+
+  if (st.split_active && t === "SPLIT_SESSION") {
+    dieInvalidEventOrder(t);
   }
 
   switch (t) {
     case "COMPLETE_EXERCISE": {
       const id = (event as any).exercise_id as string;
       st.started = true;
+      assertKnownExerciseId(st, id);
 
       if (st.completed_ids.has(id) || st.skipped_ids.has(id)) {
         autoCloseSplitIfDone(st);
@@ -462,6 +498,7 @@ export function applyRuntimeEvent(state: unknown, event: unknown): RuntimeStateI
     case "SKIP_EXERCISE": {
       const id = (event as any).exercise_id as string;
       st.started = true;
+      assertKnownExerciseId(st, id);
 
       if (st.skipped_ids.has(id) || st.completed_ids.has(id)) {
         autoCloseSplitIfDone(st);
@@ -479,6 +516,10 @@ export function applyRuntimeEvent(state: unknown, event: unknown): RuntimeStateI
     }
 
     case "SPLIT_SESSION": {
+      if (st.remaining_ids.length === 0) {
+        dieInvalidEventOrder(t);
+      }
+
       st.started = true;
       st.split_active = true;
       st.remaining_at_split_ids = st.remaining_ids.slice();
