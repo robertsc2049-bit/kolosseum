@@ -1,283 +1,283 @@
 {
-    "$schema":  "https://json-schema.org/draft/2020-12/schema",
-    "$id":  "https://kolosseum.local/schemas/v0/phase1_declaration_surface.schema.json",
-    "title":  "Kolosseum v0 Phase 1 Declaration Surface",
-    "type":  "object",
-    "additionalProperties":  false,
-    "required":  [
-                     "engine_version",
-                     "enum_bundle_version",
-                     "phase1_schema_version",
-                     "consent_granted",
-                     "age_declaration",
-                     "jurisdiction_acknowledged",
-                     "actor_type",
-                     "execution_scope",
-                     "activity_id",
-                     "location_type",
-                     "equipment_profile_id"
-                 ],
-    "properties":  {
-                       "engine_version":  {
-                                              "type":  "string",
-                                              "const":  "EB2-1.0.0"
-                                          },
-                       "enum_bundle_version":  {
-                                                   "type":  "string",
-                                                   "const":  "EB2-1.0.0"
-                                               },
-                       "phase1_schema_version":  {
-                                                     "type":  "string",
-                                                     "const":  "1.0.0"
-                                                 },
-                       "consent_granted":  {
-                                               "type":  "boolean",
-                                               "const":  true
-                                           },
-                       "age_declaration":  {
-                                               "type":  "string",
-                                               "enum":  [
-                                                            "adult_18_or_over"
-                                                        ]
-                                           },
-                       "jurisdiction_acknowledged":  {
-                                                         "type":  "boolean",
-                                                         "const":  true
-                                                     },
-                       "actor_type":  {
-                                          "type":  "string",
-                                          "enum":  [
-                                                       "individual_user",
-                                                       "coach"
-                                                   ]
-                                      },
-                       "execution_scope":  {
-                                               "type":  "string",
-                                               "enum":  [
-                                                            "individual",
-                                                            "coach_managed"
-                                                        ]
-                                           },
-                       "governing_authority_id":  {
-                                                      "type":  "string",
-                                                      "minLength":  1,
-                                                      "pattern":  "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
-                                                  },
-                       "activity_id":  {
-                                           "type":  "string",
-                                           "enum":  [
-                                                        "powerlifting",
-                                                        "rugby_union",
-                                                        "general_strength"
-                                                    ]
-                                       },
-                       "sport_role_id":  {
-                                             "type":  "string",
-                                             "minLength":  1,
-                                             "pattern":  "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
-                                         },
-                       "variant_id":  {
-                                          "type":  "string",
-                                          "minLength":  1,
-                                          "pattern":  "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
-                                      },
-                       "location_type":  {
-                                             "type":  "string",
-                                             "enum":  [
-                                                          "commercial_gym",
-                                                          "home_gym",
-                                                          "outdoor"
-                                                      ]
-                                         },
-                       "equipment_profile_id":  {
-                                                    "type":  "string",
-                                                    "minLength":  1,
-                                                    "pattern":  "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
-                                                },
-                       "baseline_metrics":  {
-                                                "type":  "array",
-                                                "minItems":  0,
-                                                "items":  {
-                                                              "$ref":  "#/$defs/baseline_metric"
-                                                          }
-                                            },
-                       "personal_kit":  {
-                                            "$ref":  "#/$defs/personal_kit"
-                                        },
-                       "capability_constraints":  {
-                                                      "type":  "array",
-                                                      "minItems":  0,
-                                                      "items":  {
-                                                                    "$ref":  "#/$defs/capability_constraint"
-                                                                }
-                                                  },
-                       "ui_preferences":  {
-                                              "$ref":  "#/$defs/ui_preferences"
-                                          }
-                   },
-    "allOf":  [
-                  {
-                      "if":  {
-                                 "properties":  {
-                                                    "execution_scope":  {
-                                                                            "const":  "coach_managed"
-                                                                        }
-                                                },
-                                 "required":  [
-                                                  "execution_scope"
-                                              ]
-                             },
-                      "then":  {
-                                   "required":  [
-                                                    "governing_authority_id"
-                                                ]
-                               }
-                  },
-                  {
-                      "if":  {
-                                 "properties":  {
-                                                    "execution_scope":  {
-                                                                            "const":  "individual"
-                                                                        }
-                                                },
-                                 "required":  [
-                                                  "execution_scope"
-                                              ]
-                             },
-                      "then":  {
-                                   "not":  {
-                                               "required":  [
-                                                                "governing_authority_id"
-                                                            ]
-                                           }
-                               }
-                  }
-              ],
-    "$defs":  {
-                  "registry_id":  {
-                                      "type":  "string",
-                                      "minLength":  1,
-                                      "pattern":  "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
-                                  },
-                  "iso_8601_date_or_datetime":  {
-                                                    "type":  "string",
-                                                    "minLength":  10,
-                                                    "maxLength":  40,
-                                                    "pattern":  "^\\\\d{4}-\\\\d{2}-\\\\d{2}([T ][0-2]\\\\d:[0-5]\\\\d(:[0-5]\\\\d(\\\\.\\\\d{1,9})?)?(Z|[+-][0-2]\\\\d:[0-5]\\\\d)?)?$"
-                                                },
-                  "baseline_metric":  {
-                                          "type":  "object",
-                                          "additionalProperties":  false,
-                                          "required":  [
-                                                           "metric_id",
-                                                           "activity_id",
-                                                           "value",
-                                                           "recorded_at"
-                                                       ],
-                                          "properties":  {
-                                                             "metric_id":  {
-                                                                               "$ref":  "#/$defs/registry_id"
-                                                                           },
-                                                             "activity_id":  {
-                                                                                 "type":  "string",
-                                                                                 "enum":  [
-                                                                                              "powerlifting",
-                                                                                              "rugby_union",
-                                                                                              "general_strength"
-                                                                                          ]
-                                                                             },
-                                                             "value":  {
-                                                                           "type":  "object",
-                                                                           "additionalProperties":  true,
-                                                                           "minProperties":  1
-                                                                       },
-                                                             "recorded_at":  {
-                                                                                 "$ref":  "#/$defs/iso_8601_date_or_datetime"
-                                                                             },
-                                                             "linked_exercise_token_id":  {
-                                                                                              "$ref":  "#/$defs/registry_id"
-                                                                                          },
-                                                             "source":  {
-                                                                            "type":  "string",
-                                                                            "enum":  [
-                                                                                         "user_manual",
-                                                                                         "coach_entered",
-                                                                                         "imported"
-                                                                                     ]
-                                                                        }
-                                                         }
-                                      },
-                  "personal_kit":  {
-                                       "type":  "object",
-                                       "additionalProperties":  false,
-                                       "required":  [
-                                                        "owned_item_ids",
-                                                        "present_item_ids"
-                                                    ],
-                                       "properties":  {
-                                                          "owned_item_ids":  {
-                                                                                 "type":  "array",
-                                                                                 "minItems":  0,
-                                                                                 "uniqueItems":  true,
-                                                                                 "items":  {
-                                                                                               "$ref":  "#/$defs/registry_id"
-                                                                                           }
-                                                                             },
-                                                          "present_item_ids":  {
-                                                                                   "type":  "array",
-                                                                                   "minItems":  0,
-                                                                                   "uniqueItems":  true,
-                                                                                   "items":  {
-                                                                                                 "$ref":  "#/$defs/registry_id"
-                                                                                             }
-                                                                               }
-                                                      }
-                                   },
-                  "capability_constraint":  {
-                                                "type":  "object",
-                                                "additionalProperties":  false,
-                                                "required":  [
-                                                                 "constraint_id"
-                                                             ],
-                                                "properties":  {
-                                                                   "constraint_id":  {
-                                                                                         "type":  "string",
-                                                                                         "enum":  [
-                                                                                                      "reduced_range_position",
-                                                                                                      "loaded_position_instability",
-                                                                                                      "setup_modification_required",
-                                                                                                      "position_unavailable"
-                                                                                                  ]
-                                                                                     },
-                                                                   "target_token_id":  {
-                                                                                           "$ref":  "#/$defs/registry_id"
-                                                                                       }
-                                                               }
-                                            },
-                  "ui_preferences":  {
-                                         "type":  "object",
-                                         "additionalProperties":  false,
-                                         "properties":  {
-                                                            "instruction_density":  {
-                                                                                        "type":  "string",
-                                                                                        "enum":  [
-                                                                                                     "low",
-                                                                                                     "medium",
-                                                                                                     "high"
-                                                                                                 ]
-                                                                                    },
-                                                            "presentation_density":  {
-                                                                                         "type":  "string",
-                                                                                         "enum":  [
-                                                                                                      "compact",
-                                                                                                      "standard",
-                                                                                                      "expanded"
-                                                                                                  ]
-                                                                                     },
-                                                            "nd_mode":  {
-                                                                            "type":  "boolean"
-                                                                        }
-                                                        }
-                                     }
-              }
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kolosseum.local/schemas/v0/phase1_declaration_surface.schema.json",
+  "title": "Kolosseum v0 Phase 1 Declaration Surface",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "engine_version",
+    "enum_bundle_version",
+    "phase1_schema_version",
+    "consent_granted",
+    "age_declaration",
+    "jurisdiction_acknowledged",
+    "actor_type",
+    "execution_scope",
+    "activity_id",
+    "location_type",
+    "equipment_profile_id"
+  ],
+  "properties": {
+    "engine_version": {
+      "type": "string",
+      "const": "EB2-1.0.0"
+    },
+    "enum_bundle_version": {
+      "type": "string",
+      "const": "EB2-1.0.0"
+    },
+    "phase1_schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "consent_granted": {
+      "type": "boolean",
+      "const": true
+    },
+    "age_declaration": {
+      "type": "string",
+      "enum": [
+        "adult_18_or_over"
+      ]
+    },
+    "jurisdiction_acknowledged": {
+      "type": "boolean",
+      "const": true
+    },
+    "actor_type": {
+      "type": "string",
+      "enum": [
+        "individual_user",
+        "coach"
+      ]
+    },
+    "execution_scope": {
+      "type": "string",
+      "enum": [
+        "individual",
+        "coach_managed"
+      ]
+    },
+    "governing_authority_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "activity_id": {
+      "type": "string",
+      "enum": [
+        "powerlifting",
+        "rugby_union",
+        "general_strength"
+      ]
+    },
+    "sport_role_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "variant_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "location_type": {
+      "type": "string",
+      "enum": [
+        "commercial_gym",
+        "home_gym",
+        "outdoor"
+      ]
+    },
+    "equipment_profile_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "baseline_metrics": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "$ref": "#/$defs/baseline_metric"
+      }
+    },
+    "personal_kit": {
+      "$ref": "#/$defs/personal_kit"
+    },
+    "capability_constraints": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "$ref": "#/$defs/capability_constraint"
+      }
+    },
+    "ui_preferences": {
+      "$ref": "#/$defs/ui_preferences"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "execution_scope": {
+            "const": "coach_managed"
+          }
+        },
+        "required": [
+          "execution_scope"
+        ]
+      },
+      "then": {
+        "required": [
+          "governing_authority_id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "execution_scope": {
+            "const": "individual"
+          }
+        },
+        "required": [
+          "execution_scope"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "governing_authority_id"
+          ]
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "registry_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "iso_8601_date_or_datetime": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 40,
+      "pattern": "^\\\\d{4}-\\\\d{2}-\\\\d{2}([T ][0-2]\\\\d:[0-5]\\\\d(:[0-5]\\\\d(\\\\.\\\\d{1,9})?)?(Z|[+-][0-2]\\\\d:[0-5]\\\\d)?)?$"
+    },
+    "baseline_metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric_id",
+        "activity_id",
+        "value",
+        "recorded_at"
+      ],
+      "properties": {
+        "metric_id": {
+          "$ref": "#/$defs/registry_id"
+        },
+        "activity_id": {
+          "type": "string",
+          "enum": [
+            "powerlifting",
+            "rugby_union",
+            "general_strength"
+          ]
+        },
+        "value": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/iso_8601_date_or_datetime"
+        },
+        "linked_exercise_token_id": {
+          "$ref": "#/$defs/registry_id"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "user_manual",
+            "coach_entered",
+            "imported"
+          ]
+        }
+      }
+    },
+    "personal_kit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owned_item_ids",
+        "present_item_ids"
+      ],
+      "properties": {
+        "owned_item_ids": {
+          "type": "array",
+          "minItems": 0,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/registry_id"
+          }
+        },
+        "present_item_ids": {
+          "type": "array",
+          "minItems": 0,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/registry_id"
+          }
+        }
+      }
+    },
+    "capability_constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "constraint_id"
+      ],
+      "properties": {
+        "constraint_id": {
+          "type": "string",
+          "enum": [
+            "reduced_range_position",
+            "loaded_position_instability",
+            "setup_modification_required",
+            "position_unavailable"
+          ]
+        },
+        "target_token_id": {
+          "$ref": "#/$defs/registry_id"
+        }
+      }
+    },
+    "ui_preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "instruction_density": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "presentation_density": {
+          "type": "string",
+          "enum": [
+            "compact",
+            "standard",
+            "expanded"
+          ]
+        },
+        "nd_mode": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
 }
