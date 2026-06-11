@@ -24,6 +24,18 @@ function makeRegistry() {
     scope_class: "closed_world",
     rewrite_policy: "rewrite_only",
     purpose: "Pinned CI-only registry for commercial-facing docs and packs.",
+    v0_boundary_policy: {
+      policy_id: "v0_commercial_artefact_registry_boundary_policy",
+      v0_role: "boundary_protection_only",
+      grants_product_scope: false,
+      grants_engine_behaviour: false,
+      permits_billing_or_subscriptions: false,
+      permits_sales_dashboards: false,
+      permits_market_launch_features: false,
+      future_or_post_v0_artefacts_rule:
+        "Artefacts outside the active v0 commercial boundary must remain explicitly future, v1, post-v0, dormant, or excluded. Registry inclusion does not make them active v0 product scope.",
+      required_guard: "ci/scripts/run_commercial_artefact_registry_guard.mjs"
+    },
     scan_roots: [
       "docs/commercial",
       "docs/pricing",
@@ -100,4 +112,16 @@ test("commercial artefact registry guard fails when an undeclared commercial art
   assert.equal(report.ok, false);
   assert.equal(report.failures[0].token, "CI_COMMERCIAL_ARTEFACT_UNDECLARED");
   assert.match(report.failures[0].details, /Undeclared commercial artefact detected/);
+});
+test("commercial artefact registry guard fails when boundary policy grants product scope", () => {
+  const root = setupPassFixture();
+  const registryPath = path.join(root, "ci/registries/commercial_artefact_registry.json");
+  const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+  registry.v0_boundary_policy.permits_billing_or_subscriptions = true;
+  fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2), "utf8");
+
+  const report = runCommercialArtefactRegistryGuard({ cwd: root });
+  assert.equal(report.ok, false);
+  assert.equal(report.failures[0].token, "CI_COMMERCIAL_ARTEFACT_REGISTRY_INVALID");
+  assert.match(report.failures[0].details, /permits_billing_or_subscriptions must be false/);
 });
