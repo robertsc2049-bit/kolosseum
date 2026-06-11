@@ -1,4 +1,4 @@
-# KOLOSSEUM SALES CLAIM BLACKLIST — v1.0.0
+# KOLOSSEUM SALES CLAIM BLACKLIST - v1.0.0
 # Case-insensitive. Any match = CI FAIL.
 # Scope: commercial, sales, marketing, decks, pricing, founder collateral, externally visible copy.
 
@@ -17,3 +17,4 @@
 (?i)\b(real[- ]time governance|real[- ]time enforcement|real[- ]time compliance)\b
 
 (?i)\b(optimi[sz]e\w*|maximi[sz]e\w*|guarantee(?:d)?|proven|best)\b
+(?i)\b(fatigue|fatigued|fatiguing)\b
