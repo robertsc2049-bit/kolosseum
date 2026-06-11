@@ -1,6 +1,9 @@
-// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
-// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
-// canonical registries, and validated contracts only.
+// DEV NOTE: Phase 6 runtime reducer boundary.
+// This file is the engine-side reducer for factual session state. State is derived from
+// materialised planned ids plus explicit runtime events in caller-provided order. UI state,
+// coach notes, cache contents, product flags, payment state, and read projections must not
+// enter this reducer or mutate its output. Reads may project reducer output; they must not
+// create hidden session truth.
 function isRecord(x) {
     return !!x && typeof x === "object" && !Array.isArray(x);
 }
@@ -15,6 +18,12 @@ function dieUnknownEvent(t) {
 }
 function dieAwaitReturnDecision(t) {
     throw new Error(`PHASE6_RUNTIME_AWAIT_RETURN_DECISION: ${t}`);
+}
+function dieInvalidEventOrder(t) {
+    throw new Error(`PHASE6_RUNTIME_INVALID_EVENT_ORDER: ${t}`);
+}
+function dieUnknownWorkItem(id) {
+    throw new Error(`PHASE6_RUNTIME_UNKNOWN_WORK_ITEM: ${id}`);
 }
 function normalizeType(t) {
     switch (t) {
@@ -363,19 +372,38 @@ export function makeRuntimeState(session) {
     syncDerived(st);
     return st;
 }
+function hasKnownExerciseId(st, id) {
+    return (st.remaining_ids.includes(id) ||
+        st.remaining_at_split_ids.includes(id) ||
+        st.completed_ids.has(id) ||
+        st.skipped_ids.has(id) ||
+        st.dropped_ids.has(id));
+}
+function assertKnownExerciseId(st, id) {
+    if (!hasKnownExerciseId(st, id)) {
+        dieUnknownWorkItem(id);
+    }
+}
 export function applyRuntimeEvent(state, event) {
     validateEvent(event);
     const plannedFallback = Array.isArray(state?.remaining_ids) ? uniqStableIds(state.remaining_ids) : [];
     const st = ensureStateShape(state, plannedFallback);
     const t = normalizeType(event.type);
-    // RETURN decision gate
+    // The split gate is explicit. Progress while split is open is illegal until a RETURN_* event resolves it.
     if (st.split_active && (t === "COMPLETE_EXERCISE" || t === "SKIP_EXERCISE")) {
         dieAwaitReturnDecision(t);
+    }
+    if (!st.split_active && (t === "RETURN_CONTINUE" || t === "RETURN_SKIP")) {
+        dieInvalidEventOrder(t);
+    }
+    if (st.split_active && t === "SPLIT_SESSION") {
+        dieInvalidEventOrder(t);
     }
     switch (t) {
         case "COMPLETE_EXERCISE": {
             const id = event.exercise_id;
             st.started = true;
+            assertKnownExerciseId(st, id);
             if (st.completed_ids.has(id) || st.skipped_ids.has(id)) {
                 autoCloseSplitIfDone(st);
                 syncDerived(st);
@@ -390,6 +418,7 @@ export function applyRuntimeEvent(state, event) {
         case "SKIP_EXERCISE": {
             const id = event.exercise_id;
             st.started = true;
+            assertKnownExerciseId(st, id);
             if (st.skipped_ids.has(id) || st.completed_ids.has(id)) {
                 autoCloseSplitIfDone(st);
                 syncDerived(st);
@@ -403,6 +432,9 @@ export function applyRuntimeEvent(state, event) {
             return st;
         }
         case "SPLIT_SESSION": {
+            if (st.remaining_ids.length === 0) {
+                dieInvalidEventOrder(t);
+            }
             st.started = true;
             st.split_active = true;
             st.remaining_at_split_ids = st.remaining_ids.slice();

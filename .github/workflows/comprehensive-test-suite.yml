@@ -1,3 +1,20 @@
+# ==========================================================
+# KOLOSSEUM WORKFLOW POLICY
+# ----------------------------------------------------------
+# comprehensive-test-suite.yml
+# - Runs on:
+#     - pull_request
+#     - push to main
+# - Executes the comprehensive local-style suite.
+#
+# DEV NOTE: This workflow must use the exact repository Node runtime because
+# `npm run test:full` includes `npm run lint:fast`, and lint:fast includes
+# `ci/guards/node_version_guard.mjs`.
+#
+# Do not set this workflow to a Node major such as 24, latest, node, or lts/*.
+# That creates CI/runtime drift and makes the comprehensive suite fail before
+# it reaches the actual proof gates.
+# ==========================================================
 name: comprehensive test suite
 
 on:
@@ -6,25 +23,41 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
+concurrency:
+  group: comprehensive-test-suite-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   comprehensive-test-suite:
     runs-on: ubuntu-latest
+
+    env:
+      # DEV NOTE: Keep this pinned to .nvmrc, package.json engines.node, and
+      # ci/guards/node_version_guard.mjs.
+      NODE_VERSION: "25.9.0"
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          # DEV NOTE: Full history keeps this suite aligned with repo guards that
+          # may inspect ancestry, tags, or branch context.
+          fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 24
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
       - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+        # DEV NOTE: npm ci is required for lockfile-faithful CI installs.
+        run: npm ci
 
       - name: Run comprehensive Kolosseum test suite
+        # DEV NOTE: Keep the proof contract inside package scripts so local and
+        # CI execution stay aligned.
         run: npm run test:full
