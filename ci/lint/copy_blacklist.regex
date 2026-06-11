@@ -3,3 +3,7 @@
 \b(suitable|suitability|appropriate|ready|readiness)\b
 \b(right for you|designed for you|tailored to you|fits your needs|matches your needs|ideal for you|best for you)\b
 \b(guarantee(?:d)?|results?|best results|optimal|optimi[sz]e\w*|maximi[sz]e|maximize|maximise|faster|quick(?:er)?|proven|recommend(?:ed|ation|s)?)\b
+\b(fatigue|fatigued|fatiguing)\b
+\b(effective|effectiveness|more effective|less effective)\b
+\b(better|better outcomes?|better results?)\b
+\b(injury prevention|injury reduction|reduced injury risk|lowers injury risk|reduces injury risk)\b
