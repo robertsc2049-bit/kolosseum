@@ -588,3 +588,25 @@ test("appendRuntimeEventMutation maps unexpected engine error to 500", async () 
   assert.equal(rollbackCalls, 1);
   assert.deepEqual(invalidatedSessionIds, []);
 });
+
+test("S-V0-14 source contract: resolved return-decision replay token remains stable", async () => {
+  const fs = await import("node:fs/promises");
+  const source = await fs.readFile("src/api/session_state_write_service.ts", "utf8");
+
+  assert.match(
+    source,
+    /function ensureResolvedReturnDecisionReplayRejected\(summary: any, raw: unknown\): void \{[\s\S]*?if \(!isReturnDecisionEventType\(t\)\) return;[\s\S]*?if \(isReturnDecisionGateOpen\(summary\)\) return;[\s\S]*?throw conflict\("Runtime event rejected \(resolved return decision replay\)", \{[\s\S]*?failure_token: "phase6_runtime_resolved_return_decision_replay",[\s\S]*?cause: `PHASE6_RUNTIME_RESOLVED_RETURN_DECISION_REPLAY: \$\{t\}`[\s\S]*?\}\);[\s\S]*?\}/,
+    "resolved return-decision replay must keep the v0 failure token and cause stable"
+  );
+});
+
+test("S-V0-14 source contract: return-decision gate token remains stable", async () => {
+  const fs = await import("node:fs/promises");
+  const source = await fs.readFile("src/api/session_state_write_service.ts", "utf8");
+
+  assert.match(
+    source,
+    /if \(msg\.startsWith\("PHASE6_RUNTIME_AWAIT_RETURN_DECISION"\)\) \{[\s\S]*?throw badRequest\("Runtime event rejected \(await return decision\)", \{[\s\S]*?failure_token: "phase6_runtime_await_return_decision",[\s\S]*?cause: msg[\s\S]*?\}\);[\s\S]*?\}/,
+    "await-return-decision mapping must keep the v0 failure token stable"
+  );
+});

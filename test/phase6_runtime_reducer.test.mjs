@@ -246,3 +246,185 @@ test("Phase6 runtime reducer: unknown work item cannot mutate session truth", as
     return_decision_options: []
   });
 });
+
+function sV014Ids(value) {
+  if (value instanceof Set) return Array.from(value.values()).sort();
+  if (Array.isArray(value)) {
+    return value.map((item) => {
+      if (typeof item === "string") return item;
+      if (item && typeof item === "object" && typeof item.exercise_id === "string") return item.exercise_id;
+      return null;
+    }).filter(Boolean).sort();
+  }
+  return [];
+}
+
+function sV014Projection(state) {
+  return {
+    remaining_ids: sV014Ids(state.remaining_ids),
+    completed_ids: sV014Ids(state.completed_ids),
+    skipped_ids: sV014Ids(state.skipped_ids),
+    dropped_ids: sV014Ids(state.dropped_ids),
+    remaining_at_split_ids: sV014Ids(state.remaining_at_split_ids),
+    return_decision_required: state.return_decision_required,
+    return_decision_options: Array.isArray(state.return_decision_options) ? [...state.return_decision_options].sort() : [],
+  };
+}
+
+function sV014Session(ids = ["exA", "exB", "exC"]) {
+  return { planned_items: ids.map((exercise_id) => ({ exercise_id })) };
+}
+
+test("S-V0-14: split opens explicit return decision gate with stable options and no default decision", async () => {
+  const { makeRuntimeState, applyRuntimeEvent } = await loadRuntime();
+
+  let state = makeRuntimeState(sV014Session());
+  state = applyRuntimeEvent(state, { type: "COMPLETE_EXERCISE", exercise_id: "exA" });
+  state = applyRuntimeEvent(state, { type: "SPLIT_SESSION" });
+
+  assert.deepEqual(sV014Projection(state), {
+    remaining_ids: ["exB", "exC"],
+    completed_ids: ["exA"],
+    skipped_ids: [],
+    dropped_ids: [],
+    remaining_at_split_ids: ["exB", "exC"],
+    return_decision_required: true,
+    return_decision_options: ["RETURN_CONTINUE", "RETURN_SKIP"],
+  });
+
+  assert.equal(Object.prototype.hasOwnProperty.call(state, "return_decision"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(state, "split_return_decision"), false);
+});
+
+test("S-V0-14: progress is blocked until an explicit return decision resolves split", async () => {
+  const { makeRuntimeState, applyRuntimeEvent } = await loadRuntime();
+
+  let state = makeRuntimeState(sV014Session());
+  state = applyRuntimeEvent(state, { type: "COMPLETE_EXERCISE", exercise_id: "exA" });
+  state = applyRuntimeEvent(state, { type: "SPLIT_SESSION" });
+
+  const before = sV014Projection(state);
+
+  assert.throws(
+    () => applyRuntimeEvent(state, { type: "COMPLETE_EXERCISE", exercise_id: "exB" }),
+    /PHASE6_RUNTIME_AWAIT_RETURN_DECISION/
+  );
+
+  assert.throws(
+    () => applyRuntimeEvent(state, { type: "SKIP_EXERCISE", exercise_id: "exB" }),
+    /PHASE6_RUNTIME_AWAIT_RETURN_DECISION/
+  );
+
+  assert.deepEqual(sV014Projection(state), before, "blocked progress must not mutate split state");
+});
+
+test("S-V0-14: RETURN_CONTINUE clears gate and preserves remaining terminal path", async () => {
+  const { makeRuntimeState, applyRuntimeEvent } = await loadRuntime();
+
+  let state = makeRuntimeState(sV014Session());
+  state = applyRuntimeEvent(state, { type: "COMPLETE_EXERCISE", exercise_id: "exA" });
+  state = applyRuntimeEvent(state, { type: "SPLIT_SESSION" });
+
+  const atSplit = sV014Projection(state);
+  state = applyRuntimeEvent(state, { type: "RETURN_CONTINUE" });
+
+  assert.deepEqual(sV014Projection(state), {
+    remaining_ids: atSplit.remaining_ids,
+    completed_ids: ["exA"],
+    skipped_ids: [],
+    dropped_ids: [],
+    remaining_at_split_ids: [],
+    return_decision_required: false,
+    return_decision_options: [],
+  });
+
+  state = applyRuntimeEvent(state, { type: "COMPLETE_EXERCISE", exercise_id: "exB" });
+  state = applyRuntimeEvent(state, { type: "COMPLETE_EXERCISE", exercise_id: "exC" });
+
+  assert.deepEqual(sV014Projection(state), {
+    remaining_ids: [],
+    completed_ids: ["exA", "exB", "exC"],
+    skipped_ids: [],
+    dropped_ids: [],
+    remaining_at_split_ids: [],
+    return_decision_required: false,
+    return_decision_options: [],
+  });
+});
+
+test("S-V0-14: RETURN_SKIP clears gate and preserves partial terminal invariants", async () => {
+  const { makeRuntimeState, applyRuntimeEvent } = await loadRuntime();
+
+  let state = makeRuntimeState(sV014Session());
+  state = applyRuntimeEvent(state, { type: "COMPLETE_EXERCISE", exercise_id: "exA" });
+  state = applyRuntimeEvent(state, { type: "SPLIT_SESSION" });
+  state = applyRuntimeEvent(state, { type: "RETURN_SKIP" });
+
+  assert.deepEqual(sV014Projection(state), {
+    remaining_ids: [],
+    completed_ids: ["exA"],
+    skipped_ids: ["exB", "exC"],
+    dropped_ids: ["exB", "exC"],
+    remaining_at_split_ids: [],
+    return_decision_required: false,
+    return_decision_options: [],
+  });
+
+  assert.throws(
+    () => applyRuntimeEvent(state, { type: "RETURN_SKIP" }),
+    /PHASE6_RUNTIME_INVALID_EVENT_ORDER/
+  );
+
+  assert.deepEqual(sV014Projection(state), {
+    remaining_ids: [],
+    completed_ids: ["exA"],
+    skipped_ids: ["exB", "exC"],
+    dropped_ids: ["exB", "exC"],
+    remaining_at_split_ids: [],
+    return_decision_required: false,
+    return_decision_options: [],
+  });
+});
+
+test("S-V0-14: return decisions without an open split are rejected predictably", async () => {
+  const { makeRuntimeState, applyRuntimeEvent } = await loadRuntime();
+
+  const state = makeRuntimeState(sV014Session());
+
+  assert.throws(
+    () => applyRuntimeEvent(state, { type: "RETURN_CONTINUE" }),
+    /PHASE6_RUNTIME_INVALID_EVENT_ORDER/
+  );
+
+  assert.throws(
+    () => applyRuntimeEvent(state, { type: "RETURN_SKIP" }),
+    /PHASE6_RUNTIME_INVALID_EVENT_ORDER/
+  );
+
+  assert.deepEqual(sV014Projection(state), {
+    remaining_ids: ["exA", "exB", "exC"],
+    completed_ids: [],
+    skipped_ids: [],
+    dropped_ids: [],
+    remaining_at_split_ids: [],
+    return_decision_required: false,
+    return_decision_options: [],
+  });
+});
+
+test("S-V0-14: invalid return decision event type is rejected without state mutation", async () => {
+  const { makeRuntimeState, applyRuntimeEvent } = await loadRuntime();
+
+  let state = makeRuntimeState(sV014Session());
+  state = applyRuntimeEvent(state, { type: "COMPLETE_EXERCISE", exercise_id: "exA" });
+  state = applyRuntimeEvent(state, { type: "SPLIT_SESSION" });
+
+  const before = sV014Projection(state);
+
+  assert.throws(
+    () => applyRuntimeEvent(state, { type: "RETURN_AUTO" }),
+    /PHASE6_RUNTIME_UNKNOWN_EVENT/
+  );
+
+  assert.deepEqual(sV014Projection(state), before);
+});
