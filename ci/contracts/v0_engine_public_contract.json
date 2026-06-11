@@ -1,0 +1,11 @@
+{
+    "readonly":  true,
+    "exports":  [
+                    "compileSession",
+                    "planSession",
+                    "executeBlock",
+                    "getSessionState",
+                    "getEvents"
+                ],
+    "version":  "v0"
+}
