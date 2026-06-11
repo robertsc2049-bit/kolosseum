@@ -313,3 +313,26 @@ test("decision summary query source contract: delegates run_id readback to the p
     "expected malformed persisted source to map to explicit internalError contract"
   );
 });
+
+test("S-V0-13 source contract: session state reads do not create runtime events", async () => {
+  const fs = await import("node:fs/promises");
+  const source = await fs.readFile("src/api/session_state_query_service.ts", "utf8");
+
+  assert.doesNotMatch(
+    source,
+    /INSERT INTO runtime_events/i,
+    "getSessionStateQuery must not insert runtime_events"
+  );
+
+  assert.doesNotMatch(
+    source,
+    /session_event_seq/i,
+    "getSessionStateQuery must not allocate or inspect session_event_seq"
+  );
+
+  assert.doesNotMatch(
+    source,
+    /allocNextSeq|appendRuntimeEventMutation|startSessionMutation/i,
+    "getSessionStateQuery must not call write-path mutation helpers"
+  );
+});
