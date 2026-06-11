@@ -56,7 +56,7 @@ if (!Array.isArray(contract.source_candidates) || contract.source_candidates.len
   fail("v0_canonical_hash_sources_missing", "No canonical/hash source candidates recorded.");
 }
 
-for (const rel of contract.source_candidates || []) {
+for (const rel of contract.source_candidates) {
   if (String(rel).includes("__tmp_")) {
     fail("v0_canonical_hash_temp_source_recorded", rel);
     continue;
@@ -115,19 +115,18 @@ const differentFixture = {
 };
 
 const repeatRuns = Number(contract.repeat_runs_required || 50);
-const expectedCanonical = contract?.fixture?.canonical_json;
-const expectedHash = contract?.fixture?.sha256_hex_lower;
-const expectedEquivalentCanonical = contract?.fixture?.equivalent_canonical_json;
-const expectedEquivalentHash = contract?.fixture?.equivalent_sha256_hex_lower;
-const expectedDifferentCanonical = contract?.fixture?.different_canonical_json;
-const expectedDifferentHash = contract?.fixture?.different_sha256_hex_lower;
+const expectedCanonical = contract.fixture.canonical_json;
+const expectedHash = contract.fixture.sha256_hex_lower;
+const expectedDifferentCanonical = contract.fixture.different_canonical_json;
+const expectedDifferentHash = contract.fixture.different_sha256_hex_lower;
 
 for (let i = 0; i < repeatRuns; i++) {
   const canonical = canonicalize(fixture);
-  const hash = sha256HexLower(canonical);
   const equivalentCanonical = canonicalize(equivalentFixture);
-  const equivalentHash = sha256HexLower(equivalentCanonical);
   const differentCanonical = canonicalize(differentFixture);
+
+  const hash = sha256HexLower(canonical);
+  const equivalentHash = sha256HexLower(equivalentCanonical);
   const differentHash = sha256HexLower(differentCanonical);
 
   if (canonical !== expectedCanonical || hash !== expectedHash) {
@@ -135,18 +134,13 @@ for (let i = 0; i < repeatRuns; i++) {
     break;
   }
 
-  if (equivalentCanonical !== expectedEquivalentCanonical || equivalentHash !== expectedEquivalentHash) {
-    fail("v0_canonical_hash_equivalent_drift", { run: i });
+  if (equivalentCanonical !== expectedCanonical || equivalentHash !== expectedHash) {
+    fail("v0_canonical_hash_equivalent_key_order_drift", { run: i, equivalentCanonical, equivalentHash, expectedCanonical, expectedHash });
     break;
   }
 
   if (differentCanonical !== expectedDifferentCanonical || differentHash !== expectedDifferentHash) {
-    fail("v0_canonical_hash_difference_drift", { run: i });
-    break;
-  }
-
-  if (canonical !== equivalentCanonical || hash !== equivalentHash) {
-    fail("v0_canonical_hash_key_order_instability", { run: i });
+    fail("v0_canonical_hash_difference_drift", { run: i, differentCanonical, differentHash, expectedDifferentCanonical, expectedDifferentHash });
     break;
   }
 
@@ -157,11 +151,11 @@ for (let i = 0; i < repeatRuns; i++) {
 }
 
 if (
-  contract?.canonical_rules?.object_keys !== "lexicographic_order" ||
-  contract?.canonical_rules?.arrays !== "preserve_order" ||
-  contract?.canonical_rules?.nested_objects !== "canonicalize_recursively" ||
-  contract?.canonical_rules?.nulls !== "preserve_explicit_null" ||
-  contract?.canonical_rules?.hash_algorithm !== "sha256_hex_lower_over_utf8_canonical_bytes"
+  contract.canonical_rules.object_keys !== "lexicographic_order" ||
+  contract.canonical_rules.arrays !== "preserve_order" ||
+  contract.canonical_rules.nested_objects !== "canonicalize_recursively" ||
+  contract.canonical_rules.nulls !== "preserve_explicit_null" ||
+  contract.canonical_rules.hash_algorithm !== "sha256_hex_lower_over_utf8_canonical_bytes"
 ) {
   fail("v0_canonical_hash_contract_rules_missing", contract.canonical_rules || null);
 }

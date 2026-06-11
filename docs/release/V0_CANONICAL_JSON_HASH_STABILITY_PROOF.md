@@ -7,7 +7,7 @@ Slice: S-V0-04 Canonical JSON and Hash Stability Proof.
 
 This record documents the S-V0-04 canonical JSON and hash stability proof.
 
-The proof does not change canonicalisation semantics. It records the discovered canonical/hash source surface, adds a guard around stable identity behaviour, and checks repeat execution so future drift is caught before v0 release.
+The proof does not change canonicalisation semantics. It records the discovered canonical/hash source surface, adds a guard around stable identity behaviour, and checks repeated execution so future drift is caught before v0 release.
 
 ## DEV NOTE: primary source candidate
 
@@ -23,9 +23,9 @@ The full candidate list is recorded in:
 
 Canonical JSON and SHA/hash behaviour define v0 identity.
 
-The identity path must not depend on timestamps, random values, locale-specific formatting, environment-specific paths, filesystem location, object insertion order, or hidden runtime state.
-
 Identical v0 inputs must produce identical canonical bytes and identical hash values. Equivalent object key ordering must produce the same canonical bytes and hash. Different values must produce different canonical bytes and hash.
+
+The identity path must remain independent of mutable runtime state, filesystem location, locale formatting, and object insertion order.
 
 ## DEV NOTE: failure behaviour
 
@@ -37,7 +37,7 @@ The guard at ci/scripts/run_v0_canonical_json_hash_stability_guard.mjs fails whe
 - arrays are reordered
 - nested objects are not canonicalised recursively
 - explicit null handling drifts
-- strings, numbers, or booleans drift
+- strings, numbers, booleans, or value-difference handling drifts
 - repeated execution produces different canonical bytes or hash values
 
 Do not fix a failure by updating golden values casually. A changed canonical output is a release-boundary decision.
