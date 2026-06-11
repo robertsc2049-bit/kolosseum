@@ -1,11 +1,15 @@
 {
-    "readonly":  true,
-    "exports":  [
-                    "compileSession",
-                    "planSession",
-                    "executeBlock",
-                    "getSessionState",
-                    "getEvents"
-                ],
-    "version":  "v0"
+  "document_id": "v0_engine_public_contract",
+  "status": "active_v0_contract_freeze",
+  "slice": "S-V0-03 Engine Public Contract Freeze",
+  "engine_entrypoint": "engine/src/index.ts",
+  "named_exports": [
+    "runEngine"
+  ],
+  "wildcard_exports": [
+    "./run_pipeline.js"
+  ],
+  "engine_truth_boundary": "engine_output_must_not_depend_on_ui_copy_notes_auth_billing_claims_or_analytics",
+  "drift_policy": "fail_on_public_export_or_forbidden_dependency_drift",
+  "developer_note": "This contract is generated from the current v0 engine entrypoint and then guarded. Future changes to public exports or forbidden engine-layer dependencies must be intentional and reviewed against v0 deterministic boundary law."
 }
