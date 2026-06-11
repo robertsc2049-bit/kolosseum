@@ -228,3 +228,175 @@ test("S3 phase3 sovereign precedence lock: semantically identical accepted input
     "removed overlap must be emitted deterministically"
   );
 });
+
+// DEV NOTE: S-V0-06 sovereign constraints precedence closure.
+// These fixtures prove that explicit Phase 1 constraints remain authoritative
+// through Phase 3. Later logic must not restore removed options, reinterpret a
+// constraint envelope, or soften invalid constraint shapes into warnings.
+const S_V0_06_FIXTURE_LABELS = Object.freeze({
+  bannedBeatsAvailable: "S-V0-06 positive: explicit banned equipment wins over lower-priority availability",
+  canonicalOrder: "S-V0-06 positive: equivalent declared constraint order replays the same Phase 3 output",
+  invalidEnvelope: "S-V0-06 negative: invalid constraint envelope fails closed with explicit token",
+  noRecommendationLanguage: "S-V0-06 negative: constraint resolution emits no recommendation language"
+});
+
+test("S-V0-06 sovereign constraints precedence closure: explicit banned equipment wins over lower-priority availability", async () => {
+  const root = repoRoot();
+  const env = { ...process.env };
+  const { phase1ModulePath, phase3ModulePath } = await ensureBuiltEngine(root, env);
+  const phase1Module = await import(pathToFileURL(phase1ModulePath).href);
+  const phase3Module = await import(pathToFileURL(phase3ModulePath).href);
+
+  const { phase1Validate } = phase1Module;
+  const { phase3ResolveConstraintsAndLoadRegistries } = phase3Module;
+
+  assert.equal(typeof phase1Validate, "function", "expected phase1Validate export");
+  assert.equal(typeof phase3ResolveConstraintsAndLoadRegistries, "function", "expected phase3ResolveConstraintsAndLoadRegistries export");
+
+  const fixtureLabel = S_V0_06_FIXTURE_LABELS.bannedBeatsAvailable;
+  const input = makeAcceptedPhase1InputVariantA();
+  input.constraints = {
+    constraints_version: "1.0.0",
+    available_equipment: ["eq_plate", "eq_rack", "eq_barbell", "eq_bench"],
+    banned_equipment: ["eq_barbell", "eq_bench"]
+  };
+
+  const phase1 = phase1Validate(input);
+  assert.equal(phase1.ok, true, `${fixtureLabel}: phase1 failed: ${JSON.stringify(phase1)}`);
+
+  const phase3 = phase3ResolveConstraintsAndLoadRegistries(phase1.canonical_input);
+  assert.equal(phase3.ok, true, `${fixtureLabel}: phase3 failed: ${JSON.stringify(phase3)}`);
+
+  assert.deepEqual(
+    phase3.phase3.constraints.available_equipment,
+    ["eq_plate", "eq_rack"],
+    `${fixtureLabel}: lower-priority available_equipment must have banned items removed`
+  );
+
+  assert.deepEqual(
+    phase3.phase3.constraints.banned_equipment,
+    ["eq_barbell", "eq_bench"],
+    `${fixtureLabel}: sovereign banned_equipment must be preserved`
+  );
+
+  assert.deepEqual(
+    phase3.phase3.constraints_resolution?.rules_applied,
+    ["banned_over_available_equipment"],
+    `${fixtureLabel}: precedence rule identity must be explicit and deterministic`
+  );
+
+  assert.deepEqual(
+    phase3.phase3.constraints_resolution?.removed_from_available_equipment,
+    ["eq_barbell", "eq_bench"],
+    `${fixtureLabel}: removed lower-priority values must be explicitly recorded`
+  );
+});
+
+test("S-V0-06 sovereign constraints precedence closure: equivalent declared order replays identical Phase 3 precedence output", async () => {
+  const root = repoRoot();
+  const env = { ...process.env };
+  const { phase1ModulePath, phase3ModulePath } = await ensureBuiltEngine(root, env);
+  const phase1Module = await import(pathToFileURL(phase1ModulePath).href);
+  const phase3Module = await import(pathToFileURL(phase3ModulePath).href);
+
+  const { phase1Validate } = phase1Module;
+  const { phase3ResolveConstraintsAndLoadRegistries } = phase3Module;
+
+  const fixtureLabel = S_V0_06_FIXTURE_LABELS.canonicalOrder;
+
+  const variantA = makeAcceptedPhase1InputVariantA();
+  variantA.constraints = {
+    constraints_version: "1.0.0",
+    available_equipment: ["eq_rack", "eq_barbell", "eq_plate", "eq_bench"],
+    banned_equipment: ["eq_bench", "eq_barbell"]
+  };
+
+  const variantB = makeAcceptedPhase1InputVariantA();
+  variantB.constraints = {
+    constraints_version: "1.0.0",
+    available_equipment: ["eq_bench", "eq_plate", "eq_barbell", "eq_rack"],
+    banned_equipment: ["eq_barbell", "eq_bench"]
+  };
+
+  const phase1A = phase1Validate(variantA);
+  const phase1B = phase1Validate(variantB);
+
+  assert.equal(phase1A.ok, true, `${fixtureLabel}: variantA phase1 failed: ${JSON.stringify(phase1A)}`);
+  assert.equal(phase1B.ok, true, `${fixtureLabel}: variantB phase1 failed: ${JSON.stringify(phase1B)}`);
+
+  const phase3A = phase3ResolveConstraintsAndLoadRegistries(phase1A.canonical_input);
+  const phase3B = phase3ResolveConstraintsAndLoadRegistries(phase1B.canonical_input);
+
+  assert.equal(phase3A.ok, true, `${fixtureLabel}: variantA phase3 failed: ${JSON.stringify(phase3A)}`);
+  assert.equal(phase3B.ok, true, `${fixtureLabel}: variantB phase3 failed: ${JSON.stringify(phase3B)}`);
+
+  assert.deepEqual(
+    phase3A.phase3.constraints,
+    phase3B.phase3.constraints,
+    `${fixtureLabel}: equivalent declaration ordering must not change effective constraints`
+  );
+
+  assert.deepEqual(
+    phase3A.phase3.constraints_resolution,
+    phase3B.phase3.constraints_resolution,
+    `${fixtureLabel}: equivalent declaration ordering must not change precedence summary`
+  );
+});
+
+test("S-V0-06 sovereign constraints precedence closure: invalid constraint envelope fails closed with explicit token", async () => {
+  const root = repoRoot();
+  const env = { ...process.env };
+  const { phase3ModulePath } = await ensureBuiltEngine(root, env);
+  const phase3Module = await import(pathToFileURL(phase3ModulePath).href);
+  const { phase3ResolveConstraintsAndLoadRegistries } = phase3Module;
+
+  const fixtureLabel = S_V0_06_FIXTURE_LABELS.invalidEnvelope;
+
+  const phase3 = phase3ResolveConstraintsAndLoadRegistries({
+    activity_id: "powerlifting",
+    constraints: ["eq_barbell"]
+  });
+
+  assert.equal(phase3.ok, false, `${fixtureLabel}: invalid constraints must fail`);
+  assert.equal(phase3.failure_token, "type_mismatch", `${fixtureLabel}: failure token must stay stable`);
+  assert.deepEqual(
+    phase3.details,
+    { path: "constraints", expected: "object" },
+    `${fixtureLabel}: failure details must be explicit and stable`
+  );
+});
+
+test("S-V0-06 sovereign constraints precedence closure: output contains no recommendation language or fallback bypass", async () => {
+  const root = repoRoot();
+  const env = { ...process.env };
+  const { phase1ModulePath, phase3ModulePath } = await ensureBuiltEngine(root, env);
+  const phase1Module = await import(pathToFileURL(phase1ModulePath).href);
+  const phase3Module = await import(pathToFileURL(phase3ModulePath).href);
+
+  const { phase1Validate } = phase1Module;
+  const { phase3ResolveConstraintsAndLoadRegistries } = phase3Module;
+
+  const fixtureLabel = S_V0_06_FIXTURE_LABELS.noRecommendationLanguage;
+  const input = makeAcceptedPhase1InputVariantA();
+  input.constraints = {
+    constraints_version: "1.0.0",
+    available_equipment: ["eq_barbell", "eq_dumbbell", "eq_plate"],
+    banned_equipment: ["eq_barbell"]
+  };
+
+  const phase1 = phase1Validate(input);
+  assert.equal(phase1.ok, true, `${fixtureLabel}: phase1 failed: ${JSON.stringify(phase1)}`);
+
+  const phase3 = phase3ResolveConstraintsAndLoadRegistries(phase1.canonical_input);
+  assert.equal(phase3.ok, true, `${fixtureLabel}: phase3 failed: ${JSON.stringify(phase3)}`);
+
+  const serialized = JSON.stringify(phase3).toLowerCase();
+
+  for (const forbidden of ["recommend", "recommended", "recommendation", "bypass", "override"]) {
+    assert.equal(
+      serialized.includes(forbidden),
+      false,
+      `${fixtureLabel}: Phase 3 sovereign constraint output must not contain forbidden term ${forbidden}`
+    );
+  }
+});
