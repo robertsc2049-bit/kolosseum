@@ -122,7 +122,8 @@
     "test:v0:json": "node ci/scripts/kolosseum_v0_test_suite.mjs --json",
     "test:full": "node ci/scripts/kolosseum_full_test_suite.mjs --full --failed-only",
     "test:change": "node ci/scripts/kolosseum_full_test_suite.mjs --failed-only",
-    "test:v0:engine-contract": "node ci/scripts/run_v0_engine_public_contract_guard.mjs"
+    "test:v0:engine-contract": "node ci/scripts/run_v0_engine_public_contract_guard.mjs",
+    "test:v0:canonical-hash": "node ci/scripts/run_v0_canonical_json_hash_stability_guard.mjs"
   },
   "dependencies": {
     "@kolosseum/engine": "file:engine",
