@@ -1,3 +1,11 @@
+// @law: Repo Governance
+// @severity: medium
+// @scope: repo
+/**
+ * @law docs/dev/DEVELOPER_OPERATING_CONVENTIONS.md
+ * @severity error
+ * @scope dev
+ */
 import fs from "node:fs";
 
 const requiredFiles = [

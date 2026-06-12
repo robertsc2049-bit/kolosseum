@@ -21,6 +21,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | DEV NOTE: Clean-tree guard. This script protects release, promotion, and CI |
 | `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |
+| `ci/guards/developer_operating_conventions_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/diff_line_endings_guard.mjs` | Encoding Hygiene | high | repo | DEV NOTE: Diff line-ending guard. This script checks changed text files between |
 | `ci/guards/engine_contract_guard.mjs` | Runtime Boundary | high | engine | DEV NOTE: Engine contract pin guard. This script protects ENGINE_CONTRACT.md |
 | `ci/guards/engine_exports_types_guard.mjs` | Runtime Boundary | high | engine | DEV NOTE: Engine exports/types guard. This script protects the public engine |
