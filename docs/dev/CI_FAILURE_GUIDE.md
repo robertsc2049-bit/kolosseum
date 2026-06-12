@@ -8,6 +8,8 @@ Purpose: help a future developer identify what a gate is protecting and what not
 
 The guard output is the immediate source of failure detail. This file is a navigation layer only.
 
+Use docs/dev/FAILURE_TOKEN_INDEX.md when the failure output includes a stable token and you need to find the emitting source file.
+
 ## First response to any failure
 
 1. Keep the failure output.

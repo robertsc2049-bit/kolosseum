@@ -14,6 +14,7 @@ Start here when entering the repo without founder context:
 - `docs/dev/GETTING_STARTED.md` - setup, commands, gates, and boundary pointers.
 - `docs/dev/REPO_MAP.md` - repo area map and protected boundaries.
 - `docs/dev/CI_FAILURE_GUIDE.md` - common gate failures and what not to change.
+- docs/dev/FAILURE_TOKEN_INDEX.md - searchable index of failure tokens and safe repair paths.
 - `docs/dev/SLICE_TEMPLATE.md` - bounded slice format and completion checks.
 - `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md` - pointer to current release-boundary records.
 
