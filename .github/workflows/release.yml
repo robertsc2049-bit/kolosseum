@@ -1,3 +1,12 @@
+# ==========================================================
+# KOLOSSEUM WORKFLOW POLICY
+# ----------------------------------------------------------
+# release.yml
+# - Release verification workflow for explicit release tags or manual dispatch.
+# - GitHub Actions owns orchestration only.
+# - npm scripts and repository guards own proof meaning.
+# - A failed command must fail the job.
+# ==========================================================
 # DEV NOTE: Release workflow boundary.
 #
 # This workflow runs only for explicit release tags or manual dispatch. Keep it

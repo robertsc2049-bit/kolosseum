@@ -1,3 +1,12 @@
+# ==========================================================
+# KOLOSSEUM WORKFLOW POLICY
+# ----------------------------------------------------------
+# protect_main_autorevert.yml
+# - Main protection workflow; preserves existing auto-revert behaviour.
+# - GitHub Actions owns orchestration only.
+# - npm scripts and repository guards own proof meaning.
+# - A failed command must fail the job.
+# ==========================================================
 # DEV NOTE: This workflow is the last-line protection for `main`.
 #
 # It does not define engine law, CI token meaning, or release scope. Its only

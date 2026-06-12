@@ -1,3 +1,12 @@
+# ==========================================================
+# KOLOSSEUM WORKFLOW POLICY
+# ----------------------------------------------------------
+# runnable-v0.yml
+# - Minimal executable v0 workflow; preserves runnable-product smoke coverage.
+# - GitHub Actions owns orchestration only.
+# - npm scripts and repository guards own proof meaning.
+# - A failed command must fail the job.
+# ==========================================================
 # DEV NOTE: runnable-v0 is the minimal executable-product guard.
 #
 # This workflow proves that the repository can build the current v0 path and

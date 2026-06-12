@@ -1,3 +1,12 @@
+# ==========================================================
+# KOLOSSEUM WORKFLOW POLICY
+# ----------------------------------------------------------
+# vertical-slice.yml
+# - Vertical slice workflow; preserves executable app and engine path checks.
+# - GitHub Actions owns orchestration only.
+# - npm scripts and repository guards own proof meaning.
+# - A failed command must fail the job.
+# ==========================================================
 # DEV NOTE: This workflow proves the vertical product path, not broad release scope.
 # Keep this file focused on executable smoke coverage for the currently permitted
 # app/engine path. Do not add product, billing, organisation, or presentation
