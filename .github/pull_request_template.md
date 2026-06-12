@@ -48,3 +48,15 @@ Do not propose partial runtime recovery, silent bypasses, or manual production e
 If rollback requires data handling, state the data boundary precisely.
 -->
 -
+---
+
+## S-V1-00 developer operating conventions checklist
+
+- [ ] Target is named with a slice ID.
+- [ ] Boundary is stated.
+- [ ] Non-scope is stated.
+- [ ] Tests or guards run are listed.
+- [ ] Naming follows docs/dev/NAMING_CONVENTIONS.md.
+- [ ] Branch and PR rules follow docs/dev/BRANCH_AND_PR_CONVENTIONS.md.
+- [ ] DEV NOTE or JSDoc changes are targeted and boundary-relevant, or not applicable.
+- [ ] This PR does not add hidden product scope.
