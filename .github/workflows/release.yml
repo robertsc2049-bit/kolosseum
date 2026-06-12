@@ -1,4 +1,4 @@
-# ==========================================================
+﻿# ==========================================================
 # KOLOSSEUM WORKFLOW POLICY
 # ----------------------------------------------------------
 # release.yml
@@ -101,12 +101,28 @@ jobs:
         # npm install here because it may rewrite dependency state or tolerate
         # lockfile drift.
         run: npm ci
-
       - name: Version gate
-        # DEV NOTE: This is the release identity gate. It binds the Git tag name
-        # to the project version rules before tests or runtime checks are treated
-        # as release evidence.
+        # DEV NOTE: This is the semver release identity gate. It binds normal
+        # package release tags to package.json version rules before tests or
+        # runtime checks are treated as release evidence. The explicit
+        # v0-deterministic-execution-alpha boundary tag is handled by the next
+        # step because it freezes a scoped v0 product boundary, not a package
+        # semver publication.
+        if: github.ref_name != 'v0-deterministic-execution-alpha'
         run: node scripts/version-gate.mjs --tag "${GITHUB_REF_NAME}"
+
+      - name: V0 boundary tag gate
+        # DEV NOTE: This exception is intentionally narrow. It allows the single
+        # v0 Deterministic Execution Alpha boundary tag to pass release
+        # verification without pretending it is a package semver release. Do not
+        # broaden this condition to other descriptive tags without a release
+        # boundary decision.
+        if: github.ref_name == 'v0-deterministic-execution-alpha'
+        run: |
+          test "${GITHUB_SHA}" = "$(git rev-parse HEAD)"
+          test -f docs/release/v0_FINAL_DECISION_NOTE.md
+          grep -Eq "Final decision: v0 is complete for the scoped Deterministic Execution Alpha|Decision: COMPLETE FOR V0 DETERMINISTIC EXECUTION ALPHA" docs/release/v0_FINAL_DECISION_NOTE.md
+          node ci/scripts/run_v0_completion_gate_manifest_verifier.mjs
 
       - name: Guard + Unit tests (ci)
         # DEV NOTE: The normal CI gate remains mandatory on release. Release-only
@@ -171,3 +187,4 @@ jobs:
             kill "$PID" || true
           fi
           sleep 1
+
