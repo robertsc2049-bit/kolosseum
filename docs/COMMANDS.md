@@ -51,3 +51,28 @@ If you are unsure which command to use, run:
     npm run verify
 
 Do not bypass failing guards. Fix the failing layer.
+
+## Wrapper and CI entrypoints
+
+Use `npm.cmd` on Windows local PowerShell.
+
+Direct and wrapper gates for v0 closure:
+
+    npm.cmd run lint:fast
+    npm.cmd run test:ci
+    npm.cmd run test:v0
+    npm.cmd run test:change
+    npm.cmd run test:full
+    npm.cmd run build
+    npm.cmd run build:fast
+    npm.cmd run green:ci
+
+Entrypoint contract:
+
+- `lint` wraps `lint:fast` and `test:ci`.
+- `ci` wraps `green:ci`.
+- `green:ci` owns the CI-safe green path.
+- `test:change` and `test:full` are wrappers around `ci/scripts/kolosseum_full_test_suite.mjs`.
+- `test:v0` remains owned by `ci/scripts/kolosseum_v0_test_suite.mjs`.
+- Clean-tree gates must run after intended changes are committed or reverted.
+- Wrapper failures must preserve the underlying command failure; do not hide or reinterpret failures in wrapper code.

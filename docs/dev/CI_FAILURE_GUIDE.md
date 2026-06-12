@@ -181,3 +181,11 @@ Only run `npm.cmd run lint:fast` after committing or reverting changes, because 
 ## Final rule
 
 A passing targeted guard is not enough by itself. Finish with clean tree plus the slice-required full gates.
+
+### CI wrapper contract failures
+
+Meaning: package scripts, workflow commands, or wrapper semantics drifted.
+
+Do not fix by deleting checks, removing clean-tree gates, or changing workflows to run weaker commands.
+
+Correct response: keep local PowerShell commands Windows-safe with `npm.cmd`, keep GitHub workflows on `npm run ...`, preserve the wrapped command failure, and update the wrapper contract guard only when the release boundary intentionally changes.
