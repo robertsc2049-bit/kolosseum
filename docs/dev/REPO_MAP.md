@@ -6,6 +6,19 @@ This file explains the main repo areas and how to think about them.
 
 It is a navigation guide only. It does not create product law.
 
+
+## Developer Entry Pack
+
+Start here when entering the repo without founder context:
+
+- `docs/dev/GETTING_STARTED.md` - setup, commands, gates, and boundary pointers.
+- `docs/dev/REPO_MAP.md` - repo area map and protected boundaries.
+- `docs/dev/CI_FAILURE_GUIDE.md` - common gate failures and what not to change.
+- `docs/dev/SLICE_TEMPLATE.md` - bounded slice format and completion checks.
+- `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md` - pointer to current release-boundary records.
+
+These files are navigation and handover material only. They do not replace canonical contracts, release records, tests, or guards.
+
 ## Core Areas
 
 ### `/docs`
