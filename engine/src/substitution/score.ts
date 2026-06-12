@@ -235,6 +235,18 @@ function scoreCandidate(target: any, candidate: any): { score: number; reasons: 
   return { score, reasons };
 }
 
+/**
+ * DEV NOTE: Substitution scorer boundary.
+ * Purpose: choose one deterministic substitute from the provided candidate list
+ * and canonical substitution constraints.
+ * Boundary: scoring reads exercise signatures and constraints only; it must not
+ * read athlete history, coach notes, UI state, copy text, payment state, or
+ * commercial tier data.
+ * Determinism: ordering ties are resolved through stable score components and
+ * the exercise id suffix, making repeated runs byte-stable for the same inputs.
+ * Failure: no eligible candidate returns null so Phase 5 can emit the stable
+ * no-change or missing-target result it already owns.
+ */
 export function pickBestSubstitute(
   target: ExerciseSignature,
   candidates: ExerciseSignature[],

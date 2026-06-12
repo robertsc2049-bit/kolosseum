@@ -7,6 +7,13 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 
+// DEV NOTE: Documentation checksum guard boundary.
+// Purpose: verify docs/checksums.sha256 against committed docs bytes.
+// Boundary: this guard checks documentation integrity only; it does not define
+// product, engine, registry, or evidence semantics.
+// Determinism: each listed file is hashed from raw bytes with SHA-256.
+// Failure: missing checksum files, malformed lines, missing docs, or hash drift
+// emit stable CI_* messages and set a non-zero process status.
 const docsDir = path.resolve("docs");
 const checksumFile = path.join(docsDir, "checksums.sha256");
 

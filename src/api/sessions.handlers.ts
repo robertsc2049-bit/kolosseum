@@ -69,6 +69,17 @@ export async function startSession(req: Request, res: Response) {
   return res.status(200).json(result);
 }
 
+/**
+ * DEV NOTE: Runtime event handler delegation boundary.
+ * Purpose: validate transport-level session id input, delegate event persistence,
+ * then read back the projected factual session state.
+ * Boundary: this handler does not apply engine runtime rules directly; reducer
+ * behaviour lives in the engine package and write service.
+ * Determinism: response state is read after mutation so the API surface reflects
+ * the stored event sequence rather than local handler state.
+ * Failure: missing session id and service-level runtime failures are mapped by
+ * delegated services into stable HTTP error responses.
+ */
 export async function appendRuntimeEvent(req: Request, res: Response) {
   const session_id = asString(req.params?.session_id);
   if (!session_id) throw badRequest("Missing session_id");

@@ -6,6 +6,14 @@
 import fs from "node:fs";
 import path from "node:path";
 
+// DEV NOTE: Spine document presence guard boundary.
+// Purpose: ensure docs/SPINE.md still points at committed authority documents.
+// Boundary: this guard checks listed document presence only; authority ordering
+// remains in the spine document and canonical release docs.
+// Determinism: bold document references are parsed with one fixed expression and
+// checked relative to docs/.
+// Failure: missing spine, empty spine references, or missing listed files emit
+// stable CI_SPINE_* messages and set a non-zero process status.
 const spinePath = path.resolve("docs/SPINE.md");
 if (!fs.existsSync(spinePath)) {
   console.error("CI_SPINE_MISSING_DOC: docs/SPINE.md not found");
