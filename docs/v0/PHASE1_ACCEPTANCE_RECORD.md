@@ -240,3 +240,15 @@ S28 is accepted when:
 Compile starts only after accepted, immutable, version-pinned Phase 1 declaration truth exists.
 
 If accepted Phase 1 truth is missing, invalid, mutable, superseded, unaccepted, mismatched, or hash-inconsistent, compile must fail closed.
+
+## S-V0-30 acceptance test closure
+
+S-V0-30 keeps Phase 1 acceptance factual and deterministic. The acceptance test suite must prove these explicit cases:
+
+- valid_minimal_input_can_be_accepted: a complete minimal v0 declaration payload can create an immutable accepted record.
+- missing_activity_id_refused: a required active field is missing and acceptance fails with PHASE1_ACCEPTANCE_PAYLOAD_INVALID.
+- unsupported_activity_enum_refused: an unsupported activity enum is refused with PHASE1_ACCEPTANCE_PAYLOAD_INVALID.
+- malformed_actor_type_refused: a malformed field type is refused with PHASE1_ACCEPTANCE_PAYLOAD_INVALID.
+- unknown_active_field_refused: an unknown active payload field is refused with PHASE1_ACCEPTANCE_PAYLOAD_INVALID.
+
+The tests must not infer user intent, must not silently default omitted fields, and must not accept post-v0 fields. Error output is stable through the explicit expected_code values in docs/v0/phase1_acceptance_record_tests.json.

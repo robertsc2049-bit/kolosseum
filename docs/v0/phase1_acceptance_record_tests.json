@@ -248,6 +248,63 @@
         "record_unchanged": true,
         "hash_unchanged": true
       }
+    },
+    {
+      "test_id": "valid_minimal_input_can_be_accepted",
+      "operation": "accept_declaration",
+      "expected_ok": true,
+      "assertions": {
+        "immutable": true,
+        "immutable_status": "immutable",
+        "sha256_pattern": "^[a-f0-9]{64}$",
+        "superseded_at": null,
+        "actor_type_matches_payload": true,
+        "execution_scope_matches_payload": true,
+        "activity_id_matches_payload": true,
+        "version_pins_match_payload": true
+      }
+    },
+    {
+      "test_id": "unsupported_activity_enum_refused",
+      "operation": "accept_declaration",
+      "payload_mutation": {
+        "replace": {
+          "activity_id": "unsupported_activity"
+        }
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_PAYLOAD_INVALID"
+    },
+    {
+      "test_id": "malformed_actor_type_refused",
+      "operation": "accept_declaration",
+      "payload_mutation": {
+        "replace": {
+          "actor_type": 42
+        }
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_PAYLOAD_INVALID"
+    },
+    {
+      "test_id": "unknown_active_field_refused",
+      "operation": "accept_declaration",
+      "payload_mutation": {
+        "add": {
+          "readiness_score": 1
+        }
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_PAYLOAD_INVALID"
+    },
+    {
+      "test_id": "missing_activity_id_refused",
+      "operation": "accept_declaration",
+      "payload_mutation": {
+        "remove": "activity_id"
+      },
+      "expected_ok": false,
+      "expected_code": "PHASE1_ACCEPTANCE_PAYLOAD_INVALID"
     }
   ]
 }
