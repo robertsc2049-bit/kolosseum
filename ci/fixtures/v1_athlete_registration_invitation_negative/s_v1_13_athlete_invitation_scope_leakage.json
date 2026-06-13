@@ -1,0 +1,202 @@
+{
+  "fixture_id": "s_v1_13_athlete_invitation_scope_leakage",
+  "slice": "S-V1-13",
+  "schema_version": "1.0.0",
+  "cases": [
+    {
+      "case_id": "valid_athlete_registration_allowed",
+      "case_type": "registration",
+      "expected_ok": true,
+      "input": {
+        "athlete_user_id": "athlete_001",
+        "email": "athlete.one@example.com",
+        "display_name": "Athlete One",
+        "account_role": "athlete",
+        "account_state": "active",
+        "accepted_terms_version": "terms_v1",
+        "created_at_iso8601": "2026-06-13T12:00:00.000Z"
+      }
+    },
+    {
+      "case_id": "valid_athlete_invitation_allowed",
+      "case_type": "invitation",
+      "expected_ok": true,
+      "input": {
+        "invite_id": "invite_001",
+        "invited_by_coach_user_id": "coach_001",
+        "athlete_email": "athlete.one@example.com",
+        "athlete_display_name": "Athlete One",
+        "invitation_target_role": "athlete",
+        "invitation_scope": "athlete_account_access",
+        "invitation_state": "invited",
+        "invited_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "expires_at_iso8601": "2026-06-20T12:00:00.000Z",
+        "accepted_at_iso8601": null,
+        "accepted_by_athlete_user_id": null
+      }
+    },
+    {
+      "case_id": "accepted_invitation_does_not_create_relationship",
+      "case_type": "invitation",
+      "expected_ok": true,
+      "expected_relationship_created": false,
+      "input": {
+        "invite_id": "invite_002",
+        "invited_by_coach_user_id": "coach_001",
+        "athlete_email": "athlete.one@example.com",
+        "athlete_display_name": "Athlete One",
+        "invitation_target_role": "athlete",
+        "invitation_scope": "athlete_account_access",
+        "invitation_state": "accepted",
+        "invited_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "expires_at_iso8601": "2026-06-20T12:00:00.000Z",
+        "accepted_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "accepted_by_athlete_user_id": "athlete_001"
+      }
+    },
+    {
+      "case_id": "coach_role_registration_rejected",
+      "case_type": "registration",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ATHLETE_REGISTRATION_INVITATION",
+      "input": {
+        "athlete_user_id": "athlete_001",
+        "email": "athlete.one@example.com",
+        "display_name": "Athlete One",
+        "account_role": "coach",
+        "account_state": "active",
+        "accepted_terms_version": "terms_v1",
+        "created_at_iso8601": "2026-06-13T12:00:00.000Z"
+      }
+    },
+    {
+      "case_id": "team_admin_registration_rejected",
+      "case_type": "registration",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ATHLETE_REGISTRATION_INVITATION",
+      "input": {
+        "athlete_user_id": "athlete_001",
+        "email": "athlete.one@example.com",
+        "display_name": "Athlete One",
+        "account_role": "team_admin",
+        "account_state": "active",
+        "accepted_terms_version": "terms_v1",
+        "created_at_iso8601": "2026-06-13T12:00:00.000Z"
+      }
+    },
+    {
+      "case_id": "team_invite_scope_rejected",
+      "case_type": "invitation",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ATHLETE_REGISTRATION_INVITATION",
+      "input": {
+        "invite_id": "invite_001",
+        "invited_by_coach_user_id": "coach_001",
+        "athlete_email": "athlete.one@example.com",
+        "athlete_display_name": "Athlete One",
+        "invitation_target_role": "athlete",
+        "invitation_scope": "team_invite",
+        "invitation_state": "invited",
+        "invited_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "expires_at_iso8601": "2026-06-20T12:00:00.000Z",
+        "accepted_at_iso8601": null,
+        "accepted_by_athlete_user_id": null
+      }
+    },
+    {
+      "case_id": "social_invite_scope_rejected",
+      "case_type": "invitation",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ATHLETE_REGISTRATION_INVITATION",
+      "input": {
+        "invite_id": "invite_001",
+        "invited_by_coach_user_id": "coach_001",
+        "athlete_email": "athlete.one@example.com",
+        "athlete_display_name": "Athlete One",
+        "invitation_target_role": "athlete",
+        "invitation_scope": "social_follow",
+        "invitation_state": "invited",
+        "invited_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "expires_at_iso8601": "2026-06-20T12:00:00.000Z",
+        "accepted_at_iso8601": null,
+        "accepted_by_athlete_user_id": null
+      }
+    },
+    {
+      "case_id": "organisation_invite_target_rejected",
+      "case_type": "invitation",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ATHLETE_REGISTRATION_INVITATION",
+      "input": {
+        "invite_id": "invite_001",
+        "invited_by_coach_user_id": "coach_001",
+        "athlete_email": "athlete.one@example.com",
+        "athlete_display_name": "Athlete One",
+        "invitation_target_role": "organisation_admin",
+        "invitation_scope": "athlete_account_access",
+        "invitation_state": "invited",
+        "invited_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "expires_at_iso8601": "2026-06-20T12:00:00.000Z",
+        "accepted_at_iso8601": null,
+        "accepted_by_athlete_user_id": null
+      }
+    },
+    {
+      "case_id": "marketplace_invite_scope_rejected",
+      "case_type": "invitation",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ATHLETE_REGISTRATION_INVITATION",
+      "input": {
+        "invite_id": "invite_001",
+        "invited_by_coach_user_id": "coach_001",
+        "athlete_email": "athlete.one@example.com",
+        "athlete_display_name": "Athlete One",
+        "invitation_target_role": "athlete",
+        "invitation_scope": "marketplace_access",
+        "invitation_state": "invited",
+        "invited_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "expires_at_iso8601": "2026-06-20T12:00:00.000Z",
+        "accepted_at_iso8601": null,
+        "accepted_by_athlete_user_id": null
+      }
+    },
+    {
+      "case_id": "engine_input_rejected",
+      "case_type": "registration",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ATHLETE_REGISTRATION_INVITATION",
+      "input": {
+        "athlete_user_id": "athlete_001",
+        "email": "athlete.one@example.com",
+        "display_name": "Athlete One",
+        "account_role": "athlete",
+        "account_state": "active",
+        "accepted_terms_version": "terms_v1",
+        "created_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "engine_input": {
+          "athlete_user_id": "athlete_001"
+        }
+      }
+    },
+    {
+      "case_id": "relationship_created_rejected",
+      "case_type": "invitation",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ATHLETE_REGISTRATION_INVITATION",
+      "input": {
+        "invite_id": "invite_001",
+        "invited_by_coach_user_id": "coach_001",
+        "athlete_email": "athlete.one@example.com",
+        "athlete_display_name": "Athlete One",
+        "invitation_target_role": "athlete",
+        "invitation_scope": "athlete_account_access",
+        "invitation_state": "accepted",
+        "invited_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "expires_at_iso8601": "2026-06-20T12:00:00.000Z",
+        "accepted_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "accepted_by_athlete_user_id": "athlete_001",
+        "relationship_created": true
+      }
+    }
+  ]
+}

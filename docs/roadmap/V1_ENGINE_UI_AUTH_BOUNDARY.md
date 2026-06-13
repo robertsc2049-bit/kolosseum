@@ -695,3 +695,17 @@ Engine output must not depend on coach identity, coach email, coach display name
 
 S-V1-12 does not implement auth provider code, account routes, product UI, database migrations, payment implementation, enterprise account management, organisation scope, organization scope, team scope, gym scope, unit scope, federation scope, marketplace, coach discovery, messaging, chat, EPOS, gym access, full dashboards, or engine behaviour.
 <!-- S-V1-12:COACH-REGISTRATION-ENGINE-AUTH-BOUNDARY:END -->
+
+<!-- S-V1-13:ATHLETE-REGISTRATION-ENGINE-AUTH-BOUNDARY:START -->
+## S-V1-13 Athlete Registration Engine/Auth Boundary
+
+Athlete registration/invitation is product/auth state only.
+
+Athlete registration cannot affect engine truth.
+
+Athlete invitation cannot affect engine truth.
+
+Engine output must not depend on athlete identity, athlete email, athlete display name, athlete account state, athlete accepted terms version, athlete invitation state, athlete invitation source, athlete onboarding state, athlete billing state, athlete entitlement state, or athlete support state.
+
+S-V1-13 does not implement friends, social, team invites, organisation invites, organization invites, gym invites, unit invites, federation invites, enterprise invites, marketplace, coach discovery, messaging, chat, auth provider code, account routes, product UI, database migrations, payment implementation, or engine behaviour.
+<!-- S-V1-13:ATHLETE-REGISTRATION-ENGINE-AUTH-BOUNDARY:END -->

@@ -244,3 +244,31 @@ Authority order for coach registration/provisioning scope:
 
 No lower-authority document, route, schema, fixture, copy surface, billing state, support state, dormant future role, or implementation note may widen coach registration/provisioning beyond coach product/auth state.
 <!-- S-V1-12:COACH-REGISTRATION-AUTHORITY:END -->
+
+<!-- S-V1-13:ATHLETE-REGISTRATION-AUTHORITY:START -->
+## S-V1-13 Athlete Registration Authority
+
+`docs/v1/V1_ATHLETE_REGISTRATION_INVITATION.md` is the canonical v1 athlete registration/invitation boundary.
+
+It is subordinate to the active v1 release boundary, account model boundary, coach registration/provisioning boundary, and app-engine boundary.
+
+It is enforced by:
+
+- `src/athleteRegistrationInvitation.mjs`
+- `test/s_v1_13_athlete_registration_invitation.test.mjs`
+- `ci/guards/s_v1_13_athlete_registration_invitation_guard.mjs`
+
+Authority order for athlete registration/invitation scope:
+
+1. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+2. `docs/v1/V1_RELEASE_BOUNDARY.md`
+3. `docs/v1/V1_ACCOUNT_MODEL_BOUNDARY.md`
+4. `docs/v1/V1_COACH_REGISTRATION_PROVISIONING.md`
+5. `docs/v1/V1_ATHLETE_REGISTRATION_INVITATION.md`
+6. `docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md`
+7. `docs/v1/V1_ACCEPTANCE_GATE.md`
+8. `docs/v1/V1_NOT_IN_SCOPE.md`
+9. executable tests and CI guards
+
+No lower-authority document, route, schema, fixture, copy surface, billing state, support state, dormant future role, or implementation note may widen athlete registration/invitation beyond athlete product/auth state.
+<!-- S-V1-13:ATHLETE-REGISTRATION-AUTHORITY:END -->

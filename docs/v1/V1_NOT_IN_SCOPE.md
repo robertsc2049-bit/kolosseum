@@ -284,3 +284,40 @@ S-V1-12 must not activate:
 - relationship implementation
 - assignment implementation
 <!-- S-V1-12:COACH-REGISTRATION-NON-SCOPE:END -->
+
+<!-- S-V1-13:ATHLETE-REGISTRATION-NON-SCOPE:START -->
+## S-V1-13 Athlete Registration Non-Scope
+
+S-V1-13 may register an athlete platform identity or create an athlete account invitation only.
+
+S-V1-13 must not activate:
+
+- friends
+- social
+- social feed
+- team invites
+- organisation invites
+- organization invites
+- gym invites
+- unit invites
+- federation invites
+- enterprise invites
+- marketplace
+- coach discovery
+- coach directory
+- messaging
+- chat
+- auth provider implementation
+- password implementation
+- session implementation
+- database migrations
+- product UI
+- payment implementation
+- enterprise billing
+- enterprise account management
+- registry content
+- engine behaviour
+- proof implementation
+- relationship implementation
+- assignment implementation
+<!-- S-V1-13:ATHLETE-REGISTRATION-NON-SCOPE:END -->
