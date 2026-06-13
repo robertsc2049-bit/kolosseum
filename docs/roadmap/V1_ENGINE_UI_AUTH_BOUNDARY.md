@@ -669,3 +669,17 @@ This boundary is checked by:
 
 Do not fix failures by weakening the guard, widening engine inputs, adding allow-list exceptions, or moving app/product state into shared engine-visible helpers.
 <!-- S-V1-04:APP-ENGINE-BOUNDARY-CONTRACT:END -->
+
+<!-- S-V1-11:ACCOUNT-MODEL-ENGINE-AUTH-BOUNDARY:START -->
+## S-V1-11 Account Model Engine/Auth Boundary
+
+V1 supports coach and athlete accounts only.
+
+Account state is platform state only.
+
+Engine output must not depend on account role, account status, invite status, verification status, billing status, entitlement status, support status, or dormant future role state.
+
+Dormant future roles may be documented only as dormant and must not become active v1 product scope.
+
+S-V1-11 does not implement auth provider code, account routes, product UI, database migrations, payment implementation, organisation scope, organization scope, team scope, gym scope, unit scope, federation scope, enterprise billing, marketplace, messaging, chat, EPOS, gym access, full dashboards, or engine behaviour.
+<!-- S-V1-11:ACCOUNT-MODEL-ENGINE-AUTH-BOUNDARY:END -->
