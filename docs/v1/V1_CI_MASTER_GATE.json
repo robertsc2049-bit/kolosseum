@@ -1,0 +1,150 @@
+{
+  "schema_version": "kolosseum.v1.ci_master_gate.v1.0.0",
+  "slice": "S-V1-08",
+  "status": "definition_only",
+  "purpose": "Define the v1 CI master gate without adding broad duplicate workflows.",
+  "non_authority": [
+    "Does not create product law.",
+    "Does not create engine law.",
+    "Does not create registry law.",
+    "Does not create copy authority.",
+    "Does not create auth implementation.",
+    "Does not create proof implementation.",
+    "Does not create workflow authority.",
+    "Does not declare v1 complete."
+  ],
+  "master_gate_rule": "V1 completion is blocked unless every required gate category is complete, green, and mapped to an existing check or a deliberately sliced future check.",
+  "no_duplicate_ci_rule": "The v1 master gate reuses existing guard and workflow surfaces first. Broad duplicate CI workflows are forbidden unless a later slice proves a gap.",
+  "required_gate_categories": [
+    {
+      "category_id": "v0_closure",
+      "category_title": "V0 closure",
+      "purpose": "V1 cannot be declared complete while required v0 closure gates are missing or failing.",
+      "required_existing_checks": [
+        "node ci/scripts/run_v0_completion_gate_manifest_verifier.mjs",
+        "docs/release/V0_COMPLETION_GATE_MANIFEST.md",
+        "docs/v0/V0_COMPLETION_GATE_MANIFEST.json",
+        "docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md"
+      ]
+    },
+    {
+      "category_id": "v1_boundary",
+      "category_title": "V1 boundary",
+      "purpose": "V1 work must remain inside the active release boundary and not-in-scope records.",
+      "required_existing_checks": [
+        "node ci/guards/v1_boundary_guard_scaffolding_guard.mjs",
+        "node ci/guards/s_v1_01_active_boundary_confirmation_guard.mjs",
+        "node ci/guards/s_v1_02b_non_scope_guard_hardening_guard.mjs",
+        "node ci/guards/s_v1_03_repository_top_level_folder_contract_guard.mjs",
+        "node ci/guards/s_v1_04_app_engine_boundary_contract_guard.mjs",
+        "node ci/guards/s_v1_05_slice_template_enforcement_guard.mjs",
+        "node ci/guards/s_v1_06_adr_system_start_guard.mjs",
+        "node ci/guards/s_v1_07_developer_entry_pack_guard.mjs",
+        "docs/v1/V1_RELEASE_BOUNDARY.md",
+        "docs/v1/V1_ACCEPTANCE_GATE.md",
+        "docs/v1/V1_NOT_IN_SCOPE.md",
+        "docs/v1/V1_DOC_AUTHORITY_MAP.md"
+      ]
+    },
+    {
+      "category_id": "registry",
+      "category_title": "Registry",
+      "purpose": "Registry schema, domain, content-production contract, bundle, and law checks must remain green.",
+      "required_existing_checks": [
+        "node ci/guards/v1_registry_schema_target_guard.mjs",
+        "node ci/guards/v1_registry_domain_scaffold_guard.mjs",
+        "node ci/guards/v1_registry_content_production_contract_guard.mjs",
+        "node ci/guards/registry_schema_presence_guard.mjs",
+        "node ci/guards/registry_bundle_guard.mjs",
+        "node ci/guards/registry_law_guard.mjs",
+        "node ci/scripts/run_registry_seal_gate.mjs",
+        "docs/roadmap/V1_REGISTRY_CONTENT_PRODUCTION_CONTRACT.md"
+      ]
+    },
+    {
+      "category_id": "copy_claims",
+      "category_title": "Copy and claims",
+      "purpose": "User-facing and commercial-facing copy must stay factual, registered, and claim-safe.",
+      "required_existing_checks": [
+        "node ci/scripts/lint_sales_claims.mjs",
+        "node ci/scripts/run_commercial_artefact_registry_guard.mjs",
+        "node ci/guards/run_v0_boundary_claim_consistency_guard.mjs",
+        "docs/dev/CI_FAILURE_GUIDE.md",
+        "docs/dev/FAILURE_TOKEN_INDEX.md"
+      ]
+    },
+    {
+      "category_id": "auth_permissions",
+      "category_title": "Auth and permissions",
+      "purpose": "Auth and permission checks must gate product access only and must not alter engine truth.",
+      "required_existing_checks": [
+        "node ci/guards/s_v1_04_app_engine_boundary_contract_guard.mjs",
+        "docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md",
+        "docs/v1/V1_RELEASE_BOUNDARY.md",
+        "docs/v1/V1_ACCEPTANCE_GATE.md"
+      ],
+      "future_required_checks": [
+        "relationship permission guards",
+        "assigned-only coach visibility guards",
+        "athlete self-visibility guards",
+        "auth provider integration guards if a later slice adds provider implementation"
+      ]
+    },
+    {
+      "category_id": "proof_replay_export",
+      "category_title": "Proof, replay, and export",
+      "purpose": "Proof-aware artefacts, replay, evidence, and export boundaries must be explicit and green before v1 completion.",
+      "required_existing_checks": [
+        "node ci/guards/golden_manifest_guard.mjs",
+        "node ci/guards/golden_outputs_guard.mjs",
+        "node ci/guards/evidence_seal_guard.mjs",
+        "node ci/scripts/run_s_v0_29_replay_vector_minimal_positive_guard.mjs",
+        "node ci/scripts/sha256_guard.mjs",
+        "docs/v1/V1_ACCEPTANCE_GATE.md"
+      ],
+      "future_required_checks": [
+        "v1 replay boundary guard",
+        "v1 evidence envelope guard",
+        "v1 proof artefact view guard",
+        "v1 export boundary guard"
+      ]
+    },
+    {
+      "category_id": "no_coupling_engine_truth",
+      "category_title": "No-coupling and engine truth",
+      "purpose": "Engine truth must not depend on UI, auth, billing, notes, copy, legal, commercial, analytics, or presentation state.",
+      "required_existing_checks": [
+        "node ci/guards/engine_contract_guard.mjs",
+        "node ci/guards/engine_exports_types_guard.mjs",
+        "node ci/scripts/run_v0_no_coupling_engine_boundary_guard.mjs",
+        "node ci/guards/ban_engine_src_imports_in_api_guard.mjs",
+        "node ci/guards/s_v1_04_app_engine_boundary_contract_guard.mjs",
+        "docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md"
+      ]
+    }
+  ],
+  "current_primary_local_gate": "npm.cmd run lint:fast",
+  "generated_file_owners": [
+    {
+      "path": "docs/GUARDS_INDEX.md",
+      "owner_command": "npm.cmd run guard:index"
+    },
+    {
+      "path": "docs/dev/FAILURE_TOKEN_INDEX.md",
+      "owner_command": "node ci/scripts/run_failure_token_index_guard.mjs --write"
+    },
+    {
+      "path": "docs/checksums.sha256",
+      "owner_command": "npm.cmd run hash:write"
+    }
+  ],
+  "forbidden_changes": [
+    "Runtime behaviour",
+    "Engine behaviour",
+    "App implementation",
+    "Registry content",
+    "Payment/auth/UI implementation",
+    "Expensive duplicate workflows",
+    "Manual generated-file edits"
+  ]
+}

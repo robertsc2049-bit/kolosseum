@@ -185,3 +185,27 @@ Required billing acceptance may include:
 - non-payment access handling as a product-access rule only
 
 Billing state must not alter engine legality, deterministic compile output, substitution legality, replay truth, proof truth, factual history, or coach-athlete relationship truth.
+
+<!-- S-V1-08:CI-MASTER-GATE-ACCEPTANCE-POINTER:START -->
+## CI master gate pointer
+
+V1 completion is blocked unless the v1 CI master gate definition is satisfied.
+
+Gate definition:
+
+- `docs/v1/V1_CI_MASTER_GATE.md`
+- `docs/v1/V1_CI_MASTER_GATE.json`
+- `ci/guards/s_v1_08_ci_master_gate_definition_guard.mjs`
+
+The v1 CI master gate must distinguish:
+
+- v0 closure
+- v1 boundary
+- registry
+- copy and claims
+- auth and permissions
+- proof, replay, and export
+- no-coupling and engine truth
+
+This pointer does not add product law, engine law, registry law, copy authority, workflow authority, or release approval.
+<!-- S-V1-08:CI-MASTER-GATE-ACCEPTANCE-POINTER:END -->
