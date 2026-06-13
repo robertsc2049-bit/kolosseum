@@ -177,4 +177,6 @@ If it cannot name those things, it is not ready to build.
 
 V1 is complete only when the coach-athlete product is fully usable, commercially credible, and boundary-proven.
 
-Anything outside this document and its authority map is not v1 unless a deliberate boundary-change slice rewrites this document and updates the matching acceptance and not-in-scope records.
+Anything outside this document and its authority map is not v1 unless a deliberate boundary-change slice rewrites this document and updates the matching acceptance and not-in-scope records.## Commercial rollout extension (2026-06-13)
+
+*Self-serve launch additions (Stripe Checkout / Portal, status page, Sentry, legal surfaces, backups, email reminders) are included **only if they never alter deterministic engine truth**.*
