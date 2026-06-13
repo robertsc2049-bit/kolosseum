@@ -177,6 +177,20 @@ If it cannot name those things, it is not ready to build.
 
 V1 is complete only when the coach-athlete product is fully usable, commercially credible, and boundary-proven.
 
-Anything outside this document and its authority map is not v1 unless a deliberate boundary-change slice rewrites this document and updates the matching acceptance and not-in-scope records.## Commercial rollout extension (2026-06-13)
+Anything outside this document and its authority map is not v1 unless a deliberate boundary-change slice rewrites this document and updates the matching acceptance and not-in-scope records.
 
-*Self-serve launch additions (Stripe Checkout / Portal, status page, Sentry, legal surfaces, backups, email reminders) are included **only if they never alter deterministic engine truth**.*
+## Controlled commercial launch extension
+
+Self-serve launch additions may be included in v1 only as controlled-launch support surfaces.
+
+Permitted controlled-launch support surfaces may include Stripe Checkout or customer portal, public status and factual error-reporting surfaces, legal surfaces, backup and restore readiness records, and factual email notifications where deliberately sliced.
+
+These surfaces must never alter deterministic engine truth, programme assignment legality, compile output, substitution legality, replay truth, proof truth, factual history, or coach-athlete relationship authority.
+
+Implementation-specific operational thresholds belong in operational readiness records, not this release-boundary law.
+
+## Final rule
+
+V1 is complete only when the coach-athlete product is fully usable, commercially credible, and boundary-proven.
+
+Anything outside this document and its authority map is not v1 unless a deliberate boundary-change slice rewrites this document and updates the matching acceptance and not-in-scope records.
