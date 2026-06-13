@@ -118,3 +118,47 @@ Start with:
 - `package.json` for supported scripts
 - `ci/contracts/` for CI composition manifests
 - `.github/workflows/` for GitHub Actions behaviour
+
+<!-- S-V1-07:DEVELOPER-ENTRY-PACK:START -->
+## Developer Entry Pack
+
+Status: minimum developer handover entry point.
+Slice: S-V1-07.
+
+A future developer should be able to open this repo, understand the current release boundary, run setup/check commands, and know what not to touch without founder memory.
+
+Read in this order:
+
+1. `docs/dev/GETTING_STARTED.md` - local setup, first checks, and current boundary pointers.
+2. `docs/dev/COMMAND_GUIDE.md` - supported setup commands and check commands.
+3. `docs/dev/REPO_MAP.md` - where repo areas live and what each area owns.
+4. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md` - current release boundary pointer.
+5. `docs/v1/V1_RELEASE_BOUNDARY.md` - active v1 release boundary.
+6. `docs/v1/V1_NOT_IN_SCOPE.md` - explicit exclusions and what not to touch.
+7. `docs/dev/NAMING_CONVENTIONS.md` - naming rules for files, branches, slices, guards, tokens, events, routes, and IDs.
+8. `docs/dev/CI_FAILURE_GUIDE.md` - how to handle failing CI without weakening boundaries.
+9. `docs/adr/README.md` - architecture decision records. ADRs document decisions; they do not create engine law.
+
+Local setup command:
+
+    npm.cmd ci
+
+Primary local check command:
+
+    npm.cmd run lint:fast
+
+Generated-file refresh commands:
+
+    npm.cmd run guard:index
+    node ci/scripts/run_failure_token_index_guard.mjs --write
+    npm.cmd run hash:write
+
+Authority rule:
+
+Docs define law.
+Tests prove behaviour.
+Comments explain boundaries.
+CI blocks drift.
+
+Do not touch runtime behaviour, engine behaviour, app implementation, registry content, payment/auth/UI implementation, workflows, or generated files unless a named slice explicitly permits it and states Boundary, Proof, and Non-scope.
+<!-- S-V1-07:DEVELOPER-ENTRY-PACK:END -->
