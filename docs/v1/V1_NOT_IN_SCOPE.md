@@ -202,3 +202,25 @@ The following surfaces may exist in v1 only as controlled-launch support surface
 Controlled-launch exceptions do not activate marketplace, messaging, chat, social, broad analytics, gym access, EPOS, enterprise, organisation, team, unit, federation, or dashboard scope.
 
 Factual email notifications must not contain coaching advice, recommendations, readiness claims, safety claims, suitability claims, optimisation claims, medical claims, or any content that changes engine input, output, legality, replay, proof, substitution, or factual history.
+
+<!-- S-V1-10:NOT-IN-SCOPE-CLOSURE:START -->
+## S-V1-10 Not-In-Scope Closure
+
+V1 equals a complete coach-athlete product with proof layer and full supported registry/template/substitution coverage.
+
+For S-V1-10, full supported registry/template/substitution coverage means full v1 coverage for the locked supported activities only. It does not unlock unsupported activities or post-v1 markets.
+
+Controlled launch support is allowed only where separately sliced and only where it cannot alter engine truth.
+
+Controlled launch support may control access, billing records, legal presentation, public status, error reporting, backup and restore evidence, or factual notifications where later slices explicitly permit it. It must not alter deterministic engine truth, programme assignment legality, compile output, substitution legality, replay truth, proof truth, factual history, or coach-athlete relationship authority.
+
+The following remain excluded from v1 unless a later post-v1 boundary rewrite explicitly reopens them: organisations, organizations, teams, gyms, units, federations, marketplace, messaging, chat, EPOS, gym access, full dashboards, enterprise.
+
+S-V1-10 does not create product implementation, engine implementation, registry content, payment implementation, auth implementation, UI implementation, database migrations, workflow authority, commercial authority, legal authority, proof authority, or release approval.
+
+Silence is not permission.
+
+Excluded surfaces must not be implemented under alternative names, hidden routes, placeholder dashboards, dormant UI, seeded data, inactive feature flags, private admin screens, fixtures that become active paths, or controlled-launch wording.
+
+Controlled-launch exceptions do not activate organisations, organizations, teams, gyms, units, federations, marketplace, messaging, chat, EPOS, gym access, full dashboards, enterprise, broad analytics, social features, or live intervention surfaces.
+<!-- S-V1-10:NOT-IN-SCOPE-CLOSURE:END -->
