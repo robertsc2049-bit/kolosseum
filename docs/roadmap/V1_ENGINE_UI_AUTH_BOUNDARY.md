@@ -605,3 +605,67 @@ Do not widen v1 beyond powerlifting, general_strength, and rugby_union.
 The next lane is v1 implementation readiness checklist.
 
 That lane must define what must exist before the first implementation slice begins.
+
+<!-- S-V1-04:APP-ENGINE-BOUNDARY-CONTRACT:START -->
+## S-V1-04 App-Engine Boundary Contract
+
+Status: active app-engine isolation contract.
+
+This section binds app, UI, API, billing, auth, notes, copy, legal, marketing, and commercial state outside the deterministic engine.
+
+This section does not add implementation code, product routes, payment flows, auth flows, UI screens, registry content, database migrations, proof surfaces, or commercial capability.
+
+### Required isolation invariants
+
+- Engine must not read auth state.
+- Engine must not read billing state.
+- Engine must not read payment state.
+- Engine must not read coach notes.
+- Engine must not read UI density state.
+- Engine must not read ND presentation state.
+- Engine must not read presentation copy.
+- Engine must not read legal state.
+- Engine must not read marketing state.
+- Engine must not read commercial state.
+- Engine output must depend only on declared engine inputs and registries.
+
+### App and product state boundary
+
+App, UI, API, billing, auth, notes, copy, legal, marketing, and commercial state may exist outside the deterministic engine.
+
+Those surfaces may control access, visibility, permissions, relationship views, copy presentation, billing surfaces, legal presentation, support workflows, and commercial packaging only where separately authorised by an active slice.
+
+Those surfaces must not become canonical engine input, registry authority, substitution truth, runtime event truth, replay truth, proof truth, evidence truth, legality authority, or deterministic compile authority.
+
+### Forbidden engine-visible state paths
+
+The following must remain engine-invisible:
+
+- `auth_state`
+- `auth_session`
+- `auth_provider_id`
+- `billing_state`
+- `payment_state`
+- `subscription_state`
+- `coach_notes`
+- `coach_note_text`
+- `ui_density`
+- `nd_presentation`
+- `presentation_copy`
+- `legal_state`
+- `marketing_state`
+- `commercial_state`
+
+Equivalent camelCase keys are also forbidden.
+
+### Proof binding
+
+This boundary is checked by:
+
+- `ci/guards/s_v1_04_app_engine_boundary_contract_guard.mjs`
+- `ci/fixtures/v1_app_engine_boundary_negative/s_v1_04_forbidden_engine_state_paths.json`
+- the existing no-coupling guard family
+- the standard generated index and checksum gates
+
+Do not fix failures by weakening the guard, widening engine inputs, adding allow-list exceptions, or moving app/product state into shared engine-visible helpers.
+<!-- S-V1-04:APP-ENGINE-BOUNDARY-CONTRACT:END -->

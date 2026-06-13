@@ -1,0 +1,148 @@
+{
+  "fixture_id": "s_v1_04_forbidden_engine_state_paths",
+  "slice_id": "S-V1-04",
+  "purpose": "Proves app, UI, API, billing, auth, notes, copy, legal, marketing, and commercial state cannot enter deterministic engine input.",
+  "positive_cases": [
+    {
+      "case_id": "declared_engine_input_and_registries_only",
+      "engine_input": {
+        "accepted_declaration_id": "decl_001",
+        "activity_id": "powerlifting",
+        "registry_versions": {
+          "exercise_registry": "v1",
+          "equipment_registry": "v1"
+        },
+        "programme_template_id": "template_001",
+        "session_runtime_events": [
+          {
+            "event_id": "event_001",
+            "event_type": "start_session"
+          }
+        ]
+      }
+    }
+  ],
+  "negative_cases": [
+    {
+      "case_id": "auth_state_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "auth_state": {
+          "provider": "example"
+        }
+      }
+    },
+    {
+      "case_id": "billing_state_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "billing_state": {
+          "plan": "coach"
+        }
+      }
+    },
+    {
+      "case_id": "payment_state_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "payment_state": {
+          "paid": true
+        }
+      }
+    },
+    {
+      "case_id": "coach_notes_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "coach_notes": [
+          {
+            "text": "non-binding note"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "ui_density_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "ui_density": "compact"
+      }
+    },
+    {
+      "case_id": "nd_presentation_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "nd_presentation": {
+          "reduced_steps": true
+        }
+      }
+    },
+    {
+      "case_id": "presentation_copy_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "presentation_copy": "display text"
+      }
+    },
+    {
+      "case_id": "legal_state_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "legal_state": {
+          "terms_seen": true
+        }
+      }
+    },
+    {
+      "case_id": "marketing_state_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "marketing_state": {
+          "campaign": "launch"
+        }
+      }
+    },
+    {
+      "case_id": "commercial_state_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "commercial_state": {
+          "tier": "founding"
+        }
+      }
+    },
+    {
+      "case_id": "camel_case_auth_session_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "authSession": {
+          "active": true
+        }
+      }
+    },
+    {
+      "case_id": "nested_subscription_state_rejected",
+      "expected_token": "CI_V1_APP_ENGINE_BOUNDARY_CONTRACT",
+      "engine_input": {
+        "compile_context": {
+          "subscriptionState": "active"
+        }
+      }
+    }
+  ],
+  "forbidden_import_roots": [
+    "app",
+    "ui",
+    "web",
+    "admin",
+    "server",
+    "src/api",
+    "copy",
+    "docs/commercial",
+    "claims",
+    "db",
+    "marketing",
+    "emails",
+    "public"
+  ]
+}
