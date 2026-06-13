@@ -114,3 +114,87 @@ A slice is complete only when:
 - adding silent registry or server behaviour
 - treating README or handover docs as product law
 - skipping clean-tree verification
+
+<!-- S-V1-05:SLICE-TEMPLATE-ENFORCEMENT:START -->
+## V1 enforced slice template
+
+Status: enforced developer template for v1 slices.
+
+This section standardises v1 slice work. It does not create product scope, engine behaviour, registry content, app implementation, payment implementation, auth implementation, UI implementation, workflow behaviour, or release approval.
+
+No v1 work may start without a slice ID.
+
+Do not implement before preflight.
+
+### Required v1 slice prompt fields
+
+Every v1 slice prompt must include:
+
+- Slice ID:
+- Title:
+- Goal:
+- Target:
+- Boundary:
+- Invariants:
+- Allowed files:
+- Forbidden files:
+- Expected proof:
+- Branch rule:
+- Commit rule:
+- PR rule:
+- Non-scope:
+
+### Required v1 implementation rules
+
+- Start with a read-only preflight.
+- Do not write files until preflight confirms the repo state.
+- Work from current `main`.
+- Use one branch per slice.
+- V1 branch names must use `ticket/s-v1-<number>-<short-name>`.
+- Do not use vague branches such as `fix-stuff`, `fixes`, `misc`, `stuff`, or `wip`.
+- Every v1 branch must include the slice ID.
+- Every v1 commit must start with the slice ID.
+- Every v1 PR must state Boundary, Proof, and Non-scope.
+- Every v1 PR must list files changed and tests or guards run.
+- Generated files must be refreshed only through owning generators.
+- Do not manually patch generated indexes unless the generator itself is the slice target.
+
+### Required v1 preflight record
+
+Before implementation, record:
+
+- current branch
+- clean or dirty tree state
+- local HEAD
+- origin main pointer
+- target branch existence
+- target PR existence
+- authority docs inspected
+- allowed files
+- forbidden files
+- generated files affected
+- owning generators
+- target guard or test proof
+- non-scope confirmation
+
+### Required v1 completion proof
+
+A v1 slice is locally complete only when:
+
+- intended files are committed
+- targeted guard or test passes
+- generated-file checks pass where applicable
+- `npm.cmd run lint:fast` passes from a clean tree
+- final working tree is clean
+- commit message begins with the slice ID
+
+### Required v1 PR proof
+
+A v1 PR is mergeable only when:
+
+- PR title starts with the slice ID
+- PR body states Boundary, Proof, and Non-scope
+- every reported PR check is complete
+- every reported PR check is green
+- branch protection is bypassed only where checks are complete and green and the block is branch protection only
+<!-- S-V1-05:SLICE-TEMPLATE-ENFORCEMENT:END -->

@@ -86,3 +86,21 @@ After merge or closure:
 ## Admin bypass
 
 Admin bypass is reserved for release-boundary correction or explicitly approved emergency recovery. It must be stated in the output when used.
+
+<!-- S-V1-05:BRANCH-PR-RULES:START -->
+## S-V1-05 enforced v1 branch, commit, and PR rules
+
+No v1 work may start without a slice ID.
+
+Every v1 branch must use `ticket/s-v1-<number>-<short-name>`.
+
+Do not use vague branch names such as `fix-stuff`, `fixes`, `misc`, `stuff`, or `wip`.
+
+Every v1 commit must start with the slice ID.
+
+Every v1 PR must state Boundary, Proof, and Non-scope.
+
+Every v1 PR must list the tests or guards run.
+
+A v1 PR must not be merged until every reported PR check is complete and green.
+<!-- S-V1-05:BRANCH-PR-RULES:END -->

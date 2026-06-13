@@ -60,3 +60,18 @@ If rollback requires data handling, state the data boundary precisely.
 - [ ] Branch and PR rules follow docs/dev/BRANCH_AND_PR_CONVENTIONS.md.
 - [ ] DEV NOTE or JSDoc changes are targeted and boundary-relevant, or not applicable.
 - [ ] This PR does not add hidden product scope.
+
+<!-- S-V1-05:PR-TEMPLATE-ENFORCEMENT:START -->
+## S-V1-05 v1 slice enforcement checklist
+
+- [ ] Target uses a slice ID.
+- [ ] Boundary is stated.
+- [ ] Proof is stated.
+- [ ] Non-scope is stated.
+- [ ] Files changed are listed or obvious from the PR.
+- [ ] Tests or guards run are listed.
+- [ ] Branch follows `ticket/s-v1-<number>-<short-name>` for v1 work.
+- [ ] Commit starts with the slice ID.
+- [ ] This PR does not hide v1 work without a slice ID.
+- [ ] This PR does not use a vague branch such as `fix-stuff`, `fixes`, `misc`, `stuff`, or `wip`.
+<!-- S-V1-05:PR-TEMPLATE-ENFORCEMENT:END -->
