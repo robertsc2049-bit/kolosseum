@@ -1,0 +1,54 @@
+{
+  "fixture_id": "s_v1_02b_post_v1_scope_leakage",
+  "slice_id": "S-V1-02B",
+  "fixture_version": "1.0.0",
+  "purpose": "Prove the S-V1-02B non-scope guard rejects explicit post-v1 scope activation probes without adding active product scope.",
+  "expected_token": "CI_V1_NON_SCOPE_GUARD_HARDENING",
+  "cases": [
+    {
+      "case_id": "marketplace_surface_rejected",
+      "expected_token": "CI_V1_NON_SCOPE_GUARD_HARDENING",
+      "probe_source": "export function activateMarketplaceSurface() { return 'implement marketplace surface for v1'; }"
+    },
+    {
+      "case_id": "messaging_surface_rejected",
+      "expected_token": "CI_V1_NON_SCOPE_GUARD_HARDENING",
+      "probe_source": "export function enableMessagingSurface() { return 'enable messaging chat in active v1'; }"
+    },
+    {
+      "case_id": "gym_access_surface_rejected",
+      "expected_token": "CI_V1_NON_SCOPE_GUARD_HARDENING",
+      "probe_source": "export function wireGymAccess() { return 'wire gym access and door access into v1'; }"
+    },
+    {
+      "case_id": "epos_surface_rejected",
+      "expected_token": "CI_V1_NON_SCOPE_GUARD_HARDENING",
+      "probe_source": "export function createEposSurface() { return 'create EPOS retail flow for active v1'; }"
+    },
+    {
+      "case_id": "enterprise_billing_rejected",
+      "expected_token": "CI_V1_NON_SCOPE_GUARD_HARDENING",
+      "probe_source": "export function shipEnterpriseBilling() { return 'ship enterprise billing in v1'; }"
+    },
+    {
+      "case_id": "dashboard_scope_rejected",
+      "expected_token": "CI_V1_NON_SCOPE_GUARD_HARDENING",
+      "probe_source": "export function buildTeamDashboard() { return 'build team dashboard and broad analytics'; }"
+    },
+    {
+      "case_id": "runtime_scope_rejected",
+      "expected_token": "CI_V1_NON_SCOPE_GUARD_HARDENING",
+      "probe_source": "export function addOrganisationRuntime() { return 'add organisation runtime execution'; }"
+    },
+    {
+      "case_id": "claim_scope_rejected",
+      "expected_token": "CI_V1_NON_SCOPE_GUARD_HARDENING",
+      "probe_source": "export function computeReadiness() { return 'compute readiness scoring and safety scoring'; }"
+    },
+    {
+      "case_id": "recommendation_scope_rejected",
+      "expected_token": "CI_V1_NON_SCOPE_GUARD_HARDENING",
+      "probe_source": "export function addRecommendationFlow() { return 'add recommendation flow and optimal load'; }"
+    }
+  ]
+}
