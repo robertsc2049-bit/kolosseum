@@ -194,3 +194,21 @@ Implementation-specific operational thresholds belong in operational readiness r
 V1 is complete only when the coach-athlete product is fully usable, commercially credible, and boundary-proven.
 
 Anything outside this document and its authority map is not v1 unless a deliberate boundary-change slice rewrites this document and updates the matching acceptance and not-in-scope records.
+
+<!-- S-V1-10:RELEASE-BOUNDARY-CLOSURE:START -->
+## S-V1-10 Release Boundary File Closure
+
+V1 equals a complete coach-athlete product with proof layer and full supported registry/template/substitution coverage.
+
+For S-V1-10, full supported registry/template/substitution coverage means full v1 coverage for the locked supported activities only. It does not unlock unsupported activities or post-v1 markets.
+
+Controlled launch support is allowed only where separately sliced and only where it cannot alter engine truth.
+
+Controlled launch support may control access, billing records, legal presentation, public status, error reporting, backup and restore evidence, or factual notifications where later slices explicitly permit it. It must not alter deterministic engine truth, programme assignment legality, compile output, substitution legality, replay truth, proof truth, factual history, or coach-athlete relationship authority.
+
+The following remain excluded from v1 unless a later post-v1 boundary rewrite explicitly reopens them: organisations, organizations, teams, gyms, units, federations, marketplace, messaging, chat, EPOS, gym access, full dashboards, enterprise.
+
+S-V1-10 does not create product implementation, engine implementation, registry content, payment implementation, auth implementation, UI implementation, database migrations, workflow authority, commercial authority, legal authority, proof authority, or release approval.
+
+This file is the canonical v1 release-boundary statement. If another v1 planning document appears to widen v1 beyond this closure, this file wins unless a later named boundary slice deliberately changes it.
+<!-- S-V1-10:RELEASE-BOUNDARY-CLOSURE:END -->

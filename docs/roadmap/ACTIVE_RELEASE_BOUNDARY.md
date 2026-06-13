@@ -120,3 +120,17 @@ The active v1 boundary is confirmed by:
 
 This confirmation does not reopen v0 scope and does not add engine runtime behaviour.
 <!-- S-V1-01:ACTIVE-V1-BOUNDARY-CONFIRMATION:END -->
+
+<!-- S-V1-10:ACTIVE-RELEASE-BOUNDARY-CLOSURE:START -->
+## S-V1-10 Active Release Boundary Closure
+
+S-V1-10 closes the canonical v1 release-boundary files before product implementation widens.
+
+V1 equals a complete coach-athlete product with proof layer and full supported registry/template/substitution coverage.
+
+Controlled launch support is allowed only where separately sliced and only where it cannot alter engine truth.
+
+Organisations, organizations, teams, gyms, units, federations, marketplace, messaging, chat, EPOS, gym access, full dashboards, and enterprise remain excluded from v1.
+
+This active release pointer does not create implementation authority, engine authority, registry content, payment implementation, auth implementation, UI implementation, commercial authority, legal authority, proof authority, or release approval.
+<!-- S-V1-10:ACTIVE-RELEASE-BOUNDARY-CLOSURE:END -->

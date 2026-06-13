@@ -209,3 +209,23 @@ The v1 CI master gate must distinguish:
 
 This pointer does not add product law, engine law, registry law, copy authority, workflow authority, or release approval.
 <!-- S-V1-08:CI-MASTER-GATE-ACCEPTANCE-POINTER:END -->
+
+<!-- S-V1-10:ACCEPTANCE-GATE-CLOSURE:START -->
+## S-V1-10 Acceptance Gate Closure
+
+V1 equals a complete coach-athlete product with proof layer and full supported registry/template/substitution coverage.
+
+For S-V1-10, full supported registry/template/substitution coverage means full v1 coverage for the locked supported activities only. It does not unlock unsupported activities or post-v1 markets.
+
+Controlled launch support is allowed only where separately sliced and only where it cannot alter engine truth.
+
+Controlled launch support may control access, billing records, legal presentation, public status, error reporting, backup and restore evidence, or factual notifications where later slices explicitly permit it. It must not alter deterministic engine truth, programme assignment legality, compile output, substitution legality, replay truth, proof truth, factual history, or coach-athlete relationship authority.
+
+The following remain excluded from v1 unless a later post-v1 boundary rewrite explicitly reopens them: organisations, organizations, teams, gyms, units, federations, marketplace, messaging, chat, EPOS, gym access, full dashboards, enterprise.
+
+S-V1-10 does not create product implementation, engine implementation, registry content, payment implementation, auth implementation, UI implementation, database migrations, workflow authority, commercial authority, legal authority, proof authority, or release approval.
+
+V1 may be accepted only when this closure agrees with the release boundary, not-in-scope list, authority map, CI master gate, and executable guards.
+
+Acceptance cannot be inferred from partial surfaces, placeholder screens, copy, commercial readiness, payment state, founder memory, or hidden manual approval.
+<!-- S-V1-10:ACCEPTANCE-GATE-CLOSURE:END -->

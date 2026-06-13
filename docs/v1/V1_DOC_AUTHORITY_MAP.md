@@ -175,3 +175,25 @@ Boundary docs, contracts, tests, and guards remain authoritative where applicabl
 
 Use ADRs to understand why a boundary or architecture decision was made, not to infer permission to implement product, engine, registry, app, payment, auth, UI, commercial, legal, proof, or export behaviour.
 <!-- S-V1-06:ADR-AUTHORITY-MAP:END -->
+
+<!-- S-V1-10:AUTHORITY-MAP-CLOSURE:START -->
+## S-V1-10 Release Boundary Authority Closure
+
+Authority order for v1 release-boundary closure:
+
+1. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+2. `docs/v1/V1_RELEASE_BOUNDARY.md`
+3. `docs/v1/V1_ACCEPTANCE_GATE.md`
+4. `docs/v1/V1_NOT_IN_SCOPE.md`
+5. `docs/v1/V1_DOC_AUTHORITY_MAP.md`
+6. `docs/v1/V1_CI_MASTER_GATE.md`
+7. executable CI guards and tests
+
+This authority map confirms that v1 equals a complete coach-athlete product with proof layer and full supported registry/template/substitution coverage.
+
+Controlled launch support is allowed only where separately sliced and only where it cannot alter engine truth.
+
+Organisations, organizations, teams, gyms, units, federations, marketplace, messaging, chat, EPOS, gym access, full dashboards, and enterprise remain excluded from v1 unless a later named post-v1 boundary rewrite explicitly reopens them.
+
+No lower-authority document, ADR, checklist, fixture, script, copy surface, payment reference, support note, or placeholder may widen v1 scope.
+<!-- S-V1-10:AUTHORITY-MAP-CLOSURE:END -->
