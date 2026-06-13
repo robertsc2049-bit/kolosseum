@@ -190,3 +190,17 @@ Do not widen v1 beyond powerlifting, general_strength, and rugby_union.
 The next lane is S19 - v1 locked activity set guard.
 
 S19 should enforce the locked activity set more directly before registry expansion content begins.
+
+<!-- S-V1-01:GUARD-BINDING:START -->
+## S-V1-01 guard binding
+
+The v1 boundary guard scaffolding is now bound to an active confirmation artefact.
+
+Required artefacts:
+
+- docs/roadmap/V1_ACTIVE_BOUNDARY_CONFIRMATION.md
+- docs/roadmap/V1_ACTIVE_BOUNDARY_CONFIRMATION.json
+- ci/guards/s_v1_01_active_boundary_confirmation_guard.mjs
+
+The guard verifies the active v1 confirmation exists, is machine-readable, references the release boundary, and preserves engine isolation.
+<!-- S-V1-01:GUARD-BINDING:END -->

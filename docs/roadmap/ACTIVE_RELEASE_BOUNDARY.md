@@ -106,3 +106,17 @@ Use the v1 acceptance gate and any matching v1 release gate:
 
     docs/v1/V1_ACCEPTANCE_GATE.md
     node ci/scripts/run_v1_release_gate.mjs
+
+<!-- S-V1-01:ACTIVE-V1-BOUNDARY-CONFIRMATION:START -->
+## S-V1-01 Active v1 Boundary Confirmation
+
+Status: active boundary confirmed
+
+The active v1 boundary is confirmed by:
+
+- docs/roadmap/V1_ACTIVE_BOUNDARY_CONFIRMATION.md
+- docs/roadmap/V1_ACTIVE_BOUNDARY_CONFIRMATION.json
+- ci/guards/s_v1_01_active_boundary_confirmation_guard.mjs
+
+This confirmation does not reopen v0 scope and does not add engine runtime behaviour.
+<!-- S-V1-01:ACTIVE-V1-BOUNDARY-CONFIRMATION:END -->

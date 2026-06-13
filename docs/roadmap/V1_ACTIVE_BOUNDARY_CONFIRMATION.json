@@ -1,0 +1,38 @@
+{
+    "schema_version":  "kolosseum.v1.active_boundary_confirmation.v1",
+    "slice_id":  "S-V1-01",
+    "release_id":  "v1",
+    "release_name":  "First Lawful Run",
+    "status":  "active_boundary_confirmed",
+    "phase":  "Boundary and repo law foundation",
+    "active_boundary":  {
+                            "phase_7_truth_projection":  "included_in_v1_boundary",
+                            "phase_8_evidence_sealing":  "included_in_v1_boundary",
+                            "export_artefacts":  "included_only_when_bound_to_v1_acceptance",
+                            "organisation_team_unit_gym_runtime":  "not_active_in_s_v1_01"
+                        },
+    "invariants":  [
+                       "engine_isolation_preserved",
+                       "product_payment_ui_do_not_change_engine_truth",
+                       "copy_claim_boundary_preserved",
+                       "forbidden_claim_language_not_added",
+                       "v0_boundary_not_reopened"
+                   ],
+    "required_repo_surfaces":  [
+                                   "docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md",
+                                   "docs/roadmap/V1_BOUNDARY_GUARD_SCAFFOLDING.md",
+                                   "docs/roadmap/V1_ACTIVE_BOUNDARY_CONFIRMATION.md",
+                                   "docs/roadmap/V1_ACTIVE_BOUNDARY_CONFIRMATION.json",
+                                   "ci/guards/s_v1_01_active_boundary_confirmation_guard.mjs",
+                                   "docs/GUARDS_INDEX.md",
+                                   "docs/dev/FAILURE_TOKEN_INDEX.md",
+                                   "docs/checksums.sha256"
+                               ],
+    "forbidden_repo_effects":  [
+                                   "engine_runtime_mutation",
+                                   "phase_order_change",
+                                   "registry_payload_change",
+                                   "copy_claim_expansion",
+                                   "v0_scope_expansion"
+                               ]
+}
