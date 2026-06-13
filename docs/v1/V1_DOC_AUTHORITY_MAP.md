@@ -217,3 +217,30 @@ Authority order for account role scope:
 
 No lower-authority document, schema, fixture, route, UI surface, account state, billing state, support state, dormant future role, or implementation note may widen active v1 account scope beyond coach and athlete.
 <!-- S-V1-11:ACCOUNT-MODEL-AUTHORITY:END -->
+
+<!-- S-V1-12:COACH-REGISTRATION-AUTHORITY:START -->
+## S-V1-12 Coach Registration Authority
+
+`docs/v1/V1_COACH_REGISTRATION_PROVISIONING.md` is the canonical v1 coach registration/provisioning boundary.
+
+It is subordinate to the active v1 release boundary, account model boundary, and app-engine boundary.
+
+It is enforced by:
+
+- `src/coachRegistrationProvisioning.mjs`
+- `test/s_v1_12_coach_registration_provisioning.test.mjs`
+- `ci/guards/s_v1_12_coach_registration_provisioning_guard.mjs`
+
+Authority order for coach registration/provisioning scope:
+
+1. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+2. `docs/v1/V1_RELEASE_BOUNDARY.md`
+3. `docs/v1/V1_ACCOUNT_MODEL_BOUNDARY.md`
+4. `docs/v1/V1_COACH_REGISTRATION_PROVISIONING.md`
+5. `docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md`
+6. `docs/v1/V1_ACCEPTANCE_GATE.md`
+7. `docs/v1/V1_NOT_IN_SCOPE.md`
+8. executable tests and CI guards
+
+No lower-authority document, route, schema, fixture, copy surface, billing state, support state, dormant future role, or implementation note may widen coach registration/provisioning beyond coach product/auth state.
+<!-- S-V1-12:COACH-REGISTRATION-AUTHORITY:END -->

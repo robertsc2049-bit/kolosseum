@@ -683,3 +683,15 @@ Dormant future roles may be documented only as dormant and must not become activ
 
 S-V1-11 does not implement auth provider code, account routes, product UI, database migrations, payment implementation, organisation scope, organization scope, team scope, gym scope, unit scope, federation scope, enterprise billing, marketplace, messaging, chat, EPOS, gym access, full dashboards, or engine behaviour.
 <!-- S-V1-11:ACCOUNT-MODEL-ENGINE-AUTH-BOUNDARY:END -->
+
+<!-- S-V1-12:COACH-REGISTRATION-ENGINE-AUTH-BOUNDARY:START -->
+## S-V1-12 Coach Registration Engine/Auth Boundary
+
+Coach registration/provisioning is product/auth state only.
+
+Coach registration cannot affect deterministic compile output.
+
+Engine output must not depend on coach identity, coach email, coach display name, coach account state, coach accepted terms version, coach registration source, coach onboarding state, coach billing state, coach entitlement state, or coach support state.
+
+S-V1-12 does not implement auth provider code, account routes, product UI, database migrations, payment implementation, enterprise account management, organisation scope, organization scope, team scope, gym scope, unit scope, federation scope, marketplace, coach discovery, messaging, chat, EPOS, gym access, full dashboards, or engine behaviour.
+<!-- S-V1-12:COACH-REGISTRATION-ENGINE-AUTH-BOUNDARY:END -->
