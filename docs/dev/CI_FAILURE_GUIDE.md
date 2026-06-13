@@ -218,3 +218,25 @@ CI blocks drift.
 
 This guide explains failure triage. It does not create product law, engine law, registry law, runtime law, commercial authority, CI token meaning, or release approval.
 <!-- S-V1-07:CI-FAILURE-ENTRY-PACK:END -->
+
+<!-- S-V1-08:CI-MASTER-GATE-FAILURE-PATH:START -->
+## S-V1-08 CI master gate failure path
+
+If `s_v1_08_ci_master_gate_definition_guard` fails, read:
+
+1. `docs/v1/V1_CI_MASTER_GATE.md`
+2. `docs/v1/V1_CI_MASTER_GATE.json`
+3. `docs/v1/V1_ACCEPTANCE_GATE.md`
+4. `docs/v1/V1_RELEASE_BOUNDARY.md`
+5. `docs/v1/V1_NOT_IN_SCOPE.md`
+6. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+7. the failing guard or script named by the category
+
+Failure means the v1 master gate definition or category mapping drifted.
+
+Do not fix by adding broad duplicate workflows, weakening guards, bypassing required categories, or manually editing generated files.
+
+Correct response: restore the gate definition, restore the named existing check, or create a deliberately sliced future check for a real missing surface.
+
+The master gate distinguishes v0 closure, v1 boundary, registry, copy/claims, auth/permissions, proof/replay/export, and no-coupling/engine-truth checks.
+<!-- S-V1-08:CI-MASTER-GATE-FAILURE-PATH:END -->

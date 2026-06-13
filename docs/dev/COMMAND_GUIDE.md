@@ -139,3 +139,25 @@ Failure-token lookup:
 Guard lookup:
 
     docs/GUARDS_INDEX.md
+
+<!-- S-V1-08:CI-MASTER-GATE-COMMANDS:START -->
+## S-V1-08 CI master gate commands
+
+The v1 CI master gate is defined by:
+
+- `docs/v1/V1_CI_MASTER_GATE.md`
+- `docs/v1/V1_CI_MASTER_GATE.json`
+- `ci/guards/s_v1_08_ci_master_gate_definition_guard.mjs`
+
+Targeted check:
+
+    node ci/guards/s_v1_08_ci_master_gate_definition_guard.mjs
+
+Primary local gate:
+
+    npm.cmd run lint:fast
+
+The master gate distinguishes v0 closure, v1 boundary, registry, copy/claims, auth/permissions, proof/replay/export, and no-coupling/engine-truth checks.
+
+This command section does not create workflow authority or release approval.
+<!-- S-V1-08:CI-MASTER-GATE-COMMANDS:END -->
