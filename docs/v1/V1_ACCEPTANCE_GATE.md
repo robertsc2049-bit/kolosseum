@@ -147,16 +147,41 @@ If a command is renamed, the replacement must be documented in the active releas
 
 ## Final acceptance statement
 
-V1 may be called complete only when the coach-athlete product works end to end and CI proves that product, UI, auth, billing, notes, copy, metrics, proof, and commercial surfaces do not alter engine truth.### Required operational acceptance
-* Status page green ≤ 5 min heartbeat.
-* Sentry unhandled-exception rate < 2 % (24 h).
-* Nightly backup & restore test pass.
+V1 may be called complete only when the coach-athlete product works end to end and CI proves that product, UI, auth, billing, notes, copy, metrics, proof, and commercial surfaces do not alter engine truth.
 
-### Required legal acceptance
-* `/legal/terms` `/legal/privacy` `/legal/dpa` render.
-* GDPR export < 5 min; delete queue written.
+## Required controlled-launch operational acceptance
 
-### Required billing acceptance
-* Stripe Checkout / Portal live-mode OK.
-* Upgrade / downgrade webhook reconciles seats.
-* Non-payment suspension after 72 h grace proven by CI.
+V1 must prove operational readiness for a controlled commercial launch without creating new product scope or engine authority.
+
+V1 controlled-launch operations may include public status, factual error-reporting, backup, restore, and incident-record surfaces only where deliberately activated.
+
+Operational monitoring must remain factual. It must not create readiness, safety, suitability, effectiveness, coaching-quality, medical, operational, or external-approval claims.
+
+Implementation-specific thresholds, alert timings, incident response targets, and service-level targets belong in operational readiness records, not engine law or release-boundary law.
+
+## Required legal acceptance
+
+V1 must prove controlled-launch legal surfaces exist where activated.
+
+Required legal surfaces may include:
+
+- terms surface
+- privacy surface
+- DPA surface where required
+- GDPR export handling
+- GDPR deletion-request handling
+
+Legal surfaces must not imply medical, safety, suitability, readiness, coaching-quality, training-effectiveness, operational, or external-approval claims.
+
+## Required billing acceptance
+
+V1 must prove controlled-launch billing surfaces exist where activated.
+
+Required billing acceptance may include:
+
+- Stripe Checkout or equivalent payment entry flow
+- customer portal or equivalent billing-management flow
+- upgrade and downgrade event handling for access, seats, or billing records only
+- non-payment access handling as a product-access rule only
+
+Billing state must not alter engine legality, deterministic compile output, substitution legality, replay truth, proof truth, factual history, or coach-athlete relationship truth.

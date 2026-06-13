@@ -187,11 +187,18 @@ Proof may show process integrity only.
 
 ## Final exclusion rule
 
-If a feature is listed here, it must remain absent, dormant, or explicitly blocked until a later release-boundary rewrite activates it.### Commercial rollout exceptions (2026-06-13)
+If a feature is listed here, it must remain absent, dormant, or explicitly blocked until a later release-boundary rewrite activates it.
 
-The following features are **now permitted** and removed from the exclusion list, subject to copy/claim bans and zero impact on engine truth:
+## Controlled-launch exceptions
 
-* Stripe self-serve purchase & seat management
-* Public status page + error tracking
-* Legal doc surfaces (Terms, Privacy, DPA, GDPR export/delete)
-* Email session reminders + weekly digest
+The following surfaces may exist in v1 only as controlled-launch support surfaces, subject to copy and claim bans and zero impact on engine truth:
+
+- Stripe self-serve purchase and seat management
+- public status and factual error-reporting surfaces
+- legal document surfaces for Terms, Privacy, DPA, GDPR export, and GDPR deletion-request handling
+- backup and restore readiness records
+- factual email notifications only where deliberately sliced
+
+Controlled-launch exceptions do not activate marketplace, messaging, chat, social, broad analytics, gym access, EPOS, enterprise, organisation, team, unit, federation, or dashboard scope.
+
+Factual email notifications must not contain coaching advice, recommendations, readiness claims, safety claims, suitability claims, optimisation claims, medical claims, or any content that changes engine input, output, legality, replay, proof, substitution, or factual history.
