@@ -229,3 +229,15 @@ V1 may be accepted only when this closure agrees with the release boundary, not-
 
 Acceptance cannot be inferred from partial surfaces, placeholder screens, copy, commercial readiness, payment state, founder memory, or hidden manual approval.
 <!-- S-V1-10:ACCEPTANCE-GATE-CLOSURE:END -->
+
+<!-- S-V1-11:ACCOUNT-MODEL-ACCEPTANCE:START -->
+## S-V1-11 Account Model Acceptance
+
+V1 acceptance requires the account model to remain coach and athlete only.
+
+Account state must not alter engine truth.
+
+Dormant future roles may be documented only as dormant.
+
+Acceptance is blocked if account implementation introduces active organisation, organization, team, gym, unit, federation, enterprise, marketplace, messaging, chat, EPOS, gym access, full dashboard, auth-provider implementation, payment implementation, database migration, UI implementation, or engine behaviour under S-V1-11.
+<!-- S-V1-11:ACCOUNT-MODEL-ACCEPTANCE:END -->

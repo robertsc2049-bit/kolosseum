@@ -197,3 +197,23 @@ Organisations, organizations, teams, gyms, units, federations, marketplace, mess
 
 No lower-authority document, ADR, checklist, fixture, script, copy surface, payment reference, support note, or placeholder may widen v1 scope.
 <!-- S-V1-10:AUTHORITY-MAP-CLOSURE:END -->
+
+<!-- S-V1-11:ACCOUNT-MODEL-AUTHORITY:START -->
+## S-V1-11 Account Model Authority
+
+`docs/v1/V1_ACCOUNT_MODEL_BOUNDARY.md` is the canonical v1 account role boundary.
+
+It is subordinate to the active v1 release boundary and app-engine boundary, and it is enforced by `ci/guards/s_v1_11_account_model_boundary_guard.mjs`.
+
+Authority order for account role scope:
+
+1. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+2. `docs/v1/V1_RELEASE_BOUNDARY.md`
+3. `docs/v1/V1_ACCOUNT_MODEL_BOUNDARY.md`
+4. `docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md`
+5. `docs/v1/V1_ACCEPTANCE_GATE.md`
+6. `docs/v1/V1_NOT_IN_SCOPE.md`
+7. executable CI guards and tests
+
+No lower-authority document, schema, fixture, route, UI surface, account state, billing state, support state, dormant future role, or implementation note may widen active v1 account scope beyond coach and athlete.
+<!-- S-V1-11:ACCOUNT-MODEL-AUTHORITY:END -->

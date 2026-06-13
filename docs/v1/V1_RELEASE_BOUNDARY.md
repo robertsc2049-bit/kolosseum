@@ -212,3 +212,17 @@ S-V1-10 does not create product implementation, engine implementation, registry 
 
 This file is the canonical v1 release-boundary statement. If another v1 planning document appears to widen v1 beyond this closure, this file wins unless a later named boundary slice deliberately changes it.
 <!-- S-V1-10:RELEASE-BOUNDARY-CLOSURE:END -->
+
+<!-- S-V1-11:ACCOUNT-MODEL-BOUNDARY:START -->
+## S-V1-11 Account Model Boundary
+
+V1 supports coach and athlete only.
+
+The canonical account model boundary is `docs/v1/V1_ACCOUNT_MODEL_BOUNDARY.md`.
+
+Dormant future roles may be documented only as dormant and must not become active v1 account scope.
+
+Account state is platform state only and must not alter engine truth, programme legality, compile output, substitution legality, replay truth, proof truth, or factual history.
+
+S-V1-11 does not activate organisation, organization, team, gym, unit, federation, enterprise, marketplace, messaging, chat, EPOS, gym access, full dashboards, auth provider implementation, payment implementation, database migrations, product UI, or engine behaviour.
+<!-- S-V1-11:ACCOUNT-MODEL-BOUNDARY:END -->

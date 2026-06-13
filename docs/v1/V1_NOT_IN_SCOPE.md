@@ -224,3 +224,27 @@ Excluded surfaces must not be implemented under alternative names, hidden routes
 
 Controlled-launch exceptions do not activate organisations, organizations, teams, gyms, units, federations, marketplace, messaging, chat, EPOS, gym access, full dashboards, enterprise, broad analytics, social features, or live intervention surfaces.
 <!-- S-V1-10:NOT-IN-SCOPE-CLOSURE:END -->
+
+<!-- S-V1-11:ACCOUNT-MODEL-NON-SCOPE:START -->
+## S-V1-11 Account Model Non-Scope
+
+The only active v1 account roles are coach and athlete.
+
+The following are not active v1 account roles:
+
+- organisation_admin
+- organization_admin
+- team_admin
+- gym_admin
+- unit_admin
+- federation_admin
+- enterprise_admin
+- marketplace_seller
+- marketplace_buyer
+- support_operator
+- auditor
+
+These roles may be documented only as dormant.
+
+S-V1-11 must not activate organisation, organization, team, gym, unit, federation, enterprise, marketplace, messaging, chat, EPOS, gym access, full dashboards, enterprise billing, marketplace billing, auth-provider implementation, payment implementation, database migrations, product UI, or engine behaviour.
+<!-- S-V1-11:ACCOUNT-MODEL-NON-SCOPE:END -->

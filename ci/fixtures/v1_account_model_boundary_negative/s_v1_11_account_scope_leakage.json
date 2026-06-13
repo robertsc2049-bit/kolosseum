@@ -1,0 +1,195 @@
+{
+  "fixture_id": "s_v1_11_account_scope_leakage",
+  "slice": "S-V1-11",
+  "schema_version": "1.0.0",
+  "allowed_active_roles": [
+    "coach",
+    "athlete"
+  ],
+  "cases": [
+    {
+      "case_id": "coach_and_athlete_only_allowed",
+      "expected_ok": true,
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "athlete"
+        ],
+        "future_roles": [
+          {
+            "role": "organisation_admin",
+            "status": "dormant"
+          },
+          {
+            "role": "team_admin",
+            "status": "dormant"
+          }
+        ],
+        "account_state_can_alter_engine_truth": false,
+        "enterprise_billing_scope": false,
+        "marketplace_scope": false
+      }
+    },
+    {
+      "case_id": "active_organisation_admin_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ACCOUNT_MODEL_BOUNDARY",
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "athlete",
+          "organisation_admin"
+        ],
+        "future_roles": [],
+        "account_state_can_alter_engine_truth": false,
+        "enterprise_billing_scope": false,
+        "marketplace_scope": false
+      }
+    },
+    {
+      "case_id": "active_team_admin_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ACCOUNT_MODEL_BOUNDARY",
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "team_admin",
+          "athlete"
+        ],
+        "future_roles": [],
+        "account_state_can_alter_engine_truth": false,
+        "enterprise_billing_scope": false,
+        "marketplace_scope": false
+      }
+    },
+    {
+      "case_id": "active_gym_admin_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ACCOUNT_MODEL_BOUNDARY",
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "athlete",
+          "gym_admin"
+        ],
+        "future_roles": [],
+        "account_state_can_alter_engine_truth": false,
+        "enterprise_billing_scope": false,
+        "marketplace_scope": false
+      }
+    },
+    {
+      "case_id": "active_federation_admin_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ACCOUNT_MODEL_BOUNDARY",
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "athlete",
+          "federation_admin"
+        ],
+        "future_roles": [],
+        "account_state_can_alter_engine_truth": false,
+        "enterprise_billing_scope": false,
+        "marketplace_scope": false
+      }
+    },
+    {
+      "case_id": "active_enterprise_admin_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ACCOUNT_MODEL_BOUNDARY",
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "athlete",
+          "enterprise_admin"
+        ],
+        "future_roles": [],
+        "account_state_can_alter_engine_truth": false,
+        "enterprise_billing_scope": false,
+        "marketplace_scope": false
+      }
+    },
+    {
+      "case_id": "active_marketplace_seller_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ACCOUNT_MODEL_BOUNDARY",
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "athlete",
+          "marketplace_seller"
+        ],
+        "future_roles": [],
+        "account_state_can_alter_engine_truth": false,
+        "enterprise_billing_scope": false,
+        "marketplace_scope": false
+      }
+    },
+    {
+      "case_id": "future_role_not_dormant_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ACCOUNT_MODEL_BOUNDARY",
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "athlete"
+        ],
+        "future_roles": [
+          {
+            "role": "team_admin",
+            "status": "active"
+          }
+        ],
+        "account_state_can_alter_engine_truth": false,
+        "enterprise_billing_scope": false,
+        "marketplace_scope": false
+      }
+    },
+    {
+      "case_id": "account_state_altering_engine_truth_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ACCOUNT_MODEL_BOUNDARY",
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "athlete"
+        ],
+        "future_roles": [],
+        "account_state_can_alter_engine_truth": true,
+        "enterprise_billing_scope": false,
+        "marketplace_scope": false
+      }
+    },
+    {
+      "case_id": "enterprise_billing_scope_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ACCOUNT_MODEL_BOUNDARY",
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "athlete"
+        ],
+        "future_roles": [],
+        "account_state_can_alter_engine_truth": false,
+        "enterprise_billing_scope": true,
+        "marketplace_scope": false
+      }
+    },
+    {
+      "case_id": "marketplace_scope_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_ACCOUNT_MODEL_BOUNDARY",
+      "account_model": {
+        "active_roles": [
+          "coach",
+          "athlete"
+        ],
+        "future_roles": [],
+        "account_state_can_alter_engine_truth": false,
+        "enterprise_billing_scope": false,
+        "marketplace_scope": true
+      }
+    }
+  ]
+}
