@@ -187,4 +187,11 @@ Proof may show process integrity only.
 
 ## Final exclusion rule
 
-If a feature is listed here, it must remain absent, dormant, or explicitly blocked until a later release-boundary rewrite activates it.
+If a feature is listed here, it must remain absent, dormant, or explicitly blocked until a later release-boundary rewrite activates it.### Commercial rollout exceptions (2026-06-13)
+
+The following features are **now permitted** and removed from the exclusion list, subject to copy/claim bans and zero impact on engine truth:
+
+* Stripe self-serve purchase & seat management
+* Public status page + error tracking
+* Legal doc surfaces (Terms, Privacy, DPA, GDPR export/delete)
+* Email session reminders + weekly digest

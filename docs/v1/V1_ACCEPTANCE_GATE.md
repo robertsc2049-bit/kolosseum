@@ -147,4 +147,16 @@ If a command is renamed, the replacement must be documented in the active releas
 
 ## Final acceptance statement
 
-V1 may be called complete only when the coach-athlete product works end to end and CI proves that product, UI, auth, billing, notes, copy, metrics, proof, and commercial surfaces do not alter engine truth.
+V1 may be called complete only when the coach-athlete product works end to end and CI proves that product, UI, auth, billing, notes, copy, metrics, proof, and commercial surfaces do not alter engine truth.### Required operational acceptance
+* Status page green ≤ 5 min heartbeat.
+* Sentry unhandled-exception rate < 2 % (24 h).
+* Nightly backup & restore test pass.
+
+### Required legal acceptance
+* `/legal/terms` `/legal/privacy` `/legal/dpa` render.
+* GDPR export < 5 min; delete queue written.
+
+### Required billing acceptance
+* Stripe Checkout / Portal live-mode OK.
+* Upgrade / downgrade webhook reconciles seats.
+* Non-payment suspension after 72 h grace proven by CI.
