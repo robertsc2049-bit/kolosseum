@@ -40,11 +40,11 @@ See:
 
 Use these files when working in the repo:
 
-- `docs/dev/NEW_DEVELOPER_START_HERE.md` — first reading path for a new developer.
-- `docs/dev/REPO_MAP.md` — repo area guide and ownership boundaries.
-- `docs/dev/DOC_SEARCH_GUIDE.md` — deterministic search commands.
-- `docs/dev/DOC_MAINTENANCE_RULES.md` — rules for adding, editing, and preserving docs.
-- `docs/dev/AUTHORITY_CHAIN.md` — what wins when documents appear to conflict.
+- `docs/dev/NEW_DEVELOPER_START_HERE.md` â€” first reading path for a new developer.
+- `docs/dev/REPO_MAP.md` â€” repo area guide and ownership boundaries.
+- `docs/dev/DOC_SEARCH_GUIDE.md` â€” deterministic search commands.
+- `docs/dev/DOC_MAINTENANCE_RULES.md` â€” rules for adding, editing, and preserving docs.
+- `docs/dev/AUTHORITY_CHAIN.md` â€” what wins when documents appear to conflict.
 
 ## Search First, Then Decide
 
@@ -82,3 +82,16 @@ When in doubt:
 3. Do not duplicate its rules.
 4. Do not soften its boundaries.
 5. Do not add implied product behaviour.
+
+<!-- S-V1-00-SCOPE-LOCK -->
+
+## V1 scope-lock documents
+
+The active v1 scope-lock documents are:
+
+- `docs/v1/V1_RELEASE_BOUNDARY.md`
+- `docs/v1/V1_ACCEPTANCE_GATE.md`
+- `docs/v1/V1_NOT_IN_SCOPE.md`
+- `docs/v1/V1_DOC_AUTHORITY_MAP.md`
+
+These documents control v1 planning and slice admission. They do not redefine engine law, registry law, CI token meanings, copy authority, or commercial authority.

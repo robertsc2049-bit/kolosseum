@@ -112,3 +112,16 @@ Update this document when:
 If a developer cannot find the right document from this index, the docs system is not good enough.
 
 Keep this index short, current, and useful.
+
+<!-- S-V1-00-SCOPE-LOCK -->
+
+## V1 scope-lock documents
+
+The active v1 scope-lock documents are:
+
+- `docs/v1/V1_RELEASE_BOUNDARY.md`
+- `docs/v1/V1_ACCEPTANCE_GATE.md`
+- `docs/v1/V1_NOT_IN_SCOPE.md`
+- `docs/v1/V1_DOC_AUTHORITY_MAP.md`
+
+These documents control v1 planning and slice admission. They do not redefine engine law, registry law, CI token meanings, copy authority, or commercial authority.
