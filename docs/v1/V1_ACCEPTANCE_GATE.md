@@ -241,3 +241,20 @@ Dormant future roles may be documented only as dormant.
 
 Acceptance is blocked if account implementation introduces active organisation, organization, team, gym, unit, federation, enterprise, marketplace, messaging, chat, EPOS, gym access, full dashboard, auth-provider implementation, payment implementation, database migration, UI implementation, or engine behaviour under S-V1-11.
 <!-- S-V1-11:ACCOUNT-MODEL-ACCEPTANCE:END -->
+
+<!-- S-V1-12:COACH-REGISTRATION-ACCEPTANCE:START -->
+## S-V1-12 Coach Registration Acceptance
+
+V1 acceptance requires the coach registration/provisioning path to remain product/auth state only.
+
+Acceptance requires proof that:
+
+- coach identity can be provisioned with account_role = coach
+- non-coach account roles are refused
+- unknown account fields are refused
+- attempted engine-visible fields are refused
+- coach registration cannot affect deterministic compile output
+- copy remains factual
+
+Acceptance is blocked if S-V1-12 introduces auth provider implementation, database migrations, product UI, payment implementation, enterprise account management, organisation admin, organization admin, team admin, gym admin, unit admin, federation admin, marketplace, coach discovery, messaging, chat, EPOS, gym access, full dashboard, registry content, engine behaviour, proof implementation, relationship implementation, or assignment implementation.
+<!-- S-V1-12:COACH-REGISTRATION-ACCEPTANCE:END -->

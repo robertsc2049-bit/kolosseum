@@ -248,3 +248,39 @@ These roles may be documented only as dormant.
 
 S-V1-11 must not activate organisation, organization, team, gym, unit, federation, enterprise, marketplace, messaging, chat, EPOS, gym access, full dashboards, enterprise billing, marketplace billing, auth-provider implementation, payment implementation, database migrations, product UI, or engine behaviour.
 <!-- S-V1-11:ACCOUNT-MODEL-NON-SCOPE:END -->
+
+<!-- S-V1-12:COACH-REGISTRATION-NON-SCOPE:START -->
+## S-V1-12 Coach Registration Non-Scope
+
+S-V1-12 may register or provision a coach platform identity only.
+
+S-V1-12 must not activate:
+
+- auth provider implementation
+- password implementation
+- session implementation
+- database migrations
+- product UI
+- payment implementation
+- enterprise billing
+- enterprise account management
+- organisation admin
+- organization admin
+- team admin
+- gym admin
+- unit admin
+- federation admin
+- marketplace
+- coach discovery
+- coach directory
+- messaging
+- chat
+- EPOS
+- gym access
+- full dashboards
+- registry content
+- engine behaviour
+- proof implementation
+- relationship implementation
+- assignment implementation
+<!-- S-V1-12:COACH-REGISTRATION-NON-SCOPE:END -->

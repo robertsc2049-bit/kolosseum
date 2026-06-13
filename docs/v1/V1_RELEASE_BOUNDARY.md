@@ -226,3 +226,17 @@ Account state is platform state only and must not alter engine truth, programme 
 
 S-V1-11 does not activate organisation, organization, team, gym, unit, federation, enterprise, marketplace, messaging, chat, EPOS, gym access, full dashboards, auth provider implementation, payment implementation, database migrations, product UI, or engine behaviour.
 <!-- S-V1-11:ACCOUNT-MODEL-BOUNDARY:END -->
+
+<!-- S-V1-12:COACH-REGISTRATION-PROVISIONING:START -->
+## S-V1-12 Coach Registration or Provisioning
+
+The canonical v1 coach registration/provisioning boundary is `docs/v1/V1_COACH_REGISTRATION_PROVISIONING.md`.
+
+V1 permits a coach account to be registered or provisioned as product/auth state only.
+
+Coach registration cannot affect deterministic compile output.
+
+The path may create a coach platform identity record shape and factual copy identifiers only.
+
+S-V1-12 does not activate auth provider implementation, database migrations, product UI, payment implementation, enterprise account management, organisation admin, organization admin, team admin, gym admin, unit admin, federation admin, marketplace, coach discovery, messaging, chat, EPOS, gym access, full dashboards, registry content, engine behaviour, proof implementation, relationship implementation, or assignment implementation.
+<!-- S-V1-12:COACH-REGISTRATION-PROVISIONING:END -->
