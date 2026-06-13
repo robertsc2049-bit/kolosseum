@@ -280,3 +280,25 @@ Changing naming conventions is a developer-operating change. It requires:
 - update to any affected template or guard,
 - proof through lint or targeted guard,
 - clear commit message.
+
+<!-- S-V1-06:ADR-NAMING-RULE:START -->
+## ADR names
+
+Use `docs/adr` for Architecture Decision Records.
+
+Numbered ADR files must live directly under `docs/adr/` and use:
+
+- `ADR-0001-short-decision-name.md`
+
+ADR filenames must match `ADR-[0-9]{4}-[a-z0-9]+(-[a-z0-9]+)*.md`.
+
+Allowed non-numbered files directly under `docs/adr/` are:
+
+- `README.md`
+- `INDEX.md`
+- `ADR_TEMPLATE.md`
+
+Do not use vague ADR names such as `ADR-0001-final.md`, `ADR-0002-new.md`, `ADR-0003-fix.md`, `ADR-0004-misc.md`, or `ADR-0005-stuff.md`.
+
+ADRs document decisions; they do not create engine law.
+<!-- S-V1-06:ADR-NAMING-RULE:END -->

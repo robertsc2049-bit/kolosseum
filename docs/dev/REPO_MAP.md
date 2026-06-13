@@ -206,3 +206,15 @@ Avoid unsupported wording such as:
 - injury risk
 - programme worked
 - programme failed
+
+<!-- S-V1-06:ADR-REPO-MAP:START -->
+## ADR System
+
+`docs/adr/` owns Architecture Decision Records.
+
+ADR files explain durable architecture and boundary decisions for future developers.
+
+ADRs do not create product law, engine law, registry law, release law, CI token meaning, payment authority, auth authority, UI authority, legal authority, commercial authority, runtime authority, or proof authority.
+
+Boundary docs and tests remain authoritative where applicable.
+<!-- S-V1-06:ADR-REPO-MAP:END -->

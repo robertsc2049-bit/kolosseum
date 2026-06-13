@@ -161,3 +161,17 @@ Before starting a v1 slice, record:
 - rollback path
 
 If any item is unknown, inspect first. Do not implement by guesswork.
+
+<!-- S-V1-06:ADR-AUTHORITY-MAP:START -->
+## ADR authority position
+
+Architecture Decision Records live in `docs/adr`.
+
+Read the ADR system entry point at `docs/adr/README.md`.
+
+ADRs document decisions; they do not create engine law.
+
+Boundary docs, contracts, tests, and guards remain authoritative where applicable.
+
+Use ADRs to understand why a boundary or architecture decision was made, not to infer permission to implement product, engine, registry, app, payment, auth, UI, commercial, legal, proof, or export behaviour.
+<!-- S-V1-06:ADR-AUTHORITY-MAP:END -->
