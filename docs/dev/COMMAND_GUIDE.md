@@ -161,3 +161,26 @@ The master gate distinguishes v0 closure, v1 boundary, registry, copy/claims, au
 
 This command section does not create workflow authority or release approval.
 <!-- S-V1-08:CI-MASTER-GATE-COMMANDS:END -->
+
+<!-- S-V1-09:FAILURE-TOKEN-CLOSURE-COMMANDS:START -->
+## S-V1-09 failure token closure commands
+
+The v1 failure-token closure guard is:
+
+    node ci/guards/s_v1_09_failure_token_closure_guard.mjs
+
+If v1 guard tokens change, refresh the generated token index through its owner:
+
+    node ci/scripts/run_failure_token_index_guard.mjs --write
+
+Then refresh generated guard/checksum surfaces through their owners:
+
+    npm.cmd run guard:index
+    npm.cmd run hash:write
+
+S-V1-09 proves that v1 guards use stable `CI_V1_*` tokens, expose them through `const TOKEN`, emit `token: TOKEN`, and do not leave critical v1 gate failures as hidden string-only failures.
+
+Failure token:
+
+    CI_V1_FAILURE_TOKEN_CLOSURE
+<!-- S-V1-09:FAILURE-TOKEN-CLOSURE-COMMANDS:END -->

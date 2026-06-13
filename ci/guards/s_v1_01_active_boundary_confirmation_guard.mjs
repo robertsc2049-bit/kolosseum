@@ -16,12 +16,12 @@ const requiredFiles = [
   "docs/checksums.sha256"
 ];
 
-const token = "CI_V1_ACTIVE_BOUNDARY_CONFIRMATION_MISSING";
+const TOKEN = "CI_V1_ACTIVE_BOUNDARY_CONFIRMATION_MISSING";
 
 function fail(message) {
   console.error(JSON.stringify({
     ok: false,
-    token,
+    token: TOKEN,
     guard: "S-V1-01",
     message
   }, null, 2));
@@ -99,7 +99,7 @@ const requiredTextBindings = [
   [confirmationMd, "Phase 7 truth projection", "V1_ACTIVE_BOUNDARY_CONFIRMATION.md"],
   [confirmationMd, "Phase 8 evidence sealing", "V1_ACTIVE_BOUNDARY_CONFIRMATION.md"],
   [confirmationMd, "S-V1-01 preserves engine isolation", "V1_ACTIVE_BOUNDARY_CONFIRMATION.md"],
-  [failureIndex, token, "FAILURE_TOKEN_INDEX.md"],
+  [failureIndex, TOKEN, "FAILURE_TOKEN_INDEX.md"],
   [guardsIndex, "s_v1_01_active_boundary_confirmation_guard.mjs", "GUARDS_INDEX.md"]
 ];
 

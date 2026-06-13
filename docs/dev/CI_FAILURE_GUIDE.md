@@ -240,3 +240,28 @@ Correct response: restore the gate definition, restore the named existing check,
 
 The master gate distinguishes v0 closure, v1 boundary, registry, copy/claims, auth/permissions, proof/replay/export, and no-coupling/engine-truth checks.
 <!-- S-V1-08:CI-MASTER-GATE-FAILURE-PATH:END -->
+
+<!-- S-V1-09:FAILURE-TOKEN-CLOSURE-FAILURE-PATH:START -->
+## S-V1-09 failure token closure failure path
+
+Failure token:
+
+    CI_V1_FAILURE_TOKEN_CLOSURE
+
+Meaning: one or more v1 guards no longer has stable, searchable, generated-indexed failure-token coverage.
+
+Check in this order:
+
+1. The failing `ci/guards/s_v1_*_guard.mjs` file.
+2. Its `const TOKEN = "CI_V1_*"` declaration.
+3. Its `token: TOKEN` failure payload.
+4. `docs/dev/FAILURE_TOKEN_INDEX.md`.
+5. `docs/GUARDS_INDEX.md`.
+6. `package.json` `lint:fast`.
+
+Do not fix by manually editing generated token/index files.
+
+Correct response: patch the emitting guard or test source, run `node ci/scripts/run_failure_token_index_guard.mjs --write`, run `npm.cmd run guard:index` if guard surfaces changed, run `npm.cmd run hash:write`, then re-run the targeted guard and full local gate.
+
+This slice exists to block hidden string-only failures in critical v1 gates.
+<!-- S-V1-09:FAILURE-TOKEN-CLOSURE-FAILURE-PATH:END -->
