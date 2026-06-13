@@ -189,3 +189,32 @@ Meaning: package scripts, workflow commands, or wrapper semantics drifted.
 Do not fix by deleting checks, removing clean-tree gates, or changing workflows to run weaker commands.
 
 Correct response: keep local PowerShell commands Windows-safe with `npm.cmd`, keep GitHub workflows on `npm run ...`, preserve the wrapped command failure, and update the wrapper contract guard only when the release boundary intentionally changes.
+
+<!-- S-V1-07:CI-FAILURE-ENTRY-PACK:START -->
+## Developer entry pack failure path
+
+A future developer should handle CI failure by reading the failing guard, reading the failure token, and checking the current release boundary before editing.
+
+Start here:
+
+1. `docs/dev/COMMAND_GUIDE.md`
+2. `docs/dev/FAILURE_TOKEN_INDEX.md`
+3. `docs/GUARDS_INDEX.md`
+4. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+5. the failing guard or script
+
+Primary local check command:
+
+    npm.cmd run lint:fast
+
+This section states what not to touch during failure recovery.
+
+Do not touch runtime behaviour, engine behaviour, app implementation, registry content, payment/auth/UI implementation, workflows, generated files, package version, or release tags unless the named slice explicitly permits it.
+
+Docs define law.
+Tests prove behaviour.
+Comments explain boundaries.
+CI blocks drift.
+
+This guide explains failure triage. It does not create product law, engine law, registry law, runtime law, commercial authority, CI token meaning, or release approval.
+<!-- S-V1-07:CI-FAILURE-ENTRY-PACK:END -->

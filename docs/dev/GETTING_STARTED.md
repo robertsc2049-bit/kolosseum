@@ -110,3 +110,76 @@ A documentation handover slice is complete only when:
 - no canonical source is duplicated unnecessarily
 - `npm.cmd run lint:fast` passes from a clean tree
 - final `git status --short` is empty
+
+<!-- S-V1-07:GETTING-STARTED-ENTRY-PACK:START -->
+## S-V1-07 developer entry pack
+
+Status: minimum handover path for a future developer.
+
+Purpose: a future developer can open the repo, understand the current release boundary, run setup commands, run check commands, and know what not to touch.
+
+### Required reading order
+
+1. `README.md`
+2. `docs/dev/GETTING_STARTED.md`
+3. `docs/dev/COMMAND_GUIDE.md`
+4. `docs/dev/REPO_MAP.md`
+5. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+6. `docs/v1/V1_RELEASE_BOUNDARY.md`
+7. `docs/v1/V1_NOT_IN_SCOPE.md`
+8. `docs/v1/V1_DOC_AUTHORITY_MAP.md`
+9. `docs/dev/NAMING_CONVENTIONS.md`
+10. `docs/dev/SLICE_TEMPLATE.md`
+11. `docs/dev/CI_FAILURE_GUIDE.md`
+12. `docs/adr/README.md`
+
+### Setup commands
+
+Use Windows-safe npm commands in local PowerShell:
+
+    npm.cmd ci
+
+Do not replace GitHub workflow `npm run ...` syntax with local `npm.cmd ...` syntax. Local PowerShell uses `npm.cmd`; workflows use `npm run`.
+
+### Check commands
+
+Primary local check:
+
+    npm.cmd run lint:fast
+
+Common targeted documentation and generated-surface checks:
+
+    npm.cmd run guard:index
+    node ci/guards/guards_index_guard.mjs
+    node ci/scripts/run_failure_token_index_guard.mjs
+    node ci/scripts/sha256_guard.mjs
+    node ci/guards/no_bom_guard.mjs
+    node ci/guards/no_crlf_guard.mjs
+    node ci/guards/no_mojibake_guard.mjs
+
+### Current release boundary
+
+Current release boundary starts at:
+
+    docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md
+
+V1 scope is controlled by:
+
+    docs/v1/V1_RELEASE_BOUNDARY.md
+    docs/v1/V1_ACCEPTANCE_GATE.md
+    docs/v1/V1_NOT_IN_SCOPE.md
+    docs/v1/V1_DOC_AUTHORITY_MAP.md
+
+### What not to touch without a named slice
+
+Do not touch runtime behaviour, engine behaviour, app implementation, registry content, payment/auth/UI implementation, workflows, generated files, package version, release tags, database migrations, or commercial capability unless the slice explicitly permits it.
+
+### Authority rule
+
+Docs define law.
+Tests prove behaviour.
+Comments explain boundaries.
+CI blocks drift.
+
+This file explains developer entry. It does not create new product law, engine law, registry law, runtime law, commercial authority, CI token meaning, or release approval.
+<!-- S-V1-07:GETTING-STARTED-ENTRY-PACK:END -->

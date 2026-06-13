@@ -218,3 +218,25 @@ ADRs do not create product law, engine law, registry law, release law, CI token 
 
 Boundary docs and tests remain authoritative where applicable.
 <!-- S-V1-06:ADR-REPO-MAP:END -->
+
+<!-- S-V1-07:DEVELOPER-ENTRY-PACK-MAP:START -->
+## S-V1-07 Developer Entry Pack
+
+Developer entry surfaces:
+
+- `README.md` - first repo entry point and minimum handover pointer.
+- `docs/dev/GETTING_STARTED.md` - setup, check commands, current release boundary, and what not to touch.
+- `docs/dev/COMMAND_GUIDE.md` - supported local PowerShell commands and generated-file command order.
+- `docs/dev/CI_FAILURE_GUIDE.md` - CI failure triage without weakening boundaries.
+- `docs/dev/REPO_MAP.md` - repo areas and ownership boundaries.
+- `docs/dev/NAMING_CONVENTIONS.md` - naming for branches, slices, files, tests, guards, tokens, IDs, routes, events, and ADRs.
+- `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md` - current release boundary pointer.
+- `docs/adr/README.md` - ADR system. ADRs document decisions; they do not create engine law.
+
+These files are developer handover surfaces. They do not create product law, engine law, registry law, runtime law, commercial authority, CI token meaning, workflow authority, or release approval.
+
+Docs define law.
+Tests prove behaviour.
+Comments explain boundaries.
+CI blocks drift.
+<!-- S-V1-07:DEVELOPER-ENTRY-PACK-MAP:END -->

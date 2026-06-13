@@ -131,3 +131,22 @@ Use ADRs for durable architectural or boundary decisions that a future developer
 
 Do not use ADRs to create product scope, alter engine behaviour, alter registry law, authorise app implementation, authorise payment/auth/UI behaviour, or bypass tests and guards.
 <!-- S-V1-06:ADR-SYSTEM-START:END -->
+
+<!-- S-V1-07:DEVELOPER-ENTRY-PACK-RULE:START -->
+## Developer entry pack rule
+
+The minimum developer entry pack is:
+
+- `README.md`
+- `docs/dev/GETTING_STARTED.md`
+- `docs/dev/COMMAND_GUIDE.md`
+- `docs/dev/REPO_MAP.md`
+- `docs/dev/NAMING_CONVENTIONS.md`
+- `docs/dev/CI_FAILURE_GUIDE.md`
+- `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+- `docs/adr/README.md`
+
+A future developer must be able to find the current release boundary, setup commands, check commands, failure path, naming rules, and what not to touch from these files.
+
+These docs explain authority without creating new product law.
+<!-- S-V1-07:DEVELOPER-ENTRY-PACK-RULE:END -->

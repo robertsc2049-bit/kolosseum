@@ -302,3 +302,22 @@ Do not use vague ADR names such as `ADR-0001-final.md`, `ADR-0002-new.md`, `ADR-
 
 ADRs document decisions; they do not create engine law.
 <!-- S-V1-06:ADR-NAMING-RULE:END -->
+
+<!-- S-V1-07:ENTRY-PACK-NAMING:START -->
+## Developer entry pack names
+
+Developer entry-pack files must use clear names that describe their handover role.
+
+Current entry-pack surfaces:
+
+- `README.md`
+- `docs/dev/GETTING_STARTED.md`
+- `docs/dev/COMMAND_GUIDE.md`
+- `docs/dev/CI_FAILURE_GUIDE.md`
+- `docs/dev/REPO_MAP.md`
+- `docs/dev/NAMING_CONVENTIONS.md`
+
+Do not create vague duplicates such as `README2.md`, `START_HERE_NEW.md`, `COMMANDS_FINAL.md`, `DEV_STUFF.md`, or `FIX_GUIDE.md`.
+
+Entry-pack docs explain authority without creating product law.
+<!-- S-V1-07:ENTRY-PACK-NAMING:END -->
