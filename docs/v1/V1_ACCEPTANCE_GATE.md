@@ -258,3 +258,25 @@ Acceptance requires proof that:
 
 Acceptance is blocked if S-V1-12 introduces auth provider implementation, database migrations, product UI, payment implementation, enterprise account management, organisation admin, organization admin, team admin, gym admin, unit admin, federation admin, marketplace, coach discovery, messaging, chat, EPOS, gym access, full dashboard, registry content, engine behaviour, proof implementation, relationship implementation, or assignment implementation.
 <!-- S-V1-12:COACH-REGISTRATION-ACCEPTANCE:END -->
+
+<!-- S-V1-13:ATHLETE-REGISTRATION-ACCEPTANCE:START -->
+## S-V1-13 Athlete Registration Acceptance
+
+V1 acceptance requires the athlete registration/invitation path to remain product/auth state only.
+
+Acceptance requires proof that:
+
+- athlete identity can be provisioned with account_role = athlete
+- athlete invitation can be created for invitation_target_role = athlete
+- accepted athlete invitation is still not relationship creation
+- non-athlete account roles are refused
+- non-athlete invitation targets are refused
+- friends, social, team, organisation, organization, gym, unit, federation, enterprise, marketplace, coach discovery, messaging, and chat scope are refused
+- unknown account fields are refused
+- attempted engine-visible fields are refused
+- attempted relationship-created fields are refused
+- athlete registration/invitation cannot affect engine truth
+- invite copy remains factual and does not imply coaching outcome, safety, suitability, or readiness
+
+Acceptance is blocked if S-V1-13 introduces friends, social, team invites, organisation invites, organization invites, gym invites, unit invites, federation invites, enterprise invites, marketplace, coach discovery, messaging, chat, auth provider implementation, database migrations, product UI, payment implementation, registry content, engine behaviour, proof implementation, relationship implementation, or assignment implementation.
+<!-- S-V1-13:ATHLETE-REGISTRATION-ACCEPTANCE:END -->

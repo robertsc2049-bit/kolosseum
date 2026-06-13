@@ -240,3 +240,21 @@ The path may create a coach platform identity record shape and factual copy iden
 
 S-V1-12 does not activate auth provider implementation, database migrations, product UI, payment implementation, enterprise account management, organisation admin, organization admin, team admin, gym admin, unit admin, federation admin, marketplace, coach discovery, messaging, chat, EPOS, gym access, full dashboards, registry content, engine behaviour, proof implementation, relationship implementation, or assignment implementation.
 <!-- S-V1-12:COACH-REGISTRATION-PROVISIONING:END -->
+
+<!-- S-V1-13:ATHLETE-REGISTRATION-INVITATION:START -->
+## S-V1-13 Athlete Registration or Invitation
+
+The canonical v1 athlete registration/invitation boundary is `docs/v1/V1_ATHLETE_REGISTRATION_INVITATION.md`.
+
+V1 permits an athlete account to be registered or invited as product/auth state only.
+
+Athlete registration cannot affect engine truth.
+
+Athlete invitation cannot affect engine truth.
+
+The path may create athlete platform identity and athlete account invitation record shapes with factual copy identifiers only.
+
+Accepted athlete invitations in S-V1-13 do not create coach-athlete relationships, coach visibility, or assignment authority.
+
+S-V1-13 does not activate friends, social, team invites, organisation invites, organization invites, gym invites, unit invites, federation invites, enterprise invites, marketplace, coach discovery, messaging, chat, auth provider implementation, database migrations, product UI, payment implementation, enterprise account management, registry content, engine behaviour, proof implementation, relationship implementation, or assignment implementation.
+<!-- S-V1-13:ATHLETE-REGISTRATION-INVITATION:END -->
