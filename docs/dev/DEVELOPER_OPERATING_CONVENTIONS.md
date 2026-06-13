@@ -19,6 +19,7 @@ This file is the entry point for developer operating rules. It does not create p
 8. docs/dev/CI_FAILURE_GUIDE.md
 9. docs/dev/CODE_COMMENT_POLICY.md
 10. docs/dev/FUNCTION_DOCUMENTATION_POLICY.md
+11. docs/adr/README.md
 
 ## Operating law
 
@@ -116,3 +117,17 @@ Before v1 product implementation, confirm:
 - no-coupling tests,
 - branch and PR conventions,
 - naming conventions.
+
+<!-- S-V1-06:ADR-SYSTEM-START:START -->
+## ADR rule
+
+Architecture Decision Records live in `docs/adr`.
+
+ADRs document decisions; they do not create engine law.
+
+Boundary docs and tests remain authoritative where applicable.
+
+Use ADRs for durable architectural or boundary decisions that a future developer must understand without founder memory.
+
+Do not use ADRs to create product scope, alter engine behaviour, alter registry law, authorise app implementation, authorise payment/auth/UI behaviour, or bypass tests and guards.
+<!-- S-V1-06:ADR-SYSTEM-START:END -->
