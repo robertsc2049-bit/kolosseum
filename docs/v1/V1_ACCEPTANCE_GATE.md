@@ -341,3 +341,23 @@ Acceptance requires proof that:
 
 Acceptance is blocked if S-V1-16 implies medical advice, diagnosis, medical assessment, safety clearance, suitability clearance, readiness scoring, risk scoring, recommendation, training outcome, external approval, engine behaviour, registry content, database migrations, auth provider implementation, product UI, payment implementation, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, assignment implementation, or proof implementation.
 <!-- S-V1-16:PHASE-1-DECLARATION-SURFACE:END -->
+
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD:START -->
+## S-V1-17 Declaration Acceptance Record Acceptance
+
+V1 acceptance requires accepted declaration records to prove deterministic hash metadata, factual source metadata, immutable field identity, and explicit supersession state.
+
+Acceptance requires proof that:
+
+- accepted records carry deterministic hash metadata
+- accepted records carry factual source metadata
+- immutable accepted fields cannot be changed
+- supersession preserves payload, hash metadata, and source metadata
+- superseded records fail compile-admission precondition
+- hash mismatch fails closed
+- S-V1-16 declaration surface tests remain green
+- the existing Phase 1 acceptance record suite remains green
+- v0 active scope remains green
+
+Acceptance is blocked if S-V1-17 creates a second declaration system, mutates engine output, widens compile beyond declaration-validity contract checks, adds database persistence, adds UI, adds assignment authority, or weakens S-V1-16/S28 proof.
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD:END -->

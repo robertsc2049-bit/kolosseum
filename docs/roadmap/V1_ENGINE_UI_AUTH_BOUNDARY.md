@@ -753,3 +753,15 @@ Engine output must not depend on declaration form copy, copy acknowledgement id,
 
 S-V1-16 does not implement engine behaviour, registry content, database migrations, auth provider code, product UI, payment implementation, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, assignment implementation, or proof implementation.
 <!-- S-V1-16:PHASE-1-DECLARATION-SURFACE-ENGINE-AUTH-BOUNDARY:END -->
+
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD-ENGINE-AUTH-BOUNDARY:START -->
+## S-V1-17 Declaration Acceptance Record Engine/Auth Boundary
+
+Accepted declaration record metadata is product/app validity metadata until admitted through existing engine law.
+
+S-V1-17 may expose compile-admission precondition checks through the existing declaration-validity contract.
+
+S-V1-17 must not run engine phases, mutate engine input, mutate engine output, create assignment authority, or create persistence authority.
+
+Engine output must not depend on source metadata, copy metadata, product declaration state, account state, relationship state, payment state, support state, UI state, or presentation state.
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD-ENGINE-AUTH-BOUNDARY:END -->

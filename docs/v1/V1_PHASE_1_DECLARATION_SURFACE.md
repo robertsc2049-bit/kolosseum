@@ -197,3 +197,17 @@ S-V1-16 does not implement or activate:
 If the declaration is not explicit, factual, user-declared, closed-world, and claim-safe, it must fail closed.
 
 If declaration state changes engine truth, this slice is invalid.
+
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD:START -->
+## S-V1-17 Declaration Acceptance Record
+
+The canonical v1 declaration acceptance record boundary is `docs/v1/V1_DECLARATION_ACCEPTANCE_RECORD.md`.
+
+S-V1-17 extends the accepted declaration record created by the Phase 1 declaration surface.
+
+Accepted declaration records must include deterministic hash metadata, factual source metadata, immutable field identity, and explicit supersession state.
+
+S-V1-17 does not create a second declaration system.
+
+S-V1-17 does not change engine output.
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD:END -->

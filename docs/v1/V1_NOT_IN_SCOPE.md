@@ -434,3 +434,30 @@ S-V1-16 must not activate:
 - federation roles
 - enterprise roles
 <!-- S-V1-16:PHASE-1-DECLARATION-SURFACE-NON-SCOPE:END -->
+
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD-NON-SCOPE:START -->
+## S-V1-17 Declaration Acceptance Record Non-Scope
+
+S-V1-17 may extend accepted declaration record metadata and proof only.
+
+S-V1-17 must not activate:
+
+- a second declaration system
+- engine output changes
+- registry content
+- programme assignment
+- substitution
+- proof implementation
+- database persistence
+- auth provider implementation
+- product UI
+- payment implementation
+- broad RBAC
+- organisation roles
+- organization roles
+- team roles
+- gym roles
+- unit roles
+- federation roles
+- enterprise roles
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD-NON-SCOPE:END -->

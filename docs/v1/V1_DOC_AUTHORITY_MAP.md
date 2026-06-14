@@ -363,3 +363,27 @@ Authority order for Phase 1 declaration surface scope:
 
 No lower-authority document, route, schema, fixture, copy surface, account state, relationship state, support state, billing state, or implementation note may widen the Phase 1 declaration surface into assessment, advice, clearance, scoring, recommendation, engine behaviour, registry content, assignment authority, or proof authority.
 <!-- S-V1-16:PHASE-1-DECLARATION-SURFACE-AUTHORITY:END -->
+
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD-AUTHORITY:START -->
+## S-V1-17 Declaration Acceptance Record Authority
+
+`docs/v1/V1_DECLARATION_ACCEPTANCE_RECORD.md` is the canonical v1 declaration acceptance record boundary.
+
+It is subordinate to:
+
+1. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+2. `docs/v1/V1_RELEASE_BOUNDARY.md`
+3. `docs/v1/V1_PHASE_1_DECLARATION_SURFACE.md`
+4. `docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md`
+5. `docs/v1/V1_ACCEPTANCE_GATE.md`
+6. `docs/v1/V1_NOT_IN_SCOPE.md`
+
+It is enforced by:
+
+- `src/phase1DeclarationSurface.mjs`
+- `test/s_v1_17_declaration_acceptance_record.test.mjs`
+- `ci/guards/s_v1_17_declaration_acceptance_record_guard.mjs`
+- `ci/scripts/run_phase1_acceptance_record_tests.mjs`
+
+No lower-authority file may widen S-V1-17 into a second declaration system, engine output change, database persistence, UI, assignment authority, proof implementation, or future organisation/team/gym/federation surface.
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD-AUTHORITY:END -->
