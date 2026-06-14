@@ -9,6 +9,7 @@ import crypto from "node:crypto";
 export const phase1DeclarationSurfaceId = "phase_1_declaration_surface";
 
 export const phase1DeclarationSurfaceVersion = "1.0.0";
+export const phase1DeclarationCompileGateSurfaceId = "phase_1_declaration_compile_gate";
 
 export const phase1DeclarationPins = Object.freeze({
   phase1_schema_version: "1.0.0",
@@ -74,7 +75,9 @@ export const phase1DeclarationErrorIds = Object.freeze([
   "phase1_accepted_declaration_record_source_metadata_invalid",
   "phase1_accepted_declaration_record_immutable_field_changed",
   "phase1_accepted_declaration_record_already_superseded",
-  "phase1_accepted_declaration_record_superseded_at_invalid"
+  "phase1_accepted_declaration_record_superseded_at_invalid",
+  "phase1_declaration_compile_gate_input_invalid",
+  "phase1_declaration_compile_gate_phase_input_invalid"
 ]);
 
 const allowedTopLevelKeys = new Set([
@@ -575,6 +578,43 @@ export function supersedeAcceptedDeclarationRecord(record, supersededAtIso8601) 
   return Object.freeze({
     ...record,
     superseded_at_iso8601: supersededAtIso8601
+  });
+}
+/**
+ * FUNCTION NOTE:
+ * Export: assertPhase1DeclarationCompileGate
+ * Purpose: Binds compile admission to the existing accepted declaration validity seam.
+ * Inputs: Declaration record plus a phase-like input probe.
+ * Output: Frozen compile-gate result or thrown product declaration error.
+ * Boundary: This is a product/app precondition wrapper; it does not run engine phases, persist, or widen engine input.
+ * Determinism: Same declaration record and same phase-like input return the same result or error.
+ * Failure: Missing, unaccepted, superseded, mismatched, or invalid declaration state fails closed through stable declaration errors.
+ */
+export function assertPhase1DeclarationCompileGate(input) {
+  if (!isRecord(input)) {
+    throw makeAcceptedDeclarationRecordError("phase1_declaration_compile_gate_input_invalid");
+  }
+
+  if (!isRecord(input.phase_like_input)) {
+    throw makeAcceptedDeclarationRecordError("phase1_declaration_compile_gate_phase_input_invalid");
+  }
+
+  assertPhase1DeclarationAcceptedBeforeCompile(input.declaration_record);
+  assertAcceptedDeclarationRecordIntegrity(input.declaration_record);
+
+  const compileProbeOutput = compileIgnoringPhase1DeclarationSurface(
+    input.phase_like_input,
+    [input.declaration_record]
+  );
+
+  return Object.freeze({
+    ok: true,
+    surface_id: phase1DeclarationCompileGateSurfaceId,
+    compile_admission: "declaration_current_valid",
+    declaration_payload_sha256: input.declaration_record.declaration_payload_sha256,
+    compile_probe_output: compileProbeOutput,
+    product_declaration_state_only: true,
+    engine_visible: false
   });
 }
 /**

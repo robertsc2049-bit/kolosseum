@@ -461,3 +461,32 @@ S-V1-17 must not activate:
 - federation roles
 - enterprise roles
 <!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD-NON-SCOPE:END -->
+
+<!-- S-V1-18:DECLARATION-COMPILE-GATE-NON-SCOPE:START -->
+## S-V1-18 Declaration Compile Gate Non-Scope
+
+S-V1-18 may bind declaration compile admission only.
+
+S-V1-18 must not activate:
+
+- real compile route mutation
+- new engine phases
+- database persistence
+- UI
+- coach notes
+- billing implementation
+- payment implementation
+- subscription implementation
+- registry content
+- programme assignment
+- substitution
+- proof implementation
+- broad RBAC
+- organisation roles
+- organization roles
+- team roles
+- gym roles
+- unit roles
+- federation roles
+- enterprise roles
+<!-- S-V1-18:DECLARATION-COMPILE-GATE-NON-SCOPE:END -->

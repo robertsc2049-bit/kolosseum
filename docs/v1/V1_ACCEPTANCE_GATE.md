@@ -361,3 +361,23 @@ Acceptance requires proof that:
 
 Acceptance is blocked if S-V1-17 creates a second declaration system, mutates engine output, widens compile beyond declaration-validity contract checks, adds database persistence, adds UI, adds assignment authority, or weakens S-V1-16/S28 proof.
 <!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD:END -->
+
+<!-- S-V1-18:DECLARATION-COMPILE-GATE:START -->
+## S-V1-18 Declaration Compile Gate Acceptance
+
+V1 acceptance requires compile admission to depend on a current valid accepted declaration record.
+
+Acceptance requires proof that:
+
+- missing declaration fails closed
+- unaccepted declaration fails closed
+- superseded declaration fails closed
+- hash mismatch fails closed
+- invalid accepted declaration metadata fails closed
+- current valid accepted declaration passes
+- product state cannot mutate declaration truth
+- product state cannot alter compile probe output
+- S-V1-16, S-V1-17, Phase 1 acceptance record, no-coupling, and v0 active scope proof remain green
+
+Acceptance is blocked if S-V1-18 makes coach notes, payment state, billing state, presentation state, UI state, account state, relationship state, or support state part of engine input.
+<!-- S-V1-18:DECLARATION-COMPILE-GATE:END -->

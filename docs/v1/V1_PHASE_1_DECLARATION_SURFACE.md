@@ -211,3 +211,15 @@ S-V1-17 does not create a second declaration system.
 
 S-V1-17 does not change engine output.
 <!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD:END -->
+
+<!-- S-V1-18:DECLARATION-COMPILE-GATE:START -->
+## S-V1-18 Declaration Compile Gate
+
+The canonical v1 declaration compile-gate boundary is `docs/v1/V1_DECLARATION_COMPILE_GATE.md`.
+
+S-V1-18 binds compile admission to the existing declaration validity seam.
+
+The gate must refuse missing, unaccepted, superseded, mismatched, or invalid accepted declaration records.
+
+The gate does not run engine phases and does not change engine output.
+<!-- S-V1-18:DECLARATION-COMPILE-GATE:END -->

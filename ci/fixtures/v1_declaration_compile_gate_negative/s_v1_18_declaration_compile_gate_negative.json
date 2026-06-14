@@ -1,0 +1,41 @@
+{
+  "fixture_id": "s_v1_18_declaration_compile_gate_negative",
+  "slice": "S-V1-18",
+  "schema_version": "1.0.0",
+  "failure_token": "CI_V1_DECLARATION_COMPILE_GATE",
+  "cases": [
+    {
+      "case_id": "compile_refuses_missing_declaration",
+      "expected_ok": false,
+      "expected_error": "phase1_declaration_required_before_compile"
+    },
+    {
+      "case_id": "compile_refuses_unaccepted_declaration",
+      "expected_ok": false,
+      "expected_error": "phase1_declaration_not_accepted"
+    },
+    {
+      "case_id": "compile_refuses_superseded_declaration",
+      "expected_ok": false,
+      "expected_error": "phase1_declaration_superseded"
+    },
+    {
+      "case_id": "compile_refuses_hash_mismatch",
+      "expected_ok": false,
+      "expected_error": "phase1_declaration_hash_mismatch"
+    },
+    {
+      "case_id": "compile_refuses_invalid_hash_metadata",
+      "expected_ok": false,
+      "expected_error": "phase1_accepted_declaration_record_hash_metadata_invalid"
+    },
+    {
+      "case_id": "compile_allows_current_valid_declaration",
+      "expected_ok": true
+    },
+    {
+      "case_id": "product_state_does_not_mutate_declaration_truth",
+      "expected_ok": true
+    }
+  ]
+}

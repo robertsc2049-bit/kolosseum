@@ -322,3 +322,15 @@ S-V1-17 extends the existing S-V1-16 Phase 1 declaration surface and the existin
 
 S-V1-17 does not activate a second declaration system, engine behaviour changes, registry content, database persistence, auth provider implementation, product UI, payment implementation, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, assignment implementation, substitution, export, or proof implementation.
 <!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD:END -->
+
+<!-- S-V1-18:DECLARATION-COMPILE-GATE:START -->
+## S-V1-18 Declaration Compile Gate
+
+The canonical v1 declaration compile-gate boundary is `docs/v1/V1_DECLARATION_COMPILE_GATE.md`.
+
+V1 requires compile admission to refuse missing, unaccepted, superseded, mismatched, or invalid accepted declaration records.
+
+S-V1-18 may add a narrow compile-gate wrapper around the existing declaration validity seam.
+
+S-V1-18 does not activate engine output changes, real compile route mutation, database persistence, UI, coach notes, payment implementation, billing implementation, registry content, programme assignment, substitution, proof implementation, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, or enterprise roles.
+<!-- S-V1-18:DECLARATION-COMPILE-GATE:END -->
