@@ -310,3 +310,15 @@ Permission, account, relationship, and declaration state remain product/app stat
 
 S-V1-16 does not activate medical assessment, diagnosis, safety clearance, suitability clearance, readiness scoring, engine behaviour, registry content, database migrations, auth provider implementation, product UI, payment implementation, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, assignment implementation, or proof implementation.
 <!-- S-V1-16:PHASE-1-DECLARATION-SURFACE:END -->
+
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD:START -->
+## S-V1-17 Declaration Acceptance Record
+
+The canonical v1 declaration acceptance record boundary is `docs/v1/V1_DECLARATION_ACCEPTANCE_RECORD.md`.
+
+V1 requires accepted declaration records to include deterministic hash metadata, factual source metadata, immutable field identity, and explicit supersession state.
+
+S-V1-17 extends the existing S-V1-16 Phase 1 declaration surface and the existing Phase 1 acceptance record proof suite.
+
+S-V1-17 does not activate a second declaration system, engine behaviour changes, registry content, database persistence, auth provider implementation, product UI, payment implementation, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, assignment implementation, substitution, export, or proof implementation.
+<!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD:END -->

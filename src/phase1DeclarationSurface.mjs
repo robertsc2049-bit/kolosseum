@@ -15,6 +15,36 @@ export const phase1DeclarationPins = Object.freeze({
   engine_compatibility: "EB2-1.0.0",
   enum_bundle_version: "EB2-1.0.0"
 });
+export const phase1AcceptedDeclarationRecordVersion = "1.0.0";
+
+export const phase1AcceptedDeclarationImmutableFields = Object.freeze([
+  "declaration_id",
+  "declared_by_user_id",
+  "subject_user_id",
+  "declaration_source",
+  "declaration_scope",
+  "declaration_state",
+  "declaration_payload",
+  "declaration_payload_sha256",
+  "phase1_schema_version",
+  "engine_compatibility",
+  "enum_bundle_version",
+  "consent_granted",
+  "jurisdiction_acknowledged",
+  "declared_at_iso8601",
+  "accepted_terms_version",
+  "copy_acknowledgement_id",
+  "user_declared_factual_state",
+  "product_declaration_state_only",
+  "engine_visible",
+  "accepted_declaration_record",
+  "accepted_declaration_record_version",
+  "hash_metadata",
+  "source_metadata",
+  "immutable",
+  "immutable_fields",
+  "copy_ids"
+]);
 
 export const phase1DeclarationCopyIds = Object.freeze([
   "PHASE_1_DECLARATION_ACCEPTED",
@@ -38,7 +68,13 @@ export const phase1DeclarationErrorIds = Object.freeze([
   "phase1_declaration_payload_consent_not_declared",
   "phase1_declaration_payload_jurisdiction_not_declared",
   "phase1_declaration_required_before_compile",
-  "phase1_declaration_hash_mismatch"
+  "phase1_declaration_hash_mismatch",
+  "phase1_accepted_declaration_record_integrity_invalid",
+  "phase1_accepted_declaration_record_hash_metadata_invalid",
+  "phase1_accepted_declaration_record_source_metadata_invalid",
+  "phase1_accepted_declaration_record_immutable_field_changed",
+  "phase1_accepted_declaration_record_already_superseded",
+  "phase1_accepted_declaration_record_superseded_at_invalid"
 ]);
 
 const allowedTopLevelKeys = new Set([
@@ -122,6 +158,33 @@ export function phase1DeclarationSha256(value) {
     .createHash("sha256")
     .update(stablePhase1DeclarationJson(value), "utf8")
     .digest("hex");
+}
+function makeAcceptedDeclarationHashMetadata(canonicalPayload) {
+  return Object.freeze({
+    algorithm: "sha256",
+    canonical_json: "stable_sorted_keys",
+    payload_sha256: phase1DeclarationSha256(canonicalPayload),
+    payload_hash_field: "declaration_payload_sha256"
+  });
+}
+
+function makeAcceptedDeclarationSourceMetadata(input) {
+  return Object.freeze({
+    declaration_source: input.declaration_source,
+    declared_at_iso8601: input.declared_at_iso8601,
+    declared_by_user_id: input.declared_by_user_id,
+    subject_user_id: input.subject_user_id,
+    accepted_terms_version: input.accepted_terms_version,
+    copy_acknowledgement_id: input.copy_acknowledgement_id
+  });
+}
+
+function makeAcceptedDeclarationRecordError(code) {
+  const error = new Error(code);
+  error.code = code;
+  error.product_declaration_state_only = true;
+  error.engine_visible = false;
+  return error;
 }
 
 function reject(error) {
@@ -305,8 +368,13 @@ export function createPhase1DeclarationRecord(input) {
     user_declared_factual_state: true,
     product_declaration_state_only: true,
     engine_visible: false,
+    accepted_declaration_record: true,
+    accepted_declaration_record_version: phase1AcceptedDeclarationRecordVersion,
+    hash_metadata: makeAcceptedDeclarationHashMetadata(validation.canonical_payload),
+    source_metadata: makeAcceptedDeclarationSourceMetadata(input),
     superseded_at_iso8601: null,
     immutable: true,
+    immutable_fields: phase1AcceptedDeclarationImmutableFields,
     copy_ids: phase1DeclarationCopyIds
   });
 
@@ -375,6 +443,140 @@ export function assertPhase1DeclarationAcceptedBeforeCompile(record) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertAcceptedDeclarationRecordIntegrity
+ * Purpose: Checks that an accepted declaration record still proves its payload hash, source metadata, and immutable record identity.
+ * Inputs: Accepted declaration record produced by createPhase1DeclarationRecord.
+ * Output: true or thrown product declaration error.
+ * Boundary: This is a product/app validity check; it does not persist, call engine code, or compile.
+ * Determinism: Same record returns the same result or error.
+ * Failure: Missing metadata, hash mismatch, version mismatch, or source mismatch fails closed.
+ */
+export function assertAcceptedDeclarationRecordIntegrity(record) {
+  if (!isRecord(record)) {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_integrity_invalid");
+  }
+
+  if (record.accepted_declaration_record !== true) {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_integrity_invalid");
+  }
+
+  if (record.accepted_declaration_record_version !== phase1AcceptedDeclarationRecordVersion) {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_integrity_invalid");
+  }
+
+  if (record.immutable !== true) {
+    throw makeAcceptedDeclarationRecordError("phase1_declaration_not_immutable");
+  }
+
+  if (!Array.isArray(record.immutable_fields)) {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_integrity_invalid");
+  }
+
+  for (const field of phase1AcceptedDeclarationImmutableFields) {
+    if (!record.immutable_fields.includes(field)) {
+      throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_integrity_invalid");
+    }
+  }
+
+  if (!isRecord(record.hash_metadata)) {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_hash_metadata_invalid");
+  }
+
+  if (record.hash_metadata.algorithm !== "sha256") {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_hash_metadata_invalid");
+  }
+
+  if (record.hash_metadata.canonical_json !== "stable_sorted_keys") {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_hash_metadata_invalid");
+  }
+
+  if (record.hash_metadata.payload_hash_field !== "declaration_payload_sha256") {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_hash_metadata_invalid");
+  }
+
+  const recomputed = phase1DeclarationSha256(record.declaration_payload);
+  if (record.declaration_payload_sha256 !== recomputed) {
+    throw makeAcceptedDeclarationRecordError("phase1_declaration_hash_mismatch");
+  }
+
+  if (record.hash_metadata.payload_sha256 !== record.declaration_payload_sha256) {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_hash_metadata_invalid");
+  }
+
+  if (!isRecord(record.source_metadata)) {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_source_metadata_invalid");
+  }
+
+  for (const field of [
+    "declaration_source",
+    "declared_at_iso8601",
+    "declared_by_user_id",
+    "subject_user_id",
+    "accepted_terms_version",
+    "copy_acknowledgement_id"
+  ]) {
+    if (record.source_metadata[field] !== record[field]) {
+      throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_source_metadata_invalid");
+    }
+  }
+
+  return true;
+}
+
+/**
+ * FUNCTION NOTE:
+ * Export: assertAcceptedDeclarationRecordImmutable
+ * Purpose: Compares an original accepted declaration record against a candidate record and refuses immutable field changes.
+ * Inputs: Original accepted declaration record and a candidate record.
+ * Output: true or thrown product declaration error.
+ * Boundary: Allows only separate supersession handling; it does not write, persist, call engine code, or compile.
+ * Determinism: Same pair of records returns the same result or error.
+ * Failure: Any immutable field change fails closed.
+ */
+export function assertAcceptedDeclarationRecordImmutable(originalRecord, candidateRecord) {
+  assertAcceptedDeclarationRecordIntegrity(originalRecord);
+
+  if (!isRecord(candidateRecord)) {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_integrity_invalid");
+  }
+
+  for (const field of phase1AcceptedDeclarationImmutableFields) {
+    if (stablePhase1DeclarationJson(originalRecord[field]) !== stablePhase1DeclarationJson(candidateRecord[field])) {
+      throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_immutable_field_changed");
+    }
+  }
+
+  return true;
+}
+
+/**
+ * FUNCTION NOTE:
+ * Export: supersedeAcceptedDeclarationRecord
+ * Purpose: Creates a superseded copy of a current accepted declaration record using an explicit timestamp.
+ * Inputs: Current accepted declaration record and explicit ISO-8601 supersession timestamp.
+ * Output: Frozen superseded record copy.
+ * Boundary: Supersession preserves payload, hash metadata, source metadata, and immutable identity; it does not persist, call engine code, or compile.
+ * Determinism: Same record and timestamp return the same superseded record.
+ * Failure: Already-superseded or invalid timestamp fails closed.
+ */
+export function supersedeAcceptedDeclarationRecord(record, supersededAtIso8601) {
+  assertAcceptedDeclarationRecordIntegrity(record);
+
+  if (record.superseded_at_iso8601 !== null) {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_already_superseded");
+  }
+
+  if (!isIso8601(supersededAtIso8601)) {
+    throw makeAcceptedDeclarationRecordError("phase1_accepted_declaration_record_superseded_at_invalid");
+  }
+
+  return Object.freeze({
+    ...record,
+    superseded_at_iso8601: supersededAtIso8601
+  });
+}
 /**
  * FUNCTION NOTE:
  * Export: compileIgnoringPhase1DeclarationSurface
