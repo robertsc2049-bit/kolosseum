@@ -142,3 +142,13 @@ S-V1-17 acceptance requires proof that:
 ## Final rule
 
 If an accepted declaration record cannot prove its hash metadata, source metadata, immutability, and current status, it must fail closed.
+
+<!-- S-V1-18:DECLARATION-COMPILE-GATE:START -->
+## S-V1-18 Declaration Compile Gate
+
+The canonical v1 declaration compile-gate boundary is `docs/v1/V1_DECLARATION_COMPILE_GATE.md`.
+
+S-V1-18 requires compile admission to fail closed unless the accepted declaration record is current, valid, immutable, and hash-consistent.
+
+S-V1-18 reuses `assertPhase1DeclarationAcceptedBeforeCompile`; it does not create a second declaration system.
+<!-- S-V1-18:DECLARATION-COMPILE-GATE:END -->

@@ -765,3 +765,15 @@ S-V1-17 must not run engine phases, mutate engine input, mutate engine output, c
 
 Engine output must not depend on source metadata, copy metadata, product declaration state, account state, relationship state, payment state, support state, UI state, or presentation state.
 <!-- S-V1-17:DECLARATION-ACCEPTANCE-RECORD-ENGINE-AUTH-BOUNDARY:END -->
+
+<!-- S-V1-18:DECLARATION-COMPILE-GATE-ENGINE-AUTH-BOUNDARY:START -->
+## S-V1-18 Declaration Compile Gate Engine/Auth Boundary
+
+Declaration compile-gate state is product/app validity state until admitted through existing engine law.
+
+S-V1-18 may call the existing declaration-validity precondition.
+
+S-V1-18 must not make coach notes, payment state, billing state, subscription state, presentation state, UI state, account state, relationship state, or support state part of engine input.
+
+Engine output must not depend on declaration source metadata, product declaration state, coach notes, payment state, billing state, subscription state, presentation state, UI state, account state, relationship state, or support state.
+<!-- S-V1-18:DECLARATION-COMPILE-GATE-ENGINE-AUTH-BOUNDARY:END -->
