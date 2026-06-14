@@ -280,3 +280,22 @@ Acceptance requires proof that:
 
 Acceptance is blocked if S-V1-13 introduces friends, social, team invites, organisation invites, organization invites, gym invites, unit invites, federation invites, enterprise invites, marketplace, coach discovery, messaging, chat, auth provider implementation, database migrations, product UI, payment implementation, registry content, engine behaviour, proof implementation, relationship implementation, or assignment implementation.
 <!-- S-V1-13:ATHLETE-REGISTRATION-ACCEPTANCE:END -->
+
+<!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-ACCEPTANCE:START -->
+## S-V1-14 Coach-Athlete Relationship Acceptance
+
+V1 acceptance requires explicit individual coach-athlete relationship acceptance before coach visibility exists.
+
+Acceptance requires proof that:
+
+- accepted individual coach-athlete relationship allows assigned coach visibility
+- unassigned coach access is refused
+- invited, rejected, revoked, and expired relationship states do not grant coach visibility
+- athlete can view own data
+- athlete cannot view another athlete's data unless explicitly permitted
+- relationship changes do not mutate engine truth
+- relationship scope refuses team, organisation, organization, gym, unit, federation, enterprise, social, friend, marketplace, messaging, and chat scope
+- copy remains factual and does not imply coaching outcome, safety, suitability, readiness, recommendation, optimisation, ranking, medical meaning, operational meaning, external approval, social connection, or team membership
+
+Acceptance is blocked if S-V1-14 introduces teams, organisations, organizations, gyms, units, federations, enterprise relationships, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider implementation, database migrations, product UI, payment implementation, assignment implementation, registry content, engine behaviour, or proof implementation.
+<!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-ACCEPTANCE:END -->

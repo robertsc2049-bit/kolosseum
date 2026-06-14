@@ -272,3 +272,32 @@ Authority order for athlete registration/invitation scope:
 
 No lower-authority document, route, schema, fixture, copy surface, billing state, support state, dormant future role, or implementation note may widen athlete registration/invitation beyond athlete product/auth state.
 <!-- S-V1-13:ATHLETE-REGISTRATION-AUTHORITY:END -->
+
+<!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-AUTHORITY:START -->
+## S-V1-14 Coach-Athlete Relationship Authority
+
+`docs/v1/V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE.md` is the canonical v1 coach-athlete relationship acceptance boundary.
+
+It is subordinate to the active v1 release boundary, account model boundary, coach registration/provisioning boundary, athlete registration/invitation boundary, and app-engine boundary.
+
+It is enforced by:
+
+- `src/coachAthleteRelationshipAcceptance.mjs`
+- `test/s_v1_14_coach_athlete_relationship_acceptance.test.mjs`
+- `ci/guards/s_v1_14_coach_athlete_relationship_acceptance_guard.mjs`
+
+Authority order for coach-athlete relationship scope:
+
+1. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+2. `docs/v1/V1_RELEASE_BOUNDARY.md`
+3. `docs/v1/V1_ACCOUNT_MODEL_BOUNDARY.md`
+4. `docs/v1/V1_COACH_REGISTRATION_PROVISIONING.md`
+5. `docs/v1/V1_ATHLETE_REGISTRATION_INVITATION.md`
+6. `docs/v1/V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE.md`
+7. `docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md`
+8. `docs/v1/V1_ACCEPTANCE_GATE.md`
+9. `docs/v1/V1_NOT_IN_SCOPE.md`
+10. executable tests and CI guards
+
+No lower-authority document, route, schema, fixture, copy surface, billing state, support state, dormant future role, or implementation note may widen coach-athlete relationship scope beyond explicit individual assigned-only permission state.
+<!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-AUTHORITY:END -->
