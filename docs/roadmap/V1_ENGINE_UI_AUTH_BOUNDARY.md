@@ -739,3 +739,17 @@ Engine output must not depend on permission guard result, permission failure rea
 
 S-V1-15 does not implement engine behaviour, registry content, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider code, product UI, database migrations, payment implementation, assignment implementation, proof implementation, or server surface rewiring.
 <!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS-ENGINE-AUTH-BOUNDARY:END -->
+
+<!-- S-V1-16:PHASE-1-DECLARATION-SURFACE-ENGINE-AUTH-BOUNDARY:START -->
+## S-V1-16 Phase 1 Declaration Surface Engine/Auth Boundary
+
+Phase 1 declaration surface state is factual product/app state until admitted through existing engine law.
+
+The declaration surface records explicit user-declared facts and acknowledgements.
+
+The declaration surface does not assess, diagnose, clear, score, recommend, rank, or infer.
+
+Engine output must not depend on declaration form copy, copy acknowledgement id, product declaration state, account state, relationship state, permission guard result, payment state, support state, UI state, or presentation state.
+
+S-V1-16 does not implement engine behaviour, registry content, database migrations, auth provider code, product UI, payment implementation, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, assignment implementation, or proof implementation.
+<!-- S-V1-16:PHASE-1-DECLARATION-SURFACE-ENGINE-AUTH-BOUNDARY:END -->

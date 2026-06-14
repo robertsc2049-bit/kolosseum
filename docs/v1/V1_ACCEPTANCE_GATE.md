@@ -320,3 +320,24 @@ Acceptance requires proof that:
 
 Acceptance is blocked if S-V1-15 introduces engine behaviour, registry content, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider implementation, database migrations, product UI, payment implementation, assignment implementation, proof implementation, or server surface rewiring.
 <!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS:END -->
+
+<!-- S-V1-16:PHASE-1-DECLARATION-SURFACE:START -->
+## S-V1-16 Phase 1 Declaration Surface Acceptance
+
+V1 acceptance requires a factual user-declared Phase 1 declaration surface before compile admission.
+
+Acceptance requires proof that:
+
+- valid declaration input is accepted
+- missing required top-level fields are rejected
+- missing required payload fields are rejected
+- unknown top-level fields are rejected
+- unknown payload fields are rejected
+- false required acknowledgements are rejected
+- version mismatch is rejected
+- copy remains factual and claim-safe
+- declaration state does not mutate engine truth
+- the existing Phase 1 acceptance record suite remains green
+
+Acceptance is blocked if S-V1-16 implies medical advice, diagnosis, medical assessment, safety clearance, suitability clearance, readiness scoring, risk scoring, recommendation, training outcome, external approval, engine behaviour, registry content, database migrations, auth provider implementation, product UI, payment implementation, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, assignment implementation, or proof implementation.
+<!-- S-V1-16:PHASE-1-DECLARATION-SURFACE:END -->

@@ -331,3 +331,35 @@ Authority order for relationship permission guard scope:
 
 No lower-authority document, route, schema, fixture, copy surface, billing state, support state, dormant future role, or implementation note may widen relationship permission guards beyond fail-closed product/auth permission state.
 <!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS-AUTHORITY:END -->
+
+<!-- S-V1-16:PHASE-1-DECLARATION-SURFACE-AUTHORITY:START -->
+## S-V1-16 Phase 1 Declaration Surface Authority
+
+`docs/v1/V1_PHASE_1_DECLARATION_SURFACE.md` is the canonical v1 Phase 1 declaration surface boundary.
+
+It is subordinate to the active v1 release boundary, account model boundary, coach registration/provisioning boundary, athlete registration/invitation boundary, coach-athlete relationship acceptance boundary, relationship permission guard boundary, and app-engine boundary.
+
+It is enforced by:
+
+- `src/phase1DeclarationSurface.mjs`
+- `test/s_v1_16_phase_1_declaration_surface.test.mjs`
+- `ci/guards/s_v1_16_phase_1_declaration_surface_guard.mjs`
+- `ci/scripts/run_phase1_acceptance_record_tests.mjs`
+
+Authority order for Phase 1 declaration surface scope:
+
+1. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+2. `docs/v1/V1_RELEASE_BOUNDARY.md`
+3. `docs/v1/V1_ACCOUNT_MODEL_BOUNDARY.md`
+4. `docs/v1/V1_COACH_REGISTRATION_PROVISIONING.md`
+5. `docs/v1/V1_ATHLETE_REGISTRATION_INVITATION.md`
+6. `docs/v1/V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE.md`
+7. `docs/v1/V1_RELATIONSHIP_PERMISSION_GUARDS.md`
+8. `docs/v1/V1_PHASE_1_DECLARATION_SURFACE.md`
+9. `docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md`
+10. `docs/v1/V1_ACCEPTANCE_GATE.md`
+11. `docs/v1/V1_NOT_IN_SCOPE.md`
+12. executable tests and CI guards
+
+No lower-authority document, route, schema, fixture, copy surface, account state, relationship state, support state, billing state, or implementation note may widen the Phase 1 declaration surface into assessment, advice, clearance, scoring, recommendation, engine behaviour, registry content, assignment authority, or proof authority.
+<!-- S-V1-16:PHASE-1-DECLARATION-SURFACE-AUTHORITY:END -->

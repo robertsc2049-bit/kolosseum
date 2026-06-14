@@ -294,3 +294,19 @@ The guards are reusable by coach notes, factual artefact viewing, live session s
 
 S-V1-15 does not activate engine behaviour, registry content, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider implementation, database migrations, product UI, payment implementation, assignment implementation, proof implementation, or server surface rewiring.
 <!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS:END -->
+
+<!-- S-V1-16:PHASE-1-DECLARATION-SURFACE:START -->
+## S-V1-16 Phase 1 Declaration Surface
+
+The canonical v1 Phase 1 declaration surface boundary is `docs/v1/V1_PHASE_1_DECLARATION_SURFACE.md`.
+
+V1 permits a factual user-declared Phase 1 declaration record before compile admission.
+
+Unknown top-level fields and unknown declaration payload fields fail closed.
+
+Declaration copy must not imply medical advice, diagnosis, medical assessment, safety clearance, suitability clearance, readiness scoring, risk scoring, recommendation, training outcome, operational meaning, or external approval.
+
+Permission, account, relationship, and declaration state remain product/app state unless explicitly admitted as canonical engine input by existing engine law.
+
+S-V1-16 does not activate medical assessment, diagnosis, safety clearance, suitability clearance, readiness scoring, engine behaviour, registry content, database migrations, auth provider implementation, product UI, payment implementation, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, assignment implementation, or proof implementation.
+<!-- S-V1-16:PHASE-1-DECLARATION-SURFACE:END -->

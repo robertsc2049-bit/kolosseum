@@ -395,3 +395,42 @@ S-V1-15 must not activate:
 - proof implementation
 - server surface rewiring
 <!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS-NON-SCOPE:END -->
+
+<!-- S-V1-16:PHASE-1-DECLARATION-SURFACE-NON-SCOPE:START -->
+## S-V1-16 Phase 1 Declaration Surface Non-Scope
+
+S-V1-16 may create a factual user-declared Phase 1 declaration surface only.
+
+S-V1-16 must not activate:
+
+- medical assessment
+- diagnosis
+- medical advice
+- clinical advice
+- safety clearance
+- suitability clearance
+- readiness scoring
+- readiness labels
+- risk scoring
+- risk labels
+- return-to-play decision
+- fit-for-duty decision
+- recommendation
+- engine behaviour
+- registry content
+- programme assignment
+- substitution
+- proof implementation
+- database migrations
+- auth provider implementation
+- product UI
+- payment implementation
+- broad RBAC
+- organisation roles
+- organization roles
+- team roles
+- gym roles
+- unit roles
+- federation roles
+- enterprise roles
+<!-- S-V1-16:PHASE-1-DECLARATION-SURFACE-NON-SCOPE:END -->
