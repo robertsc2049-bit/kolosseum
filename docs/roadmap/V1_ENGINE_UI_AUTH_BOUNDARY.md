@@ -777,3 +777,15 @@ S-V1-18 must not make coach notes, payment state, billing state, subscription st
 
 Engine output must not depend on declaration source metadata, product declaration state, coach notes, payment state, billing state, subscription state, presentation state, UI state, account state, relationship state, or support state.
 <!-- S-V1-18:DECLARATION-COMPILE-GATE-ENGINE-AUTH-BOUNDARY:END -->
+
+<!-- S-V1-19:ONBOARDING-START-GATE-ENGINE-AUTH-BOUNDARY:START -->
+## S-V1-19 Onboarding Start Gate Engine/Auth Boundary
+
+Onboarding start-gate state is product/app validity state only.
+
+S-V1-19 may check factual account state, accepted individual relationship state, and declaration compile-gate state.
+
+S-V1-19 must not make onboarding state, account state, relationship state, declaration source metadata, coach notes, payment state, billing state, subscription state, presentation state, UI state, support state, or product blocked reasons part of engine input.
+
+Engine output must not depend on onboarding state or blocked reasons.
+<!-- S-V1-19:ONBOARDING-START-GATE-ENGINE-AUTH-BOUNDARY:END -->

@@ -412,3 +412,27 @@ It is enforced by:
 
 No lower-authority file may widen S-V1-18 into a second declaration system, engine output change, real compile route mutation, persistence implementation, UI, coach notes, payment, billing, assignment, proof implementation, or future organisation/team/gym/federation surface.
 <!-- S-V1-18:DECLARATION-COMPILE-GATE-AUTHORITY:END -->
+
+<!-- S-V1-19:ONBOARDING-START-GATE-AUTHORITY:START -->
+## S-V1-19 Onboarding Start Gate Authority
+
+`docs/v1/V1_ONBOARDING_START_GATE.md` is the canonical v1 onboarding start-gate boundary.
+
+It is subordinate to:
+
+1. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+2. `docs/v1/V1_RELEASE_BOUNDARY.md`
+3. `docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md`
+4. `docs/v1/V1_ACCEPTANCE_GATE.md`
+5. `docs/v1/V1_NOT_IN_SCOPE.md`
+6. `docs/v1/V1_DOC_AUTHORITY_MAP.md`
+7. `docs/v1/V1_DECLARATION_COMPILE_GATE.md`
+
+It is enforced by:
+
+- `src/onboardingStartGate.mjs`
+- `test/s_v1_19_onboarding_start_gate.test.mjs`
+- `ci/guards/s_v1_19_onboarding_start_gate_guard.mjs`
+
+No lower-authority file may widen S-V1-19 into recommendations, coaching advice, medical clearance, team onboarding, persistence, UI, assignment, substitution, proof implementation, real compile route mutation, or engine mutation.
+<!-- S-V1-19:ONBOARDING-START-GATE-AUTHORITY:END -->

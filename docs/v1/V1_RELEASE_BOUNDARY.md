@@ -334,3 +334,17 @@ S-V1-18 may add a narrow compile-gate wrapper around the existing declaration va
 
 S-V1-18 does not activate engine output changes, real compile route mutation, database persistence, UI, coach notes, payment implementation, billing implementation, registry content, programme assignment, substitution, proof implementation, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, or enterprise roles.
 <!-- S-V1-18:DECLARATION-COMPILE-GATE:END -->
+
+<!-- S-V1-19:ONBOARDING-START-GATE:START -->
+## S-V1-19 Onboarding Start Gate
+
+The canonical v1 onboarding start-gate boundary is `docs/v1/V1_ONBOARDING_START_GATE.md`.
+
+V1 requires athletes to be blocked from executable session flow unless required factual account, relationship, and declaration state exists.
+
+S-V1-19 extends the existing onboarding trigger contract and reuses athlete account, coach-athlete relationship, relationship permission, and declaration compile-gate surfaces.
+
+S-V1-19 emits factual blocked reason ids only.
+
+S-V1-19 does not activate recommendations, coaching advice, medical clearance, medical assessment, diagnosis, team onboarding, organisation onboarding, organization onboarding, unit onboarding, federation onboarding, enterprise onboarding, UI, persistence, assignment, substitution, proof implementation, real compile route mutation, or engine phase mutation.
+<!-- S-V1-19:ONBOARDING-START-GATE:END -->

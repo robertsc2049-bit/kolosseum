@@ -490,3 +490,32 @@ S-V1-18 must not activate:
 - federation roles
 - enterprise roles
 <!-- S-V1-18:DECLARATION-COMPILE-GATE-NON-SCOPE:END -->
+
+<!-- S-V1-19:ONBOARDING-START-GATE-NON-SCOPE:START -->
+## S-V1-19 Onboarding Start Gate Non-Scope
+
+S-V1-19 may bind executable-session flow entry to factual account, relationship, and declaration state only.
+
+S-V1-19 must not activate:
+
+- recommendations
+- coaching advice
+- medical clearance
+- medical assessment
+- diagnosis
+- safety judgement
+- suitability judgement
+- team onboarding
+- organisation onboarding
+- organization onboarding
+- unit onboarding
+- federation onboarding
+- enterprise onboarding
+- UI
+- persistence
+- assignment
+- substitution
+- proof implementation
+- real compile route mutation
+- engine phase mutation
+<!-- S-V1-19:ONBOARDING-START-GATE-NON-SCOPE:END -->
