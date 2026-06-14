@@ -357,3 +357,41 @@ S-V1-14 must not activate:
 - engine behaviour
 - proof implementation
 <!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-NON-SCOPE:END -->
+
+<!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS-NON-SCOPE:START -->
+## S-V1-15 Relationship Permission Guards Non-Scope
+
+S-V1-15 may create reusable product/auth relationship permission guard functions only.
+
+S-V1-15 must not activate:
+
+- engine behaviour
+- registry content
+- broad RBAC
+- organisation roles
+- organization roles
+- team roles
+- gym roles
+- unit roles
+- federation roles
+- enterprise roles
+- friends
+- social connections
+- social graph
+- messaging
+- chat
+- marketplace
+- coach discovery
+- coach directory
+- auth provider implementation
+- password implementation
+- session implementation
+- database migrations
+- product UI
+- payment implementation
+- enterprise billing
+- assignment implementation
+- programme assignment authority
+- proof implementation
+- server surface rewiring
+<!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS-NON-SCOPE:END -->
