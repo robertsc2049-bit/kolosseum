@@ -381,3 +381,24 @@ Acceptance requires proof that:
 
 Acceptance is blocked if S-V1-18 makes coach notes, payment state, billing state, presentation state, UI state, account state, relationship state, or support state part of engine input.
 <!-- S-V1-18:DECLARATION-COMPILE-GATE:END -->
+
+<!-- S-V1-19:ONBOARDING-START-GATE:START -->
+## S-V1-19 Onboarding Start Gate Acceptance
+
+V1 acceptance requires executable session flow to be blocked unless required factual onboarding state exists.
+
+Acceptance requires proof that:
+
+- missing onboarding trigger blocks with factual reason
+- missing athlete account blocks with factual reason
+- inactive athlete account blocks with factual reason
+- missing relationship blocks with factual reason
+- non-accepted relationship blocks with factual reason
+- missing declaration blocks with factual reason
+- invalid declaration compile gate blocks with factual reason
+- valid path is allowed
+- onboarding state cannot mutate engine-facing probe output
+- S-V1-13 through S-V1-18 proofs remain green
+
+Acceptance is blocked if S-V1-19 emits advice, recommendation, medical clearance, safety judgement, suitability judgement, team onboarding, or engine mutation.
+<!-- S-V1-19:ONBOARDING-START-GATE:END -->

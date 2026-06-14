@@ -1,0 +1,58 @@
+{
+  "fixture_id": "s_v1_19_onboarding_start_gate_negative",
+  "slice": "S-V1-19",
+  "schema_version": "1.0.0",
+  "failure_token": "CI_V1_ONBOARDING_START_GATE",
+  "allowed_blocked_reasons": [
+    "onboarding_start_trigger_missing",
+    "onboarding_start_trigger_invalid",
+    "athlete_account_missing",
+    "athlete_account_inactive",
+    "coach_athlete_relationship_missing",
+    "coach_athlete_relationship_not_accepted",
+    "phase1_declaration_missing",
+    "phase1_declaration_not_current_valid"
+  ],
+  "cases": [
+    {
+      "case_id": "missing_onboarding_trigger_blocks",
+      "expected_ok": false,
+      "blocked_reasons": ["onboarding_start_trigger_missing"]
+    },
+    {
+      "case_id": "missing_athlete_account_blocks",
+      "expected_ok": false,
+      "blocked_reasons": ["athlete_account_missing"]
+    },
+    {
+      "case_id": "inactive_athlete_account_blocks",
+      "expected_ok": false,
+      "blocked_reasons": ["athlete_account_inactive"]
+    },
+    {
+      "case_id": "missing_relationship_blocks",
+      "expected_ok": false,
+      "blocked_reasons": ["coach_athlete_relationship_missing"]
+    },
+    {
+      "case_id": "non_accepted_relationship_blocks",
+      "expected_ok": false,
+      "blocked_reasons": ["coach_athlete_relationship_not_accepted"]
+    },
+    {
+      "case_id": "missing_declaration_blocks",
+      "expected_ok": false,
+      "blocked_reasons": ["phase1_declaration_missing"]
+    },
+    {
+      "case_id": "invalid_declaration_blocks",
+      "expected_ok": false,
+      "blocked_reasons": ["phase1_declaration_not_current_valid"]
+    },
+    {
+      "case_id": "valid_path_allowed",
+      "expected_ok": true,
+      "blocked_reasons": []
+    }
+  ]
+}
