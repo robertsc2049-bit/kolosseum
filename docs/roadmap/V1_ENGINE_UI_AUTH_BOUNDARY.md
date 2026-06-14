@@ -725,3 +725,17 @@ Engine output must not depend on relationship_id, coach_user_id, athlete_user_id
 
 S-V1-14 does not implement teams, organisations, organizations, gyms, units, federations, enterprise relationships, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider code, account routes, product UI, database migrations, payment implementation, assignment implementation, or engine behaviour.
 <!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-ENGINE-AUTH-BOUNDARY:END -->
+
+<!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS-ENGINE-AUTH-BOUNDARY:START -->
+## S-V1-15 Relationship Permission Guards Engine/Auth Boundary
+
+Relationship permission guard state is product/auth permission state only.
+
+Permission failure is product/auth failure, not engine decision.
+
+Permission guard decisions do not mutate engine truth.
+
+Engine output must not depend on permission guard result, permission failure reason, actor identity, coach identity, athlete identity, relationship id, relationship state, relationship scope, assigned-only visibility state, surface id, or product/auth failure state.
+
+S-V1-15 does not implement engine behaviour, registry content, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider code, product UI, database migrations, payment implementation, assignment implementation, proof implementation, or server surface rewiring.
+<!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS-ENGINE-AUTH-BOUNDARY:END -->

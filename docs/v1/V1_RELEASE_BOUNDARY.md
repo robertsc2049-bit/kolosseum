@@ -276,3 +276,21 @@ Accepted athlete invitation is not enough by itself. Accepted relationship state
 
 S-V1-14 does not activate teams, organisations, organizations, gyms, units, federations, enterprise relationships, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider implementation, database migrations, product UI, payment implementation, assignment implementation, registry content, engine behaviour, or proof implementation.
 <!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-ACCEPTANCE:END -->
+
+<!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS:START -->
+## S-V1-15 Relationship Permission Guards
+
+The canonical v1 relationship permission guard boundary is `docs/v1/V1_RELATIONSHIP_PERMISSION_GUARDS.md`.
+
+V1 permits reusable fail-closed product/auth permission guard functions for coach-athlete access.
+
+The active guard functions include `assertCoachCanViewAthlete`, `assertAthleteCanViewOwnData`, and `assertCoachAthleteAccess`.
+
+Permission failure is product/auth failure, not engine decision.
+
+Permission guard decisions do not mutate engine truth.
+
+The guards are reusable by coach notes, factual artefact viewing, live session status, and factual history surfaces.
+
+S-V1-15 does not activate engine behaviour, registry content, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider implementation, database migrations, product UI, payment implementation, assignment implementation, proof implementation, or server surface rewiring.
+<!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS:END -->

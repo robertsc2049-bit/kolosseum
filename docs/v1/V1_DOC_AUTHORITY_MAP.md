@@ -301,3 +301,33 @@ Authority order for coach-athlete relationship scope:
 
 No lower-authority document, route, schema, fixture, copy surface, billing state, support state, dormant future role, or implementation note may widen coach-athlete relationship scope beyond explicit individual assigned-only permission state.
 <!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-AUTHORITY:END -->
+
+<!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS-AUTHORITY:START -->
+## S-V1-15 Relationship Permission Guards Authority
+
+`docs/v1/V1_RELATIONSHIP_PERMISSION_GUARDS.md` is the canonical v1 relationship permission guard boundary.
+
+It is subordinate to the active v1 release boundary, account model boundary, coach registration/provisioning boundary, athlete registration/invitation boundary, coach-athlete relationship acceptance boundary, and app-engine boundary.
+
+It is enforced by:
+
+- `src/relationshipPermissionGuards.mjs`
+- `test/s_v1_15_relationship_permission_guards.test.mjs`
+- `ci/guards/s_v1_15_relationship_permission_guards_guard.mjs`
+
+Authority order for relationship permission guard scope:
+
+1. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+2. `docs/v1/V1_RELEASE_BOUNDARY.md`
+3. `docs/v1/V1_ACCOUNT_MODEL_BOUNDARY.md`
+4. `docs/v1/V1_COACH_REGISTRATION_PROVISIONING.md`
+5. `docs/v1/V1_ATHLETE_REGISTRATION_INVITATION.md`
+6. `docs/v1/V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE.md`
+7. `docs/v1/V1_RELATIONSHIP_PERMISSION_GUARDS.md`
+8. `docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md`
+9. `docs/v1/V1_ACCEPTANCE_GATE.md`
+10. `docs/v1/V1_NOT_IN_SCOPE.md`
+11. executable tests and CI guards
+
+No lower-authority document, route, schema, fixture, copy surface, billing state, support state, dormant future role, or implementation note may widen relationship permission guards beyond fail-closed product/auth permission state.
+<!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS-AUTHORITY:END -->

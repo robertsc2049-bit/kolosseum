@@ -299,3 +299,24 @@ Acceptance requires proof that:
 
 Acceptance is blocked if S-V1-14 introduces teams, organisations, organizations, gyms, units, federations, enterprise relationships, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider implementation, database migrations, product UI, payment implementation, assignment implementation, registry content, engine behaviour, or proof implementation.
 <!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-ACCEPTANCE:END -->
+
+<!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS:START -->
+## S-V1-15 Relationship Permission Guards Acceptance
+
+V1 acceptance requires reusable relationship permission guards to fail closed and remain product/auth permission state only.
+
+Acceptance requires proof that:
+
+- assertCoachCanViewAthlete allows assigned coach access only
+- assertCoachCanViewAthlete rejects unassigned coach access
+- assertCoachCanViewAthlete rejects invited, rejected, revoked, expired, and non-individual relationship scope
+- assertAthleteCanViewOwnData allows athlete own-data access
+- assertAthleteCanViewOwnData rejects another athlete's data
+- assertCoachAthleteAccess routes coach and athlete actors correctly
+- permission failure is product/auth failure, not engine decision
+- permission guard state does not mutate engine truth
+- permission guard functions are reusable by coach notes, factual artefact viewing, live session status, and factual history surface ids
+- broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, social connections, messaging, chat, marketplace, and coach discovery are refused
+
+Acceptance is blocked if S-V1-15 introduces engine behaviour, registry content, broad RBAC, organisation roles, organization roles, team roles, gym roles, unit roles, federation roles, enterprise roles, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider implementation, database migrations, product UI, payment implementation, assignment implementation, proof implementation, or server surface rewiring.
+<!-- S-V1-15:RELATIONSHIP-PERMISSION-GUARDS:END -->
