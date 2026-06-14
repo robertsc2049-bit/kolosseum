@@ -1,0 +1,154 @@
+{
+  "fixture_id": "s_v1_14_relationship_scope_leakage",
+  "slice": "S-V1-14",
+  "schema_version": "1.0.0",
+  "cases": [
+    {
+      "case_id": "accepted_individual_relationship_allowed",
+      "expected_ok": true,
+      "input": {
+        "relationship_id": "relationship_001",
+        "coach_user_id": "coach_001",
+        "athlete_user_id": "athlete_001",
+        "relationship_state": "accepted",
+        "relationship_scope": "individual_coach_athlete",
+        "accepted_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "created_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "updated_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "revoked_at_iso8601": null,
+        "expires_at_iso8601": null
+      }
+    },
+    {
+      "case_id": "assigned_coach_visibility_allowed",
+      "case_type": "access",
+      "expected_ok": true,
+      "actor": {
+        "actor_type": "coach",
+        "user_id": "coach_001"
+      },
+      "target_athlete_user_id": "athlete_001"
+    },
+    {
+      "case_id": "unassigned_coach_visibility_rejected",
+      "case_type": "access",
+      "expected_ok": false,
+      "expected_token": "CI_V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE",
+      "actor": {
+        "actor_type": "coach",
+        "user_id": "coach_002"
+      },
+      "target_athlete_user_id": "athlete_001"
+    },
+    {
+      "case_id": "athlete_own_data_allowed",
+      "case_type": "access",
+      "expected_ok": true,
+      "actor": {
+        "actor_type": "athlete",
+        "user_id": "athlete_001"
+      },
+      "target_athlete_user_id": "athlete_001"
+    },
+    {
+      "case_id": "athlete_other_data_rejected",
+      "case_type": "access",
+      "expected_ok": false,
+      "expected_token": "CI_V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE",
+      "actor": {
+        "actor_type": "athlete",
+        "user_id": "athlete_001"
+      },
+      "target_athlete_user_id": "athlete_002"
+    },
+    {
+      "case_id": "team_scope_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE",
+      "input": {
+        "relationship_id": "relationship_001",
+        "coach_user_id": "coach_001",
+        "athlete_user_id": "athlete_001",
+        "relationship_state": "accepted",
+        "relationship_scope": "team_relationship",
+        "accepted_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "created_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "updated_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "revoked_at_iso8601": null,
+        "expires_at_iso8601": null
+      }
+    },
+    {
+      "case_id": "organisation_scope_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE",
+      "input": {
+        "relationship_id": "relationship_001",
+        "coach_user_id": "coach_001",
+        "athlete_user_id": "athlete_001",
+        "relationship_state": "accepted",
+        "relationship_scope": "organisation_relationship",
+        "accepted_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "created_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "updated_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "revoked_at_iso8601": null,
+        "expires_at_iso8601": null
+      }
+    },
+    {
+      "case_id": "social_scope_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE",
+      "input": {
+        "relationship_id": "relationship_001",
+        "coach_user_id": "coach_001",
+        "athlete_user_id": "athlete_001",
+        "relationship_state": "accepted",
+        "relationship_scope": "social_connection",
+        "accepted_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "created_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "updated_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "revoked_at_iso8601": null,
+        "expires_at_iso8601": null
+      }
+    },
+    {
+      "case_id": "assignment_authority_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE",
+      "input": {
+        "relationship_id": "relationship_001",
+        "coach_user_id": "coach_001",
+        "athlete_user_id": "athlete_001",
+        "relationship_state": "accepted",
+        "relationship_scope": "individual_coach_athlete",
+        "accepted_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "created_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "updated_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "revoked_at_iso8601": null,
+        "expires_at_iso8601": null,
+        "assignment_authority_granted": true
+      }
+    },
+    {
+      "case_id": "engine_input_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE",
+      "input": {
+        "relationship_id": "relationship_001",
+        "coach_user_id": "coach_001",
+        "athlete_user_id": "athlete_001",
+        "relationship_state": "accepted",
+        "relationship_scope": "individual_coach_athlete",
+        "accepted_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "created_at_iso8601": "2026-06-13T12:00:00.000Z",
+        "updated_at_iso8601": "2026-06-13T13:00:00.000Z",
+        "revoked_at_iso8601": null,
+        "expires_at_iso8601": null,
+        "engine_input": {
+          "relationship_id": "relationship_001"
+        }
+      }
+    }
+  ]
+}

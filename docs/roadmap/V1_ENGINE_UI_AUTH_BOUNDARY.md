@@ -709,3 +709,19 @@ Engine output must not depend on athlete identity, athlete email, athlete displa
 
 S-V1-13 does not implement friends, social, team invites, organisation invites, organization invites, gym invites, unit invites, federation invites, enterprise invites, marketplace, coach discovery, messaging, chat, auth provider code, account routes, product UI, database migrations, payment implementation, or engine behaviour.
 <!-- S-V1-13:ATHLETE-REGISTRATION-ENGINE-AUTH-BOUNDARY:END -->
+
+<!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-ENGINE-AUTH-BOUNDARY:START -->
+## S-V1-14 Coach-Athlete Relationship Engine/Auth Boundary
+
+Coach-athlete relationship acceptance is product permission state only.
+
+Coach can view assigned athletes only.
+
+Athlete can view own data only unless explicitly permitted.
+
+Relationship changes do not mutate engine truth.
+
+Engine output must not depend on relationship_id, coach_user_id, athlete_user_id, relationship_state, relationship_scope, accepted_at_iso8601, revoked_at_iso8601, expires_at_iso8601, assigned-only visibility state, or access decision state.
+
+S-V1-14 does not implement teams, organisations, organizations, gyms, units, federations, enterprise relationships, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider code, account routes, product UI, database migrations, payment implementation, assignment implementation, or engine behaviour.
+<!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-ENGINE-AUTH-BOUNDARY:END -->

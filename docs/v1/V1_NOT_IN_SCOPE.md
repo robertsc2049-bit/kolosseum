@@ -321,3 +321,39 @@ S-V1-13 must not activate:
 - relationship implementation
 - assignment implementation
 <!-- S-V1-13:ATHLETE-REGISTRATION-NON-SCOPE:END -->
+
+<!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-NON-SCOPE:START -->
+## S-V1-14 Coach-Athlete Relationship Non-Scope
+
+S-V1-14 may create explicit individual coach-athlete relationship permission state only.
+
+S-V1-14 must not activate:
+
+- teams
+- organisations
+- organizations
+- gyms
+- units
+- federations
+- enterprise relationships
+- friends
+- social connections
+- social graph
+- messaging
+- chat
+- marketplace
+- coach discovery
+- coach directory
+- auth provider implementation
+- password implementation
+- session implementation
+- database migrations
+- product UI
+- payment implementation
+- enterprise billing
+- assignment implementation
+- programme assignment authority
+- registry content
+- engine behaviour
+- proof implementation
+<!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-NON-SCOPE:END -->

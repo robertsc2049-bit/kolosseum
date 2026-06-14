@@ -258,3 +258,21 @@ Accepted athlete invitations in S-V1-13 do not create coach-athlete relationship
 
 S-V1-13 does not activate friends, social, team invites, organisation invites, organization invites, gym invites, unit invites, federation invites, enterprise invites, marketplace, coach discovery, messaging, chat, auth provider implementation, database migrations, product UI, payment implementation, enterprise account management, registry content, engine behaviour, proof implementation, relationship implementation, or assignment implementation.
 <!-- S-V1-13:ATHLETE-REGISTRATION-INVITATION:END -->
+
+<!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-ACCEPTANCE:START -->
+## S-V1-14 Coach-Athlete Relationship Acceptance
+
+The canonical v1 coach-athlete relationship acceptance boundary is `docs/v1/V1_COACH_ATHLETE_RELATIONSHIP_ACCEPTANCE.md`.
+
+V1 permits an explicit individual coach-athlete relationship as product permission state only.
+
+Coach can view assigned athletes only.
+
+Athlete can view own data only unless explicitly permitted.
+
+Relationship changes do not mutate engine truth.
+
+Accepted athlete invitation is not enough by itself. Accepted relationship state is required before coach visibility exists.
+
+S-V1-14 does not activate teams, organisations, organizations, gyms, units, federations, enterprise relationships, friends, social connections, messaging, chat, marketplace, coach discovery, auth provider implementation, database migrations, product UI, payment implementation, assignment implementation, registry content, engine behaviour, or proof implementation.
+<!-- S-V1-14:COACH-ATHLETE-RELATIONSHIP-ACCEPTANCE:END -->
