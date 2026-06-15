@@ -1,0 +1,369 @@
+{
+  "slice_id": "S-V1-21",
+  "fixture_id": "s_v1_21_missing_required_entry_negative",
+  "purpose": "Prove the exercise registry contract fails closed when locked v1 activity coverage is missing.",
+  "locked_activity_ids": [
+    "powerlifting",
+    "general_strength",
+    "rugby_union"
+  ],
+  "expected_failure_code": "v1_exercise_registry_contract_required_coverage_missing",
+  "missing_case": {
+    "activity_id": "rugby_union",
+    "movement_pattern_id": "jump_land"
+  },
+  "records": [
+    {
+      "exercise_id": "pl_squat_competition",
+      "display_label": "Competition squat",
+      "movement_pattern_id": "squat",
+      "primary_activity_applicability": "powerlifting",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "equipment_requirements": [
+        "barbell",
+        "rack",
+        "plates"
+      ],
+      "equipment_alternatives": [],
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "knee",
+        "hip",
+        "trunk"
+      ],
+      "stimulus_intent": "lower_body_strength",
+      "instruction_short_text": "Record planned squat work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "pl_deadlift_competition",
+      "display_label": "Competition deadlift",
+      "movement_pattern_id": "hinge",
+      "primary_activity_applicability": "powerlifting",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "equipment_requirements": [
+        "barbell",
+        "plates"
+      ],
+      "equipment_alternatives": [
+        "trap_bar"
+      ],
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "trunk"
+      ],
+      "stimulus_intent": "posterior_chain_strength",
+      "instruction_short_text": "Record planned deadlift work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "pl_bench_competition",
+      "display_label": "Competition bench press",
+      "movement_pattern_id": "horizontal_push",
+      "primary_activity_applicability": "powerlifting",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "equipment_requirements": [
+        "barbell",
+        "bench",
+        "plates"
+      ],
+      "equipment_alternatives": [
+        "dumbbell"
+      ],
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "stimulus_intent": "upper_body_pressing_strength",
+      "instruction_short_text": "Record planned bench work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "row_horizontal_pull",
+      "display_label": "Horizontal row",
+      "movement_pattern_id": "horizontal_pull",
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ],
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [
+        "cable_machine",
+        "resistance_band"
+      ],
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "stimulus_intent": "upper_body_pull_strength",
+      "instruction_short_text": "Record planned row work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "brace_plank",
+      "display_label": "Plank",
+      "movement_pattern_id": "brace",
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ],
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "difficulty_tier": "introductory",
+      "joint_stress_tags": [
+        "trunk"
+      ],
+      "stimulus_intent": "trunk_bracing",
+      "instruction_short_text": "Record planned bracing work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "vertical_press",
+      "display_label": "Vertical press",
+      "movement_pattern_id": "vertical_push",
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ],
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [
+        "barbell",
+        "kettlebell"
+      ],
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "stimulus_intent": "upper_body_pressing_strength",
+      "instruction_short_text": "Record planned vertical press work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "vertical_pull",
+      "display_label": "Vertical pull",
+      "movement_pattern_id": "vertical_pull",
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ],
+      "equipment_requirements": [
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [
+        "cable_machine",
+        "resistance_band"
+      ],
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "stimulus_intent": "upper_body_pull_strength",
+      "instruction_short_text": "Record planned vertical pull work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "loaded_carry",
+      "display_label": "Loaded carry",
+      "movement_pattern_id": "carry",
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ],
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [
+        "kettlebell",
+        "trap_bar"
+      ],
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "grip",
+        "trunk"
+      ],
+      "stimulus_intent": "loaded_carry_capacity",
+      "instruction_short_text": "Record planned carry work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "split_squat",
+      "display_label": "Split squat",
+      "movement_pattern_id": "lunge_split_stance",
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ],
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [
+        "bodyweight",
+        "kettlebell"
+      ],
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "knee",
+        "hip"
+      ],
+      "stimulus_intent": "single_leg_strength",
+      "instruction_short_text": "Record planned split stance work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "acceleration_drill",
+      "display_label": "Acceleration support drill",
+      "movement_pattern_id": "sprint_acceleration",
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [],
+      "equipment_requirements": [
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "ankle",
+        "knee",
+        "hip"
+      ],
+      "stimulus_intent": "acceleration_support",
+      "instruction_short_text": "Record planned acceleration support work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "deceleration_cod_drill",
+      "display_label": "Deceleration and change of direction support drill",
+      "movement_pattern_id": "deceleration_change_of_direction",
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [],
+      "equipment_requirements": [
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "ankle",
+        "knee",
+        "hip"
+      ],
+      "stimulus_intent": "deceleration_support",
+      "instruction_short_text": "Record planned deceleration support work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    },
+    {
+      "exercise_id": "conditioning_general_option",
+      "display_label": "General conditioning option",
+      "movement_pattern_id": "conditioning_general",
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength"
+      ],
+      "equipment_requirements": [
+        "cardio_machine_general"
+      ],
+      "equipment_alternatives": [
+        "open_floor_space"
+      ],
+      "difficulty_tier": "introductory",
+      "joint_stress_tags": [
+        "general"
+      ],
+      "stimulus_intent": "conditioning_general",
+      "instruction_short_text": "Record planned conditioning work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual. It must remain factual and claim-bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    }
+  ]
+}
