@@ -69,6 +69,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_17_declaration_acceptance_record_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_18_declaration_compile_gate_guard.mjs` | Repo Governance | high | repo |  |
 | `ci/guards/s_v1_19_onboarding_start_gate_guard.mjs` | Repo Governance | high | repo |  |
+| `ci/guards/s_v1_20_supported_activity_set_lock_guard.mjs` | v1 Supported Activity Boundary | high | v1-boundary | DEV NOTE: S-V1-20 boundary guard. This guard closes the v1 supported |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
 | `ci/guards/v1_locked_activity_set_guard.mjs` | Repo Governance | medium | repo | @law v1_locked_activity_set |
