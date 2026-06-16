@@ -1,0 +1,77 @@
+{
+  "valid_assignments": [
+    {
+      "assignment_id": "assignment_001",
+      "relationship_id": "relationship_001",
+      "assigned_by_coach_id": "coach_001",
+      "assigned_athlete_id": "athlete_001",
+      "template_id": "template_powerlifting_001",
+      "activity_id": "powerlifting",
+      "assignment_status": "assigned",
+      "assigned_at": "2026-06-16T09:00:00.000Z",
+      "compile_input_status": "not_consumed_until_declared_compile_input",
+      "engine_visible": false
+    },
+    {
+      "assignment_id": "assignment_002",
+      "relationship_id": "relationship_002",
+      "assigned_by_coach_id": "coach_002",
+      "assigned_athlete_id": "athlete_002",
+      "template_id": "template_rugby_001",
+      "activity_id": "rugby_union",
+      "assignment_status": "assigned",
+      "assigned_at": "2026-06-16T10:00:00.000Z",
+      "compile_input_status": "not_consumed_until_declared_compile_input",
+      "engine_visible": false
+    },
+    {
+      "assignment_id": "assignment_003",
+      "relationship_id": "relationship_003",
+      "assigned_by_coach_id": "coach_001",
+      "assigned_athlete_id": "athlete_003",
+      "template_id": "template_strength_001",
+      "activity_id": "general_strength",
+      "assignment_status": "assigned",
+      "assigned_at": "2026-06-16T11:00:00.000Z",
+      "compile_input_status": "not_consumed_until_declared_compile_input",
+      "engine_visible": false
+    }
+  ],
+  "relationships": [
+    {
+      "relationship_id": "relationship_001",
+      "coach_id": "coach_001",
+      "athlete_id": "athlete_001",
+      "relationship_scope": "individual_coach_athlete",
+      "relationship_status": "accepted"
+    },
+    {
+      "relationship_id": "relationship_002",
+      "coach_id": "coach_002",
+      "athlete_id": "athlete_002",
+      "relationship_scope": "individual_coach_athlete",
+      "relationship_status": "accepted"
+    },
+    {
+      "relationship_id": "relationship_003",
+      "coach_id": "coach_001",
+      "athlete_id": "athlete_003",
+      "relationship_scope": "individual_coach_athlete",
+      "relationship_status": "revoked"
+    }
+  ],
+  "coach_actor": {
+    "actor_type": "coach",
+    "coach_id": "coach_001"
+  },
+  "athlete_actor": {
+    "actor_type": "athlete",
+    "athlete_id": "athlete_002"
+  },
+  "expected_coach_visible_assignment_ids": [
+    "assignment_001"
+  ],
+  "expected_athlete_visible_assignment_ids": [
+    "assignment_002"
+  ]
+}
