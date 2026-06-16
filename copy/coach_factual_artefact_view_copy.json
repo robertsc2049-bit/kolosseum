@@ -1,0 +1,48 @@
+{
+  "schema_version": "kolosseum.copy.coach_factual_artefact_view.v1.0.0",
+  "engine_compatibility": "EB2-1.0.0",
+  "scope": "v1_coach_factual_artefact_view",
+  "copy_surface_id": "coach_factual_artefact_view",
+  "strings": [
+    {
+      "copy_id": "COACH_FACTUAL_ARTEFACT_VIEW_TITLE",
+      "copy_text": "Coach factual artefacts",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_FACTUAL_ARTEFACT_VIEW_EMPTY_STATE",
+      "copy_text": "No factual artefacts recorded.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_FACTUAL_ARTEFACT_VIEW_PERMISSION_DENIED",
+      "copy_text": "Coach factual artefact view is not available.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_FACTUAL_ARTEFACT_VIEW_READ_ONLY_NOTICE",
+      "copy_text": "Read-only view.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_FACTUAL_ARTEFACT_VIEW_FACTS_ONLY_NOTICE",
+      "copy_text": "Recorded facts only.",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_FACTUAL_ARTEFACT_VIEW_RUNTIME_EVENT_COUNT_LABEL",
+      "copy_text": "Runtime event count",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_FACTUAL_ARTEFACT_VIEW_SESSION_STATUS_LABEL",
+      "copy_text": "Session status",
+      "parameters": []
+    },
+    {
+      "copy_id": "COACH_FACTUAL_ARTEFACT_VIEW_NOTES_SEPARATE_NOTICE",
+      "copy_text": "Coach notes are stored separately.",
+      "parameters": []
+    }
+  ]
+}
