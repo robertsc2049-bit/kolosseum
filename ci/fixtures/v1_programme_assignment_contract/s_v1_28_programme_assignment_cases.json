@@ -1,0 +1,64 @@
+{
+  "slice_id": "S-V1-28",
+  "fixture_id": "s_v1_28_programme_assignment_cases",
+  "contract_version": "S-V1-28",
+  "valid_request": {
+    "request_id": "programme_assignment_request_001",
+    "requested_at": "2026-06-16T09:30:00.000Z",
+    "actor": {
+      "actor_type": "coach",
+      "coach_id": "coach_001"
+    },
+    "relationship": {
+      "relationship_id": "relationship_001",
+      "coach_id": "coach_001",
+      "athlete_id": "athlete_001",
+      "relationship_scope": "individual_coach_athlete",
+      "relationship_status": "accepted"
+    },
+    "assignment_authorisation": {
+      "authorisation_id": "assignment_authorisation_001",
+      "relationship_id": "relationship_001",
+      "coach_id": "coach_001",
+      "athlete_id": "athlete_001",
+      "authorisation_scope": "programme_assignment",
+      "authorisation_status": "granted"
+    },
+    "template_coverage_entry": {
+      "template_id": "template_powerlifting_v1_declared_coverage",
+      "template_status": "declared_for_v1_coverage",
+      "activity_id": "powerlifting",
+      "template_contract_version": "S-V1-26",
+      "coverage_contract_version": "S-V1-27",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_control_status": "approved"
+    },
+    "assignment_intent": {
+      "assignment_mode": "coach_assigned_to_athlete",
+      "assignment_reason_code": "coach_selected_template",
+      "target_start_policy": "athlete_next_available_session"
+    },
+    "engine_boundary": {
+      "assignment_mutates_engine_truth": false,
+      "compile_input_status": "not_consumed_until_declared_compile_input",
+      "engine_visible": false
+    }
+  },
+  "expected_assignment": {
+    "contract_version": "S-V1-28",
+    "assignment_status": "assigned",
+    "assigned_by_coach_id": "coach_001",
+    "assigned_athlete_id": "athlete_001",
+    "relationship_id": "relationship_001",
+    "template_id": "template_powerlifting_v1_declared_coverage",
+    "activity_id": "powerlifting",
+    "assignment_scope": "coach_athlete_assigned_execution",
+    "compile_input_status": "not_consumed_until_declared_compile_input",
+    "engine_visible": false,
+    "assignment_mutates_engine_truth": false,
+    "relationship_scope_enforced": true,
+    "marketplace_scope": false,
+    "team_assignment_scope": false,
+    "organisation_assignment_scope": false
+  }
+}
