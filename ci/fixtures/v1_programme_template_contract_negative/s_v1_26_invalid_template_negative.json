@@ -1,0 +1,103 @@
+{
+  "slice_id": "S-V1-26",
+  "fixture_id": "s_v1_26_invalid_template_negative",
+  "purpose": "Prove the programme template contract fails closed when a template exposes hidden formula or progression internals and references undeclared registry ids.",
+  "expected_failure_code": "v1_programme_template_contract_formula_payload_refused",
+  "template": {
+    "template_id": "fixture_invalid_programme_template",
+    "template_version": "1.0.0",
+    "contract_version": "S-V1-26",
+    "template_status": "active_registry_candidate",
+    "activity_id": "powerlifting",
+    "assignment_scope": "coach_athlete_assigned_execution",
+    "source_record_id": "source_fixture_invalid_template",
+    "source_control_status": "approved",
+    "template_structure": {
+      "blocks": [
+        {
+          "block_id": "block_001",
+          "order_index": 1,
+          "weeks": [
+            {
+              "week_id": "week_001",
+              "order_index": 1,
+              "days": [
+                {
+                  "day_id": "day_001",
+                  "order_index": 1,
+                  "sessions": [
+                    {
+                      "session_id": "session_001",
+                      "order_index": 1,
+                      "work_items": [
+                        {
+                          "work_item_id": "work_001",
+                          "order_index": 1,
+                          "exercise_id": "unknown_exercise_reference",
+                          "planned_sets": 3,
+                          "planned_reps": 5,
+                          "loading_reference": "declared_percentage_reference",
+                          "equipment_requirement_ids": [
+                            "barbell"
+                          ],
+                          "substitution_policy_id": "substitution_edge_registry"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "registry_bindings": {
+      "activity_id": "powerlifting",
+      "exercise_ids": [
+        "competition_back_squat"
+      ],
+      "equipment_ids": [
+        "barbell"
+      ],
+      "substitution_edge_ids": [
+        "substitution_edge_registry"
+      ],
+      "applicability_ids": [
+        "powerlifting_competition_back_squat"
+      ]
+    },
+    "visibility_boundary": {
+      "formula_payload_status": "visible_formula_payload",
+      "progression_internals_status": "visible_progression_internals",
+      "protected_logic_reference_status": "visible_internal_logic"
+    },
+    "deterministic_boundary": {
+      "template_hash_inputs": [
+        "template_id",
+        "template_version",
+        "activity_id",
+        "assignment_scope",
+        "registry_bindings",
+        "template_structure"
+      ],
+      "order_policy": "explicit_order_index_only",
+      "unknown_field_policy": "fail_closed",
+      "registry_reference_policy": "declared_registry_ids_only"
+    },
+    "execution_surface": {
+      "coach_can_assign": true,
+      "athlete_can_execute_assigned": true,
+      "coach_can_edit_after_assignment": false,
+      "assignment_mutates_template": false,
+      "template_mutates_relationship": false,
+      "template_mutates_engine": false
+    },
+    "copy_boundary_flags": [
+      "no_marketplace_scope",
+      "no_royalty_scope",
+      "formula_payload_not_visible",
+      "registry_bound"
+    ]
+  }
+}

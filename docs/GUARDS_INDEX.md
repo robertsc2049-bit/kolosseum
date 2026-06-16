@@ -75,6 +75,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_23_exercise_activity_applicability_coverage_guard.mjs` | v1 Exercise Activity Applicability Coverage Contract | high | v1-registry | DEV NOTE: S-V1-23 boundary guard. This guard proves the exercise activity |
 | `ci/guards/s_v1_24_registry_load_order_fk_closure_guard.mjs` | v1 Registry Load Order and FK Closure | high | v1-registry | DEV NOTE: S-V1-24 boundary guard. This guard hardens deterministic registry |
 | `ci/guards/s_v1_25_registry_content_production_system_guard.mjs` | v1 Registry Content Production System | high | v1-registry | DEV NOTE: S-V1-25 boundary guard. This guard proves the registry content |
+| `ci/guards/s_v1_26_programme_template_contract_guard.mjs` | v1 Programme Template Contract | high | v1-registry | DEV NOTE: S-V1-26 contract guard. This guard proves the programme template |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
 | `ci/guards/v1_locked_activity_set_guard.mjs` | Repo Governance | medium | repo | @law v1_locked_activity_set |
