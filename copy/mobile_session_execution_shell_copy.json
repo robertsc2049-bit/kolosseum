@@ -1,0 +1,72 @@
+[
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_TITLE",
+        "text":  "Session",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_STATUS_LABEL",
+        "text":  "Status",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_WORK_ITEMS_LABEL",
+        "text":  "Work items",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_CURRENT_ITEM_LABEL",
+        "text":  "Current item",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_SETS_LABEL",
+        "text":  "Sets",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_REPS_LABEL",
+        "text":  "Reps",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_LOAD_LABEL",
+        "text":  "Load",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_COMPLETE_ACTION",
+        "text":  "Record complete",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_SKIP_ACTION",
+        "text":  "Record skipped",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_SPLIT_ACTION",
+        "text":  "Record split",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_RETURN_CONTINUE_ACTION",
+        "text":  "Continue recorded session",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_RETURN_SKIP_ACTION",
+        "text":  "Skip remaining work",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_READ_ONLY_NOTICE",
+        "text":  "Displayed from engine output",
+        "surface_id":  "mobile_session_execution_shell"
+    },
+    {
+        "copy_id":  "MOBILE_SESSION_EXECUTION_NO_WORK_ITEMS",
+        "text":  "No work items recorded",
+        "surface_id":  "mobile_session_execution_shell"
+    }
+]
