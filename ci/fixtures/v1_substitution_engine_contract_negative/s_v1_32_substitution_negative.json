@@ -1,0 +1,61 @@
+{
+  "cases": [
+    {
+      "case_id": "unknown_root_field_rejected",
+      "mutation_path": "unexpected_field",
+      "mutation_value": "not_allowed",
+      "expected_reason": "v1_substitution_root_unknown_field_refused"
+    },
+    {
+      "case_id": "missing_declared_edge_refuses_undeclared_fallback",
+      "mutation_path": "substitution_edges",
+      "mutation_value": [],
+      "expected_reason": "v1_substitution_declared_candidate_missing"
+    },
+    {
+      "case_id": "missing_substitution_edge_registry_link_rejected",
+      "mutation_path": "registry_links.substitution_edge_ids",
+      "mutation_value": [],
+      "expected_reason": "v1_substitution_edge_registry_link_missing"
+    },
+    {
+      "case_id": "missing_exercise_registry_link_rejected",
+      "mutation_path": "registry_links.exercise_ids",
+      "mutation_value": [
+        "bench_press",
+        "push_up"
+      ],
+      "expected_reason": "v1_substitution_exercise_registry_link_missing"
+    },
+    {
+      "case_id": "missing_equipment_registry_link_rejected",
+      "mutation_path": "registry_links.equipment_ids",
+      "mutation_value": [
+        "barbell",
+        "bodyweight"
+      ],
+      "expected_reason": "v1_substitution_equipment_registry_link_missing"
+    },
+    {
+      "case_id": "missing_applicability_link_rejected",
+      "mutation_path": "registry_links.applicability_records.1.substitution_applicability",
+      "mutation_value": "not_eligible",
+      "expected_reason": "v1_substitution_applicability_link_missing"
+    },
+    {
+      "case_id": "non_factual_field_rejected",
+      "mutation_path": "recommendation",
+      "mutation_value": "use this",
+      "expected_reason": "v1_substitution_forbidden_non_factual_field_refused"
+    },
+    {
+      "case_id": "unknown_reason_code_rejected",
+      "mutation_path": "substitution_edges.0.reason_codes",
+      "mutation_value": [
+        "declared_edge_matched",
+        "recommended_action"
+      ],
+      "expected_reason": "v1_substitution_reason_code_unknown"
+    }
+  ]
+}

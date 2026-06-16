@@ -1,0 +1,245 @@
+{
+  "valid_input": {
+    "activity_id": "powerlifting",
+    "target_exercise_id": "bench_press",
+    "unavailable_equipment_ids": [
+      "barbell"
+    ],
+    "registry_links": {
+      "activity_ids": [
+        "powerlifting"
+      ],
+      "exercise_ids": [
+        "bench_press",
+        "dumbbell_bench_press",
+        "push_up"
+      ],
+      "equipment_ids": [
+        "barbell",
+        "bodyweight",
+        "dumbbell"
+      ],
+      "movement_ids": [
+        "horizontal_push"
+      ],
+      "substitution_edge_ids": [
+        "sub_edge_bench_press_to_dumbbell_bench_press"
+      ],
+      "applicability_records": [
+        {
+          "exercise_id": "bench_press",
+          "activity_id": "powerlifting",
+          "substitution_applicability": "eligible"
+        },
+        {
+          "exercise_id": "dumbbell_bench_press",
+          "activity_id": "powerlifting",
+          "substitution_applicability": "eligible"
+        },
+        {
+          "exercise_id": "push_up",
+          "activity_id": "powerlifting",
+          "substitution_applicability": "eligible"
+        }
+      ]
+    },
+    "candidate_exercises": [
+      {
+        "exercise_id": "bench_press",
+        "activity_id": "powerlifting",
+        "movement_id": "horizontal_push",
+        "equipment_ids": [
+          "barbell"
+        ]
+      },
+      {
+        "exercise_id": "dumbbell_bench_press",
+        "activity_id": "powerlifting",
+        "movement_id": "horizontal_push",
+        "equipment_ids": [
+          "dumbbell"
+        ]
+      },
+      {
+        "exercise_id": "push_up",
+        "activity_id": "powerlifting",
+        "movement_id": "horizontal_push",
+        "equipment_ids": [
+          "bodyweight"
+        ]
+      }
+    ],
+    "substitution_edges": [
+      {
+        "edge_id": "sub_edge_bench_press_to_dumbbell_bench_press",
+        "source_exercise_id": "bench_press",
+        "target_exercise_id": "dumbbell_bench_press",
+        "activity_id": "powerlifting",
+        "reason_codes": [
+          "declared_edge_matched"
+        ]
+      }
+    ]
+  },
+  "same_semantic_input_different_order": {
+    "substitution_edges": [
+      {
+        "target_exercise_id": "dumbbell_bench_press",
+        "source_exercise_id": "bench_press",
+        "reason_codes": [
+          "declared_edge_matched"
+        ],
+        "edge_id": "sub_edge_bench_press_to_dumbbell_bench_press",
+        "activity_id": "powerlifting"
+      }
+    ],
+    "registry_links": {
+      "substitution_edge_ids": [
+        "sub_edge_bench_press_to_dumbbell_bench_press"
+      ],
+      "movement_ids": [
+        "horizontal_push"
+      ],
+      "exercise_ids": [
+        "push_up",
+        "dumbbell_bench_press",
+        "bench_press"
+      ],
+      "equipment_ids": [
+        "dumbbell",
+        "bodyweight",
+        "barbell"
+      ],
+      "applicability_records": [
+        {
+          "substitution_applicability": "eligible",
+          "exercise_id": "push_up",
+          "activity_id": "powerlifting"
+        },
+        {
+          "substitution_applicability": "eligible",
+          "exercise_id": "dumbbell_bench_press",
+          "activity_id": "powerlifting"
+        },
+        {
+          "substitution_applicability": "eligible",
+          "exercise_id": "bench_press",
+          "activity_id": "powerlifting"
+        }
+      ],
+      "activity_ids": [
+        "powerlifting"
+      ]
+    },
+    "unavailable_equipment_ids": [
+      "barbell"
+    ],
+    "target_exercise_id": "bench_press",
+    "candidate_exercises": [
+      {
+        "movement_id": "horizontal_push",
+        "exercise_id": "push_up",
+        "equipment_ids": [
+          "bodyweight"
+        ],
+        "activity_id": "powerlifting"
+      },
+      {
+        "movement_id": "horizontal_push",
+        "exercise_id": "dumbbell_bench_press",
+        "equipment_ids": [
+          "dumbbell"
+        ],
+        "activity_id": "powerlifting"
+      },
+      {
+        "movement_id": "horizontal_push",
+        "exercise_id": "bench_press",
+        "equipment_ids": [
+          "barbell"
+        ],
+        "activity_id": "powerlifting"
+      }
+    ],
+    "activity_id": "powerlifting"
+  },
+  "not_required_input": {
+    "activity_id": "powerlifting",
+    "target_exercise_id": "bench_press",
+    "unavailable_equipment_ids": [
+      "dumbbell"
+    ],
+    "registry_links": {
+      "activity_ids": [
+        "powerlifting"
+      ],
+      "exercise_ids": [
+        "bench_press",
+        "dumbbell_bench_press"
+      ],
+      "equipment_ids": [
+        "barbell",
+        "dumbbell"
+      ],
+      "movement_ids": [
+        "horizontal_push"
+      ],
+      "substitution_edge_ids": [
+        "sub_edge_bench_press_to_dumbbell_bench_press"
+      ],
+      "applicability_records": [
+        {
+          "exercise_id": "bench_press",
+          "activity_id": "powerlifting",
+          "substitution_applicability": "eligible"
+        },
+        {
+          "exercise_id": "dumbbell_bench_press",
+          "activity_id": "powerlifting",
+          "substitution_applicability": "eligible"
+        }
+      ]
+    },
+    "candidate_exercises": [
+      {
+        "exercise_id": "bench_press",
+        "activity_id": "powerlifting",
+        "movement_id": "horizontal_push",
+        "equipment_ids": [
+          "barbell"
+        ]
+      },
+      {
+        "exercise_id": "dumbbell_bench_press",
+        "activity_id": "powerlifting",
+        "movement_id": "horizontal_push",
+        "equipment_ids": [
+          "dumbbell"
+        ]
+      }
+    ],
+    "substitution_edges": [
+      {
+        "edge_id": "sub_edge_bench_press_to_dumbbell_bench_press",
+        "source_exercise_id": "bench_press",
+        "target_exercise_id": "dumbbell_bench_press",
+        "activity_id": "powerlifting",
+        "reason_codes": [
+          "declared_edge_matched"
+        ]
+      }
+    ]
+  },
+  "expected_output_keys": [
+    "activity_id",
+    "candidate_count",
+    "contract_version",
+    "reason_codes",
+    "registry_trace",
+    "source_exercise_id",
+    "substitution_edge_id",
+    "substitution_status",
+    "target_exercise_id",
+    "unavailable_equipment_ids"
+  ]
+}
