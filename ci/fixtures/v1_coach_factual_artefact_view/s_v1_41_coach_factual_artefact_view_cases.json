@@ -1,0 +1,97 @@
+{
+  "slice_id": "S-V1-41",
+  "surface_id": "v1_coach_factual_artefact_view",
+  "actors": {
+    "assigned_coach": {
+      "actor_type": "coach",
+      "user_id": "coach_001",
+      "coach_user_id": "coach_001",
+      "coach_id": "coach_001"
+    },
+    "unassigned_coach": {
+      "actor_type": "coach",
+      "user_id": "coach_999",
+      "coach_user_id": "coach_999",
+      "coach_id": "coach_999"
+    },
+    "athlete_owner": {
+      "actor_type": "athlete",
+      "user_id": "athlete_001",
+      "athlete_user_id": "athlete_001",
+      "athlete_id": "athlete_001"
+    }
+  },
+  "relationships": [
+    {
+      "relationship_id": "relationship_001",
+      "coach_user_id": "coach_001",
+      "coach_id": "coach_001",
+      "athlete_user_id": "athlete_001",
+      "athlete_id": "athlete_001",
+      "relationship_state": "accepted",
+      "relationship_status": "accepted",
+      "status": "accepted",
+      "relationship_scope": "individual_coach_athlete",
+      "accepted_at_iso8601": "2026-06-16T08:00:00.000Z",
+      "revoked_at_iso8601": null,
+      "coach_factual_artefact_view": true,
+      "factual_history": true,
+      "session_readback": true
+    }
+  ],
+  "artefacts": [
+    {
+      "artefact_id": "artefact_001",
+      "artefact_type": "session_runtime_artefact",
+      "session_id": "session_001",
+      "athlete_user_id": "athlete_001",
+      "recorded_at": "2026-06-16T09:00:00.000Z",
+      "session_status": "completed",
+      "runtime_events": [
+        {
+          "event_id": "event_001",
+          "event_type": "START_SESSION",
+          "seq": 1,
+          "recorded_at": "2026-06-16T09:00:00.000Z",
+          "work_item_id": null
+        },
+        {
+          "event_id": "event_002",
+          "event_type": "COMPLETE_WORK_ITEM",
+          "seq": 2,
+          "recorded_at": "2026-06-16T09:15:00.000Z",
+          "work_item_id": "work_item_001"
+        }
+      ]
+    },
+    {
+      "artefact_id": "artefact_002",
+      "artefact_type": "session_runtime_artefact",
+      "session_id": "session_002",
+      "athlete_user_id": "athlete_002",
+      "recorded_at": "2026-06-16T10:00:00.000Z",
+      "session_status": "completed",
+      "runtime_events": [
+        {
+          "event_id": "event_003",
+          "event_type": "START_SESSION",
+          "seq": 1,
+          "recorded_at": "2026-06-16T10:00:00.000Z",
+          "work_item_id": null
+        }
+      ]
+    }
+  ],
+  "negative_cases": [
+    {
+      "case_id": "unassigned_coach_rejected",
+      "actor_key": "unassigned_coach",
+      "expected_reason": "coach_not_assigned_to_athlete"
+    },
+    {
+      "case_id": "athlete_actor_rejected",
+      "actor_key": "athlete_owner",
+      "expected_reason": "coach_factual_artefact_view_coach_actor_required"
+    }
+  ]
+}

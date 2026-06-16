@@ -70,6 +70,7 @@ test("S-V1-15 allows only declared reusable relationship permission surfaces", (
     "session_artefacts",
     "live_session_status",
     "session_readback",
+    "coach_factual_artefact_view",
     "factual_history"
   ]);
 

@@ -90,6 +90,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_38_stop_skip_partial_completion_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_39_session_state_events_readback_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_40_athlete_factual_history_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/s_v1_41_coach_factual_artefact_view_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
 | `ci/guards/v1_locked_activity_set_guard.mjs` | Repo Governance | medium | repo | @law v1_locked_activity_set |
