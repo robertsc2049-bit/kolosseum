@@ -1,0 +1,57 @@
+{
+  "slice_id": "S-V1-24",
+  "fixture_id": "s_v1_24_unknown_movement_fk_negative",
+  "purpose": "Prove registry load order and FK closure fail closed when an exercise references an unknown movement pattern.",
+  "expected_failure_code": "v1_registry_load_order_fk_closure_unknown_movement_reference",
+  "registry_index": {
+    "version": "fixture-s-v1-24",
+    "order": [
+      "activity",
+      "movement",
+      "exercise",
+      "program"
+    ]
+  },
+  "registry_bundle": {
+    "version": "fixture-s-v1-24",
+    "note": "fixture bundle only",
+    "registries": {
+      "activity": {
+        "entries": [
+          {
+            "activity_id": "powerlifting",
+            "display_label": "Powerlifting"
+          }
+        ]
+      },
+      "movement": {
+        "entries": [
+          {
+            "movement_pattern_id": "squat",
+            "display_label": "Squat"
+          }
+        ]
+      },
+      "exercise": {
+        "entries": [
+          {
+            "exercise_id": "fixture_unknown_movement_exercise",
+            "display_label": "Fixture unknown movement exercise",
+            "movement_pattern_id": "unregistered_movement_pattern",
+            "primary_activity_applicability": "powerlifting",
+            "secondary_activity_applicability": []
+          }
+        ]
+      },
+      "program": {
+        "entries": []
+      }
+    }
+  },
+  "missing_case": {
+    "registry": "exercise",
+    "field": "movement_pattern_id",
+    "exercise_id": "fixture_unknown_movement_exercise",
+    "movement_pattern_id": "unregistered_movement_pattern"
+  }
+}
