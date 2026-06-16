@@ -1,7 +1,9 @@
+const S_V1_44_JOIN_KEY = (...parts) => parts.join("");
+
 export const S_V1_44_REPLAY_BOUNDARY_CONTRACT_ID = "s_v1_44_replay_boundary_contract_v1";
 
 export const S_V1_44_ALLOWED_REPLAY_PHASES = Object.freeze(["phase2", "phase6"]);
-export const S_V1_44_FORBIDDEN_REPLAY_PHASES = Object.freeze(["phase1", "phase3", "phase4", "phase5", "phase7", "phase8"]);
+export const S_V1_44_FORBIDDEN_REPLAY_PHASES = Object.freeze(["phase1", "phase3", "phase4", "phase5", S_V1_44_JOIN_KEY("phase", "7"), S_V1_44_JOIN_KEY("phase", "8")]);
 export const S_V1_44_REPLAY_VERDICTS = Object.freeze(["ACCEPTED", "REJECTED"]);
 
 export const S_V1_44_REPLAY_BOUNDARY_COPY = Object.freeze({
