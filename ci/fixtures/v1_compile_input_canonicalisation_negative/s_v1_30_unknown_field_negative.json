@@ -1,0 +1,50 @@
+{
+  "cases": [
+    {
+      "case_id": "unknown_root_field_rejected",
+      "mutation_path": "unexpected_field",
+      "mutation_value": "not_allowed",
+      "expected_reason": "v1_compile_input_root_unknown_field_refused"
+    },
+    {
+      "case_id": "billing_state_rejected",
+      "mutation_path": "billing_state",
+      "mutation_value": {
+        "paid": true
+      },
+      "expected_reason": "v1_compile_input_forbidden_non_engine_field_refused"
+    },
+    {
+      "case_id": "coach_notes_rejected",
+      "mutation_path": "accepted_declaration.coach_notes",
+      "mutation_value": "coach note must not enter compile input",
+      "expected_reason": "v1_compile_input_forbidden_non_engine_field_refused"
+    },
+    {
+      "case_id": "ui_state_rejected",
+      "mutation_path": "programme_template.ui_state",
+      "mutation_value": "drawer_open",
+      "expected_reason": "v1_compile_input_forbidden_non_engine_field_refused"
+    },
+    {
+      "case_id": "copy_field_rejected",
+      "mutation_path": "accepted_declaration.declaration_payload.copy_id",
+      "mutation_value": "PHASE_1_DECLARATION_USER_DECLARED_FACTUAL",
+      "expected_reason": "v1_compile_input_forbidden_non_engine_field_refused"
+    },
+    {
+      "case_id": "assignment_identity_rejected",
+      "mutation_path": "programme_assignment.assigned_athlete_id",
+      "mutation_value": "athlete_001",
+      "expected_reason": "v1_compile_input_forbidden_non_engine_field_refused"
+    },
+    {
+      "case_id": "engine_visible_fields_incomplete",
+      "mutation_path": "engine_visible_fields",
+      "mutation_value": [
+        "activity_id"
+      ],
+      "expected_reason": "v1_compile_input_engine_visible_fields_mismatch"
+    }
+  ]
+}

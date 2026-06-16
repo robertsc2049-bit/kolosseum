@@ -79,6 +79,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_27_template_registry_coverage_guard.mjs` | v1 Template Registry Coverage | high | v1-registry | DEV NOTE: S-V1-27 coverage guard. This guard proves explicit declared |
 | `ci/guards/s_v1_28_programme_assignment_contract_guard.mjs` | v1 Programme Assignment Contract | high | v1-product-auth | DEV NOTE: S-V1-28 guard. This verifies the bounded programme assignment |
 | `ci/guards/s_v1_29_assignment_visibility_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/s_v1_30_compile_input_canonicalisation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
 | `ci/guards/v1_locked_activity_set_guard.mjs` | Repo Governance | medium | repo | @law v1_locked_activity_set |
