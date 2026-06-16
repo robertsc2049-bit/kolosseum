@@ -1,0 +1,50 @@
+{
+  "slice_id": "S-V1-25",
+  "fixture_id": "s_v1_25_exact_famous_coach_copy_negative",
+  "purpose": "Prove registry content production fails closed when a candidate record is marked as exact famous-coach programme copying without licence and manual approval.",
+  "expected_failure_code": "v1_registry_content_production_system_exact_famous_coach_copy_refused",
+  "source_control_register": [
+    {
+      "source_record_id": "source_negative_exact_famous_coach_copy",
+      "slice_id": "S-V1-25",
+      "registry_domain_id": "programme_template_registry",
+      "candidate_record_id": "fixture_public_coach_exact_copy_template",
+      "candidate_record_type": "programme_template",
+      "content_execution_status": "active_registry_candidate",
+      "source_status": "unlicensed_named_coach_source",
+      "source_type": "named_public_coach_programme",
+      "source_reference": "redacted_named_public_coach_programme",
+      "source_visibility": "public",
+      "licence_status": "not_licensed",
+      "commercial_use_status": "not_permitted",
+      "attribution_status": "not_permitted",
+      "exact_copy_risk_status": "exact_copy",
+      "famous_coach_reference_status": "named_famous_coach_reference",
+      "derivative_risk_status": "near_copy",
+      "formula_visibility_status": "protected_formula_not_visible",
+      "manual_review_status": "not_reviewed",
+      "legal_review_status": "not_reviewed",
+      "reviewer_role": null,
+      "reviewed_at": null,
+      "decision": "blocked",
+      "decision_notes": "Negative fixture only. This candidate must be refused.",
+      "evidence_paths": [],
+      "copy_boundary_flags": [
+        "famous_coach_copy_refused",
+        "licence_missing",
+        "manual_review_missing"
+      ]
+    }
+  ],
+  "candidate_records": [
+    {
+      "candidate_record_id": "fixture_public_coach_exact_copy_template",
+      "registry_domain_id": "programme_template_registry",
+      "candidate_record_type": "programme_template",
+      "status": "active_registry_candidate",
+      "source_record_id": "source_negative_exact_famous_coach_copy",
+      "declared_originality_status": "not_original",
+      "content_summary": "Negative fixture only. No usable programme content is included."
+    }
+  ]
+}
