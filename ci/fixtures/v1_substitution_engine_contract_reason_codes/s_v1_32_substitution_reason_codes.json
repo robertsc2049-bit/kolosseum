@@ -1,0 +1,23 @@
+{
+  "reason_codes": [
+    "source_equipment_unavailable",
+    "source_equipment_available",
+    "declared_edge_matched",
+    "candidate_equipment_available",
+    "activity_link_verified",
+    "registry_links_verified",
+    "no_substitution_required"
+  ],
+  "applied_expected_reason_codes": [
+    "source_equipment_unavailable",
+    "declared_edge_matched",
+    "candidate_equipment_available",
+    "activity_link_verified",
+    "registry_links_verified"
+  ],
+  "not_required_expected_reason_codes": [
+    "source_equipment_available",
+    "no_substitution_required",
+    "registry_links_verified"
+  ]
+}
