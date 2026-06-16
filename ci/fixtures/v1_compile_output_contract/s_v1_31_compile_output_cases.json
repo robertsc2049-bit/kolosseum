@@ -1,0 +1,117 @@
+{
+  "valid_input": {
+    "activity_id": "powerlifting",
+    "compile_input_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "compile_input_version": "S-V1-30",
+    "engine_version": "EB2-1.0.0",
+    "planned_session": {
+      "session_id": "session_001",
+      "activity_id": "powerlifting",
+      "session_status": "planned",
+      "planned_items": [
+        {
+          "item_id": "planned_item_001",
+          "work_item_id": "work_item_001",
+          "block_id": "block_001",
+          "exercise_id": "back_squat",
+          "order": 1,
+          "sets": 5,
+          "reps": 5,
+          "load": {
+            "basis": "percent_1rm",
+            "unit": "percent",
+            "value": 75
+          },
+          "rest_seconds": 180,
+          "source_template_id": "template_powerlifting_001"
+        },
+        {
+          "item_id": "planned_item_002",
+          "work_item_id": "work_item_002",
+          "block_id": "block_001",
+          "exercise_id": "bench_press",
+          "order": 2,
+          "sets": 4,
+          "reps": 6,
+          "load": {
+            "basis": "percent_1rm",
+            "unit": "percent",
+            "value": 70
+          },
+          "rest_seconds": 150,
+          "source_template_id": "template_powerlifting_001"
+        }
+      ]
+    },
+    "runtime_trace": {
+      "engine_phase": "phase6",
+      "emitted_from": "planned_items",
+      "planned_item_count": 2,
+      "trace_status": "emitted"
+    }
+  },
+  "same_semantic_input_different_order": {
+    "runtime_trace": {
+      "trace_status": "emitted",
+      "planned_item_count": 2,
+      "engine_phase": "phase6",
+      "emitted_from": "planned_items"
+    },
+    "planned_session": {
+      "session_status": "planned",
+      "session_id": "session_001",
+      "planned_items": [
+        {
+          "work_item_id": "work_item_001",
+          "source_template_id": "template_powerlifting_001",
+          "sets": 5,
+          "rest_seconds": 180,
+          "reps": 5,
+          "order": 1,
+          "load": {
+            "value": 75,
+            "unit": "percent",
+            "basis": "percent_1rm"
+          },
+          "item_id": "planned_item_001",
+          "exercise_id": "back_squat",
+          "block_id": "block_001"
+        },
+        {
+          "work_item_id": "work_item_002",
+          "source_template_id": "template_powerlifting_001",
+          "sets": 4,
+          "rest_seconds": 150,
+          "reps": 6,
+          "order": 2,
+          "load": {
+            "value": 70,
+            "unit": "percent",
+            "basis": "percent_1rm"
+          },
+          "item_id": "planned_item_002",
+          "exercise_id": "bench_press",
+          "block_id": "block_001"
+        }
+      ],
+      "activity_id": "powerlifting"
+    },
+    "engine_version": "EB2-1.0.0",
+    "compile_input_version": "S-V1-30",
+    "compile_input_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "activity_id": "powerlifting"
+  },
+  "expected_canonical_output_keys": [
+    "activity_id",
+    "compile_input_hash",
+    "compile_input_version",
+    "compile_output_status",
+    "compile_output_version",
+    "engine_version",
+    "execution_ui_contract",
+    "factual_only",
+    "history_projection",
+    "planned_session",
+    "runtime_trace"
+  ]
+}
