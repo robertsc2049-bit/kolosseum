@@ -1,0 +1,52 @@
+[
+  {
+    "surface_id": "athlete_factual_history",
+    "copy_id": "ATHLETE_FACTUAL_HISTORY_TITLE",
+    "text": "History"
+  },
+  {
+    "surface_id": "athlete_factual_history",
+    "copy_id": "ATHLETE_FACTUAL_HISTORY_SUMMARY_LABEL",
+    "text": "Recorded summary"
+  },
+  {
+    "surface_id": "athlete_factual_history",
+    "copy_id": "ATHLETE_FACTUAL_HISTORY_SESSIONS_LABEL",
+    "text": "Recorded sessions"
+  },
+  {
+    "surface_id": "athlete_factual_history",
+    "copy_id": "ATHLETE_FACTUAL_HISTORY_EMPTY_STATE",
+    "text": "No recorded sessions found."
+  },
+  {
+    "surface_id": "athlete_factual_history",
+    "copy_id": "ATHLETE_FACTUAL_HISTORY_PERMISSION_DENIED",
+    "text": "History is not available for this viewer."
+  },
+  {
+    "surface_id": "athlete_factual_history",
+    "copy_id": "ATHLETE_FACTUAL_HISTORY_READ_ONLY_NOTICE",
+    "text": "This view shows recorded facts only."
+  },
+  {
+    "surface_id": "athlete_factual_history",
+    "copy_id": "ATHLETE_FACTUAL_HISTORY_COMPLETED_ITEMS_LABEL",
+    "text": "Completed items"
+  },
+  {
+    "surface_id": "athlete_factual_history",
+    "copy_id": "ATHLETE_FACTUAL_HISTORY_SKIPPED_ITEMS_LABEL",
+    "text": "Skipped items"
+  },
+  {
+    "surface_id": "athlete_factual_history",
+    "copy_id": "ATHLETE_FACTUAL_HISTORY_PARTIAL_ITEMS_LABEL",
+    "text": "Partial items"
+  },
+  {
+    "surface_id": "athlete_factual_history",
+    "copy_id": "ATHLETE_FACTUAL_HISTORY_SESSION_STATUS_LABEL",
+    "text": "Session status"
+  }
+]
