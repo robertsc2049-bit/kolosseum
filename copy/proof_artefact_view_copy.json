@@ -1,0 +1,38 @@
+{
+  "schema_version": "kolosseum.copy.surface.v1",
+  "surface_id": "v1.proof_artefact_view",
+  "entries": [
+    {
+      "copy_id": "v1.proof_artefact_view.title",
+      "copy_text": "Proof artefact"
+    },
+    {
+      "copy_id": "v1.proof_artefact_view.not_available",
+      "copy_text": "Proof artefact not available."
+    },
+    {
+      "copy_id": "v1.proof_artefact_view.permission_required",
+      "copy_text": "Permission required."
+    },
+    {
+      "copy_id": "v1.proof_artefact_view.source_record",
+      "copy_text": "Source record."
+    },
+    {
+      "copy_id": "v1.proof_artefact_view.replay_verdict",
+      "copy_text": "Replay verdict."
+    },
+    {
+      "copy_id": "v1.proof_artefact_view.envelope_state",
+      "copy_text": "Envelope state."
+    },
+    {
+      "copy_id": "v1.proof_artefact_view.artefact_hash",
+      "copy_text": "Artefact hash."
+    },
+    {
+      "copy_id": "v1.proof_artefact_view.recorded_at",
+      "copy_text": "Recorded at."
+    }
+  ]
+}
