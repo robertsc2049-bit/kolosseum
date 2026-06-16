@@ -1,0 +1,245 @@
+{
+  "slice_id": "S-V1-38",
+  "contract": "v1_stop_skip_partial_completion_flow",
+  "session": {
+    "session_id": "session_s_v1_38_001",
+    "work_items": [
+      {
+        "work_item_id": "work_001"
+      },
+      {
+        "work_item_id": "work_002"
+      },
+      {
+        "work_item_id": "work_003"
+      }
+    ]
+  },
+  "started_events": [
+    {
+      "event_id": "event_001",
+      "seq": 1,
+      "event_type": "SESSION_START",
+      "session_id": "session_s_v1_38_001",
+      "occurred_at": "2026-06-16T12:00:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": null
+    },
+    {
+      "event_id": "event_002",
+      "seq": 2,
+      "event_type": "COMPLETE_WORK_ITEM",
+      "session_id": "session_s_v1_38_001",
+      "occurred_at": "2026-06-16T12:01:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": "work_001",
+      "factual_payload": null
+    }
+  ],
+  "split_events": [
+    {
+      "event_id": "event_001",
+      "seq": 1,
+      "event_type": "SESSION_START",
+      "session_id": "session_s_v1_38_001",
+      "occurred_at": "2026-06-16T12:00:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": null
+    },
+    {
+      "event_id": "event_002",
+      "seq": 2,
+      "event_type": "SPLIT_SESSION",
+      "session_id": "session_s_v1_38_001",
+      "occurred_at": "2026-06-16T12:01:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": {
+        "reason_code": "time_unavailable"
+      }
+    }
+  ],
+  "stopped_events": [
+    {
+      "event_id": "event_001",
+      "seq": 1,
+      "event_type": "SESSION_START",
+      "session_id": "session_s_v1_38_001",
+      "occurred_at": "2026-06-16T12:00:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": null
+    },
+    {
+      "event_id": "event_002",
+      "seq": 2,
+      "event_type": "STOP_SESSION",
+      "session_id": "session_s_v1_38_001",
+      "occurred_at": "2026-06-16T12:01:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": {
+        "reason_code": "athlete_stopped"
+      }
+    }
+  ],
+  "stop_request": {
+    "request_id": "stop_skip_partial_request_001",
+    "requested_at": "2026-06-16T12:02:00.000Z",
+    "actor": {
+      "actor_type": "athlete",
+      "athlete_id": "athlete_001"
+    },
+    "session": {
+      "session_id": "session_s_v1_38_001",
+      "work_items": [
+        {
+          "work_item_id": "work_001"
+        },
+        {
+          "work_item_id": "work_002"
+        },
+        {
+          "work_item_id": "work_003"
+        }
+      ]
+    },
+    "current_event_log": [],
+    "action_request": {
+      "idempotency_key": "idem_stop_001",
+      "action_type": "STOP_SESSION",
+      "work_item_id": null,
+      "reason_code": "athlete_stopped",
+      "partial_payload": null
+    }
+  },
+  "skip_request": {
+    "request_id": "stop_skip_partial_request_002",
+    "requested_at": "2026-06-16T12:02:00.000Z",
+    "actor": {
+      "actor_type": "athlete",
+      "athlete_id": "athlete_001"
+    },
+    "session": {
+      "session_id": "session_s_v1_38_001",
+      "work_items": [
+        {
+          "work_item_id": "work_001"
+        },
+        {
+          "work_item_id": "work_002"
+        },
+        {
+          "work_item_id": "work_003"
+        }
+      ]
+    },
+    "current_event_log": [],
+    "action_request": {
+      "idempotency_key": "idem_skip_001",
+      "action_type": "SKIP_WORK_ITEM",
+      "work_item_id": "work_002",
+      "reason_code": "not_available",
+      "partial_payload": null
+    }
+  },
+  "partial_request": {
+    "request_id": "stop_skip_partial_request_003",
+    "requested_at": "2026-06-16T12:02:00.000Z",
+    "actor": {
+      "actor_type": "athlete",
+      "athlete_id": "athlete_001"
+    },
+    "session": {
+      "session_id": "session_s_v1_38_001",
+      "work_items": [
+        {
+          "work_item_id": "work_001"
+        },
+        {
+          "work_item_id": "work_002"
+        },
+        {
+          "work_item_id": "work_003"
+        }
+      ]
+    },
+    "current_event_log": [],
+    "action_request": {
+      "idempotency_key": "idem_partial_001",
+      "action_type": "PARTIAL_COMPLETE_WORK_ITEM",
+      "work_item_id": "work_002",
+      "reason_code": null,
+      "partial_payload": {
+        "declared_completed_quantity": 2,
+        "declared_planned_quantity": 5,
+        "unit": "sets",
+        "reason_code": "time_unavailable"
+      }
+    }
+  },
+  "negative_cases": [
+    {
+      "case_id": "unknown_action_type",
+      "base_request": "skip_request",
+      "event_log_source": "started_events",
+      "mutation_path": "action_request.action_type",
+      "mutation_value": "COMPLETE_WORK_ITEM",
+      "expected_reason": "action_invalid"
+    },
+    {
+      "case_id": "stop_after_terminal",
+      "base_request": "stop_request",
+      "event_log_source": "stopped_events",
+      "expected_reason": "session_terminal"
+    },
+    {
+      "case_id": "skip_while_split_open",
+      "base_request": "skip_request",
+      "event_log_source": "split_events",
+      "expected_reason": "split_open"
+    },
+    {
+      "case_id": "partial_quantity_over_planned",
+      "base_request": "partial_request",
+      "event_log_source": "started_events",
+      "mutation_path": "action_request.partial_payload.declared_completed_quantity",
+      "mutation_value": 9,
+      "expected_reason": "partial_quantity_invalid"
+    },
+    {
+      "case_id": "skip_unknown_work_item",
+      "base_request": "skip_request",
+      "event_log_source": "started_events",
+      "mutation_path": "action_request.work_item_id",
+      "mutation_value": "unknown_work",
+      "expected_reason": "unknown_work_item"
+    },
+    {
+      "case_id": "duplicate_terminal_work_item",
+      "base_request": "skip_request",
+      "event_log_source": "started_events",
+      "mutation_path": "action_request.work_item_id",
+      "mutation_value": "work_001",
+      "expected_reason": "work_item_terminal"
+    },
+    {
+      "case_id": "forbidden_judgement_language",
+      "base_request": "skip_request",
+      "event_log_source": "started_events",
+      "mutation_path": "action_request.judgement_language",
+      "mutation_value": "good",
+      "expected_reason": "forbidden_scope_field"
+    },
+    {
+      "case_id": "event_log_session_mismatch",
+      "base_request": "skip_request",
+      "event_log_source": "started_events",
+      "mutation_path": "current_event_log.1.session_id",
+      "mutation_value": "wrong_session",
+      "expected_reason": "event_invalid"
+    }
+  ]
+}
