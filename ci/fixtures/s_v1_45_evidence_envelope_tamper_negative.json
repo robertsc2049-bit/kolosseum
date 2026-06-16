@@ -1,0 +1,9 @@
+{
+  "case_id": "s_v1_45_negative_tamper_source_hash",
+  "description": "A previously built artefact envelope is changed after sealing and must fail material hash verification.",
+  "mutation": {
+    "path": "source_binding.source_hash_sha256",
+    "replacement": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  "expected_error_code": "s_v1_45_material_hash_mismatch"
+}
