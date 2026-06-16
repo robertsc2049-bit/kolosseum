@@ -22,6 +22,7 @@ export const relationshipPermissionAllowedSurfaceIds = Object.freeze([
   "coach_notes",
   "session_artefacts",
   "live_session_status",
+  "session_readback",
   "factual_history"
 ]);
 
@@ -44,6 +45,7 @@ const surfaceScopeKeys = Object.freeze({
   coach_notes: "coach_notes",
   session_artefacts: "session_artefacts",
   live_session_status: "live_session_status",
+  session_readback: "session_readback",
   factual_history: "history_counts"
 });
 
