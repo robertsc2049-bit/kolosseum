@@ -1,0 +1,357 @@
+{
+  "closure_version": "S-V1-33",
+  "supported_activity_ids": [
+    "general_strength",
+    "powerlifting",
+    "rugby_union"
+  ],
+  "registry_records": {
+    "activities": [
+      {
+        "activity_id": "general_strength"
+      },
+      {
+        "activity_id": "powerlifting"
+      },
+      {
+        "activity_id": "rugby_union"
+      }
+    ],
+    "movements": [
+      {
+        "movement_id": "hinge"
+      },
+      {
+        "movement_id": "horizontal_push"
+      },
+      {
+        "movement_id": "squat"
+      }
+    ],
+    "equipment": [
+      {
+        "equipment_id": "barbell"
+      },
+      {
+        "equipment_id": "bodyweight"
+      },
+      {
+        "equipment_id": "dumbbell"
+      }
+    ],
+    "exercises": [
+      {
+        "exercise_id": "bench_press",
+        "activity_id": "powerlifting",
+        "movement_id": "horizontal_push",
+        "equipment_ids": [
+          "barbell"
+        ]
+      },
+      {
+        "exercise_id": "dumbbell_bench_press",
+        "activity_id": "powerlifting",
+        "movement_id": "horizontal_push",
+        "equipment_ids": [
+          "dumbbell"
+        ]
+      },
+      {
+        "exercise_id": "back_squat",
+        "activity_id": "general_strength",
+        "movement_id": "squat",
+        "equipment_ids": [
+          "barbell"
+        ]
+      },
+      {
+        "exercise_id": "goblet_squat",
+        "activity_id": "general_strength",
+        "movement_id": "squat",
+        "equipment_ids": [
+          "dumbbell"
+        ]
+      },
+      {
+        "exercise_id": "rugby_barbell_hip_hinge",
+        "activity_id": "rugby_union",
+        "movement_id": "hinge",
+        "equipment_ids": [
+          "barbell"
+        ]
+      },
+      {
+        "exercise_id": "rugby_bodyweight_hip_hinge",
+        "activity_id": "rugby_union",
+        "movement_id": "hinge",
+        "equipment_ids": [
+          "bodyweight"
+        ]
+      }
+    ],
+    "applicability_records": [
+      {
+        "exercise_id": "bench_press",
+        "activity_id": "powerlifting",
+        "substitution_applicability": "eligible"
+      },
+      {
+        "exercise_id": "dumbbell_bench_press",
+        "activity_id": "powerlifting",
+        "substitution_applicability": "eligible"
+      },
+      {
+        "exercise_id": "back_squat",
+        "activity_id": "general_strength",
+        "substitution_applicability": "eligible"
+      },
+      {
+        "exercise_id": "goblet_squat",
+        "activity_id": "general_strength",
+        "substitution_applicability": "eligible"
+      },
+      {
+        "exercise_id": "rugby_barbell_hip_hinge",
+        "activity_id": "rugby_union",
+        "substitution_applicability": "eligible"
+      },
+      {
+        "exercise_id": "rugby_bodyweight_hip_hinge",
+        "activity_id": "rugby_union",
+        "substitution_applicability": "eligible"
+      }
+    ],
+    "substitution_edges": [
+      {
+        "edge_id": "sub_edge_powerlifting_bench_press_to_dumbbell_bench_press",
+        "source_exercise_id": "bench_press",
+        "target_exercise_id": "dumbbell_bench_press",
+        "activity_id": "powerlifting",
+        "reason_codes": [
+          "declared_edge_matched"
+        ]
+      },
+      {
+        "edge_id": "sub_edge_general_strength_back_squat_to_goblet_squat",
+        "source_exercise_id": "back_squat",
+        "target_exercise_id": "goblet_squat",
+        "activity_id": "general_strength",
+        "reason_codes": [
+          "declared_edge_matched"
+        ]
+      },
+      {
+        "edge_id": "sub_edge_rugby_union_barbell_hinge_to_bodyweight_hinge",
+        "source_exercise_id": "rugby_barbell_hip_hinge",
+        "target_exercise_id": "rugby_bodyweight_hip_hinge",
+        "activity_id": "rugby_union",
+        "reason_codes": [
+          "declared_edge_matched"
+        ]
+      }
+    ]
+  },
+  "substitution_cases": [
+    {
+      "activity_id": "powerlifting",
+      "target_exercise_id": "bench_press",
+      "unavailable_equipment_ids": [
+        "barbell"
+      ],
+      "registry_links": {
+        "activity_ids": [
+          "powerlifting"
+        ],
+        "exercise_ids": [
+          "bench_press",
+          "dumbbell_bench_press"
+        ],
+        "equipment_ids": [
+          "barbell",
+          "dumbbell"
+        ],
+        "movement_ids": [
+          "horizontal_push"
+        ],
+        "substitution_edge_ids": [
+          "sub_edge_powerlifting_bench_press_to_dumbbell_bench_press"
+        ],
+        "applicability_records": [
+          {
+            "exercise_id": "bench_press",
+            "activity_id": "powerlifting",
+            "substitution_applicability": "eligible"
+          },
+          {
+            "exercise_id": "dumbbell_bench_press",
+            "activity_id": "powerlifting",
+            "substitution_applicability": "eligible"
+          }
+        ]
+      },
+      "candidate_exercises": [
+        {
+          "exercise_id": "bench_press",
+          "activity_id": "powerlifting",
+          "movement_id": "horizontal_push",
+          "equipment_ids": [
+            "barbell"
+          ]
+        },
+        {
+          "exercise_id": "dumbbell_bench_press",
+          "activity_id": "powerlifting",
+          "movement_id": "horizontal_push",
+          "equipment_ids": [
+            "dumbbell"
+          ]
+        }
+      ],
+      "substitution_edges": [
+        {
+          "edge_id": "sub_edge_powerlifting_bench_press_to_dumbbell_bench_press",
+          "source_exercise_id": "bench_press",
+          "target_exercise_id": "dumbbell_bench_press",
+          "activity_id": "powerlifting",
+          "reason_codes": [
+            "declared_edge_matched"
+          ]
+        }
+      ]
+    },
+    {
+      "activity_id": "general_strength",
+      "target_exercise_id": "back_squat",
+      "unavailable_equipment_ids": [
+        "barbell"
+      ],
+      "registry_links": {
+        "activity_ids": [
+          "general_strength"
+        ],
+        "exercise_ids": [
+          "back_squat",
+          "goblet_squat"
+        ],
+        "equipment_ids": [
+          "barbell",
+          "dumbbell"
+        ],
+        "movement_ids": [
+          "squat"
+        ],
+        "substitution_edge_ids": [
+          "sub_edge_general_strength_back_squat_to_goblet_squat"
+        ],
+        "applicability_records": [
+          {
+            "exercise_id": "back_squat",
+            "activity_id": "general_strength",
+            "substitution_applicability": "eligible"
+          },
+          {
+            "exercise_id": "goblet_squat",
+            "activity_id": "general_strength",
+            "substitution_applicability": "eligible"
+          }
+        ]
+      },
+      "candidate_exercises": [
+        {
+          "exercise_id": "back_squat",
+          "activity_id": "general_strength",
+          "movement_id": "squat",
+          "equipment_ids": [
+            "barbell"
+          ]
+        },
+        {
+          "exercise_id": "goblet_squat",
+          "activity_id": "general_strength",
+          "movement_id": "squat",
+          "equipment_ids": [
+            "dumbbell"
+          ]
+        }
+      ],
+      "substitution_edges": [
+        {
+          "edge_id": "sub_edge_general_strength_back_squat_to_goblet_squat",
+          "source_exercise_id": "back_squat",
+          "target_exercise_id": "goblet_squat",
+          "activity_id": "general_strength",
+          "reason_codes": [
+            "declared_edge_matched"
+          ]
+        }
+      ]
+    },
+    {
+      "activity_id": "rugby_union",
+      "target_exercise_id": "rugby_barbell_hip_hinge",
+      "unavailable_equipment_ids": [
+        "barbell"
+      ],
+      "registry_links": {
+        "activity_ids": [
+          "rugby_union"
+        ],
+        "exercise_ids": [
+          "rugby_barbell_hip_hinge",
+          "rugby_bodyweight_hip_hinge"
+        ],
+        "equipment_ids": [
+          "barbell",
+          "bodyweight"
+        ],
+        "movement_ids": [
+          "hinge"
+        ],
+        "substitution_edge_ids": [
+          "sub_edge_rugby_union_barbell_hinge_to_bodyweight_hinge"
+        ],
+        "applicability_records": [
+          {
+            "exercise_id": "rugby_barbell_hip_hinge",
+            "activity_id": "rugby_union",
+            "substitution_applicability": "eligible"
+          },
+          {
+            "exercise_id": "rugby_bodyweight_hip_hinge",
+            "activity_id": "rugby_union",
+            "substitution_applicability": "eligible"
+          }
+        ]
+      },
+      "candidate_exercises": [
+        {
+          "exercise_id": "rugby_barbell_hip_hinge",
+          "activity_id": "rugby_union",
+          "movement_id": "hinge",
+          "equipment_ids": [
+            "barbell"
+          ]
+        },
+        {
+          "exercise_id": "rugby_bodyweight_hip_hinge",
+          "activity_id": "rugby_union",
+          "movement_id": "hinge",
+          "equipment_ids": [
+            "bodyweight"
+          ]
+        }
+      ],
+      "substitution_edges": [
+        {
+          "edge_id": "sub_edge_rugby_union_barbell_hinge_to_bodyweight_hinge",
+          "source_exercise_id": "rugby_barbell_hip_hinge",
+          "target_exercise_id": "rugby_bodyweight_hip_hinge",
+          "activity_id": "rugby_union",
+          "reason_codes": [
+            "declared_edge_matched"
+          ]
+        }
+      ]
+    }
+  ]
+}

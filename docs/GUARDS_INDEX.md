@@ -82,6 +82,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_30_compile_input_canonicalisation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_31_compile_output_contract_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_32_substitution_engine_contract_guard.mjs` | Runtime Boundary | high | engine |  |
+| `ci/guards/s_v1_33_substitution_registry_closure_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
 | `ci/guards/v1_locked_activity_set_guard.mjs` | Repo Governance | medium | repo | @law v1_locked_activity_set |
