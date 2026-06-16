@@ -1,0 +1,128 @@
+{
+  "valid_input": {
+    "activity_id": "powerlifting",
+    "accepted_declaration": {
+      "phase1_schema_version": "phase1.v1",
+      "engine_compatibility": "v1.compile.alpha",
+      "enum_bundle_version": "v1.supported_activity_set",
+      "declaration_payload_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "declaration_payload": {
+        "activity_id": "powerlifting",
+        "phase1_schema_version": "phase1.v1",
+        "engine_compatibility": "v1.compile.alpha",
+        "enum_bundle_version": "v1.supported_activity_set",
+        "consent_granted": true,
+        "jurisdiction_acknowledged": true
+      }
+    },
+    "programme_assignment": {
+      "assignment_id": "programme_assignment_001",
+      "assignment_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "assignment_status": "assigned",
+      "compile_input_status": "not_consumed_until_declared_compile_input",
+      "engine_visible": false
+    },
+    "programme_template": {
+      "template_id": "template_powerlifting_001",
+      "activity_id": "powerlifting",
+      "template_contract_version": "S-V1-26",
+      "coverage_contract_version": "S-V1-27",
+      "template_registry_version": "template_registry.v1"
+    },
+    "registry_bundle": {
+      "registry_bundle_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "registry_bundle_version": "registry_bundle.v1",
+      "activity_registry_version": "activity_registry.v1",
+      "exercise_registry_version": "exercise_registry.v1",
+      "equipment_registry_version": "equipment_registry.v1",
+      "template_registry_version": "template_registry.v1"
+    },
+    "engine_visible_fields": [
+      "registry_bundle_hash",
+      "template_id",
+      "activity_id",
+      "template_registry_version",
+      "phase1_declaration_payload_sha256",
+      "programme_assignment_id",
+      "compile_input_version",
+      "programme_assignment_hash",
+      "compile_input_status",
+      "engine_visible_fields",
+      "registry_bundle_version",
+      "template_contract_version",
+      "template_coverage_contract_version",
+      "phase1_declaration_payload"
+    ]
+  },
+  "same_semantic_input_different_order": {
+    "engine_visible_fields": [
+      "template_registry_version",
+      "template_id",
+      "template_coverage_contract_version",
+      "template_contract_version",
+      "registry_bundle_version",
+      "registry_bundle_hash",
+      "programme_assignment_id",
+      "programme_assignment_hash",
+      "phase1_declaration_payload_sha256",
+      "phase1_declaration_payload",
+      "engine_visible_fields",
+      "compile_input_version",
+      "compile_input_status",
+      "activity_id"
+    ],
+    "registry_bundle": {
+      "template_registry_version": "template_registry.v1",
+      "registry_bundle_version": "registry_bundle.v1",
+      "registry_bundle_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "exercise_registry_version": "exercise_registry.v1",
+      "equipment_registry_version": "equipment_registry.v1",
+      "activity_registry_version": "activity_registry.v1"
+    },
+    "programme_template": {
+      "template_registry_version": "template_registry.v1",
+      "template_id": "template_powerlifting_001",
+      "template_contract_version": "S-V1-26",
+      "coverage_contract_version": "S-V1-27",
+      "activity_id": "powerlifting"
+    },
+    "programme_assignment": {
+      "engine_visible": false,
+      "compile_input_status": "not_consumed_until_declared_compile_input",
+      "assignment_status": "assigned",
+      "assignment_id": "programme_assignment_001",
+      "assignment_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "accepted_declaration": {
+      "phase1_schema_version": "phase1.v1",
+      "enum_bundle_version": "v1.supported_activity_set",
+      "engine_compatibility": "v1.compile.alpha",
+      "declaration_payload_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "declaration_payload": {
+        "phase1_schema_version": "phase1.v1",
+        "jurisdiction_acknowledged": true,
+        "enum_bundle_version": "v1.supported_activity_set",
+        "engine_compatibility": "v1.compile.alpha",
+        "consent_granted": true,
+        "activity_id": "powerlifting"
+      }
+    },
+    "activity_id": "powerlifting"
+  },
+  "expected_visible_fields": [
+    "activity_id",
+    "compile_input_status",
+    "compile_input_version",
+    "engine_visible_fields",
+    "phase1_declaration_payload",
+    "phase1_declaration_payload_sha256",
+    "programme_assignment_hash",
+    "programme_assignment_id",
+    "registry_bundle_hash",
+    "registry_bundle_version",
+    "template_contract_version",
+    "template_coverage_contract_version",
+    "template_id",
+    "template_registry_version"
+  ]
+}
