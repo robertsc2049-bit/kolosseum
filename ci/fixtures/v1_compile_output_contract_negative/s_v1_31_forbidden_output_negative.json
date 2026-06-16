@@ -1,0 +1,52 @@
+{
+  "cases": [
+    {
+      "case_id": "unknown_root_field_rejected",
+      "mutation_path": "unexpected_field",
+      "mutation_value": "not_allowed",
+      "expected_reason": "v1_compile_output_root_unknown_field_refused"
+    },
+    {
+      "case_id": "recommendation_field_rejected",
+      "mutation_path": "recommendation",
+      "mutation_value": "do this next",
+      "expected_reason": "v1_compile_output_forbidden_field_refused"
+    },
+    {
+      "case_id": "risk_score_rejected",
+      "mutation_path": "planned_session.planned_items.0.risk_score",
+      "mutation_value": 1,
+      "expected_reason": "v1_compile_output_forbidden_field_refused"
+    },
+    {
+      "case_id": "readiness_rejected",
+      "mutation_path": "runtime_trace.readiness",
+      "mutation_value": "ready",
+      "expected_reason": "v1_compile_output_forbidden_field_refused"
+    },
+    {
+      "case_id": "coach_notes_rejected",
+      "mutation_path": "planned_session.coach_notes",
+      "mutation_value": "coach note must not enter compile output",
+      "expected_reason": "v1_compile_output_forbidden_field_refused"
+    },
+    {
+      "case_id": "claim_field_rejected",
+      "mutation_path": "planned_session.planned_items.0.programme_worked",
+      "mutation_value": true,
+      "expected_reason": "v1_compile_output_forbidden_field_refused"
+    },
+    {
+      "case_id": "non_contiguous_order_rejected",
+      "mutation_path": "planned_session.planned_items.1.order",
+      "mutation_value": 4,
+      "expected_reason": "v1_compile_output_order_not_contiguous"
+    },
+    {
+      "case_id": "runtime_count_mismatch_rejected",
+      "mutation_path": "runtime_trace.planned_item_count",
+      "mutation_value": 3,
+      "expected_reason": "v1_compile_output_runtime_count_mismatch"
+    }
+  ]
+}
