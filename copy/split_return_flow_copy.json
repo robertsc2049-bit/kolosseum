@@ -1,0 +1,37 @@
+[
+  {
+    "copy_id": "SPLIT_RETURN_FLOW_TITLE",
+    "text": "Split and return",
+    "surface_id": "v1_split_return_flow"
+  },
+  {
+    "copy_id": "SPLIT_RETURN_FLOW_SPLIT_ACTION",
+    "text": "Record split",
+    "surface_id": "v1_split_return_flow"
+  },
+  {
+    "copy_id": "SPLIT_RETURN_FLOW_RETURN_CONTINUE_ACTION",
+    "text": "Continue recorded session",
+    "surface_id": "v1_split_return_flow"
+  },
+  {
+    "copy_id": "SPLIT_RETURN_FLOW_RETURN_SKIP_ACTION",
+    "text": "Skip remaining work",
+    "surface_id": "v1_split_return_flow"
+  },
+  {
+    "copy_id": "SPLIT_RETURN_FLOW_SPLIT_RECORDED",
+    "text": "Split recorded",
+    "surface_id": "v1_split_return_flow"
+  },
+  {
+    "copy_id": "SPLIT_RETURN_FLOW_RETURN_RECORDED",
+    "text": "Return recorded",
+    "surface_id": "v1_split_return_flow"
+  },
+  {
+    "copy_id": "SPLIT_RETURN_FLOW_DECISION_RESOLVED",
+    "text": "Return decision already recorded",
+    "surface_id": "v1_split_return_flow"
+  }
+]
