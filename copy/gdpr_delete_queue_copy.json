@@ -1,0 +1,11 @@
+{
+  "schema_version": "kolosseum.copy.gdpr_delete_queue.v1.0.0",
+  "surface_id": "gdpr_delete_queue",
+  "entries": {
+    "gdpr_delete_queue.request_queued": "Deletion request queued.",
+    "gdpr_delete_queue.blocked": "Deletion request blocked.",
+    "gdpr_delete_queue.own_data_only": "Request is limited to the requesting user's own data.",
+    "gdpr_delete_queue.retention_review_required": "Some records require legal retention review.",
+    "gdpr_delete_queue.no_engine_change": "Engine truth is unchanged."
+  }
+}
