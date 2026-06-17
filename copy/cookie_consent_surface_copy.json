@@ -1,0 +1,12 @@
+{
+  "schema_version": "kolosseum.copy.cookie_consent_surface.v1.0.0",
+  "surface_id": "cookie_consent_surface",
+  "entries": {
+    "cookie_consent.title": "Cookie choices",
+    "cookie_consent.notice": "Cookie choices are presentation and legal state only.",
+    "cookie_consent.necessary_only": "Use necessary cookies only.",
+    "cookie_consent.preferences": "Allow preference storage.",
+    "cookie_consent.no_engine_change": "Cookie choices do not change training output.",
+    "cookie_consent.saved": "Cookie choices recorded."
+  }
+}
