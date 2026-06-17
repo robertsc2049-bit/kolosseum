@@ -97,6 +97,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_45_evidence_envelope_contract_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_46_proof_artefact_view_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_47_export_boundary_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/s_v1_l_01_legal_document_surfaces_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_p_01_payment_boundary_contract_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_p_02_stripe_checkout_controlled_launch_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_p_03_seat_entitlement_guard_guard.mjs` | Repo Governance | medium | repo |  |
