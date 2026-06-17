@@ -1,0 +1,11 @@
+{
+  "schema_version": "kolosseum.copy.gdpr_export.v1.0.0",
+  "surface_id": "gdpr_export_handling",
+  "entries": {
+    "gdpr_export.available": "Export prepared.",
+    "gdpr_export.blocked": "Export request blocked.",
+    "gdpr_export.own_data_only": "Export is limited to the requesting user's own data.",
+    "gdpr_export.legal_data_access_only": "Export is a legal data access surface.",
+    "gdpr_export.neutral_notice": "Export contains recorded data only."
+  }
+}
