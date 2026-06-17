@@ -1,0 +1,12 @@
+{
+  "schema_version": "kolosseum.copy.public_status_page.v1.0.0",
+  "surface_id": "public_status_page",
+  "entries": {
+    "status_page.title": "Service status",
+    "status_page.notice": "This page reports service state only.",
+    "status_page.service_state": "Current service state.",
+    "status_page.uptime_indicator": "Observed service-state window.",
+    "status_page.incidents": "Current incidents.",
+    "status_page.no_engine_change": "Status information does not change training output."
+  }
+}
