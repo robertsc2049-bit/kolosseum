@@ -1,0 +1,26 @@
+{
+  "billing_management.title": {
+    "text": "Billing management",
+    "claim_class": "billing_surface_label"
+  },
+  "billing_management.overview_created": {
+    "text": "Billing overview created from recorded billing access state.",
+    "claim_class": "billing_state_fact"
+  },
+  "billing_management.portal_requested": {
+    "text": "Customer portal request created for billing management.",
+    "claim_class": "billing_portal_fact"
+  },
+  "billing_management.action_required": {
+    "text": "Billing action is required before product access can continue.",
+    "claim_class": "billing_state_fact"
+  },
+  "billing_management.no_engine_change": {
+    "text": "Billing management state does not change recorded execution records.",
+    "claim_class": "boundary_notice"
+  },
+  "billing_management.relationship_separate": {
+    "text": "Billing state is separate from coach-athlete relationship permission state.",
+    "claim_class": "boundary_notice"
+  }
+}
