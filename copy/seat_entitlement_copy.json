@@ -1,0 +1,22 @@
+{
+  "seat_entitlement.title": {
+    "text": "Seat entitlement",
+    "claim_class": "seat_entitlement_label"
+  },
+  "seat_entitlement.allowed": {
+    "text": "Product access is allowed by the recorded seat entitlement.",
+    "claim_class": "product_access_fact"
+  },
+  "seat_entitlement.rejected": {
+    "text": "Product access is not allowed by the recorded seat entitlement.",
+    "claim_class": "product_access_fact"
+  },
+  "seat_entitlement.limit_reached": {
+    "text": "The recorded seat limit has been reached.",
+    "claim_class": "seat_limit_fact"
+  },
+  "seat_entitlement.no_engine_change": {
+    "text": "Seat entitlement state does not change recorded execution records.",
+    "claim_class": "boundary_notice"
+  }
+}
