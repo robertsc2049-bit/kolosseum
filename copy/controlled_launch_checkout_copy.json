@@ -1,0 +1,22 @@
+{
+  "controlled_launch_checkout.title": {
+    "text": "Controlled launch checkout",
+    "claim_class": "checkout_surface_label"
+  },
+  "controlled_launch_checkout.created": {
+    "text": "Checkout entry created for controlled launch access.",
+    "claim_class": "checkout_state_fact"
+  },
+  "controlled_launch_checkout.redirect_required": {
+    "text": "Provider checkout step is required.",
+    "claim_class": "checkout_state_fact"
+  },
+  "controlled_launch_checkout.webhook_recorded": {
+    "text": "Provider event recorded for billing access state.",
+    "claim_class": "billing_event_fact"
+  },
+  "controlled_launch_checkout.no_engine_change": {
+    "text": "Billing access state does not change recorded execution records.",
+    "claim_class": "boundary_notice"
+  }
+}
