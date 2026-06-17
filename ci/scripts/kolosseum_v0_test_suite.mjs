@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 /**
  * DEV NOTE: V0 suite wrapper for v1 proof/export boundary slices.
  * The core v0 suite still owns v0 boundary law. This wrapper permits only
- * two named v1 proof/export source files to coexist while v1 proof slices are
+ * named v1 proof/export/legal export source files to coexist while v1 proof/export/legal export slices are
  * being built. Any other v0 scope failure remains a hard failure.
  */
 // Wrapper contract sentinels required by run_ci_wrapper_contract_guard.mjs:
@@ -18,7 +18,8 @@ const corePath = path.join(__dirname, "kolosseum_v0_test_suite_core.mjs");
 
 const allowedRelativeFiles = new Set([
   "src/v1ProofArtefactViewContract.mjs",
-  "src/v1ExportBoundaryContract.mjs"
+  "src/v1ExportBoundaryContract.mjs",
+  "src/v1GdprExportHandling.mjs"
 ]);
 
 function normalisePath(value) {
