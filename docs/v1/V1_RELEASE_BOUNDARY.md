@@ -372,3 +372,28 @@ Allowed implementation files:
 - ci/guards/s_v1_u_02_coach_dashboard_shell_guard.mjs
 - ci/fixtures/v1_coach_dashboard_shell/s_v1_u_02_coach_dashboard_shell_cases.json
 <!-- S-V1-U-02:COACH-DASHBOARD-SHELL:END -->
+
+<!-- S-V1-U-03:COACH-REVIEW-QUEUE:START -->
+## S-V1-U-03 Coach Review Queue
+
+S-V1-U-03 adds a bounded factual coach review queue.
+
+The queue may show recorded session facts and review status for assigned athletes only.
+
+The queue is a product UI/read-model surface and is engine-inert.
+
+Authority source:
+
+- docs/v1/V1_COACH_REVIEW_QUEUE.md
+
+Allowed implementation files:
+
+- src/coachReviewQueue.mjs
+- src/api/coachReviewQueueApi.mjs
+- src/coachReviewQueueProjection.mjs
+- copy/coach_review_queue_copy.json
+- docs/v1/V1_COACH_REVIEW_QUEUE.md
+- test/s_v1_u_03_coach_review_queue.test.mjs
+- ci/guards/s_v1_u_03_coach_review_queue_guard.mjs
+- ci/fixtures/v1_coach_review_queue/s_v1_u_03_coach_review_queue_cases.json
+<!-- S-V1-U-03:COACH-REVIEW-QUEUE:END -->

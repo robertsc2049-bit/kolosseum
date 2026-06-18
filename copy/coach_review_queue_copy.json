@@ -1,0 +1,36 @@
+{
+  "schema_version": "kolosseum.copy.coach_review_queue.v1.0.0",
+  "engine_compatibility": "EB2-1.0.0",
+  "scope": "v1_coach_review_queue",
+  "copy_surface_id": "coach_review_queue",
+  "strings": [
+    {
+      "copy_id": "coach_review_queue.title",
+      "copy_text": "Coach review queue"
+    },
+    {
+      "copy_id": "coach_review_queue.empty",
+      "copy_text": "No recorded sessions in queue"
+    },
+    {
+      "copy_id": "coach_review_queue.athlete",
+      "copy_text": "Athlete"
+    },
+    {
+      "copy_id": "coach_review_queue.session",
+      "copy_text": "Session"
+    },
+    {
+      "copy_id": "coach_review_queue.review_status",
+      "copy_text": "Review status"
+    },
+    {
+      "copy_id": "coach_review_queue.recorded_events",
+      "copy_text": "Recorded events"
+    },
+    {
+      "copy_id": "coach_review_queue.last_recorded_event",
+      "copy_text": "Last recorded event"
+    }
+  ]
+}

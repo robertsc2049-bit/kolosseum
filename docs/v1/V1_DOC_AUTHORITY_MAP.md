@@ -466,3 +466,22 @@ Boundary:
 - assigned-only visibility
 - engine-inert
 <!-- S-V1-U-02:COACH-DASHBOARD-SHELL-AUTHORITY:END -->
+
+<!-- S-V1-U-03:DOC-AUTHORITY:START -->
+## S-V1-U-03 Document Authority
+
+Canonical slice document:
+
+- docs/v1/V1_COACH_REVIEW_QUEUE.md
+
+Supporting acceptance and exclusion surfaces:
+
+- docs/v1/V1_RELEASE_BOUNDARY.md
+- docs/v1/V1_ACCEPTANCE_GATE.md
+- docs/v1/V1_NOT_IN_SCOPE.md
+
+Executable proof:
+
+- test/s_v1_u_03_coach_review_queue.test.mjs
+- ci/guards/s_v1_u_03_coach_review_queue_guard.mjs
+<!-- S-V1-U-03:DOC-AUTHORITY:END -->

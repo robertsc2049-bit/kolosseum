@@ -421,3 +421,22 @@ Proof:
 - node --test test/s_v1_u_02_coach_dashboard_shell.test.mjs
 - node ci/guards/s_v1_u_02_coach_dashboard_shell_guard.mjs
 <!-- S-V1-U-02:COACH-DASHBOARD-SHELL-ACCEPTANCE:END -->
+
+<!-- S-V1-U-03:COACH-REVIEW-QUEUE-ACCEPTANCE:START -->
+## S-V1-U-03 Coach Review Queue Acceptance
+
+Acceptance checks:
+
+- assigned coach sees assigned athlete review rows only
+- unassigned athlete rows are absent
+- revoked relationship rows are absent
+- queue rows show recorded facts and review status only
+- projection emits copy ids
+- API adapter refuses non-coach actors without engine tokens
+- queue data remains engine-inert
+
+Proof:
+
+- node --test test/s_v1_u_03_coach_review_queue.test.mjs
+- node ci/guards/s_v1_u_03_coach_review_queue_guard.mjs
+<!-- S-V1-U-03:COACH-REVIEW-QUEUE-ACCEPTANCE:END -->
