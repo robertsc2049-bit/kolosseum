@@ -1,0 +1,54 @@
+{
+  "surface_id": "v1_athlete_dashboard_shell",
+  "surface_version": "1.0.0",
+  "copy_scope": "athlete_dashboard_shell",
+  "entries": [
+    {
+      "copy_id": "ATHLETE_DASHBOARD_SHELL_TITLE",
+      "text": "Your dashboard",
+      "params": []
+    },
+    {
+      "copy_id": "ATHLETE_DASHBOARD_ASSIGNMENTS_TITLE",
+      "text": "Assignments",
+      "params": []
+    },
+    {
+      "copy_id": "ATHLETE_DASHBOARD_SESSIONS_TITLE",
+      "text": "Sessions",
+      "params": []
+    },
+    {
+      "copy_id": "ATHLETE_DASHBOARD_FACTUAL_HISTORY_TITLE",
+      "text": "Factual history",
+      "params": []
+    },
+    {
+      "copy_id": "ATHLETE_DASHBOARD_EMPTY_SECTION",
+      "text": "No recorded items for this section.",
+      "params": []
+    },
+    {
+      "copy_id": "ATHLETE_DASHBOARD_BOUNDARY",
+      "text": "Recorded facts only.",
+      "params": []
+    }
+  ],
+  "engine_boundary": {
+    "ui_shell_only": true,
+    "read_model_only": true,
+    "own_data_only": true,
+    "reads_engine_input": false,
+    "writes_engine_input": false,
+    "mutates_engine_output": false,
+    "mutates_runtime_events": false,
+    "mutates_phase1_declaration": false,
+    "mutates_replay_or_proof": false,
+    "changes_compile_output": false,
+    "triggers_substitution": false,
+    "creates_social_feed": false,
+    "creates_friend_connections": false,
+    "creates_rankings": false,
+    "creates_post_v1_exchange_surface": false
+  }
+}
