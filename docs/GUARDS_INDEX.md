@@ -104,6 +104,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_o_01_status_page_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_o_02_error_reporting_initialisation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_o_03_backup_restore_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/s_v1_o_04_runbook_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_p_01_payment_boundary_contract_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_p_02_stripe_checkout_controlled_launch_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_p_03_seat_entitlement_guard_guard.mjs` | Repo Governance | medium | repo |  |
