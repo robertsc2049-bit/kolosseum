@@ -1,0 +1,32 @@
+{
+  "surface_id": "v1_factual_session_reminder_notification",
+  "surface_version": "1.0.0",
+  "copy_scope": "factual_notification",
+  "entries": [
+    {
+      "copy_id": "SESSION_REMINDER_NOTIFICATION_SUBJECT",
+      "text": "Session reminder",
+      "params": []
+    },
+    {
+      "copy_id": "SESSION_REMINDER_NOTIFICATION_BODY",
+      "text": "A session is recorded for {scheduled_start_at}.",
+      "params": ["scheduled_start_at"]
+    },
+    {
+      "copy_id": "SESSION_REMINDER_NOTIFICATION_BOUNDARY",
+      "text": "This notification is factual only.",
+      "params": []
+    }
+  ],
+  "engine_boundary": {
+    "reads_engine_input": false,
+    "writes_engine_input": false,
+    "mutates_engine_output": false,
+    "mutates_runtime_events": false,
+    "mutates_phase1_declaration": false,
+    "mutates_replay_or_proof": false,
+    "changes_compile_output": false,
+    "triggers_substitution": false
+  }
+}
