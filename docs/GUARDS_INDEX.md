@@ -112,6 +112,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_r_01_factual_session_reminder_notification_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_r_02_factual_weekly_summary_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_r_03_retention_access_window_policy_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/s_v1_u_01_athlete_dashboard_shell_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
 | `ci/guards/v1_locked_activity_set_guard.mjs` | Repo Governance | medium | repo | @law v1_locked_activity_set |
