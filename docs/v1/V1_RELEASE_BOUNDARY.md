@@ -397,3 +397,27 @@ Allowed implementation files:
 - ci/guards/s_v1_u_03_coach_review_queue_guard.mjs
 - ci/fixtures/v1_coach_review_queue/s_v1_u_03_coach_review_queue_cases.json
 <!-- S-V1-U-03:COACH-REVIEW-QUEUE:END -->
+
+<!-- S-V1-U-04:TEMPLATE-ASSIGNMENT-UI:START -->
+## S-V1-U-04 Template Assignment UI
+
+S-V1-U-04 adds a bounded template assignment UI/API integration surface.
+
+The surface may show assigned athletes and assignable template metadata to an authorised coach only.
+
+The surface is product UI/API state and is engine-inert.
+
+Authority source:
+
+- docs/v1/V1_TEMPLATE_ASSIGNMENT_UI.md
+
+Allowed implementation files:
+
+- src/v1TemplateAssignmentUi.mjs
+- src/api/v1TemplateAssignmentUiApi.mjs
+- src/v1TemplateAssignmentProjection.mjs
+- copy/template_assignment_ui_copy.json
+- docs/v1/V1_TEMPLATE_ASSIGNMENT_UI.md
+- test/s_v1_u_04_template_assignment_ui.test.mjs
+- ci/guards/s_v1_u_04_template_assignment_ui_guard.mjs
+<!-- S-V1-U-04:TEMPLATE-ASSIGNMENT-UI:END -->
