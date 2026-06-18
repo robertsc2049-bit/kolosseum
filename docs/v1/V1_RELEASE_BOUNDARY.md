@@ -421,3 +421,26 @@ Allowed implementation files:
 - test/s_v1_u_04_template_assignment_ui.test.mjs
 - ci/guards/s_v1_u_04_template_assignment_ui_guard.mjs
 <!-- S-V1-U-04:TEMPLATE-ASSIGNMENT-UI:END -->
+
+<!-- S-V1-U-05:SESSION-EXECUTION-POLISH:START -->
+## S-V1-U-05 Session Execution Polish
+
+S-V1-U-05 adds a bounded mobile session execution polish surface.
+
+Included:
+
+- execution UI polish
+- accessibility contract metadata
+- ND presentation state
+- minimal-input action descriptors
+- factual copy IDs
+- render and no-coupling proof
+
+Boundary:
+
+- presentation only
+- no engine logic
+- no runtime reducer semantic change
+- no substitution law change
+- no registry law change
+<!-- S-V1-U-05:SESSION-EXECUTION-POLISH:END -->

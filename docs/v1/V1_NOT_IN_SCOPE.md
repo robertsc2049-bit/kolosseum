@@ -558,3 +558,23 @@ S-V1-U-04 does not activate marketplace, coach-to-coach sharing, royalties, reve
 
 The assignment surface records product-layer assignment intent only. It does not alter deterministic engine truth.
 <!-- S-V1-U-04:TEMPLATE-ASSIGNMENT-UI-NON-SCOPE:END -->
+
+<!-- S-V1-U-05:SESSION-EXECUTION-POLISH-NON-SCOPE:START -->
+## S-V1-U-05 Session Execution Polish Non-Scope
+
+S-V1-U-05 does not add:
+
+- engine logic;
+- runtime reducer semantic changes;
+- substitution rule changes;
+- registry law changes;
+- marketplace;
+- coach-to-coach sharing;
+- royalties;
+- live coach intervention;
+- messaging;
+- rankings;
+- outcome judgement.
+
+The slice is limited to mobile execution presentation polish and proof that presentation state is engine-inert.
+<!-- S-V1-U-05:SESSION-EXECUTION-POLISH-NON-SCOPE:END -->

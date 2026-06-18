@@ -460,3 +460,18 @@ Proof:
 - node --test test/s_v1_u_04_template_assignment_ui.test.mjs
 - node ci/guards/s_v1_u_04_template_assignment_ui_guard.mjs
 <!-- S-V1-U-04:TEMPLATE-ASSIGNMENT-UI-ACCEPTANCE:END -->
+
+<!-- S-V1-U-05:SESSION-EXECUTION-POLISH-ACCEPTANCE:START -->
+## S-V1-U-05 Session Execution Polish Acceptance
+
+Acceptance requires:
+
+- mobile execution polish surface renders from existing session state;
+- minimal-input actions are presentation descriptors only;
+- accessibility contract metadata is present;
+- ND presentation changes only presentation fields;
+- copy IDs are emitted without inline user-facing copy;
+- no engine import, compile call, registry mutation, or runtime reducer semantic change is introduced;
+- `node --test test/s_v1_u_05_session_execution_polish.test.mjs` passes;
+- `node ci/guards/s_v1_u_05_session_execution_polish_guard.mjs` passes.
+<!-- S-V1-U-05:SESSION-EXECUTION-POLISH-ACCEPTANCE:END -->
