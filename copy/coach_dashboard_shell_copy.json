@@ -1,0 +1,40 @@
+{
+  "copy_surface_id": "v1_coach_dashboard_shell",
+  "slice_id": "S-V1-U-02",
+  "status": "active",
+  "engine_visible": false,
+  "entries": [
+    {
+      "copy_id": "coach_dashboard_shell.title",
+      "text": "Coach overview"
+    },
+    {
+      "copy_id": "coach_dashboard_shell.assigned_athletes",
+      "text": "Assigned athletes"
+    },
+    {
+      "copy_id": "coach_dashboard_shell.recorded_sessions",
+      "text": "Recorded sessions"
+    },
+    {
+      "copy_id": "coach_dashboard_shell.last_recorded_event",
+      "text": "Last recorded event"
+    },
+    {
+      "copy_id": "coach_dashboard_shell.no_assigned_athletes",
+      "text": "No assigned athletes recorded."
+    },
+    {
+      "copy_id": "coach_dashboard_shell.factual_history",
+      "text": "Factual history"
+    },
+    {
+      "copy_id": "coach_dashboard_shell.session_artefacts",
+      "text": "Session artefacts"
+    },
+    {
+      "copy_id": "coach_dashboard_shell.live_session_status",
+      "text": "Live session status"
+    }
+  ]
+}

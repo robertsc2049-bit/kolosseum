@@ -519,3 +519,26 @@ S-V1-19 must not activate:
 - real compile route mutation
 - engine phase mutation
 <!-- S-V1-19:ONBOARDING-START-GATE-NON-SCOPE:END -->
+
+<!-- S-V1-U-02:COACH-DASHBOARD-SHELL-NON-SCOPE:START -->
+## S-V1-U-02 Coach Dashboard Shell Non-Scope
+
+S-V1-U-02 does not add:
+
+- broad analytics dashboard
+- team dashboard
+- organisation dashboard
+- organization dashboard
+- commercial dashboard
+- marketplace
+- messaging
+- chat
+- social feed
+- rankings
+- outcome labels
+- payment-state branching
+- engine mutation
+- registry mutation
+- proof mutation
+- export mutation
+<!-- S-V1-U-02:COACH-DASHBOARD-SHELL-NON-SCOPE:END -->
