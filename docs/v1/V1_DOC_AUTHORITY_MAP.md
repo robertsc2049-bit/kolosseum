@@ -485,3 +485,22 @@ Executable proof:
 - test/s_v1_u_03_coach_review_queue.test.mjs
 - ci/guards/s_v1_u_03_coach_review_queue_guard.mjs
 <!-- S-V1-U-03:DOC-AUTHORITY:END -->
+
+<!-- S-V1-U-04:DOC-AUTHORITY:START -->
+## S-V1-U-04 Document Authority
+
+Canonical slice document:
+
+- docs/v1/V1_TEMPLATE_ASSIGNMENT_UI.md
+
+Supporting acceptance and exclusion surfaces:
+
+- docs/v1/V1_RELEASE_BOUNDARY.md
+- docs/v1/V1_ACCEPTANCE_GATE.md
+- docs/v1/V1_NOT_IN_SCOPE.md
+
+Executable proof:
+
+- test/s_v1_u_04_template_assignment_ui.test.mjs
+- ci/guards/s_v1_u_04_template_assignment_ui_guard.mjs
+<!-- S-V1-U-04:DOC-AUTHORITY:END -->

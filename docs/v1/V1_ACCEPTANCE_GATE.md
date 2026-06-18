@@ -440,3 +440,23 @@ Proof:
 - node --test test/s_v1_u_03_coach_review_queue.test.mjs
 - node ci/guards/s_v1_u_03_coach_review_queue_guard.mjs
 <!-- S-V1-U-03:COACH-REVIEW-QUEUE-ACCEPTANCE:END -->
+
+<!-- S-V1-U-04:TEMPLATE-ASSIGNMENT-UI-ACCEPTANCE:START -->
+## S-V1-U-04 Template Assignment UI Acceptance
+
+Acceptance checks:
+
+- authorised coach sees assigned athletes only
+- authorised coach sees assignable template metadata only
+- non-coach actor is refused
+- unassigned athlete submission is refused
+- hidden template internals are refused before UI exposure
+- assignment submission emits product-layer envelope only
+- assignment submission requires declared compile path later
+- assignment UI and submission remain engine-inert
+
+Proof:
+
+- node --test test/s_v1_u_04_template_assignment_ui.test.mjs
+- node ci/guards/s_v1_u_04_template_assignment_ui_guard.mjs
+<!-- S-V1-U-04:TEMPLATE-ASSIGNMENT-UI-ACCEPTANCE:END -->

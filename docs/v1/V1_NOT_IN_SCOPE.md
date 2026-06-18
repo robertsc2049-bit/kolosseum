@@ -550,3 +550,11 @@ S-V1-U-03 does not activate recommendation, alert escalation, intervention instr
 
 The coach interprets the recorded queue facts outside the deterministic engine.
 <!-- S-V1-U-03:COACH-REVIEW-QUEUE-NON-SCOPE:END -->
+
+<!-- S-V1-U-04:TEMPLATE-ASSIGNMENT-UI-NON-SCOPE:START -->
+## S-V1-U-04 Template Assignment UI Non-Scope
+
+S-V1-U-04 does not activate marketplace, coach-to-coach sharing, royalties, revenue-share logic, template publication, template authoring, template cloning, derivative programme checks, licence sale, commerce, database migration, persistence implementation, compile route mutation, engine mutation, or formula visibility.
+
+The assignment surface records product-layer assignment intent only. It does not alter deterministic engine truth.
+<!-- S-V1-U-04:TEMPLATE-ASSIGNMENT-UI-NON-SCOPE:END -->
