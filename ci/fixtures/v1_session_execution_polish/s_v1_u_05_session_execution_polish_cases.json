@@ -1,0 +1,53 @@
+{
+  "slice_id": "S-V1-U-05",
+  "title": "Session Execution Polish",
+  "contract": "v1_session_execution_polish",
+  "boundary": {
+    "allowed": [
+      "execution_ui",
+      "accessibility_contract",
+      "nd_presentation",
+      "copy_id_surface",
+      "presentation_only_actions"
+    ],
+    "forbidden": [
+      "engine_logic",
+      "runtime_reducer_semantics",
+      "registry_law",
+      "substitution_rules",
+      "marketplace",
+      "coach_to_coach_sharing",
+      "royalties"
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "standard_mobile_surface",
+      "presentation": {
+        "nd_mode": false,
+        "instruction_density": "standard",
+        "low_input_mode": false
+      },
+      "expected": {
+        "current_work_item_id": "work_2",
+        "tap_path": "standard",
+        "engine_visible": false,
+        "presentation_only": true
+      }
+    },
+    {
+      "case_id": "nd_low_input_surface",
+      "presentation": {
+        "nd_mode": true,
+        "instruction_density": "minimal",
+        "low_input_mode": true
+      },
+      "expected": {
+        "current_work_item_id": "work_2",
+        "tap_path": "reduced",
+        "engine_visible": false,
+        "presentation_only": true
+      }
+    }
+  ]
+}

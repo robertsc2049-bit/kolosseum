@@ -504,3 +504,24 @@ Executable proof:
 - test/s_v1_u_04_template_assignment_ui.test.mjs
 - ci/guards/s_v1_u_04_template_assignment_ui_guard.mjs
 <!-- S-V1-U-04:DOC-AUTHORITY:END -->
+
+<!-- S-V1-U-05:DOC-AUTHORITY:START -->
+## S-V1-U-05 Document Authority
+
+Primary document:
+
+- `docs/v1/V1_SESSION_EXECUTION_POLISH.md`
+
+Supporting proof:
+
+- `src/v1SessionExecutionPolish.mjs`
+- `test/s_v1_u_05_session_execution_polish.test.mjs`
+- `ci/fixtures/v1_session_execution_polish/s_v1_u_05_session_execution_polish_cases.json`
+- `ci/guards/s_v1_u_05_session_execution_polish_guard.mjs`
+
+Authority boundary:
+
+- canonical engine law still controls execution truth;
+- this slice controls presentation only;
+- tests prove ND and low-input presentation do not alter session truth.
+<!-- S-V1-U-05:DOC-AUTHORITY:END -->
