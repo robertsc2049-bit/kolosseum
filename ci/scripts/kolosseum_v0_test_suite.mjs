@@ -27,7 +27,10 @@ const allowedReadModelRelativeFiles = new Set([
   "src/v1AthleteDashboardShell.mjs",
   "src/coachDashboardShell.mjs",
   "src/api/coachDashboardShellApi.mjs",
-  "src/coachAssignedShellProjection.mjs"
+  "src/coachAssignedShellProjection.mjs",
+  "src/coachReviewQueue.mjs",
+  "src/api/coachReviewQueueApi.mjs",
+  "src/coachReviewQueueProjection.mjs",
 ]);
 
 function normalisePath(value) {

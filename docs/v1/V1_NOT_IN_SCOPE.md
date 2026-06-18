@@ -542,3 +542,11 @@ S-V1-U-02 does not add:
 - proof mutation
 - export mutation
 <!-- S-V1-U-02:COACH-DASHBOARD-SHELL-NON-SCOPE:END -->
+
+<!-- S-V1-U-03:COACH-REVIEW-QUEUE-NON-SCOPE:START -->
+## S-V1-U-03 Coach Review Queue Non-Scope
+
+S-V1-U-03 does not activate recommendation, alert escalation, intervention instruction, readiness labels, fatigue labels, risk labels, scoring, ranking, broad analytics dashboard, team dashboard, organisation dashboard, commercial dashboard, messaging, notification delivery, live coach override, engine mutation, database migration, or persistence implementation.
+
+The coach interprets the recorded queue facts outside the deterministic engine.
+<!-- S-V1-U-03:COACH-REVIEW-QUEUE-NON-SCOPE:END -->
