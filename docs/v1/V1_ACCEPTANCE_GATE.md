@@ -402,3 +402,22 @@ Acceptance requires proof that:
 
 Acceptance is blocked if S-V1-19 emits advice, recommendation, medical clearance, safety judgement, suitability judgement, team onboarding, or engine mutation.
 <!-- S-V1-19:ONBOARDING-START-GATE:END -->
+
+<!-- S-V1-U-02:COACH-DASHBOARD-SHELL-ACCEPTANCE:START -->
+## S-V1-U-02 Coach Dashboard Shell Acceptance
+
+Acceptance checks:
+
+- assigned coach sees assigned athlete row
+- unassigned athlete row is absent
+- revoked relationship row is absent
+- coach dashboard shell emits copy ids
+- shell projection emits factual fields only
+- API adapter refuses non-coach actors without engine tokens
+- shell data remains engine-inert
+
+Proof:
+
+- node --test test/s_v1_u_02_coach_dashboard_shell.test.mjs
+- node ci/guards/s_v1_u_02_coach_dashboard_shell_guard.mjs
+<!-- S-V1-U-02:COACH-DASHBOARD-SHELL-ACCEPTANCE:END -->

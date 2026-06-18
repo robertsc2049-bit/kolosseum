@@ -436,3 +436,33 @@ It is enforced by:
 
 No lower-authority file may widen S-V1-19 into recommendations, coaching advice, medical clearance, team onboarding, persistence, UI, assignment, substitution, proof implementation, real compile route mutation, or engine mutation.
 <!-- S-V1-19:ONBOARDING-START-GATE-AUTHORITY:END -->
+
+<!-- S-V1-U-02:COACH-DASHBOARD-SHELL-AUTHORITY:START -->
+## S-V1-U-02 Coach Dashboard Shell Authority Map
+
+Document:
+
+- docs/v1/V1_COACH_DASHBOARD_SHELL.md
+
+Executable proof:
+
+- src/coachDashboardShell.mjs
+- src/api/coachDashboardShellApi.mjs
+- src/coachAssignedShellProjection.mjs
+- test/s_v1_u_02_coach_dashboard_shell.test.mjs
+- ci/guards/s_v1_u_02_coach_dashboard_shell_guard.mjs
+
+Copy surface:
+
+- copy/coach_dashboard_shell_copy.json
+
+Fixture:
+
+- ci/fixtures/v1_coach_dashboard_shell/s_v1_u_02_coach_dashboard_shell_cases.json
+
+Boundary:
+
+- product UI/read model only
+- assigned-only visibility
+- engine-inert
+<!-- S-V1-U-02:COACH-DASHBOARD-SHELL-AUTHORITY:END -->

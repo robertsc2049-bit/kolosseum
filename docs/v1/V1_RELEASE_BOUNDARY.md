@@ -348,3 +348,27 @@ S-V1-19 emits factual blocked reason ids only.
 
 S-V1-19 does not activate recommendations, coaching advice, medical clearance, medical assessment, diagnosis, team onboarding, organisation onboarding, organization onboarding, unit onboarding, federation onboarding, enterprise onboarding, UI, persistence, assignment, substitution, proof implementation, real compile route mutation, or engine phase mutation.
 <!-- S-V1-19:ONBOARDING-START-GATE:END -->
+
+<!-- S-V1-U-02:COACH-DASHBOARD-SHELL:START -->
+## S-V1-U-02 Coach Dashboard Shell
+
+S-V1-U-02 adds the bounded coach dashboard shell.
+
+The shell may show assigned-athlete rows only.
+
+The shell is a product UI/read-model surface and is engine-inert.
+
+Authority source:
+
+- docs/v1/V1_COACH_DASHBOARD_SHELL.md
+
+Allowed implementation files:
+
+- src/coachDashboardShell.mjs
+- src/api/coachDashboardShellApi.mjs
+- src/coachAssignedShellProjection.mjs
+- copy/coach_dashboard_shell_copy.json
+- test/s_v1_u_02_coach_dashboard_shell.test.mjs
+- ci/guards/s_v1_u_02_coach_dashboard_shell_guard.mjs
+- ci/fixtures/v1_coach_dashboard_shell/s_v1_u_02_coach_dashboard_shell_cases.json
+<!-- S-V1-U-02:COACH-DASHBOARD-SHELL:END -->
