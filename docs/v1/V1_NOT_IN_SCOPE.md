@@ -651,3 +651,9 @@ S-V1-F-05 must not add or change:
 
 If any required acceptance item fails, the decision must be BLOCKED and the fix must be handled in a separate named slice.
 <!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:END -->
+
+## S-V1-F-12 Controlled Launch Go/No-Go Record Non-Scope
+
+S-V1-F-12 does not authorise product code, engine behaviour, feature implementation, acceptance gate law changes, release tag changes, open sign-up, marketplace scope, organisation scope, gym scope, team scope, federation scope, enterprise dashboard scope, messaging, commercial claims, or post-v1 scope.
+
+It does not make coaching advice, athlete condition, safety, readiness, optimisation, training effect, automated selection, automated recommendation, programme outcome, or external endorsement claims.
