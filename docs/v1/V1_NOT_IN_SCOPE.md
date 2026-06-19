@@ -630,3 +630,24 @@ S-V1-F-02 must not add:
 - enterprise runtime
 
 The acceptance runner blocks completion on post-v1 scope leaks. It does not activate post-v1 scope.
+
+<!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:START -->
+## S-V1-F-05 V1 Final Ship Decision Non-Scope
+
+S-V1-F-05 must not add or change:
+
+- product code
+- feature implementation
+- engine behaviour
+- registry content
+- database schema
+- package version
+- git tags
+- release tag creation
+- acceptance-gate law
+- legal meaning
+- commercial authority
+- org, team, gym, unit, federation, marketplace, messaging, EPOS, or post-v1 surfaces
+
+If any required acceptance item fails, the decision must be BLOCKED and the fix must be handled in a separate named slice.
+<!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:END -->

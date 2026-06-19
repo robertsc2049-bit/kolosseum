@@ -562,3 +562,19 @@ Authority boundary:
 - feature guards remain authoritative for their feature boundaries
 - canonical v1 docs remain authoritative for release scope
 - no runner result may widen v1 scope, create product law, create engine law, create registry law, authorise production-data access, or activate post-v1 product surfaces
+
+<!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:START -->
+## S-V1-F-05 V1 Final Ship Decision Authority
+
+S-V1-F-05 authority is limited to release decision recording.
+
+Source files:
+
+- `docs/releases/V1_FINAL_SHIP_DECISION.md`
+- `docs/releases/V1_FINAL_SHIP_DECISION.json`
+- `ci/scripts/run_s_v1_f_05_v1_final_ship_decision.mjs`
+- `ci/guards/s_v1_f_05_v1_final_ship_decision_guard.mjs`
+- `test/s_v1_f_05_v1_final_ship_decision.test.mjs`
+
+This authority is subordinate to the v1 release boundary, v1 acceptance gate, v1 non-scope record, CI master gate, engine contracts, registry contracts, and legal/copy boundaries.
+<!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:END -->

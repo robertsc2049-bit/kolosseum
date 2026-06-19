@@ -477,3 +477,13 @@ Boundary:
 - no registry law
 - no production-data access
 - no post-v1 scope activation
+
+<!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:START -->
+## S-V1-F-05 V1 Final Ship Decision
+
+S-V1-F-05 adds the final controlled-v1 ship decision record and proof matrix.
+
+Allowed files are release decision records, release decision guard, release decision runner, release decision tests, package script wiring, and generated indexes through owning generators.
+
+This slice does not create product code authority, engine authority, registry authority, legal authority, commercial authority, release-tag authority, package-version authority, or post-v1 activation authority.
+<!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:END -->

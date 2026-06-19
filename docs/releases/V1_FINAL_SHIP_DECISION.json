@@ -1,0 +1,53 @@
+{
+    "record_id":  "v1_final_ship_decision",
+    "slice_id":  "S-V1-F-05",
+    "title":  "V1 Final Ship Decision",
+    "decision":  "SHIP",
+    "decision_scope":  "controlled_v1",
+    "mainline_evidence":  {
+                              "head_sha":  "455ea0cb5bdc640de6a405fd443e667b0fae57e4",
+                              "origin_main_sha":  "455ea0cb5bdc640de6a405fd443e667b0fae57e4",
+                              "main_clean_before_decision":  true,
+                              "head_equals_origin_main":  true,
+                              "required_checks_green":  true
+                          },
+    "ship_blocking_rules":  {
+                                "evidence_based_decision_required":  true,
+                                "failed_acceptance_item_blocks_v1":  true,
+                                "incomplete_v1_completion_wording_forbidden":  true,
+                                "product_code_change_allowed":  false,
+                                "feature_implementation_allowed":  false,
+                                "release_tag_creation_allowed":  false,
+                                "package_version_change_allowed":  false,
+                                "engine_behaviour_change_allowed":  false,
+                                "registry_content_change_allowed":  false,
+                                "post_v1_scope_activation_allowed":  false
+                            },
+    "required_evidence":  [
+                              {
+                                  "label":  "npm.cmd run acceptance:v1:check",
+                                  "command":  "npm.cmd run acceptance:v1:check",
+                                  "exit_code":  0,
+                                  "passed":  true
+                              },
+                              {
+                                  "label":  "npm.cmd run proof:s-v1-f-04",
+                                  "command":  "npm.cmd run proof:s-v1-f-04",
+                                  "exit_code":  0,
+                                  "passed":  true
+                              },
+                              {
+                                  "label":  "npm.cmd run lint:fast",
+                                  "command":  "npm.cmd run lint:fast",
+                                  "exit_code":  0,
+                                  "passed":  true
+                              }
+                          ],
+    "final_gate":  {
+                       "acceptance_gate_command":  "npm.cmd run acceptance:v1:check",
+                       "release_tag_preparation_command":  "npm.cmd run proof:s-v1-f-04",
+                       "full_local_gate_command":  "npm.cmd run lint:fast"
+                   },
+    "permitted_next_action":  "prepare_controlled_v1_tag_from_clean_main_only",
+    "blocked_reason":  null
+}
