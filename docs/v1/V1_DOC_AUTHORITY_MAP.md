@@ -578,3 +578,18 @@ Source files:
 
 This authority is subordinate to the v1 release boundary, v1 acceptance gate, v1 non-scope record, CI master gate, engine contracts, registry contracts, and legal/copy boundaries.
 <!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:END -->
+
+## S-V1-F-12 Controlled Launch Go/No-Go Record Authority
+
+Authority level: release evidence record.
+
+Authoritative files:
+- docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.md
+- docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.json
+
+Proof files:
+- test/s_v1_f_12_controlled_launch_go_no_go_record.test.mjs
+- ci/guards/s_v1_f_12_controlled_launch_go_no_go_record_guard.mjs
+- ci/scripts/run_s_v1_f_12_controlled_launch_go_no_go_record.mjs
+
+This record reads existing release evidence and states GO or NO-GO for controlled launch only. It does not define product law, engine law, registry law, acceptance law, commercial authority, release-tag authority, or post-v1 scope.

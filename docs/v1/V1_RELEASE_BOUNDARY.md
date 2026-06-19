@@ -487,3 +487,11 @@ Allowed files are release decision records, release decision guard, release deci
 
 This slice does not create product code authority, engine authority, registry authority, legal authority, commercial authority, release-tag authority, package-version authority, or post-v1 activation authority.
 <!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:END -->
+
+## S-V1-F-12 Controlled Launch Go/No-Go Record
+
+S-V1-F-12 is a release decision record and evidence-reference surface only.
+
+It may state GO only when the required controlled-launch release evidence is present and passing.
+
+It must not change product code, engine behaviour, feature implementation, acceptance gate law, registry content, release tag, commercial authority, legal meaning, or post-v1 scope.

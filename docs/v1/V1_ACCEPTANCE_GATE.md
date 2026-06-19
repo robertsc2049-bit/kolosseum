@@ -528,3 +528,13 @@ Required proof:
 - `npm.cmd run lint:fast`
 - `npm.cmd run proof:s-v1-f-05`
 <!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:END -->
+
+## S-V1-F-12 Controlled Launch Go/No-Go Record
+
+Required proof: npm.cmd run proof:s-v1-f-12
+
+This gate records the final controlled launch GO or NO-GO decision after the release tag, release evidence snapshot, controlled launch execution pack, final ship decision, and controlled launch smoke run exist.
+
+Any failed required controlled-launch evidence item means NO-GO.
+
+GO is limited to controlled launch for the named founder group only and does not authorise open availability or post-v1 scope.

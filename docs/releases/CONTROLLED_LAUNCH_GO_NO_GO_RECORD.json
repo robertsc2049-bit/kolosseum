@@ -1,0 +1,181 @@
+{
+    "schema_version":  "1.0.0",
+    "slice_id":  "S-V1-F-12",
+    "record_id":  "controlled_launch_go_no_go_record",
+    "title":  "Controlled Launch Go/No-Go Record",
+    "status":  "final",
+    "record_type":  "controlled_launch_decision_record",
+    "created_at_utc":  "2026-06-19T14:19:51.5227615Z",
+    "decision":  "GO",
+    "decision_scope":  "controlled_launch_only",
+    "blocked_reason":  null,
+    "current_mainline":  {
+                             "head_sha":  "7510f63eaae6bfbe539f48e75b4ff2f63fca3f02",
+                             "origin_main_sha":  "7510f63eaae6bfbe539f48e75b4ff2f63fca3f02",
+                             "head_equals_origin_main":  true,
+                             "working_tree_clean":  true
+                         },
+    "release_identity":  {
+                             "tag_name":  "v1-controlled-launch",
+                             "expected_tag_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                             "verified_tag_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                             "tag_commit_match":  true
+                         },
+    "evidence_references":  {
+                                "final_ship_decision":  "docs/releases/V1_FINAL_SHIP_DECISION.json",
+                                "release_evidence_snapshot":  "docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json",
+                                "controlled_launch_execution_pack":  "docs/releases/CONTROLLED_LAUNCH_EXECUTION_PACK.json",
+                                "controlled_launch_smoke_run":  "docs/releases/CONTROLLED_LAUNCH_SMOKE_RUN.json",
+                                "controlled_launch_readiness_record":  "docs/releases/CONTROLLED_LAUNCH_READINESS_RECORD.json",
+                                "acceptance_gate_manifest":  "docs/v1/V1_ACCEPTANCE_GATE_MANIFEST.json"
+                            },
+    "source_evidence":  {
+                            "final_ship_decision":  {
+                                                        "slice_id":  "S-V1-F-05",
+                                                        "decision":  "SHIP",
+                                                        "proof_command":  "npm.cmd run proof:s-v1-f-05"
+                                                    },
+                            "release_evidence_snapshot":  {
+                                                              "slice_id":  "S-V1-F-08",
+                                                              "status":  "recorded",
+                                                              "tag_points_to_verified_main_commit":  true,
+                                                              "proof_command":  "npm.cmd run proof:s-v1-f-08"
+                                                          },
+                            "controlled_launch_execution_pack":  {
+                                                                     "slice_id":  "S-V1-F-09",
+                                                                     "status":  "prepared",
+                                                                     "scope":  "controlled_launch_only",
+                                                                     "proof_command":  "npm.cmd run proof:s-v1-f-09"
+                                                                 },
+                            "controlled_launch_smoke_run":  {
+                                                                "slice_id":  "S-V1-F-10",
+                                                                "status":  "pass",
+                                                                "result":  "pass",
+                                                                "required_command_count":  12,
+                                                                "failed_required_command_count":  0,
+                                                                "launch_blocker_recorded":  false,
+                                                                "proof_command":  "npm.cmd run proof:s-v1-f-10"
+                                                            }
+                        },
+    "decision_rules":  {
+                           "evidence_based_decision_required":  true,
+                           "any_failed_required_item_means_no_go":  true,
+                           "incomplete_completion_wording_forbidden":  true,
+                           "go_scope_is_controlled_launch_only":  true,
+                           "go_authorises_open_availability":  false,
+                           "product_code_change_allowed":  false,
+                           "engine_behaviour_change_allowed":  false,
+                           "feature_implementation_allowed":  false,
+                           "acceptance_gate_law_change_allowed":  false,
+                           "release_tag_change_allowed":  false,
+                           "post_v1_scope_activation_allowed":  false
+                       },
+    "required_items":  [
+                           {
+                               "id":  "GNG-001",
+                               "label":  "main_synced_to_origin_main",
+                               "source":  "git rev-parse HEAD and git rev-parse origin/main",
+                               "required":  true,
+                               "passed":  true,
+                               "status":  "pass"
+                           },
+                           {
+                               "id":  "GNG-002",
+                               "label":  "main_working_tree_clean",
+                               "source":  "git status --short",
+                               "required":  true,
+                               "passed":  true,
+                               "status":  "pass"
+                           },
+                           {
+                               "id":  "GNG-003",
+                               "label":  "release_tag_verified",
+                               "source":  "git rev-list -n 1 v1-controlled-launch",
+                               "required":  true,
+                               "passed":  true,
+                               "status":  "pass"
+                           },
+                           {
+                               "id":  "GNG-004",
+                               "label":  "final_ship_decision_is_ship",
+                               "source":  "docs/releases/V1_FINAL_SHIP_DECISION.json",
+                               "required":  true,
+                               "passed":  true,
+                               "status":  "pass"
+                           },
+                           {
+                               "id":  "GNG-005",
+                               "label":  "release_evidence_snapshot_recorded",
+                               "source":  "docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json",
+                               "required":  true,
+                               "passed":  true,
+                               "status":  "pass"
+                           },
+                           {
+                               "id":  "GNG-006",
+                               "label":  "controlled_launch_execution_pack_prepared",
+                               "source":  "docs/releases/CONTROLLED_LAUNCH_EXECUTION_PACK.json",
+                               "required":  true,
+                               "passed":  true,
+                               "status":  "pass"
+                           },
+                           {
+                               "id":  "GNG-007",
+                               "label":  "controlled_launch_smoke_run_passed",
+                               "source":  "docs/releases/CONTROLLED_LAUNCH_SMOKE_RUN.json",
+                               "required":  true,
+                               "passed":  true,
+                               "status":  "pass"
+                           },
+                           {
+                               "id":  "GNG-008",
+                               "label":  "smoke_did_not_mutate_product_engine_or_tag",
+                               "source":  "docs/releases/CONTROLLED_LAUNCH_SMOKE_RUN.json",
+                               "required":  true,
+                               "passed":  true,
+                               "status":  "pass"
+                           }
+                       ],
+    "failed_required_items":  [
+
+                              ],
+    "boundaries":  {
+                       "decision_record_only":  true,
+                       "touches_product_code":  false,
+                       "touches_engine_behaviour":  false,
+                       "touches_feature_implementation":  false,
+                       "changes_acceptance_gate_law":  false,
+                       "changes_release_tag":  false,
+                       "activates_post_v1_scope":  false,
+                       "creates_open_signup":  false,
+                       "creates_marketplace_scope":  false,
+                       "creates_organisation_scope":  false,
+                       "creates_gym_scope":  false,
+                       "creates_team_scope":  false,
+                       "creates_federation_scope":  false,
+                       "creates_messaging_scope":  false,
+                       "creates_commercial_claims":  false
+                   },
+    "claim_boundary":  {
+                           "coaching_advice_claim":  false,
+                           "athlete_condition_claim":  false,
+                           "safety_claim":  false,
+                           "readiness_claim":  false,
+                           "optimisation_claim":  false,
+                           "training_effect_claim":  false,
+                           "automated_selection_claim":  false,
+                           "automated_recommendation_claim":  false,
+                           "programme_outcome_claim":  false,
+                           "external_endorsement_claim":  false
+                       },
+    "proof_commands":  [
+                           "npm.cmd run proof:s-v1-f-12",
+                           "npm.cmd run proof:s-v1-f-05",
+                           "npm.cmd run proof:s-v1-f-08",
+                           "npm.cmd run proof:s-v1-f-09",
+                           "npm.cmd run proof:s-v1-f-10",
+                           "npm.cmd run acceptance:v1:check",
+                           "npm.cmd run lint:fast"
+                       ],
+    "permitted_next_action":  "start_controlled_launch_for_named_founder_group_only"
+}
