@@ -1,0 +1,152 @@
+{
+    "slice_id":  "S-V1-F-08",
+    "record_id":  "controlled_v1_release_evidence_snapshot",
+    "title":  "Controlled v1 release evidence snapshot",
+    "status":  "recorded",
+    "created_at_utc":  "2026-06-19T13:19:21.6411444Z",
+    "evidence_type":  "post_tag_release_state",
+    "release":  {
+                    "tag_name":  "v1-controlled-launch",
+                    "tag_object_type":  "tag",
+                    "tag_object_sha":  "f604363aeabe67257bf6157efa2e0dc32d8d9287",
+                    "tag_ref_summary":  "v1-controlled-launch|tag|f604363aeabe67257bf6157efa2e0dc32d8d9287|2026-06-19T14:04:17+01:00|Kolosseum controlled v1 release tag. Source: S-V1-F-06 verified mainline. Commit: 43510e4c4d791effda647e80dc74d8452dc61f1f.",
+                    "verified_main_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                    "main_head_at_snapshot":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                    "origin_main_at_snapshot":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                    "local_tag_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                    "remote_tag_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                    "tag_points_to_verified_main_commit":  true
+                },
+    "ship_decision":  {
+                          "slice_id":  "S-V1-F-05",
+                          "decision":  "SHIP",
+                          "markdown_path":  "docs/releases/V1_FINAL_SHIP_DECISION.md",
+                          "json_path":  "docs/releases/V1_FINAL_SHIP_DECISION.json",
+                          "proof_command":  "npm.cmd run proof:s-v1-f-05",
+                          "success_marker":  "S-V1-F-05 V1_FINAL_SHIP_DECISION_CHECK_PASS"
+                      },
+    "proof_commands":  [
+                           {
+                               "command_id":  "final_ship_decision_proof",
+                               "command":  "npm.cmd run proof:s-v1-f-05",
+                               "required":  true,
+                               "required_result":  "pass"
+                           },
+                           {
+                               "command_id":  "packaging_surface_registry_guard",
+                               "command":  "node ci/guards/postv1_packaging_surface_registry_guard.mjs",
+                               "required":  true,
+                               "required_result":  "pass"
+                           },
+                           {
+                               "command_id":  "local_tag_commit_verification",
+                               "command":  "git rev-list -n 1 v1-controlled-launch",
+                               "required":  true,
+                               "required_result":  "43510e4c4d791effda647e80dc74d8452dc61f1f"
+                           },
+                           {
+                               "command_id":  "remote_tag_commit_verification",
+                               "command":  "git ls-remote --tags origin refs/tags/v1-controlled-launch refs/tags/v1-controlled-launch^{}",
+                               "required":  true,
+                               "required_result":  "peeled remote tag resolves to 43510e4c4d791effda647e80dc74d8452dc61f1f"
+                           },
+                           {
+                               "command_id":  "lint_fast_after_evidence_change",
+                               "command":  "npm.cmd run lint:fast",
+                               "required":  true,
+                               "required_result":  "pass"
+                           }
+                       ],
+    "release_boundaries":  {
+                               "factual_only":  true,
+                               "creates_product_code":  false,
+                               "changes_engine_behaviour":  false,
+                               "changes_feature_implementation":  false,
+                               "changes_acceptance_gate_law":  false,
+                               "changes_release_tag":  false,
+                               "creates_commercial_claims":  false,
+                               "unsupported_claims":  [
+                                                          "No athlete condition claim is made.",
+                                                          "No programme effect claim is made.",
+                                                          "No automated selection claim is made.",
+                                                          "No ranking or recommendation claim is made.",
+                                                          "No training advice claim is made."
+                                                      ]
+                           },
+    "required_files":  [
+                           "docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.md",
+                           "docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json",
+                           "docs/releases/V1_FINAL_SHIP_DECISION.md",
+                           "docs/releases/V1_FINAL_SHIP_DECISION.json",
+                           "docs/releases/V1_RELEASE_TAG_PREPARATION.md",
+                           "docs/releases/V1_RELEASE_TAG_PREPARATION.json",
+                           "docs/v1/V1_ACCEPTANCE_GATE_MANIFEST.json"
+                       ],
+    "pr_references":  [
+                          {
+                              "query":  "S-V1-F-04",
+                              "status":  "resolved",
+                              "results":  [
+                                              {
+                                                  "value":  [
+                                                                {
+                                                                    "baseRefName":  "main",
+                                                                    "headRefName":  "ticket/s-v1-f-04-v1-release-tag-preparation",
+                                                                    "mergedAt":  "2026-06-19T08:58:41Z",
+                                                                    "number":  725,
+                                                                    "state":  "MERGED",
+                                                                    "title":  "S-V1-F-04 prepare v1 release tag record",
+                                                                    "url":  "https://github.com/robertsc2049-bit/kolosseum/pull/725"
+                                                                }
+                                                            ],
+                                                  "Count":  1
+                                              }
+                                          ]
+                          },
+                          {
+                              "query":  "S-V1-F-05",
+                              "status":  "resolved",
+                              "results":  [
+                                              {
+                                                  "value":  [
+                                                                {
+                                                                    "baseRefName":  "main",
+                                                                    "headRefName":  "ticket/s-v1-f-05-v1-final-ship-decision",
+                                                                    "mergedAt":  "2026-06-19T12:50:09Z",
+                                                                    "number":  726,
+                                                                    "state":  "MERGED",
+                                                                    "title":  "S-V1-F-05 create v1 final ship decision",
+                                                                    "url":  "https://github.com/robertsc2049-bit/kolosseum/pull/726"
+                                                                }
+                                                            ],
+                                                  "Count":  1
+                                              }
+                                          ]
+                          },
+                          {
+                              "query":  "S-V1-F-06",
+                              "status":  "resolved",
+                              "results":  [
+                                              {
+                                                  "value":  [
+
+                                                            ],
+                                                  "Count":  0
+                                              }
+                                          ]
+                          },
+                          {
+                              "query":  "S-V1-F-07",
+                              "status":  "resolved",
+                              "results":  [
+                                              {
+                                                  "value":  [
+
+                                                            ],
+                                                  "Count":  0
+                                              }
+                                          ]
+                          }
+                      ],
+    "closure_rule":  "If any required proof command fails, this evidence snapshot is not closed."
+}
