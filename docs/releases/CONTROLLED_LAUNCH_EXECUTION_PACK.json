@@ -1,0 +1,214 @@
+{
+    "slice_id":  "S-V1-F-09",
+    "record_id":  "controlled_launch_execution_pack",
+    "title":  "Controlled Launch Execution Pack",
+    "status":  "prepared",
+    "record_type":  "operational_launch_execution_pack",
+    "created_at_utc":  "2026-06-19T13:41:45.2302621Z",
+    "scope":  "controlled_launch_only",
+    "release_identity":  {
+                             "tag_name":  "v1-controlled-launch",
+                             "tag_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                             "release_evidence_snapshot":  "docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json",
+                             "final_ship_decision":  "docs/releases/V1_FINAL_SHIP_DECISION.json",
+                             "controlled_launch_readiness_record":  "docs/releases/CONTROLLED_LAUNCH_READINESS_RECORD.json"
+                         },
+    "launch_start_rule":  {
+                              "status":  "not_started_by_this_pack",
+                              "may_start_only_when":  [
+                                                          "release_tag_exists_locally_and_remotely",
+                                                          "release_evidence_snapshot_exists",
+                                                          "final_ship_decision_records_ship",
+                                                          "controlled_launch_readiness_record_is_completed_by_operator",
+                                                          "named_founder_group_is_fixed_outside_repo",
+                                                          "support_route_is_recorded",
+                                                          "evidence_capture_path_is_available"
+                                                      ],
+                              "this_pack_marks_v1_live":  false,
+                              "this_pack_changes_product_state":  false
+                          },
+    "boundaries":  {
+                       "operational_evidence_only":  true,
+                       "creates_product_code":  false,
+                       "changes_engine_behaviour":  false,
+                       "changes_feature_implementation":  false,
+                       "changes_onboarding_logic":  false,
+                       "changes_pricing_logic":  false,
+                       "creates_marketplace_scope":  false,
+                       "creates_organisation_scope":  false,
+                       "creates_gym_scope":  false,
+                       "creates_team_scope":  false,
+                       "creates_federation_scope":  false,
+                       "creates_enterprise_dashboard_scope":  false,
+                       "creates_messaging_scope":  false,
+                       "creates_commercial_claims":  false
+                   },
+    "operator_checklist":  [
+                               {
+                                   "id":  "CLX-001",
+                                   "phase":  "before_start",
+                                   "item":  "Confirm main is synced to the post-tag evidence state.",
+                                   "evidence":  "git rev-parse origin/main and docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json",
+                                   "blocks_launch_if_missing":  true
+                               },
+                               {
+                                   "id":  "CLX-002",
+                                   "phase":  "before_start",
+                                   "item":  "Confirm v1-controlled-launch exists locally and on origin.",
+                                   "evidence":  "git rev-list -n 1 v1-controlled-launch and git ls-remote --tags origin refs/tags/v1-controlled-launch refs/tags/v1-controlled-launch^{}",
+                                   "blocks_launch_if_missing":  true
+                               },
+                               {
+                                   "id":  "CLX-003",
+                                   "phase":  "before_start",
+                                   "item":  "Confirm the S-V1-F-05 final ship decision still records SHIP.",
+                                   "evidence":  "npm.cmd run proof:s-v1-f-05",
+                                   "blocks_launch_if_missing":  true
+                               },
+                               {
+                                   "id":  "CLX-004",
+                                   "phase":  "before_start",
+                                   "item":  "Confirm the S-V1-F-08 release evidence snapshot still passes.",
+                                   "evidence":  "npm.cmd run proof:s-v1-f-08",
+                                   "blocks_launch_if_missing":  true
+                               },
+                               {
+                                   "id":  "CLX-005",
+                                   "phase":  "before_start",
+                                   "item":  "Complete the controlled launch readiness record for the named launch group.",
+                                   "evidence":  "docs/releases/CONTROLLED_LAUNCH_READINESS_RECORD.md",
+                                   "blocks_launch_if_missing":  true
+                               },
+                               {
+                                   "id":  "CLX-006",
+                                   "phase":  "before_start",
+                                   "item":  "Fix the named founder coach and athlete account list outside the repo.",
+                                   "evidence":  "operator-held named account record",
+                                   "blocks_launch_if_missing":  true
+                               },
+                               {
+                                   "id":  "CLX-007",
+                                   "phase":  "before_start",
+                                   "item":  "Record support route, defect intake route, and launch operator owner.",
+                                   "evidence":  "operator support record or runbook reference",
+                                   "blocks_launch_if_missing":  true
+                               },
+                               {
+                                   "id":  "CLX-008",
+                                   "phase":  "start",
+                                   "item":  "Create or verify founding user accounts using existing controlled-launch account flows.",
+                                   "evidence":  "account setup evidence reference",
+                                   "blocks_launch_if_missing":  true
+                               },
+                               {
+                                   "id":  "CLX-009",
+                                   "phase":  "start",
+                                   "item":  "Record coach-athlete relationship checks for each named pair.",
+                                   "evidence":  "relationship proof or controlled launch readiness item",
+                                   "blocks_launch_if_missing":  true
+                               },
+                               {
+                                   "id":  "CLX-010",
+                                   "phase":  "start",
+                                   "item":  "Run the founder test path for assignment, compile, session start, event recording, factual history, coach view, and support route.",
+                                   "evidence":  "proof:s-v1-f-01 or operator captured founder test evidence",
+                                   "blocks_launch_if_missing":  true
+                               },
+                               {
+                                   "id":  "CLX-011",
+                                   "phase":  "after_start",
+                                   "item":  "Capture evidence references for completed launch checks.",
+                                   "evidence":  "controlled launch evidence path entries",
+                                   "blocks_launch_if_missing":  false
+                               },
+                               {
+                                   "id":  "CLX-012",
+                                   "phase":  "after_start",
+                                   "item":  "Record any launch-blocking defect and stop new founding user starts until the defect is closed.",
+                                   "evidence":  "defect record with owner, timestamp, affected path, and closure evidence",
+                                   "blocks_launch_if_missing":  true
+                               }
+                           ],
+    "evidence_capture_path":  [
+                                  {
+                                      "id":  "CLE-001",
+                                      "evidence":  "release_tag",
+                                      "required_reference":  "v1-controlled-launch"
+                                  },
+                                  {
+                                      "id":  "CLE-002",
+                                      "evidence":  "release_evidence_snapshot",
+                                      "required_reference":  "docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.md"
+                                  },
+                                  {
+                                      "id":  "CLE-003",
+                                      "evidence":  "final_ship_decision",
+                                      "required_reference":  "docs/releases/V1_FINAL_SHIP_DECISION.md"
+                                  },
+                                  {
+                                      "id":  "CLE-004",
+                                      "evidence":  "controlled_launch_readiness_record",
+                                      "required_reference":  "docs/releases/CONTROLLED_LAUNCH_READINESS_RECORD.md"
+                                  },
+                                  {
+                                      "id":  "CLE-005",
+                                      "evidence":  "founder_test_pack",
+                                      "required_reference":  "npm.cmd run proof:s-v1-f-01"
+                                  },
+                                  {
+                                      "id":  "CLE-006",
+                                      "evidence":  "acceptance_runner",
+                                      "required_reference":  "npm.cmd run acceptance:v1:check"
+                                  },
+                                  {
+                                      "id":  "CLE-007",
+                                      "evidence":  "claim_boundary_check",
+                                      "required_reference":  "npm.cmd run lint:fast"
+                                  },
+                                  {
+                                      "id":  "CLE-008",
+                                      "evidence":  "support_and_defect_route",
+                                      "required_reference":  "operator support record"
+                                  }
+                              ],
+    "launch_blocking_defect_path":  {
+                                        "trigger":  "named launch check cannot be completed or a founding user cannot complete an expected controlled-launch path",
+                                        "operator_action":  "stop new starts for affected users, record defect, keep existing factual evidence, and do not widen launch scope",
+                                        "required_record_fields":  [
+                                                                       "defect_id",
+                                                                       "detected_at_utc",
+                                                                       "detected_by",
+                                                                       "affected_path",
+                                                                       "evidence_reference",
+                                                                       "owner",
+                                                                       "current_state",
+                                                                       "closure_reference"
+                                                                   ],
+                                        "closure_rule":  "launch continues only after a new evidence reference records the defect path closed",
+                                        "engine_mutation_allowed":  false,
+                                        "scope_widening_allowed":  false
+                                    },
+    "forbidden_scope":  [
+                            "product_code",
+                            "engine_behaviour",
+                            "feature_implementation",
+                            "onboarding_feature_logic",
+                            "pricing_logic",
+                            "marketplace",
+                            "organisations",
+                            "gyms",
+                            "teams",
+                            "federations",
+                            "enterprise_dashboards",
+                            "messaging",
+                            "post_v1_scope"
+                        ],
+    "claim_boundary":  {
+                           "athlete_condition_claim":  false,
+                           "programme_effect_claim":  false,
+                           "automated_selection_claim":  false,
+                           "automated_ranking_claim":  false,
+                           "external_endorsement_claim":  false,
+                           "commercial_claim":  false
+                       }
+}
