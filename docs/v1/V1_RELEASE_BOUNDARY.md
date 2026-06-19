@@ -454,3 +454,26 @@ S-V1-F-01 is a manual controlled-launch founder testing surface.
 It may define fixture-only accounts, manual test scripts, and founder QA evidence records.
 
 It does not create product law, engine law, registry law, payment authority, legal authority, support authority, production-data access, or post-v1 product scope.
+
+## S-V1-F-02 V1 Acceptance Gate Runner
+
+S-V1-F-02 adds the v1 acceptance gate manifest and local runner.
+
+Included:
+
+- v1 acceptance manifest
+- local manifest check/list/run runner
+- target test
+- guard proof
+- package scripts naming exact commands
+- generated indexes refreshed through generators
+
+Boundary:
+
+- proof orchestration only
+- no broad workflow edits
+- no product law
+- no engine law
+- no registry law
+- no production-data access
+- no post-v1 scope activation

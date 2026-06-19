@@ -490,3 +490,22 @@ The founder test pack is accepted only when:
 - the test pack states that it does not create product law.
 - the test pack states that it does not authorise production data access.
 - the target test and guard pass.
+
+## S-V1-F-02 V1 Acceptance Gate Runner
+
+V1 acceptance requires an executable acceptance gate manifest and runner.
+
+The canonical manifest is `docs/v1/V1_ACCEPTANCE_GATE_MANIFEST.json`.
+
+The canonical runner is `ci/scripts/run_s_v1_f_02_v1_acceptance_gate_runner.mjs`.
+
+V1 must not be marked complete unless every required gate in the manifest passes.
+
+Required commands:
+
+- `node ci/scripts/run_s_v1_f_02_v1_acceptance_gate_runner.mjs --check`
+- `node --test test/s_v1_f_02_v1_acceptance_gate_runner.test.mjs`
+- `node ci/guards/s_v1_f_02_v1_acceptance_gate_runner_guard.mjs`
+- `npm.cmd run lint:fast`
+
+The runner is proof orchestration only. It does not create product law, engine law, registry law, workflow law, production-data authority, or post-v1 product scope.
