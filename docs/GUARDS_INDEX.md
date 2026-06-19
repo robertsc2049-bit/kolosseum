@@ -102,6 +102,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_f_03_controlled_launch_readiness_record_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_04_v1_release_tag_preparation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_05_v1_final_ship_decision_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/s_v1_f_08_release_evidence_snapshot_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_01_legal_document_surfaces_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_02_gdpr_export_handling_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_03_gdpr_delete_queue_guard.mjs` | Repo Governance | medium | repo |  |
