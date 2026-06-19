@@ -475,3 +475,18 @@ Acceptance requires:
 - `node --test test/s_v1_u_05_session_execution_polish.test.mjs` passes;
 - `node ci/guards/s_v1_u_05_session_execution_polish_guard.mjs` passes.
 <!-- S-V1-U-05:SESSION-EXECUTION-POLISH-ACCEPTANCE:END -->
+
+## S-V1-F-01 Founder Test Pack Acceptance
+
+V1 acceptance requires a founder-controlled manual test pack for controlled launch.
+
+The founder test pack must cover coach registration, athlete registration, relationship acceptance, declaration, assignment, compile, execution, split/return, partial completion, history, artefacts, notes, live status, proof/export, payment, legal, and support surfaces.
+
+The founder test pack is accepted only when:
+
+- `docs/v1/V1_FOUNDER_TEST_PACK.md` exists.
+- fixture-only accounts exist.
+- manual test scripts cover the required v1 flow.
+- the test pack states that it does not create product law.
+- the test pack states that it does not authorise production data access.
+- the target test and guard pass.

@@ -1,0 +1,223 @@
+{
+  "slice_id": "S-V1-F-01",
+  "fixture_pack_id": "s_v1_f_01_founder_test_pack",
+  "fixture_pack_version": "1.0.0",
+  "environment": "fixture_only",
+  "production_data_allowed": false,
+  "product_law_created": false,
+  "post_v1_scope_allowed": false,
+  "live_provider_calls_allowed": false,
+  "fixture_accounts": [
+    {
+      "account_id": "fixture_coach_founder_01",
+      "role": "coach",
+      "email": "coach.founder.01@example.test",
+      "display_name": "Fixture Coach One",
+      "purpose": "coach registration, assignment, artefact, notes, live status, payment, and support manual tests"
+    },
+    {
+      "account_id": "fixture_coach_founder_02",
+      "role": "coach",
+      "email": "coach.founder.02@example.test",
+      "display_name": "Fixture Coach Two",
+      "purpose": "unassigned coach negative visibility manual tests"
+    },
+    {
+      "account_id": "fixture_athlete_founder_01",
+      "role": "athlete",
+      "email": "athlete.founder.01@example.test",
+      "display_name": "Fixture Athlete One",
+      "purpose": "athlete registration, declaration, execution, history, proof, and export manual tests"
+    },
+    {
+      "account_id": "fixture_athlete_founder_02",
+      "role": "athlete",
+      "email": "athlete.founder.02@example.test",
+      "display_name": "Fixture Athlete Two",
+      "purpose": "cross-athlete negative visibility manual tests"
+    }
+  ],
+  "fixture_relationships": [
+    {
+      "relationship_id": "fixture_relationship_founder_01",
+      "coach_account_id": "fixture_coach_founder_01",
+      "athlete_account_id": "fixture_athlete_founder_01",
+      "relationship_status": "accepted",
+      "scope": "individual",
+      "negative_actor_account_id": "fixture_coach_founder_02"
+    }
+  ],
+  "fixture_records": {
+    "declaration_id": "fixture_declaration_founder_01",
+    "assignment_id": "fixture_assignment_founder_01",
+    "compile_id": "fixture_compile_founder_01",
+    "session_id": "fixture_session_founder_01",
+    "split_return_id": "fixture_split_return_founder_01",
+    "partial_completion_id": "fixture_partial_completion_founder_01",
+    "history_id": "fixture_history_founder_01",
+    "artefact_id": "fixture_artefact_founder_01",
+    "note_id": "fixture_note_founder_01",
+    "live_status_id": "fixture_live_status_founder_01",
+    "proof_export_id": "fixture_proof_export_founder_01",
+    "payment_id": "fixture_payment_founder_01",
+    "legal_id": "fixture_legal_founder_01",
+    "support_id": "fixture_support_founder_01"
+  },
+  "required_coverage": [
+    "coach_registration",
+    "athlete_registration",
+    "relationship",
+    "declaration",
+    "assignment",
+    "compile",
+    "execution",
+    "split_return",
+    "partial_completion",
+    "history",
+    "artefacts",
+    "notes",
+    "live_status",
+    "proof_export",
+    "payment",
+    "legal",
+    "support"
+  ],
+  "manual_test_scripts": [
+    {
+      "test_id": "F01-001",
+      "coverage": "coach_registration",
+      "title": "Coach registration or provisioning",
+      "fixture_refs": ["fixture_coach_founder_01"],
+      "expected_record": "coach product/auth state exists without creating engine input",
+      "not_allowed": ["production data", "engine mutation", "post-v1 scope"]
+    },
+    {
+      "test_id": "F01-002",
+      "coverage": "athlete_registration",
+      "title": "Athlete registration or invitation",
+      "fixture_refs": ["fixture_athlete_founder_01"],
+      "expected_record": "athlete product/auth state exists without implied coach relationship",
+      "not_allowed": ["production data", "implied relationship", "engine mutation"]
+    },
+    {
+      "test_id": "F01-003",
+      "coverage": "relationship",
+      "title": "Coach-athlete relationship acceptance",
+      "fixture_refs": ["fixture_relationship_founder_01", "fixture_coach_founder_02"],
+      "expected_record": "accepted relationship grants assigned-only visibility",
+      "not_allowed": ["unassigned visibility", "production data", "engine mutation"]
+    },
+    {
+      "test_id": "F01-004",
+      "coverage": "declaration",
+      "title": "Phase 1 declaration",
+      "fixture_refs": ["fixture_declaration_founder_01"],
+      "expected_record": "accepted declaration record exists and invalid declaration states fail closed",
+      "not_allowed": ["coach override", "production data", "engine mutation"]
+    },
+    {
+      "test_id": "F01-005",
+      "coverage": "assignment",
+      "title": "Programme assignment",
+      "fixture_refs": ["fixture_assignment_founder_01"],
+      "expected_record": "assigned coach creates assignment without exposing protected internals",
+      "not_allowed": ["hidden formula exposure", "marketplace", "coach-to-coach sharing"]
+    },
+    {
+      "test_id": "F01-006",
+      "coverage": "compile",
+      "title": "Deterministic compile path",
+      "fixture_refs": ["fixture_compile_founder_01"],
+      "expected_record": "same explicit fixture input gives stable compile output",
+      "not_allowed": ["payment-driven engine output", "notes-driven engine output", "UI-driven engine output"]
+    },
+    {
+      "test_id": "F01-007",
+      "coverage": "execution",
+      "title": "Mobile session execution",
+      "fixture_refs": ["fixture_session_founder_01"],
+      "expected_record": "started and executed fixture events are factual",
+      "not_allowed": ["presentation mutation", "recommendation copy", "engine mutation"]
+    },
+    {
+      "test_id": "F01-008",
+      "coverage": "split_return",
+      "title": "Split and return",
+      "fixture_refs": ["fixture_split_return_founder_01"],
+      "expected_record": "split and return decisions are recorded without mutating prior truth",
+      "not_allowed": ["resolved replay mutation", "coach intervention", "engine mutation"]
+    },
+    {
+      "test_id": "F01-009",
+      "coverage": "partial_completion",
+      "title": "Stop, skip, and partial completion",
+      "fixture_refs": ["fixture_partial_completion_founder_01"],
+      "expected_record": "skip and partial completion are factual recorded events",
+      "not_allowed": ["judgement copy", "readiness claim", "safety claim"]
+    },
+    {
+      "test_id": "F01-010",
+      "coverage": "history",
+      "title": "Factual history",
+      "fixture_refs": ["fixture_history_founder_01"],
+      "expected_record": "athlete and assigned coach see source-bound recorded history",
+      "not_allowed": ["unassigned coach visibility", "ranking", "inference"]
+    },
+    {
+      "test_id": "F01-011",
+      "coverage": "artefacts",
+      "title": "Coach factual artefact view",
+      "fixture_refs": ["fixture_artefact_founder_01"],
+      "expected_record": "assigned coach sees factual artefacts for assigned athlete only",
+      "not_allowed": ["unassigned visibility", "coach notes inside artefact input", "interpretation"]
+    },
+    {
+      "test_id": "F01-012",
+      "coverage": "notes",
+      "title": "Coach notes",
+      "fixture_refs": ["fixture_note_founder_01"],
+      "expected_record": "coach note is product-layer and engine-invisible",
+      "not_allowed": ["engine input", "proof mutation", "artefact truth mutation"]
+    },
+    {
+      "test_id": "F01-013",
+      "coverage": "live_status",
+      "title": "Live session status",
+      "fixture_refs": ["fixture_live_status_founder_01"],
+      "expected_record": "assigned coach sees read-only factual live status",
+      "not_allowed": ["coach override", "session mutation", "messaging"]
+    },
+    {
+      "test_id": "F01-014",
+      "coverage": "proof_export",
+      "title": "Proof artefact view and export boundary",
+      "fixture_refs": ["fixture_proof_export_founder_01"],
+      "expected_record": "source-bound proof artefact and permitted export reference are available",
+      "not_allowed": ["broad export", "external attestation", "production data"]
+    },
+    {
+      "test_id": "F01-015",
+      "coverage": "payment",
+      "title": "Controlled-launch payment path",
+      "fixture_refs": ["fixture_payment_founder_01"],
+      "expected_record": "billing access record is product access state only",
+      "not_allowed": ["live provider call", "engine mutation", "enterprise billing"]
+    },
+    {
+      "test_id": "F01-016",
+      "coverage": "legal",
+      "title": "Legal document surfaces",
+      "fixture_refs": ["fixture_legal_founder_01"],
+      "expected_record": "legal surfaces render without mutating engine, billing, relationship, proof, or history truth",
+      "not_allowed": ["legal advice", "provider call", "engine mutation"]
+    },
+    {
+      "test_id": "F01-017",
+      "coverage": "support",
+      "title": "Support, status, error reporting, backup, and runbook",
+      "fixture_refs": ["fixture_support_founder_01"],
+      "expected_record": "support checks use factual controlled-launch surfaces only",
+      "not_allowed": ["production data", "secret access", "support automation"]
+    }
+  ]
+}

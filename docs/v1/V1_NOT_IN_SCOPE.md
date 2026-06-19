@@ -578,3 +578,31 @@ S-V1-U-05 does not add:
 
 The slice is limited to mobile execution presentation polish and proof that presentation state is engine-inert.
 <!-- S-V1-U-05:SESSION-EXECUTION-POLISH-NON-SCOPE:END -->
+
+## S-V1-F-01 Founder Test Pack Non-Scope
+
+S-V1-F-01 must not include:
+
+- production data access
+- production account creation
+- production database connection
+- live payment provider calls
+- live email sending
+- live notification sending
+- legal advice
+- support automation
+- new product routes
+- engine behaviour
+- registry law
+- runtime reducer behaviour
+- substitution law
+- marketplace
+- messaging
+- team runtime
+- organisation runtime
+- unit runtime
+- gym runtime
+- federation runtime
+- enterprise runtime
+
+The founder test pack is manual fixture-only QA evidence. It does not create product law.

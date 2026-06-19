@@ -444,3 +444,13 @@ Boundary:
 - no substitution law change
 - no registry law change
 <!-- S-V1-U-05:SESSION-EXECUTION-POLISH:END -->
+
+## S-V1-F-01 Founder Test Pack
+
+The canonical v1 founder test pack is `docs/v1/V1_FOUNDER_TEST_PACK.md`.
+
+S-V1-F-01 is a manual controlled-launch founder testing surface.
+
+It may define fixture-only accounts, manual test scripts, and founder QA evidence records.
+
+It does not create product law, engine law, registry law, payment authority, legal authority, support authority, production-data access, or post-v1 product scope.
