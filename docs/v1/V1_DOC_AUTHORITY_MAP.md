@@ -525,3 +525,18 @@ Authority boundary:
 - this slice controls presentation only;
 - tests prove ND and low-input presentation do not alter session truth.
 <!-- S-V1-U-05:DOC-AUTHORITY:END -->
+
+## S-V1-F-01 Founder Test Pack Authority
+
+`docs/v1/V1_FOUNDER_TEST_PACK.md` is the v1 founder manual test pack.
+
+It is a manual controlled-launch QA surface only.
+
+Authority order for founder test pack scope:
+
+1. active v1 release boundary
+2. relevant canonical v1 feature documents
+3. relevant guards and tests
+4. `docs/v1/V1_FOUNDER_TEST_PACK.md`
+
+No founder test observation, fixture account, manual step, screenshot, support note, or QA note may widen v1 scope, create product law, create engine law, create registry law, authorise production-data access, or activate post-v1 product surfaces.
