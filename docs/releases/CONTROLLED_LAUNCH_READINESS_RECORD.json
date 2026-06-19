@@ -1,0 +1,147 @@
+{
+  "schema_version": "kolosseum.controlled_launch_readiness_record.v1.0.0",
+  "slice_id": "S-V1-F-03",
+  "record_id": "controlled_launch_readiness_record_v1",
+  "record_title": "Controlled Launch Readiness Record",
+  "record_state": "template_not_signed",
+  "launch_decision": {
+    "status": "not_recorded",
+    "signed_at_utc": null,
+    "signed_by": []
+  },
+  "launch_control": {
+    "type": "controlled",
+    "named_participants_only": true,
+    "open_signup_allowed": false,
+    "marketing_expansion_allowed": false,
+    "broad_rollout_allowed": false,
+    "enterprise_launch_allowed": false,
+    "post_v1_surfaces_allowed": false
+  },
+  "boundary": {
+    "included": [
+      "named launch group",
+      "coach-athlete product path",
+      "legal surfaces",
+      "support boundary",
+      "acceptance gate proof references"
+    ],
+    "excluded": [
+      "open signup",
+      "marketing expansion",
+      "broad rollout",
+      "enterprise launch",
+      "organisation runtime",
+      "team runtime",
+      "unit runtime",
+      "gym runtime",
+      "marketplace",
+      "messaging",
+      "broad analytics",
+      "coach override",
+      "post-v1 surfaces"
+    ]
+  },
+  "required_gate_items": [
+    {
+      "item_id": "CLRR-001",
+      "label": "active release boundary checked",
+      "evidence_kind": "release_boundary_reference",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-002",
+      "label": "participant list fixed",
+      "evidence_kind": "named_launch_group_record",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-003",
+      "label": "legal surfaces rendered",
+      "evidence_kind": "legal_surface_proof",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-004",
+      "label": "support boundary available",
+      "evidence_kind": "support_boundary_proof",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-005",
+      "label": "account flow checked",
+      "evidence_kind": "account_flow_proof",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-006",
+      "label": "relationship link checked",
+      "evidence_kind": "relationship_link_proof",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-007",
+      "label": "assignment and execution path checked",
+      "evidence_kind": "execution_path_proof",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-008",
+      "label": "live status boundary checked if included",
+      "evidence_kind": "read_only_live_status_proof",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-009",
+      "label": "backup and restore dry run recorded",
+      "evidence_kind": "backup_restore_proof",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-010",
+      "label": "error reporting path checked",
+      "evidence_kind": "error_reporting_proof",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-011",
+      "label": "copy and claim guard checked",
+      "evidence_kind": "copy_claim_guard_proof",
+      "status": "unrecorded",
+      "evidence_refs": []
+    },
+    {
+      "item_id": "CLRR-012",
+      "label": "final acceptance runner checked",
+      "evidence_kind": "acceptance_runner_proof",
+      "status": "unrecorded",
+      "evidence_refs": []
+    }
+  ],
+  "signoff": {
+    "required": true,
+    "current_state": "unsigned",
+    "founder_signoff": "not_recorded",
+    "technical_signoff": "not_recorded",
+    "support_signoff": "not_recorded"
+  },
+  "interpretation_limits": {
+    "factual_record_only": true,
+    "not_marketing_expansion": true,
+    "not_broad_rollout": true,
+    "not_enterprise_launch": true,
+    "not_external_approval": true,
+    "not_people_assessment": true,
+    "not_outcome_claim": true
+  }
+}

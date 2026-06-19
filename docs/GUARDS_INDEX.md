@@ -99,6 +99,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_47_export_boundary_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_01_founder_test_pack_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_02_v1_acceptance_gate_runner_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/s_v1_f_03_controlled_launch_readiness_record_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_01_legal_document_surfaces_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_02_gdpr_export_handling_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_03_gdpr_delete_queue_guard.mjs` | Repo Governance | medium | repo |  |
