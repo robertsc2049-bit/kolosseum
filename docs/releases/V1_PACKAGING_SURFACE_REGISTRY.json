@@ -78,6 +78,8 @@
     "docs/releases/V1_FREEZE_SIGNOFF_SUMMARY.md",
     "docs/releases/V1_FREEZE_SIGNOFF_SUMMARY_CONTRACT.md",
     "docs/releases/V1_RELEASE_TAG_PREPARATION.json",
-    "docs/releases/V1_RELEASE_TAG_PREPARATION.md"
+    "docs/releases/V1_FINAL_SHIP_DECISION.json",
+    "docs/releases/V1_RELEASE_TAG_PREPARATION.md",
+    "docs/releases/V1_FINAL_SHIP_DECISION.md"
   ]
 }

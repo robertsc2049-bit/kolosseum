@@ -509,3 +509,22 @@ Required commands:
 - `npm.cmd run lint:fast`
 
 The runner is proof orchestration only. It does not create product law, engine law, registry law, workflow law, production-data authority, or post-v1 product scope.
+
+<!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:START -->
+## S-V1-F-05 V1 Final Ship Decision
+
+V1 acceptance requires a final ship decision record after the v1 acceptance gate, release tag preparation proof, and full local gate have passed.
+
+The decision record must state SHIP or BLOCKED.
+
+Any failed required acceptance item blocks v1.
+
+The decision record must not implement features, alter engine truth, alter registry content, change package version, create tags, or activate post-v1 scope.
+
+Required proof:
+
+- `npm.cmd run acceptance:v1:check`
+- `npm.cmd run proof:s-v1-f-04`
+- `npm.cmd run lint:fast`
+- `npm.cmd run proof:s-v1-f-05`
+<!-- S-V1-F-05:V1-FINAL-SHIP-DECISION:END -->
