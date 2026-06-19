@@ -540,3 +540,25 @@ Authority order for founder test pack scope:
 4. `docs/v1/V1_FOUNDER_TEST_PACK.md`
 
 No founder test observation, fixture account, manual step, screenshot, support note, or QA note may widen v1 scope, create product law, create engine law, create registry law, authorise production-data access, or activate post-v1 product surfaces.
+
+## S-V1-F-02 V1 Acceptance Gate Runner Authority
+
+Primary surfaces:
+
+- `docs/v1/V1_ACCEPTANCE_GATE_MANIFEST.json`
+- `docs/v1/V1_ACCEPTANCE_GATE_RUNNER.md`
+- `ci/scripts/run_s_v1_f_02_v1_acceptance_gate_runner.mjs`
+
+Executable proof:
+
+- `test/s_v1_f_02_v1_acceptance_gate_runner.test.mjs`
+- `ci/guards/s_v1_f_02_v1_acceptance_gate_runner_guard.mjs`
+- `npm.cmd run proof:s-v1-f-02`
+- `npm.cmd run lint:fast`
+
+Authority boundary:
+
+- the runner orchestrates proof only
+- feature guards remain authoritative for their feature boundaries
+- canonical v1 docs remain authoritative for release scope
+- no runner result may widen v1 scope, create product law, create engine law, create registry law, authorise production-data access, or activate post-v1 product surfaces

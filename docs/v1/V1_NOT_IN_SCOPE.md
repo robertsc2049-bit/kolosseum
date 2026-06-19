@@ -606,3 +606,27 @@ S-V1-F-01 must not include:
 - enterprise runtime
 
 The founder test pack is manual fixture-only QA evidence. It does not create product law.
+
+## S-V1-F-02 V1 Acceptance Gate Runner Non-Scope
+
+S-V1-F-02 must not add:
+
+- broad workflow changes
+- production data access
+- production account creation
+- live provider calls
+- engine behaviour
+- registry law
+- runtime reducer behaviour
+- substitution law
+- product routes
+- marketplace
+- messaging
+- team runtime
+- organisation runtime
+- unit runtime
+- gym runtime
+- federation runtime
+- enterprise runtime
+
+The acceptance runner blocks completion on post-v1 scope leaks. It does not activate post-v1 scope.
