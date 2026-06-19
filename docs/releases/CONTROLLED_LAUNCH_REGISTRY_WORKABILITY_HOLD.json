@@ -1,0 +1,63 @@
+{
+  "slice_id": "S-V1-G-02",
+  "record_id": "controlled_launch_registry_workability_hold",
+  "title": "Controlled Launch Registry Workability Audit and Launch Hold",
+  "record_type": "registry_workability_launch_hold",
+  "token": "CI_V1_REGISTRY_WORKABILITY_AUDIT_LAUNCH_HOLD",
+  "status": "HOLD",
+  "operational_launch_status": "HOLD_REGISTRY_WORKABILITY_NOT_PROVEN",
+  "controlled_launch_user_start_authorised": false,
+  "decision_scope": "controlled_launch_only",
+  "recorded_after": {
+    "go_no_go_record_path": "docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.json",
+    "go_no_go_decision": "GO",
+    "go_no_go_scope": "controlled_launch_only",
+    "main_release_commit_observed": "847659dd4e7c8a38c917f825220c28007e77e470"
+  },
+  "registry_law_counts": {
+    "activity": 3,
+    "movement": 4,
+    "exercise": 19,
+    "program": 3
+  },
+  "workability_findings": {
+    "structural_registry_gates_pass": true,
+    "registry_content_workability_proven": false,
+    "minimum_real_execution_content_proven": false,
+    "real_coach_athlete_launch_path_with_current_registry_content_proven": false,
+    "release_go_record_changes_registry_content": false,
+    "smoke_run_changes_registry_content": false
+  },
+  "blocker_reason_codes": [
+    "REGISTRY_WORKABILITY_NOT_PROVEN",
+    "MINIMUM_REAL_EXECUTION_CONTENT_NOT_PROVEN",
+    "CONTROLLED_LAUNCH_GO_RECORD_IS_NOT_REGISTRY_CONTENT_PROOF"
+  ],
+  "required_next_slices": [
+    "registry_minimum_workability_standard",
+    "registry_content_expansion_for_controlled_launch",
+    "registry_template_workability_closure",
+    "registry_substitution_workability_closure",
+    "registry_end_to_end_workability_smoke"
+  ],
+  "invariants": {
+    "decision_record_only": true,
+    "does_not_change_existing_go_no_go_record": true,
+    "does_not_change_release_tag": true,
+    "does_not_change_product_code": true,
+    "does_not_change_engine_code": true,
+    "does_not_change_registry_content": true,
+    "does_not_change_acceptance_gate_law": true,
+    "does_not_authorise_open_availability": true,
+    "does_not_authorise_post_v1_scope": true,
+    "no_coaching_advice": true,
+    "no_safety_readiness_or_optimisation_claims": true
+  },
+  "required_evidence_before_hold_can_close": [
+    "minimum workable registry content standard is defined",
+    "active registry content meets the standard",
+    "templates cover the controlled launch path",
+    "substitution graph covers the controlled launch path",
+    "end-to-end registry workability smoke passes"
+  ]
+}
