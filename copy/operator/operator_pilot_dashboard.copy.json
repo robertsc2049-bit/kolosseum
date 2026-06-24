@@ -80,7 +80,7 @@
       "params": []
     },
     "operator_dashboard.status.coach_ready": {
-      "text": "Coach ready",
+      "text": "Coach status recorded",
       "params": []
     },
     "operator_dashboard.status.unknown": {
