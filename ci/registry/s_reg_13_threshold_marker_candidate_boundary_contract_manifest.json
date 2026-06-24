@@ -1,0 +1,86 @@
+{
+  "slice_id": "S-REG-13",
+  "registry_id": "threshold_marker_registry",
+  "contract_status": "candidate_boundary_contract",
+  "candidate_status": "contract_only_no_seed_content",
+  "runtime_status": "non_runtime",
+  "activation_ready": false,
+  "seed_content_status": "not_created",
+  "active_registry_exclusion": true,
+  "allowed_fields": [
+    "threshold_marker_id",
+    "sport_metric_id",
+    "activity_id",
+    "threshold_operator",
+    "threshold_value",
+    "threshold_unit",
+    "threshold_source",
+    "marker_status_allowed_values",
+    "source_slice_id",
+    "candidate_status",
+    "runtime_status",
+    "activation_ready",
+    "copy_boundary_notes"
+  ],
+  "allowed_threshold_operators": [
+    "greater_than_or_equal",
+    "less_than_or_equal",
+    "equal_to"
+  ],
+  "allowed_threshold_source_values": [
+    "coach_declared",
+    "organisation_declared_later",
+    "fixture_declared"
+  ],
+  "allowed_marker_status_values": [
+    "recorded_met",
+    "recorded_not_met",
+    "not_recorded",
+    "invalid_source",
+    "insufficient_recorded_data"
+  ],
+  "forbidden_fields": [
+    "readiness_score",
+    "readiness_status",
+    "safety_status",
+    "risk_status",
+    "capability_score",
+    "suitability_status",
+    "return_to_play_status",
+    "tactical_status",
+    "recommendation",
+    "ranking",
+    "optimisation",
+    "intervention",
+    "programme_change",
+    "substitution_change",
+    "evaluator_result",
+    "automatic_decision"
+  ],
+  "future_dependencies": [
+    "sport_metric_registry_1c",
+    "metric_exercise_link_registry_1c_a"
+  ],
+  "future_fk_expectations": {
+    "sport_metric_id": "Future FK shape only: sport_metric_registry_1c.sport_metric_id.",
+    "activity_id": "Future FK shape only: activity_registry_1.activity_id.",
+    "metric_exercise_link_registry_1c_a": "Future dependency shape only. S-REG-13 does not allow a metric_exercise_link_id field."
+  },
+  "evaluator_exclusion": [
+    "No marker evaluator behaviour.",
+    "No real value comparison.",
+    "No automatic decision.",
+    "No programme, substitution, compile, session, history, coach dashboard, athlete UI, tactical runtime, organisation runtime, marketplace, or licensing behaviour."
+  ],
+  "active_registry_exclusion_notes": [
+    "No threshold marker candidate registry file is created by S-REG-13.",
+    "threshold_marker_registry is not added to registries/registry_index.json.",
+    "threshold_marker_registry is not added to registries/registry_bundle.json.",
+    "This contract remains activation_ready false."
+  ],
+  "copy_boundary_notes": [
+    "Future marker records may only compare recorded metric values against explicit declared thresholds.",
+    "Future marker records may only emit the factual status vocabulary listed in allowed_marker_status_values.",
+    "Kolosseum records and surfaces facts only; interpretation remains outside this contract."
+  ]
+}
