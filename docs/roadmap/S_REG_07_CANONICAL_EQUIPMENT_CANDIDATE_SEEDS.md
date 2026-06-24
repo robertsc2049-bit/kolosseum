@@ -74,11 +74,13 @@ S-REG-07 reads the S-REG-06 candidate activity and movement files for FK validat
 
 S-REG-07 does not update S-REG-06 exercise candidate equipment_ids.
 
-S-REG-07 keeps S-REG-06 exercise records at:
+At S-REG-07, S-REG-06 exercise records remained at:
 
 - equipment_ids: []
 - equipment_dependency_status: deferred_to_s_reg_07
 - activation_ready: false
+
+S-REG-08 later closes those candidate references with candidate_equipment_fk_closed while keeping activation_ready false.
 
 ## Files added
 

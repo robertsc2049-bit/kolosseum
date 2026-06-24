@@ -16,6 +16,10 @@ const S_REG_06_SLICE_ID = "S-REG-06";
 const S_REG_06_FAILURE_TOKEN = "CI_S_REG_06_CANONICAL_ACTIVITY_MOVEMENT_EXERCISE_CANDIDATE_SEEDS";
 const S_REG_06_RUNTIME_STATUS = "non_runtime";
 const S_REG_06_CANDIDATE_STATUS = "candidate_content_draft";
+const S_REG_06_ALLOWED_EQUIPMENT_DEPENDENCY_STATUSES = Object.freeze([
+  "deferred_to_s_reg_07",
+  "candidate_equipment_fk_closed"
+]);
 
 const S_REG_06_TARGET_REGISTRY_IDS = Object.freeze([
   "activity_registry_1",
@@ -296,6 +300,8 @@ function sReg06ValidateCandidateSeedSurface(surface) {
     tokenMovementById.set(token.exercise_token_id, token.movement_id);
   }
 
+  const exerciseEquipmentDependencyStatuses = new Set();
+
   for (const exercise of exerciseRecords) {
     requireString(exercise.display_label, "display_label", { registry_id: "exercise_registry_3a", exercise_id: exercise.exercise_id });
     requireString(exercise.movement_id, "movement_id", { registry_id: "exercise_registry_3a", exercise_id: exercise.exercise_id });
@@ -333,20 +339,36 @@ function sReg06ValidateCandidateSeedSurface(surface) {
       });
     }
 
-    if (!Array.isArray(exercise.equipment_ids) || exercise.equipment_ids.length !== 0) {
-      fail("equipment_ids_not_deferred", "S-REG-06 exercise records must defer equipment IDs to S-REG-07.", {
+    if (!Array.isArray(exercise.equipment_ids)) {
+      fail("equipment_ids_invalid", "S-REG-06 exercise equipment_ids must be an explicit array.", {
         registry_id: "exercise_registry_3a",
         exercise_id: exercise.exercise_id
       });
     }
 
-    if (exercise.equipment_dependency_status !== "deferred_to_s_reg_07") {
-      fail("equipment_dependency_status_invalid", "S-REG-06 exercise equipment dependency must be deferred to S-REG-07.", {
+    if (!S_REG_06_ALLOWED_EQUIPMENT_DEPENDENCY_STATUSES.includes(exercise.equipment_dependency_status)) {
+      fail("equipment_dependency_status_invalid", "S-REG-06 exercise equipment dependency status is outside the allowed candidate states.", {
         registry_id: "exercise_registry_3a",
         exercise_id: exercise.exercise_id,
         actual: exercise.equipment_dependency_status
       });
     }
+
+    if (exercise.equipment_dependency_status === "deferred_to_s_reg_07" && exercise.equipment_ids.length !== 0) {
+      fail("equipment_ids_not_deferred", "Deferred S-REG-06 exercise equipment_ids must remain empty.", {
+        registry_id: "exercise_registry_3a",
+        exercise_id: exercise.exercise_id
+      });
+    }
+
+    if (exercise.equipment_dependency_status === "candidate_equipment_fk_closed") {
+      requireStringArray(exercise.equipment_ids, "equipment_ids", {
+        registry_id: "exercise_registry_3a",
+        exercise_id: exercise.exercise_id
+      });
+    }
+
+    exerciseEquipmentDependencyStatuses.add(exercise.equipment_dependency_status);
 
     if (exercise.activation_ready !== false) {
       fail("exercise_activation_ready_invalid", "S-REG-06 exercise records must not be activation ready.", {
@@ -356,6 +378,14 @@ function sReg06ValidateCandidateSeedSurface(surface) {
     }
   }
 
+  if (exerciseEquipmentDependencyStatuses.size !== 1) {
+    fail("mixed_equipment_dependency_status", "S-REG-06 exercise candidate records must share one equipment dependency status.", {
+      statuses: [...exerciseEquipmentDependencyStatuses]
+    });
+  }
+
+  const [exerciseEquipmentDependencyStatus] = [...exerciseEquipmentDependencyStatuses];
+
   return deepFreeze({
     ok: true,
     slice_id: S_REG_06_SLICE_ID,
@@ -364,7 +394,7 @@ function sReg06ValidateCandidateSeedSurface(surface) {
     movement_count: movementIds.size,
     exercise_token_count: tokenIds.size,
     exercise_count: exerciseIds.size,
-    equipment_dependency_status: "deferred_to_s_reg_07",
+    equipment_dependency_status: exerciseEquipmentDependencyStatus,
     runtime_status: S_REG_06_RUNTIME_STATUS
   });
 }

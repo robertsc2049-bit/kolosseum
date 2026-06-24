@@ -88,7 +88,9 @@ S-REG-06 records the equipment dependency as:
 
 - deferred_to_s_reg_07
 
-Exercise records have empty equipment_ids and activation_ready false until S-REG-07 creates equipment candidate seeds.
+Exercise records originally had empty equipment_ids and activation_ready false until S-REG-07 created equipment candidate seeds.
+
+S-REG-08 later updated the exercise candidate equipment references to candidate_equipment_fk_closed while keeping them non_runtime and activation_ready false.
 
 ## Files added
 

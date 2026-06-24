@@ -358,8 +358,8 @@ async function main() {
     fail("S-REG-06 module candidate seed validation failed.", { result });
   }
 
-  if (result.equipment_dependency_status !== "deferred_to_s_reg_07") {
-    fail("S-REG-06 equipment dependency must remain deferred to S-REG-07.", { result });
+  if (!["deferred_to_s_reg_07", "candidate_equipment_fk_closed"].includes(result.equipment_dependency_status)) {
+    fail("S-REG-06 equipment dependency status is outside the allowed candidate states.", { result });
   }
 
   const packageText = readText(files.packageJson);

@@ -57,6 +57,11 @@ const S_REG_07_EXERCISE_SEED_MOVEMENT_REQUIREMENTS = Object.freeze({
   front_plank: "brace"
 });
 
+const S_REG_07_ALLOWED_EXERCISE_EQUIPMENT_DEPENDENCY_STATUSES = Object.freeze([
+  "deferred_to_s_reg_07",
+  "candidate_equipment_fk_closed"
+]);
+
 const S_REG_07_FORBIDDEN_OPERATIONAL_TERMS = Object.freeze([
   ["gym", "inventory"].join("_"),
   "epos",
@@ -342,19 +347,46 @@ function sReg07ValidateEquipmentCandidateSeedSurface({ equipmentDocument, upstre
     }
   }
 
+  const exerciseEquipmentDependencyStatuses = new Set();
+
   for (const exercise of exerciseRecords) {
-    if (!Array.isArray(exercise.equipment_ids) || exercise.equipment_ids.length !== 0) {
-      fail("s_reg_06_exercise_equipment_mutated", "S-REG-07 must not mutate S-REG-06 exercise equipment_ids.", {
+    if (!Array.isArray(exercise.equipment_ids)) {
+      fail("s_reg_06_exercise_equipment_invalid", "S-REG-07 expects S-REG-06 exercise equipment_ids to be an explicit array.", {
         exercise_id: exercise.exercise_id
       });
     }
 
-    if (exercise.equipment_dependency_status !== "deferred_to_s_reg_07") {
-      fail("s_reg_06_exercise_dependency_status_mutated", "S-REG-07 must not mutate S-REG-06 exercise equipment dependency status.", {
+    if (!S_REG_07_ALLOWED_EXERCISE_EQUIPMENT_DEPENDENCY_STATUSES.includes(exercise.equipment_dependency_status)) {
+      fail("s_reg_06_exercise_dependency_status_invalid", "S-REG-07 saw an unsupported S-REG-06 exercise equipment dependency status.", {
         exercise_id: exercise.exercise_id,
         actual: exercise.equipment_dependency_status
       });
     }
+
+    if (exercise.equipment_dependency_status === "deferred_to_s_reg_07" && exercise.equipment_ids.length !== 0) {
+      fail("s_reg_06_exercise_equipment_deferred_invalid", "Deferred S-REG-06 exercise equipment_ids must remain empty.", {
+        exercise_id: exercise.exercise_id
+      });
+    }
+
+    if (exercise.equipment_dependency_status === "candidate_equipment_fk_closed") {
+      if (exercise.equipment_ids.length === 0) {
+        fail("s_reg_08_exercise_equipment_fk_not_closed", "S-REG-08 closed exercise candidates must reference candidate equipment ids.", {
+          exercise_id: exercise.exercise_id
+        });
+      }
+
+      for (const equipmentId of exercise.equipment_ids) {
+        if (!equipmentIds.has(equipmentId)) {
+          fail("s_reg_08_exercise_equipment_fk_unknown", "S-REG-08 exercise candidate references unknown equipment candidate id.", {
+            exercise_id: exercise.exercise_id,
+            equipment_id: equipmentId
+          });
+        }
+      }
+    }
+
+    exerciseEquipmentDependencyStatuses.add(exercise.equipment_dependency_status);
 
     if (exercise.activation_ready !== false) {
       fail("s_reg_06_exercise_activation_status_mutated", "S-REG-07 must not mark S-REG-06 exercise candidates activation ready.", {
@@ -362,6 +394,14 @@ function sReg07ValidateEquipmentCandidateSeedSurface({ equipmentDocument, upstre
       });
     }
   }
+
+  if (exerciseEquipmentDependencyStatuses.size !== 1) {
+    fail("s_reg_06_exercise_dependency_status_mixed", "S-REG-07 expects S-REG-06 exercise records to share one equipment dependency status.", {
+      statuses: [...exerciseEquipmentDependencyStatuses]
+    });
+  }
+
+  const [sReg06ExerciseDependencyStatus] = [...exerciseEquipmentDependencyStatuses];
 
   return deepFreeze({
     ok: true,
@@ -371,7 +411,7 @@ function sReg07ValidateEquipmentCandidateSeedSurface({ equipmentDocument, upstre
     required_seed_equipment_count: S_REG_07_REQUIRED_SEED_EQUIPMENT_IDS.length,
     upstream_activity_count: activityIds.size,
     upstream_movement_count: movementIds.size,
-    s_reg_06_exercise_dependency_status: "deferred_to_s_reg_07",
+    s_reg_06_exercise_dependency_status: sReg06ExerciseDependencyStatus,
     s_reg_08_dependency: "exercise_equipment_fk_closure",
     runtime_status: S_REG_07_RUNTIME_STATUS
   });

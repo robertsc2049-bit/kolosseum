@@ -16,7 +16,8 @@
     "exercise_token_registry_3b",
     "equipment_registry"
   ],
-  "equipment_dependency_status": "deferred_to_s_reg_07",
+  "equipment_dependency_status": "candidate_equipment_fk_closed",
+  "equipment_fk_closed_by_slice_id": "S-REG-08",
   "records": [
     {
       "exercise_id": "back_squat",
@@ -29,8 +30,13 @@
       "primary_activity_applicability": "powerlifting",
       "movement_id": "squat",
       "exercise_token_id": "back_squat_token",
-      "equipment_ids": [],
-      "equipment_dependency_status": "deferred_to_s_reg_07",
+      "equipment_ids": [
+        "barbell",
+        "rack",
+        "plate"
+      ],
+      "equipment_dependency_status": "candidate_equipment_fk_closed",
+      "equipment_fk_closed_by_slice_id": "S-REG-08",
       "activation_ready": false,
       "candidate_status": "candidate_content_draft",
       "runtime_status": "non_runtime",
@@ -47,8 +53,12 @@
       "primary_activity_applicability": "powerlifting",
       "movement_id": "hinge",
       "exercise_token_id": "deadlift_token",
-      "equipment_ids": [],
-      "equipment_dependency_status": "deferred_to_s_reg_07",
+      "equipment_ids": [
+        "barbell",
+        "plate"
+      ],
+      "equipment_dependency_status": "candidate_equipment_fk_closed",
+      "equipment_fk_closed_by_slice_id": "S-REG-08",
       "activation_ready": false,
       "candidate_status": "candidate_content_draft",
       "runtime_status": "non_runtime",
@@ -65,8 +75,14 @@
       "primary_activity_applicability": "powerlifting",
       "movement_id": "horizontal_push",
       "exercise_token_id": "bench_press_token",
-      "equipment_ids": [],
-      "equipment_dependency_status": "deferred_to_s_reg_07",
+      "equipment_ids": [
+        "barbell",
+        "bench",
+        "rack",
+        "plate"
+      ],
+      "equipment_dependency_status": "candidate_equipment_fk_closed",
+      "equipment_fk_closed_by_slice_id": "S-REG-08",
       "activation_ready": false,
       "candidate_status": "candidate_content_draft",
       "runtime_status": "non_runtime",
@@ -83,8 +99,12 @@
       "primary_activity_applicability": "general_strength",
       "movement_id": "brace",
       "exercise_token_id": "front_plank_token",
-      "equipment_ids": [],
-      "equipment_dependency_status": "deferred_to_s_reg_07",
+      "equipment_ids": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_dependency_status": "candidate_equipment_fk_closed",
+      "equipment_fk_closed_by_slice_id": "S-REG-08",
       "activation_ready": false,
       "candidate_status": "candidate_content_draft",
       "runtime_status": "non_runtime",
