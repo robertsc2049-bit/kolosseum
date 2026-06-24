@@ -1,0 +1,43 @@
+{
+  "slice_id": "S-REG-12",
+  "manifest_id": "s_reg_12_metric_exercise_link_candidate_manifest",
+  "manifest_version": "1.0.0",
+  "surface_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "candidate_paths": {
+    "metric_exercise_link_registry_1c_a": "ci/registry/candidates/metric_exercise_link_registry_1c_a/metric_exercise_link_registry_1c_a.candidate.registry.json"
+  },
+  "depends_on": [
+    "activity_registry_1",
+    "sport_metric_registry_1c",
+    "exercise_registry_3a"
+  ],
+  "candidate_seed_scope": {
+    "metric_exercise_link_seed_status": "candidate_fk_ready",
+    "metric_exercise_link_count": 13,
+    "sport_metric_count": 6,
+    "exercise_count": 4,
+    "activity_count": 3,
+    "link_kind": "factual_metric_exercise_link",
+    "context_scope": "candidate_seed_only",
+    "value_context": "recorded_value_context_only"
+  },
+  "excluded_surfaces": [
+    "threshold_marker_registry",
+    "marker_evaluator",
+    "programme_templates",
+    "substitution_registry"
+  ],
+  "excluded_metric_links": [
+    "rugby_union__sprint_time_seconds"
+  ],
+  "next_slice_dependency": "S-REG-13 may create threshold marker contract or defer threshold marker surface without activating canonical registries or evaluator behaviour",
+  "activation_rule": "candidate metric-exercise links remain outside active registry law until a later accepted activation slice deliberately changes the active registry surface"
+}
