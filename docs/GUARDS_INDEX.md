@@ -61,6 +61,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_reg_12_metric_exercise_link_candidate_seeds_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_reg_13_threshold_marker_candidate_boundary_contract_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_reg_14_registry_build_readiness_start_gate_guard.mjs` | Registry Law | high | registry |  |
+| `ci/guards/s_reg_15_candidate_exercise_registry_content_batch_1_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_v1_01_active_boundary_confirmation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_02b_non_scope_guard_hardening_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_03_repository_top_level_folder_contract_guard.mjs` | Repo Governance | medium | repo |  |
