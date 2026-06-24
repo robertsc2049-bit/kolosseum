@@ -1,0 +1,39 @@
+{
+  "slice_id": "S-REG-10",
+  "manifest_id": "s_reg_10_sport_context_candidate_manifest",
+  "manifest_version": "1.0.0",
+  "surface_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "candidate_paths": {
+    "sport_subdivision_registry_1a": "ci/registry/candidates/sport_subdivision_registry_1a/sport_subdivision_registry_1a.candidate.registry.json",
+    "sport_role_registry_2": "ci/registry/candidates/sport_role_registry_2/sport_role_registry_2.candidate.registry.json"
+  },
+  "depends_on": [
+    "activity_registry_1",
+    "sport_subdivision_registry_1a"
+  ],
+  "candidate_seed_scope": {
+    "sport_context_seed_status": "candidate_fk_ready",
+    "subdivision_count": 4,
+    "role_count": 3,
+    "activity_count": 3,
+    "context_type": "declared_context",
+    "context_scope": "candidate_seed_only"
+  },
+  "excluded_surfaces": [
+    "sport_metric_registry_1c",
+    "metric_exercise_link_registry_1c_a",
+    "threshold_marker_registry",
+    "programme_templates",
+    "substitution_registry"
+  ],
+  "next_slice_dependency": "S-REG-11 may create sport metric candidate seeds without activating canonical registries",
+  "activation_rule": "candidate sport context remains outside active registry law until a later accepted activation slice deliberately changes the active registry surface"
+}
