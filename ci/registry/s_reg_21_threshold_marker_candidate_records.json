@@ -1,0 +1,145 @@
+{
+  "slice_id": "S-REG-21",
+  "registry_id": "threshold_marker_registry",
+  "batch_id": "candidate_threshold_marker_records_batch_1",
+  "registry_target": "threshold_marker_registry",
+  "source_queue_slice_id": "S-REG-14",
+  "source_queue_order": 7,
+  "dependency_inputs": [
+    "S-REG-13",
+    "S-REG-19",
+    "S-REG-20"
+  ],
+  "foundation_inputs": [
+    "S-REG-14"
+  ],
+  "candidate_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "content_batch_status": "candidate_content_expanded_inert",
+  "threshold_marker_candidate_record_status": "candidate_threshold_marker_records_created_inert",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "phase1_runtime_schema_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "marker_evaluator_mutation": false,
+  "comparison_result_mutation": false,
+  "recorded_value_input_mutation": false,
+  "advice_mutation": false,
+  "outcome_inference_mutation": false,
+  "programme_assignment_mutation": false,
+  "substitution_runtime_mutation": false,
+  "ui_behaviour_mutation": false,
+  "coach_interpretation_mutation": false,
+  "record_count": 5,
+  "records": [
+    {
+      "threshold_marker_id": "threshold_marker__powerlifting__attempt_count__gte_1",
+      "sport_metric_id": "powerlifting__attempt_count",
+      "activity_id": "powerlifting",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "source_slice_id": "S-REG-21",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual declared threshold marker candidate only; no evaluator or interpretation"
+    },
+    {
+      "threshold_marker_id": "threshold_marker__powerlifting__attempt_count__lte_3",
+      "sport_metric_id": "powerlifting__attempt_count",
+      "activity_id": "powerlifting",
+      "threshold_operator": "less_than_or_equal",
+      "threshold_value": 3,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "source_slice_id": "S-REG-21",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual declared threshold marker candidate only; no evaluator or interpretation"
+    },
+    {
+      "threshold_marker_id": "threshold_marker__general_strength__set_count__gte_1",
+      "sport_metric_id": "general_strength__set_count",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "source_slice_id": "S-REG-21",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual declared threshold marker candidate only; no evaluator or interpretation"
+    },
+    {
+      "threshold_marker_id": "threshold_marker__general_strength__duration_seconds__gte_60",
+      "sport_metric_id": "general_strength__duration_seconds",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 60,
+      "threshold_unit": "seconds",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "source_slice_id": "S-REG-21",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual declared threshold marker candidate only; no evaluator or interpretation"
+    },
+    {
+      "threshold_marker_id": "threshold_marker__general_strength__duration_seconds__lte_3600",
+      "sport_metric_id": "general_strength__duration_seconds",
+      "activity_id": "general_strength",
+      "threshold_operator": "less_than_or_equal",
+      "threshold_value": 3600,
+      "threshold_unit": "seconds",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "source_slice_id": "S-REG-21",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual declared threshold marker candidate only; no evaluator or interpretation"
+    }
+  ]
+}

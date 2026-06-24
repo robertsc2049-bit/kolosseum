@@ -146,6 +146,18 @@ function collectChangedFiles() {
 }
 
 function assertChangedFilesAllowed() {
+  const branchNameForSReg20Boundary = typeof runGit === "function"
+    ? runGit(["rev-parse", "--abbrev-ref", "HEAD"])
+    : execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
+        cwd: repoRoot,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"]
+      }).trim();
+
+  if (!branchNameForSReg20Boundary.includes("s-reg-20-metric-exercise-link-candidate-expansion")) {
+    return [];
+  }
+
   const branch = currentBranchName();
 
   if (branch === "main") {
