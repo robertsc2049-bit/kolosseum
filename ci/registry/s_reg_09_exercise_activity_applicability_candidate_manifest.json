@@ -1,0 +1,31 @@
+{
+  "slice_id": "S-REG-09",
+  "manifest_id": "s_reg_09_exercise_activity_applicability_candidate_manifest",
+  "manifest_version": "1.0.0",
+  "surface_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "candidate_paths": {
+    "exercise_activity_applicability_registry": "ci/registry/candidates/exercise_activity_applicability_registry/exercise_activity_applicability_registry.candidate.registry.json"
+  },
+  "depends_on": [
+    "activity_registry_1",
+    "exercise_registry_3a"
+  ],
+  "candidate_seed_scope": {
+    "activity_context": "training",
+    "record_count": 12,
+    "exercise_count": 4,
+    "activity_count": 3,
+    "applicability_state": "allowed",
+    "tier_cap": "candidate_seed_only"
+  },
+  "next_slice_dependency": "S-REG-10 may create sport context candidate seeds without activating canonical registries",
+  "activation_rule": "candidate exercise activity applicability remains outside active registry law until a later accepted activation slice deliberately changes the active registry surface"
+}
