@@ -1,0 +1,219 @@
+{
+  "slice_id": "S-REG-16",
+  "registry_id": "equipment_registry",
+  "batch_id": "candidate_equipment_registry_content_expansion_batch_1",
+  "registry_target": "equipment_registry",
+  "source_queue_slice_id": "S-REG-14",
+  "source_queue_order": 2,
+  "dependency_inputs": [
+    "S-REG-07",
+    "S-REG-15"
+  ],
+  "candidate_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "content_batch_status": "candidate_content_expanded_inert",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "exercise_equipment_fk_closure_mutation": false,
+  "record_count": 6,
+  "records": [
+    {
+      "equipment_id": "dumbbell",
+      "display_label": "Dumbbell",
+      "equipment_class": "free_weight",
+      "equipment_type": "load_implement",
+      "registry_id": "equipment_registry",
+      "batch_id": "candidate_equipment_registry_content_expansion_batch_1",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "squat",
+        "hinge",
+        "horizontal_push"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "source_slice_id": "S-REG-16",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "active_registry_mutation": false,
+      "active_bundle_mutation": false,
+      "registry_law_mutation": false,
+      "engine_runtime_mutation": false,
+      "complete_registry_claim": false,
+      "exercise_equipment_fk_closure_mutation": false,
+      "equipment_scope": "candidate_equipment_identity",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    },
+    {
+      "equipment_id": "kettlebell",
+      "display_label": "Kettlebell",
+      "equipment_class": "free_weight",
+      "equipment_type": "load_implement",
+      "registry_id": "equipment_registry",
+      "batch_id": "candidate_equipment_registry_content_expansion_batch_1",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "squat",
+        "hinge",
+        "brace"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "source_slice_id": "S-REG-16",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "active_registry_mutation": false,
+      "active_bundle_mutation": false,
+      "registry_law_mutation": false,
+      "engine_runtime_mutation": false,
+      "complete_registry_claim": false,
+      "exercise_equipment_fk_closure_mutation": false,
+      "equipment_scope": "candidate_equipment_identity",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    },
+    {
+      "equipment_id": "adjustable_bench",
+      "display_label": "Adjustable bench",
+      "equipment_class": "support_station",
+      "equipment_type": "body_support_station",
+      "registry_id": "equipment_registry",
+      "batch_id": "candidate_equipment_registry_content_expansion_batch_1",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "horizontal_push"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "source_slice_id": "S-REG-16",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "active_registry_mutation": false,
+      "active_bundle_mutation": false,
+      "registry_law_mutation": false,
+      "engine_runtime_mutation": false,
+      "complete_registry_claim": false,
+      "exercise_equipment_fk_closure_mutation": false,
+      "equipment_scope": "candidate_equipment_identity",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    },
+    {
+      "equipment_id": "pull_up_bar",
+      "display_label": "Pull-up bar",
+      "equipment_class": "support_station",
+      "equipment_type": "fixed_bodyweight_station",
+      "registry_id": "equipment_registry",
+      "batch_id": "candidate_equipment_registry_content_expansion_batch_1",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "brace"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "source_slice_id": "S-REG-16",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "active_registry_mutation": false,
+      "active_bundle_mutation": false,
+      "registry_law_mutation": false,
+      "engine_runtime_mutation": false,
+      "complete_registry_claim": false,
+      "exercise_equipment_fk_closure_mutation": false,
+      "equipment_scope": "candidate_equipment_identity",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    },
+    {
+      "equipment_id": "cable_machine",
+      "display_label": "Cable machine",
+      "equipment_class": "machine_station",
+      "equipment_type": "resistance_station",
+      "registry_id": "equipment_registry",
+      "batch_id": "candidate_equipment_registry_content_expansion_batch_1",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "horizontal_push"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "source_slice_id": "S-REG-16",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "active_registry_mutation": false,
+      "active_bundle_mutation": false,
+      "registry_law_mutation": false,
+      "engine_runtime_mutation": false,
+      "complete_registry_claim": false,
+      "exercise_equipment_fk_closure_mutation": false,
+      "equipment_scope": "candidate_equipment_identity",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    },
+    {
+      "equipment_id": "resistance_band",
+      "display_label": "Resistance band",
+      "equipment_class": "portable_resistance",
+      "equipment_type": "elastic_resistance",
+      "registry_id": "equipment_registry",
+      "batch_id": "candidate_equipment_registry_content_expansion_batch_1",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "squat",
+        "hinge",
+        "horizontal_push",
+        "brace"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "source_slice_id": "S-REG-16",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "active_registry_mutation": false,
+      "active_bundle_mutation": false,
+      "registry_law_mutation": false,
+      "engine_runtime_mutation": false,
+      "complete_registry_claim": false,
+      "exercise_equipment_fk_closure_mutation": false,
+      "equipment_scope": "candidate_equipment_identity",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    }
+  ]
+}
