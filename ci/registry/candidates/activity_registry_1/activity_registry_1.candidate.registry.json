@@ -1,0 +1,68 @@
+{
+  "slice_id": "S-REG-06",
+  "registry_id": "activity_registry_1",
+  "candidate_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "records": [
+    {
+      "activity_id": "powerlifting",
+      "display_label": "Powerlifting",
+      "activity_kind": "strength_sport",
+      "locked_v1_activity": true,
+      "allowed_movement_ids": [
+        "squat",
+        "hinge",
+        "horizontal_push",
+        "horizontal_pull",
+        "brace"
+      ],
+      "copy_boundary_notes": "factual activity label only"
+    },
+    {
+      "activity_id": "general_strength",
+      "display_label": "General strength",
+      "activity_kind": "strength_training",
+      "locked_v1_activity": true,
+      "allowed_movement_ids": [
+        "squat",
+        "hinge",
+        "horizontal_push",
+        "vertical_push",
+        "horizontal_pull",
+        "vertical_pull",
+        "carry",
+        "brace",
+        "lunge_split_stance"
+      ],
+      "copy_boundary_notes": "factual activity label only"
+    },
+    {
+      "activity_id": "rugby_union",
+      "display_label": "Rugby union",
+      "activity_kind": "field_sport",
+      "locked_v1_activity": true,
+      "allowed_movement_ids": [
+        "squat",
+        "hinge",
+        "horizontal_push",
+        "vertical_push",
+        "horizontal_pull",
+        "vertical_pull",
+        "carry",
+        "brace",
+        "sprint_acceleration",
+        "deceleration_change_of_direction",
+        "jump_land",
+        "conditioning_general"
+      ],
+      "copy_boundary_notes": "factual activity label only"
+    }
+  ]
+}

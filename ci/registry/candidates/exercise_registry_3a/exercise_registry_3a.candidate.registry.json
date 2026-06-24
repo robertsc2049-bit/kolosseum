@@ -1,0 +1,94 @@
+{
+  "slice_id": "S-REG-06",
+  "registry_id": "exercise_registry_3a",
+  "candidate_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "depends_on": [
+    "activity_registry_1",
+    "movement_registry_3",
+    "exercise_token_registry_3b",
+    "equipment_registry"
+  ],
+  "equipment_dependency_status": "deferred_to_s_reg_07",
+  "records": [
+    {
+      "exercise_id": "back_squat",
+      "display_label": "Back squat",
+      "activity_ids": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "primary_activity_applicability": "powerlifting",
+      "movement_id": "squat",
+      "exercise_token_id": "back_squat_token",
+      "equipment_ids": [],
+      "equipment_dependency_status": "deferred_to_s_reg_07",
+      "activation_ready": false,
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "copy_boundary_notes": "factual exercise label only"
+    },
+    {
+      "exercise_id": "deadlift",
+      "display_label": "Deadlift",
+      "activity_ids": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "primary_activity_applicability": "powerlifting",
+      "movement_id": "hinge",
+      "exercise_token_id": "deadlift_token",
+      "equipment_ids": [],
+      "equipment_dependency_status": "deferred_to_s_reg_07",
+      "activation_ready": false,
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "copy_boundary_notes": "factual exercise label only"
+    },
+    {
+      "exercise_id": "bench_press",
+      "display_label": "Bench press",
+      "activity_ids": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "primary_activity_applicability": "powerlifting",
+      "movement_id": "horizontal_push",
+      "exercise_token_id": "bench_press_token",
+      "equipment_ids": [],
+      "equipment_dependency_status": "deferred_to_s_reg_07",
+      "activation_ready": false,
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "copy_boundary_notes": "factual exercise label only"
+    },
+    {
+      "exercise_id": "front_plank",
+      "display_label": "Front plank",
+      "activity_ids": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "movement_id": "brace",
+      "exercise_token_id": "front_plank_token",
+      "equipment_ids": [],
+      "equipment_dependency_status": "deferred_to_s_reg_07",
+      "activation_ready": false,
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "copy_boundary_notes": "factual exercise label only"
+    }
+  ]
+}

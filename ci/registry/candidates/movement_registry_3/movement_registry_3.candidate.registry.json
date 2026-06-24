@@ -1,0 +1,62 @@
+{
+  "slice_id": "S-REG-06",
+  "registry_id": "movement_registry_3",
+  "candidate_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "depends_on": [
+    "activity_registry_1"
+  ],
+  "records": [
+    {
+      "movement_id": "squat",
+      "display_label": "Squat",
+      "activity_ids": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_family": "lower_body",
+      "copy_boundary_notes": "factual movement label only"
+    },
+    {
+      "movement_id": "hinge",
+      "display_label": "Hinge",
+      "activity_ids": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_family": "lower_body",
+      "copy_boundary_notes": "factual movement label only"
+    },
+    {
+      "movement_id": "horizontal_push",
+      "display_label": "Horizontal push",
+      "activity_ids": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_family": "upper_body",
+      "copy_boundary_notes": "factual movement label only"
+    },
+    {
+      "movement_id": "brace",
+      "display_label": "Brace",
+      "activity_ids": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_family": "trunk",
+      "copy_boundary_notes": "factual movement label only"
+    }
+  ]
+}
