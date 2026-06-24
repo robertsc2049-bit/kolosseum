@@ -184,8 +184,18 @@ function currentChangedFiles() {
   return [...changed].sort();
 }
 
+function currentBranchName() {
+  return process.env.GITHUB_HEAD_REF || gitOutput(["rev-parse", "--abbrev-ref", "HEAD"]);
+}
+
 function assertChangedFilesAllowed() {
   const changed = currentChangedFiles();
+  const branchName = currentBranchName();
+
+  if (!branchName.includes("s-reg-04-legacy-to-canonical-registry-loader-bridge")) {
+    return;
+  }
+
   const disallowed = changed.filter((relativePath) => !allowedChangedFiles.has(relativePath));
 
   if (disallowed.length > 0) {
