@@ -26,7 +26,7 @@ if (result.status !== 0) {
     ok: false,
     guard: "S-V1-G-02",
     token: TOKEN,
-    message: "Registry workability audit launch hold guard failed."
+    message: "Registry workability hold closure guard failed."
   }, null, 2));
   process.exitCode = result.status || 1;
 } else {
@@ -34,6 +34,6 @@ if (result.status !== 0) {
     ok: true,
     guard: "S-V1-G-02",
     token: TOKEN,
-    message: "Registry workability audit launch hold guard passed."
+    message: "Registry workability hold closure guard passed."
   }, null, 2));
 }

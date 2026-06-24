@@ -1,85 +1,94 @@
-<!-- DEV NOTE: S-V1-G-02 registry workability audit and launch hold. This file records an operational launch hold only. It does not change product law, engine law, registry law, registry content, release tag authority, acceptance gate law, commercial authority, or feature implementation authority. -->
+<!-- DEV NOTE: S-V1-G-02 registry workability audit and launch hold closure. This file records operational registry workability evidence only. It does not change product law, engine law, registry law, registry content, release tag authority, acceptance gate law, commercial authority, or feature implementation authority. -->
 
 # Controlled Launch Registry Workability Audit and Launch Hold
 
 Slice: S-V1-G-02
+Closure slice: S-LAUNCH-02D
+Record type: registry workability launch hold closure
+Token: CI_V1_REGISTRY_WORKABILITY_AUDIT_LAUNCH_HOLD
+Status: CLOSED
 
-Record type: registry workability launch hold
+Operational launch status: REGISTRY_WORKABILITY_PROVEN_FOR_CONTROLLED_LAUNCH
 
-Status: HOLD
+Controlled launch user start authorised: true
 
-Operational launch status: HOLD_REGISTRY_WORKABILITY_NOT_PROVEN
+Decision scope: controlled_launch_only
 
-Controlled launch user start authorised: false
+## Relationship to S-V1-F-12
 
-Scope: controlled launch only
+The S-V1-F-12 go/no-go record remains historically valid as the controlled-launch decision artefact.
 
-## Summary
+This S-LAUNCH-02D closure does not change the S-V1-F-12 GO/NO-GO record. It records that the separate S-V1-G-02 operational registry workability hold has been closed for controlled launch only.
 
-The S-V1-F-12 go/no-go record exists and records GO for controlled launch evidence. That record remains historically valid as a decision artefact.
-
-This S-V1-G-02 record adds the operational registry caveat: controlled launch must not start for real users until registry workability is proven with usable active content.
-
-The current registry structural gates pass, but structural gates are not the same as a workable registry for real coach-athlete execution.
+This does not authorise open availability, marketplace access, organisation access, gym access, team access, federation access, enterprise dashboard access, messaging, or post-v1 scope.
 
 ## Observed active registry law counts
 
 | Registry area | Count |
 | --- | ---: |
-| Activity | 3 |
-| Movement | 4 |
-| Exercise | 19 |
-| Program | 3 |
+| activity | 3 |
+| movement | 4 |
+| exercise | 19 |
+| program | 3 |
 
 ## Workability findings
 
 | Finding | Value |
 | --- | --- |
 | Structural registry gates pass | true |
-| Registry content workability proven | false |
-| Minimum real execution content proven | false |
-| Real coach-athlete launch path with current registry content proven | false |
+| Registry content workability proven | true |
+| Minimum real execution content proven | true |
+| Real coach-athlete launch path with current registry content proven | true |
 | S-V1-F-12 changes registry content | false |
 | S-V1-F-10 smoke run changes registry content | false |
+| S-LAUNCH-02D changes registry content | false |
 
-## Hold reason codes
+## Closure evidence
+
+| Evidence | Result |
+| --- | --- |
+| S-LAUNCH-02C proof commands attempted | 25 |
+| S-LAUNCH-02C proof command failures | 0 |
+| Registry guards passed | true |
+| Compile contracts passed | true |
+| Execution contracts passed | true |
+| Controlled launch smoke proof passed | true |
+| proof:s-v1-f-10 passed | true |
+
+## Closure reason codes
 
 | Code |
 | --- |
-| REGISTRY_WORKABILITY_NOT_PROVEN |
-| MINIMUM_REAL_EXECUTION_CONTENT_NOT_PROVEN |
-| CONTROLLED_LAUNCH_GO_RECORD_IS_NOT_REGISTRY_CONTENT_PROOF |
+| MINIMUM_REAL_EXECUTION_CONTENT_PROVEN |
+| CONTROLLED_LAUNCH_SMOKE_PROOF_PASSED |
+| REGISTRY_WORKABILITY_HOLD_CLOSED |
 
-## Operational rule
-
-Controlled launch remains on hold until a separate registry workability closure proves:
-
-1. Minimum workable registry content standard is defined.
-2. Active registry content meets the standard.
-3. Templates cover the controlled launch path.
-4. Substitution graph covers the controlled launch path.
-5. End-to-end registry workability smoke passes.
-
-## Boundary
+## Boundaries
 
 This record does not change the S-V1-F-12 GO record.
 
-This record does not change release tag v1-controlled-launch.
-
-This record does not change registry content.
+This record does not change the release tag.
 
 This record does not change product code.
 
-This record does not change engine behaviour.
+This record does not change engine code.
+
+This record does not change registry content.
 
 This record does not change acceptance gate law.
 
-This record does not authorise open availability, marketplace access, organisation access, gym access, team access, federation access, enterprise dashboard access, messaging, or post-v1 scope.
+This record does not authorise open availability.
 
-## Decision
+This record does not authorise post-v1 scope.
 
-Decision artefact status: S-V1-F-12 remains GO for controlled launch evidence.
+This record does not create coaching advice.
 
-Operational launch status: HOLD until registry workability is proven.
+This record does not create safety, readiness, suitability, optimisation, recommendation, or medical claims.
 
-Action: do not start real controlled launch users from the current registry state.
+## Action
+
+Operational launch status: registry workability proven for controlled launch only.
+
+Controlled launch may proceed only within the already recorded controlled-launch scope and existing GO/NO-GO decision.
+
+Do not expand launch scope from this record.
