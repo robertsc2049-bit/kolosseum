@@ -1,0 +1,34 @@
+{
+  "slice_id": "S-REG-07",
+  "manifest_id": "s_reg_07_canonical_equipment_candidate_seed_manifest",
+  "manifest_version": "1.0.0",
+  "surface_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "candidate_paths": {
+    "equipment_registry": "ci/registry/candidates/equipment_registry/equipment_registry.candidate.registry.json"
+  },
+  "depends_on": [
+    "activity_registry_1",
+    "movement_registry_3"
+  ],
+  "seed_record_limits": {
+    "equipment_registry": 6
+  },
+  "required_seed_equipment_ids": [
+    "barbell",
+    "rack",
+    "bench",
+    "plate",
+    "bodyweight",
+    "open_floor_space"
+  ],
+  "next_slice_dependency": "S-REG-08 updates exercise candidate equipment references and proves FK closure without activating canonical registries",
+  "activation_rule": "candidate equipment files remain outside active registry law until a later accepted activation slice deliberately changes the active registry surface"
+}
