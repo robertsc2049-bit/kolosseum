@@ -65,6 +65,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_reg_16_candidate_equipment_registry_content_batch_1_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_reg_17_exercise_equipment_candidate_fk_closure_expansion_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_reg_18_exercise_activity_applicability_candidate_expansion_guard.mjs` | Registry Law | high | registry |  |
+| `ci/guards/s_reg_19_sport_metric_candidate_expansion_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_v1_01_active_boundary_confirmation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_02b_non_scope_guard_hardening_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_03_repository_top_level_folder_contract_guard.mjs` | Repo Governance | medium | repo |  |
