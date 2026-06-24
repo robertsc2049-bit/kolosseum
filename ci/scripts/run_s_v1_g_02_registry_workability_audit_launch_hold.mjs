@@ -67,9 +67,9 @@ function main() {
   assert(record.slice_id === "S-V1-G-02", "slice_id mismatch");
   assert(record.record_id === "controlled_launch_registry_workability_hold", "record_id mismatch");
   assert(record.token === token, "token mismatch");
-  assert(record.status === "HOLD", "status must be HOLD");
-  assert(record.operational_launch_status === "HOLD_REGISTRY_WORKABILITY_NOT_PROVEN", "operational launch status mismatch");
-  assert(record.controlled_launch_user_start_authorised === false, "controlled launch user start must be false");
+  assert(record.status === "CLOSED", "status must be CLOSED");
+  assert(record.operational_launch_status === "REGISTRY_WORKABILITY_PROVEN_FOR_CONTROLLED_LAUNCH", "operational launch status mismatch");
+  assert(record.controlled_launch_user_start_authorised === true, "controlled launch user start must be true after workability closure");
   assert(record.decision_scope === "controlled_launch_only", "decision scope mismatch");
 
   assert(goRecord.decision === "GO", "S-V1-F-12 GO record should remain GO");
@@ -81,21 +81,30 @@ function main() {
   }
 
   assert(record.workability_findings.structural_registry_gates_pass === true, "structural gate observation must be true");
-  assert(record.workability_findings.registry_content_workability_proven === false, "registry content workability must not be marked proven");
-  assert(record.workability_findings.minimum_real_execution_content_proven === false, "minimum real execution content must not be marked proven");
-  assert(record.workability_findings.real_coach_athlete_launch_path_with_current_registry_content_proven === false, "real launch path must not be marked proven");
+  assert(record.workability_findings.registry_content_workability_proven === true, "registry content workability must be proven");
+  assert(record.workability_findings.minimum_real_execution_content_proven === true, "minimum real execution content must be proven");
+  assert(record.workability_findings.real_coach_athlete_launch_path_with_current_registry_content_proven === true, "real launch path must be proven");
   assert(record.workability_findings.release_go_record_changes_registry_content === false, "GO record must not change registry content");
   assert(record.workability_findings.smoke_run_changes_registry_content === false, "smoke run must not change registry content");
 
-  const requiredCodes = [
-    "REGISTRY_WORKABILITY_NOT_PROVEN",
-    "MINIMUM_REAL_EXECUTION_CONTENT_NOT_PROVEN",
-    "CONTROLLED_LAUNCH_GO_RECORD_IS_NOT_REGISTRY_CONTENT_PROOF"
+  assert(Array.isArray(record.blocker_reason_codes), "blocker_reason_codes must be an array");
+  assert(record.blocker_reason_codes.length === 0, "closed workability record must not retain blocker reason codes");
+
+  const requiredClosureCodes = [
+    "MINIMUM_REAL_EXECUTION_CONTENT_PROVEN",
+    "CONTROLLED_LAUNCH_SMOKE_PROOF_PASSED",
+    "REGISTRY_WORKABILITY_HOLD_CLOSED"
   ];
 
-  for (const code of requiredCodes) {
-    assert(record.blocker_reason_codes.includes(code), `Missing blocker reason code: ${code}`);
+  for (const code of requiredClosureCodes) {
+    assert(record.closure_reason_codes.includes(code), `Missing closure reason code: ${code}`);
   }
+
+  assert(record.closed_by_slice === "S-LAUNCH-02D", "closed_by_slice mismatch");
+  assert(record.closure_scope === "controlled_launch_only", "closure scope mismatch");
+  assert(record.registry_workability_closure_evidence.proof_command_failures === 0, "proof command failures must be zero");
+  assert(record.registry_workability_closure_evidence.proof_s_v1_f_10_passed === true, "smoke proof must pass");
+  assert(record.registry_workability_closure_evidence.registry_content_changed_by_closure === false, "closure must not change registry content");
 
   assert(record.invariants.decision_record_only === true, "record must be decision-only");
   assert(record.invariants.does_not_change_existing_go_no_go_record === true, "must not change existing GO record");
@@ -111,11 +120,12 @@ function main() {
 
   const markdown = fs.readFileSync(path.join(root, markdownPath), "utf8");
   const requiredMarkdown = [
-    "Operational launch status: HOLD_REGISTRY_WORKABILITY_NOT_PROVEN",
-    "Controlled launch user start authorised: false",
-    "structural gates are not the same as a workable registry",
-    "Operational launch status: HOLD until registry workability is proven",
-    "do not start real controlled launch users from the current registry state"
+    "Operational launch status: REGISTRY_WORKABILITY_PROVEN_FOR_CONTROLLED_LAUNCH",
+    "Controlled launch user start authorised: true",
+    "Registry content workability proven | true",
+    "Minimum real execution content proven | true",
+    "Operational launch status: registry workability proven for controlled launch only",
+    "Do not expand launch scope from this record."
   ];
 
   for (const text of requiredMarkdown) {
@@ -129,9 +139,9 @@ function main() {
     status: record.status,
     operational_launch_status: record.operational_launch_status,
     registry_law_counts: currentCounts,
-    message: "Registry workability audit launch hold is valid."
+    message: "Registry workability hold closure is valid."
   }, null, 2));
-  console.log("S-V1-G-02 REGISTRY_WORKABILITY_AUDIT_LAUNCH_HOLD_CHECK_PASS");
+  console.log("S-V1-G-02 REGISTRY_WORKABILITY_AUDIT_LAUNCH_HOLD_CLOSURE_CHECK_PASS");
 }
 
 try {

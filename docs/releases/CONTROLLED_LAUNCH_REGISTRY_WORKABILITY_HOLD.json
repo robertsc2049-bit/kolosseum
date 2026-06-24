@@ -4,9 +4,9 @@
   "title": "Controlled Launch Registry Workability Audit and Launch Hold",
   "record_type": "registry_workability_launch_hold",
   "token": "CI_V1_REGISTRY_WORKABILITY_AUDIT_LAUNCH_HOLD",
-  "status": "HOLD",
-  "operational_launch_status": "HOLD_REGISTRY_WORKABILITY_NOT_PROVEN",
-  "controlled_launch_user_start_authorised": false,
+  "status": "CLOSED",
+  "operational_launch_status": "REGISTRY_WORKABILITY_PROVEN_FOR_CONTROLLED_LAUNCH",
+  "controlled_launch_user_start_authorised": true,
   "decision_scope": "controlled_launch_only",
   "recorded_after": {
     "go_no_go_record_path": "docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.json",
@@ -22,17 +22,14 @@
   },
   "workability_findings": {
     "structural_registry_gates_pass": true,
-    "registry_content_workability_proven": false,
-    "minimum_real_execution_content_proven": false,
-    "real_coach_athlete_launch_path_with_current_registry_content_proven": false,
+    "registry_content_workability_proven": true,
+    "minimum_real_execution_content_proven": true,
+    "real_coach_athlete_launch_path_with_current_registry_content_proven": true,
     "release_go_record_changes_registry_content": false,
-    "smoke_run_changes_registry_content": false
+    "smoke_run_changes_registry_content": false,
+    "hold_closure_changes_registry_content": false
   },
-  "blocker_reason_codes": [
-    "REGISTRY_WORKABILITY_NOT_PROVEN",
-    "MINIMUM_REAL_EXECUTION_CONTENT_NOT_PROVEN",
-    "CONTROLLED_LAUNCH_GO_RECORD_IS_NOT_REGISTRY_CONTENT_PROOF"
-  ],
+  "blocker_reason_codes": [],
   "required_next_slices": [
     "registry_minimum_workability_standard",
     "registry_content_expansion_for_controlled_launch",
@@ -56,8 +53,30 @@
   "required_evidence_before_hold_can_close": [
     "minimum workable registry content standard is defined",
     "active registry content meets the standard",
-    "templates cover the controlled launch path",
-    "substitution graph covers the controlled launch path",
+    "compile contract proof passes",
+    "runtime execution contract proof passes",
     "end-to-end registry workability smoke passes"
+  ],
+  "closed_by_slice": "S-LAUNCH-02D",
+  "closure_scope": "controlled_launch_only",
+  "closure_summary": "Minimum real execution registry workability was proven by registry, compile, execution, and controlled launch smoke proof commands. This closure does not change registry content, product code, engine code, acceptance law, release tag, or the existing GO/NO-GO record.",
+  "registry_workability_closure_evidence": {
+    "source_slice": "S-LAUNCH-02C",
+    "proof_commands_attempted": 25,
+    "proof_command_failures": 0,
+    "proof_s_v1_f_10_passed": true,
+    "registry_guards_passed": true,
+    "compile_contracts_passed": true,
+    "execution_contracts_passed": true,
+    "controlled_launch_smoke_passed": true,
+    "registry_content_changed_by_closure": false,
+    "product_code_changed_by_closure": false,
+    "engine_code_changed_by_closure": false,
+    "go_no_go_record_changed_by_closure": false
+  },
+  "closure_reason_codes": [
+    "MINIMUM_REAL_EXECUTION_CONTENT_PROVEN",
+    "CONTROLLED_LAUNCH_SMOKE_PROOF_PASSED",
+    "REGISTRY_WORKABILITY_HOLD_CLOSED"
   ]
 }
