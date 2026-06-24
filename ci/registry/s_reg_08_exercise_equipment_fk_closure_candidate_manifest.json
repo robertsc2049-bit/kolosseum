@@ -1,0 +1,42 @@
+{
+  "slice_id": "S-REG-08",
+  "manifest_id": "s_reg_08_exercise_equipment_fk_closure_candidate_manifest",
+  "manifest_version": "1.0.0",
+  "surface_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "candidate_paths": {
+    "exercise_registry_3a": "ci/registry/candidates/exercise_registry_3a/exercise_registry_3a.candidate.registry.json",
+    "equipment_registry": "ci/registry/candidates/equipment_registry/equipment_registry.candidate.registry.json"
+  },
+  "equipment_dependency_status": "candidate_equipment_fk_closed",
+  "exercise_equipment_fk_map": {
+    "back_squat": [
+      "barbell",
+      "rack",
+      "plate"
+    ],
+    "deadlift": [
+      "barbell",
+      "plate"
+    ],
+    "bench_press": [
+      "barbell",
+      "bench",
+      "rack",
+      "plate"
+    ],
+    "front_plank": [
+      "bodyweight",
+      "open_floor_space"
+    ]
+  },
+  "next_slice_dependency": "S-REG-09 creates exercise-activity applicability candidate seeds without activating canonical registries",
+  "activation_rule": "candidate exercise equipment FK closure remains outside active registry law until a later accepted activation slice deliberately changes the active registry surface"
+}

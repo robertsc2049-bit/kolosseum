@@ -55,17 +55,18 @@ test("S-REG-07 equipment candidates are inert and FK-closed to S-REG-06 activity
   assert.equal(result.required_seed_equipment_count, S_REG_07_REQUIRED_SEED_EQUIPMENT_IDS.length);
   assert.equal(result.upstream_activity_count, 3);
   assert.equal(result.upstream_movement_count, 4);
-  assert.equal(result.s_reg_06_exercise_dependency_status, "deferred_to_s_reg_07");
+  assert.equal(result.s_reg_06_exercise_dependency_status, "candidate_equipment_fk_closed");
   assert.equal(result.s_reg_08_dependency, "exercise_equipment_fk_closure");
   assert.equal(result.runtime_status, "non_runtime");
 });
 
-test("S-REG-07 does not mutate S-REG-06 exercise equipment references", () => {
+test("S-REG-07 reads S-REG-08 exercise candidate equipment FK closure without activation", () => {
   const upstream = sReg06LoadCandidateSeedFiles();
 
   for (const exercise of upstream.exercise_registry_3a.records) {
-    assert.deepEqual(exercise.equipment_ids, []);
-    assert.equal(exercise.equipment_dependency_status, "deferred_to_s_reg_07");
+    assert.equal(Array.isArray(exercise.equipment_ids), true);
+    assert.notEqual(exercise.equipment_ids.length, 0);
+    assert.equal(exercise.equipment_dependency_status, "candidate_equipment_fk_closed");
     assert.equal(exercise.activation_ready, false);
   }
 });

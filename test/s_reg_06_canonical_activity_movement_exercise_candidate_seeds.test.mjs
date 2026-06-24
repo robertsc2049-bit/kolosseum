@@ -53,16 +53,17 @@ test("S-REG-06 candidate seeds are inert and FK-closed across activity, movement
   assert.equal(result.movement_count, 4);
   assert.equal(result.exercise_token_count, 4);
   assert.equal(result.exercise_count, 4);
-  assert.equal(result.equipment_dependency_status, "deferred_to_s_reg_07");
+  assert.equal(result.equipment_dependency_status, "candidate_equipment_fk_closed");
   assert.equal(result.runtime_status, "non_runtime");
 });
 
-test("S-REG-06 exercise records defer equipment dependency and cannot be activation ready", () => {
+test("S-REG-06 exercise records can hold S-REG-08 candidate equipment FK closure without activation", () => {
   const surface = sReg06LoadCandidateSeedFiles();
 
   for (const record of surface.exercise_registry_3a.records) {
-    assert.deepEqual(record.equipment_ids, []);
-    assert.equal(record.equipment_dependency_status, "deferred_to_s_reg_07");
+    assert.equal(Array.isArray(record.equipment_ids), true);
+    assert.notEqual(record.equipment_ids.length, 0);
+    assert.equal(record.equipment_dependency_status, "candidate_equipment_fk_closed");
     assert.equal(record.activation_ready, false);
     assert.equal(record.runtime_status, "non_runtime");
   }

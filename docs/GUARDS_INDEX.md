@@ -54,6 +54,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_reg_05_canonical_registry_contract_candidate_surface_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_reg_06_canonical_activity_movement_exercise_candidate_seeds_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_reg_07_canonical_equipment_candidate_seeds_guard.mjs` | Registry Law | high | registry |  |
+| `ci/guards/s_reg_08_exercise_equipment_fk_closure_candidate_update_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_v1_01_active_boundary_confirmation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_02b_non_scope_guard_hardening_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_03_repository_top_level_folder_contract_guard.mjs` | Repo Governance | medium | repo |  |
