@@ -1,0 +1,179 @@
+{
+  "slice_id": "S-REG-24",
+  "contract_id": "registry_activation_contract_design",
+  "contract_type": "design_only",
+  "source_hold_slice_id": "S-REG-23",
+  "source_hold_decision_id": "registry_activation_hold_decision",
+  "source_hold_decision": "hold",
+  "runtime_status": "non_runtime",
+  "contract_design_status": "defined_for_future_explicit_activation_slice_only",
+  "activation_contract_defined": true,
+  "active_registry_mutation_contract_defined": true,
+  "registry_index_update_contract_defined": true,
+  "registry_bundle_promotion_plan_defined": true,
+  "registry_loader_contract_defined": true,
+  "active_registry_schema_plan_defined": true,
+  "fk_closure_replay_contract_defined": true,
+  "registry_seal_freeze_and_gate_plan_defined": true,
+  "engine_consumption_boundary_decision_defined": true,
+  "runtime_no_behaviour_change_proof_defined": true,
+  "rollback_or_revert_plan_defined": true,
+  "activation_authorised": false,
+  "activation_ready": false,
+  "active_registry_activation": false,
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "registry_index_mutation": false,
+  "registry_bundle_mutation": false,
+  "registry_seal_mutation": false,
+  "engine_runtime_mutation": false,
+  "phase1_runtime_schema_mutation": false,
+  "marker_evaluator_mutation": false,
+  "comparison_result_mutation": false,
+  "recorded_value_input_mutation": false,
+  "advice_mutation": false,
+  "outcome_inference_mutation": false,
+  "programme_assignment_mutation": false,
+  "substitution_runtime_mutation": false,
+  "ui_behaviour_mutation": false,
+  "coach_interpretation_mutation": false,
+  "covered_s_reg_23_requirements": [
+    "explicit_activation_slice",
+    "active_registry_mutation_contract",
+    "registry_index_update_contract",
+    "registry_bundle_promotion_plan",
+    "registry_loader_contract",
+    "active_registry_schema_plan",
+    "fk_closure_replay_against_active_bundle",
+    "registry_seal_freeze_and_gate_plan",
+    "engine_consumption_boundary_decision",
+    "runtime_no_behaviour_change_proof",
+    "rollback_or_revert_plan"
+  ],
+  "current_active_registry_surface_observed": {
+    "registry_index_order": [
+      "activity",
+      "movement",
+      "exercise",
+      "program"
+    ],
+    "registry_bundle_keys": [
+      "activity",
+      "movement",
+      "exercise",
+      "program"
+    ],
+    "registry_index_sha256": "C31139079DF4ED7B0A4C58808A2FD1C8E399CB7C1C4D4499FC625ED2C7586D37",
+    "registry_bundle_sha256": "3AE38479B85AAD2BBF03EC1EA9613D17D9EE97997B529BACBFDD9D41773E61DF"
+  },
+  "future_activation_contract": {
+    "requires_separate_explicit_activation_slice": true,
+    "requires_human_authorised_activation_decision": true,
+    "requires_clean_main_after_s_reg_24": true,
+    "requires_no_open_prs": true,
+    "requires_registry_seal_state_accounting": true,
+    "requires_full_replay_of_candidate_chain": true,
+    "requires_active_registry_hash_before_and_after": true,
+    "requires_rollback_packet_before_merge": true,
+    "requires_runtime_output_parity_proof": true
+  },
+  "future_allowed_activation_mutations": [
+    "registries/registry_index.json",
+    "registries/registry_bundle.json",
+    "registries/<registry_id>/<registry_id>.registry.json",
+    "ci/evidence/registry_seal_manifest.v1.json",
+    "ci/evidence/registry_seal_live_surface.v1.json",
+    "ci/evidence/registry_seal.v1.json",
+    "ci/evidence/registry_seal_snapshot.v1.json",
+    "ci/evidence/registry_seal_lifecycle.v1.json",
+    "docs/roadmap/<future_activation_slice>.md",
+    "test/<future_activation_slice>.test.mjs",
+    "ci/guards/<future_activation_slice>_guard.mjs",
+    "package.json",
+    "generated_indexes_and_checksums"
+  ],
+  "future_forbidden_activation_shortcuts": [
+    "activate_without_separate_slice",
+    "mutate_registry_index_without_bundle_regeneration",
+    "mutate_registry_bundle_without_registry_source_files",
+    "mutate_registry_files_without_schema_plan",
+    "consume_candidate_records_directly_at_runtime",
+    "add_marker_evaluator_runtime",
+    "compare_recorded_values",
+    "emit_advice_or_outcome_inference",
+    "alter_programme_assignment",
+    "alter_substitution_runtime",
+    "expose_candidate_records_in_ui",
+    "skip_registry_seal_gate",
+    "skip_rollback_or_revert_plan"
+  ],
+  "future_registry_load_order_edges": [
+    {
+      "upstream": "activity",
+      "downstream": "exercise"
+    },
+    {
+      "upstream": "movement",
+      "downstream": "exercise"
+    },
+    {
+      "upstream": "equipment",
+      "downstream": "exercise_equipment_compatibility"
+    },
+    {
+      "upstream": "exercise",
+      "downstream": "exercise_equipment_compatibility"
+    },
+    {
+      "upstream": "activity",
+      "downstream": "exercise_activity_applicability"
+    },
+    {
+      "upstream": "exercise",
+      "downstream": "exercise_activity_applicability"
+    },
+    {
+      "upstream": "sport_metric",
+      "downstream": "metric_exercise_link"
+    },
+    {
+      "upstream": "exercise",
+      "downstream": "metric_exercise_link"
+    },
+    {
+      "upstream": "sport_metric",
+      "downstream": "threshold_marker"
+    },
+    {
+      "upstream": "metric_exercise_link",
+      "downstream": "threshold_marker"
+    }
+  ],
+  "future_required_proof_commands": [
+    "node ci/guards/registry_bundle_guard.mjs",
+    "node ci/guards/registry_law_guard.mjs",
+    "node ci/guards/registry_schema_presence_guard.mjs",
+    "node ci/guards/s_v1_24_registry_load_order_fk_closure_guard.mjs",
+    "node ci/scripts/run_registry_seal_gate.mjs",
+    "node ci/scripts/run_failure_token_index_guard.mjs",
+    "node ci/guards/guards_index_guard.mjs",
+    "node ci/guards/guards_entrypoint_coverage_guard.mjs",
+    "npm.cmd run lint:fast"
+  ],
+  "next_allowed_slice_categories": [
+    "activation_candidate_schema_design",
+    "activation_loader_contract_review",
+    "activation_dry_run_plan",
+    "candidate_content_expansion"
+  ],
+  "next_disallowed_actions": [
+    "direct_active_registry_activation",
+    "direct_registry_index_mutation",
+    "direct_registry_bundle_mutation",
+    "direct_registry_law_mutation",
+    "direct_engine_consumption",
+    "direct_ui_exposure",
+    "direct_marker_evaluator_runtime"
+  ]
+}
