@@ -1,0 +1,121 @@
+{
+  "slice_id": "S-REG-22",
+  "review_id": "candidate_registry_review_and_activation_gate",
+  "batch_id": "candidate_registry_review_and_activation_gate",
+  "registry_target": "candidate_registry_review_gate",
+  "source_queue_slice_id": "S-REG-14",
+  "source_queue_order": 8,
+  "dependency_inputs": [
+    "S-REG-15",
+    "S-REG-16",
+    "S-REG-17",
+    "S-REG-18",
+    "S-REG-19",
+    "S-REG-20",
+    "S-REG-21"
+  ],
+  "candidate_review_status": "candidate_reviewed_fk_closed_pending_activation_decision",
+  "runtime_status": "non_runtime",
+  "activation_ready": false,
+  "active_registry_activation": false,
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "phase1_runtime_schema_mutation": false,
+  "high_volume_content_added": false,
+  "complete_registry_claim": false,
+  "marker_evaluator_mutation": false,
+  "comparison_result_mutation": false,
+  "recorded_value_input_mutation": false,
+  "advice_mutation": false,
+  "outcome_inference_mutation": false,
+  "programme_assignment_mutation": false,
+  "substitution_runtime_mutation": false,
+  "ui_behaviour_mutation": false,
+  "coach_interpretation_mutation": false,
+  "activation_decision": "not_authorised_pending_later_explicit_activation_slice",
+  "later_activation_requirement": "separate_explicit_activation_slice_required",
+  "active_registry_hashes_observed": {
+    "registries/registry_index.json": "C31139079DF4ED7B0A4C58808A2FD1C8E399CB7C1C4D4499FC625ED2C7586D37",
+    "registries/registry_bundle.json": "3AE38479B85AAD2BBF03EC1EA9613D17D9EE97997B529BACBFDD9D41773E61DF"
+  },
+  "reviewed_candidate_batches": [
+    {
+      "slice_id": "S-REG-15",
+      "registry_id": "exercise_registry_3a",
+      "batch_id": "candidate_exercise_registry_content_expansion_batch_1",
+      "record_count": 6,
+      "review_status": "reviewed_inert_fk_closed",
+      "activation_ready": false,
+      "runtime_status": "non_runtime"
+    },
+    {
+      "slice_id": "S-REG-16",
+      "registry_id": "equipment_registry",
+      "batch_id": "candidate_equipment_registry_content_expansion_batch_1",
+      "record_count": 6,
+      "review_status": "reviewed_inert_fk_closed",
+      "activation_ready": false,
+      "runtime_status": "non_runtime"
+    },
+    {
+      "slice_id": "S-REG-17",
+      "registry_id": "exercise_equipment_fk_closure",
+      "batch_id": "candidate_exercise_equipment_fk_closure_expansion_batch_1",
+      "record_count": 20,
+      "review_status": "reviewed_inert_fk_closed",
+      "activation_ready": false,
+      "runtime_status": "non_runtime"
+    },
+    {
+      "slice_id": "S-REG-18",
+      "registry_id": "exercise_activity_applicability_registry",
+      "batch_id": "candidate_exercise_activity_applicability_expansion_batch_1",
+      "record_count": 18,
+      "review_status": "reviewed_inert_fk_closed",
+      "activation_ready": false,
+      "runtime_status": "non_runtime"
+    },
+    {
+      "slice_id": "S-REG-19",
+      "registry_id": "sport_metric_registry_1c",
+      "batch_id": "candidate_sport_metric_expansion_batch_1",
+      "record_count": 6,
+      "review_status": "reviewed_inert_fk_closed",
+      "activation_ready": false,
+      "runtime_status": "non_runtime"
+    },
+    {
+      "slice_id": "S-REG-20",
+      "registry_id": "metric_exercise_link_registry_1c_a",
+      "batch_id": "candidate_metric_exercise_link_expansion_batch_1",
+      "record_count": 8,
+      "review_status": "reviewed_inert_fk_closed",
+      "activation_ready": false,
+      "runtime_status": "non_runtime"
+    },
+    {
+      "slice_id": "S-REG-21",
+      "registry_id": "threshold_marker_registry",
+      "batch_id": "candidate_threshold_marker_records_batch_1",
+      "record_count": 5,
+      "review_status": "reviewed_inert_fk_closed",
+      "activation_ready": false,
+      "runtime_status": "non_runtime"
+    }
+  ],
+  "review_findings": {
+    "candidate_batches_present": true,
+    "candidate_batch_order_matches_s_reg_14": true,
+    "dependency_inputs_present": true,
+    "candidate_docs_runtime_inert": true,
+    "candidate_docs_activation_ready_false": true,
+    "candidate_docs_record_counts_match_records": true,
+    "active_registry_index_unchanged": true,
+    "active_registry_bundle_unchanged": true,
+    "active_registry_activation_authorised": false,
+    "activation_gate_remains_blocked_pending_later_slice": true
+  },
+  "next_step_after_review": "create_later_explicit_activation_decision_slice_if_authorised"
+}
