@@ -1,0 +1,95 @@
+{
+  "slice_id": "S-REG-23",
+  "decision_id": "registry_activation_hold_decision",
+  "decision_type": "hold",
+  "source_review_slice_id": "S-REG-22",
+  "source_review_id": "candidate_registry_review_and_activation_gate",
+  "source_review_status": "candidate_reviewed_fk_closed_pending_activation_decision",
+  "runtime_status": "non_runtime",
+  "activation_decision": "hold",
+  "activation_authorised": false,
+  "activation_ready": false,
+  "active_registry_activation": false,
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "registry_index_mutation": false,
+  "registry_bundle_mutation": false,
+  "registry_seal_mutation": false,
+  "engine_runtime_mutation": false,
+  "phase1_runtime_schema_mutation": false,
+  "marker_evaluator_mutation": false,
+  "comparison_result_mutation": false,
+  "recorded_value_input_mutation": false,
+  "advice_mutation": false,
+  "outcome_inference_mutation": false,
+  "programme_assignment_mutation": false,
+  "substitution_runtime_mutation": false,
+  "ui_behaviour_mutation": false,
+  "coach_interpretation_mutation": false,
+  "hold_reason_codes": [
+    "activation_contract_not_defined",
+    "active_registry_mutation_contract_not_defined",
+    "registry_bundle_promotion_plan_not_defined",
+    "registry_loader_consumption_contract_not_defined",
+    "registry_seal_lifecycle_enforced",
+    "runtime_consumption_contract_not_defined",
+    "rollback_plan_not_defined"
+  ],
+  "required_before_activation": [
+    "explicit_activation_slice",
+    "active_registry_mutation_contract",
+    "registry_index_update_contract",
+    "registry_bundle_promotion_plan",
+    "registry_loader_contract",
+    "active_registry_schema_plan",
+    "fk_closure_replay_against_active_bundle",
+    "registry_seal_freeze_and_gate_plan",
+    "engine_consumption_boundary_decision",
+    "runtime_no_behaviour_change_proof",
+    "rollback_or_revert_plan"
+  ],
+  "active_registry_hashes_observed": {
+    "registries/registry_index.json": "C31139079DF4ED7B0A4C58808A2FD1C8E399CB7C1C4D4499FC625ED2C7586D37",
+    "registries/registry_bundle.json": "3AE38479B85AAD2BBF03EC1EA9613D17D9EE97997B529BACBFDD9D41773E61DF"
+  },
+  "active_registry_surface_observed": {
+    "registry_index_order": [
+      "activity",
+      "movement",
+      "exercise",
+      "program"
+    ],
+    "registry_bundle_keys": [
+      "activity",
+      "movement",
+      "exercise",
+      "program"
+    ]
+  },
+  "candidate_chain_reviewed": [
+    "S-REG-15",
+    "S-REG-16",
+    "S-REG-17",
+    "S-REG-18",
+    "S-REG-19",
+    "S-REG-20",
+    "S-REG-21",
+    "S-REG-22"
+  ],
+  "next_allowed_slice_categories": [
+    "activation_contract_design",
+    "activation_readiness_preflight",
+    "candidate_content_expansion",
+    "registry_loader_contract_review"
+  ],
+  "next_disallowed_actions": [
+    "direct_active_registry_activation",
+    "direct_registry_index_mutation",
+    "direct_registry_bundle_mutation",
+    "direct_registry_law_mutation",
+    "direct_engine_consumption",
+    "direct_ui_exposure",
+    "direct_marker_evaluator_runtime"
+  ]
+}
