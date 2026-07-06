@@ -411,16 +411,6 @@ function ensureStateShape(state: unknown, plannedFallback: string[]): RuntimeSta
   return st;
 }
 
-/**
- * DEV NOTE: Runtime state creation boundary.
- * Purpose: initialise reducer state from materialised planned exercise ids.
- * Boundary: session ids are the only source accepted here; UI state, coach notes,
- * product flags, payment data, and read projections must stay outside reducer input.
- * Determinism: the planned id extraction and stable de-duplication decide the
- * initial remaining order for all later runtime events.
- * Failure: a malformed session-like input throws a stable PHASE6_RUNTIME error
- * before any runtime event can be applied.
- */
 export function makeRuntimeState(session: unknown): RuntimeStateInternal {
   const planned = extractPlannedIds(session);
 
@@ -465,16 +455,6 @@ function assertKnownExerciseId(st: RuntimeStateInternal, id: string): void {
   }
 }
 
-/**
- * DEV NOTE: Runtime event reducer boundary.
- * Purpose: apply one explicit runtime event to the current reducer state.
- * Boundary: event handling changes only factual reducer fields and does not call
- * API, storage, UI, copy, notes, payment, or commercial code.
- * Determinism: events are processed in caller-provided order with stable work-item
- * checks and fixed split/return transition rules.
- * Failure: unknown event types, invalid event shapes, closed decision gates, and
- * unknown exercise ids throw stable PHASE6_RUNTIME errors.
- */
 export function applyRuntimeEvent(state: unknown, event: unknown): RuntimeStateInternal {
   validateEvent(event);
 
