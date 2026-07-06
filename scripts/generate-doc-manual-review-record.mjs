@@ -171,7 +171,9 @@ const rows = records.map((item) => ({
   "Evidence lines": item.evidence.evidence_lines.map((line) => `${line.line}: ${line.text}`).join("<br>") || "none"
 }));
 
-const markdown = `# Documentation Manual Review Record
+const markdown = `<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
+# Documentation Manual Review Record
 
 Generated: deterministic-local-manual-review-record
 
