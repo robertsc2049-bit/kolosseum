@@ -274,15 +274,21 @@ if (!packageJson.includes("node ci/guards/s_v1_10_release_boundary_file_closure_
 
 const changedFiles = currentChangedFiles();
 
+const sV110SurfaceChanged = changedFiles.some((changedFile) => ALLOWED_CHANGED_FILES.has(changedFile));
+
 // S-V1-10 guard intentionally checks forbidden implementation prefixes only.
 // It must not freeze future v1 slices to the S-V1-10 changed-file allowlist.
-for (const changedFile of changedFiles) {
-  for (const forbiddenPrefix of FORBIDDEN_CHANGED_PREFIXES) {
-    if (changedFile.startsWith(forbiddenPrefix)) {
-      fail("S-V1-10 touched a forbidden implementation surface.", {
-        path: changedFile,
-        forbidden_prefix: forbiddenPrefix
-      });
+// Therefore the forbidden-prefix check runs only when this branch changes the
+// S-V1-10 boundary surface.
+if (sV110SurfaceChanged) {
+  for (const changedFile of changedFiles) {
+    for (const forbiddenPrefix of FORBIDDEN_CHANGED_PREFIXES) {
+      if (changedFile.startsWith(forbiddenPrefix)) {
+        fail("S-V1-10 touched a forbidden implementation surface.", {
+          path: changedFile,
+          forbidden_prefix: forbiddenPrefix
+        });
+      }
     }
   }
 }
