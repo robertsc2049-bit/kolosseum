@@ -1,0 +1,57 @@
+{
+  "cases": [
+    {
+      "case_id": "unsupported_activity_refused",
+      "mutation_path": "registry_records.substitution_edges.0.activity_id",
+      "mutation_value": "football_soccer",
+      "expected_reason": "unsupported_activity_refused"
+    },
+    {
+      "case_id": "missing_target_exercise_rejected",
+      "mutation_path": "registry_records.substitution_edges.0.target_exercise_id",
+      "mutation_value": "missing_exercise",
+      "expected_reason": "substitution_edge_target_missing"
+    },
+    {
+      "case_id": "missing_target_applicability_rejected",
+      "mutation_path": "registry_records.applicability_records.1.substitution_applicability",
+      "mutation_value": "not_eligible",
+      "expected_reason": "substitution_target_applicability_missing"
+    },
+    {
+      "case_id": "missing_declared_contract_edge_rejected",
+      "mutation_path": "substitution_cases.0.substitution_edges",
+      "mutation_value": [],
+      "expected_reason": "v1_substitution_declared_candidate_missing"
+    },
+    {
+      "case_id": "missing_edge_registry_link_rejected",
+      "mutation_path": "substitution_cases.0.registry_links.substitution_edge_ids",
+      "mutation_value": [],
+      "expected_reason": "v1_substitution_edge_registry_link_missing"
+    },
+    {
+      "case_id": "ui_only_authority_rejected",
+      "mutation_path": "ui_only_substitution_authority",
+      "mutation_value": true,
+      "expected_reason": "substitution_non_registry_authority_refused"
+    },
+    {
+      "case_id": "ad_hoc_substitution_rejected",
+      "mutation_path": "ad_hoc_substitutions",
+      "mutation_value": [
+        {
+          "source_exercise_id": "bench_press",
+          "target_exercise_id": "push_up"
+        }
+      ],
+      "expected_reason": "substitution_non_registry_authority_refused"
+    },
+    {
+      "case_id": "supported_activity_set_is_closed",
+      "mutation_path": "supported_activity_ids.3",
+      "mutation_value": "football_soccer",
+      "expected_reason": "supported_activity_set_invalid"
+    }
+  ]
+}

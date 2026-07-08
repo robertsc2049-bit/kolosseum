@@ -1,3 +1,8 @@
+
+// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
+// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
+// canonical registries, and validated contracts only.
+
 import type { PlannedItem } from "./types.js";
 
 /**
@@ -22,6 +27,12 @@ export function readSessionTimeboxMinutes(canonicalInput: any, phase3Constraints
  * - tb < 30: drop all accessories
  * - tb < 45: keep at most 1 accessory (stable order)
  */
+// DEV NOTE: S-V0-08 timebox prune determinism.
+// The prune rule is intentionally source-order preserving: Phase 4 builds the
+// planned item order first, then this function only removes items by fixed
+// timebox thresholds. It must not reorder tied items, score alternatives, or
+// use runtime state. Repeated calls with the same planned item array and
+// timebox minutes must return the same ordered exercise ids.
 export function applyTimeboxDeterministic(items: PlannedItem[], timeboxMinutes: number): PlannedItem[] {
   if (!Number.isFinite(timeboxMinutes)) return items;
 

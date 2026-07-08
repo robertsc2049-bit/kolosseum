@@ -1,0 +1,6 @@
+\b(best effort|fallback|graceful|try anyway|closest match|approximate|heuristic)\b
+\b(relax constraint|relax constraints|ignore constraint|ignore constraints|override constraint|override constraints)\b
+\b(default to bodyweight|default to bw)\b
+\b(if empty then|if empty, then|when empty then|when empty, then)\b
+\b(make it work|just make it work)\b
+\b(retry with modified input|recover by mutating|soft fail|warning only)\b

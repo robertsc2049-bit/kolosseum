@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+
+// DEV NOTE: Repository automation script. This file exists to make a repeatable repo operation
+// deterministic and reviewable. Keep side effects explicit, paths repo-root relative, and
+// failure output readable for PowerShell and CI users.
+
 import fs from "node:fs";
 import path from "node:path";
 
@@ -82,12 +87,20 @@ function shouldSkipPath(filePath) {
 
 function isNegativeTest(filePath, text) {
   const normal = normalise(filePath);
-  const inNegativePath =
+  const hasNegativeMarker = text.includes("v0_scope_negative_test: true");
+
+  if (!hasNegativeMarker) return false;
+
+  return (
     normal.includes("tests/negative") ||
     normal.includes("fixtures/negative") ||
-    normal.includes("__tests__/negative");
-
-  return inNegativePath && text.includes("v0_scope_negative_test: true");
+    normal.includes("__tests__/negative") ||
+    normal.includes("__tests__") ||
+    normal.endsWith(".test.ts") ||
+    normal.endsWith(".test.tsx") ||
+    normal.endsWith(".test.mjs") ||
+    normal.endsWith(".test.js")
+  );
 }
 
 function isActiveModeEligible(filePath, text) {

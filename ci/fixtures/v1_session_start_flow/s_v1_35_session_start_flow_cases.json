@@ -1,0 +1,97 @@
+{
+  "slice_id": "S-V1-35",
+  "contract": "v1_session_start_flow",
+  "valid_request": {
+    "request_id": "session_start_request_001",
+    "requested_at": "2026-06-16T10:00:00.000Z",
+    "actor": {
+      "actor_type": "athlete",
+      "athlete_id": "athlete_001"
+    },
+    "assignment": {
+      "assignment_id": "programme_assignment_001",
+      "assignment_status": "assigned",
+      "assigned_athlete_id": "athlete_001",
+      "activity_id": "powerlifting"
+    },
+    "compiled_session": {
+      "session_id": "session_s_v1_35_001",
+      "assignment_id": "programme_assignment_001",
+      "athlete_id": "athlete_001",
+      "activity_id": "powerlifting",
+      "compile_output_version": "S-V1-31",
+      "compile_output_status": "canonical_v1_compile_output",
+      "compiled_session_status": "compiled",
+      "compile_output_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_ui_contract": {
+        "session_id": "session_s_v1_35_001",
+        "planned_item_count": 2,
+        "work_items": [
+          {
+            "work_item_id": "work_001",
+            "display_name": "Squat",
+            "status": "not_started",
+            "sets": [
+              {
+                "set_id": "set_001",
+                "reps": 5,
+                "load": "100kg"
+              }
+            ]
+          },
+          {
+            "work_item_id": "work_002",
+            "display_name": "Bench press",
+            "status": "not_started",
+            "sets": [
+              {
+                "set_id": "set_002",
+                "reps": 5,
+                "load": "80kg"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "start_request": {
+      "idempotency_key": "idem_session_start_001",
+      "start_policy": "start_or_return_existing"
+    },
+    "prior_start_event": null
+  },
+  "prior_start_event": {
+    "event_id": "session_start_event_existing_001",
+    "event_type": "SESSION_START",
+    "session_id": "session_s_v1_35_001",
+    "assignment_id": "programme_assignment_001",
+    "occurred_at": "2026-06-16T09:59:00.000Z",
+    "source": "athlete_start_request"
+  },
+  "negative_cases": [
+    {
+      "case_id": "missing_compiled_session",
+      "mutation_path": "compiled_session",
+      "mutation_value": null,
+      "expected_reason": "compiled_session_missing"
+    },
+    {
+      "case_id": "wrong_compile_output_version",
+      "mutation_path": "compiled_session.compile_output_version",
+      "mutation_value": "S-V1-30",
+      "expected_reason": "compiled_session_invalid"
+    },
+    {
+      "case_id": "unassigned_assignment",
+      "mutation_path": "assignment.assignment_status",
+      "mutation_value": "draft",
+      "expected_reason": "assignment_invalid"
+    },
+    {
+      "case_id": "forbidden_coach_live_change",
+      "mutation_path": "coach_live_change",
+      "mutation_value": true,
+      "expected_reason": "forbidden_scope_field"
+    }
+  ]
+}

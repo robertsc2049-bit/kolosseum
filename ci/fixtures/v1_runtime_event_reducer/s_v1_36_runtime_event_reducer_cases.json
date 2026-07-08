@@ -1,0 +1,183 @@
+{
+  "slice_id": "S-V1-36",
+  "contract": "v1_runtime_event_reducer",
+  "session": {
+    "session_id": "session_s_v1_36_001",
+    "work_items": [
+      {
+        "work_item_id": "work_001"
+      },
+      {
+        "work_item_id": "work_002"
+      },
+      {
+        "work_item_id": "work_003"
+      }
+    ]
+  },
+  "valid_events": [
+    {
+      "event_id": "event_001",
+      "seq": 1,
+      "event_type": "SESSION_START",
+      "session_id": "session_s_v1_36_001",
+      "occurred_at": "2026-06-16T10:00:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": null
+    },
+    {
+      "event_id": "event_002",
+      "seq": 2,
+      "event_type": "COMPLETE_WORK_ITEM",
+      "session_id": "session_s_v1_36_001",
+      "occurred_at": "2026-06-16T10:01:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": "work_001",
+      "factual_payload": null
+    },
+    {
+      "event_id": "event_003",
+      "seq": 3,
+      "event_type": "PARTIAL_COMPLETE_WORK_ITEM",
+      "session_id": "session_s_v1_36_001",
+      "occurred_at": "2026-06-16T10:02:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": "work_002",
+      "factual_payload": {
+        "declared_completed_quantity": 2,
+        "declared_planned_quantity": 5,
+        "unit": "sets",
+        "reason_code": "time_unavailable"
+      }
+    },
+    {
+      "event_id": "event_004",
+      "seq": 4,
+      "event_type": "SPLIT_SESSION",
+      "session_id": "session_s_v1_36_001",
+      "occurred_at": "2026-06-16T10:03:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": {
+        "reason_code": "time_unavailable"
+      }
+    },
+    {
+      "event_id": "event_005",
+      "seq": 5,
+      "event_type": "RETURN_CONTINUE",
+      "session_id": "session_s_v1_36_001",
+      "occurred_at": "2026-06-16T10:04:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": null
+    },
+    {
+      "event_id": "event_006",
+      "seq": 6,
+      "event_type": "SKIP_WORK_ITEM",
+      "session_id": "session_s_v1_36_001",
+      "occurred_at": "2026-06-16T10:05:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": "work_003",
+      "factual_payload": {
+        "reason_code": "not_available"
+      }
+    }
+  ],
+  "return_skip_events": [
+    {
+      "event_id": "skip_event_001",
+      "seq": 1,
+      "event_type": "SESSION_START",
+      "session_id": "session_s_v1_36_001",
+      "occurred_at": "2026-06-16T11:00:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": null
+    },
+    {
+      "event_id": "skip_event_002",
+      "seq": 2,
+      "event_type": "COMPLETE_WORK_ITEM",
+      "session_id": "session_s_v1_36_001",
+      "occurred_at": "2026-06-16T11:01:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": "work_001",
+      "factual_payload": null
+    },
+    {
+      "event_id": "skip_event_003",
+      "seq": 3,
+      "event_type": "SPLIT_SESSION",
+      "session_id": "session_s_v1_36_001",
+      "occurred_at": "2026-06-16T11:02:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": null
+    },
+    {
+      "event_id": "skip_event_004",
+      "seq": 4,
+      "event_type": "RETURN_SKIP",
+      "session_id": "session_s_v1_36_001",
+      "occurred_at": "2026-06-16T11:03:00.000Z",
+      "actor_type": "athlete",
+      "work_item_id": null,
+      "factual_payload": {
+        "reason_code": "session_ended"
+      }
+    }
+  ],
+  "negative_cases": [
+    {
+      "case_id": "unknown_event_type",
+      "mutation_path": "events.1.event_type",
+      "mutation_value": "UNKNOWN_EVENT",
+      "expected_reason": "event_invalid"
+    },
+    {
+      "case_id": "seq_gap",
+      "mutation_path": "events.1.seq",
+      "mutation_value": 3,
+      "expected_reason": "event_seq_gap"
+    },
+    {
+      "case_id": "duplicate_event_id",
+      "mutation_path": "events.1.event_id",
+      "mutation_value": "event_001",
+      "expected_reason": "duplicate_event_id"
+    },
+    {
+      "case_id": "unknown_work_item",
+      "mutation_path": "events.1.work_item_id",
+      "mutation_value": "unknown_work",
+      "expected_reason": "unknown_work_item"
+    },
+    {
+      "case_id": "work_before_start",
+      "mutation_path": "events.0.event_type",
+      "mutation_value": "COMPLETE_WORK_ITEM",
+      "expected_reason": "event_order_invalid"
+    },
+    {
+      "case_id": "forbidden_coach_notes",
+      "mutation_path": "events.1.coach_notes",
+      "mutation_value": "not allowed",
+      "expected_reason": "forbidden_reducer_input"
+    },
+    {
+      "case_id": "forbidden_billing_state",
+      "mutation_path": "events.1.billing_state",
+      "mutation_value": "not allowed",
+      "expected_reason": "forbidden_reducer_input"
+    },
+    {
+      "case_id": "forbidden_ui_state",
+      "mutation_path": "events.1.ui_state",
+      "mutation_value": "not allowed",
+      "expected_reason": "forbidden_reducer_input"
+    }
+  ]
+}

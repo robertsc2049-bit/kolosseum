@@ -1,0 +1,59 @@
+{
+  "slice_id": "S-REG-10",
+  "registry_id": "sport_role_registry_2",
+  "candidate_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "depends_on": [
+    "activity_registry_1",
+    "sport_subdivision_registry_1a"
+  ],
+  "sport_context_seed_status": "candidate_fk_ready",
+  "records": [
+    {
+      "sport_role_id": "powerlifting__athlete",
+      "activity_id": "powerlifting",
+      "sport_subdivision_id": "powerlifting__competition_lift",
+      "display_label": "Athlete",
+      "context_type": "declared_context",
+      "context_scope": "candidate_seed_only",
+      "source_slice_id": "S-REG-10",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual sport role label only"
+    },
+    {
+      "sport_role_id": "general_strength__participant",
+      "activity_id": "general_strength",
+      "sport_subdivision_id": "general_strength__training",
+      "display_label": "Participant",
+      "context_type": "declared_context",
+      "context_scope": "candidate_seed_only",
+      "source_slice_id": "S-REG-10",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual sport role label only"
+    },
+    {
+      "sport_role_id": "rugby_union__field_player",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__general_preparation",
+      "display_label": "Field player",
+      "context_type": "declared_context",
+      "context_scope": "candidate_seed_only",
+      "source_slice_id": "S-REG-10",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual sport role label only"
+    }
+  ]
+}

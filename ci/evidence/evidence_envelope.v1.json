@@ -26,7 +26,7 @@
   "contract": "kolosseum:evidence_envelope@1",
   "engine": {
     "node": "25.9.0",
-    "version": "0.1.23"
+    "version": "0.1.24"
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
@@ -67,7 +67,7 @@
       },
       {
         "path": "ci/schemas/phase1.input.schema.v1.0.0.json",
-        "sha256": "B686A1CE56B0C75F83359D996D3ED9AE40060E56D4845387A6B8FD3338118D28"
+        "sha256": "B462E2441E39F9D8F5355281A1D9EFF6468EA478C62FFCC460BC15011653DC9E"
       },
       {
         "path": "ci/schemas/phase4.output.schema.v1.0.0.json",

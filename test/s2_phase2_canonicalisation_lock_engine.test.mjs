@@ -1,3 +1,8 @@
+
+// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
+// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
+// broad discovery, or unreviewed boundary changes.
+
 /* test/s2_phase2_canonicalisation_lock_engine.test.mjs */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -170,5 +175,3 @@ test("S2 phase2 canonicalisation lock: phase1 canonical input deterministically 
   assert.equal(reordered.phase2.phase2_hash, first.phase2.phase2_hash, "reordered accepted input must canonicalise to identical hash after phase1");
   assert.deepEqual(Array.from(reordered.phase2.canonical_input_json), Array.from(first.phase2.canonical_input_json), "reordered accepted input must canonicalise to identical bytes after phase1");
 });
-
-

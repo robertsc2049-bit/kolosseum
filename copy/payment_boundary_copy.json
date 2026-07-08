@@ -1,0 +1,22 @@
+{
+  "payment_boundary.access_active": {
+    "text": "Access is active for this product surface.",
+    "claim_class": "access_state_fact"
+  },
+  "payment_boundary.access_required": {
+    "text": "Access is not active for this product surface.",
+    "claim_class": "access_state_fact"
+  },
+  "payment_boundary.plan_visibility": {
+    "text": "Plan visibility follows the recorded access state.",
+    "claim_class": "product_visibility_fact"
+  },
+  "payment_boundary.seat_limit": {
+    "text": "Seat limit is a product access limit.",
+    "claim_class": "seat_limit_fact"
+  },
+  "payment_boundary.neutral_notice": {
+    "text": "Commercial access state does not change recorded execution records.",
+    "claim_class": "boundary_notice"
+  }
+}

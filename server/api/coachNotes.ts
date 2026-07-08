@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Keeps coach notes as product records for factual coach review surfaces.
+ * Boundary: Coach notes must not enter engine input, replay input, canonical hashes, or proof artefacts.
+ * Determinism: Note storage and retrieval must not change deterministic engine output.
+ * Failure: Rejects or avoids paths that would couple notes to engine-bound payloads.
+ */
 export type CoachNoteActorType = "coach" | "athlete";
 
 export type CoachNoteActorContext = {
@@ -108,6 +115,16 @@ const COACH_NOTE_COPY_IDS: CoachNoteCopyId[] = [
 
 let deterministicNoteSequence = 0;
 
+/**
+ * FUNCTION NOTE:
+ * Export: resetCoachNoteIdSequenceForTests
+ * Purpose: Documents the exported entrypoint for coach notes product-record boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep coach notes outside deterministic input, replay input, canonical hashes, and proof artefacts.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function resetCoachNoteIdSequenceForTests(): void {
   deterministicNoteSequence = 0;
 }
@@ -129,6 +146,16 @@ function isVisibility(value: unknown): value is CoachNoteVisibility {
   return value === "coach_private" || value === "athlete_visible";
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: hasAcceptedCoachAthleteLink
+ * Purpose: Documents the exported entrypoint for coach notes product-record boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep coach notes outside deterministic input, replay input, canonical hashes, and proof artefacts.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function hasAcceptedCoachAthleteLink(
   coach_user_id: string,
   athlete_user_id: string,
@@ -141,6 +168,16 @@ export function hasAcceptedCoachAthleteLink(
   );
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: createCoachNote
+ * Purpose: Documents the exported entrypoint for coach notes product-record boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep coach notes outside deterministic input, replay input, canonical hashes, and proof artefacts.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function createCoachNote(
   actor: CoachNoteActorContext,
   request: CoachNoteCreateRequest,
@@ -185,6 +222,16 @@ export function createCoachNote(
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: updateCoachNote
+ * Purpose: Documents the exported entrypoint for coach notes product-record boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep coach notes outside deterministic input, replay input, canonical hashes, and proof artefacts.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function updateCoachNote(
   actor: CoachNoteActorContext,
   note_id: string,
@@ -234,6 +281,16 @@ export function updateCoachNote(
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: softDeleteCoachNote
+ * Purpose: Documents the exported entrypoint for coach notes product-record boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep coach notes outside deterministic input, replay input, canonical hashes, and proof artefacts.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function softDeleteCoachNote(
   actor: CoachNoteActorContext,
   note_id: string,
@@ -269,6 +326,16 @@ export function softDeleteCoachNote(
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: getCoachNotesForSession
+ * Purpose: Documents the exported entrypoint for coach notes product-record boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep coach notes outside deterministic input, replay input, canonical hashes, and proof artefacts.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function getCoachNotesForSession(
   actor: CoachNoteActorContext,
   athlete_user_id: string,
@@ -306,6 +373,16 @@ export function getCoachNotesForSession(
   return accessDenied();
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: compileIgnoringCoachNotes
+ * Purpose: Documents the exported entrypoint for coach notes product-record boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep coach notes outside deterministic input, replay input, canonical hashes, and proof artefacts.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function compileIgnoringCoachNotes(
   phase1CanonicalInput: unknown,
   coachNotes: readonly CoachNoteRecord[]
@@ -325,6 +402,16 @@ export function projectArtefactWithoutCoachNotes<T extends Record<string, unknow
   return cloneJson(artefact);
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: toNoteResponse
+ * Purpose: Documents the exported entrypoint for coach notes product-record boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep coach notes outside deterministic input, replay input, canonical hashes, and proof artefacts.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function toNoteResponse(note: CoachNoteRecord): CoachNoteResponse {
   return {
     ...cloneJson(note),
@@ -333,6 +420,16 @@ export function toNoteResponse(note: CoachNoteRecord): CoachNoteResponse {
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: toPanelResponse
+ * Purpose: Documents the exported entrypoint for coach notes product-record boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep coach notes outside deterministic input, replay input, canonical hashes, and proof artefacts.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function toPanelResponse(notes: CoachNoteRecord[]): CoachNotesPanelResponse {
   return {
     notes: notes.map(toNoteResponse),
@@ -341,6 +438,16 @@ export function toPanelResponse(notes: CoachNoteRecord[]): CoachNotesPanelRespon
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: canonicalJson
+ * Purpose: Documents the exported entrypoint for coach notes product-record boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep coach notes outside deterministic input, replay input, canonical hashes, and proof artefacts.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function canonicalJson(value: unknown): string {
   if (value === null || typeof value !== "object") {
     return JSON.stringify(value);

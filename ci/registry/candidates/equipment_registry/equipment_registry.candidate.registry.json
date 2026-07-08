@@ -1,0 +1,126 @@
+{
+  "slice_id": "S-REG-07",
+  "registry_id": "equipment_registry",
+  "candidate_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "depends_on": [
+    "activity_registry_1",
+    "movement_registry_3"
+  ],
+  "records": [
+    {
+      "equipment_id": "barbell",
+      "display_label": "Barbell",
+      "equipment_class": "free_weight",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "squat",
+        "hinge",
+        "horizontal_push"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    },
+    {
+      "equipment_id": "rack",
+      "display_label": "Rack",
+      "equipment_class": "support_station",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "squat",
+        "horizontal_push"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    },
+    {
+      "equipment_id": "bench",
+      "display_label": "Bench",
+      "equipment_class": "support_station",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "horizontal_push"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    },
+    {
+      "equipment_id": "plate",
+      "display_label": "Plate",
+      "equipment_class": "load",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "squat",
+        "hinge",
+        "horizontal_push"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    },
+    {
+      "equipment_id": "bodyweight",
+      "display_label": "Bodyweight",
+      "equipment_class": "no_external_load",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "brace"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    },
+    {
+      "equipment_id": "open_floor_space",
+      "display_label": "Open floor space",
+      "equipment_class": "space",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "brace"
+      ],
+      "substitution_relevance": "candidate_equipment_class_only",
+      "template_relevance": "candidate_equipment_class_only",
+      "low_equipment_alternative_relevance": "candidate_low_equipment_relation_only",
+      "copy_legal_boundary_notes": "factual equipment label only"
+    }
+  ]
+}

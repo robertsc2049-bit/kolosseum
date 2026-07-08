@@ -1,3 +1,8 @@
+
+// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
+// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
+// broad discovery, or unreviewed boundary changes.
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -45,4 +50,19 @@ test("neutral aggregation source contract: builder reads explicit source facts o
   assert.match(src, /trace\.(completed_ids|dropped_ids|remaining_ids|event_count|event_type_counts|last_seq_no)/);
   assert.match(src, /runtime\.(completed_ids|dropped_ids|remaining_ids|event_count|event_type_counts|last_seq_no|return_decision_required|split_entered|split_active|execution_status)/);
   assert.doesNotMatch(src, /router\.get|app\.get|req\b|res\b|status\(\d+\)|json\(/);
+});
+
+test("S-V0-15 neutral aggregation source contract: partial and unended outcomes remain factual fields only", () => {
+  const src = readSource();
+
+  assert.match(src, /execution_status:\s*"ready"\s*\|\s*"in_progress"\s*\|\s*"completed"\s*\|\s*"partial"\s*\|\s*null/);
+  assert.match(src, /total_completed_exercises:\s*completedIds\.length/);
+  assert.match(src, /total_dropped_exercises:\s*droppedIds\.length/);
+  assert.match(src, /remaining_ids_count:\s*remainingIds\.length/);
+
+  assert.doesNotMatch(src, /\bcompletion_judgement\b/);
+  assert.doesNotMatch(src, /\bbehaviour_score\b/);
+  assert.doesNotMatch(src, /\badherence_score\b/);
+  assert.doesNotMatch(src, /\bathlete_risk\b/);
+  assert.doesNotMatch(src, /\bfatigue_score\b/);
 });

@@ -2,8 +2,8 @@
   "ok": true,
   "test_suite_id": "phase1_acceptance_record_tests",
   "test_suite_version": "1.0.0",
-  "total": 21,
-  "passed": 21,
+  "total": 26,
+  "passed": 26,
   "failed": 0,
   "results": [
     {
@@ -108,6 +108,31 @@
     },
     {
       "test_id": "payment_coach_and_presentation_state_do_not_mutate_record",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "valid_minimal_input_can_be_accepted",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "unsupported_activity_enum_refused",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "malformed_actor_type_refused",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "unknown_active_field_refused",
+      "ok": true,
+      "failures": []
+    },
+    {
+      "test_id": "missing_activity_id_refused",
       "ok": true,
       "failures": []
     }

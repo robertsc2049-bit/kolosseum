@@ -1,0 +1,38 @@
+{
+  "document_id": "v0_canonical_json_hash_stability_contract",
+  "status": "active_v0_contract",
+  "slice": "S-V0-04 Canonical JSON and Hash Stability Proof",
+  "source_candidates": [
+    "engine/session/firstExecutableSessionStub.ts",
+    "engine/src/phases/phase2.ts",
+    "engine/src/index.ts",
+    "engine/src/phases/phase1.ts",
+    "engine/runtime/deviationEvents.ts",
+    "engine/runtime/__tests__/deviationEvents.test.ts",
+    "engine/src/runtime/sessionRuntime.ts",
+    "ci/guards/run_pipeline_contract_version_guard.mjs",
+    "ci/guards/engine_contract_guard.mjs",
+    "ci/guards/golden_outputs_guard.mjs",
+    "ci/guards/guards_index_guard.mjs",
+    "ci/guards/no_bom_guard.mjs"
+  ],
+  "primary_source_candidate": "engine/session/firstExecutableSessionStub.ts",
+  "canonical_rules": {
+    "object_keys": "lexicographic_order",
+    "arrays": "preserve_order",
+    "nested_objects": "canonicalize_recursively",
+    "nulls": "preserve_explicit_null",
+    "numbers": "json_number_materialisation_only",
+    "strings": "json_string_escaping_only",
+    "booleans": "json_boolean_literals",
+    "hash_algorithm": "sha256_hex_lower_over_utf8_canonical_bytes"
+  },
+  "fixture": {
+    "canonical_json": "{\"a\":{\"b\":[3,\"two\",false,{\"x\":\"ex\",\"y\":\"yes\"}],\"c\":null},\"arr\":[{\"alpha\":1,\"beta\":2},null,true],\"n\":12.5,\"s\":\"Kolosseum\",\"z\":\"last\"}",
+    "sha256_hex_lower": "54079251d9b76234b6d44e19fa50ca0a01e25f3a86951efd03c5120994a9a378",
+    "different_canonical_json": "{\"a\":{\"b\":[3,\"two\",false,{\"x\":\"changed\",\"y\":\"yes\"}],\"c\":null},\"arr\":[{\"alpha\":1,\"beta\":2},null,true],\"n\":12.5,\"s\":\"Kolosseum\",\"z\":\"last\"}",
+    "different_sha256_hex_lower": "02badde8535752cbba9efd8d74ea7c841fd87e2af0559acfed02a75ffb371a8d"
+  },
+  "repeat_runs_required": 50,
+  "developer_note": "This contract proves the canonical JSON/hash identity surface is stable across key ordering, arrays, nested objects, nulls, numbers, strings, booleans, value differences, and repeated execution."
+}

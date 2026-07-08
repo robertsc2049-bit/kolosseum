@@ -1,8 +1,19 @@
+
+// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
+// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
+// canonical registries, and validated contracts only.
+
 import type { PlannedItem, PlannedItemIntensity, PlannedItemRole } from "./types.js";
 import { uniqueStable } from "./util.js";
 import { applyTimeboxDeterministic } from "./timebox.js";
 
-export function plannedItemsFromIntent(intent: string[], session_id: string): PlannedItem[] {
+export // DEV NOTE: S-V0-09 planned item identity closure.
+// Intent IDs are deduped before planned_items are built so every emitted
+// planned item has one explicit exercise_id, one stable ordinal, and no
+// duplicate execution ambiguity. Do not infer exercise identity later from
+// registry order, substitution candidates, or target defaults; downstream
+// phases must consume these explicit planned_items or fail with stable tokens.
+function plannedItemsFromIntent(intent: string[], session_id: string): PlannedItem[] {
   const ids = uniqueStable(intent);
 
   return ids.map((exercise_id, i) => {

@@ -1,0 +1,34 @@
+{
+  "surface_id": "v1_factual_weekly_summary",
+  "surface_version": "1.0.0",
+  "copy_scope": "factual_summary",
+  "entries": [
+    {
+      "copy_id": "FACTUAL_WEEKLY_SUMMARY_TITLE",
+      "text": "Weekly summary",
+      "params": []
+    },
+    {
+      "copy_id": "FACTUAL_WEEKLY_SUMMARY_EMPTY",
+      "text": "No recorded sessions are present for this selected week.",
+      "params": []
+    },
+    {
+      "copy_id": "FACTUAL_WEEKLY_SUMMARY_BOUNDARY",
+      "text": "This summary reports recorded facts only.",
+      "params": []
+    }
+  ],
+  "engine_boundary": {
+    "reads_engine_input": false,
+    "writes_engine_input": false,
+    "mutates_engine_output": false,
+    "mutates_runtime_events": false,
+    "mutates_phase1_declaration": false,
+    "mutates_replay_or_proof": false,
+    "changes_compile_output": false,
+    "triggers_substitution": false,
+    "emits_score": false,
+    "emits_comparison_order": false
+  }
+}

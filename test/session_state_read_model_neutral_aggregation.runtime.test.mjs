@@ -1,3 +1,8 @@
+
+// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
+// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
+// broad discovery, or unreviewed boundary changes.
+
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -117,4 +122,89 @@ test("neutral aggregation runtime: missing facts are not upgraded into invented 
     remaining_ids_count: 0,
     execution_status: null
   });
+});
+
+test("S-V0-15 neutral aggregation runtime: partial completion remains factual counts plus explicit status", async () => {
+  const mod = await import(`../dist/src/api/session_state_read_model.js?case=s_v0_15_partial_counts`);
+
+  const source = {
+    trace: {
+      completed_ids: ["exA", "exC"],
+      dropped_ids: ["exB"],
+      remaining_ids: [],
+      event_type_counts: {
+        COMPLETE_EXERCISE: 2,
+        SKIP_EXERCISE: 1
+      },
+      last_seq_no: 3
+    },
+    runtime: {
+      return_decision_required: false
+    },
+    execution_status: "partial",
+    event_log: [
+      { event_type: "COMPLETE_EXERCISE" },
+      { event_type: "SKIP_EXERCISE" },
+      { event_type: "COMPLETE_EXERCISE" }
+    ]
+  };
+
+  const before = JSON.stringify(source);
+  const first = mod.buildNeutralSessionAggregation(source);
+  const second = mod.buildNeutralSessionAggregation(JSON.parse(JSON.stringify(source)));
+
+  assert.equal(JSON.stringify(source), before);
+  assert.deepEqual(second, first);
+  assert.deepEqual(first, {
+    total_events: 3,
+    total_completed_exercises: 2,
+    total_dropped_exercises: 1,
+    split_count: 0,
+    has_return_decision: false,
+    last_event_seq: 3,
+    completed_ids_count: 2,
+    dropped_ids_count: 1,
+    remaining_ids_count: 0,
+    execution_status: "partial"
+  });
+
+  assert.equal(Object.prototype.hasOwnProperty.call(first, "adherence"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(first, "readiness"), false);
+});
+
+test("S-V0-15 neutral aggregation runtime: unended session remains factual in-progress counts", async () => {
+  const mod = await import(`../dist/src/api/session_state_read_model.js?case=s_v0_15_unended_counts`);
+
+  const result = mod.buildNeutralSessionAggregation({
+    trace: {
+      completed_ids: ["exA"],
+      dropped_ids: [],
+      remaining_ids: ["exB", "exC"],
+      event_count: 1,
+      last_seq_no: 1
+    },
+    runtime: {
+      return_decision_required: false
+    },
+    execution_status: "in_progress",
+    event_log: [
+      { event_type: "COMPLETE_EXERCISE" }
+    ]
+  });
+
+  assert.deepEqual(result, {
+    total_events: 1,
+    total_completed_exercises: 1,
+    total_dropped_exercises: 0,
+    split_count: 0,
+    has_return_decision: false,
+    last_event_seq: 1,
+    completed_ids_count: 1,
+    dropped_ids_count: 0,
+    remaining_ids_count: 2,
+    execution_status: "in_progress"
+  });
+
+  assert.equal(Object.prototype.hasOwnProperty.call(result, "stopped_reason"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(result, "fatigue"), false);
 });

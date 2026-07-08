@@ -1,0 +1,145 @@
+{
+  "slice_id": "S-V1-27",
+  "fixture_id": "s_v1_27_template_registry_coverage_valid",
+  "coverage_contract_version": "S-V1-27",
+  "required_activity_ids": [
+    "powerlifting",
+    "general_strength",
+    "rugby_union"
+  ],
+  "coverage_status": "declared_complete",
+  "coverage_entries": [
+    {
+      "template_id": "template_powerlifting_v1_declared_coverage",
+      "template_status": "declared_for_v1_coverage",
+      "activity_id": "powerlifting",
+      "template_contract_version": "S-V1-26",
+      "coverage_contract_version": "S-V1-27",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "source_template_powerlifting_v1_declared_coverage",
+      "source_control_status": "approved",
+      "coverage_scope": "supported_activity_required_template",
+      "coverage_declaration_status": "declared",
+      "template_language": {
+        "title": "Powerlifting declared template coverage",
+        "summary": "Declared template coverage for powerlifting assigned coach-athlete execution.",
+        "language_status": "claim_safe"
+      },
+      "registry_bindings": {
+        "activity_id": "powerlifting",
+        "exercise_ids": [
+          "competition_back_squat"
+        ],
+        "equipment_ids": [
+          "barbell"
+        ],
+        "substitution_edge_ids": [
+          "substitution_edge_registry"
+        ],
+        "applicability_ids": [
+          "powerlifting_competition_back_squat"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_coach_to_coach_sharing_scope",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    },
+    {
+      "template_id": "template_general_strength_v1_declared_coverage",
+      "template_status": "declared_for_v1_coverage",
+      "activity_id": "general_strength",
+      "template_contract_version": "S-V1-26",
+      "coverage_contract_version": "S-V1-27",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "source_template_general_strength_v1_declared_coverage",
+      "source_control_status": "approved",
+      "coverage_scope": "supported_activity_required_template",
+      "coverage_declaration_status": "declared",
+      "template_language": {
+        "title": "General strength declared template coverage",
+        "summary": "Declared template coverage for general_strength assigned coach-athlete execution.",
+        "language_status": "claim_safe"
+      },
+      "registry_bindings": {
+        "activity_id": "general_strength",
+        "exercise_ids": [
+          "goblet_squat"
+        ],
+        "equipment_ids": [
+          "kettlebell"
+        ],
+        "substitution_edge_ids": [
+          "substitution_edge_registry"
+        ],
+        "applicability_ids": [
+          "general_strength_goblet_squat"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_coach_to_coach_sharing_scope",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    },
+    {
+      "template_id": "template_rugby_union_v1_declared_coverage",
+      "template_status": "declared_for_v1_coverage",
+      "activity_id": "rugby_union",
+      "template_contract_version": "S-V1-26",
+      "coverage_contract_version": "S-V1-27",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "source_template_rugby_union_v1_declared_coverage",
+      "source_control_status": "approved",
+      "coverage_scope": "supported_activity_required_template",
+      "coverage_declaration_status": "declared",
+      "template_language": {
+        "title": "Rugby union declared template coverage",
+        "summary": "Declared template coverage for rugby_union assigned coach-athlete execution.",
+        "language_status": "claim_safe"
+      },
+      "registry_bindings": {
+        "activity_id": "rugby_union",
+        "exercise_ids": [
+          "loaded_carry"
+        ],
+        "equipment_ids": [
+          "sandbag"
+        ],
+        "substitution_edge_ids": [
+          "substitution_edge_registry"
+        ],
+        "applicability_ids": [
+          "rugby_union_loaded_carry"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_coach_to_coach_sharing_scope",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    }
+  ]
+}

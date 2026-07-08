@@ -1,0 +1,56 @@
+{
+  "fixture_pack_id": "s_v0_31_v0_active_scope_negative_fixtures",
+  "fixture_pack_version": "1.0.0",
+  "purpose": "Prove the active v0 scope guard rejects known post-v0 and v1 leakage without adding active v1 features.",
+  "rules": [
+    "Fixtures are intentional negative probes only.",
+    "Fixtures must be injected temporarily into an active scanned directory.",
+    "The probe file must be deleted after each check.",
+    "Passing these fixtures does not make any v1 or post-v1 feature active."
+  ],
+  "probe_path": "shared/pilot-lifecycle/__s_v0_31_negative_probe__.mjs",
+  "cases": [
+    {
+      "case_id": "post_v1_team_runtime_rejected",
+      "expected_token": "V0_SCOPE_LEAK",
+      "expected_match_label": "team runtime",
+      "probe_source": "export const s_v0_31_probe = 'team runtime control';\n"
+    },
+    {
+      "case_id": "post_v1_organisation_dashboard_rejected",
+      "expected_token": "V0_SCOPE_LEAK",
+      "expected_match_label": "organisation dashboard",
+      "probe_source": "export const s_v0_31_probe = 'organisation dashboard governance';\n"
+    },
+    {
+      "case_id": "billing_driven_engine_behaviour_rejected",
+      "expected_token": "V0_SCOPE_LEAK",
+      "expected_match_label": "billing engine selection",
+      "probe_source": "export const s_v0_31_probe = 'billing tier changes engine selection';\n"
+    },
+    {
+      "case_id": "recommendation_language_rejected",
+      "expected_token": "V0_SCOPE_LEAK",
+      "expected_match_label": "recommendation",
+      "probe_source": "export const s_v0_31_probe = 'recommended best option improves execution';\n"
+    },
+    {
+      "case_id": "proof_export_surface_rejected",
+      "expected_token": "V0_FORBIDDEN_PRODUCT_SURFACE",
+      "expected_match_label": "proof_export",
+      "probe_source": "export const s_v0_31_probe = 'proof_export';\n"
+    },
+    {
+      "case_id": "readiness_runtime_semantic_rejected",
+      "expected_token": "V0_FORBIDDEN_RUNTIME_SEMANTIC",
+      "expected_match_label": "readiness_assessment",
+      "probe_source": "export const s_v0_31_probe = 'readiness_assessment';\n"
+    },
+    {
+      "case_id": "auto_progression_surface_rejected",
+      "expected_token": "V0_FORBIDDEN_PRODUCT_SURFACE",
+      "expected_match_label": "auto_progression",
+      "probe_source": "export const s_v0_31_probe = 'auto_progression';\n"
+    }
+  ]
+}

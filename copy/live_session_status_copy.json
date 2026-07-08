@@ -1,0 +1,51 @@
+{
+  "copy_surface_id": "live_session_status",
+  "slice_id": "S-V1-43",
+  "version": "1.0.0",
+  "entries": [
+    {
+      "copy_id": "LIVE_SESSION_STATUS_TITLE",
+      "copy_text": "Live session status"
+    },
+    {
+      "copy_id": "LIVE_SESSION_STATUS_PERMISSION_DENIED",
+      "copy_text": "Live session status is available only to the assigned coach for this athlete."
+    },
+    {
+      "copy_id": "LIVE_SESSION_STATUS_READ_ONLY_NOTICE",
+      "copy_text": "This view shows recorded session status and recorded events only."
+    },
+    {
+      "copy_id": "LIVE_SESSION_STATUS_FACTS_ONLY_NOTICE",
+      "copy_text": "Status labels are factual recorded states."
+    },
+    {
+      "copy_id": "LIVE_SESSION_STATUS_STATUS_LABEL",
+      "copy_text": "Status"
+    },
+    {
+      "copy_id": "LIVE_SESSION_STATUS_STARTED_AT_LABEL",
+      "copy_text": "Started at"
+    },
+    {
+      "copy_id": "LIVE_SESSION_STATUS_LAST_EVENT_AT_LABEL",
+      "copy_text": "Last event at"
+    },
+    {
+      "copy_id": "LIVE_SESSION_STATUS_CURRENT_WORK_ITEM_LABEL",
+      "copy_text": "Current work item"
+    },
+    {
+      "copy_id": "LIVE_SESSION_STATUS_LAST_WORK_ITEM_LABEL",
+      "copy_text": "Last work item"
+    },
+    {
+      "copy_id": "LIVE_SESSION_STATUS_EVENT_TIMELINE_LABEL",
+      "copy_text": "Event timeline"
+    },
+    {
+      "copy_id": "LIVE_SESSION_STATUS_EMPTY_TIMELINE",
+      "copy_text": "No recorded events are available for this session."
+    }
+  ]
+}

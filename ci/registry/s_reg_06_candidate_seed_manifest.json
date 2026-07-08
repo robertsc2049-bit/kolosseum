@@ -1,0 +1,28 @@
+{
+  "slice_id": "S-REG-06",
+  "manifest_id": "s_reg_06_canonical_activity_movement_exercise_candidate_seed_manifest",
+  "manifest_version": "1.0.0",
+  "surface_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "candidate_paths": {
+    "activity_registry_1": "ci/registry/candidates/activity_registry_1/activity_registry_1.candidate.registry.json",
+    "movement_registry_3": "ci/registry/candidates/movement_registry_3/movement_registry_3.candidate.registry.json",
+    "exercise_token_registry_3b": "ci/registry/candidates/exercise_token_registry_3b/exercise_token_registry_3b.candidate.registry.json",
+    "exercise_registry_3a": "ci/registry/candidates/exercise_registry_3a/exercise_registry_3a.candidate.registry.json"
+  },
+  "seed_record_limits": {
+    "activity_registry_1": 3,
+    "movement_registry_3": 4,
+    "exercise_token_registry_3b": 4,
+    "exercise_registry_3a": 4
+  },
+  "equipment_dependency_status": "deferred_to_s_reg_07",
+  "activation_rule": "candidate seed files remain outside active registry law until a later accepted activation slice deliberately changes the active registry surface"
+}

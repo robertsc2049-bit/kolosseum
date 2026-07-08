@@ -1,3 +1,8 @@
+
+// DEV NOTE: Repository automation script. This file exists to make a repeatable repo operation
+// deterministic and reviewable. Keep side effects explicit, paths repo-root relative, and
+// failure output readable for PowerShell and CI users.
+
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -153,6 +158,41 @@ export function runCommercialArtefactRegistryGuard(options = {}) {
       "artefacts must be a non-empty array.",
       { path: toPosix(path.relative(cwd, registryPath)) }
     );
+  }
+
+  if (!registry.v0_boundary_policy || typeof registry.v0_boundary_policy !== "object") {
+    return fail(
+      "CI_COMMERCIAL_ARTEFACT_REGISTRY_INVALID",
+      "v0_boundary_policy must be present for commercial registry closure.",
+      { path: toPosix(path.relative(cwd, registryPath)) }
+    );
+  }
+
+  const boundaryPolicy = registry.v0_boundary_policy;
+  const requiredBoundaryBooleans = [
+    "grants_product_scope",
+    "grants_engine_behaviour",
+    "permits_billing_or_subscriptions",
+    "permits_sales_dashboards",
+    "permits_market_launch_features"
+  ];
+
+  if (boundaryPolicy.v0_role !== "boundary_protection_only") {
+    return fail(
+      "CI_COMMERCIAL_ARTEFACT_REGISTRY_INVALID",
+      "v0_boundary_policy.v0_role must equal 'boundary_protection_only'.",
+      { path: toPosix(path.relative(cwd, registryPath)) }
+    );
+  }
+
+  for (const key of requiredBoundaryBooleans) {
+    if (boundaryPolicy[key] !== false) {
+      return fail(
+        "CI_COMMERCIAL_ARTEFACT_REGISTRY_INVALID",
+        `v0_boundary_policy.${key} must be false.`,
+        { path: toPosix(path.relative(cwd, registryPath)) }
+      );
+    }
   }
 
   const declaredPaths = new Set();

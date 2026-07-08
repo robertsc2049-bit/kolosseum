@@ -1,6 +1,11 @@
 // @law: Contracts
 // @severity: high
 // @scope: repo
+
+// DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with
+// readable output. Do not weaken the guard to make a failing build pass; fix the underlying
+// boundary drift or update the canonical contract deliberately.
+
 import fs from "node:fs";
 import path from "node:path";
 

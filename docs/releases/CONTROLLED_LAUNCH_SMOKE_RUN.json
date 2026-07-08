@@ -1,0 +1,265 @@
+{
+    "schema_version":  "1.0.0",
+    "slice_id":  "S-V1-F-10",
+    "record_id":  "controlled_launch_smoke_run",
+    "title":  "Controlled Launch Smoke Run",
+    "status":  "pass",
+    "record_type":  "controlled_launch_smoke_evidence",
+    "created_at_utc":  "2026-06-19T13:59:18.6784951Z",
+    "scope":  "controlled_launch_only",
+    "release_state_used":  {
+                               "mode":  "release_ready_main_after_tag",
+                               "main_head":  "cb0e618f0be00d21d8ca8f7afb0be69dc94ecec8",
+                               "origin_main":  "cb0e618f0be00d21d8ca8f7afb0be69dc94ecec8",
+                               "tag_name":  "v1-controlled-launch",
+                               "tag_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                               "local_tag_verified":  true,
+                               "remote_tag_verified":  true,
+                               "release_evidence_snapshot":  "docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json",
+                               "final_ship_decision":  "docs/releases/V1_FINAL_SHIP_DECISION.json",
+                               "controlled_launch_execution_pack":  "docs/releases/CONTROLLED_LAUNCH_EXECUTION_PACK.json"
+                           },
+    "smoke_summary":  {
+                          "result":  "pass",
+                          "required_command_count":  12,
+                          "failed_required_command_count":  0,
+                          "launch_blocker_recorded":  false,
+                          "product_code_changed_by_smoke":  false,
+                          "release_tag_changed_by_smoke":  false
+                      },
+    "smoke_commands":  [
+                           {
+                               "id":  "SMK-001",
+                               "label":  "S-V1-F-05 final ship decision proof",
+                               "command":  "npm.cmd run proof:s-v1-f-05",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "final_ship_decision"
+                           },
+                           {
+                               "id":  "SMK-002",
+                               "label":  "S-V1-F-08 release evidence snapshot proof",
+                               "command":  "npm.cmd run proof:s-v1-f-08",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "release_evidence_snapshot"
+                           },
+                           {
+                               "id":  "SMK-003",
+                               "label":  "S-V1-F-09 controlled launch execution pack proof",
+                               "command":  "npm.cmd run proof:s-v1-f-09",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "controlled_launch_execution_pack"
+                           },
+                           {
+                               "id":  "SMK-004",
+                               "label":  "S-V1-F-01 founder test pack proof",
+                               "command":  "npm.cmd run proof:s-v1-f-01",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "coach_athlete_founder_path"
+                           },
+                           {
+                               "id":  "SMK-005",
+                               "label":  "S-V1 acceptance gate check",
+                               "command":  "npm.cmd run acceptance:v1:check",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "acceptance_gate_manifest"
+                           },
+                           {
+                               "id":  "SMK-006",
+                               "label":  "Legal document surface test",
+                               "command":  "node --test test/s_v1_l_01_legal_document_surfaces.test.mjs",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "legal_surface"
+                           },
+                           {
+                               "id":  "SMK-007",
+                               "label":  "Legal document surface guard",
+                               "command":  "node ci/guards/s_v1_l_01_legal_document_surfaces_guard.mjs",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "legal_surface"
+                           },
+                           {
+                               "id":  "SMK-008",
+                               "label":  "Stripe checkout controlled launch test",
+                               "command":  "node --test test/s_v1_p_02_stripe_checkout_controlled_launch.test.mjs",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "payment_access_surface"
+                           },
+                           {
+                               "id":  "SMK-009",
+                               "label":  "Stripe checkout controlled launch guard",
+                               "command":  "node ci/guards/s_v1_p_02_stripe_checkout_controlled_launch_guard.mjs",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "payment_access_surface"
+                           },
+                           {
+                               "id":  "SMK-010",
+                               "label":  "Status page test",
+                               "command":  "node --test test/s_v1_o_01_status_page.test.mjs",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "status_surface"
+                           },
+                           {
+                               "id":  "SMK-011",
+                               "label":  "Status page guard",
+                               "command":  "node ci/guards/s_v1_o_01_status_page_guard.mjs",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "status_surface"
+                           },
+                           {
+                               "id":  "SMK-012",
+                               "label":  "Runbook proof",
+                               "command":  "npm.cmd run proof:s-v1-o-04",
+                               "result":  "pass",
+                               "required":  true,
+                               "evidence_area":  "support_runbook_surface"
+                           }
+                       ],
+    "smoke_path_items":  [
+                             {
+                                 "id":  "CLSM-001",
+                                 "path":  "release_identity",
+                                 "status":  "pass",
+                                 "evidence":  [
+                                                  "SMK-001",
+                                                  "SMK-002",
+                                                  "SMK-003"
+                                              ],
+                                 "note":  "Release tag, release evidence snapshot, final ship decision, and controlled launch execution pack were checked."
+                             },
+                             {
+                                 "id":  "CLSM-002",
+                                 "path":  "coach_account_path",
+                                 "status":  "pass",
+                                 "evidence":  [
+                                                  "SMK-004"
+                                              ],
+                                 "note":  "Founder test pack proof covers the fixture coach account path as controlled-launch evidence."
+                             },
+                             {
+                                 "id":  "CLSM-003",
+                                 "path":  "athlete_account_path",
+                                 "status":  "pass",
+                                 "evidence":  [
+                                                  "SMK-004"
+                                              ],
+                                 "note":  "Founder test pack proof covers the fixture athlete account path as controlled-launch evidence."
+                             },
+                             {
+                                 "id":  "CLSM-004",
+                                 "path":  "coach_athlete_relationship_path",
+                                 "status":  "pass",
+                                 "evidence":  [
+                                                  "SMK-004"
+                                              ],
+                                 "note":  "Founder test pack proof covers the coach-athlete relationship path as controlled-launch evidence."
+                             },
+                             {
+                                 "id":  "CLSM-005",
+                                 "path":  "assignment_session_and_factual_execution_path",
+                                 "status":  "pass",
+                                 "evidence":  [
+                                                  "SMK-004",
+                                                  "SMK-005"
+                                              ],
+                                 "note":  "Founder test and acceptance gate checks cover assignment, compile, session start, event recording, factual history, coach view, and proof-path surfaces."
+                             },
+                             {
+                                 "id":  "CLSM-006",
+                                 "path":  "legal_surface_path",
+                                 "status":  "pass",
+                                 "evidence":  [
+                                                  "SMK-006",
+                                                  "SMK-007"
+                                              ],
+                                 "note":  "Legal document surfaces rendered and remained claim-neutral."
+                             },
+                             {
+                                 "id":  "CLSM-007",
+                                 "path":  "payment_access_surface_path",
+                                 "status":  "pass",
+                                 "evidence":  [
+                                                  "SMK-008",
+                                                  "SMK-009"
+                                              ],
+                                 "note":  "Controlled-launch checkout path recorded access state only and did not mutate engine truth."
+                             },
+                             {
+                                 "id":  "CLSM-008",
+                                 "path":  "status_and_support_path",
+                                 "status":  "pass",
+                                 "evidence":  [
+                                                  "SMK-010",
+                                                  "SMK-011",
+                                                  "SMK-012"
+                                              ],
+                                 "note":  "Status page and runbook surfaces passed factual support-path checks."
+                             },
+                             {
+                                 "id":  "CLSM-009",
+                                 "path":  "launch_blocker_path",
+                                 "status":  "pass",
+                                 "evidence":  [
+                                                  "SMK-003",
+                                                  "SMK-012"
+                                              ],
+                                 "note":  "If a launch-blocking defect appears, launch must stop for affected starts and move to a separate fix slice."
+                             }
+                         ],
+    "blocker_policy":  {
+                           "any_required_smoke_failure_blocks_launch":  true,
+                           "blocker_action":  "Stop launch for the affected path, record the defect, and create a separate fix slice.",
+                           "fix_inside_smoke_slice_allowed":  false,
+                           "scope_widening_allowed":  false,
+                           "release_tag_mutation_allowed":  false,
+                           "product_or_engine_mutation_allowed":  false
+                       },
+    "boundaries":  {
+                       "smoke_evidence_only":  true,
+                       "touches_product_code":  false,
+                       "touches_engine_code":  false,
+                       "changes_acceptance_gate_law":  false,
+                       "changes_registry_content":  false,
+                       "changes_release_tag":  false,
+                       "activates_post_v1_scope":  false,
+                       "creates_feature_implementation":  false,
+                       "creates_live_user_data":  false,
+                       "stores_named_founder_users":  false,
+                       "creates_commercial_claims":  false
+                   },
+    "claim_boundary":  {
+                           "coaching_advice_claim":  false,
+                           "athlete_condition_claim":  false,
+                           "training_effect_claim":  false,
+                           "automated_selection_claim":  false,
+                           "automated_ranking_claim":  false,
+                           "automated_recommendation_claim":  false,
+                           "programme_outcome_claim":  false,
+                           "external_endorsement_claim":  false
+                       },
+    "forbidden_scope":  [
+                            "product_code",
+                            "engine_code",
+                            "acceptance_gate_law",
+                            "registry_content",
+                            "release_tag",
+                            "marketplace",
+                            "organisations",
+                            "gyms",
+                            "teams",
+                            "federations",
+                            "enterprise_dashboards",
+                            "messaging",
+                            "post_v1_scope"
+                        ]
+}

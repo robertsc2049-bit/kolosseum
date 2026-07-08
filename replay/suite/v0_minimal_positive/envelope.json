@@ -1,0 +1,48 @@
+{
+  "cve_header": {
+    "cve_version": "CVE-1.0.0",
+    "vector_id": "v0_minimal_positive",
+    "vector_version": "1.0.0",
+    "engine_compatibility": "EB2-1.0.0",
+    "enum_bundle_version": "EB2-1.0.0",
+    "ci_version": "CI-EB2-1.0.0",
+    "schema_version_phase1": "kolosseum.master.phase1.input.schema.v1_0_0",
+    "scope": {
+      "vector_class": "positive",
+      "execution_scope": "individual",
+      "actor_type": "athlete"
+    },
+    "phases_under_test": ["phase1", "phase2", "phase6"],
+    "replay_runner_scope": {
+      "allowed_replay_phases": ["phase2", "phase6"],
+      "forbidden_replay_phases": ["phase3", "phase4", "phase5", "phase7", "phase8"]
+    },
+    "determinism": {
+      "byte_exact_inputs": true,
+      "byte_exact_outputs": true,
+      "ordering_sensitive": true
+    }
+  },
+  "inputs": {
+    "phase1_input_path": "phase1_input.json",
+    "aux_inputs": []
+  },
+  "expected": {
+    "expected_ci_verdict": "PASS",
+    "expected_failure_token": null,
+    "expected_failure_phase": null,
+    "expected_phase2": {
+      "canonical_json_sha256": "PLACEHOLDER",
+      "canonical_bytes_sha256": "PLACEHOLDER"
+    },
+    "expected_outputs_sha256": [],
+    "expected_aux_outputs": []
+  },
+  "invariants": [
+    "no_new_failure_tokens",
+    "enum_tokens_must_match_eb2_exactly",
+    "phase2_hash_must_match_if_phase2_ran",
+    "replay_runner_may_only_replay_phase2_and_phase6",
+    "byte_exact_comparisons_only"
+  ]
+}

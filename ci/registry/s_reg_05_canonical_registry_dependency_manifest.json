@@ -1,0 +1,25 @@
+{
+  "slice_id": "S-REG-05",
+  "manifest_id": "s_reg_05_canonical_registry_dependency_manifest",
+  "manifest_version": "1.0.0",
+  "surface_status": "candidate_contract_only",
+  "runtime_status": "non_runtime",
+  "dependency_order": [
+    "activity_registry_1",
+    "sport_subdivision_registry_1a",
+    "sport_metric_registry_1c",
+    "sport_role_registry_2",
+    "movement_registry_3",
+    "equipment_registry",
+    "exercise_token_registry_3b",
+    "exercise_registry_3a",
+    "metric_exercise_link_registry_1c_a",
+    "exercise_activity_applicability_registry",
+    "sport_program_profile_registry_5d",
+    "sport_event_model_registry_5e",
+    "sport_program_template_registry_5f",
+    "substitution_registry"
+  ],
+  "fk_closure_rule": "every depends_on registry must be candidate-fk-ready before a dependent registry can become candidate-activation-ready",
+  "active_activation_rule": "candidate-fk-ready is not active registry law and must not update registry_index.json or registry_bundle.json"
+}

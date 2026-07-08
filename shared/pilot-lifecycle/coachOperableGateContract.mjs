@@ -1,6 +1,23 @@
+/**
+ * DEV NOTE:
+ * Purpose: Defines when coach-facing pilot operations are explicitly available.
+ * Boundary: Gate state must not imply engine truth or create hidden product permissions.
+ * Determinism: The same declared lifecycle state must produce the same operability result.
+ * Failure: Unknown or incomplete state must refuse operability rather than infer it.
+ */
 import { resolvePilotLifecycleState } from "./pilotLifecycleStateMachine.mjs";
 import { PILOT_STATUS_REASON_CODES } from "./pilotStatusReasonCodes.mjs";
 
+/**
+ * FUNCTION NOTE:
+ * Export: COACH_OPERABLE_REQUIRED_TRUE_FLAGS
+ * Purpose: Documents the exported entrypoint for coach operability gate boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must use explicit lifecycle state only and must not create hidden permissions or engine truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const COACH_OPERABLE_REQUIRED_TRUE_FLAGS = Object.freeze([
   "commercialSatisfied",
   "workspaceProvisioned",
@@ -12,6 +29,16 @@ export const COACH_OPERABLE_REQUIRED_TRUE_FLAGS = Object.freeze([
   "firstExecutableSessionCompiled",
 ]);
 
+/**
+ * FUNCTION NOTE:
+ * Export: COACH_OPERABLE_REQUIRED_FALSE_FLAGS
+ * Purpose: Documents the exported entrypoint for coach operability gate boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must use explicit lifecycle state only and must not create hidden permissions or engine truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const COACH_OPERABLE_REQUIRED_FALSE_FLAGS = Object.freeze([
   "activationSignalReceived",
   "pausedByOperator",
@@ -19,6 +46,16 @@ export const COACH_OPERABLE_REQUIRED_FALSE_FLAGS = Object.freeze([
   "cancelledByOperator",
 ]);
 
+/**
+ * FUNCTION NOTE:
+ * Export: COACH_OPERABLE_GATE_FAILURE_CODES
+ * Purpose: Documents the exported entrypoint for coach operability gate boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must use explicit lifecycle state only and must not create hidden permissions or engine truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const COACH_OPERABLE_GATE_FAILURE_CODES = Object.freeze({
   MISSING_COMMERCIAL_SATISFIED: "coach_operable_gate_missing_commercial_satisfied",
   MISSING_WORKSPACE_PROVISIONED: "coach_operable_gate_missing_workspace_provisioned",
@@ -51,6 +88,16 @@ function coerceGateContext(input = {}) {
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: getCoachOperableGateFailureCodes
+ * Purpose: Documents the exported entrypoint for coach operability gate boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must use explicit lifecycle state only and must not create hidden permissions or engine truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function getCoachOperableGateFailureCodes(context = {}) {
   const c = coerceGateContext(context);
   const failureCodes = [];
@@ -106,10 +153,30 @@ export function getCoachOperableGateFailureCodes(context = {}) {
   return Object.freeze(failureCodes);
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: isCoachOperableGateSatisfied
+ * Purpose: Documents the exported entrypoint for coach operability gate boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must use explicit lifecycle state only and must not create hidden permissions or engine truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function isCoachOperableGateSatisfied(context = {}) {
   return getCoachOperableGateFailureCodes(context).length === 0;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertCoachOperableGateSatisfied
+ * Purpose: Documents the exported entrypoint for coach operability gate boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must use explicit lifecycle state only and must not create hidden permissions or engine truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertCoachOperableGateSatisfied(context = {}) {
   const failureCodes = getCoachOperableGateFailureCodes(context);
 
@@ -120,6 +187,16 @@ export function assertCoachOperableGateSatisfied(context = {}) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertCoachOperableGateMatchesLifecycle
+ * Purpose: Documents the exported entrypoint for coach operability gate boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must use explicit lifecycle state only and must not create hidden permissions or engine truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertCoachOperableGateMatchesLifecycle(context = {}) {
   const lifecycleState = resolvePilotLifecycleState(context);
   const gateSatisfied = isCoachOperableGateSatisfied(context);
@@ -137,6 +214,16 @@ export function assertCoachOperableGateMatchesLifecycle(context = {}) {
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: resolveCoachOperableBlockingReasonCodes
+ * Purpose: Documents the exported entrypoint for coach operability gate boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must use explicit lifecycle state only and must not create hidden permissions or engine truth.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function resolveCoachOperableBlockingReasonCodes(context = {}) {
   const failureCodes = getCoachOperableGateFailureCodes(context);
   const reasonCodes = [];

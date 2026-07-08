@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # S44 - Public Sales Claim Registry Guard
 
 Document: PUBLIC_SALES_CLAIM_REGISTRY_GUARD.md

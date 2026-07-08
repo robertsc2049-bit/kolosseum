@@ -1,0 +1,31 @@
+{
+  "slice_id": "S-V1-20",
+  "fixture_id": "s_v1_20_unsupported_activity_negative",
+  "purpose": "Prove unsupported activity ids are rejected by the v1 supported activity boundary.",
+  "locked_supported_activity_ids": [
+    "powerlifting",
+    "general_strength",
+    "rugby_union"
+  ],
+  "unsupported_activity_ids": [
+    "strongman",
+    "bodybuilding",
+    "weightlifting",
+    "combat_sports",
+    "tactical",
+    "tactical_pack",
+    "running",
+    "cycling",
+    "swimming",
+    "football",
+    "football_soccer",
+    "soccer",
+    "basketball",
+    "rugby_league",
+    "athletics",
+    "youth_pack",
+    "rehabilitation_pack"
+  ],
+  "expected_rejection_code": "v1_boundary_guard_unsupported_activity",
+  "notes": "This fixture is a boundary proof input only. It is not a registry and does not create supported activity ids."
+}

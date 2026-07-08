@@ -1,3 +1,10 @@
+/**
+ * DEV NOTE:
+ * Purpose: Builds factual history count read results from stored records.
+ * Boundary: Queries must not infer cause, judgement, or future action from recorded history.
+ * Determinism: The same stored records and filter inputs must return the same factual result.
+ * Failure: Missing data must remain explicit rather than being filled by assumption.
+ */
 import {
   HISTORY_COUNTS_SCHEMA_VERSION,
   assertHistoryResponseClosedWorld,
@@ -41,6 +48,16 @@ export type BuildHistoryCountsInput = {
   offset?: number;
 };
 
+/**
+ * FUNCTION NOTE:
+ * Export: HISTORY_COUNTS_SQL
+ * Purpose: Documents the exported entrypoint for history count query boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must return factual read results only and must not infer cause, judgement, or future action.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const HISTORY_COUNTS_SQL = {
   summary: [
     "select",
@@ -108,6 +125,16 @@ function clampPagination(limit: number | undefined, offset: number | undefined):
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: buildHistoryCountsResponse
+ * Purpose: Documents the exported entrypoint for history count query boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must return factual read results only and must not infer cause, judgement, or future action.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function buildHistoryCountsResponse(input: BuildHistoryCountsInput): HistoryCountsResponse {
   const scopedSessions = input.sessions.filter(session => session.athlete_user_id === input.athlete_user_id);
   const sessionIds = new Set(scopedSessions.map(session => session.session_id));

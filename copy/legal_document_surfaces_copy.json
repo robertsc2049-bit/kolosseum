@@ -1,0 +1,30 @@
+{
+  "legal_documents.title": {
+    "text": "Legal documents",
+    "claim_class": "legal_surface_label"
+  },
+  "legal_documents.index": {
+    "text": "Controlled-launch legal documents are available for review.",
+    "claim_class": "legal_surface_fact"
+  },
+  "legal_documents.terms": {
+    "text": "Terms document rendered.",
+    "claim_class": "legal_surface_fact"
+  },
+  "legal_documents.privacy": {
+    "text": "Privacy notice rendered.",
+    "claim_class": "legal_surface_fact"
+  },
+  "legal_documents.dpa": {
+    "text": "Data processing addendum rendered.",
+    "claim_class": "legal_surface_fact"
+  },
+  "legal_documents.no_engine_change": {
+    "text": "Viewing legal documents does not change recorded execution records.",
+    "claim_class": "boundary_notice"
+  },
+  "legal_documents.review_notice": {
+    "text": "Final public wording requires formal review before launch.",
+    "claim_class": "boundary_notice"
+  }
+}

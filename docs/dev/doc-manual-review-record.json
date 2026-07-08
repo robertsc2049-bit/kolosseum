@@ -1,0 +1,1059 @@
+{
+  "schema_id": "kolosseum_doc_manual_review_record",
+  "schema_version": "1.0.0",
+  "generated": "deterministic-local-manual-review-record",
+  "purpose": "Create a bounded manual-review record for selected documentation files without changing source documents.",
+  "boundary": {
+    "manual_review_record_only": true,
+    "does_not_create_authority": true,
+    "does_not_deprecate_documents": true,
+    "does_not_delete_documents": true,
+    "does_not_rewrite_documents": true,
+    "does_not_move_documents": true,
+    "does_not_change_product_scope": true,
+    "does_not_change_engine_behaviour": true,
+    "does_not_change_registry_behaviour": true,
+    "does_not_change_proof_behaviour": true,
+    "does_not_introduce_ai_or_rag_dependency": true
+  },
+  "counts": {
+    "selected_total": 10,
+    "pending_manual_review": 10
+  },
+  "records": [
+    {
+      "path": "docs/COMMANDS.md",
+      "current_category": "unclassified",
+      "current_review_status": "review-needed",
+      "authority_effect": "manual-review-record-only",
+      "source_file_changed": false,
+      "manual_review_status": "pending",
+      "evidence": {
+        "first_heading": "Commands",
+        "heading_outline": [
+          {
+            "line": 3,
+            "heading": "# Commands"
+          },
+          {
+            "line": 9,
+            "heading": "## Public command"
+          },
+          {
+            "line": 17,
+            "heading": "## CI entrypoint"
+          },
+          {
+            "line": 25,
+            "heading": "## Common diagnostic commands"
+          },
+          {
+            "line": 37,
+            "heading": "## Script groups"
+          },
+          {
+            "line": 47,
+            "heading": "## Rule"
+          },
+          {
+            "line": 55,
+            "heading": "## Wrapper and CI entrypoints"
+          }
+        ],
+        "review_signal_terms": [
+          "old",
+          "ai"
+        ],
+        "review_signal_count": 2,
+        "evidence_lines": [
+          {
+            "line": 1,
+            "text": "<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->"
+          },
+          {
+            "line": 7,
+            "text": "Use the public commands first. Use lower-level commands only when diagnosing a specific failing layer."
+          },
+          {
+            "line": 27,
+            "text": "Use these only when you need to isolate a failure:"
+          },
+          {
+            "line": 43,
+            "text": "`guard:*` scripts are guard maintenance and deterministic index utilities."
+          },
+          {
+            "line": 45,
+            "text": "`diff:*` scripts are contract and golden inspection utilities."
+          },
+          {
+            "line": 53,
+            "text": "Do not bypass failing guards. Fix the failing layer."
+          },
+          {
+            "line": 76,
+            "text": "- `test:v0` remains owned by `ci/scripts/kolosseum_v0_test_suite.mjs`."
+          },
+          {
+            "line": 78,
+            "text": "- Wrapper failures must preserve the underlying command failure; do not hide or reinterpret failures in wrapper code."
+          }
+        ],
+        "selected_reason": "Unclassified file needs manual category review."
+      },
+      "required_manual_answers": {
+        "actual_authority_level": "pending_manual_review",
+        "current_or_historical": "pending_manual_review",
+        "duplicate_of_stronger_source": "pending_manual_review",
+        "stronger_source_pointer_needed": "pending_manual_review",
+        "safe_later_cleanup_action": "pending_manual_review",
+        "evidence_notes": "pending_manual_review"
+      },
+      "allowed_later_actions": [
+        "keep unchanged",
+        "add pointer to stronger source in a later slice",
+        "classify more precisely in a later slice",
+        "mark historical only with explicit evidence in a later slice",
+        "propose consolidation only with explicit evidence in a later slice"
+      ],
+      "disallowed_actions_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/contracts/v1_coach_session_decision_summary_payload_contract.md",
+      "current_category": "unclassified",
+      "current_review_status": "review-needed",
+      "authority_effect": "manual-review-record-only",
+      "source_file_changed": false,
+      "manual_review_status": "pending",
+      "evidence": {
+        "first_heading": "v1 Coach Session Decision Summary Payload Contract",
+        "heading_outline": [
+          {
+            "line": 3,
+            "heading": "# v1 Coach Session Decision Summary Payload Contract"
+          },
+          {
+            "line": 5,
+            "heading": "## Status"
+          },
+          {
+            "line": 8,
+            "heading": "## Purpose"
+          },
+          {
+            "line": 11,
+            "heading": "## Top-Level Shape"
+          },
+          {
+            "line": 24,
+            "heading": "## Required Groups"
+          },
+          {
+            "line": 56,
+            "heading": "## Core Rules"
+          },
+          {
+            "line": 64,
+            "heading": "## Exit Criteria"
+          }
+        ],
+        "review_signal_terms": [
+          "infer"
+        ],
+        "review_signal_count": 1,
+        "evidence_lines": [
+          {
+            "line": 59,
+            "text": "- No UI-inferred or synthetic data allowed"
+          },
+          {
+            "line": 60,
+            "text": "- Currentness must be explicit (never inferred)"
+          }
+        ],
+        "selected_reason": "Unclassified file needs manual category review."
+      },
+      "required_manual_answers": {
+        "actual_authority_level": "pending_manual_review",
+        "current_or_historical": "pending_manual_review",
+        "duplicate_of_stronger_source": "pending_manual_review",
+        "stronger_source_pointer_needed": "pending_manual_review",
+        "safe_later_cleanup_action": "pending_manual_review",
+        "evidence_notes": "pending_manual_review"
+      },
+      "allowed_later_actions": [
+        "keep unchanged",
+        "add pointer to stronger source in a later slice",
+        "classify more precisely in a later slice",
+        "mark historical only with explicit evidence in a later slice",
+        "propose consolidation only with explicit evidence in a later slice"
+      ],
+      "disallowed_actions_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/DEVX.md",
+      "current_category": "unclassified",
+      "current_review_status": "classified",
+      "authority_effect": "manual-review-record-only",
+      "source_file_changed": false,
+      "manual_review_status": "pending",
+      "evidence": {
+        "first_heading": "No markdown heading found",
+        "heading_outline": [],
+        "review_signal_terms": [],
+        "review_signal_count": 0,
+        "evidence_lines": [],
+        "selected_reason": "Unclassified file needs manual category review."
+      },
+      "required_manual_answers": {
+        "actual_authority_level": "pending_manual_review",
+        "current_or_historical": "pending_manual_review",
+        "duplicate_of_stronger_source": "pending_manual_review",
+        "stronger_source_pointer_needed": "pending_manual_review",
+        "safe_later_cleanup_action": "pending_manual_review",
+        "evidence_notes": "pending_manual_review"
+      },
+      "allowed_later_actions": [
+        "keep unchanged",
+        "add pointer to stronger source in a later slice",
+        "classify more precisely in a later slice",
+        "mark historical only with explicit evidence in a later slice",
+        "propose consolidation only with explicit evidence in a later slice"
+      ],
+      "disallowed_actions_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/TICKET_008_PHASE6_PRECEDENCE_AND_TEST_ALIGNMENT.md",
+      "current_category": "unclassified",
+      "current_review_status": "review-needed",
+      "authority_effect": "manual-review-record-only",
+      "source_file_changed": false,
+      "manual_review_status": "pending",
+      "evidence": {
+        "first_heading": "No markdown heading found",
+        "heading_outline": [],
+        "review_signal_terms": [
+          "ai"
+        ],
+        "review_signal_count": 1,
+        "evidence_lines": [
+          {
+            "line": 15,
+            "text": "\\- Ensured Phase 5 performs no substitution without explicit lawful constraint"
+          }
+        ],
+        "selected_reason": "Unclassified file needs manual category review."
+      },
+      "required_manual_answers": {
+        "actual_authority_level": "pending_manual_review",
+        "current_or_historical": "pending_manual_review",
+        "duplicate_of_stronger_source": "pending_manual_review",
+        "stronger_source_pointer_needed": "pending_manual_review",
+        "safe_later_cleanup_action": "pending_manual_review",
+        "evidence_notes": "pending_manual_review"
+      },
+      "allowed_later_actions": [
+        "keep unchanged",
+        "add pointer to stronger source in a later slice",
+        "classify more precisely in a later slice",
+        "mark historical only with explicit evidence in a later slice",
+        "propose consolidation only with explicit evidence in a later slice"
+      ],
+      "disallowed_actions_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/TICKET_009.md",
+      "current_category": "unclassified",
+      "current_review_status": "review-needed",
+      "authority_effect": "manual-review-record-only",
+      "source_file_changed": false,
+      "manual_review_status": "pending",
+      "evidence": {
+        "first_heading": "No markdown heading found",
+        "heading_outline": [],
+        "review_signal_terms": [
+          "ai"
+        ],
+        "review_signal_count": 1,
+        "evidence_lines": [
+          {
+            "line": 27,
+            "text": "\\- Tags point at the commit containing those docs"
+          }
+        ],
+        "selected_reason": "Unclassified file needs manual category review."
+      },
+      "required_manual_answers": {
+        "actual_authority_level": "pending_manual_review",
+        "current_or_historical": "pending_manual_review",
+        "duplicate_of_stronger_source": "pending_manual_review",
+        "stronger_source_pointer_needed": "pending_manual_review",
+        "safe_later_cleanup_action": "pending_manual_review",
+        "evidence_notes": "pending_manual_review"
+      },
+      "allowed_later_actions": [
+        "keep unchanged",
+        "add pointer to stronger source in a later slice",
+        "classify more precisely in a later slice",
+        "mark historical only with explicit evidence in a later slice",
+        "propose consolidation only with explicit evidence in a later slice"
+      ],
+      "disallowed_actions_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_DATA_MODEL_FREEZE_POINT.md",
+      "current_category": "engine-contract",
+      "current_review_status": "review-needed",
+      "authority_effect": "manual-review-record-only",
+      "source_file_changed": false,
+      "manual_review_status": "pending",
+      "evidence": {
+        "first_heading": "v1 Data Model Freeze Point",
+        "heading_outline": [
+          {
+            "line": 3,
+            "heading": "# v1 Data Model Freeze Point"
+          },
+          {
+            "line": 5,
+            "heading": "## Status"
+          },
+          {
+            "line": 11,
+            "heading": "## Context"
+          },
+          {
+            "line": 33,
+            "heading": "## Purpose"
+          },
+          {
+            "line": 51,
+            "heading": "## Locked supported activities"
+          },
+          {
+            "line": 61,
+            "heading": "## Core data groups"
+          },
+          {
+            "line": 88,
+            "heading": "## User identity"
+          },
+          {
+            "line": 111,
+            "heading": "## Coach profile"
+          },
+          {
+            "line": 143,
+            "heading": "## Athlete profile"
+          },
+          {
+            "line": 165,
+            "heading": "## Coach-athlete relationship"
+          },
+          {
+            "line": 205,
+            "heading": "## Athlete invitation"
+          },
+          {
+            "line": 235,
+            "heading": "## Phase 1 declaration"
+          }
+        ],
+        "review_signal_terms": [
+          "deprecated",
+          "superseded",
+          "historical",
+          "old",
+          "draft",
+          "future",
+          "post-v1",
+          "recommend"
+        ],
+        "review_signal_count": 18,
+        "evidence_lines": [
+          {
+            "line": 35,
+            "text": "The v1 data model must support the complete coach-athlete product journey without allowing app data, commercial data, UI state, notes, analytics, or future organisation/gym/marketplace surfaces to enter deterministic eng"
+          },
+          {
+            "line": 46,
+            "text": "- future migration limits"
+          },
+          {
+            "line": 47,
+            "text": "- post-v1 exclusions"
+          },
+          {
+            "line": 196,
+            "text": "- revoked relationships may preserve lawful historical artefact access only where explicitly scoped"
+          },
+          {
+            "line": 246,
+            "text": "- superseded"
+          },
+          {
+            "line": 262,
+            "text": "- superseded by reference where applicable"
+          },
+          {
+            "line": 269,
+            "text": "- superseded declaration must not be used for compile"
+          },
+          {
+            "line": 319,
+            "text": "- draft"
+          },
+          {
+            "line": 321,
+            "text": "- deprecated"
+          },
+          {
+            "line": 340,
+            "text": "- draft"
+          }
+        ],
+        "selected_reason": "High-signal review-needed file selected for bounded manual review."
+      },
+      "required_manual_answers": {
+        "actual_authority_level": "pending_manual_review",
+        "current_or_historical": "pending_manual_review",
+        "duplicate_of_stronger_source": "pending_manual_review",
+        "stronger_source_pointer_needed": "pending_manual_review",
+        "safe_later_cleanup_action": "pending_manual_review",
+        "evidence_notes": "pending_manual_review"
+      },
+      "allowed_later_actions": [
+        "keep unchanged",
+        "add pointer to stronger source in a later slice",
+        "classify more precisely in a later slice",
+        "mark historical only with explicit evidence in a later slice",
+        "propose consolidation only with explicit evidence in a later slice"
+      ],
+      "disallowed_actions_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_COACH_ATHLETE_JOURNEY_MAP.md",
+      "current_category": "engine-contract",
+      "current_review_status": "review-needed",
+      "authority_effect": "manual-review-record-only",
+      "source_file_changed": false,
+      "manual_review_status": "pending",
+      "evidence": {
+        "first_heading": "v1 Coach-Athlete Journey Map",
+        "heading_outline": [
+          {
+            "line": 3,
+            "heading": "# v1 Coach-Athlete Journey Map"
+          },
+          {
+            "line": 5,
+            "heading": "## Status"
+          },
+          {
+            "line": 11,
+            "heading": "## Context"
+          },
+          {
+            "line": 31,
+            "heading": "## Product definition"
+          },
+          {
+            "line": 43,
+            "heading": "## Primary roles"
+          },
+          {
+            "line": 52,
+            "heading": "## Secondary system actors"
+          },
+          {
+            "line": 65,
+            "heading": "## Coach journey"
+          },
+          {
+            "line": 67,
+            "heading": "### Coach step 1: account creation"
+          },
+          {
+            "line": 79,
+            "heading": "### Coach step 2: coach profile setup"
+          },
+          {
+            "line": 90,
+            "heading": "### Coach step 3: athlete invite"
+          },
+          {
+            "line": 102,
+            "heading": "### Coach step 4: accepted relationship"
+          },
+          {
+            "line": 114,
+            "heading": "### Coach step 5: programme template selection"
+          }
+        ],
+        "review_signal_terms": [
+          "superseded",
+          "historical",
+          "draft",
+          "future",
+          "later",
+          "recommend",
+          "recommendation",
+          "optimal"
+        ],
+        "review_signal_count": 17,
+        "evidence_lines": [
+          {
+            "line": 63,
+            "text": "These actors must not infer, optimise, diagnose, recommend, rank, or mutate engine truth outside allowed deterministic inputs."
+          },
+          {
+            "line": 176,
+            "text": "- coach does not receive automated recommendations or causal conclusions"
+          },
+          {
+            "line": 198,
+            "text": "- history avoids good, bad, poor adherence, fatigue, readiness, risk, safe, better, optimal, effective, recommended, programme worked, and programme failed"
+          },
+          {
+            "line": 234,
+            "text": "- superseded declarations are not used for compile"
+          },
+          {
+            "line": 247,
+            "text": "- athlete cannot access unsupported future surfaces"
+          },
+          {
+            "line": 248,
+            "text": "- athlete cannot self-assign unsupported activity programmes unless explicitly scoped later"
+          },
+          {
+            "line": 275,
+            "text": "The athlete may split a session and return later where allowed."
+          },
+          {
+            "line": 305,
+            "text": "- substitution does not imply recommendation, optimisation, diagnosis, injury risk, readiness, or medical safety"
+          },
+          {
+            "line": 326,
+            "text": "- history avoids judgement, inference, optimisation, diagnosis, or recommendation"
+          },
+          {
+            "line": 346,
+            "text": "- superseded"
+          }
+        ],
+        "selected_reason": "High-signal review-needed file selected for bounded manual review."
+      },
+      "required_manual_answers": {
+        "actual_authority_level": "pending_manual_review",
+        "current_or_historical": "pending_manual_review",
+        "duplicate_of_stronger_source": "pending_manual_review",
+        "stronger_source_pointer_needed": "pending_manual_review",
+        "safe_later_cleanup_action": "pending_manual_review",
+        "evidence_notes": "pending_manual_review"
+      },
+      "allowed_later_actions": [
+        "keep unchanged",
+        "add pointer to stronger source in a later slice",
+        "classify more precisely in a later slice",
+        "mark historical only with explicit evidence in a later slice",
+        "propose consolidation only with explicit evidence in a later slice"
+      ],
+      "disallowed_actions_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md",
+      "current_category": "release-boundary",
+      "current_review_status": "review-needed",
+      "authority_effect": "manual-review-record-only",
+      "source_file_changed": false,
+      "manual_review_status": "pending",
+      "evidence": {
+        "first_heading": "v1 Engine UI Auth Boundary",
+        "heading_outline": [
+          {
+            "line": 3,
+            "heading": "# v1 Engine UI Auth Boundary"
+          },
+          {
+            "line": 5,
+            "heading": "## Status"
+          },
+          {
+            "line": 11,
+            "heading": "## Context"
+          },
+          {
+            "line": 35,
+            "heading": "## Purpose"
+          },
+          {
+            "line": 43,
+            "heading": "## Boundary principle"
+          },
+          {
+            "line": 71,
+            "heading": "## Engine-visible inputs"
+          },
+          {
+            "line": 96,
+            "heading": "## Engine-invisible product state"
+          },
+          {
+            "line": 124,
+            "heading": "## Authentication boundary"
+          },
+          {
+            "line": 150,
+            "heading": "## Permission boundary"
+          },
+          {
+            "line": 175,
+            "heading": "## Relationship boundary"
+          },
+          {
+            "line": 200,
+            "heading": "## UI boundary"
+          },
+          {
+            "line": 233,
+            "heading": "## Coach notes boundary"
+          }
+        ],
+        "review_signal_terms": [
+          "historical",
+          "old",
+          "future",
+          "later",
+          "post-v1",
+          "recommend",
+          "recommendation",
+          "optimal"
+        ],
+        "review_signal_count": 17,
+        "evidence_lines": [
+          {
+            "line": 37,
+            "text": "The purpose of this boundary is to ensure that product UI, authentication, permissions, relationships, coach notes, billing, commercial state, copy, and future surfaces cannot influence deterministic engine truth."
+          },
+          {
+            "line": 41,
+            "text": "The product app may gate access, present facts, collect explicit declarations, and store factual records, but it must not infer, optimise, diagnose, recommend, rank, or mutate engine output outside defined deterministic "
+          },
+          {
+            "line": 58,
+            "text": "- payment access where scoped later"
+          },
+          {
+            "line": 143,
+            "text": "Auth implementation later must prove:"
+          },
+          {
+            "line": 171,
+            "text": "- lawful historical retention must be explicit and scoped"
+          },
+          {
+            "line": 173,
+            "text": "Implementation later must prove permissions with tests before UI surfaces depend on them."
+          },
+          {
+            "line": 223,
+            "text": "- recommend substitutions"
+          },
+          {
+            "line": 262,
+            "text": "Implementation later must include tests proving coach notes cannot enter engine input."
+          },
+          {
+            "line": 268,
+            "text": "Payment or billing state may later gate product access where explicitly scoped, but must not alter deterministic engine truth."
+          },
+          {
+            "line": 311,
+            "text": "- optimal"
+          }
+        ],
+        "selected_reason": "High-signal review-needed file selected for bounded manual review."
+      },
+      "required_manual_answers": {
+        "actual_authority_level": "pending_manual_review",
+        "current_or_historical": "pending_manual_review",
+        "duplicate_of_stronger_source": "pending_manual_review",
+        "stronger_source_pointer_needed": "pending_manual_review",
+        "safe_later_cleanup_action": "pending_manual_review",
+        "evidence_notes": "pending_manual_review"
+      },
+      "allowed_later_actions": [
+        "keep unchanged",
+        "add pointer to stronger source in a later slice",
+        "classify more precisely in a later slice",
+        "mark historical only with explicit evidence in a later slice",
+        "propose consolidation only with explicit evidence in a later slice"
+      ],
+      "disallowed_actions_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/demo/P196_SALES_CLAIM_REGISTRY.md",
+      "current_category": "engine-contract",
+      "current_review_status": "review-needed",
+      "authority_effect": "manual-review-record-only",
+      "source_file_changed": false,
+      "manual_review_status": "pending",
+      "evidence": {
+        "first_heading": "P196 — Sales Claim Registry",
+        "heading_outline": [
+          {
+            "line": 3,
+            "heading": "# P196 — Sales Claim Registry"
+          },
+          {
+            "line": 13,
+            "heading": "## Target"
+          },
+          {
+            "line": 25,
+            "heading": "## Invariant"
+          },
+          {
+            "line": 44,
+            "heading": "## Proof"
+          },
+          {
+            "line": 56,
+            "heading": "## Authority basis"
+          },
+          {
+            "line": 69,
+            "heading": "## Canonical short definition"
+          },
+          {
+            "line": 77,
+            "heading": "## Claim classes"
+          },
+          {
+            "line": 89,
+            "heading": "## 1. Approved claim classes"
+          },
+          {
+            "line": 91,
+            "heading": "### 1.1 Product definition claims"
+          },
+          {
+            "line": 109,
+            "heading": "### 1.2 Scope claims"
+          },
+          {
+            "line": 129,
+            "heading": "### 1.3 Mechanical behaviour claims"
+          },
+          {
+            "line": 149,
+            "heading": "### 1.4 Coach-surface claims"
+          }
+        ],
+        "review_signal_terms": [
+          "draft",
+          "proposal",
+          "future",
+          "later",
+          "recommend",
+          "recommendation",
+          "optimal",
+          "safe"
+        ],
+        "review_signal_count": 13,
+        "evidence_lines": [
+          {
+            "line": 5,
+            "text": "Status: Draft"
+          },
+          {
+            "line": 36,
+            "text": "- imply safety, suitability, injury prevention, or medical benefit"
+          },
+          {
+            "line": 37,
+            "text": "- imply optimisation, recommendation, personalisation, or readiness judgement"
+          },
+          {
+            "line": 58,
+            "text": "This registry consolidates current sales-safe wording from the active v0 boundary and current claim limits."
+          },
+          {
+            "line": 105,
+            "text": "- \"This pilot uses the current v0 path, not the later proof-complete scope.\""
+          },
+          {
+            "line": 188,
+            "text": "- \"v1 is the later lawful proof boundary\""
+          },
+          {
+            "line": 214,
+            "text": "- \"deterministically optimal\""
+          },
+          {
+            "line": 215,
+            "text": "- \"deterministically safer\""
+          },
+          {
+            "line": 266,
+            "text": "### 3.1 Safety / medical / health claims"
+          },
+          {
+            "line": 269,
+            "text": "- safe"
+          }
+        ],
+        "selected_reason": "High-signal review-needed file selected for bounded manual review."
+      },
+      "required_manual_answers": {
+        "actual_authority_level": "pending_manual_review",
+        "current_or_historical": "pending_manual_review",
+        "duplicate_of_stronger_source": "pending_manual_review",
+        "stronger_source_pointer_needed": "pending_manual_review",
+        "safe_later_cleanup_action": "pending_manual_review",
+        "evidence_notes": "pending_manual_review"
+      },
+      "allowed_later_actions": [
+        "keep unchanged",
+        "add pointer to stronger source in a later slice",
+        "classify more precisely in a later slice",
+        "mark historical only with explicit evidence in a later slice",
+        "propose consolidation only with explicit evidence in a later slice"
+      ],
+      "disallowed_actions_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/demo/P196B_FOUNDER_OBJECTION_HANDLING_CARD.md",
+      "current_category": "registry-contract",
+      "current_review_status": "review-needed",
+      "authority_effect": "manual-review-record-only",
+      "source_file_changed": false,
+      "manual_review_status": "pending",
+      "evidence": {
+        "first_heading": "P196B — Founder Objection Handling Card",
+        "heading_outline": [
+          {
+            "line": 3,
+            "heading": "# P196B — Founder Objection Handling Card"
+          },
+          {
+            "line": 13,
+            "heading": "## Target"
+          },
+          {
+            "line": 25,
+            "heading": "## Invariant"
+          },
+          {
+            "line": 45,
+            "heading": "## Proof"
+          },
+          {
+            "line": 57,
+            "heading": "## Usage rule"
+          },
+          {
+            "line": 73,
+            "heading": "## Objection handling standard"
+          },
+          {
+            "line": 91,
+            "heading": "## Objection → approved response"
+          },
+          {
+            "line": 93,
+            "heading": "### 1. “Is it safer?”"
+          },
+          {
+            "line": 110,
+            "heading": "### 2. “Does it optimise training?”"
+          },
+          {
+            "line": 127,
+            "heading": "### 3. “Is it tailored or personalised?”"
+          },
+          {
+            "line": 144,
+            "heading": "### 4. “Can coaches control the engine?”"
+          },
+          {
+            "line": 161,
+            "heading": "### 5. “Is this a full club or team OS?”"
+          }
+        ],
+        "review_signal_terms": [
+          "old",
+          "draft",
+          "future",
+          "later",
+          "safe",
+          "safer",
+          "risk",
+          "injury"
+        ],
+        "review_signal_count": 13,
+        "evidence_lines": [
+          {
+            "line": 5,
+            "text": "Status: Draft"
+          },
+          {
+            "line": 32,
+            "text": "- use only approved or safely bounded language"
+          },
+          {
+            "line": 34,
+            "text": "- distinguish current product truth from later scope"
+          },
+          {
+            "line": 37,
+            "text": "- imply safety, suitability, readiness, or optimisation"
+          },
+          {
+            "line": 40,
+            "text": "- imply future scope is already present"
+          },
+          {
+            "line": 68,
+            "text": "- as future roadmap positioning"
+          },
+          {
+            "line": 93,
+            "text": "### 1. “Is it safer?”"
+          },
+          {
+            "line": 97,
+            "text": "\"No. I would not describe it that way. The current version is a bounded deterministic execution alpha, not a safety or medical product.\""
+          },
+          {
+            "line": 101,
+            "text": "\"I do not sell it on safety claims. I sell it as a narrow, real execution system.\""
+          },
+          {
+            "line": 104,
+            "text": "- \"It helps reduce risk.\""
+          }
+        ],
+        "selected_reason": "High-signal review-needed file selected for bounded manual review."
+      },
+      "required_manual_answers": {
+        "actual_authority_level": "pending_manual_review",
+        "current_or_historical": "pending_manual_review",
+        "duplicate_of_stronger_source": "pending_manual_review",
+        "stronger_source_pointer_needed": "pending_manual_review",
+        "safe_later_cleanup_action": "pending_manual_review",
+        "evidence_notes": "pending_manual_review"
+      },
+      "allowed_later_actions": [
+        "keep unchanged",
+        "add pointer to stronger source in a later slice",
+        "classify more precisely in a later slice",
+        "mark historical only with explicit evidence in a later slice",
+        "propose consolidation only with explicit evidence in a later slice"
+      ],
+      "disallowed_actions_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    }
+  ]
+}

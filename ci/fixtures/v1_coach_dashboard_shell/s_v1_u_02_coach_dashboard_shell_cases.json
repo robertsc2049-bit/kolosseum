@@ -1,0 +1,130 @@
+{
+  "fixture_id": "s_v1_u_02_coach_dashboard_shell_cases",
+  "slice_id": "S-V1-U-02",
+  "actor": {
+    "actor_type": "coach",
+    "user_id": "coach_001"
+  },
+  "relationships": [
+    {
+      "relationship_id": "relationship_001",
+      "coach_user_id": "coach_001",
+      "athlete_user_id": "athlete_001",
+      "relationship_state": "accepted",
+      "relationship_scope": "individual_coach_athlete",
+      "accepted_at_iso8601": "2026-06-18T08:00:00.000Z",
+      "revoked_at": null,
+      "expires_at": null,
+      "product_permission_state_only": true,
+      "engine_visible": false
+    },
+    {
+      "relationship_id": "relationship_002",
+      "coach_user_id": "coach_999",
+      "athlete_user_id": "athlete_002",
+      "relationship_state": "accepted",
+      "relationship_scope": "individual_coach_athlete",
+      "accepted_at_iso8601": "2026-06-18T08:10:00.000Z",
+      "revoked_at": null,
+      "expires_at": null,
+      "product_permission_state_only": true,
+      "engine_visible": false
+    },
+    {
+      "relationship_id": "relationship_003",
+      "coach_user_id": "coach_001",
+      "athlete_user_id": "athlete_003",
+      "relationship_state": "revoked",
+      "relationship_scope": "individual_coach_athlete",
+      "accepted_at_iso8601": "2026-06-18T08:20:00.000Z",
+      "revoked_at": "2026-06-18T09:00:00.000Z",
+      "expires_at": null,
+      "product_permission_state_only": true,
+      "engine_visible": false
+    }
+  ],
+  "athletes": [
+    {
+      "athlete_user_id": "athlete_001",
+      "display_id": "athlete_001"
+    },
+    {
+      "athlete_user_id": "athlete_002",
+      "display_id": "athlete_002"
+    },
+    {
+      "athlete_user_id": "athlete_003",
+      "display_id": "athlete_003"
+    }
+  ],
+  "assignments": [
+    {
+      "assignment_id": "assignment_001",
+      "relationship_id": "relationship_001",
+      "assigned_by_coach_id": "coach_001",
+      "assigned_athlete_id": "athlete_001",
+      "template_id": "template_powerlifting_001",
+      "activity_id": "powerlifting",
+      "assignment_status": "assigned",
+      "assigned_at": "2026-06-18T08:30:00.000Z",
+      "compile_input_status": "not_consumed_until_declared_compile_input",
+      "engine_visible": false
+    },
+    {
+      "assignment_id": "assignment_002",
+      "relationship_id": "relationship_002",
+      "assigned_by_coach_id": "coach_999",
+      "assigned_athlete_id": "athlete_002",
+      "template_id": "template_rugby_001",
+      "activity_id": "rugby_union",
+      "assignment_status": "assigned",
+      "assigned_at": "2026-06-18T08:40:00.000Z",
+      "compile_input_status": "not_consumed_until_declared_compile_input",
+      "engine_visible": false
+    }
+  ],
+  "sessions": [
+    {
+      "session_id": "session_001",
+      "athlete_user_id": "athlete_001",
+      "assignment_id": "assignment_001",
+      "session_status": "completed",
+      "started_at_iso8601": "2026-06-18T09:00:00.000Z",
+      "last_event_at_iso8601": "2026-06-18T09:45:00.000Z",
+      "recorded_event_count": 12,
+      "engine_visible": false
+    },
+    {
+      "session_id": "session_002",
+      "athlete_user_id": "athlete_002",
+      "assignment_id": "assignment_002",
+      "session_status": "completed",
+      "started_at_iso8601": "2026-06-18T10:00:00.000Z",
+      "last_event_at_iso8601": "2026-06-18T10:45:00.000Z",
+      "recorded_event_count": 10,
+      "engine_visible": false
+    }
+  ],
+  "expected_visible_athlete_ids": [
+    "athlete_001"
+  ],
+  "negative_cases": [
+    {
+      "case_id": "non_coach_actor_refused",
+      "input_patch": {
+        "actor": {
+          "actor_type": "athlete",
+          "user_id": "athlete_001"
+        }
+      },
+      "expected_code": "coach_dashboard_actor_not_coach"
+    },
+    {
+      "case_id": "unknown_surface_key_refused",
+      "input_patch": {
+        "team_dashboard": []
+      },
+      "expected_code": "coach_dashboard_unknown_key"
+    }
+  ]
+}

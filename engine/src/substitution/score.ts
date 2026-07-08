@@ -1,3 +1,8 @@
+
+// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
+// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
+// canonical registries, and validated contracts only.
+
 import type { ExerciseSignature, SubstitutionConstraints } from "./types.js";
 
 export type SubstitutionPick = {
@@ -71,7 +76,7 @@ function getStringArrayAny(obj: any, paths: string[]): string[] | undefined {
   return undefined;
 }
 
-// Signature field adapters (best-effort; not required for tests to pass)
+// Signature field adapters for optional registry fields.
 function getPatternId(ex: any): string | undefined {
   return getStringAny(ex, [
     "pattern_id",
@@ -194,7 +199,7 @@ function scoreCandidate(target: any, candidate: any): { score: number; reasons: 
     reasons.push(`id_token_overlap: ${tokenOverlap}`);
   }
 
-  // Extra “bench/press family” boost (covers typical fixtures)
+  // Extra bench/press family boost for fixture-compatible signature scoring.
   const tHasBench = tTokens.has("bench");
   const cHasBench = cTokens.has("bench");
   if (tHasBench && cHasBench) {
@@ -218,7 +223,7 @@ function scoreCandidate(target: any, candidate: any): { score: number; reasons: 
     reasons.push(`equipment_overlap: ${equipOverlap}`);
   }
 
-  // Penalize “regression to unequipped” when target appears equipped
+  // Penalize unequipped candidates when the target has declared equipment.
   if (tEquip.size > 0 && cEquip.size === 0) {
     score -= 5000;
     reasons.push("penalty: unequipped_candidate_for_equipped_target");
@@ -230,6 +235,18 @@ function scoreCandidate(target: any, candidate: any): { score: number; reasons: 
   return { score, reasons };
 }
 
+/**
+ * DEV NOTE: Substitution scorer boundary.
+ * Purpose: choose one deterministic substitute from the provided candidate list
+ * and canonical substitution constraints.
+ * Boundary: scoring reads exercise signatures and constraints only; it must not
+ * read athlete history, coach notes, UI state, copy text, payment state, or
+ * commercial tier data.
+ * Determinism: ordering ties are resolved through stable score components and
+ * the exercise id suffix, making repeated runs byte-stable for the same inputs.
+ * Failure: no eligible candidate returns null so Phase 5 can emit the stable
+ * no-change or missing-target result it already owns.
+ */
 export function pickBestSubstitute(
   target: ExerciseSignature,
   candidates: ExerciseSignature[],

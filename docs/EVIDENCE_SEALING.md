@@ -1,6 +1,6 @@
 # Evidence Envelope + Seal (Phase 7/8)
 
-This repo contains a deterministic “evidence envelope” and a derived “seal” to anchor integrity of:
+This repo contains a deterministic evidence envelope and a derived seal to anchor integrity of:
 - schema set (ci/schemas/*.json)
 - registry bundle (registries/registry_bundle.json)
 - engine version + node runtime version (package.json version + process.versions.node)
@@ -40,3 +40,17 @@ git add ci/evidence/evidence_envelope.v1.json ci/evidence/evidence_seal.v1.json
 npm run green
 
 If CI fails with evidence_seal_guard, the committed evidence files are out of date or not canonical.
+
+## V0 regeneration rule
+
+The committed v0 evidence envelope and seal are generated artefacts. Do not edit `ci/evidence/evidence_envelope.v1.json` or `ci/evidence/evidence_seal.v1.json` by hand.
+
+If either file is missing or `ci/guards/evidence_seal_guard.mjs` reports drift, regenerate both files with:
+
+    node ci/scripts/evidence_seal.mjs --write
+
+Then run:
+
+    node ci/guards/evidence_seal_guard.mjs
+
+Only commit the regenerated evidence files when the guard proves they match the canonical recompute. This regeneration rule does not activate user-facing proof export, Phase 8 evidence sealing, or any v1 evidence product surface inside v0.

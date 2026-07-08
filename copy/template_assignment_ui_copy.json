@@ -1,0 +1,36 @@
+{
+  "schema_version": "kolosseum.copy.template_assignment_ui.v1.0.0",
+  "engine_compatibility": "EB2-1.0.0",
+  "scope": "v1_template_assignment_ui",
+  "copy_surface_id": "template_assignment_ui",
+  "strings": [
+    {
+      "copy_id": "template_assignment_ui.title",
+      "copy_text": "Template assignment"
+    },
+    {
+      "copy_id": "template_assignment_ui.athlete",
+      "copy_text": "Athlete"
+    },
+    {
+      "copy_id": "template_assignment_ui.template",
+      "copy_text": "Template"
+    },
+    {
+      "copy_id": "template_assignment_ui.version",
+      "copy_text": "Version"
+    },
+    {
+      "copy_id": "template_assignment_ui.activity",
+      "copy_text": "Activity"
+    },
+    {
+      "copy_id": "template_assignment_ui.submit",
+      "copy_text": "Record assignment"
+    },
+    {
+      "copy_id": "template_assignment_ui.empty",
+      "copy_text": "No available assignment rows"
+    }
+  ]
+}

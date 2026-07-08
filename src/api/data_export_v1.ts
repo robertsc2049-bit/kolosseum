@@ -1,6 +1,6 @@
 export type ExportEnvelopeV1 = {
   version: "v1";
-  export_type: "session_aggregation" | "facility_metrics" | "dashboard";
+  export_type: "session_aggregation";
   exported_at: string | null;
   payload: Record<string, unknown>;
 };
@@ -11,10 +11,6 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function toSafeIsoStringOrNull(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
-}
-
-function cloneJsonValue<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
 }
 
 function exportSessionAggregationPayload(input: unknown): Record<string, unknown> {
@@ -40,57 +36,22 @@ function exportSessionAggregationPayload(input: unknown): Record<string, unknown
   };
 }
 
-function exportFacilityMetricsPayload(input: unknown): Record<string, unknown> {
-  if (!isPlainObject(input)) return {};
-
-  return {
-    facility_id: typeof input.facility_id === "string" ? input.facility_id : "",
-    total_events: typeof input.total_events === "number" ? input.total_events : 0,
-    total_check_ins: typeof input.total_check_ins === "number" ? input.total_check_ins : 0,
-    total_check_outs: typeof input.total_check_outs === "number" ? input.total_check_outs : 0,
-    occupancy_current: typeof input.occupancy_current === "number" ? input.occupancy_current : 0,
-    occupancy_peak: typeof input.occupancy_peak === "number" ? input.occupancy_peak : 0,
-    equipment_usage: Array.isArray(input.equipment_usage) ? cloneJsonValue(input.equipment_usage) : [],
-    bottleneck_equipment_ids: Array.isArray(input.bottleneck_equipment_ids)
-      ? input.bottleneck_equipment_ids.filter((x) => typeof x === "string")
-      : []
-  };
-}
-
-function exportDashboardPayload(input: unknown): Record<string, unknown> {
-  if (!isPlainObject(input)) return {};
-
-  return {
-    version: input.version === "v1" ? "v1" : "v1",
-    presentation_mode: input.presentation_mode === "nd_compact" ? "nd_compact" : "standard",
-    truth: isPlainObject(input.truth) ? cloneJsonValue(input.truth) : { session: null, facility: null },
-    cards: Array.isArray(input.cards) ? cloneJsonValue(input.cards) : []
-  };
-}
-
+/**
+ * DEV NOTE:
+ * Purpose: Build the v0-admitted session aggregation envelope.
+ * Boundary: Only session aggregation is admitted here; all other product envelopes are refused.
+ * Determinism: Payload shape is closed and sorted by literal construction order.
+ * Failure: Unknown export_type values must resolve to session_aggregation rather than activating other surfaces.
+ */
 export function buildExportEnvelopeV1(source: {
   export_type?: unknown;
   exported_at?: unknown;
   payload?: unknown;
 }): ExportEnvelopeV1 {
-  const exportType =
-    source?.export_type === "session_aggregation" ||
-    source?.export_type === "facility_metrics" ||
-    source?.export_type === "dashboard"
-      ? source.export_type
-      : "session_aggregation";
-
-  const payload =
-    exportType === "session_aggregation"
-      ? exportSessionAggregationPayload(source?.payload)
-      : exportType === "facility_metrics"
-        ? exportFacilityMetricsPayload(source?.payload)
-        : exportDashboardPayload(source?.payload);
-
   return {
     version: "v1",
-    export_type: exportType,
+    export_type: "session_aggregation",
     exported_at: toSafeIsoStringOrNull(source?.exported_at),
-    payload
+    payload: exportSessionAggregationPayload(source?.payload)
   };
 }

@@ -1,0 +1,37 @@
+{
+  "slice_id": "S-REG-05",
+  "manifest_id": "s_reg_05_canonical_registry_contract_manifest",
+  "manifest_version": "1.0.0",
+  "surface_status": "candidate_contract_only",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "candidate_surface_root": "ci/registry/candidates",
+  "future_active_surface_root": "registries",
+  "active_compact_registry_ids": [
+    "activity",
+    "movement",
+    "exercise",
+    "program"
+  ],
+  "canonical_registry_ids": [
+    "activity_registry_1",
+    "sport_subdivision_registry_1a",
+    "sport_metric_registry_1c",
+    "metric_exercise_link_registry_1c_a",
+    "sport_role_registry_2",
+    "movement_registry_3",
+    "exercise_token_registry_3b",
+    "exercise_registry_3a",
+    "equipment_registry",
+    "exercise_activity_applicability_registry",
+    "sport_program_profile_registry_5d",
+    "sport_event_model_registry_5e",
+    "sport_program_template_registry_5f",
+    "substitution_registry"
+  ],
+  "activation_rule": "canonical registries remain candidate-only until a later accepted activation slice updates active registry law and generated bundles deliberately"
+}

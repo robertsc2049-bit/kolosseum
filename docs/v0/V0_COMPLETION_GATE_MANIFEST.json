@@ -1,0 +1,194 @@
+{
+    "manifest_id":  "v0_completion_gate_manifest",
+    "manifest_title":  "Kolosseum v0 Completion Gate Manifest",
+    "manifest_version":  "1.0.0",
+    "status":  "authoritative",
+    "release":  {
+                    "release_id":  "v0",
+                    "release_name":  "Deterministic Execution Alpha",
+                    "completion_standard":  "v0 is complete only when every required gate passes from a clean tree using the recorded command or verifier."
+                },
+    "authority":  {
+                      "creates_engine_law":  false,
+                      "creates_product_scope":  false,
+                      "checklist_only":  true,
+                      "source_of_truth_note":  "This manifest consolidates completion evidence. It does not override canonical engine, registry, scope, copy, commercial, or boundary law."
+                  },
+    "required_source_documents":  [
+                                      {
+                                          "id":  "p199_completion_gate",
+                                          "path":  "docs/product/P199_V0_COMPLETION_GATE.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "active_scope_manifest_md",
+                                          "path":  "docs/v0/V0_ACTIVE_SCOPE_MANIFEST.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "active_scope_manifest_json",
+                                          "path":  "docs/v0/V0_ACTIVE_SCOPE_MANIFEST.json",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "ship_boundary",
+                                          "path":  "docs/v0_AUTHORITATIVE_SHIP_BOUNDARY.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "runtime_proof_matrix",
+                                          "path":  "docs/v0_RUNTIME_PROOF_MATRIX.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "decision_scorecard",
+                                          "path":  "docs/v0_DECISION_SCORECARD.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "final_decision_note",
+                                          "path":  "docs/v0_FINAL_DECISION_NOTE.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "g03_g04_proof_audit",
+                                          "path":  "docs/V0_G03_G04_PROOF_AUDIT.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "readiness_rebaseline",
+                                          "path":  "docs/v0_READINESS_REBASELINE.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "release_gap_matrix",
+                                          "path":  "docs/V0_RELEASE_GAP_MATRIX.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "remaining_blockers",
+                                          "path":  "docs/v0_REMAINING_BLOCKERS.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "boundary_exclusions",
+                                          "path":  "docs/product/v0_boundary_exclusions.json",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "allowed_claims",
+                                          "path":  "docs/product/v0_allowed_claims.json",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "guards_index",
+                                          "path":  "docs/GUARDS_INDEX.md",
+                                          "required":  true
+                                      },
+                                      {
+                                          "id":  "current_docs_status",
+                                          "path":  "docs/product/CURRENT_PROJECT_DOCS_STATUS.md",
+                                          "required":  true
+                                      }
+                                  ],
+    "required_commands":  [
+                              {
+                                  "id":  "build",
+                                  "label":  "TypeScript build and engine shim check",
+                                  "command":  "npm run build",
+                                  "required":  true,
+                                  "completion_evidence":  "exit_code_zero"
+                              },
+                              {
+                                  "id":  "lint",
+                                  "label":  "Full lint and indexed CI tests",
+                                  "command":  "npm run lint",
+                                  "required":  true,
+                                  "completion_evidence":  "exit_code_zero"
+                              },
+                              {
+                                  "id":  "v0_active_scope_guard",
+                                  "label":  "Active v0 scope guard",
+                                  "command":  "node ci/scripts/run_v0_active_scope_guard.mjs",
+                                  "required":  true,
+                                  "completion_evidence":  "json_ok_true"
+                              },
+                              {
+                                  "id":  "v0_active_scope_negative_tests",
+                                  "label":  "Active v0 scope negative tests",
+                                  "command":  "node ci/scripts/run_v0_active_scope_negative_tests.mjs",
+                                  "required":  true,
+                                  "completion_evidence":  "json_ok_true"
+                              },
+                              {
+                                  "id":  "v0_boundary_claim_consistency",
+                                  "label":  "v0 boundary and claim consistency guard",
+                                  "command":  "node ci/guards/run_v0_boundary_claim_consistency_guard.mjs",
+                                  "required":  true,
+                                  "completion_evidence":  "json_ok_true"
+                              },
+                              {
+                                  "id":  "phase1_acceptance_record",
+                                  "label":  "Phase 1 acceptance record tests",
+                                  "command":  "node ci/scripts/run_phase1_acceptance_record_tests.mjs",
+                                  "required":  true,
+                                  "completion_evidence":  "json_ok_true_and_failed_zero"
+                              }
+                          ],
+    "required_guard_presence":  [
+                                    "ci/guards/clean_tree_guard.mjs",
+                                    "ci/guards/no_bom_guard.mjs",
+                                    "ci/guards/no_crlf_guard.mjs",
+                                    "ci/guards/no_mojibake_guard.mjs",
+                                    "ci/guards/engine_contract_guard.mjs",
+                                    "ci/guards/golden_manifest_guard.mjs",
+                                    "ci/guards/golden_outputs_guard.mjs",
+                                    "ci/guards/postv1_packaging_surface_registry_guard.mjs",
+                                    "ci/guards/evidence_seal_guard.mjs",
+                                    "ci/guards/registry_schema_presence_guard.mjs",
+                                    "ci/guards/registry_bundle_guard.mjs",
+                                    "ci/guards/registry_law_guard.mjs",
+                                    "ci/guards/run_v0_boundary_claim_consistency_guard.mjs",
+                                    "ci/scripts/run_v0_active_scope_guard.mjs",
+                                    "ci/scripts/run_v0_active_scope_negative_tests.mjs",
+                                    "ci/scripts/run_phase1_acceptance_record_tests.mjs"
+                                ],
+    "required_lint_fast_entries":  [
+                                       "node ci/guards/run_v0_boundary_claim_consistency_guard.mjs",
+                                       "node ci/scripts/run_v0_active_scope_guard.mjs",
+                                       "node ci/scripts/run_v0_active_scope_negative_tests.mjs",
+                                       "node ci/scripts/run_v0_completion_gate_manifest_verifier.mjs",
+                                       "node ci/scripts/run_phase1_acceptance_record_tests.mjs"
+                                   ],
+    "completion_assertions":  [
+                                  {
+                                      "id":  "clean_tree_required",
+                                      "assertion":  "Completion checks must run from a clean working tree."
+                                  },
+                                  {
+                                      "id":  "scope_guard_enforced",
+                                      "assertion":  "Active v0 scope guard must be enforced in lint:fast."
+                                  },
+                                  {
+                                      "id":  "negative_scope_tests_enforced",
+                                      "assertion":  "Active v0 scope negative tests must be enforced in lint:fast."
+                                  },
+                                  {
+                                      "id":  "completion_manifest_verifier_enforced",
+                                      "assertion":  "This completion manifest verifier must be enforced in lint:fast."
+                                  },
+                                  {
+                                      "id":  "phase1_acceptance_record_enforced",
+                                      "assertion":  "Phase 1 acceptance record tests must be enforced in lint:fast."
+                                  },
+                                  {
+                                      "id":  "no_new_engine_law",
+                                      "assertion":  "This manifest verifies completion evidence only and does not create new engine behaviour."
+                                  }
+                              ],
+    "not_completion_claims":  [
+                                  "Passing this manifest does not make post-v1 features active.",
+                                  "Passing this manifest does not admit organisation, team, unit, gym, federation, marketplace, messaging, broad analytics, proof export, or live commercial dashboards into v0.",
+                                  "Passing this manifest does not override canonical engine, registry, runtime, copy, legal, or commercial law."
+                              ]
+}

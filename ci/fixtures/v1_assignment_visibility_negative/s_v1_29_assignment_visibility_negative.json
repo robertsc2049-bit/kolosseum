@@ -1,0 +1,66 @@
+{
+  "cases": [
+    {
+      "case_id": "missing_relationship_records",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "coach_id": "coach_001"
+        },
+        "assignments": [
+          {
+            "assignment_id": "assignment_001",
+            "relationship_id": "relationship_001",
+            "assigned_by_coach_id": "coach_001",
+            "assigned_athlete_id": "athlete_001",
+            "template_id": "template_powerlifting_001",
+            "activity_id": "powerlifting",
+            "assignment_status": "assigned",
+            "assigned_at": "2026-06-16T09:00:00.000Z",
+            "compile_input_status": "not_consumed_until_declared_compile_input",
+            "engine_visible": false
+          }
+        ]
+      },
+      "expected_reason": "assignment_visibility_missing_required_key"
+    },
+    {
+      "case_id": "athlete_attempts_other_assignment",
+      "input": {
+        "actor": {
+          "actor_type": "athlete",
+          "athlete_id": "athlete_999"
+        },
+        "assignments": [
+          {
+            "assignment_id": "assignment_001",
+            "relationship_id": "relationship_001",
+            "assigned_by_coach_id": "coach_001",
+            "assigned_athlete_id": "athlete_001",
+            "template_id": "template_powerlifting_001",
+            "activity_id": "powerlifting",
+            "assignment_status": "assigned",
+            "assigned_at": "2026-06-16T09:00:00.000Z",
+            "compile_input_status": "not_consumed_until_declared_compile_input",
+            "engine_visible": false
+          }
+        ],
+        "relationships": []
+      },
+      "expected_visible_count": 0
+    },
+    {
+      "case_id": "forbidden_team_assignment_field",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "coach_id": "coach_001"
+        },
+        "assignments": [],
+        "relationships": [],
+        "team_assignments": []
+      },
+      "expected_reason": "assignment_visibility_unknown_key"
+    }
+  ]
+}

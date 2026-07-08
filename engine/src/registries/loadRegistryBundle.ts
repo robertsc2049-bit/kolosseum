@@ -1,3 +1,8 @@
+
+// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
+// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
+// canonical registries, and validated contracts only.
+
 import fs from "node:fs";
 
 function stripBom(s: string): string {
@@ -10,6 +15,17 @@ export type RegistryBundle = {
   registries: Record<string, unknown>;
 };
 
+/**
+ * DEV NOTE: Registry bundle loader boundary.
+ * Purpose: load the sealed registry bundle used by template selection and later
+ * registry-backed engine operations.
+ * Boundary: this function validates only the bundle container shape; domain law
+ * stays in canonical registry guards and phase-specific validation.
+ * Determinism: the caller receives the parsed bundle from the declared path with
+ * BOM removed and no environment-dependent path discovery.
+ * Failure: missing or malformed bundle shape throws stable type errors before
+ * engine phases consume incomplete registry data.
+ */
 export function loadRegistryBundle(path = "registries/registry_bundle.json"): RegistryBundle {
   if (!fs.existsSync(path)) {
     throw new Error(`CI_MISSING_HARD_FAIL: registry bundle missing at ${path}`);

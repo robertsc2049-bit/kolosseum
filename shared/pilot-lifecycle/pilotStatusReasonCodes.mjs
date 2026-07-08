@@ -1,9 +1,26 @@
+/**
+ * DEV NOTE:
+ * Purpose: Keeps lifecycle reason codes stable for factual status reporting.
+ * Boundary: Reason codes must describe state only and must not add judgement or action claims.
+ * Determinism: A reason code must keep the same meaning across reads and tests.
+ * Failure: Unknown reason codes must be rejected or surfaced explicitly.
+ */
 import {
   PILOT_LIFECYCLE_STATES,
   PILOT_LIFECYCLE_STATE_LIST,
   resolvePilotLifecycleState,
 } from "./pilotLifecycleStateMachine.mjs";
 
+/**
+ * FUNCTION NOTE:
+ * Export: PILOT_STATUS_REASON_CODES
+ * Purpose: Documents the exported entrypoint for pilot status reason code boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep reason codes factual and must not add judgement or action claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const PILOT_STATUS_REASON_CODES = Object.freeze({
   COMMERCIAL_UNSETTLED: "commercial_unsettled",
   WORKSPACE_UNPROVISIONED: "workspace_unprovisioned",
@@ -21,10 +38,30 @@ export const PILOT_STATUS_REASON_CODES = Object.freeze({
   EXPANSION_REVIEW_REQUIRED: "expansion_review_required",
 });
 
+/**
+ * FUNCTION NOTE:
+ * Export: PILOT_STATUS_REASON_CODE_LIST
+ * Purpose: Documents the exported entrypoint for pilot status reason code boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep reason codes factual and must not add judgement or action claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const PILOT_STATUS_REASON_CODE_LIST = Object.freeze(
   Object.values(PILOT_STATUS_REASON_CODES),
 );
 
+/**
+ * FUNCTION NOTE:
+ * Export: PILOT_STATE_REQUIRED_REASON_POLICY
+ * Purpose: Documents the exported entrypoint for pilot status reason code boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep reason codes factual and must not add judgement or action claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const PILOT_STATE_REQUIRED_REASON_POLICY = Object.freeze({
   [PILOT_LIFECYCLE_STATES.ACCEPTED]: Object.freeze([
     PILOT_STATUS_REASON_CODES.COMMERCIAL_UNSETTLED,
@@ -134,6 +171,16 @@ function appendActiveOptionalReasons(reasonCodes, context) {
   }
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: resolvePilotStatusReasonCodes
+ * Purpose: Documents the exported entrypoint for pilot status reason code boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep reason codes factual and must not add judgement or action claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function resolvePilotStatusReasonCodes(context = {}) {
   const lifecycleState = resolvePilotLifecycleState(context);
   const c = coerceReasonContext(context);
@@ -202,6 +249,16 @@ export function resolvePilotStatusReasonCodes(context = {}) {
   return normalizeReasonCodes(reasonCodes);
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertPilotStateHasRequiredReasonCodes
+ * Purpose: Documents the exported entrypoint for pilot status reason code boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep reason codes factual and must not add judgement or action claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertPilotStateHasRequiredReasonCodes(state, reasonCodes = []) {
   assertKnownState(state, "pilot_lifecycle_state");
   const normalizedReasonCodes = normalizeReasonCodes(reasonCodes);
@@ -259,6 +316,16 @@ export function assertPilotStateHasRequiredReasonCodes(state, reasonCodes = []) 
   return true;
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertPilotStatusReasonCodesMatchContext
+ * Purpose: Documents the exported entrypoint for pilot status reason code boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must keep reason codes factual and must not add judgement or action claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertPilotStatusReasonCodesMatchContext(state, context = {}, reasonCodes = []) {
   assertKnownState(state, "pilot_lifecycle_state");
   const resolvedState = resolvePilotLifecycleState(context);

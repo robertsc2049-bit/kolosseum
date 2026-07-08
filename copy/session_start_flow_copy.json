@@ -1,0 +1,27 @@
+[
+  {
+    "copy_id": "SESSION_START_FLOW_TITLE",
+    "text": "Session start",
+    "surface_id": "v1_session_start_flow"
+  },
+  {
+    "copy_id": "SESSION_START_FLOW_ACTION",
+    "text": "Start session",
+    "surface_id": "v1_session_start_flow"
+  },
+  {
+    "copy_id": "SESSION_START_FLOW_ALREADY_STARTED",
+    "text": "Session start recorded",
+    "surface_id": "v1_session_start_flow"
+  },
+  {
+    "copy_id": "SESSION_START_FLOW_BLOCKED",
+    "text": "Session start unavailable",
+    "surface_id": "v1_session_start_flow"
+  },
+  {
+    "copy_id": "SESSION_START_FLOW_RECORDED_EVENT",
+    "text": "Start event recorded",
+    "surface_id": "v1_session_start_flow"
+  }
+]

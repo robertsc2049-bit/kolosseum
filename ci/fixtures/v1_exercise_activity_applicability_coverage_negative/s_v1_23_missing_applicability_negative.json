@@ -1,0 +1,157 @@
+{
+  "slice_id": "S-V1-23",
+  "fixture_id": "s_v1_23_missing_applicability_negative",
+  "purpose": "Prove the exercise activity applicability coverage contract fails closed when a declared exercise activity context is missing an explicit applicability entry.",
+  "locked_activity_ids": [
+    "powerlifting",
+    "general_strength",
+    "rugby_union"
+  ],
+  "required_activity_contexts": [
+    "training",
+    "testing",
+    "competition"
+  ],
+  "expected_failure_code": "v1_exercise_activity_applicability_coverage_missing_applicability",
+  "missing_case": {
+    "exercise_id": "fixture_barbell_bench_press",
+    "activity_id": "rugby_union",
+    "activity_context": "competition"
+  },
+  "exercise_records": [
+    {
+      "exercise_id": "fixture_barbell_bench_press",
+      "display_label": "Fixture barbell bench press",
+      "movement_pattern_id": "horizontal_push",
+      "primary_activity_applicability": "powerlifting",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "equipment_requirements": [
+        "barbell",
+        "bench",
+        "rack"
+      ],
+      "equipment_alternatives": [
+        "bodyweight"
+      ],
+      "difficulty_tier": "introductory",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "stimulus_intent": "factual_training_stimulus",
+      "instruction_short_text": "Record planned work exactly as assigned.",
+      "instruction_detail_text": "Keep this copy factual and bounded.",
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only"
+      ]
+    }
+  ],
+  "applicability_records": [
+    {
+      "applicability_id": "fixture_barbell_bench_press_powerlifting_training",
+      "exercise_id": "fixture_barbell_bench_press",
+      "activity_id": "powerlifting",
+      "activity_context": "training",
+      "applicability_state": "allowed",
+      "conditions": [],
+      "tier_cap": null,
+      "template_applicability": "eligible",
+      "substitution_applicability": "eligible",
+      "copy_legal_boundary_notes": "Factual applicability metadata only."
+    },
+    {
+      "applicability_id": "fixture_barbell_bench_press_powerlifting_testing",
+      "exercise_id": "fixture_barbell_bench_press",
+      "activity_id": "powerlifting",
+      "activity_context": "testing",
+      "applicability_state": "allowed",
+      "conditions": [],
+      "tier_cap": null,
+      "template_applicability": "eligible",
+      "substitution_applicability": "eligible",
+      "copy_legal_boundary_notes": "Factual applicability metadata only."
+    },
+    {
+      "applicability_id": "fixture_barbell_bench_press_powerlifting_competition",
+      "exercise_id": "fixture_barbell_bench_press",
+      "activity_id": "powerlifting",
+      "activity_context": "competition",
+      "applicability_state": "allowed",
+      "conditions": [],
+      "tier_cap": null,
+      "template_applicability": "eligible",
+      "substitution_applicability": "eligible",
+      "copy_legal_boundary_notes": "Factual applicability metadata only."
+    },
+    {
+      "applicability_id": "fixture_barbell_bench_press_general_strength_training",
+      "exercise_id": "fixture_barbell_bench_press",
+      "activity_id": "general_strength",
+      "activity_context": "training",
+      "applicability_state": "allowed",
+      "conditions": [],
+      "tier_cap": null,
+      "template_applicability": "eligible",
+      "substitution_applicability": "eligible",
+      "copy_legal_boundary_notes": "Factual applicability metadata only."
+    },
+    {
+      "applicability_id": "fixture_barbell_bench_press_general_strength_testing",
+      "exercise_id": "fixture_barbell_bench_press",
+      "activity_id": "general_strength",
+      "activity_context": "testing",
+      "applicability_state": "conditional",
+      "conditions": [
+        "coach_declared_testing_context"
+      ],
+      "tier_cap": 2,
+      "template_applicability": "eligible",
+      "substitution_applicability": "eligible",
+      "copy_legal_boundary_notes": "Factual applicability metadata only."
+    },
+    {
+      "applicability_id": "fixture_barbell_bench_press_general_strength_competition",
+      "exercise_id": "fixture_barbell_bench_press",
+      "activity_id": "general_strength",
+      "activity_context": "competition",
+      "applicability_state": "prohibited",
+      "conditions": [],
+      "tier_cap": null,
+      "template_applicability": "not_eligible",
+      "substitution_applicability": "not_eligible",
+      "copy_legal_boundary_notes": "Factual applicability metadata only."
+    },
+    {
+      "applicability_id": "fixture_barbell_bench_press_rugby_union_training",
+      "exercise_id": "fixture_barbell_bench_press",
+      "activity_id": "rugby_union",
+      "activity_context": "training",
+      "applicability_state": "allowed",
+      "conditions": [],
+      "tier_cap": null,
+      "template_applicability": "eligible",
+      "substitution_applicability": "eligible",
+      "copy_legal_boundary_notes": "Factual applicability metadata only."
+    },
+    {
+      "applicability_id": "fixture_barbell_bench_press_rugby_union_testing",
+      "exercise_id": "fixture_barbell_bench_press",
+      "activity_id": "rugby_union",
+      "activity_context": "testing",
+      "applicability_state": "conditional",
+      "conditions": [
+        "coach_declared_testing_context"
+      ],
+      "tier_cap": 2,
+      "template_applicability": "eligible",
+      "substitution_applicability": "eligible",
+      "copy_legal_boundary_notes": "Factual applicability metadata only."
+    }
+  ]
+}

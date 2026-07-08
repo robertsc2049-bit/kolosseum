@@ -1,0 +1,96 @@
+{
+  "fixture_id": "s_v1_39_session_state_events_readback_cases",
+  "slice_id": "S-V1-39",
+  "contract": "v1_session_state_events_readback",
+  "session": {
+    "session_id": "session_s_v1_39_001",
+    "athlete_user_id": "athlete_001",
+    "status": "in_progress"
+  },
+  "actors": {
+    "athlete_owner": {
+      "actor_type": "athlete",
+      "user_id": "athlete_001"
+    },
+    "assigned_coach": {
+      "actor_type": "coach",
+      "user_id": "coach_001"
+    },
+    "unassigned_coach": {
+      "actor_type": "coach",
+      "user_id": "coach_999"
+    },
+    "other_athlete": {
+      "actor_type": "athlete",
+      "user_id": "athlete_999"
+    }
+  },
+  "relationships": [
+    {
+      "relationship_id": "relationship_001",
+      "coach_user_id": "coach_001",
+      "athlete_user_id": "athlete_001",
+      "relationship_state": "accepted",
+      "relationship_scope": "individual_coach_athlete",
+      "accepted_at_iso8601": "2026-06-16T09:00:00.000Z",
+      "visibility_scope": {
+        "session_readback": true
+      },
+      "product_permission_state_only": true,
+      "engine_visible": false
+    }
+  ],
+  "state_payload": {
+    "session_id": "session_s_v1_39_001",
+    "current_step": {
+      "type": "WORK_ITEM",
+      "work_item_id": "work_002"
+    },
+    "trace": {
+      "completed_ids": [
+        "work_001"
+      ],
+      "skipped_ids": [],
+      "return_decision_required": false,
+      "runtime_status": "in_progress"
+    }
+  },
+  "events_payload": {
+    "session_id": "session_s_v1_39_001",
+    "events": [
+      {
+        "seq": 1,
+        "event": {
+          "type": "SESSION_START"
+        },
+        "created_at": "2026-06-16T09:01:00.000Z"
+      },
+      {
+        "seq": 2,
+        "event": {
+          "type": "COMPLETE_WORK_ITEM",
+          "work_item_id": "work_001"
+        },
+        "created_at": "2026-06-16T09:02:00.000Z"
+      }
+    ]
+  },
+  "negative_cases": [
+    {
+      "case_id": "unassigned_coach_rejected",
+      "actor_key": "unassigned_coach",
+      "expected_reason": "coach_not_assigned_to_athlete"
+    },
+    {
+      "case_id": "other_athlete_rejected",
+      "actor_key": "other_athlete",
+      "expected_reason": "athlete_not_own_data"
+    },
+    {
+      "case_id": "missing_relationship_rejected",
+      "actor_key": "assigned_coach",
+      "relationships": [],
+      "expected_reason": "coach_not_assigned_to_athlete"
+    }
+  ]
+}

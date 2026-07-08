@@ -1,0 +1,208 @@
+{
+  "fixture_id": "s_v1_15_relationship_permission_guard_scope_leakage",
+  "slice": "S-V1-15",
+  "schema_version": "1.0.0",
+  "cases": [
+    {
+      "case_id": "assigned_coach_allowed_for_coach_notes",
+      "expected_ok": true,
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "user_id": "coach_001"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "coach_notes",
+        "relationships": [
+          {
+            "relationship_id": "relationship_001",
+            "coach_user_id": "coach_001",
+            "athlete_user_id": "athlete_001",
+            "relationship_state": "accepted",
+            "relationship_scope": "individual_coach_athlete",
+            "accepted_at_iso8601": "2026-06-13T13:00:00.000Z",
+            "created_at_iso8601": "2026-06-13T12:00:00.000Z",
+            "updated_at_iso8601": "2026-06-13T13:00:00.000Z",
+            "revoked_at_iso8601": null,
+            "expires_at_iso8601": null
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "athlete_own_data_allowed_for_history",
+      "expected_ok": true,
+      "input": {
+        "actor": {
+          "actor_type": "athlete",
+          "user_id": "athlete_001"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "factual_history",
+        "relationships": []
+      }
+    },
+    {
+      "case_id": "unassigned_coach_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_RELATIONSHIP_PERMISSION_GUARDS",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "user_id": "coach_002"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "coach_notes",
+        "relationships": [
+          {
+            "relationship_id": "relationship_001",
+            "coach_user_id": "coach_001",
+            "athlete_user_id": "athlete_001",
+            "relationship_state": "accepted",
+            "relationship_scope": "individual_coach_athlete",
+            "accepted_at_iso8601": "2026-06-13T13:00:00.000Z",
+            "created_at_iso8601": "2026-06-13T12:00:00.000Z",
+            "updated_at_iso8601": "2026-06-13T13:00:00.000Z",
+            "revoked_at_iso8601": null,
+            "expires_at_iso8601": null
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "athlete_other_data_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_RELATIONSHIP_PERMISSION_GUARDS",
+      "input": {
+        "actor": {
+          "actor_type": "athlete",
+          "user_id": "athlete_001"
+        },
+        "target_athlete_user_id": "athlete_002",
+        "surface_id": "factual_history",
+        "relationships": []
+      }
+    },
+    {
+      "case_id": "unknown_surface_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_RELATIONSHIP_PERMISSION_GUARDS",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "user_id": "coach_001"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "team_dashboard",
+        "relationships": []
+      }
+    },
+    {
+      "case_id": "team_role_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_RELATIONSHIP_PERMISSION_GUARDS",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "user_id": "coach_001"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "coach_notes",
+        "team_role": "captain",
+        "relationships": []
+      }
+    },
+    {
+      "case_id": "organisation_role_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_RELATIONSHIP_PERMISSION_GUARDS",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "user_id": "coach_001"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "coach_notes",
+        "organisation_role": "manager",
+        "relationships": []
+      }
+    },
+    {
+      "case_id": "broad_rbac_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_RELATIONSHIP_PERMISSION_GUARDS",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "user_id": "coach_001"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "coach_notes",
+        "broad_rbac": true,
+        "relationships": []
+      }
+    },
+    {
+      "case_id": "engine_input_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_RELATIONSHIP_PERMISSION_GUARDS",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "user_id": "coach_001"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "coach_notes",
+        "engine_input": {
+          "relationship_id": "relationship_001"
+        },
+        "relationships": []
+      }
+    },
+    {
+      "case_id": "assignment_authority_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_RELATIONSHIP_PERMISSION_GUARDS",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "user_id": "coach_001"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "coach_notes",
+        "assignment_authority_granted": true,
+        "relationships": []
+      }
+    },
+    {
+      "case_id": "social_connection_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_RELATIONSHIP_PERMISSION_GUARDS",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "user_id": "coach_001"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "coach_notes",
+        "social_connection_id": "social_001",
+        "relationships": []
+      }
+    },
+    {
+      "case_id": "marketplace_connection_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_RELATIONSHIP_PERMISSION_GUARDS",
+      "input": {
+        "actor": {
+          "actor_type": "coach",
+          "user_id": "coach_001"
+        },
+        "target_athlete_user_id": "athlete_001",
+        "surface_id": "coach_notes",
+        "marketplace_connection_id": "market_001",
+        "relationships": []
+      }
+    }
+  ]
+}

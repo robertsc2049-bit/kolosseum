@@ -1,3 +1,8 @@
+
+// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
+// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
+// broad discovery, or unreviewed boundary changes.
+
 import test, { mock } from "node:test";
 import assert from "node:assert/strict";
 
@@ -75,4 +80,21 @@ test("listRuntimeEventsQuery returns empty events array when no runtime events e
     session_id: "s_empty",
     events: []
   });
+});
+
+test("S-V0-13 source contract: runtime events read is ordered and read-only", async () => {
+  const fs = await import("node:fs/promises");
+  const source = await fs.readFile("src/api/session_events_query_service.ts", "utf8");
+
+  assert.match(
+    source,
+    /SELECT\s+seq,\s*event,\s*created_at\s+FROM runtime_events\s+WHERE session_id = \$1\s+ORDER BY seq ASC/i,
+    "runtime events query must read rows ordered by seq ASC"
+  );
+
+  assert.doesNotMatch(
+    source,
+    /\b(INSERT|UPDATE|DELETE|UPSERT|MERGE|TRUNCATE|CREATE|ALTER|DROP)\b/i,
+    "runtime events query service must not create, mutate, or delete runtime event rows"
+  );
 });

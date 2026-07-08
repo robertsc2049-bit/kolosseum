@@ -1,3 +1,8 @@
+
+// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
+// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
+// canonical registries, and validated contracts only.
+
 import Ajv from "ajv";
 import fs from "node:fs";
 
@@ -14,8 +19,8 @@ export type Phase1CanonicalInput = {
   enum_bundle_version: "EB2-1.0.0";
   phase1_schema_version: "1.0.0";
 
-  actor_type: "athlete" | "coach" | "org_admin";
-  execution_scope: "individual" | "coach_managed" | "org_managed";
+  actor_type: "athlete" | "coach" ;
+  execution_scope: "individual" | "coach_managed" ;
 
   governing_authority_id?: string;
 

@@ -1,3 +1,8 @@
+
+// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
+// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
+// canonical registries, and validated contracts only.
+
 import fs from "node:fs";
 import type { ExerciseSignature } from "../substitution/types.js";
 
@@ -9,6 +14,17 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
 
+/**
+ * DEV NOTE: Exercise registry entry loader boundary.
+ * Purpose: convert the exercise registry file into the id-keyed shape consumed by
+ * Phase 4 and substitution scoring.
+ * Boundary: this loader reads registry data only; it does not create exercises,
+ * alter constraints, or read UI/copy/payment/coach-note surfaces.
+ * Determinism: accepted legacy shapes are converted by explicit ids and preserve
+ * the registry-provided exercise records.
+ * Failure: unsupported shapes return an empty map so Phase 4 registry guards emit
+ * the stable missing-id failure path.
+ */
 export function loadExerciseEntriesFromPath(p: string): Record<string, ExerciseSignature> {
   const raw = stripBom(fs.readFileSync(p, "utf8"));
   const parsed = JSON.parse(raw);
@@ -22,7 +38,7 @@ export function loadExerciseEntriesFromPath(p: string): Record<string, ExerciseS
     return out;
   }
 
-  // Fallback shape: { exercises: ExerciseSignature[] }
+  // Legacy accepted shape: { exercises: ExerciseSignature[] }
   if (isRecord(parsed) && Array.isArray((parsed as any).exercises)) {
     const out: Record<string, ExerciseSignature> = {};
     for (const ex of (parsed as any).exercises) {
@@ -32,7 +48,7 @@ export function loadExerciseEntriesFromPath(p: string): Record<string, ExerciseS
     return out;
   }
 
-  // Bare array fallback: ExerciseSignature[]
+  // Legacy accepted shape: ExerciseSignature[]
   if (Array.isArray(parsed)) {
     const out: Record<string, ExerciseSignature> = {};
     for (const ex of parsed) {

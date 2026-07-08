@@ -1,0 +1,34 @@
+# ==========================================================
+# KOLOSSEUM WORKFLOW POLICY
+# ----------------------------------------------------------
+# v0-test-suite.yml
+# - v0 suite workflow; must call npm run test:v0.
+# - GitHub Actions owns orchestration only.
+# - npm scripts and repository guards own proof meaning.
+# - A failed command must fail the job.
+# ==========================================================
+name: v0 test suite
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  v0-test-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Kolosseum v0 test suite
+        run: npm run test:v0

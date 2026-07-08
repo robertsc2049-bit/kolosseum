@@ -1,0 +1,42 @@
+[
+  {
+    "copy_id": "STOP_SKIP_PARTIAL_TITLE",
+    "text": "Session event recording",
+    "surface_id": "v1_stop_skip_partial_completion_flow"
+  },
+  {
+    "copy_id": "STOP_SKIP_PARTIAL_STOP_ACTION",
+    "text": "Record stop",
+    "surface_id": "v1_stop_skip_partial_completion_flow"
+  },
+  {
+    "copy_id": "STOP_SKIP_PARTIAL_SKIP_ACTION",
+    "text": "Record skipped item",
+    "surface_id": "v1_stop_skip_partial_completion_flow"
+  },
+  {
+    "copy_id": "STOP_SKIP_PARTIAL_PARTIAL_ACTION",
+    "text": "Record partial completion",
+    "surface_id": "v1_stop_skip_partial_completion_flow"
+  },
+  {
+    "copy_id": "STOP_SKIP_PARTIAL_STOP_RECORDED",
+    "text": "Stop recorded",
+    "surface_id": "v1_stop_skip_partial_completion_flow"
+  },
+  {
+    "copy_id": "STOP_SKIP_PARTIAL_SKIP_RECORDED",
+    "text": "Skipped item recorded",
+    "surface_id": "v1_stop_skip_partial_completion_flow"
+  },
+  {
+    "copy_id": "STOP_SKIP_PARTIAL_PARTIAL_RECORDED",
+    "text": "Partial completion recorded",
+    "surface_id": "v1_stop_skip_partial_completion_flow"
+  },
+  {
+    "copy_id": "STOP_SKIP_PARTIAL_HISTORY_LABEL",
+    "text": "Recorded event history",
+    "surface_id": "v1_stop_skip_partial_completion_flow"
+  }
+]

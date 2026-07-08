@@ -1,5 +1,32 @@
+/**
+ * DEV NOTE:
+ * Purpose: Defines the factual history count contract used by read-model surfaces.
+ * Boundary: The contract must describe recorded facts only and must not add interpretation claims.
+ * Determinism: Field meaning must remain stable so stored history can be read consistently.
+ * Failure: Contract drift must be handled by explicit versioned change rather than silent reinterpretation.
+ */
+/**
+ * FUNCTION NOTE:
+ * Export: HISTORY_COUNTS_SCHEMA_VERSION
+ * Purpose: Documents the exported entrypoint for history count contract boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must describe recorded facts only and must not add interpretation claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const HISTORY_COUNTS_SCHEMA_VERSION = "kolosseum.history_counts.v0.1" as const;
 
+/**
+ * FUNCTION NOTE:
+ * Export: HISTORY_VISIBILITY_DENIED
+ * Purpose: Documents the exported entrypoint for history count contract boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must describe recorded facts only and must not add interpretation claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const HISTORY_VISIBILITY_DENIED = "HISTORY_VISIBILITY_DENIED" as const;
 
 export type HistoryViewerType = "athlete" | "linked_coach";
@@ -76,6 +103,16 @@ export type HistoryAccessDenied = {
 
 export type HistoryAccessDecision = HistoryAccessAllowed | HistoryAccessDenied;
 
+/**
+ * FUNCTION NOTE:
+ * Export: ALLOWED_HISTORY_COUNT_FIELDS
+ * Purpose: Documents the exported entrypoint for history count contract boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must describe recorded facts only and must not add interpretation claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const ALLOWED_HISTORY_COUNT_FIELDS = [
   "session_count",
   "completed_item_count",
@@ -86,6 +123,16 @@ export const ALLOWED_HISTORY_COUNT_FIELDS = [
   "latest_session_at"
 ] as const;
 
+/**
+ * FUNCTION NOTE:
+ * Export: ALLOWED_HISTORY_SESSION_FIELDS
+ * Purpose: Documents the exported entrypoint for history count contract boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must describe recorded facts only and must not add interpretation claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export const ALLOWED_HISTORY_SESSION_FIELDS = [
   "session_id",
   "status",
@@ -94,6 +141,16 @@ export const ALLOWED_HISTORY_SESSION_FIELDS = [
   "created_at"
 ] as const;
 
+/**
+ * FUNCTION NOTE:
+ * Export: deniedHistoryResponse
+ * Purpose: Documents the exported entrypoint for history count contract boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must describe recorded facts only and must not add interpretation claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function deniedHistoryResponse(): HistoryDeniedResponse {
   return {
     error: {
@@ -103,6 +160,16 @@ export function deniedHistoryResponse(): HistoryDeniedResponse {
   };
 }
 
+/**
+ * FUNCTION NOTE:
+ * Export: assertHistoryResponseClosedWorld
+ * Purpose: Documents the exported entrypoint for history count contract boundary so a future developer can understand its role before changing it.
+ * Inputs: Use explicit caller-provided values only; do not fill missing state by assumption.
+ * Output: Preserve the existing return shape, thrown token, or status behaviour for this export.
+ * Boundary: This export must describe recorded facts only and must not add interpretation claims.
+ * Determinism: The same explicit inputs and stored records must produce the same result or failure path.
+ * Failure: Preserve existing refusal behaviour; do not add fallback fabrication or hidden side effects.
+ */
 export function assertHistoryResponseClosedWorld(response: HistoryCountsResponse): void {
   const allowedCountKeys = new Set<string>(ALLOWED_HISTORY_COUNT_FIELDS);
   const allowedSessionKeys = new Set<string>(ALLOWED_HISTORY_SESSION_FIELDS);

@@ -1,14 +1,30 @@
 // @law: CI Integrity
 // @severity: high
 // @scope: repo
+
+// DEV NOTE: Guard entrypoint coverage guard. This script protects CI integrity by
+// proving every tracked ci/guards/*.mjs file is reachable from at least one declared
+// package or workflow entrypoint. A guard that is committed but never referenced is
+// dormant protection, so this check fails closed until the entrypoint map is updated.
+
 import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 
+/**
+ * DEV NOTE: Terminate with a stable guard-owned message and non-zero exit code.
+ * Messages are trimmed so multi-line reports remain readable in CI and PowerShell
+ * output without trailing whitespace noise.
+ */
 function die(msg) {
   console.error(String(msg).trimEnd());
   process.exit(1);
 }
 
+/**
+ * DEV NOTE: Read tracked files from git using NUL separation. This avoids hidden
+ * filesystem discovery and ensures the guard only evaluates committed repo
+ * surfaces that CI and review can see.
+ */
 function gitLsFilesZ() {
   const r = spawnSync("git", ["ls-files", "-z"], { encoding: "buffer" });
   if (r.status !== 0) {
@@ -28,11 +44,20 @@ function gitLsFilesZ() {
   return files;
 }
 
+/**
+ * DEV NOTE: Identify guard files by the tracked repo path, not by arbitrary disk
+ * search. Only ci/guards/*.mjs is in scope for this coverage contract.
+ */
 function isGuard(p) {
   const lower = p.toLowerCase();
   return lower.startsWith("ci/guards/") && lower.endsWith(".mjs");
 }
 
+/**
+ * DEV NOTE: Read required UTF-8 files and fail on any read problem.
+ * Required files define the coverage contract, so missing or unreadable content
+ * must not be treated as an empty input.
+ */
 function readUtf8OrDie(p) {
   try {
     return fs.readFileSync(p, "utf8");
@@ -41,6 +66,11 @@ function readUtf8OrDie(p) {
   }
 }
 
+/**
+ * DEV NOTE: Read optional declared workflow files while tolerating ENOENT only.
+ * Missing tracked workflow paths are reported separately; other read errors remain
+ * hard failures because the entrypoint source cannot be trusted.
+ */
 function readUtf8OrEmpty(p) {
   try {
     return fs.readFileSync(p, "utf8");
@@ -51,6 +81,11 @@ function readUtf8OrEmpty(p) {
   }
 }
 
+/**
+ * DEV NOTE: Parse strict JSON contract files with a guard-owned error.
+ * _entrypoints.json and package.json must stay machine-readable for coverage
+ * proof; JSONC, comments, and malformed JSON are not accepted.
+ */
 function parseJsonOrDie(path, raw) {
   try {
     return JSON.parse(raw);
@@ -59,6 +94,14 @@ function parseJsonOrDie(path, raw) {
   }
 }
 
+/**
+ * DEV NOTE: Main coverage proof. The guard intentionally reads only:
+ * 1. tracked ci/guards/*.mjs files;
+ * 2. declared package.json scripts from _entrypoints.json; and
+ * 3. declared workflow files from _entrypoints.json.
+ * Do not replace this with broad workflow/package scanning because the declared
+ * entrypoint map is the reviewed source of coverage authority.
+ */
 function main() {
   const tracked = gitLsFilesZ();
 
@@ -72,9 +115,14 @@ function main() {
   const scriptNames = Array.isArray(entry?.package_json_scripts) ? entry.package_json_scripts : null;
   const workflowFiles = Array.isArray(entry?.workflow_files) ? entry.workflow_files : null;
 
+  // DEV NOTE: package_json_scripts is mandatory and must be non-empty because at
+  // least one package entrypoint must own guard coverage in local validation.
   if (!scriptNames || !scriptNames.length) {
     die("[ERR] guards_entrypoint_coverage_guard: _entrypoints.json must define non-empty package_json_scripts array.");
   }
+
+  // DEV NOTE: workflow_files must be present even when empty. This makes the
+  // absence of workflow coverage explicit rather than silently inferred.
   if (!workflowFiles) {
     die("[ERR] guards_entrypoint_coverage_guard: _entrypoints.json must define workflow_files array (may be empty).");
   }
@@ -90,7 +138,9 @@ function main() {
     }
   }
 
-  // --- load package.json and collect ONLY declared scripts ---
+  // DEV NOTE: Load package.json and collect only the declared scripts. This keeps
+  // coverage bound to the reviewed entrypoint list rather than every incidental
+  // script in the package file.
   const pkgRaw = readUtf8OrDie("package.json");
   const pkg = parseJsonOrDie("package.json", pkgRaw);
 
@@ -110,7 +160,8 @@ function main() {
 
   const scriptBlob = scriptVals.join("\n");
 
-  // --- load ONLY declared workflow files (must exist + be tracked) ---
+  // DEV NOTE: Load only declared workflow files and require them to be tracked.
+  // This prevents untracked local workflow files from satisfying guard coverage.
   const trackedSet = new Set(tracked);
   const missingWorkflows = [];
   let workflowBlob = "";
@@ -124,7 +175,9 @@ function main() {
     die("[ERR] guards_entrypoint_coverage_guard failed.");
   }
 
-  // --- referenced if guard path appears in ANY declared entrypoint source ---
+  // DEV NOTE: A guard is covered when its concrete ci/guards/<file>.mjs path appears
+  // in at least one declared entrypoint source. Matching by concrete path avoids
+  // accidental coverage from partial names, aliases, or broad directory references.
   const referenced = new Set();
   const blobs = [scriptBlob, workflowBlob];
 
@@ -138,6 +191,9 @@ function main() {
     if (ok) referenced.add(p);
   }
 
+  // DEV NOTE: Missing coverage means a guard exists but is not called by any
+  // declared validation entrypoint. Fix by wiring the guard into an approved
+  // package/workflow entrypoint and updating _entrypoints.json when required.
   const missing = guards.filter((p) => !referenced.has(p));
   if (missing.length) {
     console.error("[ERR] Unreferenced guard(s) detected. Every ci/guards/*.mjs must be referenced by at least one DECLARED entrypoint:");
@@ -149,6 +205,9 @@ function main() {
     die("[ERR] guards_entrypoint_coverage_guard failed.");
   }
 
+  // DEV NOTE: Success means every tracked guard file is covered by a declared
+  // entrypoint source. It does not prove the individual guard semantics; those are
+  // owned by each guard's own checks and tests.
   console.log("OK: guards_entrypoint_coverage_guard");
 }
 

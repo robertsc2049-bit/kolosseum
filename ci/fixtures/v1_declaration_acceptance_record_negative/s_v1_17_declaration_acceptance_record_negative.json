@@ -1,0 +1,55 @@
+{
+  "fixture_id": "s_v1_17_declaration_acceptance_record_negative",
+  "slice": "S-V1-17",
+  "schema_version": "1.0.0",
+  "cases": [
+    {
+      "case_id": "valid_record_contains_hash_and_source_metadata",
+      "expected_ok": true
+    },
+    {
+      "case_id": "immutable_field_change_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_DECLARATION_ACCEPTANCE_RECORD",
+      "mutation": {
+        "declaration_payload_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "case_id": "hash_metadata_mismatch_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_DECLARATION_ACCEPTANCE_RECORD",
+      "mutation": {
+        "hash_metadata": {
+          "algorithm": "sha256",
+          "canonical_json": "stable_sorted_keys",
+          "payload_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "payload_hash_field": "declaration_payload_sha256"
+        }
+      }
+    },
+    {
+      "case_id": "source_metadata_mismatch_rejected",
+      "expected_ok": false,
+      "expected_token": "CI_V1_DECLARATION_ACCEPTANCE_RECORD",
+      "mutation": {
+        "source_metadata": {
+          "declaration_source": "user_declared",
+          "declared_at_iso8601": "2026-06-15T12:00:00.000Z",
+          "declared_by_user_id": "user_001",
+          "subject_user_id": "user_001",
+          "accepted_terms_version": "terms_v1",
+          "copy_acknowledgement_id": "PHASE_1_DECLARATION_USER_DECLARED_FACTUAL"
+        }
+      }
+    },
+    {
+      "case_id": "superseded_record_rejected_for_compile_admission",
+      "expected_ok": false,
+      "expected_token": "CI_V1_DECLARATION_ACCEPTANCE_RECORD",
+      "mutation": {
+        "superseded_at_iso8601": "2026-06-15T12:00:00.000Z"
+      }
+    }
+  ]
+}

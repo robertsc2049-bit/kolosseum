@@ -1,0 +1,22 @@
+{
+  "schema_version": "kolosseum.copy.export_boundary.v1",
+  "slice": "S-V1-47",
+  "entries": [
+    {
+      "copy_id": "export_boundary.available",
+      "text": "Export available."
+    },
+    {
+      "copy_id": "export_boundary.blocked",
+      "text": "Export blocked."
+    },
+    {
+      "copy_id": "export_boundary.single_artefact_only",
+      "text": "Single proof artefact only."
+    },
+    {
+      "copy_id": "export_boundary.neutral_notice",
+      "text": "Export records the proof artefact and source envelope only. It does not state coaching judgement or outcome status."
+    }
+  ]
+}

@@ -1,3 +1,8 @@
+
+// DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
+// free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
+// canonical registries, and validated contracts only.
+
 import fs from "node:fs";
 import path from "node:path";
 
@@ -36,6 +41,17 @@ function pickOrder(index: any): string[] {
   return [];
 }
 
+/**
+ * DEV NOTE: Registry store loader boundary.
+ * Purpose: load the declared registry index and registry files as the closed
+ * registry store used by engine phases.
+ * Boundary: this function reads registry files only and does not source values
+ * from app, UI, copy, commercial, payment, or coach-note surfaces.
+ * Determinism: registry order comes from the declared index order and missing
+ * files produce stable CI failure tokens.
+ * Failure: an absent index, empty order, or missing registry file throws before
+ * downstream phases can run on an incomplete store.
+ */
 export function loadRegistries(): LoadedRegistries {
   const root = repoRoot();
   const indexPath = path.join(root, "registries", "registry_index.json");

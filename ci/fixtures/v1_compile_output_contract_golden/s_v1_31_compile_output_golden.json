@@ -1,0 +1,47 @@
+{
+  "golden_id": "s_v1_31_compile_output_golden",
+  "input_case": "valid_input",
+  "expected": {
+    "surface_id": "v1_compile_output_contract",
+    "version": "1.0.0",
+    "compile_output_status": "canonical_v1_compile_output",
+    "hash_metadata": {
+      "algorithm": "sha256",
+      "canonical_json": "stable_sorted_keys",
+      "hash_field": "canonical_hash",
+      "output_hash_field": "history_projection.compile_output_hash"
+    },
+    "canonical_output": {
+      "activity_id": "powerlifting",
+      "compile_input_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "compile_input_version": "S-V1-30",
+      "compile_output_status": "canonical_v1_compile_output",
+      "compile_output_version": "S-V1-31",
+      "engine_version": "EB2-1.0.0",
+      "factual_only": true,
+      "planned_session": {
+        "session_id": "session_001",
+        "activity_id": "powerlifting",
+        "session_status": "planned"
+      },
+      "execution_ui_contract": {
+        "session_id": "session_001",
+        "activity_id": "powerlifting",
+        "session_status": "planned",
+        "planned_item_count": 2
+      },
+      "history_projection": {
+        "session_id": "session_001",
+        "activity_id": "powerlifting",
+        "session_status": "planned",
+        "planned_item_count": 2
+      },
+      "runtime_trace": {
+        "engine_phase": "phase6",
+        "emitted_from": "planned_items",
+        "planned_item_count": 2,
+        "trace_status": "emitted"
+      }
+    }
+  }
+}

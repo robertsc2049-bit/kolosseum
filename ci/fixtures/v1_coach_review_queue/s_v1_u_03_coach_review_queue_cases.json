@@ -1,0 +1,31 @@
+{
+  "slice_id": "S-V1-U-03",
+  "surface_id": "v1_coach_review_queue",
+  "coach_review_queue": true,
+  "cases": [
+    {
+      "case_id": "assigned_factual_rows_only",
+      "expected": "assigned coach rows include recorded facts and review status only"
+    },
+    {
+      "case_id": "unassigned_athlete_excluded",
+      "expected": "unassigned athlete session is absent"
+    },
+    {
+      "case_id": "review_status_recorded_only",
+      "expected_status_values": [
+        "deferred",
+        "not_recorded",
+        "reviewed"
+      ]
+    },
+    {
+      "case_id": "engine_inert",
+      "expected": "queue input does not alter deterministic probe"
+    },
+    {
+      "case_id": "claim_copy_blocked",
+      "expected": "copy and source avoid advisory labels"
+    }
+  ]
+}

@@ -4,12 +4,18 @@
     {
       "id": "docs",
       "kind": "DOC",
-      "patterns": ["docs/**", "**/*.md", "**/*.txt"]
+      "patterns": [
+        "docs/**",
+        "**/*.md",
+        "**/*.txt"
+      ]
     },
     {
       "id": "workflows",
       "kind": "WORKFLOW",
-      "patterns": [".github/workflows/**"]
+      "patterns": [
+        ".github/workflows/**"
+      ]
     },
     {
       "id": "control_plane",
@@ -50,10 +56,25 @@
     }
   ],
   "decision": {
-    "when_docs_only": { "route": "lint:fast", "reason": "docs-only" },
-    "when_workflow_only": { "route": "green:fast", "reason": "workflow-only" },
-    "when_engine_risk": { "route": "green:ci", "reason": "engine-risk" },
-    "when_app_risk": { "route": "dev:fast", "reason": "app-risk" },
-    "default": { "route": "lint:fast", "reason": "non-risk" }
+    "when_docs_only": {
+      "route": "lint:fast",
+      "reason": "docs-only"
+    },
+    "when_workflow_only": {
+      "route": "green:fast",
+      "reason": "workflow-only"
+    },
+    "when_engine_risk": {
+      "route": "green:ci",
+      "reason": "engine-risk"
+    },
+    "when_app_risk": {
+      "route": "dev:fast",
+      "reason": "app-risk"
+    },
+    "default": {
+      "route": "lint:fast",
+      "reason": "non-risk"
+    }
   }
 }

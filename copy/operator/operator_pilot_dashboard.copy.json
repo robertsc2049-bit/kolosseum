@@ -4,7 +4,7 @@
   "slice": "S41",
   "entries": {
     "operator_dashboard.title": {
-      "text": "Operator pilot dashboard",
+      "text": "Operator pilot review surface",
       "params": []
     },
     "operator_dashboard.section.identity": {
@@ -40,7 +40,7 @@
       "params": []
     },
     "operator_dashboard.label.payment_access_status": {
-      "text": "Payment/access status",
+      "text": "Access status",
       "params": []
     },
     "operator_dashboard.label.coach_account_status": {
@@ -80,7 +80,7 @@
       "params": []
     },
     "operator_dashboard.status.coach_ready": {
-      "text": "Coach ready",
+      "text": "Coach status recorded",
       "params": []
     },
     "operator_dashboard.status.unknown": {

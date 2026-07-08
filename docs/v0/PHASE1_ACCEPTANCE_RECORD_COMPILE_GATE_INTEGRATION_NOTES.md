@@ -1,3 +1,5 @@
+<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+
 # S28 — Phase 1 Acceptance Record Compile Gate Integration Notes
 
 Document ID: phase1_acceptance_record_compile_gate_integration_notes  

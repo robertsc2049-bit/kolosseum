@@ -1,0 +1,491 @@
+{
+  "schema_id": "kolosseum_doc_review_plan",
+  "schema_version": "1.0.0",
+  "generated": "deterministic-local-review-plan",
+  "purpose": "Select a small number of review-needed and unclassified documentation files for manual review without changing source documents.",
+  "boundary": {
+    "review_plan_is_metadata_only": true,
+    "does_not_create_authority": true,
+    "does_not_deprecate_documents": true,
+    "does_not_delete_documents": true,
+    "does_not_rewrite_documents": true,
+    "does_not_move_documents": true,
+    "does_not_change_product_scope": true,
+    "does_not_change_engine_behaviour": true,
+    "does_not_change_registry_behaviour": true,
+    "does_not_change_proof_behaviour": true,
+    "does_not_introduce_ai_or_rag_dependency": true
+  },
+  "selection_policy": {
+    "max_unclassified": 5,
+    "max_review_needed": 5,
+    "unclassified_order": "path ascending",
+    "review_needed_order": "review signal count descending, then path ascending",
+    "keyword_hits_are_not_proof": true
+  },
+  "counts": {
+    "selected_total": 10,
+    "selected_unclassified": 5,
+    "selected_review_needed": 5
+  },
+  "selected_items": [
+    {
+      "path": "docs/COMMANDS.md",
+      "current_category": "unclassified",
+      "current_review_status": "review-needed",
+      "authority_effect": "review-plan-only",
+      "reason_for_selection": "Unclassified file needs manual category review.",
+      "evidence_fields": {
+        "first_heading": "Commands",
+        "review_signal_terms": [
+          "old",
+          "ai"
+        ],
+        "signal_count": 2,
+        "existing_notes": [
+          "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error.",
+          "No deterministic category matched. Human review may classify later."
+        ]
+      },
+      "manual_review_questions": [
+        "What authority level does this file actually have?",
+        "Is this file current, historical, or only supporting context?",
+        "Does this file duplicate a stronger source?",
+        "Does this file need a pointer to a stronger source?",
+        "Is any later cleanup safe without changing product, engine, registry, proof, or release behaviour?"
+      ],
+      "allowed_outcomes": [
+        "keep unchanged",
+        "add pointer in a later slice",
+        "classify more precisely in a later slice",
+        "propose historical label in a later slice",
+        "propose consolidation in a later slice"
+      ],
+      "disallowed_outcomes_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/contracts/v1_coach_session_decision_summary_payload_contract.md",
+      "current_category": "unclassified",
+      "current_review_status": "review-needed",
+      "authority_effect": "review-plan-only",
+      "reason_for_selection": "Unclassified file needs manual category review.",
+      "evidence_fields": {
+        "first_heading": "v1 Coach Session Decision Summary Payload Contract",
+        "review_signal_terms": [
+          "infer"
+        ],
+        "signal_count": 1,
+        "existing_notes": [
+          "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error.",
+          "No deterministic category matched. Human review may classify later."
+        ]
+      },
+      "manual_review_questions": [
+        "What authority level does this file actually have?",
+        "Is this file current, historical, or only supporting context?",
+        "Does this file duplicate a stronger source?",
+        "Does this file need a pointer to a stronger source?",
+        "Is any later cleanup safe without changing product, engine, registry, proof, or release behaviour?"
+      ],
+      "allowed_outcomes": [
+        "keep unchanged",
+        "add pointer in a later slice",
+        "classify more precisely in a later slice",
+        "propose historical label in a later slice",
+        "propose consolidation in a later slice"
+      ],
+      "disallowed_outcomes_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/DEVX.md",
+      "current_category": "unclassified",
+      "current_review_status": "classified",
+      "authority_effect": "review-plan-only",
+      "reason_for_selection": "Unclassified file needs manual category review.",
+      "evidence_fields": {
+        "first_heading": "No markdown heading found",
+        "review_signal_terms": [],
+        "signal_count": 0,
+        "existing_notes": [
+          "No deterministic category matched. Human review may classify later."
+        ]
+      },
+      "manual_review_questions": [
+        "What authority level does this file actually have?",
+        "Is this file current, historical, or only supporting context?",
+        "Does this file duplicate a stronger source?",
+        "Does this file need a pointer to a stronger source?",
+        "Is any later cleanup safe without changing product, engine, registry, proof, or release behaviour?"
+      ],
+      "allowed_outcomes": [
+        "keep unchanged",
+        "add pointer in a later slice",
+        "classify more precisely in a later slice",
+        "propose historical label in a later slice",
+        "propose consolidation in a later slice"
+      ],
+      "disallowed_outcomes_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/TICKET_008_PHASE6_PRECEDENCE_AND_TEST_ALIGNMENT.md",
+      "current_category": "unclassified",
+      "current_review_status": "review-needed",
+      "authority_effect": "review-plan-only",
+      "reason_for_selection": "Unclassified file needs manual category review.",
+      "evidence_fields": {
+        "first_heading": "No markdown heading found",
+        "review_signal_terms": [
+          "ai"
+        ],
+        "signal_count": 1,
+        "existing_notes": [
+          "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error.",
+          "No deterministic category matched. Human review may classify later."
+        ]
+      },
+      "manual_review_questions": [
+        "What authority level does this file actually have?",
+        "Is this file current, historical, or only supporting context?",
+        "Does this file duplicate a stronger source?",
+        "Does this file need a pointer to a stronger source?",
+        "Is any later cleanup safe without changing product, engine, registry, proof, or release behaviour?"
+      ],
+      "allowed_outcomes": [
+        "keep unchanged",
+        "add pointer in a later slice",
+        "classify more precisely in a later slice",
+        "propose historical label in a later slice",
+        "propose consolidation in a later slice"
+      ],
+      "disallowed_outcomes_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/TICKET_009.md",
+      "current_category": "unclassified",
+      "current_review_status": "review-needed",
+      "authority_effect": "review-plan-only",
+      "reason_for_selection": "Unclassified file needs manual category review.",
+      "evidence_fields": {
+        "first_heading": "No markdown heading found",
+        "review_signal_terms": [
+          "ai"
+        ],
+        "signal_count": 1,
+        "existing_notes": [
+          "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error.",
+          "No deterministic category matched. Human review may classify later."
+        ]
+      },
+      "manual_review_questions": [
+        "What authority level does this file actually have?",
+        "Is this file current, historical, or only supporting context?",
+        "Does this file duplicate a stronger source?",
+        "Does this file need a pointer to a stronger source?",
+        "Is any later cleanup safe without changing product, engine, registry, proof, or release behaviour?"
+      ],
+      "allowed_outcomes": [
+        "keep unchanged",
+        "add pointer in a later slice",
+        "classify more precisely in a later slice",
+        "propose historical label in a later slice",
+        "propose consolidation in a later slice"
+      ],
+      "disallowed_outcomes_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_DATA_MODEL_FREEZE_POINT.md",
+      "current_category": "engine-contract",
+      "current_review_status": "review-needed",
+      "authority_effect": "review-plan-only",
+      "reason_for_selection": "High-signal review-needed file selected for bounded manual review.",
+      "evidence_fields": {
+        "first_heading": "v1 Data Model Freeze Point",
+        "review_signal_terms": [
+          "deprecated",
+          "superseded",
+          "historical",
+          "old",
+          "draft",
+          "future",
+          "post-v1",
+          "recommend"
+        ],
+        "signal_count": 18,
+        "existing_notes": [
+          "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+        ]
+      },
+      "manual_review_questions": [
+        "What authority level does this file actually have?",
+        "Is this file current, historical, or only supporting context?",
+        "Does this file duplicate a stronger source?",
+        "Does this file need a pointer to a stronger source?",
+        "Is any later cleanup safe without changing product, engine, registry, proof, or release behaviour?"
+      ],
+      "allowed_outcomes": [
+        "keep unchanged",
+        "add pointer in a later slice",
+        "classify more precisely in a later slice",
+        "propose historical label in a later slice",
+        "propose consolidation in a later slice"
+      ],
+      "disallowed_outcomes_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_COACH_ATHLETE_JOURNEY_MAP.md",
+      "current_category": "engine-contract",
+      "current_review_status": "review-needed",
+      "authority_effect": "review-plan-only",
+      "reason_for_selection": "High-signal review-needed file selected for bounded manual review.",
+      "evidence_fields": {
+        "first_heading": "v1 Coach-Athlete Journey Map",
+        "review_signal_terms": [
+          "superseded",
+          "historical",
+          "draft",
+          "future",
+          "later",
+          "recommend",
+          "recommendation",
+          "optimal"
+        ],
+        "signal_count": 17,
+        "existing_notes": [
+          "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+        ]
+      },
+      "manual_review_questions": [
+        "What authority level does this file actually have?",
+        "Is this file current, historical, or only supporting context?",
+        "Does this file duplicate a stronger source?",
+        "Does this file need a pointer to a stronger source?",
+        "Is any later cleanup safe without changing product, engine, registry, proof, or release behaviour?"
+      ],
+      "allowed_outcomes": [
+        "keep unchanged",
+        "add pointer in a later slice",
+        "classify more precisely in a later slice",
+        "propose historical label in a later slice",
+        "propose consolidation in a later slice"
+      ],
+      "disallowed_outcomes_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/roadmap/V1_ENGINE_UI_AUTH_BOUNDARY.md",
+      "current_category": "release-boundary",
+      "current_review_status": "review-needed",
+      "authority_effect": "review-plan-only",
+      "reason_for_selection": "High-signal review-needed file selected for bounded manual review.",
+      "evidence_fields": {
+        "first_heading": "v1 Engine UI Auth Boundary",
+        "review_signal_terms": [
+          "historical",
+          "old",
+          "future",
+          "later",
+          "post-v1",
+          "recommend",
+          "recommendation",
+          "optimal"
+        ],
+        "signal_count": 17,
+        "existing_notes": [
+          "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+        ]
+      },
+      "manual_review_questions": [
+        "What authority level does this file actually have?",
+        "Is this file current, historical, or only supporting context?",
+        "Does this file duplicate a stronger source?",
+        "Does this file need a pointer to a stronger source?",
+        "Is any later cleanup safe without changing product, engine, registry, proof, or release behaviour?"
+      ],
+      "allowed_outcomes": [
+        "keep unchanged",
+        "add pointer in a later slice",
+        "classify more precisely in a later slice",
+        "propose historical label in a later slice",
+        "propose consolidation in a later slice"
+      ],
+      "disallowed_outcomes_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/demo/P196_SALES_CLAIM_REGISTRY.md",
+      "current_category": "engine-contract",
+      "current_review_status": "review-needed",
+      "authority_effect": "review-plan-only",
+      "reason_for_selection": "High-signal review-needed file selected for bounded manual review.",
+      "evidence_fields": {
+        "first_heading": "P196 — Sales Claim Registry",
+        "review_signal_terms": [
+          "draft",
+          "proposal",
+          "future",
+          "later",
+          "recommend",
+          "recommendation",
+          "optimal",
+          "safe"
+        ],
+        "signal_count": 13,
+        "existing_notes": [
+          "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+        ]
+      },
+      "manual_review_questions": [
+        "What authority level does this file actually have?",
+        "Is this file current, historical, or only supporting context?",
+        "Does this file duplicate a stronger source?",
+        "Does this file need a pointer to a stronger source?",
+        "Is any later cleanup safe without changing product, engine, registry, proof, or release behaviour?"
+      ],
+      "allowed_outcomes": [
+        "keep unchanged",
+        "add pointer in a later slice",
+        "classify more precisely in a later slice",
+        "propose historical label in a later slice",
+        "propose consolidation in a later slice"
+      ],
+      "disallowed_outcomes_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    },
+    {
+      "path": "docs/demo/P196B_FOUNDER_OBJECTION_HANDLING_CARD.md",
+      "current_category": "registry-contract",
+      "current_review_status": "review-needed",
+      "authority_effect": "review-plan-only",
+      "reason_for_selection": "High-signal review-needed file selected for bounded manual review.",
+      "evidence_fields": {
+        "first_heading": "P196B — Founder Objection Handling Card",
+        "review_signal_terms": [
+          "old",
+          "draft",
+          "future",
+          "later",
+          "safe",
+          "safer",
+          "risk",
+          "injury"
+        ],
+        "signal_count": 13,
+        "existing_notes": [
+          "Keyword review signal only. This does not prove conflict, staleness, deprecation, or error."
+        ]
+      },
+      "manual_review_questions": [
+        "What authority level does this file actually have?",
+        "Is this file current, historical, or only supporting context?",
+        "Does this file duplicate a stronger source?",
+        "Does this file need a pointer to a stronger source?",
+        "Is any later cleanup safe without changing product, engine, registry, proof, or release behaviour?"
+      ],
+      "allowed_outcomes": [
+        "keep unchanged",
+        "add pointer in a later slice",
+        "classify more precisely in a later slice",
+        "propose historical label in a later slice",
+        "propose consolidation in a later slice"
+      ],
+      "disallowed_outcomes_in_this_slice": [
+        "delete",
+        "rewrite",
+        "deprecate",
+        "move",
+        "change canonical wording",
+        "change product scope",
+        "change engine behaviour",
+        "change registry behaviour",
+        "change proof behaviour"
+      ]
+    }
+  ]
+}

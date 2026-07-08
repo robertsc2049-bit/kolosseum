@@ -316,5 +316,16 @@
                           "path":  "docs/commercial/P202_PILOT_CONVERSION_PROOF_PACK.md",
                           "class":  "commercial_surface"
                       }
-                  ]
+                  ],
+    "v0_boundary_policy":  {
+                               "policy_id":  "v0_commercial_artefact_registry_boundary_policy",
+                               "v0_role":  "boundary_protection_only",
+                               "grants_product_scope":  false,
+                               "grants_engine_behaviour":  false,
+                               "permits_billing_or_subscriptions":  false,
+                               "permits_sales_dashboards":  false,
+                               "permits_market_launch_features":  false,
+                               "future_or_post_v0_artefacts_rule":  "Artefacts outside the active v0 commercial boundary must remain explicitly future, v1, post-v0, dormant, or excluded. Registry inclusion does not make them active v0 product scope.",
+                               "required_guard":  "ci/scripts/run_commercial_artefact_registry_guard.mjs"
+                           }
 }

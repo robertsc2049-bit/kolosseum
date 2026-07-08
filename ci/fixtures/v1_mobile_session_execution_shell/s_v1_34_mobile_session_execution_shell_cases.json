@@ -1,0 +1,99 @@
+{
+    "schema_version":  "kolosseum.s_v1_34.mobile_session_execution_shell.fixture.v1.0.0",
+    "slice_id":  "S-V1-34",
+    "cases":  [
+                  {
+                      "case_id":  "standard_shell_renders_engine_output",
+                      "engine_output":  {
+                                            "session_id":  "sess_s_v1_34_001",
+                                            "status":  "in_progress",
+                                            "activity_id":  "general_strength",
+                                            "exercises":  [
+                                                              {
+                                                                  "exercise_id":  "work_001",
+                                                                  "display_name":  "Squat",
+                                                                  "status":  "pending",
+                                                                  "sets":  [
+                                                                               {
+                                                                                   "set_id":  "set_001",
+                                                                                   "reps":  5,
+                                                                                   "load":  "100 kg"
+                                                                               },
+                                                                               {
+                                                                                   "set_id":  "set_002",
+                                                                                   "reps":  5,
+                                                                                   "load":  "100 kg"
+                                                                               }
+                                                                           ]
+                                                              },
+                                                              {
+                                                                  "exercise_id":  "work_002",
+                                                                  "display_name":  "Press",
+                                                                  "status":  "pending",
+                                                                  "sets":  [
+                                                                               {
+                                                                                   "set_id":  "set_003",
+                                                                                   "reps":  5,
+                                                                                   "load":  "50 kg"
+                                                                               }
+                                                                           ]
+                                                              }
+                                                          ]
+                                        },
+                      "runtime_state":  {
+                                            "completed_ids":  [
+                                                                  "work_001"
+                                                              ],
+                                            "skipped_ids":  [
+
+                                                            ],
+                                            "remaining_ids":  [
+                                                                  "work_002"
+                                                              ],
+                                            "return_decision_required":  false
+                                        },
+                      "presentation":  {
+                                           "low_input_mode":  false,
+                                           "nd_mode":  false
+                                       }
+                  },
+                  {
+                      "case_id":  "low_input_changes_layout_only",
+                      "engine_output":  {
+                                            "session_id":  "sess_s_v1_34_002",
+                                            "status":  "in_progress",
+                                            "activity_id":  "powerlifting",
+                                            "work_items":  [
+                                                               {
+                                                                   "work_item_id":  "work_101",
+                                                                   "display_name":  "Bench press",
+                                                                   "status":  "pending",
+                                                                   "sets":  [
+                                                                                {
+                                                                                    "set_id":  "set_101",
+                                                                                    "reps":  3,
+                                                                                    "load":  "120 kg"
+                                                                                }
+                                                                            ]
+                                                               }
+                                                           ]
+                                        },
+                      "runtime_state":  {
+                                            "completed_ids":  [
+
+                                                              ],
+                                            "skipped_ids":  [
+
+                                                            ],
+                                            "remaining_ids":  [
+                                                                  "work_101"
+                                                              ],
+                                            "return_decision_required":  true
+                                        },
+                      "presentation":  {
+                                           "low_input_mode":  true,
+                                           "nd_mode":  true
+                                       }
+                  }
+              ]
+}

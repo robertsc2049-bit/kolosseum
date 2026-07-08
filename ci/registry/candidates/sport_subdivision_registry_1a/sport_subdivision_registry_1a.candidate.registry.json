@@ -1,0 +1,67 @@
+{
+  "slice_id": "S-REG-10",
+  "registry_id": "sport_subdivision_registry_1a",
+  "candidate_status": "candidate_content_draft",
+  "runtime_status": "non_runtime",
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "engine_runtime_mutation": false,
+  "high_volume_content_added": false,
+  "activation_ready": false,
+  "complete_registry_claim": false,
+  "depends_on": [
+    "activity_registry_1"
+  ],
+  "sport_context_seed_status": "candidate_fk_ready",
+  "records": [
+    {
+      "sport_subdivision_id": "powerlifting__competition_lift",
+      "activity_id": "powerlifting",
+      "display_label": "Competition lift",
+      "context_type": "declared_context",
+      "context_scope": "candidate_seed_only",
+      "source_slice_id": "S-REG-10",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual sport subdivision label only"
+    },
+    {
+      "sport_subdivision_id": "powerlifting__general_preparation",
+      "activity_id": "powerlifting",
+      "display_label": "General preparation",
+      "context_type": "declared_context",
+      "context_scope": "candidate_seed_only",
+      "source_slice_id": "S-REG-10",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual sport subdivision label only"
+    },
+    {
+      "sport_subdivision_id": "general_strength__training",
+      "activity_id": "general_strength",
+      "display_label": "Training",
+      "context_type": "declared_context",
+      "context_scope": "candidate_seed_only",
+      "source_slice_id": "S-REG-10",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual sport subdivision label only"
+    },
+    {
+      "sport_subdivision_id": "rugby_union__general_preparation",
+      "activity_id": "rugby_union",
+      "display_label": "General preparation",
+      "context_type": "declared_context",
+      "context_scope": "candidate_seed_only",
+      "source_slice_id": "S-REG-10",
+      "candidate_status": "candidate_content_draft",
+      "runtime_status": "non_runtime",
+      "activation_ready": false,
+      "copy_boundary_notes": "factual sport subdivision label only"
+    }
+  ]
+}
