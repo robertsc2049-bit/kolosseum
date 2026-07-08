@@ -23,3 +23,16 @@ Rules:
 - Fallback, discovery, inference, and defaults are not permitted.
 
 BETA-01:SPINE-ARTEFACT-MANIFEST:END
+## BETA-02 Checksum and Generated Drift Guard
+
+BETA-02:CHECKSUM-GENERATED-DRIFT:START
+
+Machine-checkable generated drift guard: ci/scripts/sha256_guard.mjs.
+
+Rules:
+- Placeholder checksums in beta seal scope fail closed.
+- docs/checksums.sha256 must be the deterministic generated output.
+- Beta spine artefact manifest JSON must stay stable.
+- Generated index drift remains blocked by the existing generated index guards.
+
+BETA-02:CHECKSUM-GENERATED-DRIFT:END
