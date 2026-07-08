@@ -1,4 +1,4 @@
-﻿# BUILD_TARGET_september_beta_2026
+# BUILD_TARGET_september_beta_2026
 # Status: Authoritative · Closed-world · Rewrite-only
 
 0. PURPOSE – Enable Phase 7 & 8 only from 2026-09-01 → 2026-09-30 UTC.
