@@ -1,0 +1,64 @@
+{
+  "schema_version": "kolosseum.beta.spine_artefact_manifest.v1.0.0",
+  "manifest_id": "BETA-01",
+  "build_target": "september_controlled_beta_2026",
+  "required_version": "0.1.24",
+  "engine_compatibility": "0.1.24",
+  "resolution_policy": {
+    "explicit_manifest_only": true,
+    "no_fallback": true,
+    "no_discovery": true,
+    "no_inference": true,
+    "no_defaults": true,
+    "unknown_reference_hard_fail": true
+  },
+  "phase_policy": {
+    "standard_phases": [1, 2, 3, 4, 5, 6],
+    "beta_only_phases": [7, 8],
+    "beta_target_required": "september_controlled_beta_2026",
+    "phase_7_8_ship_scope_allowed": false
+  },
+  "orphan_scope_roots": [
+    "spine/"
+  ],
+  "spine_references": [
+    {
+      "path": "spine/BUILD_TARGET_september_beta_2026.md",
+      "required": true
+    },
+    {
+      "path": "spine/BETA_ARTEFACT_MANIFEST.json",
+      "required": true
+    }
+  ],
+  "dependency_order": [
+    "beta_build_target",
+    "beta_spine_artefact_manifest"
+  ],
+  "artefacts": [
+    {
+      "id": "beta_build_target",
+      "path": "spine/BUILD_TARGET_september_beta_2026.md",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "phase_range": [1, 8],
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": []
+    },
+    {
+      "id": "beta_spine_artefact_manifest",
+      "path": "spine/BETA_ARTEFACT_MANIFEST.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "phase_range": [1, 8],
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_build_target"
+      ]
+    }
+  ]
+}
