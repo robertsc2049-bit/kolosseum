@@ -13,8 +13,18 @@
     "unknown_reference_hard_fail": true
   },
   "phase_policy": {
-    "standard_phases": [1, 2, 3, 4, 5, 6],
-    "beta_only_phases": [7, 8],
+    "standard_phases": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "beta_only_phases": [
+      7,
+      8
+    ],
     "beta_target_required": "september_controlled_beta_2026",
     "phase_7_8_ship_scope_allowed": false
   },
@@ -42,7 +52,10 @@
       "scope": "beta",
       "version": "0.1.24",
       "engine_compatibility": "0.1.24",
-      "phase_range": [1, 8],
+      "phase_range": [
+        1,
+        8
+      ],
       "beta_only": true,
       "ship_scope": false,
       "dependencies": []
@@ -53,7 +66,10 @@
       "scope": "beta",
       "version": "0.1.24",
       "engine_compatibility": "0.1.24",
-      "phase_range": [1, 8],
+      "phase_range": [
+        1,
+        8
+      ],
       "beta_only": true,
       "ship_scope": false,
       "dependencies": [
