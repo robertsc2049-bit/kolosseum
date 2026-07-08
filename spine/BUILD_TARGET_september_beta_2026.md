@@ -9,3 +9,17 @@
 5. ENGINE PHASES         Phase 1 → Phase 8 inclusive
 
 FINAL RULE – anything not expressly permitted above does not exist in this beta.
+## BETA-01 Spine Artefact Manifest Guard
+
+BETA-01:SPINE-ARTEFACT-MANIFEST:START
+
+Machine-checkable artefact manifest: spine/BETA_ARTEFACT_MANIFEST.json.
+
+Rules:
+- Artefact reachability is explicit-manifest-only.
+- Missing beta artefacts fail closed.
+- Orphan artefacts under spine/ fail closed.
+- Phase 7 and Phase 8 reachability is beta-only under september_controlled_beta_2026.
+- Fallback, discovery, inference, and defaults are not permitted.
+
+BETA-01:SPINE-ARTEFACT-MANIFEST:END
