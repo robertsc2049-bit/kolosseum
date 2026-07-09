@@ -5,9 +5,12 @@
 
 export const CANONICAL_FAILURE_TOKENS = [
   "consent_not_granted",
+  "consent_violation",
   "constraints_type_invalid",
   "constraints_version_invalid_or_missing",
   "empty_solution_space",
+  "equipment_unavailable",
+  "invalid_authority",
   "legacy_constraints_keys_refused",
   "phase1_failed_non_object",
   "phase2_canonical_parse_failed",
@@ -18,7 +21,8 @@ export const CANONICAL_FAILURE_TOKENS = [
   "phase5_failed_non_object",
   "phase6_requires_planned_items",
   "plate_only_mixed_with_other_tokens",
-  "type_mismatch"
+  "type_mismatch",
+  "unsupported_activity"
 ] as const;
 
 export type CanonicalFailureToken = (typeof CANONICAL_FAILURE_TOKENS)[number];
