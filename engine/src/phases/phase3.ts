@@ -1,10 +1,13 @@
-
 // DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
 // free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
 // canonical registries, and validated contracts only.
 
 import fs from "node:fs";
 import path from "node:path";
+import {
+  hasBeta10Phase3ConstraintPrune,
+  runBeta10Phase3ConstraintPrune
+} from "./beta10Phase3ConstraintPrune.js";
 
 export type Phase3Constraints = Record<string, any>;
 
@@ -22,6 +25,7 @@ export type Phase3Output = {
 
   // High-signal, stable debug for golden fixtures (no circular refs)
   constraints_resolution?: Phase3ResolutionSummary;
+  beta10_constraint_prune?: Record<string, unknown>;
 };
 
 export type Phase3Result =
@@ -192,6 +196,27 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
       ok: false,
       failure_token: "type_mismatch",
       details: { path: "constraints", expected: "object" },
+    };
+  }
+
+  if (hasBeta10Phase3ConstraintPrune(canonicalInput, env)) {
+    const beta10 = runBeta10Phase3ConstraintPrune(canonicalInput, env);
+    if (beta10.ok === false) return beta10;
+
+    notes.push("PHASE_3: registries loaded");
+    notes.push("PHASE_3: BETA-10 remove-only constraints resolved");
+
+    return {
+      ok: true,
+      phase3: {
+        constraints_resolved: true,
+        notes,
+        registry_index_version,
+        loaded_registries,
+        constraints: beta10.constraints,
+        beta10_constraint_prune: beta10.prune,
+      },
+      notes,
     };
   }
 
