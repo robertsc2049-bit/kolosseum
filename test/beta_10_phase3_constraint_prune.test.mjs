@@ -68,11 +68,14 @@ async function loadPhase3() {
 }
 
 function beta10Input(overrides = {}) {
+  const { constraints: constraintOverrides = {}, ...topLevelOverrides } = overrides;
+
   return {
     consent_granted: true,
     execution_scope: "individual",
     activity_id: "powerlifting",
     sport_role_id: "powerlifter",
+    ...topLevelOverrides,
     constraints: {
       constraints_version: "1.0.0",
       phase3_constraint_prune: "BETA-10",
@@ -96,9 +99,8 @@ function beta10Input(overrides = {}) {
         bench_press: ["powerlifter"],
         tempo_row: ["general"]
       },
-      ...overrides.constraints
-    },
-    ...overrides
+      ...constraintOverrides
+    }
   };
 }
 
