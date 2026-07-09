@@ -1,0 +1,50 @@
+{
+  "slice_id": "BETA-07",
+  "fixture_id": "negative_missing_registry",
+  "expected_failure_token": "CI_BETA_07_REGISTRY_LOADER_MISSING_REGISTRY",
+  "registry_index": {
+    "version": "beta-07-fixture",
+    "order": [
+      "activity",
+      "movement",
+      "exercise",
+      "program"
+    ]
+  },
+  "registry_bundle": {
+    "version": "beta-07-fixture",
+    "note": "BETA-07 missing registry negative fixture",
+    "registries": {
+      "activity": {
+        "registry_id": "activity",
+        "version": "beta-07-fixture",
+        "entries": {
+          "powerlifting": {
+            "activity_id": "powerlifting"
+          }
+        }
+      },
+      "movement": {
+        "registry_id": "movement",
+        "version": "beta-07-fixture",
+        "entries": {
+          "squat": {
+            "movement_id": "squat"
+          }
+        }
+      },
+      "exercise": {
+        "registry_id": "exercise",
+        "version": "beta-07-fixture",
+        "entries": {
+          "fixture_back_squat": {
+            "exercise_id": "fixture_back_squat",
+            "pattern": "squat",
+            "primary_activity_applicability": "powerlifting",
+            "secondary_activity_applicability": []
+          }
+        }
+      }
+    }
+  }
+}
