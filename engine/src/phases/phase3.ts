@@ -7,7 +7,7 @@ import path from "node:path";
 import {
   hasBeta10Phase3ConstraintPrune,
   runBeta10Phase3ConstraintPrune
-} from "../../../src/beta10Phase3ConstraintPrune";
+} from "../../../src/beta10Phase3ConstraintPrune.js";
 
 export type Phase3Constraints = Record<string, any>;
 
