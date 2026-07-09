@@ -1,51 +1,22 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
 import path from "node:path";
-import { spawn } from "node:child_process";
-import { pathToFileURL } from "node:url";
 import test from "node:test";
+import * as ts from "typescript";
 
 let phase3Promise = null;
 
-function spawnProc(cmd, args, opts = {}) {
-  const child = spawn(cmd, args, {
-    stdio: ["ignore", "pipe", "pipe"],
-    ...opts
-  });
-
-  let stdout = "";
-  let stderr = "";
-
-  child.stdout.on("data", (data) => {
-    stdout += data.toString("utf8");
-  });
-  child.stderr.on("data", (data) => {
-    stderr += data.toString("utf8");
-  });
-
-  return {
-    child,
-    get stdout() {
-      return stdout;
-    },
-    get stderr() {
-      return stderr;
-    }
-  };
-}
-
 async function loadPhase3Fresh() {
-  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  const build = spawnProc(npmCmd, ["run", "build:fast"], {
-    cwd: process.cwd(),
-    env: { ...process.env }
+  const sourcePath = path.join(process.cwd(), "engine", "src", "phases", "phase3.ts");
+  const source = await fs.readFile(sourcePath, "utf8");
+  const transpiled = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022
+    }
   });
-  const code = await new Promise((resolve) => build.child.on("close", resolve));
-  if (code !== 0) {
-    throw new Error(`build:fast failed (code=${code}).\nstdout:\n${build.stdout}\nstderr:\n${build.stderr}`);
-  }
-
-  const phase3ModulePath = path.join(process.cwd(), "dist", "engine", "src", "phases", "phase3.js");
-  const phase3Module = await import(`${pathToFileURL(phase3ModulePath).href}?cacheBust=${Date.now()}`);
+  const href = `data:text/javascript;base64,${Buffer.from(transpiled.outputText, "utf8").toString("base64")}`;
+  const phase3Module = await import(href);
   assert.equal(typeof phase3Module.phase3ResolveConstraintsAndLoadRegistries, "function");
   return phase3Module.phase3ResolveConstraintsAndLoadRegistries;
 }
