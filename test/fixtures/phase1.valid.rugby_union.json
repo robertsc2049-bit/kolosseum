@@ -5,9 +5,10 @@
   "consent_granted": true,
   "age_declaration": "adult_18_or_over",
   "jurisdiction_acknowledged": true,
-  "actor_type": "individual_user",
-  "execution_scope": "individual",
-  "activity_id": "general_strength",
+  "actor_type": "coach",
+  "execution_scope": "coach_managed",
+  "governing_authority_id": "coach.beta.001",
+  "activity_id": "rugby_union",
   "location_type": "commercial_gym",
   "equipment_profile_id": "equipment_profile.standard_commercial_gym",
   "nd_mode": false,
@@ -16,14 +17,14 @@
   "bias_mode": "neutral",
   "baseline_metrics": [
     {
-      "metric_id": "bench_press_1rm",
+      "metric_id": "front_squat_3rm",
       "activity_id": "rugby_union",
       "value": {
-        "load": 100,
+        "load": 120,
         "unit": "kg"
       },
       "recorded_at": "2026-03-21",
-      "source": "user_manual"
+      "source": "coach_entered"
     }
   ],
   "personal_kit": {

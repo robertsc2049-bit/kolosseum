@@ -1,6 +1,14 @@
 {
   "schema_version": "kolosseum.phase1.v0.truth-surface.v1",
+  "version_pins": {
+    "engine_version": "EB2-1.0.0",
+    "enum_bundle_version": "EB2-1.0.0",
+    "phase1_schema_version": "1.0.0"
+  },
   "top_level_allowed_fields": [
+    "engine_version",
+    "enum_bundle_version",
+    "phase1_schema_version",
     "consent_granted",
     "age_declaration",
     "jurisdiction_acknowledged",
@@ -8,12 +16,35 @@
     "execution_scope",
     "governing_authority_id",
     "activity_id",
+    "sport_role_id",
+    "variant_id",
     "location_type",
+    "equipment_profile_id",
     "nd_mode",
     "instruction_density",
     "exposure_prompt_density",
     "bias_mode",
-    "baseline_metrics"
+    "baseline_metrics",
+    "personal_kit",
+    "capability_constraints",
+    "ui_preferences"
+  ],
+  "required_top_level_fields": [
+    "engine_version",
+    "enum_bundle_version",
+    "phase1_schema_version",
+    "consent_granted",
+    "age_declaration",
+    "jurisdiction_acknowledged",
+    "actor_type",
+    "execution_scope",
+    "activity_id",
+    "location_type",
+    "equipment_profile_id",
+    "nd_mode",
+    "instruction_density",
+    "exposure_prompt_density",
+    "bias_mode"
   ],
   "baseline_metric_allowed_fields": [
     "metric_id",
@@ -21,8 +52,27 @@
     "value",
     "recorded_at",
     "linked_exercise_token_id",
-    "source",
-    "notes"
+    "source"
+  ],
+  "personal_kit_allowed_fields": [
+    "owned_item_ids",
+    "present_item_ids"
+  ],
+  "capability_constraint_allowed_fields": [
+    "constraint_id",
+    "target_token_id"
+  ],
+  "ui_preferences_allowed_fields": [
+    "instruction_density",
+    "presentation_density",
+    "nd_mode"
+  ],
+  "class_c_fields": [
+    "nd_mode",
+    "instruction_density",
+    "exposure_prompt_density",
+    "bias_mode",
+    "ui_preferences"
   ],
   "allowed_actor_types": [
     "individual_user",
@@ -38,15 +88,12 @@
     "general_strength"
   ],
   "allowed_age_declarations": [
-    "adult",
-    "minor"
+    "adult_18_or_over"
   ],
   "allowed_location_types": [
-    "home",
-    "gym",
-    "field",
-    "track",
-    "facility"
+    "commercial_gym",
+    "home_gym",
+    "outdoor"
   ],
   "allowed_instruction_density": [
     "minimal",
@@ -62,6 +109,17 @@
     "consistency",
     "variety",
     "neutral"
+  ],
+  "allowed_presentation_density": [
+    "minimal",
+    "standard",
+    "detailed"
+  ],
+  "allowed_capability_constraints": [
+    "reduced_range_position",
+    "loaded_position_instability",
+    "setup_modification_required",
+    "position_unavailable"
   ],
   "allowed_metric_sources": [
     "user_manual",

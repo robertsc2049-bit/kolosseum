@@ -11,21 +11,10 @@
   "location_type": "commercial_gym",
   "equipment_profile_id": "equipment_profile.standard_commercial_gym",
   "nd_mode": false,
-  "instruction_density": "standard",
+  "instruction_density": "verbose",
   "exposure_prompt_density": "minimal",
   "bias_mode": "neutral",
-  "baseline_metrics": [
-    {
-      "metric_id": "bench_press_1rm",
-      "activity_id": "rugby_union",
-      "value": {
-        "load": 100,
-        "unit": "kg"
-      },
-      "recorded_at": "2026-03-21",
-      "source": "user_manual"
-    }
-  ],
+  "baseline_metrics": [],
   "personal_kit": {
     "owned_item_ids": [],
     "present_item_ids": []
