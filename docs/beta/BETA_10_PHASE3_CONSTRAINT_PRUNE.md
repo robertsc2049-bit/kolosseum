@@ -1,4 +1,4 @@
-<!-- DEV NOTE: BETA-10 Phase 3 constraint prune record. This document records deterministic remove-only constraint resolution only; it does not create recommendations, coaching advice, fallback selection, safety interpretation, registry activation, or downstream programme assembly semantics. -->
+<!-- DEV NOTE: BETA-10 Phase 3 constraint prune record. This document records deterministic remove-only constraint resolution only; it does not create substitute selection, coach interpretation, registry activation, or downstream programme assembly semantics. -->
 
 # BETA-10 Phase 3 Constraint Prune
 
@@ -12,7 +12,7 @@ BETA-10 hardens Phase 3 so explicit beta declarations resolve constraints by rem
 
 Phase 3 constraint resolution only.
 
-BETA-10 does not add registry content, activate candidate registries, generate substitute options, choose nearest alternatives, create coaching advice, or alter downstream programme assembly semantics.
+BETA-10 does not add registry content, activate candidate registries, generate substitute options, choose nearest alternatives, create coach interpretation, or alter downstream programme assembly semantics.
 
 ## Deterministic order
 
