@@ -41,7 +41,6 @@ Machine-checkable implementation and proof:
 
 - `engine/src/phases/phase3.ts`
 - `test/beta_10_phase3_constraint_prune.test.mjs`
-- `ci/contracts/core_smoke_ci_cluster.json`
 
 ## Negative proof
 
