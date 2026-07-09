@@ -71,7 +71,7 @@ BETA-05:PHASE1-SCHEMA-CLOSURE:END
 
 BETA-06:CL-GATE-SEPARATION:START
 
-Machine-checkable CL gate separation: src/betaClGateSeparation.mjs, test/beta_06_cl_gate_separation.test.mjs.
+Machine-checkable CL gate separation: docs/beta/BETA_06_CL_GATE_SEPARATION.md, src/betaClGateSeparation.mjs, test/beta_06_cl_gate_separation.test.mjs.
 
 Rules:
 - Controlled-launch legal permission is evaluated before technical engine work.
