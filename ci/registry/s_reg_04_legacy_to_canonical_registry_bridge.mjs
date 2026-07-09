@@ -208,11 +208,283 @@ function sReg04SupportedCanonicalRegistryIds() {
   return Object.freeze(Object.keys(S_REG_04_CANONICAL_ALIAS_MAP));
 }
 
+const BETA_07_SLICE_ID = "BETA-07";
+const BETA_07_LOADER_VERSION = "1.0.0";
+const BETA_07_CANONICAL_REGISTRY_ORDER = Object.freeze(["activity", "movement", "exercise", "program"]);
+const BETA_07_FAILURE_TOKENS = Object.freeze({
+  INPUT_INVALID: "CI_BETA_07_REGISTRY_LOADER_INPUT_INVALID",
+  REGISTRY_ORDER_INVALID: "CI_BETA_07_REGISTRY_LOADER_ORDER_INVALID",
+  MISSING_REGISTRY: "CI_BETA_07_REGISTRY_LOADER_MISSING_REGISTRY",
+  DUPLICATE_REGISTRY_ID: "CI_BETA_07_REGISTRY_LOADER_DUPLICATE_REGISTRY_ID",
+  REGISTRY_ID_MISMATCH: "CI_BETA_07_REGISTRY_LOADER_REGISTRY_ID_MISMATCH",
+  UNKNOWN_REGISTRY_REFERENCE: "CI_BETA_07_REGISTRY_LOADER_UNKNOWN_REGISTRY_REFERENCE",
+  FORWARD_REGISTRY_REFERENCE: "CI_BETA_07_REGISTRY_LOADER_FORWARD_REGISTRY_REFERENCE"
+});
+
+const BETA_07_ID_FIELDS = Object.freeze({
+  activity: Object.freeze(["activity_id", "id"]),
+  movement: Object.freeze(["movement_id", "movement_pattern_id", "movement_family_id", "id"]),
+  exercise: Object.freeze(["exercise_id", "id"]),
+  program: Object.freeze(["program_id", "id"])
+});
+
+const BETA_07_REFERENCE_FIELDS = Object.freeze({
+  activity: Object.freeze([
+    Object.freeze(["exercise_id", "exercise"]),
+    Object.freeze(["exercise_ids", "exercise"]),
+    Object.freeze(["intent", "exercise"]),
+    Object.freeze(["exercise_eligibility", "exercise"])
+  ]),
+  movement: Object.freeze([
+    Object.freeze(["activity_id", "activity"]),
+    Object.freeze(["exercise_id", "exercise"]),
+    Object.freeze(["exercise_ids", "exercise"])
+  ]),
+  exercise: Object.freeze([
+    Object.freeze(["pattern", "movement"]),
+    Object.freeze(["movement_id", "movement"]),
+    Object.freeze(["movement_pattern_id", "movement"]),
+    Object.freeze(["movement_family_id", "movement"]),
+    Object.freeze(["activity_id", "activity"]),
+    Object.freeze(["primary_activity_applicability", "activity"]),
+    Object.freeze(["secondary_activity_applicability", "activity"]),
+    Object.freeze(["activity_applicability", "activity"])
+  ]),
+  program: Object.freeze([
+    Object.freeze(["id", "activity"]),
+    Object.freeze(["activity_id", "activity"]),
+    Object.freeze(["exercise_id", "exercise"]),
+    Object.freeze(["exercise_ids", "exercise"]),
+    Object.freeze(["exercise_eligibility", "exercise"]),
+    Object.freeze(["intent", "exercise"])
+  ])
+});
+
+function beta07Fail(failureToken, reason, message, details = {}) {
+  const error = new Error(message);
+  error.name = "Beta07RegistryLoaderCoreError";
+  error.code = failureToken;
+  error.reason = reason;
+  error.failure_token = failureToken;
+  error.details = Object.freeze({ ...details });
+  throw error;
+}
+
+function beta07RequireObject(value, failureToken, reason, message, details = {}) {
+  if (!isPlainRecord(value)) {
+    beta07Fail(failureToken, reason, message, details);
+  }
+}
+
+function beta07Values(value) {
+  if (Array.isArray(value)) return value;
+  if (value === null || value === undefined) return [];
+  return [value];
+}
+
+function beta07Collection(registryDocument) {
+  if (Array.isArray(registryDocument)) return registryDocument;
+  if (!isPlainRecord(registryDocument)) return [];
+  if (Array.isArray(registryDocument.entries)) return registryDocument.entries;
+  if (isPlainRecord(registryDocument.entries)) return Object.values(registryDocument.entries);
+
+  for (const key of Object.keys(registryDocument)) {
+    if (key === "registry_id" || key === "version") continue;
+    if (Array.isArray(registryDocument[key])) return registryDocument[key];
+    if (isPlainRecord(registryDocument[key])) return Object.values(registryDocument[key]);
+  }
+
+  return [];
+}
+
+function beta07FirstString(record, fields) {
+  for (const field of fields) {
+    if (typeof record[field] === "string" && record[field].length > 0) return record[field];
+  }
+
+  return null;
+}
+
+function beta07AssertCanonicalOrder(order) {
+  if (!Array.isArray(order)) {
+    beta07Fail(BETA_07_FAILURE_TOKENS.REGISTRY_ORDER_INVALID, "registry_order_not_array", "BETA-07 registry_index.order must be an array.");
+  }
+
+  const seen = new Set();
+  for (const registryId of order) {
+    if (typeof registryId !== "string" || registryId.length === 0) {
+      beta07Fail(BETA_07_FAILURE_TOKENS.REGISTRY_ORDER_INVALID, "registry_order_entry_invalid", "BETA-07 registry ids must be non-empty strings.");
+    }
+
+    if (seen.has(registryId)) {
+      beta07Fail(BETA_07_FAILURE_TOKENS.DUPLICATE_REGISTRY_ID, "duplicate_registry_id", "BETA-07 registry order contains a duplicate id.", { registry_id: registryId });
+    }
+
+    seen.add(registryId);
+  }
+
+  if (JSON.stringify(order) !== JSON.stringify(BETA_07_CANONICAL_REGISTRY_ORDER)) {
+    beta07Fail(BETA_07_FAILURE_TOKENS.REGISTRY_ORDER_INVALID, "non_canonical_registry_order", "BETA-07 registry load order must match canonical beta order.", {
+      expected_order: [...BETA_07_CANONICAL_REGISTRY_ORDER],
+      actual_order: [...order]
+    });
+  }
+}
+
+function beta07CollectIds(registryId, registryDocument) {
+  const ids = new Set();
+  const fields = BETA_07_ID_FIELDS[registryId] || ["id"];
+
+  for (const record of beta07Collection(registryDocument)) {
+    if (!isPlainRecord(record)) continue;
+    const id = beta07FirstString(record, fields);
+    if (id) ids.add(id);
+  }
+
+  return ids;
+}
+
+function beta07ValidateReferences(registries, idsByRegistry) {
+  const orderPosition = new Map(BETA_07_CANONICAL_REGISTRY_ORDER.map((registryId, index) => [registryId, index]));
+
+  for (const registryId of BETA_07_CANONICAL_REGISTRY_ORDER) {
+    for (const record of beta07Collection(registries[registryId])) {
+      if (!isPlainRecord(record)) continue;
+      const recordId = beta07FirstString(record, BETA_07_ID_FIELDS[registryId] || ["id"]) || "unknown_record";
+
+      for (const [field, targetRegistryId] of BETA_07_REFERENCE_FIELDS[registryId] || []) {
+        if (!Object.prototype.hasOwnProperty.call(record, field)) continue;
+
+        for (const referencedId of beta07Values(record[field])) {
+          if (typeof referencedId !== "string" || referencedId.length === 0) {
+            beta07Fail(BETA_07_FAILURE_TOKENS.UNKNOWN_REGISTRY_REFERENCE, "registry_reference_invalid", "BETA-07 registry references must be non-empty strings.", {
+              registry_id: registryId,
+              record_id: recordId,
+              field,
+              target_registry_id: targetRegistryId
+            });
+          }
+
+          if (orderPosition.get(targetRegistryId) > orderPosition.get(registryId)) {
+            beta07Fail(BETA_07_FAILURE_TOKENS.FORWARD_REGISTRY_REFERENCE, "forward_registry_reference", "BETA-07 registries must not reference downstream registries during load.", {
+              registry_id: registryId,
+              record_id: recordId,
+              field,
+              target_registry_id: targetRegistryId,
+              referenced_id: referencedId
+            });
+          }
+
+          if (!idsByRegistry[targetRegistryId]?.has(referencedId)) {
+            beta07Fail(BETA_07_FAILURE_TOKENS.UNKNOWN_REGISTRY_REFERENCE, "unknown_registry_reference", "BETA-07 registry reference does not resolve to a loaded upstream registry entry.", {
+              registry_id: registryId,
+              record_id: recordId,
+              field,
+              target_registry_id: targetRegistryId,
+              referenced_id: referencedId
+            });
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * DEV NOTE: BETA-07 registry loader core.
+ * Purpose: atomically materialise the beta registry runtime store in canonical order.
+ * Boundary: extends the existing registry bridge module only; it does not discover files,
+ * mutate registries, activate candidate registries, create fallback loads, or change engine
+ * runtime semantics.
+ * Determinism: consumes explicit registry_index and registry_bundle objects, validates the
+ * closed beta order, clones validated documents, and returns a deep-frozen read-only store.
+ * Failure: any invalid registry, order, duplicate id, missing source, unknown reference, or
+ * forward reference fails before a runtime store is returned.
+ */
+function beta07LoadAtomicRegistryStore(input) {
+  beta07RequireObject(input, BETA_07_FAILURE_TOKENS.INPUT_INVALID, "loader_input_invalid", "BETA-07 loader input must be an object.");
+  beta07RequireObject(input.registry_index, BETA_07_FAILURE_TOKENS.INPUT_INVALID, "registry_index_invalid", "BETA-07 registry_index must be an object.");
+  beta07RequireObject(input.registry_bundle, BETA_07_FAILURE_TOKENS.INPUT_INVALID, "registry_bundle_invalid", "BETA-07 registry_bundle must be an object.");
+  beta07RequireObject(input.registry_bundle.registries, BETA_07_FAILURE_TOKENS.INPUT_INVALID, "registry_bundle_registries_invalid", "BETA-07 registry_bundle.registries must be an object.");
+
+  beta07AssertCanonicalOrder(input.registry_index.order);
+
+  for (const registryId of BETA_07_CANONICAL_REGISTRY_ORDER) {
+    if (!Object.prototype.hasOwnProperty.call(input.registry_bundle.registries, registryId)) {
+      beta07Fail(BETA_07_FAILURE_TOKENS.MISSING_REGISTRY, "missing_registry", "BETA-07 required registry is missing from the bundle.", { registry_id: registryId });
+    }
+  }
+
+  const bundleKeys = Object.keys(input.registry_bundle.registries);
+  if (JSON.stringify(bundleKeys) !== JSON.stringify(BETA_07_CANONICAL_REGISTRY_ORDER)) {
+    beta07Fail(BETA_07_FAILURE_TOKENS.REGISTRY_ORDER_INVALID, "registry_bundle_key_order_mismatch", "BETA-07 registry_bundle.registries key order must match canonical order.", {
+      expected_order: [...BETA_07_CANONICAL_REGISTRY_ORDER],
+      actual_order: bundleKeys
+    });
+  }
+
+  const seenRegistryDocumentIds = new Set();
+  const orderedRegistries = {};
+  const idsByRegistry = {};
+
+  for (const registryId of BETA_07_CANONICAL_REGISTRY_ORDER) {
+    const registryDocument = input.registry_bundle.registries[registryId];
+    beta07RequireObject(registryDocument, BETA_07_FAILURE_TOKENS.INPUT_INVALID, "registry_document_invalid", "BETA-07 registry document must be an object.", { registry_id: registryId });
+
+    const documentRegistryId = typeof registryDocument.registry_id === "string" && registryDocument.registry_id.length > 0 ? registryDocument.registry_id : registryId;
+
+    if (seenRegistryDocumentIds.has(documentRegistryId)) {
+      beta07Fail(BETA_07_FAILURE_TOKENS.DUPLICATE_REGISTRY_ID, "duplicate_registry_id", "BETA-07 registry document id duplicates another registry.", {
+        registry_id: registryId,
+        document_registry_id: documentRegistryId
+      });
+    }
+
+    if (documentRegistryId !== registryId) {
+      beta07Fail(BETA_07_FAILURE_TOKENS.REGISTRY_ID_MISMATCH, "registry_id_mismatch", "BETA-07 registry document id must match the registry key.", {
+        registry_id: registryId,
+        document_registry_id: documentRegistryId
+      });
+    }
+
+    seenRegistryDocumentIds.add(documentRegistryId);
+    orderedRegistries[registryId] = registryDocument;
+    idsByRegistry[registryId] = beta07CollectIds(registryId, registryDocument);
+  }
+
+  beta07ValidateReferences(orderedRegistries, idsByRegistry);
+
+  const clonedRegistries = {};
+  for (const registryId of BETA_07_CANONICAL_REGISTRY_ORDER) {
+    clonedRegistries[registryId] = cloneJson(orderedRegistries[registryId]);
+  }
+
+  return deepFreeze({
+    ok: true,
+    loader_slice_id: BETA_07_SLICE_ID,
+    loader_version: BETA_07_LOADER_VERSION,
+    registry_order: [...BETA_07_CANONICAL_REGISTRY_ORDER],
+    registry_count: BETA_07_CANONICAL_REGISTRY_ORDER.length,
+    atomic_load: true,
+    partial_consumption_allowed: false,
+    fallback_allowed: false,
+    discovery_allowed: false,
+    runtime_mutation_allowed: false,
+    loaded_registry_ids: [...BETA_07_CANONICAL_REGISTRY_ORDER],
+    registries: clonedRegistries
+  });
+}
+
 export {
+  BETA_07_CANONICAL_REGISTRY_ORDER,
+  BETA_07_FAILURE_TOKENS,
+  BETA_07_LOADER_VERSION,
+  BETA_07_SLICE_ID,
   S_REG_04_BRIDGE_VERSION,
   S_REG_04_CANONICAL_ALIAS_MAP,
   S_REG_04_FAILURE_TOKEN,
   S_REG_04_SLICE_ID,
+  beta07LoadAtomicRegistryStore,
   sReg04CanonicalAliasMap,
   sReg04ResolveCanonicalRegistry,
   sReg04ResolveCanonicalRegistryMap,
