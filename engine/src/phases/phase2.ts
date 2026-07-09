@@ -4,8 +4,6 @@
 
 import crypto from "node:crypto";
 
-const PHASE2_FAILURE_TOKEN = "phase2_canonicalise_failed";
-
 function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
 }
@@ -28,13 +26,13 @@ function parseCanonicalJsonBytes(bytes: Uint8Array): unknown {
   try {
     text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   } catch (error) {
-    fail("phase2_utf8_decode_failed", String(error));
+    fail("phase2-utf8-decode-failed", String(error));
   }
 
   try {
     return JSON.parse(text);
   } catch (error) {
-    fail("phase2_json_parse_failed", String(error));
+    fail("phase2-json-parse-failed", String(error));
   }
 }
 
@@ -66,14 +64,14 @@ function canonicalise(value: unknown, path: string[] = []): unknown {
 
   if (typeof value === "number") {
     if (!Number.isFinite(value)) {
-      fail("phase2_non_finite_number_refused", { path: path.join(".") });
+      fail("phase2-non-finite-number-refused", { path: path.join(".") });
     }
     return value;
   }
 
   if (["string", "boolean"].includes(typeof value)) return value;
 
-  fail("phase2_unsupported_value_refused", {
+  fail("phase2-unsupported-value-refused", {
     path: path.join("."),
     value_type: typeof value
   });
@@ -150,7 +148,7 @@ export function phase2CanonicaliseAndHash(input: unknown): Phase2Result {
   } catch (err: any) {
     return {
       ok: false,
-      failure_token: PHASE2_FAILURE_TOKEN,
+      failure_token: "phase2_canonicalise_failed",
       details: {
         reason: String(err?.reason ?? err?.message ?? err),
         details: err?.details
