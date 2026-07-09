@@ -1,0 +1,63 @@
+{
+  "slice_id": "BETA-07",
+  "fixture_id": "negative_duplicate_registry_id",
+  "expected_failure_token": "CI_BETA_07_REGISTRY_LOADER_DUPLICATE_REGISTRY_ID",
+  "registry_index": {
+    "version": "beta-07-fixture",
+    "order": [
+      "activity",
+      "movement",
+      "exercise",
+      "program"
+    ]
+  },
+  "registry_bundle": {
+    "version": "beta-07-fixture",
+    "note": "BETA-07 duplicate registry id negative fixture",
+    "registries": {
+      "activity": {
+        "registry_id": "activity",
+        "version": "beta-07-fixture",
+        "entries": {
+          "powerlifting": {
+            "activity_id": "powerlifting"
+          }
+        }
+      },
+      "movement": {
+        "registry_id": "activity",
+        "version": "beta-07-fixture",
+        "entries": {
+          "squat": {
+            "movement_id": "squat"
+          }
+        }
+      },
+      "exercise": {
+        "registry_id": "exercise",
+        "version": "beta-07-fixture",
+        "entries": {
+          "fixture_back_squat": {
+            "exercise_id": "fixture_back_squat",
+            "pattern": "squat",
+            "primary_activity_applicability": "powerlifting",
+            "secondary_activity_applicability": []
+          }
+        }
+      },
+      "program": {
+        "registry_id": "program",
+        "version": "beta-07-fixture",
+        "entries": [
+          {
+            "id": "powerlifting",
+            "program_id": "fixture_powerlifting_program",
+            "intent": [
+              "fixture_back_squat"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
