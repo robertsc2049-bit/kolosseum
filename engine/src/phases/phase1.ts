@@ -268,16 +268,23 @@ export function phase1Validate(input: unknown): Phase1Result {
     actor_type: obj.actor_type,
     execution_scope: obj.execution_scope,
 
-    governing_authority_id: obj.governing_authority_id,
-
     activity_id: obj.activity_id,
-    sport_role_id: obj.sport_role_id,
 
     nd_mode: obj.nd_mode,
     instruction_density: obj.instruction_density,
     exposure_prompt_density: obj.exposure_prompt_density,
     bias_mode: obj.bias_mode
   };
+
+  // BETA-09: optional Phase 1 fields must be absent when absent, never present as undefined.
+  // Phase 2 now refuses undefined because JSON serialisation would otherwise remove the field.
+  if (typeof obj.governing_authority_id === "string") {
+    canonical.governing_authority_id = obj.governing_authority_id;
+  }
+
+  if (typeof obj.sport_role_id === "string") {
+    canonical.sport_role_id = obj.sport_role_id;
+  }
 
   const envelopePresent = Object.prototype.hasOwnProperty.call(obj ?? {}, "constraints");
   if (envelopePresent) {

@@ -118,3 +118,22 @@ Rules:
 - BETA-08 composes the existing BETA-07 atomic registry loader and does not create a duplicate loader or activate candidate registries.
 
 BETA-08:REGISTRY-FK-ENUM-GUARD:END
+## BETA-09 Phase 2 Canonical Hash
+
+BETA-09:PHASE2-CANONICAL-HASH:START
+
+Machine-checkable Phase 2 canonical hash: docs/beta/BETA_09_PHASE2_CANONICAL_HASH.md, engine/src/phases/phase2.ts, test/beta_09_phase2_canonical_hash.test.mjs.
+
+Rules:
+- Phase 2 canonicalises exact canonical Phase 1 JSON bytes using UTF-8.
+- Object keys are sorted lexicographically at every object level.
+- Canonical JSON emits no insignificant whitespace.
+- Malformed JSON, trailing commas, and comments fail closed for byte/string input.
+- Defaults, field removal, and value coercion are not permitted.
+- Explicit legal null is preserved.
+- Hash scope is exactly canonical_input_json bytes only.
+- SHA256 hashes are lowercase hexadecimal.
+- Repeated Phase 2 canonicalisation must be byte-identical and replayable.
+- Downstream mutation must cause a recomputed hash mismatch.
+
+BETA-09:PHASE2-CANONICAL-HASH:END
