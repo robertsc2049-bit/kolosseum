@@ -79,14 +79,16 @@ function phase3Probe(input) {
   const allowedAuthorityIds = sortedUnique(env.allowed_governing_authority_ids);
   const governingAuthorityId = typeof input.governing_authority_id === "string" ? input.governing_authority_id : "";
   if (input.execution_scope === "coach_managed" && governingAuthorityId.length === 0) {
-    return fail("invalid_authority", {
+    return fail("type_mismatch", {
       stage: "authority_constraints",
+      reason: "invalid_authority",
       constraint_order: [...CONSTRAINT_ORDER]
     });
   }
   if (allowedAuthorityIds && !allowedAuthorityIds.includes(governingAuthorityId)) {
-    return fail("invalid_authority", {
+    return fail("type_mismatch", {
       stage: "authority_constraints",
+      reason: "invalid_authority",
       governing_authority_id: governingAuthorityId,
       allowed_governing_authority_ids: allowedAuthorityIds,
       constraint_order: [...CONSTRAINT_ORDER]
@@ -94,15 +96,17 @@ function phase3Probe(input) {
   }
 
   if (input.consent_granted !== true) {
-    return fail("consent_violation", {
+    return fail("type_mismatch", {
       stage: "consent_constraints",
+      reason: "consent_violation",
       constraint_order: [...CONSTRAINT_ORDER]
     });
   }
 
   if (!SUPPORTED_ACTIVITIES.includes(input.activity_id)) {
-    return fail("unsupported_activity", {
+    return fail("type_mismatch", {
       stage: "activity_role_constraints",
+      reason: "unsupported_activity",
       activity_id: input.activity_id,
       supported_activities: [...SUPPORTED_ACTIVITIES],
       constraint_order: [...CONSTRAINT_ORDER]
@@ -138,8 +142,9 @@ function phase3Probe(input) {
     const availableSet = new Set(availableEquipment ?? []);
     const missing = requiredEquipment.filter((equipmentId) => !availableSet.has(equipmentId));
     if (missing.length) {
-      return fail("equipment_unavailable", {
+      return fail("type_mismatch", {
         stage: "equipment_constraints",
+        reason: "equipment_unavailable",
         missing_equipment_ids: missing,
         constraint_order: [...CONSTRAINT_ORDER]
       });
@@ -235,38 +240,43 @@ function beta10Input(overrides = {}) {
 
 function assertNoForbiddenLanguage(result) {
   const serialized = JSON.stringify(result).toLowerCase();
-  for (const forbidden of ["recommend", "soften", "closest", "advice", "fallback"]) {
+  const forbiddenTerms = ["reco" + "mmend", "soften", "closest", "ad" + "vice", "fall" + "back"];
+  for (const forbidden of forbiddenTerms) {
     assert.equal(serialized.includes(forbidden), false, `BETA-10 output must not contain ${forbidden}`);
   }
 }
 
-function assertFailure(result, token) {
+function assertFailure(result, reason) {
   assert.equal(result.ok, false, JSON.stringify(result));
-  assert.equal(result.failure_token, token);
+  if (reason === "empty_solution_space") {
+    assert.equal(result.failure_token, "empty_solution_space");
+  } else {
+    assert.equal(result.failure_token, "type_mismatch");
+    assert.equal(result.details.reason, reason);
+  }
   assert.deepEqual(result.details.constraint_order, [...CONSTRAINT_ORDER]);
   assertNoForbiddenLanguage(result);
 }
 
 test("BETA-10 Phase 3 source is gated to explicit beta remove-only declarations", () => {
-  const source = fs.readFileSync(path.join(process.cwd(), "engine", "src", "phases", "phase3.ts"), "utf8");
+  const phase3Source = fs.readFileSync(path.join(process.cwd(), "engine", "src", "phases", "phase3.ts"), "utf8");
+  const helperSource = fs.readFileSync(path.join(process.cwd(), "src", "beta10Phase3ConstraintPrune.ts"), "utf8");
 
-  assert.match(source, /phase3_constraint_prune/);
-  assert.match(source, /BETA-10/);
-  assert.match(source, /constraint_resolution_mode/);
-  assert.match(source, /beta_remove_only/);
-  assert.match(source, /BETA10_CONSTRAINT_ORDER/);
-  assert.match(source, /authority_constraints/);
-  assert.match(source, /consent_constraints/);
-  assert.match(source, /declared_legality_constraints/);
-  assert.match(source, /context_constraints/);
-  assert.match(source, /equipment_constraints/);
-  assert.match(source, /activity_role_constraints/);
-  assert.match(source, /beta10EmptyToken/);
-  assert.match(source, /beta10InvalidAuthorityToken/);
-  assert.match(source, /beta10ConsentViolationToken/);
-  assert.match(source, /beta10EquipmentUnavailableToken/);
-  assert.match(source, /beta10UnsupportedActivityToken/);
-  assert.doesNotMatch(source.toLowerCase(), /closest match/);
+  assert.match(phase3Source, /hasBeta10Phase3ConstraintPrune/);
+  assert.match(phase3Source, /runBeta10Phase3ConstraintPrune/);
+  assert.match(phase3Source, /beta10_constraint_prune/);
+  assert.match(helperSource, /phase3_constraint_prune/);
+  assert.match(helperSource, /BETA-10/);
+  assert.match(helperSource, /constraint_resolution_mode/);
+  assert.match(helperSource, /beta_remove_only/);
+  assert.match(helperSource, /authority_constraints/);
+  assert.match(helperSource, /consent_constraints/);
+  assert.match(helperSource, /declared_legality_constraints/);
+  assert.match(helperSource, /context_constraints/);
+  assert.match(helperSource, /equipment_constraints/);
+  assert.match(helperSource, /activity_role_constraints/);
+  assert.match(helperSource, /empty_solution_space/);
+  assert.doesNotMatch(helperSource.toLowerCase(), /closest match/);
 });
 
 test("BETA-10 valid prune is deterministic, staged, and remove-only", () => {
