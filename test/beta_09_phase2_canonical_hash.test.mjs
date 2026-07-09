@@ -5,6 +5,8 @@ import { spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import test from "node:test";
 
+let phase2Promise = null;
+
 function repoRoot() {
   const here = fileURLToPath(import.meta.url);
   return path.resolve(path.dirname(here), "..");
@@ -51,13 +53,18 @@ async function buildEngine(root) {
   }
 }
 
-async function loadPhase2() {
+async function loadPhase2Fresh() {
   const root = repoRoot();
   await buildEngine(root);
   const phase2ModulePath = path.join(root, "dist", "engine", "src", "phases", "phase2.js");
   const phase2Module = await import(`${pathToFileURL(phase2ModulePath).href}?cacheBust=${Date.now()}`);
   assert.equal(typeof phase2Module.phase2CanonicaliseAndHash, "function");
   return phase2Module.phase2CanonicaliseAndHash;
+}
+
+async function loadPhase2() {
+  phase2Promise ??= loadPhase2Fresh();
+  return phase2Promise;
 }
 
 function sha256Hex(bytes) {
