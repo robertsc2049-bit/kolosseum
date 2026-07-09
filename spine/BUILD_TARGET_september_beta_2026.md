@@ -84,3 +84,18 @@ Rules:
 - Technical failure remains a separate domain from CL legal refusal.
 
 BETA-06:CL-GATE-SEPARATION:END
+## BETA-07 Registry Loader Core
+
+BETA-07:REGISTRY-LOADER-CORE:START
+
+Machine-checkable registry loader core: docs/beta/BETA_07_REGISTRY_LOADER_CORE.md, ci/registry/s_reg_04_legacy_to_canonical_registry_bridge.mjs, test/beta_07_registry_loader_core.test.mjs, ci/fixtures/beta_07_registry_loader_core/.
+
+Rules:
+- Registry loading uses the canonical beta order: activity, movement, exercise, program.
+- Registry loading is atomic and returns a runtime store only after all required registries validate.
+- Partial loading, fallback loading, discovery loading, and runtime mutation are not permitted.
+- Missing registry, duplicate registry ID, registry ID mismatch, unknown registry reference, and downstream forward reference all fail closed with stable BETA-07 loader tokens.
+- The runtime registry store is deep-frozen and read-only.
+- BETA-07 extends the existing S-REG-04 registry bridge module and does not create a duplicate loader.
+
+BETA-07:REGISTRY-LOADER-CORE:END
