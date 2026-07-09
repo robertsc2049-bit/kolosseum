@@ -50,3 +50,20 @@ Rules:
 - Token meaning remains owned by the emitting guard and source file.
 
 BETA-03:CI-TOKEN-REPORT-CONTRACT:END
+## BETA-05 Phase 1 Schema Closure
+
+BETA-05:PHASE1-SCHEMA-CLOSURE:START
+
+Machine-checkable Phase 1 schema closure: docs/v0/phase1_declaration_surface.schema.json, ci/contracts/phase1_v0_truth_surface.json, scripts/ci-enforce-phase1.mjs, test/beta_05_phase1_schema_closure.test.mjs.
+
+Rules:
+- Phase 1 accepts only explicit beta declarations.
+- Unknown fields, missing required fields, explicit nulls, version mismatches, unsupported enums, unsupported actors, unsupported scopes, unsupported activities, and invalid presentation flags fail closed.
+- Consent, age declaration, jurisdiction acknowledgement, location, equipment profile, and presentation flags are present and validated.
+- coach_managed requires governing_authority_id.
+- Positive fixtures cover powerlifting, rugby_union, and general_strength.
+- Negative fixtures cover unknown field, missing consent, bad version, unsupported activity, invalid scope, and invalid presentation flag.
+- Accepted Phase 1 input may be emitted byte-for-byte without enrichment, defaults, coercion, inference, or mutation.
+- Presentation flags are Class C and must remain engine-inert.
+
+BETA-05:PHASE1-SCHEMA-CLOSURE:END
