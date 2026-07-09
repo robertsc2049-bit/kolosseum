@@ -51,7 +51,9 @@ function beta08BaseFixture(activityId) {
           registry_id: "activity",
           version: "beta-08-fixture",
           entries: {
-            [activityId]: { activity_id: activityId }
+            powerlifting: { activity_id: "powerlifting" },
+            rugby_union: { activity_id: "rugby_union" },
+            general_strength: { activity_id: "general_strength" }
           }
         },
         movement: {
