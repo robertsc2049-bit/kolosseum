@@ -99,3 +99,22 @@ Rules:
 - BETA-07 extends the existing S-REG-04 registry bridge module and does not create a duplicate loader.
 
 BETA-07:REGISTRY-LOADER-CORE:END
+## BETA-08 Registry FK and Enum Guard
+
+BETA-08:REGISTRY-FK-ENUM-GUARD:START
+
+Machine-checkable registry FK and enum guard: docs/beta/BETA_08_REGISTRY_FK_ENUM_GUARD.md, ci/registry/beta_08_registry_fk_enum_guard.mjs, test/beta_08_registry_fk_enum_guard.test.mjs, ci/fixtures/beta_08_registry_fk_enum_guard/.
+
+Rules:
+- Registry references and enum tokens are closed-world for beta registry-linked paths.
+- Unknown enum tokens fail closed.
+- Duplicate registry entry IDs fail closed.
+- Unresolved FK references fail closed.
+- Activity/subdivision mismatches fail closed.
+- Metric/activity mismatches fail closed.
+- Phase 1 declared metrics require matching 1C-A metric-to-exercise links.
+- Derived-only metrics are refused from Phase 1 declarations.
+- Registry cross-domain contamination fails closed.
+- BETA-08 composes the existing BETA-07 atomic registry loader and does not create a duplicate loader or activate candidate registries.
+
+BETA-08:REGISTRY-FK-ENUM-GUARD:END
