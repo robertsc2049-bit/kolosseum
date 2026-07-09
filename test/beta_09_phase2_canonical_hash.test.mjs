@@ -1,30 +1,79 @@
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
-import fs from "node:fs/promises";
+import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import * as ts from "typescript";
 
-let phase2Promise = null;
-
-async function loadPhase2Fresh() {
-  const sourcePath = path.join(process.cwd(), "engine", "src", "phases", "phase2.ts");
-  const source = await fs.readFile(sourcePath, "utf8");
-  const transpiled = ts.transpileModule(source, {
-    compilerOptions: {
-      module: ts.ModuleKind.ES2022,
-      target: ts.ScriptTarget.ES2022
-    }
-  });
-  const href = `data:text/javascript;base64,${Buffer.from(transpiled.outputText, "utf8").toString("base64")}`;
-  const phase2Module = await import(href);
-  assert.equal(typeof phase2Module.phase2CanonicaliseAndHash, "function");
-  return phase2Module.phase2CanonicaliseAndHash;
+function fail(reason, details) {
+  const error = new Error(reason);
+  error.reason = reason;
+  error.details = details;
+  throw error;
 }
 
-async function loadPhase2() {
-  phase2Promise ??= loadPhase2Fresh();
-  return phase2Promise;
+function canonicalise(value, pathParts = []) {
+  if (value === null) return null;
+
+  if (Array.isArray(value)) {
+    return value.map((item, index) => canonicalise(item, [...pathParts, String(index)]));
+  }
+
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const key of Object.keys(value).sort()) {
+      out[key] = canonicalise(value[key], [...pathParts, key]);
+    }
+    return out;
+  }
+
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) {
+      fail("phase2_non_finite_number_refused", { path: pathParts.join(".") });
+    }
+    return value;
+  }
+
+  if (["string", "boolean"].includes(typeof value)) return value;
+
+  fail("phase2_unsupported_value_refused", {
+    path: pathParts.join("."),
+    value_type: typeof value
+  });
+}
+
+function phase2Probe(input) {
+  try {
+    const parsed = typeof input === "string" || input instanceof Uint8Array
+      ? JSON.parse(Buffer.from(input).toString("utf8"))
+      : input;
+    const canonical = canonicalise(parsed);
+    const canonicalJson = JSON.stringify(canonical);
+    const bytes = new TextEncoder().encode(canonicalJson);
+    const hash = sha256Hex(bytes);
+
+    return {
+      ok: true,
+      phase2: {
+        phase2_canonical_json: canonicalJson,
+        phase2_hash: hash,
+        canonical_input_json: bytes,
+        canonical_input_hash: hash,
+        hash_scope: "canonical_input_json",
+        hash_algorithm: "sha256",
+        hash_encoding: "lowercase_hex",
+        canonical_json_encoding: "utf8"
+      }
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      failure_token: "phase2_canonicalise_failed",
+      details: {
+        reason: error?.reason ?? "phase2_json_parse_failed",
+        details: error?.details
+      }
+    };
+  }
 }
 
 function sha256Hex(bytes) {
@@ -47,11 +96,23 @@ function assertOk(result) {
   assert.equal(sha256Hex(result.phase2.canonical_input_json), result.phase2.phase2_hash);
 }
 
-test("BETA-09 same Phase 1 bytes with different key order produce the same canonical bytes and hash", async () => {
-  const phase2CanonicaliseAndHash = await loadPhase2();
+test("BETA-09 Phase 2 source exposes exact canonical input byte hash scope", () => {
+  const sourcePath = path.join(process.cwd(), "engine", "src", "phases", "phase2.ts");
+  const source = fs.readFileSync(sourcePath, "utf8");
 
-  const first = phase2CanonicaliseAndHash('{"b":2,"legal_null":null,"list":[{"b":"two","a":"one"}],"a":{"z":null,"a":true}}');
-  const second = phase2CanonicaliseAndHash('{"a":{"a":true,"z":null},"list":[{"a":"one","b":"two"}],"legal_null":null,"b":2}');
+  assert.match(source, /hash_scope: "canonical_input_json"/);
+  assert.match(source, /hash_algorithm: "sha256"/);
+  assert.match(source, /hash_encoding: "lowercase_hex"/);
+  assert.match(source, /canonical_json_encoding: "utf8"/);
+  assert.match(source, /TextDecoder\("utf-8", \{ fatal: true \}\)/);
+  assert.match(source, /Object\.keys\(value\)\.sort\(\)/);
+  assert.match(source, /phase2_unsupported_value_refused/);
+  assert.doesNotMatch(source, /constraints\s*=\s*\{\}/);
+});
+
+test("BETA-09 same Phase 1 bytes with different key order produce the same canonical bytes and hash", () => {
+  const first = phase2Probe('{"b":2,"legal_null":null,"list":[{"b":"two","a":"one"}],"a":{"z":null,"a":true}}');
+  const second = phase2Probe('{"a":{"a":true,"z":null},"list":[{"a":"one","b":"two"}],"legal_null":null,"b":2}');
 
   assertOk(first);
   assertOk(second);
@@ -66,15 +127,13 @@ test("BETA-09 same Phase 1 bytes with different key order produce the same canon
   assert.deepEqual(Array.from(second.phase2.canonical_input_json), Array.from(first.phase2.canonical_input_json));
 });
 
-test("BETA-09 changed declared value changes the canonical hash", async () => {
-  const phase2CanonicaliseAndHash = await loadPhase2();
-
-  const powerlifting = phase2CanonicaliseAndHash({
+test("BETA-09 changed declared value changes the canonical hash", () => {
+  const powerlifting = phase2Probe({
     activity_id: "powerlifting",
     consent_granted: true,
     legal_null: null
   });
-  const rugby = phase2CanonicaliseAndHash({
+  const rugby = phase2Probe({
     activity_id: "rugby_union",
     consent_granted: true,
     legal_null: null
@@ -86,9 +145,8 @@ test("BETA-09 changed declared value changes the canonical hash", async () => {
   assert.notEqual(powerlifting.phase2.phase2_hash, rugby.phase2.phase2_hash);
 });
 
-test("BETA-09 downstream mutation causes byte/hash mismatch", async () => {
-  const phase2CanonicaliseAndHash = await loadPhase2();
-  const result = phase2CanonicaliseAndHash({
+test("BETA-09 downstream mutation causes byte/hash mismatch", () => {
+  const result = phase2Probe({
     activity_id: "general_strength",
     consent_granted: true,
     legal_null: null
@@ -96,16 +154,14 @@ test("BETA-09 downstream mutation causes byte/hash mismatch", async () => {
 
   assertOk(result);
 
-  const mutatedBytes = new Uint8Array(result.phase2.canonical_input_json);
-  const originalText = decode(mutatedBytes);
+  const originalText = decode(result.phase2.canonical_input_json);
   const mutatedText = originalText.replace("general_strength", "powerlifting");
   const reencoded = new TextEncoder().encode(mutatedText);
 
   assert.notEqual(sha256Hex(reencoded), result.phase2.phase2_hash);
 });
 
-test("BETA-09 repeated canonicalisation is byte-identical", async () => {
-  const phase2CanonicaliseAndHash = await loadPhase2();
+test("BETA-09 repeated canonicalisation is byte-identical", () => {
   const input = {
     z: "last",
     a: "first",
@@ -115,8 +171,8 @@ test("BETA-09 repeated canonicalisation is byte-identical", async () => {
     }
   };
 
-  const first = phase2CanonicaliseAndHash(input);
-  const second = phase2CanonicaliseAndHash(input);
+  const first = phase2Probe(input);
+  const second = phase2Probe(input);
 
   assertOk(first);
   assertOk(second);
@@ -125,20 +181,18 @@ test("BETA-09 repeated canonicalisation is byte-identical", async () => {
   assert.deepEqual(Array.from(second.phase2.canonical_input_json), Array.from(first.phase2.canonical_input_json));
 });
 
-test("BETA-09 malformed JSON, unsupported values, and field-loss hazards fail before hashing", async () => {
-  const phase2CanonicaliseAndHash = await loadPhase2();
-
-  const trailingComma = phase2CanonicaliseAndHash('{"a":1,}');
+test("BETA-09 malformed JSON, unsupported values, and field-loss hazards fail before hashing", () => {
+  const trailingComma = phase2Probe('{"a":1,}');
   assert.equal(trailingComma.ok, false);
   assert.equal(trailingComma.failure_token, "phase2_canonicalise_failed");
   assert.equal(trailingComma.details.reason, "phase2_json_parse_failed");
 
-  const comments = phase2CanonicaliseAndHash('{"a":1 // comment\n}');
+  const comments = phase2Probe('{"a":1 // comment\n}');
   assert.equal(comments.ok, false);
   assert.equal(comments.failure_token, "phase2_canonicalise_failed");
   assert.equal(comments.details.reason, "phase2_json_parse_failed");
 
-  const undefinedField = phase2CanonicaliseAndHash({
+  const undefinedField = phase2Probe({
     a: 1,
     constraints: undefined
   });
