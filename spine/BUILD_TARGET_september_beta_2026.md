@@ -67,3 +67,20 @@ Rules:
 - Presentation flags are Class C and must remain engine-inert.
 
 BETA-05:PHASE1-SCHEMA-CLOSURE:END
+## BETA-06 CL Gate Separation
+
+BETA-06:CL-GATE-SEPARATION:START
+
+Machine-checkable CL gate separation: docs/beta/BETA_06_CL_GATE_SEPARATION.md, src/betaClGateSeparation.mjs, test/beta_06_cl_gate_separation.test.mjs.
+
+Rules:
+- Controlled-launch legal permission is evaluated before technical engine work.
+- Missing or false consent refuses controlled launch before engine, replay, evidence, or proof artefact creation.
+- Missing or false jurisdiction acknowledgement refuses controlled launch before engine, replay, evidence, or proof artefact creation.
+- Unsupported age declarations refuse controlled launch before engine, replay, evidence, or proof artefact creation.
+- Unsupported actor or execution-scope declarations refuse controlled launch before engine, replay, evidence, or proof artefact creation.
+- CL refusal returns product/legal refusal codes and neutral copy IDs only.
+- CL refusal must not emit CI failure tokens, runtime technical failure tokens, replay records, evidence envelopes, proof artefacts, or engine artefacts.
+- Technical failure remains a separate domain from CL legal refusal.
+
+BETA-06:CL-GATE-SEPARATION:END
