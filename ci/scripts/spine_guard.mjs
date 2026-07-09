@@ -5,9 +5,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { BETA_TOKEN_REPORT_TOPIC_TOKENS, createCiTokenReport, emitCiTokenReport } from "./ci_token_report.mjs";
 
 const GUARD = "BETA-01";
-const SUCCESS_TOKEN = "CI_BETA_SPINE_ARTEFACT_MANIFEST";
+const SUCCESS_TOKEN = BETA_TOKEN_REPORT_TOPIC_TOKENS.spine;
 const TOKEN = {
   missingSpineDoc: "CI_SPINE_MISSING_DOC",
   authorityConflict: "CI_SPINE_AUTHORITY_CONFLICT",
@@ -89,9 +90,23 @@ function fail(token, message, detail = {}) {
 
 function finishIfFailed() {
   if (failures.length === 0) return;
-  for (const failure of failures) {
-    console.error(JSON.stringify(failure, null, 2));
-  }
+
+  const reportFailures = failures.map((failure) => ({
+    token: failure.token,
+    message: failure.message,
+    source: "ci/scripts/spine_guard.mjs",
+    location: failure.path ? { path: failure.path } : undefined,
+    details: Object.fromEntries(
+      Object.entries(failure).filter(([key]) => !["ok", "guard", "token", "message", "path"].includes(key))
+    )
+  }));
+
+  emitCiTokenReport(createCiTokenReport({
+    guard: GUARD,
+    token: SUCCESS_TOKEN,
+    failures: reportFailures
+  }), { stream: "stderr" });
+
   process.exit(1);
 }
 
