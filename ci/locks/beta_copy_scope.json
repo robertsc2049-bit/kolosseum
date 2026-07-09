@@ -1,0 +1,21 @@
+{
+  "schema_version": "kolosseum.beta.copy_scope.v1",
+  "scope_id": "beta_copy_registry_scope",
+  "registry_path": "src/ui/copy/beta_copy_registry.json",
+  "paths": [],
+  "path_prefixes": [
+    "app/beta/",
+    "src/beta/",
+    "src/ui/beta/",
+    "server/beta/",
+    "web/beta/",
+    "client/beta/"
+  ],
+  "allowed_registry_paths": [
+    "src/ui/copy/beta_copy_registry.json"
+  ],
+  "notes": [
+    "No beta product UI behaviour is added by this scope.",
+    "Any future beta user-facing path under the declared prefixes is scanned for inline copy and forbidden claim language."
+  ]
+}

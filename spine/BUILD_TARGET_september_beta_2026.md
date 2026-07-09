@@ -50,3 +50,17 @@ Rules:
 - Token meaning remains owned by the emitting guard and source file.
 
 BETA-03:CI-TOKEN-REPORT-CONTRACT:END
+## BETA-04 Copy Registry Baseline
+
+BETA-04:COPY-REGISTRY-BASELINE:START
+
+Machine-checkable beta copy registry baseline: src/ui/copy/beta_copy_registry.json.
+
+Rules:
+- Beta user-facing copy must be referenced by copy ID.
+- Inline user-facing copy in beta-scoped paths fails CI.
+- Medical, safety, readiness, suitability, optimisation, recommendation, protection, prevention, and performance claim language fails CI.
+- Contextual claim phrases fail CI even when no single forbidden term is present.
+- This slice adds no product behaviour.
+
+BETA-04:COPY-REGISTRY-BASELINE:END

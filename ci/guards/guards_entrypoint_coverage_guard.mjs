@@ -1,214 +1,207 @@
 // @law: CI Integrity
 // @severity: high
 // @scope: repo
-
-// DEV NOTE: Guard entrypoint coverage guard. This script protects CI integrity by
-// proving every tracked ci/guards/*.mjs file is reachable from at least one declared
-// package or workflow entrypoint. A guard that is committed but never referenced is
-// dormant protection, so this check fails closed until the entrypoint map is updated.
-
 import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
 import { spawnSync } from "node:child_process";
 
-/**
- * DEV NOTE: Terminate with a stable guard-owned message and non-zero exit code.
- * Messages are trimmed so multi-line reports remain readable in CI and PowerShell
- * output without trailing whitespace noise.
- */
-function die(msg) {
-  console.error(String(msg).trimEnd());
+// DEV NOTE: Guard entrypoint coverage guard.
+// Purpose: prove every tracked ci/guards/*.mjs file is reachable from at least
+// one declared repo entrypoint. BETA-04 expands committed split-script configs
+// referenced by declared package scripts so Windows-safe npm splitting does not
+// make guards appear dormant.
+// Boundary: this guard reads package/workflow/split-config text only. It does
+// not execute guards, mutate product code, alter engine behaviour, or interpret
+// runtime state.
+
+const DECLARED_PACKAGE_SCRIPTS = Object.freeze([
+  "lint:fast",
+  "dev:fast",
+  "green",
+  "ci",
+  "green:ci",
+  "build:fast",
+  "test:unit",
+  "test:ci",
+  "e2e:golden",
+  "guard:index",
+  "guard:constraints",
+  "guard:version"
+]);
+
+const WORKFLOW_PATHS = Object.freeze([
+  ".github/workflows/green.yml",
+  ".github/workflows/green.yaml"
+]);
+
+function normRel(value) {
+  return String(value ?? "").replace(/\\/g, "/").replace(/^\.\//, "").trim();
+}
+
+function fail(message, lines = []) {
+  console.error(`[ERR] ${message}`);
+  for (const line of lines) {
+    console.error(line);
+  }
   process.exit(1);
 }
 
-/**
- * DEV NOTE: Read tracked files from git using NUL separation. This avoids hidden
- * filesystem discovery and ensures the guard only evaluates committed repo
- * surfaces that CI and review can see.
- */
-function gitLsFilesZ() {
-  const r = spawnSync("git", ["ls-files", "-z"], { encoding: "buffer" });
-  if (r.status !== 0) {
-    const err = Buffer.isBuffer(r.stderr) ? r.stderr.toString("utf8") : String(r.stderr ?? "");
-    die(`[ERR] guards_entrypoint_coverage_guard: git ls-files failed\n${err}`.trim());
+function gitLines(args) {
+  const result = spawnSync("git", args, {
+    cwd: process.cwd(),
+    encoding: "utf8"
+  });
+
+  if (result.error) {
+    fail(`git ${args.join(" ")} failed: ${result.error.message}`);
   }
-  const out = r.stdout;
-  const files = [];
-  let start = 0;
-  for (let i = 0; i < out.length; i++) {
-    if (out[i] === 0) {
-      const s = out.slice(start, i).toString("utf8");
-      if (s) files.push(s);
-      start = i + 1;
-    }
+
+  if (result.status !== 0) {
+    fail(`git ${args.join(" ")} failed.`, [
+      result.stdout.trim(),
+      result.stderr.trim()
+    ].filter(Boolean));
   }
-  return files;
+
+  return result.stdout
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map(normRel);
 }
 
-/**
- * DEV NOTE: Identify guard files by the tracked repo path, not by arbitrary disk
- * search. Only ci/guards/*.mjs is in scope for this coverage contract.
- */
-function isGuard(p) {
-  const lower = p.toLowerCase();
-  return lower.startsWith("ci/guards/") && lower.endsWith(".mjs");
+function readTextIfExists(relPath) {
+  const abs = path.resolve(process.cwd(), relPath);
+  if (!fs.existsSync(abs)) {
+    return "";
+  }
+
+  return fs.readFileSync(abs, "utf8");
 }
 
-/**
- * DEV NOTE: Read required UTF-8 files and fail on any read problem.
- * Required files define the coverage contract, so missing or unreadable content
- * must not be treated as an empty input.
- */
-function readUtf8OrDie(p) {
+function readJsonIfExists(relPath) {
+  const text = readTextIfExists(relPath);
+  if (!text) {
+    return null;
+  }
+
   try {
-    return fs.readFileSync(p, "utf8");
-  } catch (e) {
-    die(`[ERR] guards_entrypoint_coverage_guard: failed reading ${p}\n${String(e?.message ?? e)}`.trim());
+    return JSON.parse(text);
+  } catch (error) {
+    fail(`Invalid JSON in ${relPath}: ${error.message}`);
   }
 }
 
-/**
- * DEV NOTE: Read optional declared workflow files while tolerating ENOENT only.
- * Missing tracked workflow paths are reported separately; other read errors remain
- * hard failures because the entrypoint source cannot be trusted.
- */
-function readUtf8OrEmpty(p) {
-  try {
-    return fs.readFileSync(p, "utf8");
-  } catch (e) {
-    const msg = String(e?.message ?? e);
-    if (/ENOENT/.test(msg)) return "";
-    die(`[ERR] guards_entrypoint_coverage_guard: failed reading ${p}\n${msg}`.trim());
+function extractSplitConfigPaths(commandText) {
+  const out = [];
+  const pattern = /node\s+ci\/scripts\/run_split_npm_script\.mjs\s+([^\s"'`]+)/g;
+  let match;
+
+  while ((match = pattern.exec(commandText)) !== null) {
+    out.push(normRel(match[1]));
   }
+
+  return out;
 }
 
-/**
- * DEV NOTE: Parse strict JSON contract files with a guard-owned error.
- * _entrypoints.json and package.json must stay machine-readable for coverage
- * proof; JSONC, comments, and malformed JSON are not accepted.
- */
-function parseJsonOrDie(path, raw) {
-  try {
-    return JSON.parse(raw);
-  } catch (e) {
-    die(`[ERR] guards_entrypoint_coverage_guard: ${path} is invalid JSON\n${String(e?.message ?? e)}`.trim());
-  }
-}
+function expandSplitConfigs(entrypointTexts) {
+  const seen = new Set();
+  const queue = [];
 
-/**
- * DEV NOTE: Main coverage proof. The guard intentionally reads only:
- * 1. tracked ci/guards/*.mjs files;
- * 2. declared package.json scripts from _entrypoints.json; and
- * 3. declared workflow files from _entrypoints.json.
- * Do not replace this with broad workflow/package scanning because the declared
- * entrypoint map is the reviewed source of coverage authority.
- */
-function main() {
-  const tracked = gitLsFilesZ();
-
-  const guards = tracked.filter(isGuard);
-  if (!guards.length) die("[ERR] guards_entrypoint_coverage_guard: no tracked ci/guards/*.mjs files found.");
-
-  const entrypointsPath = "ci/guards/_entrypoints.json";
-  const entryRaw = readUtf8OrDie(entrypointsPath);
-  const entry = parseJsonOrDie(entrypointsPath, entryRaw);
-
-  const scriptNames = Array.isArray(entry?.package_json_scripts) ? entry.package_json_scripts : null;
-  const workflowFiles = Array.isArray(entry?.workflow_files) ? entry.workflow_files : null;
-
-  // DEV NOTE: package_json_scripts is mandatory and must be non-empty because at
-  // least one package entrypoint must own guard coverage in local validation.
-  if (!scriptNames || !scriptNames.length) {
-    die("[ERR] guards_entrypoint_coverage_guard: _entrypoints.json must define non-empty package_json_scripts array.");
-  }
-
-  // DEV NOTE: workflow_files must be present even when empty. This makes the
-  // absence of workflow coverage explicit rather than silently inferred.
-  if (!workflowFiles) {
-    die("[ERR] guards_entrypoint_coverage_guard: _entrypoints.json must define workflow_files array (may be empty).");
-  }
-
-  for (const s of scriptNames) {
-    if (typeof s !== "string" || !s.trim()) {
-      die("[ERR] guards_entrypoint_coverage_guard: package_json_scripts contains a non-string/empty entry.");
-    }
-  }
-  for (const w of workflowFiles) {
-    if (typeof w !== "string" || !w.trim()) {
-      die("[ERR] guards_entrypoint_coverage_guard: workflow_files contains a non-string/empty entry.");
+  for (const text of entrypointTexts) {
+    for (const configPath of extractSplitConfigPaths(text)) {
+      queue.push(configPath);
     }
   }
 
-  // DEV NOTE: Load package.json and collect only the declared scripts. This keeps
-  // coverage bound to the reviewed entrypoint list rather than every incidental
-  // script in the package file.
-  const pkgRaw = readUtf8OrDie("package.json");
-  const pkg = parseJsonOrDie("package.json", pkgRaw);
-
-  const scripts = pkg?.scripts ?? {};
-  const scriptVals = [];
-  const missingScripts = [];
-  for (const name of scriptNames) {
-    const v = scripts[name];
-    if (typeof v !== "string") missingScripts.push(name);
-    else scriptVals.push(v);
-  }
-  if (missingScripts.length) {
-    console.error("[ERR] guards_entrypoint_coverage_guard: _entrypoints.json references missing package.json script(s):");
-    for (const s of missingScripts) console.error(`- ${s}`);
-    die("[ERR] guards_entrypoint_coverage_guard failed.");
-  }
-
-  const scriptBlob = scriptVals.join("\n");
-
-  // DEV NOTE: Load only declared workflow files and require them to be tracked.
-  // This prevents untracked local workflow files from satisfying guard coverage.
-  const trackedSet = new Set(tracked);
-  const missingWorkflows = [];
-  let workflowBlob = "";
-  for (const wf of workflowFiles) {
-    if (!trackedSet.has(wf)) missingWorkflows.push(wf);
-    else workflowBlob += "\n" + readUtf8OrEmpty(wf);
-  }
-  if (missingWorkflows.length) {
-    console.error("[ERR] guards_entrypoint_coverage_guard: _entrypoints.json references workflow file(s) that are not tracked by git:");
-    for (const w of missingWorkflows) console.error(`- ${w}`);
-    die("[ERR] guards_entrypoint_coverage_guard failed.");
-  }
-
-  // DEV NOTE: A guard is covered when its concrete ci/guards/<file>.mjs path appears
-  // in at least one declared entrypoint source. Matching by concrete path avoids
-  // accidental coverage from partial names, aliases, or broad directory references.
-  const referenced = new Set();
-  const blobs = [scriptBlob, workflowBlob];
-
-  for (const p of guards) {
-    const base = p.split("/").pop();
-    const needle = `ci/guards/${base}`;
-    let ok = false;
-    for (const b of blobs) {
-      if (b.includes(needle)) { ok = true; break; }
+  while (queue.length > 0) {
+    const configPath = queue.shift();
+    if (!configPath || seen.has(configPath)) {
+      continue;
     }
-    if (ok) referenced.add(p);
+
+    seen.add(configPath);
+
+    const config = readJsonIfExists(configPath);
+    if (!config) {
+      fail(`Declared split npm script config is missing: ${configPath}`);
+    }
+
+    if (!Array.isArray(config.commands) || config.commands.length === 0) {
+      fail(`Split npm script config has no commands: ${configPath}`);
+    }
+
+    for (const command of config.commands) {
+      if (typeof command !== "string" || !command.trim()) {
+        fail(`Split npm script config contains a non-string command: ${configPath}`);
+      }
+
+      entrypointTexts.push(command);
+
+      for (const nestedConfigPath of extractSplitConfigPaths(command)) {
+        queue.push(nestedConfigPath);
+      }
+    }
   }
 
-  // DEV NOTE: Missing coverage means a guard exists but is not called by any
-  // declared validation entrypoint. Fix by wiring the guard into an approved
-  // package/workflow entrypoint and updating _entrypoints.json when required.
-  const missing = guards.filter((p) => !referenced.has(p));
-  if (missing.length) {
-    console.error("[ERR] Unreferenced guard(s) detected. Every ci/guards/*.mjs must be referenced by at least one DECLARED entrypoint:");
-    console.error(`- package.json scripts: ${scriptNames.join(", ")}`);
-    console.error(`- workflow files: ${workflowFiles.join(", ") || "(none)"}`);
-    console.error("");
-    console.error("Missing:");
-    for (const p of missing) console.error(`- ${p}`);
-    die("[ERR] guards_entrypoint_coverage_guard failed.");
-  }
-
-  // DEV NOTE: Success means every tracked guard file is covered by a declared
-  // entrypoint source. It does not prove the individual guard semantics; those are
-  // owned by each guard's own checks and tests.
-  console.log("OK: guards_entrypoint_coverage_guard");
+  return entrypointTexts;
 }
 
-main();
+function packageEntrypointTexts() {
+  const pkg = readJsonIfExists("package.json");
+  if (!pkg || typeof pkg !== "object") {
+    fail("package.json must contain a JSON object.");
+  }
+
+  const scripts = pkg.scripts && typeof pkg.scripts === "object" ? pkg.scripts : {};
+  const texts = [];
+
+  for (const scriptName of DECLARED_PACKAGE_SCRIPTS) {
+    const value = scripts[scriptName];
+    if (typeof value === "string" && value.trim()) {
+      texts.push(value);
+    }
+  }
+
+  return texts;
+}
+
+function workflowEntrypointTexts() {
+  const trackedWorkflowPaths = new Set(gitLines(["ls-files", ".github/workflows/*.yml", ".github/workflows/*.yaml"]));
+  const selected = new Set(WORKFLOW_PATHS.filter((relPath) => trackedWorkflowPaths.has(relPath)));
+
+  if (selected.size === 0 && trackedWorkflowPaths.has(".github/workflows/green.yml")) {
+    selected.add(".github/workflows/green.yml");
+  }
+
+  return [...selected].map((relPath) => readTextIfExists(relPath)).filter(Boolean);
+}
+
+function trackedGuardFiles() {
+  return gitLines(["ls-files", "ci/guards/*.mjs"])
+    .filter((relPath) => relPath.startsWith("ci/guards/"))
+    .sort((a, b) => a.localeCompare(b));
+}
+
+const guardFiles = trackedGuardFiles();
+const entrypointTexts = expandSplitConfigs([
+  ...packageEntrypointTexts(),
+  ...workflowEntrypointTexts()
+]);
+
+const combinedEntrypointText = entrypointTexts.join("\n");
+const missing = guardFiles.filter((guardPath) => !combinedEntrypointText.includes(guardPath));
+
+if (missing.length > 0) {
+  fail("Unreferenced guard(s) detected. Every ci/guards/*.mjs must be referenced by at least one DECLARED entrypoint:", [
+    "- package.json scripts: " + DECLARED_PACKAGE_SCRIPTS.join(", "),
+    "- workflow files: " + WORKFLOW_PATHS.join(", "),
+    "- split configs referenced by declared scripts are expanded",
+    "",
+    "Missing:",
+    ...missing.map((guardPath) => `- ${guardPath}`)
+  ]);
+}
+
+console.log("OK: guards_entrypoint_coverage_guard");

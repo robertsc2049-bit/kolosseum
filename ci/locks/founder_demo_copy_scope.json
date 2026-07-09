@@ -2,6 +2,6 @@
     "schema_version":  "kolosseum.founder_demo_copy_scope.v1.0.0",
     "generated_by":  "ticket/p157-founder-demo-ui-copy-lock",
     "paths":  [
-
+                  "src/ui/copy/founder_demo_copy.ts"
               ]
 }

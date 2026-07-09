@@ -56,6 +56,14 @@ const forbiddenChangedPathFragments = [
   "gym-access/"
 ];
 
+// DEV NOTE: BETA-04 deliberately adds a copy registry control artefact under
+// src/ui/copy without adding a UI screen or product behaviour. This exact-path
+// exception keeps the old S18 screen/content boundary intact while allowing the
+// beta copy registry baseline to be governed by its own stricter BETA-04 guard.
+const allowedBeta04CopyRegistryChangedPaths = new Set([
+  "src/ui/copy/beta_copy_registry.json"
+]);
+
 function fail(message) {
   console.error(`v1_boundary_guard_scaffolding_guard: FAIL: ${message}`);
   process.exit(1);
@@ -147,6 +155,10 @@ const changedFiles = changedFilesAgainstOriginMain();
 
 for (const changedFile of changedFiles) {
   const normalised = changedFile.replace(/\\/gu, "/");
+
+  if (allowedBeta04CopyRegistryChangedPaths.has(normalised)) {
+    continue;
+  }
 
   for (const forbiddenFragment of forbiddenChangedPathFragments) {
     if (normalised.includes(forbiddenFragment)) {

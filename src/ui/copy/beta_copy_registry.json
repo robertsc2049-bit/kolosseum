@@ -1,0 +1,158 @@
+{
+  "schema_version": "kolosseum.beta.copy_registry.v1",
+  "registry_id": "beta_copy_registry_baseline",
+  "closed_world": true,
+  "locale": "en-GB",
+  "source_boundary": "src/ui/copy",
+  "required_copy_ids": [
+    "beta.onboarding.title",
+    "beta.onboarding.body",
+    "beta.declaration.error.required",
+    "beta.declaration.error.invalid_scope",
+    "beta.session_compile.action",
+    "beta.session_compile.unavailable",
+    "beta.runtime_execution.start",
+    "beta.runtime_execution.record_event",
+    "beta.split_return.split",
+    "beta.split_return.return",
+    "beta.partial_completion.recorded",
+    "beta.coach_assignment.assigned",
+    "beta.coach_assignment.unassigned",
+    "beta.coach_notes.boundary",
+    "beta.projection.summary",
+    "beta.replay.status",
+    "beta.evidence.status",
+    "beta.export.action",
+    "beta.export.limitation",
+    "beta.limitations.scope",
+    "beta.limitations.non_claim"
+  ],
+  "entries": [
+    {
+      "copy_id": "beta.onboarding.title",
+      "domain": "onboarding",
+      "text": "Beta setup",
+      "params": []
+    },
+    {
+      "copy_id": "beta.onboarding.body",
+      "domain": "onboarding",
+      "text": "Enter declared details only.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.declaration.error.required",
+      "domain": "declaration_errors",
+      "text": "Declaration field required.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.declaration.error.invalid_scope",
+      "domain": "declaration_errors",
+      "text": "Declaration outside beta scope.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.session_compile.action",
+      "domain": "session_compile",
+      "text": "Compile session.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.session_compile.unavailable",
+      "domain": "session_compile",
+      "text": "Session cannot be compiled from current declarations.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.runtime_execution.start",
+      "domain": "runtime_execution",
+      "text": "Start recorded execution.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.runtime_execution.record_event",
+      "domain": "runtime_execution",
+      "text": "Record event.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.split_return.split",
+      "domain": "split_return",
+      "text": "Split recorded set.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.split_return.return",
+      "domain": "split_return",
+      "text": "Return to recorded work.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.partial_completion.recorded",
+      "domain": "partial_completion",
+      "text": "Partial completion recorded.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.coach_assignment.assigned",
+      "domain": "coach_assignment",
+      "text": "Coach assignment recorded.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.coach_assignment.unassigned",
+      "domain": "coach_assignment",
+      "text": "No coach assignment recorded.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.coach_notes.boundary",
+      "domain": "coach_notes",
+      "text": "Coach notes are non-binding.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.projection.summary",
+      "domain": "projection",
+      "text": "Projection view shows recorded structure only.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.replay.status",
+      "domain": "replay",
+      "text": "Replay status recorded.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.evidence.status",
+      "domain": "evidence",
+      "text": "Evidence status recorded.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.export.action",
+      "domain": "export",
+      "text": "Create export.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.export.limitation",
+      "domain": "export",
+      "text": "Export contains recorded data only.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.limitations.scope",
+      "domain": "beta_limitations",
+      "text": "Beta scope is limited to declared beta paths.",
+      "params": []
+    },
+    {
+      "copy_id": "beta.limitations.non_claim",
+      "domain": "beta_limitations",
+      "text": "Kolosseum records facts only.",
+      "params": []
+    }
+  ]
+}

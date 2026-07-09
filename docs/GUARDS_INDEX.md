@@ -31,7 +31,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/green_ci_parity_guard.mjs` | CI Integrity | high | repo | DEV NOTE: Green/CI parity guard. This script protects the local-to-CI contract |
 | `ci/guards/green_contract_installer_sync_guard.mjs` | CI Integrity | high | repo | DEV NOTE: Green contract installer sync guard. This script protects the installer |
 | `ci/guards/green_entrypoint_guard.mjs` | CI Integrity | high | repo | DEV NOTE: Green entrypoint guard. This script protects CI and local validation |
-| `ci/guards/guards_entrypoint_coverage_guard.mjs` | CI Integrity | high | repo | DEV NOTE: Guard entrypoint coverage guard. This script protects CI integrity by |
+| `ci/guards/guards_entrypoint_coverage_guard.mjs` | CI Integrity | high | repo | DEV NOTE: Guard entrypoint coverage guard. |
 | `ci/guards/guards_index_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: Guards index guard. This script protects guard documentation and |
 | `ci/guards/lockfile_note_guard.mjs` | LOCKFILE_NOTE | ERROR | REPO | DEV NOTE: Lockfile note guard. This script protects dependency-change review by |
 | `ci/guards/no_bom_guard.mjs` | Encoding Hygiene | high | repo | DEV NOTE: No-BOM guard. This script protects byte-stable repo hygiene by |

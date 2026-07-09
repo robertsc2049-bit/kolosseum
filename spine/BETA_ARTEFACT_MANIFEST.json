@@ -43,7 +43,8 @@
   ],
   "dependency_order": [
     "beta_build_target",
-    "beta_spine_artefact_manifest"
+    "beta_spine_artefact_manifest",
+    "beta_copy_registry_baseline"
   ],
   "artefacts": [
     {
@@ -74,6 +75,22 @@
       "ship_scope": false,
       "dependencies": [
         "beta_build_target"
+      ]
+    },
+    {
+      "id": "beta_copy_registry_baseline",
+      "path": "src/ui/copy/beta_copy_registry.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "phase_range": [
+        1,
+        8
+      ],
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_spine_artefact_manifest"
       ]
     }
   ]
