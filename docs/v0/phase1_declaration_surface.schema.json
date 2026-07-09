@@ -15,7 +15,11 @@
     "execution_scope",
     "activity_id",
     "location_type",
-    "equipment_profile_id"
+    "equipment_profile_id",
+    "nd_mode",
+    "instruction_density",
+    "exposure_prompt_density",
+    "bias_mode"
   ],
   "properties": {
     "engine_version": {
@@ -59,9 +63,7 @@
       ]
     },
     "governing_authority_id": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+      "$ref": "#/$defs/registry_id"
     },
     "activity_id": {
       "type": "string",
@@ -72,14 +74,10 @@
       ]
     },
     "sport_role_id": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+      "$ref": "#/$defs/registry_id"
     },
     "variant_id": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+      "$ref": "#/$defs/registry_id"
     },
     "location_type": {
       "type": "string",
@@ -90,9 +88,34 @@
       ]
     },
     "equipment_profile_id": {
+      "$ref": "#/$defs/registry_id"
+    },
+    "nd_mode": {
+      "type": "boolean"
+    },
+    "instruction_density": {
       "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+      "enum": [
+        "minimal",
+        "standard",
+        "detailed"
+      ]
+    },
+    "exposure_prompt_density": {
+      "type": "string",
+      "enum": [
+        "minimal",
+        "standard",
+        "detailed"
+      ]
+    },
+    "bias_mode": {
+      "type": "string",
+      "enum": [
+        "consistency",
+        "variety",
+        "neutral"
+      ]
     },
     "baseline_metrics": {
       "type": "array",
@@ -163,7 +186,7 @@
       "type": "string",
       "minLength": 10,
       "maxLength": 40,
-      "pattern": "^\\\\d{4}-\\\\d{2}-\\\\d{2}([T ][0-2]\\\\d:[0-5]\\\\d(:[0-5]\\\\d(\\\\.\\\\d{1,9})?)?(Z|[+-][0-2]\\\\d:[0-5]\\\\d)?)?$"
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ][0-2]\\d:[0-5]\\d(:[0-5]\\d(\\.\\d{1,9})?)?(Z|[+-][0-2]\\d:[0-5]\\d)?)?$"
     },
     "baseline_metric": {
       "type": "object",
@@ -261,17 +284,17 @@
         "instruction_density": {
           "type": "string",
           "enum": [
-            "low",
-            "medium",
-            "high"
+            "minimal",
+            "standard",
+            "detailed"
           ]
         },
         "presentation_density": {
           "type": "string",
           "enum": [
-            "compact",
+            "minimal",
             "standard",
-            "expanded"
+            "detailed"
           ]
         },
         "nd_mode": {
