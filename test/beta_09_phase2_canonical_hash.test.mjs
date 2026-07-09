@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import ts from "typescript";
+import * as ts from "typescript";
 
 let phase2Promise = null;
 
