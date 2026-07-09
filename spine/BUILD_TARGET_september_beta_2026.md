@@ -141,7 +141,7 @@ BETA-09:PHASE2-CANONICAL-HASH:END
 
 BETA-10:PHASE3-CONSTRAINT-PRUNE:START
 
-Machine-checkable Phase 3 constraint prune: docs/beta/BETA_10_PHASE3_CONSTRAINT_PRUNE.md, engine/src/phases/phase3.ts, src/beta10Phase3ConstraintPrune.ts, test/beta_10_phase3_constraint_prune.test.mjs.
+Machine-checkable Phase 3 constraint prune: docs/beta/BETA_10_PHASE3_CONSTRAINT_PRUNE.md, engine/src/phases/phase3.ts, engine/src/phases/beta10Phase3ConstraintPrune.ts, test/beta_10_phase3_constraint_prune.test.mjs.
 
 Rules:
 - Phase 3 beta constraint resolution is deterministic and staged in this order: authority, consent, declared legality, context, equipment, activity/role.
