@@ -1,63 +1,23 @@
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
+import fs from "node:fs/promises";
 import path from "node:path";
-import { spawn } from "node:child_process";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import test from "node:test";
+import ts from "typescript";
 
 let phase2Promise = null;
 
-function repoRoot() {
-  const here = fileURLToPath(import.meta.url);
-  return path.resolve(path.dirname(here), "..");
-}
-
-function spawnProc(cmd, args, opts = {}) {
-  const child = spawn(cmd, args, {
-    stdio: ["ignore", "pipe", "pipe"],
-    ...opts
-  });
-
-  let stdout = "";
-  let stderr = "";
-
-  child.stdout.on("data", (data) => {
-    stdout += data.toString("utf8");
-  });
-
-  child.stderr.on("data", (data) => {
-    stderr += data.toString("utf8");
-  });
-
-  return {
-    child,
-    get stdout() {
-      return stdout;
-    },
-    get stderr() {
-      return stderr;
-    }
-  };
-}
-
-async function buildEngine(root) {
-  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  const build = spawnProc(npmCmd, ["run", "build:fast"], {
-    cwd: root,
-    env: { ...process.env }
-  });
-  const code = await new Promise((resolve) => build.child.on("close", resolve));
-
-  if (code !== 0) {
-    throw new Error(`build:fast failed (code=${code}).\nstdout:\n${build.stdout}\nstderr:\n${build.stderr}`);
-  }
-}
-
 async function loadPhase2Fresh() {
-  const root = repoRoot();
-  await buildEngine(root);
-  const phase2ModulePath = path.join(root, "dist", "engine", "src", "phases", "phase2.js");
-  const phase2Module = await import(`${pathToFileURL(phase2ModulePath).href}?cacheBust=${Date.now()}`);
+  const sourcePath = path.join(process.cwd(), "engine", "src", "phases", "phase2.ts");
+  const source = await fs.readFile(sourcePath, "utf8");
+  const transpiled = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.ES2022,
+      target: ts.ScriptTarget.ES2022
+    }
+  });
+  const href = `data:text/javascript;base64,${Buffer.from(transpiled.outputText, "utf8").toString("base64")}`;
+  const phase2Module = await import(href);
   assert.equal(typeof phase2Module.phase2CanonicaliseAndHash, "function");
   return phase2Module.phase2CanonicaliseAndHash;
 }
