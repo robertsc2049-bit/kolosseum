@@ -28,6 +28,20 @@ export type Phase3Result =
   | { ok: true; phase3: Phase3Output; notes: string[] }
   | { ok: false; failure_token: string; details?: unknown };
 
+type Beta10PruneSuccess = {
+  ok: true;
+  constraints: Record<string, any>;
+  prune: Record<string, any>;
+};
+
+type Beta10PruneFailure = {
+  ok: false;
+  failure_token: string;
+  details?: unknown;
+};
+
+type Beta10PruneResult = Beta10PruneSuccess | Beta10PruneFailure;
+
 const BETA10_CONSTRAINT_ORDER = Object.freeze([
   "authority_constraints",
   "consent_constraints",
@@ -158,7 +172,7 @@ function hasBeta10Prune(canonicalInput: any, env: any): boolean {
     env?.constraint_resolution_mode === "beta_remove_only";
 }
 
-function failPhase3(failure_token: string, details: Record<string, any>): Phase3Result {
+function failPhase3(failure_token: string, details: Record<string, any>): Beta10PruneFailure {
   return {
     ok: false,
     failure_token,
@@ -166,7 +180,7 @@ function failPhase3(failure_token: string, details: Record<string, any>): Phase3
   };
 }
 
-function beta10Empty(stage: string, initial: string[], removedByStage: Record<string, string[]>): Phase3Result {
+function beta10Empty(stage: string, initial: string[], removedByStage: Record<string, string[]>): Beta10PruneFailure {
   return failPhase3("empty_solution_space", {
     stage,
     constraint_order: [...BETA10_CONSTRAINT_ORDER],
@@ -202,7 +216,7 @@ function pruneRemoved(solution: string[], removedIds: string[] | undefined): { n
   };
 }
 
-function beta10Prune(canonicalInput: any, env: Record<string, any>): Phase3Result | { ok: true; constraints: Record<string, any>; prune: Record<string, any> } {
+function beta10Prune(canonicalInput: any, env: Record<string, any>): Beta10PruneResult {
   const initial = sortedUnique(pickStringArray(env.candidate_exercise_ids)) ?? [];
   const removedByStage: Record<string, string[]> = {};
   let solution = [...initial];
@@ -234,7 +248,7 @@ function beta10Prune(canonicalInput: any, env: Record<string, any>): Phase3Resul
     });
   }
 
-  if (!BETA10_SUPPORTED_ACTIVITIES.includes(activityId)) {
+  if (!BETA10_SUPPORTED_ACTIVITIES.includes(activityId as any)) {
     return failPhase3("unsupported_activity", {
       stage: "activity_role_constraints",
       activity_id: activityId,
@@ -422,7 +436,7 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
 
   if (hasBeta10Prune(canonicalInput, env)) {
     const beta10 = beta10Prune(canonicalInput, env as Record<string, any>);
-    if (beta10.ok !== true) return beta10;
+    if (beta10.ok === false) return beta10;
 
     notes.push("PHASE_3: registries loaded");
     notes.push("PHASE_3: BETA-10 remove-only constraints resolved");
