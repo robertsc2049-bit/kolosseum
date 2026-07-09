@@ -7,6 +7,7 @@ export const CANONICAL_FAILURE_TOKENS = [
   "consent_not_granted",
   "constraints_type_invalid",
   "constraints_version_invalid_or_missing",
+  "empty_solution_space",
   "legacy_constraints_keys_refused",
   "phase1_failed_non_object",
   "phase2_canonical_parse_failed",
