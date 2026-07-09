@@ -40,6 +40,7 @@ If the solution space becomes empty, Phase 3 returns `empty_solution_space` and 
 Machine-checkable implementation and proof:
 
 - `engine/src/phases/phase3.ts`
+- `src/beta10Phase3ConstraintPrune.ts`
 - `test/beta_10_phase3_constraint_prune.test.mjs`
 
 ## Negative proof
