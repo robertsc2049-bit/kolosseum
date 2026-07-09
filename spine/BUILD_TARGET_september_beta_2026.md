@@ -36,3 +36,17 @@ Rules:
 - Generated index drift remains blocked by the existing generated index guards.
 
 BETA-02:CHECKSUM-GENERATED-DRIFT:END
+## BETA-03 CI Token Report Contract
+
+BETA-03:CI-TOKEN-REPORT-CONTRACT:START
+
+Machine-checkable CI token report contract: ci/scripts/ci_token_report.mjs.
+
+Rules:
+- Guard failures use structured JSON reports.
+- Failure records include stable token and message fields.
+- File, path, line, column, source, severity, and details are carried when available.
+- The token catalogue covers spine, schema, registry, copy, replay, Phase 7, and Phase 8 guard topics.
+- Token meaning remains owned by the emitting guard and source file.
+
+BETA-03:CI-TOKEN-REPORT-CONTRACT:END

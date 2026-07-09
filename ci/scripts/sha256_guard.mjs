@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import process from "node:process";
+import { createCiTokenReport, emitCiTokenReport } from "./ci_token_report.mjs";
 
 // DEV NOTE: Documentation checksum and generated-drift guard boundary.
 // Purpose: verify docs/checksums.sha256 against committed docs bytes and beta
@@ -68,9 +69,21 @@ function fail(token, message, detail = {}) {
 function flushFailures() {
   if (pendingFailures.length === 0) return;
 
-  for (const failure of pendingFailures) {
-    console.error(JSON.stringify(failure));
-  }
+  const failures = pendingFailures.map((failure) => ({
+    token: failure.token,
+    message: failure.message,
+    source: "ci/scripts/sha256_guard.mjs",
+    location: failure.path ? { path: failure.path } : undefined,
+    details: Object.fromEntries(
+      Object.entries(failure).filter(([key]) => !["ok", "token", "message", "path"].includes(key))
+    )
+  }));
+
+  emitCiTokenReport(createCiTokenReport({
+    guard: "BETA-02",
+    token: TOKEN.betaGeneratedDrift,
+    failures
+  }), { stream: "stderr" });
 
   process.exit(1);
 }
