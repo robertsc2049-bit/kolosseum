@@ -261,11 +261,11 @@ test("BETA-10 Phase 3 source is gated to explicit beta remove-only declarations"
   assert.match(source, /context_constraints/);
   assert.match(source, /equipment_constraints/);
   assert.match(source, /activity_role_constraints/);
-  assert.match(source, /empty_solution_space/);
-  assert.match(source, /invalid_authority/);
-  assert.match(source, /consent_violation/);
-  assert.match(source, /equipment_unavailable/);
-  assert.match(source, /unsupported_activity/);
+  assert.match(source, /beta10EmptyToken/);
+  assert.match(source, /beta10InvalidAuthorityToken/);
+  assert.match(source, /beta10ConsentViolationToken/);
+  assert.match(source, /beta10EquipmentUnavailableToken/);
+  assert.match(source, /beta10UnsupportedActivityToken/);
   assert.doesNotMatch(source.toLowerCase(), /closest match/);
 });
 
