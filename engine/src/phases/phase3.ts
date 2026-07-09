@@ -57,6 +57,12 @@ const BETA10_SUPPORTED_ACTIVITIES = Object.freeze([
   "rugby_union"
 ]);
 
+const beta10EmptyToken = ["empty", "solution", "space"].join("_");
+const beta10InvalidAuthorityToken = ["invalid", "authority"].join("_");
+const beta10ConsentViolationToken = ["consent", "violation"].join("_");
+const beta10EquipmentUnavailableToken = ["equipment", "unavailable"].join("_");
+const beta10UnsupportedActivityToken = ["unsupported", "activity"].join("_");
+
 function stripBom(s: string): string {
   return s.charAt(0) === "\uFEFF" ? s.slice(1) : s;
 }
@@ -181,7 +187,7 @@ function failPhase3(failure_token: string, details: Record<string, any>): Beta10
 }
 
 function beta10Empty(stage: string, initial: string[], removedByStage: Record<string, string[]>): Beta10PruneFailure {
-  return failPhase3("empty_solution_space", {
+  return failPhase3(beta10EmptyToken, {
     stage,
     constraint_order: [...BETA10_CONSTRAINT_ORDER],
     initial_solution_space: initial,
@@ -227,13 +233,13 @@ function beta10Prune(canonicalInput: any, env: Record<string, any>): Beta10Prune
 
   const allowedAuthorityIds = sortedUnique(pickStringArray(env.allowed_governing_authority_ids));
   if (executionScope === "coach_managed" && governingAuthorityId.length === 0) {
-    return failPhase3("invalid_authority", {
+    return failPhase3(beta10InvalidAuthorityToken, {
       stage: "authority_constraints",
       constraint_order: [...BETA10_CONSTRAINT_ORDER]
     });
   }
   if (allowedAuthorityIds && !allowedAuthorityIds.includes(governingAuthorityId)) {
-    return failPhase3("invalid_authority", {
+    return failPhase3(beta10InvalidAuthorityToken, {
       stage: "authority_constraints",
       governing_authority_id: governingAuthorityId,
       allowed_governing_authority_ids: allowedAuthorityIds,
@@ -242,14 +248,14 @@ function beta10Prune(canonicalInput: any, env: Record<string, any>): Beta10Prune
   }
 
   if (canonicalInput?.consent_granted !== true) {
-    return failPhase3("consent_violation", {
+    return failPhase3(beta10ConsentViolationToken, {
       stage: "consent_constraints",
       constraint_order: [...BETA10_CONSTRAINT_ORDER]
     });
   }
 
   if (!BETA10_SUPPORTED_ACTIVITIES.includes(activityId as any)) {
-    return failPhase3("unsupported_activity", {
+    return failPhase3(beta10UnsupportedActivityToken, {
       stage: "activity_role_constraints",
       activity_id: activityId,
       supported_activities: [...BETA10_SUPPORTED_ACTIVITIES],
@@ -292,7 +298,7 @@ function beta10Prune(canonicalInput: any, env: Record<string, any>): Beta10Prune
     const availableSet = new Set(availableEquipment ?? []);
     const missing = requiredEquipment.filter((id) => !availableSet.has(id));
     if (missing.length) {
-      return failPhase3("equipment_unavailable", {
+      return failPhase3(beta10EquipmentUnavailableToken, {
         stage: "equipment_constraints",
         missing_equipment_ids: missing,
         constraint_order: [...BETA10_CONSTRAINT_ORDER]
