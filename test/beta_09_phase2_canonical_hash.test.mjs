@@ -28,14 +28,14 @@ function canonicalise(value, pathParts = []) {
 
   if (typeof value === "number") {
     if (!Number.isFinite(value)) {
-      fail("phase2_non_finite_number_refused", { path: pathParts.join(".") });
+      fail("phase2-non-finite-number-refused", { path: pathParts.join(".") });
     }
     return value;
   }
 
   if (["string", "boolean"].includes(typeof value)) return value;
 
-  fail("phase2_unsupported_value_refused", {
+  fail("phase2-unsupported-value-refused", {
     path: pathParts.join("."),
     value_type: typeof value
   });
@@ -69,7 +69,7 @@ function phase2Probe(input) {
       ok: false,
       failure_token: "phase2_canonicalise_failed",
       details: {
-        reason: error?.reason ?? "phase2_json_parse_failed",
+        reason: error?.reason ?? "phase2-json-parse-failed",
         details: error?.details
       }
     };
@@ -106,7 +106,7 @@ test("BETA-09 Phase 2 source exposes exact canonical input byte hash scope", () 
   assert.match(source, /canonical_json_encoding: "utf8"/);
   assert.match(source, /TextDecoder\("utf-8", \{ fatal: true \}\)/);
   assert.match(source, /Object\.keys\(value\)\.sort\(\)/);
-  assert.match(source, /phase2_unsupported_value_refused/);
+  assert.match(source, /phase2-unsupported-value-refused/);
   assert.doesNotMatch(source, /constraints\s*=\s*\{\}/);
 });
 
@@ -185,12 +185,12 @@ test("BETA-09 malformed JSON, unsupported values, and field-loss hazards fail be
   const trailingComma = phase2Probe('{"a":1,}');
   assert.equal(trailingComma.ok, false);
   assert.equal(trailingComma.failure_token, "phase2_canonicalise_failed");
-  assert.equal(trailingComma.details.reason, "phase2_json_parse_failed");
+  assert.equal(trailingComma.details.reason, "phase2-json-parse-failed");
 
   const comments = phase2Probe('{"a":1 // comment\n}');
   assert.equal(comments.ok, false);
   assert.equal(comments.failure_token, "phase2_canonicalise_failed");
-  assert.equal(comments.details.reason, "phase2_json_parse_failed");
+  assert.equal(comments.details.reason, "phase2-json-parse-failed");
 
   const undefinedField = phase2Probe({
     a: 1,
@@ -198,5 +198,5 @@ test("BETA-09 malformed JSON, unsupported values, and field-loss hazards fail be
   });
   assert.equal(undefinedField.ok, false);
   assert.equal(undefinedField.failure_token, "phase2_canonicalise_failed");
-  assert.equal(undefinedField.details.reason, "phase2_unsupported_value_refused");
+  assert.equal(undefinedField.details.reason, "phase2-unsupported-value-refused");
 });
