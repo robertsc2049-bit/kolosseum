@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import fs from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { pathToFileURL } from "node:url";
@@ -34,29 +33,18 @@ function spawnProc(cmd, args, opts = {}) {
   };
 }
 
-async function fileExists(filePath) {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 async function loadPhase3Fresh() {
-  const phase3ModulePath = path.join(process.cwd(), "dist", "engine", "src", "phases", "phase3.js");
-  if (!(await fileExists(phase3ModulePath))) {
-    const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-    const build = spawnProc(npmCmd, ["run", "build:fast"], {
-      cwd: process.cwd(),
-      env: { ...process.env }
-    });
-    const code = await new Promise((resolve) => build.child.on("close", resolve));
-    if (code !== 0) {
-      throw new Error(`build:fast failed (code=${code}).\nstdout:\n${build.stdout}\nstderr:\n${build.stderr}`);
-    }
+  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
+  const build = spawnProc(npmCmd, ["run", "build:fast"], {
+    cwd: process.cwd(),
+    env: { ...process.env }
+  });
+  const code = await new Promise((resolve) => build.child.on("close", resolve));
+  if (code !== 0) {
+    throw new Error(`build:fast failed (code=${code}).\nstdout:\n${build.stdout}\nstderr:\n${build.stderr}`);
   }
 
+  const phase3ModulePath = path.join(process.cwd(), "dist", "engine", "src", "phases", "phase3.js");
   const phase3Module = await import(`${pathToFileURL(phase3ModulePath).href}?cacheBust=${Date.now()}`);
   assert.equal(typeof phase3Module.phase3ResolveConstraintsAndLoadRegistries, "function");
   return phase3Module.phase3ResolveConstraintsAndLoadRegistries;
