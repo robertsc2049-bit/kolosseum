@@ -260,7 +260,7 @@ function assertFailure(result, reason) {
 
 test("BETA-10 Phase 3 source is gated to explicit beta remove-only declarations", () => {
   const phase3Source = fs.readFileSync(path.join(process.cwd(), "engine", "src", "phases", "phase3.ts"), "utf8");
-  const helperSource = fs.readFileSync(path.join(process.cwd(), "src", "beta10Phase3ConstraintPrune.ts"), "utf8");
+  const helperSource = fs.readFileSync(path.join(process.cwd(), "engine", "src", "phases", "beta10Phase3ConstraintPrune.ts"), "utf8");
 
   assert.match(phase3Source, /hasBeta10Phase3ConstraintPrune/);
   assert.match(phase3Source, /runBeta10Phase3ConstraintPrune/);
@@ -275,7 +275,7 @@ test("BETA-10 Phase 3 source is gated to explicit beta remove-only declarations"
   assert.match(helperSource, /context_constraints/);
   assert.match(helperSource, /equipment_constraints/);
   assert.match(helperSource, /activity_role_constraints/);
-  assert.match(helperSource, /empty_solution_space/);
+  assert.match(helperSource, /emptySpace/);
   assert.doesNotMatch(helperSource.toLowerCase(), /closest match/);
 });
 
