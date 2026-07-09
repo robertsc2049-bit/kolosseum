@@ -137,3 +137,21 @@ Rules:
 - Downstream mutation must cause a recomputed hash mismatch.
 
 BETA-09:PHASE2-CANONICAL-HASH:END
+## BETA-10 Phase 3 Constraint Prune
+
+BETA-10:PHASE3-CONSTRAINT-PRUNE:START
+
+Machine-checkable Phase 3 constraint prune: docs/beta/BETA_10_PHASE3_CONSTRAINT_PRUNE.md, engine/src/phases/phase3.ts, test/beta_10_phase3_constraint_prune.test.mjs.
+
+Rules:
+- Phase 3 beta constraint resolution is deterministic and staged in this order: authority, consent, declared legality, context, equipment, activity/role.
+- Constraint stages are remove-only and must not expand the candidate solution space.
+- Invalid authority fails before later pruning.
+- Consent violation fails before later pruning.
+- Declared legality, context, equipment, and activity/role constraints may only remove existing candidates.
+- Unavailable required equipment fails closed.
+- Unsupported beta activity fails closed.
+- Empty solution space emits empty_solution_space and does not synthesize an alternative.
+- BETA-10 does not add registry content, activate candidate registries, or alter downstream programme assembly semantics.
+
+BETA-10:PHASE3-CONSTRAINT-PRUNE:END
