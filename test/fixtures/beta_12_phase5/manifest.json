@@ -1,0 +1,21 @@
+{
+  "slice_id": "BETA-12",
+  "fixture_contract": "phase5_materialisation_input",
+  "fixtures": [
+    {
+      "activity_id": "general_strength",
+      "file": "general_strength.json",
+      "sha256": "86d29ca6da44291ca735d1ce47a84b17edf48b207855cce71e175c0b1c876f28"
+    },
+    {
+      "activity_id": "powerlifting",
+      "file": "powerlifting.json",
+      "sha256": "b67960e8826a3a3d34b3bcc56e04c24ea91599878db2c78d24213498839656b5"
+    },
+    {
+      "activity_id": "rugby_union",
+      "file": "rugby_union.json",
+      "sha256": "04f354b0072e7ba994dbdba0d09df69221db1a5ff78c484d26ab9e4e22492d90"
+    }
+  ]
+}

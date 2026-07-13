@@ -1,0 +1,25 @@
+{
+  "canonical_input_hash": "9033f7d47d763032dbfd3412b1cfb544da892c58cd14188e2ac192979dd91ffd",
+  "constraint_hash": "5b5b76bf001700fefe92c5c9b20db417b042e3e94a34bb6c1350406666e3d16e",
+  "enumeration_hash": "056b28140fc97502a4b8b274c43ad300965f3504e25bbf09fec1fcac924f89b8",
+  "enumerated_solution_space": [
+    {
+      "activity_id": "powerlifting",
+      "exercise_ids": [
+        "bench_press"
+      ]
+    },
+    {
+      "activity_id": "powerlifting",
+      "exercise_ids": [
+        "deadlift_conventional"
+      ]
+    },
+    {
+      "activity_id": "powerlifting",
+      "exercise_ids": [
+        "squat_high_bar"
+      ]
+    }
+  ]
+}
