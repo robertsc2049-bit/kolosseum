@@ -33,6 +33,21 @@ const source = read("engine/src/phases/beta11Phase4Enumeration.ts");
 const phase3Source = read("engine/src/phases/phase3.ts");
 const phase4Source = read("engine/src/phases/phase4.ts");
 const testSource = read("test/beta_11_phase4_enumeration.test.mjs");
+const runnerSource = read("ci/scripts/run_beta_11_phase4_enumeration_tests.mjs");
+const packageSource = read("package.json");
+
+if (!packageSource.includes("node ci/scripts/run_beta_11_phase4_enumeration_tests.mjs")) {
+  fail("clean_checkout_test_runner_not_wired");
+}
+
+for (const token of [
+  '["run", "build"]',
+  '["--test", "test/beta_11_phase4_enumeration.test.mjs"]'
+]) {
+  if (!runnerSource.includes(token)) {
+    fail(`clean_checkout_runner_token_missing::${token}`);
+  }
+}
 
 for (const token of [
   "canonical_input_hash",
@@ -76,7 +91,8 @@ for (const token of [
   "empty enumeration fails deterministically",
   "unsupported enum fails deterministically",
   "canonical ordering is input-order independent",
-  "enumeration hash covers the complete ordered list"
+  "enumeration hash covers the complete ordered list",
+  "legacy Phase 4 call is not intercepted by BETA-11 binding fields"
 ]) {
   if (!testSource.includes(token)) fail(`test_missing::${token}`);
 }

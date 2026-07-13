@@ -152,3 +152,19 @@ test("existing Phase 4 path accepts direct Phase 3 beta output", () => {
   assert.deepEqual(result.program.enumerated_solution_space, result.phase4.enumerated_solution_space);
   assert.equal(result.program.enumeration_hash, result.phase4.enumeration_hash);
 });
+
+
+test("legacy Phase 4 call is not intercepted by BETA-11 binding fields", () => {
+  const phase3 = fixture("powerlifting.json");
+
+  const result = phase4AssembleProgram(
+    { activity_id: "unsupported_activity" },
+    phase3,
+    { entries: {} }
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(result.program.program_id, "PROGRAM_STUB");
+  assert.equal(result.phase4, undefined);
+  assert.deepEqual(result.notes, ["PHASE_4_STUB"]);
+});

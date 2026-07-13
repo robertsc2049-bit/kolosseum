@@ -72,16 +72,14 @@ export function phase4AssembleProgram(
   const legacyPhase3 =
     phase3OrOpts &&
     typeof phase3OrOpts === "object" &&
-    "constraints_resolved" in phase3OrOpts
+    "constraints" in phase3OrOpts
       ? phase3OrOpts as Phase3Output
       : null;
 
   const betaPhase3 =
     directPhase3 && hasBeta11Phase4Enumeration(directPhase3)
       ? directPhase3
-      : legacyPhase3 && hasBeta11Phase4Enumeration(legacyPhase3)
-        ? legacyPhase3
-        : null;
+      : null;
 
   // BETA-11 runs before canonical input, registry, or template access.
   if (betaPhase3) {
