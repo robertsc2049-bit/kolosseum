@@ -76,7 +76,8 @@ for (const token of [
   "empty enumeration fails deterministically",
   "unsupported enum fails deterministically",
   "canonical ordering is input-order independent",
-  "enumeration hash covers the complete ordered list"
+  "enumeration hash covers the complete ordered list",
+  "legacy Phase 4 call is not intercepted by BETA-11 binding fields"
 ]) {
   if (!testSource.includes(token)) fail(`test_missing::${token}`);
 }
