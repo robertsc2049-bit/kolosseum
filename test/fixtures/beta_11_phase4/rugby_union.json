@@ -1,0 +1,17 @@
+{
+  "constraints_resolved": true,
+  "notes": [],
+  "registry_index_version": "BETA-11-FIXTURE",
+  "loaded_registries": [],
+  "constraints": {},
+  "canonical_input_hash": "3eea9c9a4dace8aeef9192559013f4718126d3c382d01f7e7a770c765d53af2a",
+  "constraint_hash": "051211dd380e9ff0af7fbad1d0277242aad6d2b091430ceb1b7935ac3143ed55",
+  "allowed_solution_space_descriptor": {
+    "activity_id": "rugby_union",
+    "exercise_ids": [
+      "trap_bar_deadlift",
+      "bench_press",
+      "split_squat"
+    ]
+  }
+}

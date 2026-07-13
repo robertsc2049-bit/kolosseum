@@ -4,6 +4,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { betaCanonicalHash } from "./betaCanonical.js";
 import {
   hasBeta10Phase3ConstraintPrune,
   runBeta10Phase3ConstraintPrune
@@ -26,6 +27,9 @@ export type Phase3Output = {
   // High-signal, stable debug for golden fixtures (no circular refs)
   constraints_resolution?: Phase3ResolutionSummary;
   beta10_constraint_prune?: Record<string, unknown>;
+  canonical_input_hash?: string;
+  constraint_hash?: string;
+  allowed_solution_space_descriptor?: Record<string, unknown>;
 };
 
 export type Phase3Result =
@@ -141,7 +145,10 @@ function sortedUnique(xs: string[] | undefined): string[] | undefined {
   return uniq.length ? uniq : undefined;
 }
 
-export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): Phase3Result {
+export function phase3ResolveConstraintsAndLoadRegistries(
+  canonicalInput: any,
+  bindings: { canonical_input_hash?: string } = {}
+): Phase3Result {
   const notes: string[] = [];
   const loaded_registries: string[] = [];
 
@@ -203,6 +210,13 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
     const beta10 = runBeta10Phase3ConstraintPrune(canonicalInput, env);
     if (beta10.ok === false) return beta10;
 
+    const allowedSolutionSpaceDescriptor = {
+      activity_id: String(canonicalInput?.activity_id ?? ""),
+      exercise_ids: Array.isArray(beta10.prune.final_solution_space)
+        ? [...beta10.prune.final_solution_space]
+        : []
+    };
+
     notes.push("PHASE_3: registries loaded");
     notes.push("PHASE_3: BETA-10 remove-only constraints resolved");
 
@@ -215,6 +229,9 @@ export function phase3ResolveConstraintsAndLoadRegistries(canonicalInput: any): 
         loaded_registries,
         constraints: beta10.constraints,
         beta10_constraint_prune: beta10.prune,
+        canonical_input_hash: bindings.canonical_input_hash,
+        constraint_hash: betaCanonicalHash(allowedSolutionSpaceDescriptor),
+        allowed_solution_space_descriptor: allowedSolutionSpaceDescriptor,
       },
       notes,
     };
