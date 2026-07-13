@@ -5,6 +5,13 @@
 
 import { pickBestSubstitute } from "../substitution/score.js";
 import type { ExerciseSignature, SubstitutionConstraints } from "../substitution/types.js";
+import {
+  hasBeta12Phase5Materialisation,
+  materialiseBeta12Phase5
+} from "./beta12Phase5Materialisation.js";
+import type {
+  Beta12Phase5MaterialisationResult
+} from "./beta12Phase5Materialisation.js";
 
 export type Phase5Adjustment = {
   adjustment_id: string;
@@ -14,6 +21,7 @@ export type Phase5Adjustment = {
 };
 
 export type Phase5Result =
+  | Beta12Phase5MaterialisationResult
   | {
       ok: true;
       adjustments: Phase5Adjustment[];
@@ -183,6 +191,10 @@ function isTargetEligible(target: ExerciseSignature, constraints: SubstitutionCo
 }
 
 export function phase5ApplySubstitutionAndAdjustment(program: unknown, _canonicalInput: unknown): Phase5Result {
+  if (hasBeta12Phase5Materialisation(program)) {
+    return materialiseBeta12Phase5(program);
+  }
+
   if (!isPhase5ProgramLike(program)) {
     return {
       ok: true,
