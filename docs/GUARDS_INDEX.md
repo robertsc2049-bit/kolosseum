@@ -20,6 +20,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/ban_set_content_utf8_guard.mjs` | Encoding Hygiene | high | repo | DEV NOTE: PowerShell encoding footgun guard. This script blocks repo-owned |
 | `ci/guards/beta_11_phase4_enumeration_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: BETA-11 static, fixture-integrity, and compiled-runtime contract guard. |
 | `ci/guards/beta_12_phase5_materialisation_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: BETA-12 deterministic Phase 5 materialisation contract guard. |
+| `ci/guards/beta_13_phase6_event_schema_guard.mjs` | Repo Governance | high | engine | DEV NOTE: BETA-13 closed-world Phase 6 runtime event schema guard. |
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | DEV NOTE: Clean-tree guard. This script protects release, promotion, and CI |
 | `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |

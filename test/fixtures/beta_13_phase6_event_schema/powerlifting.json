@@ -1,0 +1,28 @@
+{
+  "session_id": "beta13_session_powerlifting",
+  "status": "ready",
+  "activity_id": "powerlifting",
+  "blocks": [
+    {
+      "block_id": "beta13_block_powerlifting",
+      "item_ids": [
+        "beta13_item_powerlifting_0",
+        "beta13_item_powerlifting_1"
+      ]
+    }
+  ],
+  "planned_items": [
+    {
+      "block_id": "beta13_block_powerlifting",
+      "item_id": "beta13_item_powerlifting_0",
+      "exercise_id": "squat_high_bar",
+      "session_id": "beta13_session_powerlifting"
+    },
+    {
+      "block_id": "beta13_block_powerlifting",
+      "item_id": "beta13_item_powerlifting_1",
+      "exercise_id": "bench_press",
+      "session_id": "beta13_session_powerlifting"
+    }
+  ]
+}

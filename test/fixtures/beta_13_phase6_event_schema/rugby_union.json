@@ -1,0 +1,28 @@
+{
+  "session_id": "beta13_session_rugby_union",
+  "status": "ready",
+  "activity_id": "rugby_union",
+  "blocks": [
+    {
+      "block_id": "beta13_block_rugby_union",
+      "item_ids": [
+        "beta13_item_rugby_union_0",
+        "beta13_item_rugby_union_1"
+      ]
+    }
+  ],
+  "planned_items": [
+    {
+      "block_id": "beta13_block_rugby_union",
+      "item_id": "beta13_item_rugby_union_0",
+      "exercise_id": "squat_high_bar",
+      "session_id": "beta13_session_rugby_union"
+    },
+    {
+      "block_id": "beta13_block_rugby_union",
+      "item_id": "beta13_item_rugby_union_1",
+      "exercise_id": "deadlift_conventional",
+      "session_id": "beta13_session_rugby_union"
+    }
+  ]
+}
