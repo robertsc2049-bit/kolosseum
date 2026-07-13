@@ -350,7 +350,9 @@ export function runEngine(input: unknown) {
   // Phase 3
 
 
-  const p3: any = phase3ResolveConstraintsAndLoadRegistries(canonicalInput);
+  const p3: any = phase3ResolveConstraintsAndLoadRegistries(canonicalInput, {
+    canonical_input_hash: p2x.hash
+  });
 
 
   if (!p3?.ok) return p3;
@@ -362,7 +364,9 @@ export function runEngine(input: unknown) {
   // Phase 4
 
 
-  const p4: any = phase4AssembleProgram(canonicalInput, p3.phase3);
+  const p4: any = p3.phase3?.allowed_solution_space_descriptor
+    ? phase4AssembleProgram(p3.phase3)
+    : phase4AssembleProgram(canonicalInput, p3.phase3);
 
 
   if (!p4?.ok) return p4;

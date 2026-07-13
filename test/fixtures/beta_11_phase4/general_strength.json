@@ -1,0 +1,17 @@
+{
+  "constraints_resolved": true,
+  "notes": [],
+  "registry_index_version": "BETA-11-FIXTURE",
+  "loaded_registries": [],
+  "constraints": {},
+  "canonical_input_hash": "5f0c592f9192d89dc774c89949d448d8345cb5db0e80bfba183ff83ed517e739",
+  "constraint_hash": "2716ecba830911a1fcb9efa2406a95b797a334642484338fc142c9fc21ce1cf0",
+  "allowed_solution_space_descriptor": {
+    "activity_id": "general_strength",
+    "exercise_ids": [
+      "goblet_squat",
+      "dumbbell_row",
+      "dumbbell_bench_press"
+    ]
+  }
+}

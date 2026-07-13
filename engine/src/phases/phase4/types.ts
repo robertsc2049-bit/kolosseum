@@ -6,6 +6,34 @@
 import type { ExerciseSignature } from "../../substitution/types.js";
 import type { Phase3Constraints, Phase3Output } from "../phase3.js";
 
+export type Beta11ActivityId =
+  | "general_strength"
+  | "powerlifting"
+  | "rugby_union";
+
+export type Phase4StructuralCandidate = {
+  activity_id: Beta11ActivityId;
+  exercise_ids: [string];
+};
+
+export type Phase4EnumerationOutput = {
+  canonical_input_hash: string;
+  constraint_hash: string;
+  enumeration_hash: string;
+  enumerated_solution_space: Phase4StructuralCandidate[];
+};
+
+export type Beta11Phase4EnumerationResult =
+  | { ok: true; phase4: Phase4EnumerationOutput }
+  | {
+      ok: false;
+      failure_token:
+        | "phase4_binding_mismatch"
+        | "empty_solution_space"
+        | "unknown_enum_value"
+        | "nondeterminism_detected";
+    };
+
 export type PlannedItemRole = "primary" | "accessory";
 
 export type PlannedItemIntensity =
@@ -47,10 +75,21 @@ export type Phase4Program = {
 
   // Canonical constraints (Phase3 authoritative)
   constraints?: Phase3Constraints;
+
+  // BETA-11 binding and legal structural enumeration output.
+  canonical_input_hash?: string;
+  constraint_hash?: string;
+  enumeration_hash?: string;
+  enumerated_solution_space?: Phase4StructuralCandidate[];
 };
 
 export type Phase4Result =
-  | { ok: true; program: Phase4Program; notes: string[] }
+  | {
+      ok: true;
+      program: Phase4Program;
+      phase4?: Phase4EnumerationOutput;
+      notes: string[];
+    }
   | { ok: false; failure_token: string; details?: unknown };
 
 export type Phase4Options = {

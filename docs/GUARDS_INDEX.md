@@ -18,6 +18,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/ban_engine_src_imports_in_api_guard.mjs` | Runtime Boundary | high | engine | DEV NOTE: API-to-engine source import guard. This script protects the runtime |
 | `ci/guards/ban_engine_status_guard.mjs` | Runtime Boundary | high | engine | DEV NOTE: Engine status footgun guard. This script bans the legacy |
 | `ci/guards/ban_set_content_utf8_guard.mjs` | Encoding Hygiene | high | repo | DEV NOTE: PowerShell encoding footgun guard. This script blocks repo-owned |
+| `ci/guards/beta_11_phase4_enumeration_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: BETA-11 static, fixture-integrity, and compiled-runtime contract guard. |
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | DEV NOTE: Clean-tree guard. This script protects release, promotion, and CI |
 | `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |
