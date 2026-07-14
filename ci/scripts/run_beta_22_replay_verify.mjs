@@ -11,6 +11,10 @@ import {
   verifyBeta22Suite
 } from "../lib/beta22_replay_verify_lib.mjs";
 
+import {
+  attachBeta23RunnerVerdicts
+} from "../lib/beta23_runner_verdict_lib.mjs";
+
 function readText(path) {
   return fs.readFileSync(
     path,
@@ -112,20 +116,24 @@ if (!manifestResult.ok) {
   );
 }
 
+const suite =
+  JSON.parse(
+    fileTexts.vectors
+  );
+
+const expectedOutputs =
+  JSON.parse(
+    fileTexts.expected_outputs
+  );
+
 const result =
   verifyBeta22Suite({
-    suite:
-      JSON.parse(
-        fileTexts.vectors
-      ),
+    suite,
     bindings:
       JSON.parse(
         fileTexts.verify_inputs
       ),
-    expectedOutputs:
-      JSON.parse(
-        fileTexts.expected_outputs
-      ),
+    expectedOutputs,
     contract:
       JSON.parse(
         fileTexts.contract
@@ -139,7 +147,22 @@ if (!result.ok) {
   );
 }
 
+const resultWithVerdicts =
+  attachBeta23RunnerVerdicts({
+    suite,
+    verifyResult:
+      result,
+    expectedOutputs
+  });
+
+if (!resultWithVerdicts.ok) {
+  emitAndExit(
+    resultWithVerdicts,
+    1
+  );
+}
+
 emitAndExit(
-  result,
+  resultWithVerdicts,
   0
 );

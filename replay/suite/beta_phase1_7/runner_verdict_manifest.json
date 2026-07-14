@@ -1,0 +1,26 @@
+{
+  "schema_version": "kolosseum.beta23.runner_verdict_manifest.v1.0.0",
+  "slice_id": "BETA-23",
+  "contract_version": "1.0.0",
+  "replay_suite_version": "1.0.0",
+  "runner_output_field": "runner_verdicts",
+  "verdict_count": 8,
+  "paths": {
+    "contract": "replay/contracts/beta23_runner_verdict_contract.json",
+    "schema": "replay/contracts/beta23_runner_verdict.schema.json",
+    "failure_tokens": "replay/contracts/beta23_runner_verdict_failure_tokens.json",
+    "upstream_verify_contract": "replay/contracts/beta22_replay_verify_contract.json",
+    "upstream_verify_manifest": "replay/suite/beta_phase1_7/verify_manifest.json",
+    "vectors": "replay/suite/beta_phase1_7/vectors.json",
+    "expected_outputs": "replay/suite/beta_phase1_7/expected_outputs.json"
+  },
+  "sha256": {
+    "contract": "d1ec80deb5868ba302abc68f5d9501f73b5d6f37fd12fbec261e1100f77d87de",
+    "schema": "366c4f2043fd13e278691d0cd6d27d0a3f9fddece3572d7c51304683b1446278",
+    "failure_tokens": "772091299a65bb5a176d345ee8d521fbb6aa4e0781ea3e4f40cae49d99c5fe8d",
+    "upstream_verify_contract": "ec4dbe9fa7d320fc4d1ce20e3773d49c27af9c2420651a428e98531f77204ef7",
+    "upstream_verify_manifest": "4443cfb0cfc617fb0ceb8dacc7e57d332bf3f4721838e16b0fa0f6038949496b",
+    "vectors": "8bc2b8bd439459d3e7c32c00205c0340b7187c8416bd896770898ffeae8eafcb",
+    "expected_outputs": "8ad216ce064addc097d24783fd1879220fac84e67ba6ead0fd45b483aeedbd0a"
+  }
+}

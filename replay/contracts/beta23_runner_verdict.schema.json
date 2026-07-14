@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.beta23.runner_verdict.v1",
+  "title": "BETA-23 RunnerVerdict",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "runner_verdict_id",
+    "runner_verdict_checksum_sha256",
+    "verdict",
+    "canonical_input_hash",
+    "selection_hash",
+    "projection_hash",
+    "replayed_phase_scope",
+    "engine_version",
+    "enum_bundle_version",
+    "replay_suite_version",
+    "failure_tokens"
+  ],
+  "properties": {
+    "runner_verdict_id": {
+      "type": "string",
+      "pattern": "^beta23_runner_verdict_[a-f0-9]{24}$"
+    },
+    "runner_verdict_checksum_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "verdict": {
+      "enum": [
+        "ACCEPTED",
+        "REJECTED"
+      ]
+    },
+    "canonical_input_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "selection_hash": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "projection_hash": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "replayed_phase_scope": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "phase1",
+          "phase2",
+          "phase3",
+          "phase4",
+          "phase5",
+          "phase6",
+          "phase7"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "engine_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enum_bundle_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "replay_suite_version": {
+      "const": "1.0.0"
+    },
+    "failure_tokens": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "beta21_replay_divergence",
+          "beta21_invalid_failure_token",
+          "beta21_missing_phase_output"
+        ]
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "verdict": {
+            "const": "ACCEPTED"
+          }
+        },
+        "required": [
+          "verdict"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selection_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "projection_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "replayed_phase_scope": {
+            "const": [
+              "phase1",
+              "phase2",
+              "phase3",
+              "phase4",
+              "phase5",
+              "phase6",
+              "phase7"
+            ],
+            "type": "array"
+          },
+          "failure_tokens": {
+            "maxItems": 0,
+            "type": "array"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "verdict": {
+            "const": "REJECTED"
+          }
+        },
+        "required": [
+          "verdict"
+        ]
+      },
+      "then": {
+        "properties": {
+          "selection_hash": {
+            "type": "null"
+          },
+          "projection_hash": {
+            "type": "null"
+          },
+          "replayed_phase_scope": {
+            "maxItems": 0,
+            "type": "array"
+          },
+          "failure_tokens": {
+            "minItems": 1,
+            "type": "array"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "contract_id": "beta23_runner_verdict_contract",
+  "slice_id": "BETA-23",
+  "version": "1.0.0",
+  "schema_id": "kolosseum.beta23.runner_verdict.v1",
+  "replay_suite_version": "1.0.0",
+  "checksum_algorithm": "sha256",
+  "checksum_encoding": "lowercase_hex",
+  "checksum_material": "canonical_json_utf8_without_runner_verdict_checksum_sha256",
+  "id_material": "canonical_json_utf8_without_runner_verdict_id_and_checksum",
+  "verdict_values": [
+    "ACCEPTED",
+    "REJECTED"
+  ],
+  "accepted_replayed_phase_scope": [
+    "phase1",
+    "phase2",
+    "phase3",
+    "phase4",
+    "phase5",
+    "phase6",
+    "phase7"
+  ],
+  "rejected_replayed_phase_scope": [],
+  "accepted_failure_tokens": [],
+  "rejected_failure_tokens": [
+    "beta21_replay_divergence",
+    "beta21_invalid_failure_token",
+    "beta21_missing_phase_output"
+  ],
+  "narrative_fields_allowed": false,
+  "phase8_sealing_dependency_ready": true
+}

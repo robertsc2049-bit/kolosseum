@@ -1,0 +1,17 @@
+{
+  "schema_version": "kolosseum.beta23.runner_verdict_failure_tokens.v1.0.0",
+  "slice_id": "BETA-23",
+  "tokens": [
+    "beta23_input_invalid",
+    "beta23_missing_required_field",
+    "beta23_unknown_field",
+    "beta23_verdict_invalid",
+    "beta23_hash_invalid",
+    "beta23_scope_dishonest",
+    "beta23_failure_tokens_invalid",
+    "beta23_runner_verdict_id_mismatch",
+    "beta23_runner_verdict_checksum_mismatch",
+    "beta23_runner_result_invalid",
+    "beta23_manifest_invalid"
+  ]
+}

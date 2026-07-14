@@ -30,6 +30,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/beta_20_phase7_hash_copy_guard.mjs` | Repo Governance | high | engine | DEV NOTE: BETA-20 Phase 7 rendered-byte, Copy Registry, and render-stack guard. |
 | `ci/guards/beta_21_replay_vector_envelope_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-21 replay-vector envelope, byte, schema, pin, and non-mutation guard. |
 | `ci/guards/beta_22_replay_verify_runner_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-22 verify-only Phase 1-7 replay, byte, repeat, and CI immutability guard. |
+| `ci/guards/beta_23_runner_verdict_contract_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-23 RunnerVerdict shape, checksum, scope honesty, and Phase 8 dependency guard. |
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | DEV NOTE: Clean-tree guard. This script protects release, promotion, and CI |
 | `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |
