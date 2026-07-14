@@ -27,7 +27,12 @@ const V0_SCOPE_EXCLUDED_PATHS = new Set([
   "replay/contracts/beta21_replay_vector_envelope.schema.json",
   "replay/contracts/beta21_replay_failure_tokens.json",
   "replay/suite/beta_phase1_7/vectors.json",
-  "replay/suite/beta_phase1_7/manifest.json"
+  "replay/suite/beta_phase1_7/manifest.json",
+  "replay/contracts/beta22_replay_verify_contract.json",
+  "replay/contracts/beta22_replay_verify_failure_tokens.json",
+  "replay/suite/beta_phase1_7/verify_inputs.json",
+  "replay/suite/beta_phase1_7/expected_outputs.json",
+  "replay/suite/beta_phase1_7/verify_manifest.json"
 ]);
 
 function isV0CopyLintExcluded(filePath) {

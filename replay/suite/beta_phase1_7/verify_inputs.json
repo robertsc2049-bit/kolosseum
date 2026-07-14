@@ -1,0 +1,155 @@
+{
+  "schema_version": "kolosseum.beta22.replay_verify_inputs.v1.0.0",
+  "slice_id": "BETA-22",
+  "suite_id": "beta_phase1_7",
+  "inference_allowed": false,
+  "fallback_allowed": false,
+  "retry_with_altered_input_allowed": false,
+  "bindings": [
+    {
+      "vector_id": "beta21_individual_powerlifting",
+      "phase4_input": {
+        "constraints_resolved": true,
+        "notes": [],
+        "registry_index_version": "1.0.0",
+        "loaded_registries": [
+          "activity",
+          "movement",
+          "exercise",
+          "program"
+        ],
+        "constraints": {},
+        "canonical_input_hash": "da4c1ceccd9eb6a33fa08e871f2d3b39604afa78d0b9eb5df1f3a39b6784cbb6",
+        "constraint_hash": "5b5b76bf001700fefe92c5c9b20db417b042e3e94a34bb6c1350406666e3d16e",
+        "allowed_solution_space_descriptor": {
+          "activity_id": "powerlifting",
+          "exercise_ids": [
+            "deadlift_conventional",
+            "bench_press",
+            "squat_high_bar"
+          ]
+        }
+      },
+      "phase7": {
+        "phase7_projection_id": "beta21_individual_powerlifting_projection",
+        "content_format": "application/json"
+      }
+    },
+    {
+      "vector_id": "beta21_individual_general_strength",
+      "phase4_input": {
+        "constraints_resolved": true,
+        "notes": [],
+        "registry_index_version": "1.0.0",
+        "loaded_registries": [
+          "activity",
+          "movement",
+          "exercise",
+          "program"
+        ],
+        "constraints": {},
+        "canonical_input_hash": "3aaf2df24730d12cef0e39b4eb9222d6136bc93ae88ef837b296153f7e060b87",
+        "constraint_hash": "2716ecba830911a1fcb9efa2406a95b797a334642484338fc142c9fc21ce1cf0",
+        "allowed_solution_space_descriptor": {
+          "activity_id": "general_strength",
+          "exercise_ids": [
+            "goblet_squat",
+            "dumbbell_row",
+            "dumbbell_bench_press"
+          ]
+        }
+      },
+      "phase7": {
+        "phase7_projection_id": "beta21_individual_general_strength_projection",
+        "content_format": "application/json"
+      }
+    },
+    {
+      "vector_id": "beta21_coach_managed_rugby_union",
+      "phase4_input": {
+        "constraints_resolved": true,
+        "notes": [],
+        "registry_index_version": "1.0.0",
+        "loaded_registries": [
+          "activity",
+          "movement",
+          "exercise",
+          "program"
+        ],
+        "constraints": {},
+        "canonical_input_hash": "1fc9e10c922a967540b03cbe3a76753c374543962120f00b5cb4e152c49bed0b",
+        "constraint_hash": "051211dd380e9ff0af7fbad1d0277242aad6d2b091430ceb1b7935ac3143ed55",
+        "allowed_solution_space_descriptor": {
+          "activity_id": "rugby_union",
+          "exercise_ids": [
+            "trap_bar_deadlift",
+            "bench_press",
+            "split_squat"
+          ]
+        }
+      },
+      "phase7": {
+        "phase7_projection_id": "beta21_coach_managed_rugby_union_projection",
+        "content_format": "application/json"
+      }
+    },
+    {
+      "vector_id": "beta21_split_continue",
+      "phase4_input": {
+        "constraints_resolved": true,
+        "notes": [],
+        "registry_index_version": "1.0.0",
+        "loaded_registries": [
+          "activity",
+          "movement",
+          "exercise",
+          "program"
+        ],
+        "constraints": {},
+        "canonical_input_hash": "da4c1ceccd9eb6a33fa08e871f2d3b39604afa78d0b9eb5df1f3a39b6784cbb6",
+        "constraint_hash": "5b5b76bf001700fefe92c5c9b20db417b042e3e94a34bb6c1350406666e3d16e",
+        "allowed_solution_space_descriptor": {
+          "activity_id": "powerlifting",
+          "exercise_ids": [
+            "deadlift_conventional",
+            "bench_press",
+            "squat_high_bar"
+          ]
+        }
+      },
+      "phase7": {
+        "phase7_projection_id": "beta21_split_continue_projection",
+        "content_format": "application/json"
+      }
+    },
+    {
+      "vector_id": "beta21_partial_completion",
+      "phase4_input": {
+        "constraints_resolved": true,
+        "notes": [],
+        "registry_index_version": "1.0.0",
+        "loaded_registries": [
+          "activity",
+          "movement",
+          "exercise",
+          "program"
+        ],
+        "constraints": {},
+        "canonical_input_hash": "3aaf2df24730d12cef0e39b4eb9222d6136bc93ae88ef837b296153f7e060b87",
+        "constraint_hash": "2716ecba830911a1fcb9efa2406a95b797a334642484338fc142c9fc21ce1cf0",
+        "allowed_solution_space_descriptor": {
+          "activity_id": "general_strength",
+          "exercise_ids": [
+            "goblet_squat",
+            "dumbbell_row",
+            "dumbbell_bench_press"
+          ]
+        }
+      },
+      "phase7": {
+        "phase7_projection_id": "beta21_partial_completion_projection",
+        "content_format": "application/json"
+      }
+    }
+  ]
+}
