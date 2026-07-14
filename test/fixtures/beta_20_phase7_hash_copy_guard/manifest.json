@@ -1,0 +1,19 @@
+{
+  "schema_version": "kolosseum.beta20.phase7_hash_copy_guard.manifest.v1.0.0",
+  "slice_id": "BETA-20",
+  "fixture_set_id": "beta20_phase7_hash_copy_guard",
+  "fixtures": [
+    {
+      "file": "test/fixtures/beta_20_phase7_hash_copy_guard/cases.json",
+      "sha256": "e6368ee9afe0467ec00bc643345b43990b338b8e97c80c434d10fc487a83dc85"
+    },
+    {
+      "file": "copy/beta_20_phase7_projection_copy.json",
+      "sha256": "438a9097f01c67ae6db39e9461f75965f116feabbf76ee5b490496c6f088b769"
+    },
+    {
+      "file": "engine/contracts/beta20_phase7_render_stack.json",
+      "sha256": "9a456fbfe102b6377d2fe1f59a1f4cefc56cd4fd740343fb85671b822266a306"
+    }
+  ]
+}

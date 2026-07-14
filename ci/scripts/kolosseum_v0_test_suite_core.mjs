@@ -21,7 +21,9 @@ const V0_SCOPE_EXCLUDED_PATHS = new Set([
   "src/api/coachDashboardShellApi.mjs",
   "engine/src/phases/beta18Phase7SchemaBinding.ts",
   "engine/contracts/beta18_phase7_failure_tokens.json",
-  "engine/src/phases/beta19Phase7FactualProjection.ts"
+  "engine/src/phases/beta19Phase7FactualProjection.ts",
+  "engine/src/phases/beta20Phase7HashCopyGuard.ts",
+  "engine/contracts/beta20_phase7_render_stack.json"
 ]);
 
 function isV0CopyLintExcluded(filePath) {
