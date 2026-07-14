@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.beta24.phase8_evidence_envelope.v1",
+  "title": "BETA-24 Phase 8 EvidenceEnvelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evidence_envelope_id",
+    "engine_version",
+    "enum_bundle_version",
+    "replay_suite_version",
+    "canonical_input_hash",
+    "selection_hash",
+    "execution_trace_hash",
+    "projection_hash",
+    "runner_verdict_id",
+    "runner_verdict_checksum_sha256",
+    "runner_verdict",
+    "phase5_output_checksum_sha256",
+    "phase6_output_checksum_sha256",
+    "phase7_output_checksum_sha256",
+    "evidence_envelope_checksum_sha256",
+    "evidence_scope",
+    "limitations",
+    "failure_tokens"
+  ],
+  "properties": {
+    "evidence_envelope_id": {
+      "type": "string",
+      "pattern": "^beta24_evidence_envelope_[a-f0-9]{24}$"
+    },
+    "engine_version": {
+      "type": "string",
+      "const": "EB2-1.0.0"
+    },
+    "enum_bundle_version": {
+      "type": "string",
+      "const": "EB2-1.0.0"
+    },
+    "replay_suite_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "canonical_input_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "selection_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "execution_trace_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "projection_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "runner_verdict_id": {
+      "type": "string",
+      "pattern": "^beta23_runner_verdict_[a-f0-9]{24}$"
+    },
+    "runner_verdict_checksum_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "runner_verdict": {
+      "type": "string",
+      "const": "ACCEPTED"
+    },
+    "phase5_output_checksum_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "phase6_output_checksum_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "phase7_output_checksum_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "evidence_envelope_checksum_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "evidence_scope": {
+      "type": "string",
+      "const": "process_verification_only"
+    },
+    "limitations": {
+      "type": "array",
+      "const": [
+        "no_correctness_claim",
+        "no_safety_claim",
+        "no_suitability_claim",
+        "no_effectiveness_claim",
+        "no_outcome_quality_claim",
+        "no_external_approval"
+      ],
+      "minItems": 6,
+      "maxItems": 6,
+      "uniqueItems": true
+    },
+    "failure_tokens": {
+      "type": "array",
+      "const": [],
+      "maxItems": 0,
+      "uniqueItems": true
+    }
+  }
+}

@@ -36,7 +36,11 @@ const V0_SCOPE_EXCLUDED_PATHS = new Set([
   "replay/contracts/beta23_runner_verdict_contract.json",
   "replay/contracts/beta23_runner_verdict.schema.json",
   "replay/contracts/beta23_runner_verdict_failure_tokens.json",
-  "replay/suite/beta_phase1_7/runner_verdict_manifest.json"
+  "replay/suite/beta_phase1_7/runner_verdict_manifest.json",
+  "replay/contracts/beta24_phase8_evidence_schema_contract.json",
+  "replay/contracts/beta24_phase8_evidence_envelope.schema.json",
+  "replay/contracts/beta24_phase8_evidence_schema_failure_tokens.json",
+  "replay/suite/beta_phase1_8/evidence_schema_manifest.json"
 ]);
 
 function isV0CopyLintExcluded(filePath) {
