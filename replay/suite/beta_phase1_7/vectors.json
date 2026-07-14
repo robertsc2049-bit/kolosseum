@@ -1,0 +1,929 @@
+{
+  "schema_version": "kolosseum.beta21.replay_vector_suite.v1.0.0",
+  "slice_id": "BETA-21",
+  "suite_id": "beta_phase1_7",
+  "vectors": [
+    {
+      "cve_header": {
+        "cve_version": "BETA-CVE-1.0.0",
+        "extends_cve_version": "CVE-1.0.0",
+        "vector_id": "beta21_individual_powerlifting",
+        "vector_version": "1.0.0",
+        "vector_class": "positive",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "powerlifting",
+        "phases_under_test": [
+          "phase1",
+          "phase2",
+          "phase3",
+          "phase4",
+          "phase5",
+          "phase6",
+          "phase7"
+        ],
+        "implementation_mutation_allowed": false
+      },
+      "pins": {
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "schema_versions": {
+          "phase1_input_schema_id": "kolosseum.master.phase1.input.schema.v1_0_0",
+          "phase1_schema_version": "1.0.0",
+          "beta21_vector_schema_id": "kolosseum.beta21.replay_vector_suite.v1",
+          "beta21_vector_schema_version": "1.0.0"
+        },
+        "phase_contract_versions": {
+          "phase1": "phase1@1.0.0",
+          "phase2": "phase2@1.0.0",
+          "phase3": "phase3@1.0.0",
+          "phase4": "beta11_phase4_enumeration@1.0.0",
+          "phase5": "beta12_phase5_materialisation@1.0.0",
+          "phase6_event_schema": "beta13_phase6_event_schema@1.0.0",
+          "phase6_reducer": "beta14_phase6_runtime_reducer@1.0.0",
+          "phase7_schema": "beta18_phase7_schema_binding@1.0.0",
+          "phase7_projection": "beta19_phase7_factual_projection@1.0.0",
+          "phase7_hash_guard": "beta20_phase7_hash_copy_guard@1.0.0"
+        },
+        "registry_references": [
+          {
+            "registry_id": "active_registry_index",
+            "version": "1.0.0",
+            "path": "registries/registry_index.json",
+            "sha256": "c31139079df4ed7b0a4c58808a2fd1c8e399cb7c1c4d4499fc625ed2c7586d37"
+          },
+          {
+            "registry_id": "phase3_loaded_registry_snapshot",
+            "version": "1.0.0",
+            "path": null,
+            "sha256": "97090774669ab75606c2509bfa2dc3a64218ed0013fe70ec391ae418010870c3"
+          }
+        ]
+      },
+      "canonical_phase1_input": {
+        "consent_granted": true,
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "phase1_schema_version": "1.0.0",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "powerlifting",
+        "nd_mode": false,
+        "instruction_density": "standard",
+        "exposure_prompt_density": "standard",
+        "bias_mode": "none"
+      },
+      "canonical_phase1_input_hash_sha256": "da4c1ceccd9eb6a33fa08e871f2d3b39604afa78d0b9eb5df1f3a39b6784cbb6",
+      "execution_plan": {
+        "scenario": "completed",
+        "phase6_events": [
+          {
+            "event_id": "beta13_event_b17eb33de4982043f8cd819c",
+            "seq": 1,
+            "event_type": "SESSION_START",
+            "session_id": "beta12_session_a8a9dae295a3701419bc3a22",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_e226962d944a88bf8d64a212",
+            "seq": 2,
+            "event_type": "WORK_ITEM_START",
+            "session_id": "beta12_session_a8a9dae295a3701419bc3a22",
+            "block_id": "beta12_block_a8a9dae295a37014",
+            "work_item_id": "beta12_item_a8a9dae295a37014_0",
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_da12d2f0c78e84070943473f",
+            "seq": 3,
+            "event_type": "WORK_ITEM_DONE",
+            "session_id": "beta12_session_a8a9dae295a3701419bc3a22",
+            "block_id": "beta12_block_a8a9dae295a37014",
+            "work_item_id": "beta12_item_a8a9dae295a37014_0",
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_0b6e8a34d6b6b8b3186e735d",
+            "seq": 4,
+            "event_type": "SESSION_END",
+            "session_id": "beta12_session_a8a9dae295a3701419bc3a22",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": {
+              "end_code": "completed"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "verdict": "PASS",
+        "failure_token": null,
+        "phase5_output_hash_sha256": "d4f2c8ce0fb9cbe44292c55d586bd79c641aa8e476ef4bdf094d0b3cb7dc9e2b",
+        "phase6_output_hash_sha256": "9b6484be81db7d7179a8ae98c0b170e8ddfec128b49d5429e5f973a656863aac",
+        "phase6_reducer_state_hash_sha256": "8ee403d82940c94a0025a3beaea1dab7a79fdb1e1b142971029df251d048989a",
+        "phase7_output_hash_sha256": "acee63a0b5097c0952bd65521eaf8fe8faa8d2f4a4b7bdfe0ad4d08acda88263",
+        "phase7_projection_hash_sha256": "8625ba9a49a8def335c6e44347db9fa78cb517eebeb17202ed7f5efaaad40903"
+      },
+      "negative_case": null
+    },
+    {
+      "cve_header": {
+        "cve_version": "BETA-CVE-1.0.0",
+        "extends_cve_version": "CVE-1.0.0",
+        "vector_id": "beta21_individual_general_strength",
+        "vector_version": "1.0.0",
+        "vector_class": "positive",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "general_strength",
+        "phases_under_test": [
+          "phase1",
+          "phase2",
+          "phase3",
+          "phase4",
+          "phase5",
+          "phase6",
+          "phase7"
+        ],
+        "implementation_mutation_allowed": false
+      },
+      "pins": {
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "schema_versions": {
+          "phase1_input_schema_id": "kolosseum.master.phase1.input.schema.v1_0_0",
+          "phase1_schema_version": "1.0.0",
+          "beta21_vector_schema_id": "kolosseum.beta21.replay_vector_suite.v1",
+          "beta21_vector_schema_version": "1.0.0"
+        },
+        "phase_contract_versions": {
+          "phase1": "phase1@1.0.0",
+          "phase2": "phase2@1.0.0",
+          "phase3": "phase3@1.0.0",
+          "phase4": "beta11_phase4_enumeration@1.0.0",
+          "phase5": "beta12_phase5_materialisation@1.0.0",
+          "phase6_event_schema": "beta13_phase6_event_schema@1.0.0",
+          "phase6_reducer": "beta14_phase6_runtime_reducer@1.0.0",
+          "phase7_schema": "beta18_phase7_schema_binding@1.0.0",
+          "phase7_projection": "beta19_phase7_factual_projection@1.0.0",
+          "phase7_hash_guard": "beta20_phase7_hash_copy_guard@1.0.0"
+        },
+        "registry_references": [
+          {
+            "registry_id": "active_registry_index",
+            "version": "1.0.0",
+            "path": "registries/registry_index.json",
+            "sha256": "c31139079df4ed7b0a4c58808a2fd1c8e399cb7c1c4d4499fc625ed2c7586d37"
+          },
+          {
+            "registry_id": "phase3_loaded_registry_snapshot",
+            "version": "1.0.0",
+            "path": null,
+            "sha256": "97090774669ab75606c2509bfa2dc3a64218ed0013fe70ec391ae418010870c3"
+          }
+        ]
+      },
+      "canonical_phase1_input": {
+        "consent_granted": true,
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "phase1_schema_version": "1.0.0",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "general_strength",
+        "nd_mode": false,
+        "instruction_density": "standard",
+        "exposure_prompt_density": "standard",
+        "bias_mode": "none"
+      },
+      "canonical_phase1_input_hash_sha256": "3aaf2df24730d12cef0e39b4eb9222d6136bc93ae88ef837b296153f7e060b87",
+      "execution_plan": {
+        "scenario": "completed",
+        "phase6_events": [
+          {
+            "event_id": "beta13_event_a625c6cead2e185e90cf401d",
+            "seq": 1,
+            "event_type": "SESSION_START",
+            "session_id": "beta12_session_6d43b8b136b76aef1c907533",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_da4131ab6b7ea148f1cc2bc2",
+            "seq": 2,
+            "event_type": "WORK_ITEM_START",
+            "session_id": "beta12_session_6d43b8b136b76aef1c907533",
+            "block_id": "beta12_block_6d43b8b136b76aef",
+            "work_item_id": "beta12_item_6d43b8b136b76aef_0",
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_a94ea2946de859883b9844b6",
+            "seq": 3,
+            "event_type": "WORK_ITEM_DONE",
+            "session_id": "beta12_session_6d43b8b136b76aef1c907533",
+            "block_id": "beta12_block_6d43b8b136b76aef",
+            "work_item_id": "beta12_item_6d43b8b136b76aef_0",
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_957e100e757828eb5fdd675b",
+            "seq": 4,
+            "event_type": "SESSION_END",
+            "session_id": "beta12_session_6d43b8b136b76aef1c907533",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": {
+              "end_code": "completed"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "verdict": "PASS",
+        "failure_token": null,
+        "phase5_output_hash_sha256": "6f1f4111ef96aef8206fc88c807f7dfa6388da2c9efc881bbcd52884514267b1",
+        "phase6_output_hash_sha256": "af35795fd9136b6c67f6b47783bf048c23d533c614bdb296accd9a55e091ead5",
+        "phase6_reducer_state_hash_sha256": "c853f1562fafacc0306bc1d6356f36816444d1aacd090222e377a3d65e821ea7",
+        "phase7_output_hash_sha256": "14ca2714e4c949e6934ada2177b30c49d3b117b1beb93f39b5829c4ffbfc63cc",
+        "phase7_projection_hash_sha256": "dc5e625314abdb568c208eef0623d17500da13249c29b5a67a9cb1b3e1225bbd"
+      },
+      "negative_case": null
+    },
+    {
+      "cve_header": {
+        "cve_version": "BETA-CVE-1.0.0",
+        "extends_cve_version": "CVE-1.0.0",
+        "vector_id": "beta21_coach_managed_rugby_union",
+        "vector_version": "1.0.0",
+        "vector_class": "positive",
+        "actor_type": "athlete",
+        "execution_scope": "coach_managed",
+        "activity_id": "rugby_union",
+        "phases_under_test": [
+          "phase1",
+          "phase2",
+          "phase3",
+          "phase4",
+          "phase5",
+          "phase6",
+          "phase7"
+        ],
+        "implementation_mutation_allowed": false
+      },
+      "pins": {
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "schema_versions": {
+          "phase1_input_schema_id": "kolosseum.master.phase1.input.schema.v1_0_0",
+          "phase1_schema_version": "1.0.0",
+          "beta21_vector_schema_id": "kolosseum.beta21.replay_vector_suite.v1",
+          "beta21_vector_schema_version": "1.0.0"
+        },
+        "phase_contract_versions": {
+          "phase1": "phase1@1.0.0",
+          "phase2": "phase2@1.0.0",
+          "phase3": "phase3@1.0.0",
+          "phase4": "beta11_phase4_enumeration@1.0.0",
+          "phase5": "beta12_phase5_materialisation@1.0.0",
+          "phase6_event_schema": "beta13_phase6_event_schema@1.0.0",
+          "phase6_reducer": "beta14_phase6_runtime_reducer@1.0.0",
+          "phase7_schema": "beta18_phase7_schema_binding@1.0.0",
+          "phase7_projection": "beta19_phase7_factual_projection@1.0.0",
+          "phase7_hash_guard": "beta20_phase7_hash_copy_guard@1.0.0"
+        },
+        "registry_references": [
+          {
+            "registry_id": "active_registry_index",
+            "version": "1.0.0",
+            "path": "registries/registry_index.json",
+            "sha256": "c31139079df4ed7b0a4c58808a2fd1c8e399cb7c1c4d4499fc625ed2c7586d37"
+          },
+          {
+            "registry_id": "phase3_loaded_registry_snapshot",
+            "version": "1.0.0",
+            "path": null,
+            "sha256": "97090774669ab75606c2509bfa2dc3a64218ed0013fe70ec391ae418010870c3"
+          }
+        ]
+      },
+      "canonical_phase1_input": {
+        "consent_granted": true,
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "phase1_schema_version": "1.0.0",
+        "actor_type": "athlete",
+        "execution_scope": "coach_managed",
+        "activity_id": "rugby_union",
+        "nd_mode": false,
+        "instruction_density": "standard",
+        "exposure_prompt_density": "standard",
+        "bias_mode": "none",
+        "governing_authority_id": "beta21_governing_authority"
+      },
+      "canonical_phase1_input_hash_sha256": "1fc9e10c922a967540b03cbe3a76753c374543962120f00b5cb4e152c49bed0b",
+      "execution_plan": {
+        "scenario": "completed",
+        "phase6_events": [
+          {
+            "event_id": "beta13_event_3082876f5a3ec8c1bbaecdf5",
+            "seq": 1,
+            "event_type": "SESSION_START",
+            "session_id": "beta12_session_d0e8ef1bf9a26f82d9d9b6e7",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_31f64c1f9819501c5beb8daa",
+            "seq": 2,
+            "event_type": "WORK_ITEM_START",
+            "session_id": "beta12_session_d0e8ef1bf9a26f82d9d9b6e7",
+            "block_id": "beta12_block_d0e8ef1bf9a26f82",
+            "work_item_id": "beta12_item_d0e8ef1bf9a26f82_0",
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_0dabb40f5fa7e9ca3ee33a94",
+            "seq": 3,
+            "event_type": "WORK_ITEM_DONE",
+            "session_id": "beta12_session_d0e8ef1bf9a26f82d9d9b6e7",
+            "block_id": "beta12_block_d0e8ef1bf9a26f82",
+            "work_item_id": "beta12_item_d0e8ef1bf9a26f82_0",
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_af6560f679e2490c058e3b1d",
+            "seq": 4,
+            "event_type": "SESSION_END",
+            "session_id": "beta12_session_d0e8ef1bf9a26f82d9d9b6e7",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": {
+              "end_code": "completed"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "verdict": "PASS",
+        "failure_token": null,
+        "phase5_output_hash_sha256": "022cd74dcb7bd74ff6cd2ba3d59051fc2874c0607174e57b363b4ce08cf8456b",
+        "phase6_output_hash_sha256": "2da4a3851b9a776240d075281235e619d9d19921ed5f77c9b1080a437e35a934",
+        "phase6_reducer_state_hash_sha256": "fda69acec1f0111b42dcac132d3db327c05ced80a7f3c9081d24208ddd7b5aa8",
+        "phase7_output_hash_sha256": "1c8759452d2b2edc1342e531fd54a8aa42b4fcbe8e26ec730aa9349494f3294d",
+        "phase7_projection_hash_sha256": "0a0bf0d053e39ecb331b5dc265c30227abcd86cd28f94f925f30c24a9da9c013"
+      },
+      "negative_case": null
+    },
+    {
+      "cve_header": {
+        "cve_version": "BETA-CVE-1.0.0",
+        "extends_cve_version": "CVE-1.0.0",
+        "vector_id": "beta21_split_continue",
+        "vector_version": "1.0.0",
+        "vector_class": "positive",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "powerlifting",
+        "phases_under_test": [
+          "phase1",
+          "phase2",
+          "phase3",
+          "phase4",
+          "phase5",
+          "phase6",
+          "phase7"
+        ],
+        "implementation_mutation_allowed": false
+      },
+      "pins": {
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "schema_versions": {
+          "phase1_input_schema_id": "kolosseum.master.phase1.input.schema.v1_0_0",
+          "phase1_schema_version": "1.0.0",
+          "beta21_vector_schema_id": "kolosseum.beta21.replay_vector_suite.v1",
+          "beta21_vector_schema_version": "1.0.0"
+        },
+        "phase_contract_versions": {
+          "phase1": "phase1@1.0.0",
+          "phase2": "phase2@1.0.0",
+          "phase3": "phase3@1.0.0",
+          "phase4": "beta11_phase4_enumeration@1.0.0",
+          "phase5": "beta12_phase5_materialisation@1.0.0",
+          "phase6_event_schema": "beta13_phase6_event_schema@1.0.0",
+          "phase6_reducer": "beta14_phase6_runtime_reducer@1.0.0",
+          "phase7_schema": "beta18_phase7_schema_binding@1.0.0",
+          "phase7_projection": "beta19_phase7_factual_projection@1.0.0",
+          "phase7_hash_guard": "beta20_phase7_hash_copy_guard@1.0.0"
+        },
+        "registry_references": [
+          {
+            "registry_id": "active_registry_index",
+            "version": "1.0.0",
+            "path": "registries/registry_index.json",
+            "sha256": "c31139079df4ed7b0a4c58808a2fd1c8e399cb7c1c4d4499fc625ed2c7586d37"
+          },
+          {
+            "registry_id": "phase3_loaded_registry_snapshot",
+            "version": "1.0.0",
+            "path": null,
+            "sha256": "97090774669ab75606c2509bfa2dc3a64218ed0013fe70ec391ae418010870c3"
+          }
+        ]
+      },
+      "canonical_phase1_input": {
+        "consent_granted": true,
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "phase1_schema_version": "1.0.0",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "powerlifting",
+        "nd_mode": false,
+        "instruction_density": "standard",
+        "exposure_prompt_density": "standard",
+        "bias_mode": "none"
+      },
+      "canonical_phase1_input_hash_sha256": "da4c1ceccd9eb6a33fa08e871f2d3b39604afa78d0b9eb5df1f3a39b6784cbb6",
+      "execution_plan": {
+        "scenario": "split_continue",
+        "phase6_events": [
+          {
+            "event_id": "beta13_event_b17eb33de4982043f8cd819c",
+            "seq": 1,
+            "event_type": "SESSION_START",
+            "session_id": "beta12_session_a8a9dae295a3701419bc3a22",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_c31bf66ec6b3d656075dba51",
+            "seq": 2,
+            "event_type": "SPLIT_ENTER",
+            "session_id": "beta12_session_a8a9dae295a3701419bc3a22",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_3bfa500607d18224c24cf2e2",
+            "seq": 3,
+            "event_type": "SPLIT_RETURN_DECISION",
+            "session_id": "beta12_session_a8a9dae295a3701419bc3a22",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": {
+              "decision": "continue"
+            }
+          },
+          {
+            "event_id": "beta13_event_351d6b18686136dea5caa9bf",
+            "seq": 4,
+            "event_type": "WORK_ITEM_START",
+            "session_id": "beta12_session_a8a9dae295a3701419bc3a22",
+            "block_id": "beta12_block_a8a9dae295a37014",
+            "work_item_id": "beta12_item_a8a9dae295a37014_0",
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_dec660cd57fcb4658a2990ca",
+            "seq": 5,
+            "event_type": "WORK_ITEM_DONE",
+            "session_id": "beta12_session_a8a9dae295a3701419bc3a22",
+            "block_id": "beta12_block_a8a9dae295a37014",
+            "work_item_id": "beta12_item_a8a9dae295a37014_0",
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_4c8c4e78be8c6ae333a348db",
+            "seq": 6,
+            "event_type": "SESSION_END",
+            "session_id": "beta12_session_a8a9dae295a3701419bc3a22",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": {
+              "end_code": "completed"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "verdict": "PASS",
+        "failure_token": null,
+        "phase5_output_hash_sha256": "d4f2c8ce0fb9cbe44292c55d586bd79c641aa8e476ef4bdf094d0b3cb7dc9e2b",
+        "phase6_output_hash_sha256": "e8647db53da8dc4ce6b276cdb60299df7fe0cc3e9d4a3c6f233073cc13d7ad04",
+        "phase6_reducer_state_hash_sha256": "2505a276ad4f2d3e4eabdbb8ca7ff7098f9fea3749d351cba4c5c26115e48ee5",
+        "phase7_output_hash_sha256": "693f9c54a1c5c31d1f8ca79dfb2c4b5d47190eac33917eae069d39584d8ba405",
+        "phase7_projection_hash_sha256": "39567bd5ce7c85001e68ed6c46a61e1e766885ff6b10690d3e018405a3c299d9"
+      },
+      "negative_case": null
+    },
+    {
+      "cve_header": {
+        "cve_version": "BETA-CVE-1.0.0",
+        "extends_cve_version": "CVE-1.0.0",
+        "vector_id": "beta21_partial_completion",
+        "vector_version": "1.0.0",
+        "vector_class": "positive",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "general_strength",
+        "phases_under_test": [
+          "phase1",
+          "phase2",
+          "phase3",
+          "phase4",
+          "phase5",
+          "phase6",
+          "phase7"
+        ],
+        "implementation_mutation_allowed": false
+      },
+      "pins": {
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "schema_versions": {
+          "phase1_input_schema_id": "kolosseum.master.phase1.input.schema.v1_0_0",
+          "phase1_schema_version": "1.0.0",
+          "beta21_vector_schema_id": "kolosseum.beta21.replay_vector_suite.v1",
+          "beta21_vector_schema_version": "1.0.0"
+        },
+        "phase_contract_versions": {
+          "phase1": "phase1@1.0.0",
+          "phase2": "phase2@1.0.0",
+          "phase3": "phase3@1.0.0",
+          "phase4": "beta11_phase4_enumeration@1.0.0",
+          "phase5": "beta12_phase5_materialisation@1.0.0",
+          "phase6_event_schema": "beta13_phase6_event_schema@1.0.0",
+          "phase6_reducer": "beta14_phase6_runtime_reducer@1.0.0",
+          "phase7_schema": "beta18_phase7_schema_binding@1.0.0",
+          "phase7_projection": "beta19_phase7_factual_projection@1.0.0",
+          "phase7_hash_guard": "beta20_phase7_hash_copy_guard@1.0.0"
+        },
+        "registry_references": [
+          {
+            "registry_id": "active_registry_index",
+            "version": "1.0.0",
+            "path": "registries/registry_index.json",
+            "sha256": "c31139079df4ed7b0a4c58808a2fd1c8e399cb7c1c4d4499fc625ed2c7586d37"
+          },
+          {
+            "registry_id": "phase3_loaded_registry_snapshot",
+            "version": "1.0.0",
+            "path": null,
+            "sha256": "97090774669ab75606c2509bfa2dc3a64218ed0013fe70ec391ae418010870c3"
+          }
+        ]
+      },
+      "canonical_phase1_input": {
+        "consent_granted": true,
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "phase1_schema_version": "1.0.0",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "general_strength",
+        "nd_mode": false,
+        "instruction_density": "standard",
+        "exposure_prompt_density": "standard",
+        "bias_mode": "none"
+      },
+      "canonical_phase1_input_hash_sha256": "3aaf2df24730d12cef0e39b4eb9222d6136bc93ae88ef837b296153f7e060b87",
+      "execution_plan": {
+        "scenario": "partial_completion",
+        "phase6_events": [
+          {
+            "event_id": "beta13_event_a625c6cead2e185e90cf401d",
+            "seq": 1,
+            "event_type": "SESSION_START",
+            "session_id": "beta12_session_6d43b8b136b76aef1c907533",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_da4131ab6b7ea148f1cc2bc2",
+            "seq": 2,
+            "event_type": "WORK_ITEM_START",
+            "session_id": "beta12_session_6d43b8b136b76aef1c907533",
+            "block_id": "beta12_block_6d43b8b136b76aef",
+            "work_item_id": "beta12_item_6d43b8b136b76aef_0",
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_a94ea2946de859883b9844b6",
+            "seq": 3,
+            "event_type": "WORK_ITEM_DONE",
+            "session_id": "beta12_session_6d43b8b136b76aef1c907533",
+            "block_id": "beta12_block_6d43b8b136b76aef",
+            "work_item_id": "beta12_item_6d43b8b136b76aef_0",
+            "payload": null
+          },
+          {
+            "event_id": "beta13_event_68217533fafbd0ed65456c8e",
+            "seq": 4,
+            "event_type": "SESSION_END",
+            "session_id": "beta12_session_6d43b8b136b76aef1c907533",
+            "block_id": null,
+            "work_item_id": null,
+            "payload": {
+              "end_code": "stopped"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "verdict": "PASS",
+        "failure_token": null,
+        "phase5_output_hash_sha256": "6f1f4111ef96aef8206fc88c807f7dfa6388da2c9efc881bbcd52884514267b1",
+        "phase6_output_hash_sha256": "32503f3edae7d5ee270377ddb6c6b13ce6124c3fafe4d9d7c7a8f2f3686949db",
+        "phase6_reducer_state_hash_sha256": "e66137ee1b10a087652f0ead1f85dedf896f255511d96b1fd1a0c5096bf3bece",
+        "phase7_output_hash_sha256": "b46057f564b3ba80b427ad7b2957cccdd6693ff12891c3c064b9dcbe7cb0275c",
+        "phase7_projection_hash_sha256": "1d41480a9dc91fa1cddfd2faf2a71bcc7e48d6664bd5ed7438cd6d60117ea7e6"
+      },
+      "negative_case": null
+    },
+    {
+      "cve_header": {
+        "cve_version": "BETA-CVE-1.0.0",
+        "extends_cve_version": "CVE-1.0.0",
+        "vector_id": "beta21_negative_divergence",
+        "vector_version": "1.0.0",
+        "vector_class": "negative_shell",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "powerlifting",
+        "phases_under_test": [
+          "phase1",
+          "phase2",
+          "phase3",
+          "phase4",
+          "phase5",
+          "phase6",
+          "phase7"
+        ],
+        "implementation_mutation_allowed": false
+      },
+      "pins": {
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "schema_versions": {
+          "phase1_input_schema_id": "kolosseum.master.phase1.input.schema.v1_0_0",
+          "phase1_schema_version": "1.0.0",
+          "beta21_vector_schema_id": "kolosseum.beta21.replay_vector_suite.v1",
+          "beta21_vector_schema_version": "1.0.0"
+        },
+        "phase_contract_versions": {
+          "phase1": "phase1@1.0.0",
+          "phase2": "phase2@1.0.0",
+          "phase3": "phase3@1.0.0",
+          "phase4": "beta11_phase4_enumeration@1.0.0",
+          "phase5": "beta12_phase5_materialisation@1.0.0",
+          "phase6_event_schema": "beta13_phase6_event_schema@1.0.0",
+          "phase6_reducer": "beta14_phase6_runtime_reducer@1.0.0",
+          "phase7_schema": "beta18_phase7_schema_binding@1.0.0",
+          "phase7_projection": "beta19_phase7_factual_projection@1.0.0",
+          "phase7_hash_guard": "beta20_phase7_hash_copy_guard@1.0.0"
+        },
+        "registry_references": [
+          {
+            "registry_id": "active_registry_index",
+            "version": "1.0.0",
+            "path": "registries/registry_index.json",
+            "sha256": "c31139079df4ed7b0a4c58808a2fd1c8e399cb7c1c4d4499fc625ed2c7586d37"
+          },
+          {
+            "registry_id": "phase3_loaded_registry_snapshot",
+            "version": "1.0.0",
+            "path": null,
+            "sha256": "97090774669ab75606c2509bfa2dc3a64218ed0013fe70ec391ae418010870c3"
+          }
+        ]
+      },
+      "canonical_phase1_input": {
+        "consent_granted": true,
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "phase1_schema_version": "1.0.0",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "powerlifting",
+        "nd_mode": false,
+        "instruction_density": "standard",
+        "exposure_prompt_density": "standard",
+        "bias_mode": "none"
+      },
+      "canonical_phase1_input_hash_sha256": "da4c1ceccd9eb6a33fa08e871f2d3b39604afa78d0b9eb5df1f3a39b6784cbb6",
+      "execution_plan": {
+        "scenario": "not_executed",
+        "phase6_events": []
+      },
+      "expected": {
+        "verdict": "FAIL",
+        "failure_token": "beta21_replay_divergence",
+        "phase5_output_hash_sha256": null,
+        "phase6_output_hash_sha256": null,
+        "phase6_reducer_state_hash_sha256": null,
+        "phase7_output_hash_sha256": null,
+        "phase7_projection_hash_sha256": null
+      },
+      "negative_case": {
+        "kind": "divergence",
+        "target_phase": "phase7",
+        "shell_payload": {
+          "comparison": "expected_output_hash_mismatch"
+        }
+      }
+    },
+    {
+      "cve_header": {
+        "cve_version": "BETA-CVE-1.0.0",
+        "extends_cve_version": "CVE-1.0.0",
+        "vector_id": "beta21_negative_invalid_token",
+        "vector_version": "1.0.0",
+        "vector_class": "negative_shell",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "powerlifting",
+        "phases_under_test": [
+          "phase1",
+          "phase2",
+          "phase3",
+          "phase4",
+          "phase5",
+          "phase6",
+          "phase7"
+        ],
+        "implementation_mutation_allowed": false
+      },
+      "pins": {
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "schema_versions": {
+          "phase1_input_schema_id": "kolosseum.master.phase1.input.schema.v1_0_0",
+          "phase1_schema_version": "1.0.0",
+          "beta21_vector_schema_id": "kolosseum.beta21.replay_vector_suite.v1",
+          "beta21_vector_schema_version": "1.0.0"
+        },
+        "phase_contract_versions": {
+          "phase1": "phase1@1.0.0",
+          "phase2": "phase2@1.0.0",
+          "phase3": "phase3@1.0.0",
+          "phase4": "beta11_phase4_enumeration@1.0.0",
+          "phase5": "beta12_phase5_materialisation@1.0.0",
+          "phase6_event_schema": "beta13_phase6_event_schema@1.0.0",
+          "phase6_reducer": "beta14_phase6_runtime_reducer@1.0.0",
+          "phase7_schema": "beta18_phase7_schema_binding@1.0.0",
+          "phase7_projection": "beta19_phase7_factual_projection@1.0.0",
+          "phase7_hash_guard": "beta20_phase7_hash_copy_guard@1.0.0"
+        },
+        "registry_references": [
+          {
+            "registry_id": "active_registry_index",
+            "version": "1.0.0",
+            "path": "registries/registry_index.json",
+            "sha256": "c31139079df4ed7b0a4c58808a2fd1c8e399cb7c1c4d4499fc625ed2c7586d37"
+          },
+          {
+            "registry_id": "phase3_loaded_registry_snapshot",
+            "version": "1.0.0",
+            "path": null,
+            "sha256": "97090774669ab75606c2509bfa2dc3a64218ed0013fe70ec391ae418010870c3"
+          }
+        ]
+      },
+      "canonical_phase1_input": {
+        "consent_granted": true,
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "phase1_schema_version": "1.0.0",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "powerlifting",
+        "nd_mode": false,
+        "instruction_density": "standard",
+        "exposure_prompt_density": "standard",
+        "bias_mode": "none"
+      },
+      "canonical_phase1_input_hash_sha256": "da4c1ceccd9eb6a33fa08e871f2d3b39604afa78d0b9eb5df1f3a39b6784cbb6",
+      "execution_plan": {
+        "scenario": "not_executed",
+        "phase6_events": []
+      },
+      "expected": {
+        "verdict": "FAIL",
+        "failure_token": "beta21_invalid_failure_token",
+        "phase5_output_hash_sha256": null,
+        "phase6_output_hash_sha256": null,
+        "phase6_reducer_state_hash_sha256": null,
+        "phase7_output_hash_sha256": null,
+        "phase7_projection_hash_sha256": null
+      },
+      "negative_case": {
+        "kind": "invalid_token",
+        "target_phase": "replay_verdict",
+        "shell_payload": {
+          "provided_failure_token": "unregistered_failure_token"
+        }
+      }
+    },
+    {
+      "cve_header": {
+        "cve_version": "BETA-CVE-1.0.0",
+        "extends_cve_version": "CVE-1.0.0",
+        "vector_id": "beta21_negative_missing_phase_output",
+        "vector_version": "1.0.0",
+        "vector_class": "negative_shell",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "powerlifting",
+        "phases_under_test": [
+          "phase1",
+          "phase2",
+          "phase3",
+          "phase4",
+          "phase5",
+          "phase6",
+          "phase7"
+        ],
+        "implementation_mutation_allowed": false
+      },
+      "pins": {
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "schema_versions": {
+          "phase1_input_schema_id": "kolosseum.master.phase1.input.schema.v1_0_0",
+          "phase1_schema_version": "1.0.0",
+          "beta21_vector_schema_id": "kolosseum.beta21.replay_vector_suite.v1",
+          "beta21_vector_schema_version": "1.0.0"
+        },
+        "phase_contract_versions": {
+          "phase1": "phase1@1.0.0",
+          "phase2": "phase2@1.0.0",
+          "phase3": "phase3@1.0.0",
+          "phase4": "beta11_phase4_enumeration@1.0.0",
+          "phase5": "beta12_phase5_materialisation@1.0.0",
+          "phase6_event_schema": "beta13_phase6_event_schema@1.0.0",
+          "phase6_reducer": "beta14_phase6_runtime_reducer@1.0.0",
+          "phase7_schema": "beta18_phase7_schema_binding@1.0.0",
+          "phase7_projection": "beta19_phase7_factual_projection@1.0.0",
+          "phase7_hash_guard": "beta20_phase7_hash_copy_guard@1.0.0"
+        },
+        "registry_references": [
+          {
+            "registry_id": "active_registry_index",
+            "version": "1.0.0",
+            "path": "registries/registry_index.json",
+            "sha256": "c31139079df4ed7b0a4c58808a2fd1c8e399cb7c1c4d4499fc625ed2c7586d37"
+          },
+          {
+            "registry_id": "phase3_loaded_registry_snapshot",
+            "version": "1.0.0",
+            "path": null,
+            "sha256": "97090774669ab75606c2509bfa2dc3a64218ed0013fe70ec391ae418010870c3"
+          }
+        ]
+      },
+      "canonical_phase1_input": {
+        "consent_granted": true,
+        "engine_version": "EB2-1.0.0",
+        "enum_bundle_version": "EB2-1.0.0",
+        "phase1_schema_version": "1.0.0",
+        "actor_type": "athlete",
+        "execution_scope": "individual",
+        "activity_id": "powerlifting",
+        "nd_mode": false,
+        "instruction_density": "standard",
+        "exposure_prompt_density": "standard",
+        "bias_mode": "none"
+      },
+      "canonical_phase1_input_hash_sha256": "da4c1ceccd9eb6a33fa08e871f2d3b39604afa78d0b9eb5df1f3a39b6784cbb6",
+      "execution_plan": {
+        "scenario": "not_executed",
+        "phase6_events": []
+      },
+      "expected": {
+        "verdict": "FAIL",
+        "failure_token": "beta21_missing_phase_output",
+        "phase5_output_hash_sha256": null,
+        "phase6_output_hash_sha256": null,
+        "phase6_reducer_state_hash_sha256": null,
+        "phase7_output_hash_sha256": null,
+        "phase7_projection_hash_sha256": null
+      },
+      "negative_case": {
+        "kind": "missing_phase_output",
+        "target_phase": "phase6",
+        "shell_payload": {
+          "missing_output": "phase6_output"
+        }
+      }
+    }
+  ]
+}
