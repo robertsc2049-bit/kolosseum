@@ -11,7 +11,8 @@
     "e2e:golden",
     "guard:index",
     "guard:constraints",
-    "guard:version"
+    "guard:version",
+    "proof:beta-15"
   ],
   "workflow_files": [
     ".github/workflows/green.yml"

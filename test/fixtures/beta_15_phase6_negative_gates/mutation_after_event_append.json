@@ -1,0 +1,6 @@
+{
+  "slice_id": "BETA-15",
+  "scenario_id": "mutation_after_event_append",
+  "operation": "edit_canonical_event_after_append",
+  "expected_failure_token": "phase6_event_schema_event_invalid"
+}

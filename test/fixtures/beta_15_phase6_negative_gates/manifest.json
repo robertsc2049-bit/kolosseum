@@ -1,0 +1,72 @@
+{
+  "schema_version": "kolosseum.beta15.phase6_negative_fixtures.v1.0.0",
+  "slice_id": "BETA-15",
+  "fixture_set_id": "beta15_phase6_negative_gates",
+  "token_manifest": "engine/contracts/beta15_phase6_failure_tokens.json",
+  "token_manifest_sha256": "21ed5d03e334f101befc4ce8c2fc66586259d3943c4928469259ad1bed789c9b",
+  "scenarios": [
+    {
+      "file": "invalid_event_order.json",
+      "scenario_id": "invalid_event_order",
+      "operation": "work_item_done_before_session_start",
+      "expected_failure_token": "phase6_event_schema_event_order_invalid",
+      "sha256": "ff0d5854f029f258c96fea307855b9f7eab9a1d6ba64188c3e6a65849a1b2395"
+    },
+    {
+      "file": "duplicate_illegal_event.json",
+      "scenario_id": "duplicate_illegal_event",
+      "operation": "duplicate_canonical_event_in_append_log",
+      "expected_failure_token": "phase6_event_schema_append_only_violation",
+      "sha256": "19574ca82777345dc1bc70e8e7f070625dcc17654e8fef4dba0288ec871613e3"
+    },
+    {
+      "file": "unknown_event_type.json",
+      "scenario_id": "unknown_event_type",
+      "operation": "submit_unknown_runtime_event_type",
+      "expected_failure_token": "phase6_event_schema_unknown_event_type",
+      "sha256": "0a95309a7b31743754d4f50e28d12c663f9827f6913fca20b83731adc194ed64"
+    },
+    {
+      "file": "unknown_work_item.json",
+      "scenario_id": "unknown_work_item",
+      "operation": "submit_unknown_runtime_work_item",
+      "expected_failure_token": "phase6_event_schema_unknown_work_item",
+      "sha256": "4ba8401f2f9e773a1b213093cb5affa404c090782df40d6d4141558c88cdc7cf"
+    },
+    {
+      "file": "missing_return_decision.json",
+      "scenario_id": "missing_return_decision",
+      "operation": "end_session_while_split_active",
+      "expected_failure_token": "phase6_event_schema_return_decision_required",
+      "sha256": "07fce5c0a300083a6d7780e0ebd5af297e05eb52d7210f2266853dd4066b82b6"
+    },
+    {
+      "file": "missing_pain_follow_up.json",
+      "scenario_id": "missing_pain_follow_up",
+      "operation": "resolve_work_item_while_pain_follow_up_pending",
+      "expected_failure_token": "phase6_event_schema_pain_follow_up_required",
+      "sha256": "8a5017d00b2ad447ab0a6c67c4c30b17adc42624fc2f7b3129d564fe583cf383"
+    },
+    {
+      "file": "runtime_state_divergence.json",
+      "scenario_id": "runtime_state_divergence",
+      "operation": "state_does_not_match_event_replay",
+      "expected_failure_token": "phase6_runtime_reducer_state_divergence",
+      "sha256": "5364a9ce2ab99532e76d1d3a98d70044e43be6d5cccc5e8f7cfda0576a58a9d2"
+    },
+    {
+      "file": "event_crossing_session_boundary.json",
+      "scenario_id": "event_crossing_session_boundary",
+      "operation": "append_event_to_different_route_session",
+      "expected_failure_token": "phase6_event_schema_unknown_session",
+      "sha256": "4564e6e9a088355d5ad386d03b813f51402b1b174ac267dbe7f5008e1b65a4ba"
+    },
+    {
+      "file": "mutation_after_event_append.json",
+      "scenario_id": "mutation_after_event_append",
+      "operation": "edit_canonical_event_after_append",
+      "expected_failure_token": "phase6_event_schema_event_invalid",
+      "sha256": "d213dbe85a63f8060d87f22aae1de36c09bf17ceb59fa94e57f203d5689e8c5a"
+    }
+  ]
+}

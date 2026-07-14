@@ -161,3 +161,10 @@ export function tryReplayBeta14Phase6RuntimeEvents(
   state?: Beta14Phase6RuntimeState;
   error?: Readonly<Record<string, unknown>>;
 }>;
+
+
+export function assertBeta14Phase6RuntimeStateMatchesEventLog(
+  session: unknown,
+  events: unknown,
+  state: Beta14Phase6RuntimeState
+): Beta14Phase6RuntimeState;

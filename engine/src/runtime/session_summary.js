@@ -502,6 +502,7 @@ export {
 
 export {
   appendAndReduceBeta14Phase6RuntimeEvent,
+  assertBeta14Phase6RuntimeStateMatchesEventLog,
   applyBeta14Phase6RuntimeEvent,
   beta14Phase6RuntimeReducerContract,
   initialiseBeta14Phase6RuntimeState,

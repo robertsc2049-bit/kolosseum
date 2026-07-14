@@ -1,0 +1,6 @@
+{
+  "slice_id": "BETA-15",
+  "scenario_id": "runtime_state_divergence",
+  "operation": "state_does_not_match_event_replay",
+  "expected_failure_token": "phase6_runtime_reducer_state_divergence"
+}

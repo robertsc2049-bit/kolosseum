@@ -1,0 +1,35 @@
+{
+  "schema_version": "kolosseum.beta15.phase6_failure_tokens.v1.0.0",
+  "slice_id": "BETA-15",
+  "token_surface": "closed",
+  "source_files": [
+    "engine/src/runtime/beta13_phase6_event_schema.js",
+    "engine/src/runtime/beta14_phase6_runtime_reducer.js"
+  ],
+  "valid_failure_tokens": [
+    "phase6_event_schema_append_only_violation",
+    "phase6_event_schema_event_invalid",
+    "phase6_event_schema_event_log_invalid",
+    "phase6_event_schema_event_order_invalid",
+    "phase6_event_schema_free_text_forbidden",
+    "phase6_event_schema_pain_follow_up_required",
+    "phase6_event_schema_reducer_invalid",
+    "phase6_event_schema_return_decision_required",
+    "phase6_event_schema_session_invalid",
+    "phase6_event_schema_unknown_block",
+    "phase6_event_schema_unknown_event_type",
+    "phase6_event_schema_unknown_session",
+    "phase6_event_schema_unknown_work_item",
+    "phase6_event_schema_user_block_id_forbidden",
+    "phase6_runtime_reducer_append_only_violation",
+    "phase6_runtime_reducer_event_order_invalid",
+    "phase6_runtime_reducer_failure",
+    "phase6_runtime_reducer_pain_follow_up_required",
+    "phase6_runtime_reducer_return_decision_required",
+    "phase6_runtime_reducer_session_mismatch",
+    "phase6_runtime_reducer_state_divergence",
+    "phase6_runtime_reducer_state_invalid",
+    "phase6_runtime_reducer_state_tampered",
+    "phase6_runtime_reducer_unknown_work_item"
+  ]
+}

@@ -554,6 +554,23 @@ export function applyBeta14Phase6RuntimeEvent(
       );
     }
 
+    const painRecord =
+      state.pain_follow_up[
+        acceptedEvent.work_item_id
+      ];
+
+    if (
+      painRecord?.follow_up_pending === true
+    ) {
+      fail(
+        "phase6_runtime_reducer_pain_follow_up_required",
+        "Pain follow-up is required before work-item resolution.",
+        {
+          work_item_id: acceptedEvent.work_item_id
+        }
+      );
+    }
+
     const done =
       acceptedEvent.event_type ===
       "WORK_ITEM_DONE";
@@ -732,8 +749,8 @@ export function applyBeta14Phase6RuntimeEvent(
   if (acceptedEvent.event_type === "SESSION_END") {
     if (state.split.active === true) {
       fail(
-        "phase6_runtime_reducer_event_order_invalid",
-        "SESSION_END cannot occur during an active split."
+        "phase6_runtime_reducer_return_decision_required",
+        "Split return decision is required before SESSION_END."
       );
     }
 
@@ -801,6 +818,56 @@ export function replayBeta14Phase6RuntimeEvents(
       session
     )
   );
+}
+
+
+export function assertBeta14Phase6RuntimeStateMatchesEventLog(
+  session,
+  events,
+  state
+) {
+  const context =
+    validateBeta13Phase6Session(session);
+
+  assertReducerStateIntegrity(
+    context,
+    state
+  );
+
+  const replayed =
+    replayBeta14Phase6RuntimeEvents(
+      session,
+      events
+    );
+
+  const expected =
+    stableBeta14Phase6RuntimeStateJson(
+      replayed
+    );
+
+  const actual =
+    stableBeta14Phase6RuntimeStateJson(
+      state
+    );
+
+  if (actual !== expected) {
+    fail(
+      "phase6_runtime_reducer_state_divergence",
+      "Runtime state does not match deterministic event replay.",
+      {
+        expected_state_hash:
+          replayed.reducer_state_hash,
+        actual_state_hash:
+          state.reducer_state_hash,
+        event_count:
+          Array.isArray(events)
+            ? events.length
+            : null
+      }
+    );
+  }
+
+  return state;
 }
 
 export function appendAndReduceBeta14Phase6RuntimeEvent(
