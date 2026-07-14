@@ -1,0 +1,52 @@
+{
+  "contract_id": "beta25_phase8_chain_seal_gates_contract",
+  "slice_id": "BETA-25",
+  "version": "1.0.0",
+  "phase8_input_fields": [
+    "phase5_output",
+    "phase6_output",
+    "phase7_output",
+    "runner_verdict"
+  ],
+  "seal_gate_state_fields": [
+    "cl_passed",
+    "ci_passed",
+    "pre_seal_state"
+  ],
+  "seal_gate_output_fields": [
+    "phase8_seal_gate_id",
+    "evidence_seal_authorised",
+    "canonical_input_hash",
+    "selection_hash",
+    "projection_hash",
+    "runner_verdict_id",
+    "runner_verdict_checksum_sha256",
+    "cl_passed",
+    "ci_passed",
+    "pre_seal_state"
+  ],
+  "phase8_input_additional_properties": false,
+  "seal_gate_state_additional_properties": false,
+  "required_runner_verdict": "ACCEPTED",
+  "required_pre_seal_state": "inactive",
+  "binding_rules": [
+    "phase5_phase6_canonical_input_hash",
+    "phase5_phase6_selection_hash",
+    "phase6_phase7_canonical_input_hash",
+    "phase6_phase7_selection_hash",
+    "phase6_phase7_execution_status",
+    "phase6_phase7_execution_state",
+    "runner_canonical_input_hash",
+    "runner_selection_hash",
+    "runner_projection_hash"
+  ],
+  "seal_preconditions": [
+    "cl_passed",
+    "ci_passed",
+    "runner_verdict_accepted",
+    "evidence_chain_valid",
+    "pre_seal_state_inactive"
+  ],
+  "evidence_envelope_materialisation": false,
+  "persistence_implemented": false
+}
