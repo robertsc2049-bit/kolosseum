@@ -1,0 +1,19 @@
+{
+  "schema_version": "kolosseum.beta21.replay_vector_manifest.v1.0.0",
+  "slice_id": "BETA-21",
+  "suite_id": "beta_phase1_7",
+  "suite_path": "replay/suite/beta_phase1_7/vectors.json",
+  "suite_sha256": "8bc2b8bd439459d3e7c32c00205c0340b7187c8416bd896770898ffeae8eafcb",
+  "vector_ids": [
+    "beta21_individual_powerlifting",
+    "beta21_individual_general_strength",
+    "beta21_coach_managed_rugby_union",
+    "beta21_split_continue",
+    "beta21_partial_completion",
+    "beta21_negative_divergence",
+    "beta21_negative_invalid_token",
+    "beta21_negative_missing_phase_output"
+  ],
+  "positive_vector_count": 5,
+  "negative_shell_count": 3
+}

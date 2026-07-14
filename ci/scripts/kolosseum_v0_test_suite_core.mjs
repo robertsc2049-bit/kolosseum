@@ -23,7 +23,11 @@ const V0_SCOPE_EXCLUDED_PATHS = new Set([
   "engine/contracts/beta18_phase7_failure_tokens.json",
   "engine/src/phases/beta19Phase7FactualProjection.ts",
   "engine/src/phases/beta20Phase7HashCopyGuard.ts",
-  "engine/contracts/beta20_phase7_render_stack.json"
+  "engine/contracts/beta20_phase7_render_stack.json",
+  "replay/contracts/beta21_replay_vector_envelope.schema.json",
+  "replay/contracts/beta21_replay_failure_tokens.json",
+  "replay/suite/beta_phase1_7/vectors.json",
+  "replay/suite/beta_phase1_7/manifest.json"
 ]);
 
 function isV0CopyLintExcluded(filePath) {

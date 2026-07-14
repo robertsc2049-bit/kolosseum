@@ -1,0 +1,387 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.beta21.replay_vector_suite.v1",
+  "title": "BETA-21 Phase 1-7 Replay Vector Suite",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "slice_id",
+    "suite_id",
+    "vectors"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "kolosseum.beta21.replay_vector_suite.v1.0.0"
+    },
+    "slice_id": {
+      "const": "BETA-21"
+    },
+    "suite_id": {
+      "const": "beta_phase1_7"
+    },
+    "vectors": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/vector"
+      }
+    }
+  },
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "nullable_hash": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/hash"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullable_string": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "registry_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registry_id",
+        "version",
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "registry_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "$ref": "#/$defs/nullable_string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "schema_versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase1_input_schema_id",
+        "phase1_schema_version",
+        "beta21_vector_schema_id",
+        "beta21_vector_schema_version"
+      ],
+      "properties": {
+        "phase1_input_schema_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "phase1_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "beta21_vector_schema_id": {
+          "const": "kolosseum.beta21.replay_vector_suite.v1"
+        },
+        "beta21_vector_schema_version": {
+          "const": "1.0.0"
+        }
+      }
+    },
+    "phase_contract_versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase1",
+        "phase2",
+        "phase3",
+        "phase4",
+        "phase5",
+        "phase6_event_schema",
+        "phase6_reducer",
+        "phase7_schema",
+        "phase7_projection",
+        "phase7_hash_guard"
+      ],
+      "properties": {
+        "phase1": {
+          "type": "string"
+        },
+        "phase2": {
+          "type": "string"
+        },
+        "phase3": {
+          "type": "string"
+        },
+        "phase4": {
+          "type": "string"
+        },
+        "phase5": {
+          "type": "string"
+        },
+        "phase6_event_schema": {
+          "type": "string"
+        },
+        "phase6_reducer": {
+          "type": "string"
+        },
+        "phase7_schema": {
+          "type": "string"
+        },
+        "phase7_projection": {
+          "type": "string"
+        },
+        "phase7_hash_guard": {
+          "type": "string"
+        }
+      }
+    },
+    "pins": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engine_version",
+        "enum_bundle_version",
+        "schema_versions",
+        "phase_contract_versions",
+        "registry_references"
+      ],
+      "properties": {
+        "engine_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enum_bundle_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schema_versions": {
+          "$ref": "#/$defs/schema_versions"
+        },
+        "phase_contract_versions": {
+          "$ref": "#/$defs/phase_contract_versions"
+        },
+        "registry_references": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/registry_reference"
+          }
+        }
+      }
+    },
+    "cve_header": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cve_version",
+        "extends_cve_version",
+        "vector_id",
+        "vector_version",
+        "vector_class",
+        "actor_type",
+        "execution_scope",
+        "activity_id",
+        "phases_under_test",
+        "implementation_mutation_allowed"
+      ],
+      "properties": {
+        "cve_version": {
+          "const": "BETA-CVE-1.0.0"
+        },
+        "extends_cve_version": {
+          "const": "CVE-1.0.0"
+        },
+        "vector_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vector_version": {
+          "const": "1.0.0"
+        },
+        "vector_class": {
+          "enum": [
+            "positive",
+            "negative_shell"
+          ]
+        },
+        "actor_type": {
+          "const": "athlete"
+        },
+        "execution_scope": {
+          "enum": [
+            "individual",
+            "coach_managed"
+          ]
+        },
+        "activity_id": {
+          "enum": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "phases_under_test": {
+          "const": [
+            "phase1",
+            "phase2",
+            "phase3",
+            "phase4",
+            "phase5",
+            "phase6",
+            "phase7"
+          ]
+        },
+        "implementation_mutation_allowed": {
+          "const": false
+        }
+      }
+    },
+    "execution_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenario",
+        "phase6_events"
+      ],
+      "properties": {
+        "scenario": {
+          "enum": [
+            "completed",
+            "split_continue",
+            "partial_completion",
+            "not_executed"
+          ]
+        },
+        "phase6_events": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verdict",
+        "failure_token",
+        "phase5_output_hash_sha256",
+        "phase6_output_hash_sha256",
+        "phase6_reducer_state_hash_sha256",
+        "phase7_output_hash_sha256",
+        "phase7_projection_hash_sha256"
+      ],
+      "properties": {
+        "verdict": {
+          "enum": [
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "failure_token": {
+          "$ref": "#/$defs/nullable_string"
+        },
+        "phase5_output_hash_sha256": {
+          "$ref": "#/$defs/nullable_hash"
+        },
+        "phase6_output_hash_sha256": {
+          "$ref": "#/$defs/nullable_hash"
+        },
+        "phase6_reducer_state_hash_sha256": {
+          "$ref": "#/$defs/nullable_hash"
+        },
+        "phase7_output_hash_sha256": {
+          "$ref": "#/$defs/nullable_hash"
+        },
+        "phase7_projection_hash_sha256": {
+          "$ref": "#/$defs/nullable_hash"
+        }
+      }
+    },
+    "negative_case": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "target_phase",
+            "shell_payload"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "divergence",
+                "invalid_token",
+                "missing_phase_output"
+              ]
+            },
+            "target_phase": {
+              "type": "string",
+              "minLength": 1
+            },
+            "shell_payload": {
+              "type": "object"
+            }
+          }
+        }
+      ]
+    },
+    "vector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cve_header",
+        "pins",
+        "canonical_phase1_input",
+        "canonical_phase1_input_hash_sha256",
+        "execution_plan",
+        "expected",
+        "negative_case"
+      ],
+      "properties": {
+        "cve_header": {
+          "$ref": "#/$defs/cve_header"
+        },
+        "pins": {
+          "$ref": "#/$defs/pins"
+        },
+        "canonical_phase1_input": {
+          "type": "object"
+        },
+        "canonical_phase1_input_hash_sha256": {
+          "$ref": "#/$defs/hash"
+        },
+        "execution_plan": {
+          "$ref": "#/$defs/execution_plan"
+        },
+        "expected": {
+          "$ref": "#/$defs/expected"
+        },
+        "negative_case": {
+          "$ref": "#/$defs/negative_case"
+        }
+      }
+    }
+  }
+}
