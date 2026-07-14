@@ -1,0 +1,44 @@
+{
+  "schema_version": "kolosseum.beta22.replay_verify_manifest.v1.0.0",
+  "slice_id": "BETA-22",
+  "suite_id": "beta_phase1_7",
+  "mode": "verify_only",
+  "repeat_count": 3,
+  "phase_order": [
+    "phase1",
+    "phase2",
+    "phase3",
+    "phase4",
+    "phase5",
+    "phase6",
+    "phase7"
+  ],
+  "paths": {
+    "contract": "replay/contracts/beta22_replay_verify_contract.json",
+    "failure_tokens": "replay/contracts/beta22_replay_verify_failure_tokens.json",
+    "vectors": "replay/suite/beta_phase1_7/vectors.json",
+    "vector_manifest": "replay/suite/beta_phase1_7/manifest.json",
+    "verify_inputs": "replay/suite/beta_phase1_7/verify_inputs.json",
+    "expected_outputs": "replay/suite/beta_phase1_7/expected_outputs.json"
+  },
+  "sha256": {
+    "contract": "ec4dbe9fa7d320fc4d1ce20e3773d49c27af9c2420651a428e98531f77204ef7",
+    "failure_tokens": "32e2bd7c3c120f7014de8316a5ccb5aa3008c088c4afb1c03edd8e09e19ee714",
+    "vectors": "8bc2b8bd439459d3e7c32c00205c0340b7187c8416bd896770898ffeae8eafcb",
+    "vector_manifest": "7793a4619023cc34350aa4958adae51fab3b98d1ee01c3cddb1da2d8852fe873",
+    "verify_inputs": "2422931157c2444ab25f72122ffe62e4a37b86d0083e57d972c57332ad217f32",
+    "expected_outputs": "8ad216ce064addc097d24783fd1879220fac84e67ba6ead0fd45b483aeedbd0a"
+  },
+  "accepted_vector_ids": [
+    "beta21_individual_powerlifting",
+    "beta21_individual_general_strength",
+    "beta21_coach_managed_rugby_union",
+    "beta21_split_continue",
+    "beta21_partial_completion"
+  ],
+  "rejected_shell_ids": [
+    "beta21_negative_divergence",
+    "beta21_negative_invalid_token",
+    "beta21_negative_missing_phase_output"
+  ]
+}

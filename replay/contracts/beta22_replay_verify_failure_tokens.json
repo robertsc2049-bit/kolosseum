@@ -1,0 +1,20 @@
+{
+  "contract_id": "beta22_replay_verify_failure_tokens",
+  "contract_version": "1.0.0",
+  "slice_id": "BETA-22",
+  "tokens": [
+    "beta22_verify_mode_required",
+    "beta22_update_mode_forbidden",
+    "beta22_cli_argument_invalid",
+    "beta22_manifest_invalid",
+    "beta22_vector_invalid",
+    "beta22_pin_mismatch",
+    "beta22_replay_binding_invalid",
+    "beta22_phase_execution_failed",
+    "beta22_phase_output_missing",
+    "beta22_phase_output_divergence",
+    "beta22_input_mutation",
+    "beta22_repeat_divergence",
+    "beta22_phase_skipped"
+  ]
+}
