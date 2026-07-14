@@ -8,6 +8,9 @@ import { Router } from "express";
 import { asyncHandler } from "./async_handler.js";
 import {
   appendRuntimeEvent,
+  createBeta16Acknowledgement,
+  createBeta16Auth,
+  createBeta16Declaration,
   getDecisionSummaryByRunId,
   getSessionState,
   listRuntimeEvents,
@@ -16,6 +19,23 @@ import {
 } from "./sessions.handlers.js";
 
 export const sessionsRouter = Router();
+
+sessionsRouter.post(
+  "/beta-auth",
+  asyncHandler(createBeta16Auth)
+);
+
+sessionsRouter.post(
+  "/beta-acknowledgement",
+  asyncHandler(
+    createBeta16Acknowledgement
+  )
+);
+
+sessionsRouter.post(
+  "/beta-declaration",
+  asyncHandler(createBeta16Declaration)
+);
 
 sessionsRouter.post("/plan", asyncHandler(planSession));
 sessionsRouter.get("/decision-summary/:run_id", asyncHandler(getDecisionSummaryByRunId));

@@ -19,6 +19,11 @@ import {
   getDecisionSummaryByRunIdQuery,
   getSessionStateQuery
 } from "./session_state_query_service.js";
+import {
+  createBeta16AcknowledgementRecord,
+  createBeta16AuthRecord,
+  createBeta16Phase1DeclarationRecord
+} from "./beta16_app_path_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -28,6 +33,61 @@ function isRecord(v: unknown): v is JsonRecord {
 
 function asString(v: unknown): string | undefined {
   return typeof v === "string" && v.length > 0 ? v : undefined;
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Exposes the existing beta athlete product/auth record path.
+ * Boundary: No credential provider, persistence or engine mutation.
+ */
+export async function createBeta16Auth(
+  req: Request,
+  res: Response
+) {
+  const result =
+    createBeta16AuthRecord(req.body);
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records explicit beta and jurisdiction acknowledgement.
+ * Boundary: Product state only.
+ */
+export async function createBeta16Acknowledgement(
+  req: Request,
+  res: Response
+) {
+  const result =
+    createBeta16AcknowledgementRecord(
+      req.body
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records the Phase 1 declaration used by BETA-16 compile admission.
+ * Boundary: Does not compile or persist engine state.
+ */
+export async function createBeta16Declaration(
+  req: Request,
+  res: Response
+) {
+  const result =
+    createBeta16Phase1DeclarationRecord(
+      req.body
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
 }
 
 export async function planSession(req: Request, res: Response) {

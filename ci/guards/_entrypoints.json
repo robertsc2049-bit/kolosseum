@@ -12,7 +12,8 @@
     "guard:index",
     "guard:constraints",
     "guard:version",
-    "proof:beta-15"
+    "proof:beta-15",
+    "proof:beta-16"
   ],
   "workflow_files": [
     ".github/workflows/green.yml"
