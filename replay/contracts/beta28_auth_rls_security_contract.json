@@ -1,0 +1,54 @@
+{
+  "contract_id": "beta28_auth_rls_security_contract",
+  "slice_id": "BETA-28",
+  "version": "1.0.0",
+  "actor_types": [
+    "individual_user",
+    "coach"
+  ],
+  "active_account_state": "active",
+  "suspended_account_state": "suspended",
+  "resource_types": [
+    "session",
+    "projection",
+    "replay_verdict",
+    "evidence",
+    "export",
+    "coach_note"
+  ],
+  "actions": [
+    "read",
+    "write",
+    "export",
+    "mutate"
+  ],
+  "relationship_statuses": [
+    "active",
+    "archived",
+    "pending",
+    "revoked"
+  ],
+  "owner_only_session_access": true,
+  "coach_relationship_scoped": true,
+  "revoked_coach_lockout": true,
+  "suspended_account_lockout": true,
+  "projection_access_protected": true,
+  "replay_verdict_access_protected": true,
+  "evidence_access_protected": true,
+  "export_access_protected": true,
+  "notes_access_protected": true,
+  "sealed_artifact_mutation_allowed": false,
+  "resource_owner_from_client": false,
+  "protected_route_adapter_added": true,
+  "credential_provider_added": false,
+  "live_legacy_route_rewiring": false,
+  "postgres_rls_migration": "migrations/20260714_beta28_auth_rls_security.sql",
+  "audit_event_types": [
+    "security_access_requested",
+    "security_access_granted",
+    "security_access_denied",
+    "sealed_artifact_mutation_denied"
+  ],
+  "dependency_audit_command": "npm audit --json --omit=dev --audit-level=high",
+  "secret_scan_scope": "git_tracked_files"
+}

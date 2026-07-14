@@ -185,6 +185,18 @@ Do not add UI screens in this slice.
 
 Do not widen v1 beyond powerlifting, general_strength, and rugby_union.
 
+## Later explicit migration allowances
+
+The prohibition on database migrations above applies to the historical S18 scaffolding slice.
+
+Later security or storage slices may add a migration only when its exact path is deliberately recorded by the S18 guard. The guard must continue to reject all unrecorded paths under `migrations/` and `db/migrations/`.
+
+BETA-28 authorises this exact later-slice migration:
+
+- `migrations/20260714_beta28_auth_rls_security.sql`
+
+This exception does not authorise any other migration, database expansion, registry content, template content, UI surface, billing surface, marketplace surface, messaging surface, or organisation runtime.
+
 ## Next lane
 
 The next lane is S19 - v1 locked activity set guard.
