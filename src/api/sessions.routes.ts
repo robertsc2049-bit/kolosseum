@@ -11,6 +11,11 @@ import {
   createBeta16Acknowledgement,
   createBeta16Auth,
   createBeta16Declaration,
+  createBeta17Assignment,
+  createBeta17CoachNote,
+  createBeta17CoachProfile,
+  createBeta17Relationship,
+  getBeta17CoachArtefacts,
   getDecisionSummaryByRunId,
   getSessionState,
   listRuntimeEvents,
@@ -35,6 +40,31 @@ sessionsRouter.post(
 sessionsRouter.post(
   "/beta-declaration",
   asyncHandler(createBeta16Declaration)
+);
+
+sessionsRouter.post(
+  "/beta-coach-profile",
+  asyncHandler(createBeta17CoachProfile)
+);
+
+sessionsRouter.post(
+  "/beta-coach-relationship",
+  asyncHandler(createBeta17Relationship)
+);
+
+sessionsRouter.post(
+  "/beta-coach-assignment",
+  asyncHandler(createBeta17Assignment)
+);
+
+sessionsRouter.post(
+  "/beta-coach-artefacts",
+  asyncHandler(getBeta17CoachArtefacts)
+);
+
+sessionsRouter.post(
+  "/beta-coach-notes",
+  asyncHandler(createBeta17CoachNote)
 );
 
 sessionsRouter.post("/plan", asyncHandler(planSession));

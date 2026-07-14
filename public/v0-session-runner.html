@@ -408,6 +408,119 @@
     </div>
   </section>
 
+  <section
+    id="beta17CoachManagedPath"
+    class="card"
+  >
+    <h2 data-copy-id="BETA17_COPY_TITLE"></h2>
+    <p
+      class="muted"
+      data-copy-id="BETA17_COPY_INTRO"
+    ></p>
+
+    <div class="row">
+      <label class="field">
+        <span data-copy-id="BETA17_COPY_COACH_ID_LABEL"></span>
+        <input id="beta17CoachId" />
+      </label>
+
+      <label class="field">
+        <span data-copy-id="BETA17_COPY_COACH_EMAIL_LABEL"></span>
+        <input
+          id="beta17CoachEmail"
+          type="email"
+        />
+      </label>
+
+      <label class="field">
+        <span data-copy-id="BETA17_COPY_COACH_NAME_LABEL"></span>
+        <input id="beta17CoachName" />
+      </label>
+
+      <button
+        id="beta17ProfileAction"
+        data-copy-id="BETA17_COPY_PROFILE_ACTION"
+      ></button>
+    </div>
+
+    <div class="row step-actions">
+      <button
+        id="beta17InviteAction"
+        data-copy-id="BETA17_COPY_INVITE_ACTION"
+        disabled
+      ></button>
+
+      <button
+        id="beta17AcceptAction"
+        data-copy-id="BETA17_COPY_ACCEPT_ACTION"
+        disabled
+      ></button>
+
+      <button
+        id="beta17RevokeAction"
+        data-copy-id="BETA17_COPY_REVOKE_ACTION"
+        disabled
+      ></button>
+    </div>
+
+    <div class="row step-actions">
+      <label class="field">
+        <span data-copy-id="BETA17_COPY_TEMPLATE_ID_LABEL"></span>
+        <input
+          id="beta17TemplateId"
+          value="beta_template_powerlifting_001"
+        />
+      </label>
+
+      <button
+        id="beta17AssignmentAction"
+        data-copy-id="BETA17_COPY_ASSIGNMENT_ACTION"
+        disabled
+      ></button>
+
+      <button
+        id="beta17ArtefactAction"
+        data-copy-id="BETA17_COPY_ARTEFACT_ACTION"
+        disabled
+      ></button>
+    </div>
+
+    <label class="field step-actions">
+      <span data-copy-id="BETA17_COPY_NOTE_LABEL"></span>
+      <textarea id="beta17NoteText"></textarea>
+    </label>
+
+    <div class="row step-actions">
+      <label class="field">
+        <span data-copy-id="BETA17_COPY_NOTE_VISIBILITY_LABEL"></span>
+        <select id="beta17NoteVisibility">
+          <option
+            value="coach_private"
+            data-copy-id="BETA17_COPY_NOTE_PRIVATE"
+          ></option>
+          <option
+            value="athlete_visible"
+            data-copy-id="BETA17_COPY_NOTE_ATHLETE_VISIBLE"
+          ></option>
+        </select>
+      </label>
+
+      <button
+        id="beta17NoteAction"
+        data-copy-id="BETA17_COPY_NOTE_ACTION"
+        disabled
+      ></button>
+    </div>
+
+    <p
+      class="muted"
+      data-copy-id="BETA17_COPY_NON_BINDING_NOTICE"
+    ></p>
+
+    <h3 data-copy-id="BETA17_COPY_OUTPUT_LABEL"></h3>
+    <pre id="beta17Output">-</pre>
+  </section>
+
   <details class="card">
     <summary data-copy-id="BETA16_COPY_RAW_INPUT_HEADING"></summary>
     <textarea id="phase1Input" readonly></textarea>
@@ -426,6 +539,10 @@
   <script
     type="module"
     src="/ui/v0-session-runner.js"
+  ></script>
+  <script
+    type="module"
+    src="/ui/beta17-coach-managed.js"
   ></script>
 </body>
 </html>

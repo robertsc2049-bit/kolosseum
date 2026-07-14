@@ -24,6 +24,13 @@ import {
   createBeta16AuthRecord,
   createBeta16Phase1DeclarationRecord
 } from "./beta16_app_path_service.js";
+import {
+  buildBeta17CoachArtefactView,
+  createBeta17AssignmentRecord,
+  createBeta17CoachNoteRecord,
+  createBeta17CoachProfileRecord,
+  createBeta17RelationshipRecord
+} from "./beta17_coach_managed_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -82,6 +89,101 @@ export async function createBeta16Declaration(
 ) {
   const result =
     createBeta16Phase1DeclarationRecord(
+      req.body
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records bounded coach product-auth state.
+ * Boundary: Does not authenticate credentials or enter engine input.
+ */
+export async function createBeta17CoachProfile(
+  req: Request,
+  res: Response
+) {
+  const result =
+    createBeta17CoachProfileRecord(
+      req.body
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records invited, accepted or revoked individual relationship state.
+ * Boundary: Product permission state only.
+ */
+export async function createBeta17Relationship(
+  req: Request,
+  res: Response
+) {
+  const result =
+    createBeta17RelationshipRecord(
+      req.body
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records an existing-contract coach assignment trigger.
+ * Boundary: Does not compile, edit declarations, alter registries or override engine decisions.
+ */
+export async function createBeta17Assignment(
+  req: Request,
+  res: Response
+) {
+  const result =
+    createBeta17AssignmentRecord(
+      req.body
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Returns assigned-coach factual artefact records.
+ * Boundary: Read-only and note-free.
+ */
+export async function getBeta17CoachArtefacts(
+  req: Request,
+  res: Response
+) {
+  const result =
+    buildBeta17CoachArtefactView(
+      req.body
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records an exact non-binding coach note.
+ * Boundary: Product record only and engine-inert.
+ */
+export async function createBeta17CoachNote(
+  req: Request,
+  res: Response
+) {
+  const result =
+    createBeta17CoachNoteRecord(
       req.body
     );
 

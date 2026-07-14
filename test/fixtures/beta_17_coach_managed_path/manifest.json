@@ -1,0 +1,14 @@
+{
+  "schema_version": "kolosseum.beta17.coach_managed_path.v1.0.0",
+  "slice_id": "BETA-17",
+  "fixture_set_id": "beta17_coach_managed_path",
+  "fixtures": [
+    {
+      "file": "clean_coach_managed_path.json",
+      "fixture_id": "beta17_clean_coach_managed_path",
+      "coach_user_id": "beta_coach_001",
+      "athlete_user_id": "beta_user_001",
+      "sha256": "a834dc3ffa35f41614f4af0ec0334d6e2c96a4530cb0a369134a7ffe43898ef8"
+    }
+  ]
+}
