@@ -25,6 +25,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/beta_15_phase6_negative_gates_guard.mjs` | Repo Governance | high | engine | DEV NOTE: BETA-15 closed Phase 6 invalid-runtime failure guard. |
 | `ci/guards/beta_16_app_path_phase1_6_guard.mjs` | Repo Governance | high | app | DEV NOTE: BETA-16 app path, Copy Registry and Phase 1-6 integration guard. |
 | `ci/guards/beta_17_coach_managed_path_guard.mjs` | Repo Governance | high | app | DEV NOTE: BETA-17 coach-managed permission, note isolation and Copy Registry guard. |
+| `ci/guards/beta_18_phase7_schema_binding_guard.mjs` | Repo Governance | high | engine | DEV NOTE: BETA-18 Phase 7 schema, binding, isolation, and exact v0 exclusion guard. |
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | DEV NOTE: Clean-tree guard. This script protects release, promotion, and CI |
 | `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |

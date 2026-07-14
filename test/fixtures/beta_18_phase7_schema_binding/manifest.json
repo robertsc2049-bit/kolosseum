@@ -1,0 +1,12 @@
+{
+  "schema_version": "kolosseum.beta18.phase7_schema_binding.v1.0.0",
+  "slice_id": "BETA-18",
+  "fixture_set_id": "beta18_phase7_schema_binding",
+  "fixtures": [
+    {
+      "file": "completed_projection.json",
+      "fixture_id": "beta18_phase7_completed_projection",
+      "sha256": "ccf37870f6f06843d6e7156524d7d42584c2690c27d9a22139f382427fe1eea4"
+    }
+  ]
+}
