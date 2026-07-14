@@ -1,0 +1,6 @@
+{
+  "slice_id": "BETA-15",
+  "scenario_id": "missing_return_decision",
+  "operation": "end_session_while_split_active",
+  "expected_failure_token": "phase6_event_schema_return_decision_required"
+}

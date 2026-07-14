@@ -1,0 +1,6 @@
+{
+  "slice_id": "BETA-15",
+  "scenario_id": "event_crossing_session_boundary",
+  "operation": "append_event_to_different_route_session",
+  "expected_failure_token": "phase6_event_schema_unknown_session"
+}

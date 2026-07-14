@@ -1212,8 +1212,8 @@ function validateEventOrder(
     if (event.event_type === "SESSION_END") {
       if (splitActive) {
         fail(
-          "phase6_event_schema_event_order_invalid",
-          "SESSION_END cannot occur during an active split."
+          "phase6_event_schema_return_decision_required",
+          "Split return decision is required before SESSION_END."
         );
       }
 
