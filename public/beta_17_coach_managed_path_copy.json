@@ -1,0 +1,142 @@
+[
+  {
+    "copy_id": "BETA17_COPY_TITLE",
+    "text": "Coach-managed beta path",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_INTRO",
+    "text": "Record coach access, an athlete relationship, an assignment trigger, factual artefact access and a non-binding note.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_COACH_ID_LABEL",
+    "text": "Coach ID",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_COACH_EMAIL_LABEL",
+    "text": "Coach email",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_COACH_NAME_LABEL",
+    "text": "Coach display name",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_PROFILE_ACTION",
+    "text": "Record coach profile",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_PROFILE_RECORDED",
+    "text": "Coach profile recorded.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_INVITE_ACTION",
+    "text": "Record athlete invite",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_ACCEPT_ACTION",
+    "text": "Record accepted relationship",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_REVOKE_ACTION",
+    "text": "Revoke relationship",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_RELATIONSHIP_INVITED",
+    "text": "Athlete invite recorded.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_RELATIONSHIP_ACCEPTED",
+    "text": "Accepted relationship recorded.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_RELATIONSHIP_REVOKED",
+    "text": "Relationship revoked.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_TEMPLATE_ID_LABEL",
+    "text": "Template ID",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_ASSIGNMENT_ACTION",
+    "text": "Record assignment trigger",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_ASSIGNMENT_RECORDED",
+    "text": "Assignment trigger recorded.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_ARTEFACT_ACTION",
+    "text": "Load factual artefact",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_ARTEFACT_LOADED",
+    "text": "Factual artefact loaded.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_NOTE_LABEL",
+    "text": "Coach note",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_NOTE_VISIBILITY_LABEL",
+    "text": "Note visibility",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_NOTE_PRIVATE",
+    "text": "Coach private",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_NOTE_ATHLETE_VISIBLE",
+    "text": "Athlete visible",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_NOTE_ACTION",
+    "text": "Record non-binding note",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_NOTE_RECORDED",
+    "text": "Non-binding note recorded separately.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_NON_BINDING_NOTICE",
+    "text": "Coach notes do not change the athlete declaration, registry content or engine output.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_ACCESS_DENIED",
+    "text": "Coach access is not available for this relationship.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_STATUS_ERROR",
+    "text": "The coach-managed request could not be completed.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
+    "copy_id": "BETA17_COPY_OUTPUT_LABEL",
+    "text": "Coach-managed factual output",
+    "surface_id": "beta17_coach_managed_path"
+  }
+]

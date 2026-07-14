@@ -1,0 +1,86 @@
+{
+  "slice_id": "BETA-17",
+  "fixture_id": "beta17_clean_coach_managed_path",
+  "coach_profile_input": {
+    "coach_user_id": "beta_coach_001",
+    "email": "beta.coach@example.com",
+    "display_name": "Beta Coach",
+    "account_role": "coach",
+    "account_state": "active",
+    "accepted_terms_version": "terms_v1",
+    "created_at_iso8601": "2026-07-14T10:00:00.000Z"
+  },
+  "invited_relationship_input": {
+    "relationship_id": "beta17_relationship_001",
+    "coach_user_id": "beta_coach_001",
+    "athlete_user_id": "beta_user_001",
+    "relationship_state": "invited",
+    "relationship_scope": "individual_coach_athlete",
+    "accepted_at_iso8601": null,
+    "created_at_iso8601": "2026-07-14T10:00:00.000Z",
+    "updated_at_iso8601": "2026-07-14T10:00:00.000Z",
+    "revoked_at_iso8601": null,
+    "expires_at_iso8601": null
+  },
+  "accepted_relationship_input": {
+    "relationship_id": "beta17_relationship_001",
+    "coach_user_id": "beta_coach_001",
+    "athlete_user_id": "beta_user_001",
+    "relationship_state": "accepted",
+    "relationship_scope": "individual_coach_athlete",
+    "accepted_at_iso8601": "2026-07-14T10:00:00.000Z",
+    "created_at_iso8601": "2026-07-14T10:00:00.000Z",
+    "updated_at_iso8601": "2026-07-14T10:00:00.000Z",
+    "revoked_at_iso8601": null,
+    "expires_at_iso8601": null
+  },
+  "revoked_relationship_input": {
+    "relationship_id": "beta17_relationship_001",
+    "coach_user_id": "beta_coach_001",
+    "athlete_user_id": "beta_user_001",
+    "relationship_state": "revoked",
+    "relationship_scope": "individual_coach_athlete",
+    "accepted_at_iso8601": "2026-07-14T10:00:00.000Z",
+    "created_at_iso8601": "2026-07-14T10:00:00.000Z",
+    "updated_at_iso8601": "2026-07-14T10:05:00.000Z",
+    "revoked_at_iso8601": "2026-07-14T10:05:00.000Z",
+    "expires_at_iso8601": null
+  },
+  "assignment_input": {
+    "request_id": "beta17_assignment_request_001",
+    "requested_at_iso8601": "2026-07-14T10:01:00.000Z",
+    "athlete_user_id": "beta_user_001",
+    "template_id": "beta_template_powerlifting_001",
+    "activity_id": "powerlifting"
+  },
+  "artefact": {
+    "artefact_id": "beta17_artefact_001",
+    "session_id": "beta17_session_001",
+    "athlete_user_id": "beta_user_001",
+    "artefact_type": "session_runtime_artefact",
+    "session_status": "partial",
+    "recorded_at": "2026-07-14T10:02:00.000Z",
+    "runtime_events": [
+      {
+        "event_id": "beta17_event_001",
+        "event_type": "SESSION_START",
+        "seq": 1,
+        "recorded_at": "2026-07-14T10:02:01.000Z"
+      },
+      {
+        "event_id": "beta17_event_002",
+        "event_type": "WORK_ITEM_DONE",
+        "seq": 2,
+        "work_item_id": "work_item_001",
+        "recorded_at": "2026-07-14T10:02:02.000Z"
+      }
+    ]
+  },
+  "note_input": {
+    "athlete_user_id": "beta_user_001",
+    "session_id": "beta17_session_001",
+    "artefact_id": "beta17_artefact_001",
+    "note_text": "Recorded discussion point for the next review.",
+    "visibility": "coach_private"
+  }
+}
