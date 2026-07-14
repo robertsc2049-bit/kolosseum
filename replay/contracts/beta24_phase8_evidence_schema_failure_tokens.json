@@ -1,0 +1,12 @@
+{
+  "schema_version": "kolosseum.beta24.phase8_evidence_schema_failure_tokens.v1.0.0",
+  "slice_id": "BETA-24",
+  "tokens": [
+    "beta24_schema_invalid",
+    "beta24_missing_required_field",
+    "beta24_extra_field",
+    "beta24_invalid_enum",
+    "beta24_illegal_null",
+    "beta24_manifest_invalid"
+  ]
+}
