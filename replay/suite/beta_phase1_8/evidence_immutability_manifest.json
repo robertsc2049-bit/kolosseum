@@ -1,0 +1,34 @@
+{
+  "schema_version": "kolosseum.beta26.evidence_immutability_manifest.v1.0.0",
+  "slice_id": "BETA-26",
+  "contract_version": "1.0.0",
+  "storage_mode": "append_only_canonical_envelope_bytes",
+  "audit_event_type_count": 4,
+  "store_api_count": 8,
+  "database_migration_added": false,
+  "api_route_added": false,
+  "paths": {
+    "contract": "replay/contracts/beta26_evidence_immutability_contract.json",
+    "failure_tokens": "replay/contracts/beta26_evidence_immutability_failure_tokens.json",
+    "runtime_store": "replay/runtime/beta26EvidenceImmutableStore.mjs",
+    "beta24_contract": "replay/contracts/beta24_phase8_evidence_schema_contract.json",
+    "beta24_schema": "replay/contracts/beta24_phase8_evidence_envelope.schema.json",
+    "beta24_manifest": "replay/suite/beta_phase1_8/evidence_schema_manifest.json",
+    "beta25_contract": "replay/contracts/beta25_phase8_chain_seal_gates_contract.json",
+    "beta25_manifest": "replay/suite/beta_phase1_8/chain_seal_gates_manifest.json",
+    "activation_source": "src/api/evidence_activation_v1.ts",
+    "export_source": "src/v1ExportBoundaryContract.mjs"
+  },
+  "sha256": {
+    "contract": "cba7ad0456008eecd01a01bb5bec6144c4435d051a82997c24d536b96b5d2b07",
+    "failure_tokens": "d8cbf2c0815c79e3bf394af150f9c72d2e934723b20ed147d74a53754e20243b",
+    "runtime_store": "dd7d6e3c4b32c4a4f07ebb6130251530d9e4f3bfa22de25194565f0a284da2aa",
+    "beta24_contract": "4482a91414850308b879ae6815266bd181e618c6d0cd81d10a0d97b26e287d58",
+    "beta24_schema": "41d26dde3b87ea5167b5dfd74cabe98204890f07adb793b95946427bc73cb6e9",
+    "beta24_manifest": "7c5b2117553b71c5d0712602b53d8b9f8cb1362c0cb80c9b80305b79e0458390",
+    "beta25_contract": "e5109f546cb26b8536ec4c1514eed9f08f03d020e977aa7eb27a400356a11ee6",
+    "beta25_manifest": "737cb29c5c2025fc24c68751aa69829e781abadbc8ca7bda71878b814a7c8a69",
+    "activation_source": "252b3e34ecdcfc13afcc5fb54cfac6a94f3718ba1857e24ddac1f4b65540166f",
+    "export_source": "800dca4d7c5376b7c25a5222ad5fbe7a2c20fc582cb3b157fc86016794df4d3a"
+  }
+}

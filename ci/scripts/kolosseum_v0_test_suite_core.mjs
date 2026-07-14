@@ -43,7 +43,11 @@ const V0_SCOPE_EXCLUDED_PATHS = new Set([
   "replay/suite/beta_phase1_8/evidence_schema_manifest.json",
   "replay/contracts/beta25_phase8_chain_seal_gates_contract.json",
   "replay/contracts/beta25_phase8_chain_seal_gates_failure_tokens.json",
-  "replay/suite/beta_phase1_8/chain_seal_gates_manifest.json"
+  "replay/suite/beta_phase1_8/chain_seal_gates_manifest.json",
+  "replay/runtime/beta26EvidenceImmutableStore.mjs",
+  "replay/contracts/beta26_evidence_immutability_contract.json",
+  "replay/contracts/beta26_evidence_immutability_failure_tokens.json",
+  "replay/suite/beta_phase1_8/evidence_immutability_manifest.json"
 ]);
 
 function isV0CopyLintExcluded(filePath) {
