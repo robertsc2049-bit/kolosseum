@@ -1,0 +1,29 @@
+{
+  "contract_id": "beta20_phase7_render_stack",
+  "contract_version": "1.0.0",
+  "slice_id": "BETA-20",
+  "content_formats": [
+    "application/json"
+  ],
+  "json": {
+    "canonicalizer": "beta20_explicit_root_order_plus_betaCanonicalJson_sections",
+    "encoding": "utf-8",
+    "root_section_order": [
+      "projection_metadata",
+      "program_summary",
+      "block_summary",
+      "session_list",
+      "event_digest"
+    ],
+    "projection_hash_source": "rendered_output_utf8_bytes"
+  },
+  "pdf": {
+    "enabled": false,
+    "renderer": null,
+    "fonts": [],
+    "deterministic_metadata": false,
+    "system_fonts_allowed": false,
+    "locale": null,
+    "timezone": null
+  }
+}

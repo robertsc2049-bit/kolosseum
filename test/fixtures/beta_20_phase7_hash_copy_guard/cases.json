@@ -1,0 +1,42 @@
+{
+  "schema_version": "kolosseum.beta20.phase7_hash_copy_guard.cases.v1.0.0",
+  "slice_id": "BETA-20",
+  "section_order": [
+    "projection_metadata",
+    "program_summary",
+    "block_summary",
+    "session_list",
+    "event_digest"
+  ],
+  "copy_ids": [
+    "PHASE7_PROJECTION_METADATA_LABEL",
+    "PHASE7_PROGRAM_SUMMARY_LABEL",
+    "PHASE7_BLOCK_SUMMARY_LABEL",
+    "PHASE7_SESSION_LIST_LABEL",
+    "PHASE7_EVENT_DIGEST_LABEL",
+    "PHASE7_FACTUAL_BOUNDARY_LABEL"
+  ],
+  "supported_content_formats": [
+    "application/json"
+  ],
+  "forbidden_copy_terms": [
+    "advice",
+    "effective",
+    "optimal",
+    "readiness",
+    "recommend",
+    "safe",
+    "safety",
+    "suitable",
+    "suitability"
+  ],
+  "unpinned_pdf_case": {
+    "content_formats": [
+      "application/json",
+      "application/pdf"
+    ],
+    "renderer_package": "pdfkit",
+    "renderer_version": "^0.15.0",
+    "font_count": 0
+  }
+}
