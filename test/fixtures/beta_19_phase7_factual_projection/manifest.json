@@ -1,0 +1,18 @@
+{
+  "schema_version": "kolosseum.beta19.phase7_factual_projection.manifest.v1.0.0",
+  "slice_id": "BETA-19",
+  "fixture_set_id": "beta19_phase7_factual_projection",
+  "scenario_ids": [
+    "completed_session",
+    "partial_session",
+    "split_continue",
+    "split_skip",
+    "pain_flag"
+  ],
+  "fixtures": [
+    {
+      "file": "scenarios.json",
+      "sha256": "fee785f30b5418409e80a185660c8a755a8149901a0ffa8449618d0c5903b34c"
+    }
+  ]
+}
