@@ -15,7 +15,8 @@
     "proof:beta-15",
     "proof:beta-16",
     "proof:beta-17",
-    "proof:beta-18"
+    "proof:beta-18",
+    "proof:beta-19"
   ],
   "workflow_files": [
     ".github/workflows/green.yml"
