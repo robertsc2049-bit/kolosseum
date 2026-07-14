@@ -1,0 +1,15 @@
+{
+  "schema_version": "kolosseum.beta16.app_path_phase1_6.v1.0.0",
+  "slice_id": "BETA-16",
+  "fixture_set_id": "beta16_app_path_phase1_6",
+  "fixtures": [
+    {
+      "file": "clean_individual_user.json",
+      "fixture_id": "beta16_clean_individual_user",
+      "actor_type": "individual_user",
+      "execution_scope": "individual",
+      "activity_id": "powerlifting",
+      "sha256": "4ce279a8b13c4db79160cd0fdd693ed1a50ee0582c2d2294735fb9dd42374c93"
+    }
+  ]
+}

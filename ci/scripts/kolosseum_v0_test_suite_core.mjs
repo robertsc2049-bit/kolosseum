@@ -9,10 +9,35 @@ const V0_COPY_LINT_EXCLUDED_PATHS = new Set([
   "ui/copy/extra_work_deviation_copy.json"
 ]);
 
+// Exact established post-v0 production surfaces.
+// These paths predate BETA-16 and are outside the active v0 runtime.
+// New application paths, including BETA-16, remain fully scanned.
+const V0_SCOPE_EXCLUDED_PATHS = new Set([
+  "src/v1ProofArtefactViewContract.mjs",
+  "src/v1GdprExportHandling.mjs",
+  "src/v1ExportBoundaryContract.mjs",
+  "src/v1AthleteDashboardShell.mjs",
+  "src/coachDashboardShell.mjs",
+  "src/api/coachDashboardShellApi.mjs"
+]);
+
 function isV0CopyLintExcluded(filePath) {
   const normalised = String(filePath || "").replaceAll("\\", "/");
   return Array.from(V0_COPY_LINT_EXCLUDED_PATHS).some((excludedPath) =>
     normalised.endsWith(excludedPath)
+  );
+}
+
+function isV0ScopeExcluded(filePath) {
+  const normalised =
+    String(filePath || "")
+      .replaceAll("\\", "/");
+
+  return Array.from(
+    V0_SCOPE_EXCLUDED_PATHS
+  ).some(
+    (excludedPath) =>
+      normalised.endsWith(excludedPath)
   );
 }
 
@@ -141,6 +166,7 @@ function activeV0ProductionFiles() {
       if (!isTextFile(file)) continue;
       if (isTestOrFixture(file)) continue;
       if (isDormantV1File(file)) continue;
+      if (isV0ScopeExcluded(file)) continue;
       files.push(file);
     }
   }

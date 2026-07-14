@@ -1,0 +1,377 @@
+[
+  {
+    "copy_id": "BETA16_COPY_PAGE_TITLE",
+    "text": "Kolosseum beta session",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_PAGE_INTRO",
+    "text": "Record an account, acknowledge the beta, submit Phase 1, create a session and record execution events.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_STATUS_READY",
+    "text": "Beta path ready.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_STATUS_ERROR",
+    "text": "The requested record could not be completed.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_AUTH_HEADING",
+    "text": "Beta account",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_USER_ID_LABEL",
+    "text": "User ID",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_USER_ID_PLACEHOLDER",
+    "text": "Enter user ID",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_EMAIL_LABEL",
+    "text": "Email",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_EMAIL_PLACEHOLDER",
+    "text": "Enter email",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_DISPLAY_NAME_LABEL",
+    "text": "Display name",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_DISPLAY_NAME_PLACEHOLDER",
+    "text": "Enter display name",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_AUTH_ACTION",
+    "text": "Continue with beta account",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_AUTH_RECORDED",
+    "text": "Beta account recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_ACKNOWLEDGEMENT_HEADING",
+    "text": "Beta acknowledgement",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_ACKNOWLEDGEMENT_LABEL",
+    "text": "I acknowledge this controlled beta and its stated boundaries.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_JURISDICTION_LABEL",
+    "text": "I acknowledge the applicable user declaration requirement.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_ACKNOWLEDGEMENT_ACTION",
+    "text": "Record acknowledgement",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_ACKNOWLEDGEMENT_RECORDED",
+    "text": "Beta acknowledgement recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_DECLARATION_HEADING",
+    "text": "Phase 1 declaration",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_ACTIVITY_LABEL",
+    "text": "Activity",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_ACTIVITY_POWERLIFTING",
+    "text": "Powerlifting",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_ACTIVITY_GENERAL_STRENGTH",
+    "text": "General strength",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_ACTIVITY_RUGBY_UNION",
+    "text": "Rugby union",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_DECLARATION_ACKNOWLEDGEMENT",
+    "text": "I confirm this Phase 1 input is user-declared factual information.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_DECLARATION_ACTION",
+    "text": "Record Phase 1 declaration",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_DECLARATION_RECORDED",
+    "text": "Phase 1 declaration recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_COMPILE_HEADING",
+    "text": "Compile and create session",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_COMPILE_ACTION",
+    "text": "Create session",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_COMPILE_RECORDED",
+    "text": "Session created from the recorded Phase 1 input.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_SESSION_CONTROLS_HEADING",
+    "text": "Session controls",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_SESSION_ID_LABEL",
+    "text": "Session ID",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_SESSION_ID_PLACEHOLDER",
+    "text": "Session ID appears after compile",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_START_ACTION",
+    "text": "Start session",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_REFRESH_ACTION",
+    "text": "Refresh state",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_SPLIT_ACTION",
+    "text": "Record split",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_COMPLETE_ACTION",
+    "text": "Record complete",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_RETURN_CONTINUE_ACTION",
+    "text": "Continue recorded session",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_RETURN_SKIP_ACTION",
+    "text": "Skip remaining work",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_SUMMARY_HEADING",
+    "text": "Factual session counts",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_LIFECYCLE_LABEL",
+    "text": "Lifecycle",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_COMPLETED_LABEL",
+    "text": "Completed",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_REMAINING_LABEL",
+    "text": "Remaining",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_DROPPED_LABEL",
+    "text": "Dropped",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_CLASSIFICATION_LABEL",
+    "text": "Recorded classification",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_NOT_STARTED",
+    "text": "Not started",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_IN_PROGRESS",
+    "text": "In progress",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_RETURN_PENDING",
+    "text": "Return decision pending",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_COMPLETED",
+    "text": "Completed",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_PARTIAL",
+    "text": "Partial",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_CURRENT_ITEM_HEADING",
+    "text": "Current item",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_CURRENT_EXERCISE",
+    "text": "Current exercise",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_RETURN_DECISION",
+    "text": "Return decision required",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_NO_CURRENT_ITEM",
+    "text": "No current item recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_SETS_LABEL",
+    "text": "Sets",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_REPS_LABEL",
+    "text": "Reps",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_REST_LABEL",
+    "text": "Rest",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_INTENSITY_LABEL",
+    "text": "Intensity",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_QUEUE_HEADING",
+    "text": "Session queue",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_CURRENT_LABEL",
+    "text": "Current",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_UP_NEXT_LABEL",
+    "text": "Up next",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_EMPTY_CURRENT",
+    "text": "No current exercise recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_EMPTY_UP_NEXT",
+    "text": "No upcoming exercises recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_HISTORY_HEADING",
+    "text": "Recorded session history",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_HISTORY_COMPLETED",
+    "text": "Completed work",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_HISTORY_DROPPED",
+    "text": "Dropped work",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_EMPTY_COMPLETED",
+    "text": "No completed work recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_EMPTY_DROPPED",
+    "text": "No dropped work recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_RAW_INPUT_HEADING",
+    "text": "Phase 1 input",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_RAW_STATE_HEADING",
+    "text": "Factual state payload",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_LOG_HEADING",
+    "text": "Request log",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_REQUEST_RECORDED",
+    "text": "Request recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_FIXTURE_LOADED",
+    "text": "Phase 1 input loaded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_SESSION_STARTED",
+    "text": "Session start recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_EVENT_RECORDED",
+    "text": "Session event recorded.",
+    "surface_id": "beta16_app_path_phase1_6"
+  },
+  {
+    "copy_id": "BETA16_COPY_STATE_REFRESHED",
+    "text": "Session state refreshed.",
+    "surface_id": "beta16_app_path_phase1_6"
+  }
+]
