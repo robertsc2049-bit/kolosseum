@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.beta18.phase7_output.v1",
+  "title": "BETA-18 Phase7Output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "phase7_projection_id",
+    "canonical_input_hash",
+    "selection_hash",
+    "execution_status",
+    "execution_state",
+    "content_format",
+    "rendered_output",
+    "projection_hash"
+  ],
+  "properties": {
+    "phase7_projection_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "canonical_input_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "selection_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "execution_status": {
+      "enum": [
+        "not_started",
+        "in_progress",
+        "split",
+        "completed",
+        "partial",
+        "terminated"
+      ]
+    },
+    "execution_state": {
+      "type": "object"
+    },
+    "content_format": {
+      "const": "application/json"
+    },
+    "rendered_output": {
+      "type": "string"
+    },
+    "projection_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

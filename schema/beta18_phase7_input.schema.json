@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.beta18.phase7_input.v1",
+  "title": "BETA-18 Phase7Input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "phase7_projection_id",
+    "content_format",
+    "phase6_output"
+  ],
+  "properties": {
+    "phase7_projection_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "content_format": {
+      "const": "application/json"
+    },
+    "phase6_output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_input_hash",
+        "selection_hash",
+        "execution_status",
+        "execution_state"
+      ],
+      "properties": {
+        "canonical_input_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "selection_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "execution_status": {
+          "enum": [
+            "not_started",
+            "in_progress",
+            "split",
+            "completed",
+            "partial",
+            "terminated"
+          ]
+        },
+        "execution_state": {
+          "$ref": "#/$defs/execution_state"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "execution_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reducer_contract_id",
+        "reducer_version",
+        "session_id",
+        "activity_id",
+        "status",
+        "classification",
+        "session_ended",
+        "end_code",
+        "ended_by_event_id",
+        "last_seq",
+        "accepted_event_ids",
+        "event_type_counts",
+        "split",
+        "work_item_order",
+        "work_items",
+        "pain_follow_up",
+        "counts",
+        "reducer_state_hash"
+      ],
+      "properties": {
+        "reducer_contract_id": {
+          "const": "beta14_phase6_runtime_reducer"
+        },
+        "reducer_version": {
+          "const": "1.0.0"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "activity_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "enum": [
+            "not_started",
+            "in_progress",
+            "split",
+            "completed",
+            "partial",
+            "terminated"
+          ]
+        },
+        "classification": {
+          "enum": [
+            null,
+            "completed",
+            "partial",
+            "terminated"
+          ]
+        },
+        "session_ended": {
+          "type": "boolean"
+        },
+        "end_code": {
+          "enum": [
+            null,
+            "completed",
+            "stopped"
+          ]
+        },
+        "ended_by_event_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_seq": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "accepted_event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "event_type_counts": {
+          "type": "object"
+        },
+        "split": {
+          "type": "object"
+        },
+        "work_item_order": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "work_items": {
+          "type": "object"
+        },
+        "pain_follow_up": {
+          "type": "object"
+        },
+        "counts": {
+          "type": "object"
+        },
+        "reducer_state_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}
