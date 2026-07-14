@@ -1,0 +1,17 @@
+{
+  "schema_version": "kolosseum.beta26.evidence_immutability_failure_tokens.v1.0.0",
+  "slice_id": "BETA-26",
+  "tokens": [
+    "beta26_input_invalid",
+    "beta26_seal_denied",
+    "beta26_partial_envelope_denied",
+    "beta26_manual_creation_denied",
+    "beta26_update_denied",
+    "beta26_delete_denied",
+    "beta26_regeneration_denied",
+    "beta26_export_mutation_denied",
+    "beta26_checksum_mismatch",
+    "beta26_evidence_not_found",
+    "beta26_manifest_invalid"
+  ]
+}

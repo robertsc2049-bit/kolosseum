@@ -33,6 +33,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/beta_23_runner_verdict_contract_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-23 RunnerVerdict shape, checksum, scope honesty, and Phase 8 dependency guard. |
 | `ci/guards/beta_24_phase8_evidence_schema_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-24 closed-world Phase 8 EvidenceEnvelope schema guard. |
 | `ci/guards/beta_25_phase8_chain_seal_gates_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-25 Phase 8 chain and seal-authorisation guard. |
+| `ci/guards/beta_26_evidence_immutability_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-26 sealed evidence immutability guard. |
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | DEV NOTE: Clean-tree guard. This script protects release, promotion, and CI |
 | `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |
