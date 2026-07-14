@@ -110,3 +110,54 @@ export function admitBeta13Phase6EventBeforeReducer(
     readonly Beta13Phase6CanonicalEvent[];
   reducer_state: unknown;
 }>;
+
+
+export type Beta14Phase6RuntimeClassification =
+  | "completed"
+  | "partial"
+  | "terminated";
+
+export type Beta14Phase6RuntimeState =
+  Readonly<Record<string, unknown>>;
+
+export const beta14Phase6RuntimeReducerContract:
+  Readonly<Record<string, unknown>>;
+
+export function initialiseBeta14Phase6RuntimeState(
+  session: unknown
+): Beta14Phase6RuntimeState;
+
+export function applyBeta14Phase6RuntimeEvent(
+  session: unknown,
+  state: Beta14Phase6RuntimeState,
+  event: unknown
+): Beta14Phase6RuntimeState;
+
+export function replayBeta14Phase6RuntimeEvents(
+  session: unknown,
+  events: unknown
+): Beta14Phase6RuntimeState;
+
+export function appendAndReduceBeta14Phase6RuntimeEvent(
+  session: unknown,
+  priorEvents: unknown,
+  routeSessionId: string,
+  raw: unknown
+): Readonly<{
+  event_log:
+    readonly Beta13Phase6CanonicalEvent[];
+  state: Beta14Phase6RuntimeState;
+}>;
+
+export function stableBeta14Phase6RuntimeStateJson(
+  value: unknown
+): string;
+
+export function tryReplayBeta14Phase6RuntimeEvents(
+  session: unknown,
+  events: unknown
+): Readonly<{
+  ok: boolean;
+  state?: Beta14Phase6RuntimeState;
+  error?: Readonly<Record<string, unknown>>;
+}>;

@@ -1,0 +1,31 @@
+{
+  "slice_id": "BETA-14",
+  "reducer_id": "beta14_phase6_runtime_reducer",
+  "scenarios": [
+    {
+      "file": "completed.json",
+      "scenario_id": "completed",
+      "sha256": "b271ea06503fa0b1389cae3896e7b8ad172797cc61cdb97cdf84c36e195246e6"
+    },
+    {
+      "file": "partial.json",
+      "scenario_id": "partial",
+      "sha256": "e72e19707bc6dd6e393db4f8013b5c6b23d6f0f9010e096be358b72913efa652"
+    },
+    {
+      "file": "split_continue.json",
+      "scenario_id": "split_continue",
+      "sha256": "e9cd3169f2a796cde65d6b5c8b5c40a7442fa5ca4dbae89452705f5353d8def0"
+    },
+    {
+      "file": "split_skip.json",
+      "scenario_id": "split_skip",
+      "sha256": "927b9148cb449e01eeb868167b28f84e320be7d423630bda1ba6979a388af4ab"
+    },
+    {
+      "file": "terminated.json",
+      "scenario_id": "terminated",
+      "sha256": "29cf0c848ec1a619c09c52ade1ced28960f2f55670fced0d70813306c4b33b66"
+    }
+  ]
+}

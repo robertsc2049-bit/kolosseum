@@ -1,0 +1,14 @@
+{
+  "slice_id": "BETA-14",
+  "scenario_id": "terminated",
+  "session_fixture": "../beta_13_phase6_event_schema/general_strength.json",
+  "raw_events": [
+    {
+      "event_type": "SESSION_START"
+    },
+    {
+      "event_type": "SESSION_END",
+      "end_code": "stopped"
+    }
+  ]
+}
