@@ -499,3 +499,13 @@ export {
   validateBeta13Phase6EventLog,
   validateBeta13Phase6Session
 } from "./beta13_phase6_event_schema.js";
+
+export {
+  appendAndReduceBeta14Phase6RuntimeEvent,
+  applyBeta14Phase6RuntimeEvent,
+  beta14Phase6RuntimeReducerContract,
+  initialiseBeta14Phase6RuntimeState,
+  replayBeta14Phase6RuntimeEvents,
+  stableBeta14Phase6RuntimeStateJson,
+  tryReplayBeta14Phase6RuntimeEvents
+} from "./beta14_phase6_runtime_reducer.js";

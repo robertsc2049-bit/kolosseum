@@ -1,0 +1,37 @@
+{
+  "slice_id": "BETA-14",
+  "scenario_id": "split_continue",
+  "session_fixture": "../beta_13_phase6_event_schema/rugby_union.json",
+  "raw_events": [
+    {
+      "event_type": "SESSION_START"
+    },
+    {
+      "event_type": "WORK_ITEM_START",
+      "work_item_id": "beta13_item_rugby_union_0"
+    },
+    {
+      "event_type": "WORK_ITEM_DONE",
+      "work_item_id": "beta13_item_rugby_union_0"
+    },
+    {
+      "event_type": "SPLIT_ENTER"
+    },
+    {
+      "event_type": "SPLIT_RETURN_DECISION",
+      "decision": "continue"
+    },
+    {
+      "event_type": "WORK_ITEM_START",
+      "work_item_id": "beta13_item_rugby_union_1"
+    },
+    {
+      "event_type": "WORK_ITEM_DONE",
+      "work_item_id": "beta13_item_rugby_union_1"
+    },
+    {
+      "event_type": "SESSION_END",
+      "end_code": "completed"
+    }
+  ]
+}
