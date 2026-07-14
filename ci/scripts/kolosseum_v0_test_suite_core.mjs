@@ -52,7 +52,13 @@ const V0_SCOPE_EXCLUDED_PATHS = new Set([
   "src/api/beta27ProjectionEvidenceExportApi.mjs",
   "replay/contracts/beta27_projection_evidence_export_contract.json",
   "replay/contracts/beta27_projection_evidence_export_failure_tokens.json",
-  "replay/suite/beta_phase1_8/projection_evidence_export_manifest.json"
+  "replay/suite/beta_phase1_8/projection_evidence_export_manifest.json",
+  "replay/runtime/beta28AuthRlsSecurity.mjs",
+  "src/api/beta28ProtectedResourceApi.mjs",
+  "replay/contracts/beta28_auth_rls_security_contract.json",
+  "replay/contracts/beta28_auth_rls_security_failure_tokens.json",
+  "replay/suite/beta_phase1_8/auth_rls_security_manifest.json",
+  "migrations/20260714_beta28_auth_rls_security.sql"
 ]);
 
 function isV0CopyLintExcluded(filePath) {

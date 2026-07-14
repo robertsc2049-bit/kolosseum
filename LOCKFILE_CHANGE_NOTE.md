@@ -8,3 +8,23 @@ Commit amended from local release commit: 52342942df6f8572ff7e105e16145a90ede457
 package-lock.json changed because package.json version was bumped from 0.1.23 to 0.1.24 for the immutable release tag.
 
 No dependency additions, removals, or version changes were intended in this release note.
+## BETA-28 auth RLS security pass
+
+Commit subject: BETA-28 auth RLS security pass
+
+package-lock.json changed through the non-breaking production dependency remediation command:
+
+`npm audit fix --package-lock-only --omit=dev --audit-level=high`
+
+No direct dependency declaration was intentionally added to or removed from package.json.
+
+Verified production dependency audit:
+
+- high: 0;
+- critical: 0.
+
+Verified tracked-file secret scan:
+
+- findings: 0.
+
+This note is committed in the same BETA-28 range as package-lock.json. The remediation does not alter Kolosseum engine law, deterministic output, registry content, sealed artefact bytes, access-policy decisions, or intended user-facing behaviour.
