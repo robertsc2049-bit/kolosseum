@@ -1,0 +1,43 @@
+{
+  "schema_version": "kolosseum.beta29.production_beta_rehearsal_contract.v1.0.0",
+  "contract_id": "beta29_production_beta_rehearsal",
+  "slice_id": "BETA-29",
+  "version": "1.0.0",
+  "proof_command_windows": "npm.cmd run rehearsal:beta",
+  "proof_command_portable": "npm run rehearsal:beta",
+  "required_assertions": [
+    "clean_individual_phase1_8",
+    "coach_managed_path",
+    "runner_verdict_accepted",
+    "phase8_evidence_sealed",
+    "projection_export_byte_identical",
+    "evidence_export_byte_identical",
+    "forbidden_copy_scan_passed",
+    "org_team_unit_gym_runtime_unreachable"
+  ],
+  "composed_proof_sources": [
+    "BETA-16",
+    "BETA-17",
+    "BETA-22",
+    "BETA-23",
+    "BETA-25",
+    "BETA-26",
+    "BETA-27",
+    "BETA-28"
+  ],
+  "operational_checklists": {
+    "beta_opening": "docs/releases/BETA_29_BETA_OPENING_CHECKLIST.md",
+    "rollback": "docs/releases/V1_ROLLBACK_RUNBOOK.md",
+    "release_tag": "docs/releases/V1_RELEASE_TAG_PREPARATION.md",
+    "support_and_incident": "docs/ops/V1_RUNBOOK.md"
+  },
+  "boundaries": {
+    "new_product_features": false,
+    "engine_behavior_changed": false,
+    "registry_content_changed": false,
+    "runtime_scope_broadened": false,
+    "release_tag_created": false,
+    "production_data_accessed": false,
+    "production_secret_values_recorded": false
+  }
+}

@@ -58,7 +58,9 @@ const V0_SCOPE_EXCLUDED_PATHS = new Set([
   "replay/contracts/beta28_auth_rls_security_contract.json",
   "replay/contracts/beta28_auth_rls_security_failure_tokens.json",
   "replay/suite/beta_phase1_8/auth_rls_security_manifest.json",
-  "migrations/20260714_beta28_auth_rls_security.sql"
+  "migrations/20260714_beta28_auth_rls_security.sql",
+  "replay/contracts/beta29_production_beta_rehearsal_contract.json",
+  "replay/suite/beta_phase1_8/production_beta_rehearsal_manifest.json"
 ]);
 
 function isV0CopyLintExcluded(filePath) {
