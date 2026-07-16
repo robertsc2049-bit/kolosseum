@@ -1,0 +1,7 @@
+{
+  "schema_version": "kolosseum.beta.copy_registry_reconciliation_fixture_manifest.v1",
+  "fixture_id": "BETA-FIX-01",
+  "case_count": 6,
+  "cases_path": "test/fixtures/beta_fix_01_copy_registry_reconciliation/cases.json",
+  "cases_sha256": "c3781944089d414dbc56d0adc1218c8204c4f28e7b3c46cebac4b140846bff40"
+}

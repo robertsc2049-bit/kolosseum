@@ -27,7 +27,8 @@
     "proof:beta-27",
     "proof:beta-28",
     "rehearsal:beta",
-    "proof:beta-29"
+    "proof:beta-29",
+    "proof:beta-fix-01"
   ],
   "workflow_files": [
     ".github/workflows/green.yml"

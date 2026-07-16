@@ -1,0 +1,51 @@
+{
+  "schema_version": "kolosseum.beta.copy_scope.v2",
+  "scope_id": "beta_copy_registry_reconciled_scope",
+  "registry_path": "copy/beta_copy_registry.json",
+  "registry_paths": [
+    "copy/beta_copy_registry.json",
+    "copy/beta_16_app_path_phase1_6_copy.json",
+    "public/beta_16_app_path_phase1_6_copy.json",
+    "copy/beta_17_coach_managed_path_copy.json",
+    "public/beta_17_coach_managed_path_copy.json",
+    "copy/beta_20_phase7_projection_copy.json"
+  ],
+  "inline_scan_paths": [
+    "public/v0-session-runner.html",
+    "public/v0-session-runner.js",
+    "public/beta17-coach-managed.js"
+  ],
+  "reference_scan_paths": [
+    "src/api/beta16_app_path_service.ts",
+    "src/api/beta17_coach_managed_service.ts",
+    "engine/src/phases/beta20Phase7HashCopyGuard.ts",
+    "ci/lib/beta20_phase7_copy_guard_lib.mjs",
+    "src/api/beta27ProjectionEvidenceExportApi.mjs"
+  ],
+  "path_prefixes": [
+    "app/beta/",
+    "src/beta/",
+    "src/ui/beta/",
+    "server/beta/",
+    "web/beta/",
+    "client/beta/"
+  ],
+  "technical_exclusions": [
+    {
+      "path": "src/api/beta28ProtectedResourceApi.mjs",
+      "reason": "Authentication and RLS transport only; no presentation copy is emitted."
+    },
+    {
+      "path": "src/betaClGateSeparation.mjs",
+      "reason": "CI gate-separation contract only; no user-facing presentation surface exists."
+    }
+  ],
+  "rules": {
+    "registry_text_scan": true,
+    "inline_presentation_sink_scan": true,
+    "copy_reference_scan": true,
+    "unknown_copy_id_hard_fail": true,
+    "forbidden_language_hard_fail": true,
+    "contextual_claim_hard_fail": true
+  }
+}

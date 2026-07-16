@@ -1,0 +1,191 @@
+{
+  "schema_version": "kolosseum.beta.copy_registry_reconciliation.v1",
+  "slice_id": "BETA-FIX-01",
+  "base_sha": "39f589b4a98f93d6c170318439cdbf2e5ee6561b",
+  "outcome": "RECONCILED",
+  "authoritative_structure": {
+    "model": "AUTHORITATIVE_BETA_REGISTRY_WITH_DECLARED_SUBORDINATE_SURFACES",
+    "registry_path": "copy/beta_copy_registry.json",
+    "scope_path": "ci/locks/beta_copy_scope.json",
+    "closed_world": true,
+    "subordinate_registry_count": 3,
+    "subordinate_policy": "Subordinate registries cannot introduce undeclared IDs and are bound by exact path, ID order and SHA-256."
+  },
+  "canonical_copy": {
+    "total_copy_ids": 130,
+    "beta04_ids_retained": 21,
+    "beta04_ids_mapped": 0,
+    "beta20_ids_retained": 6,
+    "beta20_ids_mapped": 0,
+    "beta16_subordinate_ids": 75,
+    "beta17_subordinate_ids": 28
+  },
+  "beta04_id_disposition": {
+    "retained": [
+      "beta.onboarding.title",
+      "beta.onboarding.body",
+      "beta.declaration.error.required",
+      "beta.declaration.error.invalid_scope",
+      "beta.session_compile.action",
+      "beta.session_compile.unavailable",
+      "beta.runtime_execution.start",
+      "beta.runtime_execution.record_event",
+      "beta.split_return.split",
+      "beta.split_return.return",
+      "beta.partial_completion.recorded",
+      "beta.coach_assignment.assigned",
+      "beta.coach_assignment.unassigned",
+      "beta.coach_notes.boundary",
+      "beta.projection.summary",
+      "beta.replay.status",
+      "beta.evidence.status",
+      "beta.export.action",
+      "beta.export.limitation",
+      "beta.limitations.scope",
+      "beta.limitations.non_claim"
+    ],
+    "mapped": []
+  },
+  "beta20_id_disposition": {
+    "retained": [
+      "PHASE7_PROJECTION_METADATA_LABEL",
+      "PHASE7_PROGRAM_SUMMARY_LABEL",
+      "PHASE7_BLOCK_SUMMARY_LABEL",
+      "PHASE7_SESSION_LIST_LABEL",
+      "PHASE7_EVENT_DIGEST_LABEL",
+      "PHASE7_FACTUAL_BOUNDARY_LABEL"
+    ],
+    "mapped": [],
+    "deterministic_output_changed": false
+  },
+  "scope": {
+    "explicit_scoped_path_count": 14,
+    "path_prefix_count": 6,
+    "explicit_paths": [
+      "copy/beta_copy_registry.json",
+      "copy/beta_16_app_path_phase1_6_copy.json",
+      "public/beta_16_app_path_phase1_6_copy.json",
+      "copy/beta_17_coach_managed_path_copy.json",
+      "public/beta_17_coach_managed_path_copy.json",
+      "copy/beta_20_phase7_projection_copy.json",
+      "public/v0-session-runner.html",
+      "public/v0-session-runner.js",
+      "public/beta17-coach-managed.js",
+      "src/api/beta16_app_path_service.ts",
+      "src/api/beta17_coach_managed_service.ts",
+      "engine/src/phases/beta20Phase7HashCopyGuard.ts",
+      "ci/lib/beta20_phase7_copy_guard_lib.mjs",
+      "src/api/beta27ProjectionEvidenceExportApi.mjs"
+    ],
+    "path_prefixes": [
+      "app/beta/",
+      "src/beta/",
+      "src/ui/beta/",
+      "server/beta/",
+      "web/beta/",
+      "client/beta/"
+    ],
+    "technical_exclusions": [
+      {
+        "path": "src/api/beta28ProtectedResourceApi.mjs",
+        "reason": "Authentication and RLS transport only; no presentation copy is emitted."
+      },
+      {
+        "path": "src/betaClGateSeparation.mjs",
+        "reason": "CI gate-separation contract only; no user-facing presentation surface exists."
+      }
+    ]
+  },
+  "enforcement": {
+    "no_inline_copy": "ENFORCED_AT_HTML_AND_PRESENTATION_SINKS",
+    "unknown_copy_ids": "HARD_FAIL",
+    "forbidden_language": "HARD_FAIL",
+    "contextual_claims": "DISTINCT_HARD_FAIL",
+    "duplicate_copy_ids": "HARD_FAIL",
+    "missing_required_copy_ids": "HARD_FAIL",
+    "subordinate_conflicts": "HARD_FAIL"
+  },
+  "failure_tokens": [
+    "CI_COPY_GUARD",
+    "CI_BETA_COPY_REGISTRY_RECONCILIATION",
+    "CI_BETA_COPY_REGISTRY_BASELINE",
+    "CI_LINT_COPY_INLINE_STRING",
+    "CI_LINT_COPY_ID_UNKNOWN",
+    "CI_LINT_FORBIDDEN_LANGUAGE_FOUND",
+    "CI_LINT_FORBIDDEN_CLAIM_SEMANTIC",
+    "CI_BETA_COPY_ID_DUPLICATE",
+    "CI_BETA_COPY_ID_REQUIRED_MISSING",
+    "CI_BETA_COPY_SCOPE_INVALID",
+    "CI_BETA_COPY_SUBORDINATE_CONFLICT"
+  ],
+  "failure_token_count": 11,
+  "tests": {
+    "behavioural_test_count": 18,
+    "behavioural_tests": [
+      "current authoritative beta copy registry passes",
+      "retains all 21 required BETA-04 IDs",
+      "allowed registered copy-ID usage passes",
+      "inline user-facing copy fails",
+      "unknown copy-ID reference fails",
+      "missing required copy ID fails",
+      "duplicate baseline copy ID fails",
+      "subordinate registry conflict fails",
+      "forbidden simple term fails",
+      "contextual claim fails separately",
+      "valid factual copy passes",
+      "scoped beta prefixes are scanned",
+      "unscoped technical files are not presentation scanned",
+      "invalid scope-path contract fails",
+      "BETA-20 copy references remain valid",
+      "BETA-20 inline-copy rejection remains active",
+      "BETA-20 forbidden-language rejection remains active",
+      "failures use the structured CI token report"
+    ],
+    "beta20_regression_required": true
+  },
+  "ci": {
+    "package_script": "proof:beta-fix-01",
+    "test_unit_registered": true,
+    "guard_entrypoint_registered": true,
+    "guard_index_generated": true,
+    "failure_token_index_generated": true
+  },
+  "checksums": {
+    "status": "DECLARED_FOR_GENERATOR_VERIFICATION",
+    "manifest_path": "spine/BETA_ARTEFACT_MANIFEST.json",
+    "artefact_count": 15,
+    "artefact_paths": [
+      "copy/beta_copy_registry.json",
+      "copy/beta_16_app_path_phase1_6_copy.json",
+      "public/beta_16_app_path_phase1_6_copy.json",
+      "copy/beta_17_coach_managed_path_copy.json",
+      "public/beta_17_coach_managed_path_copy.json",
+      "copy/beta_20_phase7_projection_copy.json",
+      "ci/locks/beta_copy_scope.json",
+      "ci/lib/beta_copy_registry_guard_lib.mjs",
+      "ci/guards/beta_fix_01_copy_registry_reconciliation_guard.mjs",
+      "ci/scripts/run_beta_fix_01_copy_registry_reconciliation_tests.mjs",
+      "test/beta_fix_01_copy_registry_reconciliation.test.mjs",
+      "test/fixtures/beta_fix_01_copy_registry_reconciliation/cases.json",
+      "test/fixtures/beta_fix_01_copy_registry_reconciliation/manifest.json",
+      "docs/releases/BETA_FIX_01_COPY_REGISTRY_RECONCILIATION.json",
+      "docs/releases/BETA_FIX_01_COPY_REGISTRY_RECONCILIATION.md"
+    ]
+  },
+  "reconciliation_records": [
+    "docs/releases/BETA_FIX_01_COPY_REGISTRY_RECONCILIATION.json",
+    "docs/releases/BETA_FIX_01_COPY_REGISTRY_RECONCILIATION.md"
+  ],
+  "pr_764": {
+    "during_slice": "KEEP_OPEN_UNMERGED",
+    "recommended_post_merge_disposition": "CLOSE_AS_SUPERSEDED",
+    "rationale": "BETA-FIX-01 recreates the missing beta-wide contract while retaining the later BETA-16, BETA-17 and BETA-20 protections under one authority."
+  },
+  "non_actions": [
+    "PR #764 was not merged.",
+    "PR #764 was not closed.",
+    "No user-facing product behaviour was added.",
+    "No engine truth or deterministic output was changed.",
+    "No launch decision was made."
+  ]
+}
