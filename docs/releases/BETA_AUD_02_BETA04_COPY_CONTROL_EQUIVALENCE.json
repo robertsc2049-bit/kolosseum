@@ -1,0 +1,169 @@
+{
+  "schema_version": "kolosseum.beta.copy_control_equivalence_assessment.v1",
+  "audit_id": "BETA-AUD-02",
+  "assessment_date": "2026-07-16",
+  "repository": "robertsc2049-bit/kolosseum",
+  "authoritative_beta_branch": "beta/BETA-10-phase3-constraint-prune",
+  "authoritative_beta_head_sha": "771a52b9f74449e36b4333b438984f08d732c568",
+  "source_pr": {
+    "number": 764,
+    "state": "OPEN",
+    "merged": false,
+    "head_branch": "beta/BETA-04-copy-registry-baseline",
+    "head_sha": "7890518e0e981f7624b7fa246e2545882b3c84af"
+  },
+  "source_evidence": {
+    "evidence_id": "BETA-AUD-02-PREFLIGHT",
+    "sha256": "787abeaab2732ad5a1e6f14f661ad7ba9393579b45246a1e6bb1c15b7c95a0b8",
+    "source_changed_file_count": 17,
+    "original_changed_paths_present_currently": 10,
+    "original_changed_paths_identical": 0,
+    "required_copy_ids_present": 0,
+    "required_copy_ids_absent": 21
+  },
+  "allowed_outcomes": [
+    "FULLY_SUPERSEDED",
+    "PARTIALLY_SUPERSEDED",
+    "NOT_SUPERSEDED"
+  ],
+  "outcome": "PARTIALLY_SUPERSEDED",
+  "outcome_counts": {
+    "FULL_EQUIVALENCE": 0,
+    "PARTIAL_EQUIVALENCE": 7,
+    "NO_EQUIVALENCE": 5
+  },
+  "requirements": [
+    {
+      "requirement_id": "BETA04-EQ-01",
+      "requirement": "BASELINE_COPY_REGISTRY",
+      "equivalence": "NO_EQUIVALENCE",
+      "reason": "The closed-world BETA-04 baseline registry is absent. BETA-20 provides a separate six-ID Phase 7 projection registry only.",
+      "evidence": [
+        "src/ui/copy/beta_copy_registry.json is absent.",
+        "0 of 21 BETA-04 copy IDs are present.",
+        "copy/beta_20_phase7_projection_copy.json contains six Phase 7-specific IDs."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-02",
+      "requirement": "REQUIRED_BETA_COPY_IDS",
+      "equivalence": "NO_EQUIVALENCE",
+      "reason": "None of the 21 BETA-04 required copy IDs exist in the authoritative beta integration branch.",
+      "evidence": [
+        "Required IDs present: 0.",
+        "Required IDs absent: 21."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-03",
+      "requirement": "NO_INLINE_COPY_ENFORCEMENT",
+      "equivalence": "PARTIAL_EQUIVALENCE",
+      "reason": "BETA-20 rejects inline copy and unknown references inside the Phase 7 projection contract, but it does not scan all BETA-04 beta scope paths.",
+      "evidence": [
+        "Phase 7 inline protection: true.",
+        "BETA-04 beta-wide scope lock is absent."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-04",
+      "requirement": "FORBIDDEN_LANGUAGE_ENFORCEMENT",
+      "equivalence": "PARTIAL_EQUIVALENCE",
+      "reason": "BETA-20 rejects a narrower forbidden-term set on Phase 7 registry text. It does not reproduce BETA-04 medical, protection, prevention and full performance-language coverage.",
+      "evidence": [
+        "Phase 7 forbidden-language protection: true.",
+        "BETA-20 scope is phase7_factual_projection_labels."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-05",
+      "requirement": "CONTEXTUAL_CLAIMS_ENFORCEMENT",
+      "equivalence": "NO_EQUIVALENCE",
+      "reason": "The BETA-04 personalised and avoidance contextual phrases are not enforced by the BETA-20 copy library or tests.",
+      "evidence": [
+        "Contextual phrase protection detected: false."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-06",
+      "requirement": "SCOPE_PATH_COVERAGE",
+      "equivalence": "NO_EQUIVALENCE",
+      "reason": "The BETA-04 scope lock and its app, src, UI, server, web and client beta path prefixes are absent.",
+      "evidence": [
+        "ci/locks/beta_copy_scope.json is absent.",
+        "BETA-20 enforcement is tied to the Phase 7 projection surface."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-07",
+      "requirement": "GUARD_ENTRYPOINT_REGISTRATION",
+      "equivalence": "PARTIAL_EQUIVALENCE",
+      "reason": "The later BETA-20 guard has a declared proof entrypoint, but the BETA-04 beta-wide guard is absent.",
+      "evidence": [
+        "BETA-20 package and entrypoint registration: true."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-08",
+      "requirement": "FAILURE_TOKEN_REGISTRATION",
+      "equivalence": "PARTIAL_EQUIVALENCE",
+      "reason": "BETA-20 exposes one guard-owned token and reason strings, but not BETA-04's six copy-specific tokens or BETA-03 structured token-report contract.",
+      "evidence": [
+        "BETA-20 guard token present: true.",
+        "BETA-04 copy-specific tokens are absent with the dedicated guard."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-09",
+      "requirement": "GUARD_INDEX",
+      "equivalence": "PARTIAL_EQUIVALENCE",
+      "reason": "The BETA-20 Phase 7 copy guard is indexed, but no BETA-04 beta-wide copy guard is indexed.",
+      "evidence": [
+        "BETA-20 guard index entry present: true."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-10",
+      "requirement": "FAILURE_TOKEN_INDEX",
+      "equivalence": "PARTIAL_EQUIVALENCE",
+      "reason": "The later BETA-20 guard token is indexed, but the BETA-04 copy-specific token set is absent.",
+      "evidence": [
+        "BETA-20 failure-token index entry present: true."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-11",
+      "requirement": "CHECKSUMS",
+      "equivalence": "NO_EQUIVALENCE",
+      "reason": "The current checksum file and beta artefact manifest do not directly include the BETA-20 copy registry, copy guard or copy guard library.",
+      "evidence": [
+        "Direct checksum coverage: false.",
+        "Manifest-derived checksum coverage: false."
+      ]
+    },
+    {
+      "requirement_id": "BETA04-EQ-12",
+      "requirement": "FOUR_CORE_TEST_CLASSES",
+      "equivalence": "PARTIAL_EQUIVALENCE",
+      "reason": "BETA-20 proves allowed registry use, inline-copy rejection and forbidden-language rejection, but does not include the BETA-04 contextual-claim test class.",
+      "evidence": [
+        "Allowed test: true.",
+        "Inline test: true.",
+        "Forbidden-language test: true.",
+        "Contextual-claim test: false."
+      ]
+    }
+  ],
+  "decision": "Later slices reproduce limited Phase 7 copy controls, but they do not reproduce the beta-wide BETA-04 registry, ID set, path scope, contextual-claim law, token contract, checksum coverage or complete test contract.",
+  "pr_764_action": "DO_NOT_MERGE_DURING_ASSESSMENT",
+  "required_follow_up": [
+    "Create BETA-FIX-01 Copy Registry Reconciliation.",
+    "Restore or deliberately replace the missing beta-wide registry and enforcement contract.",
+    "Resolve PR #764 only after reconciliation proof establishes the final source of truth."
+  ],
+  "non_actions": [
+    "PR #764 was not merged.",
+    "PR #764 was not closed.",
+    "PR #764 was not classified as fully superseded.",
+    "No product, engine, runtime, registry, copy or CI behaviour was changed."
+  ]
+}
