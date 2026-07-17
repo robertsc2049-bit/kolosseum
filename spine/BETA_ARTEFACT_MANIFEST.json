@@ -43,7 +43,22 @@
   ],
   "dependency_order": [
     "beta_build_target",
-    "beta_spine_artefact_manifest"
+    "beta_spine_artefact_manifest",
+    "beta_fix_01_authoritative_copy_registry",
+    "beta_fix_01_beta16_copy_registry",
+    "beta_fix_01_beta16_public_copy_mirror",
+    "beta_fix_01_beta17_copy_registry",
+    "beta_fix_01_beta17_public_copy_mirror",
+    "beta_fix_01_beta20_copy_registry",
+    "beta_fix_01_copy_scope",
+    "beta_fix_01_copy_guard_library",
+    "beta_fix_01_copy_guard",
+    "beta_fix_01_copy_fixture_cases",
+    "beta_fix_01_copy_fixture_manifest",
+    "beta_fix_01_copy_tests",
+    "beta_fix_01_copy_test_runner",
+    "beta_fix_01_reconciliation_record_json",
+    "beta_fix_01_reconciliation_record_md"
   ],
   "artefacts": [
     {
@@ -74,6 +89,191 @@
       "ship_scope": false,
       "dependencies": [
         "beta_build_target"
+      ]
+    },
+    {
+      "id": "beta_fix_01_authoritative_copy_registry",
+      "path": "copy/beta_copy_registry.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_spine_artefact_manifest"
+      ]
+    },
+    {
+      "id": "beta_fix_01_beta16_copy_registry",
+      "path": "copy/beta_16_app_path_phase1_6_copy.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_authoritative_copy_registry"
+      ]
+    },
+    {
+      "id": "beta_fix_01_beta16_public_copy_mirror",
+      "path": "public/beta_16_app_path_phase1_6_copy.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_beta16_copy_registry"
+      ]
+    },
+    {
+      "id": "beta_fix_01_beta17_copy_registry",
+      "path": "copy/beta_17_coach_managed_path_copy.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_authoritative_copy_registry"
+      ]
+    },
+    {
+      "id": "beta_fix_01_beta17_public_copy_mirror",
+      "path": "public/beta_17_coach_managed_path_copy.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_beta17_copy_registry"
+      ]
+    },
+    {
+      "id": "beta_fix_01_beta20_copy_registry",
+      "path": "copy/beta_20_phase7_projection_copy.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_authoritative_copy_registry"
+      ]
+    },
+    {
+      "id": "beta_fix_01_copy_scope",
+      "path": "ci/locks/beta_copy_scope.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_authoritative_copy_registry",
+        "beta_fix_01_beta16_copy_registry",
+        "beta_fix_01_beta17_copy_registry",
+        "beta_fix_01_beta20_copy_registry"
+      ]
+    },
+    {
+      "id": "beta_fix_01_copy_guard_library",
+      "path": "ci/lib/beta_copy_registry_guard_lib.mjs",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_copy_scope"
+      ]
+    },
+    {
+      "id": "beta_fix_01_copy_guard",
+      "path": "ci/guards/beta_fix_01_copy_registry_reconciliation_guard.mjs",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_copy_guard_library"
+      ]
+    },
+    {
+      "id": "beta_fix_01_copy_fixture_cases",
+      "path": "test/fixtures/beta_fix_01_copy_registry_reconciliation/cases.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_authoritative_copy_registry"
+      ]
+    },
+    {
+      "id": "beta_fix_01_copy_fixture_manifest",
+      "path": "test/fixtures/beta_fix_01_copy_registry_reconciliation/manifest.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_copy_fixture_cases"
+      ]
+    },
+    {
+      "id": "beta_fix_01_copy_tests",
+      "path": "test/beta_fix_01_copy_registry_reconciliation.test.mjs",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_copy_guard_library",
+        "beta_fix_01_copy_fixture_manifest"
+      ]
+    },
+    {
+      "id": "beta_fix_01_copy_test_runner",
+      "path": "ci/scripts/run_beta_fix_01_copy_registry_reconciliation_tests.mjs",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_copy_tests"
+      ]
+    },
+    {
+      "id": "beta_fix_01_reconciliation_record_json",
+      "path": "docs/releases/BETA_FIX_01_COPY_REGISTRY_RECONCILIATION.json",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_copy_guard",
+        "beta_fix_01_copy_test_runner"
+      ]
+    },
+    {
+      "id": "beta_fix_01_reconciliation_record_md",
+      "path": "docs/releases/BETA_FIX_01_COPY_REGISTRY_RECONCILIATION.md",
+      "scope": "beta",
+      "version": "0.1.24",
+      "engine_compatibility": "0.1.24",
+      "beta_only": true,
+      "ship_scope": false,
+      "dependencies": [
+        "beta_fix_01_reconciliation_record_json"
       ]
     }
   ]

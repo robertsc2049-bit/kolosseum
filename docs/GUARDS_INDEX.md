@@ -37,6 +37,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/beta_27_projection_evidence_export_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-27 byte-identical projection and evidence export guard. |
 | `ci/guards/beta_28_auth_rls_security_pass_guard.mjs` | Repo Governance | high | security | DEV NOTE: BETA-28 auth, RLS and sensitive-resource security guard. |
 | `ci/guards/beta_29_production_beta_rehearsal_guard.mjs` | Repo Governance | high | release | DEV NOTE: BETA-29 production beta rehearsal composition guard. |
+| `ci/guards/beta_fix_01_copy_registry_reconciliation_guard.mjs` | Beta Copy Registry Authority | high | beta-copy | DEV NOTE: BETA-FIX-01 authoritative beta copy registry reconciliation guard. |
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | DEV NOTE: Clean-tree guard. This script protects release, promotion, and CI |
 | `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |

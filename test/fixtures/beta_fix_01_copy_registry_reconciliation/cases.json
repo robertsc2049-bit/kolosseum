@@ -1,0 +1,35 @@
+{
+  "schema_version": "kolosseum.beta.copy_registry_reconciliation_cases.v1",
+  "cases": [
+    {
+      "case_id": "allowed_registered_copy",
+      "expected_ok": true,
+      "source": "node.textContent = copy(\"beta.onboarding.title\");\n"
+    },
+    {
+      "case_id": "inline_copy",
+      "expected_token": "CI_LINT_COPY_INLINE_STRING",
+      "source": "node.textContent = \"Inline beta copy\";\n"
+    },
+    {
+      "case_id": "unknown_copy_id",
+      "expected_token": "CI_LINT_COPY_ID_UNKNOWN",
+      "source": "node.textContent = copy(\"beta.unknown.id\");\n"
+    },
+    {
+      "case_id": "forbidden_language",
+      "expected_token": "CI_LINT_FORBIDDEN_LANGUAGE_FOUND",
+      "text": "Recommended next step."
+    },
+    {
+      "case_id": "contextual_claim",
+      "expected_token": "CI_LINT_FORBIDDEN_CLAIM_SEMANTIC",
+      "text": "Designed for you."
+    },
+    {
+      "case_id": "valid_factual_copy",
+      "expected_ok": true,
+      "text": "Recorded session status."
+    }
+  ]
+}
