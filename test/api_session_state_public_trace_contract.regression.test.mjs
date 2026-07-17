@@ -3,7 +3,7 @@
 // deterministic checks, and developer handover standards. Do not introduce hidden defaults,
 // broad discovery, or unreviewed boundary changes.
 
-import test from "node:test";
+import test, { mock } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -33,6 +33,25 @@ test("GET /sessions/:id/state exposes only explicit public return decision trace
   const repo = process.cwd();
   const distHandlerUrl = pathToFileURL(path.join(repo, "dist", "src", "api", "sessions.handlers.js")).href;
   const dbUrl = pathToFileURL(path.join(repo, "dist", "src", "db", "index.js")).href;
+  const distPoolUrl = pathToFileURL(path.join(repo, "dist", "src", "db", "pool.js")).href;
+
+  mock.module(distPoolUrl, {
+    namedExports: {
+      pool: {
+        async connect() {
+          throw new Error(
+            "Database pool must not be used by this public-trace contract test"
+          );
+        },
+        async query() {
+          throw new Error(
+            "Database pool must not be used by this public-trace contract test"
+          );
+        },
+        async end() {}
+      }
+    }
+  });
 
   const db = await import(dbUrl);
   const originalQuery = db.query;

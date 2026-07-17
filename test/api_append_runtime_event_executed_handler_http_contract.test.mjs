@@ -11,7 +11,25 @@ const distSessionStateWriteUrl = new URL("../dist/src/api/session_state_write_se
 const distPlanSessionServiceUrl = new URL("../dist/src/api/plan_session_service.js", import.meta.url).href;
 const distSessionEventsQueryUrl = new URL("../dist/src/api/session_events_query_service.js", import.meta.url).href;
 const distSessionStateQueryUrl = new URL("../dist/src/api/session_state_query_service.js", import.meta.url).href;
+const distPoolUrl = new URL("../dist/src/db/pool.js", import.meta.url).href;
 const distHandlerUrl = new URL("../dist/src/api/sessions.handlers.js", import.meta.url).href;
+
+function installSessionHandlerPersistenceIsolationMock() {
+  mock.module(distPoolUrl, {
+    namedExports: {
+      pool: {
+        async connect() {
+          throw new Error("Database pool must not be used by this handler contract test");
+        },
+        async query() {
+          throw new Error("Database pool must not be used by this handler contract test");
+        },
+        async end() {}
+      }
+    }
+  });
+}
+
 
 function makeReq({ body = undefined, params = {}, query = {}, headers = {} } = {}) {
   return {
@@ -126,6 +144,7 @@ function installCommonMocks({ normalizedRaw, mutationResult, extractError, mutat
 
 test("appendRuntimeEvent executed path: returns 201 with delegated JSON payload when mutation succeeds", async () => {
   mock.reset();
+  installSessionHandlerPersistenceIsolationMock();
   installCommonMocks({
     normalizedRaw: {
       type: "COMPLETE_EXERCISE",
@@ -165,6 +184,7 @@ test("appendRuntimeEvent executed path: returns 201 with delegated JSON payload 
 
 test("appendRuntimeEvent executed path: missing session_id throws 400 badRequest", async () => {
   mock.reset();
+  installSessionHandlerPersistenceIsolationMock();
   installCommonMocks();
 
   const { appendRuntimeEvent } = await import(`${distHandlerUrl}?case=missing_session_id`);
@@ -186,6 +206,7 @@ test("appendRuntimeEvent executed path: missing session_id throws 400 badRequest
 
 test("appendRuntimeEvent executed path: extractRawEventFromBody validation failure preserves explicit error contract", async () => {
   mock.reset();
+  installSessionHandlerPersistenceIsolationMock();
   installCommonMocks({
     extractError: Object.assign(new Error("Invalid runtime event body"), {
       status: 400,
@@ -217,6 +238,7 @@ test("appendRuntimeEvent executed path: extractRawEventFromBody validation failu
 
 test("appendRuntimeEvent executed path: delegated mutation error preserves explicit error contract", async () => {
   mock.reset();
+  installSessionHandlerPersistenceIsolationMock();
   installCommonMocks({
     normalizedRaw: {
       type: "COMPLETE_EXERCISE",
