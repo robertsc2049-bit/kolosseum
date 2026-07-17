@@ -31,6 +31,9 @@ import {
   createBeta17CoachProfileRecord,
   createBeta17RelationshipRecord
 } from "./beta17_coach_managed_service.js";
+import {
+  persistBetaProductRecord
+} from "./beta_product_record_store.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -42,17 +45,42 @@ function asString(v: unknown): string | undefined {
   return typeof v === "string" && v.length > 0 ? v : undefined;
 }
 
+type BetaHttpResult =
+  Readonly<{
+    status: number;
+    body: Readonly<JsonRecord>;
+  }>;
+
+async function persistBetaHttpResult(
+  result: BetaHttpResult,
+  recordKey: string
+): Promise<BetaHttpResult> {
+  if (
+    result.status === 201 &&
+    result.body.ok === true
+  ) {
+    await persistBetaProductRecord(
+      result.body[recordKey]
+    );
+  }
+
+  return result;
+}
+
 /**
  * FUNCTION NOTE:
  * Purpose: Exposes the existing beta athlete product/auth record path.
- * Boundary: No credential provider, persistence or engine mutation.
+ * Boundary: Persists the validated product record; no credential provider or engine mutation.
  */
 export async function createBeta16Auth(
   req: Request,
   res: Response
 ) {
   const result =
-    createBeta16AuthRecord(req.body);
+    await persistBetaHttpResult(
+      createBeta16AuthRecord(req.body),
+      "auth_record"
+    );
 
   return res
     .status(result.status)
@@ -62,15 +90,18 @@ export async function createBeta16Auth(
 /**
  * FUNCTION NOTE:
  * Purpose: Records explicit beta and jurisdiction acknowledgement.
- * Boundary: Product state only.
+ * Boundary: Persists validated product state only; engine-inert.
  */
 export async function createBeta16Acknowledgement(
   req: Request,
   res: Response
 ) {
   const result =
-    createBeta16AcknowledgementRecord(
-      req.body
+    await persistBetaHttpResult(
+      createBeta16AcknowledgementRecord(
+        req.body
+      ),
+      "acknowledgement_record"
     );
 
   return res
@@ -81,15 +112,18 @@ export async function createBeta16Acknowledgement(
 /**
  * FUNCTION NOTE:
  * Purpose: Records the Phase 1 declaration used by BETA-16 compile admission.
- * Boundary: Does not compile or persist engine state.
+ * Boundary: Persists the validated declaration; does not compile or mutate engine state.
  */
 export async function createBeta16Declaration(
   req: Request,
   res: Response
 ) {
   const result =
-    createBeta16Phase1DeclarationRecord(
-      req.body
+    await persistBetaHttpResult(
+      createBeta16Phase1DeclarationRecord(
+        req.body
+      ),
+      "declaration_record"
     );
 
   return res
@@ -100,15 +134,18 @@ export async function createBeta16Declaration(
 /**
  * FUNCTION NOTE:
  * Purpose: Records bounded coach product-auth state.
- * Boundary: Does not authenticate credentials or enter engine input.
+ * Boundary: Persists validated coach product-auth state; does not authenticate credentials or enter engine input.
  */
 export async function createBeta17CoachProfile(
   req: Request,
   res: Response
 ) {
   const result =
-    createBeta17CoachProfileRecord(
-      req.body
+    await persistBetaHttpResult(
+      createBeta17CoachProfileRecord(
+        req.body
+      ),
+      "coach_profile"
     );
 
   return res
@@ -119,15 +156,18 @@ export async function createBeta17CoachProfile(
 /**
  * FUNCTION NOTE:
  * Purpose: Records invited, accepted or revoked individual relationship state.
- * Boundary: Product permission state only.
+ * Boundary: Persists validated product permission state only.
  */
 export async function createBeta17Relationship(
   req: Request,
   res: Response
 ) {
   const result =
-    createBeta17RelationshipRecord(
-      req.body
+    await persistBetaHttpResult(
+      createBeta17RelationshipRecord(
+        req.body
+      ),
+      "relationship"
     );
 
   return res
@@ -138,15 +178,18 @@ export async function createBeta17Relationship(
 /**
  * FUNCTION NOTE:
  * Purpose: Records an existing-contract coach assignment trigger.
- * Boundary: Does not compile, edit declarations, alter registries or override engine decisions.
+ * Boundary: Persists the validated assignment trigger; does not compile, edit declarations, alter registries or override engine decisions.
  */
 export async function createBeta17Assignment(
   req: Request,
   res: Response
 ) {
   const result =
-    createBeta17AssignmentRecord(
-      req.body
+    await persistBetaHttpResult(
+      createBeta17AssignmentRecord(
+        req.body
+      ),
+      "assignment"
     );
 
   return res

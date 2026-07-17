@@ -97,4 +97,65 @@ CREATE TABLE IF NOT EXISTS session_event_seq (
   next_seq   INTEGER NOT NULL DEFAULT 1
 );
 
+-- ----------------
+-- BETA PRODUCT RECORDS
+-- ----------------
+-- Immutable product/application records only.
+-- These records do not enter or modify deterministic engine truth.
+CREATE TABLE IF NOT EXISTS beta_product_records (
+  record_type       TEXT NOT NULL,
+  record_id         TEXT NOT NULL,
+  subject_user_id   TEXT NOT NULL,
+  actor_user_id     TEXT NOT NULL,
+  effective_at      TIMESTAMPTZ NOT NULL,
+  record_sha256     TEXT NOT NULL,
+  record_payload    JSONB NOT NULL,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
 
+  PRIMARY KEY (
+    record_type,
+    record_id,
+    record_sha256
+  ),
+
+  CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger'
+      )
+    ),
+
+  CONSTRAINT beta_product_records_hash_check
+    CHECK (
+      record_sha256 ~ '^[a-f0-9]{64}$'
+    ),
+
+  CONSTRAINT beta_product_records_payload_check
+    CHECK (
+      jsonb_typeof(record_payload) = 'object'
+    )
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_beta_product_records_subject_type_effective
+ON beta_product_records (
+  subject_user_id,
+  record_type,
+  effective_at DESC,
+  created_at DESC
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_beta_product_records_actor_subject_type
+ON beta_product_records (
+  actor_user_id,
+  subject_user_id,
+  record_type,
+  effective_at DESC,
+  created_at DESC
+);
