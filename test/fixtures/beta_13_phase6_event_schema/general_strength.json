@@ -1,0 +1,28 @@
+{
+  "session_id": "beta13_session_general_strength",
+  "status": "ready",
+  "activity_id": "general_strength",
+  "blocks": [
+    {
+      "block_id": "beta13_block_general_strength",
+      "item_ids": [
+        "beta13_item_general_strength_0",
+        "beta13_item_general_strength_1"
+      ]
+    }
+  ],
+  "planned_items": [
+    {
+      "block_id": "beta13_block_general_strength",
+      "item_id": "beta13_item_general_strength_0",
+      "exercise_id": "squat_high_bar",
+      "session_id": "beta13_session_general_strength"
+    },
+    {
+      "block_id": "beta13_block_general_strength",
+      "item_id": "beta13_item_general_strength_1",
+      "exercise_id": "bench_press",
+      "session_id": "beta13_session_general_strength"
+    }
+  ]
+}

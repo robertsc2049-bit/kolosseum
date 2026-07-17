@@ -19,6 +19,26 @@ import {
   getDecisionSummaryByRunIdQuery,
   getSessionStateQuery
 } from "./session_state_query_service.js";
+import {
+  createBeta16AcknowledgementRecord,
+  createBeta16AuthRecord,
+  createBeta16Phase1DeclarationRecord
+} from "./beta16_app_path_service.js";
+import {
+  buildBeta17CoachArtefactView,
+  createBeta17AssignmentRecord,
+  createBeta17CoachNoteRecord,
+  createBeta17CoachProfileRecord,
+  createBeta17RelationshipRecord
+} from "./beta17_coach_managed_service.js";
+import {
+  persistBetaProductRecord
+} from "./beta_product_record_store.js";
+import {
+  buildStoredBeta17CoachArtefactResult,
+  buildStoredBetaAthleteHistoryResult,
+  createStoredBeta17AssignmentResult
+} from "./beta_product_journey_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -28,6 +48,260 @@ function isRecord(v: unknown): v is JsonRecord {
 
 function asString(v: unknown): string | undefined {
   return typeof v === "string" && v.length > 0 ? v : undefined;
+}
+
+type BetaHttpResult =
+  Readonly<{
+    status: number;
+    body: Readonly<JsonRecord>;
+  }>;
+
+async function persistBetaHttpResult(
+  result: BetaHttpResult,
+  recordKey: string
+): Promise<BetaHttpResult> {
+  if (
+    result.status === 201 &&
+    result.body.ok === true
+  ) {
+    await persistBetaProductRecord(
+      result.body[recordKey]
+    );
+  }
+
+  return result;
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Exposes the existing beta athlete product/auth record path.
+ * Boundary: Persists the validated product record; no credential provider or engine mutation.
+ */
+export async function createBeta16Auth(
+  req: Request,
+  res: Response
+) {
+  const result =
+    await persistBetaHttpResult(
+      createBeta16AuthRecord(req.body),
+      "auth_record"
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records explicit beta and jurisdiction acknowledgement.
+ * Boundary: Persists validated product state only; engine-inert.
+ */
+export async function createBeta16Acknowledgement(
+  req: Request,
+  res: Response
+) {
+  const result =
+    await persistBetaHttpResult(
+      createBeta16AcknowledgementRecord(
+        req.body
+      ),
+      "acknowledgement_record"
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records the Phase 1 declaration used by BETA-16 compile admission.
+ * Boundary: Persists the validated declaration; does not compile or mutate engine state.
+ */
+export async function createBeta16Declaration(
+  req: Request,
+  res: Response
+) {
+  const result =
+    await persistBetaHttpResult(
+      createBeta16Phase1DeclarationRecord(
+        req.body
+      ),
+      "declaration_record"
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records bounded coach product-auth state.
+ * Boundary: Persists validated coach product-auth state; does not authenticate credentials or enter engine input.
+ */
+export async function createBeta17CoachProfile(
+  req: Request,
+  res: Response
+) {
+  const result =
+    await persistBetaHttpResult(
+      createBeta17CoachProfileRecord(
+        req.body
+      ),
+      "coach_profile"
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records invited, accepted or revoked individual relationship state.
+ * Boundary: Persists validated product permission state only.
+ */
+export async function createBeta17Relationship(
+  req: Request,
+  res: Response
+) {
+  const result =
+    await persistBetaHttpResult(
+      createBeta17RelationshipRecord(
+        req.body
+      ),
+      "relationship"
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records an existing-contract coach assignment trigger.
+ * Boundary: Persists the validated assignment trigger; does not compile, edit declarations, alter registries or override engine decisions.
+ */
+export async function createBeta17Assignment(
+  req: Request,
+  res: Response
+) {
+  const body =
+    isRecord(req.body)
+      ? req.body
+      : {};
+
+  const storedMode =
+    Object.prototype.hasOwnProperty.call(
+      body,
+      "coach_user_id"
+    ) &&
+    !Object.prototype.hasOwnProperty.call(
+      body,
+      "coach_profile"
+    );
+
+  const generated =
+    storedMode
+      ? await createStoredBeta17AssignmentResult(
+          body
+        )
+      : createBeta17AssignmentRecord(
+          req.body
+        );
+
+  const result =
+    await persistBetaHttpResult(
+      generated,
+      "assignment"
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Returns assigned-coach factual artefact records.
+ * Boundary: Read-only and note-free.
+ */
+export async function getBeta17CoachArtefacts(
+  req: Request,
+  res: Response
+) {
+  const body =
+    isRecord(req.body)
+      ? req.body
+      : {};
+
+  const storedMode =
+    Object.prototype.hasOwnProperty.call(
+      body,
+      "coach_user_id"
+    ) &&
+    Object.prototype.hasOwnProperty.call(
+      body,
+      "athlete_user_id"
+    ) &&
+    !Object.prototype.hasOwnProperty.call(
+      body,
+      "artefacts"
+    );
+
+  const result =
+    storedMode
+      ? await buildStoredBeta17CoachArtefactResult(
+          body
+        )
+      : buildBeta17CoachArtefactView(
+          req.body
+        );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Returns persisted factual history for an active beta athlete.
+ * Boundary: Read-only product/runtime projection and engine-inert.
+ */
+export async function getBetaAthleteHistory(
+  req: Request,
+  res: Response
+) {
+  const result =
+    await buildStoredBetaAthleteHistoryResult(
+      req.body
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Records an exact non-binding coach note.
+ * Boundary: Product record only and engine-inert.
+ */
+export async function createBeta17CoachNote(
+  req: Request,
+  res: Response
+) {
+  const result =
+    createBeta17CoachNoteRecord(
+      req.body
+    );
+
+  return res
+    .status(result.status)
+    .json(result.body);
 }
 
 export async function planSession(req: Request, res: Response) {

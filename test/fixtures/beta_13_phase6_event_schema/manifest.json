@@ -1,0 +1,22 @@
+{
+  "slice_id": "BETA-13",
+  "schema_id": "beta13_phase6_event_schema",
+  "fixture_contract": "phase6_materialised_session_context",
+  "fixtures": [
+    {
+      "activity_id": "general_strength",
+      "file": "general_strength.json",
+      "sha256": "edcf8528419c9134df860301222034728b46b496d30b6af27c4af35fba460545"
+    },
+    {
+      "activity_id": "powerlifting",
+      "file": "powerlifting.json",
+      "sha256": "37c47dc95af117b7630301788c5671d9c2ae33af5ebc742e0317eebe5f297ba5"
+    },
+    {
+      "activity_id": "rugby_union",
+      "file": "rugby_union.json",
+      "sha256": "6ff23d7cf4b4bf82463eae00637ade691d7397562b5dd0f4e6482f68c9943560"
+    }
+  ]
+}

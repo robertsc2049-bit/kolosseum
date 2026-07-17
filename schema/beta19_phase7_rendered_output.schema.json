@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum.beta19.phase7_rendered_output.v1",
+  "title": "BETA-19 Phase 7 Factual Rendered Output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "projection_metadata",
+    "program_summary",
+    "session_list",
+    "event_digest"
+  ],
+  "properties": {
+    "projection_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_input_hash",
+        "selection_hash",
+        "execution_status",
+        "reducer_contract_id",
+        "reducer_version",
+        "reducer_state_hash"
+      ],
+      "properties": {
+        "canonical_input_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "selection_hash": {
+          "$ref": "#/$defs/hash"
+        },
+        "execution_status": {
+          "$ref": "#/$defs/execution_status"
+        },
+        "reducer_contract_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reducer_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reducer_state_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "program_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activity_id",
+        "session_count",
+        "block_count",
+        "work_item_count",
+        "pending_work_item_count",
+        "active_work_item_count",
+        "completed_work_item_count",
+        "skipped_work_item_count",
+        "pain_flag_count",
+        "pain_follow_up_count",
+        "accepted_event_count"
+      ],
+      "properties": {
+        "activity_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "session_count": {
+          "const": 1
+        },
+        "block_count": {
+          "$ref": "#/$defs/count"
+        },
+        "work_item_count": {
+          "$ref": "#/$defs/count"
+        },
+        "pending_work_item_count": {
+          "$ref": "#/$defs/count"
+        },
+        "active_work_item_count": {
+          "$ref": "#/$defs/count"
+        },
+        "completed_work_item_count": {
+          "$ref": "#/$defs/count"
+        },
+        "skipped_work_item_count": {
+          "$ref": "#/$defs/count"
+        },
+        "pain_flag_count": {
+          "$ref": "#/$defs/count"
+        },
+        "pain_follow_up_count": {
+          "$ref": "#/$defs/count"
+        },
+        "accepted_event_count": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "block_summary": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "block_id",
+          "work_item_count",
+          "pending_work_item_count",
+          "active_work_item_count",
+          "completed_work_item_count",
+          "skipped_work_item_count",
+          "work_item_ids",
+          "exercise_ids"
+        ],
+        "properties": {
+          "block_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "work_item_count": {
+            "$ref": "#/$defs/count"
+          },
+          "pending_work_item_count": {
+            "$ref": "#/$defs/count"
+          },
+          "active_work_item_count": {
+            "$ref": "#/$defs/count"
+          },
+          "completed_work_item_count": {
+            "$ref": "#/$defs/count"
+          },
+          "skipped_work_item_count": {
+            "$ref": "#/$defs/count"
+          },
+          "work_item_ids": {
+            "$ref": "#/$defs/string_array"
+          },
+          "exercise_ids": {
+            "$ref": "#/$defs/string_array"
+          }
+        }
+      }
+    },
+    "session_list": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "session_id",
+          "activity_id",
+          "execution_status",
+          "classification",
+          "session_ended",
+          "end_code",
+          "ended_by_event_id",
+          "accepted_event_count",
+          "work_item_count",
+          "pending_work_item_count",
+          "active_work_item_count",
+          "completed_work_item_count",
+          "skipped_work_item_count",
+          "pain_flag_count",
+          "pain_follow_up_count",
+          "split_active",
+          "split_entered_event_id",
+          "split_remaining_work_item_ids"
+        ],
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "activity_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "execution_status": {
+            "$ref": "#/$defs/execution_status"
+          },
+          "classification": {
+            "enum": [
+              null,
+              "completed",
+              "partial",
+              "terminated"
+            ]
+          },
+          "session_ended": {
+            "type": "boolean"
+          },
+          "end_code": {
+            "enum": [
+              null,
+              "completed",
+              "stopped"
+            ]
+          },
+          "ended_by_event_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "accepted_event_count": {
+            "$ref": "#/$defs/count"
+          },
+          "work_item_count": {
+            "$ref": "#/$defs/count"
+          },
+          "pending_work_item_count": {
+            "$ref": "#/$defs/count"
+          },
+          "active_work_item_count": {
+            "$ref": "#/$defs/count"
+          },
+          "completed_work_item_count": {
+            "$ref": "#/$defs/count"
+          },
+          "skipped_work_item_count": {
+            "$ref": "#/$defs/count"
+          },
+          "pain_flag_count": {
+            "$ref": "#/$defs/count"
+          },
+          "pain_follow_up_count": {
+            "$ref": "#/$defs/count"
+          },
+          "split_active": {
+            "type": "boolean"
+          },
+          "split_entered_event_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "split_remaining_work_item_ids": {
+            "$ref": "#/$defs/string_array"
+          }
+        }
+      }
+    },
+    "event_digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accepted_event_count",
+        "accepted_event_ids",
+        "event_type_counts",
+        "pain_flag_count",
+        "pain_follow_up_count",
+        "split_enter_count",
+        "split_return_decision_count",
+        "split_continue_count",
+        "split_skip_count",
+        "split_skipped_work_item_count"
+      ],
+      "properties": {
+        "accepted_event_count": {
+          "$ref": "#/$defs/count"
+        },
+        "accepted_event_ids": {
+          "$ref": "#/$defs/string_array"
+        },
+        "event_type_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "SESSION_START": {
+              "$ref": "#/$defs/count"
+            },
+            "WORK_ITEM_START": {
+              "$ref": "#/$defs/count"
+            },
+            "WORK_ITEM_DONE": {
+              "$ref": "#/$defs/count"
+            },
+            "WORK_ITEM_SKIP": {
+              "$ref": "#/$defs/count"
+            },
+            "SPLIT_ENTER": {
+              "$ref": "#/$defs/count"
+            },
+            "SPLIT_RETURN_DECISION": {
+              "$ref": "#/$defs/count"
+            },
+            "PAIN_FLAG": {
+              "$ref": "#/$defs/count"
+            },
+            "PAIN_FOLLOW_UP": {
+              "$ref": "#/$defs/count"
+            },
+            "SESSION_END": {
+              "$ref": "#/$defs/count"
+            }
+          }
+        },
+        "pain_flag_count": {
+          "$ref": "#/$defs/count"
+        },
+        "pain_follow_up_count": {
+          "$ref": "#/$defs/count"
+        },
+        "split_enter_count": {
+          "$ref": "#/$defs/count"
+        },
+        "split_return_decision_count": {
+          "$ref": "#/$defs/count"
+        },
+        "split_continue_count": {
+          "$ref": "#/$defs/count"
+        },
+        "split_skip_count": {
+          "$ref": "#/$defs/count"
+        },
+        "split_skipped_work_item_count": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "string_array": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "execution_status": {
+      "enum": [
+        "not_started",
+        "in_progress",
+        "split",
+        "completed",
+        "partial",
+        "terminated"
+      ]
+    }
+  }
+}

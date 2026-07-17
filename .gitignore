@@ -38,3 +38,6 @@ engine.run.log
 verify.full.log
 *.run.log
 *.full.log
+
+# local smoke-run logs
+.logs/

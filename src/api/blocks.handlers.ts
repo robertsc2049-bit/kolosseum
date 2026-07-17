@@ -19,6 +19,13 @@ import { phase6ProduceSessionOutput } from "@kolosseum/engine/phases/phase6.js";
 
 import { validateWireRuntimeEvent } from "@kolosseum/engine/runtime/session_summary.js";
 
+import {
+  assertBeta16CompileAdmission,
+  beta16AppPathContract
+} from "./beta16_app_path_service.js";
+import {
+  loadStoredBetaCompileAdmission
+} from "./beta_product_journey_service.js";
 import { badRequest, notFound, internalError } from "./http_errors.js";
 import { getBlockByIdQuery } from "./block_query_service.js";
 import { createSessionFromBlockMutation } from "./block_session_write_service.js";
@@ -35,6 +42,9 @@ type CompileBlockBody = {
   events?: unknown;
   create_session?: unknown;
   createSession?: unknown;
+  beta_path_context?: unknown;
+  beta_user_id?: unknown;
+  beta_coach_user_id?: unknown;
 };
 
 type JsonRecord = Record<string, unknown>;
@@ -151,6 +161,124 @@ export async function compileBlock(req: Request, res: Response) {
   const engine_version = asString(body.engine_version) ?? "EB2-1.0.0";
   const apply_phase5 = body.apply_phase5 === true;
   const create_session = asBoolQuery((req.query as any)?.create_session);
+
+  const beta_path_requested =
+    queryHasTruthyFlag(
+      req,
+      "beta_path",
+      "betaPath"
+    );
+
+  const beta_path_context_provided =
+    Object.prototype.hasOwnProperty.call(
+      bodyRec,
+      "beta_path_context"
+    );
+
+  const storedBetaUserId =
+    asString(
+      body.beta_user_id
+    );
+
+  const storedBetaCoachUserId =
+    asString(
+      body.beta_coach_user_id
+    );
+
+  const storedBetaSelectorsProvided =
+    typeof body.beta_user_id !==
+      "undefined" ||
+    typeof body.beta_coach_user_id !==
+      "undefined";
+
+  let beta_path_admission:
+    ReturnType<
+      typeof assertBeta16CompileAdmission
+    > | null = null;
+
+  let beta_session_binding:
+    {
+      subject_user_id: string;
+      coach_user_id: string;
+      assignment_id: string;
+    } |
+    null = null;
+
+  if (beta_path_requested) {
+    try {
+      if (storedBetaSelectorsProvided) {
+        if (
+          beta_path_context_provided ||
+          !storedBetaUserId ||
+          !storedBetaCoachUserId
+        ) {
+          throw {
+            reason:
+              "stored_beta_selector_invalid"
+          };
+        }
+
+        const storedAdmission =
+          await loadStoredBetaCompileAdmission(
+            storedBetaUserId,
+            storedBetaCoachUserId,
+            body.phase1_input
+          );
+
+        beta_path_admission =
+          storedAdmission.admission;
+
+        beta_session_binding = {
+          subject_user_id:
+            storedAdmission
+              .subject_user_id,
+          coach_user_id:
+            storedAdmission
+              .coach_user_id,
+          assignment_id:
+            storedAdmission
+              .assignment_id
+        };
+      }
+      else {
+        beta_path_admission =
+          assertBeta16CompileAdmission(
+            body.beta_path_context,
+            body.phase1_input
+          );
+      }
+    }
+    catch (error) {
+      const reason =
+        isRecord(error) &&
+        typeof error.reason === "string"
+          ? error.reason
+          : "admission_invalid";
+
+      throw badRequest(
+        "BETA16_APP_PATH_ADMISSION_FAILED",
+        {
+          failure_token:
+            "beta16_app_path_invalid",
+          reason
+        }
+      );
+    }
+  }
+  else if (
+    beta_path_context_provided ||
+    storedBetaSelectorsProvided
+  ) {
+    throw badRequest(
+      "BETA16_APP_PATH_FLAG_REQUIRED",
+      {
+        failure_token:
+          "beta16_app_path_invalid",
+        reason:
+          "beta_path_flag_required"
+      }
+    );
+  }
 
   const p1 = phase1Validate(body.phase1_input);
   if (!p1.ok) {
@@ -302,7 +430,16 @@ export async function compileBlock(req: Request, res: Response) {
     phase4_program: p4.program,
     phase5_adjustments,
     planned_session_from_engine,
-    create_session
+    create_session,
+    beta_subject_user_id:
+      beta_session_binding
+        ?.subject_user_id,
+    beta_coach_user_id:
+      beta_session_binding
+        ?.coach_user_id,
+    beta_assignment_id:
+      beta_session_binding
+        ?.assignment_id
   });
 
   const status = create_session ? 201 : (persisted.created_block ? 201 : 200);
@@ -387,6 +524,42 @@ export async function compileBlock(req: Request, res: Response) {
   }
 
   if (persisted.session_id) payload.session_id = persisted.session_id;
+
+  if (beta_path_admission) {
+    payload.beta_path = {
+      surface_id:
+        beta16AppPathContract.surface_id,
+      version:
+        beta16AppPathContract.version,
+      phase_range:
+        beta16AppPathContract.phase_range,
+      user_id:
+        beta_path_admission.user_id,
+      acknowledgement_id:
+        beta_path_admission
+          .acknowledgement_id,
+      declaration_id:
+        beta_path_admission
+          .declaration_id,
+      declared_input_sha256:
+        beta_path_admission
+          .declared_input_sha256,
+      copy_ids:
+        beta_path_admission.copy_ids,
+      admission_source:
+        beta_session_binding
+          ? "stored_product_records"
+          : "request_context",
+      coach_user_id:
+        beta_session_binding
+          ?.coach_user_id ??
+        null,
+      assignment_id:
+        beta_session_binding
+          ?.assignment_id ??
+        null
+    };
+  }
 
   return res.status(status).json(payload);
 }

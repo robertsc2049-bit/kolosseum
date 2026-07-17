@@ -1,0 +1,6 @@
+{
+  "slice_id": "BETA-15",
+  "scenario_id": "missing_pain_follow_up",
+  "operation": "resolve_work_item_while_pain_follow_up_pending",
+  "expected_failure_token": "phase6_event_schema_pain_follow_up_required"
+}

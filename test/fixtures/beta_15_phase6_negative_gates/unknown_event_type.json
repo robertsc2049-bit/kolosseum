@@ -1,0 +1,6 @@
+{
+  "slice_id": "BETA-15",
+  "scenario_id": "unknown_event_type",
+  "operation": "submit_unknown_runtime_event_type",
+  "expected_failure_token": "phase6_event_schema_unknown_event_type"
+}

@@ -1,0 +1,25 @@
+{
+  "canonical_input_hash": "5f0c592f9192d89dc774c89949d448d8345cb5db0e80bfba183ff83ed517e739",
+  "constraint_hash": "2716ecba830911a1fcb9efa2406a95b797a334642484338fc142c9fc21ce1cf0",
+  "enumeration_hash": "4d85528cb37639b67dea9b3aaa96129f62f7fee708c1cf9169ab6cf503808656",
+  "enumerated_solution_space": [
+    {
+      "activity_id": "general_strength",
+      "exercise_ids": [
+        "dumbbell_bench_press"
+      ]
+    },
+    {
+      "activity_id": "general_strength",
+      "exercise_ids": [
+        "dumbbell_row"
+      ]
+    },
+    {
+      "activity_id": "general_strength",
+      "exercise_ids": [
+        "goblet_squat"
+      ]
+    }
+  ]
+}

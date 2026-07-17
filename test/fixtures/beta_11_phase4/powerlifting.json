@@ -1,0 +1,17 @@
+{
+  "constraints_resolved": true,
+  "notes": [],
+  "registry_index_version": "BETA-11-FIXTURE",
+  "loaded_registries": [],
+  "constraints": {},
+  "canonical_input_hash": "9033f7d47d763032dbfd3412b1cfb544da892c58cd14188e2ac192979dd91ffd",
+  "constraint_hash": "5b5b76bf001700fefe92c5c9b20db417b042e3e94a34bb6c1350406666e3d16e",
+  "allowed_solution_space_descriptor": {
+    "activity_id": "powerlifting",
+    "exercise_ids": [
+      "deadlift_conventional",
+      "bench_press",
+      "squat_high_bar"
+    ]
+  }
+}

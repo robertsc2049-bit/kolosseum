@@ -1,0 +1,62 @@
+{
+  "contract_id": "beta24_phase8_evidence_schema_contract",
+  "slice_id": "BETA-24",
+  "version": "1.0.0",
+  "schema_id": "kolosseum.beta24.phase8_evidence_envelope.v1",
+  "engine_version": "EB2-1.0.0",
+  "enum_bundle_version": "EB2-1.0.0",
+  "replay_suite_version": "1.0.0",
+  "runner_verdict_required": "ACCEPTED",
+  "evidence_scope": "process_verification_only",
+  "required_fields": [
+    "evidence_envelope_id",
+    "engine_version",
+    "enum_bundle_version",
+    "replay_suite_version",
+    "canonical_input_hash",
+    "selection_hash",
+    "execution_trace_hash",
+    "projection_hash",
+    "runner_verdict_id",
+    "runner_verdict_checksum_sha256",
+    "runner_verdict",
+    "phase5_output_checksum_sha256",
+    "phase6_output_checksum_sha256",
+    "phase7_output_checksum_sha256",
+    "evidence_envelope_checksum_sha256",
+    "evidence_scope",
+    "limitations",
+    "failure_tokens"
+  ],
+  "phase_output_checksum_fields": [
+    "phase5_output_checksum_sha256",
+    "phase6_output_checksum_sha256",
+    "phase7_output_checksum_sha256"
+  ],
+  "limitations": [
+    "no_correctness_claim",
+    "no_safety_claim",
+    "no_suitability_claim",
+    "no_effectiveness_claim",
+    "no_outcome_quality_claim",
+    "no_external_approval"
+  ],
+  "failure_tokens_allowed": [],
+  "additional_properties": false,
+  "null_values_allowed": false,
+  "sealed_at_admitted": false,
+  "sealed_at_reason": "no_canonical_replay_safe_clock_contract",
+  "forbidden_metadata_fields": [
+    "sealed_at",
+    "user_narrative",
+    "coach_notes",
+    "payment_state",
+    "commercial_state",
+    "org_metadata",
+    "organization_metadata",
+    "organisation_metadata",
+    "marketing_copy"
+  ],
+  "runtime_sealing_implemented": false,
+  "persistence_implemented": false
+}

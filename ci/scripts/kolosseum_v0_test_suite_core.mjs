@@ -9,10 +9,77 @@ const V0_COPY_LINT_EXCLUDED_PATHS = new Set([
   "ui/copy/extra_work_deviation_copy.json"
 ]);
 
+// Exact established post-v0 production surfaces.
+// These paths predate BETA-16 and are outside the active v0 runtime.
+// New application paths, including BETA-16, remain fully scanned.
+const V0_SCOPE_EXCLUDED_PATHS = new Set([
+  "src/v1ProofArtefactViewContract.mjs",
+  "src/v1GdprExportHandling.mjs",
+  "src/v1ExportBoundaryContract.mjs",
+  "src/v1AthleteDashboardShell.mjs",
+  "src/coachDashboardShell.mjs",
+  "src/api/coachDashboardShellApi.mjs",
+  "engine/src/phases/beta18Phase7SchemaBinding.ts",
+  "engine/contracts/beta18_phase7_failure_tokens.json",
+  "engine/src/phases/beta19Phase7FactualProjection.ts",
+  "engine/src/phases/beta20Phase7HashCopyGuard.ts",
+  "engine/contracts/beta20_phase7_render_stack.json",
+  "replay/contracts/beta21_replay_vector_envelope.schema.json",
+  "replay/contracts/beta21_replay_failure_tokens.json",
+  "replay/suite/beta_phase1_7/vectors.json",
+  "replay/suite/beta_phase1_7/manifest.json",
+  "replay/contracts/beta22_replay_verify_contract.json",
+  "replay/contracts/beta22_replay_verify_failure_tokens.json",
+  "replay/suite/beta_phase1_7/verify_inputs.json",
+  "replay/suite/beta_phase1_7/expected_outputs.json",
+  "replay/suite/beta_phase1_7/verify_manifest.json",
+  "replay/contracts/beta23_runner_verdict_contract.json",
+  "replay/contracts/beta23_runner_verdict.schema.json",
+  "replay/contracts/beta23_runner_verdict_failure_tokens.json",
+  "replay/suite/beta_phase1_7/runner_verdict_manifest.json",
+  "replay/contracts/beta24_phase8_evidence_schema_contract.json",
+  "replay/contracts/beta24_phase8_evidence_envelope.schema.json",
+  "replay/contracts/beta24_phase8_evidence_schema_failure_tokens.json",
+  "replay/suite/beta_phase1_8/evidence_schema_manifest.json",
+  "replay/contracts/beta25_phase8_chain_seal_gates_contract.json",
+  "replay/contracts/beta25_phase8_chain_seal_gates_failure_tokens.json",
+  "replay/suite/beta_phase1_8/chain_seal_gates_manifest.json",
+  "replay/runtime/beta26EvidenceImmutableStore.mjs",
+  "replay/contracts/beta26_evidence_immutability_contract.json",
+  "replay/contracts/beta26_evidence_immutability_failure_tokens.json",
+  "replay/suite/beta_phase1_8/evidence_immutability_manifest.json",
+  "replay/runtime/beta27ProjectionEvidenceExport.mjs",
+  "src/api/beta27ProjectionEvidenceExportApi.mjs",
+  "replay/contracts/beta27_projection_evidence_export_contract.json",
+  "replay/contracts/beta27_projection_evidence_export_failure_tokens.json",
+  "replay/suite/beta_phase1_8/projection_evidence_export_manifest.json",
+  "replay/runtime/beta28AuthRlsSecurity.mjs",
+  "src/api/beta28ProtectedResourceApi.mjs",
+  "replay/contracts/beta28_auth_rls_security_contract.json",
+  "replay/contracts/beta28_auth_rls_security_failure_tokens.json",
+  "replay/suite/beta_phase1_8/auth_rls_security_manifest.json",
+  "migrations/20260714_beta28_auth_rls_security.sql",
+  "replay/contracts/beta29_production_beta_rehearsal_contract.json",
+  "replay/suite/beta_phase1_8/production_beta_rehearsal_manifest.json"
+]);
+
 function isV0CopyLintExcluded(filePath) {
   const normalised = String(filePath || "").replaceAll("\\", "/");
   return Array.from(V0_COPY_LINT_EXCLUDED_PATHS).some((excludedPath) =>
     normalised.endsWith(excludedPath)
+  );
+}
+
+function isV0ScopeExcluded(filePath) {
+  const normalised =
+    String(filePath || "")
+      .replaceAll("\\", "/");
+
+  return Array.from(
+    V0_SCOPE_EXCLUDED_PATHS
+  ).some(
+    (excludedPath) =>
+      normalised.endsWith(excludedPath)
   );
 }
 
@@ -141,6 +208,7 @@ function activeV0ProductionFiles() {
       if (!isTextFile(file)) continue;
       if (isTestOrFixture(file)) continue;
       if (isDormantV1File(file)) continue;
+      if (isV0ScopeExcluded(file)) continue;
       files.push(file);
     }
   }

@@ -1,0 +1,18 @@
+{
+  "slice": "BETA-11",
+  "phase": 4,
+  "fixtures": [
+    {
+      "file": "general_strength.json",
+      "sha256": "557c76df3726dd78e1dbb17502af816b6f330ec580e717a48216cfd9322cbcf6"
+    },
+    {
+      "file": "powerlifting.json",
+      "sha256": "72289bf1603477a8a7671fd16e4bf6958d8be6fbe624b51a28b9a7a6b02f72eb"
+    },
+    {
+      "file": "rugby_union.json",
+      "sha256": "ca36e80a10903fb5ba36a990586c9a6a77970b5f9e715aea5f05128b80414efe"
+    }
+  ]
+}

@@ -4,7 +4,8 @@
 # failure output readable for PowerShell and CI users.
 
 param(
-  [int]$Port = 3000
+  [int]$Port = 3000,
+  [string]$SchemaPath = "ci/schemas/phase1.input.schema.v1.0.0.json"
 )
 
 $ErrorActionPreference = "Stop"
@@ -76,11 +77,14 @@ $priorPort = $env:PORT
 # Tier-1 runner: FORCE DB mode
 $env:SMOKE_NO_DB = "0"
 
-# Prefer .env (user-local). Fall back to .env.example for smoke.
-if (Test-Path -LiteralPath (Join-Path $repo ".env")) {
-  Load-DotEnv (Join-Path $repo ".env")
-} elseif (Test-Path -LiteralPath (Join-Path $repo ".env.example")) {
-  Load-DotEnv (Join-Path $repo ".env.example")
+# Respect a caller-supplied DATABASE_URL.
+# Load local defaults only when the caller did not provide one.
+if (Is-Blank $env:DATABASE_URL) {
+  if (Test-Path -LiteralPath (Join-Path $repo ".env")) {
+    Load-DotEnv (Join-Path $repo ".env")
+  } elseif (Test-Path -LiteralPath (Join-Path $repo ".env.example")) {
+    Load-DotEnv (Join-Path $repo ".env.example")
+  }
 }
 
 # SMOKE MODE ONLY:
@@ -112,7 +116,12 @@ $serverPid = $serverProc.Id
 "SERVER PID=$serverPid" | Out-Host
 
 try {
-  npm run smoke:blocks
+  npm.cmd run smoke:blocks -- -- -SchemaPath $SchemaPath
+  $SmokeExitCode = $LASTEXITCODE
+
+  if ($SmokeExitCode -ne 0) {
+    throw "CI_BETA_FIX_02_SMOKE_BLOCKS_CHILD_FAILED exit_code=$SmokeExitCode"
+  }
 }
 finally {
   "Stopping server process tree PID=$serverPid" | Out-Host

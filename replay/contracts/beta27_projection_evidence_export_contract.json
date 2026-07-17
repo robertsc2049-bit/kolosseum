@@ -1,0 +1,35 @@
+{
+  "contract_id": "beta27_projection_evidence_export_contract",
+  "slice_id": "BETA-27",
+  "version": "1.0.0",
+  "artifact_types": [
+    "phase7_projection_json",
+    "phase8_evidence_envelope_json"
+  ],
+  "projection_source": "stored_canonical_phase7_output_bytes",
+  "evidence_source": "beta26_exact_sealed_bytes",
+  "regeneration_on_export": false,
+  "export_timestamp_in_artifact_bytes": false,
+  "metadata_mutation": false,
+  "hash_verified_before_export": true,
+  "individual_export_scope": "own_artifacts_only",
+  "coach_export_relationship_statuses": [
+    "active",
+    "archived"
+  ],
+  "revoked_coach_allowed": false,
+  "relationship_policy_required": true,
+  "audit_event_types": [
+    "export_requested",
+    "export_delivered",
+    "export_denied"
+  ],
+  "service_api": [
+    "requestExport",
+    "readAuditLog"
+  ],
+  "api_adapter_added": true,
+  "live_route_wiring_added": false,
+  "ui_link_added": false,
+  "database_migration_added": false
+}

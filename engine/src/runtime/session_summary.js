@@ -487,3 +487,26 @@ export function applyWireEvent(summary, ev, planned) {
   const next = applyRuntimeEvent(st, engineEv);
   return { ...summary, runtime: fromEngineState(next) };
 }
+
+export {
+  admitBeta13Phase6EventBeforeReducer,
+  appendBeta13Phase6EventLog,
+  beta13Phase6EventSchemaContract,
+  materialiseBeta13Phase6Event,
+  stableBeta13Phase6EventJson,
+  validateBeta13Phase6CanonicalEvent,
+  validateBeta13Phase6EventInput,
+  validateBeta13Phase6EventLog,
+  validateBeta13Phase6Session
+} from "./beta13_phase6_event_schema.js";
+
+export {
+  appendAndReduceBeta14Phase6RuntimeEvent,
+  assertBeta14Phase6RuntimeStateMatchesEventLog,
+  applyBeta14Phase6RuntimeEvent,
+  beta14Phase6RuntimeReducerContract,
+  initialiseBeta14Phase6RuntimeState,
+  replayBeta14Phase6RuntimeEvents,
+  stableBeta14Phase6RuntimeStateJson,
+  tryReplayBeta14Phase6RuntimeEvents
+} from "./beta14_phase6_runtime_reducer.js";

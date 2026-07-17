@@ -125,10 +125,61 @@ mock.module(distPoolUrl, {
 
 mock.module(distHttpErrorsUrl, {
   namedExports: {
-    badRequest: (msg, meta) => Object.assign(new Error(msg), { status: 400, meta }),
-    notFound: (msg, meta) => Object.assign(new Error(msg), { status: 404, meta }),
-    upstreamBadGateway: (msg, meta) => Object.assign(new Error(msg), { status: 502, meta }),
-    internalError: (msg, meta) => Object.assign(new Error(msg), { status: 500, meta })
+    ApiError: class ApiError extends Error {
+      constructor(status, message, extras = undefined) {
+        super(message);
+        this.status = status;
+        this.extras = extras;
+      }
+    },
+    badRequest: (msg, meta) =>
+      Object.assign(new Error(msg), {
+        status: 400,
+        meta,
+        extras: meta
+      }),
+    unauthorized: (msg, meta) =>
+      Object.assign(new Error(msg), {
+        status: 401,
+        meta,
+        extras: meta
+      }),
+    forbidden: (msg, meta) =>
+      Object.assign(new Error(msg), {
+        status: 403,
+        meta,
+        extras: meta
+      }),
+    notFound: (msg, meta) =>
+      Object.assign(new Error(msg), {
+        status: 404,
+        meta,
+        extras: meta
+      }),
+    conflict: (msg, meta) =>
+      Object.assign(new Error(msg), {
+        status: 409,
+        meta,
+        extras: meta
+      }),
+    unprocessable: (msg, meta) =>
+      Object.assign(new Error(msg), {
+        status: 422,
+        meta,
+        extras: meta
+      }),
+    upstreamBadGateway: (msg, meta) =>
+      Object.assign(new Error(msg), {
+        status: 502,
+        meta,
+        extras: meta
+      }),
+    internalError: (msg, meta) =>
+      Object.assign(new Error(msg), {
+        status: 500,
+        meta,
+        extras: meta
+      })
   }
 });
 

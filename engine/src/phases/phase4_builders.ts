@@ -11,7 +11,11 @@ export type {
   Phase4Result,
   Phase4Options,
   Phase4Template,
-  RegistryLoad
+  RegistryLoad,
+  Beta11ActivityId,
+  Phase4StructuralCandidate,
+  Phase4EnumerationOutput,
+  Beta11Phase4EnumerationResult
 } from "./phase4/types.js";
 
 export { uniqueStable } from "./phase4/util.js";
@@ -29,3 +33,9 @@ export { readSessionTimeboxMinutes, applyTimeboxDeterministic } from "./phase4/t
 export { guardPlannedIdsExist, buildExercisePool } from "./phase4/exercise_pool.js";
 
 export { assembleSupportedProgram } from "./phase4/assemble.js";
+
+export {
+  assembleBeta11Phase4Program,
+  enumerateBeta11Phase4,
+  hasBeta11Phase4Enumeration
+} from "./beta11Phase4Enumeration.js";

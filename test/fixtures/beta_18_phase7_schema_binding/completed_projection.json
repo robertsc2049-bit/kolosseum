@@ -1,0 +1,73 @@
+{
+  "slice_id": "BETA-18",
+  "fixture_id": "beta18_phase7_completed_projection",
+  "phase7_input": {
+    "phase7_projection_id": "beta18_projection_001",
+    "content_format": "application/json",
+    "phase6_output": {
+      "canonical_input_hash": "ce4a562e54bba0a045ff129476d166fd98ca65f378a891d0322c0454550a6dde",
+      "selection_hash": "32a2a623b4577c468031529f837a26fef54193910272e1cb435b34da4847bb07",
+      "execution_status": "completed",
+      "execution_state": {
+        "reducer_contract_id": "beta14_phase6_runtime_reducer",
+        "reducer_version": "1.0.0",
+        "session_id": "beta18_session_powerlifting",
+        "activity_id": "powerlifting",
+        "status": "completed",
+        "classification": "completed",
+        "session_ended": true,
+        "end_code": "completed",
+        "ended_by_event_id": "beta18_event_004",
+        "last_seq": 4,
+        "accepted_event_ids": [
+          "beta18_event_001",
+          "beta18_event_002",
+          "beta18_event_003",
+          "beta18_event_004"
+        ],
+        "event_type_counts": {
+          "SESSION_END": 1,
+          "SESSION_START": 1,
+          "WORK_ITEM_DONE": 1,
+          "WORK_ITEM_START": 1
+        },
+        "split": {
+          "active": false,
+          "entered_event_id": null,
+          "remaining_at_split_ids": []
+        },
+        "work_item_order": [
+          "beta18_item_001"
+        ],
+        "work_items": {
+          "beta18_item_001": {
+            "work_item_id": "beta18_item_001",
+            "block_id": "beta18_block_001",
+            "exercise_id": "bench_press",
+            "status": "completed",
+            "started_event_id": "beta18_event_002",
+            "terminal_event_id": "beta18_event_003",
+            "terminal_source": "work_item_done"
+          }
+        },
+        "pain_follow_up": {
+          "beta18_item_001": {
+            "work_item_id": "beta18_item_001",
+            "follow_up_pending": false,
+            "flag_event_ids": [],
+            "follow_up_event_ids": [],
+            "latest_response_code": null
+          }
+        },
+        "counts": {
+          "total": 1,
+          "pending": 0,
+          "active": 0,
+          "completed": 1,
+          "skipped": 0
+        },
+        "reducer_state_hash": "393281318883b35ebb0059d86617885b3b50d022dc3f138e48e1c018f0054cd7"
+      }
+    }
+  }
+}

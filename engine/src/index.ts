@@ -350,7 +350,9 @@ export function runEngine(input: unknown) {
   // Phase 3
 
 
-  const p3: any = phase3ResolveConstraintsAndLoadRegistries(canonicalInput);
+  const p3: any = phase3ResolveConstraintsAndLoadRegistries(canonicalInput, {
+    canonical_input_hash: p2x.hash
+  });
 
 
   if (!p3?.ok) return p3;
@@ -362,7 +364,9 @@ export function runEngine(input: unknown) {
   // Phase 4
 
 
-  const p4: any = phase4AssembleProgram(canonicalInput, p3.phase3);
+  const p4: any = p3.phase3?.allowed_solution_space_descriptor
+    ? phase4AssembleProgram(p3.phase3)
+    : phase4AssembleProgram(canonicalInput, p3.phase3);
 
 
   if (!p4?.ok) return p4;
@@ -383,7 +387,11 @@ export function runEngine(input: unknown) {
   // Phase 6
 
 
-  const p6Raw: any = phase6ProduceSessionOutput(p4.program, canonicalInput, p5Raw);
+  const p6Raw: any = phase6ProduceSessionOutput(
+    p5Raw?.materialised_program ?? p4.program,
+    canonicalInput,
+    p5Raw
+  );
 
 
 
@@ -393,19 +401,26 @@ export function runEngine(input: unknown) {
 
 
   const phase5Out =
-
-
     p5Raw?.ok === true
-
-
-      ? { adjustments: p5Raw.adjustments, notes: p5Raw.notes }
-
-
-      : { adjustments: [], notes: ["PHASE_5_FAILED", String(p5Raw?.failure_token ?? "unknown")] };
-
-
-
-
+      ? p5Raw.phase5
+        ? {
+            ...p5Raw.phase5,
+            adjustments: p5Raw.adjustments,
+            notes: p5Raw.notes
+          }
+        : {
+            adjustments: p5Raw.adjustments,
+            notes: p5Raw.notes
+          }
+      : {
+          adjustments: [],
+          notes: [
+            "PHASE_5_FAILED",
+            String(
+              p5Raw?.failure_token ?? "unknown"
+            )
+          ]
+        };
 
   const phase6Out =
 
@@ -486,9 +501,8 @@ export function runEngine(input: unknown) {
 
 
     phase4: {
-
-
-  program_id: p4.program.program_id,
+      ...(p4.phase4 ?? {}),
+      program_id: p4.program.program_id,
 
 
   version: p4.program.version,

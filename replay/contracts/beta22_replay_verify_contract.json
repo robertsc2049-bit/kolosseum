@@ -1,0 +1,24 @@
+{
+  "contract_id": "beta22_replay_verify_runner",
+  "slice_id": "BETA-22",
+  "version": "1.0.0",
+  "mode": "verify_only",
+  "ci_surface_only": true,
+  "repeat_count": 3,
+  "phase_order": [
+    "phase1",
+    "phase2",
+    "phase3",
+    "phase4",
+    "phase5",
+    "phase6",
+    "phase7"
+  ],
+  "comparison": "byte_exact_canonical_json_utf8",
+  "update_mode_allowed": false,
+  "input_mutation_allowed": false,
+  "missing_data_inference_allowed": false,
+  "phase_skip_allowed": false,
+  "altered_input_retry_allowed": false,
+  "fallback_allowed": false
+}

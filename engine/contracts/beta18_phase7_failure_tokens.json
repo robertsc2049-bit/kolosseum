@@ -1,0 +1,16 @@
+{
+  "schema_version": "kolosseum.beta18.phase7_failure_tokens.v1.0.0",
+  "slice_id": "BETA-18",
+  "token_surface": "closed",
+  "source_files": [
+    "engine/src/phases/beta18Phase7SchemaBinding.ts"
+  ],
+  "valid_failure_tokens": [
+    "phase7_binding_mismatch",
+    "phase7_forbidden_input",
+    "phase7_input_invalid",
+    "phase7_output_invalid",
+    "phase7_projection_hash_mismatch",
+    "phase7_projection_id_missing"
+  ]
+}

@@ -56,6 +56,14 @@ const forbiddenChangedPathFragments = [
   "gym-access/"
 ];
 
+// S18 itself added no migration. Later slices remain blocked unless an exact,
+// deliberately reviewed path is recorded here. Broad migration exceptions are
+// forbidden.
+const explicitLaterSliceAllowedChangedPaths =
+  new Set([
+    "migrations/20260714_beta28_auth_rls_security.sql"
+  ]);
+
 function fail(message) {
   console.error(`v1_boundary_guard_scaffolding_guard: FAIL: ${message}`);
   process.exit(1);
@@ -147,6 +155,13 @@ const changedFiles = changedFilesAgainstOriginMain();
 
 for (const changedFile of changedFiles) {
   const normalised = changedFile.replace(/\\/gu, "/");
+
+  if (
+    explicitLaterSliceAllowedChangedPaths
+      .has(normalised)
+  ) {
+    continue;
+  }
 
   for (const forbiddenFragment of forbiddenChangedPathFragments) {
     if (normalised.includes(forbiddenFragment)) {

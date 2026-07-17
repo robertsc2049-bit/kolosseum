@@ -18,6 +18,26 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/ban_engine_src_imports_in_api_guard.mjs` | Runtime Boundary | high | engine | DEV NOTE: API-to-engine source import guard. This script protects the runtime |
 | `ci/guards/ban_engine_status_guard.mjs` | Runtime Boundary | high | engine | DEV NOTE: Engine status footgun guard. This script bans the legacy |
 | `ci/guards/ban_set_content_utf8_guard.mjs` | Encoding Hygiene | high | repo | DEV NOTE: PowerShell encoding footgun guard. This script blocks repo-owned |
+| `ci/guards/beta_11_phase4_enumeration_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: BETA-11 static, fixture-integrity, and compiled-runtime contract guard. |
+| `ci/guards/beta_12_phase5_materialisation_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: BETA-12 deterministic Phase 5 materialisation contract guard. |
+| `ci/guards/beta_13_phase6_event_schema_guard.mjs` | Repo Governance | high | engine | DEV NOTE: BETA-13 closed-world Phase 6 runtime event schema guard. |
+| `ci/guards/beta_14_phase6_runtime_reducer_guard.mjs` | Repo Governance | high | engine | DEV NOTE: BETA-14 deterministic Phase 6 factual runtime reducer guard. |
+| `ci/guards/beta_15_phase6_negative_gates_guard.mjs` | Repo Governance | high | engine | DEV NOTE: BETA-15 closed Phase 6 invalid-runtime failure guard. |
+| `ci/guards/beta_16_app_path_phase1_6_guard.mjs` | Repo Governance | high | app | DEV NOTE: BETA-16 app path, Copy Registry and Phase 1-6 integration guard. |
+| `ci/guards/beta_17_coach_managed_path_guard.mjs` | Repo Governance | high | app | DEV NOTE: BETA-17 coach-managed permission, note isolation and Copy Registry guard. |
+| `ci/guards/beta_18_phase7_schema_binding_guard.mjs` | Repo Governance | high | engine | DEV NOTE: BETA-18 Phase 7 schema, binding, isolation, and exact v0 exclusion guard. |
+| `ci/guards/beta_19_phase7_factual_projection_guard.mjs` | Repo Governance | high | engine | DEV NOTE: BETA-19 factual Phase 7 projection and source-isolation guard. |
+| `ci/guards/beta_20_phase7_hash_copy_guard.mjs` | Repo Governance | high | engine | DEV NOTE: BETA-20 Phase 7 rendered-byte, Copy Registry, and render-stack guard. |
+| `ci/guards/beta_21_replay_vector_envelope_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-21 replay-vector envelope, byte, schema, pin, and non-mutation guard. |
+| `ci/guards/beta_22_replay_verify_runner_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-22 verify-only Phase 1-7 replay, byte, repeat, and CI immutability guard. |
+| `ci/guards/beta_23_runner_verdict_contract_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-23 RunnerVerdict shape, checksum, scope honesty, and Phase 8 dependency guard. |
+| `ci/guards/beta_24_phase8_evidence_schema_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-24 closed-world Phase 8 EvidenceEnvelope schema guard. |
+| `ci/guards/beta_25_phase8_chain_seal_gates_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-25 Phase 8 chain and seal-authorisation guard. |
+| `ci/guards/beta_26_evidence_immutability_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-26 sealed evidence immutability guard. |
+| `ci/guards/beta_27_projection_evidence_export_guard.mjs` | Repo Governance | high | replay | DEV NOTE: BETA-27 byte-identical projection and evidence export guard. |
+| `ci/guards/beta_28_auth_rls_security_pass_guard.mjs` | Repo Governance | high | security | DEV NOTE: BETA-28 auth, RLS and sensitive-resource security guard. |
+| `ci/guards/beta_29_production_beta_rehearsal_guard.mjs` | Repo Governance | high | release | DEV NOTE: BETA-29 production beta rehearsal composition guard. |
+| `ci/guards/beta_fix_01_copy_registry_reconciliation_guard.mjs` | Beta Copy Registry Authority | high | beta-copy | DEV NOTE: BETA-FIX-01 authoritative beta copy registry reconciliation guard. |
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | DEV NOTE: Clean-tree guard. This script protects release, promotion, and CI |
 | `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |

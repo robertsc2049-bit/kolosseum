@@ -1,0 +1,33 @@
+{
+  "schema_version": "kolosseum.beta27.projection_evidence_export_manifest.v1.0.0",
+  "slice_id": "BETA-27",
+  "contract_version": "1.0.0",
+  "artifact_type_count": 2,
+  "coach_export_status_count": 2,
+  "audit_event_type_count": 3,
+  "live_route_wiring_added": false,
+  "ui_link_added": false,
+  "database_migration_added": false,
+  "paths": {
+    "contract": "replay/contracts/beta27_projection_evidence_export_contract.json",
+    "failure_tokens": "replay/contracts/beta27_projection_evidence_export_failure_tokens.json",
+    "runtime_export": "replay/runtime/beta27ProjectionEvidenceExport.mjs",
+    "api_adapter": "src/api/beta27ProjectionEvidenceExportApi.mjs",
+    "phase7_source": "engine/src/phases/beta18Phase7SchemaBinding.ts",
+    "beta26_runtime": "replay/runtime/beta26EvidenceImmutableStore.mjs",
+    "beta26_contract": "replay/contracts/beta26_evidence_immutability_contract.json",
+    "proof_view_source": "src/v1ProofArtefactViewContract.mjs",
+    "legacy_export_source": "src/v1ExportBoundaryContract.mjs"
+  },
+  "sha256": {
+    "contract": "54146316bcf0ac9652362501ee34f8c26edf2b4fce7962bd7b1deb02d6a3495a",
+    "failure_tokens": "981f86801bf967360449fbf6dd2473014d4e0a2741ae19c63b0771f4ead8badf",
+    "runtime_export": "ff783deaf496d7a16591a00e30f1e0656250579dd2eb0eab0e0353346ab39a40",
+    "api_adapter": "883defb5bc2d8f0ae74325b444608ee009e662dd23273e2013ee78a331c786b8",
+    "phase7_source": "2a8e41b4cd0cc8770e64caa7e486be01d1de00d931651a28a31224995620b42b",
+    "beta26_runtime": "dd7d6e3c4b32c4a4f07ebb6130251530d9e4f3bfa22de25194565f0a284da2aa",
+    "beta26_contract": "cba7ad0456008eecd01a01bb5bec6144c4435d051a82997c24d536b96b5d2b07",
+    "proof_view_source": "e2118f5dafe9d12c2c3584c1bf2e5b4e8dcb4f313002af3ade945a9e670b293c",
+    "legacy_export_source": "800dca4d7c5376b7c25a5222ad5fbe7a2c20fc582cb3b157fc86016794df4d3a"
+  }
+}

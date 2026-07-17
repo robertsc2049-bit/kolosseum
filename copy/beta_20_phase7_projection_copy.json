@@ -1,0 +1,42 @@
+{
+  "surface_id": "beta20_phase7_projection",
+  "surface_version": "1.0.0",
+  "copy_scope": "phase7_factual_projection_labels",
+  "entries": [
+    {
+      "copy_id": "PHASE7_PROJECTION_METADATA_LABEL",
+      "text": "Projection details",
+      "params": []
+    },
+    {
+      "copy_id": "PHASE7_PROGRAM_SUMMARY_LABEL",
+      "text": "Programme summary",
+      "params": []
+    },
+    {
+      "copy_id": "PHASE7_BLOCK_SUMMARY_LABEL",
+      "text": "Block summary",
+      "params": []
+    },
+    {
+      "copy_id": "PHASE7_SESSION_LIST_LABEL",
+      "text": "Sessions",
+      "params": []
+    },
+    {
+      "copy_id": "PHASE7_EVENT_DIGEST_LABEL",
+      "text": "Event record",
+      "params": []
+    },
+    {
+      "copy_id": "PHASE7_FACTUAL_BOUNDARY_LABEL",
+      "text": "Recorded facts",
+      "params": []
+    }
+  ],
+  "render_boundary": {
+    "inline_copy_allowed": false,
+    "engine_projection_contains_copy": false,
+    "copy_resolution_layer": "presentation_only"
+  }
+}

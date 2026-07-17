@@ -147,7 +147,7 @@ test("getSessionStateQuery throws 404 when session does not exist", async () => 
   assert.equal(selectCalls, 1, "expected one SELECT for missing session");
 });
 
-test("getSessionStateQuery persists legacy return-decision upgrade and exposes only public trace fields", async () => {
+test("getSessionStateQuery projects legacy return-decision upgrade without database writes and exposes only public trace fields", async () => {
   resetState();
 
   currentRow = {
@@ -170,42 +170,88 @@ test("getSessionStateQuery persists legacy return-decision upgrade and exposes o
     }
   };
 
-  const payload = await getSessionStateQuery("s_query_upgrade");
+
+  const payload =
+    await getSessionStateQuery(
+      "s_query_upgrade"
+    );
 
   assert.equal(connectCalls, 1);
   assert.equal(selectCalls, 1);
-  assert.equal(updateCalls.length, 1, "expected upgraded summary to be persisted once");
-
-  assert.equal(payload.session_id, "s_query_upgrade");
-  assert.equal(payload.trace.return_decision_required, true);
-  assert.deepEqual(payload.trace.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
 
   assert.equal(
-    Object.prototype.hasOwnProperty.call(payload.trace, "split_active"),
+    updateCalls.length,
+    0,
+    "legacy compatibility projection must not write during GET"
+  );
+
+
+  assert.equal(
+    payload.session_id,
+    "s_query_upgrade"
+  );
+
+  assert.equal(
+    payload.trace.return_decision_required,
+    true
+  );
+
+  assert.deepEqual(
+    payload.trace.return_decision_options,
+    [
+      "RETURN_CONTINUE",
+      "RETURN_SKIP"
+    ]
+  );
+
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(
+      payload.trace,
+      "split_active"
+    ),
     false,
     "trace must not expose split_active"
   );
+
   assert.equal(
-    Object.prototype.hasOwnProperty.call(payload.trace, "remaining_at_split_ids"),
+    Object.prototype.hasOwnProperty.call(
+      payload.trace,
+      "remaining_at_split_ids"
+    ),
     false,
     "trace must not expose remaining_at_split_ids"
   );
+
   assert.equal(
-    Object.prototype.hasOwnProperty.call(payload.trace, "return_gate_required"),
+    Object.prototype.hasOwnProperty.call(
+      payload.trace,
+      "return_gate_required"
+    ),
     false,
     "trace must not expose return_gate_required"
   );
 
-  const persistedJson = updateCalls[0]?.params?.[1];
-  assert.equal(typeof persistedJson, "string", "expected persisted upgraded summary JSON payload");
+  const cached =
+    await getSessionStateQuery(
+      "s_query_upgrade"
+    );
 
-  const persisted = JSON.parse(persistedJson);
-  assert.equal(persisted.runtime.return_decision_required, true);
-  assert.deepEqual(persisted.runtime.return_decision_options, ["RETURN_CONTINUE", "RETURN_SKIP"]);
+  assert.equal(
+    connectCalls,
+    1,
+    "expected second upgraded read to hit cache"
+  );
 
-  const cached = await getSessionStateQuery("s_query_upgrade");
-  assert.equal(connectCalls, 1, "expected second upgraded read to hit cache");
-  assert.deepEqual(cached, payload);
+  assert.equal(
+    updateCalls.length,
+    0,
+    "cached compatibility projection must remain read-only"
+  );
+
+  assert.deepEqual(
+    cached,
+    payload
+  );
 });
 
 test("getSessionStateQuery preserves deterministic replay projection across uncached reloads", async () => {

@@ -10,6 +10,69 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+/**
+ * Keep the outer CI reporter from leaking into the nested module-mock test.
+ * The nested child owns its own reporter and runs in a fresh process.
+ */
+function nestedTestEnv() {
+  const env = {
+    ...process.env
+  };
+
+  const parts =
+    String(
+      env.NODE_OPTIONS ?? ""
+    )
+      .split(/\s+/)
+      .map(
+        (part) => part.trim()
+      )
+      .filter(Boolean);
+
+  const retained = [];
+
+  for (
+    let index = 0;
+    index < parts.length;
+    index += 1
+  ) {
+    const part =
+      parts[index];
+
+    if (
+      part ===
+        "--test-reporter"
+    ) {
+      index += 1;
+      continue;
+    }
+
+    if (
+      part.startsWith(
+        "--test-reporter="
+      )
+    ) {
+      continue;
+    }
+
+    retained.push(
+      part
+    );
+  }
+
+  if (
+    retained.length > 0
+  ) {
+    env.NODE_OPTIONS =
+      retained.join(" ");
+  }
+  else {
+    delete env.NODE_OPTIONS;
+  }
+
+  return env;
+}
+
 test("CI wrapper: planSession undefined-body and null-body success parity passes with experimental module mocks", () => {
   const repo = process.cwd();
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-plan-session-empty-body-parity-"));
@@ -28,6 +91,10 @@ test("CI wrapper: planSession undefined-body and null-body success parity passes
     'const distSessionStateWriteServiceUrl = pathToFileURL(path.join(repo, "dist", "src", "api", "session_state_write_service.js")).href;',
     'const distSessionEventsQueryServiceUrl = pathToFileURL(path.join(repo, "dist", "src", "api", "session_events_query_service.js")).href;',
     'const distSessionStateQueryServiceUrl = pathToFileURL(path.join(repo, "dist", "src", "api", "session_state_query_service.js")).href;',
+    'const distBeta16AppPathServiceUrl = pathToFileURL(path.join(repo, "dist", "src", "api", "beta16_app_path_service.js")).href;',
+    'const distBeta17CoachManagedServiceUrl = pathToFileURL(path.join(repo, "dist", "src", "api", "beta17_coach_managed_service.js")).href;',
+    'const distBetaProductRecordStoreUrl = pathToFileURL(path.join(repo, "dist", "src", "api", "beta_product_record_store.js")).href;',
+    'const distBetaProductJourneyServiceUrl = pathToFileURL(path.join(repo, "dist", "src", "api", "beta_product_journey_service.js")).href;',
     '',
     'const planSessionServiceCalls = [];',
     'const badRequestCalls = [];',
@@ -84,6 +151,38 @@ test("CI wrapper: planSession undefined-body and null-body success parity passes
     '  }',
     '});',
     '',
+    'mock.module(distBeta16AppPathServiceUrl, {',
+    '  namedExports: {',
+    '    createBeta16AcknowledgementRecord: () => { throw new Error("createBeta16AcknowledgementRecord should not be called in this test"); },',
+    '    createBeta16AuthRecord: () => { throw new Error("createBeta16AuthRecord should not be called in this test"); },',
+    '    createBeta16Phase1DeclarationRecord: () => { throw new Error("createBeta16Phase1DeclarationRecord should not be called in this test"); }',
+    '  }',
+    '});',
+    '',
+    'mock.module(distBeta17CoachManagedServiceUrl, {',
+    '  namedExports: {',
+    '    buildBeta17CoachArtefactView: () => { throw new Error("buildBeta17CoachArtefactView should not be called in this test"); },',
+    '    createBeta17AssignmentRecord: () => { throw new Error("createBeta17AssignmentRecord should not be called in this test"); },',
+    '    createBeta17CoachNoteRecord: () => { throw new Error("createBeta17CoachNoteRecord should not be called in this test"); },',
+    '    createBeta17CoachProfileRecord: () => { throw new Error("createBeta17CoachProfileRecord should not be called in this test"); },',
+    '    createBeta17RelationshipRecord: () => { throw new Error("createBeta17RelationshipRecord should not be called in this test"); }',
+    '  }',
+    '});',
+    '',
+    'mock.module(distBetaProductRecordStoreUrl, {',
+    '  namedExports: {',
+    '    persistBetaProductRecord: async () => { throw new Error("persistBetaProductRecord should not be called in this test"); }',
+    '  }',
+    '});',
+    '',
+    'mock.module(distBetaProductJourneyServiceUrl, {',
+    '  namedExports: {',
+    '    buildStoredBeta17CoachArtefactResult: async () => { throw new Error("buildStoredBeta17CoachArtefactResult should not be called in this test"); },',
+    '    buildStoredBetaAthleteHistoryResult: async () => { throw new Error("buildStoredBetaAthleteHistoryResult should not be called in this test"); },',
+    '    createStoredBeta17AssignmentResult: async () => { throw new Error("createStoredBeta17AssignmentResult should not be called in this test"); }',
+    '  }',
+    '});',
+    '',
     'function makeReq(body) {',
     '  return { body };',
     '}',
@@ -103,7 +202,7 @@ test("CI wrapper: planSession undefined-body and null-body success parity passes
     '  };',
     '}',
     '',
-    'const { planSession } = await import(`${distHandlerUrl}?case=${Date.now()}-${Math.random().toString(16).slice(2)}`);',
+    'const { planSession } = await import(distHandlerUrl);',
     '',
     'test("planSession runtime success parity: undefined body and null body produce identical handler-edge status, payload, and normalized delegation input", async () => {',
     '  planSessionServiceCalls.length = 0;',
@@ -156,11 +255,13 @@ test("CI wrapper: planSession undefined-body and null-body success parity passes
     [
       "--experimental-test-module-mocks",
       "--test",
+      "--test-concurrency=1",
       target
     ],
     {
       cwd: repo,
-      encoding: "utf8"
+      encoding: "utf8",
+      env: nestedTestEnv()
     }
   );
 

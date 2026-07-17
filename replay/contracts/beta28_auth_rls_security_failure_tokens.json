@@ -1,0 +1,21 @@
+{
+  "schema_version": "kolosseum.beta28.auth_rls_security_failure_tokens.v1.0.0",
+  "slice_id": "BETA-28",
+  "tokens": [
+    "beta28_input_invalid",
+    "beta28_unauthenticated",
+    "beta28_account_suspended",
+    "beta28_account_inactive",
+    "beta28_owner_scope_denied",
+    "beta28_relationship_required",
+    "beta28_relationship_denied",
+    "beta28_revoked_coach_denied",
+    "beta28_policy_scope_denied",
+    "beta28_action_denied",
+    "beta28_sealed_artifact_mutation_denied",
+    "beta28_resource_not_found",
+    "beta28_secret_detected",
+    "beta28_dependency_audit_failed",
+    "beta28_manifest_invalid"
+  ]
+}

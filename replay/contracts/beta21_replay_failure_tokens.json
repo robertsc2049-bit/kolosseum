@@ -1,0 +1,10 @@
+{
+  "contract_id": "beta21_replay_vector_failure_tokens",
+  "contract_version": "1.0.0",
+  "slice_id": "BETA-21",
+  "tokens": [
+    "beta21_replay_divergence",
+    "beta21_invalid_failure_token",
+    "beta21_missing_phase_output"
+  ]
+}

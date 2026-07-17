@@ -1,0 +1,30 @@
+{
+  "schema_version": "kolosseum.beta24.phase8_evidence_schema_manifest.v1.0.0",
+  "slice_id": "BETA-24",
+  "contract_version": "1.0.0",
+  "schema_id": "kolosseum.beta24.phase8_evidence_envelope.v1",
+  "upstream_runner_verdict_contract_version": "1.0.0",
+  "evidence_scope": "process_verification_only",
+  "required_field_count": 18,
+  "phase_output_checksum_count": 3,
+  "sealed_at_admitted": false,
+  "runtime_sealing_implemented": false,
+  "paths": {
+    "contract": "replay/contracts/beta24_phase8_evidence_schema_contract.json",
+    "schema": "replay/contracts/beta24_phase8_evidence_envelope.schema.json",
+    "failure_tokens": "replay/contracts/beta24_phase8_evidence_schema_failure_tokens.json",
+    "runner_verdict_contract": "replay/contracts/beta23_runner_verdict_contract.json",
+    "runner_verdict_schema": "replay/contracts/beta23_runner_verdict.schema.json",
+    "runner_verdict_manifest": "replay/suite/beta_phase1_7/runner_verdict_manifest.json",
+    "v1_evidence_contract": "docs/v1/V1_EVIDENCE_ENVELOPE_CONTRACT.md"
+  },
+  "sha256": {
+    "contract": "4482a91414850308b879ae6815266bd181e618c6d0cd81d10a0d97b26e287d58",
+    "schema": "41d26dde3b87ea5167b5dfd74cabe98204890f07adb793b95946427bc73cb6e9",
+    "failure_tokens": "402448a8193fb0b2201d8303a82674d43f2c6636bc2cc7b13c855ba7f806a089",
+    "runner_verdict_contract": "d1ec80deb5868ba302abc68f5d9501f73b5d6f37fd12fbec261e1100f77d87de",
+    "runner_verdict_schema": "366c4f2043fd13e278691d0cd6d27d0a3f9fddece3572d7c51304683b1446278",
+    "runner_verdict_manifest": "5c040580569cccee7b74beaa23aa7e8e8a284ac77b121a730f4a49e64ce0bdc4",
+    "v1_evidence_contract": "72cbd12bff057923595a210e76d811974ed298aacff547867b2cfb5903e87274"
+  }
+}

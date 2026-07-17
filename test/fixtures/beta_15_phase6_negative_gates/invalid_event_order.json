@@ -1,0 +1,6 @@
+{
+  "slice_id": "BETA-15",
+  "scenario_id": "invalid_event_order",
+  "operation": "work_item_done_before_session_start",
+  "expected_failure_token": "phase6_event_schema_event_order_invalid"
+}

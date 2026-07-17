@@ -1,0 +1,6 @@
+{
+  "slice_id": "BETA-15",
+  "scenario_id": "duplicate_illegal_event",
+  "operation": "duplicate_canonical_event_in_append_log",
+  "expected_failure_token": "phase6_event_schema_append_only_violation"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "kolosseum.beta25.phase8_chain_seal_gates_failure_tokens.v1.0.0",
+  "slice_id": "BETA-25",
+  "tokens": [
+    "beta25_input_invalid",
+    "beta25_runner_missing",
+    "beta25_extra_input_field",
+    "beta25_gate_state_invalid",
+    "beta25_cl_refused",
+    "beta25_ci_failed",
+    "beta25_replay_rejected",
+    "beta25_runner_invalid",
+    "beta25_evidence_chain_break",
+    "beta25_pre_seal_active",
+    "beta25_manifest_invalid"
+  ]
+}

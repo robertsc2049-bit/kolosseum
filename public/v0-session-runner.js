@@ -1,68 +1,151 @@
+// DEV NOTE: BETA-16 extends the existing browser session runner.
+// User-facing prose is resolved only from the BETA-16 Copy Registry.
+// This file transports product records and factual API events only.
 
-// DEV NOTE: Human-maintained repo surface. Keep this file aligned with canonical contracts,
-// deterministic checks, and developer handover standards. Do not introduce hidden defaults,
-// broad discovery, or unreviewed boundary changes.
+const COPY_IDS = Object.freeze({
+  pageTitle: "BETA16_COPY_PAGE_TITLE",
+  ready: "BETA16_COPY_STATUS_READY",
+  error: "BETA16_COPY_STATUS_ERROR",
+  authRecorded: "BETA16_COPY_AUTH_RECORDED",
+  acknowledgementRecorded:
+    "BETA16_COPY_ACKNOWLEDGEMENT_RECORDED",
+  declarationRecorded:
+    "BETA16_COPY_DECLARATION_RECORDED",
+  compileRecorded:
+    "BETA16_COPY_COMPILE_RECORDED",
+  notStarted: "BETA16_COPY_NOT_STARTED",
+  inProgress: "BETA16_COPY_IN_PROGRESS",
+  returnPending:
+    "BETA16_COPY_RETURN_PENDING",
+  completed: "BETA16_COPY_COMPLETED",
+  partial: "BETA16_COPY_PARTIAL",
+  currentExercise:
+    "BETA16_COPY_CURRENT_EXERCISE",
+  returnDecision:
+    "BETA16_COPY_RETURN_DECISION",
+  noCurrentItem:
+    "BETA16_COPY_NO_CURRENT_ITEM",
+  sets: "BETA16_COPY_SETS_LABEL",
+  reps: "BETA16_COPY_REPS_LABEL",
+  rest: "BETA16_COPY_REST_LABEL",
+  intensity: "BETA16_COPY_INTENSITY_LABEL",
+  emptyCurrent:
+    "BETA16_COPY_EMPTY_CURRENT",
+  emptyUpcoming:
+    "BETA16_COPY_EMPTY_UP_NEXT",
+  emptyCompleted:
+    "BETA16_COPY_EMPTY_COMPLETED",
+  emptyDropped:
+    "BETA16_COPY_EMPTY_DROPPED",
+  requestRecorded:
+    "BETA16_COPY_REQUEST_RECORDED",
+  fixtureLoaded:
+    "BETA16_COPY_FIXTURE_LOADED",
+  sessionStarted:
+    "BETA16_COPY_SESSION_STARTED",
+  eventRecorded:
+    "BETA16_COPY_EVENT_RECORDED",
+  stateRefreshed:
+    "BETA16_COPY_STATE_REFRESHED"
+});
 
-async function readJson(res) {
-  const text = await res.text().catch(() => "");
-  let json = null;
-  try { json = text ? JSON.parse(text) : null; } catch {}
-  return { ok: res.ok, status: res.status, text, json };
-}
-
-async function httpJson(method, url, body) {
-  const res = await fetch(url, {
-    method,
-    headers: { "content-type": "application/json" },
-    body: typeof body === "undefined" ? undefined : JSON.stringify(body),
-  });
-  return await readJson(res);
-}
-
-const el = {
-  phase1Input: document.getElementById("phase1Input"),
-  sessionId: document.getElementById("sessionId"),
-  currentStep: document.getElementById("currentStep"),
-  stateOut: document.getElementById("stateOut"),
-  logOut: document.getElementById("logOut"),
-
-  statSessionId: document.getElementById("statSessionId"),
-  statCurrentMode: document.getElementById("statCurrentMode"),
-  statLifecycle: document.getElementById("statLifecycle"),
-  statProgressPct: document.getElementById("statProgressPct"),
-  statCompletedTotal: document.getElementById("statCompletedTotal"),
-  statStarted: document.getElementById("statStarted"),
-  statCompleted: document.getElementById("statCompleted"),
-  statRemaining: document.getElementById("statRemaining"),
-  statDropped: document.getElementById("statDropped"),
-
-  stepBadge: document.getElementById("stepBadge"),
-  stepTitle: document.getElementById("stepTitle"),
-  stepSubtitle: document.getElementById("stepSubtitle"),
-  stepBody: document.getElementById("stepBody"),
-
-  queueCurrent: document.getElementById("queueCurrent"),
-  queueUpcoming: document.getElementById("queueUpcoming"),
-  historyCompleted: document.getElementById("historyCompleted"),
-  historyDropped: document.getElementById("historyDropped"),
-
-  btnLoadFixture: document.getElementById("btnLoadFixture"),
-  btnCompile: document.getElementById("btnCompile"),
-  btnStart: document.getElementById("btnStart"),
-  btnRefresh: document.getElementById("btnRefresh"),
-  btnSplitSession: document.getElementById("btnSplitSession"),
-  btnCompleteStep: document.getElementById("btnCompleteStep"),
-  btnContinue: document.getElementById("btnContinue"),
-  btnSkip: document.getElementById("btnSkip"),
+const elements = {
+  appStatus:
+    document.getElementById("appStatus"),
+  authUserId:
+    document.getElementById("authUserId"),
+  authEmail:
+    document.getElementById("authEmail"),
+  authDisplayName:
+    document.getElementById("authDisplayName"),
+  betaAcknowledged:
+    document.getElementById("betaAcknowledged"),
+  jurisdictionAcknowledged:
+    document.getElementById(
+      "jurisdictionAcknowledged"
+    ),
+  activityId:
+    document.getElementById("activityId"),
+  phase1Input:
+    document.getElementById("phase1Input"),
+  sessionId:
+    document.getElementById("sessionId"),
+  statLifecycle:
+    document.getElementById("statLifecycle"),
+  statCompleted:
+    document.getElementById("statCompleted"),
+  statRemaining:
+    document.getElementById("statRemaining"),
+  statDropped:
+    document.getElementById("statDropped"),
+  statClassification:
+    document.getElementById(
+      "statClassification"
+    ),
+  currentItem:
+    document.getElementById("currentItem"),
+  queueCurrent:
+    document.getElementById("queueCurrent"),
+  queueUpcoming:
+    document.getElementById("queueUpcoming"),
+  historyCompleted:
+    document.getElementById(
+      "historyCompleted"
+    ),
+  historyDropped:
+    document.getElementById(
+      "historyDropped"
+    ),
+  stateOut:
+    document.getElementById("stateOut"),
+  logOut:
+    document.getElementById("logOut"),
+  btnAuth:
+    document.getElementById("btnAuth"),
+  btnAcknowledge:
+    document.getElementById("btnAcknowledge"),
+  btnDeclare:
+    document.getElementById("btnDeclare"),
+  btnCompile:
+    document.getElementById("btnCompile"),
+  btnStart:
+    document.getElementById("btnStart"),
+  btnRefresh:
+    document.getElementById("btnRefresh"),
+  btnSplitSession:
+    document.getElementById(
+      "btnSplitSession"
+    ),
+  btnCompleteStep:
+    document.getElementById(
+      "btnCompleteStep"
+    ),
+  btnContinue:
+    document.getElementById("btnContinue"),
+  btnSkip:
+    document.getElementById("btnSkip")
 };
 
-const exerciseLabels = new Map();
-let labelsLoadPromise = null;
-let lastRenderedState = null;
+const appState = {
+  copy: new Map(),
+  phase1Base: null,
+  phase1Input: null,
+  authRecord: null,
+  acknowledgementRecord: null,
+  declarationRecord: null,
+  sessionState: null
+};
 
-function log(msg, data) {
-  const line = data ? `${msg}\n${JSON.stringify(data, null, 2)}\n` : `${msg}\n`;
-  el.logOut.textContent = `${line}\n${el.logOut.textContent}`;
+function copy(copyId) {
+  const value = appState.copy.get(copyId);
+
+  if (typeof value !== "string") {
+    throw new Error(
+      `COPY_ID_MISSING:${copyId}`
+    );
+  }
+
+  return value;
 }
 
 function escapeHtml(value) {
@@ -74,450 +157,816 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-function formatIntensity(intensity) {
-  if (!intensity || typeof intensity !== "object") return "-";
-  const type = String(intensity.type || "");
-  const value = intensity.value;
-
-  if (type === "percent_1rm" && typeof value === "number") return `${value}% 1RM`;
-  if (type && typeof value !== "undefined") return `${type}: ${value}`;
-  if (type) return type;
-  return "-";
+function setStatus(copyId, technical = "") {
+  elements.appStatus.textContent =
+    technical
+      ? `${copy(copyId)} ${technical}`
+      : copy(copyId);
 }
 
-function humanizeExerciseId(exerciseId) {
-  const raw = String(exerciseId || "").trim();
-  if (!raw) return "(unknown exercise)";
-  return raw
-    .split("_")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+function log(copyId, data = null) {
+  const technical =
+    data === null
+      ? ""
+      : `\n${JSON.stringify(data, null, 2)}`;
+
+  elements.logOut.textContent =
+    `${copy(copyId)}${technical}\n\n` +
+    elements.logOut.textContent;
 }
 
-function pickLabelFromRecord(record) {
-  if (!record || typeof record !== "object") return "";
-  const candidates = [
-    record.display_name,
-    record.exercise_name,
-    record.label,
-    record.title,
-    record.name,
-  ];
-  for (const value of candidates) {
-    const s = String(value || "").trim();
-    if (s) return s;
+async function readJson(response) {
+  const text =
+    await response.text().catch(() => "");
+
+  let json = null;
+
+  try {
+    json = text
+      ? JSON.parse(text)
+      : null;
   }
-  return "";
-}
-
-function collectExerciseRecords(node, out) {
-  if (!node) return;
-
-  if (Array.isArray(node)) {
-    for (const item of node) collectExerciseRecords(item, out);
-    return;
+  catch {
+    json = {
+      raw: text
+    };
   }
 
-  if (typeof node !== "object") return;
+  return {
+    ok: response.ok,
+    status: response.status,
+    json
+  };
+}
 
-  if (typeof node.exercise_id === "string" && node.exercise_id.trim()) {
-    out.push(node);
+async function httpJson(
+  method,
+  path,
+  body
+) {
+  const response = await fetch(path, {
+    method,
+    headers: {
+      "content-type": "application/json"
+    },
+    body:
+      typeof body === "undefined"
+        ? undefined
+        : JSON.stringify(body)
+  });
+
+  const result = await readJson(response);
+
+  log(COPY_IDS.requestRecorded, {
+    method,
+    path,
+    status: result.status
+  });
+
+  if (!result.ok) {
+    const error =
+      new Error(
+        String(
+          result.json?.reason ??
+          result.json?.failure_token ??
+          result.status
+        )
+      );
+
+    error.result = result;
+    throw error;
   }
 
-  for (const value of Object.values(node)) {
-    collectExerciseRecords(value, out);
+  return result.json;
+}
+
+function applyCopyRegistry() {
+  for (
+    const node of document.querySelectorAll(
+      "[data-copy-id]"
+    )
+  ) {
+    node.textContent =
+      copy(node.dataset.copyId);
   }
-}
 
-async function loadExerciseLabels() {
-  if (labelsLoadPromise) return labelsLoadPromise;
-
-  labelsLoadPromise = (async () => {
-    try {
-      const res = await fetch("/registries/registry_bundle.json");
-      const out = await readJson(res);
-
-      if (!out.ok || !out.json) {
-        log("Registry labels unavailable; using fallback humanized ids.", {
-          status: out.status,
-          text: out.text,
-        });
-        return;
-      }
-
-      const records = [];
-      collectExerciseRecords(out.json, records);
-
-      for (const record of records) {
-        const exerciseId = String(record.exercise_id || "").trim();
-        if (!exerciseId) continue;
-
-        const label = pickLabelFromRecord(record) || humanizeExerciseId(exerciseId);
-        if (!exerciseLabels.has(exerciseId)) {
-          exerciseLabels.set(exerciseId, label);
-        }
-      }
-
-      log("Loaded exercise labels.", {
-        count: exerciseLabels.size,
-      });
-    } catch (e) {
-      log(`Registry labels load failed; using fallback humanized ids. ${e.message}`);
-    }
-  })();
-
-  return labelsLoadPromise;
-}
-
-function getExerciseDisplayName(exercise) {
-  const exerciseId = String(exercise?.exercise_id || "").trim();
-  if (!exerciseId) return "(unknown exercise)";
-  return exerciseLabels.get(exerciseId) || humanizeExerciseId(exerciseId);
-}
-
-function formatExerciseLine(ex) {
-  const sets = Number.isInteger(ex?.sets) ? ex.sets : "-";
-  const reps = Number.isInteger(ex?.reps) ? ex.reps : "-";
-  const rest = Number.isInteger(ex?.rest_seconds) ? `${ex.rest_seconds}s` : "-";
-  const intensity = formatIntensity(ex?.intensity);
-  return `${sets} x ${reps} | Rest ${rest} | ${intensity}`;
-}
-
-function renderQueueItem(exercise, kind) {
-  const exerciseId = exercise?.exercise_id || "(unknown exercise)";
-  const displayName = getExerciseDisplayName(exercise);
-  const meta = formatExerciseLine(exercise);
-
-  return `
-    <div class="queue-item ${escapeHtml(kind)}">
-      <div class="queue-name">${escapeHtml(displayName)}</div>
-      <div class="queue-meta">${escapeHtml(meta)}</div>
-      <div class="queue-meta mono">exercise_id=${escapeHtml(exerciseId)}</div>
-    </div>
-  `;
-}
-
-function renderQueue(state) {
-  const remaining = Array.isArray(state?.remaining_exercises) ? state.remaining_exercises : [];
-  const current = remaining.length > 0 ? remaining[0] : null;
-  const upcoming = remaining.slice(1, 4);
-
-  el.queueCurrent.innerHTML = current
-    ? renderQueueItem(current, "current")
-    : `<div class="muted">No current exercise.</div>`;
-
-  el.queueUpcoming.innerHTML = upcoming.length > 0
-    ? upcoming.map((ex) => renderQueueItem(ex, "upcoming")).join("")
-    : `<div class="muted">No upcoming exercises.</div>`;
-}
-
-function renderHistoryList(target, items, emptyMessage, kind) {
-  target.innerHTML = items.length > 0
-    ? items.map((ex) => renderQueueItem(ex, kind)).join("")
-    : `<div class="muted">${escapeHtml(emptyMessage)}</div>`;
-}
-
-function renderHistory(state) {
-  const completed = Array.isArray(state?.completed_exercises) ? state.completed_exercises : [];
-  const dropped = Array.isArray(state?.dropped_exercises) ? state.dropped_exercises : [];
-
-  renderHistoryList(el.historyCompleted, completed, "No completed exercises yet.", "completed");
-  renderHistoryList(el.historyDropped, dropped, "No dropped exercises yet.", "dropped");
-}
-
-function renderExerciseBody(step) {
-  const ex = step?.exercise || {};
-  const exerciseId = ex.exercise_id || "(unknown exercise)";
-  const displayName = getExerciseDisplayName(ex);
-  const sets = Number.isInteger(ex.sets) ? String(ex.sets) : "-";
-  const reps = Number.isInteger(ex.reps) ? String(ex.reps) : "-";
-  const rest = Number.isInteger(ex.rest_seconds) ? `${ex.rest_seconds}s` : "-";
-  const intensity = formatIntensity(ex.intensity);
-  const blockId = ex.block_id || "-";
-  const itemId = ex.item_id || "-";
-
-  el.stepBody.innerHTML = `
-    <div class="muted mono">exercise_id=${escapeHtml(exerciseId)}</div>
-    <div class="muted">Display name: ${escapeHtml(displayName)}</div>
-    <div class="step-metrics">
-      <div class="metric">
-        <div class="metric-label">Sets x Reps</div>
-        <div class="metric-value">${escapeHtml(`${sets} x ${reps}`)}</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Rest</div>
-        <div class="metric-value">${escapeHtml(rest)}</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Intensity</div>
-        <div class="metric-value">${escapeHtml(intensity)}</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Block / Item</div>
-        <div class="metric-value">${escapeHtml(`${blockId} / ${itemId}`)}</div>
-      </div>
-    </div>
-  `;
-}
-
-function renderReturnDecisionBody(step) {
-  const options = Array.isArray(step?.options) ? step.options : [];
-  const items = options.length
-    ? options.map((opt) => `<li class="mono">${escapeHtml(opt)}</li>`).join("")
-    : `<li class="muted">No options supplied.</li>`;
-
-  el.stepBody.innerHTML = `
-    <div class="muted">The session is waiting for an explicit return decision.</div>
-    <ul class="options-list">
-      ${items}
-    </ul>
-  `;
-}
-
-function renderIdleBody(message) {
-  el.stepBody.innerHTML = `<div class="muted">${escapeHtml(message)}</div>`;
-}
-
-function disableStepActions() {
-  el.btnCompleteStep.disabled = true;
-  el.btnContinue.disabled = true;
-  el.btnSkip.disabled = true;
-}
-
-function setStepUiIdle(title, subtitle, bodyMessage) {
-  el.stepBadge.textContent = "No current step";
-  el.stepBadge.className = "pill idle";
-  el.stepTitle.textContent = title;
-  el.stepSubtitle.textContent = subtitle;
-  renderIdleBody(bodyMessage || "No step details yet.");
-  disableStepActions();
-}
-
-function setStepUiExercise(step, started) {
-  const exerciseId = step?.exercise?.exercise_id || "(unknown exercise)";
-  const displayName = getExerciseDisplayName(step?.exercise);
-
-  el.stepBadge.textContent = "Exercise";
-  el.stepBadge.className = "pill ok";
-  el.stepTitle.textContent = displayName;
-  el.stepSubtitle.textContent = started
-    ? `Current action: complete this step, or split session to enter return decision. (${exerciseId})`
-    : "Session not started. Press Start to begin.";
-  renderExerciseBody(step);
-
-  el.btnCompleteStep.disabled = !started;
-  el.btnContinue.disabled = true;
-  el.btnSkip.disabled = true;
-}
-
-function setStepUiReturnDecision(step, started) {
-  const options = Array.isArray(step?.options) ? step.options : [];
-  const hasContinue = options.includes("RETURN_CONTINUE");
-  const hasSkip = options.includes("RETURN_SKIP");
-
-  el.stepBadge.textContent = "Return decision";
-  el.stepBadge.className = "pill warn";
-  el.stepTitle.textContent = "Return decision required";
-  el.stepSubtitle.textContent = started
-    ? "Choose how to resume after split."
-    : "Session not started. Press Start to begin.";
-  renderReturnDecisionBody(step);
-
-  el.btnCompleteStep.disabled = true;
-  el.btnContinue.disabled = !started || !hasContinue;
-  el.btnSkip.disabled = !started || !hasSkip;
-}
-
-function updateGlobalButtons(started, stepType) {
-  el.btnStart.disabled = !el.sessionId.value.trim() || started === true;
-  el.btnRefresh.disabled = !el.sessionId.value.trim();
-  el.btnSplitSession.disabled = !el.sessionId.value.trim() || started !== true || stepType !== "EXERCISE";
-}
-
-function getCurrentMode(step) {
-  if (!step || typeof step !== "object") return "IDLE";
-  if (step.type === "EXERCISE") return "EXERCISE";
-  if (step.type === "RETURN_DECISION") return "RETURN_DECISION";
-  return String(step.type || "UNKNOWN");
-}
-
-function getLifecycleState(started, stepType, remainingCount) {
-  if (!started) return "NOT_STARTED";
-  if (stepType === "RETURN_DECISION") return "RETURN_PENDING";
-  if (remainingCount === 0) return "DONE";
-  return "IN_PROGRESS";
-}
-
-function getTotalPlanned(completedCount, remainingCount, droppedCount) {
-  return completedCount + remainingCount + droppedCount;
-}
-
-function getPercentComplete(completedCount, totalPlanned) {
-  if (totalPlanned <= 0) return 0;
-  return Math.round((completedCount / totalPlanned) * 100);
-}
-
-function renderState(state) {
-  lastRenderedState = state;
-
-  el.stateOut.textContent = JSON.stringify(state, null, 2);
-  el.currentStep.textContent = JSON.stringify(state?.current_step ?? null, null, 2);
-
-  const started = !!state?.started;
-  const completedCount = Array.isArray(state?.completed_exercises) ? state.completed_exercises.length : 0;
-  const remainingCount = Array.isArray(state?.remaining_exercises) ? state.remaining_exercises.length : 0;
-  const droppedCount = Array.isArray(state?.dropped_exercises) ? state.dropped_exercises.length : 0;
-  const step = state?.current_step;
-  const stepType = step && typeof step === "object" ? String(step.type || "") : "";
-  const sessionId = el.sessionId.value.trim() || String(state?.session_id || "-").trim() || "-";
-  const totalPlanned = getTotalPlanned(completedCount, remainingCount, droppedCount);
-  const percentComplete = getPercentComplete(completedCount, totalPlanned);
-  const lifecycle = getLifecycleState(started, stepType, remainingCount);
-
-  el.statSessionId.textContent = sessionId;
-  el.statCurrentMode.textContent = getCurrentMode(step);
-  el.statLifecycle.textContent = lifecycle;
-  el.statProgressPct.textContent = `${percentComplete}%`;
-  el.statCompletedTotal.textContent = `${completedCount} / ${totalPlanned}`;
-  el.statStarted.textContent = String(started);
-  el.statCompleted.textContent = String(completedCount);
-  el.statRemaining.textContent = String(remainingCount);
-  el.statDropped.textContent = String(droppedCount);
-
-  renderQueue(state);
-  renderHistory(state);
-
-  updateGlobalButtons(started, stepType);
-
-  if (!step || typeof step !== "object") {
-    setStepUiIdle(
-      started ? "No current step available" : "Session not started",
-      started ? "Refresh state or inspect payload." : "Start the session to get the first step.",
-      started ? "No step details available." : "No step details yet."
+  for (
+    const node of document.querySelectorAll(
+      "[data-copy-placeholder-id]"
+    )
+  ) {
+    node.setAttribute(
+      "placeholder",
+      copy(
+        node.dataset.copyPlaceholderId
+      )
     );
+  }
+
+  document.title =
+    copy(COPY_IDS.pageTitle);
+
+  document.body.dataset.copyReady = "true";
+}
+
+async function loadCopyRegistry() {
+  const response = await fetch(
+    "/ui/beta_16_app_path_phase1_6_copy.json"
+  );
+
+  const result = await readJson(response);
+
+  if (
+    !result.ok ||
+    !Array.isArray(result.json)
+  ) {
+    throw new Error(
+      "BETA16_REGISTRY_LOAD_FAILED"
+    );
+  }
+
+  for (const entry of result.json) {
+    appState.copy.set(
+      entry.copy_id,
+      entry.text
+    );
+  }
+
+  applyCopyRegistry();
+}
+
+async function loadPhase1Fixture() {
+  const response = await fetch(
+    "/ui/fixtures/vanilla_minimal.json"
+  );
+
+  const result = await readJson(response);
+
+  if (!result.ok || !result.json) {
+    throw new Error(
+      "BETA16_PHASE1_FIXTURE_LOAD_FAILED"
+    );
+  }
+
+  appState.phase1Base =
+    structuredClone(result.json);
+
+  buildPhase1Input();
+  log(COPY_IDS.fixtureLoaded);
+}
+
+function buildPhase1Input() {
+  if (!appState.phase1Base) {
+    return null;
+  }
+
+  appState.phase1Input = {
+    ...structuredClone(
+      appState.phase1Base
+    ),
+    actor_type: "athlete",
+    execution_scope: "individual",
+    activity_id:
+      elements.activityId.value,
+    consent_granted: true
+  };
+
+  elements.phase1Input.value =
+    JSON.stringify(
+      appState.phase1Input,
+      null,
+      2
+    );
+
+  return appState.phase1Input;
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function userId() {
+  return elements.authUserId.value.trim();
+}
+
+function updateFlowButtons() {
+  elements.btnAcknowledge.disabled =
+    appState.authRecord === null;
+
+  elements.btnDeclare.disabled =
+    appState.acknowledgementRecord === null;
+
+  elements.btnCompile.disabled =
+    appState.declarationRecord === null;
+
+  const hasSession =
+    elements.sessionId.value.trim().length > 0;
+
+  elements.btnStart.disabled =
+    !hasSession ||
+    appState.sessionState?.started === true;
+
+  elements.btnRefresh.disabled =
+    !hasSession;
+}
+
+function exerciseDisplayName(exercise) {
+  const raw = String(
+    exercise?.display_name ??
+    exercise?.exercise_name ??
+    exercise?.exercise_id ??
+    exercise?.item_id ??
+    ""
+  ).trim();
+
+  return raw || "-";
+}
+
+function exerciseMeta(exercise) {
+  const sets =
+    Number.isInteger(exercise?.sets)
+      ? exercise.sets
+      : "-";
+
+  const reps =
+    Number.isInteger(exercise?.reps)
+      ? exercise.reps
+      : "-";
+
+  const rest =
+    Number.isInteger(
+      exercise?.rest_seconds
+    )
+      ? exercise.rest_seconds
+      : "-";
+
+  const intensity =
+    exercise?.intensity &&
+    typeof exercise.intensity === "object"
+      ? JSON.stringify(
+          exercise.intensity
+        )
+      : "-";
+
+  return [
+    `${copy(COPY_IDS.sets)}: ${sets}`,
+    `${copy(COPY_IDS.reps)}: ${reps}`,
+    `${copy(COPY_IDS.rest)}: ${rest}`,
+    `${copy(COPY_IDS.intensity)}: ${intensity}`
+  ].join(" | ");
+}
+
+function queueItem(exercise) {
+  return `
+    <article class="queue-item">
+      <strong>${escapeHtml(
+        exerciseDisplayName(exercise)
+      )}</strong>
+      <div class="muted">
+        ${escapeHtml(
+          exerciseMeta(exercise)
+        )}
+      </div>
+    </article>
+  `;
+}
+
+function renderList(
+  target,
+  values,
+  emptyCopyId
+) {
+  target.innerHTML =
+    values.length > 0
+      ? values.map(queueItem).join("")
+      : `<div class="muted">${escapeHtml(
+          copy(emptyCopyId)
+        )}</div>`;
+}
+
+function readCounts(state) {
+  return {
+    completed:
+      Array.isArray(
+        state?.completed_exercises
+      )
+        ? state.completed_exercises
+        : [],
+    remaining:
+      Array.isArray(
+        state?.remaining_exercises
+      )
+        ? state.remaining_exercises
+        : [],
+    dropped:
+      Array.isArray(
+        state?.dropped_exercises
+      )
+        ? state.dropped_exercises
+        : []
+  };
+}
+
+function classificationCopyId(
+  state,
+  counts
+) {
+  const returnPending =
+    state?.current_step?.type ===
+    "RETURN_DECISION";
+
+  if (returnPending) {
+    return COPY_IDS.returnPending;
+  }
+
+  const total =
+    counts.completed.length +
+    counts.remaining.length +
+    counts.dropped.length;
+
+  if (
+    total > 0 &&
+    counts.remaining.length === 0 &&
+    counts.dropped.length > 0
+  ) {
+    return COPY_IDS.partial;
+  }
+
+  if (
+    total > 0 &&
+    counts.remaining.length === 0
+  ) {
+    return COPY_IDS.completed;
+  }
+
+  if (state?.started === true) {
+    return COPY_IDS.inProgress;
+  }
+
+  return COPY_IDS.notStarted;
+}
+
+function renderCurrentStep(state) {
+  const step = state?.current_step;
+
+  elements.btnCompleteStep.disabled = true;
+  elements.btnContinue.disabled = true;
+  elements.btnSkip.disabled = true;
+  elements.btnSplitSession.disabled = true;
+
+  if (
+    !step ||
+    typeof step !== "object"
+  ) {
+    elements.currentItem.innerHTML =
+      `<div class="muted">${escapeHtml(
+        copy(COPY_IDS.noCurrentItem)
+      )}</div>`;
+
     return;
   }
 
   if (step.type === "EXERCISE") {
-    setStepUiExercise(step, started);
+    const exercise =
+      step.exercise ?? {};
+
+    elements.currentItem.innerHTML = `
+      <h3>${escapeHtml(
+        copy(COPY_IDS.currentExercise)
+      )}</h3>
+      ${queueItem(exercise)}
+    `;
+
+    if (state.started === true) {
+      elements.btnCompleteStep.disabled =
+        false;
+
+      elements.btnSplitSession.disabled =
+        false;
+    }
+
     return;
   }
 
-  if (step.type === "RETURN_DECISION") {
-    setStepUiReturnDecision(step, started);
+  if (
+    step.type === "RETURN_DECISION"
+  ) {
+    elements.currentItem.innerHTML = `
+      <h3>${escapeHtml(
+        copy(COPY_IDS.returnDecision)
+      )}</h3>
+    `;
+
+    const options =
+      Array.isArray(step.options)
+        ? step.options
+        : [];
+
+    elements.btnContinue.disabled =
+      !options.includes(
+        "RETURN_CONTINUE"
+      );
+
+    elements.btnSkip.disabled =
+      !options.includes(
+        "RETURN_SKIP"
+      );
+
     return;
   }
 
-  setStepUiIdle(
-    `Unsupported step type: ${String(step.type)}`,
-    "State payload contains a step type the UI does not yet handle.",
-    "Unsupported step payload."
+  elements.currentItem.innerHTML =
+    `<div class="mono">${escapeHtml(
+      String(step.type ?? "-")
+    )}</div>`;
+}
+
+function renderState(state) {
+  appState.sessionState = state;
+  elements.stateOut.textContent =
+    JSON.stringify(state, null, 2);
+
+  const counts = readCounts(state);
+
+  elements.statCompleted.textContent =
+    String(counts.completed.length);
+
+  elements.statRemaining.textContent =
+    String(counts.remaining.length);
+
+  elements.statDropped.textContent =
+    String(counts.dropped.length);
+
+  const classificationId =
+    classificationCopyId(
+      state,
+      counts
+    );
+
+  elements.statLifecycle.textContent =
+    copy(classificationId);
+
+  elements.statClassification.textContent =
+    copy(classificationId);
+
+  renderCurrentStep(state);
+
+  renderList(
+    elements.queueCurrent,
+    counts.remaining.slice(0, 1),
+    COPY_IDS.emptyCurrent
   );
+
+  renderList(
+    elements.queueUpcoming,
+    counts.remaining.slice(1, 4),
+    COPY_IDS.emptyUpcoming
+  );
+
+  renderList(
+    elements.historyCompleted,
+    counts.completed,
+    COPY_IDS.emptyCompleted
+  );
+
+  renderList(
+    elements.historyDropped,
+    counts.dropped,
+    COPY_IDS.emptyDropped
+  );
+
+  updateFlowButtons();
 }
 
-async function loadDefaultFixture() {
-  const res = await fetch("/ui/fixtures/vanilla_minimal.json");
-  const out = await readJson(res);
-  if (!out.ok || !out.json) {
-    throw new Error(`Failed to load fixture (${out.status}) ${out.text}`);
-  }
-  el.phase1Input.value = JSON.stringify(out.json, null, 2);
-  log("Loaded default fixture.");
+async function recordAuth() {
+  const timestamp = nowIso();
+
+  const response = await httpJson(
+    "POST",
+    "/sessions/beta-auth",
+    {
+      user_id: userId(),
+      email:
+        elements.authEmail.value.trim(),
+      display_name:
+        elements.authDisplayName.value.trim(),
+      account_role: "athlete",
+      account_state: "active",
+      accepted_terms_version:
+        "terms_v1",
+      created_at_iso8601: timestamp
+    }
+  );
+
+  appState.authRecord =
+    response.auth_record;
+
+  setStatus(COPY_IDS.authRecorded);
+  updateFlowButtons();
 }
 
-async function compileCreateSession() {
-  const phase1_input = JSON.parse(el.phase1Input.value);
-  const out = await httpJson("POST", "/blocks/compile?create_session=true", { phase1_input });
-  log("POST /blocks/compile?create_session=true", out.json ?? out.text);
-  if (!(out.status === 200 || out.status === 201)) {
-    throw new Error(out.text || `compile failed (${out.status})`);
-  }
-  const sessionId = out.json?.session_id;
-  if (!sessionId) throw new Error("Missing session_id in compile response");
-  el.sessionId.value = sessionId;
+async function recordAcknowledgement() {
+  const currentUserId = userId();
+
+  const response = await httpJson(
+    "POST",
+    "/sessions/beta-acknowledgement",
+    {
+      acknowledgement_id:
+        `beta16_ack_${currentUserId}`,
+      user_id: currentUserId,
+      beta_id:
+        "september_beta_2026",
+      accepted:
+        elements.betaAcknowledged.checked,
+      jurisdiction_acknowledged:
+        elements
+          .jurisdictionAcknowledged
+          .checked,
+      accepted_at_iso8601: nowIso(),
+      copy_acknowledgement_id:
+        "BETA16_COPY_ACKNOWLEDGEMENT_LABEL"
+    }
+  );
+
+  appState.acknowledgementRecord =
+    response.acknowledgement_record;
+
+  setStatus(
+    COPY_IDS.acknowledgementRecorded
+  );
+
+  updateFlowButtons();
+}
+
+async function recordDeclaration() {
+  const phase1Input =
+    buildPhase1Input();
+
+  const response = await httpJson(
+    "POST",
+    "/sessions/beta-declaration",
+    {
+      declaration_id:
+        `beta16_declaration_${userId()}`,
+      user_id: userId(),
+      phase1_input: phase1Input,
+      jurisdiction_acknowledged:
+        elements
+          .jurisdictionAcknowledged
+          .checked,
+      declared_at_iso8601: nowIso(),
+      accepted_terms_version:
+        "terms_v1",
+      copy_acknowledgement_id:
+        "BETA16_COPY_DECLARATION_ACKNOWLEDGEMENT"
+    }
+  );
+
+  appState.declarationRecord =
+    response.declaration_record;
+
+  setStatus(
+    COPY_IDS.declarationRecorded
+  );
+
+  updateFlowButtons();
+}
+
+async function compileSession() {
+  const phase1Input =
+    buildPhase1Input();
+
+  const response = await httpJson(
+    "POST",
+    "/blocks/compile?create_session=true&beta_path=true",
+    {
+      phase1_input: phase1Input,
+      beta_path_context: {
+        auth_record:
+          appState.authRecord,
+        acknowledgement_record:
+          appState
+            .acknowledgementRecord,
+        declaration_record:
+          appState.declarationRecord
+      }
+    }
+  );
+
+  elements.sessionId.value =
+    response.session_id ?? "";
+
+  setStatus(COPY_IDS.compileRecorded);
+
   await refreshState();
 }
 
 async function startSession() {
-  const sessionId = el.sessionId.value.trim();
-  if (!sessionId) throw new Error("Missing session_id");
-  const out = await httpJson("POST", `/sessions/${encodeURIComponent(sessionId)}/start`, {});
-  log("POST /start", out.json ?? out.text);
-  if (out.status !== 200) throw new Error(out.text || `start failed (${out.status})`);
+  const sessionId =
+    elements.sessionId.value.trim();
+
+  await httpJson(
+    "POST",
+    `/sessions/${encodeURIComponent(
+      sessionId
+    )}/start`,
+    {}
+  );
+
+  log(COPY_IDS.sessionStarted);
   await refreshState();
 }
 
 async function postEvent(event) {
-  const sessionId = el.sessionId.value.trim();
-  if (!sessionId) throw new Error("Missing session_id");
-  const out = await httpJson("POST", `/sessions/${encodeURIComponent(sessionId)}/events`, { event });
-  log(`POST /events ${event.type}`, out.json ?? out.text);
-  if (!(out.status === 200 || out.status === 201)) throw new Error(out.text || `event failed (${out.status})`);
+  const sessionId =
+    elements.sessionId.value.trim();
+
+  await httpJson(
+    "POST",
+    `/sessions/${encodeURIComponent(
+      sessionId
+    )}/events`,
+    {
+      event
+    }
+  );
+
+  log(COPY_IDS.eventRecorded, {
+    event_type: event.type
+  });
+
   await refreshState();
 }
 
 async function refreshState() {
-  const sessionId = el.sessionId.value.trim();
-  if (!sessionId) throw new Error("Missing session_id");
-  const out = await httpJson("GET", `/sessions/${encodeURIComponent(sessionId)}/state`);
-  log("GET /state", out.json ?? out.text);
-  if (out.status !== 200) throw new Error(out.text || `state failed (${out.status})`);
-  renderState(out.json);
+  const sessionId =
+    elements.sessionId.value.trim();
+
+  const response = await httpJson(
+    "GET",
+    `/sessions/${encodeURIComponent(
+      sessionId
+    )}/state`
+  );
+
+  renderState(response);
+  log(COPY_IDS.stateRefreshed);
 }
 
-el.btnLoadFixture.addEventListener("click", async () => {
-  try { await loadDefaultFixture(); } catch (e) { log(`ERROR: ${e.message}`); }
-});
-
-el.btnCompile.addEventListener("click", async () => {
-  try { await compileCreateSession(); } catch (e) { log(`ERROR: ${e.message}`); }
-});
-
-el.btnStart.addEventListener("click", async () => {
-  try { await startSession(); } catch (e) { log(`ERROR: ${e.message}`); }
-});
-
-el.btnRefresh.addEventListener("click", async () => {
-  try { await refreshState(); } catch (e) { log(`ERROR: ${e.message}`); }
-});
-
-el.btnSplitSession.addEventListener("click", async () => {
-  try { await postEvent({ type: "SPLIT_SESSION" }); } catch (e) { log(`ERROR: ${e.message}`); }
-});
-
-el.btnCompleteStep.addEventListener("click", async () => {
-  try { await postEvent({ type: "COMPLETE_STEP" }); } catch (e) { log(`ERROR: ${e.message}`); }
-});
-
-el.btnContinue.addEventListener("click", async () => {
-  try { await postEvent({ type: "RETURN_CONTINUE" }); } catch (e) { log(`ERROR: ${e.message}`); }
-});
-
-el.btnSkip.addEventListener("click", async () => {
-  try { await postEvent({ type: "RETURN_SKIP" }); } catch (e) { log(`ERROR: ${e.message}`); }
-});
-
-el.phase1Input.value = JSON.stringify({
-  note: "Click 'Load default fixture' or paste a valid phase1_input payload."
-}, null, 2);
-
-el.statSessionId.textContent = "-";
-el.statCurrentMode.textContent = "IDLE";
-el.statLifecycle.textContent = "NOT_STARTED";
-el.statProgressPct.textContent = "0%";
-el.statCompletedTotal.textContent = "0 / 0";
-
-updateGlobalButtons(false, "");
-renderQueue({});
-renderHistory({});
-setStepUiIdle("No session state loaded", "Load or create a session to begin.", "No step details yet.");
-
-loadExerciseLabels().then(() => {
-  if (lastRenderedState) {
-    renderState(lastRenderedState);
-  } else {
-    renderQueue({});
-    renderHistory({});
+async function runAction(action) {
+  try {
+    await action();
   }
+  catch (error) {
+    const technical =
+      String(
+        error?.result?.json?.reason ??
+        error?.result?.json
+          ?.failure_token ??
+        error?.message ??
+        "unknown"
+      );
+
+    setStatus(
+      COPY_IDS.error,
+      technical
+    );
+  }
+}
+
+elements.activityId.addEventListener(
+  "change",
+  () => {
+    appState.declarationRecord = null;
+    buildPhase1Input();
+    updateFlowButtons();
+  }
+);
+
+elements.betaAcknowledged.addEventListener(
+  "change",
+  updateFlowButtons
+);
+
+elements.jurisdictionAcknowledged
+  .addEventListener(
+    "change",
+    updateFlowButtons
+  );
+
+elements.btnAuth.addEventListener(
+  "click",
+  () => runAction(recordAuth)
+);
+
+elements.btnAcknowledge.addEventListener(
+  "click",
+  () =>
+    runAction(recordAcknowledgement)
+);
+
+elements.btnDeclare.addEventListener(
+  "click",
+  () =>
+    runAction(recordDeclaration)
+);
+
+elements.btnCompile.addEventListener(
+  "click",
+  () =>
+    runAction(compileSession)
+);
+
+elements.btnStart.addEventListener(
+  "click",
+  () =>
+    runAction(startSession)
+);
+
+elements.btnRefresh.addEventListener(
+  "click",
+  () =>
+    runAction(refreshState)
+);
+
+elements.btnSplitSession.addEventListener(
+  "click",
+  () =>
+    runAction(
+      () =>
+        postEvent({
+          type: "SPLIT_SESSION"
+        })
+    )
+);
+
+elements.btnCompleteStep.addEventListener(
+  "click",
+  () =>
+    runAction(
+      () =>
+        postEvent({
+          type: "COMPLETE_STEP"
+        })
+    )
+);
+
+elements.btnContinue.addEventListener(
+  "click",
+  () =>
+    runAction(
+      () =>
+        postEvent({
+          type: "RETURN_CONTINUE"
+        })
+    )
+);
+
+elements.btnSkip.addEventListener(
+  "click",
+  () =>
+    runAction(
+      () =>
+        postEvent({
+          type: "RETURN_SKIP"
+        })
+    )
+);
+
+async function initialise() {
+  await loadCopyRegistry();
+
+  elements.authUserId.value =
+    "beta_user_001";
+
+  elements.authEmail.value =
+    "beta.user@example.com";
+
+  elements.authDisplayName.value =
+    "Beta User";
+
+  elements.logOut.textContent = "";
+
+  await loadPhase1Fixture();
+
+  renderState({
+    started: false,
+    completed_exercises: [],
+    remaining_exercises: [],
+    dropped_exercises: [],
+    current_step: null
+  });
+
+  setStatus(COPY_IDS.ready);
+}
+
+initialise().catch((error) => {
+  document.body.dataset.copyReady = "true";
+
+  elements.appStatus.textContent =
+    String(
+      error?.message ??
+      "BETA16_INITIALISATION_FAILED"
+    );
 });

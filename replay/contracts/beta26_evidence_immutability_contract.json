@@ -1,0 +1,36 @@
+{
+  "contract_id": "beta26_evidence_immutability_contract",
+  "slice_id": "BETA-26",
+  "version": "1.0.0",
+  "storage_mode": "append_only_canonical_envelope_bytes",
+  "lawful_creation_path": "beta25_seal_gate_only",
+  "canonical_byte_format": "beta_canonical_json_utf8",
+  "envelope_checksum_policy": "sha256_canonical_envelope_without_checksum_field",
+  "stored_byte_checksum_policy": "sha256_exact_stored_utf8_bytes",
+  "checksum_verified_on_read": true,
+  "update_after_seal_allowed": false,
+  "delete_after_seal_allowed": false,
+  "legal_admin_delete_path_present": false,
+  "manual_creation_allowed": false,
+  "partial_envelope_allowed": false,
+  "regeneration_after_failure_allowed": false,
+  "export_time_mutation_allowed": false,
+  "audit_event_types": [
+    "evidence_seal_attempt",
+    "evidence_seal_success",
+    "evidence_seal_denial",
+    "evidence_mutation_denial"
+  ],
+  "store_api": [
+    "seal",
+    "read",
+    "exportBytes",
+    "attemptUpdate",
+    "attemptDelete",
+    "attemptManualCreation",
+    "attemptRegeneration",
+    "readAuditLog"
+  ],
+  "database_migration_added": false,
+  "api_route_added": false
+}

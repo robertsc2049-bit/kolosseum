@@ -33,20 +33,19 @@ export async function getSessionStateQuery(session_id: string) {
     if (!row) throw notFound("Session not found");
 
     const planned = row.planned_session as PlannedSession;
-    const { summary: normalized, needsUpgrade } = normalizeSummary(planned as any, row.session_state_summary);
+    const { summary: normalized } = normalizeSummary(
+      planned as any,
+      row.session_state_summary
+    );
 
-    const upgraded = ensureReturnDecisionContract(normalized, deriveTrace);
-    const shouldPersist = needsUpgrade || upgraded.changed;
-
-    if (shouldPersist) {
-      await client.query(
-        `UPDATE sessions
-         SET session_state_summary = $2::jsonb,
-             updated_at = now()
-         WHERE session_id = $1`,
-        [session_id, JSON.stringify(upgraded.summary)]
+    // Compatibility normalization is a read-model concern. Apply it to the
+    // returned projection and process-local cache only. A GET must not update
+    // the persisted session row or its factual activity timestamp.
+    const upgraded =
+      ensureReturnDecisionContract(
+        normalized,
+        deriveTrace
       );
-    }
 
     const derivedTrace = deriveTrace(upgraded.summary as any) as any;
     const payload = projectSessionStatePayload(session_id, planned, upgraded.summary, derivedTrace);
