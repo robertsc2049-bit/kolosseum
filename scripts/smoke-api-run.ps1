@@ -4,7 +4,8 @@
 # failure output readable for PowerShell and CI users.
 
 param(
-  [int]$Port = 3000
+  [int]$Port = 3000,
+  [string]$SchemaPath = "ci/schemas/phase1.input.schema.v1.0.0.json"
 )
 
 $ErrorActionPreference = "Stop"
@@ -72,7 +73,12 @@ $serverPid = $serverProc.Id
 "SERVER PID=$serverPid" | Out-Host
 
 try {
-  npm run smoke:api
+  npm.cmd run smoke:api -- -- -SchemaPath $SchemaPath
+  $SmokeExitCode = $LASTEXITCODE
+
+  if ($SmokeExitCode -ne 0) {
+    throw "CI_BETA_FIX_02_SMOKE_API_CHILD_FAILED exit_code=$SmokeExitCode"
+  }
 }
 finally {
   "Stopping server process tree PID=$serverPid" | Out-Host
