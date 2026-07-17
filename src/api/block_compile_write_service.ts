@@ -17,6 +17,9 @@ type PersistCompileBlockArgs = {
   phase5_adjustments: unknown[];
   planned_session_from_engine: unknown;
   create_session: boolean;
+  beta_subject_user_id?: string;
+  beta_coach_user_id?: string;
+  beta_assignment_id?: string;
 };
 
 function id(prefix: string): string {
@@ -80,10 +83,33 @@ export async function persistCompiledBlockAndMaybeCreateSession(args: PersistCom
 
       await client.query(
         `
-        INSERT INTO sessions (session_id, status, planned_session, block_id)
-        VALUES ($1, 'created', $2::jsonb, $3)
+        INSERT INTO sessions (
+          session_id,
+          status,
+          planned_session,
+          block_id,
+          beta_subject_user_id,
+          beta_coach_user_id,
+          beta_assignment_id
+        )
+        VALUES (
+          $1,
+          'created',
+          $2::jsonb,
+          $3,
+          $4,
+          $5,
+          $6
+        )
         `,
-        [session_id, JSON.stringify(plannedToStore), persisted_block_id]
+        [
+          session_id,
+          JSON.stringify(plannedToStore),
+          persisted_block_id,
+          args.beta_subject_user_id ?? null,
+          args.beta_coach_user_id ?? null,
+          args.beta_assignment_id ?? null
+        ]
       );
 
       try {

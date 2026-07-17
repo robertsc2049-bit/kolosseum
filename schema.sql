@@ -49,6 +49,12 @@ CREATE TABLE IF NOT EXISTS sessions (
   -- O(1) reads target (API may update this)
   session_state_summary JSONB NOT NULL DEFAULT '{}'::jsonb,
 
+  -- Nullable product/application ownership.
+  -- These fields do not enter deterministic engine state.
+  beta_subject_user_id  TEXT,
+  beta_coach_user_id    TEXT,
+  beta_assignment_id    TEXT,
+
   created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at            TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -75,6 +81,30 @@ $$;
 -- Additive migration safety for existing DBs (if sessions was created earlier without the column)
 ALTER TABLE sessions
   ADD COLUMN IF NOT EXISTS session_state_summary JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+ALTER TABLE sessions
+  ADD COLUMN IF NOT EXISTS beta_subject_user_id TEXT;
+
+ALTER TABLE sessions
+  ADD COLUMN IF NOT EXISTS beta_coach_user_id TEXT;
+
+ALTER TABLE sessions
+  ADD COLUMN IF NOT EXISTS beta_assignment_id TEXT;
+
+CREATE INDEX IF NOT EXISTS
+  idx_sessions_beta_subject_created
+ON sessions (
+  beta_subject_user_id,
+  created_at DESC
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_sessions_beta_coach_subject
+ON sessions (
+  beta_coach_user_id,
+  beta_subject_user_id,
+  created_at DESC
+);
 
 -- ----------------
 -- RUNTIME EVENTS

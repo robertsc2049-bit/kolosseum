@@ -23,6 +23,9 @@ import {
   assertBeta16CompileAdmission,
   beta16AppPathContract
 } from "./beta16_app_path_service.js";
+import {
+  loadStoredBetaCompileAdmission
+} from "./beta_product_journey_service.js";
 import { badRequest, notFound, internalError } from "./http_errors.js";
 import { getBlockByIdQuery } from "./block_query_service.js";
 import { createSessionFromBlockMutation } from "./block_session_write_service.js";
@@ -40,6 +43,8 @@ type CompileBlockBody = {
   create_session?: unknown;
   createSession?: unknown;
   beta_path_context?: unknown;
+  beta_user_id?: unknown;
+  beta_coach_user_id?: unknown;
 };
 
 type JsonRecord = Record<string, unknown>;
@@ -170,18 +175,78 @@ export async function compileBlock(req: Request, res: Response) {
       "beta_path_context"
     );
 
+  const storedBetaUserId =
+    asString(
+      body.beta_user_id
+    );
+
+  const storedBetaCoachUserId =
+    asString(
+      body.beta_coach_user_id
+    );
+
+  const storedBetaSelectorsProvided =
+    typeof body.beta_user_id !==
+      "undefined" ||
+    typeof body.beta_coach_user_id !==
+      "undefined";
+
   let beta_path_admission:
     ReturnType<
       typeof assertBeta16CompileAdmission
     > | null = null;
 
+  let beta_session_binding:
+    {
+      subject_user_id: string;
+      coach_user_id: string;
+      assignment_id: string;
+    } |
+    null = null;
+
   if (beta_path_requested) {
     try {
-      beta_path_admission =
-        assertBeta16CompileAdmission(
-          body.beta_path_context,
-          body.phase1_input
-        );
+      if (storedBetaSelectorsProvided) {
+        if (
+          beta_path_context_provided ||
+          !storedBetaUserId ||
+          !storedBetaCoachUserId
+        ) {
+          throw {
+            reason:
+              "stored_beta_selector_invalid"
+          };
+        }
+
+        const storedAdmission =
+          await loadStoredBetaCompileAdmission(
+            storedBetaUserId,
+            storedBetaCoachUserId,
+            body.phase1_input
+          );
+
+        beta_path_admission =
+          storedAdmission.admission;
+
+        beta_session_binding = {
+          subject_user_id:
+            storedAdmission
+              .subject_user_id,
+          coach_user_id:
+            storedAdmission
+              .coach_user_id,
+          assignment_id:
+            storedAdmission
+              .assignment_id
+        };
+      }
+      else {
+        beta_path_admission =
+          assertBeta16CompileAdmission(
+            body.beta_path_context,
+            body.phase1_input
+          );
+      }
     }
     catch (error) {
       const reason =
@@ -200,7 +265,10 @@ export async function compileBlock(req: Request, res: Response) {
       );
     }
   }
-  else if (beta_path_context_provided) {
+  else if (
+    beta_path_context_provided ||
+    storedBetaSelectorsProvided
+  ) {
     throw badRequest(
       "BETA16_APP_PATH_FLAG_REQUIRED",
       {
@@ -362,7 +430,16 @@ export async function compileBlock(req: Request, res: Response) {
     phase4_program: p4.program,
     phase5_adjustments,
     planned_session_from_engine,
-    create_session
+    create_session,
+    beta_subject_user_id:
+      beta_session_binding
+        ?.subject_user_id,
+    beta_coach_user_id:
+      beta_session_binding
+        ?.coach_user_id,
+    beta_assignment_id:
+      beta_session_binding
+        ?.assignment_id
   });
 
   const status = create_session ? 201 : (persisted.created_block ? 201 : 200);
@@ -468,7 +545,19 @@ export async function compileBlock(req: Request, res: Response) {
         beta_path_admission
           .declared_input_sha256,
       copy_ids:
-        beta_path_admission.copy_ids
+        beta_path_admission.copy_ids,
+      admission_source:
+        beta_session_binding
+          ? "stored_product_records"
+          : "request_context",
+      coach_user_id:
+        beta_session_binding
+          ?.coach_user_id ??
+        null,
+      assignment_id:
+        beta_session_binding
+          ?.assignment_id ??
+        null
     };
   }
 

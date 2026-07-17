@@ -34,6 +34,11 @@ import {
 import {
   persistBetaProductRecord
 } from "./beta_product_record_store.js";
+import {
+  buildStoredBeta17CoachArtefactResult,
+  buildStoredBetaAthleteHistoryResult,
+  createStoredBeta17AssignmentResult
+} from "./beta_product_journey_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -184,11 +189,33 @@ export async function createBeta17Assignment(
   req: Request,
   res: Response
 ) {
+  const body =
+    isRecord(req.body)
+      ? req.body
+      : {};
+
+  const storedMode =
+    Object.prototype.hasOwnProperty.call(
+      body,
+      "coach_user_id"
+    ) &&
+    !Object.prototype.hasOwnProperty.call(
+      body,
+      "coach_profile"
+    );
+
+  const generated =
+    storedMode
+      ? await createStoredBeta17AssignmentResult(
+          body
+        )
+      : createBeta17AssignmentRecord(
+          req.body
+        );
+
   const result =
     await persistBetaHttpResult(
-      createBeta17AssignmentRecord(
-        req.body
-      ),
+      generated,
       "assignment"
     );
 
@@ -206,8 +233,50 @@ export async function getBeta17CoachArtefacts(
   req: Request,
   res: Response
 ) {
+  const body =
+    isRecord(req.body)
+      ? req.body
+      : {};
+
+  const storedMode =
+    Object.prototype.hasOwnProperty.call(
+      body,
+      "coach_user_id"
+    ) &&
+    Object.prototype.hasOwnProperty.call(
+      body,
+      "athlete_user_id"
+    ) &&
+    !Object.prototype.hasOwnProperty.call(
+      body,
+      "artefacts"
+    );
+
   const result =
-    buildBeta17CoachArtefactView(
+    storedMode
+      ? await buildStoredBeta17CoachArtefactResult(
+          body
+        )
+      : buildBeta17CoachArtefactView(
+          req.body
+        );
+
+  return res
+    .status(result.status)
+    .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Returns persisted factual history for an active beta athlete.
+ * Boundary: Read-only product/runtime projection and engine-inert.
+ */
+export async function getBetaAthleteHistory(
+  req: Request,
+  res: Response
+) {
+  const result =
+    await buildStoredBetaAthleteHistoryResult(
       req.body
     );
 
