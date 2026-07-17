@@ -1,0 +1,76 @@
+{
+  "schema_version": "kolosseum.beta_e2e_01.persistent_http_product_journey.v1.0.0",
+  "slice_id": "BETA-E2E-01",
+  "title": "Persistent HTTP Product Journey",
+  "status": "PASS",
+  "implementation_gate": "COMPLETE",
+  "live_beta_decision": "NO_GO_PENDING_LATER_ACCEPTANCE_GATES",
+  "recorded_date": "2026-07-17",
+  "branch": "beta/BETA-E2E-01-persistent-http-product-journey",
+  "original_base_sha": "9d6759cc69d516a7c854f49098636fb0977f43f0",
+  "persistence_foundation_sha": "e23c077abc68aa2452bd0bf7d5858145515ae050",
+  "stored_journey_sha": "d4faf52a781493b68273135e4ef6393d171df510",
+  "boundaries": {
+    "product_records": "immutable_persisted_records",
+    "compile_admission": "stored_server_composition",
+    "assignment": "stored_relationship_and_profile_composition",
+    "session_ownership": "persisted_athlete_coach_assignment_linkage",
+    "athlete_history": "server_generated_factual_projection",
+    "coach_artefacts": "server_generated_permission_guarded_projection",
+    "process_restart": "fresh_operating_system_process",
+    "state_read": "database_read_only",
+    "unrelated_coach": "denied"
+  },
+  "proofs": [
+    {
+      "id": "persistence_foundation",
+      "result": "PASS",
+      "test": "test/beta_e2e_01_product_record_store.integration.test.mjs"
+    },
+    {
+      "id": "stored_journey_composition",
+      "result": "PASS",
+      "test": "test/beta_e2e_01_stored_journey_composition.integration.test.mjs"
+    },
+    {
+      "id": "fresh_process_http_restart",
+      "result": "PASS",
+      "test": "test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs"
+    },
+    {
+      "id": "existing_v1_restart_parity",
+      "result": "PASS",
+      "test": "test/v1_compile_created_fresh_process_restart_full_lifecycle_parity.test.mjs"
+    },
+    {
+      "id": "runtime_state_event_parity",
+      "result": "PASS",
+      "tests": [
+        "test/api.runtime_events_state_parity.regression.test.mjs",
+        "test/api.events_append_only_history.regression.test.mjs"
+      ]
+    }
+  ],
+  "ci_registration": {
+    "composition": "ci/contracts/test_ci_integration_composition.json",
+    "manifest": "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json",
+    "commands": [
+      "node test/beta_e2e_01_closure_evidence.test.mjs",
+      "node test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs"
+    ]
+  },
+  "sha256": {
+    "schema.sql": "c6cc0014c650998998cbd27ad8e20859a5403e20f0e8017a4628de1a86ed8613",
+    "src/api/beta_product_record_store.ts": "d7e2f4af70acb7efd047ead4c9fe52a0b82d5e10bd5760efae9b328a48cdbeeb",
+    "src/api/beta_product_journey_service.ts": "771bb3ab99e5a901ed7266a3b418e9d9a5d97b6ab87c791d67208ed335d92e32",
+    "src/api/block_compile_write_service.ts": "45db532638eb42b45da0cd93669422d3985ec35556afae05a592c4196f24f642",
+    "src/api/blocks.handlers.ts": "5ff121610a0066a91c8325071495e31c35e9768c65cdf1454071c5971ed3d508",
+    "src/api/sessions.handlers.ts": "f36933f5ef9acb35d489b041287666b559602a95fcae27779ab979fc9a642c30",
+    "src/api/sessions.routes.ts": "56a21096bea50e1e255639facd3707a24b1fcbd123b10f6f0e713873ec2f47b7",
+    "src/api/session_state_query_service.ts": "d2ab6d48933ce7d9535cd970956909f47351ff153b6ee975147ad4f1dfac92d8",
+    "test/beta_e2e_01_product_record_store.integration.test.mjs": "2a7d9e800b6f28a995d93049547c9103495b32e1b6bcea7ae6c047f4e943405a",
+    "test/beta_e2e_01_stored_journey_composition.integration.test.mjs": "e4f6f8710164200663e42e3a68065fb1c53e6fda3a0b6728ce73a84f5ba1d89c",
+    "test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs": "e6ccb7d4296afc1a5a3b832a4705e7317c5b8ed432b0b3825aa1aaf107ee3693",
+    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "84ab8a1fa7388d41fdb6d17e416ce4c7e269701cc5d4a290818707a93df20df2"
+  }
+}
