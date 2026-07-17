@@ -4,7 +4,8 @@
 # failure output readable for PowerShell and CI users.
 
 param(
-  [string]$Base = "http://127.0.0.1:3000"
+  [string]$Base = "http://127.0.0.1:3000",
+  [string]$SchemaPath = "ci/schemas/phase1.input.schema.v1.0.0.json"
 )
 
 $ErrorActionPreference = "Stop"
@@ -25,24 +26,30 @@ function Wait-Health([string]$base, [int]$timeoutSec = 20, [int]$pollMs = 250) {
   throw "Health did not return 200 within ${timeoutSec}s: $base/health"
 }
 
-function Find-Phase1SchemaFile() {
-  $candidates = @("engine","src","dist","ci","registry","registries","schema","schemas") |
-    ForEach-Object { Join-Path (Get-Location) $_ } |
-    Where-Object { Test-Path -LiteralPath $_ }
+function Resolve-Phase1SchemaFile([string]$relativePath) {
+  $repo = (git rev-parse --show-toplevel).Trim()
 
-  foreach ($root in $candidates) {
-    $hit = Get-ChildItem -LiteralPath $root -Recurse -File -ErrorAction SilentlyContinue |
-      Select-String -Pattern '"phase1_schema_version"' -List -ErrorAction SilentlyContinue |
-      Select-Object -First 1
-    if ($hit -and $hit.Path) { return $hit.Path }
+  if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($repo)) {
+    throw "Could not resolve repository root for Phase 1 smoke schema."
   }
 
-  $hit2 = Get-ChildItem -LiteralPath (Get-Location) -Recurse -File -ErrorAction SilentlyContinue |
-    Select-String -Pattern '"phase1_schema_version"' -List -ErrorAction SilentlyContinue |
-    Select-Object -First 1
-  if ($hit2 -and $hit2.Path) { return $hit2.Path }
+  $expected = [IO.Path]::GetFullPath(
+    (Join-Path $repo "ci/schemas/phase1.input.schema.v1.0.0.json")
+  )
 
-  throw "Could not locate a Phase1 schema file containing phase1_schema_version."
+  $resolved = [IO.Path]::GetFullPath(
+    (Join-Path $repo $relativePath)
+  )
+
+  if ($resolved -ne $expected) {
+    throw "Unexpected Phase 1 smoke schema path: $resolved"
+  }
+
+  if (-not (Test-Path -LiteralPath $resolved -PathType Leaf)) {
+    throw "Pinned Phase 1 smoke schema is missing: $resolved"
+  }
+
+  return $resolved
 }
 
 function Get-PrimitiveDefault([object]$propSchema) {
@@ -63,7 +70,7 @@ function Get-PrimitiveDefault([object]$propSchema) {
 }
 
 function Build-Phase1Input() {
-  $schemaPath = Find-Phase1SchemaFile
+  $schemaPath = Resolve-Phase1SchemaFile $SchemaPath
   $raw = [System.IO.File]::ReadAllText($schemaPath, [System.Text.UTF8Encoding]::new($false))
   $schema = $raw | ConvertFrom-Json -Depth 200
 
