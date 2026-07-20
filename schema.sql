@@ -189,3 +189,23 @@ ON beta_product_records (
   effective_at DESC,
   created_at DESC
 );
+
+
+-- beta_product_records_beta18_type_migration
+-- Additive BETA-18 coach-authored programme template product records.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template'
+      )
+    );

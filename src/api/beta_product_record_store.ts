@@ -14,7 +14,8 @@ type SupportedRecordType =
   | "beta16_phase1_declaration"
   | "beta17_coach_profile"
   | "beta17_coach_relationship"
-  | "beta17_assignment_trigger";
+  | "beta17_assignment_trigger"
+  | "beta18_programme_template";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -33,7 +34,8 @@ const supportedRecordTypes =
     "beta16_phase1_declaration",
     "beta17_coach_profile",
     "beta17_coach_relationship",
-    "beta17_assignment_trigger"
+    "beta17_assignment_trigger",
+    "beta18_programme_template"
   ]);
 
 function isRecord(
@@ -290,6 +292,36 @@ function recordMetadata(
         record_sha256: recordSha256
       };
     }
+    case "beta18_programme_template": {
+      const coachUserId =
+        requiredString(
+          record,
+          "coach_user_id",
+          "template_coach_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "template_id",
+            "template_id_required"
+          ),
+        subject_user_id:
+          coachUserId,
+        actor_user_id:
+          coachUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "template_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
   }
 }
 

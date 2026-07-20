@@ -16,6 +16,9 @@ const DEFAULT_STATE = Object.freeze({
   view: "today",
   coachAthletes: [],
   coachAssignments: [],
+  coachTemplates: [],
+  templateExercises: [],
+  templateDraft: null,
   coachArtefactCount: 0,
   coachCode: ""
 });
@@ -98,6 +101,26 @@ const elements = {
   connectAthleteActivity: document.getElementById("connectAthleteActivity"),
   connectAthleteConsent: document.getElementById("connectAthleteConsent"),
   athleteRoster: document.getElementById("athleteRoster"),
+  templateLibraryView: document.getElementById("templateLibraryView"),
+  templateBuilderView: document.getElementById("templateBuilderView"),
+  newTemplateButton: document.getElementById("newTemplateButton"),
+  refreshTemplatesButton: document.getElementById("refreshTemplatesButton"),
+  templateLibraryList: document.getElementById("templateLibraryList"),
+  templateDraftCount: document.getElementById("templateDraftCount"),
+  templateActiveCount: document.getElementById("templateActiveCount"),
+  templateArchivedCount: document.getElementById("templateArchivedCount"),
+  backToTemplatesButton: document.getElementById("backToTemplatesButton"),
+  saveTemplateButton: document.getElementById("saveTemplateButton"),
+  activateTemplateButton: document.getElementById("activateTemplateButton"),
+  templateBuilderTitle: document.getElementById("templateBuilderTitle"),
+  templateName: document.getElementById("templateName"),
+  templateActivity: document.getElementById("templateActivity"),
+  templateDescription: document.getElementById("templateDescription"),
+  templateVersion: document.getElementById("templateVersion"),
+  templateWeekCount: document.getElementById("templateWeekCount"),
+  templateSessionCount: document.getElementById("templateSessionCount"),
+  templateWeeks: document.getElementById("templateWeeks"),
+  addTemplateWeekButton: document.getElementById("addTemplateWeekButton"),
   assignmentForm: document.getElementById("assignmentForm"),
   assignmentAthlete: document.getElementById("assignmentAthlete"),
   assignmentTemplate: document.getElementById("assignmentTemplate"),
@@ -137,6 +160,11 @@ function loadState() {
       ...parsed,
       coachAthletes: Array.isArray(parsed.coachAthletes) ? parsed.coachAthletes : [],
       coachAssignments: Array.isArray(parsed.coachAssignments) ? parsed.coachAssignments : [],
+      coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
+      templateExercises: Array.isArray(parsed.templateExercises) ? parsed.templateExercises : [],
+      templateDraft: parsed.templateDraft && typeof parsed.templateDraft === "object"
+        ? parsed.templateDraft
+        : null,
       history: Array.isArray(parsed.history) ? parsed.history : [],
       localSessions: Array.isArray(parsed.localSessions) ? parsed.localSessions : []
     };
@@ -244,7 +272,24 @@ function friendlyError(payload, status) {
     stored_assignment_missing: "No current assignment was found for this coach.",
     athlete_history_access_denied: "Training history is not available for this account.",
     relationship_identity_required: "Enter a valid athlete account code.",
-    coach_note_text_required: "Enter a note before recording it."
+    coach_note_text_required: "Enter a note before recording it.",
+    coach_access_denied: "This coach account is not active.",
+    template_name_invalid: "Enter a template name.",
+    weeks_required: "Add at least one week.",
+    session_count_per_week_invalid: "Each week must contain between one and seven sessions.",
+    session_requires_exactly_four_work_items: "Each session must contain exactly four exercises.",
+    exercise_not_in_active_registry: "Choose exercises from the active exercise registry.",
+    duplicate_exercise_in_session: "Each exercise in a session must be unique.",
+    planned_sets_invalid: "Sets must be between 1 and 20.",
+    planned_reps_invalid: "Reps must be between 1 and 100.",
+    percent_1rm_invalid: "Percentage must be between 1 and 100.",
+    rest_seconds_invalid: "Rest must be between 0 and 900 seconds.",
+    active_or_archived_template_is_immutable: "Active and archived templates cannot be edited. Duplicate the template to create a new version.",
+    only_draft_can_activate: "Only a draft template can be activated.",
+    template_not_found: "The template could not be found.",
+    stored_template_not_active: "Select an active template owned by this coach.",
+    stored_template_activity_mismatch: "The template activity does not match the athlete activity.",
+    assigned_template_sessions_exhausted: "Every session in this assigned template has already been created."
   };
 
   return messages[reason] ?? titleCase(reason);
@@ -413,6 +458,7 @@ function viewTitle(view) {
     history: "History",
     "coach-overview": "Overview",
     athletes: "Athletes",
+    templates: "Templates",
     assign: "Assign",
     review: "Review",
     account: "Account"
@@ -444,6 +490,11 @@ function setView(view) {
     loadSessionState().catch(handleError);
   }
 
+  if (view === "templates" && state.role === "coach") {
+    renderTemplateLibrary();
+    refreshTemplates({ quiet: true }).catch(handleError);
+  }
+
   if (view === "review" && state.role === "coach") {
     renderCoachSelectors();
   }
@@ -466,7 +517,7 @@ function renderRoleNavigation() {
   const fallbackView = athlete ? "today" : "coach-overview";
   const permittedViews = athlete
     ? new Set(["today", "session", "history", "account"])
-    : new Set(["coach-overview", "athletes", "assign", "review", "account"]);
+    : new Set(["coach-overview", "athletes", "templates", "assign", "review", "account"]);
 
   if (!permittedViews.has(state.view)) state.view = fallbackView;
 }
@@ -962,6 +1013,33 @@ async function connectAthlete(event) {
   }
 }
 
+function activeCoachTemplates(activityId = null) {
+  return state.coachTemplates.filter((template) => {
+    if (template.template_status !== "active") return false;
+    return activityId === null || template.activity_id === activityId;
+  });
+}
+
+function renderAssignmentTemplateOptions() {
+  const athlete = state.coachAthletes.find(
+    (entry) => entry.userId === elements.assignmentAthlete.value
+  );
+
+  const templates = activeCoachTemplates(athlete?.activityId ?? null);
+
+  elements.assignmentTemplate.innerHTML = templates.length
+    ? templates
+        .map((template) => `
+          <option value="${escapeHtml(template.template_id)}">
+            ${escapeHtml(template.template_name)} · v${Number(template.template_version)}
+          </option>
+        `)
+        .join("")
+    : '<option value="">No active templates for this activity</option>';
+
+  elements.assignmentTemplate.disabled = templates.length === 0;
+}
+
 function renderCoachSelectors() {
   const options = state.coachAthletes.length
     ? state.coachAthletes
@@ -969,11 +1047,31 @@ function renderCoachSelectors() {
         .join("")
     : '<option value="">No connected athletes</option>';
 
+  const assignmentValue = elements.assignmentAthlete.value;
+  const reviewValue = elements.reviewAthlete.value;
+
   elements.assignmentAthlete.innerHTML = options;
   elements.reviewAthlete.innerHTML = options;
+
+  if (
+    assignmentValue &&
+    state.coachAthletes.some((athlete) => athlete.userId === assignmentValue)
+  ) {
+    elements.assignmentAthlete.value = assignmentValue;
+  }
+
+  if (
+    reviewValue &&
+    state.coachAthletes.some((athlete) => athlete.userId === reviewValue)
+  ) {
+    elements.reviewAthlete.value = reviewValue;
+  }
+
   elements.assignmentAthlete.disabled = state.coachAthletes.length === 0;
   elements.reviewAthlete.disabled = state.coachAthletes.length === 0;
   elements.loadReviewButton.disabled = state.coachAthletes.length === 0;
+
+  renderAssignmentTemplateOptions();
 }
 
 function coachAthleteCard(athlete) {
@@ -1011,7 +1109,21 @@ async function recordAssignment(event) {
 
   const athleteUserId = elements.assignmentAthlete.value;
   const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
-  if (!athlete) return;
+  const template = state.coachTemplates.find(
+    (entry) => entry.template_id === elements.assignmentTemplate.value
+  );
+
+  if (!athlete) {
+    throw new Error("Select a connected athlete.");
+  }
+
+  if (!template || template.template_status !== "active") {
+    throw new Error("Select an active template.");
+  }
+
+  if (template.activity_id !== athlete.activityId) {
+    throw new Error("The template activity does not match the athlete activity.");
+  }
 
   showBusy("Recording assignment…");
 
@@ -1021,21 +1133,22 @@ async function recordAssignment(event) {
       requested_at_iso8601: nowIso(),
       coach_user_id: state.profile.coachUserId,
       athlete_user_id: athleteUserId,
-      template_id: elements.assignmentTemplate.value,
+      template_id: template.template_id,
       activity_id: athlete.activityId
     });
 
     state.coachAssignments.push({
       assignmentId: response.assignment?.assignment_id ?? createId("assignment"),
       athleteUserId,
-      templateId: elements.assignmentTemplate.value,
+      templateId: template.template_id,
+      templateVersion: Number(template.template_version),
       activityId: athlete.activityId,
       recordedAt: nowIso()
     });
 
     saveState();
     elements.assignmentResult.textContent =
-      `Assignment recorded for ${athlete.displayName}. Give the athlete your account code so they can open the assigned session.`;
+      `${template.template_name} v${Number(template.template_version)} assigned to ${athlete.displayName}. Give the athlete your account code so they can open the assigned sessions.`;
     elements.assignmentResult.hidden = false;
     renderCoachWorkspace();
     showNotice("Assignment recorded.");
@@ -1143,6 +1256,664 @@ async function recordCoachNote(event) {
   }
 }
 
+
+function templateExerciseOptions(selectedExerciseId = "") {
+  return state.templateExercises
+    .map((exercise) => `
+      <option
+        value="${escapeHtml(exercise.exercise_id)}"
+        ${exercise.exercise_id === selectedExerciseId ? "selected" : ""}
+      >
+        ${escapeHtml(exercise.display_name)}
+      </option>
+    `)
+    .join("");
+}
+
+function newTemplateWorkItem(index) {
+  const exercise = state.templateExercises[index] ?? state.templateExercises[0] ?? null;
+
+  return {
+    work_item_id: "",
+    order_index: index + 1,
+    exercise_id: exercise?.exercise_id ?? "",
+    planned_sets: index === 0 ? 3 : 3,
+    planned_reps: index === 0 ? 5 : 8,
+    percent_1rm: index === 0 ? 75 : 65,
+    rest_seconds: index === 0 ? 180 : 120,
+    role: index === 0 ? "primary" : "accessory"
+  };
+}
+
+function newTemplateSession(orderIndex) {
+  return {
+    session_id: "",
+    order_index: orderIndex,
+    title: `Session ${orderIndex}`,
+    work_items: Array.from({ length: 4 }, (_, index) => newTemplateWorkItem(index))
+  };
+}
+
+function newTemplateDraft() {
+  return {
+    template_id: "",
+    template_family_id: "",
+    template_version: 1,
+    template_status: "draft",
+    template_name: "",
+    description: "",
+    activity_id: "powerlifting",
+    weeks: [
+      {
+        week_id: "",
+        order_index: 1,
+        sessions: [newTemplateSession(1)]
+      }
+    ]
+  };
+}
+
+function templateRecordToDraft(template) {
+  const structure = template?.template_structure && typeof template.template_structure === "object"
+    ? template.template_structure
+    : {};
+
+  const blocks = Array.isArray(structure.blocks) ? structure.blocks : [];
+  const block = blocks[0] && typeof blocks[0] === "object" ? blocks[0] : {};
+  const rawWeeks = Array.isArray(block.weeks) ? block.weeks : [];
+
+  const weeks = rawWeeks
+    .slice()
+    .sort((left, right) => Number(left.order_index) - Number(right.order_index))
+    .map((week, weekIndex) => {
+      const days = Array.isArray(week.days) ? week.days : [];
+
+      const sessions = days
+        .slice()
+        .sort((left, right) => Number(left.order_index) - Number(right.order_index))
+        .flatMap((day) => {
+          const daySessions = Array.isArray(day.sessions) ? day.sessions : [];
+
+          return daySessions
+            .slice()
+            .sort((left, right) => Number(left.order_index) - Number(right.order_index))
+            .map((session, sessionIndex) => ({
+              session_id: String(session.session_id ?? ""),
+              order_index: Number(day.order_index ?? session.order_index ?? sessionIndex + 1),
+              title: String(session.title ?? `Session ${sessionIndex + 1}`),
+              work_items: (Array.isArray(session.work_items) ? session.work_items : [])
+                .slice()
+                .sort((left, right) => Number(left.order_index) - Number(right.order_index))
+                .map((workItem, workItemIndex) => ({
+                  work_item_id: String(workItem.work_item_id ?? ""),
+                  order_index: Number(workItem.order_index ?? workItemIndex + 1),
+                  exercise_id: String(workItem.exercise_id ?? ""),
+                  planned_sets: Number(workItem.planned_sets ?? 3),
+                  planned_reps: Number(workItem.planned_reps ?? 5),
+                  percent_1rm: Number(workItem.loading_reference?.value ?? 75),
+                  rest_seconds: Number(workItem.rest_seconds ?? 120),
+                  role: workItem.role === "primary" ? "primary" : "accessory"
+                }))
+            }));
+        });
+
+      return {
+        week_id: String(week.week_id ?? ""),
+        order_index: Number(week.order_index ?? weekIndex + 1),
+        sessions
+      };
+    });
+
+  return {
+    template_id: String(template.template_id ?? ""),
+    template_family_id: String(template.template_family_id ?? ""),
+    template_version: Number(template.template_version ?? 1),
+    template_status: String(template.template_status ?? "draft"),
+    template_name: String(template.template_name ?? ""),
+    description: String(template.description ?? ""),
+    activity_id: String(template.activity_id ?? "powerlifting"),
+    weeks: weeks.length ? weeks : newTemplateDraft().weeks
+  };
+}
+
+async function loadTemplateExercises() {
+  if (state.templateExercises.length > 0) return state.templateExercises;
+
+  const response = await api("GET", "/templates/exercises");
+  state.templateExercises = Array.isArray(response.exercises) ? response.exercises : [];
+  saveState();
+
+  if (state.templateExercises.length < 4) {
+    throw new Error("The active exercise registry must contain at least four exercises.");
+  }
+
+  return state.templateExercises;
+}
+
+async function refreshTemplates(options = {}) {
+  if (state.role !== "coach") return [];
+
+  const coachUserId = state.profile?.coachUserId ?? "";
+  const response = await api(
+    "GET",
+    `/templates?coach_user_id=${encodeURIComponent(coachUserId)}`
+  );
+
+  state.coachTemplates = Array.isArray(response.templates) ? response.templates : [];
+  saveState();
+  renderTemplateLibrary();
+  renderCoachSelectors();
+
+  if (!options.quiet) showNotice("Template library refreshed.");
+  return state.coachTemplates;
+}
+
+function templateStatusBadge(status) {
+  if (status === "active") return '<span class="badge complete">Active</span>';
+  if (status === "archived") return '<span class="badge neutral">Archived</span>';
+  return '<span class="badge active">Draft</span>';
+}
+
+function templateCard(template) {
+  const status = String(template.template_status ?? "draft");
+  const sessionCount = Number(template.session_count ?? 0);
+  const version = Number(template.template_version ?? 1);
+
+  const editAction = status === "draft"
+    ? `<button class="button secondary small-button template-edit" type="button" data-template-id="${escapeHtml(template.template_id)}">Edit</button>`
+    : "";
+
+  const activateAction = status === "draft"
+    ? `<button class="button primary small-button template-activate" type="button" data-template-id="${escapeHtml(template.template_id)}">Activate</button>`
+    : "";
+
+  const duplicateAction = status !== "draft"
+    ? `<button class="button secondary small-button template-duplicate" type="button" data-template-id="${escapeHtml(template.template_id)}">Duplicate version</button>`
+    : "";
+
+  const archiveAction = status !== "archived"
+    ? `<button class="button secondary small-button template-archive" type="button" data-template-id="${escapeHtml(template.template_id)}">Archive</button>`
+    : "";
+
+  return `
+    <article class="template-card">
+      <div>
+        <h3>${escapeHtml(template.template_name)}</h3>
+        <p>${escapeHtml(titleCase(template.activity_id))} · Version ${version} · ${sessionCount} session${sessionCount === 1 ? "" : "s"}</p>
+        <div class="template-status-line">
+          ${templateStatusBadge(status)}
+          <span class="badge neutral">${escapeHtml(formatDate(template.updated_at_iso8601))}</span>
+        </div>
+      </div>
+      <div class="template-card-actions">
+        ${editAction}
+        ${activateAction}
+        ${duplicateAction}
+        ${archiveAction}
+      </div>
+    </article>
+  `;
+}
+
+function bindTemplateLibraryActions() {
+  for (const button of elements.templateLibraryList.querySelectorAll(".template-edit")) {
+    button.addEventListener("click", () => {
+      const template = state.coachTemplates.find(
+        (entry) => entry.template_id === button.dataset.templateId
+      );
+
+      if (template) openTemplateBuilder(templateRecordToDraft(template));
+    });
+  }
+
+  for (const button of elements.templateLibraryList.querySelectorAll(".template-activate")) {
+    button.addEventListener("click", () => {
+      activateTemplateById(button.dataset.templateId).catch(handleError);
+    });
+  }
+
+  for (const button of elements.templateLibraryList.querySelectorAll(".template-duplicate")) {
+    button.addEventListener("click", () => {
+      duplicateTemplate(button.dataset.templateId).catch(handleError);
+    });
+  }
+
+  for (const button of elements.templateLibraryList.querySelectorAll(".template-archive")) {
+    button.addEventListener("click", () => {
+      archiveTemplate(button.dataset.templateId).catch(handleError);
+    });
+  }
+}
+
+function renderTemplateLibrary() {
+  const drafts = state.coachTemplates.filter((template) => template.template_status === "draft");
+  const active = state.coachTemplates.filter((template) => template.template_status === "active");
+  const archived = state.coachTemplates.filter((template) => template.template_status === "archived");
+
+  elements.templateDraftCount.textContent = String(drafts.length);
+  elements.templateActiveCount.textContent = String(active.length);
+  elements.templateArchivedCount.textContent = String(archived.length);
+
+  elements.templateLibraryList.innerHTML = state.coachTemplates.length
+    ? state.coachTemplates.map(templateCard).join("")
+    : `
+      <div class="empty-state">
+        <div class="empty-icon">T</div>
+        <h3>No templates created</h3>
+        <p>Create a registry-bound template before assigning training.</p>
+      </div>
+    `;
+
+  bindTemplateLibraryActions();
+}
+
+function updateTemplateSummary() {
+  const draft = state.templateDraft;
+  const sessionCount = draft
+    ? draft.weeks.reduce(
+        (total, week) => total + week.sessions.length,
+        0
+      )
+    : 0;
+
+  elements.templateVersion.textContent = String(draft?.template_version ?? 1);
+  elements.templateWeekCount.textContent = String(draft?.weeks.length ?? 0);
+  elements.templateSessionCount.textContent = String(sessionCount);
+}
+
+function renderTemplateWeeks() {
+  const draft = state.templateDraft;
+  if (!draft) {
+    elements.templateWeeks.innerHTML = "";
+    return;
+  }
+
+  elements.templateWeeks.innerHTML = draft.weeks
+    .map((week, weekIndex) => `
+      <article class="template-week">
+        <div class="template-week-header">
+          <div>
+            <p class="eyebrow">Week ${weekIndex + 1}</p>
+            <h3>Training week</h3>
+          </div>
+          ${draft.weeks.length > 1
+            ? `<button class="button danger small-button remove-template-week" type="button" data-week-index="${weekIndex}">Remove week</button>`
+            : ""}
+        </div>
+
+        <div class="template-sessions">
+          ${week.sessions
+            .map((session, sessionIndex) => `
+              <section class="template-session">
+                <div class="template-session-header">
+                  <label class="field">
+                    <span>Session title</span>
+                    <input
+                      value="${escapeHtml(session.title)}"
+                      data-template-kind="session"
+                      data-week-index="${weekIndex}"
+                      data-session-index="${sessionIndex}"
+                      data-field="title"
+                      maxlength="100"
+                    />
+                  </label>
+                  ${week.sessions.length > 1
+                    ? `<button class="button danger small-button remove-template-session" type="button" data-week-index="${weekIndex}" data-session-index="${sessionIndex}">Remove</button>`
+                    : ""}
+                </div>
+
+                <div class="template-work-items">
+                  ${session.work_items
+                    .map((workItem, workItemIndex) => `
+                      <div class="template-work-item">
+                        <span class="exercise-order">${workItemIndex + 1}</span>
+                        <label>
+                          <span>Exercise</span>
+                          <select
+                            data-template-kind="work-item"
+                            data-week-index="${weekIndex}"
+                            data-session-index="${sessionIndex}"
+                            data-work-item-index="${workItemIndex}"
+                            data-field="exercise_id"
+                          >
+                            ${templateExerciseOptions(workItem.exercise_id)}
+                          </select>
+                        </label>
+                        <label>
+                          <span>Sets</span>
+                          <input
+                            type="number"
+                            min="1"
+                            max="20"
+                            value="${Number(workItem.planned_sets)}"
+                            data-template-kind="work-item"
+                            data-week-index="${weekIndex}"
+                            data-session-index="${sessionIndex}"
+                            data-work-item-index="${workItemIndex}"
+                            data-field="planned_sets"
+                          />
+                        </label>
+                        <label>
+                          <span>Reps</span>
+                          <input
+                            type="number"
+                            min="1"
+                            max="100"
+                            value="${Number(workItem.planned_reps)}"
+                            data-template-kind="work-item"
+                            data-week-index="${weekIndex}"
+                            data-session-index="${sessionIndex}"
+                            data-work-item-index="${workItemIndex}"
+                            data-field="planned_reps"
+                          />
+                        </label>
+                        <label>
+                          <span>% 1RM</span>
+                          <input
+                            type="number"
+                            min="1"
+                            max="100"
+                            value="${Number(workItem.percent_1rm)}"
+                            data-template-kind="work-item"
+                            data-week-index="${weekIndex}"
+                            data-session-index="${sessionIndex}"
+                            data-work-item-index="${workItemIndex}"
+                            data-field="percent_1rm"
+                          />
+                        </label>
+                        <label>
+                          <span>Rest sec</span>
+                          <input
+                            type="number"
+                            min="0"
+                            max="900"
+                            value="${Number(workItem.rest_seconds)}"
+                            data-template-kind="work-item"
+                            data-week-index="${weekIndex}"
+                            data-session-index="${sessionIndex}"
+                            data-work-item-index="${workItemIndex}"
+                            data-field="rest_seconds"
+                          />
+                        </label>
+                        <label>
+                          <span>Role</span>
+                          <select
+                            data-template-kind="work-item"
+                            data-week-index="${weekIndex}"
+                            data-session-index="${sessionIndex}"
+                            data-work-item-index="${workItemIndex}"
+                            data-field="role"
+                          >
+                            <option value="primary" ${workItem.role === "primary" ? "selected" : ""}>Primary</option>
+                            <option value="accessory" ${workItem.role === "accessory" ? "selected" : ""}>Accessory</option>
+                          </select>
+                        </label>
+                      </div>
+                    `)
+                    .join("")}
+                </div>
+              </section>
+            `)
+            .join("")}
+        </div>
+
+        <div class="template-week-actions">
+          <button
+            class="button secondary small-button add-template-session"
+            type="button"
+            data-week-index="${weekIndex}"
+            ${week.sessions.length >= 7 ? "disabled" : ""}
+          >Add session</button>
+        </div>
+      </article>
+    `)
+    .join("");
+
+  updateTemplateSummary();
+}
+
+function renderTemplateBuilder() {
+  const draft = state.templateDraft;
+  if (!draft) return;
+
+  elements.templateName.value = draft.template_name;
+  elements.templateActivity.value = draft.activity_id;
+  elements.templateDescription.value = draft.description;
+  elements.templateBuilderTitle.textContent = draft.template_id
+    ? `${draft.template_name || "Untitled template"} · v${draft.template_version}`
+    : "New template";
+  elements.activateTemplateButton.disabled = draft.template_status !== "draft";
+
+  renderTemplateWeeks();
+}
+
+function openTemplateBuilder(draft) {
+  state.templateDraft = draft;
+  saveState();
+  elements.templateLibraryView.hidden = true;
+  elements.templateBuilderView.hidden = false;
+  renderTemplateBuilder();
+}
+
+function closeTemplateBuilder() {
+  state.templateDraft = null;
+  saveState();
+  elements.templateBuilderView.hidden = true;
+  elements.templateLibraryView.hidden = false;
+  renderTemplateLibrary();
+}
+
+function syncTemplateHeader() {
+  if (!state.templateDraft) return;
+
+  state.templateDraft.template_name = elements.templateName.value;
+  state.templateDraft.activity_id = elements.templateActivity.value;
+  state.templateDraft.description = elements.templateDescription.value;
+  saveState();
+}
+
+function updateTemplateFieldFromControl(control) {
+  const draft = state.templateDraft;
+  if (!draft) return;
+
+  const weekIndex = Number(control.dataset.weekIndex);
+  const sessionIndex = Number(control.dataset.sessionIndex);
+  const workItemIndex = Number(control.dataset.workItemIndex);
+  const field = control.dataset.field;
+
+  const session = draft.weeks?.[weekIndex]?.sessions?.[sessionIndex];
+  if (!session || !field) return;
+
+  if (control.dataset.templateKind === "session") {
+    session[field] = control.value;
+  }
+  else if (control.dataset.templateKind === "work-item") {
+    const workItem = session.work_items?.[workItemIndex];
+    if (!workItem) return;
+
+    workItem[field] = ["planned_sets", "planned_reps", "percent_1rm", "rest_seconds"]
+      .includes(field)
+      ? Number(control.value)
+      : control.value;
+  }
+
+  saveState();
+}
+
+function addTemplateWeek() {
+  const draft = state.templateDraft;
+  if (!draft || draft.weeks.length >= 52) return;
+
+  const orderIndex = draft.weeks.length + 1;
+  draft.weeks.push({
+    week_id: "",
+    order_index: orderIndex,
+    sessions: [newTemplateSession(1)]
+  });
+
+  saveState();
+  renderTemplateWeeks();
+}
+
+function addTemplateSession(weekIndex) {
+  const week = state.templateDraft?.weeks?.[weekIndex];
+  if (!week || week.sessions.length >= 7) return;
+
+  week.sessions.push(newTemplateSession(week.sessions.length + 1));
+  saveState();
+  renderTemplateWeeks();
+}
+
+function removeTemplateWeek(weekIndex) {
+  const draft = state.templateDraft;
+  if (!draft || draft.weeks.length <= 1) return;
+
+  draft.weeks.splice(weekIndex, 1);
+  draft.weeks.forEach((week, index) => {
+    week.order_index = index + 1;
+  });
+  saveState();
+  renderTemplateWeeks();
+}
+
+function removeTemplateSession(weekIndex, sessionIndex) {
+  const week = state.templateDraft?.weeks?.[weekIndex];
+  if (!week || week.sessions.length <= 1) return;
+
+  week.sessions.splice(sessionIndex, 1);
+  week.sessions.forEach((session, index) => {
+    session.order_index = index + 1;
+  });
+  saveState();
+  renderTemplateWeeks();
+}
+
+function templateRequestBody() {
+  const draft = state.templateDraft;
+  if (!draft) throw new Error("No template is open.");
+
+  syncTemplateHeader();
+
+  return {
+    coach_user_id: state.profile.coachUserId,
+    template_id: draft.template_id || undefined,
+    template_family_id: draft.template_family_id || undefined,
+    template_version: Number(draft.template_version || 1),
+    template_name: draft.template_name.trim(),
+    description: draft.description.trim(),
+    activity_id: draft.activity_id,
+    weeks: draft.weeks.map((week, weekIndex) => ({
+      week_id: week.week_id || "",
+      order_index: weekIndex + 1,
+      sessions: week.sessions.map((session, sessionIndex) => ({
+        session_id: session.session_id || "",
+        order_index: sessionIndex + 1,
+        title: session.title.trim(),
+        work_items: session.work_items.map((workItem, workItemIndex) => ({
+          work_item_id: workItem.work_item_id || "",
+          order_index: workItemIndex + 1,
+          exercise_id: workItem.exercise_id,
+          planned_sets: Number(workItem.planned_sets),
+          planned_reps: Number(workItem.planned_reps),
+          percent_1rm: Number(workItem.percent_1rm),
+          rest_seconds: Number(workItem.rest_seconds),
+          role: workItem.role
+        }))
+      }))
+    })),
+    updated_at_iso8601: nowIso()
+  };
+}
+
+async function saveTemplateDraft(options = {}) {
+  showBusy("Saving template…");
+
+  try {
+    const response = await api("POST", "/templates", templateRequestBody());
+    state.templateDraft = templateRecordToDraft(response.template);
+    saveState();
+    await refreshTemplates({ quiet: true });
+    renderTemplateBuilder();
+
+    if (!options.quiet) showNotice("Template draft saved.");
+    return response.template;
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function activateTemplateById(templateId) {
+  showBusy("Activating template…");
+
+  try {
+    await api(
+      "POST",
+      `/templates/${encodeURIComponent(templateId)}/activate`,
+      { coach_user_id: state.profile.coachUserId }
+    );
+
+    await refreshTemplates({ quiet: true });
+    closeTemplateBuilder();
+    showNotice("Template activated and available for assignment.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function activateOpenTemplate() {
+  let templateId = state.templateDraft?.template_id ?? "";
+
+  if (!templateId) {
+    const saved = await saveTemplateDraft({ quiet: true });
+    templateId = String(saved.template_id ?? "");
+  }
+  else {
+    await saveTemplateDraft({ quiet: true });
+    templateId = state.templateDraft?.template_id ?? templateId;
+  }
+
+  await activateTemplateById(templateId);
+}
+
+async function duplicateTemplate(templateId) {
+  showBusy("Creating new version…");
+
+  try {
+    const response = await api(
+      "POST",
+      `/templates/${encodeURIComponent(templateId)}/duplicate`,
+      { coach_user_id: state.profile.coachUserId }
+    );
+
+    await refreshTemplates({ quiet: true });
+    openTemplateBuilder(templateRecordToDraft(response.template));
+    showNotice("New draft version created.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function archiveTemplate(templateId) {
+  showBusy("Archiving template…");
+
+  try {
+    await api(
+      "POST",
+      `/templates/${encodeURIComponent(templateId)}/archive`,
+      { coach_user_id: state.profile.coachUserId }
+    );
+
+    await refreshTemplates({ quiet: true });
+    showNotice("Template archived. Existing assignments retain this version.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
 function renderAccount() {
   const id = currentAccountId();
 
@@ -1240,6 +2011,18 @@ async function enterApplication() {
   }
   else {
     renderCoachWorkspace();
+
+    try {
+      await Promise.all([
+        loadTemplateExercises(),
+        refreshTemplates({ quiet: true })
+      ]);
+    }
+    catch (error) {
+      showNotice(error.message, "error");
+    }
+
+    renderTemplateLibrary();
   }
 
   setView(state.view);
@@ -1294,6 +2077,71 @@ elements.refreshHistoryButton.addEventListener("click", () => refreshHistory().c
 elements.connectAthleteForm.addEventListener("submit", (event) => {
   connectAthlete(event).catch(handleError);
 });
+
+elements.newTemplateButton.addEventListener("click", () => {
+  loadTemplateExercises()
+    .then(() => openTemplateBuilder(newTemplateDraft()))
+    .catch(handleError);
+});
+
+elements.refreshTemplatesButton.addEventListener("click", () => {
+  refreshTemplates().catch(handleError);
+});
+
+elements.backToTemplatesButton.addEventListener("click", closeTemplateBuilder);
+
+elements.saveTemplateButton.addEventListener("click", () => {
+  saveTemplateDraft().catch(handleError);
+});
+
+elements.activateTemplateButton.addEventListener("click", () => {
+  activateOpenTemplate().catch(handleError);
+});
+
+elements.addTemplateWeekButton.addEventListener("click", addTemplateWeek);
+
+for (const control of [
+  elements.templateName,
+  elements.templateActivity,
+  elements.templateDescription
+]) {
+  control.addEventListener("input", syncTemplateHeader);
+  control.addEventListener("change", syncTemplateHeader);
+}
+
+elements.templateWeeks.addEventListener("input", (event) => {
+  const control = event.target.closest("[data-template-kind]");
+  if (control) updateTemplateFieldFromControl(control);
+});
+
+elements.templateWeeks.addEventListener("change", (event) => {
+  const control = event.target.closest("[data-template-kind]");
+  if (control) updateTemplateFieldFromControl(control);
+});
+
+elements.templateWeeks.addEventListener("click", (event) => {
+  const addSessionButton = event.target.closest(".add-template-session");
+  if (addSessionButton) {
+    addTemplateSession(Number(addSessionButton.dataset.weekIndex));
+    return;
+  }
+
+  const removeSessionButton = event.target.closest(".remove-template-session");
+  if (removeSessionButton) {
+    removeTemplateSession(
+      Number(removeSessionButton.dataset.weekIndex),
+      Number(removeSessionButton.dataset.sessionIndex)
+    );
+    return;
+  }
+
+  const removeWeekButton = event.target.closest(".remove-template-week");
+  if (removeWeekButton) {
+    removeTemplateWeek(Number(removeWeekButton.dataset.weekIndex));
+  }
+});
+
+elements.assignmentAthlete.addEventListener("change", renderAssignmentTemplateOptions);
 elements.assignmentForm.addEventListener("submit", (event) => {
   recordAssignment(event).catch(handleError);
 });

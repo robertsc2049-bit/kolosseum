@@ -126,6 +126,9 @@
         <button class="nav-item coach-nav" data-view="athletes">
           <span class="nav-icon">A</span><span>Athletes</span>
         </button>
+        <button class="nav-item coach-nav" data-view="templates">
+          <span class="nav-icon">T</span><span>Templates</span>
+        </button>
         <button class="nav-item coach-nav" data-view="assign">
           <span class="nav-icon">P</span><span>Assign</span>
         </button>
@@ -345,6 +348,87 @@
           </div>
         </section>
 
+
+        <section id="view-templates" class="view" hidden>
+          <div id="templateLibraryView">
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">Coach workspace</p>
+                <h2>Programme templates</h2>
+                <p class="muted">Build versioned, registry-bound training templates for supported activities.</p>
+              </div>
+              <button id="newTemplateButton" class="button primary" type="button">New template</button>
+            </div>
+
+            <div class="metric-cards">
+              <article class="panel metric-card"><span>Draft templates</span><strong id="templateDraftCount">0</strong></article>
+              <article class="panel metric-card"><span>Active templates</span><strong id="templateActiveCount">0</strong></article>
+              <article class="panel metric-card"><span>Archived templates</span><strong id="templateArchivedCount">0</strong></article>
+            </div>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Template library</p>
+                  <h3>Your programme templates</h3>
+                </div>
+                <button id="refreshTemplatesButton" class="button secondary" type="button">Refresh</button>
+              </div>
+              <div id="templateLibraryList" class="template-library"></div>
+            </article>
+          </div>
+
+          <div id="templateBuilderView" hidden>
+            <div class="page-heading template-builder-heading">
+              <div>
+                <button id="backToTemplatesButton" class="text-button back-button" type="button">← Template library</button>
+                <p class="eyebrow">Programme builder</p>
+                <h2 id="templateBuilderTitle">New template</h2>
+                <p class="muted">Each session contains exactly four registry-backed exercises. Resistance loading is percentage-based.</p>
+              </div>
+              <div class="button-row">
+                <button id="saveTemplateButton" class="button secondary" type="button">Save draft</button>
+                <button id="activateTemplateButton" class="button primary" type="button">Activate template</button>
+              </div>
+            </div>
+
+            <div class="template-builder-layout">
+              <aside class="panel template-settings">
+                <p class="eyebrow">Template details</p>
+                <label class="field">
+                  <span>Template name</span>
+                  <input id="templateName" maxlength="120" />
+                </label>
+                <label class="field">
+                  <span>Activity</span>
+                  <select id="templateActivity">
+                    <option value="powerlifting">Powerlifting</option>
+                    <option value="general_strength">General strength</option>
+                    <option value="rugby_union">Rugby union</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Description</span>
+                  <textarea id="templateDescription" maxlength="1000" placeholder="Factual description of this template"></textarea>
+                </label>
+                <div class="template-facts">
+                  <div><span>Version</span><strong id="templateVersion">1</strong></div>
+                  <div><span>Weeks</span><strong id="templateWeekCount">1</strong></div>
+                  <div><span>Sessions</span><strong id="templateSessionCount">1</strong></div>
+                </div>
+                <p class="muted small">
+                  Active versions are immutable. Editing an active template requires a duplicated version.
+                </p>
+              </aside>
+
+              <div class="template-plan-column">
+                <div id="templateWeeks" class="template-weeks"></div>
+                <button id="addTemplateWeekButton" class="button secondary wide" type="button">Add week</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="view-assign" class="view" hidden>
           <div class="page-heading">
             <div>
@@ -356,10 +440,8 @@
           <form id="assignmentForm" class="panel form-panel narrow">
             <label class="field"><span>Athlete</span><select id="assignmentAthlete" required></select></label>
             <label class="field"><span>Template</span>
-              <select id="assignmentTemplate">
-                <option value="beta_template_powerlifting_001">Powerlifting base template</option>
-                <option value="beta_template_general_strength_001">General strength base template</option>
-                <option value="beta_template_rugby_union_001">Rugby union base template</option>
+              <select id="assignmentTemplate" required>
+                <option value="">No active templates</option>
               </select>
             </label>
             <button class="button primary" type="submit">Record assignment</button>
