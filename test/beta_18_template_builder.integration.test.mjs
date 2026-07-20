@@ -530,6 +530,30 @@ test(
       "relationship"
     );
 
+    const connectedAthletes =
+      await request(
+        server.baseUrl,
+        "GET",
+        `/coach-workspace/athletes?coach_user_id=${encodeURIComponent(coachUserId)}`
+      );
+
+    assertStatus(
+      connectedAthletes,
+      200,
+      "persisted coach roster"
+    );
+
+    assert.ok(
+      connectedAthletes.json
+        ?.athletes
+        ?.some(
+          (athlete) =>
+            athlete.athlete_user_id ===
+              athleteUserId
+        ),
+      "Expected the connected athlete in the persisted coach roster"
+    );
+
     const exerciseResponse =
       await request(
         server.baseUrl,
@@ -563,6 +587,81 @@ test(
           (exercise) =>
             exercise.exercise_id
         );
+
+    const athleteProfile =
+      await request(
+        server.baseUrl,
+        "POST",
+        "/coach-workspace/athlete-strength-profile",
+        {
+          coach_user_id:
+            coachUserId,
+          athlete_user_id:
+            athleteUserId,
+          preferred_weight_unit:
+            "kg",
+          load_rounding_increment:
+            2.5,
+          bodyweight:
+            92.5,
+          bodyweight_unit:
+            "kg",
+          benchmarks:
+            exerciseIds.map(
+              (
+                exerciseId,
+                index
+              ) => ({
+                benchmark_id: "",
+                exercise_id:
+                  exerciseId,
+                value:
+                  100 +
+                  index * 10,
+                unit: "kg",
+                basis:
+                  index % 2 === 0
+                    ? "tested_1rm"
+                    : "estimated_1rm",
+                effective_date:
+                  "2026-07-20",
+                source_note:
+                  "BETA-19 persistent proof"
+              })
+            ),
+          updated_at_iso8601:
+            new Date()
+              .toISOString()
+        }
+      );
+
+    assertStatus(
+      athleteProfile,
+      201,
+      "athlete strength profile"
+    );
+
+    const storedAthleteProfile =
+      await request(
+        server.baseUrl,
+        "GET",
+        `/coach-workspace/athlete-strength-profile?coach_user_id=${encodeURIComponent(coachUserId)}&athlete_user_id=${encodeURIComponent(athleteUserId)}`
+      );
+
+    assertStatus(
+      storedAthleteProfile,
+      200,
+      "stored athlete strength profile"
+    );
+
+    assert.equal(
+      storedAthleteProfile.json
+        ?.profile
+        ?.record_sha256,
+      athleteProfile.json
+        ?.profile
+        ?.record_sha256
+    );
 
     const percentageWorkItems =
       (
@@ -820,37 +919,63 @@ test(
             "Persistent BETA-18 integration template.",
           activity_id:
             "powerlifting",
-          weeks: [
+          blocks: [
             {
-              week_id: "",
+              block_id: "",
               order_index: 1,
-              sessions: [
+              name: "Volume Block",
+              description:
+                "First ordered training block.",
+              block_type: "volume",
+              weeks: [
                 {
-                  session_id: "",
+                  week_id: "",
                   order_index: 1,
-                  title:
-                    "Session One",
-                  work_items:
-                    mixedPrescriptionWorkItems(
-                      exerciseIds.slice(
-                        0,
-                        4
-                      )
-                    )
-                },
+                  sessions: [
+                    {
+                      session_id: "",
+                      order_index: 1,
+                      title:
+                        "Session One",
+                      work_items:
+                        mixedPrescriptionWorkItems(
+                          exerciseIds.slice(
+                            0,
+                            4
+                          )
+                        )
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              block_id: "",
+              order_index: 2,
+              name: "Strength Block",
+              description:
+                "Second ordered training block.",
+              block_type: "strength",
+              weeks: [
                 {
-                  session_id: "",
-                  order_index: 2,
-                  title:
-                    "Session Two",
-                  work_items:
-                    percentageWorkItems(
-                      exerciseIds.slice(
-                        4,
-                        8
-                      ),
-                      75
-                    )
+                  week_id: "",
+                  order_index: 1,
+                  sessions: [
+                    {
+                      session_id: "",
+                      order_index: 1,
+                      title:
+                        "Session Two",
+                      work_items:
+                        percentageWorkItems(
+                          exerciseIds.slice(
+                            4,
+                            8
+                          ),
+                          75
+                        )
+                    }
+                  ]
                 }
               ]
             }
@@ -872,6 +997,43 @@ test(
         ?.template
         ?.template_status,
       "draft"
+    );
+
+    assert.equal(
+      draft.json
+        ?.template
+        ?.block_count,
+      2
+    );
+
+    assert.equal(
+      draft.json
+        ?.template
+        ?.week_count,
+      2
+    );
+
+    assert.deepEqual(
+      draft.json
+        ?.template
+        ?.template_structure
+        ?.blocks
+        ?.map(
+          (block) => ({
+            name: block.name,
+            type: block.block_type
+          })
+        ),
+      [
+        {
+          name: "Volume Block",
+          type: "volume"
+        },
+        {
+          name: "Strength Block",
+          type: "strength"
+        }
+      ]
     );
 
     const templateId =
@@ -992,6 +1154,32 @@ test(
       "template assignment"
     );
 
+    const storedAssignments =
+      await request(
+        server.baseUrl,
+        "GET",
+        `/coach-workspace/assignments?coach_user_id=${encodeURIComponent(coachUserId)}`
+      );
+
+    assertStatus(
+      storedAssignments,
+      200,
+      "persisted coach assignments"
+    );
+
+    assert.ok(
+      storedAssignments.json
+        ?.assignments
+        ?.some(
+          (storedAssignment) =>
+            storedAssignment.assignment_id ===
+              assignment.json
+                ?.assignment
+                ?.assignment_id
+        ),
+      "Expected the assignment in the persisted coach workspace"
+    );
+
     const compileOne =
       await request(
         server.baseUrl,
@@ -1031,6 +1219,36 @@ test(
       compileOne.json
         ?.planned_session
         ?.exercises;
+
+    assert.deepEqual(
+      compiledExercises?.[0]
+        ?.resolved_load,
+      {
+        type: "resolved_load",
+        value: 80,
+        unit: "kg",
+        percentage: 80,
+        one_rep_max: 100,
+        one_rep_max_unit: "kg",
+        calculation_one_rep_max: 100,
+        calculation_one_rep_max_unit: "kg",
+        benchmark_basis:
+          "tested_1rm",
+        benchmark_effective_date:
+          "2026-07-20",
+        benchmark_id:
+          athleteProfile.json
+            ?.profile
+            ?.benchmarks
+            ?.[0]
+            ?.benchmark_id,
+        athlete_profile_record_sha256:
+          athleteProfile.json
+            ?.profile
+            ?.record_sha256,
+        rounding_increment: 2.5
+      }
+    );
 
     assert.deepEqual(
       compiledExercises?.[1]

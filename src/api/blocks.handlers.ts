@@ -348,6 +348,9 @@ export async function compileBlock(req: Request, res: Response) {
           coach_user_id:
             beta_session_binding
               .coach_user_id,
+          athlete_user_id:
+            beta_session_binding
+              .subject_user_id,
           assignment_id:
             beta_session_binding
               .assignment_id,
@@ -384,6 +387,14 @@ export async function compileBlock(req: Request, res: Response) {
             )
           : undefined;
 
+      const athleteProfileRecordSha256 =
+        templateExecution
+          ? asString(
+              templateExecution
+                .athlete_profile_record_sha256
+            )
+          : undefined;
+
       if (
         !templateRecordSha256 ||
         !templateSessionId
@@ -403,7 +414,10 @@ export async function compileBlock(req: Request, res: Response) {
               template_record_sha256:
                 templateRecordSha256,
               template_session_id:
-                templateSessionId
+                templateSessionId,
+              athlete_profile_record_sha256:
+                athleteProfileRecordSha256 ??
+                null
             }),
             "utf8"
           )

@@ -1261,3 +1261,212 @@ input:focus, select:focus, textarea:focus {
   .template-builder-heading { align-items: stretch; }
   .danger-panel { align-items: stretch; flex-direction: column; }
 }
+
+/* BETA-19 integrated coach programme workspace */
+.template-facts {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.template-card-facts {
+  display: flex;
+  margin-top: 0.55rem;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.template-card-facts span {
+  padding: 0.25rem 0.45rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  color: var(--stone-dim);
+  font-size: 0.68rem;
+}
+
+.template-blocks {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.template-block {
+  padding: 1rem;
+  border: 1px solid rgba(200, 155, 60, 0.38);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(200, 155, 60, 0.055), rgba(0, 0, 0, 0.1));
+}
+
+.template-block-header,
+.template-block-settings,
+.builder-action-row,
+.profile-save-row,
+.athlete-profile-header,
+.profile-benchmark-header {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.template-block-header {
+  margin-bottom: 0.9rem;
+  justify-content: space-between;
+}
+
+.template-block-header h3,
+.template-week-header h4 {
+  margin: 0.15rem 0 0;
+}
+
+.template-block-settings {
+  display: grid;
+  margin-bottom: 1rem;
+  grid-template-columns: minmax(180px, 0.65fr) minmax(150px, 0.35fr) minmax(260px, 1fr);
+  align-items: end;
+}
+
+.builder-action-row {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.builder-action-row .button[disabled] {
+  opacity: 0.32;
+}
+
+.template-session-title-field {
+  min-width: 220px;
+}
+
+.athlete-profile-panel {
+  margin-top: 1rem;
+}
+
+.athlete-profile-header,
+.profile-benchmark-header,
+.profile-save-row {
+  justify-content: space-between;
+}
+
+.athlete-profile-form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.profile-settings-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+}
+
+.benchmark-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.benchmark-row {
+  display: grid;
+  padding: 0.8rem;
+  gap: 0.65rem;
+  grid-template-columns:
+    minmax(180px, 1.1fr)
+    minmax(105px, 0.45fr)
+    minmax(80px, 0.3fr)
+    minmax(140px, 0.55fr)
+    minmax(145px, 0.55fr)
+    minmax(190px, 0.85fr)
+    auto;
+  align-items: end;
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.benchmark-row .field {
+  min-width: 0;
+}
+
+.benchmark-row input,
+.benchmark-row select {
+  width: 100%;
+  min-width: 0;
+}
+
+.athlete-record-card {
+  align-items: center;
+}
+
+.athlete-record-meta {
+  max-width: 620px;
+}
+
+.assignment-requirements {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  line-height: 1.5;
+}
+
+.assignment-requirements.neutral {
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--stone-dim);
+}
+
+.assignment-requirements.complete {
+  border-color: rgba(85, 165, 117, 0.45);
+  background: rgba(85, 165, 117, 0.09);
+}
+
+.assignment-requirements.warning {
+  border-color: rgba(200, 155, 60, 0.55);
+  background: rgba(200, 155, 60, 0.1);
+}
+
+.compact-empty {
+  min-height: 140px;
+}
+
+@media (max-width: 1350px) {
+  .benchmark-row {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+  }
+
+  .benchmark-note-field {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 1050px) {
+  .template-block-settings,
+  .profile-settings-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .template-block-description-field {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .template-facts,
+  .template-block-settings,
+  .profile-settings-grid,
+  .benchmark-row {
+    grid-template-columns: 1fr;
+  }
+
+  .template-block-header,
+  .template-week-header,
+  .template-session-header,
+  .athlete-profile-header,
+  .profile-benchmark-header,
+  .profile-save-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .builder-action-row {
+    justify-content: flex-start;
+  }
+
+  .benchmark-note-field {
+    grid-column: auto;
+  }
+}

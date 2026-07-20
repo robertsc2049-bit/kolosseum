@@ -209,3 +209,25 @@ ALTER TABLE beta_product_records
         'beta18_programme_template'
       )
     );
+
+
+-- beta_product_records_beta19_type_migration
+-- Additive BETA-19 factual athlete strength-reference records. These records
+-- are explicit deterministic compile references, not inferred coaching state.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile'
+      )
+    );

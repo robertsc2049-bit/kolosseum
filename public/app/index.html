@@ -127,7 +127,7 @@
           <span class="nav-icon">A</span><span>Athletes</span>
         </button>
         <button class="nav-item coach-nav" data-view="templates">
-          <span class="nav-icon">T</span><span>Templates</span>
+          <span class="nav-icon">P</span><span>Programmes</span>
         </button>
         <button class="nav-item coach-nav" data-view="assign">
           <span class="nav-icon">P</span><span>Assign</span>
@@ -346,6 +346,60 @@
               <div id="athleteRoster" class="record-list"></div>
             </article>
           </div>
+
+          <article id="athleteProfilePanel" class="panel athlete-profile-panel" hidden>
+            <div class="panel-header athlete-profile-header">
+              <div>
+                <p class="eyebrow">Athlete training profile</p>
+                <h3 id="athleteProfileHeading">Athlete profile</h3>
+                <p id="athleteProfileActivity" class="muted"></p>
+              </div>
+              <button id="closeAthleteProfileButton" class="button secondary" type="button">Close profile</button>
+            </div>
+
+            <form id="athleteProfileForm" class="athlete-profile-form">
+              <div class="profile-settings-grid">
+                <label class="field">
+                  <span>Preferred load unit</span>
+                  <select id="athletePreferredUnit">
+                    <option value="kg">Kilograms</option>
+                    <option value="lb">Pounds</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Load rounding increment</span>
+                  <input id="athleteRoundingIncrement" type="number" min="0.25" max="25" step="0.25" value="2.5" />
+                </label>
+                <label class="field">
+                  <span>Bodyweight</span>
+                  <input id="athleteBodyweight" type="number" min="10" max="500" step="0.1" placeholder="Optional" />
+                </label>
+                <label class="field">
+                  <span>Bodyweight unit</span>
+                  <select id="athleteBodyweightUnit">
+                    <option value="kg">kg</option>
+                    <option value="lb">lb</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="panel-header profile-benchmark-header">
+                <div>
+                  <p class="eyebrow">Strength references</p>
+                  <h3>1RM and training-max records</h3>
+                  <p class="muted">Record tested or estimated references used to resolve percentage-based working loads.</p>
+                </div>
+                <button id="addAthleteBenchmarkButton" class="button secondary" type="button">Add strength record</button>
+              </div>
+
+              <div id="athleteBenchmarkList" class="benchmark-list"></div>
+
+              <div class="profile-save-row">
+                <p id="athleteProfileStatus" class="muted small">No profile loaded.</p>
+                <button class="button primary" type="submit">Save athlete profile</button>
+              </div>
+            </form>
+          </article>
         </section>
 
 
@@ -354,23 +408,23 @@
             <div class="page-heading">
               <div>
                 <p class="eyebrow">Coach workspace</p>
-                <h2>Programme templates</h2>
-                <p class="muted">Build versioned, registry-bound training templates for supported activities.</p>
+                <h2>Programmes</h2>
+                <p class="muted">Build complete versioned programmes from training blocks, weeks, sessions and registry-backed exercises.</p>
               </div>
-              <button id="newTemplateButton" class="button primary" type="button">New template</button>
+              <button id="newTemplateButton" class="button primary" type="button">New programme</button>
             </div>
 
             <div class="metric-cards">
-              <article class="panel metric-card"><span>Draft templates</span><strong id="templateDraftCount">0</strong></article>
-              <article class="panel metric-card"><span>Active templates</span><strong id="templateActiveCount">0</strong></article>
-              <article class="panel metric-card"><span>Archived templates</span><strong id="templateArchivedCount">0</strong></article>
+              <article class="panel metric-card"><span>Draft programmes</span><strong id="templateDraftCount">0</strong></article>
+              <article class="panel metric-card"><span>Active programmes</span><strong id="templateActiveCount">0</strong></article>
+              <article class="panel metric-card"><span>Archived programmes</span><strong id="templateArchivedCount">0</strong></article>
             </div>
 
             <article class="panel">
               <div class="panel-header">
                 <div>
-                  <p class="eyebrow">Template library</p>
-                  <h3>Your programme templates</h3>
+                  <p class="eyebrow">Programme library</p>
+                  <h3>Your programmes</h3>
                 </div>
                 <button id="refreshTemplatesButton" class="button secondary" type="button">Refresh</button>
               </div>
@@ -381,22 +435,22 @@
           <div id="templateBuilderView" hidden>
             <div class="page-heading template-builder-heading">
               <div>
-                <button id="backToTemplatesButton" class="text-button back-button" type="button">← Template library</button>
+                <button id="backToTemplatesButton" class="text-button back-button" type="button">← Programme library</button>
                 <p class="eyebrow">Programme builder</p>
-                <h2 id="templateBuilderTitle">New template</h2>
-                <p class="muted">Each session contains exactly four registry-backed exercises. Repetitions may be fixed or a range. Loading may use % 1RM, a fixed weight, or bodyweight.</p>
+                <h2 id="templateBuilderTitle">New programme</h2>
+                <p class="muted">Build ordered training blocks. Each block contains weeks, each week contains sessions, and each session contains exactly four registry-backed exercises. Repetitions may be fixed or a range. Loading may use percentage of 1RM, fixed weight, or bodyweight. Percentage prescriptions resolve from the athlete profile when assigned.</p>
               </div>
               <div class="button-row">
                 <button id="saveTemplateButton" class="button secondary" type="button">Save draft</button>
-                <button id="activateTemplateButton" class="button primary" type="button">Activate template</button>
+                <button id="activateTemplateButton" class="button primary" type="button">Activate programme</button>
               </div>
             </div>
 
             <div class="template-builder-layout">
               <aside class="panel template-settings">
-                <p class="eyebrow">Template details</p>
+                <p class="eyebrow">Programme details</p>
                 <label class="field">
-                  <span>Template name</span>
+                  <span>Programme name</span>
                   <input id="templateName" maxlength="120" />
                 </label>
                 <label class="field">
@@ -409,21 +463,22 @@
                 </label>
                 <label class="field">
                   <span>Description</span>
-                  <textarea id="templateDescription" maxlength="1000" placeholder="Factual description of this template"></textarea>
+                  <textarea id="templateDescription" maxlength="1000" placeholder="Factual description of this programme"></textarea>
                 </label>
                 <div class="template-facts">
                   <div><span>Version</span><strong id="templateVersion">1</strong></div>
+                  <div><span>Blocks</span><strong id="templateBlockCount">1</strong></div>
                   <div><span>Weeks</span><strong id="templateWeekCount">1</strong></div>
                   <div><span>Sessions</span><strong id="templateSessionCount">1</strong></div>
                 </div>
                 <p class="muted small">
-                  Active versions are immutable. Editing an active template requires a duplicated version.
+                  Active versions are immutable. Editing an active programme requires a duplicated version.
                 </p>
               </aside>
 
               <div class="template-plan-column">
-                <div id="templateWeeks" class="template-weeks"></div>
-                <button id="addTemplateWeekButton" class="button secondary wide" type="button">Add week</button>
+                <div id="templateBlocks" class="template-blocks"></div>
+                <button id="addTemplateBlockButton" class="button secondary wide" type="button">Add training block</button>
               </div>
             </div>
           </div>
@@ -434,17 +489,20 @@
             <div>
               <p class="eyebrow">Coach workspace</p>
               <h2>Assign training</h2>
-              <p class="muted">Record a template assignment without altering the athlete declaration.</p>
+              <p class="muted">Assign an active programme after checking athlete strength references. The assignment does not alter the athlete declaration.</p>
             </div>
           </div>
           <form id="assignmentForm" class="panel form-panel narrow">
             <label class="field"><span>Athlete</span><select id="assignmentAthlete" required></select></label>
-            <label class="field"><span>Template</span>
+            <label class="field"><span>Programme</span>
               <select id="assignmentTemplate" required>
-                <option value="">No active templates</option>
+                <option value="">No active programmes</option>
               </select>
             </label>
-            <button class="button primary" type="submit">Record assignment</button>
+            <div id="assignmentRequirements" class="assignment-requirements neutral">
+              Select an athlete and programme to check percentage-load references.
+            </div>
+            <button id="assignmentSubmitButton" class="button primary" type="submit">Record assignment</button>
             <p id="assignmentResult" class="inline-result" hidden></p>
           </form>
         </section>

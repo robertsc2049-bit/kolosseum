@@ -355,6 +355,10 @@
     {
       "kind": "command",
       "value": "node test/product_template_prescription_modes.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/product_coach_programme_workspace.test.mjs"
     }
   ]
 }

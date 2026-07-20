@@ -14,6 +14,10 @@ import {
   loadLatestBetaProductRecord,
   persistBetaProductRecord
 } from "./beta_product_record_store.js";
+import {
+  loadAthleteStrengthProfile,
+  resolvePercentageLoad
+} from "./beta19_coach_workspace_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -46,6 +50,16 @@ const workItemRoles =
   new Set([
     "primary",
     "accessory"
+  ]);
+
+const trainingBlockTypes =
+  new Set([
+    "general",
+    "volume",
+    "strength",
+    "peak",
+    "deload",
+    "custom"
   ]);
 
 const repModes =
@@ -644,25 +658,45 @@ async function requireActiveCoach(
   return coachProfile;
 }
 
-function templateInputWeeks(
+function templateInputBlocks(
   input: JsonRecord
-): unknown[] {
-  if (!Array.isArray(input.weeks)) {
-    throw new Beta18ProgrammeTemplateError(
-      "weeks_required"
-    );
+): readonly JsonRecord[] {
+  if (Array.isArray(input.blocks)) {
+    if (
+      input.blocks.length < 1 ||
+      input.blocks.length > 12
+    ) {
+      throw new Beta18ProgrammeTemplateError(
+        "block_count_invalid"
+      );
+    }
+
+    return input.blocks.map((block) => {
+      if (!isRecord(block)) {
+        throw new Beta18ProgrammeTemplateError(
+          "block_invalid"
+        );
+      }
+      return block;
+    });
   }
 
-  if (
-    input.weeks.length < 1 ||
-    input.weeks.length > 52
-  ) {
-    throw new Beta18ProgrammeTemplateError(
-      "week_count_invalid"
-    );
+  if (Array.isArray(input.weeks)) {
+    return [
+      {
+        block_id: "",
+        order_index: 1,
+        name: "Block 1",
+        description: "",
+        block_type: "general",
+        weeks: input.weeks
+      }
+    ];
   }
 
-  return input.weeks;
+  throw new Beta18ProgrammeTemplateError(
+    "blocks_required"
+  );
 }
 
 type NormalisedTemplateStructure =
@@ -670,6 +704,8 @@ type NormalisedTemplateStructure =
     template_structure: Readonly<JsonRecord>;
     exercise_ids: readonly string[];
     equipment_ids: readonly string[];
+    block_count: number;
+    week_count: number;
     session_count: number;
   }>;
 
@@ -681,8 +717,8 @@ function normaliseTemplateStructure(
       typeof loadExerciseRegistry
     >
 ): NormalisedTemplateStructure {
-  const rawWeeks =
-    templateInputWeeks(input);
+  const rawBlocks =
+    templateInputBlocks(input);
 
   const exerciseIds =
     new Set<string>();
@@ -690,374 +726,484 @@ function normaliseTemplateStructure(
   const equipmentIds =
     new Set<string>();
 
+  let weekCount = 0;
   let sessionCount = 0;
 
-  const weeks =
-    rawWeeks.map(
+  const blocks =
+    rawBlocks.map(
       (
-        rawWeek,
-        weekIndex
+        rawBlock,
+        blockIndex
       ) => {
-        if (!isRecord(rawWeek)) {
-          throw new Beta18ProgrammeTemplateError(
-            "week_invalid"
-          );
-        }
-
         exactKeys(
-          rawWeek,
+          rawBlock,
           [
-            "week_id",
+            "block_id",
             "order_index",
-            "sessions"
+            "name",
+            "description",
+            "block_type",
+            "weeks"
           ],
-          "week"
+          "block"
         );
 
-        const orderIndex =
+        const blockOrder =
           integerInRange(
-            rawWeek.order_index,
+            rawBlock.order_index,
             1,
-            52,
-            "week_order_invalid"
+            12,
+            "block_order_invalid"
           );
 
         if (
-          orderIndex !==
-          weekIndex + 1
+          blockOrder !==
+          blockIndex + 1
         ) {
           throw new Beta18ProgrammeTemplateError(
-            "week_order_not_contiguous"
+            "block_order_not_contiguous"
           );
         }
 
-        const weekId =
+        const blockId =
           cleanString(
-            rawWeek.week_id
+            rawBlock.block_id
           ) ||
-          `${templateId}_week_${orderIndex}`;
+          `${templateId}_block_${blockOrder}`;
+
+        const blockName =
+          cleanString(
+            rawBlock.name
+          ) ||
+          `Block ${blockOrder}`;
+
+        if (blockName.length > 120) {
+          throw new Beta18ProgrammeTemplateError(
+            "block_name_too_long"
+          );
+        }
+
+        const blockDescription =
+          cleanString(
+            rawBlock.description
+          );
+
+        if (blockDescription.length > 500) {
+          throw new Beta18ProgrammeTemplateError(
+            "block_description_too_long"
+          );
+        }
+
+        const blockType =
+          cleanString(
+            rawBlock.block_type
+          ) ||
+          "general";
+
+        if (!trainingBlockTypes.has(blockType)) {
+          throw new Beta18ProgrammeTemplateError(
+            "block_type_invalid"
+          );
+        }
 
         if (
           !Array.isArray(
-            rawWeek.sessions
+            rawBlock.weeks
           ) ||
-          rawWeek.sessions.length < 1 ||
-          rawWeek.sessions.length > 7
+          rawBlock.weeks.length < 1 ||
+          rawBlock.weeks.length > 52
         ) {
           throw new Beta18ProgrammeTemplateError(
-            "session_count_per_week_invalid"
+            "week_count_per_block_invalid"
           );
         }
 
-        const days =
-          rawWeek.sessions.map(
+        weekCount += rawBlock.weeks.length;
+
+        if (weekCount > 104) {
+          throw new Beta18ProgrammeTemplateError(
+            "total_week_count_invalid"
+          );
+        }
+
+        const weeks =
+          rawBlock.weeks.map(
             (
-              rawSession,
-              sessionIndex
+              rawWeek,
+              weekIndex
             ) => {
-              if (
-                !isRecord(
-                  rawSession
-                )
-              ) {
+              if (!isRecord(rawWeek)) {
                 throw new Beta18ProgrammeTemplateError(
-                  "session_invalid"
+                  "week_invalid"
                 );
               }
 
               exactKeys(
-                rawSession,
+                rawWeek,
                 [
-                  "session_id",
+                  "week_id",
                   "order_index",
-                  "title",
-                  "work_items"
+                  "sessions"
                 ],
-                "session"
+                "week"
               );
 
-              const sessionOrder =
+              const orderIndex =
                 integerInRange(
-                  rawSession.order_index,
+                  rawWeek.order_index,
                   1,
-                  7,
-                  "session_order_invalid"
+                  52,
+                  "week_order_invalid"
                 );
 
               if (
-                sessionOrder !==
-                sessionIndex + 1
+                orderIndex !==
+                weekIndex + 1
               ) {
                 throw new Beta18ProgrammeTemplateError(
-                  "session_order_not_contiguous"
+                  "week_order_not_contiguous"
                 );
               }
 
-              const sessionId =
+              const weekId =
                 cleanString(
-                  rawSession.session_id
+                  rawWeek.week_id
                 ) ||
-                `${weekId}_session_${sessionOrder}`;
-
-              const sessionTitle =
-                cleanString(
-                  rawSession.title
-                ) ||
-                `Session ${sessionOrder}`;
+                `${blockId}_week_${orderIndex}`;
 
               if (
                 !Array.isArray(
-                  rawSession.work_items
+                  rawWeek.sessions
                 ) ||
-                rawSession.work_items.length !==
-                  4
+                rawWeek.sessions.length < 1 ||
+                rawWeek.sessions.length > 7
               ) {
                 throw new Beta18ProgrammeTemplateError(
-                  "session_requires_exactly_four_work_items"
+                  "session_count_per_week_invalid"
                 );
               }
 
-              const sessionExerciseIds =
-                new Set<string>();
-
-              const workItems =
-                rawSession.work_items.map(
+              const days =
+                rawWeek.sessions.map(
                   (
-                    rawWorkItem,
-                    workItemIndex
+                    rawSession,
+                    sessionIndex
                   ) => {
                     if (
                       !isRecord(
-                        rawWorkItem
+                        rawSession
                       )
                     ) {
                       throw new Beta18ProgrammeTemplateError(
-                        "work_item_invalid"
+                        "session_invalid"
                       );
                     }
 
                     exactKeys(
-                      rawWorkItem,
+                      rawSession,
                       [
-                        "work_item_id",
+                        "session_id",
                         "order_index",
-                        "exercise_id",
-                        "planned_sets",
-                        "rep_mode",
-                        "planned_reps",
-                        "rep_min",
-                        "rep_max",
-                        "load_mode",
-                        "percent_1rm",
-                        "weight_value",
-                        "weight_unit",
-                        "rest_seconds",
-                        "role"
+                        "title",
+                        "work_items"
                       ],
-                      "work_item"
+                      "session"
                     );
 
-                    const workItemOrder =
+                    const sessionOrder =
                       integerInRange(
-                        rawWorkItem
-                          .order_index,
+                        rawSession.order_index,
                         1,
-                        4,
-                        "work_item_order_invalid"
+                        7,
+                        "session_order_invalid"
                       );
 
                     if (
-                      workItemOrder !==
-                        workItemIndex + 1
+                      sessionOrder !==
+                      sessionIndex + 1
                     ) {
                       throw new Beta18ProgrammeTemplateError(
-                        "work_item_order_not_contiguous"
+                        "session_order_not_contiguous"
                       );
                     }
 
-                    const exerciseId =
+                    const sessionId =
                       cleanString(
-                        rawWorkItem
-                          .exercise_id
-                      );
-
-                    const exercise =
-                      registry
-                        .entries[
-                        exerciseId
-                      ];
-
-                    if (!exercise) {
-                      throw new Beta18ProgrammeTemplateError(
-                        "exercise_not_in_active_registry"
-                      );
-                    }
-
-                    if (
-                      sessionExerciseIds.has(
-                        exerciseId
-                      )
-                    ) {
-                      throw new Beta18ProgrammeTemplateError(
-                        "duplicate_exercise_in_session"
-                      );
-                    }
-
-                    sessionExerciseIds.add(
-                      exerciseId
-                    );
-
-                    exerciseIds.add(
-                      exerciseId
-                    );
-
-                    const equipment =
-                      Array.isArray(
-                        exercise.equipment
-                      )
-                        ? exercise
-                            .equipment
-                            .map(cleanString)
-                            .filter(Boolean)
-                        : [];
-
-                    for (
-                      const equipmentId of
-                      equipment
-                    ) {
-                      equipmentIds.add(
-                        equipmentId
-                      );
-                    }
-
-                    const plannedSets =
-                      integerInRange(
-                        rawWorkItem
-                          .planned_sets,
-                        1,
-                        20,
-                        "planned_sets_invalid"
-                      );
-
-                    const repPrescription =
-                      repPrescriptionFromInput(
-                        rawWorkItem
-                      );
-
-                    const loadingReference =
-                      loadingReferenceFromInput(
-                        rawWorkItem
-                      );
-
-                    const restSeconds =
-                      integerInRange(
-                        rawWorkItem
-                          .rest_seconds,
-                        0,
-                        900,
-                        "rest_seconds_invalid"
-                      );
-
-                    const role =
-                      cleanString(
-                        rawWorkItem.role
-                      );
-
-                    if (
-                      !workItemRoles.has(
-                        role
-                      )
-                    ) {
-                      throw new Beta18ProgrammeTemplateError(
-                        "work_item_role_invalid"
-                      );
-                    }
-
-                    const workItemId =
-                      cleanString(
-                        rawWorkItem
-                          .work_item_id
+                        rawSession.session_id
                       ) ||
-                      `${sessionId}_item_${workItemOrder}`;
+                      `${weekId}_session_${sessionOrder}`;
+
+                    const sessionTitle =
+                      cleanString(
+                        rawSession.title
+                      ) ||
+                      `Session ${sessionOrder}`;
+
+                    if (
+                      !Array.isArray(
+                        rawSession.work_items
+                      ) ||
+                      rawSession.work_items.length !==
+                        4
+                    ) {
+                      throw new Beta18ProgrammeTemplateError(
+                        "session_requires_exactly_four_work_items"
+                      );
+                    }
+
+                    const sessionExerciseIds =
+                      new Set<string>();
+
+                    const workItems =
+                      rawSession.work_items.map(
+                        (
+                          rawWorkItem,
+                          workItemIndex
+                        ) => {
+                          if (
+                            !isRecord(
+                              rawWorkItem
+                            )
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_invalid"
+                            );
+                          }
+
+                          exactKeys(
+                            rawWorkItem,
+                            [
+                              "work_item_id",
+                              "order_index",
+                              "exercise_id",
+                              "planned_sets",
+                              "rep_mode",
+                              "planned_reps",
+                              "rep_min",
+                              "rep_max",
+                              "load_mode",
+                              "percent_1rm",
+                              "weight_value",
+                              "weight_unit",
+                              "rest_seconds",
+                              "role"
+                            ],
+                            "work_item"
+                          );
+
+                          const workItemOrder =
+                            integerInRange(
+                              rawWorkItem
+                                .order_index,
+                              1,
+                              4,
+                              "work_item_order_invalid"
+                            );
+
+                          if (
+                            workItemOrder !==
+                              workItemIndex + 1
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_order_not_contiguous"
+                            );
+                          }
+
+                          const exerciseId =
+                            cleanString(
+                              rawWorkItem
+                                .exercise_id
+                            );
+
+                          const exercise =
+                            registry
+                              .entries[
+                              exerciseId
+                            ];
+
+                          if (!exercise) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "exercise_not_in_active_registry"
+                            );
+                          }
+
+                          if (
+                            sessionExerciseIds.has(
+                              exerciseId
+                            )
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "duplicate_exercise_in_session"
+                            );
+                          }
+
+                          sessionExerciseIds.add(
+                            exerciseId
+                          );
+
+                          exerciseIds.add(
+                            exerciseId
+                          );
+
+                          const equipment =
+                            Array.isArray(
+                              exercise.equipment
+                            )
+                              ? exercise
+                                  .equipment
+                                  .map(cleanString)
+                                  .filter(Boolean)
+                              : [];
+
+                          for (
+                            const equipmentId of
+                            equipment
+                          ) {
+                            equipmentIds.add(
+                              equipmentId
+                            );
+                          }
+
+                          const plannedSets =
+                            integerInRange(
+                              rawWorkItem
+                                .planned_sets,
+                              1,
+                              20,
+                              "planned_sets_invalid"
+                            );
+
+                          const repPrescription =
+                            repPrescriptionFromInput(
+                              rawWorkItem
+                            );
+
+                          const loadingReference =
+                            loadingReferenceFromInput(
+                              rawWorkItem
+                            );
+
+                          const restSeconds =
+                            integerInRange(
+                              rawWorkItem
+                                .rest_seconds,
+                              0,
+                              900,
+                              "rest_seconds_invalid"
+                            );
+
+                          const role =
+                            cleanString(
+                              rawWorkItem.role
+                            );
+
+                          if (
+                            !workItemRoles.has(
+                              role
+                            )
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_role_invalid"
+                            );
+                          }
+
+                          const workItemId =
+                            cleanString(
+                              rawWorkItem
+                                .work_item_id
+                            ) ||
+                            `${sessionId}_item_${workItemOrder}`;
+
+                          return deepFreeze({
+                            work_item_id:
+                              workItemId,
+                            order_index:
+                              workItemOrder,
+                            exercise_id:
+                              exerciseId,
+                            planned_sets:
+                              plannedSets,
+                            planned_reps:
+                              repPrescription
+                                .planned_reps,
+                            rep_prescription:
+                              repPrescription
+                                .rep_prescription,
+                            loading_reference:
+                              loadingReference,
+                            equipment_requirement_ids:
+                              [...equipment]
+                                .sort(),
+                            substitution_policy_id:
+                              "runtime_registry_default",
+                            role,
+                            rest_seconds:
+                              restSeconds
+                          });
+                        }
+                      );
+
+                    sessionCount += 1;
 
                     return deepFreeze({
-                      work_item_id:
-                        workItemId,
+                      day_id:
+                        `${weekId}_day_${sessionOrder}`,
                       order_index:
-                        workItemOrder,
-                      exercise_id:
-                        exerciseId,
-                      planned_sets:
-                        plannedSets,
-                      planned_reps:
-                        repPrescription
-                          .planned_reps,
-                      rep_prescription:
-                        repPrescription
-                          .rep_prescription,
-                      loading_reference:
-                        loadingReference,
-                      equipment_requirement_ids:
-                        [...equipment]
-                          .sort(),
-                      substitution_policy_id:
-                        "runtime_registry_default",
-                      role,
-                      rest_seconds:
-                        restSeconds
+                        sessionOrder,
+                      sessions: [
+                        deepFreeze({
+                          session_id:
+                            sessionId,
+                          order_index: 1,
+                          title:
+                            sessionTitle,
+                          work_items:
+                            workItems
+                        })
+                      ]
                     });
                   }
                 );
 
-              sessionCount += 1;
-
               return deepFreeze({
-                day_id:
-                  `${weekId}_day_${sessionOrder}`,
+                week_id:
+                  weekId,
                 order_index:
-                  sessionOrder,
-                sessions: [
-                  deepFreeze({
-                    session_id:
-                      sessionId,
-                    order_index: 1,
-                    title:
-                      sessionTitle,
-                    work_items:
-                      workItems
-                  })
-                ]
+                  orderIndex,
+                days
               });
             }
           );
 
         return deepFreeze({
-          week_id:
-            weekId,
+          block_id:
+            blockId,
           order_index:
-            orderIndex,
-          days
+            blockOrder,
+          name:
+            blockName,
+          description:
+            blockDescription,
+          block_type:
+            blockType,
+          weeks
         });
       }
     );
 
-  const block =
-    deepFreeze({
-      block_id:
-        `${templateId}_block_1`,
-      order_index: 1,
-      weeks
-    });
-
   return deepFreeze({
     template_structure:
       deepFreeze({
-        blocks: [block]
+        blocks
       }),
     exercise_ids:
       [...exerciseIds].sort(),
     equipment_ids:
       [...equipmentIds].sort(),
+    block_count:
+      blocks.length,
+    week_count:
+      weekCount,
     session_count:
       sessionCount
   });
@@ -1073,269 +1219,277 @@ function templateRecordInput(
       ? record.template_structure
       : {};
 
-  const blocks =
+  const rawBlocks =
     Array.isArray(
       structure.blocks
     )
       ? structure.blocks
       : [];
 
-  const firstBlock =
-    isRecord(blocks[0])
-      ? blocks[0]
-      : {};
-
-  const rawWeeks =
-    Array.isArray(
-      firstBlock.weeks
-    )
-      ? firstBlock.weeks
-      : [];
-
-  const weeks =
-    rawWeeks.map(
+  const blocks =
+    rawBlocks.map(
       (
-        rawWeek,
-        weekIndex
+        rawBlock,
+        blockIndex
       ) => {
-        const week =
-          isRecord(rawWeek)
-            ? rawWeek
+        const block =
+          isRecord(rawBlock)
+            ? rawBlock
             : {};
 
-        const rawDays =
+        const rawWeeks =
           Array.isArray(
-            week.days
+            block.weeks
           )
-            ? week.days
+            ? block.weeks
             : [];
 
-        const sessions =
-          rawDays.flatMap(
+        const weeks =
+          rawWeeks.map(
             (
-              rawDay,
-              dayIndex
+              rawWeek,
+              weekIndex
             ) => {
-              const day =
-                isRecord(rawDay)
-                  ? rawDay
+              const week =
+                isRecord(rawWeek)
+                  ? rawWeek
                   : {};
 
-              const daySessions =
+              const rawDays =
                 Array.isArray(
-                  day.sessions
+                  week.days
                 )
-                  ? day.sessions
+                  ? week.days
                   : [];
 
-              return daySessions.map(
-                (
-                  rawSession,
-                  sessionIndex
-                ) => {
-                  const session =
-                    isRecord(
-                      rawSession
-                    )
-                      ? rawSession
-                      : {};
+              const sessions =
+                rawDays.flatMap(
+                  (
+                    rawDay,
+                    dayIndex
+                  ) => {
+                    const day =
+                      isRecord(rawDay)
+                        ? rawDay
+                        : {};
 
-                  const rawWorkItems =
-                    Array.isArray(
-                      session.work_items
-                    )
-                      ? session
-                          .work_items
-                      : [];
+                    const daySessions =
+                      Array.isArray(
+                        day.sessions
+                      )
+                        ? day.sessions
+                        : [];
 
-                  const workItems =
-                    rawWorkItems.map(
+                    return daySessions.map(
                       (
-                        rawWorkItem,
-                        workItemIndex
+                        rawSession,
+                        sessionIndex
                       ) => {
-                        const workItem =
+                        const session =
                           isRecord(
-                            rawWorkItem
+                            rawSession
                           )
-                            ? rawWorkItem
+                            ? rawSession
                             : {};
 
-                        const loading =
-                          isRecord(
-                            workItem
-                              .loading_reference
+                        const rawWorkItems =
+                          Array.isArray(
+                            session.work_items
                           )
-                            ? workItem
-                                .loading_reference
-                            : {};
+                            ? session
+                                .work_items
+                            : [];
+
+                        const workItems =
+                          rawWorkItems.map(
+                            (
+                              rawWorkItem,
+                              workItemIndex
+                            ) => {
+                              const workItem =
+                                isRecord(
+                                  rawWorkItem
+                                )
+                                  ? rawWorkItem
+                                  : {};
+
+                              const loading =
+                                isRecord(
+                                  workItem
+                                    .loading_reference
+                                )
+                                  ? workItem
+                                      .loading_reference
+                                  : {};
+
+                              const rep =
+                                isRecord(
+                                  workItem
+                                    .rep_prescription
+                                )
+                                  ? workItem
+                                      .rep_prescription
+                                  : {};
+
+                              return {
+                                work_item_id:
+                                  cleanString(
+                                    workItem
+                                      .work_item_id
+                                  ),
+                                order_index:
+                                  Number(
+                                    workItem
+                                      .order_index ??
+                                    workItemIndex +
+                                      1
+                                  ),
+                                exercise_id:
+                                  cleanString(
+                                    workItem
+                                      .exercise_id
+                                  ),
+                                planned_sets:
+                                  Number(
+                                    workItem
+                                      .planned_sets
+                                  ),
+                                rep_mode:
+                                  cleanString(
+                                    rep.type
+                                  ) === "range"
+                                    ? "range"
+                                    : "fixed",
+                                planned_reps:
+                                  Number(
+                                    rep.value ??
+                                    workItem
+                                      .planned_reps
+                                  ),
+                                rep_min:
+                                  Number(
+                                    rep.minimum ??
+                                    workItem
+                                      .planned_reps
+                                  ),
+                                rep_max:
+                                  Number(
+                                    rep.maximum ??
+                                    workItem
+                                      .planned_reps
+                                  ),
+                                load_mode:
+                                  cleanString(
+                                    loading.type
+                                  ) === "load"
+                                    ? "fixed_weight"
+                                    : cleanString(
+                                        loading.type
+                                      ) === "bodyweight"
+                                      ? "bodyweight"
+                                      : "percent_1rm",
+                                percent_1rm:
+                                  cleanString(
+                                    loading.type
+                                  ) === "percent_1rm"
+                                    ? Number(
+                                        loading.value
+                                      )
+                                    : 75,
+                                weight_value:
+                                  cleanString(
+                                    loading.type
+                                  ) === "load"
+                                    ? Number(
+                                        loading.value
+                                      )
+                                    : 20,
+                                weight_unit:
+                                  cleanString(
+                                    loading.unit
+                                  ) === "lb"
+                                    ? "lb"
+                                    : "kg",
+                                rest_seconds:
+                                  Number(
+                                    workItem
+                                      .rest_seconds
+                                  ),
+                                role:
+                                  cleanString(
+                                    workItem.role
+                                  )
+                              };
+                            }
+                          );
 
                         return {
-                          work_item_id:
+                          session_id:
                             cleanString(
-                              workItem
-                                .work_item_id
+                              session
+                                .session_id
                             ),
                           order_index:
                             Number(
-                              workItem
+                              day.order_index ??
+                              session
                                 .order_index ??
-                              workItemIndex +
+                              dayIndex +
+                                sessionIndex +
                                 1
                             ),
-                          exercise_id:
+                          title:
                             cleanString(
-                              workItem
-                                .exercise_id
+                              session.title
                             ),
-                          planned_sets:
-                            Number(
-                              workItem
-                                .planned_sets
-                            ),
-                          rep_mode:
-                            cleanString(
-                              (
-                                isRecord(
-                                  workItem
-                                    .rep_prescription
-                                )
-                                  ? workItem
-                                      .rep_prescription
-                                      .type
-                                  : ""
-                              )
-                            ) === "range"
-                              ? "range"
-                              : "fixed",
-                          planned_reps:
-                            Number(
-                              (
-                                isRecord(
-                                  workItem
-                                    .rep_prescription
-                                )
-                                  ? workItem
-                                      .rep_prescription
-                                      .value
-                                  : undefined
-                              ) ??
-                              workItem
-                                .planned_reps
-                            ),
-                          rep_min:
-                            Number(
-                              (
-                                isRecord(
-                                  workItem
-                                    .rep_prescription
-                                )
-                                  ? workItem
-                                      .rep_prescription
-                                      .minimum
-                                  : undefined
-                              ) ??
-                              workItem
-                                .planned_reps
-                            ),
-                          rep_max:
-                            Number(
-                              (
-                                isRecord(
-                                  workItem
-                                    .rep_prescription
-                                )
-                                  ? workItem
-                                      .rep_prescription
-                                      .maximum
-                                  : undefined
-                              ) ??
-                              workItem
-                                .planned_reps
-                            ),
-                          load_mode:
-                            cleanString(
-                              loading.type
-                            ) === "load"
-                              ? "fixed_weight"
-                              : cleanString(
-                                  loading.type
-                                ) === "bodyweight"
-                                ? "bodyweight"
-                                : "percent_1rm",
-                          percent_1rm:
-                            cleanString(
-                              loading.type
-                            ) === "percent_1rm"
-                              ? Number(
-                                  loading.value
-                                )
-                              : 75,
-                          weight_value:
-                            cleanString(
-                              loading.type
-                            ) === "load"
-                              ? Number(
-                                  loading.value
-                                )
-                              : 20,
-                          weight_unit:
-                            cleanString(
-                              loading.unit
-                            ) === "lb"
-                              ? "lb"
-                              : "kg",
-                          rest_seconds:
-                            Number(
-                              workItem
-                                .rest_seconds
-                            ),
-                          role:
-                            cleanString(
-                              workItem.role
-                            )
+                          work_items:
+                            workItems
                         };
                       }
                     );
+                  }
+                );
 
-                  return {
-                    session_id:
-                      cleanString(
-                        session
-                          .session_id
-                      ),
-                    order_index:
-                      Number(
-                        day.order_index ??
-                        session
-                          .order_index ??
-                        dayIndex +
-                          sessionIndex +
-                          1
-                      ),
-                    title:
-                      cleanString(
-                        session.title
-                      ),
-                    work_items:
-                      workItems
-                  };
-                }
-              );
+              return {
+                week_id:
+                  cleanString(
+                    week.week_id
+                  ),
+                order_index:
+                  Number(
+                    week.order_index ??
+                    weekIndex + 1
+                  ),
+                sessions
+              };
             }
           );
 
         return {
-          week_id:
+          block_id:
             cleanString(
-              week.week_id
+              block.block_id
             ),
           order_index:
             Number(
-              week.order_index ??
-              weekIndex + 1
+              block.order_index ??
+              blockIndex + 1
             ),
-          sessions
+          name:
+            cleanString(
+              block.name
+            ) ||
+            `Block ${blockIndex + 1}`,
+          description:
+            cleanString(
+              block.description
+            ),
+          block_type:
+            cleanString(
+              block.block_type
+            ) ||
+            "general",
+          weeks
         };
       }
     );
@@ -1369,7 +1523,7 @@ function templateRecordInput(
       cleanString(
         record.activity_id
       ),
-    weeks,
+    blocks,
     updated_at_iso8601:
       new Date().toISOString()
   };
@@ -1510,6 +1664,7 @@ export async function saveCoachProgrammeTemplate(
       "template_name",
       "description",
       "activity_id",
+      "blocks",
       "weeks",
       "updated_at_iso8601"
     ],
@@ -1682,7 +1837,7 @@ export async function saveCoachProgrammeTemplate(
       template_version:
         templateVersion,
       contract_version:
-        "beta18.2.0.0",
+        "beta18.3.0.0",
       template_status:
         "draft",
       template_name:
@@ -1766,6 +1921,10 @@ export async function saveCoachProgrammeTemplate(
         "registry_bound",
         "coach_authored_beta"
       ],
+      block_count:
+        normalised.block_count,
+      week_count:
+        normalised.week_count,
       session_count:
         normalised.session_count,
       created_at_iso8601:
@@ -2281,9 +2440,25 @@ function orderedTemplateSessions(
                 cleanString(
                   block.block_id
                 ),
+              template_block_name:
+                cleanString(
+                  block.name
+                ),
+              template_block_type:
+                cleanString(
+                  block.block_type
+                ),
+              template_block_order:
+                Number(
+                  block.order_index
+                ),
               template_week_id:
                 cleanString(
                   week.week_id
+                ),
+              template_week_order:
+                Number(
+                  week.order_index
                 ),
               template_day_id:
                 cleanString(
@@ -2302,6 +2477,7 @@ function orderedTemplateSessions(
 export async function materialiseNextCoachTemplateProgram(
   input: Readonly<{
     coach_user_id: string;
+    athlete_user_id: string;
     assignment_id: string;
     template_id: string;
     base_program: JsonRecord;
@@ -2310,6 +2486,11 @@ export async function materialiseNextCoachTemplateProgram(
   const coachUserId =
     cleanString(
       input.coach_user_id
+    );
+
+  const athleteUserId =
+    cleanString(
+      input.athlete_user_id
     );
 
   const assignmentId =
@@ -2399,6 +2580,23 @@ export async function materialiseNextCoachTemplateProgram(
     );
   }
 
+  const percentageProfileRequired =
+    rawWorkItems.some(
+      (workItem) =>
+        loadingReferenceFromStored(
+          workItem
+        ).type ===
+          "percent_1rm"
+    );
+
+  const athleteProfile =
+    percentageProfileRequired
+      ? await loadAthleteStrengthProfile(
+          coachUserId,
+          athleteUserId
+        )
+      : null;
+
   const plannedItems =
     rawWorkItems.map(
       (
@@ -2427,6 +2625,26 @@ export async function materialiseNextCoachTemplateProgram(
         ) {
           throw new Beta18ProgrammeTemplateError(
             "assigned_template_registry_reference_invalid"
+          );
+        }
+
+        const resolvedLoad =
+          loadingReference.type ===
+            "percent_1rm"
+            ? resolvePercentageLoad(
+                athleteProfile,
+                exerciseId,
+                loadingReference.value
+              )
+            : null;
+
+        if (
+          loadingReference.type ===
+            "percent_1rm" &&
+          !resolvedLoad
+        ) {
+          throw new Beta18ProgrammeTemplateError(
+            "athlete_one_rep_max_missing"
           );
         }
 
@@ -2481,6 +2699,8 @@ export async function materialiseNextCoachTemplateProgram(
             : {}),
           intensity:
             loadingReference,
+          resolved_load:
+            resolvedLoad,
           rest_seconds:
             Number(
               workItem
@@ -2574,6 +2794,29 @@ export async function materialiseNextCoachTemplateProgram(
           nextIndex,
         template_session_title:
           selectedSession.title,
+        template_block_id:
+          selectedSession
+            .template_block_id,
+        template_block_name:
+          selectedSession
+            .template_block_name,
+        template_block_type:
+          selectedSession
+            .template_block_type,
+        template_block_order:
+          selectedSession
+            .template_block_order,
+        template_week_id:
+          selectedSession
+            .template_week_id,
+        template_week_order:
+          selectedSession
+            .template_week_order,
+        athlete_profile_record_sha256:
+          cleanString(
+            athleteProfile
+              ?.record_sha256
+          ) || null,
         order_policy:
           "explicit_order_index_only",
         registry_reference_policy:

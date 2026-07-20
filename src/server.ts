@@ -10,6 +10,7 @@ import path from "node:path";
 import { sessionsRouter } from "./api/sessions.routes.js";
 import { blocksRouter } from "./api/blocks.routes.js";
 import { templatesRouter } from "./api/templates.routes.js";
+import { coachWorkspaceRouter } from "./api/coach_workspace.routes.js";
 import { apiErrorMiddleware } from "./api/error_middleware.js";
 
 import { VERSION } from "./version.js";
@@ -76,6 +77,7 @@ app.get("/ui/decision-summary/:run_id", (req, res) => {
 });
 
 app.use("/templates", templatesRouter);
+app.use("/coach-workspace", coachWorkspaceRouter);
 app.use("/sessions", sessionsRouter);
 app.use("/blocks", blocksRouter);
 

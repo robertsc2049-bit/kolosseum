@@ -30,6 +30,18 @@ export type Phase6SessionExercise = {
         unit?: "kg" | "lb";
       }
     | { type: "bodyweight" };
+  resolved_load?: {
+    type: "resolved_load";
+    value: number;
+    unit: "kg" | "lb";
+    percentage: number;
+    one_rep_max: number;
+    benchmark_basis: string;
+    benchmark_effective_date: string;
+    benchmark_id: string;
+    athlete_profile_record_sha256: string;
+    rounding_increment: number;
+  } | null;
   rest_seconds?: number;
 
   // Substitution trace (ONLY if the substituted exercise is emitted)
@@ -212,6 +224,9 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
       reps: typeof it.reps === "number" ? it.reps : 0,
       ...(repRange ? { rep_range: repRange } : {}),
       intensity: it.intensity,
+      resolved_load: isRecord(it.resolved_load)
+        ? it.resolved_load as Phase6SessionExercise["resolved_load"]
+        : null,
       rest_seconds: typeof it.rest_seconds === "number" ? it.rest_seconds : undefined
     };
 

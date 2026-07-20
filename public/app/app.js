@@ -19,6 +19,9 @@ const DEFAULT_STATE = Object.freeze({
   coachTemplates: [],
   templateExercises: [],
   templateDraft: null,
+  athleteProfiles: {},
+  athleteProfileDraft: null,
+  selectedCoachAthleteId: "",
   coachArtefactCount: 0,
   coachCode: ""
 });
@@ -101,6 +104,18 @@ const elements = {
   connectAthleteActivity: document.getElementById("connectAthleteActivity"),
   connectAthleteConsent: document.getElementById("connectAthleteConsent"),
   athleteRoster: document.getElementById("athleteRoster"),
+  athleteProfilePanel: document.getElementById("athleteProfilePanel"),
+  athleteProfileHeading: document.getElementById("athleteProfileHeading"),
+  athleteProfileActivity: document.getElementById("athleteProfileActivity"),
+  athleteProfileForm: document.getElementById("athleteProfileForm"),
+  athletePreferredUnit: document.getElementById("athletePreferredUnit"),
+  athleteRoundingIncrement: document.getElementById("athleteRoundingIncrement"),
+  athleteBodyweight: document.getElementById("athleteBodyweight"),
+  athleteBodyweightUnit: document.getElementById("athleteBodyweightUnit"),
+  athleteBenchmarkList: document.getElementById("athleteBenchmarkList"),
+  addAthleteBenchmarkButton: document.getElementById("addAthleteBenchmarkButton"),
+  closeAthleteProfileButton: document.getElementById("closeAthleteProfileButton"),
+  athleteProfileStatus: document.getElementById("athleteProfileStatus"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -117,13 +132,16 @@ const elements = {
   templateActivity: document.getElementById("templateActivity"),
   templateDescription: document.getElementById("templateDescription"),
   templateVersion: document.getElementById("templateVersion"),
+  templateBlockCount: document.getElementById("templateBlockCount"),
   templateWeekCount: document.getElementById("templateWeekCount"),
   templateSessionCount: document.getElementById("templateSessionCount"),
-  templateWeeks: document.getElementById("templateWeeks"),
-  addTemplateWeekButton: document.getElementById("addTemplateWeekButton"),
+  templateBlocks: document.getElementById("templateBlocks"),
+  addTemplateBlockButton: document.getElementById("addTemplateBlockButton"),
   assignmentForm: document.getElementById("assignmentForm"),
   assignmentAthlete: document.getElementById("assignmentAthlete"),
   assignmentTemplate: document.getElementById("assignmentTemplate"),
+  assignmentRequirements: document.getElementById("assignmentRequirements"),
+  assignmentSubmitButton: document.getElementById("assignmentSubmitButton"),
   assignmentResult: document.getElementById("assignmentResult"),
   reviewAthlete: document.getElementById("reviewAthlete"),
   loadReviewButton: document.getElementById("loadReviewButton"),
@@ -151,47 +169,72 @@ function cloneDefaultState() {
 function normalisePersistedTemplateDraft(draft) {
   if (!draft || typeof draft !== "object") return null;
 
-  const weeks = Array.isArray(draft.weeks)
-    ? draft.weeks.map((week, weekIndex) => ({
-        ...week,
-        order_index: weekIndex + 1,
-        sessions: Array.isArray(week.sessions)
-          ? week.sessions.map((session, sessionIndex) => ({
-              ...session,
-              order_index: sessionIndex + 1,
-              work_items: Array.isArray(session.work_items)
-                ? session.work_items.map((workItem, workItemIndex) => {
-                    const fallbackReps = Number(workItem?.planned_reps ?? 5);
-                    const loadMode = ["fixed_weight", "bodyweight"].includes(workItem?.load_mode)
-                      ? workItem.load_mode
-                      : "percent_1rm";
+  const rawBlocks = Array.isArray(draft.blocks)
+    ? draft.blocks
+    : Array.isArray(draft.weeks)
+      ? [{
+          block_id: "",
+          order_index: 1,
+          name: "Block 1",
+          description: "",
+          block_type: "general",
+          weeks: draft.weeks
+        }]
+      : [];
 
-                    return {
-                      work_item_id: String(workItem?.work_item_id ?? ""),
-                      order_index: workItemIndex + 1,
-                      exercise_id: String(workItem?.exercise_id ?? ""),
-                      planned_sets: Number(workItem?.planned_sets ?? 3),
-                      rep_mode: workItem?.rep_mode === "range" ? "range" : "fixed",
-                      planned_reps: fallbackReps,
-                      rep_min: Number(workItem?.rep_min ?? fallbackReps),
-                      rep_max: Number(workItem?.rep_max ?? fallbackReps),
-                      load_mode: loadMode,
-                      percent_1rm: Number(workItem?.percent_1rm ?? 75),
-                      weight_value: Number(workItem?.weight_value ?? 20),
-                      weight_unit: workItem?.weight_unit === "lb" ? "lb" : "kg",
-                      rest_seconds: Number(workItem?.rest_seconds ?? 120),
-                      role: workItem?.role === "primary" ? "primary" : "accessory"
-                    };
-                  })
-                : []
-            }))
-          : []
-      }))
-    : [];
+  const normaliseWorkItem = (workItem, workItemIndex) => {
+    const fallbackReps = Number(workItem?.planned_reps ?? 5);
+    const loadMode = ["fixed_weight", "bodyweight"].includes(workItem?.load_mode)
+      ? workItem.load_mode
+      : "percent_1rm";
+
+    return {
+      work_item_id: String(workItem?.work_item_id ?? ""),
+      order_index: workItemIndex + 1,
+      exercise_id: String(workItem?.exercise_id ?? ""),
+      planned_sets: Number(workItem?.planned_sets ?? 3),
+      rep_mode: workItem?.rep_mode === "range" ? "range" : "fixed",
+      planned_reps: fallbackReps,
+      rep_min: Number(workItem?.rep_min ?? fallbackReps),
+      rep_max: Number(workItem?.rep_max ?? fallbackReps),
+      load_mode: loadMode,
+      percent_1rm: Number(workItem?.percent_1rm ?? 75),
+      weight_value: Number(workItem?.weight_value ?? 20),
+      weight_unit: workItem?.weight_unit === "lb" ? "lb" : "kg",
+      rest_seconds: Number(workItem?.rest_seconds ?? 120),
+      role: workItem?.role === "primary" ? "primary" : "accessory"
+    };
+  };
+
+  const blocks = rawBlocks.map((block, blockIndex) => ({
+    block_id: String(block?.block_id ?? ""),
+    order_index: blockIndex + 1,
+    name: String(block?.name ?? `Block ${blockIndex + 1}`),
+    description: String(block?.description ?? ""),
+    block_type: ["general", "volume", "strength", "peak", "deload", "custom"].includes(block?.block_type)
+      ? block.block_type
+      : "general",
+    weeks: Array.isArray(block?.weeks)
+      ? block.weeks.map((week, weekIndex) => ({
+          week_id: String(week?.week_id ?? ""),
+          order_index: weekIndex + 1,
+          sessions: Array.isArray(week?.sessions)
+            ? week.sessions.map((session, sessionIndex) => ({
+                session_id: String(session?.session_id ?? ""),
+                order_index: sessionIndex + 1,
+                title: String(session?.title ?? `Session ${sessionIndex + 1}`),
+                work_items: Array.isArray(session?.work_items)
+                  ? session.work_items.map(normaliseWorkItem)
+                  : []
+              }))
+            : []
+        }))
+      : []
+  }));
 
   return {
     ...draft,
-    weeks
+    blocks
   };
 }
 
@@ -210,6 +253,13 @@ function loadState() {
       coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
       templateExercises: Array.isArray(parsed.templateExercises) ? parsed.templateExercises : [],
       templateDraft: normalisePersistedTemplateDraft(parsed.templateDraft),
+      athleteProfiles: parsed.athleteProfiles && typeof parsed.athleteProfiles === "object"
+        ? parsed.athleteProfiles
+        : {},
+      athleteProfileDraft: parsed.athleteProfileDraft && typeof parsed.athleteProfileDraft === "object"
+        ? parsed.athleteProfileDraft
+        : null,
+      selectedCoachAthleteId: String(parsed.selectedCoachAthleteId ?? ""),
       history: Array.isArray(parsed.history) ? parsed.history : [],
       localSessions: Array.isArray(parsed.localSessions) ? parsed.localSessions : []
     };
@@ -319,7 +369,13 @@ function friendlyError(payload, status) {
     relationship_identity_required: "Enter a valid athlete account code.",
     coach_note_text_required: "Enter a note before recording it.",
     coach_access_denied: "This coach account is not active.",
-    template_name_invalid: "Enter a template name.",
+    template_name_invalid: "Enter a programme name.",
+    blocks_required: "Add at least one training block.",
+    block_count_invalid: "A programme must contain between one and twelve training blocks.",
+    block_name_too_long: "Training block names must be 120 characters or fewer.",
+    block_type_invalid: "Choose a supported training block type.",
+    week_count_per_block_invalid: "Each training block must contain between one and 52 weeks.",
+    total_week_count_invalid: "A programme cannot contain more than 104 weeks.",
     weeks_required: "Add at least one week.",
     session_count_per_week_invalid: "Each week must contain between one and seven sessions.",
     session_requires_exactly_four_work_items: "Each session must contain exactly four exercises.",
@@ -342,7 +398,15 @@ function friendlyError(payload, status) {
     template_not_found: "The template could not be found.",
     stored_template_not_active: "Select an active template owned by this coach.",
     stored_template_activity_mismatch: "The template activity does not match the athlete activity.",
-    assigned_template_sessions_exhausted: "Every session in this assigned template has already been created."
+    assigned_template_sessions_exhausted: "Every session in this assigned programme has already been created.",
+    athlete_one_rep_max_missing: "The athlete profile is missing a current 1RM reference required by this session.",
+    relationship_access_denied: "This coach-athlete relationship is not active.",
+    profile_identity_required: "Select a connected athlete.",
+    benchmark_value_invalid: "Strength reference values must be between 0.25 and 1,500.",
+    benchmark_exercise_invalid: "Choose an exercise from the active registry.",
+    benchmark_effective_date_invalid: "Enter a valid effective date.",
+    load_rounding_increment_invalid: "Load rounding must be between 0.25 and 25.",
+    bodyweight_invalid: "Bodyweight must be between 10 and 500."
   };
 
   return messages[reason] ?? titleCase(reason);
@@ -508,7 +572,17 @@ function exerciseDetails(exercise) {
     : null;
 
   if (intensity?.type === "percent_1rm" && Number.isFinite(Number(intensity.value))) {
-    details.push(`${Number(intensity.value)}% 1RM`);
+    const resolved = exercise?.resolved_load && typeof exercise.resolved_load === "object"
+      ? exercise.resolved_load
+      : null;
+
+    if (resolved && Number.isFinite(Number(resolved.value))) {
+      const unit = resolved.unit === "lb" ? "lb" : "kg";
+      details.push(`${Number(intensity.value)}% 1RM · ${Number(resolved.value)} ${unit}`);
+    }
+    else {
+      details.push(`${Number(intensity.value)}% 1RM`);
+    }
   }
   else if (intensity?.type === "load" && Number.isFinite(Number(intensity.value))) {
     const unit = intensity.unit === "lb" ? "lb" : "kg";
@@ -536,7 +610,7 @@ function viewTitle(view) {
     history: "History",
     "coach-overview": "Overview",
     athletes: "Athletes",
-    templates: "Templates",
+    templates: "Programmes",
     assign: "Assign",
     review: "Review",
     account: "Account"
@@ -1046,6 +1120,89 @@ function renderToday() {
   bindSessionCards(elements.todayRecentList);
 }
 
+async function refreshCoachAthletes(options = {}) {
+  if (state.role !== "coach") return [];
+
+  if (!options.quiet) showBusy("Loading connected athletes…");
+
+  try {
+    const response = await api(
+      "GET",
+      `/coach-workspace/athletes?coach_user_id=${encodeURIComponent(state.profile.coachUserId)}`
+    );
+
+    const existingById = new Map(
+      state.coachAthletes.map((athlete) => [athlete.userId, athlete])
+    );
+
+    state.coachAthletes = (Array.isArray(response.athletes) ? response.athletes : [])
+      .map((athlete) => {
+        const userId = String(athlete.athlete_user_id ?? "");
+        const existing = existingById.get(userId);
+
+        return {
+          userId,
+          displayName: String(athlete.display_name ?? existing?.displayName ?? userId),
+          email: String(athlete.email ?? existing?.email ?? ""),
+          activityId: String(athlete.activity_id ?? existing?.activityId ?? "powerlifting"),
+          relationship: athlete.relationship ?? existing?.relationship ?? null
+        };
+      })
+      .filter((athlete) => athlete.userId);
+
+    saveState();
+    return state.coachAthletes;
+  }
+  finally {
+    if (!options.quiet) hideBusy();
+  }
+}
+
+async function refreshCoachAssignments(options = {}) {
+  if (state.role !== "coach") return [];
+
+  if (!options.quiet) showBusy("Loading programme assignments…");
+
+  try {
+    const response = await api(
+      "GET",
+      `/coach-workspace/assignments?coach_user_id=${encodeURIComponent(state.profile.coachUserId)}`
+    );
+
+    state.coachAssignments = (Array.isArray(response.assignments) ? response.assignments : [])
+      .map((assignment) => ({
+        assignmentId: String(assignment.assignment_id ?? ""),
+        athleteUserId: String(assignment.assigned_athlete_id ?? ""),
+        templateId: String(assignment.template_id ?? ""),
+        templateVersion: Number(assignment.template_version ?? 0),
+        activityId: String(assignment.activity_id ?? ""),
+        recordedAt: String(assignment.requested_at_iso8601 ?? ""),
+        record: assignment
+      }))
+      .filter((assignment) => assignment.assignmentId);
+
+    saveState();
+    return state.coachAssignments;
+  }
+  finally {
+    if (!options.quiet) hideBusy();
+  }
+}
+
+async function refreshCoachAthleteProfiles() {
+  const outcomes = await Promise.allSettled(
+    state.coachAthletes.map((athlete) =>
+      loadAthleteProfile(athlete.userId, { quiet: true })
+    )
+  );
+
+  for (const outcome of outcomes) {
+    if (outcome.status === "rejected") {
+      console.error(outcome.reason);
+    }
+  }
+}
+
 async function connectAthlete(event) {
   event.preventDefault();
 
@@ -1081,6 +1238,7 @@ async function connectAthlete(event) {
     if (existingIndex >= 0) state.coachAthletes.splice(existingIndex, 1, athlete);
     else state.coachAthletes.push(athlete);
 
+    await refreshCoachAthletes({ quiet: true });
     saveState();
     elements.connectAthleteForm.reset();
     renderCoachWorkspace();
@@ -1098,24 +1256,401 @@ function activeCoachTemplates(activityId = null) {
   });
 }
 
+function profileRecordToDraft(profile, athlete) {
+  return {
+    coach_user_id: state.profile?.coachUserId ?? "",
+    athlete_user_id: athlete.userId,
+    preferred_weight_unit: profile?.preferred_weight_unit === "lb" ? "lb" : "kg",
+    load_rounding_increment: Number(
+      profile?.load_rounding_increment ??
+      (profile?.preferred_weight_unit === "lb" ? 5 : 2.5)
+    ),
+    bodyweight: profile?.bodyweight === null || typeof profile?.bodyweight === "undefined"
+      ? ""
+      : Number(profile.bodyweight),
+    bodyweight_unit: profile?.bodyweight_unit === "lb" ? "lb" : "kg",
+    benchmarks: Array.isArray(profile?.benchmarks)
+      ? profile.benchmarks.map((benchmark) => ({
+          benchmark_id: String(benchmark.benchmark_id ?? ""),
+          exercise_id: String(benchmark.exercise_id ?? ""),
+          value: Number(benchmark.value ?? 0),
+          unit: benchmark.unit === "lb" ? "lb" : "kg",
+          basis: ["tested_1rm", "estimated_1rm", "training_max"].includes(benchmark.basis)
+            ? benchmark.basis
+            : "tested_1rm",
+          effective_date: String(benchmark.effective_date ?? new Date().toISOString().slice(0, 10)),
+          source_note: String(benchmark.source_note ?? "")
+        }))
+      : []
+  };
+}
+
+function profileForAthlete(athleteUserId) {
+  const profile = state.athleteProfiles?.[athleteUserId];
+  return profile && typeof profile === "object" ? profile : null;
+}
+
+function currentProfileBenchmarks(profile) {
+  const current = new Map();
+  const benchmarks = Array.isArray(profile?.benchmarks) ? profile.benchmarks : [];
+
+  for (const benchmark of benchmarks) {
+    const exerciseId = String(benchmark?.exercise_id ?? "");
+    if (!exerciseId) continue;
+
+    const existing = current.get(exerciseId);
+    const candidateKey = `${String(benchmark?.effective_date ?? "")}::${String(benchmark?.benchmark_id ?? "")}`;
+    const existingKey = existing
+      ? `${String(existing.effective_date ?? "")}::${String(existing.benchmark_id ?? "")}`
+      : "";
+
+    if (!existing || candidateKey > existingKey) {
+      current.set(exerciseId, benchmark);
+    }
+  }
+
+  return current;
+}
+
+function benchmarkExerciseOptions(selectedExerciseId = "") {
+  return state.templateExercises
+    .map((exercise) => `
+      <option value="${escapeHtml(exercise.exercise_id)}" ${exercise.exercise_id === selectedExerciseId ? "selected" : ""}>
+        ${escapeHtml(exercise.display_name)}
+      </option>
+    `)
+    .join("");
+}
+
+function newAthleteBenchmark() {
+  const exercise = state.templateExercises[0] ?? null;
+  const preferredUnit = state.athleteProfileDraft?.preferred_weight_unit === "lb" ? "lb" : "kg";
+
+  return {
+    benchmark_id: "",
+    exercise_id: exercise?.exercise_id ?? "",
+    value: preferredUnit === "lb" ? 225 : 100,
+    unit: preferredUnit,
+    basis: "tested_1rm",
+    effective_date: new Date().toISOString().slice(0, 10),
+    source_note: ""
+  };
+}
+
+function renderAthleteProfileEditor() {
+  const athlete = state.coachAthletes.find(
+    (entry) => entry.userId === state.selectedCoachAthleteId
+  );
+  const draft = state.athleteProfileDraft;
+
+  if (!athlete || !draft) {
+    elements.athleteProfilePanel.hidden = true;
+    return;
+  }
+
+  elements.athleteProfilePanel.hidden = false;
+  elements.athleteProfileHeading.textContent = athlete.displayName;
+  elements.athleteProfileActivity.textContent = `${titleCase(athlete.activityId)} · ${athlete.userId}`;
+  elements.athletePreferredUnit.value = draft.preferred_weight_unit;
+  elements.athleteRoundingIncrement.value = String(draft.load_rounding_increment);
+  elements.athleteBodyweight.value = draft.bodyweight === "" ? "" : String(draft.bodyweight);
+  elements.athleteBodyweightUnit.value = draft.bodyweight_unit;
+
+  elements.athleteBenchmarkList.innerHTML = draft.benchmarks.length
+    ? draft.benchmarks.map((benchmark, index) => `
+        <article class="benchmark-row" data-benchmark-index="${index}">
+          <label class="field benchmark-exercise-field">
+            <span>Exercise</span>
+            <select data-profile-field="exercise_id">${benchmarkExerciseOptions(benchmark.exercise_id)}</select>
+          </label>
+          <label class="field benchmark-value-field">
+            <span>Reference load</span>
+            <input data-profile-field="value" type="number" min="0.25" max="1500" step="0.25" value="${Number(benchmark.value)}" />
+          </label>
+          <label class="field benchmark-unit-field">
+            <span>Unit</span>
+            <select data-profile-field="unit">
+              <option value="kg" ${benchmark.unit === "lb" ? "" : "selected"}>kg</option>
+              <option value="lb" ${benchmark.unit === "lb" ? "selected" : ""}>lb</option>
+            </select>
+          </label>
+          <label class="field benchmark-basis-field">
+            <span>Record type</span>
+            <select data-profile-field="basis">
+              <option value="tested_1rm" ${benchmark.basis === "tested_1rm" ? "selected" : ""}>Tested 1RM</option>
+              <option value="estimated_1rm" ${benchmark.basis === "estimated_1rm" ? "selected" : ""}>Estimated 1RM</option>
+              <option value="training_max" ${benchmark.basis === "training_max" ? "selected" : ""}>Training max</option>
+            </select>
+          </label>
+          <label class="field benchmark-date-field">
+            <span>Effective date</span>
+            <input data-profile-field="effective_date" type="date" value="${escapeHtml(benchmark.effective_date)}" />
+          </label>
+          <label class="field benchmark-note-field">
+            <span>Source note</span>
+            <input data-profile-field="source_note" maxlength="240" value="${escapeHtml(benchmark.source_note)}" placeholder="Optional factual source" />
+          </label>
+          <button class="button danger small-button remove-athlete-benchmark" type="button" data-benchmark-index="${index}">Remove</button>
+        </article>
+      `).join("")
+    : `
+      <div class="empty-state compact-empty">
+        <h3>No strength references recorded</h3>
+        <p>Add a tested 1RM, estimated 1RM, or training max for percentage-based exercises.</p>
+      </div>
+    `;
+
+  const currentCount = currentProfileBenchmarks(draft).size;
+  elements.athleteProfileStatus.textContent = `${draft.benchmarks.length} record${draft.benchmarks.length === 1 ? "" : "s"} · ${currentCount} current exercise reference${currentCount === 1 ? "" : "s"}`;
+  elements.athleteProfilePanel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function syncAthleteProfileHeader() {
+  if (!state.athleteProfileDraft) return;
+
+  state.athleteProfileDraft.preferred_weight_unit = elements.athletePreferredUnit.value;
+  state.athleteProfileDraft.load_rounding_increment = Number(elements.athleteRoundingIncrement.value);
+  state.athleteProfileDraft.bodyweight = elements.athleteBodyweight.value === ""
+    ? ""
+    : Number(elements.athleteBodyweight.value);
+  state.athleteProfileDraft.bodyweight_unit = elements.athleteBodyweightUnit.value;
+  saveState();
+}
+
+function updateAthleteBenchmarkControl(control) {
+  const row = control.closest("[data-benchmark-index]");
+  const index = Number(row?.dataset.benchmarkIndex);
+  const field = control.dataset.profileField;
+  const benchmark = state.athleteProfileDraft?.benchmarks?.[index];
+  if (!benchmark || !field) return;
+
+  benchmark[field] = control.type === "number" ? Number(control.value) : control.value;
+  saveState();
+}
+
+async function loadAthleteProfile(athleteUserId, options = {}) {
+  const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
+  if (!athlete) throw new Error("Select a connected athlete.");
+
+  if (!options.quiet) showBusy("Loading athlete profile…");
+
+  try {
+    const response = await api(
+      "GET",
+      `/coach-workspace/athlete-strength-profile?coach_user_id=${encodeURIComponent(state.profile.coachUserId)}&athlete_user_id=${encodeURIComponent(athleteUserId)}`
+    );
+
+    if (response.profile) {
+      state.athleteProfiles[athleteUserId] = response.profile;
+    }
+    else {
+      delete state.athleteProfiles[athleteUserId];
+    }
+
+    saveState();
+    return response.profile ?? null;
+  }
+  finally {
+    if (!options.quiet) hideBusy();
+  }
+}
+
+async function openAthleteProfile(athleteUserId) {
+  await loadTemplateExercises();
+  const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
+  if (!athlete) throw new Error("Select a connected athlete.");
+
+  const profile = await loadAthleteProfile(athleteUserId);
+  state.selectedCoachAthleteId = athleteUserId;
+  state.athleteProfileDraft = profileRecordToDraft(profile, athlete);
+  saveState();
+  renderAthleteProfileEditor();
+}
+
+function closeAthleteProfile() {
+  state.selectedCoachAthleteId = "";
+  state.athleteProfileDraft = null;
+  saveState();
+  elements.athleteProfilePanel.hidden = true;
+}
+
+function addAthleteBenchmark() {
+  if (!state.athleteProfileDraft) return;
+  state.athleteProfileDraft.benchmarks.push(newAthleteBenchmark());
+  saveState();
+  renderAthleteProfileEditor();
+}
+
+function removeAthleteBenchmark(index) {
+  if (!state.athleteProfileDraft) return;
+  state.athleteProfileDraft.benchmarks.splice(index, 1);
+  saveState();
+  renderAthleteProfileEditor();
+}
+
+async function saveOpenAthleteProfile(event) {
+  event.preventDefault();
+  const athlete = state.coachAthletes.find(
+    (entry) => entry.userId === state.selectedCoachAthleteId
+  );
+  if (!athlete || !state.athleteProfileDraft) {
+    throw new Error("Open an athlete profile first.");
+  }
+
+  syncAthleteProfileHeader();
+  showBusy("Saving athlete profile…");
+
+  try {
+    const draft = state.athleteProfileDraft;
+    const response = await api("POST", "/coach-workspace/athlete-strength-profile", {
+      coach_user_id: state.profile.coachUserId,
+      athlete_user_id: athlete.userId,
+      preferred_weight_unit: draft.preferred_weight_unit,
+      load_rounding_increment: Number(draft.load_rounding_increment),
+      bodyweight: draft.bodyweight === "" ? null : Number(draft.bodyweight),
+      bodyweight_unit: draft.bodyweight_unit,
+      benchmarks: draft.benchmarks.map((benchmark) => ({
+        benchmark_id: benchmark.benchmark_id,
+        exercise_id: benchmark.exercise_id,
+        value: Number(benchmark.value),
+        unit: benchmark.unit,
+        basis: benchmark.basis,
+        effective_date: benchmark.effective_date,
+        source_note: benchmark.source_note.trim()
+      })),
+      updated_at_iso8601: nowIso()
+    });
+
+    state.athleteProfiles[athlete.userId] = response.profile;
+    state.athleteProfileDraft = profileRecordToDraft(response.profile, athlete);
+    saveState();
+    renderAthleteProfileEditor();
+    renderCoachWorkspace();
+    renderAssignmentRequirements();
+    showNotice(`${athlete.displayName}'s training profile was saved.`);
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+function requiredOneRmExerciseIds(template) {
+  const ids = new Set();
+  const blocks = Array.isArray(template?.template_structure?.blocks)
+    ? template.template_structure.blocks
+    : [];
+
+  for (const block of blocks) {
+    for (const week of Array.isArray(block?.weeks) ? block.weeks : []) {
+      for (const day of Array.isArray(week?.days) ? week.days : []) {
+        for (const session of Array.isArray(day?.sessions) ? day.sessions : []) {
+          for (const item of Array.isArray(session?.work_items) ? session.work_items : []) {
+            if (item?.loading_reference?.type === "percent_1rm") {
+              ids.add(String(item.exercise_id ?? ""));
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ids.delete("");
+  return [...ids];
+}
+
+function exerciseDisplayName(exerciseId) {
+  return state.templateExercises.find((exercise) => exercise.exercise_id === exerciseId)?.display_name
+    ?? titleCase(exerciseId);
+}
+
+function renderAssignmentRequirements() {
+  const athlete = state.coachAthletes.find(
+    (entry) => entry.userId === elements.assignmentAthlete.value
+  );
+  const template = state.coachTemplates.find(
+    (entry) => entry.template_id === elements.assignmentTemplate.value
+  );
+
+  if (!athlete || !template) {
+    elements.assignmentRequirements.className = "assignment-requirements neutral";
+    elements.assignmentRequirements.textContent = "Select an athlete and programme to check percentage-load references.";
+    elements.assignmentSubmitButton.disabled = true;
+    return false;
+  }
+
+  const required = requiredOneRmExerciseIds(template);
+  if (required.length === 0) {
+    elements.assignmentRequirements.className = "assignment-requirements complete";
+    elements.assignmentRequirements.textContent = "Assignment requirements complete. This programme has no percentage-based exercises.";
+    elements.assignmentSubmitButton.disabled = false;
+    return true;
+  }
+
+  const profile = profileForAthlete(athlete.userId);
+  if (!profile) {
+    elements.assignmentRequirements.className = "assignment-requirements warning";
+    elements.assignmentRequirements.innerHTML = `Athlete profile required. Add 1RM references for: <strong>${required.map(exerciseDisplayName).map(escapeHtml).join(", ")}</strong>.`;
+    elements.assignmentSubmitButton.disabled = true;
+    return false;
+  }
+
+  const current = currentProfileBenchmarks(profile);
+  const missing = required.filter((exerciseId) => !current.has(exerciseId));
+
+  if (missing.length > 0) {
+    elements.assignmentRequirements.className = "assignment-requirements warning";
+    elements.assignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map(exerciseDisplayName).map(escapeHtml).join(", ")}</strong>.`;
+    elements.assignmentSubmitButton.disabled = true;
+    return false;
+  }
+
+  elements.assignmentRequirements.className = "assignment-requirements complete";
+  elements.assignmentRequirements.textContent = `Assignment requirements complete. ${required.length} percentage-based exercise reference${required.length === 1 ? "" : "s"} available.`;
+  elements.assignmentSubmitButton.disabled = false;
+  return true;
+}
+
+async function refreshAssignmentAthleteProfile() {
+  const athleteUserId = elements.assignmentAthlete.value;
+  if (!athleteUserId) {
+    renderAssignmentRequirements();
+    return;
+  }
+
+  try {
+    await loadAthleteProfile(athleteUserId, { quiet: true });
+  }
+  catch (error) {
+    console.error(error);
+  }
+
+  renderAssignmentRequirements();
+}
+
 function renderAssignmentTemplateOptions() {
   const athlete = state.coachAthletes.find(
     (entry) => entry.userId === elements.assignmentAthlete.value
   );
 
   const templates = activeCoachTemplates(athlete?.activityId ?? null);
+  const previousValue = elements.assignmentTemplate.value;
 
   elements.assignmentTemplate.innerHTML = templates.length
     ? templates
         .map((template) => `
           <option value="${escapeHtml(template.template_id)}">
-            ${escapeHtml(template.template_name)} · v${Number(template.template_version)}
+            ${escapeHtml(template.template_name)} · v${Number(template.template_version)} · ${Number(template.block_count ?? 1)} block${Number(template.block_count ?? 1) === 1 ? "" : "s"}
           </option>
         `)
         .join("")
-    : '<option value="">No active templates for this activity</option>';
+    : '<option value="">No active programmes for this activity</option>';
+
+  if (templates.some((template) => template.template_id === previousValue)) {
+    elements.assignmentTemplate.value = previousValue;
+  }
 
   elements.assignmentTemplate.disabled = templates.length === 0;
+  renderAssignmentRequirements();
 }
 
 function renderCoachSelectors() {
@@ -1153,20 +1688,37 @@ function renderCoachSelectors() {
 }
 
 function coachAthleteCard(athlete) {
-  const assignments = state.coachAssignments.filter((assignment) => assignment.athleteUserId === athlete.userId).length;
+  const assignments = state.coachAssignments.filter(
+    (assignment) => assignment.athleteUserId === athlete.userId
+  ).length;
+  const profile = profileForAthlete(athlete.userId);
+  const referenceCount = currentProfileBenchmarks(profile).size;
 
   return `
-    <article class="record-card">
+    <article class="record-card athlete-record-card">
       <div>
         <h3>${escapeHtml(athlete.displayName)}</h3>
         <p>${escapeHtml(titleCase(athlete.activityId))}</p>
       </div>
-      <div class="record-meta">
+      <div class="record-meta athlete-record-meta">
         <span class="badge complete">Connected</span>
+        <span class="badge ${profile ? "active" : "neutral"}">${profile ? `${referenceCount} strength reference${referenceCount === 1 ? "" : "s"}` : "Profile not recorded"}</span>
         <span class="badge neutral">${assignments} assignment${assignments === 1 ? "" : "s"}</span>
+        <button class="button secondary small-button open-athlete-profile" type="button" data-athlete-id="${escapeHtml(athlete.userId)}">Open profile</button>
       </div>
     </article>
   `;
+}
+
+function bindCoachAthleteActions() {
+  for (const container of [elements.coachOverviewAthletes, elements.athleteRoster]) {
+    for (const button of container.querySelectorAll(".open-athlete-profile")) {
+      button.addEventListener("click", () => {
+        setView("athletes");
+        openAthleteProfile(button.dataset.athleteId).catch(handleError);
+      });
+    }
+  }
 }
 
 function renderCoachWorkspace() {
@@ -1179,7 +1731,12 @@ function renderCoachWorkspace() {
   elements.coachArtefactCount.textContent = String(state.coachArtefactCount);
   elements.coachOverviewAthletes.innerHTML = cards;
   elements.athleteRoster.innerHTML = cards;
+  bindCoachAthleteActions();
   renderCoachSelectors();
+
+  if (state.selectedCoachAthleteId && state.athleteProfileDraft) {
+    renderAthleteProfileEditor();
+  }
 }
 
 async function recordAssignment(event) {
@@ -1200,7 +1757,11 @@ async function recordAssignment(event) {
   }
 
   if (template.activity_id !== athlete.activityId) {
-    throw new Error("The template activity does not match the athlete activity.");
+    throw new Error("The programme activity does not match the athlete activity.");
+  }
+
+  if (!renderAssignmentRequirements()) {
+    throw new Error("Complete the athlete strength references required by this programme before assigning it.");
   }
 
   showBusy("Recording assignment…");
@@ -1215,18 +1776,10 @@ async function recordAssignment(event) {
       activity_id: athlete.activityId
     });
 
-    state.coachAssignments.push({
-      assignmentId: response.assignment?.assignment_id ?? createId("assignment"),
-      athleteUserId,
-      templateId: template.template_id,
-      templateVersion: Number(template.template_version),
-      activityId: athlete.activityId,
-      recordedAt: nowIso()
-    });
-
+    await refreshCoachAssignments({ quiet: true });
     saveState();
     elements.assignmentResult.textContent =
-      `${template.template_name} v${Number(template.template_version)} assigned to ${athlete.displayName}. Give the athlete your account code so they can open the assigned sessions.`;
+      `${template.template_name} v${Number(template.template_version)} assigned to ${athlete.displayName}. Percentage-based loads will resolve from the athlete profile when each session is created.`;
     elements.assignmentResult.hidden = false;
     renderCoachWorkspace();
     showNotice("Assignment recorded.");
@@ -1378,6 +1931,25 @@ function newTemplateSession(orderIndex) {
   };
 }
 
+function newTemplateWeek(orderIndex) {
+  return {
+    week_id: "",
+    order_index: orderIndex,
+    sessions: [newTemplateSession(1)]
+  };
+}
+
+function newTemplateBlock(orderIndex) {
+  return {
+    block_id: "",
+    order_index: orderIndex,
+    name: `Block ${orderIndex}`,
+    description: "",
+    block_type: "general",
+    weeks: [newTemplateWeek(1)]
+  };
+}
+
 function newTemplateDraft() {
   return {
     template_id: "",
@@ -1387,13 +1959,48 @@ function newTemplateDraft() {
     template_name: "",
     description: "",
     activity_id: "powerlifting",
-    weeks: [
-      {
-        week_id: "",
-        order_index: 1,
-        sessions: [newTemplateSession(1)]
-      }
-    ]
+    blocks: [newTemplateBlock(1)]
+  };
+}
+
+function storedWorkItemToDraft(workItem, workItemIndex) {
+  const repPrescription = workItem?.rep_prescription &&
+    typeof workItem.rep_prescription === "object"
+    ? workItem.rep_prescription
+    : {};
+
+  const loadingReference = workItem?.loading_reference &&
+    typeof workItem.loading_reference === "object"
+    ? workItem.loading_reference
+    : {};
+
+  const repMode = repPrescription.type === "range" ? "range" : "fixed";
+  const loadMode = loadingReference.type === "load"
+    ? "fixed_weight"
+    : loadingReference.type === "bodyweight"
+      ? "bodyweight"
+      : "percent_1rm";
+  const fallbackReps = Number(workItem?.planned_reps ?? 5);
+
+  return {
+    work_item_id: String(workItem?.work_item_id ?? ""),
+    order_index: Number(workItem?.order_index ?? workItemIndex + 1),
+    exercise_id: String(workItem?.exercise_id ?? ""),
+    planned_sets: Number(workItem?.planned_sets ?? 3),
+    rep_mode: repMode,
+    planned_reps: Number(repPrescription.value ?? fallbackReps),
+    rep_min: Number(repPrescription.minimum ?? fallbackReps),
+    rep_max: Number(repPrescription.maximum ?? fallbackReps),
+    load_mode: loadMode,
+    percent_1rm: loadingReference.type === "percent_1rm"
+      ? Number(loadingReference.value ?? 75)
+      : 75,
+    weight_value: loadingReference.type === "load"
+      ? Number(loadingReference.value ?? 20)
+      : 20,
+    weight_unit: loadingReference.unit === "lb" ? "lb" : "kg",
+    rest_seconds: Number(workItem?.rest_seconds ?? 120),
+    role: workItem?.role === "primary" ? "primary" : "accessory"
   };
 }
 
@@ -1401,96 +2008,64 @@ function templateRecordToDraft(template) {
   const structure = template?.template_structure && typeof template.template_structure === "object"
     ? template.template_structure
     : {};
+  const rawBlocks = Array.isArray(structure.blocks) ? structure.blocks : [];
 
-  const blocks = Array.isArray(structure.blocks) ? structure.blocks : [];
-  const block = blocks[0] && typeof blocks[0] === "object" ? blocks[0] : {};
-  const rawWeeks = Array.isArray(block.weeks) ? block.weeks : [];
-
-  const weeks = rawWeeks
+  const blocks = rawBlocks
     .slice()
     .sort((left, right) => Number(left.order_index) - Number(right.order_index))
-    .map((week, weekIndex) => {
-      const days = Array.isArray(week.days) ? week.days : [];
-
-      const sessions = days
-        .slice()
-        .sort((left, right) => Number(left.order_index) - Number(right.order_index))
-        .flatMap((day) => {
-          const daySessions = Array.isArray(day.sessions) ? day.sessions : [];
-
-          return daySessions
-            .slice()
-            .sort((left, right) => Number(left.order_index) - Number(right.order_index))
-            .map((session, sessionIndex) => ({
-              session_id: String(session.session_id ?? ""),
-              order_index: Number(day.order_index ?? session.order_index ?? sessionIndex + 1),
-              title: String(session.title ?? `Session ${sessionIndex + 1}`),
-              work_items: (Array.isArray(session.work_items) ? session.work_items : [])
-                .slice()
-                .sort((left, right) => Number(left.order_index) - Number(right.order_index))
-                .map((workItem, workItemIndex) => {
-                  const repPrescription = workItem?.rep_prescription &&
-                    typeof workItem.rep_prescription === "object"
-                    ? workItem.rep_prescription
-                    : {};
-
-                  const loadingReference = workItem?.loading_reference &&
-                    typeof workItem.loading_reference === "object"
-                    ? workItem.loading_reference
-                    : {};
-
-                  const repMode = repPrescription.type === "range"
-                    ? "range"
-                    : "fixed";
-
-                  const loadMode = loadingReference.type === "load"
-                    ? "fixed_weight"
-                    : loadingReference.type === "bodyweight"
-                      ? "bodyweight"
-                      : "percent_1rm";
-
-                  const fallbackReps = Number(workItem.planned_reps ?? 5);
-
-                  return {
-                    work_item_id: String(workItem.work_item_id ?? ""),
-                    order_index: Number(workItem.order_index ?? workItemIndex + 1),
-                    exercise_id: String(workItem.exercise_id ?? ""),
-                    planned_sets: Number(workItem.planned_sets ?? 3),
-                    rep_mode: repMode,
-                    planned_reps: Number(repPrescription.value ?? fallbackReps),
-                    rep_min: Number(repPrescription.minimum ?? fallbackReps),
-                    rep_max: Number(repPrescription.maximum ?? fallbackReps),
-                    load_mode: loadMode,
-                    percent_1rm: loadingReference.type === "percent_1rm"
-                      ? Number(loadingReference.value ?? 75)
-                      : 75,
-                    weight_value: loadingReference.type === "load"
-                      ? Number(loadingReference.value ?? 20)
-                      : 20,
-                    weight_unit: loadingReference.unit === "lb" ? "lb" : "kg",
-                    rest_seconds: Number(workItem.rest_seconds ?? 120),
-                    role: workItem.role === "primary" ? "primary" : "accessory"
-                  };
-                })
-            }));
-        });
+    .map((block, blockIndex) => {
+      const rawWeeks = Array.isArray(block?.weeks) ? block.weeks : [];
 
       return {
-        week_id: String(week.week_id ?? ""),
-        order_index: Number(week.order_index ?? weekIndex + 1),
-        sessions
+        block_id: String(block?.block_id ?? ""),
+        order_index: Number(block?.order_index ?? blockIndex + 1),
+        name: String(block?.name ?? `Block ${blockIndex + 1}`),
+        description: String(block?.description ?? ""),
+        block_type: ["general", "volume", "strength", "peak", "deload", "custom"].includes(block?.block_type)
+          ? block.block_type
+          : "general",
+        weeks: rawWeeks
+          .slice()
+          .sort((left, right) => Number(left.order_index) - Number(right.order_index))
+          .map((week, weekIndex) => {
+            const days = Array.isArray(week?.days) ? week.days : [];
+            const sessions = days
+              .slice()
+              .sort((left, right) => Number(left.order_index) - Number(right.order_index))
+              .flatMap((day) => {
+                const daySessions = Array.isArray(day?.sessions) ? day.sessions : [];
+                return daySessions
+                  .slice()
+                  .sort((left, right) => Number(left.order_index) - Number(right.order_index))
+                  .map((session, sessionIndex) => ({
+                    session_id: String(session?.session_id ?? ""),
+                    order_index: Number(day?.order_index ?? session?.order_index ?? sessionIndex + 1),
+                    title: String(session?.title ?? `Session ${sessionIndex + 1}`),
+                    work_items: (Array.isArray(session?.work_items) ? session.work_items : [])
+                      .slice()
+                      .sort((left, right) => Number(left.order_index) - Number(right.order_index))
+                      .map(storedWorkItemToDraft)
+                  }));
+              });
+
+            return {
+              week_id: String(week?.week_id ?? ""),
+              order_index: Number(week?.order_index ?? weekIndex + 1),
+              sessions: sessions.length ? sessions : [newTemplateSession(1)]
+            };
+          })
       };
     });
 
   return {
-    template_id: String(template.template_id ?? ""),
-    template_family_id: String(template.template_family_id ?? ""),
-    template_version: Number(template.template_version ?? 1),
-    template_status: String(template.template_status ?? "draft"),
-    template_name: String(template.template_name ?? ""),
-    description: String(template.description ?? ""),
-    activity_id: String(template.activity_id ?? "powerlifting"),
-    weeks: weeks.length ? weeks : newTemplateDraft().weeks
+    template_id: String(template?.template_id ?? ""),
+    template_family_id: String(template?.template_family_id ?? ""),
+    template_version: Number(template?.template_version ?? 1),
+    template_status: String(template?.template_status ?? "draft"),
+    template_name: String(template?.template_name ?? ""),
+    description: String(template?.description ?? ""),
+    activity_id: String(template?.activity_id ?? "powerlifting"),
+    blocks: blocks.length ? blocks : [newTemplateBlock(1)]
   };
 }
 
@@ -1522,7 +2097,7 @@ async function refreshTemplates(options = {}) {
   renderTemplateLibrary();
   renderCoachSelectors();
 
-  if (!options.quiet) showNotice("Template library refreshed.");
+  if (!options.quiet) showNotice("Programme library refreshed.");
   return state.coachTemplates;
 }
 
@@ -1535,20 +2110,19 @@ function templateStatusBadge(status) {
 function templateCard(template) {
   const status = String(template.template_status ?? "draft");
   const sessionCount = Number(template.session_count ?? 0);
+  const blockCount = Number(template.block_count ?? template.template_structure?.blocks?.length ?? 1);
+  const weekCount = Number(template.week_count ?? 0);
   const version = Number(template.template_version ?? 1);
 
   const editAction = status === "draft"
     ? `<button class="button secondary small-button template-edit" type="button" data-template-id="${escapeHtml(template.template_id)}">Edit</button>`
     : "";
-
   const activateAction = status === "draft"
     ? `<button class="button primary small-button template-activate" type="button" data-template-id="${escapeHtml(template.template_id)}">Activate</button>`
     : "";
-
   const duplicateAction = status !== "draft"
     ? `<button class="button secondary small-button template-duplicate" type="button" data-template-id="${escapeHtml(template.template_id)}">Duplicate version</button>`
     : "";
-
   const archiveAction = status !== "archived"
     ? `<button class="button secondary small-button template-archive" type="button" data-template-id="${escapeHtml(template.template_id)}">Archive</button>`
     : "";
@@ -1557,7 +2131,12 @@ function templateCard(template) {
     <article class="template-card">
       <div>
         <h3>${escapeHtml(template.template_name)}</h3>
-        <p>${escapeHtml(titleCase(template.activity_id))} · Version ${version} · ${sessionCount} session${sessionCount === 1 ? "" : "s"}</p>
+        <p>${escapeHtml(titleCase(template.activity_id))} · Version ${version}</p>
+        <div class="template-card-facts">
+          <span>${blockCount} block${blockCount === 1 ? "" : "s"}</span>
+          <span>${weekCount} week${weekCount === 1 ? "" : "s"}</span>
+          <span>${sessionCount} session${sessionCount === 1 ? "" : "s"}</span>
+        </div>
         <div class="template-status-line">
           ${templateStatusBadge(status)}
           <span class="badge neutral">${escapeHtml(formatDate(template.updated_at_iso8601))}</span>
@@ -1579,7 +2158,6 @@ function bindTemplateLibraryActions() {
       const template = state.coachTemplates.find(
         (entry) => entry.template_id === button.dataset.templateId
       );
-
       if (template) openTemplateBuilder(templateRecordToDraft(template));
     });
   }
@@ -1616,30 +2194,41 @@ function renderTemplateLibrary() {
     ? state.coachTemplates.map(templateCard).join("")
     : `
       <div class="empty-state">
-        <div class="empty-icon">T</div>
-        <h3>No templates created</h3>
-        <p>Create a registry-bound template before assigning training.</p>
+        <h3>No programmes created</h3>
+        <p>Create a programme with at least one training block before assigning training.</p>
       </div>
     `;
 
   bindTemplateLibraryActions();
 }
 
-function updateTemplateSummary() {
-  const draft = state.templateDraft;
-  const sessionCount = draft
-    ? draft.weeks.reduce(
-        (total, week) => total + week.sessions.length,
-        0
-      )
-    : 0;
+function templateCounts(draft) {
+  const blocks = Array.isArray(draft?.blocks) ? draft.blocks : [];
+  const weeks = blocks.reduce((total, block) => total + block.weeks.length, 0);
+  const sessions = blocks.reduce(
+    (total, block) => total + block.weeks.reduce(
+      (weekTotal, week) => weekTotal + week.sessions.length,
+      0
+    ),
+    0
+  );
+  return { blocks: blocks.length, weeks, sessions };
+}
 
+function updateTemplateFacts() {
+  const draft = state.templateDraft;
+  const counts = templateCounts(draft);
   elements.templateVersion.textContent = String(draft?.template_version ?? 1);
-  elements.templateWeekCount.textContent = String(draft?.weeks.length ?? 0);
-  elements.templateSessionCount.textContent = String(sessionCount);
+  elements.templateBlockCount.textContent = String(counts.blocks);
+  elements.templateWeekCount.textContent = String(counts.weeks);
+  elements.templateSessionCount.textContent = String(counts.sessions);
+  elements.addTemplateBlockButton.disabled =
+    counts.blocks >= 12 ||
+    counts.weeks >= 104;
 }
 
 function templateWorkItemAttributes(
+  blockIndex,
   weekIndex,
   sessionIndex,
   workItemIndex,
@@ -1647,6 +2236,7 @@ function templateWorkItemAttributes(
 ) {
   return `
     data-template-kind="work-item"
+    data-block-index="${blockIndex}"
     data-week-index="${weekIndex}"
     data-session-index="${sessionIndex}"
     data-work-item-index="${workItemIndex}"
@@ -1656,6 +2246,7 @@ function templateWorkItemAttributes(
 
 function renderTemplateRepControls(
   workItem,
+  blockIndex,
   weekIndex,
   sessionIndex,
   workItemIndex
@@ -1668,71 +2259,18 @@ function renderTemplateRepControls(
       <div class="template-prescription-fields">
         <label class="template-method-field">
           <span>Method</span>
-          <select
-            ${templateWorkItemAttributes(
-              weekIndex,
-              sessionIndex,
-              workItemIndex,
-              "rep_mode"
-            )}
-          >
+          <select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "rep_mode")}>
             <option value="fixed" ${rangeMode ? "" : "selected"}>Fixed reps</option>
             <option value="range" ${rangeMode ? "selected" : ""}>Rep range</option>
           </select>
         </label>
-
         ${rangeMode
           ? `
-            <label>
-              <span>Minimum</span>
-              <input
-                type="number"
-                min="1"
-                max="100"
-                step="1"
-                value="${Number(workItem.rep_min)}"
-                ${templateWorkItemAttributes(
-                  weekIndex,
-                  sessionIndex,
-                  workItemIndex,
-                  "rep_min"
-                )}
-              />
-            </label>
-            <label>
-              <span>Maximum</span>
-              <input
-                type="number"
-                min="1"
-                max="100"
-                step="1"
-                value="${Number(workItem.rep_max)}"
-                ${templateWorkItemAttributes(
-                  weekIndex,
-                  sessionIndex,
-                  workItemIndex,
-                  "rep_max"
-                )}
-              />
-            </label>
+            <label><span>Minimum</span><input type="number" min="1" max="100" step="1" value="${Number(workItem.rep_min)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "rep_min")} /></label>
+            <label><span>Maximum</span><input type="number" min="1" max="100" step="1" value="${Number(workItem.rep_max)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "rep_max")} /></label>
           `
           : `
-            <label>
-              <span>Reps</span>
-              <input
-                type="number"
-                min="1"
-                max="100"
-                step="1"
-                value="${Number(workItem.planned_reps)}"
-                ${templateWorkItemAttributes(
-                  weekIndex,
-                  sessionIndex,
-                  workItemIndex,
-                  "planned_reps"
-                )}
-              />
-            </label>
+            <label><span>Reps</span><input type="number" min="1" max="100" step="1" value="${Number(workItem.planned_reps)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_reps")} /></label>
           `}
       </div>
     </fieldset>
@@ -1741,6 +2279,7 @@ function renderTemplateRepControls(
 
 function renderTemplateLoadControls(
   workItem,
+  blockIndex,
   weekIndex,
   sessionIndex,
   workItemIndex
@@ -1755,254 +2294,203 @@ function renderTemplateLoadControls(
       <div class="template-prescription-fields">
         <label class="template-method-field">
           <span>Method</span>
-          <select
-            ${templateWorkItemAttributes(
-              weekIndex,
-              sessionIndex,
-              workItemIndex,
-              "load_mode"
-            )}
-          >
-            <option value="percent_1rm" ${loadMode === "percent_1rm" ? "selected" : ""}>% of 1RM</option>
-            <option value="fixed_weight" ${loadMode === "fixed_weight" ? "selected" : ""}>Weight</option>
+          <select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "load_mode")}>
+            <option value="percent_1rm" ${loadMode === "percent_1rm" ? "selected" : ""}>% of athlete 1RM</option>
+            <option value="fixed_weight" ${loadMode === "fixed_weight" ? "selected" : ""}>Fixed weight</option>
             <option value="bodyweight" ${loadMode === "bodyweight" ? "selected" : ""}>Bodyweight</option>
           </select>
         </label>
-
         ${loadMode === "percent_1rm"
           ? `
-            <label>
-              <span>% 1RM</span>
-              <input
-                type="number"
-                min="1"
-                max="100"
-                step="0.5"
-                value="${Number(workItem.percent_1rm)}"
-                ${templateWorkItemAttributes(
-                  weekIndex,
-                  sessionIndex,
-                  workItemIndex,
-                  "percent_1rm"
-                )}
-              />
-            </label>
+            <label><span>% 1RM</span><input type="number" min="1" max="100" step="0.5" value="${Number(workItem.percent_1rm)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "percent_1rm")} /></label>
           `
           : loadMode === "fixed_weight"
             ? `
-              <label>
-                <span>Weight</span>
-                <input
-                  type="number"
-                  min="0.25"
-                  max="1000"
-                  step="0.25"
-                  value="${Number(workItem.weight_value)}"
-                  ${templateWorkItemAttributes(
-                    weekIndex,
-                    sessionIndex,
-                    workItemIndex,
-                    "weight_value"
-                  )}
-                />
-              </label>
-              <label>
-                <span>Unit</span>
-                <select
-                  ${templateWorkItemAttributes(
-                    weekIndex,
-                    sessionIndex,
-                    workItemIndex,
-                    "weight_unit"
-                  )}
-                >
-                  <option value="kg" ${workItem.weight_unit === "lb" ? "" : "selected"}>kg</option>
-                  <option value="lb" ${workItem.weight_unit === "lb" ? "selected" : ""}>lb</option>
-                </select>
-              </label>
+              <label><span>Weight</span><input type="number" min="0.25" max="1000" step="0.25" value="${Number(workItem.weight_value)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
+              <label><span>Unit</span><select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_unit")}><option value="kg" ${workItem.weight_unit === "lb" ? "" : "selected"}>kg</option><option value="lb" ${workItem.weight_unit === "lb" ? "selected" : ""}>lb</option></select></label>
             `
-            : `
-              <div class="template-bodyweight-note">
-                No external load is prescribed.
-              </div>
-            `}
+            : '<div class="template-bodyweight-note">No external load is prescribed.</div>'}
       </div>
     </fieldset>
   `;
 }
 
-function renderTemplateWeeks() {
+function renderTemplateWorkItem(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex) {
+  return `
+    <div class="template-work-item">
+      <div class="template-work-item-header">
+        <span class="exercise-order">${workItemIndex + 1}</span>
+        <label class="template-exercise-field">
+          <span>Exercise</span>
+          <select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "exercise_id")}>
+            ${templateExerciseOptions(workItem.exercise_id)}
+          </select>
+        </label>
+        <label class="template-role-field">
+          <span>Role</span>
+          <select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "role")}>
+            <option value="primary" ${workItem.role === "primary" ? "selected" : ""}>Primary</option>
+            <option value="accessory" ${workItem.role === "accessory" ? "selected" : ""}>Accessory</option>
+          </select>
+        </label>
+      </div>
+      <div class="template-prescription-grid">
+        <label class="template-sets-field">
+          <span>Sets</span>
+          <input type="number" min="1" max="20" step="1" value="${Number(workItem.planned_sets)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets")} />
+        </label>
+        ${renderTemplateRepControls(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex)}
+        ${renderTemplateLoadControls(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex)}
+        <label class="template-rest-field">
+          <span>Rest seconds</span>
+          <input type="number" min="0" max="900" step="5" value="${Number(workItem.rest_seconds)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "rest_seconds")} />
+        </label>
+      </div>
+    </div>
+  `;
+}
+
+function renderTemplateSession(session, blockIndex, weekIndex, sessionIndex, sessionCount) {
+  return `
+    <section class="template-session">
+      <div class="template-session-header">
+        <label class="field template-session-title-field">
+          <span>Session title</span>
+          <input
+            value="${escapeHtml(session.title)}"
+            data-template-kind="session"
+            data-block-index="${blockIndex}"
+            data-week-index="${weekIndex}"
+            data-session-index="${sessionIndex}"
+            data-field="title"
+            maxlength="100"
+          />
+        </label>
+        <div class="builder-action-row">
+          <button class="button secondary small-button move-template-session" type="button" data-direction="-1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" ${sessionIndex === 0 ? "disabled" : ""}>↑</button>
+          <button class="button secondary small-button move-template-session" type="button" data-direction="1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" ${sessionIndex === sessionCount - 1 ? "disabled" : ""}>↓</button>
+          <button class="button secondary small-button duplicate-template-session" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}">Duplicate</button>
+          ${sessionCount > 1 ? `<button class="button danger small-button remove-template-session" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}">Remove</button>` : ""}
+        </div>
+      </div>
+      <div class="template-work-items">
+        ${session.work_items.map((workItem, workItemIndex) => renderTemplateWorkItem(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderTemplateWeek(week, blockIndex, weekIndex, weekCount) {
+  return `
+    <article class="template-week">
+      <div class="template-week-header">
+        <div><p class="eyebrow">Week ${weekIndex + 1}</p><h4>Training week</h4></div>
+        <div class="builder-action-row">
+          <button class="button secondary small-button move-template-week" type="button" data-direction="-1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" ${weekIndex === 0 ? "disabled" : ""}>↑</button>
+          <button class="button secondary small-button move-template-week" type="button" data-direction="1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" ${weekIndex === weekCount - 1 ? "disabled" : ""}>↓</button>
+          <button class="button secondary small-button duplicate-template-week" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}">Duplicate</button>
+          ${weekCount > 1 ? `<button class="button danger small-button remove-template-week" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}">Remove</button>` : ""}
+        </div>
+      </div>
+      <div class="template-sessions">
+        ${week.sessions.map((session, sessionIndex) => renderTemplateSession(session, blockIndex, weekIndex, sessionIndex, week.sessions.length)).join("")}
+      </div>
+      <button class="button secondary add-template-session" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" ${week.sessions.length >= 7 ? "disabled" : ""}>Add session</button>
+    </article>
+  `;
+}
+
+function renderTemplateBlocks() {
   const draft = state.templateDraft;
   if (!draft) {
-    elements.templateWeeks.innerHTML = "";
+    elements.templateBlocks.innerHTML = "";
     return;
   }
 
-  elements.templateWeeks.innerHTML = draft.weeks
-    .map((week, weekIndex) => `
-      <article class="template-week">
-        <div class="template-week-header">
-          <div>
-            <p class="eyebrow">Week ${weekIndex + 1}</p>
-            <h3>Training week</h3>
-          </div>
-          ${draft.weeks.length > 1
-            ? `<button class="button danger small-button remove-template-week" type="button" data-week-index="${weekIndex}">Remove week</button>`
-            : ""}
+  const totalWeeks =
+    templateCounts(draft).weeks;
+
+  elements.templateBlocks.innerHTML = draft.blocks.map((block, blockIndex) => `
+    <article class="template-block">
+      <div class="template-block-header">
+        <div>
+          <p class="eyebrow">Training block ${blockIndex + 1}</p>
+          <h3>${escapeHtml(block.name || `Block ${blockIndex + 1}`)}</h3>
         </div>
-
-        <div class="template-sessions">
-          ${week.sessions
-            .map((session, sessionIndex) => `
-              <section class="template-session">
-                <div class="template-session-header">
-                  <label class="field">
-                    <span>Session title</span>
-                    <input
-                      value="${escapeHtml(session.title)}"
-                      data-template-kind="session"
-                      data-week-index="${weekIndex}"
-                      data-session-index="${sessionIndex}"
-                      data-field="title"
-                      maxlength="100"
-                    />
-                  </label>
-                  ${week.sessions.length > 1
-                    ? `<button class="button danger small-button remove-template-session" type="button" data-week-index="${weekIndex}" data-session-index="${sessionIndex}">Remove</button>`
-                    : ""}
-                </div>
-
-                <div class="template-work-items">
-                  ${session.work_items
-                    .map((workItem, workItemIndex) => `
-                      <div class="template-work-item">
-                        <div class="template-work-item-header">
-                          <span class="exercise-order">${workItemIndex + 1}</span>
-
-                          <label class="template-exercise-field">
-                            <span>Exercise</span>
-                            <select
-                              ${templateWorkItemAttributes(
-                                weekIndex,
-                                sessionIndex,
-                                workItemIndex,
-                                "exercise_id"
-                              )}
-                            >
-                              ${templateExerciseOptions(workItem.exercise_id)}
-                            </select>
-                          </label>
-
-                          <label class="template-role-field">
-                            <span>Role</span>
-                            <select
-                              ${templateWorkItemAttributes(
-                                weekIndex,
-                                sessionIndex,
-                                workItemIndex,
-                                "role"
-                              )}
-                            >
-                              <option value="primary" ${workItem.role === "primary" ? "selected" : ""}>Primary</option>
-                              <option value="accessory" ${workItem.role === "accessory" ? "selected" : ""}>Accessory</option>
-                            </select>
-                          </label>
-                        </div>
-
-                        <div class="template-prescription-grid">
-                          <label class="template-sets-field">
-                            <span>Sets</span>
-                            <input
-                              type="number"
-                              min="1"
-                              max="20"
-                              step="1"
-                              value="${Number(workItem.planned_sets)}"
-                              ${templateWorkItemAttributes(
-                                weekIndex,
-                                sessionIndex,
-                                workItemIndex,
-                                "planned_sets"
-                              )}
-                            />
-                          </label>
-
-                          ${renderTemplateRepControls(
-                            workItem,
-                            weekIndex,
-                            sessionIndex,
-                            workItemIndex
-                          )}
-
-                          ${renderTemplateLoadControls(
-                            workItem,
-                            weekIndex,
-                            sessionIndex,
-                            workItemIndex
-                          )}
-
-                          <label class="template-rest-field">
-                            <span>Rest seconds</span>
-                            <input
-                              type="number"
-                              min="0"
-                              max="900"
-                              step="5"
-                              value="${Number(workItem.rest_seconds)}"
-                              ${templateWorkItemAttributes(
-                                weekIndex,
-                                sessionIndex,
-                                workItemIndex,
-                                "rest_seconds"
-                              )}
-                            />
-                          </label>
-                        </div>
-                      </div>
-                    `)
-                    .join("")}
-                </div>
-              </section>
-            `)
-            .join("")}
+        <div class="builder-action-row">
+          <button class="button secondary small-button move-template-block" type="button" data-direction="-1" data-block-index="${blockIndex}" ${blockIndex === 0 ? "disabled" : ""}>↑</button>
+          <button class="button secondary small-button move-template-block" type="button" data-direction="1" data-block-index="${blockIndex}" ${blockIndex === draft.blocks.length - 1 ? "disabled" : ""}>↓</button>
+          <button class="button secondary small-button duplicate-template-block" type="button" data-block-index="${blockIndex}" ${draft.blocks.length >= 12 || totalWeeks + block.weeks.length > 104 ? "disabled" : ""}>Duplicate block</button>
+          ${draft.blocks.length > 1 ? `<button class="button danger small-button remove-template-block" type="button" data-block-index="${blockIndex}">Remove block</button>` : ""}
         </div>
+      </div>
 
-        <div class="template-week-actions">
-          <button
-            class="button secondary small-button add-template-session"
-            type="button"
-            data-week-index="${weekIndex}"
-            ${week.sessions.length >= 7 ? "disabled" : ""}
-          >Add session</button>
-        </div>
-      </article>
-    `)
-    .join("");
+      <div class="template-block-settings">
+        <label class="field">
+          <span>Block name</span>
+          <input value="${escapeHtml(block.name)}" maxlength="120" data-template-kind="block" data-block-index="${blockIndex}" data-field="name" />
+        </label>
+        <label class="field">
+          <span>Block type</span>
+          <select data-template-kind="block" data-block-index="${blockIndex}" data-field="block_type">
+            <option value="general" ${block.block_type === "general" ? "selected" : ""}>General</option>
+            <option value="volume" ${block.block_type === "volume" ? "selected" : ""}>Volume</option>
+            <option value="strength" ${block.block_type === "strength" ? "selected" : ""}>Strength</option>
+            <option value="peak" ${block.block_type === "peak" ? "selected" : ""}>Peak</option>
+            <option value="deload" ${block.block_type === "deload" ? "selected" : ""}>Deload</option>
+            <option value="custom" ${block.block_type === "custom" ? "selected" : ""}>Custom</option>
+          </select>
+        </label>
+        <label class="field template-block-description-field">
+          <span>Block description</span>
+          <input value="${escapeHtml(block.description)}" maxlength="500" data-template-kind="block" data-block-index="${blockIndex}" data-field="description" placeholder="Optional factual purpose or phase label" />
+        </label>
+      </div>
 
-  updateTemplateSummary();
+      <div class="template-weeks">
+        ${block.weeks.map((week, weekIndex) => renderTemplateWeek(week, blockIndex, weekIndex, block.weeks.length)).join("")}
+      </div>
+      <button class="button secondary wide add-template-week" type="button" data-block-index="${blockIndex}" ${block.weeks.length >= 52 || totalWeeks >= 104 ? "disabled" : ""}>Add week to block</button>
+    </article>
+  `).join("");
 }
 
-function renderTemplateBuilder() {
-  const draft = state.templateDraft;
-  if (!draft) return;
+function reindexTemplateDraft() {
+  if (!state.templateDraft) return;
 
-  elements.templateName.value = draft.template_name;
-  elements.templateActivity.value = draft.activity_id;
-  elements.templateDescription.value = draft.description;
-  elements.templateBuilderTitle.textContent = draft.template_id
-    ? `${draft.template_name || "Untitled template"} · v${draft.template_version}`
-    : "New template";
-  elements.activateTemplateButton.disabled = draft.template_status !== "draft";
+  state.templateDraft.blocks.forEach((block, blockIndex) => {
+    block.order_index = blockIndex + 1;
+    block.weeks.forEach((week, weekIndex) => {
+      week.order_index = weekIndex + 1;
+      week.sessions.forEach((session, sessionIndex) => {
+        session.order_index = sessionIndex + 1;
+        session.work_items.forEach((workItem, workItemIndex) => {
+          workItem.order_index = workItemIndex + 1;
+        });
+      });
+    });
+  });
+}
 
-  renderTemplateWeeks();
+function rerenderTemplateBuilder() {
+  reindexTemplateDraft();
+  saveState();
+  renderTemplateBlocks();
+  updateTemplateFacts();
 }
 
 function openTemplateBuilder(draft) {
-  state.templateDraft = draft;
-  saveState();
+  state.templateDraft = normalisePersistedTemplateDraft(draft);
   elements.templateLibraryView.hidden = true;
   elements.templateBuilderView.hidden = false;
-  renderTemplateBuilder();
+  elements.templateBuilderTitle.textContent = state.templateDraft.template_id
+    ? `Edit ${state.templateDraft.template_name}`
+    : "New programme";
+  elements.templateName.value = state.templateDraft.template_name;
+  elements.templateActivity.value = state.templateDraft.activity_id;
+  elements.templateDescription.value = state.templateDraft.description;
+  elements.activateTemplateButton.hidden = state.templateDraft.template_status !== "draft";
+  rerenderTemplateBuilder();
 }
 
 function closeTemplateBuilder() {
@@ -2015,7 +2503,6 @@ function closeTemplateBuilder() {
 
 function syncTemplateHeader() {
   if (!state.templateDraft) return;
-
   state.templateDraft.template_name = elements.templateName.value;
   state.templateDraft.activity_id = elements.templateActivity.value;
   state.templateDraft.description = elements.templateDescription.value;
@@ -2026,130 +2513,210 @@ function updateTemplateFieldFromControl(control) {
   const draft = state.templateDraft;
   if (!draft) return;
 
+  const kind = control.dataset.templateKind;
+  const blockIndex = Number(control.dataset.blockIndex);
   const weekIndex = Number(control.dataset.weekIndex);
   const sessionIndex = Number(control.dataset.sessionIndex);
   const workItemIndex = Number(control.dataset.workItemIndex);
   const field = control.dataset.field;
+  let target;
 
-  const session = draft.weeks?.[weekIndex]?.sessions?.[sessionIndex];
-  if (!session || !field) return;
-
-  if (control.dataset.templateKind === "session") {
-    session[field] = control.value;
+  if (kind === "block") {
+    target = draft.blocks[blockIndex];
   }
-  else if (control.dataset.templateKind === "work-item") {
-    const workItem = session.work_items?.[workItemIndex];
-    if (!workItem) return;
+  else if (kind === "session") {
+    target = draft.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex];
+  }
+  else if (kind === "work-item") {
+    target = draft.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex]?.work_items[workItemIndex];
+  }
 
-    workItem[field] = [
-      "planned_sets",
-      "planned_reps",
-      "rep_min",
-      "rep_max",
-      "percent_1rm",
-      "weight_value",
-      "rest_seconds"
-    ].includes(field)
-      ? Number(control.value)
-      : control.value;
+  if (!target || !field) return;
+  target[field] = control.type === "number" ? Number(control.value) : control.value;
 
-    if (
-      field === "rep_mode" ||
-      field === "load_mode"
-    ) {
-      saveState();
-      renderTemplateWeeks();
-      return;
+  if (kind === "work-item" && ["rep_mode", "load_mode"].includes(field)) {
+    rerenderTemplateBuilder();
+    return;
+  }
+
+  saveState();
+}
+
+function cloneTemplateNode(value) {
+  const cloned = JSON.parse(JSON.stringify(value));
+  const clearIds = (node) => {
+    if (!node || typeof node !== "object") return;
+    for (const key of ["block_id", "week_id", "session_id", "work_item_id"]) {
+      if (key in node) node[key] = "";
     }
-  }
-
-  saveState();
+    for (const child of Object.values(node)) {
+      if (Array.isArray(child)) child.forEach(clearIds);
+      else if (child && typeof child === "object") clearIds(child);
+    }
+  };
+  clearIds(cloned);
+  return cloned;
 }
 
-function addTemplateWeek() {
-  const draft = state.templateDraft;
-  if (!draft || draft.weeks.length >= 52) return;
-
-  const orderIndex = draft.weeks.length + 1;
-  draft.weeks.push({
-    week_id: "",
-    order_index: orderIndex,
-    sessions: [newTemplateSession(1)]
-  });
-
-  saveState();
-  renderTemplateWeeks();
+function addTemplateBlock() {
+  if (
+    !state.templateDraft ||
+    state.templateDraft.blocks.length >= 12 ||
+    templateCounts(state.templateDraft).weeks >= 104
+  ) return;
+  state.templateDraft.blocks.push(newTemplateBlock(state.templateDraft.blocks.length + 1));
+  rerenderTemplateBuilder();
 }
 
-function addTemplateSession(weekIndex) {
-  const week = state.templateDraft?.weeks?.[weekIndex];
+function removeTemplateBlock(blockIndex) {
+  if (!state.templateDraft || state.templateDraft.blocks.length <= 1) return;
+  state.templateDraft.blocks.splice(blockIndex, 1);
+  rerenderTemplateBuilder();
+}
+
+function duplicateTemplateBlock(blockIndex) {
+  if (!state.templateDraft || state.templateDraft.blocks.length >= 12) return;
+  const source = state.templateDraft.blocks[blockIndex];
+  if (
+    !source ||
+    templateCounts(state.templateDraft).weeks + source.weeks.length > 104
+  ) return;
+  const copy = cloneTemplateNode(source);
+  copy.name = `${source.name} copy`;
+  state.templateDraft.blocks.splice(blockIndex + 1, 0, copy);
+  rerenderTemplateBuilder();
+}
+
+function moveArrayItem(list, index, direction) {
+  const target = index + direction;
+  if (target < 0 || target >= list.length) return;
+  [list[index], list[target]] = [list[target], list[index]];
+}
+
+function moveTemplateBlock(blockIndex, direction) {
+  if (!state.templateDraft) return;
+  moveArrayItem(state.templateDraft.blocks, blockIndex, direction);
+  rerenderTemplateBuilder();
+}
+
+function addTemplateWeek(blockIndex) {
+  const block = state.templateDraft?.blocks[blockIndex];
+  if (
+    !block ||
+    block.weeks.length >= 52 ||
+    templateCounts(state.templateDraft).weeks >= 104
+  ) return;
+  block.weeks.push(newTemplateWeek(block.weeks.length + 1));
+  rerenderTemplateBuilder();
+}
+
+function removeTemplateWeek(blockIndex, weekIndex) {
+  const block = state.templateDraft?.blocks[blockIndex];
+  if (!block || block.weeks.length <= 1) return;
+  block.weeks.splice(weekIndex, 1);
+  rerenderTemplateBuilder();
+}
+
+function duplicateTemplateWeek(blockIndex, weekIndex) {
+  const block = state.templateDraft?.blocks[blockIndex];
+  if (
+    !block ||
+    block.weeks.length >= 52 ||
+    templateCounts(state.templateDraft).weeks >= 104
+  ) return;
+  const source = block.weeks[weekIndex];
+  if (!source) return;
+  block.weeks.splice(weekIndex + 1, 0, cloneTemplateNode(source));
+  rerenderTemplateBuilder();
+}
+
+function moveTemplateWeek(blockIndex, weekIndex, direction) {
+  const block = state.templateDraft?.blocks[blockIndex];
+  if (!block) return;
+  moveArrayItem(block.weeks, weekIndex, direction);
+  rerenderTemplateBuilder();
+}
+
+function addTemplateSession(blockIndex, weekIndex) {
+  const week = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex];
   if (!week || week.sessions.length >= 7) return;
-
   week.sessions.push(newTemplateSession(week.sessions.length + 1));
-  saveState();
-  renderTemplateWeeks();
+  rerenderTemplateBuilder();
 }
 
-function removeTemplateWeek(weekIndex) {
-  const draft = state.templateDraft;
-  if (!draft || draft.weeks.length <= 1) return;
-
-  draft.weeks.splice(weekIndex, 1);
-  draft.weeks.forEach((week, index) => {
-    week.order_index = index + 1;
-  });
-  saveState();
-  renderTemplateWeeks();
-}
-
-function removeTemplateSession(weekIndex, sessionIndex) {
-  const week = state.templateDraft?.weeks?.[weekIndex];
+function removeTemplateSession(blockIndex, weekIndex, sessionIndex) {
+  const week = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex];
   if (!week || week.sessions.length <= 1) return;
-
   week.sessions.splice(sessionIndex, 1);
-  week.sessions.forEach((session, index) => {
-    session.order_index = index + 1;
-  });
-  saveState();
-  renderTemplateWeeks();
+  rerenderTemplateBuilder();
 }
 
-function templateRequestBody() {
+function duplicateTemplateSession(blockIndex, weekIndex, sessionIndex) {
+  const week = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex];
+  if (!week || week.sessions.length >= 7) return;
+  const source = week.sessions[sessionIndex];
+  if (!source) return;
+  const copy = cloneTemplateNode(source);
+  copy.title = `${source.title} copy`;
+  week.sessions.splice(sessionIndex + 1, 0, copy);
+  rerenderTemplateBuilder();
+}
+
+function moveTemplateSession(blockIndex, weekIndex, sessionIndex, direction) {
+  const week = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex];
+  if (!week) return;
+  moveArrayItem(week.sessions, sessionIndex, direction);
+  rerenderTemplateBuilder();
+}
+
+function templatePayloadFromDraft() {
   const draft = state.templateDraft;
-  if (!draft) throw new Error("No template is open.");
+  if (!draft) throw new Error("No programme is open.");
 
   syncTemplateHeader();
+  reindexTemplateDraft();
+
+  if (!draft.template_name.trim()) {
+    throw new Error("Enter a programme name.");
+  }
 
   return {
     coach_user_id: state.profile.coachUserId,
-    template_id: draft.template_id || undefined,
-    template_family_id: draft.template_family_id || undefined,
-    template_version: Number(draft.template_version || 1),
+    template_id: draft.template_id,
+    template_family_id: draft.template_family_id,
+    template_version: Number(draft.template_version),
     template_name: draft.template_name.trim(),
     description: draft.description.trim(),
     activity_id: draft.activity_id,
-    weeks: draft.weeks.map((week, weekIndex) => ({
-      week_id: week.week_id || "",
-      order_index: weekIndex + 1,
-      sessions: week.sessions.map((session, sessionIndex) => ({
-        session_id: session.session_id || "",
-        order_index: sessionIndex + 1,
-        title: session.title.trim(),
-        work_items: session.work_items.map((workItem, workItemIndex) => ({
-          work_item_id: workItem.work_item_id || "",
-          order_index: workItemIndex + 1,
-          exercise_id: workItem.exercise_id,
-          planned_sets: Number(workItem.planned_sets),
-          rep_mode: workItem.rep_mode,
-          planned_reps: Number(workItem.planned_reps),
-          rep_min: Number(workItem.rep_min),
-          rep_max: Number(workItem.rep_max),
-          load_mode: workItem.load_mode,
-          percent_1rm: Number(workItem.percent_1rm),
-          weight_value: Number(workItem.weight_value),
-          weight_unit: workItem.weight_unit,
-          rest_seconds: Number(workItem.rest_seconds),
-          role: workItem.role
+    blocks: draft.blocks.map((block) => ({
+      block_id: block.block_id,
+      order_index: Number(block.order_index),
+      name: block.name.trim(),
+      description: block.description.trim(),
+      block_type: block.block_type,
+      weeks: block.weeks.map((week) => ({
+        week_id: week.week_id,
+        order_index: Number(week.order_index),
+        sessions: week.sessions.map((session) => ({
+          session_id: session.session_id,
+          order_index: Number(session.order_index),
+          title: session.title.trim(),
+          work_items: session.work_items.map((workItem) => ({
+            work_item_id: workItem.work_item_id,
+            order_index: Number(workItem.order_index),
+            exercise_id: workItem.exercise_id,
+            planned_sets: Number(workItem.planned_sets),
+            rep_mode: workItem.rep_mode,
+            planned_reps: Number(workItem.planned_reps),
+            rep_min: Number(workItem.rep_min),
+            rep_max: Number(workItem.rep_max),
+            load_mode: workItem.load_mode,
+            percent_1rm: Number(workItem.percent_1rm),
+            weight_value: Number(workItem.weight_value),
+            weight_unit: workItem.weight_unit,
+            rest_seconds: Number(workItem.rest_seconds),
+            role: workItem.role
+          }))
         }))
       }))
     })),
@@ -2158,36 +2725,33 @@ function templateRequestBody() {
 }
 
 async function saveTemplateDraft(options = {}) {
-  showBusy("Saving template…");
+  const payload = templatePayloadFromDraft();
+  if (!options.quiet) showBusy("Saving programme draft…");
 
   try {
-    const response = await api("POST", "/templates", templateRequestBody());
+    const response = await api("POST", "/templates", payload);
     state.templateDraft = templateRecordToDraft(response.template);
-    saveState();
     await refreshTemplates({ quiet: true });
-    renderTemplateBuilder();
-
-    if (!options.quiet) showNotice("Template draft saved.");
+    openTemplateBuilder(state.templateDraft);
+    if (!options.quiet) showNotice("Programme draft saved.");
     return response.template;
   }
   finally {
-    hideBusy();
+    if (!options.quiet) hideBusy();
   }
 }
 
 async function activateTemplateById(templateId) {
-  showBusy("Activating template…");
-
+  showBusy("Activating programme…");
   try {
     await api(
       "POST",
       `/templates/${encodeURIComponent(templateId)}/activate`,
       { coach_user_id: state.profile.coachUserId }
     );
-
     await refreshTemplates({ quiet: true });
     closeTemplateBuilder();
-    showNotice("Template activated and available for assignment.");
+    showNotice("Programme activated and available for assignment.");
   }
   finally {
     hideBusy();
@@ -2195,33 +2759,24 @@ async function activateTemplateById(templateId) {
 }
 
 async function activateOpenTemplate() {
-  let templateId = state.templateDraft?.template_id ?? "";
-
-  if (!templateId) {
-    const saved = await saveTemplateDraft({ quiet: true });
-    templateId = String(saved.template_id ?? "");
-  }
-  else {
-    await saveTemplateDraft({ quiet: true });
-    templateId = state.templateDraft?.template_id ?? templateId;
-  }
-
+  if (!state.templateDraft) return;
+  let templateId = state.templateDraft.template_id;
+  const saved = await saveTemplateDraft({ quiet: true });
+  templateId = String(saved.template_id ?? templateId);
   await activateTemplateById(templateId);
 }
 
 async function duplicateTemplate(templateId) {
-  showBusy("Creating new version…");
-
+  showBusy("Creating new programme version…");
   try {
     const response = await api(
       "POST",
       `/templates/${encodeURIComponent(templateId)}/duplicate`,
       { coach_user_id: state.profile.coachUserId }
     );
-
     await refreshTemplates({ quiet: true });
     openTemplateBuilder(templateRecordToDraft(response.template));
-    showNotice("New draft version created.");
+    showNotice("New draft programme version created.");
   }
   finally {
     hideBusy();
@@ -2229,23 +2784,20 @@ async function duplicateTemplate(templateId) {
 }
 
 async function archiveTemplate(templateId) {
-  showBusy("Archiving template…");
-
+  showBusy("Archiving programme…");
   try {
     await api(
       "POST",
       `/templates/${encodeURIComponent(templateId)}/archive`,
       { coach_user_id: state.profile.coachUserId }
     );
-
     await refreshTemplates({ quiet: true });
-    showNotice("Template archived. Existing assignments retain this version.");
+    showNotice("Programme archived. Existing assignments retain this version.");
   }
   finally {
     hideBusy();
   }
 }
-
 function renderAccount() {
   const id = currentAccountId();
 
@@ -2342,18 +2894,21 @@ async function enterApplication() {
     }
   }
   else {
-    renderCoachWorkspace();
-
     try {
       await Promise.all([
         loadTemplateExercises(),
-        refreshTemplates({ quiet: true })
+        refreshTemplates({ quiet: true }),
+        refreshCoachAthletes({ quiet: true }),
+        refreshCoachAssignments({ quiet: true })
       ]);
+
+      await refreshCoachAthleteProfiles();
     }
     catch (error) {
       showNotice(error.message, "error");
     }
 
+    renderCoachWorkspace();
     renderTemplateLibrary();
   }
 
@@ -2430,7 +2985,7 @@ elements.activateTemplateButton.addEventListener("click", () => {
   activateOpenTemplate().catch(handleError);
 });
 
-elements.addTemplateWeekButton.addEventListener("click", addTemplateWeek);
+elements.addTemplateBlockButton.addEventListener("click", addTemplateBlock);
 
 for (const control of [
   elements.templateName,
@@ -2441,39 +2996,96 @@ for (const control of [
   control.addEventListener("change", syncTemplateHeader);
 }
 
-elements.templateWeeks.addEventListener("input", (event) => {
+elements.templateBlocks.addEventListener("input", (event) => {
   const control = event.target.closest("[data-template-kind]");
   if (control) updateTemplateFieldFromControl(control);
 });
 
-elements.templateWeeks.addEventListener("change", (event) => {
+elements.templateBlocks.addEventListener("change", (event) => {
   const control = event.target.closest("[data-template-kind]");
   if (control) updateTemplateFieldFromControl(control);
 });
 
-elements.templateWeeks.addEventListener("click", (event) => {
-  const addSessionButton = event.target.closest(".add-template-session");
-  if (addSessionButton) {
-    addTemplateSession(Number(addSessionButton.dataset.weekIndex));
-    return;
-  }
+elements.templateBlocks.addEventListener("click", (event) => {
+  const action = event.target.closest("button");
+  if (!action) return;
 
-  const removeSessionButton = event.target.closest(".remove-template-session");
-  if (removeSessionButton) {
-    removeTemplateSession(
-      Number(removeSessionButton.dataset.weekIndex),
-      Number(removeSessionButton.dataset.sessionIndex)
-    );
-    return;
-  }
+  const blockIndex = Number(action.dataset.blockIndex);
+  const weekIndex = Number(action.dataset.weekIndex);
+  const sessionIndex = Number(action.dataset.sessionIndex);
+  const direction = Number(action.dataset.direction);
 
-  const removeWeekButton = event.target.closest(".remove-template-week");
-  if (removeWeekButton) {
-    removeTemplateWeek(Number(removeWeekButton.dataset.weekIndex));
+  if (action.classList.contains("add-template-session")) {
+    addTemplateSession(blockIndex, weekIndex);
+  }
+  else if (action.classList.contains("remove-template-session")) {
+    removeTemplateSession(blockIndex, weekIndex, sessionIndex);
+  }
+  else if (action.classList.contains("duplicate-template-session")) {
+    duplicateTemplateSession(blockIndex, weekIndex, sessionIndex);
+  }
+  else if (action.classList.contains("move-template-session")) {
+    moveTemplateSession(blockIndex, weekIndex, sessionIndex, direction);
+  }
+  else if (action.classList.contains("add-template-week")) {
+    addTemplateWeek(blockIndex);
+  }
+  else if (action.classList.contains("remove-template-week")) {
+    removeTemplateWeek(blockIndex, weekIndex);
+  }
+  else if (action.classList.contains("duplicate-template-week")) {
+    duplicateTemplateWeek(blockIndex, weekIndex);
+  }
+  else if (action.classList.contains("move-template-week")) {
+    moveTemplateWeek(blockIndex, weekIndex, direction);
+  }
+  else if (action.classList.contains("remove-template-block")) {
+    removeTemplateBlock(blockIndex);
+  }
+  else if (action.classList.contains("duplicate-template-block")) {
+    duplicateTemplateBlock(blockIndex);
+  }
+  else if (action.classList.contains("move-template-block")) {
+    moveTemplateBlock(blockIndex, direction);
   }
 });
 
-elements.assignmentAthlete.addEventListener("change", renderAssignmentTemplateOptions);
+elements.closeAthleteProfileButton.addEventListener("click", closeAthleteProfile);
+elements.addAthleteBenchmarkButton.addEventListener("click", addAthleteBenchmark);
+elements.athleteProfileForm.addEventListener("submit", (event) => {
+  saveOpenAthleteProfile(event).catch(handleError);
+});
+
+for (const control of [
+  elements.athletePreferredUnit,
+  elements.athleteRoundingIncrement,
+  elements.athleteBodyweight,
+  elements.athleteBodyweightUnit
+]) {
+  control.addEventListener("input", syncAthleteProfileHeader);
+  control.addEventListener("change", syncAthleteProfileHeader);
+}
+
+elements.athleteBenchmarkList.addEventListener("input", (event) => {
+  const control = event.target.closest("[data-profile-field]");
+  if (control) updateAthleteBenchmarkControl(control);
+});
+
+elements.athleteBenchmarkList.addEventListener("change", (event) => {
+  const control = event.target.closest("[data-profile-field]");
+  if (control) updateAthleteBenchmarkControl(control);
+});
+
+elements.athleteBenchmarkList.addEventListener("click", (event) => {
+  const button = event.target.closest(".remove-athlete-benchmark");
+  if (button) removeAthleteBenchmark(Number(button.dataset.benchmarkIndex));
+});
+
+elements.assignmentAthlete.addEventListener("change", () => {
+  renderAssignmentTemplateOptions();
+  refreshAssignmentAthleteProfile().catch(handleError);
+});
+elements.assignmentTemplate.addEventListener("change", renderAssignmentRequirements);
 elements.assignmentForm.addEventListener("submit", (event) => {
   recordAssignment(event).catch(handleError);
 });
