@@ -192,7 +192,9 @@ ON beta_product_records (
 
 
 -- beta_product_records_beta18_type_migration
--- Additive BETA-18 coach-authored programme template product records.
+-- Replay-safe superset constraint. BETA-19 rows may already exist when the
+-- additive schema is reapplied, so this intermediate migration must not narrow
+-- the lawful record-type surface before the BETA-19 migration executes.
 ALTER TABLE beta_product_records
   DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
 
@@ -206,7 +208,8 @@ ALTER TABLE beta_product_records
         'beta17_coach_profile',
         'beta17_coach_relationship',
         'beta17_assignment_trigger',
-        'beta18_programme_template'
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile'
       )
     );
 
