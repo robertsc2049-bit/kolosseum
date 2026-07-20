@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0f14" />
+  <title>Kolosseum</title>
+  <link rel="stylesheet" href="/app/styles.css" />
+</head>
+<body>
+  <div id="bootScreen" class="boot-screen">
+    <div class="brand-mark" aria-hidden="true">K</div>
+    <p>Opening Kolosseum…</p>
+  </div>
+
+  <section id="entryView" class="entry-view" hidden>
+    <div class="entry-brand">
+      <div class="entry-brand-inner">
+        <div class="brand-lockup">
+          <div class="brand-mark">K</div>
+          <div>
+            <strong>Kolosseum</strong>
+            <span>Controlled training workspace</span>
+          </div>
+        </div>
+        <h1>Training, recorded clearly.</h1>
+        <p>
+          Assigned work, session execution and factual training history in one controlled workspace.
+        </p>
+        <div class="entry-points">
+          <div><span>01</span><p>Create or receive a session.</p></div>
+          <div><span>02</span><p>Record the work completed.</p></div>
+          <div><span>03</span><p>Review the factual record.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry-form-wrap">
+      <form id="entryForm" class="entry-form">
+        <div>
+          <p class="eyebrow">September controlled beta</p>
+          <h2>Enter your workspace</h2>
+          <p class="muted">Create a local beta account for this installation.</p>
+        </div>
+
+        <fieldset class="role-choice">
+          <legend>Account type</legend>
+          <label>
+            <input type="radio" name="role" value="athlete" checked />
+            <span>
+              <strong>Athlete</strong>
+              <small>Run sessions and view history</small>
+            </span>
+          </label>
+          <label>
+            <input type="radio" name="role" value="coach" />
+            <span>
+              <strong>Coach</strong>
+              <small>Assign and review athlete work</small>
+            </span>
+          </label>
+        </fieldset>
+
+        <label class="field">
+          <span>Display name</span>
+          <input id="entryName" name="display_name" autocomplete="name" required maxlength="80" />
+        </label>
+
+        <label class="field">
+          <span>Email</span>
+          <input id="entryEmail" name="email" type="email" autocomplete="email" required maxlength="160" />
+        </label>
+
+        <label id="entryActivityField" class="field">
+          <span>Primary activity</span>
+          <select id="entryActivity" name="activity_id">
+            <option value="powerlifting">Powerlifting</option>
+            <option value="general_strength">General strength</option>
+            <option value="rugby_union">Rugby union</option>
+          </select>
+        </label>
+
+        <div class="consent-box">
+          <label>
+            <input id="entryBetaConsent" type="checkbox" required />
+            <span>I acknowledge this is a controlled beta with a limited product scope.</span>
+          </label>
+          <label>
+            <input id="entryDeclarationConsent" type="checkbox" required />
+            <span>I confirm information entered during setup is my factual declaration.</span>
+          </label>
+        </div>
+
+        <button id="entrySubmit" class="button primary wide" type="submit">
+          Continue
+        </button>
+        <p id="entryError" class="form-error" role="alert" hidden></p>
+      </form>
+    </div>
+  </section>
+
+  <div id="appShell" class="app-shell" hidden>
+    <aside id="sidebar" class="sidebar">
+      <div class="brand-lockup compact">
+        <div class="brand-mark">K</div>
+        <div>
+          <strong>Kolosseum</strong>
+          <span id="workspaceLabel">Athlete workspace</span>
+        </div>
+      </div>
+
+      <nav class="main-nav" aria-label="Primary">
+        <button class="nav-item athlete-nav" data-view="today">
+          <span class="nav-icon">T</span><span>Today</span>
+        </button>
+        <button class="nav-item athlete-nav" data-view="session">
+          <span class="nav-icon">S</span><span>Session</span>
+        </button>
+        <button class="nav-item athlete-nav" data-view="history">
+          <span class="nav-icon">H</span><span>History</span>
+        </button>
+
+        <button class="nav-item coach-nav" data-view="coach-overview">
+          <span class="nav-icon">O</span><span>Overview</span>
+        </button>
+        <button class="nav-item coach-nav" data-view="athletes">
+          <span class="nav-icon">A</span><span>Athletes</span>
+        </button>
+        <button class="nav-item coach-nav" data-view="assign">
+          <span class="nav-icon">P</span><span>Assign</span>
+        </button>
+        <button class="nav-item coach-nav" data-view="review">
+          <span class="nav-icon">R</span><span>Review</span>
+        </button>
+
+        <button class="nav-item" data-view="account">
+          <span class="nav-icon">U</span><span>Account</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-account">
+        <div class="avatar" id="sidebarAvatar">C</div>
+        <div>
+          <strong id="sidebarName">User</strong>
+          <span id="sidebarRole">Athlete</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="app-content">
+      <header class="topbar">
+        <button id="menuButton" class="icon-button menu-button" type="button" aria-label="Open navigation">☰</button>
+        <div>
+          <p id="topbarEyebrow" class="eyebrow">Athlete workspace</p>
+          <h1 id="topbarTitle">Today</h1>
+        </div>
+        <div class="topbar-actions">
+          <span id="connectionStatus" class="connection-status">Connected</span>
+          <button id="topbarAccount" class="avatar button-avatar" type="button" aria-label="Open account">C</button>
+        </div>
+      </header>
+
+      <div id="notice" class="notice" role="status" hidden></div>
+
+      <main class="views">
+        <section id="view-today" class="view">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">Today</p>
+              <h2 id="todayGreeting">Training workspace</h2>
+              <p class="muted">Your current session and recent factual record.</p>
+            </div>
+            <button id="createSessionButton" class="button primary" type="button">Create session</button>
+          </div>
+
+          <div class="hero-grid">
+            <article id="todaySessionCard" class="panel session-hero">
+              <div class="panel-kicker">
+                <span>Current session</span>
+                <span id="todayStatusBadge" class="badge neutral">No session</span>
+              </div>
+              <div id="todaySessionEmpty" class="empty-state">
+                <div class="empty-icon">+</div>
+                <h3>No session is open</h3>
+                <p>Create a session from your declared activity when you are ready to train.</p>
+              </div>
+              <div id="todaySessionContent" hidden>
+                <p id="todayActivity" class="eyebrow">Powerlifting</p>
+                <h3 id="todaySessionTitle">Training session</h3>
+                <div class="metric-row">
+                  <div><strong id="todayCompleted">0</strong><span>Completed</span></div>
+                  <div><strong id="todayRemaining">0</strong><span>Remaining</span></div>
+                  <div><strong id="todayDropped">0</strong><span>Dropped</span></div>
+                </div>
+                <button id="continueSessionButton" class="button primary" type="button">Open session</button>
+              </div>
+            </article>
+
+            <article class="panel compact-panel">
+              <div class="panel-kicker"><span>Training record</span></div>
+              <strong id="todayHistoryCount" class="large-number">0</strong>
+              <p class="muted">Sessions recorded for this account.</p>
+              <button class="text-button" data-view-link="history" type="button">View history →</button>
+            </article>
+          </div>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Recent activity</p>
+                <h3>Latest sessions</h3>
+              </div>
+            </div>
+            <div id="todayRecentList" class="record-list"></div>
+          </article>
+        </section>
+
+        <section id="view-session" class="view" hidden>
+          <div class="page-heading session-heading">
+            <div>
+              <p id="sessionActivity" class="eyebrow">Session</p>
+              <h2 id="sessionTitle">No session selected</h2>
+              <p id="sessionSubtitle" class="muted">Create or open a session to begin.</p>
+            </div>
+            <span id="sessionStatusBadge" class="badge neutral">Not started</span>
+          </div>
+
+          <div id="sessionEmpty" class="panel empty-state">
+            <div class="empty-icon">S</div>
+            <h3>No session selected</h3>
+            <p>Return to Today and create a session.</p>
+            <button class="button primary" data-view-link="today" type="button">Go to Today</button>
+          </div>
+
+          <div id="sessionWorkspace" hidden>
+            <div class="session-layout">
+              <article class="panel current-work">
+                <div class="panel-kicker">
+                  <span>Current work</span>
+                  <span id="sessionProgressText">0 of 0 complete</span>
+                </div>
+                <div id="currentExercise"></div>
+                <div id="returnDecision" class="return-decision" hidden>
+                  <h3>Continue this session?</h3>
+                  <p>The session was stopped with work remaining. Choose how to record the return.</p>
+                  <div class="button-row">
+                    <button id="returnContinueButton" class="button primary" type="button">Continue remaining work</button>
+                    <button id="returnSkipButton" class="button secondary" type="button">Finish without remaining work</button>
+                  </div>
+                </div>
+                <div id="sessionActions" class="session-actions">
+                  <button id="startSessionButton" class="button primary wide" type="button">Start session</button>
+                  <button id="completeExerciseButton" class="button primary wide" type="button" hidden>Mark exercise complete</button>
+                  <button id="splitSessionButton" class="button secondary wide" type="button" hidden>Stop and return later</button>
+                </div>
+              </article>
+
+              <aside class="panel session-summary">
+                <p class="eyebrow">Session progress</p>
+                <div class="progress-track"><span id="sessionProgressBar"></span></div>
+                <div class="metric-stack">
+                  <div><span>Completed</span><strong id="sessionCompletedCount">0</strong></div>
+                  <div><span>Remaining</span><strong id="sessionRemainingCount">0</strong></div>
+                  <div><span>Dropped</span><strong id="sessionDroppedCount">0</strong></div>
+                </div>
+              </aside>
+            </div>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Session order</p>
+                  <h3>Exercises</h3>
+                </div>
+              </div>
+              <div id="exerciseQueue" class="exercise-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="view-history" class="view" hidden>
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">History</p>
+              <h2>Training record</h2>
+              <p class="muted">Persisted session facts for this athlete account.</p>
+            </div>
+            <button id="refreshHistoryButton" class="button secondary" type="button">Refresh</button>
+          </div>
+          <div id="historyList" class="record-list"></div>
+        </section>
+
+        <section id="view-coach-overview" class="view" hidden>
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">Coach workspace</p>
+              <h2 id="coachGreeting">Overview</h2>
+              <p class="muted">Connected athletes, assignments and factual session review.</p>
+            </div>
+          </div>
+          <div class="metric-cards">
+            <article class="panel metric-card"><span>Connected athletes</span><strong id="coachAthleteCount">0</strong></article>
+            <article class="panel metric-card"><span>Assignments recorded</span><strong id="coachAssignmentCount">0</strong></article>
+            <article class="panel metric-card"><span>Sessions available</span><strong id="coachArtefactCount">0</strong></article>
+          </div>
+          <article class="panel">
+            <div class="panel-header">
+              <div><p class="eyebrow">Athletes</p><h3>Connected accounts</h3></div>
+              <button class="button secondary" data-view-link="athletes" type="button">Manage athletes</button>
+            </div>
+            <div id="coachOverviewAthletes" class="record-list"></div>
+          </article>
+        </section>
+
+        <section id="view-athletes" class="view" hidden>
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">Coach workspace</p>
+              <h2>Athletes</h2>
+              <p class="muted">Connect an athlete using the account code shown in their Kolosseum account.</p>
+            </div>
+          </div>
+          <div class="two-column">
+            <form id="connectAthleteForm" class="panel form-panel">
+              <div><p class="eyebrow">New connection</p><h3>Connect athlete</h3></div>
+              <label class="field"><span>Athlete name</span><input id="connectAthleteName" required maxlength="80" /></label>
+              <label class="field"><span>Athlete account code</span><input id="connectAthleteId" required autocomplete="off" /></label>
+              <label class="field"><span>Activity</span>
+                <select id="connectAthleteActivity">
+                  <option value="powerlifting">Powerlifting</option>
+                  <option value="general_strength">General strength</option>
+                  <option value="rugby_union">Rugby union</option>
+                </select>
+              </label>
+              <label class="check-line">
+                <input id="connectAthleteConsent" type="checkbox" required />
+                <span>The athlete supplied this code and accepted this connection.</span>
+              </label>
+              <button class="button primary" type="submit">Connect athlete</button>
+            </form>
+            <article class="panel">
+              <div class="panel-header"><div><p class="eyebrow">Roster</p><h3>Connected athletes</h3></div></div>
+              <div id="athleteRoster" class="record-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="view-assign" class="view" hidden>
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">Coach workspace</p>
+              <h2>Assign training</h2>
+              <p class="muted">Record a template assignment without altering the athlete declaration.</p>
+            </div>
+          </div>
+          <form id="assignmentForm" class="panel form-panel narrow">
+            <label class="field"><span>Athlete</span><select id="assignmentAthlete" required></select></label>
+            <label class="field"><span>Template</span>
+              <select id="assignmentTemplate">
+                <option value="beta_template_powerlifting_001">Powerlifting base template</option>
+                <option value="beta_template_general_strength_001">General strength base template</option>
+                <option value="beta_template_rugby_union_001">Rugby union base template</option>
+              </select>
+            </label>
+            <button class="button primary" type="submit">Record assignment</button>
+            <p id="assignmentResult" class="inline-result" hidden></p>
+          </form>
+        </section>
+
+        <section id="view-review" class="view" hidden>
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">Coach workspace</p>
+              <h2>Review</h2>
+              <p class="muted">Read-only factual session artefacts for an assigned athlete.</p>
+            </div>
+            <div class="inline-controls">
+              <select id="reviewAthlete"></select>
+              <button id="loadReviewButton" class="button secondary" type="button">Load sessions</button>
+            </div>
+          </div>
+          <div id="reviewList" class="record-list"></div>
+          <form id="coachNoteForm" class="panel form-panel narrow" hidden>
+            <div><p class="eyebrow">Non-binding note</p><h3 id="coachNoteHeading">Add note</h3></div>
+            <input id="coachNoteSessionId" type="hidden" />
+            <input id="coachNoteArtefactId" type="hidden" />
+            <label class="field"><span>Note</span><textarea id="coachNoteText" required maxlength="2000"></textarea></label>
+            <label class="field"><span>Visibility</span>
+              <select id="coachNoteVisibility">
+                <option value="coach_private">Coach only</option>
+                <option value="athlete_visible">Visible to athlete</option>
+              </select>
+            </label>
+            <p class="muted small">This note is stored separately and does not alter engine output or session facts.</p>
+            <button class="button primary" type="submit">Record note</button>
+          </form>
+        </section>
+
+        <section id="view-account" class="view" hidden>
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">Account</p>
+              <h2>Workspace account</h2>
+              <p class="muted">Local beta identity and product access details.</p>
+            </div>
+          </div>
+          <div class="two-column">
+            <article class="panel account-card">
+              <div class="large-avatar" id="accountAvatar">C</div>
+              <div>
+                <h3 id="accountName">User</h3>
+                <p id="accountEmail" class="muted"></p>
+                <span id="accountRoleBadge" class="badge neutral">Athlete</span>
+              </div>
+            </article>
+            <article class="panel">
+              <p class="eyebrow">Account code</p>
+              <h3 id="accountCode">—</h3>
+              <p class="muted">Share this code only when intentionally connecting a coach or athlete account.</p>
+              <button id="copyAccountCodeButton" class="button secondary" type="button">Copy code</button>
+            </article>
+          </div>
+          <article class="panel danger-panel">
+            <div>
+              <h3>Leave this workspace</h3>
+              <p class="muted">This removes local sign-in state from this browser. Persisted server records remain unchanged.</p>
+            </div>
+            <button id="signOutButton" class="button danger" type="button">Sign out locally</button>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="busyOverlay" class="busy-overlay" hidden>
+    <div class="spinner"></div>
+    <p id="busyText">Working…</p>
+  </div>
+
+  <script type="module" src="/app/app.js"></script>
+</body>
+</html>

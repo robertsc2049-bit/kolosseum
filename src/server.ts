@@ -36,6 +36,18 @@ app.use(express.json({ limit: "1mb" }));
  * - /ui/decision-summary/:run_id (redirect convenience)
  */
 const publicDir = path.resolve(process.cwd(), "public");
+const productAppDir = path.join(publicDir, "app");
+
+/**
+ * Product application surface.
+ *
+ * /app is the production-shaped browser workspace. It uses the public
+ * application API and must not expose diagnostic state or engine internals.
+ */
+app.get("/", (_req, res) => {
+  return res.redirect(302, "/app/");
+});
+app.use("/app", express.static(productAppDir));
 /**
  * Local diagnostic UI gate.
  *
