@@ -18,6 +18,8 @@ const css = read("public/app/styles.css");
 const js = read("public/app/app.js");
 const blocks = read("src/api/blocks.handlers.ts");
 const journey = read("src/api/beta_product_journey_service.ts");
+const phase4Types = read("engine/src/phases/phase4/types.ts");
+const phase6 = read("engine/src/phases/phase6.ts");
 
 test("coach template product route is served", () => {
   assert.match(server, /import \{ templatesRouter \} from "\.\/api\/templates\.routes\.js";/u);
@@ -36,12 +38,26 @@ test("template records are immutable persisted product state", () => {
   assert.match(service, /only_draft_can_activate/u);
 });
 
-test("builder is registry-bound and percentage-only", () => {
+test("builder is registry-bound and supports explicit prescription modes", () => {
   assert.match(service, /registries",\s*"exercise",\s*"exercise\.registry\.json"/u);
   assert.match(service, /session_requires_exactly_four_work_items/u);
   assert.match(service, /duplicate_exercise_in_session/u);
-  assert.match(service, /percent_1rm/u);
+  assert.match(service, /repModes/u);
+  assert.match(service, /"fixed",\s*"range"/u);
+  assert.match(service, /loadModes/u);
+  assert.match(service, /"percent_1rm",\s*"fixed_weight",\s*"bodyweight"/u);
+  assert.match(service, /rep_range_order_invalid/u);
+  assert.match(service, /weight_unit_invalid/u);
   assert.doesNotMatch(service, /planned_rpe|resistance_rpe/u);
+});
+
+test("engine output preserves rep ranges and literal loading", () => {
+  assert.match(phase4Types, /rep_range\?: PlannedItemRepRange/u);
+  assert.match(phase4Types, /type: "bodyweight"/u);
+  assert.match(phase4Types, /unit\?: "kg" \| "lb"/u);
+  assert.match(phase6, /repRangeFromItem/u);
+  assert.match(phase6, /rep_range: repRange/u);
+  assert.match(phase6, /type: "bodyweight"/u);
 });
 
 test("assignment requires an active owned template", () => {
@@ -70,5 +86,10 @@ test("coach UI exposes library, builder, versioning and assignment selection", (
   assert.match(js, /duplicateTemplate/u);
   assert.match(js, /activateOpenTemplate/u);
   assert.match(js, /renderAssignmentTemplateOptions/u);
+  assert.match(js, /renderTemplateRepControls/u);
+  assert.match(js, /renderTemplateLoadControls/u);
+  assert.match(js, /fixed_weight/u);
+  assert.match(js, /rep_range/u);
   assert.match(css, /\.template-builder-layout/u);
+  assert.match(css, /\.template-prescription-grid/u);
 });

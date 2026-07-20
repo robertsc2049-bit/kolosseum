@@ -148,6 +148,53 @@ function cloneDefaultState() {
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
 }
 
+function normalisePersistedTemplateDraft(draft) {
+  if (!draft || typeof draft !== "object") return null;
+
+  const weeks = Array.isArray(draft.weeks)
+    ? draft.weeks.map((week, weekIndex) => ({
+        ...week,
+        order_index: weekIndex + 1,
+        sessions: Array.isArray(week.sessions)
+          ? week.sessions.map((session, sessionIndex) => ({
+              ...session,
+              order_index: sessionIndex + 1,
+              work_items: Array.isArray(session.work_items)
+                ? session.work_items.map((workItem, workItemIndex) => {
+                    const fallbackReps = Number(workItem?.planned_reps ?? 5);
+                    const loadMode = ["fixed_weight", "bodyweight"].includes(workItem?.load_mode)
+                      ? workItem.load_mode
+                      : "percent_1rm";
+
+                    return {
+                      work_item_id: String(workItem?.work_item_id ?? ""),
+                      order_index: workItemIndex + 1,
+                      exercise_id: String(workItem?.exercise_id ?? ""),
+                      planned_sets: Number(workItem?.planned_sets ?? 3),
+                      rep_mode: workItem?.rep_mode === "range" ? "range" : "fixed",
+                      planned_reps: fallbackReps,
+                      rep_min: Number(workItem?.rep_min ?? fallbackReps),
+                      rep_max: Number(workItem?.rep_max ?? fallbackReps),
+                      load_mode: loadMode,
+                      percent_1rm: Number(workItem?.percent_1rm ?? 75),
+                      weight_value: Number(workItem?.weight_value ?? 20),
+                      weight_unit: workItem?.weight_unit === "lb" ? "lb" : "kg",
+                      rest_seconds: Number(workItem?.rest_seconds ?? 120),
+                      role: workItem?.role === "primary" ? "primary" : "accessory"
+                    };
+                  })
+                : []
+            }))
+          : []
+      }))
+    : [];
+
+  return {
+    ...draft,
+    weeks
+  };
+}
+
 function loadState() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
@@ -162,9 +209,7 @@ function loadState() {
       coachAssignments: Array.isArray(parsed.coachAssignments) ? parsed.coachAssignments : [],
       coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
       templateExercises: Array.isArray(parsed.templateExercises) ? parsed.templateExercises : [],
-      templateDraft: parsed.templateDraft && typeof parsed.templateDraft === "object"
-        ? parsed.templateDraft
-        : null,
+      templateDraft: normalisePersistedTemplateDraft(parsed.templateDraft),
       history: Array.isArray(parsed.history) ? parsed.history : [],
       localSessions: Array.isArray(parsed.localSessions) ? parsed.localSessions : []
     };
@@ -281,8 +326,16 @@ function friendlyError(payload, status) {
     exercise_not_in_active_registry: "Choose exercises from the active exercise registry.",
     duplicate_exercise_in_session: "Each exercise in a session must be unique.",
     planned_sets_invalid: "Sets must be between 1 and 20.",
-    planned_reps_invalid: "Reps must be between 1 and 100.",
+    planned_reps_invalid: "Fixed reps must be between 1 and 100.",
+    rep_mode_invalid: "Choose fixed reps or a rep range.",
+    rep_range_min_invalid: "The minimum reps must be between 1 and 100.",
+    rep_range_max_invalid: "The maximum reps must be between 1 and 100.",
+    rep_range_order_invalid: "The maximum reps cannot be lower than the minimum reps.",
+    load_mode_invalid: "Choose percentage, weight, or bodyweight loading.",
     percent_1rm_invalid: "Percentage must be between 1 and 100.",
+    weight_value_invalid: "Weight must be between 0.25 and 1,000.",
+    weight_value_invalid_precision_invalid: "Weight may use up to three decimal places.",
+    weight_unit_invalid: "Choose kilograms or pounds.",
     rest_seconds_invalid: "Rest must be between 0 and 900 seconds.",
     active_or_archived_template_is_immutable: "Active and archived templates cannot be edited. Duplicate the template to create a new version.",
     only_draft_can_activate: "Only a draft template can be activated.",
@@ -432,16 +485,41 @@ function exerciseName(exercise) {
 function exerciseDetails(exercise) {
   const details = [];
 
-  if (Number.isInteger(exercise?.sets)) details.push(`${exercise.sets} sets`);
-  if (Number.isInteger(exercise?.reps)) details.push(`${exercise.reps} reps`);
-  if (Number.isInteger(exercise?.rest_seconds)) details.push(`${exercise.rest_seconds}s rest`);
+  if (Number.isInteger(exercise?.sets)) {
+    details.push(`${exercise.sets} sets`);
+  }
 
-  if (exercise?.intensity && typeof exercise.intensity === "object") {
-    const value = exercise.intensity.percentage ??
-      exercise.intensity.percent ??
-      exercise.intensity.value ??
-      null;
-    if (value !== null) details.push(`${value}%`);
+  const repRange = exercise?.rep_range && typeof exercise.rep_range === "object"
+    ? exercise.rep_range
+    : null;
+
+  if (
+    Number.isInteger(repRange?.minimum) &&
+    Number.isInteger(repRange?.maximum)
+  ) {
+    details.push(`${repRange.minimum}–${repRange.maximum} reps`);
+  }
+  else if (Number.isInteger(exercise?.reps)) {
+    details.push(`${exercise.reps} reps`);
+  }
+
+  const intensity = exercise?.intensity && typeof exercise.intensity === "object"
+    ? exercise.intensity
+    : null;
+
+  if (intensity?.type === "percent_1rm" && Number.isFinite(Number(intensity.value))) {
+    details.push(`${Number(intensity.value)}% 1RM`);
+  }
+  else if (intensity?.type === "load" && Number.isFinite(Number(intensity.value))) {
+    const unit = intensity.unit === "lb" ? "lb" : "kg";
+    details.push(`${Number(intensity.value)} ${unit}`);
+  }
+  else if (intensity?.type === "bodyweight") {
+    details.push("Bodyweight");
+  }
+
+  if (Number.isInteger(exercise?.rest_seconds)) {
+    details.push(`${exercise.rest_seconds}s rest`);
   }
 
   return details;
@@ -1277,9 +1355,15 @@ function newTemplateWorkItem(index) {
     work_item_id: "",
     order_index: index + 1,
     exercise_id: exercise?.exercise_id ?? "",
-    planned_sets: index === 0 ? 3 : 3,
+    planned_sets: 3,
+    rep_mode: "fixed",
     planned_reps: index === 0 ? 5 : 8,
+    rep_min: index === 0 ? 4 : 8,
+    rep_max: index === 0 ? 6 : 12,
+    load_mode: "percent_1rm",
     percent_1rm: index === 0 ? 75 : 65,
+    weight_value: index === 0 ? 100 : 20,
+    weight_unit: "kg",
     rest_seconds: index === 0 ? 180 : 120,
     role: index === 0 ? "primary" : "accessory"
   };
@@ -1344,16 +1428,50 @@ function templateRecordToDraft(template) {
               work_items: (Array.isArray(session.work_items) ? session.work_items : [])
                 .slice()
                 .sort((left, right) => Number(left.order_index) - Number(right.order_index))
-                .map((workItem, workItemIndex) => ({
-                  work_item_id: String(workItem.work_item_id ?? ""),
-                  order_index: Number(workItem.order_index ?? workItemIndex + 1),
-                  exercise_id: String(workItem.exercise_id ?? ""),
-                  planned_sets: Number(workItem.planned_sets ?? 3),
-                  planned_reps: Number(workItem.planned_reps ?? 5),
-                  percent_1rm: Number(workItem.loading_reference?.value ?? 75),
-                  rest_seconds: Number(workItem.rest_seconds ?? 120),
-                  role: workItem.role === "primary" ? "primary" : "accessory"
-                }))
+                .map((workItem, workItemIndex) => {
+                  const repPrescription = workItem?.rep_prescription &&
+                    typeof workItem.rep_prescription === "object"
+                    ? workItem.rep_prescription
+                    : {};
+
+                  const loadingReference = workItem?.loading_reference &&
+                    typeof workItem.loading_reference === "object"
+                    ? workItem.loading_reference
+                    : {};
+
+                  const repMode = repPrescription.type === "range"
+                    ? "range"
+                    : "fixed";
+
+                  const loadMode = loadingReference.type === "load"
+                    ? "fixed_weight"
+                    : loadingReference.type === "bodyweight"
+                      ? "bodyweight"
+                      : "percent_1rm";
+
+                  const fallbackReps = Number(workItem.planned_reps ?? 5);
+
+                  return {
+                    work_item_id: String(workItem.work_item_id ?? ""),
+                    order_index: Number(workItem.order_index ?? workItemIndex + 1),
+                    exercise_id: String(workItem.exercise_id ?? ""),
+                    planned_sets: Number(workItem.planned_sets ?? 3),
+                    rep_mode: repMode,
+                    planned_reps: Number(repPrescription.value ?? fallbackReps),
+                    rep_min: Number(repPrescription.minimum ?? fallbackReps),
+                    rep_max: Number(repPrescription.maximum ?? fallbackReps),
+                    load_mode: loadMode,
+                    percent_1rm: loadingReference.type === "percent_1rm"
+                      ? Number(loadingReference.value ?? 75)
+                      : 75,
+                    weight_value: loadingReference.type === "load"
+                      ? Number(loadingReference.value ?? 20)
+                      : 20,
+                    weight_unit: loadingReference.unit === "lb" ? "lb" : "kg",
+                    rest_seconds: Number(workItem.rest_seconds ?? 120),
+                    role: workItem.role === "primary" ? "primary" : "accessory"
+                  };
+                })
             }));
         });
 
@@ -1521,6 +1639,198 @@ function updateTemplateSummary() {
   elements.templateSessionCount.textContent = String(sessionCount);
 }
 
+function templateWorkItemAttributes(
+  weekIndex,
+  sessionIndex,
+  workItemIndex,
+  field
+) {
+  return `
+    data-template-kind="work-item"
+    data-week-index="${weekIndex}"
+    data-session-index="${sessionIndex}"
+    data-work-item-index="${workItemIndex}"
+    data-field="${field}"
+  `;
+}
+
+function renderTemplateRepControls(
+  workItem,
+  weekIndex,
+  sessionIndex,
+  workItemIndex
+) {
+  const rangeMode = workItem.rep_mode === "range";
+
+  return `
+    <fieldset class="template-prescription-card">
+      <legend>Repetitions</legend>
+      <div class="template-prescription-fields">
+        <label class="template-method-field">
+          <span>Method</span>
+          <select
+            ${templateWorkItemAttributes(
+              weekIndex,
+              sessionIndex,
+              workItemIndex,
+              "rep_mode"
+            )}
+          >
+            <option value="fixed" ${rangeMode ? "" : "selected"}>Fixed reps</option>
+            <option value="range" ${rangeMode ? "selected" : ""}>Rep range</option>
+          </select>
+        </label>
+
+        ${rangeMode
+          ? `
+            <label>
+              <span>Minimum</span>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                step="1"
+                value="${Number(workItem.rep_min)}"
+                ${templateWorkItemAttributes(
+                  weekIndex,
+                  sessionIndex,
+                  workItemIndex,
+                  "rep_min"
+                )}
+              />
+            </label>
+            <label>
+              <span>Maximum</span>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                step="1"
+                value="${Number(workItem.rep_max)}"
+                ${templateWorkItemAttributes(
+                  weekIndex,
+                  sessionIndex,
+                  workItemIndex,
+                  "rep_max"
+                )}
+              />
+            </label>
+          `
+          : `
+            <label>
+              <span>Reps</span>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                step="1"
+                value="${Number(workItem.planned_reps)}"
+                ${templateWorkItemAttributes(
+                  weekIndex,
+                  sessionIndex,
+                  workItemIndex,
+                  "planned_reps"
+                )}
+              />
+            </label>
+          `}
+      </div>
+    </fieldset>
+  `;
+}
+
+function renderTemplateLoadControls(
+  workItem,
+  weekIndex,
+  sessionIndex,
+  workItemIndex
+) {
+  const loadMode = ["fixed_weight", "bodyweight"].includes(workItem.load_mode)
+    ? workItem.load_mode
+    : "percent_1rm";
+
+  return `
+    <fieldset class="template-prescription-card">
+      <legend>Loading</legend>
+      <div class="template-prescription-fields">
+        <label class="template-method-field">
+          <span>Method</span>
+          <select
+            ${templateWorkItemAttributes(
+              weekIndex,
+              sessionIndex,
+              workItemIndex,
+              "load_mode"
+            )}
+          >
+            <option value="percent_1rm" ${loadMode === "percent_1rm" ? "selected" : ""}>% of 1RM</option>
+            <option value="fixed_weight" ${loadMode === "fixed_weight" ? "selected" : ""}>Weight</option>
+            <option value="bodyweight" ${loadMode === "bodyweight" ? "selected" : ""}>Bodyweight</option>
+          </select>
+        </label>
+
+        ${loadMode === "percent_1rm"
+          ? `
+            <label>
+              <span>% 1RM</span>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                step="0.5"
+                value="${Number(workItem.percent_1rm)}"
+                ${templateWorkItemAttributes(
+                  weekIndex,
+                  sessionIndex,
+                  workItemIndex,
+                  "percent_1rm"
+                )}
+              />
+            </label>
+          `
+          : loadMode === "fixed_weight"
+            ? `
+              <label>
+                <span>Weight</span>
+                <input
+                  type="number"
+                  min="0.25"
+                  max="1000"
+                  step="0.25"
+                  value="${Number(workItem.weight_value)}"
+                  ${templateWorkItemAttributes(
+                    weekIndex,
+                    sessionIndex,
+                    workItemIndex,
+                    "weight_value"
+                  )}
+                />
+              </label>
+              <label>
+                <span>Unit</span>
+                <select
+                  ${templateWorkItemAttributes(
+                    weekIndex,
+                    sessionIndex,
+                    workItemIndex,
+                    "weight_unit"
+                  )}
+                >
+                  <option value="kg" ${workItem.weight_unit === "lb" ? "" : "selected"}>kg</option>
+                  <option value="lb" ${workItem.weight_unit === "lb" ? "selected" : ""}>lb</option>
+                </select>
+              </label>
+            `
+            : `
+              <div class="template-bodyweight-note">
+                No external load is prescribed.
+              </div>
+            `}
+      </div>
+    </fieldset>
+  `;
+}
+
 function renderTemplateWeeks() {
   const draft = state.templateDraft;
   if (!draft) {
@@ -1566,88 +1876,88 @@ function renderTemplateWeeks() {
                   ${session.work_items
                     .map((workItem, workItemIndex) => `
                       <div class="template-work-item">
-                        <span class="exercise-order">${workItemIndex + 1}</span>
-                        <label>
-                          <span>Exercise</span>
-                          <select
-                            data-template-kind="work-item"
-                            data-week-index="${weekIndex}"
-                            data-session-index="${sessionIndex}"
-                            data-work-item-index="${workItemIndex}"
-                            data-field="exercise_id"
-                          >
-                            ${templateExerciseOptions(workItem.exercise_id)}
-                          </select>
-                        </label>
-                        <label>
-                          <span>Sets</span>
-                          <input
-                            type="number"
-                            min="1"
-                            max="20"
-                            value="${Number(workItem.planned_sets)}"
-                            data-template-kind="work-item"
-                            data-week-index="${weekIndex}"
-                            data-session-index="${sessionIndex}"
-                            data-work-item-index="${workItemIndex}"
-                            data-field="planned_sets"
-                          />
-                        </label>
-                        <label>
-                          <span>Reps</span>
-                          <input
-                            type="number"
-                            min="1"
-                            max="100"
-                            value="${Number(workItem.planned_reps)}"
-                            data-template-kind="work-item"
-                            data-week-index="${weekIndex}"
-                            data-session-index="${sessionIndex}"
-                            data-work-item-index="${workItemIndex}"
-                            data-field="planned_reps"
-                          />
-                        </label>
-                        <label>
-                          <span>% 1RM</span>
-                          <input
-                            type="number"
-                            min="1"
-                            max="100"
-                            value="${Number(workItem.percent_1rm)}"
-                            data-template-kind="work-item"
-                            data-week-index="${weekIndex}"
-                            data-session-index="${sessionIndex}"
-                            data-work-item-index="${workItemIndex}"
-                            data-field="percent_1rm"
-                          />
-                        </label>
-                        <label>
-                          <span>Rest sec</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max="900"
-                            value="${Number(workItem.rest_seconds)}"
-                            data-template-kind="work-item"
-                            data-week-index="${weekIndex}"
-                            data-session-index="${sessionIndex}"
-                            data-work-item-index="${workItemIndex}"
-                            data-field="rest_seconds"
-                          />
-                        </label>
-                        <label>
-                          <span>Role</span>
-                          <select
-                            data-template-kind="work-item"
-                            data-week-index="${weekIndex}"
-                            data-session-index="${sessionIndex}"
-                            data-work-item-index="${workItemIndex}"
-                            data-field="role"
-                          >
-                            <option value="primary" ${workItem.role === "primary" ? "selected" : ""}>Primary</option>
-                            <option value="accessory" ${workItem.role === "accessory" ? "selected" : ""}>Accessory</option>
-                          </select>
-                        </label>
+                        <div class="template-work-item-header">
+                          <span class="exercise-order">${workItemIndex + 1}</span>
+
+                          <label class="template-exercise-field">
+                            <span>Exercise</span>
+                            <select
+                              ${templateWorkItemAttributes(
+                                weekIndex,
+                                sessionIndex,
+                                workItemIndex,
+                                "exercise_id"
+                              )}
+                            >
+                              ${templateExerciseOptions(workItem.exercise_id)}
+                            </select>
+                          </label>
+
+                          <label class="template-role-field">
+                            <span>Role</span>
+                            <select
+                              ${templateWorkItemAttributes(
+                                weekIndex,
+                                sessionIndex,
+                                workItemIndex,
+                                "role"
+                              )}
+                            >
+                              <option value="primary" ${workItem.role === "primary" ? "selected" : ""}>Primary</option>
+                              <option value="accessory" ${workItem.role === "accessory" ? "selected" : ""}>Accessory</option>
+                            </select>
+                          </label>
+                        </div>
+
+                        <div class="template-prescription-grid">
+                          <label class="template-sets-field">
+                            <span>Sets</span>
+                            <input
+                              type="number"
+                              min="1"
+                              max="20"
+                              step="1"
+                              value="${Number(workItem.planned_sets)}"
+                              ${templateWorkItemAttributes(
+                                weekIndex,
+                                sessionIndex,
+                                workItemIndex,
+                                "planned_sets"
+                              )}
+                            />
+                          </label>
+
+                          ${renderTemplateRepControls(
+                            workItem,
+                            weekIndex,
+                            sessionIndex,
+                            workItemIndex
+                          )}
+
+                          ${renderTemplateLoadControls(
+                            workItem,
+                            weekIndex,
+                            sessionIndex,
+                            workItemIndex
+                          )}
+
+                          <label class="template-rest-field">
+                            <span>Rest seconds</span>
+                            <input
+                              type="number"
+                              min="0"
+                              max="900"
+                              step="5"
+                              value="${Number(workItem.rest_seconds)}"
+                              ${templateWorkItemAttributes(
+                                weekIndex,
+                                sessionIndex,
+                                workItemIndex,
+                                "rest_seconds"
+                              )}
+                            />
+                          </label>
+                        </div>
                       </div>
                     `)
                     .join("")}
@@ -1731,10 +2041,26 @@ function updateTemplateFieldFromControl(control) {
     const workItem = session.work_items?.[workItemIndex];
     if (!workItem) return;
 
-    workItem[field] = ["planned_sets", "planned_reps", "percent_1rm", "rest_seconds"]
-      .includes(field)
+    workItem[field] = [
+      "planned_sets",
+      "planned_reps",
+      "rep_min",
+      "rep_max",
+      "percent_1rm",
+      "weight_value",
+      "rest_seconds"
+    ].includes(field)
       ? Number(control.value)
       : control.value;
+
+    if (
+      field === "rep_mode" ||
+      field === "load_mode"
+    ) {
+      saveState();
+      renderTemplateWeeks();
+      return;
+    }
   }
 
   saveState();
@@ -1814,8 +2140,14 @@ function templateRequestBody() {
           order_index: workItemIndex + 1,
           exercise_id: workItem.exercise_id,
           planned_sets: Number(workItem.planned_sets),
+          rep_mode: workItem.rep_mode,
           planned_reps: Number(workItem.planned_reps),
+          rep_min: Number(workItem.rep_min),
+          rep_max: Number(workItem.rep_max),
+          load_mode: workItem.load_mode,
           percent_1rm: Number(workItem.percent_1rm),
+          weight_value: Number(workItem.weight_value),
+          weight_unit: workItem.weight_unit,
           rest_seconds: Number(workItem.rest_seconds),
           role: workItem.role
         }))

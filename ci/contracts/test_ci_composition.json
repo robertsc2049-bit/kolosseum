@@ -347,6 +347,14 @@
     {
       "kind": "command",
       "value": "node test/gh_pr_checks_poll_until_green_json_contract.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/product_template_builder_surface.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/product_template_prescription_modes.test.mjs"
     }
   ]
 }

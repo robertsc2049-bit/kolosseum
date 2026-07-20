@@ -48,6 +48,25 @@ const workItemRoles =
     "accessory"
   ]);
 
+const repModes =
+  new Set([
+    "fixed",
+    "range"
+  ]);
+
+const loadModes =
+  new Set([
+    "percent_1rm",
+    "fixed_weight",
+    "bodyweight"
+  ]);
+
+const weightUnits =
+  new Set([
+    "kg",
+    "lb"
+  ]);
+
 export function isCoachAuthoredTemplateId(
   value: unknown
 ): boolean {
@@ -92,6 +111,326 @@ function integerInRange(
   }
 
   return Number(value);
+}
+
+function numberInRange(
+  value: unknown,
+  minimum: number,
+  maximum: number,
+  reason: string
+): number {
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    value < minimum ||
+    value > maximum
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      reason
+    );
+  }
+
+  const normalised =
+    Number(value.toFixed(3));
+
+  if (
+    Math.abs(
+      value - normalised
+    ) > 0.0000001
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      `${reason}_precision_invalid`
+    );
+  }
+
+  return normalised;
+}
+
+type RepPrescription =
+  | Readonly<{
+      type: "fixed";
+      value: number;
+    }>
+  | Readonly<{
+      type: "range";
+      minimum: number;
+      maximum: number;
+    }>;
+
+type LoadingReference =
+  | Readonly<{
+      type: "percent_1rm";
+      value: number;
+    }>
+  | Readonly<{
+      type: "load";
+      value: number;
+      unit: "kg" | "lb";
+    }>
+  | Readonly<{
+      type: "bodyweight";
+    }>;
+
+function repPrescriptionFromInput(
+  workItem: JsonRecord
+): Readonly<{
+  planned_reps: number;
+  rep_prescription: RepPrescription;
+}> {
+  const repMode =
+    cleanString(
+      workItem.rep_mode
+    ) ||
+    (
+      typeof workItem.rep_min !==
+        "undefined" ||
+      typeof workItem.rep_max !==
+        "undefined"
+        ? "range"
+        : "fixed"
+    );
+
+  if (!repModes.has(repMode)) {
+    throw new Beta18ProgrammeTemplateError(
+      "rep_mode_invalid"
+    );
+  }
+
+  if (repMode === "range") {
+    const minimum =
+      integerInRange(
+        workItem.rep_min,
+        1,
+        100,
+        "rep_range_min_invalid"
+      );
+
+    const maximum =
+      integerInRange(
+        workItem.rep_max,
+        1,
+        100,
+        "rep_range_max_invalid"
+      );
+
+    if (minimum > maximum) {
+      throw new Beta18ProgrammeTemplateError(
+        "rep_range_order_invalid"
+      );
+    }
+
+    return deepFreeze({
+      planned_reps:
+        minimum,
+      rep_prescription:
+        deepFreeze({
+          type: "range",
+          minimum,
+          maximum
+        })
+    });
+  }
+
+  const value =
+    integerInRange(
+      workItem.planned_reps,
+      1,
+      100,
+      "planned_reps_invalid"
+    );
+
+  return deepFreeze({
+    planned_reps:
+      value,
+    rep_prescription:
+      deepFreeze({
+        type: "fixed",
+        value
+      })
+  });
+}
+
+function loadingReferenceFromInput(
+  workItem: JsonRecord
+): LoadingReference {
+  const loadMode =
+    cleanString(
+      workItem.load_mode
+    ) ||
+    "percent_1rm";
+
+  if (!loadModes.has(loadMode)) {
+    throw new Beta18ProgrammeTemplateError(
+      "load_mode_invalid"
+    );
+  }
+
+  if (loadMode === "bodyweight") {
+    return deepFreeze({
+      type: "bodyweight"
+    });
+  }
+
+  if (loadMode === "fixed_weight") {
+    const value =
+      numberInRange(
+        workItem.weight_value,
+        0.25,
+        1000,
+        "weight_value_invalid"
+      );
+
+    const unit =
+      cleanString(
+        workItem.weight_unit
+      ) ||
+      "kg";
+
+    if (!weightUnits.has(unit)) {
+      throw new Beta18ProgrammeTemplateError(
+        "weight_unit_invalid"
+      );
+    }
+
+    return deepFreeze({
+      type: "load",
+      value,
+      unit:
+        unit as "kg" | "lb"
+    });
+  }
+
+  return deepFreeze({
+    type: "percent_1rm",
+    value:
+      numberInRange(
+        workItem.percent_1rm,
+        1,
+        100,
+        "percent_1rm_invalid"
+      )
+  });
+}
+
+function repPrescriptionFromStored(
+  workItem: JsonRecord
+): RepPrescription {
+  const raw =
+    isRecord(
+      workItem.rep_prescription
+    )
+      ? workItem.rep_prescription
+      : {};
+
+  if (
+    cleanString(raw.type) ===
+      "range"
+  ) {
+    const minimum =
+      integerInRange(
+        raw.minimum,
+        1,
+        100,
+        "stored_rep_range_min_invalid"
+      );
+
+    const maximum =
+      integerInRange(
+        raw.maximum,
+        1,
+        100,
+        "stored_rep_range_max_invalid"
+      );
+
+    if (minimum > maximum) {
+      throw new Beta18ProgrammeTemplateError(
+        "stored_rep_range_order_invalid"
+      );
+    }
+
+    return deepFreeze({
+      type: "range",
+      minimum,
+      maximum
+    });
+  }
+
+  const value =
+    integerInRange(
+      raw.value ??
+        workItem.planned_reps,
+      1,
+      100,
+      "stored_fixed_reps_invalid"
+    );
+
+  return deepFreeze({
+    type: "fixed",
+    value
+  });
+}
+
+function loadingReferenceFromStored(
+  workItem: JsonRecord
+): LoadingReference {
+  const raw =
+    isRecord(
+      workItem.loading_reference
+    )
+      ? workItem.loading_reference
+      : {};
+
+  const type =
+    cleanString(raw.type) ||
+    "percent_1rm";
+
+  if (type === "bodyweight") {
+    return deepFreeze({
+      type: "bodyweight"
+    });
+  }
+
+  if (type === "load") {
+    const unit =
+      cleanString(raw.unit) ||
+      "kg";
+
+    if (!weightUnits.has(unit)) {
+      throw new Beta18ProgrammeTemplateError(
+        "stored_weight_unit_invalid"
+      );
+    }
+
+    return deepFreeze({
+      type: "load",
+      value:
+        numberInRange(
+          raw.value,
+          0.25,
+          1000,
+          "stored_weight_value_invalid"
+        ),
+      unit:
+        unit as "kg" | "lb"
+    });
+  }
+
+  if (type !== "percent_1rm") {
+    throw new Beta18ProgrammeTemplateError(
+      "stored_load_mode_invalid"
+    );
+  }
+
+  return deepFreeze({
+    type: "percent_1rm",
+    value:
+      numberInRange(
+        raw.value,
+        1,
+        100,
+        "stored_percent_1rm_invalid"
+      )
+  });
 }
 
 function iso8601(
@@ -504,8 +843,14 @@ function normaliseTemplateStructure(
                         "order_index",
                         "exercise_id",
                         "planned_sets",
+                        "rep_mode",
                         "planned_reps",
+                        "rep_min",
+                        "rep_max",
+                        "load_mode",
                         "percent_1rm",
+                        "weight_value",
+                        "weight_unit",
                         "rest_seconds",
                         "role"
                       ],
@@ -594,22 +939,14 @@ function normaliseTemplateStructure(
                         "planned_sets_invalid"
                       );
 
-                    const plannedReps =
-                      integerInRange(
+                    const repPrescription =
+                      repPrescriptionFromInput(
                         rawWorkItem
-                          .planned_reps,
-                        1,
-                        100,
-                        "planned_reps_invalid"
                       );
 
-                    const percent1Rm =
-                      integerInRange(
+                    const loadingReference =
+                      loadingReferenceFromInput(
                         rawWorkItem
-                          .percent_1rm,
-                        1,
-                        100,
-                        "percent_1rm_invalid"
                       );
 
                     const restSeconds =
@@ -653,14 +990,13 @@ function normaliseTemplateStructure(
                       planned_sets:
                         plannedSets,
                       planned_reps:
-                        plannedReps,
+                        repPrescription
+                          .planned_reps,
+                      rep_prescription:
+                        repPrescription
+                          .rep_prescription,
                       loading_reference:
-                        deepFreeze({
-                          type:
-                            "percent_1rm",
-                          value:
-                            percent1Rm
-                        }),
+                        loadingReference,
                       equipment_requirement_ids:
                         [...equipment]
                           .sort(),
@@ -857,15 +1193,98 @@ function templateRecordInput(
                               workItem
                                 .planned_sets
                             ),
+                          rep_mode:
+                            cleanString(
+                              (
+                                isRecord(
+                                  workItem
+                                    .rep_prescription
+                                )
+                                  ? workItem
+                                      .rep_prescription
+                                      .type
+                                  : ""
+                              )
+                            ) === "range"
+                              ? "range"
+                              : "fixed",
                           planned_reps:
                             Number(
+                              (
+                                isRecord(
+                                  workItem
+                                    .rep_prescription
+                                )
+                                  ? workItem
+                                      .rep_prescription
+                                      .value
+                                  : undefined
+                              ) ??
                               workItem
                                 .planned_reps
                             ),
-                          percent_1rm:
+                          rep_min:
                             Number(
-                              loading.value
+                              (
+                                isRecord(
+                                  workItem
+                                    .rep_prescription
+                                )
+                                  ? workItem
+                                      .rep_prescription
+                                      .minimum
+                                  : undefined
+                              ) ??
+                              workItem
+                                .planned_reps
                             ),
+                          rep_max:
+                            Number(
+                              (
+                                isRecord(
+                                  workItem
+                                    .rep_prescription
+                                )
+                                  ? workItem
+                                      .rep_prescription
+                                      .maximum
+                                  : undefined
+                              ) ??
+                              workItem
+                                .planned_reps
+                            ),
+                          load_mode:
+                            cleanString(
+                              loading.type
+                            ) === "load"
+                              ? "fixed_weight"
+                              : cleanString(
+                                  loading.type
+                                ) === "bodyweight"
+                                ? "bodyweight"
+                                : "percent_1rm",
+                          percent_1rm:
+                            cleanString(
+                              loading.type
+                            ) === "percent_1rm"
+                              ? Number(
+                                  loading.value
+                                )
+                              : 75,
+                          weight_value:
+                            cleanString(
+                              loading.type
+                            ) === "load"
+                              ? Number(
+                                  loading.value
+                                )
+                              : 20,
+                          weight_unit:
+                            cleanString(
+                              loading.unit
+                            ) === "lb"
+                              ? "lb"
+                              : "kg",
                           rest_seconds:
                             Number(
                               workItem
@@ -1263,7 +1682,7 @@ export async function saveCoachProgrammeTemplate(
       template_version:
         templateVersion,
       contract_version:
-        "beta18.1.0.0",
+        "beta18.2.0.0",
       template_status:
         "draft",
       template_name:
@@ -1986,14 +2405,15 @@ export async function materialiseNextCoachTemplateProgram(
         workItem,
         index
       ) => {
-        const loading =
-          isRecord(
+        const repPrescription =
+          repPrescriptionFromStored(
             workItem
-              .loading_reference
-          )
-            ? workItem
-                .loading_reference
-            : {};
+          );
+
+        const loadingReference =
+          loadingReferenceFromStored(
+            workItem
+          );
 
         const exerciseId =
           cleanString(
@@ -2043,19 +2463,24 @@ export async function materialiseNextCoachTemplateProgram(
                 .planned_sets
             ),
           reps:
-            Number(
-              workItem
-                .planned_reps
-            ),
+            repPrescription.type ===
+              "range"
+              ? repPrescription.minimum
+              : repPrescription.value,
+          ...(repPrescription.type ===
+            "range"
+            ? {
+                rep_range:
+                  deepFreeze({
+                    minimum:
+                      repPrescription.minimum,
+                    maximum:
+                      repPrescription.maximum
+                  })
+              }
+            : {}),
           intensity:
-            deepFreeze({
-              type:
-                "percent_1rm",
-              value:
-                Number(
-                  loading.value
-                )
-            }),
+            loadingReference,
           rest_seconds:
             Number(
               workItem

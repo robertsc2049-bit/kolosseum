@@ -564,7 +564,7 @@ test(
             exercise.exercise_id
         );
 
-    const workItems =
+    const percentageWorkItems =
       (
         selectedIds,
         basePercent
@@ -583,13 +583,29 @@ test(
               index === 0
                 ? 4
                 : 3,
+            rep_mode:
+              "fixed",
             planned_reps:
               index === 0
                 ? 5
                 : 8,
+            rep_min:
+              index === 0
+                ? 4
+                : 8,
+            rep_max:
+              index === 0
+                ? 6
+                : 12,
+            load_mode:
+              "percent_1rm",
             percent_1rm:
               basePercent -
               index * 5,
+            weight_value:
+              20,
+            weight_unit:
+              "kg",
             rest_seconds:
               index === 0
                 ? 180
@@ -600,6 +616,194 @@ test(
                 : "accessory"
           })
         );
+
+    const mixedPrescriptionWorkItems =
+      (
+        selectedIds
+      ) => [
+        {
+          ...percentageWorkItems(
+            selectedIds,
+            80
+          )[0],
+          rep_mode:
+            "fixed",
+          planned_reps: 5,
+          load_mode:
+            "percent_1rm",
+          percent_1rm: 80
+        },
+        {
+          ...percentageWorkItems(
+            selectedIds,
+            80
+          )[1],
+          rep_mode:
+            "range",
+          rep_min: 6,
+          rep_max: 8,
+          load_mode:
+            "fixed_weight",
+          weight_value: 100,
+          weight_unit: "kg"
+        },
+        {
+          ...percentageWorkItems(
+            selectedIds,
+            80
+          )[2],
+          rep_mode:
+            "range",
+          rep_min: 8,
+          rep_max: 12,
+          load_mode:
+            "bodyweight"
+        },
+        {
+          ...percentageWorkItems(
+            selectedIds,
+            80
+          )[3],
+          rep_mode:
+            "fixed",
+          planned_reps: 3,
+          load_mode:
+            "fixed_weight",
+          weight_value: 225,
+          weight_unit: "lb"
+        }
+      ];
+
+    const invalidRangeItems =
+      mixedPrescriptionWorkItems(
+        exerciseIds.slice(
+          0,
+          4
+        )
+      );
+
+    invalidRangeItems[1] = {
+      ...invalidRangeItems[1],
+      rep_min: 10,
+      rep_max: 6
+    };
+
+    const invalidRange =
+      await request(
+        server.baseUrl,
+        "POST",
+        "/templates",
+        {
+          coach_user_id:
+            coachUserId,
+          template_version: 1,
+          template_name:
+            "Invalid Rep Range Template",
+          description:
+            "Negative range validation proof.",
+          activity_id:
+            "powerlifting",
+          weeks: [
+            {
+              week_id: "",
+              order_index: 1,
+              sessions: [
+                {
+                  session_id: "",
+                  order_index: 1,
+                  title:
+                    "Invalid Range",
+                  work_items:
+                    invalidRangeItems
+                }
+              ]
+            }
+          ],
+          updated_at_iso8601:
+            new Date()
+              .toISOString()
+        }
+      );
+
+    assertStatus(
+      invalidRange,
+      400,
+      "invalid rep range"
+    );
+
+    assert.equal(
+      invalidRange.json
+        ?.reason ??
+      invalidRange.json
+        ?.details
+        ?.reason,
+      "rep_range_order_invalid"
+    );
+
+    const invalidWeightItems =
+      mixedPrescriptionWorkItems(
+        exerciseIds.slice(
+          0,
+          4
+        )
+      );
+
+    invalidWeightItems[1] = {
+      ...invalidWeightItems[1],
+      weight_value: 0
+    };
+
+    const invalidWeight =
+      await request(
+        server.baseUrl,
+        "POST",
+        "/templates",
+        {
+          coach_user_id:
+            coachUserId,
+          template_version: 1,
+          template_name:
+            "Invalid Weight Template",
+          description:
+            "Negative weight validation proof.",
+          activity_id:
+            "powerlifting",
+          weeks: [
+            {
+              week_id: "",
+              order_index: 1,
+              sessions: [
+                {
+                  session_id: "",
+                  order_index: 1,
+                  title:
+                    "Invalid Weight",
+                  work_items:
+                    invalidWeightItems
+                }
+              ]
+            }
+          ],
+          updated_at_iso8601:
+            new Date()
+              .toISOString()
+        }
+      );
+
+    assertStatus(
+      invalidWeight,
+      400,
+      "invalid fixed weight"
+    );
+
+    assert.equal(
+      invalidWeight.json
+        ?.reason ??
+      invalidWeight.json
+        ?.details
+        ?.reason,
+      "weight_value_invalid"
+    );
 
     const draft =
       await request(
@@ -627,12 +831,11 @@ test(
                   title:
                     "Session One",
                   work_items:
-                    workItems(
+                    mixedPrescriptionWorkItems(
                       exerciseIds.slice(
                         0,
                         4
-                      ),
-                      80
+                      )
                     )
                 },
                 {
@@ -641,7 +844,7 @@ test(
                   title:
                     "Session Two",
                   work_items:
-                    workItems(
+                    percentageWorkItems(
                       exerciseIds.slice(
                         4,
                         8
@@ -679,6 +882,58 @@ test(
     assert.equal(
       typeof templateId,
       "string"
+    );
+
+    const storedWorkItems =
+      draft.json
+        ?.template
+        ?.template_structure
+        ?.blocks
+        ?.[0]
+        ?.weeks
+        ?.[0]
+        ?.days
+        ?.[0]
+        ?.sessions
+        ?.[0]
+        ?.work_items;
+
+    assert.deepEqual(
+      storedWorkItems?.[1]
+        ?.rep_prescription,
+      {
+        type: "range",
+        minimum: 6,
+        maximum: 8
+      }
+    );
+
+    assert.deepEqual(
+      storedWorkItems?.[1]
+        ?.loading_reference,
+      {
+        type: "load",
+        value: 100,
+        unit: "kg"
+      }
+    );
+
+    assert.deepEqual(
+      storedWorkItems?.[2]
+        ?.loading_reference,
+      {
+        type: "bodyweight"
+      }
+    );
+
+    assert.deepEqual(
+      storedWorkItems?.[3]
+        ?.loading_reference,
+      {
+        type: "load",
+        value: 225,
+        unit: "lb"
+      }
     );
 
     const activation =
@@ -770,6 +1025,64 @@ test(
         0,
         4
       )
+    );
+
+    const compiledExercises =
+      compileOne.json
+        ?.planned_session
+        ?.exercises;
+
+    assert.deepEqual(
+      compiledExercises?.[1]
+        ?.rep_range,
+      {
+        minimum: 6,
+        maximum: 8
+      }
+    );
+
+    assert.equal(
+      compiledExercises?.[1]
+        ?.reps,
+      6,
+      "Range prescriptions retain the minimum as the legacy deterministic reps fallback"
+    );
+
+    assert.deepEqual(
+      compiledExercises?.[1]
+        ?.intensity,
+      {
+        type: "load",
+        value: 100,
+        unit: "kg"
+      }
+    );
+
+    assert.deepEqual(
+      compiledExercises?.[2]
+        ?.rep_range,
+      {
+        minimum: 8,
+        maximum: 12
+      }
+    );
+
+    assert.deepEqual(
+      compiledExercises?.[2]
+        ?.intensity,
+      {
+        type: "bodyweight"
+      }
+    );
+
+    assert.deepEqual(
+      compiledExercises?.[3]
+        ?.intensity,
+      {
+        type: "load",
+        value: 225,
+        unit: "lb"
+      }
     );
 
     assert.equal(
