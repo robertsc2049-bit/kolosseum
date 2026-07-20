@@ -1470,3 +1470,156 @@ input:focus, select:focus, textarea:focus {
     grid-column: auto;
   }
 }
+
+/* Event-anchored programme compiler */
+.event-compiler-settings {
+  display: grid;
+  gap: 0.9rem;
+  padding-top: 1rem;
+  margin-top: 0.2rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+.event-toggle-row {
+  align-items: flex-start;
+}
+
+.event-toggle-row small {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--stone-dim);
+  line-height: 1.4;
+}
+
+.event-compiler-fields {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.event-notes-field textarea {
+  min-height: 88px;
+}
+
+.event-compiler-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.event-compiler-summary > div {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.event-compiler-summary span {
+  color: var(--stone-dim);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.event-compiler-summary strong {
+  font-size: 1rem;
+}
+
+.event-compiler-actions {
+  justify-content: flex-start;
+}
+
+.template-block-week-count-field {
+  min-width: 130px;
+}
+
+.small-inline-action {
+  min-height: 32px;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.block-calendar-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.75rem;
+  border-left: 3px solid var(--bronze);
+  background: rgba(200, 155, 60, 0.07);
+  color: var(--stone-dim);
+  font-size: 0.86rem;
+}
+
+.block-calendar-strip strong {
+  margin-left: auto;
+  color: var(--stone);
+}
+
+.template-event-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.55rem;
+  color: var(--stone-dim);
+  font-size: 0.86rem;
+}
+
+.template-event-line strong {
+  color: var(--stone);
+}
+
+.event-assignment-summary {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(200, 155, 60, 0.38);
+  border-radius: 11px;
+  background: rgba(200, 155, 60, 0.075);
+}
+
+.event-assignment-summary .event-summary-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.event-assignment-summary p {
+  margin: 0;
+}
+
+.event-countdown-card {
+  border-color: rgba(200, 155, 60, 0.42);
+  background:
+    linear-gradient(135deg, rgba(200, 155, 60, 0.12), rgba(11, 15, 20, 0.2)),
+    var(--graphite);
+}
+
+.event-countdown-card .large-number {
+  display: block;
+  margin: 0.35rem 0 0.1rem;
+  color: var(--bronze);
+}
+
+@media (max-width: 700px) {
+  .event-compiler-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .block-calendar-strip strong {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+.template-week-calendar {
+  margin: 0.25rem 0 0;
+  color: var(--bronze);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}

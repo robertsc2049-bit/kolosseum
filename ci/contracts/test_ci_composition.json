@@ -359,6 +359,10 @@
     {
       "kind": "command",
       "value": "node test/product_coach_programme_workspace.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/product_event_programme_compiler_surface.test.mjs"
     }
   ]
 }

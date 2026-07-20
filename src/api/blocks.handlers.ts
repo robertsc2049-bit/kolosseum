@@ -645,6 +645,15 @@ export async function compileBlock(req: Request, res: Response) {
 
   if (persisted.session_id) payload.session_id = persisted.session_id;
 
+  const coachTemplateExecution =
+    isRecord(
+      programForSession
+        ?.coach_template_execution
+    )
+      ? programForSession
+          .coach_template_execution
+      : null;
+
   if (beta_path_admission) {
     payload.beta_path = {
       surface_id:
@@ -681,7 +690,50 @@ export async function compileBlock(req: Request, res: Response) {
       template_id:
         beta_session_binding
           ?.template_id ??
-        null
+        null,
+      template_session_title:
+        coachTemplateExecution
+          ? asString(
+              coachTemplateExecution
+                .template_session_title
+            ) ?? null
+          : null,
+      template_block_name:
+        coachTemplateExecution
+          ? asString(
+              coachTemplateExecution
+                .template_block_name
+            ) ?? null
+          : null,
+      template_week_index_global:
+        coachTemplateExecution &&
+        Number.isInteger(
+          coachTemplateExecution
+            .template_week_index_global
+        )
+          ? Number(
+              coachTemplateExecution
+                .template_week_index_global
+            )
+          : null,
+      event_plan:
+        coachTemplateExecution &&
+        isRecord(
+          coachTemplateExecution
+            .event_plan
+        )
+          ? coachTemplateExecution
+              .event_plan
+          : null,
+      event_compile_summary:
+        coachTemplateExecution &&
+        isRecord(
+          coachTemplateExecution
+            .event_compile_summary
+        )
+          ? coachTemplateExecution
+              .event_compile_summary
+          : null
     };
   }
 

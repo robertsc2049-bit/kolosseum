@@ -205,6 +205,13 @@
               <p class="muted">Sessions recorded for this account.</p>
               <button class="text-button" data-view-link="history" type="button">View history →</button>
             </article>
+
+            <article id="todayEventCard" class="panel compact-panel event-countdown-card" hidden>
+              <div class="panel-kicker"><span>Next event</span><span id="todayEventType" class="badge neutral">Event</span></div>
+              <strong id="todayEventCountdown" class="large-number">0 days</strong>
+              <h3 id="todayEventName">Event</h3>
+              <p id="todayEventDate" class="muted"></p>
+            </article>
           </div>
 
           <article class="panel">
@@ -465,6 +472,59 @@
                   <span>Description</span>
                   <textarea id="templateDescription" maxlength="1000" placeholder="Factual description of this programme"></textarea>
                 </label>
+
+                <section class="event-compiler-settings">
+                  <label class="toggle-row event-toggle-row">
+                    <input id="templateEventEnabled" type="checkbox" />
+                    <span>
+                      <strong>Compile to an event</strong>
+                      <small>Anchor block and week dates to a declared event date.</small>
+                    </span>
+                  </label>
+
+                  <div id="templateEventFields" class="event-compiler-fields" hidden>
+                    <label class="field">
+                      <span>Event name</span>
+                      <input id="templateEventName" maxlength="120" placeholder="British Championships" />
+                    </label>
+                    <label class="field">
+                      <span>Event type</span>
+                      <select id="templateEventType"></select>
+                    </label>
+                    <label class="field">
+                      <span>Programme start date</span>
+                      <input id="templateProgrammeStartDate" type="date" />
+                    </label>
+                    <label class="field">
+                      <span>Event date</span>
+                      <input id="templateEventDate" type="date" />
+                    </label>
+                    <label class="field">
+                      <span>Location</span>
+                      <input id="templateEventLocation" maxlength="200" placeholder="Optional venue or town" />
+                    </label>
+                    <label class="field">
+                      <span>Timezone</span>
+                      <input id="templateEventTimezone" maxlength="80" value="Europe/London" />
+                    </label>
+                    <label class="field event-notes-field">
+                      <span>Event notes</span>
+                      <textarea id="templateEventNotes" maxlength="1000" placeholder="Factual event details only"></textarea>
+                    </label>
+
+                    <div class="event-compiler-summary">
+                      <div><span>Countdown</span><strong id="templateEventCountdown">Set dates</strong></div>
+                      <div><span>Available weeks</span><strong id="templateEventRequiredWeeks">—</strong></div>
+                      <div><span>Allocated weeks</span><strong id="templateEventAllocatedWeeks">1</strong></div>
+                      <div><span>Balance</span><strong id="templateEventWeekBalance">—</strong></div>
+                    </div>
+                    <div id="templateEventAllocationState" class="assignment-requirements neutral">Set a start date and event date to compile the calendar.</div>
+                    <div class="button-row event-compiler-actions">
+                      <button id="compileEventCalendarButton" class="button secondary small-button" type="button">Compile calendar</button>
+                      <button id="fitFinalBlockButton" class="button secondary small-button" type="button">Fit final block</button>
+                    </div>
+                  </div>
+                </section>
                 <div class="template-facts">
                   <div><span>Version</span><strong id="templateVersion">1</strong></div>
                   <div><span>Blocks</span><strong id="templateBlockCount">1</strong></div>
@@ -499,6 +559,7 @@
                 <option value="">No active programmes</option>
               </select>
             </label>
+            <div id="assignmentEventSummary" class="event-assignment-summary" hidden></div>
             <div id="assignmentRequirements" class="assignment-requirements neutral">
               Select an athlete and programme to check percentage-load references.
             </div>

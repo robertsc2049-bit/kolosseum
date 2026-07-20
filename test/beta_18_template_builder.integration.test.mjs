@@ -279,6 +279,13 @@ async function request(
   };
 }
 
+function dateOnlyFromNow(dayOffset) {
+  const date = new Date();
+  date.setUTCHours(12, 0, 0, 0);
+  date.setUTCDate(date.getUTCDate() + dayOffset);
+  return date.toISOString().slice(0, 10);
+}
+
 function assertStatus(
   result,
   status,
@@ -342,6 +349,12 @@ test(
       crypto
         .randomUUID()
         .replaceAll("-", "");
+
+    const programmeStartDate =
+      dateOnlyFromNow(1);
+
+    const eventDate =
+      dateOnlyFromNow(15);
 
     const coachUserId =
       `beta18_coach_${nonce}`;
@@ -904,6 +917,112 @@ test(
       "weight_value_invalid"
     );
 
+    const unbalancedDraft =
+      await request(
+        server.baseUrl,
+        "POST",
+        "/templates",
+        {
+          coach_user_id:
+            coachUserId,
+          template_version: 1,
+          template_name:
+            "Under Allocated Event Programme",
+          description:
+            "Event allocation failure proof.",
+          activity_id:
+            "powerlifting",
+          event_plan: {
+            event_plan_id: "",
+            event_name:
+              "Under Allocated Meet",
+            event_type:
+              "powerlifting_meet",
+            event_date:
+              dateOnlyFromNow(29),
+            programme_start_date:
+              programmeStartDate,
+            location: "",
+            timezone:
+              "Europe/London",
+            notes: ""
+          },
+          blocks: [
+            {
+              block_id: "",
+              order_index: 1,
+              name:
+                "One Week Block",
+              description: "",
+              block_type:
+                "general",
+              week_count: 1,
+              weeks: [
+                {
+                  week_id: "",
+                  order_index: 1,
+                  sessions: [
+                    {
+                      session_id: "",
+                      order_index: 1,
+                      title:
+                        "Under Allocated Session",
+                      work_items:
+                        percentageWorkItems(
+                          exerciseIds.slice(0, 4),
+                          70
+                        )
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          updated_at_iso8601:
+            new Date().toISOString()
+        }
+      );
+
+    assertStatus(
+      unbalancedDraft,
+      201,
+      "under allocated event draft"
+    );
+
+    assert.equal(
+      unbalancedDraft.json
+        ?.template
+        ?.event_compile_summary
+        ?.allocation_state,
+      "under_allocated"
+    );
+
+    const unbalancedActivation =
+      await request(
+        server.baseUrl,
+        "POST",
+        `/templates/${encodeURIComponent(unbalancedDraft.json?.template?.template_id)}/activate`,
+        {
+          coach_user_id:
+            coachUserId
+        }
+      );
+
+    assertStatus(
+      unbalancedActivation,
+      400,
+      "under allocated event activation"
+    );
+
+    assert.equal(
+      unbalancedActivation.json
+        ?.reason ??
+      unbalancedActivation.json
+        ?.details
+        ?.reason,
+      "event_week_allocation_unbalanced"
+    );
+
     const draft =
       await request(
         server.baseUrl,
@@ -919,6 +1038,23 @@ test(
             "Persistent BETA-18 integration template.",
           activity_id:
             "powerlifting",
+          event_plan: {
+            event_plan_id: "",
+            event_name:
+              "BETA-19 Championship",
+            event_type:
+              "powerlifting_meet",
+            event_date:
+              eventDate,
+            programme_start_date:
+              programmeStartDate,
+            location:
+              "Mansfield",
+            timezone:
+              "Europe/London",
+            notes:
+              "Persistent event compiler proof."
+          },
           blocks: [
             {
               block_id: "",
@@ -927,6 +1063,7 @@ test(
               description:
                 "First ordered training block.",
               block_type: "volume",
+              week_count: 1,
               weeks: [
                 {
                   week_id: "",
@@ -956,6 +1093,7 @@ test(
               description:
                 "Second ordered training block.",
               block_type: "strength",
+              week_count: 1,
               weeks: [
                 {
                   week_id: "",
@@ -1011,6 +1149,32 @@ test(
         ?.template
         ?.week_count,
       2
+    );
+
+    assert.equal(
+      draft.json
+        ?.template
+        ?.event_compile_summary
+        ?.allocation_state,
+      "balanced"
+    );
+
+    assert.equal(
+      draft.json
+        ?.template
+        ?.event_compile_summary
+        ?.required_week_count,
+      2
+    );
+
+    assert.equal(
+      draft.json
+        ?.template
+        ?.template_structure
+        ?.blocks
+        ?.[0]
+        ?.week_count,
+      1
     );
 
     assert.deepEqual(
@@ -1310,6 +1474,37 @@ test(
       templateId
     );
 
+    assert.equal(
+      compileOne.json
+        ?.beta_path
+        ?.template_session_title,
+      "Session One"
+    );
+
+    assert.equal(
+      compileOne.json
+        ?.beta_path
+        ?.event_plan
+        ?.event_name,
+      "BETA-19 Championship"
+    );
+
+    assert.equal(
+      compileOne.json
+        ?.beta_path
+        ?.event_plan
+        ?.event_date,
+      eventDate
+    );
+
+    assert.equal(
+      compileOne.json
+        ?.beta_path
+        ?.event_compile_summary
+        ?.required_week_count,
+      2
+    );
+
     const compileTwo =
       await request(
         server.baseUrl,
@@ -1343,6 +1538,13 @@ test(
         4,
         8
       )
+    );
+
+    assert.equal(
+      compileTwo.json
+        ?.beta_path
+        ?.template_session_title,
+      "Session Two"
     );
 
     assert.notEqual(

@@ -18,6 +18,10 @@ import {
   loadAthleteStrengthProfile,
   resolvePercentageLoad
 } from "./beta19_coach_workspace_service.js";
+import {
+  compileEventProgrammeCalendar,
+  eventWeekCalendar
+} from "./event_programme_compiler_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -699,6 +703,83 @@ function templateInputBlocks(
   );
 }
 
+function compileEventPlanFromInput(
+  input: JsonRecord,
+  rawBlocks: readonly JsonRecord[]
+): Readonly<JsonRecord> | null {
+  if (
+    input.event_plan === null ||
+    typeof input.event_plan === "undefined"
+  ) {
+    return null;
+  }
+
+  if (!isRecord(input.event_plan)) {
+    throw new Beta18ProgrammeTemplateError(
+      "event_plan_invalid"
+    );
+  }
+
+  try {
+    return compileEventProgrammeCalendar({
+      ...input.event_plan,
+      activity_id:
+        cleanString(input.activity_id),
+      blocks:
+        rawBlocks.map(
+          (
+            rawBlock,
+            blockIndex
+          ) => ({
+            block_id:
+              cleanString(
+                rawBlock.block_id
+              ),
+            order_index:
+              Number(
+                rawBlock.order_index ??
+                blockIndex + 1
+              ),
+            name:
+              cleanString(
+                rawBlock.name
+              ) ||
+              `Block ${blockIndex + 1}`,
+            block_type:
+              cleanString(
+                rawBlock.block_type
+              ) ||
+              "general",
+            week_count:
+              Number(
+                rawBlock.week_count ??
+                (
+                  Array.isArray(
+                    rawBlock.weeks
+                  )
+                    ? rawBlock.weeks.length
+                    : 0
+                )
+              )
+          })
+        )
+    });
+  }
+  catch (error) {
+    const reason =
+      error &&
+      typeof error === "object" &&
+      "reason" in error &&
+      typeof error.reason === "string"
+        ? error.reason
+        : "event_compile_failed";
+
+    throw new Beta18ProgrammeTemplateError(
+      reason
+    );
+  }
+}
+
 type NormalisedTemplateStructure =
   Readonly<{
     template_structure: Readonly<JsonRecord>;
@@ -707,6 +788,8 @@ type NormalisedTemplateStructure =
     block_count: number;
     week_count: number;
     session_count: number;
+    event_plan: Readonly<JsonRecord> | null;
+    event_compile_summary: Readonly<JsonRecord> | null;
   }>;
 
 function normaliseTemplateStructure(
@@ -720,6 +803,19 @@ function normaliseTemplateStructure(
   const rawBlocks =
     templateInputBlocks(input);
 
+  const eventCompile =
+    compileEventPlanFromInput(
+      input,
+      rawBlocks
+    );
+
+  const eventWeeks =
+    eventCompile
+      ? eventWeekCalendar(
+          eventCompile
+        )
+      : [];
+
   const exerciseIds =
     new Set<string>();
 
@@ -728,6 +824,7 @@ function normaliseTemplateStructure(
 
   let weekCount = 0;
   let sessionCount = 0;
+  let globalWeekIndex = 0;
 
   const blocks =
     rawBlocks.map(
@@ -743,6 +840,7 @@ function normaliseTemplateStructure(
             "name",
             "description",
             "block_type",
+            "week_count",
             "weeks"
           ],
           "block"
@@ -818,6 +916,39 @@ function normaliseTemplateStructure(
           );
         }
 
+        const declaredWeekCount =
+          integerInRange(
+            rawBlock.week_count ??
+              rawBlock.weeks.length,
+            1,
+            52,
+            "block_week_count_invalid"
+          );
+
+        if (
+          declaredWeekCount !==
+          rawBlock.weeks.length
+        ) {
+          throw new Beta18ProgrammeTemplateError(
+            "block_week_count_mismatch"
+          );
+        }
+
+        const eventBlockSchedule =
+          eventCompile &&
+          Array.isArray(
+            eventCompile.blocks
+          ) &&
+          isRecord(
+            eventCompile.blocks[
+              blockIndex
+            ]
+          )
+            ? eventCompile.blocks[
+                blockIndex
+              ]
+            : null;
+
         weekCount += rawBlock.weeks.length;
 
         if (weekCount > 104) {
@@ -837,6 +968,14 @@ function normaliseTemplateStructure(
                   "week_invalid"
                 );
               }
+
+              const calendarWeek =
+                eventWeeks[
+                  globalWeekIndex
+                ] ??
+                null;
+
+              globalWeekIndex += 1;
 
               exactKeys(
                 rawWeek,
@@ -1170,6 +1309,25 @@ function normaliseTemplateStructure(
                   weekId,
                 order_index:
                   orderIndex,
+                ...(calendarWeek
+                  ? {
+                      week_index_global:
+                        calendarWeek
+                          .week_index_global,
+                      calendar_start_date:
+                        calendarWeek
+                          .start_date,
+                      calendar_end_date:
+                        calendarWeek
+                          .end_date,
+                      days_until_event_at_week_start:
+                        calendarWeek
+                          .days_until_event_at_week_start,
+                      partial_week:
+                        calendarWeek
+                          .partial_week
+                    }
+                  : {}),
                 days
               });
             }
@@ -1186,6 +1344,27 @@ function normaliseTemplateStructure(
             blockDescription,
           block_type:
             blockType,
+          week_count:
+            declaredWeekCount,
+          ...(eventBlockSchedule
+            ? {
+                calendar_start_date:
+                  eventBlockSchedule
+                    .start_date,
+                calendar_end_date:
+                  eventBlockSchedule
+                    .end_date,
+                start_week_index:
+                  eventBlockSchedule
+                    .start_week_index,
+                end_week_index:
+                  eventBlockSchedule
+                    .end_week_index,
+                days_until_event_at_block_start:
+                  eventBlockSchedule
+                    .days_until_event_at_block_start
+              }
+            : {}),
           weeks
         });
       }
@@ -1205,7 +1384,38 @@ function normaliseTemplateStructure(
     week_count:
       weekCount,
     session_count:
-      sessionCount
+      sessionCount,
+    event_plan:
+      eventCompile
+        ? deepFreeze({
+            event_plan_id:
+              eventCompile
+                .event_plan_id,
+            event_name:
+              eventCompile
+                .event_name,
+            event_type:
+              eventCompile
+                .event_type,
+            event_date:
+              eventCompile
+                .event_date,
+            programme_start_date:
+              eventCompile
+                .programme_start_date,
+            location:
+              eventCompile
+                .location,
+            timezone:
+              eventCompile
+                .timezone,
+            notes:
+              eventCompile
+                .notes
+          })
+        : null,
+    event_compile_summary:
+      eventCompile
   });
 }
 
@@ -1489,6 +1699,11 @@ function templateRecordInput(
               block.block_type
             ) ||
             "general",
+          week_count:
+            Number(
+              block.week_count ??
+              weeks.length
+            ),
           weeks
         };
       }
@@ -1523,6 +1738,14 @@ function templateRecordInput(
       cleanString(
         record.activity_id
       ),
+    event_plan:
+      isRecord(
+        record.event_plan
+      )
+        ? cloneRecord(
+            record.event_plan
+          )
+        : null,
     blocks,
     updated_at_iso8601:
       new Date().toISOString()
@@ -1664,6 +1887,7 @@ export async function saveCoachProgrammeTemplate(
       "template_name",
       "description",
       "activity_id",
+      "event_plan",
       "blocks",
       "weeks",
       "updated_at_iso8601"
@@ -1837,7 +2061,7 @@ export async function saveCoachProgrammeTemplate(
       template_version:
         templateVersion,
       contract_version:
-        "beta18.3.0.0",
+        "beta18.4.0.0",
       template_status:
         "draft",
       template_name:
@@ -1847,6 +2071,10 @@ export async function saveCoachProgrammeTemplate(
         coachUserId,
       activity_id:
         activityId,
+      event_plan:
+        normalised.event_plan,
+      event_compile_summary:
+        normalised.event_compile_summary,
       assignment_scope:
         "coach_athlete_assigned_execution",
       source_record_id:
@@ -1891,7 +2119,9 @@ export async function saveCoachProgrammeTemplate(
             "template_version",
             "activity_id",
             "registry_bindings",
-            "template_structure"
+            "template_structure",
+            "event_plan",
+            "event_compile_summary"
           ],
           order_policy:
             "explicit_order_index_only",
@@ -2020,13 +2250,51 @@ export async function activateCoachProgrammeTemplate(
     );
   }
 
-  normaliseTemplateStructure(
-    templateRecordInput(
-      existing as JsonRecord
-    ),
-    templateId,
-    loadExerciseRegistry()
-  );
+  const activationNormalised =
+    normaliseTemplateStructure(
+      templateRecordInput(
+        existing as JsonRecord
+      ),
+      templateId,
+      loadExerciseRegistry()
+    );
+
+  if (
+    activationNormalised
+      .event_compile_summary
+  ) {
+    if (
+      activationNormalised
+        .event_compile_summary
+        .allocation_state !==
+      "balanced"
+    ) {
+      throw new Beta18ProgrammeTemplateError(
+        "event_week_allocation_unbalanced"
+      );
+    }
+
+    const eventDate =
+      cleanString(
+        activationNormalised
+          .event_plan
+          ?.event_date
+      );
+
+    const today =
+      new Date()
+        .toISOString()
+        .slice(0, 10);
+
+    if (
+      eventDate &&
+      eventDate < today
+    ) {
+      throw new Beta18ProgrammeTemplateError(
+        "event_date_in_past"
+      );
+    }
+  }
 
   return persistTemplateRecord(
     transitionTemplateRecord(
@@ -2463,7 +2731,40 @@ function orderedTemplateSessions(
               template_day_id:
                 cleanString(
                   day.day_id
+                ),
+              template_week_index_global:
+                Number(
+                  week.week_index_global ??
+                  0
+                ),
+              template_week_start_date:
+                cleanString(
+                  week.calendar_start_date
+                ) || null,
+              template_week_end_date:
+                cleanString(
+                  week.calendar_end_date
+                ) || null,
+              days_until_event_at_week_start:
+                Number.isInteger(
+                  week.days_until_event_at_week_start
                 )
+                  ? Number(
+                      week.days_until_event_at_week_start
+                    )
+                  : null,
+              template_event_plan:
+                isRecord(
+                  templateRecord.event_plan
+                )
+                  ? templateRecord.event_plan
+                  : null,
+              template_event_compile_summary:
+                isRecord(
+                  templateRecord.event_compile_summary
+                )
+                  ? templateRecord.event_compile_summary
+                  : null
             })
           );
         }
@@ -2812,6 +3113,34 @@ export async function materialiseNextCoachTemplateProgram(
         template_week_order:
           selectedSession
             .template_week_order,
+        template_week_index_global:
+          selectedSession
+            .template_week_index_global,
+        template_week_start_date:
+          selectedSession
+            .template_week_start_date,
+        template_week_end_date:
+          selectedSession
+            .template_week_end_date,
+        days_until_event_at_week_start:
+          selectedSession
+            .days_until_event_at_week_start,
+        event_plan:
+          isRecord(
+            selectedSession
+              .template_event_plan
+          )
+            ? selectedSession
+                .template_event_plan
+            : null,
+        event_compile_summary:
+          isRecord(
+            selectedSession
+              .template_event_compile_summary
+          )
+            ? selectedSession
+                .template_event_compile_summary
+            : null,
         athlete_profile_record_sha256:
           cleanString(
             athleteProfile

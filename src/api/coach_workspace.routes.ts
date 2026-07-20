@@ -7,6 +7,7 @@ import {
   getAthleteStrengthProfile,
   getCoachAssignments,
   getConnectedCoachAthletes,
+  previewEventProgrammeCalendar,
   saveAthleteStrengthProfileHandler
 } from "./coach_workspace.handlers.js";
 
@@ -30,4 +31,10 @@ coachWorkspaceRouter.get(
 coachWorkspaceRouter.post(
   "/athlete-strength-profile",
   asyncHandler(saveAthleteStrengthProfileHandler)
+);
+
+
+coachWorkspaceRouter.post(
+  "/event-compile-preview",
+  asyncHandler(previewEventProgrammeCalendar)
 );

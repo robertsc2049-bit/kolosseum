@@ -68,6 +68,11 @@ const elements = {
   continueSessionButton: document.getElementById("continueSessionButton"),
   todayHistoryCount: document.getElementById("todayHistoryCount"),
   todayRecentList: document.getElementById("todayRecentList"),
+  todayEventCard: document.getElementById("todayEventCard"),
+  todayEventType: document.getElementById("todayEventType"),
+  todayEventCountdown: document.getElementById("todayEventCountdown"),
+  todayEventName: document.getElementById("todayEventName"),
+  todayEventDate: document.getElementById("todayEventDate"),
 
   sessionActivity: document.getElementById("sessionActivity"),
   sessionTitle: document.getElementById("sessionTitle"),
@@ -131,6 +136,22 @@ const elements = {
   templateName: document.getElementById("templateName"),
   templateActivity: document.getElementById("templateActivity"),
   templateDescription: document.getElementById("templateDescription"),
+  templateEventEnabled: document.getElementById("templateEventEnabled"),
+  templateEventFields: document.getElementById("templateEventFields"),
+  templateEventName: document.getElementById("templateEventName"),
+  templateEventType: document.getElementById("templateEventType"),
+  templateProgrammeStartDate: document.getElementById("templateProgrammeStartDate"),
+  templateEventDate: document.getElementById("templateEventDate"),
+  templateEventLocation: document.getElementById("templateEventLocation"),
+  templateEventTimezone: document.getElementById("templateEventTimezone"),
+  templateEventNotes: document.getElementById("templateEventNotes"),
+  templateEventCountdown: document.getElementById("templateEventCountdown"),
+  templateEventRequiredWeeks: document.getElementById("templateEventRequiredWeeks"),
+  templateEventAllocatedWeeks: document.getElementById("templateEventAllocatedWeeks"),
+  templateEventWeekBalance: document.getElementById("templateEventWeekBalance"),
+  templateEventAllocationState: document.getElementById("templateEventAllocationState"),
+  compileEventCalendarButton: document.getElementById("compileEventCalendarButton"),
+  fitFinalBlockButton: document.getElementById("fitFinalBlockButton"),
   templateVersion: document.getElementById("templateVersion"),
   templateBlockCount: document.getElementById("templateBlockCount"),
   templateWeekCount: document.getElementById("templateWeekCount"),
@@ -140,6 +161,7 @@ const elements = {
   assignmentForm: document.getElementById("assignmentForm"),
   assignmentAthlete: document.getElementById("assignmentAthlete"),
   assignmentTemplate: document.getElementById("assignmentTemplate"),
+  assignmentEventSummary: document.getElementById("assignmentEventSummary"),
   assignmentRequirements: document.getElementById("assignmentRequirements"),
   assignmentSubmitButton: document.getElementById("assignmentSubmitButton"),
   assignmentResult: document.getElementById("assignmentResult"),
@@ -178,6 +200,7 @@ function normalisePersistedTemplateDraft(draft) {
           name: "Block 1",
           description: "",
           block_type: "general",
+          week_count: draft.weeks.length,
           weeks: draft.weeks
         }]
       : [];
@@ -214,10 +237,19 @@ function normalisePersistedTemplateDraft(draft) {
     block_type: ["general", "volume", "strength", "peak", "deload", "custom"].includes(block?.block_type)
       ? block.block_type
       : "general",
+    week_count: Number(block?.week_count ?? (Array.isArray(block?.weeks) ? block.weeks.length : 1)),
+    calendar_start_date: String(block?.calendar_start_date ?? ""),
+    calendar_end_date: String(block?.calendar_end_date ?? ""),
     weeks: Array.isArray(block?.weeks)
       ? block.weeks.map((week, weekIndex) => ({
           week_id: String(week?.week_id ?? ""),
           order_index: weekIndex + 1,
+          calendar_start_date: String(week?.calendar_start_date ?? ""),
+          calendar_end_date: String(week?.calendar_end_date ?? ""),
+          days_until_event_at_week_start: Number.isInteger(week?.days_until_event_at_week_start)
+            ? Number(week.days_until_event_at_week_start)
+            : null,
+          partial_week: week?.partial_week === true,
           sessions: Array.isArray(week?.sessions)
             ? week.sessions.map((session, sessionIndex) => ({
                 session_id: String(session?.session_id ?? ""),
@@ -232,8 +264,25 @@ function normalisePersistedTemplateDraft(draft) {
       : []
   }));
 
+  const eventPlan = draft.event_plan && typeof draft.event_plan === "object"
+    ? {
+        event_plan_id: String(draft.event_plan.event_plan_id ?? ""),
+        event_name: String(draft.event_plan.event_name ?? ""),
+        event_type: String(draft.event_plan.event_type ?? ""),
+        event_date: String(draft.event_plan.event_date ?? ""),
+        programme_start_date: String(draft.event_plan.programme_start_date ?? ""),
+        location: String(draft.event_plan.location ?? ""),
+        timezone: String(draft.event_plan.timezone ?? "Europe/London"),
+        notes: String(draft.event_plan.notes ?? "")
+      }
+    : null;
+
   return {
     ...draft,
+    event_plan: eventPlan,
+    event_compile_summary: draft.event_compile_summary && typeof draft.event_compile_summary === "object"
+      ? draft.event_compile_summary
+      : null,
     blocks
   };
 }
@@ -282,6 +331,41 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+function todayDateOnly() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function dateOnlyEpochDay(value) {
+  const text = String(value ?? "");
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(text)) return null;
+  const parsed = Date.parse(`${text}T00:00:00.000Z`);
+  return Number.isFinite(parsed) ? Math.floor(parsed / 86400000) : null;
+}
+
+function addDateOnlyDays(value, days) {
+  const epochDay = dateOnlyEpochDay(value);
+  if (epochDay === null) return "";
+  return new Date((epochDay + Number(days)) * 86400000).toISOString().slice(0, 10);
+}
+
+function dateOnlyDifference(fromDate, toDate) {
+  const from = dateOnlyEpochDay(fromDate);
+  const to = dateOnlyEpochDay(toDate);
+  return from === null || to === null ? null : to - from;
+}
+
+function countdownLabel(eventDate, fromDate = todayDateOnly()) {
+  const days = dateOnlyDifference(fromDate, eventDate);
+  if (days === null) return "Set dates";
+  if (days < 0) return `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} ago`;
+  if (days === 0) return "Today";
+  const weeks = Math.floor(days / 7);
+  const remainder = days % 7;
+  return weeks > 0
+    ? `${weeks}w ${remainder}d`
+    : `${days} day${days === 1 ? "" : "s"}`;
+}
+
 function initials(name) {
   const words = String(name ?? "").trim().split(/\s+/u).filter(Boolean);
   return (words.slice(0, 2).map((word) => word[0]).join("") || "K").toUpperCase();
@@ -296,16 +380,25 @@ function titleCase(value) {
 function formatDate(value) {
   if (!value) return "Date not recorded";
 
-  const parsed = new Date(value);
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/u.test(String(value));
+  const parsed = new Date(isDateOnly ? `${value}T12:00:00.000Z` : value);
   if (Number.isNaN(parsed.getTime())) return "Date not recorded";
 
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  }).format(parsed);
+  return new Intl.DateTimeFormat("en-GB", isDateOnly
+    ? {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        timeZone: "UTC"
+      }
+    : {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+  ).format(parsed);
 }
 
 function escapeHtml(value) {
@@ -406,7 +499,23 @@ function friendlyError(payload, status) {
     benchmark_exercise_invalid: "Choose an exercise from the active registry.",
     benchmark_effective_date_invalid: "Enter a valid effective date.",
     load_rounding_increment_invalid: "Load rounding must be between 0.25 and 25.",
-    bodyweight_invalid: "Bodyweight must be between 10 and 500."
+    bodyweight_invalid: "Bodyweight must be between 10 and 500.",
+    event_plan_invalid: "Complete the event details before compiling the calendar.",
+    event_plan_unknown_field: "The event contains an unsupported field.",
+    event_plan_id_invalid: "The event plan identifier is invalid.",
+    event_name_invalid: "Enter an event name of 120 characters or fewer.",
+    event_type_invalid_for_activity: "Choose an event type supported by this programme activity.",
+    event_date_invalid: "Enter a valid event date.",
+    programme_start_date_invalid: "Enter a valid programme start date.",
+    event_must_follow_programme_start: "The event date must be after the programme start date.",
+    event_week_count_invalid: "The event must be between one and 104 training weeks from the programme start.",
+    event_location_too_long: "The event location must be 200 characters or fewer.",
+    event_timezone_invalid: "Enter a valid timezone such as Europe/London.",
+    event_notes_too_long: "Event notes must be 1,000 characters or fewer.",
+    block_week_count_invalid: "Each block must contain between one and 52 weeks.",
+    block_week_count_mismatch: "The block week input must match the weeks currently contained in that block.",
+    event_week_allocation_unbalanced: "The programme blocks must allocate exactly the number of weeks available before the event.",
+    event_date_in_past: "The event date cannot be in the past when a programme is activated."
   };
 
   return messages[reason] ?? titleCase(reason);
@@ -824,6 +933,10 @@ async function createSession() {
         block_id: response.block_id ?? "",
         status: "planned",
         assignment_id: response.beta_path?.assignment_id ?? null,
+        template_id: response.beta_path?.template_id ?? null,
+        template_session_title: response.beta_path?.template_session_title ?? null,
+        event_plan: response.beta_path?.event_plan ?? null,
+        event_compile_summary: response.beta_path?.event_compile_summary ?? null,
         runtime_event_count: 0
       });
     }
@@ -1093,6 +1206,12 @@ function bindSessionCards(container) {
 function renderToday() {
   const sessionState = state.activeSessionState;
   const hasSession = Boolean(state.activeSessionId && sessionState);
+  const activeLocalSession = state.localSessions.find(
+    (session) => session.session_id === state.activeSessionId
+  );
+  const eventPlan = activeLocalSession?.event_plan && typeof activeLocalSession.event_plan === "object"
+    ? activeLocalSession.event_plan
+    : null;
 
   elements.todaySessionEmpty.hidden = hasSession;
   elements.todaySessionContent.hidden = !hasSession;
@@ -1104,13 +1223,23 @@ function renderToday() {
     const classification = sessionClassification(sessionState);
     setBadge(elements.todayStatusBadge, classification);
     elements.todayActivity.textContent = titleCase(state.profile?.activityId ?? "training");
-    elements.todaySessionTitle.textContent = `${titleCase(state.profile?.activityId ?? "training")} session`;
+    elements.todaySessionTitle.textContent = activeLocalSession?.template_session_title
+      ? String(activeLocalSession.template_session_title)
+      : `${titleCase(state.profile?.activityId ?? "training")} session`;
     elements.todayCompleted.textContent = String(counts.completed.length);
     elements.todayRemaining.textContent = String(counts.remaining.length);
     elements.todayDropped.textContent = String(counts.dropped.length);
   }
   else {
     setBadge(elements.todayStatusBadge, { label: "No session", className: "neutral" });
+  }
+
+  elements.todayEventCard.hidden = !eventPlan;
+  if (eventPlan) {
+    elements.todayEventType.textContent = titleCase(eventPlan.event_type ?? "event");
+    elements.todayEventCountdown.textContent = countdownLabel(eventPlan.event_date);
+    elements.todayEventName.textContent = String(eventPlan.event_name ?? "Event");
+    elements.todayEventDate.textContent = `${formatDate(eventPlan.event_date)}${eventPlan.location ? ` · ${eventPlan.location}` : ""}`;
   }
 
   const latest = [...state.history].reverse().slice(0, 4);
@@ -1563,6 +1692,27 @@ function exerciseDisplayName(exerciseId) {
     ?? titleCase(exerciseId);
 }
 
+function renderAssignmentEventSummary(template) {
+  const eventPlan = template?.event_plan && typeof template.event_plan === "object"
+    ? template.event_plan
+    : null;
+
+  elements.assignmentEventSummary.hidden = !eventPlan;
+  if (!eventPlan) {
+    elements.assignmentEventSummary.innerHTML = "";
+    return;
+  }
+
+  elements.assignmentEventSummary.innerHTML = `
+    <div>
+      <span class="eyebrow">Assigned event</span>
+      <strong>${escapeHtml(eventPlan.event_name)}</strong>
+      <span>${escapeHtml(titleCase(eventPlan.event_type))} · ${escapeHtml(formatDate(eventPlan.event_date))}</span>
+    </div>
+    <strong>${escapeHtml(countdownLabel(eventPlan.event_date))}</strong>
+  `;
+}
+
 function renderAssignmentRequirements() {
   const athlete = state.coachAthletes.find(
     (entry) => entry.userId === elements.assignmentAthlete.value
@@ -1570,6 +1720,8 @@ function renderAssignmentRequirements() {
   const template = state.coachTemplates.find(
     (entry) => entry.template_id === elements.assignmentTemplate.value
   );
+
+  renderAssignmentEventSummary(template);
 
   if (!athlete || !template) {
     elements.assignmentRequirements.className = "assignment-requirements neutral";
@@ -1935,6 +2087,10 @@ function newTemplateWeek(orderIndex) {
   return {
     week_id: "",
     order_index: orderIndex,
+    calendar_start_date: "",
+    calendar_end_date: "",
+    days_until_event_at_week_start: null,
+    partial_week: false,
     sessions: [newTemplateSession(1)]
   };
 }
@@ -1946,6 +2102,7 @@ function newTemplateBlock(orderIndex) {
     name: `Block ${orderIndex}`,
     description: "",
     block_type: "general",
+    week_count: 1,
     weeks: [newTemplateWeek(1)]
   };
 }
@@ -1959,6 +2116,8 @@ function newTemplateDraft() {
     template_name: "",
     description: "",
     activity_id: "powerlifting",
+    event_plan: null,
+    event_compile_summary: null,
     blocks: [newTemplateBlock(1)]
   };
 }
@@ -2024,6 +2183,9 @@ function templateRecordToDraft(template) {
         block_type: ["general", "volume", "strength", "peak", "deload", "custom"].includes(block?.block_type)
           ? block.block_type
           : "general",
+        week_count: Number(block?.week_count ?? rawWeeks.length ?? 1),
+        calendar_start_date: String(block?.calendar_start_date ?? ""),
+        calendar_end_date: String(block?.calendar_end_date ?? ""),
         weeks: rawWeeks
           .slice()
           .sort((left, right) => Number(left.order_index) - Number(right.order_index))
@@ -2051,6 +2213,12 @@ function templateRecordToDraft(template) {
             return {
               week_id: String(week?.week_id ?? ""),
               order_index: Number(week?.order_index ?? weekIndex + 1),
+              calendar_start_date: String(week?.calendar_start_date ?? ""),
+              calendar_end_date: String(week?.calendar_end_date ?? ""),
+              days_until_event_at_week_start: Number.isInteger(week?.days_until_event_at_week_start)
+                ? Number(week.days_until_event_at_week_start)
+                : null,
+              partial_week: week?.partial_week === true,
               sessions: sessions.length ? sessions : [newTemplateSession(1)]
             };
           })
@@ -2065,6 +2233,21 @@ function templateRecordToDraft(template) {
     template_name: String(template?.template_name ?? ""),
     description: String(template?.description ?? ""),
     activity_id: String(template?.activity_id ?? "powerlifting"),
+    event_plan: template?.event_plan && typeof template.event_plan === "object"
+      ? {
+          event_plan_id: String(template.event_plan.event_plan_id ?? ""),
+          event_name: String(template.event_plan.event_name ?? ""),
+          event_type: String(template.event_plan.event_type ?? ""),
+          event_date: String(template.event_plan.event_date ?? ""),
+          programme_start_date: String(template.event_plan.programme_start_date ?? ""),
+          location: String(template.event_plan.location ?? ""),
+          timezone: String(template.event_plan.timezone ?? "Europe/London"),
+          notes: String(template.event_plan.notes ?? "")
+        }
+      : null,
+    event_compile_summary: template?.event_compile_summary && typeof template.event_compile_summary === "object"
+      ? template.event_compile_summary
+      : null,
     blocks: blocks.length ? blocks : [newTemplateBlock(1)]
   };
 }
@@ -2113,6 +2296,12 @@ function templateCard(template) {
   const blockCount = Number(template.block_count ?? template.template_structure?.blocks?.length ?? 1);
   const weekCount = Number(template.week_count ?? 0);
   const version = Number(template.template_version ?? 1);
+  const eventPlan = template?.event_plan && typeof template.event_plan === "object"
+    ? template.event_plan
+    : null;
+  const eventLine = eventPlan
+    ? `<div class="template-event-line"><span class="badge neutral">${escapeHtml(titleCase(eventPlan.event_type))}</span><strong>${escapeHtml(eventPlan.event_name)}</strong><span>${escapeHtml(formatDate(eventPlan.event_date))}</span><span>${escapeHtml(countdownLabel(eventPlan.event_date))}</span></div>`
+    : "";
 
   const editAction = status === "draft"
     ? `<button class="button secondary small-button template-edit" type="button" data-template-id="${escapeHtml(template.template_id)}">Edit</button>`
@@ -2137,6 +2326,7 @@ function templateCard(template) {
           <span>${weekCount} week${weekCount === 1 ? "" : "s"}</span>
           <span>${sessionCount} session${sessionCount === 1 ? "" : "s"}</span>
         </div>
+        ${eventLine}
         <div class="template-status-line">
           ${templateStatusBadge(status)}
           <span class="badge neutral">${escapeHtml(formatDate(template.updated_at_iso8601))}</span>
@@ -2202,6 +2392,345 @@ function renderTemplateLibrary() {
   bindTemplateLibraryActions();
 }
 
+const EVENT_TYPES_BY_ACTIVITY = Object.freeze({
+  powerlifting: [
+    ["powerlifting_meet", "Powerlifting meet"],
+    ["strength_event", "Strength event"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  general_strength: [
+    ["strength_event", "Strength event"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  rugby_union: [
+    ["rugby_match", "Rugby match"],
+    ["rugby_tournament", "Rugby tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ]
+});
+
+function eventTypesForActivity(activityId) {
+  return EVENT_TYPES_BY_ACTIVITY[activityId] ?? EVENT_TYPES_BY_ACTIVITY.general_strength;
+}
+
+function defaultEventType(activityId) {
+  return eventTypesForActivity(activityId)[0][0];
+}
+
+function ensureDraftEventPlan() {
+  const draft = state.templateDraft;
+  if (!draft) return null;
+
+  if (!draft.event_plan) {
+    const startDate = todayDateOnly();
+    draft.event_plan = {
+      event_plan_id: "",
+      event_name: "",
+      event_type: defaultEventType(draft.activity_id),
+      event_date: addDateOnlyDays(startDate, 84),
+      programme_start_date: startDate,
+      location: "",
+      timezone: "Europe/London",
+      notes: ""
+    };
+  }
+
+  const allowedTypes = eventTypesForActivity(draft.activity_id).map(([value]) => value);
+  if (!allowedTypes.includes(draft.event_plan.event_type)) {
+    draft.event_plan.event_type = defaultEventType(draft.activity_id);
+  }
+
+  return draft.event_plan;
+}
+
+function eventTypeOptions(activityId, selected) {
+  return eventTypesForActivity(activityId)
+    .map(([value, label]) => `<option value="${value}" ${value === selected ? "selected" : ""}>${escapeHtml(label)}</option>`)
+    .join("");
+}
+
+function localEventCompileSummary(draft) {
+  const eventPlan = draft?.event_plan;
+  if (!eventPlan) return null;
+
+  if (!eventPlan.event_name.trim()) {
+    return {
+      valid: false,
+      reason: "Enter an event name."
+    };
+  }
+
+  if (!eventTypesForActivity(draft.activity_id).some(([value]) => value === eventPlan.event_type)) {
+    return {
+      valid: false,
+      reason: "Choose an event type supported by this activity."
+    };
+  }
+
+  if (!eventPlan.timezone.trim() || !/^[A-Za-z0-9_+\-/]+$/u.test(eventPlan.timezone.trim())) {
+    return {
+      valid: false,
+      reason: "Enter a valid timezone such as Europe/London."
+    };
+  }
+
+  const trainingDays = dateOnlyDifference(
+    eventPlan.programme_start_date,
+    eventPlan.event_date
+  );
+
+  if (trainingDays === null || trainingDays < 1) {
+    return {
+      valid: false,
+      reason: "Event date must be after the programme start date."
+    };
+  }
+
+  const requiredWeeks = Math.ceil(trainingDays / 7);
+  if (requiredWeeks < 1 || requiredWeeks > 104) {
+    return {
+      valid: false,
+      reason: "The event calendar must contain between 1 and 104 training weeks."
+    };
+  }
+
+  const allocatedWeeks = draft.blocks.reduce(
+    (total, block) => total + Number(block.weeks?.length ?? block.week_count ?? 0),
+    0
+  );
+  const weekDelta = requiredWeeks - allocatedWeeks;
+  let offset = 0;
+  const weekSchedules = [];
+  const blockSchedules = draft.blocks.map((block) => {
+    const weekCount = Number(block.weeks?.length ?? block.week_count ?? 0);
+    const startDate = addDateOnlyDays(eventPlan.programme_start_date, offset * 7);
+    const theoreticalEnd = addDateOnlyDays(startDate, weekCount * 7 - 1);
+    const finalTrainingDate = addDateOnlyDays(eventPlan.event_date, -1);
+    const endDate = theoreticalEnd && finalTrainingDate && theoreticalEnd > finalTrainingDate
+      ? finalTrainingDate
+      : theoreticalEnd;
+    const startWeekIndex = offset + 1;
+
+    for (let weekOffset = 0; weekOffset < weekCount; weekOffset += 1) {
+      const weekStart = addDateOnlyDays(eventPlan.programme_start_date, (offset + weekOffset) * 7);
+      const theoreticalWeekEnd = addDateOnlyDays(weekStart, 6);
+      const weekEnd = theoreticalWeekEnd && finalTrainingDate && theoreticalWeekEnd > finalTrainingDate
+        ? finalTrainingDate
+        : theoreticalWeekEnd;
+      const daysAtStart = dateOnlyDifference(weekStart, eventPlan.event_date);
+
+      weekSchedules.push({
+        start_date: weekStart,
+        end_date: weekEnd,
+        days_until_event_at_week_start: daysAtStart,
+        partial_week: dateOnlyDifference(weekStart, weekEnd) !== 6
+      });
+    }
+
+    offset += weekCount;
+
+    return {
+      start_date: startDate,
+      end_date: endDate,
+      start_week_index: startWeekIndex,
+      end_week_index: offset
+    };
+  });
+
+  return {
+    valid: true,
+    training_day_count: trainingDays,
+    required_week_count: requiredWeeks,
+    allocated_week_count: allocatedWeeks,
+    week_delta: weekDelta,
+    allocation_state: weekDelta === 0
+      ? "balanced"
+      : weekDelta > 0
+        ? "under_allocated"
+        : "over_allocated",
+    partial_final_week_days: trainingDays - ((requiredWeeks - 1) * 7),
+    blockSchedules,
+    weekSchedules
+  };
+}
+
+function syncTemplateEventFields() {
+  const draft = state.templateDraft;
+  if (!draft || !draft.event_plan) return;
+
+  draft.event_plan.event_name = elements.templateEventName.value;
+  draft.event_plan.event_type = elements.templateEventType.value;
+  draft.event_plan.programme_start_date = elements.templateProgrammeStartDate.value;
+  draft.event_plan.event_date = elements.templateEventDate.value;
+  draft.event_plan.location = elements.templateEventLocation.value;
+  draft.event_plan.timezone = elements.templateEventTimezone.value;
+  draft.event_plan.notes = elements.templateEventNotes.value;
+  draft.event_compile_summary = null;
+  saveState();
+}
+
+function renderEventCompiler() {
+  const draft = state.templateDraft;
+  if (!draft) return;
+
+  const enabled = Boolean(draft.event_plan);
+  elements.templateEventEnabled.checked = enabled;
+  elements.templateEventFields.hidden = !enabled;
+
+  if (!enabled) {
+    elements.activateTemplateButton.disabled = false;
+    return;
+  }
+
+  const eventPlan = ensureDraftEventPlan();
+  elements.templateEventName.value = eventPlan.event_name;
+  elements.templateEventType.innerHTML = eventTypeOptions(draft.activity_id, eventPlan.event_type);
+  elements.templateProgrammeStartDate.value = eventPlan.programme_start_date;
+  elements.templateEventDate.value = eventPlan.event_date;
+  elements.templateEventLocation.value = eventPlan.location;
+  elements.templateEventTimezone.value = eventPlan.timezone;
+  elements.templateEventNotes.value = eventPlan.notes;
+  elements.templateEventCountdown.textContent = countdownLabel(eventPlan.event_date);
+
+  const summary = localEventCompileSummary(draft);
+  const allocated = templateCounts(draft).weeks;
+  elements.templateEventAllocatedWeeks.textContent = String(allocated);
+
+  if (!summary?.valid) {
+    elements.templateEventRequiredWeeks.textContent = "—";
+    elements.templateEventWeekBalance.textContent = "—";
+    elements.templateEventAllocationState.className = "assignment-requirements warning";
+    elements.templateEventAllocationState.textContent = summary?.reason ?? "Set a start date and event date to compile the calendar.";
+    elements.fitFinalBlockButton.disabled = true;
+    elements.activateTemplateButton.disabled = true;
+    return;
+  }
+
+  let globalWeekIndex = 0;
+  draft.blocks.forEach((block, index) => {
+    block.calendar_start_date = summary.blockSchedules[index]?.start_date ?? "";
+    block.calendar_end_date = summary.blockSchedules[index]?.end_date ?? "";
+
+    block.weeks.forEach((week) => {
+      const calendar = summary.weekSchedules[globalWeekIndex] ?? null;
+      globalWeekIndex += 1;
+      week.calendar_start_date = calendar?.start_date ?? "";
+      week.calendar_end_date = calendar?.end_date ?? "";
+      week.days_until_event_at_week_start = calendar?.days_until_event_at_week_start ?? null;
+      week.partial_week = calendar?.partial_week === true;
+    });
+  });
+
+  elements.templateEventRequiredWeeks.textContent = String(summary.required_week_count);
+  elements.templateEventWeekBalance.textContent = summary.week_delta === 0
+    ? "Balanced"
+    : summary.week_delta > 0
+      ? `${summary.week_delta} remaining`
+      : `${Math.abs(summary.week_delta)} over`;
+
+  const balanced = summary.week_delta === 0;
+  elements.templateEventAllocationState.className = balanced
+    ? "assignment-requirements complete"
+    : "assignment-requirements warning";
+  elements.templateEventAllocationState.textContent = balanced
+    ? `${summary.required_week_count} training weeks are fully allocated. The final training week contains ${summary.partial_final_week_days} day${summary.partial_final_week_days === 1 ? "" : "s"} before the event.`
+    : summary.week_delta > 0
+      ? `Allocate ${summary.week_delta} more week${summary.week_delta === 1 ? "" : "s"} before activation.`
+      : `Remove ${Math.abs(summary.week_delta)} week${Math.abs(summary.week_delta) === 1 ? "" : "s"} before activation.`;
+
+  const precedingWeeks = draft.blocks.slice(0, -1).reduce((total, block) => total + block.weeks.length, 0);
+  const finalTarget = summary.required_week_count - precedingWeeks;
+  elements.fitFinalBlockButton.disabled = finalTarget < 1 || finalTarget > 52;
+  elements.activateTemplateButton.disabled = !balanced || eventPlan.event_date < todayDateOnly();
+}
+
+function eventPreviewPayload() {
+  const draft = state.templateDraft;
+  if (!draft?.event_plan) throw new Error("Enable the event compiler first.");
+
+  syncTemplateHeader();
+  syncTemplateEventFields();
+  reindexTemplateDraft();
+
+  return {
+    activity_id: draft.activity_id,
+    ...draft.event_plan,
+    blocks: draft.blocks.map((block) => ({
+      block_id: block.block_id,
+      order_index: Number(block.order_index),
+      name: block.name,
+      block_type: block.block_type,
+      week_count: block.weeks.length
+    }))
+  };
+}
+
+async function previewEventCalendar() {
+  showBusy("Compiling event calendar…");
+  try {
+    const response = await api(
+      "POST",
+      "/coach-workspace/event-compile-preview",
+      eventPreviewPayload()
+    );
+    state.templateDraft.event_compile_summary = response.compile;
+    if (response.compile?.event_plan_id) {
+      state.templateDraft.event_plan.event_plan_id = response.compile.event_plan_id;
+    }
+    saveState();
+    rerenderTemplateBuilder();
+    showNotice("Event calendar compiled.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+function resizeBlockWeeks(blockIndex, requestedCount) {
+  const block = state.templateDraft?.blocks[blockIndex];
+  if (!block) return;
+
+  const totalWithoutBlock = templateCounts(state.templateDraft).weeks - block.weeks.length;
+  const maximum = Math.min(52, 104 - totalWithoutBlock);
+  const target = Math.max(1, Math.min(maximum, Math.trunc(Number(requestedCount) || 1)));
+
+  while (block.weeks.length < target) {
+    const source = block.weeks[block.weeks.length - 1] ?? newTemplateWeek(1);
+    block.weeks.push(cloneTemplateNode(source));
+  }
+
+  if (block.weeks.length > target) {
+    block.weeks.splice(target);
+  }
+
+  block.week_count = block.weeks.length;
+  state.templateDraft.event_compile_summary = null;
+}
+
+function fitFinalBlockToEvent() {
+  const draft = state.templateDraft;
+  const summary = localEventCompileSummary(draft);
+  if (!draft?.event_plan || !summary?.valid) {
+    throw new Error("Set valid programme and event dates first.");
+  }
+
+  const finalIndex = draft.blocks.length - 1;
+  const precedingWeeks = draft.blocks.slice(0, finalIndex)
+    .reduce((total, block) => total + block.weeks.length, 0);
+  const target = summary.required_week_count - precedingWeeks;
+
+  if (target < 1 || target > 52) {
+    throw new Error("The final block cannot absorb the remaining weeks. Adjust earlier blocks or add another block.");
+  }
+
+  resizeBlockWeeks(finalIndex, target);
+  rerenderTemplateBuilder();
+  showNotice(`Final block fitted to ${target} week${target === 1 ? "" : "s"}.`);
+}
+
 function templateCounts(draft) {
   const blocks = Array.isArray(draft?.blocks) ? draft.blocks : [];
   const weeks = blocks.reduce((total, block) => total + block.weeks.length, 0);
@@ -2225,6 +2754,7 @@ function updateTemplateFacts() {
   elements.addTemplateBlockButton.disabled =
     counts.blocks >= 12 ||
     counts.weeks >= 104;
+  renderEventCompiler();
 }
 
 function templateWorkItemAttributes(
@@ -2384,7 +2914,13 @@ function renderTemplateWeek(week, blockIndex, weekIndex, weekCount) {
   return `
     <article class="template-week">
       <div class="template-week-header">
-        <div><p class="eyebrow">Week ${weekIndex + 1}</p><h4>Training week</h4></div>
+        <div>
+          <p class="eyebrow">Week ${weekIndex + 1}</p>
+          <h4>Training week</h4>
+          ${week.calendar_start_date
+            ? `<p class="template-week-calendar">${escapeHtml(formatDate(week.calendar_start_date))} – ${escapeHtml(formatDate(week.calendar_end_date))}${Number.isInteger(week.days_until_event_at_week_start) ? ` · ${week.days_until_event_at_week_start} days to event` : ""}${week.partial_week ? " · Partial week" : ""}</p>`
+            : ""}
+        </div>
         <div class="builder-action-row">
           <button class="button secondary small-button move-template-week" type="button" data-direction="-1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" ${weekIndex === 0 ? "disabled" : ""}>↑</button>
           <button class="button secondary small-button move-template-week" type="button" data-direction="1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" ${weekIndex === weekCount - 1 ? "disabled" : ""}>↓</button>
@@ -2420,6 +2956,7 @@ function renderTemplateBlocks() {
         <div class="builder-action-row">
           <button class="button secondary small-button move-template-block" type="button" data-direction="-1" data-block-index="${blockIndex}" ${blockIndex === 0 ? "disabled" : ""}>↑</button>
           <button class="button secondary small-button move-template-block" type="button" data-direction="1" data-block-index="${blockIndex}" ${blockIndex === draft.blocks.length - 1 ? "disabled" : ""}>↓</button>
+          <button class="text-button small-inline-action add-template-week" type="button" data-block-index="${blockIndex}" ${block.weeks.length >= 52 || totalWeeks >= 104 ? "disabled" : ""}>+ Add week</button>
           <button class="button secondary small-button duplicate-template-block" type="button" data-block-index="${blockIndex}" ${draft.blocks.length >= 12 || totalWeeks + block.weeks.length > 104 ? "disabled" : ""}>Duplicate block</button>
           ${draft.blocks.length > 1 ? `<button class="button danger small-button remove-template-block" type="button" data-block-index="${blockIndex}">Remove block</button>` : ""}
         </div>
@@ -2441,16 +2978,22 @@ function renderTemplateBlocks() {
             <option value="custom" ${block.block_type === "custom" ? "selected" : ""}>Custom</option>
           </select>
         </label>
+        <label class="field template-block-week-count-field">
+          <span>Weeks in block</span>
+          <input type="number" min="1" max="52" step="1" value="${block.weeks.length}" data-template-kind="block" data-block-index="${blockIndex}" data-field="week_count" />
+        </label>
         <label class="field template-block-description-field">
           <span>Block description</span>
           <input value="${escapeHtml(block.description)}" maxlength="500" data-template-kind="block" data-block-index="${blockIndex}" data-field="description" placeholder="Optional factual purpose or phase label" />
         </label>
       </div>
 
+      ${draft.event_plan && block.calendar_start_date
+        ? `<div class="block-calendar-strip"><span>${escapeHtml(formatDate(block.calendar_start_date))}</span><span>→</span><span>${escapeHtml(formatDate(block.calendar_end_date))}</span><strong>${block.weeks.length} week${block.weeks.length === 1 ? "" : "s"}</strong></div>`
+        : ""}
       <div class="template-weeks">
         ${block.weeks.map((week, weekIndex) => renderTemplateWeek(week, blockIndex, weekIndex, block.weeks.length)).join("")}
       </div>
-      <button class="button secondary wide add-template-week" type="button" data-block-index="${blockIndex}" ${block.weeks.length >= 52 || totalWeeks >= 104 ? "disabled" : ""}>Add week to block</button>
     </article>
   `).join("");
 }
@@ -2460,6 +3003,7 @@ function reindexTemplateDraft() {
 
   state.templateDraft.blocks.forEach((block, blockIndex) => {
     block.order_index = blockIndex + 1;
+    block.week_count = block.weeks.length;
     block.weeks.forEach((week, weekIndex) => {
       week.order_index = weekIndex + 1;
       week.sessions.forEach((session, sessionIndex) => {
@@ -2506,6 +3050,9 @@ function syncTemplateHeader() {
   state.templateDraft.template_name = elements.templateName.value;
   state.templateDraft.activity_id = elements.templateActivity.value;
   state.templateDraft.description = elements.templateDescription.value;
+  if (state.templateDraft.event_plan) {
+    ensureDraftEventPlan();
+  }
   saveState();
 }
 
@@ -2532,7 +3079,17 @@ function updateTemplateFieldFromControl(control) {
   }
 
   if (!target || !field) return;
+
+  if (kind === "block" && field === "week_count") {
+    resizeBlockWeeks(blockIndex, Number(control.value));
+    rerenderTemplateBuilder();
+    return;
+  }
+
   target[field] = control.type === "number" ? Number(control.value) : control.value;
+  if (kind === "block") {
+    state.templateDraft.event_compile_summary = null;
+  }
 
   if (kind === "work-item" && ["rep_mode", "load_mode"].includes(field)) {
     rerenderTemplateBuilder();
@@ -2606,7 +3163,7 @@ function addTemplateWeek(blockIndex) {
     block.weeks.length >= 52 ||
     templateCounts(state.templateDraft).weeks >= 104
   ) return;
-  block.weeks.push(newTemplateWeek(block.weeks.length + 1));
+  resizeBlockWeeks(blockIndex, block.weeks.length + 1);
   rerenderTemplateBuilder();
 }
 
@@ -2614,6 +3171,7 @@ function removeTemplateWeek(blockIndex, weekIndex) {
   const block = state.templateDraft?.blocks[blockIndex];
   if (!block || block.weeks.length <= 1) return;
   block.weeks.splice(weekIndex, 1);
+  state.templateDraft.event_compile_summary = null;
   rerenderTemplateBuilder();
 }
 
@@ -2627,6 +3185,7 @@ function duplicateTemplateWeek(blockIndex, weekIndex) {
   const source = block.weeks[weekIndex];
   if (!source) return;
   block.weeks.splice(weekIndex + 1, 0, cloneTemplateNode(source));
+  state.templateDraft.event_compile_summary = null;
   rerenderTemplateBuilder();
 }
 
@@ -2674,6 +3233,9 @@ function templatePayloadFromDraft() {
   if (!draft) throw new Error("No programme is open.");
 
   syncTemplateHeader();
+  if (draft.event_plan) {
+    syncTemplateEventFields();
+  }
   reindexTemplateDraft();
 
   if (!draft.template_name.trim()) {
@@ -2688,12 +3250,25 @@ function templatePayloadFromDraft() {
     template_name: draft.template_name.trim(),
     description: draft.description.trim(),
     activity_id: draft.activity_id,
+    event_plan: draft.event_plan
+      ? {
+          event_plan_id: draft.event_plan.event_plan_id,
+          event_name: draft.event_plan.event_name.trim(),
+          event_type: draft.event_plan.event_type,
+          event_date: draft.event_plan.event_date,
+          programme_start_date: draft.event_plan.programme_start_date,
+          location: draft.event_plan.location.trim(),
+          timezone: draft.event_plan.timezone.trim(),
+          notes: draft.event_plan.notes.trim()
+        }
+      : null,
     blocks: draft.blocks.map((block) => ({
       block_id: block.block_id,
       order_index: Number(block.order_index),
       name: block.name.trim(),
       description: block.description.trim(),
       block_type: block.block_type,
+      week_count: block.weeks.length,
       weeks: block.weeks.map((week) => ({
         week_id: week.week_id,
         order_index: Number(week.order_index),
@@ -2995,6 +3570,64 @@ for (const control of [
   control.addEventListener("input", syncTemplateHeader);
   control.addEventListener("change", syncTemplateHeader);
 }
+
+elements.templateActivity.addEventListener("change", () => {
+  if (state.templateDraft?.event_plan) {
+    ensureDraftEventPlan();
+    state.templateDraft.event_compile_summary = null;
+    rerenderTemplateBuilder();
+  }
+});
+
+elements.templateEventEnabled.addEventListener("change", () => {
+  if (!state.templateDraft) return;
+
+  if (elements.templateEventEnabled.checked) {
+    ensureDraftEventPlan();
+  }
+  else {
+    state.templateDraft.event_plan = null;
+    state.templateDraft.event_compile_summary = null;
+    for (const block of state.templateDraft.blocks) {
+      block.calendar_start_date = "";
+      block.calendar_end_date = "";
+    }
+  }
+
+  rerenderTemplateBuilder();
+});
+
+for (const control of [
+  elements.templateEventName,
+  elements.templateEventType,
+  elements.templateProgrammeStartDate,
+  elements.templateEventDate,
+  elements.templateEventLocation,
+  elements.templateEventTimezone,
+  elements.templateEventNotes
+]) {
+  const updateEventCompiler = () => {
+    syncTemplateEventFields();
+    renderTemplateBlocks();
+    updateTemplateFacts();
+  };
+
+  control.addEventListener("input", updateEventCompiler);
+  control.addEventListener("change", updateEventCompiler);
+}
+
+elements.compileEventCalendarButton.addEventListener("click", () => {
+  previewEventCalendar().catch(handleError);
+});
+
+elements.fitFinalBlockButton.addEventListener("click", () => {
+  try {
+    fitFinalBlockToEvent();
+  }
+  catch (error) {
+    handleError(error);
+  }
+});
 
 elements.templateBlocks.addEventListener("input", (event) => {
   const control = event.target.closest("[data-template-kind]");
