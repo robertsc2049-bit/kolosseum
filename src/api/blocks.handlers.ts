@@ -26,6 +26,11 @@ import {
 import {
   loadStoredBetaCompileAdmission
 } from "./beta_product_journey_service.js";
+import {
+  Beta18ProgrammeTemplateError,
+  isCoachAuthoredTemplateId,
+  materialiseNextCoachTemplateProgram
+} from "./beta18_programme_template_service.js";
 import { badRequest, notFound, internalError } from "./http_errors.js";
 import { getBlockByIdQuery } from "./block_query_service.js";
 import { createSessionFromBlockMutation } from "./block_session_write_service.js";
@@ -201,6 +206,7 @@ export async function compileBlock(req: Request, res: Response) {
       subject_user_id: string;
       coach_user_id: string;
       assignment_id: string;
+      template_id: string;
     } |
     null = null;
 
@@ -237,7 +243,10 @@ export async function compileBlock(req: Request, res: Response) {
               .coach_user_id,
           assignment_id:
             storedAdmission
-              .assignment_id
+              .assignment_id,
+          template_id:
+            storedAdmission
+              .template_id
         };
       }
       else {
@@ -323,12 +332,109 @@ export async function compileBlock(req: Request, res: Response) {
     throw badRequest("Phase 4 failed", { failure_token: p4.failure_token, details: p4.details });
   }
 
+  let programForSession: any =
+    p4.program;
+
+  if (
+    beta_session_binding &&
+    isCoachAuthoredTemplateId(
+      beta_session_binding
+        .template_id
+    )
+  ) {
+    try {
+      programForSession =
+        await materialiseNextCoachTemplateProgram({
+          coach_user_id:
+            beta_session_binding
+              .coach_user_id,
+          assignment_id:
+            beta_session_binding
+              .assignment_id,
+          template_id:
+            beta_session_binding
+              .template_id,
+          base_program:
+            p4.program as unknown as
+              JsonRecord
+        });
+
+      const templateExecution =
+        isRecord(
+          programForSession
+            .coach_template_execution
+        )
+          ? programForSession
+              .coach_template_execution
+          : null;
+
+      const templateRecordSha256 =
+        templateExecution
+          ? asString(
+              templateExecution
+                .template_record_sha256
+            )
+          : undefined;
+
+      const templateSessionId =
+        templateExecution
+          ? asString(
+              templateExecution
+                .template_session_id
+            )
+          : undefined;
+
+      if (
+        !templateRecordSha256 ||
+        !templateSessionId
+      ) {
+        throw new Beta18ProgrammeTemplateError(
+          "template_compile_binding_missing"
+        );
+      }
+
+      canonical_hash =
+        crypto
+          .createHash("sha256")
+          .update(
+            JSON.stringify({
+              phase2_canonical_hash:
+                canonical_hash,
+              template_record_sha256:
+                templateRecordSha256,
+              template_session_id:
+                templateSessionId
+            }),
+            "utf8"
+          )
+          .digest("hex");
+    }
+    catch (error) {
+      const reason =
+        error instanceof
+          Beta18ProgrammeTemplateError
+          ? error.reason
+          : error instanceof Error
+            ? error.message
+            : "template_materialisation_failed";
+
+      throw badRequest(
+        "BETA18_TEMPLATE_MATERIALISATION_FAILED",
+        {
+          failure_token:
+            "beta18_programme_template_invalid",
+          reason
+        }
+      );
+    }
+  }
+
   if (apply_phase5) {
     throw badRequest("Phase 5 compile not implemented", { failure_token: "phase5_compile_not_implemented" });
   }
   const phase5_adjustments: unknown[] = [];
 
-  const p6 = phase6ProduceSessionOutput(p4.program, canonical_input, undefined);
+  const p6 = phase6ProduceSessionOutput(programForSession, canonical_input, undefined);
   if (!p6.ok) {
     throw badRequest("Phase 6 failed", { failure_token: p6.failure_token, details: p6.details });
   }
@@ -427,7 +533,7 @@ export async function compileBlock(req: Request, res: Response) {
     canonical_input,
     phase2_canonical_payload,
     phase3_output: p3.phase3,
-    phase4_program: p4.program,
+    phase4_program: programForSession,
     phase5_adjustments,
     planned_session_from_engine,
     create_session,
@@ -557,6 +663,10 @@ export async function compileBlock(req: Request, res: Response) {
       assignment_id:
         beta_session_binding
           ?.assignment_id ??
+        null,
+      template_id:
+        beta_session_binding
+          ?.template_id ??
         null
     };
   }
