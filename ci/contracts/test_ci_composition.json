@@ -367,6 +367,18 @@
     {
       "kind": "command",
       "value": "node test/product_event_workspace_surface.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/full_ui_01_function_manifest.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/full_ui_01_route_map.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/full_ui_01_completion_guard.test.mjs"
     }
   ]
 }

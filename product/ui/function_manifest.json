@@ -1,0 +1,5523 @@
+{
+  "schema_version": "FULL-UI-01.0.0",
+  "source_issue": 798,
+  "implementation_issue": 799,
+  "deterministic_report": true,
+  "actors": [
+    "athlete",
+    "coach",
+    "founder_admin",
+    "shared"
+  ],
+  "implementation_states": [
+    "implemented",
+    "partial",
+    "missing",
+    "prohibited"
+  ],
+  "routes": [
+    {
+      "route_id": "athlete_today",
+      "pattern": "#/athlete/today",
+      "view": "today",
+      "actors": [
+        "athlete"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "athlete_session",
+      "pattern": "#/athlete/session/:session_id",
+      "view": "session",
+      "actors": [
+        "athlete"
+      ],
+      "entity_key": "session_id",
+      "state": "implemented"
+    },
+    {
+      "route_id": "athlete_history",
+      "pattern": "#/athlete/history",
+      "view": "history",
+      "actors": [
+        "athlete"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "coach_overview",
+      "pattern": "#/coach/overview",
+      "view": "coach-overview",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "coach_athletes",
+      "pattern": "#/coach/athletes",
+      "view": "athletes",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "coach_athlete_detail",
+      "pattern": "#/coach/athletes/:athlete_id",
+      "view": "athletes",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": "athlete_id",
+      "state": "implemented"
+    },
+    {
+      "route_id": "coach_events",
+      "pattern": "#/coach/events",
+      "view": "events",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "coach_event_detail",
+      "pattern": "#/coach/events/:event_id",
+      "view": "events",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": "event_id",
+      "state": "partial"
+    },
+    {
+      "route_id": "coach_programmes",
+      "pattern": "#/coach/programmes",
+      "view": "templates",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "coach_programme_detail",
+      "pattern": "#/coach/programmes/:template_id",
+      "view": "templates",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": "template_id",
+      "state": "partial"
+    },
+    {
+      "route_id": "coach_review",
+      "pattern": "#/coach/review",
+      "view": "review",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "coach_review_athlete",
+      "pattern": "#/coach/review/:athlete_id",
+      "view": "review",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": "athlete_id",
+      "state": "partial"
+    },
+    {
+      "route_id": "shared_account",
+      "pattern": "#/account",
+      "view": "account",
+      "actors": [
+        "athlete",
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    }
+  ],
+  "product_areas": [
+    {
+      "area_id": "identity_account",
+      "title": "Identity and account access",
+      "slice_id": "FULL-UI-02",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "account_create",
+          "label": "Create athlete or coach account",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/sessions/beta-auth"
+          ],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": "test/product_app_surface.test.mjs",
+          "integration_test": "test/beta_e2e_01_product_record_store.integration.test.mjs",
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "account_sign_in",
+          "label": "Sign in to an existing account",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "authenticated_session",
+          "label": "Persist authenticated browser session",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "email_verification",
+          "label": "Display and complete email verification",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "password_reset",
+          "label": "Forgotten-password and reset flow",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "account_state_message",
+          "label": "Display active, suspended, closed and deleted account states",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "role_redirect",
+          "label": "Redirect to the lawful actor home route",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [],
+          "persistence": "navigation_cache",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_route_map.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "terms_version",
+          "label": "Display current terms and consent versions",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "consent_history",
+          "label": "Display consent history",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "profile_update",
+          "label": "Update display name and email",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "password_change",
+          "label": "Change password",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "account_close_request",
+          "label": "Request account closure",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "sign_out",
+          "label": "Sign out and clear browser authentication state",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [],
+          "persistence": "navigation_cache",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": "test/product_app_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "athlete_onboarding",
+      "title": "Athlete onboarding and declarations",
+      "slice_id": "FULL-UI-03",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "onboarding_staged",
+          "label": "Complete staged athlete onboarding",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "activity_declaration",
+          "label": "Declare activity",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/sessions/beta-declaration"
+          ],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": "test/product_app_surface.test.mjs",
+          "integration_test": "test/beta_e2e_01_product_record_store.integration.test.mjs",
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "execution_scope_declaration",
+          "label": "Declare execution scope",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "beta_acknowledgement",
+          "label": "Accept product acknowledgement",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/sessions/beta-acknowledgement"
+          ],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "jurisdiction_acknowledgement",
+          "label": "Accept jurisdiction acknowledgement",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "accessibility_preferences",
+          "label": "Set accessibility and instruction-density preferences",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "onboarding_review",
+          "label": "Review and confirm onboarding declarations",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "onboarding_completion",
+          "label": "Persist onboarding completion state",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "declaration_history",
+          "label": "Display current and historical declarations",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "coach_commercial",
+      "title": "Coach onboarding and commercial state",
+      "slice_id": "FULL-UI-04",
+      "state": "missing",
+      "functions": [
+        {
+          "function_id": "coach_profile_setup",
+          "label": "Create coach profile",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/sessions/beta-coach-profile"
+          ],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "coach_terms",
+          "label": "Accept coach terms",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "subscription_state",
+          "label": "Display current subscription state",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "seat_allowance",
+          "label": "Display seat allowance and usage",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "checkout_entry",
+          "label": "Open checkout",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "payment_return",
+          "label": "Handle payment success and cancellation",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "billing_portal",
+          "label": "Open billing portal",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "entitlement_error",
+          "label": "Display factual entitlement failure",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "relationships",
+      "title": "Coach–athlete relationships",
+      "slice_id": "FULL-UI-05",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "relationship_invite_create",
+          "label": "Create coach invitation",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "relationship_invite_receive",
+          "label": "Receive athlete invitation",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "relationship_accept",
+          "label": "Accept relationship",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/sessions/beta-coach-relationship"
+          ],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "relationship_decline",
+          "label": "Decline invitation",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "relationship_cancel",
+          "label": "Cancel pending invitation",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "relationship_revoke",
+          "label": "Revoke accepted relationship",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "relationship_expiry",
+          "label": "Display expired relationship",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "relationship_lists",
+          "label": "Display pending and accepted relationships",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athletes",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "relationship_audit",
+          "label": "Display relationship detail and audit facts",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "relationship_history_preserved",
+          "label": "Preserve historical records after relationship closure",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "coach_overview",
+      "title": "Coach overview",
+      "slice_id": "FULL-UI-06",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "overview_factual_counts",
+          "label": "Display factual coach counts",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_overview",
+          "api_routes": [
+            "/coach-workspace/athletes",
+            "/coach-workspace/assignments"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_coach_programme_workspace.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "overview_relationships",
+          "label": "Display connected and pending athletes",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_overview",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "overview_assignment_queue",
+          "label": "Display assignments requiring action",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "overview_upcoming_events",
+          "label": "Display upcoming events",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_overview",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "overview_open_sessions",
+          "label": "Display open sessions",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "overview_completed_since_review",
+          "label": "Display sessions completed since review",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "overview_direct_links",
+          "label": "Link directly to athlete, event, programme, assignment and review records",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_overview",
+          "api_routes": [],
+          "persistence": "navigation_cache",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_route_map.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "athlete_directory",
+      "title": "Athlete directory and athlete profile",
+      "slice_id": "FULL-UI-07",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "athlete_search_filter",
+          "label": "Search and filter connected athletes",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "athlete_relationship_state",
+          "label": "Display relationship state",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/coach-workspace/athletes"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_coach_programme_workspace.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "athlete_identity_activity",
+          "label": "Display athlete identity and activity",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athletes"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_coach_programme_workspace.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "athlete_current_programme",
+          "label": "Display current programme assignment",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "athlete_current_event",
+          "label": "Display current event link",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "athlete_assignment_history",
+          "label": "Display assignment history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "athlete_event_history",
+          "label": "Display event-link history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "athlete_strength_history",
+          "label": "Display strength-reference history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "athlete_bodyweight_history",
+          "label": "Display bodyweight history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "athlete_notes_list",
+          "label": "Display coach notes and visibility",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "athlete_session_history",
+          "label": "Display athlete session history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "athlete_relationship_revoke",
+          "label": "Revoke relationship from profile",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "athlete_archive_inactive",
+          "label": "Archive inactive relationship without deleting history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "strength_references",
+      "title": "Strength-reference management",
+      "slice_id": "FULL-UI-08",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "strength_tested_1rm",
+          "label": "Add tested 1RM",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-profile"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "strength_estimated_1rm",
+          "label": "Add estimated 1RM",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-profile"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "strength_training_max",
+          "label": "Add training max",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-profile"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "strength_effective_date",
+          "label": "Validate effective date",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-profile"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "strength_source_note",
+          "label": "Record source note",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "strength_unit_conversion",
+          "label": "Display converted reference values",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "strength_effective_selection",
+          "label": "Select current effective record",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "strength_superseded_history",
+          "label": "Display superseded history",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "strength_immutable_add",
+          "label": "Add a new immutable effective record",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "strength_missing_requirements",
+          "label": "Display missing references for selected programme",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_coach_programme_workspace.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "strength_resolved_source",
+          "label": "Display athlete-facing resolved-load source",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "events",
+      "title": "Standalone events",
+      "slice_id": "FULL-UI-09",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "events_section",
+          "label": "Open separate Events section",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_events",
+          "api_routes": [
+            "/coach-workspace/events"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": "test/beta19_coach_event_assignment.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "event_create_compile",
+          "label": "Create and compile coach-owned event",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_events",
+          "api_routes": [
+            "/coach-workspace/events"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": "test/beta19_coach_event_assignment.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "event_search_filter",
+          "label": "Search and filter event library",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "event_detail",
+          "label": "Open event detail",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_event_detail",
+          "api_routes": [
+            "/coach-workspace/events"
+          ],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_route_map.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "event_version_edit",
+          "label": "Create immutable future event version",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "event_cancel_archive",
+          "label": "Cancel or archive event",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "event_countdown",
+          "label": "Display factual event countdown",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_event_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "event_metadata",
+          "label": "Display location, timezone, notes, activity and type",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_event_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "event_linked_athletes",
+          "label": "Display linked-athlete list",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_event_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "event_linked_programme",
+          "label": "Display linked programme per athlete",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_event_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "event_link_unlink",
+          "label": "Link and unlink athlete",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-event-links"
+          ],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": "test/beta19_coach_event_assignment.integration.test.mjs",
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "event_history_preserved",
+          "label": "Preserve assignment and session history after unlink",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "event_validation",
+          "label": "Validate conflicts and past dates",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "programme_library",
+      "title": "Programme library",
+      "slice_id": "FULL-UI-10",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "programme_states",
+          "label": "Display draft, active, archived and superseded states",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programmes",
+          "api_routes": [
+            "/templates"
+          ],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "programme_search_filter",
+          "label": "Search, filter and sort programmes",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "programme_new",
+          "label": "Create programme",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programmes",
+          "api_routes": [
+            "/templates"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_duplicate",
+          "label": "Duplicate programme version",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [
+            "/templates/:template_id/duplicate"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_detail",
+          "label": "Open programme detail",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "programme_preview",
+          "label": "Preview complete programme structure",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "programme_activate",
+          "label": "Activate programme",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [
+            "/templates/:template_id/activate"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_archive",
+          "label": "Archive programme",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [
+            "/templates/:template_id/archive"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_version_metadata",
+          "label": "Compare factual version metadata",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "programme_assignment_usage",
+          "label": "Display assignment usage before archive",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "programme_immutable_active",
+          "label": "Prevent edits to active and archived versions",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_activation_validation",
+          "label": "Display full activation validation summary",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "programme_builder",
+      "title": "Programme builder",
+      "slice_id": "FULL-UI-11",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "builder_identity",
+          "label": "Edit programme identity and activity",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_ordered_blocks",
+          "label": "Build ordered blocks",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_block_type",
+          "label": "Set explicit block type",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_week_count",
+          "label": "Set weeks per block",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_block_actions",
+          "label": "Add, remove, duplicate and reorder blocks",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_week_actions",
+          "label": "Add, remove, duplicate and reorder weeks",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_session_actions",
+          "label": "Add, remove, duplicate and reorder sessions",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_exactly_four",
+          "label": "Enforce exactly four exercises",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_registry_exercises",
+          "label": "Select registry-backed exercises",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [
+            "/templates/exercises"
+          ],
+          "persistence": "active_registry",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_role",
+          "label": "Set primary or accessory role",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_sets",
+          "label": "Set planned sets",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_repetitions",
+          "label": "Set fixed repetitions or range",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_prescription_modes.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_loading",
+          "label": "Set percentage, fixed load or bodyweight",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_prescription_modes.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_load_unit",
+          "label": "Set load unit",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_rest",
+          "label": "Set rest time",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_summary",
+          "label": "Display deterministic structure summary",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_unsaved_warning",
+          "label": "Warn about unsaved changes",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "builder_save_feedback",
+          "label": "Display save state and confirmation",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "builder_validation_links",
+          "label": "Link validation failures to fields",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "builder_keyboard_mobile",
+          "label": "Operate builder by keyboard and phone",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "event_calendar_binding",
+      "title": "Event-to-programme calendar",
+      "slice_id": "FULL-UI-12",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "calendar_select_existing_event",
+          "label": "Select existing standalone event",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "calendar_single_event_truth",
+          "label": "Use standalone event as date source",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "calendar_start_date",
+          "label": "Set preparation start date",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "calendar_required_weeks",
+          "label": "Display required weeks",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "calendar_allocated_weeks",
+          "label": "Display allocated weeks",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "calendar_allocation_state",
+          "label": "Display balanced, under or over allocation",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "calendar_fit_final",
+          "label": "Fit final block",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "calendar_dates",
+          "label": "Display block and week dates",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "calendar_partial_week",
+          "label": "Display partial final week",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "calendar_activation_fail",
+          "label": "Fail activation when unbalanced",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_event_programme_compiler_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "calendar_event_source",
+          "label": "Retain standalone event as authoritative source",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "assignments",
+      "title": "Athlete-specific assignment",
+      "slice_id": "FULL-UI-13",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "assignment_from_profile",
+          "label": "Assign from athlete profile",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-event-assignment"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": "test/beta19_coach_event_assignment.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "assignment_select_programme",
+          "label": "Select active programme",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "assignment_select_event",
+          "label": "Select optional linked event",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "assignment_preflight",
+          "label": "Preflight missing strength references",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "assignment_exact_version",
+          "label": "Display exact programme version",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "assignment_confirmation",
+          "label": "Confirm assignment creation",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "assignment_current_detail",
+          "label": "Display current assignment",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "assignment_replace",
+          "label": "Replace assignment",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "assignment_cancel",
+          "label": "Cancel future assignment",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "assignment_history",
+          "label": "Display assignment history",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "assignment_separate_event",
+          "label": "Display event link and assignment separately",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "assignment_preserve_sessions",
+          "label": "Preserve prior compiled sessions",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "athlete_today",
+      "title": "Athlete Today",
+      "slice_id": "FULL-UI-14",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "today_programme",
+          "label": "Display current programme",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "today_assignment_version",
+          "label": "Display assignment version",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "today_next_session",
+          "label": "Display next executable session",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [
+            "/blocks/compile"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_coach_programme_workspace.test.mjs",
+          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "today_event_countdown",
+          "label": "Display assigned event and countdown",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_event_programme_compiler_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "today_block_week",
+          "label": "Display block and week context",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "today_resolved_load_source",
+          "label": "Display resolved load and source",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "today_empty_states",
+          "label": "Display all declared empty and unavailable states",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "today_visible_notes",
+          "label": "Display visible coach notes",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "today_start_continue",
+          "label": "Start or continue current session",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_app_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "session_execution",
+      "title": "Session execution",
+      "slice_id": "FULL-UI-15",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "session_overview",
+          "label": "Display pre-start session overview",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "session_four_exercises",
+          "label": "Display four ordered exercises",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_app_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_prescription",
+          "label": "Display sets, reps, load, rest and role",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_coach_programme_workspace.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_start",
+          "label": "Start session",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [
+            "/sessions/:id/start"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_complete_work",
+          "label": "Mark work complete",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [
+            "/sessions/:id/events"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_skip_reason",
+          "label": "Skip lawful work with factual reason",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "session_partial",
+          "label": "Record partial completion",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_stop_return",
+          "label": "Stop and return later",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_return_continue",
+          "label": "Continue returned session",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_return_skip",
+          "label": "Finish without remaining work",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_substitution",
+          "label": "Request and display lawful substitution",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "session_pain_input",
+          "label": "Record contract-permitted pain input",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "session_completion_summary",
+          "label": "Display completion summary",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "session_idempotent_retry",
+          "label": "Display idempotent retry state",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "session_reload_recovery",
+          "label": "Recover session after refresh",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "session_terminal_guard",
+          "label": "Prevent terminal-session resurrection",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "athlete_history",
+      "title": "Athlete history",
+      "slice_id": "FULL-UI-16",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "history_list",
+          "label": "Display session list",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/sessions/beta-athlete-history"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_app_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "history_filters",
+          "label": "Filter by status, date, activity, programme and event",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "history_detail",
+          "label": "Open session detail",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "history_planned_recorded",
+          "label": "Display planned versus recorded state",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "history_split_return",
+          "label": "Display split and return record",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "history_partial_skip",
+          "label": "Display partial and skip record",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "history_provenance",
+          "label": "Display programme, assignment and event provenance",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "history_export",
+          "label": "Export athlete history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "history_empty_unavailable",
+          "label": "Display empty and unavailable states",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "coach_review",
+      "title": "Coach review and live status",
+      "slice_id": "FULL-UI-17",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "review_athlete_search",
+          "label": "Select and search athlete",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "review_open_sessions",
+          "label": "Display open sessions",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "review_completed_queue",
+          "label": "Display completed sessions awaiting review",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "review_factual_detail",
+          "label": "Display factual session detail",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "review_provenance",
+          "label": "Display event, programme and assignment provenance",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "review_live_status",
+          "label": "Display live read-only status",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "review_note_create",
+          "label": "Create non-binding coach note",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [
+            "/sessions/beta-coach-notes"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_app_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "review_note_list",
+          "label": "Display coach-note list",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "review_note_visibility",
+          "label": "Display note visibility",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "review_nonbinding_copy",
+          "label": "Display exact non-binding note copy",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "review_no_override",
+          "label": "Prevent coach override of engine truth",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "review_state",
+          "label": "Store reviewed or unreviewed product state",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "notifications",
+      "title": "Notifications and task state",
+      "slice_id": "FULL-UI-18",
+      "state": "missing",
+      "functions": [
+        {
+          "function_id": "notification_relationship",
+          "label": "Notify relationship invitation and state changes",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "notification_assignment",
+          "label": "Notify assignment create, replace and cancel",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "notification_event",
+          "label": "Notify event link, unlink and cancel",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "notification_programme",
+          "label": "Notify programme availability",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "notification_session",
+          "label": "Notify session completion",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "notification_note",
+          "label": "Notify visible coach note",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "notification_billing",
+          "label": "Notify billing or entitlement action",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "notification_read_state",
+          "label": "Mark notifications read or unread",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "notification_deep_link",
+          "label": "Open notification target",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "data_rights",
+      "title": "Data rights and consent",
+      "slice_id": "FULL-UI-19",
+      "state": "missing",
+      "functions": [
+        {
+          "function_id": "data_terms_current",
+          "label": "Display current consent and terms",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "data_consent_history",
+          "label": "Display consent history",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "data_export_request",
+          "label": "Request data export",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "data_export_status",
+          "label": "Display export status",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "data_export_download",
+          "label": "Download available export",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "data_deletion_request",
+          "label": "Request deletion",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "data_deletion_review",
+          "label": "Review deletion consequences",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "data_deletion_confirm",
+          "label": "Confirm deletion",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "data_deletion_status",
+          "label": "Display deletion status",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "data_retention_copy",
+          "label": "Display retention boundary copy",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "status_support",
+      "title": "Status, support and error reporting",
+      "slice_id": "FULL-UI-20",
+      "state": "missing",
+      "functions": [
+        {
+          "function_id": "status_current",
+          "label": "Display current factual platform status",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/health"
+          ],
+          "persistence": "runtime_health",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "support_report_problem",
+          "label": "Report a problem",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "support_context",
+          "label": "Attach route, timestamp, browser and correlation ID",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "support_description",
+          "label": "Record user description",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "support_secret_boundary",
+          "label": "Hide engine internals and secrets",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "support_retry",
+          "label": "Offer retry and recovery actions",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "support_history",
+          "label": "Display support request history",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "founder_admin",
+      "title": "Founder and admin operations",
+      "slice_id": "FULL-UI-21",
+      "state": "missing",
+      "functions": [
+        {
+          "function_id": "admin_auth",
+          "label": "Guard founder and admin sign-in",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "admin_account_search",
+          "label": "Search accounts",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "admin_account_state",
+          "label": "Review account state",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "admin_entitlement",
+          "label": "Review coach entitlement and seats",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "admin_payment",
+          "label": "Review payment state",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "admin_support",
+          "label": "Review support and error records",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "admin_test_users",
+          "label": "Manage test users",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "admin_data_requests",
+          "label": "Review export and deletion requests",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "admin_audit_action",
+          "label": "Record operational action audit",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "admin_no_engine_override",
+          "label": "Prevent admin engine override",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "cross_product_quality",
+      "title": "Cross-product quality",
+      "slice_id": "FULL-UI-22",
+      "state": "partial",
+      "functions": [
+        {
+          "function_id": "quality_responsive",
+          "label": "Support phone, tablet and desktop",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_keyboard",
+          "label": "Support keyboard navigation",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_focus",
+          "label": "Display visible focus",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_semantics",
+          "label": "Use semantic labels and headings",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_announcements",
+          "label": "Announce status and errors",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_contrast",
+          "label": "Meet colour contrast requirements",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_reduced_motion",
+          "label": "Respect reduced-motion preference",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_loading",
+          "label": "Display persistent loading state",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "navigation_cache",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_app_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "quality_duplicate_submit",
+          "label": "Prevent duplicate submissions",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_route_states",
+          "label": "Display route-level empty, error and unavailable states",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_unsaved",
+          "label": "Protect unsaved changes",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_destructive_confirm",
+          "label": "Confirm destructive actions",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "not_implemented",
+          "state": "missing",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_friendly_errors",
+          "label": "Display user-facing errors rather than raw tokens",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "quality_deep_links",
+          "label": "Support stable lawful deep links",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [],
+          "persistence": "navigation_cache",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_route_map.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "quality_refresh_recovery",
+          "label": "Recover route after refresh",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [],
+          "persistence": "navigation_cache",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_01_route_map.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "quality_server_authority",
+          "label": "Keep core server records authoritative over local cache",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "partial",
+          "governing_boundary": null,
+          "direct_test": null,
+          "integration_test": null,
+          "coverage": {
+            "loading": "incomplete",
+            "empty": "incomplete",
+            "error": "incomplete",
+            "recovery": "incomplete"
+          }
+        }
+      ]
+    }
+  ],
+  "delivery_slices": [
+    {
+      "slice_id": "FULL-UI-01",
+      "state": "in_progress"
+    },
+    {
+      "slice_id": "FULL-UI-02",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-03",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-04",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-05",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-06",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-07",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-08",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-09",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-10",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-11",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-12",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-13",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-14",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-15",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-16",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-17",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-18",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-19",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-20",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-21",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-22",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-23",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-24",
+      "state": "planned"
+    },
+    {
+      "slice_id": "FULL-UI-25",
+      "state": "planned"
+    }
+  ],
+  "prohibited_capabilities": [
+    {
+      "capability_id": "organisation_runtime",
+      "label": "Organisation, team, unit or gym coaching runtime",
+      "governing_boundary": "Actors remain individual athlete and coach only."
+    },
+    {
+      "capability_id": "resistance_rpe",
+      "label": "Resistance-training RPE prescription",
+      "governing_boundary": "Resistance training remains percentage, fixed-load or bodyweight based."
+    },
+    {
+      "capability_id": "readiness_inference",
+      "label": "Readiness, safety, suitability, risk or optimisation inference",
+      "governing_boundary": "Product output remains factual and deterministic."
+    },
+    {
+      "capability_id": "engine_override",
+      "label": "Coach, payment, admin or UI override of engine truth",
+      "governing_boundary": "Engine legality and deterministic output remain independent of product state."
+    },
+    {
+      "capability_id": "diagnostic_dependency",
+      "label": "Diagnostic UI as a product workflow dependency",
+      "governing_boundary": "The product UI must use public application routes only."
+    }
+  ],
+  "api_route_catalog": [
+    {
+      "method": "GET",
+      "path": "/blocks/:block_id",
+      "source": "src/api/blocks.routes.ts",
+      "tracked_by_area": "session_execution"
+    },
+    {
+      "method": "GET",
+      "path": "/blocks/:block_id/sessions",
+      "source": "src/api/blocks.routes.ts",
+      "tracked_by_area": "session_execution"
+    },
+    {
+      "method": "POST",
+      "path": "/blocks/:block_id/sessions",
+      "source": "src/api/blocks.routes.ts",
+      "tracked_by_area": "session_execution"
+    },
+    {
+      "method": "POST",
+      "path": "/blocks/compile",
+      "source": "src/api/blocks.routes.ts",
+      "tracked_by_area": "session_execution"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/assignments",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-assignment",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/athlete-event-links",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/athlete-strength-profile",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "strength_references"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-strength-profile",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "strength_references"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/athletes",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/event-compile-preview",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/events",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/events",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "source": "src/server.ts",
+      "tracked_by_area": "status_support"
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/:session_id/events",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/:session_id/events",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/:session_id/start",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/:session_id/state",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-acknowledgement",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-athlete-history",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-auth",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-coach-artefacts",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-coach-assignment",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-coach-notes",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-coach-profile",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-coach-relationship",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-declaration",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/decision-summary/:run_id",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/plan",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "GET",
+      "path": "/templates",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
+      "path": "/templates",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
+      "path": "/templates/:template_id/activate",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
+      "path": "/templates/:template_id/archive",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
+      "path": "/templates/:template_id/duplicate",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "GET",
+      "path": "/templates/exercises",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    }
+  ],
+  "completion_rules": [
+    "A function is not complete because a backend endpoint exists.",
+    "A function is not complete when it depends on PowerShell, direct API calls, database edits or diagnostic pages.",
+    "Core server records remain authoritative over local navigation cache.",
+    "Implemented functions require a visible route where a route is applicable and a direct test.",
+    "Prohibited capabilities require a named governing boundary."
+  ]
+}

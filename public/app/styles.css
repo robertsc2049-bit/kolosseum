@@ -1671,3 +1671,16 @@ input:focus, select:focus, textarea:focus {
     grid-template-columns: 1fr;
   }
 }
+
+
+.route-target {
+  outline: 2px solid #c89b3c;
+  outline-offset: 4px;
+  scroll-margin-block: 7rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-target {
+    scroll-behavior: auto;
+  }
+}

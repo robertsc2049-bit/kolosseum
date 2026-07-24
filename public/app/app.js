@@ -1891,7 +1891,7 @@ function coachAthleteCard(athlete) {
   const referenceCount = currentProfileBenchmarks(profile).size;
 
   return `
-    <article class="record-card athlete-record-card">
+    <article class="record-card athlete-record-card" data-athlete-id="${escapeHtml(athlete.userId)}">
       <div>
         <h3>${escapeHtml(athlete.displayName)}</h3>
         <p>${escapeHtml(titleCase(athlete.activityId))}</p>
@@ -2362,7 +2362,7 @@ function templateCard(template) {
     : "";
 
   return `
-    <article class="template-card">
+    <article class="template-card" data-template-id="${escapeHtml(template.template_id)}">
       <div>
         <h3>${escapeHtml(template.template_name)}</h3>
         <p>${escapeHtml(titleCase(template.activity_id))} · Version ${version}</p>
@@ -3549,7 +3549,7 @@ function renderCoachEvents() {
         const compile = coachEventCompile(eventRecord) ?? {};
         const linkedAthletes = Number(eventRecord.linked_athlete_count ?? 0);
         return `
-          <article class="record-card coach-event-card">
+          <article class="record-card coach-event-card" data-event-id="${escapeHtml(eventRecord.event_id ?? "")}">
             <div>
               <p class="eyebrow">${escapeHtml(titleCase(eventRecord.activity_id ?? "event"))}</p>
               <h3>${escapeHtml(plan.event_name ?? "Event")}</h3>
