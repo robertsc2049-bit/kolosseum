@@ -209,7 +209,9 @@ ALTER TABLE beta_product_records
         'beta17_coach_relationship',
         'beta17_assignment_trigger',
         'beta18_programme_template',
-        'beta19_athlete_strength_profile'
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link'
       )
     );
 
@@ -231,6 +233,8 @@ ALTER TABLE beta_product_records
         'beta17_coach_relationship',
         'beta17_assignment_trigger',
         'beta18_programme_template',
-        'beta19_athlete_strength_profile'
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link'
       )
     );

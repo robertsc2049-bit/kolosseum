@@ -1623,3 +1623,51 @@ input:focus, select:focus, textarea:focus {
   font-size: 0.78rem;
   line-height: 1.4;
 }
+
+
+/* Standalone coach event workspace and athlete-profile assignment surface. */
+.events-layout {
+  align-items: start;
+}
+
+.standalone-event-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.coach-event-card,
+.athlete-event-link-card {
+  align-items: center;
+}
+
+.coach-event-meta {
+  min-width: 180px;
+}
+
+.athlete-assignment-panel {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+}
+
+.athlete-assignment-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.athlete-assignment-form .assignment-requirements,
+.athlete-assignment-form .inline-result {
+  grid-column: 1 / -1;
+}
+
+.athlete-event-links-header {
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 760px) {
+  .athlete-assignment-form,
+  .standalone-event-summary {
+    grid-template-columns: 1fr;
+  }
+}

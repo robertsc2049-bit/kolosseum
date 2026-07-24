@@ -2628,6 +2628,8 @@ function orderedTemplateSessions(
   const sessions: JsonRecord[] =
     [];
 
+  let derivedGlobalWeekIndex = 0;
+
   for (
     const block of blocks
   ) {
@@ -2654,6 +2656,8 @@ function orderedTemplateSessions(
     for (
       const week of weeks
     ) {
+      derivedGlobalWeekIndex += 1;
+
       const days =
         Array.isArray(
           week.days
@@ -2735,7 +2739,7 @@ function orderedTemplateSessions(
               template_week_index_global:
                 Number(
                   week.week_index_global ??
-                  0
+                  derivedGlobalWeekIndex
                 ),
               template_week_start_date:
                 cleanString(
@@ -2781,6 +2785,9 @@ export async function materialiseNextCoachTemplateProgram(
     athlete_user_id: string;
     assignment_id: string;
     template_id: string;
+    event_plan_override?: Readonly<JsonRecord> | null;
+    event_compile_summary_override?: Readonly<JsonRecord> | null;
+    event_record_sha256?: string | null;
     base_program: JsonRecord;
   }>
 ): Promise<Readonly<JsonRecord>> {
@@ -2816,6 +2823,20 @@ export async function materialiseNextCoachTemplateProgram(
     );
   }
 
+  const executionEventPlan =
+    isRecord(input.event_plan_override)
+      ? input.event_plan_override
+      : isRecord(template.event_plan)
+        ? template.event_plan
+        : null;
+
+  const executionEventCompileSummary =
+    isRecord(input.event_compile_summary_override)
+      ? input.event_compile_summary_override
+      : isRecord(template.event_compile_summary)
+        ? template.event_compile_summary
+        : null;
+
   const sessions =
     orderedTemplateSessions(
       template
@@ -2849,6 +2870,21 @@ export async function materialiseNextCoachTemplateProgram(
       "assigned_template_sessions_exhausted"
     );
   }
+
+  const executionWeeks =
+    executionEventCompileSummary &&
+    Array.isArray(executionEventCompileSummary.weeks)
+      ? executionEventCompileSummary.weeks
+      : [];
+
+  const selectedGlobalWeekIndex =
+    Number(selectedSession.template_week_index_global ?? 0);
+
+  const executionWeek =
+    selectedGlobalWeekIndex > 0 &&
+    isRecord(executionWeeks[selectedGlobalWeekIndex - 1])
+      ? executionWeeks[selectedGlobalWeekIndex - 1]
+      : null;
 
   const registry =
     loadExerciseRegistry();
@@ -3117,30 +3153,27 @@ export async function materialiseNextCoachTemplateProgram(
           selectedSession
             .template_week_index_global,
         template_week_start_date:
-          selectedSession
-            .template_week_start_date,
+          executionWeek
+            ? cleanString(executionWeek.start_date) || null
+            : selectedSession
+                .template_week_start_date,
         template_week_end_date:
-          selectedSession
-            .template_week_end_date,
+          executionWeek
+            ? cleanString(executionWeek.end_date) || null
+            : selectedSession
+                .template_week_end_date,
         days_until_event_at_week_start:
-          selectedSession
-            .days_until_event_at_week_start,
+          executionWeek &&
+          Number.isInteger(executionWeek.days_until_event_at_week_start)
+            ? Number(executionWeek.days_until_event_at_week_start)
+            : selectedSession
+                .days_until_event_at_week_start,
         event_plan:
-          isRecord(
-            selectedSession
-              .template_event_plan
-          )
-            ? selectedSession
-                .template_event_plan
-            : null,
+          executionEventPlan,
         event_compile_summary:
-          isRecord(
-            selectedSession
-              .template_event_compile_summary
-          )
-            ? selectedSession
-                .template_event_compile_summary
-            : null,
+          executionEventCompileSummary,
+        event_record_sha256:
+          cleanString(input.event_record_sha256) || null,
         athlete_profile_record_sha256:
           cleanString(
             athleteProfile

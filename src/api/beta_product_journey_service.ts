@@ -27,6 +27,9 @@ import {
   loadActiveCoachTemplateById,
   loadExecutableCoachTemplateById
 } from "./beta18_programme_template_service.js";
+import {
+  loadEventBindingForAssignment
+} from "./beta19_coach_event_service.js";
 
 type JsonRecord =
   Record<string, unknown>;
@@ -184,6 +187,10 @@ export async function loadStoredBetaCompileAdmission(
     coach_user_id: string;
     assignment_id: string;
     template_id: string;
+    event_id: string | null;
+    event_plan: Readonly<JsonRecord> | null;
+    event_compile_summary: Readonly<JsonRecord> | null;
+    event_record_sha256: string | null;
   }>
 > {
   const athleteUserId =
@@ -287,6 +294,13 @@ export async function loadStoredBetaCompileAdmission(
     );
   }
 
+  const eventBinding =
+    await loadEventBindingForAssignment(
+      String(assignment.assignment_id),
+      coachUserId,
+      athleteUserId
+    );
+
   if (
     isCoachAuthoredTemplateId(
       templateId
@@ -341,7 +355,15 @@ export async function loadStoredBetaCompileAdmission(
         assignment.assignment_id
       ),
     template_id:
-      templateId
+      templateId,
+    event_id:
+      eventBinding?.event_id ?? null,
+    event_plan:
+      eventBinding?.event_plan ?? null,
+    event_compile_summary:
+      eventBinding?.event_compile_summary ?? null,
+    event_record_sha256:
+      eventBinding?.event_record_sha256 ?? null
   });
 }
 

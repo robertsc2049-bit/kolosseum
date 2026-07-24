@@ -4,8 +4,12 @@ import { Router } from "express";
 
 import { asyncHandler } from "./async_handler.js";
 import {
+  createAthleteProfileAssignment,
+  createCoachEventHandler,
+  getAthleteEventLinks,
   getAthleteStrengthProfile,
   getCoachAssignments,
+  getCoachEvents,
   getConnectedCoachAthletes,
   previewEventProgrammeCalendar,
   saveAthleteStrengthProfileHandler
@@ -21,6 +25,26 @@ coachWorkspaceRouter.get(
 coachWorkspaceRouter.get(
   "/assignments",
   asyncHandler(getCoachAssignments)
+);
+
+coachWorkspaceRouter.get(
+  "/events",
+  asyncHandler(getCoachEvents)
+);
+
+coachWorkspaceRouter.post(
+  "/events",
+  asyncHandler(createCoachEventHandler)
+);
+
+coachWorkspaceRouter.get(
+  "/athlete-event-links",
+  asyncHandler(getAthleteEventLinks)
+);
+
+coachWorkspaceRouter.post(
+  "/athlete-assignment",
+  asyncHandler(createAthleteProfileAssignment)
 );
 
 coachWorkspaceRouter.get(

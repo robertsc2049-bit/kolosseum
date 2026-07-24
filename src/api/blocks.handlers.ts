@@ -207,6 +207,10 @@ export async function compileBlock(req: Request, res: Response) {
       coach_user_id: string;
       assignment_id: string;
       template_id: string;
+      event_id: string | null;
+      event_plan: Readonly<JsonRecord> | null;
+      event_compile_summary: Readonly<JsonRecord> | null;
+      event_record_sha256: string | null;
     } |
     null = null;
 
@@ -246,7 +250,19 @@ export async function compileBlock(req: Request, res: Response) {
               .assignment_id,
           template_id:
             storedAdmission
-              .template_id
+              .template_id,
+          event_id:
+            storedAdmission
+              .event_id,
+          event_plan:
+            storedAdmission
+              .event_plan,
+          event_compile_summary:
+            storedAdmission
+              .event_compile_summary,
+          event_record_sha256:
+            storedAdmission
+              .event_record_sha256
         };
       }
       else {
@@ -357,6 +373,15 @@ export async function compileBlock(req: Request, res: Response) {
           template_id:
             beta_session_binding
               .template_id,
+          event_plan_override:
+            beta_session_binding
+              .event_plan,
+          event_compile_summary_override:
+            beta_session_binding
+              .event_compile_summary,
+          event_record_sha256:
+            beta_session_binding
+              .event_record_sha256,
           base_program:
             p4.program as unknown as
               JsonRecord
@@ -395,6 +420,14 @@ export async function compileBlock(req: Request, res: Response) {
             )
           : undefined;
 
+      const eventRecordSha256 =
+        templateExecution
+          ? asString(
+              templateExecution
+                .event_record_sha256
+            )
+          : undefined;
+
       if (
         !templateRecordSha256 ||
         !templateSessionId
@@ -417,6 +450,9 @@ export async function compileBlock(req: Request, res: Response) {
                 templateSessionId,
               athlete_profile_record_sha256:
                 athleteProfileRecordSha256 ??
+                null,
+              event_record_sha256:
+                eventRecordSha256 ??
                 null
             }),
             "utf8"
@@ -716,6 +752,10 @@ export async function compileBlock(req: Request, res: Response) {
                 .template_week_index_global
             )
           : null,
+      event_id:
+        beta_session_binding
+          ?.event_id ??
+        null,
       event_plan:
         coachTemplateExecution &&
         isRecord(

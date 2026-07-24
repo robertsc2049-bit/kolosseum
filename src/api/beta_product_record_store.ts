@@ -16,7 +16,9 @@ type SupportedRecordType =
   | "beta17_coach_relationship"
   | "beta17_assignment_trigger"
   | "beta18_programme_template"
-  | "beta19_athlete_strength_profile";
+  | "beta19_athlete_strength_profile"
+  | "beta19_coach_event"
+  | "beta19_event_athlete_link";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -37,7 +39,9 @@ const supportedRecordTypes =
     "beta17_coach_relationship",
     "beta17_assignment_trigger",
     "beta18_programme_template",
-    "beta19_athlete_strength_profile"
+    "beta19_athlete_strength_profile",
+    "beta19_coach_event",
+    "beta19_event_athlete_link"
   ]);
 
 function isRecord(
@@ -350,6 +354,65 @@ function recordMetadata(
             record,
             "updated_at_iso8601",
             "athlete_profile_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "beta19_coach_event": {
+      const coachUserId =
+        requiredString(
+          record,
+          "coach_user_id",
+          "coach_event_coach_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "event_id",
+            "coach_event_id_required"
+          ),
+        subject_user_id: coachUserId,
+        actor_user_id: coachUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "coach_event_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "beta19_event_athlete_link": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "event_athlete_link_id",
+            "event_link_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "event_link_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "coach_user_id",
+            "event_link_coach_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "event_link_effective_at_required"
           ),
         record_sha256: recordSha256
       };

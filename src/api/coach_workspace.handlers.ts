@@ -16,12 +16,26 @@ import {
   EventProgrammeCompilerError,
   compileEventProgrammeCalendar
 } from "./event_programme_compiler_service.js";
+import {
+  Beta19CoachEventError,
+  assignAthleteProgrammeFromProfile,
+  createCoachEvent as createCoachEventRecord,
+  listAthleteEventLinks,
+  listCoachEvents
+} from "./beta19_coach_event_service.js";
 
 function cleanString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
 function rethrowWorkspaceError(error: unknown): never {
+  if (error instanceof Beta19CoachEventError) {
+    throw badRequest("BETA19_COACH_EVENT_INVALID", {
+      failure_token: "beta19_coach_event_invalid",
+      reason: error.reason
+    });
+  }
+
   if (error instanceof EventProgrammeCompilerError) {
     throw badRequest("EVENT_PROGRAMME_COMPILER_INVALID", {
       failure_token: "event_programme_compiler_invalid",
@@ -131,6 +145,85 @@ export async function previewEventProgrammeCalendar(
     return res.status(200).json({
       ok: true,
       compile
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+
+export async function getCoachEvents(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = cleanString(req.query.coach_user_id);
+    const events = await listCoachEvents(coachUserId);
+
+    return res.status(200).json({
+      ok: true,
+      coach_user_id: coachUserId,
+      events
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function createCoachEventHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const event = await createCoachEventRecord(req.body);
+
+    return res.status(201).json({
+      ok: true,
+      event
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function getAthleteEventLinks(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = cleanString(req.query.coach_user_id);
+    const athleteUserId = cleanString(req.query.athlete_user_id);
+    const links = await listAthleteEventLinks(
+      coachUserId,
+      athleteUserId
+    );
+
+    return res.status(200).json({
+      ok: true,
+      coach_user_id: coachUserId,
+      athlete_user_id: athleteUserId,
+      links
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function createAthleteProfileAssignment(
+  req: Request,
+  res: Response
+) {
+  try {
+    const result = await assignAthleteProgrammeFromProfile(req.body);
+
+    return res.status(201).json({
+      ok: true,
+      assignment: result.assignment,
+      event_link: result.event_link
     });
   }
   catch (error) {

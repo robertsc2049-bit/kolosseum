@@ -9,6 +9,8 @@
     "node test/beta_e2e_01_closure_evidence.test.mjs",
     "node test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs",
     "node test/beta_18_template_builder.integration.test.mjs",
-    "node test/event_programme_compiler_service.test.mjs"
+    "node test/event_programme_compiler_service.test.mjs",
+    "node test/beta19_coach_event_service.test.mjs",
+    "node test/beta19_coach_event_assignment.integration.test.mjs"
   ]
 }

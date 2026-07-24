@@ -16,6 +16,8 @@ const DEFAULT_STATE = Object.freeze({
   view: "today",
   coachAthletes: [],
   coachAssignments: [],
+  coachEvents: [],
+  athleteEventLinks: {},
   coachTemplates: [],
   templateExercises: [],
   templateDraft: null,
@@ -121,6 +123,30 @@ const elements = {
   addAthleteBenchmarkButton: document.getElementById("addAthleteBenchmarkButton"),
   closeAthleteProfileButton: document.getElementById("closeAthleteProfileButton"),
   athleteProfileStatus: document.getElementById("athleteProfileStatus"),
+  eventForm: document.getElementById("eventForm"),
+  eventName: document.getElementById("eventName"),
+  eventActivity: document.getElementById("eventActivity"),
+  eventType: document.getElementById("eventType"),
+  eventProgrammeStartDate: document.getElementById("eventProgrammeStartDate"),
+  eventDate: document.getElementById("eventDate"),
+  eventLocation: document.getElementById("eventLocation"),
+  eventTimezone: document.getElementById("eventTimezone"),
+  eventNotes: document.getElementById("eventNotes"),
+  eventPreviewCountdown: document.getElementById("eventPreviewCountdown"),
+  eventPreviewWeeks: document.getElementById("eventPreviewWeeks"),
+  eventCount: document.getElementById("eventCount"),
+  eventUpcomingCount: document.getElementById("eventUpcomingCount"),
+  eventLinkedCount: document.getElementById("eventLinkedCount"),
+  refreshEventsButton: document.getElementById("refreshEventsButton"),
+  eventList: document.getElementById("eventList"),
+  athleteAssignmentPanel: document.getElementById("athleteAssignmentPanel"),
+  athleteAssignmentForm: document.getElementById("athleteAssignmentForm"),
+  athleteAssignmentEvent: document.getElementById("athleteAssignmentEvent"),
+  athleteAssignmentTemplate: document.getElementById("athleteAssignmentTemplate"),
+  athleteAssignmentRequirements: document.getElementById("athleteAssignmentRequirements"),
+  athleteAssignmentButton: document.getElementById("athleteAssignmentButton"),
+  athleteAssignmentResult: document.getElementById("athleteAssignmentResult"),
+  athleteEventLinks: document.getElementById("athleteEventLinks"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -299,6 +325,10 @@ function loadState() {
       ...parsed,
       coachAthletes: Array.isArray(parsed.coachAthletes) ? parsed.coachAthletes : [],
       coachAssignments: Array.isArray(parsed.coachAssignments) ? parsed.coachAssignments : [],
+      coachEvents: Array.isArray(parsed.coachEvents) ? parsed.coachEvents : [],
+      athleteEventLinks: parsed.athleteEventLinks && typeof parsed.athleteEventLinks === "object"
+        ? parsed.athleteEventLinks
+        : {},
       coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
       templateExercises: Array.isArray(parsed.templateExercises) ? parsed.templateExercises : [],
       templateDraft: normalisePersistedTemplateDraft(parsed.templateDraft),
@@ -515,7 +545,12 @@ function friendlyError(payload, status) {
     block_week_count_invalid: "Each block must contain between one and 52 weeks.",
     block_week_count_mismatch: "The block week input must match the weeks currently contained in that block.",
     event_week_allocation_unbalanced: "The programme blocks must allocate exactly the number of weeks available before the event.",
-    event_date_in_past: "The event date cannot be in the past when a programme is activated."
+    event_date_in_past: "The event date cannot be in the past when a programme is activated.",
+    event_programme_week_count_mismatch: "The programme week count must match the event preparation calendar.",
+    event_not_active: "Select an active event.",
+    event_activity_mismatch: "The event activity does not match the athlete.",
+    template_not_active_for_activity: "Select an active programme for this athlete activity.",
+    relationship_access_denied: "The coach-athlete relationship is not active."
   };
 
   return messages[reason] ?? titleCase(reason);
@@ -719,6 +754,7 @@ function viewTitle(view) {
     history: "History",
     "coach-overview": "Overview",
     athletes: "Athletes",
+    events: "Events",
     templates: "Programmes",
     assign: "Assign",
     review: "Review",
@@ -751,6 +787,11 @@ function setView(view) {
     loadSessionState().catch(handleError);
   }
 
+  if (view === "events" && state.role === "coach") {
+    renderCoachEvents();
+    refreshCoachEvents({ quiet: true }).catch(handleError);
+  }
+
   if (view === "templates" && state.role === "coach") {
     renderTemplateLibrary();
     refreshTemplates({ quiet: true }).catch(handleError);
@@ -778,7 +819,7 @@ function renderRoleNavigation() {
   const fallbackView = athlete ? "today" : "coach-overview";
   const permittedViews = athlete
     ? new Set(["today", "session", "history", "account"])
-    : new Set(["coach-overview", "athletes", "templates", "assign", "review", "account"]);
+    : new Set(["coach-overview", "athletes", "events", "templates", "review", "account"]);
 
   if (!permittedViews.has(state.view)) state.view = fallbackView;
 }
@@ -1531,6 +1572,7 @@ function renderAthleteProfileEditor() {
 
   const currentCount = currentProfileBenchmarks(draft).size;
   elements.athleteProfileStatus.textContent = `${draft.benchmarks.length} record${draft.benchmarks.length === 1 ? "" : "s"} · ${currentCount} current exercise reference${currentCount === 1 ? "" : "s"}`;
+  renderAthleteProfileAssignment();
   elements.athleteProfilePanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -1592,6 +1634,7 @@ async function openAthleteProfile(athleteUserId) {
   const profile = await loadAthleteProfile(athleteUserId);
   state.selectedCoachAthleteId = athleteUserId;
   state.athleteProfileDraft = profileRecordToDraft(profile, athlete);
+  await refreshAthleteEventLinks(athleteUserId, { quiet: true });
   saveState();
   renderAthleteProfileEditor();
 }
@@ -1601,6 +1644,7 @@ function closeAthleteProfile() {
   state.athleteProfileDraft = null;
   saveState();
   elements.athleteProfilePanel.hidden = true;
+  elements.athleteAssignmentPanel.hidden = true;
 }
 
 function addAthleteBenchmark() {
@@ -1888,6 +1932,7 @@ function renderCoachWorkspace() {
 
   if (state.selectedCoachAthleteId && state.athleteProfileDraft) {
     renderAthleteProfileEditor();
+    renderAthleteProfileAssignment();
   }
 }
 
@@ -3373,6 +3418,380 @@ async function archiveTemplate(templateId) {
     hideBusy();
   }
 }
+const COACH_EVENT_TYPES = Object.freeze({
+  powerlifting: [
+    ["powerlifting_meet", "Powerlifting meet"],
+    ["strength_event", "Strength event"],
+    ["test_day", "Test day"],
+    ["other", "Other"]
+  ],
+  general_strength: [
+    ["strength_event", "Strength event"],
+    ["test_day", "Test day"],
+    ["other", "Other"]
+  ],
+  rugby_union: [
+    ["rugby_match", "Rugby match"],
+    ["rugby_tournament", "Rugby tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other"]
+  ]
+});
+
+function coachEventPlan(eventRecord) {
+  return eventRecord?.event_plan && typeof eventRecord.event_plan === "object"
+    ? eventRecord.event_plan
+    : null;
+}
+
+function coachEventCompile(eventRecord) {
+  return eventRecord?.event_compile_summary && typeof eventRecord.event_compile_summary === "object"
+    ? eventRecord.event_compile_summary
+    : null;
+}
+
+function syncCoachEventTypeOptions() {
+  const activityId = elements.eventActivity.value || "powerlifting";
+  const previous = elements.eventType.value;
+  const options = COACH_EVENT_TYPES[activityId] ?? COACH_EVENT_TYPES.powerlifting;
+
+  elements.eventType.innerHTML = options
+    .map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`)
+    .join("");
+
+  if (options.some(([value]) => value === previous)) {
+    elements.eventType.value = previous;
+  }
+}
+
+function renderCoachEventPreview() {
+  syncCoachEventTypeOptions();
+  const startDate = elements.eventProgrammeStartDate.value;
+  const eventDate = elements.eventDate.value;
+  const days = dateOnlyDifference(startDate, eventDate);
+
+  elements.eventPreviewCountdown.textContent = eventDate
+    ? countdownLabel(eventDate)
+    : "Set event date";
+
+  elements.eventPreviewWeeks.textContent = Number.isInteger(days) && days > 0
+    ? String(Math.ceil(days / 7))
+    : "—";
+}
+
+async function refreshCoachEvents(options = {}) {
+  if (state.role !== "coach" || !state.profile?.coachUserId) return [];
+  if (!options.quiet) showBusy("Loading events…");
+
+  try {
+    const response = await api(
+      "GET",
+      `/coach-workspace/events?coach_user_id=${encodeURIComponent(state.profile.coachUserId)}`
+    );
+
+    state.coachEvents = Array.isArray(response.events) ? response.events : [];
+    saveState();
+    renderCoachEvents();
+
+    if (state.selectedCoachAthleteId) {
+      renderAthleteProfileAssignment();
+    }
+
+    return state.coachEvents;
+  }
+  finally {
+    if (!options.quiet) hideBusy();
+  }
+}
+
+async function refreshAthleteEventLinks(athleteUserId, options = {}) {
+  if (!athleteUserId || !state.profile?.coachUserId) return [];
+  if (!options.quiet) showBusy("Loading athlete event links…");
+
+  try {
+    const response = await api(
+      "GET",
+      `/coach-workspace/athlete-event-links?coach_user_id=${encodeURIComponent(state.profile.coachUserId)}&athlete_user_id=${encodeURIComponent(athleteUserId)}`
+    );
+
+    state.athleteEventLinks[athleteUserId] = Array.isArray(response.links)
+      ? response.links
+      : [];
+    saveState();
+    return state.athleteEventLinks[athleteUserId];
+  }
+  finally {
+    if (!options.quiet) hideBusy();
+  }
+}
+
+function renderCoachEvents() {
+  if (!elements.eventList) return;
+
+  const today = todayDateOnly();
+  const events = Array.isArray(state.coachEvents) ? state.coachEvents : [];
+  const upcoming = events.filter((eventRecord) => {
+    const plan = coachEventPlan(eventRecord);
+    return plan?.event_date && plan.event_date >= today;
+  });
+  const linkedCount = events.reduce(
+    (total, eventRecord) => total + Number(eventRecord.linked_athlete_count ?? 0),
+    0
+  );
+
+  elements.eventCount.textContent = String(events.length);
+  elements.eventUpcomingCount.textContent = String(upcoming.length);
+  elements.eventLinkedCount.textContent = String(linkedCount);
+
+  elements.eventList.innerHTML = events.length
+    ? events.map((eventRecord) => {
+        const plan = coachEventPlan(eventRecord) ?? {};
+        const compile = coachEventCompile(eventRecord) ?? {};
+        const linkedAthletes = Number(eventRecord.linked_athlete_count ?? 0);
+        return `
+          <article class="record-card coach-event-card">
+            <div>
+              <p class="eyebrow">${escapeHtml(titleCase(eventRecord.activity_id ?? "event"))}</p>
+              <h3>${escapeHtml(plan.event_name ?? "Event")}</h3>
+              <p>${escapeHtml(titleCase(plan.event_type ?? "event"))} · ${escapeHtml(formatDate(plan.event_date))}${plan.location ? ` · ${escapeHtml(plan.location)}` : ""}</p>
+            </div>
+            <div class="record-meta coach-event-meta">
+              <strong>${escapeHtml(countdownLabel(plan.event_date))}</strong>
+              <span class="badge neutral">${Number(compile.required_week_count ?? 0)} weeks</span>
+              <span class="badge ${linkedAthletes > 0 ? "active" : "neutral"}">${linkedAthletes} athlete${linkedAthletes === 1 ? "" : "s"}</span>
+            </div>
+          </article>
+        `;
+      }).join("")
+    : `
+      <div class="empty-state">
+        <div class="empty-icon">E</div>
+        <h3>No events compiled</h3>
+        <p>Create an event date anchor, then link athletes and programmes from each athlete profile.</p>
+      </div>
+    `;
+
+  renderCoachEventPreview();
+}
+
+async function createCoachEvent(event) {
+  event.preventDefault();
+  showBusy("Compiling event…");
+
+  try {
+    const timestamp = nowIso();
+    const response = await api("POST", "/coach-workspace/events", {
+      coach_user_id: state.profile.coachUserId,
+      event_id: "",
+      event_name: elements.eventName.value.trim(),
+      activity_id: elements.eventActivity.value,
+      event_type: elements.eventType.value,
+      programme_start_date: elements.eventProgrammeStartDate.value,
+      event_date: elements.eventDate.value,
+      location: elements.eventLocation.value.trim(),
+      timezone: elements.eventTimezone.value.trim() || "Europe/London",
+      notes: elements.eventNotes.value.trim(),
+      created_at_iso8601: timestamp,
+      updated_at_iso8601: timestamp
+    });
+
+    await refreshCoachEvents({ quiet: true });
+    elements.eventForm.reset();
+    elements.eventActivity.value = response.event?.activity_id ?? "powerlifting";
+    elements.eventTimezone.value = "Europe/London";
+    syncCoachEventTypeOptions();
+    renderCoachEventPreview();
+    showNotice(`${coachEventPlan(response.event)?.event_name ?? "Event"} compiled.`);
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+function selectedAthleteProfileTemplate() {
+  return state.coachTemplates.find(
+    (template) => template.template_id === elements.athleteAssignmentTemplate.value
+  ) ?? null;
+}
+
+function selectedAthleteProfileEvent() {
+  return state.coachEvents.find(
+    (eventRecord) => eventRecord.event_id === elements.athleteAssignmentEvent.value
+  ) ?? null;
+}
+
+function renderAthleteProfileAssignmentRequirements() {
+  const athlete = state.coachAthletes.find(
+    (entry) => entry.userId === state.selectedCoachAthleteId
+  );
+  const template = selectedAthleteProfileTemplate();
+  const eventRecord = selectedAthleteProfileEvent();
+
+  if (!athlete || !template) {
+    elements.athleteAssignmentRequirements.className = "assignment-requirements neutral";
+    elements.athleteAssignmentRequirements.textContent = "Select an active programme.";
+    elements.athleteAssignmentButton.disabled = true;
+    return false;
+  }
+
+  if (template.activity_id !== athlete.activityId) {
+    elements.athleteAssignmentRequirements.className = "assignment-requirements warning";
+    elements.athleteAssignmentRequirements.textContent = "The programme activity does not match this athlete.";
+    elements.athleteAssignmentButton.disabled = true;
+    return false;
+  }
+
+  if (eventRecord && eventRecord.activity_id !== athlete.activityId) {
+    elements.athleteAssignmentRequirements.className = "assignment-requirements warning";
+    elements.athleteAssignmentRequirements.textContent = "The event activity does not match this athlete.";
+    elements.athleteAssignmentButton.disabled = true;
+    return false;
+  }
+
+  if (eventRecord) {
+    const compile = coachEventCompile(eventRecord) ?? {};
+    if (Number(template.week_count) !== Number(compile.required_week_count)) {
+      elements.athleteAssignmentRequirements.className = "assignment-requirements warning";
+      elements.athleteAssignmentRequirements.textContent = `Programme has ${Number(template.week_count ?? 0)} weeks; this event calendar requires ${Number(compile.required_week_count ?? 0)} weeks.`;
+      elements.athleteAssignmentButton.disabled = true;
+      return false;
+    }
+  }
+
+  const required = requiredOneRmExerciseIds(template);
+  const profile = profileForAthlete(athlete.userId);
+  const current = currentProfileBenchmarks(profile);
+  const missing = required.filter((exerciseId) => !current.has(exerciseId));
+
+  if (missing.length > 0) {
+    elements.athleteAssignmentRequirements.className = "assignment-requirements warning";
+    elements.athleteAssignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map(exerciseDisplayName).map(escapeHtml).join(", ")}</strong>.`;
+    elements.athleteAssignmentButton.disabled = true;
+    return false;
+  }
+
+  elements.athleteAssignmentRequirements.className = "assignment-requirements complete";
+  elements.athleteAssignmentRequirements.textContent = eventRecord
+    ? `Ready to assign ${template.template_name} and link ${coachEventPlan(eventRecord)?.event_name ?? "the event"}.`
+    : `Ready to assign ${template.template_name} without an event link.`;
+  elements.athleteAssignmentButton.disabled = false;
+  return true;
+}
+
+function renderAthleteProfileAssignment() {
+  const athlete = state.coachAthletes.find(
+    (entry) => entry.userId === state.selectedCoachAthleteId
+  );
+
+  if (!athlete) {
+    elements.athleteAssignmentPanel.hidden = true;
+    return;
+  }
+
+  elements.athleteAssignmentPanel.hidden = false;
+
+  const eventValue = elements.athleteAssignmentEvent.value;
+  const templateValue = elements.athleteAssignmentTemplate.value;
+  const events = state.coachEvents.filter(
+    (eventRecord) => eventRecord.event_status === "active" && eventRecord.activity_id === athlete.activityId
+  );
+  const templates = activeCoachTemplates(athlete.activityId);
+
+  elements.athleteAssignmentEvent.innerHTML = [
+    '<option value="">No event link</option>',
+    ...events.map((eventRecord) => {
+      const plan = coachEventPlan(eventRecord) ?? {};
+      return `<option value="${escapeHtml(eventRecord.event_id)}">${escapeHtml(plan.event_name ?? "Event")} · ${escapeHtml(formatDate(plan.event_date))}</option>`;
+    })
+  ].join("");
+
+  elements.athleteAssignmentTemplate.innerHTML = templates.length
+    ? templates.map((template) => `<option value="${escapeHtml(template.template_id)}">${escapeHtml(template.template_name)} · v${Number(template.template_version)}</option>`).join("")
+    : '<option value="">No active programmes for this activity</option>';
+
+  if (events.some((eventRecord) => eventRecord.event_id === eventValue)) {
+    elements.athleteAssignmentEvent.value = eventValue;
+  }
+  if (templates.some((template) => template.template_id === templateValue)) {
+    elements.athleteAssignmentTemplate.value = templateValue;
+  }
+
+  elements.athleteAssignmentTemplate.disabled = templates.length === 0;
+
+  const links = Array.isArray(state.athleteEventLinks[athlete.userId])
+    ? state.athleteEventLinks[athlete.userId]
+    : [];
+
+  elements.athleteEventLinks.innerHTML = links.length
+    ? links.map((link) => {
+        const eventRecord = link.event && typeof link.event === "object" ? link.event : {};
+        const plan = coachEventPlan(eventRecord) ?? {};
+        const template = state.coachTemplates.find((entry) => entry.template_id === link.template_id);
+        return `
+          <article class="record-card athlete-event-link-card">
+            <div>
+              <p class="eyebrow">Linked event</p>
+              <h3>${escapeHtml(plan.event_name ?? "Event")}</h3>
+              <p>${escapeHtml(formatDate(plan.event_date))}${plan.location ? ` · ${escapeHtml(plan.location)}` : ""}</p>
+            </div>
+            <div class="record-meta">
+              <strong>${escapeHtml(countdownLabel(plan.event_date))}</strong>
+              <span class="badge active">${escapeHtml(template?.template_name ?? titleCase(link.template_id ?? "programme"))}</span>
+            </div>
+          </article>
+        `;
+      }).join("")
+    : '<div class="empty-state compact-empty"><p>No event-linked programme assignments recorded.</p></div>';
+
+  renderAthleteProfileAssignmentRequirements();
+}
+
+async function recordAthleteProfileAssignment(event) {
+  event.preventDefault();
+  const athlete = state.coachAthletes.find(
+    (entry) => entry.userId === state.selectedCoachAthleteId
+  );
+  const template = selectedAthleteProfileTemplate();
+  const eventRecord = selectedAthleteProfileEvent();
+
+  if (!athlete || !template || !renderAthleteProfileAssignmentRequirements()) {
+    throw new Error("Complete the athlete assignment requirements first.");
+  }
+
+  showBusy("Assigning programme…");
+
+  try {
+    const response = await api("POST", "/coach-workspace/athlete-assignment", {
+      request_id: createId("assignment_request"),
+      requested_at_iso8601: nowIso(),
+      coach_user_id: state.profile.coachUserId,
+      athlete_user_id: athlete.userId,
+      template_id: template.template_id,
+      activity_id: athlete.activityId,
+      event_id: eventRecord?.event_id ?? ""
+    });
+
+    await Promise.all([
+      refreshCoachAssignments({ quiet: true }),
+      refreshCoachEvents({ quiet: true }),
+      refreshAthleteEventLinks(athlete.userId, { quiet: true })
+    ]);
+
+    elements.athleteAssignmentResult.hidden = false;
+    elements.athleteAssignmentResult.textContent = response.event_link
+      ? `${template.template_name} assigned and linked to ${coachEventPlan(eventRecord)?.event_name ?? "the event"}.`
+      : `${template.template_name} assigned without an event link.`;
+
+    renderCoachWorkspace();
+    renderAthleteProfileAssignment();
+    showNotice("Athlete assignment recorded.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+
 function renderAccount() {
   const id = currentAccountId();
 
@@ -3473,6 +3892,7 @@ async function enterApplication() {
       await Promise.all([
         loadTemplateExercises(),
         refreshTemplates({ quiet: true }),
+        refreshCoachEvents({ quiet: true }),
         refreshCoachAthletes({ quiet: true }),
         refreshCoachAssignments({ quiet: true })
       ]);
@@ -3484,6 +3904,7 @@ async function enterApplication() {
     }
 
     renderCoachWorkspace();
+    renderCoachEvents();
     renderTemplateLibrary();
   }
 
@@ -3544,6 +3965,27 @@ elements.newTemplateButton.addEventListener("click", () => {
   loadTemplateExercises()
     .then(() => openTemplateBuilder(newTemplateDraft()))
     .catch(handleError);
+});
+
+elements.refreshEventsButton.addEventListener("click", () => {
+  refreshCoachEvents().catch(handleError);
+});
+
+elements.eventActivity.addEventListener("change", () => {
+  syncCoachEventTypeOptions();
+  renderCoachEventPreview();
+});
+
+for (const control of [
+  elements.eventProgrammeStartDate,
+  elements.eventDate
+]) {
+  control.addEventListener("input", renderCoachEventPreview);
+  control.addEventListener("change", renderCoachEventPreview);
+}
+
+elements.eventForm.addEventListener("submit", (event) => {
+  createCoachEvent(event).catch(handleError);
 });
 
 elements.refreshTemplatesButton.addEventListener("click", () => {
@@ -3713,6 +4155,12 @@ elements.athleteBenchmarkList.addEventListener("click", (event) => {
   const button = event.target.closest(".remove-athlete-benchmark");
   if (button) removeAthleteBenchmark(Number(button.dataset.benchmarkIndex));
 });
+
+elements.athleteAssignmentEvent.addEventListener("change", renderAthleteProfileAssignmentRequirements);
+  elements.athleteAssignmentTemplate.addEventListener("change", renderAthleteProfileAssignmentRequirements);
+  elements.athleteAssignmentForm.addEventListener("submit", (event) => {
+    recordAthleteProfileAssignment(event).catch(handleError);
+  });
 
 elements.assignmentAthlete.addEventListener("change", () => {
   renderAssignmentTemplateOptions();

@@ -363,6 +363,10 @@
     {
       "kind": "command",
       "value": "node test/product_event_programme_compiler_surface.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/product_event_workspace_surface.test.mjs"
     }
   ]
 }
