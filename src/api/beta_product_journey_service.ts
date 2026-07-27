@@ -22,6 +22,14 @@ import {
   loadLatestBeta17StoredAssignment,
   loadLatestBetaProductRecord
 } from "./beta_product_record_store.js";
+import {
+  isCoachAuthoredTemplateId,
+  loadActiveCoachTemplateById,
+  loadExecutableCoachTemplateById
+} from "./beta18_programme_template_service.js";
+import {
+  loadEventBindingForAssignment
+} from "./beta19_coach_event_service.js";
 
 type JsonRecord =
   Record<string, unknown>;
@@ -78,6 +86,22 @@ function isoString(
 
   return text || null;
 }
+
+const legacyTemplateActivity =
+  new Map<string, string>([
+    [
+      "beta_template_powerlifting_001",
+      "powerlifting"
+    ],
+    [
+      "beta_template_general_strength_001",
+      "general_strength"
+    ],
+    [
+      "beta_template_rugby_union_001",
+      "rugby_union"
+    ]
+  ]);
 
 function accessDenied(
   reason: string
@@ -162,6 +186,11 @@ export async function loadStoredBetaCompileAdmission(
     subject_user_id: string;
     coach_user_id: string;
     assignment_id: string;
+    template_id: string;
+    event_id: string | null;
+    event_plan: Readonly<JsonRecord> | null;
+    event_compile_summary: Readonly<JsonRecord> | null;
+    event_record_sha256: string | null;
   }>
 > {
   const athleteUserId =
@@ -254,6 +283,61 @@ export async function loadStoredBetaCompileAdmission(
     activityId
   );
 
+  const templateId =
+    cleanString(
+      assignment.template_id
+    );
+
+  if (!templateId) {
+    throw new BetaProductJourneyError(
+      "stored_template_id_missing"
+    );
+  }
+
+  const eventBinding =
+    await loadEventBindingForAssignment(
+      String(assignment.assignment_id),
+      coachUserId,
+      athleteUserId
+    );
+
+  if (
+    isCoachAuthoredTemplateId(
+      templateId
+    )
+  ) {
+    const template =
+      await loadExecutableCoachTemplateById(
+        coachUserId,
+        templateId
+      );
+
+    if (!template) {
+      throw new BetaProductJourneyError(
+        "assigned_template_not_executable"
+      );
+    }
+
+    if (
+      cleanString(
+        template.activity_id
+      ) !== activityId
+    ) {
+      throw new BetaProductJourneyError(
+        "assigned_template_activity_mismatch"
+      );
+    }
+  }
+  else if (
+    legacyTemplateActivity.get(
+      templateId
+    ) !== activityId
+  ) {
+    throw new BetaProductJourneyError(
+      "stored_template_invalid"
+    );
+  }
+
   const admission =
     assertBeta16CompileAdmission(
       compileContext,
@@ -269,7 +353,17 @@ export async function loadStoredBetaCompileAdmission(
     assignment_id:
       String(
         assignment.assignment_id
-      )
+      ),
+    template_id:
+      templateId,
+    event_id:
+      eventBinding?.event_id ?? null,
+    event_plan:
+      eventBinding?.event_plan ?? null,
+    event_compile_summary:
+      eventBinding?.event_compile_summary ?? null,
+    event_record_sha256:
+      eventBinding?.event_record_sha256 ?? null
   });
 }
 
@@ -317,6 +411,53 @@ export async function createStoredBeta17AssignmentResult(
   if (!context) {
     return accessDenied(
       "stored_relationship_access_denied"
+    );
+  }
+
+  const templateId =
+    cleanString(
+      input.template_id
+    );
+
+  const activityId =
+    cleanString(
+      input.activity_id
+    );
+
+  if (
+    isCoachAuthoredTemplateId(
+      templateId
+    )
+  ) {
+    const template =
+      await loadActiveCoachTemplateById(
+        coachUserId,
+        templateId
+      );
+
+    if (!template) {
+      return accessDenied(
+        "stored_template_not_active"
+      );
+    }
+
+    if (
+      cleanString(
+        template.activity_id
+      ) !== activityId
+    ) {
+      return accessDenied(
+        "stored_template_activity_mismatch"
+      );
+    }
+  }
+  else if (
+    legacyTemplateActivity.get(
+      templateId
+    ) !== activityId
+  ) {
+    return accessDenied(
+      "stored_template_invalid"
     );
   }
 

@@ -1,4 +1,3 @@
-
 // DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
 // free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
 // canonical registries, and validated contracts only.
@@ -39,7 +38,17 @@ export type PlannedItemRole = "primary" | "accessory";
 export type PlannedItemIntensity =
   | { type: "percent_1rm"; value: number }
   | { type: "rpe"; value: number }
-  | { type: "load"; value: number };
+  | {
+      type: "load";
+      value: number;
+      unit?: "kg" | "lb";
+    }
+  | { type: "bodyweight" };
+
+export type PlannedItemRepRange = {
+  minimum: number;
+  maximum: number;
+};
 
 export type PlannedItem = {
   block_id: string;
@@ -51,6 +60,7 @@ export type PlannedItem = {
   role: PlannedItemRole;
   sets: number;
   reps: number;
+  rep_range?: PlannedItemRepRange;
   intensity: PlannedItemIntensity;
   rest_seconds: number;
 };

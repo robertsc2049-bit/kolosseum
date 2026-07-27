@@ -15,6 +15,7 @@
           },
           "item_id": "B0_I0",
           "reps": 5,
+          "resolved_load": null,
           "rest_seconds": 180,
           "sets": 4,
           "source": "program"
@@ -28,6 +29,7 @@
           },
           "item_id": "B0_I1",
           "reps": 5,
+          "resolved_load": null,
           "rest_seconds": 180,
           "sets": 4,
           "source": "program"
@@ -41,6 +43,7 @@
           },
           "item_id": "B0_I2",
           "reps": 5,
+          "resolved_load": null,
           "rest_seconds": 180,
           "sets": 4,
           "source": "program"
@@ -54,6 +57,7 @@
           },
           "item_id": "B0_I3",
           "reps": 5,
+          "resolved_load": null,
           "rest_seconds": 180,
           "sets": 4,
           "source": "program"
@@ -67,6 +71,7 @@
           },
           "item_id": "B0_I4",
           "reps": 10,
+          "resolved_load": null,
           "rest_seconds": 90,
           "sets": 3,
           "source": "program"
@@ -80,6 +85,7 @@
           },
           "item_id": "B0_I5",
           "reps": 10,
+          "resolved_load": null,
           "rest_seconds": 90,
           "sets": 3,
           "source": "program"

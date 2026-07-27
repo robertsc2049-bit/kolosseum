@@ -60,17 +60,17 @@
     ]
   },
   "sha256": {
-    "schema.sql": "c6cc0014c650998998cbd27ad8e20859a5403e20f0e8017a4628de1a86ed8613",
-    "src/api/beta_product_record_store.ts": "d7e2f4af70acb7efd047ead4c9fe52a0b82d5e10bd5760efae9b328a48cdbeeb",
-    "src/api/beta_product_journey_service.ts": "771bb3ab99e5a901ed7266a3b418e9d9a5d97b6ab87c791d67208ed335d92e32",
+    "schema.sql": "b6498ddee4dca3a43e12e5fb81dcc55a4ab4823caab780a986713ec769c5a6dd",
+    "src/api/beta_product_record_store.ts": "6a5e52923323ab9d514f634c4b9815530436abf5a99f862f39dbb89f8be1ec05",
+    "src/api/beta_product_journey_service.ts": "ea2a7e05c7468212705f5bb0c2972237fd8f030d46c3ce21d381a9b523e0565e",
     "src/api/block_compile_write_service.ts": "45db532638eb42b45da0cd93669422d3985ec35556afae05a592c4196f24f642",
-    "src/api/blocks.handlers.ts": "5ff121610a0066a91c8325071495e31c35e9768c65cdf1454071c5971ed3d508",
-    "src/api/sessions.handlers.ts": "f36933f5ef9acb35d489b041287666b559602a95fcae27779ab979fc9a642c30",
+    "src/api/blocks.handlers.ts": "ef77dc0b648016ea35f802303ae3758c08aa16094cfaec57dcf7508c280a4b12",
+    "src/api/sessions.handlers.ts": "cd177c7d6033abc9956a4b6c7173cb14985b4dd91182d53d215d054ec5cdd872",
     "src/api/sessions.routes.ts": "56a21096bea50e1e255639facd3707a24b1fcbd123b10f6f0e713873ec2f47b7",
     "src/api/session_state_query_service.ts": "d2ab6d48933ce7d9535cd970956909f47351ff153b6ee975147ad4f1dfac92d8",
     "test/beta_e2e_01_product_record_store.integration.test.mjs": "2a7d9e800b6f28a995d93049547c9103495b32e1b6bcea7ae6c047f4e943405a",
     "test/beta_e2e_01_stored_journey_composition.integration.test.mjs": "e4f6f8710164200663e42e3a68065fb1c53e6fda3a0b6728ce73a84f5ba1d89c",
     "test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs": "e6ccb7d4296afc1a5a3b832a4705e7317c5b8ed432b0b3825aa1aaf107ee3693",
-    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "84ab8a1fa7388d41fdb6d17e416ce4c7e269701cc5d4a290818707a93df20df2"
+    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "34bf9e73adf8c475ef8bad1e7f891467d5e93b6ae93cceb98f877a7fc3d8a97d"
   }
 }

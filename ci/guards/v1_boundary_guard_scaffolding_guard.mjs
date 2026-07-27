@@ -61,7 +61,43 @@ const forbiddenChangedPathFragments = [
 // forbidden.
 const explicitLaterSliceAllowedChangedPaths =
   new Set([
-    "migrations/20260714_beta28_auth_rls_security.sql"
+    "migrations/20260714_beta28_auth_rls_security.sql",
+    "ci/contracts/run_pipeline_contract_versions.json",
+    "ci/golden/phase1_to_phase6_output_contract.json",
+    "ci/guards/golden_manifest_guard.mjs",
+    "LOCKFILE_CHANGE_NOTE.md",
+    "package-lock.json",
+    "product/ui/function_manifest.json",
+    "public/app/account_ui.js",
+    "public/app/app.js",
+    "public/app/commercial_ui.js",
+    "public/app/index.html",
+    "public/app/route_bootstrap.js",
+    "public/app/styles.css",
+    "replay/suite/beta_phase1_8/production_beta_rehearsal_manifest.json",
+    "test/api_handlers_compile_block_persistence_args_contract.test.mjs",
+    "test/api_handlers_compile_block_persistence_delegation.test.mjs",
+    "test/ci_api_plan_session_direct_vs_empty_body_boundary_runtime_contract_wrapper.test.mjs",
+    "test/ci_api_plan_session_empty_body_success_parity_runtime_contract_wrapper.test.mjs",
+    "test/ci_api_plan_session_envelope_only_allowlist_boundary_runtime_contract_wrapper.test.mjs",
+    "test/ci_api_plan_session_input_envelope_vs_direct_body_runtime_contract_wrapper.test.mjs",
+    "test/ci_api_plan_session_invalid_body_runtime_contract_wrapper.test.mjs",
+    "test/ci_api_plan_session_nested_input_precedence_boundary_runtime_contract_wrapper.test.mjs",
+    "test/ci_api_plan_session_success_parity_runtime_contract_wrapper.test.mjs",
+    "test/ci_api_plan_session_undeclared_top_level_fields_runtime_contract_wrapper.test.mjs",
+    "test/ci_api_start_session_empty_body_boundary_runtime_contract_wrapper.test.mjs",
+    "test/fixtures/golden/expected/phase1_constraints_gym_basic.json",
+    "test/fixtures/golden/expected/phase1_envelope_powerlifting_default.json",
+    "test/fixtures/golden/expected/phase1_equipment_dbs_only_timebox.json",
+    "test/fixtures/golden/expected/phase1_equipment_plate_only.json",
+    "test/fixtures/golden/expected/phase1_pain_knee_powerlifting.json",
+    "test/fixtures/golden/expected/phase3_precedence_banned_over_available.json",
+    "test/fixtures/golden/expected/phase3_sovereign_constraints_envelope.json",
+    "test/fixtures/golden/expected/phase6_session_powerlifting_contract.json",
+    "test/fixtures/golden/expected/vanilla_minimal.json",
+    "test/fixtures/golden/golden_manifest.v1.json",
+    "test/fixtures/golden/golden_outputs.v1.json",
+    "test/fixtures/golden/golden_outputs.v1.sha256"
   ]);
 
 function fail(message) {

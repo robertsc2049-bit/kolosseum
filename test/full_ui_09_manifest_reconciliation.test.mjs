@@ -1,0 +1,983 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  ".."
+);
+
+const manifest = JSON.parse(
+  fs.readFileSync(
+    path.join(root, "product", "ui", "function_manifest.json"),
+    "utf8"
+  )
+);
+
+const targets = [
+  {
+    "area": "assignments",
+    "id": "assignment_replace",
+    "source": [
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "createId(\"assignment_replace\")"
+        ]
+      },
+      {
+        "path": "src/api/product_assignment.routes.ts",
+        "all": [
+          "assignment_replaced"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_06_assignment_management.test.mjs",
+        "all": [
+          "FULL-UI-06 creates replace and cancel routes",
+          "FULL-UI-06 appends factual replacement and cancellation records"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "assignments",
+    "id": "assignment_cancel",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "athleteAssignmentCancelButton",
+          "assignmentCancelButton"
+        ]
+      },
+      {
+        "path": "src/api/product_assignment.routes.ts",
+        "all": [
+          "assignment_cancelled"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_06_assignment_management.test.mjs",
+        "all": [
+          "FULL-UI-06 creates replace and cancel routes",
+          "FULL-UI-06 preserves existing sessions and only blocks future creation"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "assignments",
+    "id": "assignment_history",
+    "source": [
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "function assignmentHistoryCards(",
+          "assignment_history"
+        ]
+      },
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "athleteAssignmentHistory",
+          "assignmentHistoryList"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_06_assignment_management.test.mjs",
+        "all": [
+          "FULL-UI-06 exposes current assignment and immutable history controls"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "athlete_directory",
+    "id": "athlete_search_filter",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "athleteDirectorySearch",
+          "athleteRelationshipFilter"
+        ]
+      },
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "athleteDirectorySearch",
+          "athleteRelationshipFilter"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_04a_coach_athlete_directory.test.mjs",
+        "all": [
+          "FULL-UI-04A provides search filters counts and audit facts"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "athlete_directory",
+    "id": "athlete_assignment_history",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "athleteDetailAssignmentHistory"
+        ]
+      },
+      {
+        "path": "src/api/beta19_coach_workspace_service.ts",
+        "all": [
+          "assignment_history"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_04b_coach_athlete_detail.test.mjs",
+        "all": [
+          "FULL-UI-04B returns factual programme profile event session and note history"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "athlete_directory",
+    "id": "athlete_bodyweight_history",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "athleteDetailBodyweightHistory"
+        ]
+      },
+      {
+        "path": "src/api/beta19_coach_workspace_service.ts",
+        "all": [
+          "bodyweight_history"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_04b_coach_athlete_detail.test.mjs",
+        "all": [
+          "FULL-UI-04B returns factual programme profile event session and note history"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "athlete_directory",
+    "id": "athlete_notes_list",
+    "source": [
+      {
+        "path": "schema.sql",
+        "all": [
+          "product_coach_notes"
+        ]
+      },
+      {
+        "path": "src/api/beta19_coach_workspace_service.ts",
+        "any": [
+          "note_history",
+          "notes_history",
+          "coach_notes"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_04b_coach_athlete_detail.test.mjs",
+        "all": [
+          "FULL-UI-04B returns factual programme profile event session and note history",
+          "FULL-UI-04B persists non-binding notes separately from artefacts"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_commercial",
+    "id": "subscription_state",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "commercialSubscriptionState"
+        ]
+      },
+      {
+        "path": "src/api/product_commercial_service.ts",
+        "all": [
+          "function subscriptionState("
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "all": [
+          "FULL-UI-08 displays factual subscription and seat state"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_commercial",
+    "id": "seat_allowance",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "commercialSeatAllowance",
+          "commercialSeatUsage"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "all": [
+          "FULL-UI-08 displays factual subscription and seat state"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_commercial",
+    "id": "checkout_entry",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "commercialCheckoutButton"
+        ]
+      },
+      {
+        "path": "src/api/product_commercial_service.ts",
+        "all": [
+          "commercial_checkout_requested"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "all": [
+          "FULL-UI-08 checkout remains controlled-launch and provider-inert"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_commercial",
+    "id": "payment_return",
+    "source": [
+      {
+        "path": "public/app/account_ui.js",
+        "all": [
+          "recordCommercialPaymentReturn",
+          "/account/commercial/payment-return"
+        ]
+      },
+      {
+        "path": "schema.sql",
+        "all": [
+          "commercial_payment_return_recorded"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "all": [
+          "FULL-UI-08 mounts authenticated commercial account routes",
+          "FULL-UI-08 persists immutable commercial records"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_commercial",
+    "id": "billing_portal",
+    "source": [
+      {
+        "path": "public/app/account_ui.js",
+        "all": [
+          "requestCommercialBillingPortal"
+        ]
+      },
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "commercialPortalButton"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "all": [
+          "FULL-UI-08 exposes factual entitlement failure and portal gating"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_commercial",
+    "id": "entitlement_error",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "commercialEntitlementError"
+        ]
+      },
+      {
+        "path": "public/app/commercial_ui.js",
+        "all": [
+          "entitlement_error"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "all": [
+          "FULL-UI-08 exposes factual entitlement failure and portal gating"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_overview",
+    "id": "overview_assignment_queue",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "any": [
+          "coachOverviewAssignments",
+          "coachAssignmentCount",
+          "Assignments requiring action",
+          "Assignment queue"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_03_coach_dashboard.test.mjs",
+        "all": [
+          "FULL-UI-03 exposes the complete factual coach dashboard",
+          "FULL-UI-03 retains every canonical coach-overview function",
+          "overview_assignment_queue"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_overview",
+    "id": "overview_open_sessions",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "coachOpenSessionCount",
+          "coachOverviewOpenSessions"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_03_coach_dashboard.test.mjs",
+        "all": [
+          "FULL-UI-03 exposes the complete factual coach dashboard",
+          "overview_open_sessions"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_overview",
+    "id": "overview_completed_since_review",
+    "source": [
+      {
+        "path": "public/app/index.html",
+        "any": [
+          "Completed since review",
+          "Awaiting review",
+          "coachAwaitingReviewCount"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_03_coach_dashboard.test.mjs",
+        "all": [
+          "FULL-UI-03 exposes the complete factual coach dashboard",
+          "overview_completed_since_review"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_review",
+    "id": "review_open_sessions",
+    "source": [
+      {
+        "path": "public/app/app.js",
+        "any": [
+          "open read-only sessions",
+          "Open sessions cannot be marked reviewed",
+          "coachOverviewOpenSessions"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_07_review_queue.test.mjs",
+        "all": [
+          "FULL-UI-07 exposes searchable review queue controls and factual detail",
+          "Open sessions cannot be marked reviewed"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_review",
+    "id": "review_note_list",
+    "source": [
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "function reviewNoteList(",
+          "review-note-list"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_07_review_queue.test.mjs",
+        "all": [
+          "FULL-UI-07 displays provenance live status and note visibility",
+          "reviewNoteList"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "coach_review",
+    "id": "review_state",
+    "source": [
+      {
+        "path": "schema.sql",
+        "all": [
+          "product_session_reviews"
+        ]
+      },
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "__review_state__",
+          "unreviewed"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_07_review_queue.test.mjs",
+        "all": [
+          "FULL-UI-07 stores immutable reviewed and unreviewed product state",
+          "FULL-UI-07 mounts factual read and review-state routes"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "identity_account",
+    "id": "account_sign_in",
+    "source": [
+      {
+        "path": "public/app/account_ui.js",
+        "all": [
+          "signInAccount",
+          "/account/sign-in"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_02_account_ui.test.mjs",
+        "all": [
+          "FULL-UI-02 exposes every account function through normal UI controls"
+        ]
+      },
+      {
+        "path": "test/full_ui_02_account_routes.test.mjs",
+        "all": [
+          "FULL-UI-02 exposes the complete account HTTP surface"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "identity_account",
+    "id": "authenticated_session",
+    "source": [
+      {
+        "path": "src/api/product_account.routes.ts",
+        "all": [
+          "PRODUCT_SESSION_COOKIE",
+          "setSessionCookie"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_02_account_bootstrap.test.mjs",
+        "all": [
+          "FULL-UI-02 returns product bootstrap records with every session"
+        ]
+      },
+      {
+        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "all": [
+          "FULL-UI-08 mounts authenticated commercial account routes"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "identity_account",
+    "id": "email_verification",
+    "source": [
+      {
+        "path": "public/app/account_ui.js",
+        "all": [
+          "requestEmailVerification",
+          "completeEmailVerification",
+          "/account/email-verification/request"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_02_account_routes.test.mjs",
+        "all": [
+          "FULL-UI-02 exposes the complete account HTTP surface"
+        ]
+      },
+      {
+        "path": "test/full_ui_02_account_ui.test.mjs",
+        "all": [
+          "FULL-UI-02 exposes every account function through normal UI controls"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "identity_account",
+    "id": "password_reset",
+    "source": [
+      {
+        "path": "public/app/account_ui.js",
+        "all": [
+          "requestPasswordReset",
+          "completePasswordReset"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_02_account_routes.test.mjs",
+        "all": [
+          "FULL-UI-02 exposes the complete account HTTP surface"
+        ]
+      },
+      {
+        "path": "test/full_ui_02_account_ui.test.mjs",
+        "all": [
+          "FULL-UI-02 exposes every account function through normal UI controls"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "identity_account",
+    "id": "account_state_message",
+    "source": [
+      {
+        "path": "src/api/product_account_service.ts",
+        "any": [
+          "account_state",
+          "closure_requested",
+          "suspended",
+          "closed",
+          "deleted"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_02_account_ui.test.mjs",
+        "all": [
+          "FULL-UI-02 exposes every account function through normal UI controls"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "identity_account",
+    "id": "consent_history",
+    "source": [
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "accountConsentHistory",
+          "consent_history"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_02_account_ui.test.mjs",
+        "all": [
+          "FULL-UI-02 exposes every account function through normal UI controls"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "identity_account",
+    "id": "profile_update",
+    "source": [
+      {
+        "path": "src/api/product_account_service.ts",
+        "any": [
+          "updateProductAccountProfile",
+          "profile_updated",
+          "account_profile_update_failed"
+        ]
+      },
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "Profile updated."
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "all": [
+          "FULL-UI-08 preserves existing account controls"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "identity_account",
+    "id": "password_change",
+    "source": [
+      {
+        "path": "src/api/product_account_service.ts",
+        "any": [
+          "changeProductAccountPassword",
+          "password_changed",
+          "account_password_change_failed"
+        ]
+      },
+      {
+        "path": "public/app/account_ui.js",
+        "any": [
+          "changePassword",
+          "updatePassword",
+          "/account/password"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "all": [
+          "FULL-UI-08 preserves existing account controls"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "identity_account",
+    "id": "account_close_request",
+    "source": [
+      {
+        "path": "public/app/account_ui.js",
+        "all": [
+          "requestAccountClosure"
+        ]
+      },
+      {
+        "path": "schema.sql",
+        "all": [
+          "product_account_closure_requests"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_02_account_routes.test.mjs",
+        "all": [
+          "FULL-UI-02 retains persistent account and session law"
+        ]
+      },
+      {
+        "path": "test/full_ui_02_account_ui.test.mjs",
+        "all": [
+          "FULL-UI-02 exposes every account function through normal UI controls"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "programme_builder",
+    "id": "builder_unsaved_warning",
+    "source": [
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "This programme has unsaved changes.",
+          "globalThis.addEventListener(\"beforeunload\""
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_05b_programme_builder.test.mjs",
+        "all": [
+          "FULL-UI-05B warns before discarding unsaved changes"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "programme_builder",
+    "id": "builder_validation_links",
+    "source": [
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "template-validation-link"
+        ]
+      },
+      {
+        "path": "public/app/styles.css",
+        "all": [
+          ".template-validation-link:focus-visible"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_05b_programme_builder.test.mjs",
+        "all": [
+          "validation links and keyboard support"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "programme_library",
+    "id": "programme_search_filter",
+    "source": [
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "function programmeSearchText(",
+          "function filteredProgrammeTemplates("
+        ]
+      },
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "Search programmes"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_05a_programme_library.test.mjs",
+        "all": [
+          "FULL-UI-05A exposes programme search filter sort and factual state counts"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "programme_library",
+    "id": "programme_version_metadata",
+    "source": [
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "function programmeVersionFamilyHtml("
+        ]
+      },
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "templateDetailVersionFamily",
+          "Version metadata"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_05a_programme_library.test.mjs",
+        "all": [
+          "FULL-UI-05A derives factual version families and superseded states"
+        ]
+      }
+    ]
+  },
+  {
+    "area": "programme_library",
+    "id": "programme_assignment_usage",
+    "source": [
+      {
+        "path": "public/app/app.js",
+        "all": [
+          "function programmeAssignmentUsage("
+        ]
+      },
+      {
+        "path": "public/app/index.html",
+        "all": [
+          "Assignment usage"
+        ]
+      }
+    ],
+    "prior": [
+      {
+        "path": "test/full_ui_05a_programme_library.test.mjs",
+        "all": [
+          "FULL-UI-05A displays assignment usage before archive"
+        ]
+      }
+    ]
+  }
+];
+
+function read(relativePath) {
+  return fs
+    .readFileSync(path.join(root, relativePath), "utf8")
+    .replace(/\r\n?/gu, "\n");
+}
+
+function verifyRule(rule, functionId) {
+  const source = read(rule.path);
+
+  for (const needle of rule.all ?? []) {
+    assert.ok(
+      source.includes(needle),
+      functionId + ":" + rule.path + ":" + needle
+    );
+  }
+
+  if (Array.isArray(rule.any) && rule.any.length > 0) {
+    assert.equal(
+      rule.any.some((needle) => source.includes(needle)),
+      true,
+      functionId + ":" + rule.path + ":any"
+    );
+  }
+}
+
+test(
+  "FULL-UI-09 reconciles completed FULL-UI-02 to FULL-UI-08 functions",
+  () => {
+    const byId = new Map(
+      manifest.product_areas
+        .flatMap((area) =>
+          area.functions.map((entry) => ({
+            area_id: area.area_id,
+            entry
+          }))
+        )
+        .map((item) => [
+          item.entry.function_id,
+          item
+        ])
+    );
+
+    assert.equal(targets.length, 33);
+
+    for (const target of targets) {
+      const item = byId.get(target.id);
+
+      assert.ok(item, target.id);
+      assert.equal(item.area_id, target.area, target.id);
+      assert.equal(item.entry.state, "implemented", target.id);
+      assert.equal(
+        item.entry.persistence,
+        "server_authoritative_records",
+        target.id
+      );
+      assert.equal(
+        item.entry.direct_test,
+        "test/full_ui_09_manifest_reconciliation.test.mjs",
+        target.id
+      );
+
+      for (const rule of target.source) {
+        verifyRule(rule, target.id);
+      }
+
+      for (const rule of target.prior) {
+        verifyRule(rule, target.id);
+      }
+    }
+  }
+);
+
+test(
+  "FULL-UI-09 leaves unproved relationship lifecycle functions unresolved",
+  () => {
+    const unresolved = new Set([
+      "relationship_invite_create",
+      "relationship_invite_receive",
+      "relationship_decline",
+      "relationship_cancel",
+      "relationship_revoke",
+      "relationship_expiry",
+      "athlete_relationship_revoke"
+    ]);
+
+    const byId = new Map(
+      manifest.product_areas
+        .flatMap((area) => area.functions)
+        .map((entry) => [entry.function_id, entry])
+    );
+
+    for (const functionId of unresolved) {
+      const entry = byId.get(functionId);
+      assert.ok(entry, functionId);
+      assert.equal(entry.state, "missing", functionId);
+      assert.equal(
+        entry.persistence,
+        "not_implemented",
+        functionId
+      );
+    }
+  }
+);

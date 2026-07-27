@@ -1,0 +1,743 @@
+# Kolosseum Function-Complete UI Gap Report
+
+Source: FULL-UI-00 / GitHub issue #798
+
+This report is generated deterministically from `product/ui/function_manifest.json`.
+Counts are project-state facts. They are not product, coach, athlete, readiness or quality scores.
+
+## Overall function state
+
+- implemented: 127
+- partial: 50
+- missing: 60
+- prohibited: 0
+
+## Product areas
+
+### Identity and account access
+
+Slice: FULL-UI-02
+
+Area state: partial
+
+Implemented: 12 · Partial: 1 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `account_create` — Create athlete or coach account
+- `account_sign_in` — Sign in to an existing account
+- `authenticated_session` — Persist authenticated browser session
+- `email_verification` — Display and complete email verification
+- `password_reset` — Forgotten-password and reset flow
+- `account_state_message` — Display active, suspended, closed and deleted account states
+- `role_redirect` — Redirect to the lawful actor home route
+- `consent_history` — Display consent history
+- `profile_update` — Update display name and email
+- `password_change` — Change password
+- `account_close_request` — Request account closure
+- `sign_out` — Sign out and clear browser authentication state
+
+#### partial
+
+- `terms_version` — Display current terms and consent versions
+
+### Athlete onboarding and declarations
+
+Slice: FULL-UI-03
+
+Area state: partial
+
+Implemented: 0 · Partial: 5 · Missing: 4 · Prohibited: 0
+
+#### partial
+
+- `activity_declaration` — Declare activity
+- `execution_scope_declaration` — Declare execution scope
+- `beta_acknowledgement` — Accept product acknowledgement
+- `jurisdiction_acknowledgement` — Accept jurisdiction acknowledgement
+- `onboarding_completion` — Persist onboarding completion state
+
+#### missing
+
+- `onboarding_staged` — Complete staged athlete onboarding
+- `accessibility_preferences` — Set accessibility and instruction-density preferences
+- `onboarding_review` — Review and confirm onboarding declarations
+- `declaration_history` — Display current and historical declarations
+
+### Coach onboarding and commercial state
+
+Slice: FULL-UI-04
+
+Area state: partial
+
+Implemented: 6 · Partial: 2 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `subscription_state` — Display current subscription state
+- `seat_allowance` — Display seat allowance and usage
+- `checkout_entry` — Open checkout
+- `payment_return` — Handle payment success and cancellation
+- `billing_portal` — Open billing portal
+- `entitlement_error` — Display factual entitlement failure
+
+#### partial
+
+- `coach_profile_setup` — Create coach profile
+- `coach_terms` — Accept coach terms
+
+### Coach–athlete relationships
+
+Slice: FULL-UI-05
+
+Area state: partial
+
+Implemented: 0 · Partial: 4 · Missing: 6 · Prohibited: 0
+
+#### partial
+
+- `relationship_accept` — Accept relationship
+- `relationship_lists` — Display pending and accepted relationships
+- `relationship_audit` — Display relationship detail and audit facts
+- `relationship_history_preserved` — Preserve historical records after relationship closure
+
+#### missing
+
+- `relationship_invite_create` — Create coach invitation
+- `relationship_invite_receive` — Receive athlete invitation
+- `relationship_decline` — Decline invitation
+- `relationship_cancel` — Cancel pending invitation
+- `relationship_revoke` — Revoke accepted relationship
+- `relationship_expiry` — Display expired relationship
+
+### Coach overview
+
+Slice: FULL-UI-06
+
+Area state: implemented
+
+Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `overview_factual_counts` — Display factual coach counts
+- `overview_relationships` — Display connected and pending athletes
+- `overview_assignment_queue` — Display assignments requiring action
+- `overview_upcoming_events` — Display upcoming events
+- `overview_open_sessions` — Display open sessions
+- `overview_completed_since_review` — Display sessions completed since review
+- `overview_direct_links` — Link directly to athlete, event, programme, assignment and review records
+
+### Athlete directory and athlete profile
+
+Slice: FULL-UI-07
+
+Area state: partial
+
+Implemented: 11 · Partial: 0 · Missing: 2 · Prohibited: 0
+
+#### implemented
+
+- `athlete_search_filter` — Search and filter connected athletes
+- `athlete_relationship_state` — Display relationship state
+- `athlete_identity_activity` — Display athlete identity and activity
+- `athlete_current_programme` — Display current programme assignment
+- `athlete_current_event` — Display current event link
+- `athlete_assignment_history` — Display assignment history
+- `athlete_event_history` — Display event-link history
+- `athlete_strength_history` — Display strength-reference history
+- `athlete_bodyweight_history` — Display bodyweight history
+- `athlete_notes_list` — Display coach notes and visibility
+- `athlete_session_history` — Display athlete session history
+
+#### missing
+
+- `athlete_relationship_revoke` — Revoke relationship from profile
+- `athlete_archive_inactive` — Archive inactive relationship without deleting history
+
+### Strength-reference management
+
+Slice: FULL-UI-08
+
+Area state: partial
+
+Implemented: 7 · Partial: 4 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `strength_tested_1rm` — Add tested 1RM
+- `strength_estimated_1rm` — Add estimated 1RM
+- `strength_training_max` — Add training max
+- `strength_effective_date` — Validate effective date
+- `strength_source_note` — Record source note
+- `strength_effective_selection` — Select current effective record
+- `strength_missing_requirements` — Display missing references for selected programme
+
+#### partial
+
+- `strength_unit_conversion` — Display converted reference values
+- `strength_superseded_history` — Display superseded history
+- `strength_immutable_add` — Add a new immutable effective record
+- `strength_resolved_source` — Display athlete-facing resolved-load source
+
+### Standalone events
+
+Slice: FULL-UI-09
+
+Area state: partial
+
+Implemented: 4 · Partial: 6 · Missing: 3 · Prohibited: 0
+
+#### implemented
+
+- `events_section` — Open separate Events section
+- `event_create_compile` — Create and compile coach-owned event
+- `event_countdown` — Display factual event countdown
+- `event_metadata` — Display location, timezone, notes, activity and type
+
+#### partial
+
+- `event_detail` — Open event detail
+- `event_linked_athletes` — Display linked-athlete list
+- `event_linked_programme` — Display linked programme per athlete
+- `event_link_unlink` — Link and unlink athlete
+- `event_history_preserved` — Preserve assignment and session history after unlink
+- `event_validation` — Validate conflicts and past dates
+
+#### missing
+
+- `event_search_filter` — Search and filter event library
+- `event_version_edit` — Create immutable future event version
+- `event_cancel_archive` — Cancel or archive event
+
+### Programme library
+
+Slice: FULL-UI-10
+
+Area state: implemented
+
+Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `programme_states` — Display draft, active, archived and superseded states
+- `programme_search_filter` — Search, filter and sort programmes
+- `programme_new` — Create programme
+- `programme_duplicate` — Duplicate programme version
+- `programme_detail` — Open programme detail
+- `programme_preview` — Preview complete programme structure
+- `programme_activate` — Activate programme
+- `programme_archive` — Archive programme
+- `programme_version_metadata` — Compare factual version metadata
+- `programme_assignment_usage` — Display assignment usage before archive
+- `programme_immutable_active` — Prevent edits to active and archived versions
+- `programme_activation_validation` — Display full activation validation summary
+
+### Programme builder
+
+Slice: FULL-UI-11
+
+Area state: implemented
+
+Implemented: 20 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `builder_identity` — Edit programme identity and activity
+- `builder_ordered_blocks` — Build ordered blocks
+- `builder_block_type` — Set explicit block type
+- `builder_week_count` — Set weeks per block
+- `builder_block_actions` — Add, remove, duplicate and reorder blocks
+- `builder_week_actions` — Add, remove, duplicate and reorder weeks
+- `builder_session_actions` — Add, remove, duplicate and reorder sessions
+- `builder_exactly_four` — Enforce exactly four exercises
+- `builder_registry_exercises` — Select registry-backed exercises
+- `builder_role` — Set primary or accessory role
+- `builder_sets` — Set planned sets
+- `builder_repetitions` — Set fixed repetitions or range
+- `builder_loading` — Set percentage, fixed load or bodyweight
+- `builder_load_unit` — Set load unit
+- `builder_rest` — Set rest time
+- `builder_summary` — Display deterministic structure summary
+- `builder_unsaved_warning` — Warn about unsaved changes
+- `builder_save_feedback` — Display save state and confirmation
+- `builder_validation_links` — Link validation failures to fields
+- `builder_keyboard_mobile` — Operate builder by keyboard and phone
+
+### Event-to-programme calendar
+
+Slice: FULL-UI-12
+
+Area state: partial
+
+Implemented: 8 · Partial: 0 · Missing: 3 · Prohibited: 0
+
+#### implemented
+
+- `calendar_start_date` — Set preparation start date
+- `calendar_required_weeks` — Display required weeks
+- `calendar_allocated_weeks` — Display allocated weeks
+- `calendar_allocation_state` — Display balanced, under or over allocation
+- `calendar_fit_final` — Fit final block
+- `calendar_dates` — Display block and week dates
+- `calendar_partial_week` — Display partial final week
+- `calendar_activation_fail` — Fail activation when unbalanced
+
+#### missing
+
+- `calendar_select_existing_event` — Select existing standalone event
+- `calendar_single_event_truth` — Use standalone event as date source
+- `calendar_event_source` — Retain standalone event as authoritative source
+
+### Athlete-specific assignment
+
+Slice: FULL-UI-13
+
+Area state: implemented
+
+Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `assignment_from_profile` — Assign from athlete profile
+- `assignment_select_programme` — Select active programme
+- `assignment_select_event` — Select optional linked event
+- `assignment_preflight` — Preflight missing strength references
+- `assignment_exact_version` — Display exact programme version
+- `assignment_confirmation` — Confirm assignment creation
+- `assignment_current_detail` — Display current assignment
+- `assignment_replace` — Replace assignment
+- `assignment_cancel` — Cancel future assignment
+- `assignment_history` — Display assignment history
+- `assignment_separate_event` — Display event link and assignment separately
+- `assignment_preserve_sessions` — Preserve prior compiled sessions
+
+### Athlete Today
+
+Slice: FULL-UI-14
+
+Area state: partial
+
+Implemented: 3 · Partial: 5 · Missing: 1 · Prohibited: 0
+
+#### implemented
+
+- `today_next_session` — Display next executable session
+- `today_event_countdown` — Display assigned event and countdown
+- `today_start_continue` — Start or continue current session
+
+#### partial
+
+- `today_programme` — Display current programme
+- `today_assignment_version` — Display assignment version
+- `today_block_week` — Display block and week context
+- `today_resolved_load_source` — Display resolved load and source
+- `today_empty_states` — Display all declared empty and unavailable states
+
+#### missing
+
+- `today_visible_notes` — Display visible coach notes
+
+### Session execution
+
+Slice: FULL-UI-15
+
+Area state: partial
+
+Implemented: 9 · Partial: 4 · Missing: 3 · Prohibited: 0
+
+#### implemented
+
+- `session_four_exercises` — Display four ordered exercises
+- `session_prescription` — Display sets, reps, load, rest and role
+- `session_start` — Start session
+- `session_complete_work` — Mark work complete
+- `session_partial` — Record partial completion
+- `session_stop_return` — Stop and return later
+- `session_return_continue` — Continue returned session
+- `session_return_skip` — Finish without remaining work
+- `session_terminal_guard` — Prevent terminal-session resurrection
+
+#### partial
+
+- `session_overview` — Display pre-start session overview
+- `session_skip_reason` — Skip lawful work with factual reason
+- `session_completion_summary` — Display completion summary
+- `session_reload_recovery` — Recover session after refresh
+
+#### missing
+
+- `session_substitution` — Request and display lawful substitution
+- `session_pain_input` — Record contract-permitted pain input
+- `session_idempotent_retry` — Display idempotent retry state
+
+### Athlete history
+
+Slice: FULL-UI-16
+
+Area state: partial
+
+Implemented: 1 · Partial: 6 · Missing: 2 · Prohibited: 0
+
+#### implemented
+
+- `history_list` — Display session list
+
+#### partial
+
+- `history_detail` — Open session detail
+- `history_planned_recorded` — Display planned versus recorded state
+- `history_split_return` — Display split and return record
+- `history_partial_skip` — Display partial and skip record
+- `history_provenance` — Display programme, assignment and event provenance
+- `history_empty_unavailable` — Display empty and unavailable states
+
+#### missing
+
+- `history_filters` — Filter by status, date, activity, programme and event
+- `history_export` — Export athlete history
+
+### Coach review and live status
+
+Slice: FULL-UI-17
+
+Area state: implemented
+
+Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `review_athlete_search` — Select and search athlete
+- `review_open_sessions` — Display open sessions
+- `review_completed_queue` — Display completed sessions awaiting review
+- `review_factual_detail` — Display factual session detail
+- `review_provenance` — Display event, programme and assignment provenance
+- `review_live_status` — Display live read-only status
+- `review_note_create` — Create non-binding coach note
+- `review_note_list` — Display coach-note list
+- `review_note_visibility` — Display note visibility
+- `review_nonbinding_copy` — Display exact non-binding note copy
+- `review_no_override` — Prevent coach override of engine truth
+- `review_state` — Store reviewed or unreviewed product state
+
+### Notifications and task state
+
+Slice: FULL-UI-18
+
+Area state: missing
+
+Implemented: 0 · Partial: 0 · Missing: 9 · Prohibited: 0
+
+#### missing
+
+- `notification_relationship` — Notify relationship invitation and state changes
+- `notification_assignment` — Notify assignment create, replace and cancel
+- `notification_event` — Notify event link, unlink and cancel
+- `notification_programme` — Notify programme availability
+- `notification_session` — Notify session completion
+- `notification_note` — Notify visible coach note
+- `notification_billing` — Notify billing or entitlement action
+- `notification_read_state` — Mark notifications read or unread
+- `notification_deep_link` — Open notification target
+
+### Data rights and consent
+
+Slice: FULL-UI-19
+
+Area state: missing
+
+Implemented: 0 · Partial: 0 · Missing: 10 · Prohibited: 0
+
+#### missing
+
+- `data_terms_current` — Display current consent and terms
+- `data_consent_history` — Display consent history
+- `data_export_request` — Request data export
+- `data_export_status` — Display export status
+- `data_export_download` — Download available export
+- `data_deletion_request` — Request deletion
+- `data_deletion_review` — Review deletion consequences
+- `data_deletion_confirm` — Confirm deletion
+- `data_deletion_status` — Display deletion status
+- `data_retention_copy` — Display retention boundary copy
+
+### Status, support and error reporting
+
+Slice: FULL-UI-20
+
+Area state: partial
+
+Implemented: 0 · Partial: 3 · Missing: 4 · Prohibited: 0
+
+#### partial
+
+- `status_current` — Display current factual platform status
+- `support_secret_boundary` — Hide engine internals and secrets
+- `support_retry` — Offer retry and recovery actions
+
+#### missing
+
+- `support_report_problem` — Report a problem
+- `support_context` — Attach route, timestamp, browser and correlation ID
+- `support_description` — Record user description
+- `support_history` — Display support request history
+
+### Founder and admin operations
+
+Slice: FULL-UI-21
+
+Area state: missing
+
+Implemented: 0 · Partial: 0 · Missing: 10 · Prohibited: 0
+
+#### missing
+
+- `admin_auth` — Guard founder and admin sign-in
+- `admin_account_search` — Search accounts
+- `admin_account_state` — Review account state
+- `admin_entitlement` — Review coach entitlement and seats
+- `admin_payment` — Review payment state
+- `admin_support` — Review support and error records
+- `admin_test_users` — Manage test users
+- `admin_data_requests` — Review export and deletion requests
+- `admin_audit_action` — Record operational action audit
+- `admin_no_engine_override` — Prevent admin engine override
+
+### Cross-product quality
+
+Slice: FULL-UI-22
+
+Area state: partial
+
+Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
+
+#### implemented
+
+- `quality_loading` — Display persistent loading state
+- `quality_deep_links` — Support stable lawful deep links
+- `quality_refresh_recovery` — Recover route after refresh
+
+#### partial
+
+- `quality_responsive` — Support phone, tablet and desktop
+- `quality_keyboard` — Support keyboard navigation
+- `quality_focus` — Display visible focus
+- `quality_semantics` — Use semantic labels and headings
+- `quality_announcements` — Announce status and errors
+- `quality_contrast` — Meet colour contrast requirements
+- `quality_duplicate_submit` — Prevent duplicate submissions
+- `quality_route_states` — Display route-level empty, error and unavailable states
+- `quality_friendly_errors` — Display user-facing errors rather than raw tokens
+- `quality_server_authority` — Keep core server records authoritative over local cache
+
+#### missing
+
+- `quality_reduced_motion` — Respect reduced-motion preference
+- `quality_unsaved` — Protect unsaved changes
+- `quality_destructive_confirm` — Confirm destructive actions
+
+## Functions without persistent integration proof
+
+- `account_sign_in` — Sign in to an existing account
+- `authenticated_session` — Persist authenticated browser session
+- `email_verification` — Display and complete email verification
+- `password_reset` — Forgotten-password and reset flow
+- `account_state_message` — Display active, suspended, closed and deleted account states
+- `role_redirect` — Redirect to the lawful actor home route
+- `terms_version` — Display current terms and consent versions
+- `consent_history` — Display consent history
+- `profile_update` — Update display name and email
+- `password_change` — Change password
+- `account_close_request` — Request account closure
+- `sign_out` — Sign out and clear browser authentication state
+- `execution_scope_declaration` — Declare execution scope
+- `beta_acknowledgement` — Accept product acknowledgement
+- `jurisdiction_acknowledgement` — Accept jurisdiction acknowledgement
+- `onboarding_completion` — Persist onboarding completion state
+- `coach_profile_setup` — Create coach profile
+- `coach_terms` — Accept coach terms
+- `subscription_state` — Display current subscription state
+- `seat_allowance` — Display seat allowance and usage
+- `checkout_entry` — Open checkout
+- `payment_return` — Handle payment success and cancellation
+- `billing_portal` — Open billing portal
+- `entitlement_error` — Display factual entitlement failure
+- `relationship_accept` — Accept relationship
+- `relationship_lists` — Display pending and accepted relationships
+- `relationship_audit` — Display relationship detail and audit facts
+- `relationship_history_preserved` — Preserve historical records after relationship closure
+- `overview_factual_counts` — Display factual coach counts
+- `overview_relationships` — Display connected and pending athletes
+- `overview_assignment_queue` — Display assignments requiring action
+- `overview_upcoming_events` — Display upcoming events
+- `overview_open_sessions` — Display open sessions
+- `overview_completed_since_review` — Display sessions completed since review
+- `overview_direct_links` — Link directly to athlete, event, programme, assignment and review records
+- `athlete_search_filter` — Search and filter connected athletes
+- `athlete_relationship_state` — Display relationship state
+- `athlete_identity_activity` — Display athlete identity and activity
+- `athlete_current_programme` — Display current programme assignment
+- `athlete_current_event` — Display current event link
+- `athlete_assignment_history` — Display assignment history
+- `athlete_event_history` — Display event-link history
+- `athlete_strength_history` — Display strength-reference history
+- `athlete_bodyweight_history` — Display bodyweight history
+- `athlete_notes_list` — Display coach notes and visibility
+- `athlete_session_history` — Display athlete session history
+- `strength_estimated_1rm` — Add estimated 1RM
+- `strength_training_max` — Add training max
+- `strength_effective_date` — Validate effective date
+- `strength_source_note` — Record source note
+- `strength_unit_conversion` — Display converted reference values
+- `strength_effective_selection` — Select current effective record
+- `strength_superseded_history` — Display superseded history
+- `strength_immutable_add` — Add a new immutable effective record
+- `strength_missing_requirements` — Display missing references for selected programme
+- `strength_resolved_source` — Display athlete-facing resolved-load source
+- `event_detail` — Open event detail
+- `event_countdown` — Display factual event countdown
+- `event_metadata` — Display location, timezone, notes, activity and type
+- `event_linked_athletes` — Display linked-athlete list
+- `event_linked_programme` — Display linked programme per athlete
+- `event_history_preserved` — Preserve assignment and session history after unlink
+- `event_validation` — Validate conflicts and past dates
+- `programme_states` — Display draft, active, archived and superseded states
+- `programme_search_filter` — Search, filter and sort programmes
+- `programme_duplicate` — Duplicate programme version
+- `programme_detail` — Open programme detail
+- `programme_preview` — Preview complete programme structure
+- `programme_archive` — Archive programme
+- `programme_version_metadata` — Compare factual version metadata
+- `programme_assignment_usage` — Display assignment usage before archive
+- `programme_immutable_active` — Prevent edits to active and archived versions
+- `programme_activation_validation` — Display full activation validation summary
+- `builder_identity` — Edit programme identity and activity
+- `builder_ordered_blocks` — Build ordered blocks
+- `builder_block_type` — Set explicit block type
+- `builder_week_count` — Set weeks per block
+- `builder_block_actions` — Add, remove, duplicate and reorder blocks
+- `builder_week_actions` — Add, remove, duplicate and reorder weeks
+- `builder_session_actions` — Add, remove, duplicate and reorder sessions
+- `builder_exactly_four` — Enforce exactly four exercises
+- `builder_registry_exercises` — Select registry-backed exercises
+- `builder_role` — Set primary or accessory role
+- `builder_sets` — Set planned sets
+- `builder_repetitions` — Set fixed repetitions or range
+- `builder_loading` — Set percentage, fixed load or bodyweight
+- `builder_load_unit` — Set load unit
+- `builder_rest` — Set rest time
+- `builder_summary` — Display deterministic structure summary
+- `builder_unsaved_warning` — Warn about unsaved changes
+- `builder_save_feedback` — Display save state and confirmation
+- `builder_validation_links` — Link validation failures to fields
+- `builder_keyboard_mobile` — Operate builder by keyboard and phone
+- `calendar_start_date` — Set preparation start date
+- `calendar_required_weeks` — Display required weeks
+- `calendar_allocated_weeks` — Display allocated weeks
+- `calendar_allocation_state` — Display balanced, under or over allocation
+- `calendar_fit_final` — Fit final block
+- `calendar_dates` — Display block and week dates
+- `calendar_partial_week` — Display partial final week
+- `calendar_activation_fail` — Fail activation when unbalanced
+- `assignment_select_programme` — Select active programme
+- `assignment_select_event` — Select optional linked event
+- `assignment_preflight` — Preflight missing strength references
+- `assignment_exact_version` — Display exact programme version
+- `assignment_confirmation` — Confirm assignment creation
+- `assignment_current_detail` — Display current assignment
+- `assignment_replace` — Replace assignment
+- `assignment_cancel` — Cancel future assignment
+- `assignment_history` — Display assignment history
+- `assignment_separate_event` — Display event link and assignment separately
+- `assignment_preserve_sessions` — Preserve prior compiled sessions
+- `today_programme` — Display current programme
+- `today_assignment_version` — Display assignment version
+- `today_event_countdown` — Display assigned event and countdown
+- `today_block_week` — Display block and week context
+- `today_resolved_load_source` — Display resolved load and source
+- `today_empty_states` — Display all declared empty and unavailable states
+- `today_start_continue` — Start or continue current session
+- `session_overview` — Display pre-start session overview
+- `session_four_exercises` — Display four ordered exercises
+- `session_prescription` — Display sets, reps, load, rest and role
+- `session_start` — Start session
+- `session_complete_work` — Mark work complete
+- `session_skip_reason` — Skip lawful work with factual reason
+- `session_partial` — Record partial completion
+- `session_stop_return` — Stop and return later
+- `session_return_continue` — Continue returned session
+- `session_return_skip` — Finish without remaining work
+- `session_completion_summary` — Display completion summary
+- `session_reload_recovery` — Recover session after refresh
+- `session_terminal_guard` — Prevent terminal-session resurrection
+- `history_list` — Display session list
+- `history_detail` — Open session detail
+- `history_planned_recorded` — Display planned versus recorded state
+- `history_split_return` — Display split and return record
+- `history_partial_skip` — Display partial and skip record
+- `history_provenance` — Display programme, assignment and event provenance
+- `history_empty_unavailable` — Display empty and unavailable states
+- `review_athlete_search` — Select and search athlete
+- `review_open_sessions` — Display open sessions
+- `review_completed_queue` — Display completed sessions awaiting review
+- `review_factual_detail` — Display factual session detail
+- `review_provenance` — Display event, programme and assignment provenance
+- `review_live_status` — Display live read-only status
+- `review_note_create` — Create non-binding coach note
+- `review_note_list` — Display coach-note list
+- `review_note_visibility` — Display note visibility
+- `review_nonbinding_copy` — Display exact non-binding note copy
+- `review_no_override` — Prevent coach override of engine truth
+- `review_state` — Store reviewed or unreviewed product state
+- `status_current` — Display current factual platform status
+- `support_secret_boundary` — Hide engine internals and secrets
+- `support_retry` — Offer retry and recovery actions
+- `quality_responsive` — Support phone, tablet and desktop
+- `quality_keyboard` — Support keyboard navigation
+- `quality_focus` — Display visible focus
+- `quality_semantics` — Use semantic labels and headings
+- `quality_announcements` — Announce status and errors
+- `quality_contrast` — Meet colour contrast requirements
+- `quality_loading` — Display persistent loading state
+- `quality_duplicate_submit` — Prevent duplicate submissions
+- `quality_route_states` — Display route-level empty, error and unavailable states
+- `quality_friendly_errors` — Display user-facing errors rather than raw tokens
+- `quality_deep_links` — Support stable lawful deep links
+- `quality_refresh_recovery` — Recover route after refresh
+- `quality_server_authority` — Keep core server records authoritative over local cache
+
+## Delivery sequence
+
+- FULL-UI-01: in_progress
+- FULL-UI-02: planned
+- FULL-UI-03: planned
+- FULL-UI-04: planned
+- FULL-UI-05: planned
+- FULL-UI-06: planned
+- FULL-UI-07: planned
+- FULL-UI-08: planned
+- FULL-UI-09: planned
+- FULL-UI-10: planned
+- FULL-UI-11: planned
+- FULL-UI-12: planned
+- FULL-UI-13: planned
+- FULL-UI-14: planned
+- FULL-UI-15: planned
+- FULL-UI-16: planned
+- FULL-UI-17: planned
+- FULL-UI-18: planned
+- FULL-UI-19: planned
+- FULL-UI-20: planned
+- FULL-UI-21: planned
+- FULL-UI-22: planned
+- FULL-UI-23: planned
+- FULL-UI-24: planned
+- FULL-UI-25: planned
+
+## Prohibited capabilities
+
+- `organisation_runtime` — Organisation, team, unit or gym coaching runtime. Boundary: Actors remain individual athlete and coach only.
+- `resistance_rpe` — Resistance-training RPE prescription. Boundary: Resistance training remains percentage, fixed-load or bodyweight based.
+- `readiness_inference` — Readiness, safety, suitability, risk or optimisation inference. Boundary: Product output remains factual and deterministic.
+- `engine_override` — Coach, payment, admin or UI override of engine truth. Boundary: Engine legality and deterministic output remain independent of product state.
+- `diagnostic_dependency` — Diagnostic UI as a product workflow dependency. Boundary: The product UI must use public application routes only.

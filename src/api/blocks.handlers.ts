@@ -26,6 +26,11 @@ import {
 import {
   loadStoredBetaCompileAdmission
 } from "./beta_product_journey_service.js";
+import {
+  Beta18ProgrammeTemplateError,
+  isCoachAuthoredTemplateId,
+  materialiseNextCoachTemplateProgram
+} from "./beta18_programme_template_service.js";
 import { badRequest, notFound, internalError } from "./http_errors.js";
 import { getBlockByIdQuery } from "./block_query_service.js";
 import { createSessionFromBlockMutation } from "./block_session_write_service.js";
@@ -201,6 +206,11 @@ export async function compileBlock(req: Request, res: Response) {
       subject_user_id: string;
       coach_user_id: string;
       assignment_id: string;
+      template_id: string;
+      event_id: string | null;
+      event_plan: Readonly<JsonRecord> | null;
+      event_compile_summary: Readonly<JsonRecord> | null;
+      event_record_sha256: string | null;
     } |
     null = null;
 
@@ -237,7 +247,22 @@ export async function compileBlock(req: Request, res: Response) {
               .coach_user_id,
           assignment_id:
             storedAdmission
-              .assignment_id
+              .assignment_id,
+          template_id:
+            storedAdmission
+              .template_id,
+          event_id:
+            storedAdmission
+              .event_id,
+          event_plan:
+            storedAdmission
+              .event_plan,
+          event_compile_summary:
+            storedAdmission
+              .event_compile_summary,
+          event_record_sha256:
+            storedAdmission
+              .event_record_sha256
         };
       }
       else {
@@ -323,12 +348,143 @@ export async function compileBlock(req: Request, res: Response) {
     throw badRequest("Phase 4 failed", { failure_token: p4.failure_token, details: p4.details });
   }
 
+  let programForSession: any =
+    p4.program;
+
+  if (
+    beta_session_binding &&
+    isCoachAuthoredTemplateId(
+      beta_session_binding
+        .template_id
+    )
+  ) {
+    try {
+      programForSession =
+        await materialiseNextCoachTemplateProgram({
+          coach_user_id:
+            beta_session_binding
+              .coach_user_id,
+          athlete_user_id:
+            beta_session_binding
+              .subject_user_id,
+          assignment_id:
+            beta_session_binding
+              .assignment_id,
+          template_id:
+            beta_session_binding
+              .template_id,
+          event_plan_override:
+            beta_session_binding
+              .event_plan,
+          event_compile_summary_override:
+            beta_session_binding
+              .event_compile_summary,
+          event_record_sha256:
+            beta_session_binding
+              .event_record_sha256,
+          base_program:
+            p4.program as unknown as
+              JsonRecord
+        });
+
+      const templateExecution =
+        isRecord(
+          programForSession
+            .coach_template_execution
+        )
+          ? programForSession
+              .coach_template_execution
+          : null;
+
+      const templateRecordSha256 =
+        templateExecution
+          ? asString(
+              templateExecution
+                .template_record_sha256
+            )
+          : undefined;
+
+      const templateSessionId =
+        templateExecution
+          ? asString(
+              templateExecution
+                .template_session_id
+            )
+          : undefined;
+
+      const athleteProfileRecordSha256 =
+        templateExecution
+          ? asString(
+              templateExecution
+                .athlete_profile_record_sha256
+            )
+          : undefined;
+
+      const eventRecordSha256 =
+        templateExecution
+          ? asString(
+              templateExecution
+                .event_record_sha256
+            )
+          : undefined;
+
+      if (
+        !templateRecordSha256 ||
+        !templateSessionId
+      ) {
+        throw new Beta18ProgrammeTemplateError(
+          "template_compile_binding_missing"
+        );
+      }
+
+      canonical_hash =
+        crypto
+          .createHash("sha256")
+          .update(
+            JSON.stringify({
+              phase2_canonical_hash:
+                canonical_hash,
+              template_record_sha256:
+                templateRecordSha256,
+              template_session_id:
+                templateSessionId,
+              athlete_profile_record_sha256:
+                athleteProfileRecordSha256 ??
+                null,
+              event_record_sha256:
+                eventRecordSha256 ??
+                null
+            }),
+            "utf8"
+          )
+          .digest("hex");
+    }
+    catch (error) {
+      const reason =
+        error instanceof
+          Beta18ProgrammeTemplateError
+          ? error.reason
+          : error instanceof Error
+            ? error.message
+            : "template_materialisation_failed";
+
+      throw badRequest(
+        "BETA18_TEMPLATE_MATERIALISATION_FAILED",
+        {
+          failure_token:
+            "beta18_programme_template_invalid",
+          reason
+        }
+      );
+    }
+  }
+
   if (apply_phase5) {
     throw badRequest("Phase 5 compile not implemented", { failure_token: "phase5_compile_not_implemented" });
   }
   const phase5_adjustments: unknown[] = [];
 
-  const p6 = phase6ProduceSessionOutput(p4.program, canonical_input, undefined);
+  const p6 = phase6ProduceSessionOutput(programForSession, canonical_input, undefined);
   if (!p6.ok) {
     throw badRequest("Phase 6 failed", { failure_token: p6.failure_token, details: p6.details });
   }
@@ -427,7 +583,7 @@ export async function compileBlock(req: Request, res: Response) {
     canonical_input,
     phase2_canonical_payload,
     phase3_output: p3.phase3,
-    phase4_program: p4.program,
+    phase4_program: programForSession,
     phase5_adjustments,
     planned_session_from_engine,
     create_session,
@@ -525,6 +681,15 @@ export async function compileBlock(req: Request, res: Response) {
 
   if (persisted.session_id) payload.session_id = persisted.session_id;
 
+  const coachTemplateExecution =
+    isRecord(
+      programForSession
+        ?.coach_template_execution
+    )
+      ? programForSession
+          .coach_template_execution
+      : null;
+
   if (beta_path_admission) {
     payload.beta_path = {
       surface_id:
@@ -557,7 +722,58 @@ export async function compileBlock(req: Request, res: Response) {
       assignment_id:
         beta_session_binding
           ?.assignment_id ??
-        null
+        null,
+      template_id:
+        beta_session_binding
+          ?.template_id ??
+        null,
+      template_session_title:
+        coachTemplateExecution
+          ? asString(
+              coachTemplateExecution
+                .template_session_title
+            ) ?? null
+          : null,
+      template_block_name:
+        coachTemplateExecution
+          ? asString(
+              coachTemplateExecution
+                .template_block_name
+            ) ?? null
+          : null,
+      template_week_index_global:
+        coachTemplateExecution &&
+        Number.isInteger(
+          coachTemplateExecution
+            .template_week_index_global
+        )
+          ? Number(
+              coachTemplateExecution
+                .template_week_index_global
+            )
+          : null,
+      event_id:
+        beta_session_binding
+          ?.event_id ??
+        null,
+      event_plan:
+        coachTemplateExecution &&
+        isRecord(
+          coachTemplateExecution
+            .event_plan
+        )
+          ? coachTemplateExecution
+              .event_plan
+          : null,
+      event_compile_summary:
+        coachTemplateExecution &&
+        isRecord(
+          coachTemplateExecution
+            .event_compile_summary
+        )
+          ? coachTemplateExecution
+              .event_compile_summary
+          : null
     };
   }
 

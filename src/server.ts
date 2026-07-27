@@ -9,6 +9,12 @@ import path from "node:path";
 
 import { sessionsRouter } from "./api/sessions.routes.js";
 import { blocksRouter } from "./api/blocks.routes.js";
+import { templatesRouter } from "./api/templates.routes.js";
+import { coachWorkspaceRouter } from "./api/coach_workspace.routes.js";
+import { productAssignmentRouter } from "./api/product_assignment.routes.js";
+import { productReviewRouter } from "./api/product_review.routes.js";
+import { productAccountRouter } from "./api/product_account.routes.js";
+import { productCommercialRouter } from "./api/product_commercial.routes.js";
 import { apiErrorMiddleware } from "./api/error_middleware.js";
 
 import { VERSION } from "./version.js";
@@ -36,6 +42,18 @@ app.use(express.json({ limit: "1mb" }));
  * - /ui/decision-summary/:run_id (redirect convenience)
  */
 const publicDir = path.resolve(process.cwd(), "public");
+const productAppDir = path.join(publicDir, "app");
+
+/**
+ * Product application surface.
+ *
+ * /app is the production-shaped browser workspace. It uses the public
+ * application API and must not expose diagnostic state or engine internals.
+ */
+app.get("/", (_req, res) => {
+  return res.redirect(302, "/app/");
+});
+app.use("/app", express.static(productAppDir));
 /**
  * Local diagnostic UI gate.
  *
@@ -62,6 +80,12 @@ app.get("/ui/decision-summary/:run_id", (req, res) => {
   return res.redirect(`/ui/decision-summary.html?run_id=${encodeURIComponent(runId)}`);
 });
 
+app.use("/account/commercial", productCommercialRouter);
+app.use("/account", productAccountRouter);
+app.use("/templates", templatesRouter);
+app.use("/coach-workspace", coachWorkspaceRouter);
+app.use("/coach-workspace", productAssignmentRouter);
+app.use("/coach-workspace", productReviewRouter);
 app.use("/sessions", sessionsRouter);
 app.use("/blocks", blocksRouter);
 

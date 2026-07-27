@@ -1,4 +1,3 @@
-
 // DEV NOTE: Engine-side implementation surface. Keep this code deterministic, closed-world, and
 // free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
 // canonical registries, and validated contracts only.
@@ -18,10 +17,31 @@ export type Phase6SessionExercise = {
   item_id?: string;
   sets?: number;
   reps?: number;
+  rep_range?: {
+    minimum: number;
+    maximum: number;
+  };
   intensity?:
     | { type: "percent_1rm"; value: number }
     | { type: "rpe"; value: number }
-    | { type: "load"; value: number };
+    | {
+        type: "load";
+        value: number;
+        unit?: "kg" | "lb";
+      }
+    | { type: "bodyweight" };
+  resolved_load?: {
+    type: "resolved_load";
+    value: number;
+    unit: "kg" | "lb";
+    percentage: number;
+    one_rep_max: number;
+    benchmark_basis: string;
+    benchmark_effective_date: string;
+    benchmark_id: string;
+    athlete_profile_record_sha256: string;
+    rounding_increment: number;
+  } | null;
   rest_seconds?: number;
 
   // Substitution trace (ONLY if the substituted exercise is emitted)
@@ -115,6 +135,24 @@ function applyRulesToId(originalId: string, rules: SubRule[]): { finalId: string
   return { finalId: cur, changed };
 }
 
+function repRangeFromItem(item: any): { minimum: number; maximum: number } | undefined {
+  if (!isRecord(item?.rep_range)) return undefined;
+
+  const minimum = Number(item.rep_range.minimum);
+  const maximum = Number(item.rep_range.maximum);
+
+  if (
+    !Number.isInteger(minimum) ||
+    !Number.isInteger(maximum) ||
+    minimum < 1 ||
+    maximum < minimum
+  ) {
+    return undefined;
+  }
+
+  return { minimum, maximum };
+}
+
 /**
  * Phase 6
  * Contract required by tests/goldens:
@@ -175,6 +213,8 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
     if (seen.has(finalId)) continue;
     seen.add(finalId);
 
+    const repRange = repRangeFromItem(it);
+
     const ex: Phase6SessionExercise = {
       exercise_id: finalId,
       source: "program",
@@ -182,7 +222,11 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
       item_id: typeof it.item_id === "string" ? it.item_id : `B0_I${i}`,
       sets: typeof it.sets === "number" ? it.sets : 0,
       reps: typeof it.reps === "number" ? it.reps : 0,
+      ...(repRange ? { rep_range: repRange } : {}),
       intensity: it.intensity,
+      resolved_load: isRecord(it.resolved_load)
+        ? it.resolved_load as Phase6SessionExercise["resolved_load"]
+        : null,
       rest_seconds: typeof it.rest_seconds === "number" ? it.rest_seconds : undefined
     };
 
