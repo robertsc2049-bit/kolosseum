@@ -54,8 +54,8 @@ test("blocks.handlers source contract: compileBlock delegates the full plain-arg
   );
   assert.match(
     callSrc,
-    /phase4_program:\s*p4\.program/,
-    "expected persistence seam to include phase4_program: p4.program"
+    /phase4_program:\s*programForSession/,
+    "expected persistence seam to include phase4_program: programForSession"
   );
   assert.match(
     callSrc,

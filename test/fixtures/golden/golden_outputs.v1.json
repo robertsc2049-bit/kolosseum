@@ -1,12 +1,20 @@
 {
   "outputs_version": "1.0.0",
-  "generated_utc": "2026-01-31T14:37:55.334Z",
+  "generated_utc": "2026-07-27T15:38:58.527Z",
   "root": "test/fixtures/golden/expected",
   "output_sha256_by_fixture": {
-    "phase1_constraints_gym_basic": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819",
-    "phase1_envelope_powerlifting_default": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819",
-    "phase1_equipment_dbs_only_timebox": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819",
-    "phase1_pain_knee_powerlifting": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819",
-    "vanilla_minimal": "2feee67e5f4ea109de8abb0a2398415d7fa247941bd7c7e00f3176829ed43819"
+    "neg_phase1_constraints_legacy_ids_refused": "236bdad51b716b3eb4930b369581f3ba64240b0e59059e4c73011ef416bfcf45",
+    "neg_phase1_constraints_type_invalid": "23db677685d1650cd6ed6af9117b797a7cebbc2215cfb8e9bc82c9e5b85f3ed5",
+    "neg_phase1_unknown_field": "ea61726a2b105b2f2c1ef72ddec978cc8a5c9e1bacf2b736869033be1111df2b",
+    "phase1_constraints_gym_basic": "bf189b2c92bcce6bc8a95eea9c2adbb18d7771c0816f21c376e4773a45faa8ce",
+    "phase1_envelope_powerlifting_default": "bf189b2c92bcce6bc8a95eea9c2adbb18d7771c0816f21c376e4773a45faa8ce",
+    "phase1_equipment_dbs_only_timebox": "fa3d239c39111f12bf2f878482c3bc58ee70a16e51d10b68f5be4c8ca87f0bc3",
+    "phase1_equipment_plate_only": "bf189b2c92bcce6bc8a95eea9c2adbb18d7771c0816f21c376e4773a45faa8ce",
+    "phase1_pain_knee_powerlifting": "bf189b2c92bcce6bc8a95eea9c2adbb18d7771c0816f21c376e4773a45faa8ce",
+    "phase3_precedence_banned_over_available": "c5df576479a7cec2ef1f34397ac1ce8288f355a4a8fd712c684f3721c2e4dd8f",
+    "phase3_sovereign_constraints_envelope": "8b1f9fd4b96f4a33435b5f6e3e049e9cfc41a6c109c55c76b43911bc6405ed02",
+    "phase4_program_powerlifting_contract": "ea61726a2b105b2f2c1ef72ddec978cc8a5c9e1bacf2b736869033be1111df2b",
+    "phase6_session_powerlifting_contract": "bf189b2c92bcce6bc8a95eea9c2adbb18d7771c0816f21c376e4773a45faa8ce",
+    "vanilla_minimal": "bf189b2c92bcce6bc8a95eea9c2adbb18d7771c0816f21c376e4773a45faa8ce"
   }
 }

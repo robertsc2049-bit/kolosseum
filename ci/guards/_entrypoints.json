@@ -1,6 +1,7 @@
 {
   "package_json_scripts": [
     "lint:fast",
+    "lint:fast:inline",
     "dev:fast",
     "green",
     "ci",

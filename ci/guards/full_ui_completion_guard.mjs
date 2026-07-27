@@ -1,3 +1,7 @@
+// @law: Product UI Completion
+// @severity: high
+// @scope: product-ui
+
 import fs from "node:fs";
 import path from "node:path";
 

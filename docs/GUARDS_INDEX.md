@@ -46,6 +46,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/engine_contract_guard.mjs` | Runtime Boundary | high | engine | DEV NOTE: Engine contract pin guard. This script protects ENGINE_CONTRACT.md |
 | `ci/guards/engine_exports_types_guard.mjs` | Runtime Boundary | high | engine | DEV NOTE: Engine exports/types guard. This script protects the public engine |
 | `ci/guards/evidence_seal_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: Evidence seal wrapper guard. This script keeps the CI guard entrypoint |
+| `ci/guards/full_ui_completion_guard.mjs` | Product UI Completion | high | product-ui |  |
 | `ci/guards/golden_manifest_guard.mjs` | Determinism | high | repo | DEV NOTE: Golden manifest pin guard. This script protects the deterministic |
 | `ci/guards/golden_outputs_guard.mjs` | Determinism | high | repo | DEV NOTE: Golden outputs pin guard. This script protects deterministic golden |
 | `ci/guards/green_ci_parity_guard.mjs` | CI Integrity | high | repo | DEV NOTE: Green/CI parity guard. This script protects the local-to-CI contract |

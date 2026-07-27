@@ -27,7 +27,7 @@ test("blocks.handlers source contract: compileBlock delegates transactional pers
 
   assert.match(
     src,
-    /const\s+persisted\s*=\s*await\s+persistCompiledBlockAndMaybeCreateSession\(\s*\{[\s\S]*engine_version,[\s\S]*canonical_hash,[\s\S]*canonical_input,[\s\S]*phase2_canonical_payload,[\s\S]*phase3_output:\s*p3\.phase3,[\s\S]*phase4_program:\s*p4\.program,[\s\S]*phase5_adjustments,[\s\S]*planned_session_from_engine,[\s\S]*create_session[\s\S]*\}\s*\)/,
+    /const\s+persisted\s*=\s*await\s+persistCompiledBlockAndMaybeCreateSession\(\s*\{[\s\S]*engine_version,[\s\S]*canonical_hash,[\s\S]*canonical_input,[\s\S]*phase2_canonical_payload,[\s\S]*phase3_output:\s*p3\.phase3,[\s\S]*phase4_program:\s*programForSession,[\s\S]*phase5_adjustments,[\s\S]*planned_session_from_engine,[\s\S]*create_session[\s\S]*\}\s*\)/,
     "expected compileBlock to delegate persistence inputs to persistCompiledBlockAndMaybeCreateSession(...)"
   );
 
