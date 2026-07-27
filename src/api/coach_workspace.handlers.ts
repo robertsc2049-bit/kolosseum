@@ -7,6 +7,7 @@ import type { Request, Response } from "express";
 import {
   Beta19CoachWorkspaceError,
   listCoachAssignments,
+  listCoachAthleteRelationships,
   listConnectedCoachAthletes,
   loadAthleteStrengthProfile,
   saveAthleteStrengthProfile
@@ -23,6 +24,11 @@ import {
   listAthleteEventLinks,
   listCoachEvents
 } from "./beta19_coach_event_service.js";
+
+// FULL-UI-04B athlete-detail service import.
+import {
+  loadCoachAthleteDetail
+} from "./beta19_coach_workspace_service.js";
 
 function cleanString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -53,6 +59,32 @@ function rethrowWorkspaceError(error: unknown): never {
   throw error;
 }
 
+
+export async function getCoachAthleteRelationships(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId =
+      cleanString(
+        req.query.coach_user_id
+      );
+
+    const relationships =
+      await listCoachAthleteRelationships(
+        coachUserId
+      );
+
+    return res.status(200).json({
+      ok: true,
+      coach_user_id: coachUserId,
+      relationships
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
 
 export async function getConnectedCoachAthletes(
   req: Request,
@@ -224,6 +256,41 @@ export async function createAthleteProfileAssignment(
       ok: true,
       assignment: result.assignment,
       event_link: result.event_link
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+// FULL-UI-04B athlete-detail HTTP surface.
+// FUNCTION NOTE:
+// Purpose: Returns one accepted coach-athlete factual detail projection.
+// Boundary: Read-only product/runtime data; no engine call or inferred coaching state.
+export async function getCoachAthleteDetail(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId =
+      cleanString(
+        req.query.coach_user_id
+      );
+
+    const athleteUserId =
+      cleanString(
+        req.query.athlete_user_id
+      );
+
+    const detail =
+      await loadCoachAthleteDetail(
+        coachUserId,
+        athleteUserId
+      );
+
+    return res.status(200).json({
+      ok: true,
+      detail
     });
   }
   catch (error) {

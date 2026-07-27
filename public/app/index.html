@@ -36,66 +36,131 @@
     </div>
 
     <div class="entry-form-wrap">
-      <form id="entryForm" class="entry-form">
-        <div>
-          <p class="eyebrow">September controlled beta</p>
-          <h2>Enter your workspace</h2>
-          <p class="muted">Create a local beta account for this installation.</p>
+      <div class="entry-access-panel">
+        <div class="entry-mode-tabs" role="tablist" aria-label="Account access">
+          <button id="entryCreateTab" class="entry-mode-tab active" type="button">Create account</button>
+          <button id="entrySignInTab" class="entry-mode-tab" type="button">Sign in</button>
         </div>
 
-        <fieldset class="role-choice">
-          <legend>Account type</legend>
-          <label>
-            <input type="radio" name="role" value="athlete" checked />
-            <span>
-              <strong>Athlete</strong>
-              <small>Run sessions and view history</small>
-            </span>
+        <form id="entryForm" class="entry-form">
+          <input id="entryMode" type="hidden" value="create" />
+
+          <div>
+            <p class="eyebrow">September controlled beta</p>
+            <h2 id="entryHeading">Create your account</h2>
+            <p id="entryDescription" class="muted">Create persistent product access for this installation.</p>
+          </div>
+
+          <div id="entryCreateFields">
+            <fieldset id="entryRoleChoice" class="role-choice">
+              <legend>Account type</legend>
+              <label>
+                <input type="radio" name="role" value="athlete" checked />
+                <span>
+                  <strong>Athlete</strong>
+                  <small>Run sessions and view history</small>
+                </span>
+              </label>
+              <label>
+                <input type="radio" name="role" value="coach" />
+                <span>
+                  <strong>Coach</strong>
+                  <small>Assign and review athlete work</small>
+                </span>
+              </label>
+            </fieldset>
+
+            <label id="entryNameField" class="field">
+              <span>Display name</span>
+              <input id="entryName" name="display_name" autocomplete="name" maxlength="80" />
+            </label>
+
+            <label id="entryActivityField" class="field">
+              <span>Primary activity</span>
+              <select id="entryActivity" name="activity_id">
+                <option value="powerlifting">Powerlifting</option>
+                <option value="general_strength">General strength</option>
+                <option value="rugby_union">Rugby union</option>
+              </select>
+            </label>
+
+            <div id="entryConsentFields" class="consent-box">
+              <label>
+                <input id="entryBetaConsent" type="checkbox" />
+                <span>I accept the current controlled-beta terms.</span>
+              </label>
+              <label>
+                <input id="entryDeclarationConsent" type="checkbox" />
+                <span>I consent to the account and factual product records being stored.</span>
+              </label>
+            </div>
+          </div>
+
+          <label class="field">
+            <span>Email</span>
+            <input id="entryEmail" name="email" type="email" autocomplete="email" required maxlength="254" />
           </label>
-          <label>
-            <input type="radio" name="role" value="coach" />
-            <span>
-              <strong>Coach</strong>
-              <small>Assign and review athlete work</small>
-            </span>
+
+          <label class="field">
+            <span>Password</span>
+            <input id="entryPassword" name="password" type="password" autocomplete="new-password" required minlength="12" maxlength="200" />
+            <small>At least 12 characters.</small>
           </label>
-        </fieldset>
 
-        <label class="field">
-          <span>Display name</span>
-          <input id="entryName" name="display_name" autocomplete="name" required maxlength="80" />
-        </label>
+          <button id="entrySubmit" class="button primary wide" type="submit">
+            Create account
+          </button>
 
-        <label class="field">
-          <span>Email</span>
-          <input id="entryEmail" name="email" type="email" autocomplete="email" required maxlength="160" />
-        </label>
+          <button id="forgotPasswordButton" class="text-button centred-action" type="button" hidden>
+            Forgot password?
+          </button>
 
-        <label id="entryActivityField" class="field">
-          <span>Primary activity</span>
-          <select id="entryActivity" name="activity_id">
-            <option value="powerlifting">Powerlifting</option>
-            <option value="general_strength">General strength</option>
-            <option value="rugby_union">Rugby union</option>
-          </select>
-        </label>
+          <p id="entryError" class="form-error" role="alert" hidden></p>
+        </form>
 
-        <div class="consent-box">
-          <label>
-            <input id="entryBetaConsent" type="checkbox" required />
-            <span>I acknowledge this is a controlled beta with a limited product scope.</span>
+        <form id="passwordResetRequestForm" class="entry-form compact-entry-form" hidden>
+          <div>
+            <p class="eyebrow">Account recovery</p>
+            <h2>Reset password</h2>
+            <p class="muted">Request a six-digit recovery code.</p>
+          </div>
+
+          <label class="field">
+            <span>Email</span>
+            <input id="resetRequestEmail" type="email" autocomplete="email" required maxlength="254" />
           </label>
-          <label>
-            <input id="entryDeclarationConsent" type="checkbox" required />
-            <span>I confirm information entered during setup is my factual declaration.</span>
-          </label>
-        </div>
 
-        <button id="entrySubmit" class="button primary wide" type="submit">
-          Continue
-        </button>
-        <p id="entryError" class="form-error" role="alert" hidden></p>
-      </form>
+          <button class="button primary wide" type="submit">Request code</button>
+          <button id="cancelPasswordResetButton" class="text-button centred-action" type="button">Back to sign in</button>
+          <p id="resetRequestResult" class="inline-result" hidden></p>
+        </form>
+
+        <form id="passwordResetCompleteForm" class="entry-form compact-entry-form" hidden>
+          <div>
+            <p class="eyebrow">Account recovery</p>
+            <h2>Set new password</h2>
+          </div>
+
+          <label class="field">
+            <span>Email</span>
+            <input id="resetCompleteEmail" type="email" autocomplete="email" required maxlength="254" />
+          </label>
+
+          <label class="field">
+            <span>Six-digit code</span>
+            <input id="resetCompleteCode" inputmode="numeric" autocomplete="one-time-code" required pattern="[0-9]{6}" maxlength="6" />
+          </label>
+
+          <label class="field">
+            <span>New password</span>
+            <input id="resetCompletePassword" type="password" autocomplete="new-password" required minlength="12" maxlength="200" />
+          </label>
+
+          <button class="button primary wide" type="submit">Set new password</button>
+          <button id="cancelPasswordResetCompleteButton" class="text-button centred-action" type="button">Back to sign in</button>
+          <p id="resetCompleteResult" class="inline-result" hidden></p>
+        </form>
+      </div>
     </div>
   </section>
 
@@ -301,58 +366,333 @@
         </section>
 
         <section id="view-coach-overview" class="view" hidden>
-          <div class="page-heading">
+          <div class="page-heading dashboard-heading">
             <div>
               <p class="eyebrow">Coach workspace</p>
               <h2 id="coachGreeting">Overview</h2>
-              <p class="muted">Connected athletes, assignments and factual session review.</p>
+              <p class="muted">
+                Factual athlete, assignment, event and session records.
+              </p>
             </div>
+
+            <button
+              id="coachDashboardRefreshButton"
+              class="button secondary"
+              type="button"
+            >
+              Refresh dashboard
+            </button>
           </div>
-          <div class="metric-cards">
-            <article class="panel metric-card"><span>Connected athletes</span><strong id="coachAthleteCount">0</strong></article>
-            <article class="panel metric-card"><span>Assignments recorded</span><strong id="coachAssignmentCount">0</strong></article>
-            <article class="panel metric-card"><span>Sessions available</span><strong id="coachArtefactCount">0</strong></article>
+
+          <div
+            id="coachDashboardStatus"
+            class="dashboard-status"
+            role="status"
+            aria-live="polite"
+          >
+            Dashboard records have not been refreshed yet.
           </div>
-          <article class="panel">
-            <div class="panel-header">
-              <div><p class="eyebrow">Athletes</p><h3>Connected accounts</h3></div>
-              <button class="button secondary" data-view-link="athletes" type="button">Manage athletes</button>
-            </div>
-            <div id="coachOverviewAthletes" class="record-list"></div>
-          </article>
+
+          <div class="metric-cards coach-dashboard-metrics">
+            <article class="panel metric-card">
+              <span>Connected athletes</span>
+              <strong id="coachAthleteCount">0</strong>
+            </article>
+
+            <article class="panel metric-card">
+              <span>Assignments recorded</span>
+              <strong id="coachAssignmentCount">0</strong>
+            </article>
+
+            <article class="panel metric-card">
+              <span>Session records</span>
+              <strong id="coachArtefactCount">0</strong>
+            </article>
+
+            <article class="panel metric-card">
+              <span>Open sessions</span>
+              <strong id="coachOpenSessionCount">0</strong>
+            </article>
+
+            <article class="panel metric-card">
+              <span>Awaiting review</span>
+              <strong id="coachCompletedSessionCount">0</strong>
+            </article>
+
+            <article class="panel metric-card">
+              <span>Upcoming events</span>
+              <strong id="coachUpcomingEventCount">0</strong>
+            </article>
+          </div>
+
+          <div class="coach-dashboard-grid">
+            <article class="panel coach-dashboard-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Relationships</p>
+                  <h3>Connected athletes</h3>
+                </div>
+
+                <button
+                  class="button secondary small-button"
+                  data-view-link="athletes"
+                  type="button"
+                >
+                  Manage athletes
+                </button>
+              </div>
+
+              <div
+                id="coachOverviewAthletes"
+                class="record-list dashboard-record-list"
+              ></div>
+            </article>
+
+            <article class="panel coach-dashboard-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Assignments</p>
+                  <h3>Action queue</h3>
+                </div>
+
+                <button
+                  class="button secondary small-button"
+                  data-dashboard-action="open-programmes"
+                  type="button"
+                >
+                  Programme library
+                </button>
+              </div>
+
+              <div
+                id="coachOverviewAssignments"
+                class="record-list dashboard-record-list"
+              ></div>
+            </article>
+
+            <article class="panel coach-dashboard-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Live status</p>
+                  <h3>Open sessions</h3>
+                </div>
+
+                <button
+                  class="button secondary small-button"
+                  data-view-link="review"
+                  type="button"
+                >
+                  Open review
+                </button>
+              </div>
+
+              <div
+                id="coachOverviewOpenSessions"
+                class="record-list dashboard-record-list"
+              ></div>
+            </article>
+
+            <article class="panel coach-dashboard-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Review</p>
+                  <h3>Completed since review</h3>
+                </div>
+
+                <button
+                  class="button secondary small-button"
+                  data-view-link="review"
+                  type="button"
+                >
+                  Review sessions
+                </button>
+              </div>
+
+              <div
+                id="coachOverviewReviewQueue"
+                class="record-list dashboard-record-list"
+              ></div>
+            </article>
+
+            <article class="panel coach-dashboard-panel dashboard-wide-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Events</p>
+                  <h3>Upcoming events</h3>
+                </div>
+
+                <button
+                  class="button secondary small-button"
+                  data-view-link="events"
+                  type="button"
+                >
+                  Manage events
+                </button>
+              </div>
+
+              <div
+                id="coachOverviewEvents"
+                class="record-list dashboard-record-list"
+              ></div>
+            </article>
+          </div>
         </section>
 
         <section id="view-athletes" class="view" hidden>
-          <div class="page-heading">
+          <div class="page-heading athlete-directory-heading">
             <div>
               <p class="eyebrow">Coach workspace</p>
               <h2>Athletes</h2>
-              <p class="muted">Connect an athlete using the account code shown in their Kolosseum account.</p>
+              <p class="muted">
+                Manage factual coach–athlete relationship records and open accepted athlete profiles.
+              </p>
             </div>
+
+            <button
+              id="refreshAthleteDirectoryButton"
+              class="button secondary"
+              type="button"
+            >
+              Refresh directory
+            </button>
           </div>
-          <div class="two-column">
+
+          <div class="two-column athlete-directory-layout">
             <form id="connectAthleteForm" class="panel form-panel">
-              <div><p class="eyebrow">New connection</p><h3>Connect athlete</h3></div>
-              <label class="field"><span>Athlete name</span><input id="connectAthleteName" required maxlength="80" /></label>
-              <label class="field"><span>Athlete account code</span><input id="connectAthleteId" required autocomplete="off" /></label>
-              <label class="field"><span>Activity</span>
+              <div>
+                <p class="eyebrow">Relationship record</p>
+                <h3>Add athlete</h3>
+              </div>
+
+              <label class="field">
+                <span>Athlete name</span>
+                <input id="connectAthleteName" required maxlength="80" />
+              </label>
+
+              <label class="field">
+                <span>Athlete account code</span>
+                <input id="connectAthleteId" required autocomplete="off" />
+              </label>
+
+              <label class="field">
+                <span>Activity</span>
                 <select id="connectAthleteActivity">
                   <option value="powerlifting">Powerlifting</option>
                   <option value="general_strength">General strength</option>
                   <option value="rugby_union">Rugby union</option>
                 </select>
               </label>
+
+              <label class="field">
+                <span>Relationship state</span>
+                <select id="connectAthleteRelationshipState">
+                  <option value="accepted">Accepted connection</option>
+                  <option value="invited">Pending invitation</option>
+                </select>
+              </label>
+
+              <label id="connectAthleteExpiryField" class="field" hidden>
+                <span>Invitation expiry</span>
+                <input id="connectAthleteExpiry" type="date" />
+              </label>
+
               <label class="check-line">
                 <input id="connectAthleteConsent" type="checkbox" required />
-                <span>The athlete supplied this code and accepted this connection.</span>
+                <span id="connectAthleteConsentText">
+                  The athlete supplied this code and accepted this connection.
+                </span>
               </label>
-              <button class="button primary" type="submit">Connect athlete</button>
+
+              <button class="button primary" type="submit">
+                Record relationship
+              </button>
             </form>
-            <article class="panel">
-              <div class="panel-header"><div><p class="eyebrow">Roster</p><h3>Connected athletes</h3></div></div>
+
+            <article class="panel athlete-directory-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Directory</p>
+                  <h3>Coach–athlete relationships</h3>
+                </div>
+              </div>
+
+              <div
+                id="athleteRelationshipCounts"
+                class="metric-cards relationship-metric-cards"
+                aria-live="polite"
+              ></div>
+
+              <div class="athlete-directory-controls">
+                <label class="field">
+                  <span>Search athletes</span>
+                  <input
+                    id="athleteDirectorySearch"
+                    type="search"
+                    placeholder="Name, email or account code"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Relationship state</span>
+                  <select id="athleteRelationshipFilter">
+                    <option value="all">All relationships</option>
+                    <option value="accepted">Accepted</option>
+                    <option value="invited">Pending</option>
+                    <option value="expired">Expired</option>
+                    <option value="revoked">Revoked</option>
+                  </select>
+                </label>
+              </div>
+
               <div id="athleteRoster" class="record-list"></div>
             </article>
           </div>
+
+          <article
+            id="athleteRelationshipDetailPanel"
+            class="panel athlete-relationship-detail-panel"
+            hidden
+          >
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Relationship audit</p>
+                <h3 id="athleteRelationshipDetailHeading">Relationship</h3>
+                <p id="athleteRelationshipDetailState" class="muted"></p>
+              </div>
+
+              <button
+                id="closeAthleteRelationshipDetailButton"
+                class="button secondary"
+                type="button"
+              >
+                Close audit
+              </button>
+            </div>
+
+            <dl
+              id="athleteRelationshipAuditFacts"
+              class="relationship-audit-grid"
+            ></dl>
+
+            <div class="relationship-detail-actions">
+              <button
+                id="athleteRelationshipProfileButton"
+                class="button secondary"
+                type="button"
+                hidden
+              >
+                Open training profile
+              </button>
+
+              <button
+                id="athleteRelationshipTransitionButton"
+                class="button danger"
+                type="button"
+                hidden
+              ></button>
+            </div>
+          </article>
 
           <article id="athleteProfilePanel" class="panel athlete-profile-panel" hidden>
             <div class="panel-header athlete-profile-header">
@@ -425,9 +765,17 @@
                   <span>Programme</span>
                   <select id="athleteAssignmentTemplate"><option value="">No active programmes</option></select>
                 </label>
+                <div id="athleteAssignmentCurrent" class="assignment-current-state"></div>
                 <div id="athleteAssignmentRequirements" class="assignment-requirements neutral">Select an active programme.</div>
-                <button id="athleteAssignmentButton" class="button primary" type="submit">Assign programme</button>
+                <div class="assignment-action-row">
+                  <button id="athleteAssignmentButton" class="button primary" type="submit">Assign programme</button>
+                  <button id="athleteAssignmentCancelButton" class="button danger" type="button" hidden>Cancel future assignment</button>
+                </div>
                 <p id="athleteAssignmentResult" class="inline-result" hidden></p>
+                <div>
+                  <p class="eyebrow">Assignment history</p>
+                  <div id="athleteAssignmentHistory" class="athlete-assignment-history"></div>
+                </div>
               </form>
 
               <div class="panel-header athlete-event-links-header">
@@ -435,6 +783,227 @@
               </div>
               <div id="athleteEventLinks" class="record-list"></div>
             </section>
+
+            <section
+              id="athleteDetailHistoryPanel"
+              class="athlete-detail-history"
+              hidden
+            >
+              <div class="panel-header athlete-detail-header">
+                <div>
+                  <p class="eyebrow">Athlete detail</p>
+                  <h3>Programme, event and record history</h3>
+                  <p class="muted">
+                    Persisted factual records for this accepted coach-athlete relationship.
+                  </p>
+                </div>
+
+                <button
+                  id="athleteDetailRefreshButton"
+                  class="button secondary"
+                  type="button"
+                >
+                  Refresh detail
+                </button>
+              </div>
+
+              <p
+                id="athleteDetailStatus"
+                class="dashboard-status"
+                role="status"
+                aria-live="polite"
+              >
+                Athlete detail has not been loaded.
+              </p>
+
+              <div class="metric-cards athlete-detail-metrics">
+                <article class="panel metric-card">
+                  <span>Assignments</span>
+                  <strong id="athleteDetailAssignmentCount">0</strong>
+                </article>
+
+                <article class="panel metric-card">
+                  <span>Strength profiles</span>
+                  <strong id="athleteDetailStrengthCount">0</strong>
+                </article>
+
+                <article class="panel metric-card">
+                  <span>Bodyweight records</span>
+                  <strong id="athleteDetailBodyweightCount">0</strong>
+                </article>
+
+                <article class="panel metric-card">
+                  <span>Sessions</span>
+                  <strong id="athleteDetailSessionCount">0</strong>
+                </article>
+
+                <article class="panel metric-card">
+                  <span>Notes</span>
+                  <strong id="athleteDetailNoteCount">0</strong>
+                </article>
+              </div>
+
+              <div class="athlete-detail-summary-grid">
+                <article class="panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Current</p>
+                      <h3>Programme</h3>
+                    </div>
+                  </div>
+
+                  <div
+                    id="athleteDetailCurrentProgramme"
+                    class="record-list"
+                  ></div>
+                </article>
+
+                <article class="panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Current</p>
+                      <h3>Event link</h3>
+                    </div>
+                  </div>
+
+                  <div
+                    id="athleteDetailCurrentEvent"
+                    class="record-list"
+                  ></div>
+                </article>
+              </div>
+
+              <div class="athlete-detail-history-grid">
+                <article class="panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">History</p>
+                      <h3>Programme assignments</h3>
+                    </div>
+                  </div>
+
+                  <div
+                    id="athleteDetailAssignmentHistory"
+                    class="record-list athlete-detail-list"
+                  ></div>
+                </article>
+
+                <article class="panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">History</p>
+                      <h3>Strength references</h3>
+                    </div>
+                  </div>
+
+                  <div
+                    id="athleteDetailStrengthHistory"
+                    class="record-list athlete-detail-list"
+                  ></div>
+                </article>
+
+                <article class="panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">History</p>
+                      <h3>Bodyweight</h3>
+                    </div>
+                  </div>
+
+                  <div
+                    id="athleteDetailBodyweightHistory"
+                    class="record-list athlete-detail-list"
+                  ></div>
+                </article>
+
+                <article class="panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">History</p>
+                      <h3>Sessions</h3>
+                    </div>
+                  </div>
+
+                  <div
+                    id="athleteDetailSessionHistory"
+                    class="record-list athlete-detail-list"
+                  ></div>
+                </article>
+
+                <article class="panel athlete-detail-notes-panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">History</p>
+                      <h3>Coach notes</h3>
+                    </div>
+                  </div>
+
+                  <div
+                    id="athleteDetailNoteHistory"
+                    class="record-list athlete-detail-list"
+                  ></div>
+
+                  <form
+                    id="athleteDetailNoteForm"
+                    class="athlete-detail-note-form"
+                    hidden
+                  >
+                    <input
+                      id="athleteDetailNoteSessionId"
+                      type="hidden"
+                    />
+
+                    <input
+                      id="athleteDetailNoteArtefactId"
+                      type="hidden"
+                    />
+
+                    <label class="field">
+                      <span>Non-binding note</span>
+                      <textarea
+                        id="athleteDetailNoteText"
+                        required
+                        maxlength="2000"
+                      ></textarea>
+                    </label>
+
+                    <label class="field">
+                      <span>Visibility</span>
+                      <select id="athleteDetailNoteVisibility">
+                        <option value="coach_private">
+                          Coach only
+                        </option>
+                        <option value="athlete_visible">
+                          Visible to athlete
+                        </option>
+                      </select>
+                    </label>
+
+                    <div class="inline-controls">
+                      <button
+                        id="athleteDetailNoteCancelButton"
+                        class="button secondary"
+                        type="button"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        class="button primary"
+                        type="submit"
+                      >
+                        Record note
+                      </button>
+                    </div>
+
+                    <p class="muted small">
+                      Notes are stored separately and do not alter session facts or engine output.
+                    </p>
+                  </form>
+                </article>
+              </div>
+            </section>
+
 
           </article>
         </section>
@@ -506,13 +1075,14 @@
               <button id="newTemplateButton" class="button primary" type="button">New programme</button>
             </div>
 
-            <div class="metric-cards">
+            <div class="metric-cards programme-metric-cards">
               <article class="panel metric-card"><span>Draft programmes</span><strong id="templateDraftCount">0</strong></article>
               <article class="panel metric-card"><span>Active programmes</span><strong id="templateActiveCount">0</strong></article>
               <article class="panel metric-card"><span>Archived programmes</span><strong id="templateArchivedCount">0</strong></article>
+              <article class="panel metric-card"><span>Superseded versions</span><strong id="templateSupersededCount">0</strong></article>
             </div>
 
-            <article class="panel">
+            <article class="panel programme-library-panel">
               <div class="panel-header">
                 <div>
                   <p class="eyebrow">Programme library</p>
@@ -520,8 +1090,144 @@
                 </div>
                 <button id="refreshTemplatesButton" class="button secondary" type="button">Refresh</button>
               </div>
+
+              <div class="programme-library-controls" aria-label="Programme library filters">
+                <label class="field programme-search-field">
+                  <span>Search programmes</span>
+                  <input
+                    id="templateLibrarySearch"
+                    type="search"
+                    autocomplete="off"
+                    placeholder="Name, activity, event or version"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>State</span>
+                  <select id="templateLibraryStatusFilter">
+                    <option value="all">All states</option>
+                    <option value="draft">Draft</option>
+                    <option value="active">Active</option>
+                    <option value="archived">Archived</option>
+                    <option value="superseded">Superseded</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>Activity</span>
+                  <select id="templateLibraryActivityFilter">
+                    <option value="all">All activities</option>
+                    <option value="powerlifting">Powerlifting</option>
+                    <option value="general_strength">General strength</option>
+                    <option value="rugby_union">Rugby union</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>Sort</span>
+                  <select id="templateLibrarySort">
+                    <option value="updated_desc">Recently updated</option>
+                    <option value="name_asc">Name A–Z</option>
+                    <option value="version_desc">Highest version</option>
+                    <option value="usage_desc">Most assignments</option>
+                  </select>
+                </label>
+
+                <button
+                  id="templateLibraryClearFilters"
+                  class="button secondary programme-clear-filters"
+                  type="button"
+                >
+                  Clear filters
+                </button>
+              </div>
+
+              <div class="programme-library-result-line">
+                <p id="templateLibraryResultCount" class="muted small">0 programmes</p>
+                <p id="templateLibraryStatus" class="muted small" role="status">Programme data not loaded.</p>
+              </div>
+
+              <aside
+                id="templateDraftRecovery"
+                class="panel template-draft-recovery"
+                aria-labelledby="templateDraftRecoveryTitle"
+                hidden
+              >
+                <div>
+                  <p class="eyebrow">Recovered browser draft</p>
+                  <h4 id="templateDraftRecoveryTitle">Recover programme</h4>
+                  <p id="templateDraftRecoveryText" class="muted">Unsaved programme changes are available in this browser.</p>
+                </div>
+                <div class="template-draft-recovery-actions">
+                  <button id="templateDraftRecoveryResumeButton" class="button primary" type="button">Resume changes</button>
+                  <button id="templateDraftRecoveryDiscardButton" class="button secondary" type="button">Discard changes</button>
+                </div>
+              </aside>
+
               <div id="templateLibraryList" class="template-library"></div>
             </article>
+
+            <section
+              id="templateDetailPanel"
+              class="panel programme-detail-panel"
+              aria-labelledby="templateDetailTitle"
+              hidden
+            >
+              <div class="panel-header programme-detail-heading">
+                <div>
+                  <p class="eyebrow">Programme detail</p>
+                  <h3 id="templateDetailTitle">Programme</h3>
+                  <div id="templateDetailStatus" class="template-status-line"></div>
+                </div>
+                <button id="templateDetailCloseButton" class="button secondary" type="button">Close detail</button>
+              </div>
+
+              <div id="templateDetailMeta" class="programme-detail-facts"></div>
+              <p id="templateDetailDescription" class="programme-detail-description muted"></p>
+              <div id="templateDetailActions" class="button-row programme-detail-actions"></div>
+
+              <div class="programme-detail-grid">
+                <article class="programme-detail-section">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Version family</p>
+                      <h4>Version metadata</h4>
+                    </div>
+                  </div>
+                  <div id="templateDetailVersionFamily" class="programme-version-list"></div>
+                </article>
+
+                <article class="programme-detail-section">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Recorded use</p>
+                      <h4>Assignment usage</h4>
+                    </div>
+                  </div>
+                  <div id="templateDetailUsage" class="programme-usage-list"></div>
+                </article>
+              </div>
+
+              <article class="programme-detail-section">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Activation checks</p>
+                    <h4>Validation summary</h4>
+                  </div>
+                </div>
+                <div id="templateDetailValidation"></div>
+              </article>
+
+              <article class="programme-detail-section">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Programme preview</p>
+                    <h4>Complete ordered structure</h4>
+                  </div>
+                </div>
+                <div id="templateDetailPreview" class="programme-preview"></div>
+              </article>
+            </section>
           </div>
 
           <div id="templateBuilderView" hidden>
@@ -537,6 +1243,31 @@
                 <button id="activateTemplateButton" class="button primary" type="button">Activate programme</button>
               </div>
             </div>
+
+            <section class="panel template-builder-status-panel" aria-label="Programme builder status">
+              <div class="template-builder-save-panel">
+                <div class="template-builder-save-line">
+                  <span
+                    id="templateBuilderSaveState"
+                    class="badge neutral"
+                    role="status"
+                    aria-live="polite"
+                    tabindex="-1"
+                  >
+                    New draft
+                  </span>
+                  <button id="templateBuilderDiscardButton" class="button secondary small-button" type="button">Discard and close</button>
+                </div>
+                <p id="templateBuilderSaveDetail" class="muted small">Enter programme details, then save the draft.</p>
+                <p class="muted small">Keyboard: Ctrl+S or Command+S saves. Escape returns to the library after confirmation.</p>
+              </div>
+
+              <div id="templateBuilderValidation" class="template-builder-validation warning">
+                <p class="eyebrow">Activation validation</p>
+                <h3>Resolve visible issues</h3>
+                <ol id="templateBuilderValidationList" class="template-builder-validation-list"></ol>
+              </div>
+            </section>
 
             <div class="template-builder-layout">
               <aside class="panel template-settings">
@@ -645,12 +1376,26 @@
               </select>
             </label>
             <div id="assignmentEventSummary" class="event-assignment-summary" hidden></div>
+            <div id="assignmentCurrentState" class="assignment-current-state"></div>
             <div id="assignmentRequirements" class="assignment-requirements neutral">
               Select an athlete and programme to check percentage-load references.
             </div>
-            <button id="assignmentSubmitButton" class="button primary" type="submit">Record assignment</button>
+            <div class="assignment-action-row">
+              <button id="assignmentSubmitButton" class="button primary" type="submit">Record assignment</button>
+              <button id="assignmentCancelButton" class="button danger" type="button" hidden>Cancel future assignment</button>
+            </div>
             <p id="assignmentResult" class="inline-result" hidden></p>
           </form>
+          <article class="panel assignment-history-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Immutable history</p>
+                <h3>Assignment lifecycle</h3>
+                <p class="muted">Created, replaced and cancelled assignment records remain visible. Event links are shown separately.</p>
+              </div>
+            </div>
+            <div id="assignmentHistoryList" class="assignment-history-list"></div>
+          </article>
         </section>
 
         <section id="view-review" class="view" hidden>
@@ -658,26 +1403,80 @@
             <div>
               <p class="eyebrow">Coach workspace</p>
               <h2>Review</h2>
-              <p class="muted">Read-only factual session artefacts for an assigned athlete.</p>
+              <p class="muted">Factual completed-session review, live read-only status and non-binding coach notes.</p>
             </div>
-            <div class="inline-controls">
-              <select id="reviewAthlete"></select>
-              <button id="loadReviewButton" class="button secondary" type="button">Load sessions</button>
+            <div class="review-toolbar">
+              <label class="field compact-field">
+                <span>Athlete</span>
+                <select id="reviewAthlete"></select>
+              </label>
+              <label class="field compact-field">
+                <span>Search</span>
+                <input id="reviewSearch" type="search" placeholder="Athlete, session or programme" autocomplete="off" />
+              </label>
+              <label class="field compact-field">
+                <span>Status</span>
+                <select id="reviewStatusFilter">
+                  <option value="awaiting">Awaiting review</option>
+                  <option value="reviewed">Reviewed</option>
+                  <option value="open">Open sessions</option>
+                  <option value="all">All records</option>
+                </select>
+              </label>
+              <button id="loadReviewButton" class="button secondary" type="button">Refresh review</button>
             </div>
           </div>
-          <div id="reviewList" class="record-list"></div>
+
+          <p id="reviewStatus" class="dashboard-status muted" aria-live="polite">Select an athlete or refresh all connected review records.</p>
+
+          <div class="review-summary-grid" aria-label="Review counts">
+            <article class="stat-card">
+              <span>All records</span>
+              <strong id="reviewAllCount">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Awaiting review</span>
+              <strong id="reviewAwaitingCount">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Reviewed</span>
+              <strong id="reviewReviewedCount">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Open sessions</span>
+              <strong id="reviewOpenCount">0</strong>
+            </article>
+          </div>
+
+          <div class="review-layout">
+            <div>
+              <div id="reviewList" class="record-list"></div>
+            </div>
+
+            <aside id="reviewDetail" class="panel review-detail" hidden>
+              <div id="reviewDetailContent"></div>
+            </aside>
+          </div>
+
           <form id="coachNoteForm" class="panel form-panel narrow" hidden>
-            <div><p class="eyebrow">Non-binding note</p><h3 id="coachNoteHeading">Add note</h3></div>
+            <div>
+              <p class="eyebrow">Non-binding note</p>
+              <h3 id="coachNoteHeading">Add note</h3>
+            </div>
             <input id="coachNoteSessionId" type="hidden" />
             <input id="coachNoteArtefactId" type="hidden" />
-            <label class="field"><span>Note</span><textarea id="coachNoteText" required maxlength="2000"></textarea></label>
-            <label class="field"><span>Visibility</span>
+            <label class="field">
+              <span>Note</span>
+              <textarea id="coachNoteText" required maxlength="2000"></textarea>
+            </label>
+            <label class="field">
+              <span>Visibility</span>
               <select id="coachNoteVisibility">
                 <option value="coach_private">Coach only</option>
                 <option value="athlete_visible">Visible to athlete</option>
               </select>
             </label>
-            <p class="muted small">This note is stored separately and does not alter engine output or session facts.</p>
+            <p class="muted small">This note is non-binding, stored separately from the session artefact and cannot alter engine output or session facts.</p>
             <button class="button primary" type="submit">Record note</button>
           </form>
         </section>
@@ -686,33 +1485,180 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">Account</p>
-              <h2>Workspace account</h2>
-              <p class="muted">Local beta identity and product access details.</p>
+              <h2>Account and access</h2>
+              <p class="muted">Persistent identity, credentials, consent history and account state.</p>
             </div>
+            <button id="refreshAccountButton" class="button secondary" type="button">Refresh account</button>
           </div>
+
           <div class="two-column">
             <article class="panel account-card">
-              <div class="large-avatar" id="accountAvatar">C</div>
+              <div class="large-avatar" id="accountAvatar">K</div>
               <div>
                 <h3 id="accountName">User</h3>
                 <p id="accountEmail" class="muted"></p>
-                <span id="accountRoleBadge" class="badge neutral">Athlete</span>
+                <div class="badge-row">
+                  <span id="accountRoleBadge" class="badge neutral">Athlete</span>
+                  <span id="accountStateBadge" class="badge neutral">Active</span>
+                  <span id="accountVerificationBadge" class="badge neutral">Email not verified</span>
+                </div>
               </div>
             </article>
+
             <article class="panel">
               <p class="eyebrow">Account code</p>
               <h3 id="accountCode">—</h3>
-              <p class="muted">Share this code only when intentionally connecting a coach or athlete account.</p>
+              <p class="muted">Use this code only when intentionally connecting a coach and athlete.</p>
               <button id="copyAccountCodeButton" class="button secondary" type="button">Copy code</button>
             </article>
           </div>
+
+          <div class="account-settings-grid">
+            <form id="accountProfileForm" class="panel form-panel">
+              <div>
+                <p class="eyebrow">Profile</p>
+                <h3>Identity details</h3>
+              </div>
+
+              <label class="field">
+                <span>Display name</span>
+                <input id="accountProfileName" required maxlength="80" autocomplete="name" />
+              </label>
+
+              <label class="field">
+                <span>Email</span>
+                <input id="accountProfileEmail" required maxlength="254" type="email" autocomplete="email" />
+              </label>
+
+              <button class="button primary" type="submit">Save profile</button>
+              <p id="accountProfileResult" class="inline-result" hidden></p>
+            </form>
+
+            <article class="panel form-panel">
+              <div>
+                <p class="eyebrow">Email verification</p>
+                <h3>Verify email address</h3>
+                <p class="muted">Request and enter the six-digit verification code.</p>
+              </div>
+
+              <button id="requestVerificationButton" class="button secondary" type="button">Request code</button>
+
+              <label class="field">
+                <span>Verification code</span>
+                <input id="verificationCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" />
+              </label>
+
+              <button id="completeVerificationButton" class="button primary" type="button">Verify email</button>
+              <p id="verificationResult" class="inline-result" hidden></p>
+            </article>
+
+            <form id="accountPasswordForm" class="panel form-panel">
+              <div>
+                <p class="eyebrow">Credentials</p>
+                <h3>Change password</h3>
+                <p class="muted">Changing the password revokes other active sessions.</p>
+              </div>
+
+              <label class="field">
+                <span>Current password</span>
+                <input id="currentPassword" type="password" autocomplete="current-password" required minlength="12" maxlength="200" />
+              </label>
+
+              <label class="field">
+                <span>New password</span>
+                <input id="newPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="200" />
+              </label>
+
+              <button class="button primary" type="submit">Change password</button>
+              <p id="passwordChangeResult" class="inline-result" hidden></p>
+            </form>
+
+            <article class="panel">
+              <div>
+                <p class="eyebrow">Terms and consent</p>
+                <h3>Account history</h3>
+              </div>
+              <div id="accountConsentHistory" class="record-list compact-record-list">
+                <div class="empty-state compact-empty"><p>Loading account history…</p></div>
+              </div>
+            </article>
+          </div>
+
+
+          <section id="accountCommercialPanel" class="panel commercial-panel" aria-labelledby="commercialHeading">
+            <div class="commercial-heading">
+              <div>
+                <p class="eyebrow">Controlled-launch commercial access</p>
+                <h3 id="commercialHeading">Subscription and billing</h3>
+                <p class="muted">Factual product-access and billing records only. Commercial state cannot alter engine truth.</p>
+              </div>
+              <div class="badge-row">
+                <span id="commercialSubscriptionState" class="badge neutral">Loading</span>
+                <span id="commercialAccessState" class="badge neutral">Loading</span>
+              </div>
+            </div>
+
+            <div class="commercial-fact-grid">
+              <div class="commercial-fact">
+                <span>Billing status</span>
+                <strong id="commercialBillingStatus">—</strong>
+              </div>
+              <div class="commercial-fact">
+                <span>Plan</span>
+                <strong id="commercialPlan">—</strong>
+              </div>
+              <div class="commercial-fact">
+                <span>Seat allowance</span>
+                <strong id="commercialSeatAllowance">—</strong>
+              </div>
+              <div class="commercial-fact">
+                <span>Seat usage</span>
+                <strong id="commercialSeatUsage">—</strong>
+              </div>
+              <div class="commercial-fact">
+                <span>Seats available</span>
+                <strong id="commercialSeatAvailable">—</strong>
+              </div>
+            </div>
+
+            <div class="commercial-actions">
+              <button id="commercialCheckoutButton" class="button primary" type="button" disabled>Prepare checkout</button>
+              <button id="commercialPortalButton" class="button secondary" type="button" disabled>Open billing portal</button>
+            </div>
+
+            <p class="muted commercial-boundary-copy">Checkout and portal actions create controlled-launch provider requests. No live provider SDK call is performed by this product slice.</p>
+            <p id="commercialEntitlementError" class="inline-result commercial-entitlement-error" hidden></p>
+            <p id="commercialResult" class="inline-result" hidden></p>
+
+            <div>
+              <p class="eyebrow">Commercial record history</p>
+              <div id="commercialHistory" class="record-list compact-record-list">
+                <div class="empty-state compact-empty"><p>Loading commercial account history…</p></div>
+              </div>
+            </div>
+          </section>
+
           <article class="panel danger-panel">
             <div>
-              <h3>Leave this workspace</h3>
-              <p class="muted">This removes local sign-in state from this browser. Persisted server records remain unchanged.</p>
+              <h3>Sign out</h3>
+              <p class="muted">Revokes this server session and clears local browser identity.</p>
             </div>
-            <button id="signOutButton" class="button danger" type="button">Sign out locally</button>
+            <button id="signOutButton" class="button danger" type="button">Sign out</button>
           </article>
+
+          <form id="accountClosureForm" class="panel danger-panel closure-panel">
+            <div>
+              <h3>Close account</h3>
+              <p class="muted">Type CLOSE to request account closure and revoke every active session.</p>
+            </div>
+
+            <div class="closure-controls">
+              <input id="accountClosureConfirmation" autocomplete="off" placeholder="Type CLOSE" required />
+              <button class="button danger" type="submit">Request closure</button>
+            </div>
+
+            <p id="accountClosureResult" class="inline-result" hidden></p>
+          </form>
         </section>
       </main>
     </div>
@@ -724,6 +1670,7 @@
   </div>
 
   <script type="module" src="/app/app.js"></script>
+  <script type="module" src="/app/commercial_ui.js"></script>
   <script type="module" src="/app/route_bootstrap.js"></script>
 </body>
 </html>

@@ -200,8 +200,14 @@ async function applyEntityRoute(route) {
     const selector = `[data-template-id="${escapeSelector(params.template_id)}"]`;
     const target = await waitForSelector(selector);
     if (target) {
-      const edit = target.matches("button") ? target : target.querySelector(".template-edit");
-      if (edit) edit.click();
+      const detail = target.matches(".template-detail")
+        ? target
+        : target.querySelector(".template-detail");
+      const edit = target.matches(".template-edit")
+        ? target
+        : target.querySelector(".template-edit");
+      if (detail) detail.click();
+      else if (edit) edit.click();
       else markRouteTarget(target.closest(".template-card") ?? target);
       return true;
     }

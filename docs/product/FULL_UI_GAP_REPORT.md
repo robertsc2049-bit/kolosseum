@@ -7,9 +7,9 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 68
-- partial: 76
-- missing: 93
+- implemented: 127
+- partial: 50
+- missing: 60
 - prohibited: 0
 
 ## Product areas
@@ -20,29 +20,26 @@ Slice: FULL-UI-02
 
 Area state: partial
 
-Implemented: 1 · Partial: 3 · Missing: 9 · Prohibited: 0
+Implemented: 12 · Partial: 1 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
-- `role_redirect` — Redirect to the lawful actor home route
-
-#### partial
-
 - `account_create` — Create athlete or coach account
-- `terms_version` — Display current terms and consent versions
-- `sign_out` — Sign out and clear browser authentication state
-
-#### missing
-
 - `account_sign_in` — Sign in to an existing account
 - `authenticated_session` — Persist authenticated browser session
 - `email_verification` — Display and complete email verification
 - `password_reset` — Forgotten-password and reset flow
 - `account_state_message` — Display active, suspended, closed and deleted account states
+- `role_redirect` — Redirect to the lawful actor home route
 - `consent_history` — Display consent history
 - `profile_update` — Update display name and email
 - `password_change` — Change password
 - `account_close_request` — Request account closure
+- `sign_out` — Sign out and clear browser authentication state
+
+#### partial
+
+- `terms_version` — Display current terms and consent versions
 
 ### Athlete onboarding and declarations
 
@@ -71,16 +68,11 @@ Implemented: 0 · Partial: 5 · Missing: 4 · Prohibited: 0
 
 Slice: FULL-UI-04
 
-Area state: missing
+Area state: partial
 
-Implemented: 0 · Partial: 2 · Missing: 6 · Prohibited: 0
+Implemented: 6 · Partial: 2 · Missing: 0 · Prohibited: 0
 
-#### partial
-
-- `coach_profile_setup` — Create coach profile
-- `coach_terms` — Accept coach terms
-
-#### missing
+#### implemented
 
 - `subscription_state` — Display current subscription state
 - `seat_allowance` — Display seat allowance and usage
@@ -88,6 +80,11 @@ Implemented: 0 · Partial: 2 · Missing: 6 · Prohibited: 0
 - `payment_return` — Handle payment success and cancellation
 - `billing_portal` — Open billing portal
 - `entitlement_error` — Display factual entitlement failure
+
+#### partial
+
+- `coach_profile_setup` — Create coach profile
+- `coach_terms` — Accept coach terms
 
 ### Coach–athlete relationships
 
@@ -117,25 +114,19 @@ Implemented: 0 · Partial: 4 · Missing: 6 · Prohibited: 0
 
 Slice: FULL-UI-06
 
-Area state: partial
+Area state: implemented
 
-Implemented: 1 · Partial: 3 · Missing: 3 · Prohibited: 0
+Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `overview_factual_counts` — Display factual coach counts
-
-#### partial
-
 - `overview_relationships` — Display connected and pending athletes
-- `overview_upcoming_events` — Display upcoming events
-- `overview_direct_links` — Link directly to athlete, event, programme, assignment and review records
-
-#### missing
-
 - `overview_assignment_queue` — Display assignments requiring action
+- `overview_upcoming_events` — Display upcoming events
 - `overview_open_sessions` — Display open sessions
 - `overview_completed_since_review` — Display sessions completed since review
+- `overview_direct_links` — Link directly to athlete, event, programme, assignment and review records
 
 ### Athlete directory and athlete profile
 
@@ -143,27 +134,24 @@ Slice: FULL-UI-07
 
 Area state: partial
 
-Implemented: 2 · Partial: 5 · Missing: 6 · Prohibited: 0
+Implemented: 11 · Partial: 0 · Missing: 2 · Prohibited: 0
 
 #### implemented
 
+- `athlete_search_filter` — Search and filter connected athletes
 - `athlete_relationship_state` — Display relationship state
 - `athlete_identity_activity` — Display athlete identity and activity
-
-#### partial
-
 - `athlete_current_programme` — Display current programme assignment
 - `athlete_current_event` — Display current event link
+- `athlete_assignment_history` — Display assignment history
 - `athlete_event_history` — Display event-link history
 - `athlete_strength_history` — Display strength-reference history
+- `athlete_bodyweight_history` — Display bodyweight history
+- `athlete_notes_list` — Display coach notes and visibility
 - `athlete_session_history` — Display athlete session history
 
 #### missing
 
-- `athlete_search_filter` — Search and filter connected athletes
-- `athlete_assignment_history` — Display assignment history
-- `athlete_bodyweight_history` — Display bodyweight history
-- `athlete_notes_list` — Display coach notes and visibility
 - `athlete_relationship_revoke` — Revoke relationship from profile
 - `athlete_archive_inactive` — Archive inactive relationship without deleting history
 
@@ -226,38 +214,32 @@ Implemented: 4 · Partial: 6 · Missing: 3 · Prohibited: 0
 
 Slice: FULL-UI-10
 
-Area state: partial
+Area state: implemented
 
-Implemented: 5 · Partial: 4 · Missing: 3 · Prohibited: 0
+Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
+- `programme_states` — Display draft, active, archived and superseded states
+- `programme_search_filter` — Search, filter and sort programmes
 - `programme_new` — Create programme
 - `programme_duplicate` — Duplicate programme version
-- `programme_activate` — Activate programme
-- `programme_archive` — Archive programme
-- `programme_immutable_active` — Prevent edits to active and archived versions
-
-#### partial
-
-- `programme_states` — Display draft, active, archived and superseded states
 - `programme_detail` — Open programme detail
 - `programme_preview` — Preview complete programme structure
-- `programme_activation_validation` — Display full activation validation summary
-
-#### missing
-
-- `programme_search_filter` — Search, filter and sort programmes
+- `programme_activate` — Activate programme
+- `programme_archive` — Archive programme
 - `programme_version_metadata` — Compare factual version metadata
 - `programme_assignment_usage` — Display assignment usage before archive
+- `programme_immutable_active` — Prevent edits to active and archived versions
+- `programme_activation_validation` — Display full activation validation summary
 
 ### Programme builder
 
 Slice: FULL-UI-11
 
-Area state: partial
+Area state: implemented
 
-Implemented: 16 · Partial: 2 · Missing: 2 · Prohibited: 0
+Implemented: 20 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -277,16 +259,10 @@ Implemented: 16 · Partial: 2 · Missing: 2 · Prohibited: 0
 - `builder_load_unit` — Set load unit
 - `builder_rest` — Set rest time
 - `builder_summary` — Display deterministic structure summary
-
-#### partial
-
-- `builder_save_feedback` — Display save state and confirmation
-- `builder_keyboard_mobile` — Operate builder by keyboard and phone
-
-#### missing
-
 - `builder_unsaved_warning` — Warn about unsaved changes
+- `builder_save_feedback` — Display save state and confirmation
 - `builder_validation_links` — Link validation failures to fields
+- `builder_keyboard_mobile` — Operate builder by keyboard and phone
 
 ### Event-to-programme calendar
 
@@ -317,9 +293,9 @@ Implemented: 8 · Partial: 0 · Missing: 3 · Prohibited: 0
 
 Slice: FULL-UI-13
 
-Area state: partial
+Area state: implemented
 
-Implemented: 5 · Partial: 4 · Missing: 3 · Prohibited: 0
+Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -328,19 +304,13 @@ Implemented: 5 · Partial: 4 · Missing: 3 · Prohibited: 0
 - `assignment_select_event` — Select optional linked event
 - `assignment_preflight` — Preflight missing strength references
 - `assignment_exact_version` — Display exact programme version
-
-#### partial
-
 - `assignment_confirmation` — Confirm assignment creation
 - `assignment_current_detail` — Display current assignment
-- `assignment_separate_event` — Display event link and assignment separately
-- `assignment_preserve_sessions` — Preserve prior compiled sessions
-
-#### missing
-
 - `assignment_replace` — Replace assignment
 - `assignment_cancel` — Cancel future assignment
 - `assignment_history` — Display assignment history
+- `assignment_separate_event` — Display event link and assignment separately
+- `assignment_preserve_sessions` — Preserve prior compiled sessions
 
 ### Athlete Today
 
@@ -431,29 +401,23 @@ Implemented: 1 · Partial: 6 · Missing: 2 · Prohibited: 0
 
 Slice: FULL-UI-17
 
-Area state: partial
+Area state: implemented
 
-Implemented: 3 · Partial: 6 · Missing: 3 · Prohibited: 0
+Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
-- `review_note_create` — Create non-binding coach note
-- `review_nonbinding_copy` — Display exact non-binding note copy
-- `review_no_override` — Prevent coach override of engine truth
-
-#### partial
-
 - `review_athlete_search` — Select and search athlete
+- `review_open_sessions` — Display open sessions
 - `review_completed_queue` — Display completed sessions awaiting review
 - `review_factual_detail` — Display factual session detail
 - `review_provenance` — Display event, programme and assignment provenance
 - `review_live_status` — Display live read-only status
-- `review_note_visibility` — Display note visibility
-
-#### missing
-
-- `review_open_sessions` — Display open sessions
+- `review_note_create` — Create non-binding coach note
 - `review_note_list` — Display coach-note list
+- `review_note_visibility` — Display note visibility
+- `review_nonbinding_copy` — Display exact non-binding note copy
+- `review_no_override` — Prevent coach override of engine truth
 - `review_state` — Store reviewed or unreviewed product state
 
 ### Notifications and task state
@@ -501,7 +465,7 @@ Implemented: 0 · Partial: 0 · Missing: 10 · Prohibited: 0
 
 Slice: FULL-UI-20
 
-Area state: missing
+Area state: partial
 
 Implemented: 0 · Partial: 3 · Missing: 4 · Prohibited: 0
 
@@ -574,8 +538,17 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 
 ## Functions without persistent integration proof
 
+- `account_sign_in` — Sign in to an existing account
+- `authenticated_session` — Persist authenticated browser session
+- `email_verification` — Display and complete email verification
+- `password_reset` — Forgotten-password and reset flow
+- `account_state_message` — Display active, suspended, closed and deleted account states
 - `role_redirect` — Redirect to the lawful actor home route
 - `terms_version` — Display current terms and consent versions
+- `consent_history` — Display consent history
+- `profile_update` — Update display name and email
+- `password_change` — Change password
+- `account_close_request` — Request account closure
 - `sign_out` — Sign out and clear browser authentication state
 - `execution_scope_declaration` — Declare execution scope
 - `beta_acknowledgement` — Accept product acknowledgement
@@ -583,20 +556,33 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 - `onboarding_completion` — Persist onboarding completion state
 - `coach_profile_setup` — Create coach profile
 - `coach_terms` — Accept coach terms
+- `subscription_state` — Display current subscription state
+- `seat_allowance` — Display seat allowance and usage
+- `checkout_entry` — Open checkout
+- `payment_return` — Handle payment success and cancellation
+- `billing_portal` — Open billing portal
+- `entitlement_error` — Display factual entitlement failure
 - `relationship_accept` — Accept relationship
 - `relationship_lists` — Display pending and accepted relationships
 - `relationship_audit` — Display relationship detail and audit facts
 - `relationship_history_preserved` — Preserve historical records after relationship closure
 - `overview_factual_counts` — Display factual coach counts
 - `overview_relationships` — Display connected and pending athletes
+- `overview_assignment_queue` — Display assignments requiring action
 - `overview_upcoming_events` — Display upcoming events
+- `overview_open_sessions` — Display open sessions
+- `overview_completed_since_review` — Display sessions completed since review
 - `overview_direct_links` — Link directly to athlete, event, programme, assignment and review records
+- `athlete_search_filter` — Search and filter connected athletes
 - `athlete_relationship_state` — Display relationship state
 - `athlete_identity_activity` — Display athlete identity and activity
 - `athlete_current_programme` — Display current programme assignment
 - `athlete_current_event` — Display current event link
+- `athlete_assignment_history` — Display assignment history
 - `athlete_event_history` — Display event-link history
 - `athlete_strength_history` — Display strength-reference history
+- `athlete_bodyweight_history` — Display bodyweight history
+- `athlete_notes_list` — Display coach notes and visibility
 - `athlete_session_history` — Display athlete session history
 - `strength_estimated_1rm` — Add estimated 1RM
 - `strength_training_max` — Add training max
@@ -616,10 +602,13 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 - `event_history_preserved` — Preserve assignment and session history after unlink
 - `event_validation` — Validate conflicts and past dates
 - `programme_states` — Display draft, active, archived and superseded states
+- `programme_search_filter` — Search, filter and sort programmes
 - `programme_duplicate` — Duplicate programme version
 - `programme_detail` — Open programme detail
 - `programme_preview` — Preview complete programme structure
 - `programme_archive` — Archive programme
+- `programme_version_metadata` — Compare factual version metadata
+- `programme_assignment_usage` — Display assignment usage before archive
 - `programme_immutable_active` — Prevent edits to active and archived versions
 - `programme_activation_validation` — Display full activation validation summary
 - `builder_identity` — Edit programme identity and activity
@@ -638,7 +627,9 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 - `builder_load_unit` — Set load unit
 - `builder_rest` — Set rest time
 - `builder_summary` — Display deterministic structure summary
+- `builder_unsaved_warning` — Warn about unsaved changes
 - `builder_save_feedback` — Display save state and confirmation
+- `builder_validation_links` — Link validation failures to fields
 - `builder_keyboard_mobile` — Operate builder by keyboard and phone
 - `calendar_start_date` — Set preparation start date
 - `calendar_required_weeks` — Display required weeks
@@ -654,6 +645,9 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 - `assignment_exact_version` — Display exact programme version
 - `assignment_confirmation` — Confirm assignment creation
 - `assignment_current_detail` — Display current assignment
+- `assignment_replace` — Replace assignment
+- `assignment_cancel` — Cancel future assignment
+- `assignment_history` — Display assignment history
 - `assignment_separate_event` — Display event link and assignment separately
 - `assignment_preserve_sessions` — Preserve prior compiled sessions
 - `today_programme` — Display current programme
@@ -684,14 +678,17 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 - `history_provenance` — Display programme, assignment and event provenance
 - `history_empty_unavailable` — Display empty and unavailable states
 - `review_athlete_search` — Select and search athlete
+- `review_open_sessions` — Display open sessions
 - `review_completed_queue` — Display completed sessions awaiting review
 - `review_factual_detail` — Display factual session detail
 - `review_provenance` — Display event, programme and assignment provenance
 - `review_live_status` — Display live read-only status
 - `review_note_create` — Create non-binding coach note
+- `review_note_list` — Display coach-note list
 - `review_note_visibility` — Display note visibility
 - `review_nonbinding_copy` — Display exact non-binding note copy
 - `review_no_override` — Prevent coach override of engine truth
+- `review_state` — Store reviewed or unreviewed product state
 - `status_current` — Display current factual platform status
 - `support_secret_boundary` — Hide engine internals and secrets
 - `support_retry` — Offer retry and recovery actions

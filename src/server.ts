@@ -11,6 +11,10 @@ import { sessionsRouter } from "./api/sessions.routes.js";
 import { blocksRouter } from "./api/blocks.routes.js";
 import { templatesRouter } from "./api/templates.routes.js";
 import { coachWorkspaceRouter } from "./api/coach_workspace.routes.js";
+import { productAssignmentRouter } from "./api/product_assignment.routes.js";
+import { productReviewRouter } from "./api/product_review.routes.js";
+import { productAccountRouter } from "./api/product_account.routes.js";
+import { productCommercialRouter } from "./api/product_commercial.routes.js";
 import { apiErrorMiddleware } from "./api/error_middleware.js";
 
 import { VERSION } from "./version.js";
@@ -76,8 +80,12 @@ app.get("/ui/decision-summary/:run_id", (req, res) => {
   return res.redirect(`/ui/decision-summary.html?run_id=${encodeURIComponent(runId)}`);
 });
 
+app.use("/account/commercial", productCommercialRouter);
+app.use("/account", productAccountRouter);
 app.use("/templates", templatesRouter);
 app.use("/coach-workspace", coachWorkspaceRouter);
+app.use("/coach-workspace", productAssignmentRouter);
+app.use("/coach-workspace", productReviewRouter);
 app.use("/sessions", sessionsRouter);
 app.use("/blocks", blocksRouter);
 

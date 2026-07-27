@@ -9,13 +9,24 @@ import {
   getAthleteEventLinks,
   getAthleteStrengthProfile,
   getCoachAssignments,
+  getCoachAthleteRelationships,
   getCoachEvents,
   getConnectedCoachAthletes,
   previewEventProgrammeCalendar,
   saveAthleteStrengthProfileHandler
 } from "./coach_workspace.handlers.js";
 
+// FULL-UI-04B athlete-detail handler import.
+import {
+  getCoachAthleteDetail
+} from "./coach_workspace.handlers.js";
+
 export const coachWorkspaceRouter = Router();
+
+coachWorkspaceRouter.get(
+  "/relationships",
+  asyncHandler(getCoachAthleteRelationships)
+);
 
 coachWorkspaceRouter.get(
   "/athletes",
@@ -61,4 +72,9 @@ coachWorkspaceRouter.post(
 coachWorkspaceRouter.post(
   "/event-compile-preview",
   asyncHandler(previewEventProgrammeCalendar)
+);
+
+coachWorkspaceRouter.get(
+  "/athlete-detail",
+  asyncHandler(getCoachAthleteDetail)
 );

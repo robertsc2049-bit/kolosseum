@@ -1,3 +1,18 @@
+import {
+  changeAccountPassword,
+  completeEmailVerification,
+  completePasswordReset,
+  loadAccountDetail as fetchAccountDetail,
+  registerAccount,
+  requestAccountClosure,
+  requestEmailVerification,
+  requestPasswordReset,
+  restoreAccountSession,
+  signInAccount,
+  signOutAccount,
+  updateAccountProfile
+} from "./account_ui.js";
+
 const STORAGE_KEY = "kolosseum.product.app.v1";
 
 const DEFAULT_STATE = Object.freeze({
@@ -15,17 +30,42 @@ const DEFAULT_STATE = Object.freeze({
   localSessions: [],
   view: "today",
   coachAthletes: [],
+  coachRelationships: [],
+  coachAthleteSearch: "",
+  coachAthleteRelationshipFilter: "all",
   coachAssignments: [],
   coachEvents: [],
   athleteEventLinks: {},
   coachTemplates: [],
+  templateLibrarySearch: "",
+  templateLibraryStatusFilter: "all",
+  templateLibraryActivityFilter: "all",
+  templateLibrarySort: "updated_desc",
+  selectedTemplateId: "",
   templateExercises: [],
   templateDraft: null,
+  templateDraftSavedSnapshot: "",
+  templateDraftSavedAt: "",
+  templateDraftWasOpen: false,
+  templateDraftRecovered: false,
+  templateDraftDirty: false,
   athleteProfiles: {},
   athleteProfileDraft: null,
   selectedCoachAthleteId: "",
   coachArtefactCount: 0,
-  coachCode: ""
+  coachDashboardArtefacts: [],
+  coachDashboardFailures: [],
+  coachDashboardUpdatedAt: "",
+  coachReviewRecords: [],
+  coachReviewSearch: "",
+  coachReviewFilter: "awaiting",
+  coachReviewUpdatedAt: "",
+  selectedCoachReviewSessionId: "",
+  athleteDetails: {},
+  coachCode: "",
+  csrfToken: "",
+  serverAccount: null,
+  accountDetail: null
 });
 
 const state = loadState();
@@ -34,8 +74,29 @@ const elements = {
   bootScreen: document.getElementById("bootScreen"),
   entryView: document.getElementById("entryView"),
   entryForm: document.getElementById("entryForm"),
+  entryMode: document.getElementById("entryMode"),
+  entryCreateTab: document.getElementById("entryCreateTab"),
+  entrySignInTab: document.getElementById("entrySignInTab"),
+  entryHeading: document.getElementById("entryHeading"),
+  entryDescription: document.getElementById("entryDescription"),
+  entryCreateFields: document.getElementById("entryCreateFields"),
+  entryNameField: document.getElementById("entryNameField"),
+  entryRoleChoice: document.getElementById("entryRoleChoice"),
+  entryConsentFields: document.getElementById("entryConsentFields"),
   entryName: document.getElementById("entryName"),
   entryEmail: document.getElementById("entryEmail"),
+  entryPassword: document.getElementById("entryPassword"),
+  forgotPasswordButton: document.getElementById("forgotPasswordButton"),
+  passwordResetRequestForm: document.getElementById("passwordResetRequestForm"),
+  resetRequestEmail: document.getElementById("resetRequestEmail"),
+  resetRequestResult: document.getElementById("resetRequestResult"),
+  cancelPasswordResetButton: document.getElementById("cancelPasswordResetButton"),
+  passwordResetCompleteForm: document.getElementById("passwordResetCompleteForm"),
+  resetCompleteEmail: document.getElementById("resetCompleteEmail"),
+  resetCompleteCode: document.getElementById("resetCompleteCode"),
+  resetCompletePassword: document.getElementById("resetCompletePassword"),
+  resetCompleteResult: document.getElementById("resetCompleteResult"),
+  cancelPasswordResetCompleteButton: document.getElementById("cancelPasswordResetCompleteButton"),
   entryActivityField: document.getElementById("entryActivityField"),
   entryActivity: document.getElementById("entryActivity"),
   entryBetaConsent: document.getElementById("entryBetaConsent"),
@@ -105,12 +166,36 @@ const elements = {
   coachAssignmentCount: document.getElementById("coachAssignmentCount"),
   coachArtefactCount: document.getElementById("coachArtefactCount"),
   coachOverviewAthletes: document.getElementById("coachOverviewAthletes"),
+  coachOpenSessionCount: document.getElementById("coachOpenSessionCount"),
+  coachCompletedSessionCount: document.getElementById("coachCompletedSessionCount"),
+  coachUpcomingEventCount: document.getElementById("coachUpcomingEventCount"),
+  coachDashboardStatus: document.getElementById("coachDashboardStatus"),
+  coachDashboardRefreshButton: document.getElementById("coachDashboardRefreshButton"),
+  coachOverviewAssignments: document.getElementById("coachOverviewAssignments"),
+  coachOverviewOpenSessions: document.getElementById("coachOverviewOpenSessions"),
+  coachOverviewReviewQueue: document.getElementById("coachOverviewReviewQueue"),
+  coachOverviewEvents: document.getElementById("coachOverviewEvents"),
   connectAthleteForm: document.getElementById("connectAthleteForm"),
   connectAthleteName: document.getElementById("connectAthleteName"),
   connectAthleteId: document.getElementById("connectAthleteId"),
   connectAthleteActivity: document.getElementById("connectAthleteActivity"),
+  connectAthleteRelationshipState: document.getElementById("connectAthleteRelationshipState"),
+  connectAthleteExpiryField: document.getElementById("connectAthleteExpiryField"),
+  connectAthleteExpiry: document.getElementById("connectAthleteExpiry"),
   connectAthleteConsent: document.getElementById("connectAthleteConsent"),
+  connectAthleteConsentText: document.getElementById("connectAthleteConsentText"),
+  refreshAthleteDirectoryButton: document.getElementById("refreshAthleteDirectoryButton"),
+  athleteDirectorySearch: document.getElementById("athleteDirectorySearch"),
+  athleteRelationshipFilter: document.getElementById("athleteRelationshipFilter"),
+  athleteRelationshipCounts: document.getElementById("athleteRelationshipCounts"),
   athleteRoster: document.getElementById("athleteRoster"),
+  athleteRelationshipDetailPanel: document.getElementById("athleteRelationshipDetailPanel"),
+  athleteRelationshipDetailHeading: document.getElementById("athleteRelationshipDetailHeading"),
+  athleteRelationshipDetailState: document.getElementById("athleteRelationshipDetailState"),
+  athleteRelationshipAuditFacts: document.getElementById("athleteRelationshipAuditFacts"),
+  closeAthleteRelationshipDetailButton: document.getElementById("closeAthleteRelationshipDetailButton"),
+  athleteRelationshipProfileButton: document.getElementById("athleteRelationshipProfileButton"),
+  athleteRelationshipTransitionButton: document.getElementById("athleteRelationshipTransitionButton"),
   athleteProfilePanel: document.getElementById("athleteProfilePanel"),
   athleteProfileHeading: document.getElementById("athleteProfileHeading"),
   athleteProfileActivity: document.getElementById("athleteProfileActivity"),
@@ -146,18 +231,71 @@ const elements = {
   athleteAssignmentRequirements: document.getElementById("athleteAssignmentRequirements"),
   athleteAssignmentButton: document.getElementById("athleteAssignmentButton"),
   athleteAssignmentResult: document.getElementById("athleteAssignmentResult"),
+  athleteAssignmentCurrent: document.getElementById("athleteAssignmentCurrent"),
+  athleteAssignmentHistory: document.getElementById("athleteAssignmentHistory"),
+  athleteAssignmentCancelButton: document.getElementById("athleteAssignmentCancelButton"),
   athleteEventLinks: document.getElementById("athleteEventLinks"),
+  athleteDetailHistoryPanel: document.getElementById("athleteDetailHistoryPanel"),
+  athleteDetailRefreshButton: document.getElementById("athleteDetailRefreshButton"),
+  athleteDetailStatus: document.getElementById("athleteDetailStatus"),
+  athleteDetailAssignmentCount: document.getElementById("athleteDetailAssignmentCount"),
+  athleteDetailStrengthCount: document.getElementById("athleteDetailStrengthCount"),
+  athleteDetailBodyweightCount: document.getElementById("athleteDetailBodyweightCount"),
+  athleteDetailSessionCount: document.getElementById("athleteDetailSessionCount"),
+  athleteDetailNoteCount: document.getElementById("athleteDetailNoteCount"),
+  athleteDetailCurrentProgramme: document.getElementById("athleteDetailCurrentProgramme"),
+  athleteDetailCurrentEvent: document.getElementById("athleteDetailCurrentEvent"),
+  athleteDetailAssignmentHistory: document.getElementById("athleteDetailAssignmentHistory"),
+  athleteDetailStrengthHistory: document.getElementById("athleteDetailStrengthHistory"),
+  athleteDetailBodyweightHistory: document.getElementById("athleteDetailBodyweightHistory"),
+  athleteDetailSessionHistory: document.getElementById("athleteDetailSessionHistory"),
+  athleteDetailNoteHistory: document.getElementById("athleteDetailNoteHistory"),
+  athleteDetailNoteForm: document.getElementById("athleteDetailNoteForm"),
+  athleteDetailNoteSessionId: document.getElementById("athleteDetailNoteSessionId"),
+  athleteDetailNoteArtefactId: document.getElementById("athleteDetailNoteArtefactId"),
+  athleteDetailNoteText: document.getElementById("athleteDetailNoteText"),
+  athleteDetailNoteVisibility: document.getElementById("athleteDetailNoteVisibility"),
+  athleteDetailNoteCancelButton: document.getElementById("athleteDetailNoteCancelButton"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
   refreshTemplatesButton: document.getElementById("refreshTemplatesButton"),
   templateLibraryList: document.getElementById("templateLibraryList"),
+  templateLibrarySearch: document.getElementById("templateLibrarySearch"),
+  templateLibraryStatusFilter: document.getElementById("templateLibraryStatusFilter"),
+  templateLibraryActivityFilter: document.getElementById("templateLibraryActivityFilter"),
+  templateLibrarySort: document.getElementById("templateLibrarySort"),
+  templateLibraryClearFilters: document.getElementById("templateLibraryClearFilters"),
+  templateLibraryResultCount: document.getElementById("templateLibraryResultCount"),
+  templateLibraryStatus: document.getElementById("templateLibraryStatus"),
+  templateDraftRecovery: document.getElementById("templateDraftRecovery"),
+  templateDraftRecoveryTitle: document.getElementById("templateDraftRecoveryTitle"),
+  templateDraftRecoveryText: document.getElementById("templateDraftRecoveryText"),
+  templateDraftRecoveryResumeButton: document.getElementById("templateDraftRecoveryResumeButton"),
+  templateDraftRecoveryDiscardButton: document.getElementById("templateDraftRecoveryDiscardButton"),
   templateDraftCount: document.getElementById("templateDraftCount"),
   templateActiveCount: document.getElementById("templateActiveCount"),
   templateArchivedCount: document.getElementById("templateArchivedCount"),
+  templateSupersededCount: document.getElementById("templateSupersededCount"),
+  templateDetailPanel: document.getElementById("templateDetailPanel"),
+  templateDetailTitle: document.getElementById("templateDetailTitle"),
+  templateDetailStatus: document.getElementById("templateDetailStatus"),
+  templateDetailCloseButton: document.getElementById("templateDetailCloseButton"),
+  templateDetailMeta: document.getElementById("templateDetailMeta"),
+  templateDetailDescription: document.getElementById("templateDetailDescription"),
+  templateDetailActions: document.getElementById("templateDetailActions"),
+  templateDetailVersionFamily: document.getElementById("templateDetailVersionFamily"),
+  templateDetailUsage: document.getElementById("templateDetailUsage"),
+  templateDetailValidation: document.getElementById("templateDetailValidation"),
+  templateDetailPreview: document.getElementById("templateDetailPreview"),
   backToTemplatesButton: document.getElementById("backToTemplatesButton"),
   saveTemplateButton: document.getElementById("saveTemplateButton"),
   activateTemplateButton: document.getElementById("activateTemplateButton"),
+  templateBuilderSaveState: document.getElementById("templateBuilderSaveState"),
+  templateBuilderSaveDetail: document.getElementById("templateBuilderSaveDetail"),
+  templateBuilderDiscardButton: document.getElementById("templateBuilderDiscardButton"),
+  templateBuilderValidation: document.getElementById("templateBuilderValidation"),
+  templateBuilderValidationList: document.getElementById("templateBuilderValidationList"),
   templateBuilderTitle: document.getElementById("templateBuilderTitle"),
   templateName: document.getElementById("templateName"),
   templateActivity: document.getElementById("templateActivity"),
@@ -191,9 +329,21 @@ const elements = {
   assignmentRequirements: document.getElementById("assignmentRequirements"),
   assignmentSubmitButton: document.getElementById("assignmentSubmitButton"),
   assignmentResult: document.getElementById("assignmentResult"),
+  assignmentCurrentState: document.getElementById("assignmentCurrentState"),
+  assignmentHistoryList: document.getElementById("assignmentHistoryList"),
+  assignmentCancelButton: document.getElementById("assignmentCancelButton"),
   reviewAthlete: document.getElementById("reviewAthlete"),
+  reviewSearch: document.getElementById("reviewSearch"),
+  reviewStatusFilter: document.getElementById("reviewStatusFilter"),
   loadReviewButton: document.getElementById("loadReviewButton"),
+  reviewStatus: document.getElementById("reviewStatus"),
+  reviewAllCount: document.getElementById("reviewAllCount"),
+  reviewAwaitingCount: document.getElementById("reviewAwaitingCount"),
+  reviewReviewedCount: document.getElementById("reviewReviewedCount"),
+  reviewOpenCount: document.getElementById("reviewOpenCount"),
   reviewList: document.getElementById("reviewList"),
+  reviewDetail: document.getElementById("reviewDetail"),
+  reviewDetailContent: document.getElementById("reviewDetailContent"),
   coachNoteForm: document.getElementById("coachNoteForm"),
   coachNoteHeading: document.getElementById("coachNoteHeading"),
   coachNoteSessionId: document.getElementById("coachNoteSessionId"),
@@ -205,6 +355,25 @@ const elements = {
   accountName: document.getElementById("accountName"),
   accountEmail: document.getElementById("accountEmail"),
   accountRoleBadge: document.getElementById("accountRoleBadge"),
+  accountStateBadge: document.getElementById("accountStateBadge"),
+  accountVerificationBadge: document.getElementById("accountVerificationBadge"),
+  refreshAccountButton: document.getElementById("refreshAccountButton"),
+  accountProfileForm: document.getElementById("accountProfileForm"),
+  accountProfileName: document.getElementById("accountProfileName"),
+  accountProfileEmail: document.getElementById("accountProfileEmail"),
+  accountProfileResult: document.getElementById("accountProfileResult"),
+  requestVerificationButton: document.getElementById("requestVerificationButton"),
+  completeVerificationButton: document.getElementById("completeVerificationButton"),
+  verificationCode: document.getElementById("verificationCode"),
+  verificationResult: document.getElementById("verificationResult"),
+  accountPasswordForm: document.getElementById("accountPasswordForm"),
+  currentPassword: document.getElementById("currentPassword"),
+  newPassword: document.getElementById("newPassword"),
+  passwordChangeResult: document.getElementById("passwordChangeResult"),
+  accountConsentHistory: document.getElementById("accountConsentHistory"),
+  accountClosureForm: document.getElementById("accountClosureForm"),
+  accountClosureConfirmation: document.getElementById("accountClosureConfirmation"),
+  accountClosureResult: document.getElementById("accountClosureResult"),
   accountCode: document.getElementById("accountCode"),
   copyAccountCodeButton: document.getElementById("copyAccountCodeButton"),
   signOutButton: document.getElementById("signOutButton")
@@ -330,6 +499,17 @@ function loadState() {
         ? parsed.athleteEventLinks
         : {},
       coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
+      templateLibrarySearch: String(parsed.templateLibrarySearch ?? ""),
+      templateLibraryStatusFilter: ["all", "draft", "active", "archived", "superseded"].includes(parsed.templateLibraryStatusFilter)
+        ? parsed.templateLibraryStatusFilter
+        : "all",
+      templateLibraryActivityFilter: ["all", "powerlifting", "general_strength", "rugby_union"].includes(parsed.templateLibraryActivityFilter)
+        ? parsed.templateLibraryActivityFilter
+        : "all",
+      templateLibrarySort: ["updated_desc", "name_asc", "version_desc", "usage_desc"].includes(parsed.templateLibrarySort)
+        ? parsed.templateLibrarySort
+        : "updated_desc",
+      selectedTemplateId: String(parsed.selectedTemplateId ?? ""),
       templateExercises: Array.isArray(parsed.templateExercises) ? parsed.templateExercises : [],
       templateDraft: normalisePersistedTemplateDraft(parsed.templateDraft),
       athleteProfiles: parsed.athleteProfiles && typeof parsed.athleteProfiles === "object"
@@ -480,6 +660,24 @@ function friendlyError(payload, status) {
   );
 
   const messages = {
+    account_email_invalid: "Enter a valid email address.",
+    account_display_name_invalid: "Enter a display name of 80 characters or fewer.",
+    account_password_too_short: "Passwords must contain at least 12 characters.",
+    account_password_too_long: "The password is too long.",
+    account_actor_type_invalid: "Choose an athlete or coach account.",
+    account_activity_invalid: "Choose a supported primary activity.",
+    account_acceptance_required: "Accept the terms and account consent before continuing.",
+    account_email_already_registered: "An account already uses this email address.",
+    account_existing_role_mismatch: "This existing identity belongs to a different account type.",
+    account_sign_in_failed: "The email or password is incorrect.",
+    account_temporarily_locked: "Sign-in is temporarily locked after repeated failed attempts.",
+    account_session_missing: "Sign in to continue.",
+    account_session_invalid: "The sign-in session has expired.",
+    account_csrf_invalid: "The account request could not be authorised. Refresh and try again.",
+    account_unavailable: "This account is not currently active.",
+    account_challenge_invalid: "The six-digit code is invalid or expired.",
+    account_current_password_invalid: "The current password is incorrect.",
+    account_closure_confirmation_required: "Type CLOSE exactly to request closure.",
     auth_email_invalid: "Enter a valid email address.",
     auth_display_name_required: "Enter your display name.",
     acknowledgement_not_accepted: "Both beta acknowledgements are required.",
@@ -557,18 +755,36 @@ function friendlyError(payload, status) {
 }
 
 async function api(method, path, body) {
+  const headers = {};
+
+  if (body !== undefined) {
+    headers["content-type"] =
+      "application/json";
+  }
+
   const response = await fetch(path, {
     method,
-    headers: body === undefined ? undefined : { "content-type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body)
+    credentials: "same-origin",
+    headers,
+    body:
+      body === undefined
+        ? undefined
+        : JSON.stringify(body)
   });
 
   const payload = await readJson(response);
 
   if (!response.ok) {
-    const error = new Error(friendlyError(payload, response.status));
+    const error = new Error(
+      friendlyError(
+        payload,
+        response.status
+      )
+    );
+
     error.payload = payload;
     error.status = response.status;
+
     throw error;
   }
 
@@ -765,6 +981,22 @@ function viewTitle(view) {
 }
 
 function setView(view) {
+  if (
+    view !== "templates" &&
+    elements.templateBuilderView &&
+    !elements.templateBuilderView.hidden
+  ) {
+    if (!confirmTemplateBuilderDeparture()) {
+      return false;
+    }
+
+    closeTemplateBuilder({
+      force: true,
+      silent: true,
+      updateRoute: false
+    });
+  }
+
   state.view = view;
   saveState();
 
@@ -794,7 +1026,15 @@ function setView(view) {
 
   if (view === "templates" && state.role === "coach") {
     renderTemplateLibrary();
-    refreshTemplates({ quiet: true }).catch(handleError);
+    refreshProgrammeLibrary({ quiet: true }).catch(handleError);
+  }
+
+  if (view === "coach-overview" && state.role === "coach") {
+    renderCoachDashboard();
+
+    refreshCoachDashboard({
+      quiet: true
+    }).catch(handleError);
   }
 
   if (view === "review" && state.role === "coach") {
@@ -803,6 +1043,10 @@ function setView(view) {
 
   if (view === "account") {
     renderAccount();
+
+    loadPersistentAccountDetail({
+      quiet: true
+    }).catch(handleError);
   }
 }
 
@@ -836,109 +1080,378 @@ function renderIdentity() {
   elements.coachGreeting.textContent = `Welcome, ${name.split(/\s+/u)[0]}`;
 }
 
-async function registerAthlete(displayName, email, activityId) {
-  const userId = createId("athlete");
-  const timestamp = nowIso();
-  const phase1Input = buildPhase1Input(activityId);
+function applyAccountIdentity(
+  account
+) {
+  if (
+    !account ||
+    typeof account !== "object"
+  ) {
+    throw new Error(
+      "The server did not return an account."
+    );
+  }
 
-  const auth = await api("POST", "/sessions/beta-auth", {
-    user_id: userId,
-    email,
-    display_name: displayName,
-    account_role: "athlete",
-    account_state: "active",
-    accepted_terms_version: "terms_v1",
-    created_at_iso8601: timestamp
-  });
+  state.serverAccount = account;
+  state.role = account.actor_type;
 
-  const acknowledgement = await api("POST", "/sessions/beta-acknowledgement", {
-    acknowledgement_id: createId("ack"),
-    user_id: userId,
-    beta_id: "september_beta_2026",
-    accepted: true,
-    jurisdiction_acknowledged: true,
-    accepted_at_iso8601: nowIso(),
-    copy_acknowledgement_id: "BETA16_COPY_ACKNOWLEDGEMENT_LABEL"
-  });
-
-  const declaration = await api("POST", "/sessions/beta-declaration", {
-    declaration_id: createId("declaration"),
-    user_id: userId,
-    phase1_input: phase1Input,
-    jurisdiction_acknowledged: true,
-    declared_at_iso8601: nowIso(),
-    accepted_terms_version: "terms_v1",
-    copy_acknowledgement_id: "BETA16_COPY_DECLARATION_ACKNOWLEDGEMENT"
-  });
-
-  Object.assign(state, {
-    role: "athlete",
-    profile: { userId, displayName, email, activityId },
-    authRecord: auth.auth_record,
-    acknowledgementRecord: acknowledgement.acknowledgement_record,
-    declarationRecord: declaration.declaration_record,
-    phase1Input,
-    view: "today"
-  });
+  if (account.actor_type === "coach") {
+    state.profile = {
+      coachUserId: account.user_id,
+      displayName: account.display_name,
+      email: account.email
+    };
+  }
+  else {
+    state.profile = {
+      userId: account.user_id,
+      displayName: account.display_name,
+      email: account.email,
+      activityId:
+        state.phase1Input?.activity_id ??
+        state.profile?.activityId ??
+        "powerlifting"
+    };
+  }
 }
 
-async function registerCoach(displayName, email) {
-  const coachUserId = createId("coach");
+function applyAccountSession(
+  response
+) {
+  applyAccountIdentity(
+    response.account
+  );
 
-  const response = await api("POST", "/sessions/beta-coach-profile", {
-    coach_user_id: coachUserId,
-    email,
-    display_name: displayName,
-    account_role: "coach",
-    account_state: "active",
-    accepted_terms_version: "terms_v1",
-    created_at_iso8601: nowIso()
-  });
+  state.csrfToken =
+    response.csrf_token ??
+    state.csrfToken ??
+    "";
 
-  Object.assign(state, {
-    role: "coach",
-    profile: { coachUserId, displayName, email },
-    coachProfile: response.coach_profile,
-    view: "coach-overview"
-  });
+  const bootstrap =
+    response.bootstrap &&
+    typeof response.bootstrap === "object"
+      ? response.bootstrap
+      : {};
+
+  if (state.role === "coach") {
+    state.coachProfile =
+      bootstrap.coach_profile ??
+      state.coachProfile;
+
+    if (!state.coachProfile) {
+      throw new Error(
+        "The coach profile could not be restored."
+      );
+    }
+
+    state.view =
+      state.view === "account"
+        ? "account"
+        : "coach-overview";
+  }
+  else {
+    state.authRecord =
+      bootstrap.auth_record ??
+      state.authRecord;
+
+    state.acknowledgementRecord =
+      bootstrap.acknowledgement_record ??
+      state.acknowledgementRecord;
+
+    state.declarationRecord =
+      bootstrap.declaration_record ??
+      state.declarationRecord;
+
+    state.phase1Input =
+      state.declarationRecord
+        ?.engine_phase1_input ??
+      state.phase1Input;
+
+    if (
+      !state.authRecord ||
+      !state.acknowledgementRecord ||
+      !state.declarationRecord ||
+      !state.phase1Input
+    ) {
+      throw new Error(
+        "The athlete declaration could not be restored."
+      );
+    }
+
+    state.profile.activityId =
+      state.phase1Input.activity_id;
+
+    state.view =
+      state.view === "account"
+        ? "account"
+        : "today";
+  }
+
+  saveState();
 }
 
-async function handleEntrySubmit(event) {
+function resetAccountState() {
+  Object.assign(
+    state,
+    cloneDefaultState()
+  );
+
+  localStorage.removeItem(
+    STORAGE_KEY
+  );
+}
+
+function setEntryMode(mode) {
+  const createMode =
+    mode === "create";
+
+  elements.entryMode.value =
+    createMode
+      ? "create"
+      : "sign-in";
+
+  elements.entryCreateFields.hidden =
+    !createMode;
+
+  elements.entryName.required =
+    createMode;
+
+  elements.entryBetaConsent.required =
+    createMode;
+
+  elements.entryDeclarationConsent.required =
+    createMode;
+
+  elements.entryPassword.autocomplete =
+    createMode
+      ? "new-password"
+      : "current-password";
+
+  elements.entryCreateTab.classList.toggle(
+    "active",
+    createMode
+  );
+
+  elements.entrySignInTab.classList.toggle(
+    "active",
+    !createMode
+  );
+
+  elements.entryHeading.textContent =
+    createMode
+      ? "Create your account"
+      : "Sign in";
+
+  elements.entryDescription.textContent =
+    createMode
+      ? "Create persistent product access for this installation."
+      : "Open an existing athlete or coach workspace.";
+
+  elements.entrySubmit.textContent =
+    createMode
+      ? "Create account"
+      : "Sign in";
+
+  elements.forgotPasswordButton.hidden =
+    createMode;
+
+  elements.entryError.hidden = true;
+}
+
+function showEntryMessage(
+  message,
+  error = false
+) {
+  elements.entryError.textContent =
+    message;
+
+  elements.entryError.classList.toggle(
+    "success-message",
+    !error
+  );
+
+  elements.entryError.hidden = false;
+}
+
+function showPasswordResetRequest() {
+  elements.entryForm.hidden = true;
+  elements.passwordResetCompleteForm.hidden = true;
+  elements.passwordResetRequestForm.hidden = false;
+  elements.resetRequestEmail.value =
+    elements.entryEmail.value;
+  elements.resetRequestResult.hidden = true;
+}
+
+function showPasswordResetComplete(
+  email = "",
+  code = ""
+) {
+  elements.entryForm.hidden = true;
+  elements.passwordResetRequestForm.hidden = true;
+  elements.passwordResetCompleteForm.hidden = false;
+  elements.resetCompleteEmail.value =
+    email;
+  elements.resetCompleteCode.value =
+    code;
+  elements.resetCompleteResult.hidden = true;
+}
+
+function showSignInForm() {
+  elements.passwordResetRequestForm.hidden = true;
+  elements.passwordResetCompleteForm.hidden = true;
+  elements.entryForm.hidden = false;
+  setEntryMode("sign-in");
+}
+
+async function handleEntrySubmit(
+  event
+) {
   event.preventDefault();
+
   elements.entryError.hidden = true;
 
-  const role = new FormData(elements.entryForm).get("role");
-  const displayName = elements.entryName.value.trim();
-  const email = elements.entryEmail.value.trim().toLowerCase();
+  const mode =
+    elements.entryMode.value;
 
-  if (!displayName || !email) return;
-  if (!elements.entryBetaConsent.checked || !elements.entryDeclarationConsent.checked) {
-    elements.entryError.textContent = "Both controlled beta acknowledgements are required.";
-    elements.entryError.hidden = false;
-    return;
-  }
+  const email =
+    elements.entryEmail.value
+      .trim()
+      .toLowerCase();
 
-  showBusy("Creating workspace…");
+  const password =
+    elements.entryPassword.value;
+
+  showBusy(
+    mode === "create"
+      ? "Creating account…"
+      : "Signing in…"
+  );
 
   try {
-    if (role === "coach") {
-      await registerCoach(displayName, email);
+    let response;
+
+    if (mode === "create") {
+      const role =
+        new FormData(
+          elements.entryForm
+        ).get("role");
+
+      const displayName =
+        elements.entryName.value.trim();
+
+      if (
+        !elements.entryBetaConsent.checked ||
+        !elements.entryDeclarationConsent.checked
+      ) {
+        throw new Error(
+          "Accept the terms and account consent before continuing."
+        );
+      }
+
+      response = await registerAccount({
+        actor_type: role,
+        display_name: displayName,
+        email,
+        password,
+        activity_id:
+          role === "athlete"
+            ? elements.entryActivity.value
+            : null,
+        accepted_terms: true,
+        accepted_consent: true
+      });
     }
     else {
-      await registerAthlete(displayName, email, elements.entryActivity.value);
+      response = await signInAccount({
+        email,
+        password
+      });
     }
 
-    saveState();
+    applyAccountSession(response);
+
     await enterApplication();
-    showNotice("Workspace created.");
+
+    showNotice(
+      mode === "create"
+        ? "Account created."
+        : "Signed in."
+    );
   }
   catch (error) {
-    elements.entryError.textContent = error.message;
-    elements.entryError.hidden = false;
+    showEntryMessage(
+      friendlyError(
+        error.payload,
+        error.status ?? 400
+      ),
+      true
+    );
   }
   finally {
     hideBusy();
   }
+}
+
+async function handleResetRequest(
+  event
+) {
+  event.preventDefault();
+
+  const email =
+    elements.resetRequestEmail.value
+      .trim()
+      .toLowerCase();
+
+  const response =
+    await requestPasswordReset({
+      email
+    });
+
+  const developmentCode =
+    String(
+      response?.development_code ??
+      ""
+    );
+
+  elements.resetRequestResult.hidden = false;
+  elements.resetRequestResult.textContent =
+    developmentCode
+      ? `Development code: ${developmentCode}`
+      : "The request was recorded.";
+
+  showPasswordResetComplete(
+    email,
+    developmentCode
+  );
+}
+
+async function handleResetComplete(
+  event
+) {
+  event.preventDefault();
+
+  await completePasswordReset({
+    email:
+      elements.resetCompleteEmail.value
+        .trim()
+        .toLowerCase(),
+    code:
+      elements.resetCompleteCode.value
+        .trim(),
+    new_password:
+      elements.resetCompletePassword.value
+  });
+
+  elements.entryEmail.value =
+    elements.resetCompleteEmail.value;
+
+  elements.entryPassword.value = "";
+
+  showSignInForm();
+
+  showEntryMessage(
+    "Password reset complete. Sign in with the new password."
+  );
 }
 
 async function createSession() {
@@ -1290,41 +1803,723 @@ function renderToday() {
   bindSessionCards(elements.todayRecentList);
 }
 
+
+// FULL-UI-04A factual coach–athlete directory and relationship lifecycle.
+
+function mapCoachAthleteDirectoryRow(raw, existing = null) {
+  const userId = String(
+    raw?.athlete_user_id ??
+    existing?.userId ??
+    ""
+  );
+
+  const relationship =
+    raw?.relationship &&
+    typeof raw.relationship === "object"
+      ? raw.relationship
+      : existing?.relationship ?? null;
+
+  return {
+    userId,
+    displayName: String(
+      raw?.display_name ??
+      existing?.displayName ??
+      userId
+    ),
+    email: String(
+      raw?.email ??
+      existing?.email ??
+      ""
+    ),
+    activityId: String(
+      raw?.activity_id ??
+      existing?.activityId ??
+      "powerlifting"
+    ),
+    relationship,
+    relationshipState: String(
+      raw?.relationship_state ??
+      relationship?.relationship_state ??
+      "unknown"
+    ),
+    relationshipExpired:
+      raw?.relationship_expired === true
+  };
+}
+
+function relationshipEffectiveState(entry) {
+  if (entry?.relationshipExpired === true) {
+    return "expired";
+  }
+
+  const stored = String(
+    entry?.relationshipState ??
+    entry?.relationship?.relationship_state ??
+    "unknown"
+  ).toLowerCase();
+
+  const expiresAt = String(
+    entry?.relationship?.expires_at_iso8601 ??
+    ""
+  );
+
+  if (
+    stored === "invited" &&
+    expiresAt &&
+    Number.isFinite(Date.parse(expiresAt)) &&
+    Date.parse(expiresAt) <= Date.now()
+  ) {
+    return "expired";
+  }
+
+  return stored;
+}
+
+function relationshipBadgeClass(value) {
+  if (value === "accepted") return "complete";
+  if (value === "invited") return "active";
+  return "neutral";
+}
+
+function relationshipEntryByAthleteId(athleteUserId) {
+  const relationships =
+    Array.isArray(state.coachRelationships)
+      ? state.coachRelationships
+      : [];
+
+  return relationships.find(
+    (entry) =>
+      entry.userId === athleteUserId
+  ) ?? null;
+}
+
+function relationshipAssignmentForAthlete(athleteUserId) {
+  return state.coachAssignments.find(
+    (assignment) =>
+      assignment.athleteUserId ===
+      athleteUserId
+  ) ?? null;
+}
+
+function relationshipProgrammeLabel(athleteUserId) {
+  const assignment =
+    relationshipAssignmentForAthlete(
+      athleteUserId
+    );
+
+  if (!assignment) {
+    return "No programme assigned";
+  }
+
+  const template =
+    state.coachTemplates.find(
+      (entry) =>
+        String(entry.template_id ?? "") ===
+        assignment.templateId
+    );
+
+  const name = String(
+    template?.template_name ??
+    assignment.record?.template_name ??
+    assignment.templateId ??
+    "Programme"
+  );
+
+  const version =
+    Number(
+      assignment.templateVersion ??
+      assignment.record?.template_version ??
+      0
+    );
+
+  return version > 0
+    ? `${name} · v${version}`
+    : name;
+}
+
+function relationshipDateValue(value) {
+  const text = String(value ?? "");
+  return text
+    ? formatDate(text)
+    : "Not recorded";
+}
+
+function syncConnectAthleteRelationshipForm() {
+  const invited =
+    elements.connectAthleteRelationshipState
+      ?.value === "invited";
+
+  if (elements.connectAthleteExpiryField) {
+    elements.connectAthleteExpiryField.hidden =
+      !invited;
+  }
+
+  if (elements.connectAthleteExpiry) {
+    elements.connectAthleteExpiry.disabled =
+      !invited;
+
+    if (!invited) {
+      elements.connectAthleteExpiry.value = "";
+    }
+  }
+
+  if (elements.connectAthleteConsentText) {
+    elements.connectAthleteConsentText.textContent =
+      invited
+        ? "The athlete supplied this code or authorised this pending invitation."
+        : "The athlete supplied this code and accepted this connection.";
+  }
+}
+
+async function refreshCoachRelationships(
+  options = {}
+) {
+  if (
+    state.role !== "coach" ||
+    !state.profile?.coachUserId
+  ) {
+    return [];
+  }
+
+  if (!options.quiet) {
+    showBusy(
+      "Loading athlete relationships…"
+    );
+  }
+
+  try {
+    const response =
+      await api(
+        "GET",
+        `/coach-workspace/relationships?coach_user_id=${encodeURIComponent(state.profile.coachUserId)}`
+      );
+
+    const currentRelationships =
+      Array.isArray(state.coachRelationships)
+        ? state.coachRelationships
+        : [];
+
+    const existingById =
+      new Map(
+        currentRelationships.map(
+          (entry) => [
+            entry.userId,
+            entry
+          ]
+        )
+      );
+
+    state.coachRelationships =
+      (
+        Array.isArray(
+          response.relationships
+        )
+          ? response.relationships
+          : []
+      )
+        .map((entry) => {
+          const userId = String(
+            entry?.athlete_user_id ??
+            ""
+          );
+
+          return mapCoachAthleteDirectoryRow(
+            entry,
+            existingById.get(userId)
+          );
+        })
+        .filter(
+          (entry) => entry.userId
+        );
+
+    saveState();
+    renderCoachAthleteDirectory();
+
+    return state.coachRelationships;
+  }
+  finally {
+    if (!options.quiet) {
+      hideBusy();
+    }
+  }
+}
+
+function renderCoachAthleteDirectory() {
+  if (
+    !elements.athleteRoster ||
+    !elements.athleteRelationshipCounts
+  ) {
+    return;
+  }
+
+  const relationships =
+    Array.isArray(state.coachRelationships)
+      ? state.coachRelationships
+      : [];
+
+  const records =
+    relationships.length > 0
+      ? relationships
+      : state.coachAthletes.map(
+          (entry) => ({
+            ...entry,
+            relationshipState:
+              entry.relationship
+                ?.relationship_state ??
+              "accepted",
+            relationshipExpired: false
+          })
+        );
+
+  const counts = {
+    accepted: 0,
+    invited: 0,
+    expired: 0,
+    revoked: 0
+  };
+
+  for (const record of records) {
+    const effectiveState =
+      relationshipEffectiveState(record);
+
+    if (
+      Object.prototype.hasOwnProperty.call(
+        counts,
+        effectiveState
+      )
+    ) {
+      counts[effectiveState] += 1;
+    }
+  }
+
+  elements.athleteRelationshipCounts.innerHTML =
+    [
+      ["Accepted", counts.accepted],
+      ["Pending", counts.invited],
+      ["Expired", counts.expired],
+      ["Revoked", counts.revoked]
+    ]
+      .map(
+        ([label, value]) => `
+          <article class="metric-card relationship-metric-card">
+            <span>${escapeHtml(label)}</span>
+            <strong>${Number(value)}</strong>
+          </article>
+        `
+      )
+      .join("");
+
+  const query =
+    String(
+      state.coachAthleteSearch ?? ""
+    )
+      .trim()
+      .toLowerCase();
+
+  const filter =
+    String(
+      state.coachAthleteRelationshipFilter ??
+      "all"
+    );
+
+  const visible =
+    records.filter((record) => {
+      const effectiveState =
+        relationshipEffectiveState(record);
+
+      if (
+        filter !== "all" &&
+        effectiveState !== filter
+      ) {
+        return false;
+      }
+
+      if (!query) {
+        return true;
+      }
+
+      return [
+        record.displayName,
+        record.email,
+        record.userId,
+        record.activityId
+      ].some(
+        (value) =>
+          String(value ?? "")
+            .toLowerCase()
+            .includes(query)
+      );
+    });
+
+  elements.athleteRoster.innerHTML =
+    visible.length
+      ? visible
+          .map((record) => {
+            const effectiveState =
+              relationshipEffectiveState(
+                record
+              );
+
+            const accepted =
+              effectiveState === "accepted";
+
+            const programme =
+              relationshipProgrammeLabel(
+                record.userId
+              );
+
+            return `
+              <article
+                class="record-card athlete-record-card relationship-directory-card"
+              >
+                <div>
+                  <p class="eyebrow">
+                    ${escapeHtml(
+                      titleCase(record.activityId)
+                    )}
+                  </p>
+
+                  <h3>
+                    ${escapeHtml(record.displayName)}
+                  </h3>
+
+                  <p>
+                    ${escapeHtml(
+                      record.email ||
+                      record.userId
+                    )}
+                  </p>
+
+                  <p class="muted small">
+                    ${escapeHtml(programme)}
+                  </p>
+                </div>
+
+                <div class="record-meta athlete-record-meta">
+                  <span class="badge ${relationshipBadgeClass(effectiveState)}">
+                    ${escapeHtml(
+                      titleCase(effectiveState)
+                    )}
+                  </span>
+
+                  <button
+                    class="button secondary small-button"
+                    type="button"
+                    data-relationship-action="audit"
+                    data-relationship-athlete-id="${escapeHtml(record.userId)}"
+                  >
+                    View audit
+                  </button>
+
+                  ${
+                    accepted
+                      ? `
+                        <button
+                          class="button secondary small-button open-athlete-profile"
+                          type="button"
+                          data-athlete-id="${escapeHtml(record.userId)}"
+                        >
+                          Open profile
+                        </button>
+                      `
+                      : ""
+                  }
+                </div>
+              </article>
+            `;
+          })
+          .join("")
+      : `
+        <div class="empty-state">
+          <div class="empty-icon">A</div>
+          <h3>No matching relationships</h3>
+          <p>Change the search or relationship-state filter.</p>
+        </div>
+      `;
+
+  bindCoachAthleteActions();
+}
+
+function closeAthleteRelationshipDetail() {
+  if (
+    elements.athleteRelationshipDetailPanel
+  ) {
+    elements.athleteRelationshipDetailPanel.hidden =
+      true;
+  }
+}
+
+function openAthleteRelationshipDetail(
+  athleteUserId
+) {
+  const entry =
+    relationshipEntryByAthleteId(
+      athleteUserId
+    );
+
+  if (!entry) {
+    throw new Error(
+      "The relationship record could not be found."
+    );
+  }
+
+  const relationship =
+    entry.relationship &&
+    typeof entry.relationship === "object"
+      ? entry.relationship
+      : {};
+
+  const effectiveState =
+    relationshipEffectiveState(entry);
+
+  elements.athleteRelationshipDetailPanel.hidden =
+    false;
+
+  elements.athleteRelationshipDetailHeading.textContent =
+    entry.displayName;
+
+  elements.athleteRelationshipDetailState.textContent =
+    `${titleCase(effectiveState)} · ${titleCase(entry.activityId)} · ${entry.userId}`;
+
+  const facts = [
+    ["Relationship ID", relationship.relationship_id],
+    ["Stored state", relationship.relationship_state],
+    ["Effective state", effectiveState],
+    ["Scope", relationship.relationship_scope],
+    ["Created", relationship.created_at_iso8601],
+    ["Accepted", relationship.accepted_at_iso8601],
+    ["Updated", relationship.updated_at_iso8601],
+    ["Expires", relationship.expires_at_iso8601],
+    ["Revoked", relationship.revoked_at_iso8601]
+  ];
+
+  elements.athleteRelationshipAuditFacts.innerHTML =
+    facts
+      .map(
+        ([label, value]) => `
+          <div class="relationship-audit-fact">
+            <dt>${escapeHtml(label)}</dt>
+            <dd>${escapeHtml(
+              label.includes("ID") ||
+              label === "Scope" ||
+              label.includes("state")
+                ? String(value ?? "Not recorded")
+                : relationshipDateValue(value)
+            )}</dd>
+          </div>
+        `
+      )
+      .join("");
+
+  const accepted =
+    effectiveState === "accepted";
+
+  const invited =
+    effectiveState === "invited" ||
+    effectiveState === "expired";
+
+  elements.athleteRelationshipProfileButton.hidden =
+    !accepted;
+
+  elements.athleteRelationshipProfileButton.dataset.athleteId =
+    entry.userId;
+
+  elements.athleteRelationshipTransitionButton.hidden =
+    !(accepted || invited);
+
+  elements.athleteRelationshipTransitionButton.dataset.relationshipAthleteId =
+    entry.userId;
+
+  elements.athleteRelationshipTransitionButton.dataset.relationshipAction =
+    accepted
+      ? "revoke"
+      : "cancel";
+
+  elements.athleteRelationshipTransitionButton.textContent =
+    accepted
+      ? "Revoke relationship"
+      : "Cancel invitation";
+
+  elements.athleteProfilePanel.hidden =
+    true;
+
+  elements.athleteRelationshipDetailPanel.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+async function transitionCoachRelationship(
+  athleteUserId,
+  action
+) {
+  const entry =
+    relationshipEntryByAthleteId(
+      athleteUserId
+    );
+
+  const relationship =
+    entry?.relationship &&
+    typeof entry.relationship === "object"
+      ? entry.relationship
+      : null;
+
+  if (!entry || !relationship) {
+    throw new Error(
+      "The relationship record could not be found."
+    );
+  }
+
+  const verb =
+    action === "revoke"
+      ? "revoke this accepted relationship"
+      : "cancel this invitation";
+
+  if (
+    !window.confirm(
+      `Confirm that you want to ${verb}. Historical records will be preserved.`
+    )
+  ) {
+    return;
+  }
+
+  showBusy(
+    action === "revoke"
+      ? "Revoking relationship…"
+      : "Cancelling invitation…"
+  );
+
+  try {
+    const timestamp = nowIso();
+
+    await api(
+      "POST",
+      "/sessions/beta-coach-relationship",
+      {
+        relationship_id:
+          String(
+            relationship.relationship_id ??
+            createId("relationship")
+          ),
+        coach_user_id:
+          state.profile.coachUserId,
+        athlete_user_id:
+          entry.userId,
+        relationship_state:
+          "revoked",
+        relationship_scope:
+          "individual_coach_athlete",
+        accepted_at_iso8601:
+          relationship.accepted_at_iso8601 ??
+          null,
+        created_at_iso8601:
+          relationship.created_at_iso8601 ??
+          timestamp,
+        updated_at_iso8601:
+          timestamp,
+        revoked_at_iso8601:
+          timestamp,
+        expires_at_iso8601:
+          relationship.expires_at_iso8601 ??
+          null
+      }
+    );
+
+    await Promise.all([
+      refreshCoachAthletes({
+        quiet: true
+      }),
+      refreshCoachAssignments({
+        quiet: true
+      })
+    ]);
+
+    if (
+      state.selectedCoachAthleteId ===
+      entry.userId
+    ) {
+      closeAthleteProfile();
+    }
+
+    closeAthleteRelationshipDetail();
+    renderCoachWorkspace();
+    renderCoachDashboard();
+
+    showNotice(
+      action === "revoke"
+        ? "Relationship revoked. Historical records remain stored."
+        : "Invitation cancelled. Historical records remain stored."
+    );
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+
 async function refreshCoachAthletes(options = {}) {
   if (state.role !== "coach") return [];
 
-  if (!options.quiet) showBusy("Loading connected athletes…");
+  if (!options.quiet) {
+    showBusy(
+      "Loading connected athletes…"
+    );
+  }
 
   try {
-    const response = await api(
-      "GET",
-      `/coach-workspace/athletes?coach_user_id=${encodeURIComponent(state.profile.coachUserId)}`
-    );
+    const [acceptedResponse] =
+      await Promise.all([
+        api(
+          "GET",
+          `/coach-workspace/athletes?coach_user_id=${encodeURIComponent(state.profile.coachUserId)}`
+        ),
+        refreshCoachRelationships({
+          quiet: true
+        })
+      ]);
 
-    const existingById = new Map(
-      state.coachAthletes.map((athlete) => [athlete.userId, athlete])
-    );
+    const existingById =
+      new Map(
+        state.coachAthletes.map(
+          (athlete) => [
+            athlete.userId,
+            athlete
+          ]
+        )
+      );
 
-    state.coachAthletes = (Array.isArray(response.athletes) ? response.athletes : [])
-      .map((athlete) => {
-        const userId = String(athlete.athlete_user_id ?? "");
-        const existing = existingById.get(userId);
+    state.coachAthletes =
+      (
+        Array.isArray(
+          acceptedResponse.athletes
+        )
+          ? acceptedResponse.athletes
+          : []
+      )
+        .map((athlete) => {
+          const userId = String(
+            athlete.athlete_user_id ??
+            ""
+          );
 
-        return {
-          userId,
-          displayName: String(athlete.display_name ?? existing?.displayName ?? userId),
-          email: String(athlete.email ?? existing?.email ?? ""),
-          activityId: String(athlete.activity_id ?? existing?.activityId ?? "powerlifting"),
-          relationship: athlete.relationship ?? existing?.relationship ?? null
-        };
-      })
-      .filter((athlete) => athlete.userId);
+          return mapCoachAthleteDirectoryRow(
+            athlete,
+            existingById.get(userId)
+          );
+        })
+        .filter(
+          (athlete) => athlete.userId
+        );
 
     saveState();
+    renderCoachAthleteDirectory();
+
     return state.coachAthletes;
   }
   finally {
-    if (!options.quiet) hideBusy();
+    if (!options.quiet) {
+      hideBusy();
+    }
   }
 }
 
@@ -1340,18 +2535,45 @@ async function refreshCoachAssignments(options = {}) {
     );
 
     state.coachAssignments = (Array.isArray(response.assignments) ? response.assignments : [])
-      .map((assignment) => ({
-        assignmentId: String(assignment.assignment_id ?? ""),
-        athleteUserId: String(assignment.assigned_athlete_id ?? ""),
-        templateId: String(assignment.template_id ?? ""),
-        templateVersion: Number(assignment.template_version ?? 0),
-        activityId: String(assignment.activity_id ?? ""),
-        recordedAt: String(assignment.requested_at_iso8601 ?? ""),
-        record: assignment
-      }))
+      .map((assignment) => {
+        const template = state.coachTemplates.find(
+          (entry) => String(entry.template_id ?? "") === String(assignment.template_id ?? "")
+        );
+
+        return {
+          assignmentId: String(assignment.assignment_id ?? ""),
+          athleteUserId: String(assignment.assigned_athlete_id ?? ""),
+          templateId: String(assignment.template_id ?? ""),
+          templateVersion: Number(
+            assignment.template_version ??
+            template?.template_version ??
+            0
+          ),
+          templateName: String(
+            assignment.template_name ??
+            template?.template_name ??
+            assignment.template_id ??
+            "Programme"
+          ),
+          activityId: String(assignment.activity_id ?? ""),
+          assignmentStatus: String(
+            assignment.lifecycle_status ??
+            assignment.assignment_status ??
+            "assigned"
+          ),
+          isCurrent: assignment.is_current === true,
+          replacesAssignmentId: String(assignment.replaces_assignment_id ?? ""),
+          cancelsAssignmentId: String(assignment.cancels_assignment_id ?? ""),
+          eventId: String(assignment.event_id ?? ""),
+          preservedSessionCount: Number(assignment.preserved_session_count ?? 0),
+          recordedAt: String(assignment.requested_at_iso8601 ?? ""),
+          record: assignment
+        };
+      })
       .filter((assignment) => assignment.assignmentId);
 
     saveState();
+    renderAssignmentLifecycleSurfaces();
     return state.coachAssignments;
   }
   finally {
@@ -1376,43 +2598,134 @@ async function refreshCoachAthleteProfiles() {
 async function connectAthlete(event) {
   event.preventDefault();
 
-  const athleteUserId = elements.connectAthleteId.value.trim();
-  const displayName = elements.connectAthleteName.value.trim();
-  const activityId = elements.connectAthleteActivity.value;
+  const athleteUserId =
+    elements.connectAthleteId.value.trim();
 
-  showBusy("Connecting athlete…");
+  const displayName =
+    elements.connectAthleteName.value.trim();
+
+  const activityId =
+    elements.connectAthleteActivity.value;
+
+  const relationshipState =
+    elements.connectAthleteRelationshipState
+      ?.value === "invited"
+      ? "invited"
+      : "accepted";
+
+  const expiryDate =
+    elements.connectAthleteExpiry
+      ?.value ?? "";
+
+  showBusy(
+    relationshipState === "invited"
+      ? "Recording invitation…"
+      : "Connecting athlete…"
+  );
 
   try {
     const timestamp = nowIso();
-    const response = await api("POST", "/sessions/beta-coach-relationship", {
-      relationship_id: createId("relationship"),
-      coach_user_id: state.profile.coachUserId,
-      athlete_user_id: athleteUserId,
-      relationship_state: "accepted",
-      relationship_scope: "individual_coach_athlete",
-      accepted_at_iso8601: timestamp,
-      created_at_iso8601: timestamp,
-      updated_at_iso8601: timestamp,
-      revoked_at_iso8601: null,
-      expires_at_iso8601: null
+
+    const expiresAt =
+      relationshipState === "invited" &&
+      expiryDate
+        ? new Date(
+            `${expiryDate}T23:59:59.999Z`
+          ).toISOString()
+        : null;
+
+    await api(
+      "POST",
+      "/sessions/beta-coach-relationship",
+      {
+        relationship_id:
+          createId("relationship"),
+        coach_user_id:
+          state.profile.coachUserId,
+        athlete_user_id:
+          athleteUserId,
+        relationship_state:
+          relationshipState,
+        relationship_scope:
+          "individual_coach_athlete",
+        accepted_at_iso8601:
+          relationshipState === "accepted"
+            ? timestamp
+            : null,
+        created_at_iso8601:
+          timestamp,
+        updated_at_iso8601:
+          timestamp,
+        revoked_at_iso8601:
+          null,
+        expires_at_iso8601:
+          expiresAt
+      }
+    );
+
+    await refreshCoachAthletes({
+      quiet: true
     });
 
-    const existingIndex = state.coachAthletes.findIndex((athlete) => athlete.userId === athleteUserId);
-    const athlete = {
-      userId: athleteUserId,
-      displayName,
-      activityId,
-      relationship: response.relationship
-    };
+    const directoryEntry =
+      relationshipEntryByAthleteId(
+        athleteUserId
+      );
 
-    if (existingIndex >= 0) state.coachAthletes.splice(existingIndex, 1, athlete);
-    else state.coachAthletes.push(athlete);
+    if (
+      directoryEntry &&
+      directoryEntry.displayName ===
+        athleteUserId &&
+      displayName
+    ) {
+      directoryEntry.displayName =
+        displayName;
+    }
 
-    await refreshCoachAthletes({ quiet: true });
+    if (
+      directoryEntry &&
+      !directoryEntry.activityId
+    ) {
+      directoryEntry.activityId =
+        activityId;
+    }
+
+    const acceptedEntry =
+      state.coachAthletes.find(
+        (entry) =>
+          entry.userId === athleteUserId
+      );
+
+    if (
+      acceptedEntry &&
+      acceptedEntry.displayName ===
+        athleteUserId &&
+      displayName
+    ) {
+      acceptedEntry.displayName =
+        displayName;
+    }
+
+    if (
+      acceptedEntry &&
+      !acceptedEntry.activityId
+    ) {
+      acceptedEntry.activityId =
+        activityId;
+    }
+
     saveState();
+
     elements.connectAthleteForm.reset();
+    syncConnectAthleteRelationshipForm();
     renderCoachWorkspace();
-    showNotice(`${displayName} connected.`);
+    renderCoachDashboard();
+
+    showNotice(
+      relationshipState === "invited"
+        ? `Invitation for ${displayName} recorded.`
+        : `${displayName} connected.`
+    );
   }
   finally {
     hideBusy();
@@ -1421,7 +2734,7 @@ async function connectAthlete(event) {
 
 function activeCoachTemplates(activityId = null) {
   return state.coachTemplates.filter((template) => {
-    if (template.template_status !== "active") return false;
+    if (programmeDisplayState(template) !== "active") return false;
     return activityId === null || template.activity_id === activityId;
   });
 }
@@ -1573,6 +2886,7 @@ function renderAthleteProfileEditor() {
   const currentCount = currentProfileBenchmarks(draft).size;
   elements.athleteProfileStatus.textContent = `${draft.benchmarks.length} record${draft.benchmarks.length === 1 ? "" : "s"} · ${currentCount} current exercise reference${currentCount === 1 ? "" : "s"}`;
   renderAthleteProfileAssignment();
+  renderAthleteDetail();
   elements.athleteProfilePanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -1626,15 +2940,868 @@ async function loadAthleteProfile(athleteUserId, options = {}) {
   }
 }
 
+// FULL-UI-04B factual athlete detail and history.
+// Records are server-authoritative and read-only except for explicit,
+// non-binding coach-note creation.
+
+function athleteDetailFor(
+  athleteUserId
+) {
+  const detail =
+    state.athleteDetails?.[
+      athleteUserId
+    ];
+
+  return (
+    detail &&
+    typeof detail === "object"
+  )
+    ? detail
+    : null;
+}
+
+function athleteDetailEmpty(
+  heading,
+  detail
+) {
+  return `
+    <div class="empty-state compact-empty">
+      <h4>${escapeHtml(heading)}</h4>
+      <p>${escapeHtml(detail)}</p>
+    </div>
+  `;
+}
+
+function athleteDetailTemplate(
+  assignment
+) {
+  const templateId =
+    String(
+      assignment?.template_id ??
+      ""
+    );
+
+  return state.coachTemplates.find(
+    (template) =>
+      String(
+        template.template_id ??
+        ""
+      ) === templateId
+  ) ?? null;
+}
+
+function athleteDetailEvent(
+  eventLink
+) {
+  const eventId =
+    String(
+      eventLink?.event_id ??
+      ""
+    );
+
+  return state.coachEvents.find(
+    (eventRecord) =>
+      String(
+        eventRecord.event_id ??
+        ""
+      ) === eventId
+  ) ?? null;
+}
+
+function athleteDetailRecordDate(
+  record
+) {
+  return String(
+    record?.updated_at_iso8601 ??
+    record?.requested_at_iso8601 ??
+    record?.created_at_iso8601 ??
+    record?.stored_effective_at ??
+    record?.updated_at ??
+    record?.created_at ??
+    ""
+  );
+}
+
+function bindAthleteDetailActions() {
+  for (
+    const button of
+    elements.athleteDetailHistoryPanel
+      ?.querySelectorAll(
+        "[data-athlete-detail-action]"
+      ) ?? []
+  ) {
+    button.addEventListener(
+      "click",
+      async () => {
+        const action =
+          button.dataset
+            .athleteDetailAction;
+
+        if (action === "programme") {
+          const templateId =
+            button.dataset.templateId ??
+            "";
+
+          if (templateId) {
+            location.hash =
+              `#/coach/programmes/${encodeURIComponent(
+                templateId
+              )}`;
+          }
+
+          setView("templates");
+          return;
+        }
+
+        if (action === "event") {
+          const eventId =
+            button.dataset.eventId ??
+            "";
+
+          if (eventId) {
+            location.hash =
+              `#/coach/events/${encodeURIComponent(
+                eventId
+              )}`;
+          }
+
+          setView("events");
+          return;
+        }
+
+        if (action === "review") {
+          const athleteUserId =
+            state.selectedCoachAthleteId;
+
+          setView("review");
+          renderCoachSelectors();
+
+          elements.reviewAthlete.value =
+            athleteUserId;
+
+          await loadCoachReview();
+          return;
+        }
+
+        if (action === "note") {
+          elements
+            .athleteDetailNoteSessionId
+            .value =
+              button.dataset.sessionId ??
+              "";
+
+          elements
+            .athleteDetailNoteArtefactId
+            .value =
+              button.dataset.artefactId ??
+              "";
+
+          elements.athleteDetailNoteText
+            .value = "";
+
+          elements.athleteDetailNoteForm
+            .hidden = false;
+
+          elements.athleteDetailNoteText
+            .focus();
+        }
+      }
+    );
+  }
+}
+
+function renderAthleteDetail() {
+  const athleteUserId =
+    state.selectedCoachAthleteId;
+
+  const athlete =
+    state.coachAthletes.find(
+      (entry) =>
+        entry.userId === athleteUserId
+    );
+
+  const detail =
+    athleteDetailFor(
+      athleteUserId
+    );
+
+  if (
+    !athlete ||
+    !detail ||
+    !elements.athleteDetailHistoryPanel
+  ) {
+    if (
+      elements.athleteDetailHistoryPanel
+    ) {
+      elements
+        .athleteDetailHistoryPanel
+        .hidden = true;
+    }
+
+    return;
+  }
+
+  elements.athleteDetailHistoryPanel
+    .hidden = false;
+
+  const assignments =
+    Array.isArray(
+      detail.assignment_history
+    )
+      ? detail.assignment_history
+      : [];
+
+  const strengthProfiles =
+    Array.isArray(
+      detail.strength_profile_history
+    )
+      ? detail.strength_profile_history
+      : [];
+
+  const bodyweights =
+    Array.isArray(
+      detail.bodyweight_history
+    )
+      ? detail.bodyweight_history
+      : [];
+
+  const sessions =
+    Array.isArray(
+      detail.session_history
+    )
+      ? detail.session_history
+      : [];
+
+  const notes =
+    Array.isArray(
+      detail.note_history
+    )
+      ? detail.note_history
+      : [];
+
+  elements.athleteDetailAssignmentCount
+    .textContent =
+      String(assignments.length);
+
+  elements.athleteDetailStrengthCount
+    .textContent =
+      String(strengthProfiles.length);
+
+  elements.athleteDetailBodyweightCount
+    .textContent =
+      String(bodyweights.length);
+
+  elements.athleteDetailSessionCount
+    .textContent =
+      String(sessions.length);
+
+  elements.athleteDetailNoteCount
+    .textContent =
+      String(notes.length);
+
+  const currentAssignment =
+    detail.current_assignment &&
+    typeof detail.current_assignment ===
+      "object"
+      ? detail.current_assignment
+      : null;
+
+  const currentTemplate =
+    athleteDetailTemplate(
+      currentAssignment
+    );
+
+  elements.athleteDetailCurrentProgramme
+    .innerHTML =
+      currentAssignment
+        ? `
+          <article class="record-card">
+            <div>
+              <h4>${escapeHtml(
+                currentTemplate?.template_name ??
+                currentAssignment.template_id ??
+                "Programme"
+              )}</h4>
+              <p>
+                Version ${Number(
+                  currentAssignment.template_version ??
+                  currentTemplate?.template_version ??
+                  0
+                )}
+                ·
+                ${escapeHtml(
+                  formatDate(
+                    athleteDetailRecordDate(
+                      currentAssignment
+                    )
+                  )
+                )}
+              </p>
+            </div>
+
+            <button
+              class="button secondary small-button"
+              type="button"
+              data-athlete-detail-action="programme"
+              data-template-id="${escapeHtml(
+                currentAssignment.template_id ??
+                ""
+              )}"
+            >
+              Open programme
+            </button>
+          </article>
+        `
+        : athleteDetailEmpty(
+            "No programme assignment",
+            "No persisted programme assignment exists for this athlete."
+          );
+
+  const currentEventLink =
+    detail.current_event_link &&
+    typeof detail.current_event_link ===
+      "object"
+      ? detail.current_event_link
+      : null;
+
+  const currentEvent =
+    athleteDetailEvent(
+      currentEventLink
+    );
+
+  const currentEventPlan =
+    currentEvent
+      ? coachEventPlan(currentEvent)
+      : null;
+
+  elements.athleteDetailCurrentEvent
+    .innerHTML =
+      currentEventLink
+        ? `
+          <article class="record-card">
+            <div>
+              <h4>${escapeHtml(
+                currentEventPlan?.event_name ??
+                currentEventLink.event_id ??
+                "Event"
+              )}</h4>
+              <p>
+                ${escapeHtml(
+                  currentEventPlan?.event_date
+                    ? formatDate(
+                        currentEventPlan.event_date
+                      )
+                    : "Date not available"
+                )}
+                ${
+                  currentEventPlan?.event_date
+                    ? ` · ${escapeHtml(
+                        countdownLabel(
+                          currentEventPlan
+                            .event_date
+                        )
+                      )}`
+                    : ""
+                }
+              </p>
+            </div>
+
+            <button
+              class="button secondary small-button"
+              type="button"
+              data-athlete-detail-action="event"
+              data-event-id="${escapeHtml(
+                currentEventLink.event_id ??
+                ""
+              )}"
+            >
+              Open event
+            </button>
+          </article>
+        `
+        : athleteDetailEmpty(
+            "No event link",
+            "The current assignment is not linked to a persisted event."
+          );
+
+  elements.athleteDetailAssignmentHistory
+    .innerHTML =
+      assignments.length
+        ? assignments
+            .map((assignment) => {
+              const template =
+                athleteDetailTemplate(
+                  assignment
+                );
+
+              return `
+                <article class="record-card">
+                  <div>
+                    <h4>${escapeHtml(
+                      template?.template_name ??
+                      assignment.template_id ??
+                      "Programme"
+                    )}</h4>
+                    <p>
+                      ${escapeHtml(
+                        titleCase(
+                          assignment.activity_id ??
+                          athlete.activityId
+                        )
+                      )}
+                      ·
+                      ${escapeHtml(
+                        formatDate(
+                          athleteDetailRecordDate(
+                            assignment
+                          )
+                        )
+                      )}
+                    </p>
+                  </div>
+
+                  <div class="record-meta">
+                    <span class="badge neutral">
+                      Version ${Number(
+                        assignment.template_version ??
+                        template?.template_version ??
+                        0
+                      )}
+                    </span>
+
+                    <button
+                      class="button secondary small-button"
+                      type="button"
+                      data-athlete-detail-action="programme"
+                      data-template-id="${escapeHtml(
+                        assignment.template_id ??
+                        ""
+                      )}"
+                    >
+                      Open
+                    </button>
+                  </div>
+                </article>
+              `;
+            })
+            .join("")
+        : athleteDetailEmpty(
+            "No assignment history",
+            "Programme assignments will appear here after they are recorded."
+          );
+
+  elements.athleteDetailStrengthHistory
+    .innerHTML =
+      strengthProfiles.length
+        ? strengthProfiles
+            .map((profile) => {
+              const benchmarks =
+                Array.isArray(
+                  profile.benchmarks
+                )
+                  ? profile.benchmarks
+                  : [];
+
+              const benchmarkText =
+                benchmarks.length
+                  ? benchmarks
+                      .map(
+                        (benchmark) =>
+                          `${exerciseDisplayName(
+                            benchmark.exercise_id
+                          )}: ${Number(
+                            benchmark.value
+                          )} ${benchmark.unit}`
+                      )
+                      .join(" · ")
+                  : "No strength references";
+
+              return `
+                <article class="record-card">
+                  <div>
+                    <h4>
+                      ${benchmarks.length}
+                      strength reference${
+                        benchmarks.length === 1
+                          ? ""
+                          : "s"
+                      }
+                    </h4>
+
+                    <p>${escapeHtml(
+                      benchmarkText
+                    )}</p>
+                  </div>
+
+                  <span class="badge neutral">
+                    ${escapeHtml(
+                      formatDate(
+                        athleteDetailRecordDate(
+                          profile
+                        )
+                      )
+                    )}
+                  </span>
+                </article>
+              `;
+            })
+            .join("")
+        : athleteDetailEmpty(
+            "No strength history",
+            "Saved strength-reference profiles will appear here."
+          );
+
+  elements.athleteDetailBodyweightHistory
+    .innerHTML =
+      bodyweights.length
+        ? bodyweights
+            .map(
+              (record) => `
+                <article class="record-card">
+                  <div>
+                    <h4>
+                      ${Number(
+                        record.bodyweight
+                      )}
+                      ${escapeHtml(
+                        record.unit ?? ""
+                      )}
+                    </h4>
+
+                    <p>Factual recorded bodyweight</p>
+                  </div>
+
+                  <span class="badge neutral">
+                    ${escapeHtml(
+                      formatDate(
+                        record.effective_at
+                      )
+                    )}
+                  </span>
+                </article>
+              `
+            )
+            .join("")
+        : athleteDetailEmpty(
+            "No bodyweight history",
+            "Saved bodyweight records will appear here."
+          );
+
+  elements.athleteDetailSessionHistory
+    .innerHTML =
+      sessions.length
+        ? sessions
+            .map(
+              (session) => `
+                <article class="record-card">
+                  <div>
+                    <h4>Training session</h4>
+                    <p>
+                      ${escapeHtml(
+                        formatDate(
+                          session.updated_at
+                        )
+                      )}
+                      ·
+                      ${Number(
+                        session.runtime_event_count ??
+                        0
+                      )}
+                      recorded events
+                    </p>
+                  </div>
+
+                  <div class="record-meta">
+                    <span class="badge neutral">
+                      ${escapeHtml(
+                        titleCase(
+                          session.session_status ??
+                          "recorded"
+                        )
+                      )}
+                    </span>
+
+                    <button
+                      class="button secondary small-button"
+                      type="button"
+                      data-athlete-detail-action="review"
+                    >
+                      Review
+                    </button>
+
+                    <button
+                      class="button secondary small-button"
+                      type="button"
+                      data-athlete-detail-action="note"
+                      data-session-id="${escapeHtml(
+                        session.session_id ??
+                        ""
+                      )}"
+                      data-artefact-id="${escapeHtml(
+                        session.artefact_id ??
+                        ""
+                      )}"
+                    >
+                      Add note
+                    </button>
+                  </div>
+                </article>
+              `
+            )
+            .join("")
+        : athleteDetailEmpty(
+            "No session history",
+            "Coach-managed session records will appear here after execution begins."
+          );
+
+  elements.athleteDetailNoteHistory
+    .innerHTML =
+      notes.length
+        ? notes
+            .map(
+              (note) => `
+                <article class="record-card">
+                  <div>
+                    <h4>
+                      ${escapeHtml(
+                        note.visibility ===
+                          "athlete_visible"
+                          ? "Athlete-visible note"
+                          : "Coach-only note"
+                      )}
+                    </h4>
+
+                    <p>${escapeHtml(
+                      note.note_text ??
+                      ""
+                    )}</p>
+
+                    <p class="muted small">
+                      Session:
+                      ${escapeHtml(
+                        note.session_id ??
+                        ""
+                      )}
+                    </p>
+                  </div>
+
+                  <span class="badge neutral">
+                    ${escapeHtml(
+                      formatDate(
+                        note.created_at
+                      )
+                    )}
+                  </span>
+                </article>
+              `
+            )
+            .join("")
+        : athleteDetailEmpty(
+            "No coach notes",
+            "Non-binding notes recorded against sessions will appear here."
+          );
+
+  elements.athleteDetailStatus
+    .textContent =
+      `Loaded ${assignments.length} assignment, ${sessions.length} session and ${notes.length} note record${notes.length === 1 ? "" : "s"} for ${athlete.displayName}.`;
+
+  bindAthleteDetailActions();
+}
+
+async function refreshAthleteDetail(
+  athleteUserId,
+  options = {}
+) {
+  if (
+    !athleteUserId ||
+    !state.profile?.coachUserId
+  ) {
+    return null;
+  }
+
+  if (!options.quiet) {
+    showBusy(
+      "Loading athlete detail…"
+    );
+  }
+
+  if (
+    elements.athleteDetailStatus
+  ) {
+    elements.athleteDetailStatus
+      .textContent =
+        "Loading persisted athlete records…";
+  }
+
+  try {
+    const response =
+      await api(
+        "GET",
+        `/coach-workspace/athlete-detail?coach_user_id=${encodeURIComponent(
+          state.profile.coachUserId
+        )}&athlete_user_id=${encodeURIComponent(
+          athleteUserId
+        )}`
+      );
+
+    state.athleteDetails ??= {};
+    state.athleteDetails[
+      athleteUserId
+    ] = response.detail ?? null;
+
+    saveState();
+    renderAthleteDetail();
+
+    if (!options.quiet) {
+      showNotice(
+        "Athlete detail refreshed."
+      );
+    }
+
+    return response.detail ?? null;
+  }
+  catch (error) {
+    if (
+      elements.athleteDetailStatus
+    ) {
+      elements.athleteDetailStatus
+        .textContent =
+          "Athlete detail could not be loaded.";
+    }
+
+    throw error;
+  }
+  finally {
+    if (!options.quiet) {
+      hideBusy();
+    }
+  }
+}
+
+async function recordAthleteDetailNote(
+  event
+) {
+  event.preventDefault();
+
+  const athleteUserId =
+    state.selectedCoachAthleteId;
+
+  const athlete =
+    state.coachAthletes.find(
+      (entry) =>
+        entry.userId === athleteUserId
+    );
+
+  if (!athlete?.relationship) {
+    throw new Error(
+      "Open an accepted athlete first."
+    );
+  }
+
+  const noteText =
+    elements.athleteDetailNoteText
+      .value.trim();
+
+  if (!noteText) {
+    throw new Error(
+      "Enter a coach note."
+    );
+  }
+
+  showBusy("Recording note…");
+
+  try {
+    await api(
+      "POST",
+      "/sessions/beta-coach-notes",
+      {
+        coach_profile:
+          state.coachProfile,
+        relationship:
+          athlete.relationship,
+        athlete_user_id:
+          athleteUserId,
+        session_id:
+          elements
+            .athleteDetailNoteSessionId
+            .value,
+        artefact_id:
+          elements
+            .athleteDetailNoteArtefactId
+            .value,
+        note_text: noteText,
+        visibility:
+          elements
+            .athleteDetailNoteVisibility
+            .value
+      }
+    );
+
+    elements.athleteDetailNoteForm
+      .hidden = true;
+
+    await refreshAthleteDetail(
+      athleteUserId,
+      {
+        quiet: true
+      }
+    );
+
+    showNotice(
+      "Non-binding coach note recorded."
+    );
+  }
+  finally {
+    hideBusy();
+  }
+}
+
 async function openAthleteProfile(athleteUserId) {
   await loadTemplateExercises();
-  const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
-  if (!athlete) throw new Error("Select a connected athlete.");
 
-  const profile = await loadAthleteProfile(athleteUserId);
-  state.selectedCoachAthleteId = athleteUserId;
-  state.athleteProfileDraft = profileRecordToDraft(profile, athlete);
-  await refreshAthleteEventLinks(athleteUserId, { quiet: true });
+  const athlete =
+    state.coachAthletes.find(
+      (entry) =>
+        entry.userId === athleteUserId
+    );
+
+  if (!athlete) {
+    throw new Error(
+      "Select an accepted connected athlete."
+    );
+  }
+
+  closeAthleteRelationshipDetail();
+
+  const profile =
+    await loadAthleteProfile(
+      athleteUserId
+    );
+
+  state.selectedCoachAthleteId =
+    athleteUserId;
+
+  state.athleteProfileDraft =
+    profileRecordToDraft(
+      profile,
+      athlete
+    );
+
+  await Promise.all([
+    refreshAthleteEventLinks(
+      athleteUserId,
+      {
+        quiet: true
+      }
+    ),
+    refreshAthleteDetail(
+      athleteUserId,
+      {
+        quiet: true
+      }
+    )
+  ]);
+
   saveState();
   renderAthleteProfileEditor();
 }
@@ -1645,6 +3812,20 @@ function closeAthleteProfile() {
   saveState();
   elements.athleteProfilePanel.hidden = true;
   elements.athleteAssignmentPanel.hidden = true;
+
+  if (
+    elements.athleteDetailHistoryPanel
+  ) {
+    elements.athleteDetailHistoryPanel
+      .hidden = true;
+  }
+
+  if (
+    elements.athleteDetailNoteForm
+  ) {
+    elements.athleteDetailNoteForm
+      .hidden = true;
+  }
 }
 
 function addAthleteBenchmark() {
@@ -1696,6 +3877,10 @@ async function saveOpenAthleteProfile(event) {
 
     state.athleteProfiles[athlete.userId] = response.profile;
     state.athleteProfileDraft = profileRecordToDraft(response.profile, athlete);
+    await refreshAthleteDetail(
+      athlete.userId,
+      { quiet: true }
+    );
     saveState();
     renderAthleteProfileEditor();
     renderCoachWorkspace();
@@ -1907,30 +4092,926 @@ function coachAthleteCard(athlete) {
 }
 
 function bindCoachAthleteActions() {
-  for (const container of [elements.coachOverviewAthletes, elements.athleteRoster]) {
-    for (const button of container.querySelectorAll(".open-athlete-profile")) {
-      button.addEventListener("click", () => {
-        setView("athletes");
-        openAthleteProfile(button.dataset.athleteId).catch(handleError);
+  for (
+    const container of [
+      elements.coachOverviewAthletes,
+      elements.athleteRoster
+    ]
+  ) {
+    if (!container) continue;
+
+    for (
+      const button of
+      container.querySelectorAll(
+        ".open-athlete-profile"
+      )
+    ) {
+      if (
+        button.dataset.profileActionBound ===
+        "true"
+      ) {
+        continue;
+      }
+
+      button.dataset.profileActionBound =
+        "true";
+
+      button.addEventListener(
+        "click",
+        () => {
+          setView("athletes");
+
+          openAthleteProfile(
+            button.dataset.athleteId
+          ).catch(handleError);
+        }
+      );
+    }
+  }
+}
+
+
+// FULL-UI-03 factual coach dashboard.
+// Dashboard records are derived from server-authoritative coach,
+// assignment, event and artefact responses. No readiness,
+// recommendation, ranking or engine mutation is produced.
+
+function dashboardAthleteName(athleteUserId) {
+  const athlete =
+    state.coachAthletes.find(
+      (entry) =>
+        entry.userId === athleteUserId
+    );
+
+  return athlete?.displayName ??
+    athleteUserId ??
+    "Athlete";
+}
+
+function dashboardAssignmentAthleteId(assignment) {
+  return String(
+    assignment?.athleteUserId ??
+    assignment?.athlete_user_id ??
+    assignment?.assigned_athlete_id ??
+    ""
+  );
+}
+
+function dashboardAssignmentTemplateId(assignment) {
+  return String(
+    assignment?.templateId ??
+    assignment?.template_id ??
+    assignment?.programme_id ??
+    ""
+  );
+}
+
+function dashboardAssignmentRecordedAt(assignment) {
+  return String(
+    assignment?.recordedAt ??
+    assignment?.recorded_at ??
+    assignment?.requested_at_iso8601 ??
+    assignment?.created_at ??
+    ""
+  );
+}
+
+function dashboardSessionStatus(artefact) {
+  return String(
+    artefact?.session_status ??
+    artefact?.status ??
+    "recorded"
+  ).toLowerCase();
+}
+
+function dashboardSessionDate(artefact) {
+  return String(
+    artefact?.recorded_at ??
+    artefact?.updated_at ??
+    artefact?.created_at ??
+    ""
+  );
+}
+
+function dashboardSessionIsOpen(artefact) {
+  return new Set([
+    "not_started",
+    "in_progress",
+    "split",
+    "stopped",
+    "returned",
+    "returnable",
+    "paused"
+  ]).has(
+    dashboardSessionStatus(artefact)
+  );
+}
+
+function dashboardEventDate(eventRecord) {
+  const plan =
+    typeof coachEventPlan === "function"
+      ? coachEventPlan(eventRecord)
+      : null;
+
+  return String(
+    plan?.event_date ??
+    eventRecord?.event_date ??
+    ""
+  );
+}
+
+function dashboardEventName(eventRecord) {
+  const plan =
+    typeof coachEventPlan === "function"
+      ? coachEventPlan(eventRecord)
+      : null;
+
+  return String(
+    plan?.event_name ??
+    eventRecord?.event_name ??
+    "Event"
+  );
+}
+
+function dashboardEventType(eventRecord) {
+  const plan =
+    typeof coachEventPlan === "function"
+      ? coachEventPlan(eventRecord)
+      : null;
+
+  return String(
+    plan?.event_type ??
+    eventRecord?.event_type ??
+    "event"
+  );
+}
+
+function dashboardEventId(eventRecord) {
+  return String(
+    eventRecord?.event_id ??
+    eventRecord?.id ??
+    ""
+  );
+}
+
+function dashboardProgrammeName(assignment) {
+  const templateId =
+    dashboardAssignmentTemplateId(
+      assignment
+    );
+
+  const template =
+    state.coachTemplates.find(
+      (entry) =>
+        String(
+          entry.template_id ??
+          entry.id ??
+          ""
+        ) === templateId
+    );
+
+  return String(
+    template?.template_name ??
+    assignment?.template_name ??
+    assignment?.programme_name ??
+    templateId ??
+    "Programme"
+  );
+}
+
+function dashboardEmptyState(
+  heading,
+  detail
+) {
+  return `
+    <div class="empty-state dashboard-empty-state">
+      <h4>${escapeHtml(heading)}</h4>
+      <p>${escapeHtml(detail)}</p>
+    </div>
+  `;
+}
+
+function dashboardActionButton(
+  label,
+  action,
+  values = {}
+) {
+  const attributes =
+    Object.entries(values)
+      .filter(([, value]) =>
+        String(value ?? "").length > 0
+      )
+      .map(([key, value]) =>
+        `data-${escapeHtml(key)}="${escapeHtml(value)}"`
+      )
+      .join(" ");
+
+  return `
+    <button
+      class="button secondary small-button"
+      type="button"
+      data-dashboard-action="${escapeHtml(action)}"
+      ${attributes}
+    >
+      ${escapeHtml(label)}
+    </button>
+  `;
+}
+
+function bindCoachDashboardActions() {
+  for (
+    const button of
+    document.querySelectorAll(
+      "[data-dashboard-action]"
+    )
+  ) {
+    button.addEventListener(
+      "click",
+      async () => {
+        const action =
+          button.dataset.dashboardAction;
+
+        const athleteUserId =
+          button.dataset.athleteId ?? "";
+
+        const eventId =
+          button.dataset.eventId ?? "";
+
+        if (action === "open-athlete") {
+          setView("athletes");
+
+          await openAthleteProfile(
+            athleteUserId
+          );
+
+          return;
+        }
+
+        if (action === "open-assignment") {
+          setView("athletes");
+
+          await openAthleteProfile(
+            athleteUserId
+          );
+
+          elements.athleteAssignmentPanel
+            ?.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+
+          return;
+        }
+
+        if (action === "open-review") {
+          setView("review");
+          renderCoachSelectors();
+
+          elements.reviewAthlete.value =
+            athleteUserId;
+
+          await loadCoachReview();
+
+          return;
+        }
+
+        if (action === "open-event") {
+          if (eventId) {
+            location.hash =
+              `#/coach/events/${encodeURIComponent(eventId)}`;
+          }
+
+          setView("events");
+          return;
+        }
+
+        if (action === "open-programmes") {
+          setView("templates");
+        }
+      }
+    );
+  }
+}
+
+function renderCoachDashboard() {
+  if (
+    !elements.coachOverviewAssignments ||
+    !elements.coachOverviewOpenSessions ||
+    !elements.coachOverviewReviewQueue ||
+    !elements.coachOverviewEvents
+  ) {
+    return;
+  }
+
+  const artefacts =
+    Array.isArray(
+      state.coachDashboardArtefacts
+    )
+      ? state.coachDashboardArtefacts
+      : [];
+
+  const reviewRecords =
+    Array.isArray(
+      state.coachReviewRecords
+    )
+      ? state.coachReviewRecords
+      : [];
+
+  const reviewArtefacts =
+    reviewRecords.map((record) => ({
+      athlete:
+        reviewAthleteForRecord(record) ?? {
+          userId:
+            String(
+              record.athlete_user_id ??
+              ""
+            ),
+          displayName:
+            reviewAthleteName(record)
+        },
+      artefact: record
+    }));
+
+  const dashboardArtefacts =
+    reviewArtefacts.length > 0
+      ? reviewArtefacts
+      : artefacts;
+
+  const openSessions =
+    dashboardArtefacts
+      .filter((entry) =>
+        dashboardSessionIsOpen(
+          entry.artefact
+        )
+      )
+      .sort((left, right) =>
+        dashboardSessionDate(
+          right.artefact
+        ).localeCompare(
+          dashboardSessionDate(
+            left.artefact
+          )
+        )
+      );
+
+  const completedSessions =
+    dashboardArtefacts
+      .filter((entry) =>
+        !dashboardSessionIsOpen(
+          entry.artefact
+        ) &&
+        String(
+          entry.artefact
+            .review_status ??
+          "unreviewed"
+        ) === "unreviewed"
+      )
+      .sort((left, right) =>
+        dashboardSessionDate(
+          right.artefact
+        ).localeCompare(
+          dashboardSessionDate(
+            left.artefact
+          )
+        )
+      );
+
+  const assignedAthleteIds =
+    new Set(
+      state.coachAssignments
+        .map(
+          dashboardAssignmentAthleteId
+        )
+        .filter(Boolean)
+    );
+
+  const assignmentActions =
+    state.coachAthletes.filter(
+      (athlete) =>
+        !assignedAthleteIds.has(
+          athlete.userId
+        )
+    );
+
+  const today =
+    typeof todayDateOnly === "function"
+      ? todayDateOnly()
+      : new Date()
+          .toISOString()
+          .slice(0, 10);
+
+  const upcomingEvents =
+    state.coachEvents
+      .filter((eventRecord) => {
+        const eventDate =
+          dashboardEventDate(eventRecord);
+
+        return (
+          eventDate &&
+          eventDate >= today
+        );
+      })
+      .sort((left, right) =>
+        dashboardEventDate(left)
+          .localeCompare(
+            dashboardEventDate(right)
+          )
+      );
+
+  elements.coachAthleteCount.textContent =
+    String(
+      state.coachAthletes.length
+    );
+
+  elements.coachAssignmentCount.textContent =
+    String(
+      state.coachAssignments.length
+    );
+
+  elements.coachArtefactCount.textContent =
+    String(
+      artefacts.length
+    );
+
+  elements.coachOpenSessionCount.textContent =
+    String(
+      openSessions.length
+    );
+
+  elements.coachCompletedSessionCount.textContent =
+    String(
+      completedSessions.length
+    );
+
+  elements.coachUpcomingEventCount.textContent =
+    String(
+      upcomingEvents.length
+    );
+
+  elements.coachOverviewAthletes.innerHTML =
+    state.coachAthletes.length
+      ? state.coachAthletes
+          .slice(0, 6)
+          .map(coachAthleteCard)
+          .join("")
+      : dashboardEmptyState(
+          "No connected athletes",
+          "Connect an athlete to begin programme assignment and session review."
+        );
+
+  elements.coachOverviewAssignments.innerHTML =
+    assignmentActions.length
+      ? assignmentActions
+          .slice(0, 8)
+          .map((athlete) => `
+            <article class="record-card dashboard-record-card">
+              <div>
+                <h4>${escapeHtml(athlete.displayName)}</h4>
+                <p>No programme assignment is currently recorded.</p>
+              </div>
+
+              <div class="record-meta">
+                <span class="badge neutral">
+                  Action required
+                </span>
+
+                ${dashboardActionButton(
+                  "Open profile",
+                  "open-assignment",
+                  {
+                    "athlete-id": athlete.userId
+                  }
+                )}
+              </div>
+            </article>
+          `)
+          .join("")
+      : dashboardEmptyState(
+          "No assignment actions",
+          state.coachAthletes.length
+            ? "Every connected athlete has at least one recorded assignment."
+            : "Connect an athlete before creating an assignment."
+        );
+
+  elements.coachOverviewOpenSessions.innerHTML =
+    openSessions.length
+      ? openSessions
+          .slice(0, 8)
+          .map(({ athlete, artefact }) => `
+            <article class="record-card dashboard-record-card">
+              <div>
+                <h4>
+                  ${escapeHtml(
+                    athlete.displayName
+                  )}
+                </h4>
+
+                <p>
+                  ${escapeHtml(
+                    titleCase(
+                      dashboardSessionStatus(
+                        artefact
+                      )
+                    )
+                  )}
+                  ·
+                  ${Number(
+                    artefact.runtime_event_count ??
+                    0
+                  )}
+                  recorded events
+                </p>
+              </div>
+
+              <div class="record-meta">
+                <span class="badge neutral">
+                  ${escapeHtml(
+                    formatDate(
+                      dashboardSessionDate(
+                        artefact
+                      )
+                    )
+                  )}
+                </span>
+
+                ${dashboardActionButton(
+                  "Open live status",
+                  "open-review",
+                  {
+                    "athlete-id":
+                      athlete.userId
+                  }
+                )}
+              </div>
+            </article>
+          `)
+          .join("")
+      : dashboardEmptyState(
+          "No open sessions",
+          "No connected athlete currently has an open recorded session."
+        );
+
+  elements.coachOverviewReviewQueue.innerHTML =
+    completedSessions.length
+      ? completedSessions
+          .slice(0, 8)
+          .map(({ athlete, artefact }) => `
+            <article class="record-card dashboard-record-card">
+              <div>
+                <h4>
+                  ${escapeHtml(
+                    athlete.displayName
+                  )}
+                </h4>
+
+                <p>
+                  ${escapeHtml(
+                    titleCase(
+                      dashboardSessionStatus(
+                        artefact
+                      )
+                    )
+                  )}
+                  ·
+                  ${Number(
+                    artefact.runtime_event_count ??
+                    0
+                  )}
+                  recorded events
+                </p>
+              </div>
+
+              <div class="record-meta">
+                <span class="badge complete">
+                  ${escapeHtml(
+                    formatDate(
+                      dashboardSessionDate(
+                        artefact
+                      )
+                    )
+                  )}
+                </span>
+
+                ${dashboardActionButton(
+                  "Review record",
+                  "open-review",
+                  {
+                    "athlete-id":
+                      athlete.userId
+                  }
+                )}
+              </div>
+            </article>
+          `)
+          .join("")
+      : dashboardEmptyState(
+          "No completed session records",
+          "Completed athlete sessions will appear here when factual artefacts are available."
+        );
+
+  elements.coachOverviewEvents.innerHTML =
+    upcomingEvents.length
+      ? upcomingEvents
+          .slice(0, 8)
+          .map((eventRecord) => {
+            const eventDate =
+              dashboardEventDate(
+                eventRecord
+              );
+
+            return `
+              <article class="record-card dashboard-record-card">
+                <div>
+                  <h4>
+                    ${escapeHtml(
+                      dashboardEventName(
+                        eventRecord
+                      )
+                    )}
+                  </h4>
+
+                  <p>
+                    ${escapeHtml(
+                      titleCase(
+                        dashboardEventType(
+                          eventRecord
+                        )
+                      )
+                    )}
+                    ·
+                    ${escapeHtml(
+                      formatDate(eventDate)
+                    )}
+                    ·
+                    ${escapeHtml(
+                      countdownLabel(eventDate)
+                    )}
+                  </p>
+                </div>
+
+                <div class="record-meta">
+                  <span class="badge neutral">
+                    ${Number(
+                      eventRecord.linked_athlete_count ??
+                      0
+                    )}
+                    athlete links
+                  </span>
+
+                  ${dashboardActionButton(
+                    "Open event",
+                    "open-event",
+                    {
+                      "event-id":
+                        dashboardEventId(
+                          eventRecord
+                        )
+                    }
+                  )}
+                </div>
+              </article>
+            `;
+          })
+          .join("")
+      : dashboardEmptyState(
+          "No upcoming events",
+          "Create an event date anchor to display it on the coach dashboard."
+        );
+
+  if (
+    typeof bindCoachAthleteActions ===
+    "function"
+  ) {
+    bindCoachAthleteActions();
+  }
+
+  bindCoachDashboardActions();
+
+  const failures =
+    Array.isArray(
+      state.coachDashboardFailures
+    )
+      ? state.coachDashboardFailures
+      : [];
+
+  if (failures.length > 0) {
+    elements.coachDashboardStatus.textContent =
+      `Dashboard refreshed with ${failures.length} unavailable athlete record set${failures.length === 1 ? "" : "s"}. Available factual records are shown.`;
+
+    elements.coachDashboardStatus.classList.add(
+      "dashboard-status-warning"
+    );
+  }
+  else if (state.coachDashboardUpdatedAt) {
+    elements.coachDashboardStatus.textContent =
+      `Dashboard refreshed ${formatDate(state.coachDashboardUpdatedAt)}.`;
+
+    elements.coachDashboardStatus.classList.remove(
+      "dashboard-status-warning"
+    );
+  }
+}
+
+async function refreshCoachDashboard(
+  options = {}
+) {
+  if (
+    state.role !== "coach" ||
+    !state.profile?.coachUserId
+  ) {
+    return;
+  }
+
+  if (!options.quiet) {
+    showBusy(
+      "Refreshing coach dashboard…"
+    );
+  }
+
+  elements.coachDashboardStatus.textContent =
+    "Refreshing factual coach records…";
+
+  try {
+    const refreshers = [];
+
+    if (
+      typeof refreshCoachAthletes ===
+      "function"
+    ) {
+      refreshers.push(
+        refreshCoachAthletes({
+          quiet: true
+        })
+      );
+    }
+
+    if (
+      typeof refreshCoachAssignments ===
+      "function"
+    ) {
+      refreshers.push(
+        refreshCoachAssignments({
+          quiet: true
+        })
+      );
+    }
+
+    if (
+      typeof refreshCoachEvents ===
+      "function"
+    ) {
+      refreshers.push(
+        refreshCoachEvents({
+          quiet: true
+        })
+      );
+    }
+
+    if (
+      typeof refreshTemplates ===
+      "function"
+    ) {
+      refreshers.push(
+        refreshTemplates({
+          quiet: true
+        })
+      );
+    }
+
+    await Promise.all(refreshers);
+
+    const results =
+      await Promise.all(
+        state.coachAthletes.map(
+          async (athlete) => {
+            try {
+              const response =
+                await api(
+                  "POST",
+                  "/sessions/beta-coach-artefacts",
+                  {
+                    coach_user_id:
+                      state.profile.coachUserId,
+                    athlete_user_id:
+                      athlete.userId
+                  }
+                );
+
+              const artefacts =
+                Array.isArray(
+                  response.artefact_view
+                    ?.artefacts
+                )
+                  ? response.artefact_view
+                      .artefacts
+                  : [];
+
+              return {
+                athlete,
+                artefacts,
+                failure: null
+              };
+            }
+            catch {
+              return {
+                athlete,
+                artefacts: [],
+                failure:
+                  athlete.userId
+              };
+            }
+          }
+        )
+      );
+
+    state.coachDashboardArtefacts =
+      results.flatMap(
+        ({ athlete, artefacts }) =>
+          artefacts.map(
+            (artefact) => ({
+              athlete,
+              artefact
+            })
+          )
+      );
+
+    state.coachDashboardFailures =
+      results
+        .map((result) =>
+          result.failure
+        )
+        .filter(Boolean);
+
+    try {
+      await refreshCoachReviewQueue({
+        quiet: true,
+        render: false
       });
+    }
+    catch {
+      state.coachReviewRecords = [];
+      state.coachDashboardFailures = [
+        ...state.coachDashboardFailures,
+        "__review_state__"
+      ];
+    }
+
+    state.coachDashboardUpdatedAt =
+      nowIso();
+
+    state.coachArtefactCount =
+      state.coachDashboardArtefacts.length;
+
+    saveState();
+    renderCoachDashboard();
+
+    if (!options.quiet) {
+      showNotice(
+        "Coach dashboard refreshed."
+      );
+    }
+  }
+  finally {
+    if (!options.quiet) {
+      hideBusy();
     }
   }
 }
 
 function renderCoachWorkspace() {
-  const cards = state.coachAthletes.length
-    ? state.coachAthletes.map(coachAthleteCard).join("")
-    : '<div class="empty-state"><p>No athletes are connected yet.</p></div>';
+  const cards =
+    state.coachAthletes.length
+      ? state.coachAthletes
+          .map(coachAthleteCard)
+          .join("")
+      : '<div class="empty-state"><p>No accepted athletes are connected yet.</p></div>';
 
-  elements.coachAthleteCount.textContent = String(state.coachAthletes.length);
-  elements.coachAssignmentCount.textContent = String(state.coachAssignments.length);
-  elements.coachArtefactCount.textContent = String(state.coachArtefactCount);
-  elements.coachOverviewAthletes.innerHTML = cards;
-  elements.athleteRoster.innerHTML = cards;
+  elements.coachAthleteCount.textContent =
+    String(
+      state.coachAthletes.length
+    );
+
+  elements.coachAssignmentCount.textContent =
+    String(
+      state.coachAssignments.length
+    );
+
+  elements.coachArtefactCount.textContent =
+    String(
+      state.coachArtefactCount
+    );
+
+  elements.coachOverviewAthletes.innerHTML =
+    cards;
+
+  renderCoachAthleteDirectory();
   bindCoachAthleteActions();
   renderCoachSelectors();
 
-  if (state.selectedCoachAthleteId && state.athleteProfileDraft) {
+  if (
+    state.selectedCoachAthleteId &&
+    state.athleteProfileDraft
+  ) {
     renderAthleteProfileEditor();
     renderAthleteProfileAssignment();
   }
@@ -1961,123 +5042,1073 @@ async function recordAssignment(event) {
     throw new Error("Complete the athlete strength references required by this programme before assigning it.");
   }
 
-  showBusy("Recording assignment…");
+  const current = currentAssignmentForAthlete(athleteUserId);
+  const lifecycleAction = current ? "replace" : "create";
+  const confirmation = current
+    ? `Replace ${assignmentTemplateName(current)} version ${assignmentTemplateVersion(current)} with ${template.template_name} version ${Number(template.template_version)} for ${athlete.displayName}? Existing compiled sessions remain attached to the earlier assignment.`
+    : `Assign ${template.template_name} version ${Number(template.template_version)} to ${athlete.displayName}?`;
+
+  if (!globalThis.confirm(confirmation)) return;
+
+  elements.assignmentSubmitButton.disabled = true;
+  showBusy(current ? "Replacing assignment…" : "Recording assignment…");
 
   try {
-    const response = await api("POST", "/sessions/beta-coach-assignment", {
-      request_id: createId("assignment_request"),
-      requested_at_iso8601: nowIso(),
-      coach_user_id: state.profile.coachUserId,
-      athlete_user_id: athleteUserId,
-      template_id: template.template_id,
-      activity_id: athlete.activityId
-    });
+    const timestamp = nowIso();
+    const response = current
+      ? await api(
+          "POST",
+          `/coach-workspace/athlete-assignment/${encodeURIComponent(current.assignmentId)}/replace`,
+          {
+            request_id: createId("assignment_replace"),
+            requested_at_iso8601: timestamp,
+            coach_user_id: state.profile.coachUserId,
+            athlete_user_id: athleteUserId,
+            template_id: template.template_id,
+            activity_id: athlete.activityId,
+            event_id: ""
+          }
+        )
+      : await api("POST", "/sessions/beta-coach-assignment", {
+          request_id: createId("assignment_request"),
+          requested_at_iso8601: timestamp,
+          coach_user_id: state.profile.coachUserId,
+          athlete_user_id: athleteUserId,
+          template_id: template.template_id,
+          activity_id: athlete.activityId
+        });
 
-    await refreshCoachAssignments({ quiet: true });
+    await Promise.all([
+      refreshCoachAssignments({ quiet: true }),
+      refreshAthleteDetail(athleteUserId, { quiet: true }).catch(() => null)
+    ]);
+
     saveState();
-    elements.assignmentResult.textContent =
-      `${template.template_name} v${Number(template.template_version)} assigned to ${athlete.displayName}. Percentage-based loads will resolve from the athlete profile when each session is created.`;
+    elements.assignmentResult.textContent = current
+      ? `${template.template_name} version ${Number(template.template_version)} replaced the current assignment. ${Number(response.preserved_session_count ?? 0)} existing session${Number(response.preserved_session_count ?? 0) === 1 ? "" : "s"} remain attached to the earlier assignment.`
+      : `${template.template_name} version ${Number(template.template_version)} assigned to ${athlete.displayName}. Percentage-based loads will resolve from the athlete profile when each session is created.`;
     elements.assignmentResult.hidden = false;
     renderCoachWorkspace();
-    showNotice("Assignment recorded.");
+    renderAssignmentLifecycleSurfaces();
+    showNotice(lifecycleAction === "replace" ? "Assignment replaced." : "Assignment recorded.");
   }
   finally {
+    elements.assignmentSubmitButton.disabled = false;
     hideBusy();
   }
 }
 
-async function loadCoachReview() {
-  const athleteUserId = elements.reviewAthlete.value;
-  const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
-  if (!athlete) return;
-
-  showBusy("Loading session records…");
-
-  try {
-    const response = await api("POST", "/sessions/beta-coach-artefacts", {
-      coach_user_id: state.profile.coachUserId,
-      athlete_user_id: athleteUserId
-    });
-
-    const artefacts = Array.isArray(response.artefact_view?.artefacts)
-      ? response.artefact_view.artefacts
-      : [];
-
-    state.coachArtefactCount = artefacts.length;
-    saveState();
-    renderCoachWorkspace();
-    renderCoachArtefacts(athlete, artefacts);
-  }
-  finally {
-    hideBusy();
-  }
+// FULL-UI-06 immutable assignment lifecycle presentation.
+// This surface displays persisted assignment actions and never changes engine truth.
+function assignmentRecordsForAthlete(athleteUserId) {
+  return state.coachAssignments
+    .filter((assignment) => assignment.athleteUserId === String(athleteUserId ?? ""))
+    .sort((left, right) => String(right.recordedAt ?? "").localeCompare(String(left.recordedAt ?? "")));
 }
 
-function renderCoachArtefacts(athlete, artefacts) {
-  elements.coachNoteForm.hidden = true;
+function currentAssignmentForAthlete(athleteUserId) {
+  const records = assignmentRecordsForAthlete(athleteUserId);
+  return records.find((assignment) => assignment.isCurrent === true) ??
+    (records[0]?.assignmentStatus === "assigned" ? records[0] : null);
+}
 
-  elements.reviewList.innerHTML = artefacts.length
-    ? artefacts.map((artefact) => `
-        <article class="record-card">
-          <div>
-            <h3>${escapeHtml(athlete.displayName)} · Training session</h3>
-            <p>${escapeHtml(formatDate(artefact.recorded_at))} · ${Number(artefact.runtime_event_count ?? 0)} recorded events</p>
-          </div>
-          <div class="record-meta">
-            <span class="badge neutral">${escapeHtml(titleCase(artefact.session_status ?? "recorded"))}</span>
-            <button
-              class="button secondary note-trigger"
-              type="button"
-              data-session-id="${escapeHtml(artefact.session_id)}"
-              data-artefact-id="${escapeHtml(artefact.artefact_id)}"
-              data-athlete-id="${escapeHtml(athlete.userId)}"
-            >Add note</button>
-          </div>
-        </article>
-      `).join("")
-    : `
-      <div class="panel empty-state">
-        <div class="empty-icon">R</div>
-        <h3>No assigned sessions recorded</h3>
-        <p>The athlete must open a session using your coach account code after an assignment is recorded.</p>
+function assignmentTemplateRecord(assignment) {
+  return state.coachTemplates.find(
+    (template) => String(template.template_id ?? "") === String(assignment?.templateId ?? assignment?.record?.template_id ?? "")
+  ) ?? null;
+}
+
+function assignmentTemplateName(assignment) {
+  return String(
+    assignment?.templateName ??
+    assignment?.record?.template_name ??
+    assignmentTemplateRecord(assignment)?.template_name ??
+    assignment?.templateId ??
+    "Programme"
+  );
+}
+
+function assignmentTemplateVersion(assignment) {
+  return Number(
+    assignment?.templateVersion ??
+    assignment?.record?.template_version ??
+    assignmentTemplateRecord(assignment)?.template_version ??
+    0
+  );
+}
+
+function assignmentStateBadge(status) {
+  const stateValue = String(status ?? "assigned");
+  if (stateValue === "cancelled") return '<span class="badge warning">Cancelled</span>';
+  if (stateValue === "replaced") return '<span class="badge neutral">Replaced</span>';
+  return '<span class="badge complete">Current</span>';
+}
+
+function assignmentHistoryCards(athleteUserId) {
+  const records = assignmentRecordsForAthlete(athleteUserId);
+
+  if (records.length === 0) {
+    return `
+      <div class="empty-state compact-empty">
+        <h4>No assignment history</h4>
+        <p>Programme assignments will appear here after they are recorded.</p>
       </div>
     `;
+  }
 
-  for (const button of elements.reviewList.querySelectorAll(".note-trigger")) {
-    button.addEventListener("click", () => {
-      elements.coachNoteSessionId.value = button.dataset.sessionId;
-      elements.coachNoteArtefactId.value = button.dataset.artefactId;
-      elements.coachNoteForm.dataset.athleteId = button.dataset.athleteId;
-      elements.coachNoteHeading.textContent = `Add note for ${athlete.displayName}`;
-      elements.coachNoteText.value = "";
-      elements.coachNoteForm.hidden = false;
-      elements.coachNoteText.focus();
+  return records.map((assignment) => {
+    const eventId = String(assignment.eventId ?? assignment.record?.event_id ?? "");
+    const eventRecord = state.coachEvents.find((candidate) => String(candidate.event_id ?? "") === eventId);
+    const eventPlan = coachEventPlan(eventRecord);
+    const preserved = Number(assignment.preservedSessionCount ?? assignment.record?.preserved_session_count ?? 0);
+
+    return `
+      <article class="record-card assignment-history-card" data-assignment-id="${escapeHtml(assignment.assignmentId)}">
+        <div>
+          <h4>${escapeHtml(assignmentTemplateName(assignment))}</h4>
+          <p>${escapeHtml(titleCase(assignment.activityId || assignment.record?.activity_id || "training"))} · ${escapeHtml(formatDate(assignment.recordedAt))}</p>
+          <p class="muted small">Assignment ${escapeHtml(assignment.assignmentId)}</p>
+          ${eventPlan?.event_name
+            ? `<p class="assignment-event-fact"><strong>Event:</strong> ${escapeHtml(eventPlan.event_name)} · ${escapeHtml(formatDate(eventPlan.event_date))}</p>`
+            : '<p class="assignment-event-fact muted"><strong>Event:</strong> No event link</p>'}
+          ${preserved > 0
+            ? `<p class="muted small">${preserved} prior session${preserved === 1 ? "" : "s"} preserved.</p>`
+            : ""}
+        </div>
+        <div class="record-meta">
+          ${assignmentStateBadge(assignment.assignmentStatus)}
+          <span class="badge neutral">Version ${assignmentTemplateVersion(assignment)}</span>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderAssignmentCurrent(container, athleteUserId) {
+  if (!container) return;
+  const current = currentAssignmentForAthlete(athleteUserId);
+
+  container.innerHTML = current
+    ? `
+      <article class="record-card assignment-current-card">
+        <div>
+          <p class="eyebrow">Current assignment</p>
+          <h4>${escapeHtml(assignmentTemplateName(current))}</h4>
+          <p>${escapeHtml(titleCase(current.activityId || "training"))} · Version ${assignmentTemplateVersion(current)}</p>
+          <p class="muted small">Assigned ${escapeHtml(formatDate(current.recordedAt))}</p>
+        </div>
+        <span class="badge complete">Assigned</span>
+      </article>
+    `
+    : `
+      <div class="empty-state compact-empty">
+        <p>No current programme assignment.</p>
+      </div>
+    `;
+}
+
+function renderAssignmentLifecycleSurfaces() {
+  const profileAthleteId = state.selectedCoachAthleteId;
+  const workspaceAthleteId = elements.assignmentAthlete?.value ?? "";
+  const profileCurrent = currentAssignmentForAthlete(profileAthleteId);
+  const workspaceCurrent = currentAssignmentForAthlete(workspaceAthleteId);
+
+  renderAssignmentCurrent(elements.athleteAssignmentCurrent, profileAthleteId);
+  renderAssignmentCurrent(elements.assignmentCurrentState, workspaceAthleteId);
+
+  if (elements.athleteAssignmentHistory) {
+    elements.athleteAssignmentHistory.innerHTML = assignmentHistoryCards(profileAthleteId);
+  }
+
+  if (elements.assignmentHistoryList) {
+    elements.assignmentHistoryList.innerHTML = assignmentHistoryCards(workspaceAthleteId);
+  }
+
+  if (elements.athleteAssignmentButton) {
+    elements.athleteAssignmentButton.textContent = profileCurrent
+      ? "Replace assignment"
+      : "Assign programme";
+  }
+
+  if (elements.assignmentSubmitButton) {
+    elements.assignmentSubmitButton.textContent = workspaceCurrent
+      ? "Replace assignment"
+      : "Record assignment";
+  }
+
+  if (elements.athleteAssignmentCancelButton) {
+    elements.athleteAssignmentCancelButton.hidden = !profileCurrent;
+    elements.athleteAssignmentCancelButton.disabled = !profileCurrent;
+  }
+
+  if (elements.assignmentCancelButton) {
+    elements.assignmentCancelButton.hidden = !workspaceCurrent;
+    elements.assignmentCancelButton.disabled = !workspaceCurrent;
+  }
+}
+
+async function cancelAssignmentForAthlete(athleteUserId, source = "profile") {
+  const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
+  const current = currentAssignmentForAthlete(athleteUserId);
+
+  if (!athlete || !current) {
+    throw new Error("No current assignment is available to cancel.");
+  }
+
+  const confirmation = `Cancel ${assignmentTemplateName(current)} version ${assignmentTemplateVersion(current)} for ${athlete.displayName}? Future sessions cannot be created from it. Existing compiled sessions and history remain unchanged.`;
+  if (!globalThis.confirm(confirmation)) return null;
+
+  const button = source === "workspace"
+    ? elements.assignmentCancelButton
+    : elements.athleteAssignmentCancelButton;
+
+  if (button) button.disabled = true;
+  showBusy("Cancelling future assignment…");
+
+  try {
+    const response = await api(
+      "POST",
+      `/coach-workspace/athlete-assignment/${encodeURIComponent(current.assignmentId)}/cancel`,
+      {
+        request_id: createId("assignment_cancel"),
+        requested_at_iso8601: nowIso(),
+        coach_user_id: state.profile.coachUserId,
+        athlete_user_id: athleteUserId
+      }
+    );
+
+    await Promise.all([
+      refreshCoachAssignments({ quiet: true }),
+      refreshAthleteEventLinks(athleteUserId, { quiet: true }).catch(() => []),
+      refreshAthleteDetail(athleteUserId, { quiet: true }).catch(() => null)
+    ]);
+
+    const preserved = Number(response.preserved_session_count ?? 0);
+    const message = `Assignment cancelled for future session creation. ${preserved} existing session${preserved === 1 ? "" : "s"} remain preserved.`;
+
+    if (source === "workspace") {
+      elements.assignmentResult.textContent = message;
+      elements.assignmentResult.hidden = false;
+    }
+    else {
+      elements.athleteAssignmentResult.textContent = message;
+      elements.athleteAssignmentResult.hidden = false;
+    }
+
+    renderCoachWorkspace();
+    renderAthleteProfileAssignment();
+    renderAssignmentLifecycleSurfaces();
+    showNotice("Assignment cancelled. Existing sessions were preserved.");
+    return response.assignment ?? null;
+  }
+  finally {
+    if (button) button.disabled = false;
+    hideBusy();
+  }
+}
+
+// FULL-UI-07 durable factual review queue.
+// Review state is server-authoritative product state and never changes engine truth.
+function reviewAthleteForRecord(record) {
+  return state.coachAthletes.find(
+    (athlete) =>
+      athlete.userId ===
+      String(record?.athlete_user_id ?? "")
+  ) ?? null;
+}
+
+function reviewAthleteName(record) {
+  return String(
+    reviewAthleteForRecord(record)?.displayName ??
+    record?.athlete_display_name ??
+    "Connected athlete"
+  );
+}
+
+function reviewRecordStatus(record) {
+  const status =
+    String(
+      record?.review_status ??
+      "unreviewed"
+    ).toLowerCase();
+
+  return [
+    "reviewed",
+    "unreviewed",
+    "open"
+  ].includes(status)
+    ? status
+    : "unreviewed";
+}
+
+function reviewStatusBadge(record) {
+  const status =
+    reviewRecordStatus(record);
+
+  if (status === "reviewed") {
+    return '<span class="badge complete">Reviewed</span>';
+  }
+
+  if (status === "open") {
+    return '<span class="badge neutral">Open · read only</span>';
+  }
+
+  return '<span class="badge warning">Awaiting review</span>';
+}
+
+function reviewRecordDate(record) {
+  return String(
+    record?.updated_at ??
+    record?.created_at ??
+    ""
+  );
+}
+
+function reviewRecordMatches(
+  record,
+  query
+) {
+  const assignment =
+    record?.assignment_provenance &&
+    typeof record.assignment_provenance ===
+      "object"
+      ? record.assignment_provenance
+      : {};
+
+  const eventLink =
+    record?.event_provenance &&
+    typeof record.event_provenance ===
+      "object"
+      ? record.event_provenance
+      : {};
+
+  return [
+    reviewAthleteName(record),
+    record?.session_id,
+    record?.session_title,
+    record?.block_id,
+    record?.assignment_id,
+    assignment?.template_id,
+    assignment?.template_name,
+    assignment?.activity_id,
+    eventLink?.event_id
+  ]
+    .map((value) =>
+      String(value ?? "")
+        .toLowerCase()
+    )
+    .join(" ")
+    .includes(
+      String(query ?? "")
+        .trim()
+        .toLowerCase()
+    );
+}
+
+function filteredCoachReviewRecords() {
+  const selectedAthleteId =
+    String(
+      elements.reviewAthlete?.value ??
+      ""
+    );
+
+  const search =
+    String(
+      elements.reviewSearch?.value ??
+      state.coachReviewSearch ??
+      ""
+    );
+
+  const filter =
+    String(
+      elements.reviewStatusFilter?.value ??
+      state.coachReviewFilter ??
+      "awaiting"
+    );
+
+  return (
+    Array.isArray(
+      state.coachReviewRecords
+    )
+      ? state.coachReviewRecords
+      : []
+  )
+    .filter((record) =>
+      !selectedAthleteId ||
+      String(
+        record.athlete_user_id ??
+        ""
+      ) === selectedAthleteId
+    )
+    .filter((record) =>
+      reviewRecordMatches(
+        record,
+        search
+      )
+    )
+    .filter((record) => {
+      const status =
+        reviewRecordStatus(record);
+
+      if (filter === "all") {
+        return true;
+      }
+
+      if (filter === "awaiting") {
+        return status ===
+          "unreviewed";
+      }
+
+      return status === filter;
+    })
+    .sort((left, right) =>
+      reviewRecordDate(right)
+        .localeCompare(
+          reviewRecordDate(left)
+        )
+    );
+}
+
+function reviewRecordCard(record) {
+  const status =
+    reviewRecordStatus(record);
+
+  const notes =
+    Number(record.note_count ?? 0);
+
+  return `
+    <article
+      class="record-card review-record-card ${state.selectedCoachReviewSessionId === record.session_id ? "selected" : ""}"
+      data-review-session-id="${escapeHtml(record.session_id)}"
+    >
+      <div>
+        <p class="eyebrow">${escapeHtml(reviewAthleteName(record))}</p>
+        <h3>${escapeHtml(record.session_title ?? "Training session")}</h3>
+        <p>${escapeHtml(formatDate(reviewRecordDate(record)))} · ${Number(record.runtime_event_count ?? 0)} recorded events</p>
+        <p class="muted small">Session ${escapeHtml(record.session_id)}</p>
+      </div>
+      <div class="record-meta review-record-actions">
+        ${reviewStatusBadge(record)}
+        <span class="badge neutral">${notes} note${notes === 1 ? "" : "s"}</span>
+        <button
+          class="button secondary small-button"
+          type="button"
+          data-review-action="detail"
+          data-session-id="${escapeHtml(record.session_id)}"
+        >View details</button>
+        ${
+          status === "unreviewed"
+            ? `
+              <button
+                class="button primary small-button"
+                type="button"
+                data-review-action="reviewed"
+                data-session-id="${escapeHtml(record.session_id)}"
+              >Mark reviewed</button>
+            `
+            : status === "reviewed"
+              ? `
+                <button
+                  class="button secondary small-button"
+                  type="button"
+                  data-review-action="unreviewed"
+                  data-session-id="${escapeHtml(record.session_id)}"
+                >Mark unreviewed</button>
+              `
+              : ""
+        }
+        <button
+          class="button secondary small-button"
+          type="button"
+          data-review-action="note"
+          data-session-id="${escapeHtml(record.session_id)}"
+        >Add note</button>
+      </div>
+    </article>
+  `;
+}
+
+function reviewNoteList(record) {
+  const notes =
+    Array.isArray(record?.notes)
+      ? record.notes
+      : [];
+
+  if (notes.length === 0) {
+    return `
+      <div class="empty-state compact-empty">
+        <p>No coach notes are recorded for this session.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="review-note-list">
+      ${notes.map((note) => `
+        <article class="review-note-card">
+          <div class="record-meta">
+            <span class="badge neutral">${
+              note.visibility === "athlete_visible"
+                ? "Athlete visible"
+                : "Coach only"
+            }</span>
+            <span class="muted small">${escapeHtml(formatDate(note.created_at))}</span>
+          </div>
+          <p>${escapeHtml(note.note_text ?? "")}</p>
+          <p class="muted small">Non-binding product note · not included in engine input</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderCoachReviewDetail(record) {
+  if (
+    !elements.reviewDetail ||
+    !elements.reviewDetailContent
+  ) {
+    return;
+  }
+
+  if (!record) {
+    elements.reviewDetail.hidden =
+      true;
+
+    elements.reviewDetailContent.innerHTML =
+      "";
+
+    return;
+  }
+
+  const assignment =
+    record.assignment_provenance &&
+    typeof record.assignment_provenance ===
+      "object"
+      ? record.assignment_provenance
+      : {};
+
+  const eventLink =
+    record.event_provenance &&
+    typeof record.event_provenance ===
+      "object"
+      ? record.event_provenance
+      : {};
+
+  const status =
+    reviewRecordStatus(record);
+
+  elements.reviewDetail.hidden =
+    false;
+
+  elements.reviewDetailContent.innerHTML = `
+    <div class="review-detail-heading">
+      <div>
+        <p class="eyebrow">Factual session detail</p>
+        <h3>${escapeHtml(reviewAthleteName(record))}</h3>
+        <p>${escapeHtml(record.session_title ?? "Training session")}</p>
+      </div>
+      ${reviewStatusBadge(record)}
+    </div>
+
+    <dl class="review-fact-grid">
+      <div><dt>Session</dt><dd>${escapeHtml(record.session_id)}</dd></div>
+      <div><dt>Status</dt><dd>${escapeHtml(titleCase(record.session_status ?? "recorded"))}</dd></div>
+      <div><dt>Recorded events</dt><dd>${Number(record.runtime_event_count ?? 0)}</dd></div>
+      <div><dt>Planned work items</dt><dd>${Number(record.planned_work_item_count ?? 0)}</dd></div>
+      <div><dt>Block</dt><dd>${escapeHtml(record.block_id || "Not recorded")}</dd></div>
+      <div><dt>Updated</dt><dd>${escapeHtml(formatDate(reviewRecordDate(record)))}</dd></div>
+    </dl>
+
+    <section class="review-provenance">
+      <h4>Provenance</h4>
+      <dl class="review-fact-grid">
+        <div><dt>Assignment</dt><dd>${escapeHtml(record.assignment_id || "Not recorded")}</dd></div>
+        <div><dt>Programme</dt><dd>${escapeHtml(assignment.template_name ?? assignment.template_id ?? "Not recorded")}</dd></div>
+        <div><dt>Programme version</dt><dd>${Number(assignment.template_version ?? 0) || "Not recorded"}</dd></div>
+        <div><dt>Activity</dt><dd>${escapeHtml(titleCase(assignment.activity_id ?? "not recorded"))}</dd></div>
+        <div><dt>Event</dt><dd>${escapeHtml(eventLink.event_id ?? "No event link")}</dd></div>
+        <div><dt>Artefact</dt><dd>${escapeHtml(record.artefact_id)}</dd></div>
+      </dl>
+    </section>
+
+    <p class="review-boundary-copy ${
+      status === "open"
+        ? "live"
+        : ""
+    }">
+      ${
+        status === "open"
+          ? "Live status is read-only. This surface displays recorded session facts and cannot control or override the active session."
+          : "Review state is product metadata only. Marking a record reviewed or unreviewed does not change the session artefact, programme, assignment or engine truth."
+      }
+    </p>
+
+    <div class="assignment-action-row">
+      ${
+        status === "unreviewed"
+          ? `
+            <button
+              class="button primary"
+              type="button"
+              data-review-action="reviewed"
+              data-session-id="${escapeHtml(record.session_id)}"
+            >Mark reviewed</button>
+          `
+          : status === "reviewed"
+            ? `
+              <button
+                class="button secondary"
+                type="button"
+                data-review-action="unreviewed"
+                data-session-id="${escapeHtml(record.session_id)}"
+              >Mark unreviewed</button>
+            `
+            : ""
+      }
+      <button
+        class="button secondary"
+        type="button"
+        data-review-action="note"
+        data-session-id="${escapeHtml(record.session_id)}"
+      >Add non-binding note</button>
+    </div>
+
+    <section>
+      <h4>Coach notes</h4>
+      ${reviewNoteList(record)}
+    </section>
+  `;
+}
+
+function openReviewNote(record) {
+  const athlete =
+    reviewAthleteForRecord(record);
+
+  if (!athlete?.relationship) {
+    throw new Error(
+      "An accepted athlete relationship is required to record a note."
+    );
+  }
+
+  elements.coachNoteSessionId.value =
+    record.session_id;
+
+  elements.coachNoteArtefactId.value =
+    record.artefact_id;
+
+  elements.coachNoteForm.dataset.athleteId =
+    record.athlete_user_id;
+
+  elements.coachNoteHeading.textContent =
+    `Add note for ${athlete.displayName}`;
+
+  elements.coachNoteText.value = "";
+  elements.coachNoteForm.hidden = false;
+  elements.coachNoteText.focus();
+}
+
+async function setCoachSessionReview(
+  record,
+  reviewStatus
+) {
+  if (
+    !record ||
+    reviewRecordStatus(record) ===
+      "open"
+  ) {
+    throw new Error(
+      "Open sessions cannot be marked reviewed."
+    );
+  }
+
+  const actionCopy =
+    reviewStatus === "reviewed"
+      ? "Mark this completed session as reviewed?"
+      : "Return this completed session to the awaiting-review queue?";
+
+  if (!globalThis.confirm(actionCopy)) {
+    return null;
+  }
+
+  showBusy(
+    reviewStatus === "reviewed"
+      ? "Recording reviewed state…"
+      : "Returning session to review queue…"
+  );
+
+  try {
+    const response = await api(
+      "POST",
+      `/coach-workspace/session-review/${encodeURIComponent(record.session_id)}`,
+      {
+        request_id:
+          createId("session_review"),
+        requested_at_iso8601:
+          nowIso(),
+        coach_user_id:
+          state.profile.coachUserId,
+        athlete_user_id:
+          record.athlete_user_id,
+        artefact_id:
+          record.artefact_id,
+        review_status:
+          reviewStatus
+      }
+    );
+
+    state.selectedCoachReviewSessionId =
+      record.session_id;
+
+    await refreshCoachReviewQueue({
+      quiet: true,
+      render: true
+    });
+
+    renderCoachDashboard();
+
+    showNotice(
+      reviewStatus === "reviewed"
+        ? "Session marked reviewed."
+        : "Session returned to the review queue."
+    );
+
+    return response.review ?? null;
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+function bindCoachReviewActions() {
+  for (
+    const container of [
+      elements.reviewList,
+      elements.reviewDetailContent
+    ]
+  ) {
+    if (!container) continue;
+
+    for (
+      const button of container.querySelectorAll(
+        "[data-review-action]"
+      )
+    ) {
+      button.addEventListener(
+        "click",
+        () => {
+          const record =
+            state.coachReviewRecords.find(
+              (entry) =>
+                entry.session_id ===
+                button.dataset.sessionId
+            );
+
+          if (!record) return;
+
+          const action =
+            button.dataset.reviewAction;
+
+          if (action === "detail") {
+            state.selectedCoachReviewSessionId =
+              record.session_id;
+
+            saveState();
+            renderCoachReviewWorkspace();
+            return;
+          }
+
+          if (action === "note") {
+            openReviewNote(record);
+            return;
+          }
+
+          if (
+            action === "reviewed" ||
+            action === "unreviewed"
+          ) {
+            setCoachSessionReview(
+              record,
+              action
+            ).catch(handleError);
+          }
+        }
+      );
+    }
+  }
+}
+
+function renderCoachReviewWorkspace() {
+  if (
+    !elements.reviewList ||
+    !elements.reviewStatus
+  ) {
+    return;
+  }
+
+  state.coachReviewSearch =
+    String(
+      elements.reviewSearch?.value ??
+      state.coachReviewSearch ??
+      ""
+    );
+
+  state.coachReviewFilter =
+    String(
+      elements.reviewStatusFilter?.value ??
+      state.coachReviewFilter ??
+      "awaiting"
+    );
+
+  const records =
+    Array.isArray(
+      state.coachReviewRecords
+    )
+      ? state.coachReviewRecords
+      : [];
+
+  const counts = {
+    all: records.length,
+    awaiting:
+      records.filter(
+        (record) =>
+          reviewRecordStatus(record) ===
+          "unreviewed"
+      ).length,
+    reviewed:
+      records.filter(
+        (record) =>
+          reviewRecordStatus(record) ===
+          "reviewed"
+      ).length,
+    open:
+      records.filter(
+        (record) =>
+          reviewRecordStatus(record) ===
+          "open"
+      ).length
+  };
+
+  elements.reviewAllCount.textContent =
+    String(counts.all);
+
+  elements.reviewAwaitingCount.textContent =
+    String(counts.awaiting);
+
+  elements.reviewReviewedCount.textContent =
+    String(counts.reviewed);
+
+  elements.reviewOpenCount.textContent =
+    String(counts.open);
+
+  const filtered =
+    filteredCoachReviewRecords();
+
+  elements.reviewList.innerHTML =
+    filtered.length
+      ? filtered
+          .map(reviewRecordCard)
+          .join("")
+      : `
+        <div class="panel empty-state">
+          <div class="empty-icon">R</div>
+          <h3>No matching review records</h3>
+          <p>Completed sessions awaiting review, reviewed records and open read-only sessions will appear here.</p>
+        </div>
+      `;
+
+  let selected =
+    records.find(
+      (record) =>
+        record.session_id ===
+        state.selectedCoachReviewSessionId
+    ) ?? null;
+
+  if (
+    !selected &&
+    filtered.length > 0
+  ) {
+    selected = filtered[0];
+    state.selectedCoachReviewSessionId =
+      selected.session_id;
+  }
+
+  renderCoachReviewDetail(selected);
+  bindCoachReviewActions();
+
+  elements.reviewStatus.textContent =
+    state.coachReviewUpdatedAt
+      ? `Review records refreshed ${formatDate(state.coachReviewUpdatedAt)}. ${counts.awaiting} completed session${counts.awaiting === 1 ? "" : "s"} awaiting review.`
+      : "Refresh to load factual review records.";
+
+  saveState();
+}
+
+async function refreshCoachReviewQueue(
+  options = {}
+) {
+  const coachUserId =
+    String(
+      state.profile?.coachUserId ??
+      ""
+    );
+
+  if (!coachUserId) {
+    state.coachReviewRecords = [];
+    renderCoachReviewWorkspace();
+    return [];
+  }
+
+  const response = await api(
+    "GET",
+    `/coach-workspace/reviews?coach_user_id=${encodeURIComponent(coachUserId)}`
+  );
+
+  state.coachReviewRecords =
+    Array.isArray(response.records)
+      ? response.records
+      : [];
+
+  state.coachReviewUpdatedAt =
+    nowIso();
+
+  state.coachArtefactCount =
+    state.coachReviewRecords.length;
+
+  saveState();
+
+  if (options.render !== false) {
+    renderCoachReviewWorkspace();
+  }
+
+  if (!options.quiet) {
+    showNotice(
+      "Review records refreshed."
+    );
+  }
+
+  return state.coachReviewRecords;
+}
+
+
+async function loadCoachReview() {
+  showBusy(
+    "Loading factual review records…"
+  );
+
+  try {
+    await refreshCoachReviewQueue({
+      quiet: true,
+      render: true
     });
   }
+  finally {
+    hideBusy();
+  }
+}
+
+function renderCoachArtefacts(
+  athlete,
+  artefacts
+) {
+  state.coachReviewRecords =
+    (
+      Array.isArray(artefacts)
+        ? artefacts
+        : []
+    ).map((artefact) => ({
+      ...artefact,
+      athlete_user_id:
+        athlete.userId,
+      athlete_display_name:
+        athlete.displayName,
+      review_status:
+        dashboardSessionIsOpen(
+          artefact
+        )
+          ? "open"
+          : "unreviewed",
+      notes: [],
+      note_count: 0,
+      read_only: true,
+      calls_engine: false,
+      engine_visible: false
+    }));
+
+  renderCoachReviewWorkspace();
 }
 
 async function recordCoachNote(event) {
   event.preventDefault();
 
-  const athleteUserId = elements.coachNoteForm.dataset.athleteId;
-  const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
-  if (!athlete?.relationship) return;
+  const athleteUserId =
+    elements.coachNoteForm.dataset
+      .athleteId;
+
+  const athlete =
+    state.coachAthletes.find(
+      (entry) =>
+        entry.userId === athleteUserId
+    );
+
+  if (!athlete?.relationship) {
+    return;
+  }
 
   showBusy("Recording note…");
 
   try {
-    await api("POST", "/sessions/beta-coach-notes", {
-      coach_profile: state.coachProfile,
-      relationship: athlete.relationship,
-      athlete_user_id: athleteUserId,
-      session_id: elements.coachNoteSessionId.value,
-      artefact_id: elements.coachNoteArtefactId.value,
-      note_text: elements.coachNoteText.value.trim(),
-      visibility: elements.coachNoteVisibility.value
+    await api(
+      "POST",
+      "/sessions/beta-coach-notes",
+      {
+        coach_profile:
+          state.coachProfile,
+        relationship:
+          athlete.relationship,
+        athlete_user_id:
+          athleteUserId,
+        session_id:
+          elements.coachNoteSessionId
+            .value,
+        artefact_id:
+          elements.coachNoteArtefactId
+            .value,
+        note_text:
+          elements.coachNoteText
+            .value.trim(),
+        visibility:
+          elements.coachNoteVisibility
+            .value
+      }
+    );
+
+    elements.coachNoteForm.hidden =
+      true;
+
+    if (
+      athleteDetailFor(
+        athleteUserId
+      )
+    ) {
+      await refreshAthleteDetail(
+        athleteUserId,
+        {
+          quiet: true
+        }
+      );
+    }
+
+    state.selectedCoachReviewSessionId =
+      elements.coachNoteSessionId.value;
+
+    await refreshCoachReviewQueue({
+      quiet: true,
+      render: true
     });
 
-    elements.coachNoteForm.hidden = true;
-    showNotice("Non-binding coach note recorded.");
+    showNotice(
+      "Non-binding coach note recorded."
+    );
   }
   finally {
     hideBusy();
@@ -2329,55 +6360,1027 @@ async function refreshTemplates(options = {}) {
   return state.coachTemplates;
 }
 
+
+// FULL-UI-05A: factual programme library presentation.
+// These helpers read persisted product records only and do not affect deterministic training computation.
+function programmeFamilyId(template) {
+  return String(
+    template?.template_family_id ??
+    template?.template_id ??
+    ""
+  );
+}
+
+function programmeVersionNumber(template) {
+  const version = Number(template?.template_version ?? 0);
+  return Number.isInteger(version) && version > 0 ? version : 1;
+}
+
+function programmeFamilyVersions(template) {
+  const familyId = programmeFamilyId(template);
+
+  return state.coachTemplates
+    .filter((candidate) => programmeFamilyId(candidate) === familyId)
+    .sort((left, right) => (
+      programmeVersionNumber(left) - programmeVersionNumber(right) ||
+      String(left.updated_at_iso8601 ?? "").localeCompare(
+        String(right.updated_at_iso8601 ?? "")
+      )
+    ));
+}
+
+function programmeDisplayState(template) {
+  const storedState = String(template?.template_status ?? "draft");
+
+  if (storedState === "draft") return "draft";
+
+  const version = programmeVersionNumber(template);
+  const laterPublishedVersion = programmeFamilyVersions(template).some(
+    (candidate) =>
+      programmeVersionNumber(candidate) > version &&
+      ["active", "archived"].includes(String(candidate.template_status ?? ""))
+  );
+
+  if (laterPublishedVersion) return "superseded";
+  if (storedState === "archived") return "archived";
+  return "active";
+}
+
+function programmeAssignmentUsage(templateId) {
+  const records = state.coachAssignments
+    .filter((assignment) => {
+      const recordedTemplateId = String(
+        assignment?.templateId ??
+        assignment?.record?.template_id ??
+        ""
+      );
+      const storedStatus = String(
+        assignment?.record?.assignment_status ??
+        assignment?.assignmentStatus ??
+        "assigned"
+      );
+      return (
+        recordedTemplateId === String(templateId ?? "") &&
+        storedStatus === "assigned"
+      );
+    })
+    .filter((assignment, index, all) =>
+      all.findIndex((candidate) =>
+        String(candidate.assignmentId ?? candidate.record?.assignment_id ?? "") ===
+        String(assignment.assignmentId ?? assignment.record?.assignment_id ?? "")
+      ) === index
+    )
+    .sort((left, right) => String(
+      right?.recordedAt ??
+      right?.record?.requested_at_iso8601 ??
+      ""
+    ).localeCompare(String(
+      left?.recordedAt ??
+      left?.record?.requested_at_iso8601 ??
+      ""
+    )));
+
+  const athleteIds = new Set(
+    records
+      .map((assignment) => String(
+        assignment?.athleteUserId ??
+        assignment?.record?.assigned_athlete_id ??
+        ""
+      ))
+      .filter(Boolean)
+  );
+
+  return {
+    records,
+    assignmentCount: records.length,
+    athleteCount: athleteIds.size,
+    latestAt: String(
+      records[0]?.recordedAt ??
+      records[0]?.record?.requested_at_iso8601 ??
+      ""
+    )
+  };
+}
+
+function programmeSearchText(template) {
+  const eventPlan =
+    template?.event_plan &&
+    typeof template.event_plan === "object"
+      ? template.event_plan
+      : {};
+
+  return [
+    template?.template_name,
+    template?.description,
+    template?.activity_id,
+    template?.template_id,
+    template?.template_family_id,
+    template?.template_version,
+    template?.template_status,
+    programmeDisplayState(template),
+    eventPlan?.event_name,
+    eventPlan?.event_type,
+    eventPlan?.location
+  ]
+    .map((value) => String(value ?? "").toLowerCase())
+    .join(" ");
+}
+
+function filteredProgrammeTemplates() {
+  const search = String(state.templateLibrarySearch ?? "")
+    .trim()
+    .toLowerCase();
+
+  const statusFilter = String(
+    state.templateLibraryStatusFilter ?? "all"
+  );
+
+  const activityFilter = String(
+    state.templateLibraryActivityFilter ?? "all"
+  );
+
+  const visible = state.coachTemplates.filter((template) => {
+    if (
+      statusFilter !== "all" &&
+      programmeDisplayState(template) !== statusFilter
+    ) {
+      return false;
+    }
+
+    if (
+      activityFilter !== "all" &&
+      String(template.activity_id ?? "") !== activityFilter
+    ) {
+      return false;
+    }
+
+    return !search || programmeSearchText(template).includes(search);
+  });
+
+  const sortMode = String(state.templateLibrarySort ?? "updated_desc");
+
+  visible.sort((left, right) => {
+    if (sortMode === "name_asc") {
+      return (
+        String(left.template_name ?? "").localeCompare(
+          String(right.template_name ?? "")
+        ) ||
+        programmeVersionNumber(right) - programmeVersionNumber(left)
+      );
+    }
+
+    if (sortMode === "version_desc") {
+      return (
+        programmeVersionNumber(right) - programmeVersionNumber(left) ||
+        String(left.template_name ?? "").localeCompare(
+          String(right.template_name ?? "")
+        )
+      );
+    }
+
+    if (sortMode === "usage_desc") {
+      return (
+        programmeAssignmentUsage(right.template_id).assignmentCount -
+          programmeAssignmentUsage(left.template_id).assignmentCount ||
+        String(right.updated_at_iso8601 ?? "").localeCompare(
+          String(left.updated_at_iso8601 ?? "")
+        )
+      );
+    }
+
+    return String(right.updated_at_iso8601 ?? "").localeCompare(
+      String(left.updated_at_iso8601 ?? "")
+    );
+  });
+
+  return visible;
+}
+
+function programmePreviewRepetitions(workItem) {
+  if (workItem?.rep_mode === "range") {
+    return `${Number(workItem.rep_min)}–${Number(workItem.rep_max)} reps`;
+  }
+
+  return `${Number(workItem?.planned_reps ?? 0)} reps`;
+}
+
+function programmePreviewLoad(workItem) {
+  if (workItem?.load_mode === "bodyweight") return "Bodyweight";
+
+  if (workItem?.load_mode === "fixed_weight") {
+    const unit = workItem?.weight_unit === "lb" ? "lb" : "kg";
+    return `${Number(workItem?.weight_value ?? 0)} ${unit}`;
+  }
+
+  return `${Number(workItem?.percent_1rm ?? 0)}% 1RM`;
+}
+
+function programmePreviewHtml(template) {
+  const draft = templateRecordToDraft(template);
+  const blocks = Array.isArray(draft?.blocks) ? draft.blocks : [];
+
+  if (blocks.length === 0) {
+    return `
+      <div class="empty-state compact-empty">
+        <p>No persisted programme structure is available.</p>
+      </div>
+    `;
+  }
+
+  return blocks.map((block, blockIndex) => `
+    <article class="programme-preview-block">
+      <div class="programme-preview-block-heading">
+        <div>
+          <p class="eyebrow">Block ${blockIndex + 1}</p>
+          <h5>${escapeHtml(block.name || `Block ${blockIndex + 1}`)}</h5>
+        </div>
+        <div class="template-status-line">
+          <span class="badge neutral">${escapeHtml(titleCase(block.block_type))}</span>
+          <span class="badge neutral">${block.weeks.length} week${block.weeks.length === 1 ? "" : "s"}</span>
+        </div>
+      </div>
+      ${block.description
+        ? `<p class="muted small">${escapeHtml(block.description)}</p>`
+        : ""}
+      <div class="programme-preview-weeks">
+        ${block.weeks.map((week, weekIndex) => `
+          <details class="programme-preview-week" ${blockIndex === 0 && weekIndex === 0 ? "open" : ""}>
+            <summary>
+              <span>Week ${weekIndex + 1}</span>
+              <span>${week.sessions.length} session${week.sessions.length === 1 ? "" : "s"}</span>
+            </summary>
+            <div class="programme-preview-sessions">
+              ${week.sessions.map((session, sessionIndex) => `
+                <article class="programme-preview-session">
+                  <div class="programme-preview-session-heading">
+                    <strong>${escapeHtml(session.title || `Session ${sessionIndex + 1}`)}</strong>
+                    <span class="badge ${session.work_items.length === 4 ? "complete" : "warning"}">
+                      ${session.work_items.length} exercises
+                    </span>
+                  </div>
+                  <ol>
+                    ${session.work_items.map((workItem) => `
+                      <li>
+                        <div>
+                          <strong>${escapeHtml(exerciseDisplayName(workItem.exercise_id))}</strong>
+                          <span>${escapeHtml(titleCase(workItem.role))}</span>
+                        </div>
+                        <span>
+                          ${Number(workItem.planned_sets)} sets ·
+                          ${escapeHtml(programmePreviewRepetitions(workItem))} ·
+                          ${escapeHtml(programmePreviewLoad(workItem))} ·
+                          ${Number(workItem.rest_seconds)}s rest
+                        </span>
+                      </li>
+                    `).join("")}
+                  </ol>
+                </article>
+              `).join("")}
+            </div>
+          </details>
+        `).join("")}
+      </div>
+    </article>
+  `).join("");
+}
+
+function programmeActivationIssues(template) {
+  const draft = templateRecordToDraft(template);
+  const issues = [];
+  const supportedActivities = new Set([
+    "powerlifting",
+    "general_strength",
+    "rugby_union"
+  ]);
+  const supportedBlockTypes = new Set([
+    "general",
+    "volume",
+    "strength",
+    "peak",
+    "deload",
+    "custom"
+  ]);
+  const registryIds = new Set(
+    state.templateExercises
+      .map((exercise) => String(exercise.exercise_id ?? ""))
+      .filter(Boolean)
+  );
+
+  const addIssue = (code, message, path) => {
+    issues.push({ code, message, path });
+  };
+
+  if (String(template?.template_status ?? "draft") !== "draft") {
+    addIssue(
+      "only_draft_can_activate",
+      "Only a draft programme can be activated.",
+      "programme"
+    );
+  }
+
+  if (!String(draft?.template_name ?? "").trim()) {
+    addIssue(
+      "template_name_required",
+      "Programme name is required.",
+      "programme name"
+    );
+  }
+
+  if (!supportedActivities.has(String(draft?.activity_id ?? ""))) {
+    addIssue(
+      "activity_id_invalid",
+      "Choose a supported activity.",
+      "activity"
+    );
+  }
+
+  const blocks = Array.isArray(draft?.blocks) ? draft.blocks : [];
+
+  if (blocks.length < 1 || blocks.length > 12) {
+    addIssue(
+      "block_count_invalid",
+      "Programme must contain between one and 12 blocks.",
+      "blocks"
+    );
+  }
+
+  const totalWeeks = blocks.reduce(
+    (total, block) =>
+      total + (Array.isArray(block?.weeks) ? block.weeks.length : 0),
+    0
+  );
+
+  if (totalWeeks < 1 || totalWeeks > 104) {
+    addIssue(
+      "total_week_count_invalid",
+      "Programme must contain between one and 104 weeks.",
+      "weeks"
+    );
+  }
+
+  blocks.forEach((block, blockIndex) => {
+    const blockPath = `Block ${blockIndex + 1}`;
+    const weeks = Array.isArray(block?.weeks) ? block.weeks : [];
+
+    if (!supportedBlockTypes.has(String(block?.block_type ?? ""))) {
+      addIssue(
+        "block_type_invalid",
+        `${blockPath} has an unsupported block type.`,
+        blockPath
+      );
+    }
+
+    if (weeks.length < 1 || weeks.length > 52) {
+      addIssue(
+        "week_count_per_block_invalid",
+        `${blockPath} must contain between one and 52 weeks.`,
+        blockPath
+      );
+    }
+
+    weeks.forEach((week, weekIndex) => {
+      const weekPath = `${blockPath}, week ${weekIndex + 1}`;
+      const sessions = Array.isArray(week?.sessions) ? week.sessions : [];
+
+      if (sessions.length < 1 || sessions.length > 7) {
+        addIssue(
+          "session_count_per_week_invalid",
+          `${weekPath} must contain between one and seven sessions.`,
+          weekPath
+        );
+      }
+
+      sessions.forEach((session, sessionIndex) => {
+        const sessionPath = `${weekPath}, session ${sessionIndex + 1}`;
+        const workItems = Array.isArray(session?.work_items)
+          ? session.work_items
+          : [];
+
+        if (workItems.length !== 4) {
+          addIssue(
+            "session_requires_exactly_four_work_items",
+            `${sessionPath} must contain exactly four exercises.`,
+            sessionPath
+          );
+        }
+
+        const exerciseIds = workItems
+          .map((workItem) => String(workItem?.exercise_id ?? ""))
+          .filter(Boolean);
+
+        if (new Set(exerciseIds).size !== exerciseIds.length) {
+          addIssue(
+            "duplicate_exercise_in_session",
+            `${sessionPath} contains a duplicate exercise.`,
+            sessionPath
+          );
+        }
+
+        workItems.forEach((workItem, workItemIndex) => {
+          const itemPath = `${sessionPath}, exercise ${workItemIndex + 1}`;
+          const exerciseId = String(workItem?.exercise_id ?? "");
+
+          if (!exerciseId) {
+            addIssue(
+              "exercise_required",
+              `${itemPath} requires an exercise.`,
+              itemPath
+            );
+          }
+          else if (registryIds.size > 0 && !registryIds.has(exerciseId)) {
+            addIssue(
+              "exercise_not_in_active_registry",
+              `${itemPath} is not in the active exercise registry.`,
+              itemPath
+            );
+          }
+
+          if (!["primary", "accessory"].includes(String(workItem?.role ?? ""))) {
+            addIssue(
+              "role_invalid",
+              `${itemPath} requires a primary or accessory role.`,
+              itemPath
+            );
+          }
+
+          const sets = Number(workItem?.planned_sets);
+          if (!Number.isInteger(sets) || sets < 1 || sets > 20) {
+            addIssue(
+              "planned_sets_invalid",
+              `${itemPath} sets must be between one and 20.`,
+              itemPath
+            );
+          }
+
+          if (workItem?.rep_mode === "range") {
+            const minimum = Number(workItem?.rep_min);
+            const maximum = Number(workItem?.rep_max);
+
+            if (
+              !Number.isInteger(minimum) ||
+              minimum < 1 ||
+              minimum > 100
+            ) {
+              addIssue(
+                "rep_range_min_invalid",
+                `${itemPath} minimum repetitions must be between one and 100.`,
+                itemPath
+              );
+            }
+
+            if (
+              !Number.isInteger(maximum) ||
+              maximum < 1 ||
+              maximum > 100
+            ) {
+              addIssue(
+                "rep_range_max_invalid",
+                `${itemPath} maximum repetitions must be between one and 100.`,
+                itemPath
+              );
+            }
+
+            if (
+              Number.isFinite(minimum) &&
+              Number.isFinite(maximum) &&
+              maximum < minimum
+            ) {
+              addIssue(
+                "rep_range_order_invalid",
+                `${itemPath} maximum repetitions cannot be lower than the minimum.`,
+                itemPath
+              );
+            }
+          }
+          else {
+            const repetitions = Number(workItem?.planned_reps);
+            if (
+              !Number.isInteger(repetitions) ||
+              repetitions < 1 ||
+              repetitions > 100
+            ) {
+              addIssue(
+                "planned_reps_invalid",
+                `${itemPath} repetitions must be between one and 100.`,
+                itemPath
+              );
+            }
+          }
+
+          const loadMode = String(workItem?.load_mode ?? "");
+          if (!["percent_1rm", "fixed_weight", "bodyweight"].includes(loadMode)) {
+            addIssue(
+              "load_mode_invalid",
+              `${itemPath} has an unsupported loading mode.`,
+              itemPath
+            );
+          }
+          else if (loadMode === "percent_1rm") {
+            const percentage = Number(workItem?.percent_1rm);
+            if (!Number.isFinite(percentage) || percentage < 1 || percentage > 100) {
+              addIssue(
+                "percent_1rm_invalid",
+                `${itemPath} percentage must be between one and 100.`,
+                itemPath
+              );
+            }
+          }
+          else if (loadMode === "fixed_weight") {
+            const weight = Number(workItem?.weight_value);
+            if (!Number.isFinite(weight) || weight < 0.25 || weight > 1000) {
+              addIssue(
+                "weight_value_invalid",
+                `${itemPath} fixed load must be between 0.25 and 1,000.`,
+                itemPath
+              );
+            }
+
+            if (!["kg", "lb"].includes(String(workItem?.weight_unit ?? ""))) {
+              addIssue(
+                "weight_unit_invalid",
+                `${itemPath} requires kilograms or pounds.`,
+                itemPath
+              );
+            }
+          }
+
+          const rest = Number(workItem?.rest_seconds);
+          if (!Number.isInteger(rest) || rest < 0 || rest > 900) {
+            addIssue(
+              "rest_seconds_invalid",
+              `${itemPath} rest must be between zero and 900 seconds.`,
+              itemPath
+            );
+          }
+        });
+      });
+    });
+  });
+
+  if (draft?.event_plan) {
+    const summary = localEventCompileSummary(draft);
+
+    if (!summary?.valid) {
+      addIssue(
+        "event_plan_invalid",
+        summary?.reason ?? "Event calendar details are incomplete.",
+        "event calendar"
+      );
+    }
+    else {
+      if (summary.allocation_state !== "balanced") {
+        addIssue(
+          "event_week_allocation_unbalanced",
+          "Programme weeks must exactly match the event preparation calendar.",
+          "event calendar"
+        );
+      }
+
+      if (
+        String(draft.event_plan.event_date ?? "") &&
+        String(draft.event_plan.event_date) < todayDateOnly()
+      ) {
+        addIssue(
+          "event_date_in_past",
+          "Event date cannot be in the past when the programme is activated.",
+          "event date"
+        );
+      }
+    }
+  }
+
+  return issues;
+}
+
+function programmeVersionFamilyHtml(template) {
+  const versions = programmeFamilyVersions(template);
+
+  return versions.map((version) => {
+    const displayState = programmeDisplayState(version);
+    const isCurrent = version.template_id === template.template_id;
+
+    return `
+      <button
+        class="programme-version-row template-version-open ${isCurrent ? "current" : ""}"
+        type="button"
+        data-template-id="${escapeHtml(version.template_id)}"
+      >
+        <span>
+          <strong>Version ${programmeVersionNumber(version)}</strong>
+          <small>${escapeHtml(version.template_name ?? "Programme")}</small>
+        </span>
+        <span>
+          ${templateStatusBadge(displayState)}
+          <small>${escapeHtml(formatDate(version.updated_at_iso8601))}</small>
+        </span>
+      </button>
+    `;
+  }).join("");
+}
+
+function programmeUsageHtml(template) {
+  const usage = programmeAssignmentUsage(template.template_id);
+
+  if (usage.records.length === 0) {
+    return `
+      <div class="empty-state compact-empty">
+        <p>No assignment records use this exact programme version.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="programme-usage-summary">
+      <div><span>Assignments</span><strong>${usage.assignmentCount}</strong></div>
+      <div><span>Athletes</span><strong>${usage.athleteCount}</strong></div>
+      <div><span>Latest</span><strong>${escapeHtml(formatDate(usage.latestAt))}</strong></div>
+    </div>
+    <div class="programme-assignment-records">
+      ${usage.records.map((assignment) => {
+        const athleteId = String(
+          assignment?.athleteUserId ??
+          assignment?.record?.assigned_athlete_id ??
+          ""
+        );
+        const athlete = state.coachAthletes.find(
+          (candidate) => candidate.userId === athleteId
+        );
+        const assignmentId = String(
+          assignment?.assignmentId ??
+          assignment?.record?.assignment_id ??
+          ""
+        );
+        const recordedAt = String(
+          assignment?.recordedAt ??
+          assignment?.record?.requested_at_iso8601 ??
+          ""
+        );
+        const assignmentState = String(
+          assignment?.record?.assignment_status ??
+          "assigned"
+        );
+
+        return `
+          <article class="programme-assignment-record">
+            <div>
+              <strong>${escapeHtml(athlete?.displayName ?? athleteId ?? "Athlete")}</strong>
+              <small>${escapeHtml(assignmentId)}</small>
+            </div>
+            <div>
+              <span class="badge neutral">${escapeHtml(titleCase(assignmentState))}</span>
+              <small>${escapeHtml(formatDate(recordedAt))}</small>
+            </div>
+          </article>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function programmeValidationHtml(template) {
+  const issues = programmeActivationIssues(template);
+
+  if (String(template.template_status ?? "") !== "draft") {
+    return `
+      <div class="assignment-requirements neutral">
+        This persisted version is ${escapeHtml(programmeDisplayState(template))}.
+        Activation checks apply to draft versions only.
+      </div>
+    `;
+  }
+
+  if (issues.length === 0) {
+    return `
+      <div class="assignment-requirements complete">
+        All visible activation checks pass. The server remains authoritative when activation is submitted.
+      </div>
+    `;
+  }
+
+  return `
+    <div class="assignment-requirements warning">
+      ${issues.length} activation issue${issues.length === 1 ? "" : "s"} recorded.
+    </div>
+    <ol class="programme-validation-list">
+      ${issues.map((issue) => `
+        <li>
+          <strong>${escapeHtml(issue.path)}</strong>
+          <span>${escapeHtml(issue.message)}</span>
+          <code>${escapeHtml(issue.code)}</code>
+        </li>
+      `).join("")}
+    </ol>
+    <button
+      class="button secondary small-button programme-validation-edit"
+      type="button"
+      data-template-id="${escapeHtml(template.template_id)}"
+    >
+      Open draft builder
+    </button>
+  `;
+}
+
+function renderProgrammeDetail() {
+  const template = state.coachTemplates.find(
+    (candidate) => candidate.template_id === state.selectedTemplateId
+  );
+
+  if (!template) {
+    elements.templateDetailPanel.hidden = true;
+    return;
+  }
+
+  const displayState = programmeDisplayState(template);
+  const usage = programmeAssignmentUsage(template.template_id);
+  const versions = programmeFamilyVersions(template);
+  const counts = templateCounts(templateRecordToDraft(template));
+  const eventPlan =
+    template?.event_plan &&
+    typeof template.event_plan === "object"
+      ? template.event_plan
+      : null;
+
+  elements.templateDetailPanel.hidden = false;
+  elements.templateDetailTitle.textContent =
+    template.template_name ?? "Programme";
+
+  elements.templateDetailStatus.innerHTML = `
+    ${templateStatusBadge(displayState)}
+    <span class="badge neutral">Version ${programmeVersionNumber(template)}</span>
+    <span class="badge neutral">${escapeHtml(titleCase(template.activity_id))}</span>
+  `;
+
+  elements.templateDetailMeta.innerHTML = `
+    <div><span>Family versions</span><strong>${versions.length}</strong></div>
+    <div><span>Blocks</span><strong>${counts.blocks}</strong></div>
+    <div><span>Weeks</span><strong>${counts.weeks}</strong></div>
+    <div><span>Sessions</span><strong>${counts.sessions}</strong></div>
+    <div><span>Assignments</span><strong>${usage.assignmentCount}</strong></div>
+    <div><span>Updated</span><strong>${escapeHtml(formatDate(template.updated_at_iso8601))}</strong></div>
+  `;
+
+  elements.templateDetailDescription.textContent =
+    String(template.description ?? "").trim() ||
+    "No programme description was recorded.";
+
+  const storedStatus = String(template.template_status ?? "draft");
+  const actions = [
+    `<button class="button secondary programme-detail-edit" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "draft" ? "" : "hidden"}>Edit draft</button>`,
+    `<button class="button primary programme-detail-activate" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "draft" ? "" : "hidden"}>Activate programme</button>`,
+    `<button class="button secondary programme-detail-duplicate" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "draft" ? "hidden" : ""}>Duplicate version</button>`,
+    `<button class="button secondary programme-detail-archive" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "archived" ? "hidden" : ""}>Archive programme</button>`
+  ];
+
+  elements.templateDetailActions.innerHTML = actions.join("");
+  elements.templateDetailVersionFamily.innerHTML =
+    programmeVersionFamilyHtml(template);
+  elements.templateDetailUsage.innerHTML =
+    programmeUsageHtml(template);
+  elements.templateDetailValidation.innerHTML =
+    programmeValidationHtml(template);
+  elements.templateDetailPreview.innerHTML =
+    programmePreviewHtml(template);
+
+  if (eventPlan) {
+    elements.templateDetailMeta.insertAdjacentHTML(
+      "beforeend",
+      `<div><span>Event</span><strong>${escapeHtml(eventPlan.event_name ?? "Event")}</strong></div>`
+    );
+  }
+
+  for (
+    const button of
+    elements.templateDetailPanel.querySelectorAll(
+      ".template-version-open"
+    )
+  ) {
+    button.addEventListener("click", () => {
+      openProgrammeDetail(button.dataset.templateId);
+    });
+  }
+
+  for (
+    const button of
+    elements.templateDetailPanel.querySelectorAll(
+      ".programme-detail-edit, .programme-validation-edit"
+    )
+  ) {
+    button.addEventListener("click", () => {
+      const selected = state.coachTemplates.find(
+        (candidate) => candidate.template_id === button.dataset.templateId
+      );
+      if (selected) openTemplateBuilder(templateRecordToDraft(selected));
+    });
+  }
+
+  for (
+    const button of
+    elements.templateDetailPanel.querySelectorAll(
+      ".programme-detail-activate"
+    )
+  ) {
+    button.addEventListener("click", () => {
+      activateTemplateById(button.dataset.templateId).catch(handleError);
+    });
+  }
+
+  for (
+    const button of
+    elements.templateDetailPanel.querySelectorAll(
+      ".programme-detail-duplicate"
+    )
+  ) {
+    button.addEventListener("click", () => {
+      duplicateTemplate(button.dataset.templateId).catch(handleError);
+    });
+  }
+
+  for (
+    const button of
+    elements.templateDetailPanel.querySelectorAll(
+      ".programme-detail-archive"
+    )
+  ) {
+    button.addEventListener("click", () => {
+      archiveTemplate(button.dataset.templateId).catch(handleError);
+    });
+  }
+}
+
+function openProgrammeDetail(templateId, options = {}) {
+  const template = state.coachTemplates.find(
+    (candidate) => candidate.template_id === String(templateId ?? "")
+  );
+
+  if (!template) return false;
+
+  state.selectedTemplateId = template.template_id;
+  saveState();
+  renderProgrammeDetail();
+
+  if (options.updateRoute !== false) {
+    location.hash =
+      `#/coach/programmes/${encodeURIComponent(template.template_id)}`;
+  }
+
+  if (options.scroll !== false) {
+    elements.templateDetailPanel.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+  return true;
+}
+
+function closeProgrammeDetail(options = {}) {
+  state.selectedTemplateId = "";
+  saveState();
+  elements.templateDetailPanel.hidden = true;
+
+  if (options.updateRoute !== false) {
+    location.hash = "#/coach/programmes";
+  }
+}
+
+async function refreshProgrammeLibrary(options = {}) {
+  if (state.role !== "coach" || !state.profile?.coachUserId) return [];
+
+  elements.templateLibraryStatus.textContent = "Loading programme records…";
+
+  if (!options.quiet) showBusy("Loading programme library…");
+
+  try {
+    const outcomes = await Promise.allSettled([
+      refreshTemplates({ quiet: true }),
+      refreshCoachAssignments({ quiet: true }),
+      loadTemplateExercises()
+    ]);
+
+    const failures = outcomes.filter(
+      (outcome) => outcome.status === "rejected"
+    );
+
+    for (const failure of failures) {
+      console.error(failure.reason);
+    }
+
+    renderTemplateLibrary();
+
+    elements.templateLibraryStatus.textContent = failures.length
+      ? `${failures.length} programme data source${failures.length === 1 ? "" : "s"} could not be refreshed. Persisted records remain visible.`
+      : `Updated ${new Intl.DateTimeFormat("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit"
+        }).format(new Date())}.`;
+
+    if (failures.length > 0 && !options.quiet) {
+      showNotice(
+        "Some programme records could not be refreshed.",
+        "error"
+      );
+    }
+
+    return state.coachTemplates;
+  }
+  finally {
+    if (!options.quiet) hideBusy();
+  }
+}
 function templateStatusBadge(status) {
-  if (status === "active") return '<span class="badge complete">Active</span>';
-  if (status === "archived") return '<span class="badge neutral">Archived</span>';
+  if (status === "active") {
+    return '<span class="badge complete">Active</span>';
+  }
+
+  if (status === "archived") {
+    return '<span class="badge neutral">Archived</span>';
+  }
+
+  if (status === "superseded") {
+    return '<span class="badge warning">Superseded</span>';
+  }
+
   return '<span class="badge active">Draft</span>';
 }
 
 function templateCard(template) {
-  const status = String(template.template_status ?? "draft");
+  const storedStatus = String(template.template_status ?? "draft");
+  const displayState = programmeDisplayState(template);
   const sessionCount = Number(template.session_count ?? 0);
-  const blockCount = Number(template.block_count ?? template.template_structure?.blocks?.length ?? 1);
+  const blockCount = Number(
+    template.block_count ??
+    template.template_structure?.blocks?.length ??
+    1
+  );
   const weekCount = Number(template.week_count ?? 0);
-  const version = Number(template.template_version ?? 1);
-  const eventPlan = template?.event_plan && typeof template.event_plan === "object"
-    ? template.event_plan
-    : null;
+  const version = programmeVersionNumber(template);
+  const versions = programmeFamilyVersions(template);
+  const usage = programmeAssignmentUsage(template.template_id);
+  const eventPlan =
+    template?.event_plan &&
+    typeof template.event_plan === "object"
+      ? template.event_plan
+      : null;
+
   const eventLine = eventPlan
-    ? `<div class="template-event-line"><span class="badge neutral">${escapeHtml(titleCase(eventPlan.event_type))}</span><strong>${escapeHtml(eventPlan.event_name)}</strong><span>${escapeHtml(formatDate(eventPlan.event_date))}</span><span>${escapeHtml(countdownLabel(eventPlan.event_date))}</span></div>`
+    ? `
+      <div class="template-event-line">
+        <span class="badge neutral">${escapeHtml(titleCase(eventPlan.event_type))}</span>
+        <strong>${escapeHtml(eventPlan.event_name)}</strong>
+        <span>${escapeHtml(formatDate(eventPlan.event_date))}</span>
+        <span>${escapeHtml(countdownLabel(eventPlan.event_date))}</span>
+      </div>
+    `
     : "";
 
-  const editAction = status === "draft"
+  const editAction = storedStatus === "draft"
     ? `<button class="button secondary small-button template-edit" type="button" data-template-id="${escapeHtml(template.template_id)}">Edit</button>`
     : "";
-  const activateAction = status === "draft"
+
+  const activateAction = storedStatus === "draft"
     ? `<button class="button primary small-button template-activate" type="button" data-template-id="${escapeHtml(template.template_id)}">Activate</button>`
     : "";
-  const duplicateAction = status !== "draft"
+
+  const duplicateAction = storedStatus !== "draft"
     ? `<button class="button secondary small-button template-duplicate" type="button" data-template-id="${escapeHtml(template.template_id)}">Duplicate version</button>`
     : "";
-  const archiveAction = status !== "archived"
+
+  const archiveAction = storedStatus !== "archived"
     ? `<button class="button secondary small-button template-archive" type="button" data-template-id="${escapeHtml(template.template_id)}">Archive</button>`
     : "";
 
   return `
-    <article class="template-card" data-template-id="${escapeHtml(template.template_id)}">
+    <article
+      class="template-card"
+      data-template-id="${escapeHtml(template.template_id)}"
+      data-template-state="${escapeHtml(displayState)}"
+    >
       <div>
         <h3>${escapeHtml(template.template_name)}</h3>
-        <p>${escapeHtml(titleCase(template.activity_id))} · Version ${version}</p>
+        <p>
+          ${escapeHtml(titleCase(template.activity_id))} ·
+          Version ${version} of ${versions.length}
+        </p>
         <div class="template-card-facts">
           <span>${blockCount} block${blockCount === 1 ? "" : "s"}</span>
           <span>${weekCount} week${weekCount === 1 ? "" : "s"}</span>
           <span>${sessionCount} session${sessionCount === 1 ? "" : "s"}</span>
+          <span>${usage.assignmentCount} assignment${usage.assignmentCount === 1 ? "" : "s"}</span>
         </div>
         ${eventLine}
         <div class="template-status-line">
-          ${templateStatusBadge(status)}
+          ${templateStatusBadge(displayState)}
           <span class="badge neutral">${escapeHtml(formatDate(template.updated_at_iso8601))}</span>
         </div>
       </div>
       <div class="template-card-actions">
+        <button
+          class="button secondary small-button template-detail"
+          type="button"
+          data-template-id="${escapeHtml(template.template_id)}"
+        >
+          View detail
+        </button>
         ${editAction}
         ${activateAction}
         ${duplicateAction}
@@ -2388,7 +7391,19 @@ function templateCard(template) {
 }
 
 function bindTemplateLibraryActions() {
-  for (const button of elements.templateLibraryList.querySelectorAll(".template-edit")) {
+  for (
+    const button of
+    elements.templateLibraryList.querySelectorAll(".template-detail")
+  ) {
+    button.addEventListener("click", () => {
+      openProgrammeDetail(button.dataset.templateId);
+    });
+  }
+
+  for (
+    const button of
+    elements.templateLibraryList.querySelectorAll(".template-edit")
+  ) {
     button.addEventListener("click", () => {
       const template = state.coachTemplates.find(
         (entry) => entry.template_id === button.dataset.templateId
@@ -2397,19 +7412,28 @@ function bindTemplateLibraryActions() {
     });
   }
 
-  for (const button of elements.templateLibraryList.querySelectorAll(".template-activate")) {
+  for (
+    const button of
+    elements.templateLibraryList.querySelectorAll(".template-activate")
+  ) {
     button.addEventListener("click", () => {
       activateTemplateById(button.dataset.templateId).catch(handleError);
     });
   }
 
-  for (const button of elements.templateLibraryList.querySelectorAll(".template-duplicate")) {
+  for (
+    const button of
+    elements.templateLibraryList.querySelectorAll(".template-duplicate")
+  ) {
     button.addEventListener("click", () => {
       duplicateTemplate(button.dataset.templateId).catch(handleError);
     });
   }
 
-  for (const button of elements.templateLibraryList.querySelectorAll(".template-archive")) {
+  for (
+    const button of
+    elements.templateLibraryList.querySelectorAll(".template-archive")
+  ) {
     button.addEventListener("click", () => {
       archiveTemplate(button.dataset.templateId).catch(handleError);
     });
@@ -2417,24 +7441,60 @@ function bindTemplateLibraryActions() {
 }
 
 function renderTemplateLibrary() {
-  const drafts = state.coachTemplates.filter((template) => template.template_status === "draft");
-  const active = state.coachTemplates.filter((template) => template.template_status === "active");
-  const archived = state.coachTemplates.filter((template) => template.template_status === "archived");
+  const counts = {
+    draft: 0,
+    active: 0,
+    archived: 0,
+    superseded: 0
+  };
 
-  elements.templateDraftCount.textContent = String(drafts.length);
-  elements.templateActiveCount.textContent = String(active.length);
-  elements.templateArchivedCount.textContent = String(archived.length);
+  for (const template of state.coachTemplates) {
+    const displayState = programmeDisplayState(template);
+    counts[displayState] = Number(counts[displayState] ?? 0) + 1;
+  }
 
-  elements.templateLibraryList.innerHTML = state.coachTemplates.length
-    ? state.coachTemplates.map(templateCard).join("")
-    : `
+  elements.templateDraftCount.textContent = String(counts.draft);
+  elements.templateActiveCount.textContent = String(counts.active);
+  elements.templateArchivedCount.textContent = String(counts.archived);
+  elements.templateSupersededCount.textContent = String(counts.superseded);
+
+  elements.templateLibrarySearch.value =
+    String(state.templateLibrarySearch ?? "");
+  elements.templateLibraryStatusFilter.value =
+    String(state.templateLibraryStatusFilter ?? "all");
+  elements.templateLibraryActivityFilter.value =
+    String(state.templateLibraryActivityFilter ?? "all");
+  elements.templateLibrarySort.value =
+    String(state.templateLibrarySort ?? "updated_desc");
+
+  const visible = filteredProgrammeTemplates();
+  elements.templateLibraryResultCount.textContent =
+    `${visible.length} of ${state.coachTemplates.length} programme${state.coachTemplates.length === 1 ? "" : "s"}`;
+
+  if (state.coachTemplates.length === 0) {
+    elements.templateLibraryList.innerHTML = `
       <div class="empty-state">
         <h3>No programmes created</h3>
         <p>Create a programme with at least one training block before assigning training.</p>
       </div>
     `;
+  }
+  else if (visible.length === 0) {
+    elements.templateLibraryList.innerHTML = `
+      <div class="empty-state">
+        <h3>No programmes match these filters</h3>
+        <p>Clear or change the search, state or activity filters.</p>
+      </div>
+    `;
+  }
+  else {
+    elements.templateLibraryList.innerHTML =
+      visible.map(templateCard).join("");
+  }
 
   bindTemplateLibraryActions();
+  renderProgrammeDetail();
+  renderTemplateRecovery();
 }
 
 const EVENT_TYPES_BY_ACTIVITY = Object.freeze({
@@ -2942,8 +8002,8 @@ function renderTemplateSession(session, blockIndex, weekIndex, sessionIndex, ses
           />
         </label>
         <div class="builder-action-row">
-          <button class="button secondary small-button move-template-session" type="button" data-direction="-1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" ${sessionIndex === 0 ? "disabled" : ""}>↑</button>
-          <button class="button secondary small-button move-template-session" type="button" data-direction="1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" ${sessionIndex === sessionCount - 1 ? "disabled" : ""}>↓</button>
+          <button class="button secondary small-button move-template-session" type="button" aria-label="Move session up" title="Move session up" data-direction="-1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" ${sessionIndex === 0 ? "disabled" : ""}>↑</button>
+          <button class="button secondary small-button move-template-session" type="button" aria-label="Move session down" title="Move session down" data-direction="1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" ${sessionIndex === sessionCount - 1 ? "disabled" : ""}>↓</button>
           <button class="button secondary small-button duplicate-template-session" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}">Duplicate</button>
           ${sessionCount > 1 ? `<button class="button danger small-button remove-template-session" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}">Remove</button>` : ""}
         </div>
@@ -2967,8 +8027,8 @@ function renderTemplateWeek(week, blockIndex, weekIndex, weekCount) {
             : ""}
         </div>
         <div class="builder-action-row">
-          <button class="button secondary small-button move-template-week" type="button" data-direction="-1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" ${weekIndex === 0 ? "disabled" : ""}>↑</button>
-          <button class="button secondary small-button move-template-week" type="button" data-direction="1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" ${weekIndex === weekCount - 1 ? "disabled" : ""}>↓</button>
+          <button class="button secondary small-button move-template-week" type="button" aria-label="Move week up" title="Move week up" data-direction="-1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" ${weekIndex === 0 ? "disabled" : ""}>↑</button>
+          <button class="button secondary small-button move-template-week" type="button" aria-label="Move week down" title="Move week down" data-direction="1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" ${weekIndex === weekCount - 1 ? "disabled" : ""}>↓</button>
           <button class="button secondary small-button duplicate-template-week" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}">Duplicate</button>
           ${weekCount > 1 ? `<button class="button danger small-button remove-template-week" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}">Remove</button>` : ""}
         </div>
@@ -2999,8 +8059,8 @@ function renderTemplateBlocks() {
           <h3>${escapeHtml(block.name || `Block ${blockIndex + 1}`)}</h3>
         </div>
         <div class="builder-action-row">
-          <button class="button secondary small-button move-template-block" type="button" data-direction="-1" data-block-index="${blockIndex}" ${blockIndex === 0 ? "disabled" : ""}>↑</button>
-          <button class="button secondary small-button move-template-block" type="button" data-direction="1" data-block-index="${blockIndex}" ${blockIndex === draft.blocks.length - 1 ? "disabled" : ""}>↓</button>
+          <button class="button secondary small-button move-template-block" type="button" aria-label="Move block up" title="Move block up" data-direction="-1" data-block-index="${blockIndex}" ${blockIndex === 0 ? "disabled" : ""}>↑</button>
+          <button class="button secondary small-button move-template-block" type="button" aria-label="Move block down" title="Move block down" data-direction="1" data-block-index="${blockIndex}" ${blockIndex === draft.blocks.length - 1 ? "disabled" : ""}>↓</button>
           <button class="text-button small-inline-action add-template-week" type="button" data-block-index="${blockIndex}" ${block.weeks.length >= 52 || totalWeeks >= 104 ? "disabled" : ""}>+ Add week</button>
           <button class="button secondary small-button duplicate-template-block" type="button" data-block-index="${blockIndex}" ${draft.blocks.length >= 12 || totalWeeks + block.weeks.length > 104 ? "disabled" : ""}>Duplicate block</button>
           ${draft.blocks.length > 1 ? `<button class="button danger small-button remove-template-block" type="button" data-block-index="${blockIndex}">Remove block</button>` : ""}
@@ -3066,10 +8126,529 @@ function rerenderTemplateBuilder() {
   saveState();
   renderTemplateBlocks();
   updateTemplateFacts();
+  renderTemplateBuilderState();
 }
 
-function openTemplateBuilder(draft) {
+// FULL-UI-05B: programme builder state, recovery, validation links and keyboard support.
+// These helpers manage browser presentation state only. They do not call or alter the engine.
+let templateBuilderSaving = false;
+let templateBuilderSaveError = "";
+
+function templateDraftSnapshot(draft) {
+  if (!draft || typeof draft !== "object") return "";
+  return JSON.stringify(normalisePersistedTemplateDraft(draft));
+}
+
+function templateDraftIsDirty() {
+  if (!state.templateDraft || state.templateDraftWasOpen !== true) {
+    return false;
+  }
+
+  return templateDraftSnapshot(state.templateDraft) !==
+    String(state.templateDraftSavedSnapshot ?? "");
+}
+
+function hasRecoverableTemplateDraft() {
+  return Boolean(
+    state.templateDraft &&
+    state.templateDraftWasOpen === true &&
+    templateDraftIsDirty()
+  );
+}
+
+function clearTemplateDraftState() {
+  state.templateDraft = null;
+  state.templateDraftSavedSnapshot = "";
+  state.templateDraftSavedAt = "";
+  state.templateDraftWasOpen = false;
+  state.templateDraftRecovered = false;
+  state.templateDraftDirty = false;
+  templateBuilderSaveError = "";
+}
+
+function confirmTemplateBuilderDeparture() {
+  if (!templateDraftIsDirty()) return true;
+
+  return globalThis.confirm(
+    "This programme has unsaved changes. Leave the builder and discard those changes?"
+  );
+}
+
+function confirmRecoveredTemplateReplacement() {
+  if (!hasRecoverableTemplateDraft()) return true;
+
+  if (
+    !globalThis.confirm(
+      "A recovered programme draft has unsaved changes. Discard it and open another programme?"
+    )
+  ) {
+    return false;
+  }
+
+  clearTemplateDraftState();
+  saveState();
+  return true;
+}
+
+function templateDraftValidationRecord() {
+  const draft = state.templateDraft;
+  if (!draft) return null;
+
+  return {
+    template_id: String(draft.template_id ?? ""),
+    template_family_id: String(draft.template_family_id ?? ""),
+    template_version: Number(draft.template_version ?? 1),
+    template_status: String(draft.template_status ?? "draft"),
+    template_name: String(draft.template_name ?? ""),
+    description: String(draft.description ?? ""),
+    activity_id: String(draft.activity_id ?? ""),
+    event_plan: draft.event_plan ?? null,
+    event_compile_summary: draft.event_compile_summary ?? null,
+    template_structure: {
+      blocks: (Array.isArray(draft.blocks) ? draft.blocks : []).map(
+        (block, blockIndex) => ({
+          block_id: String(block?.block_id ?? ""),
+          order_index: blockIndex + 1,
+          name: String(block?.name ?? ""),
+          description: String(block?.description ?? ""),
+          block_type: String(block?.block_type ?? ""),
+          week_count: Array.isArray(block?.weeks) ? block.weeks.length : 0,
+          weeks: (Array.isArray(block?.weeks) ? block.weeks : []).map(
+            (week, weekIndex) => ({
+              week_id: String(week?.week_id ?? ""),
+              order_index: weekIndex + 1,
+              calendar_start_date: String(week?.calendar_start_date ?? ""),
+              calendar_end_date: String(week?.calendar_end_date ?? ""),
+              days_until_event_at_week_start:
+                Number.isInteger(week?.days_until_event_at_week_start)
+                  ? Number(week.days_until_event_at_week_start)
+                  : null,
+              partial_week: week?.partial_week === true,
+              days: (Array.isArray(week?.sessions) ? week.sessions : []).map(
+                (session, sessionIndex) => ({
+                  day_id: "",
+                  order_index: sessionIndex + 1,
+                  sessions: [{
+                    session_id: String(session?.session_id ?? ""),
+                    order_index: 1,
+                    title: String(session?.title ?? ""),
+                    work_items: (
+                      Array.isArray(session?.work_items)
+                        ? session.work_items
+                        : []
+                    ).map((workItem, workItemIndex) => ({
+                      work_item_id: String(workItem?.work_item_id ?? ""),
+                      order_index: workItemIndex + 1,
+                      exercise_id: String(workItem?.exercise_id ?? ""),
+                      planned_sets: Number(workItem?.planned_sets),
+                      rep_mode: String(workItem?.rep_mode ?? ""),
+                      planned_reps: Number(workItem?.planned_reps),
+                      rep_min: Number(workItem?.rep_min),
+                      rep_max: Number(workItem?.rep_max),
+                      load_mode: String(workItem?.load_mode ?? ""),
+                      percent_1rm: Number(workItem?.percent_1rm),
+                      weight_value: Number(workItem?.weight_value),
+                      weight_unit: String(workItem?.weight_unit ?? ""),
+                      rest_seconds: Number(workItem?.rest_seconds),
+                      role: String(workItem?.role ?? "")
+                    }))
+                  }]
+                })
+              )
+            })
+          )
+        })
+      )
+    }
+  };
+}
+
+function currentTemplateBuilderIssues() {
+  const record = templateDraftValidationRecord();
+  return record ? programmeActivationIssues(record) : [];
+}
+
+function templateValidationSelector(issue) {
+  const code = String(issue?.code ?? "");
+  const path = String(issue?.path ?? "");
+  const message = String(issue?.message ?? "").toLowerCase();
+
+  if (path === "programme name") return "#templateName";
+  if (path === "activity") return "#templateActivity";
+  if (path === "event date") return "#templateEventDate";
+
+  if (path === "event calendar") {
+    if (message.includes("event name")) return "#templateEventName";
+    if (message.includes("timezone")) return "#templateEventTimezone";
+    if (message.includes("start date")) return "#templateProgrammeStartDate";
+    return "#templateEventDate";
+  }
+
+  if (path === "blocks" || path === "weeks") {
+    return "#addTemplateBlockButton";
+  }
+
+  const blockMatch = /Block (\d+)/u.exec(path);
+  const weekMatch = /week (\d+)/u.exec(path);
+  const sessionMatch = /session (\d+)/u.exec(path);
+  const exerciseMatch = /exercise (\d+)/u.exec(path);
+
+  const blockIndex = blockMatch ? Number(blockMatch[1]) - 1 : null;
+  const weekIndex = weekMatch ? Number(weekMatch[1]) - 1 : null;
+  const sessionIndex = sessionMatch ? Number(sessionMatch[1]) - 1 : null;
+  let workItemIndex = exerciseMatch ? Number(exerciseMatch[1]) - 1 : null;
+
+  if (
+    workItemIndex === null &&
+    (
+      code === "duplicate_exercise_in_session" ||
+      code === "exercise_required" ||
+      code === "exercise_not_in_active_registry"
+    ) &&
+    sessionIndex !== null
+  ) {
+    workItemIndex = 0;
+  }
+
+  if (blockIndex === null) return "#templateName";
+
+  const attributes = [
+    `[data-block-index="${blockIndex}"]`
+  ];
+
+  if (weekIndex !== null) {
+    attributes.push(`[data-week-index="${weekIndex}"]`);
+  }
+
+  if (sessionIndex !== null) {
+    attributes.push(`[data-session-index="${sessionIndex}"]`);
+  }
+
+  if (workItemIndex !== null) {
+    attributes.push(`[data-work-item-index="${workItemIndex}"]`);
+  }
+
+  let field = "";
+
+  if (
+    code === "exercise_required" ||
+    code === "exercise_not_in_active_registry" ||
+    code === "duplicate_exercise_in_session"
+  ) {
+    field = "exercise_id";
+  }
+  else if (code === "role_invalid") {
+    field = "role";
+  }
+  else if (code === "planned_sets_invalid") {
+    field = "planned_sets";
+  }
+  else if (code === "planned_reps_invalid") {
+    field = "planned_reps";
+  }
+  else if (code === "rep_range_min_invalid") {
+    field = "rep_min";
+  }
+  else if (
+    code === "rep_range_max_invalid" ||
+    code === "rep_range_order_invalid"
+  ) {
+    field = "rep_max";
+  }
+  else if (code === "load_mode_invalid") {
+    field = "load_mode";
+  }
+  else if (code === "percent_1rm_invalid") {
+    field = "percent_1rm";
+  }
+  else if (code === "weight_value_invalid") {
+    field = "weight_value";
+  }
+  else if (code === "weight_unit_invalid") {
+    field = "weight_unit";
+  }
+  else if (code === "rest_seconds_invalid") {
+    field = "rest_seconds";
+  }
+  else if (code === "block_type_invalid") {
+    field = "block_type";
+  }
+  else if (code === "week_count_per_block_invalid") {
+    field = "week_count";
+  }
+  else if (
+    code === "session_count_per_week_invalid" ||
+    code === "session_requires_exactly_four_work_items"
+  ) {
+    field = "title";
+  }
+
+  const kind =
+    workItemIndex !== null
+      ? "work-item"
+      : sessionIndex !== null
+        ? "session"
+        : "block";
+
+  const fieldSelector = field
+    ? `[data-field="${field}"]`
+    : "";
+
+  return (
+    `[data-template-kind="${kind}"]` +
+    attributes.join("") +
+    fieldSelector
+  );
+}
+
+function focusTemplateValidationIssue(issueIndex) {
+  const issues = currentTemplateBuilderIssues();
+  const issue = issues[Number(issueIndex)];
+  if (!issue) return false;
+
+  const selector = templateValidationSelector(issue);
+  const target = document.querySelector(selector);
+
+  if (!target) {
+    elements.templateBuilderValidation.scrollIntoView({
+      block: "center",
+      behavior: "smooth"
+    });
+    return false;
+  }
+
+  const focusTarget =
+    target.matches("input, select, textarea, button")
+      ? target
+      : target.querySelector("input, select, textarea, button") ?? target;
+
+  const highlight =
+    focusTarget.closest(
+      ".field, .template-block, .template-week, .template-session"
+    ) ?? focusTarget;
+
+  highlight.classList.add("builder-validation-target");
+
+  if (!focusTarget.hasAttribute("tabindex") && !focusTarget.matches(
+    "input, select, textarea, button, a[href]"
+  )) {
+    focusTarget.setAttribute("tabindex", "-1");
+  }
+
+  focusTarget.scrollIntoView({
+    block: "center",
+    behavior: "smooth"
+  });
+
+  focusTarget.focus({
+    preventScroll: true
+  });
+
+  setTimeout(() => {
+    highlight.classList.remove("builder-validation-target");
+  }, 1800);
+
+  return true;
+}
+
+function renderTemplateBuilderState() {
+  if (
+    !elements.templateBuilderSaveState ||
+    !elements.templateBuilderValidation
+  ) {
+    return;
+  }
+
+  const draft = state.templateDraft;
+
+  if (!draft) {
+    elements.templateBuilderSaveState.textContent = "No draft open";
+    elements.templateBuilderSaveState.className = "badge neutral";
+    elements.templateBuilderSaveDetail.textContent =
+      "Open or create a programme to begin.";
+    elements.templateBuilderValidation.hidden = true;
+    return;
+  }
+
+  const dirty = templateDraftIsDirty();
+  state.templateDraftDirty = dirty;
+
+  if (templateBuilderSaving) {
+    elements.templateBuilderSaveState.textContent = "Saving…";
+    elements.templateBuilderSaveState.className = "badge active";
+    elements.templateBuilderSaveDetail.textContent =
+      "Writing the draft to the server.";
+  }
+  else if (templateBuilderSaveError) {
+    elements.templateBuilderSaveState.textContent = "Save failed";
+    elements.templateBuilderSaveState.className = "badge warning";
+    elements.templateBuilderSaveDetail.textContent =
+      templateBuilderSaveError;
+  }
+  else if (dirty) {
+    elements.templateBuilderSaveState.textContent = "Unsaved changes";
+    elements.templateBuilderSaveState.className = "badge warning";
+    elements.templateBuilderSaveDetail.textContent =
+      state.templateDraftRecovered === true
+        ? "Recovered browser changes have not been saved to the server."
+        : "Changes are preserved in this browser but not yet saved to the server.";
+  }
+  else if (draft.template_id) {
+    elements.templateBuilderSaveState.textContent = "Saved";
+    elements.templateBuilderSaveState.className = "badge complete";
+    elements.templateBuilderSaveDetail.textContent =
+      state.templateDraftSavedAt
+        ? `Last saved ${formatDate(state.templateDraftSavedAt)}.`
+        : "This draft matches the server record.";
+  }
+  else {
+    elements.templateBuilderSaveState.textContent = "New draft";
+    elements.templateBuilderSaveState.className = "badge neutral";
+    elements.templateBuilderSaveDetail.textContent =
+      "Enter programme details, then save the draft.";
+  }
+
+  const issues = currentTemplateBuilderIssues();
+  elements.templateBuilderValidation.hidden = false;
+
+  if (issues.length === 0) {
+    elements.templateBuilderValidation.className =
+      "template-builder-validation complete";
+    elements.templateBuilderValidationList.innerHTML = `
+      <li class="template-builder-validation-pass">
+        All visible activation checks pass. The server remains authoritative.
+      </li>
+    `;
+  }
+  else {
+    elements.templateBuilderValidation.className =
+      "template-builder-validation warning";
+    elements.templateBuilderValidationList.innerHTML = issues
+      .map((issue, index) => `
+        <li>
+          <button
+            class="template-validation-link"
+            type="button"
+            data-builder-validation-index="${index}"
+          >
+            <span>${escapeHtml(issue.path)}</span>
+            <strong>${escapeHtml(issue.message)}</strong>
+            <code>${escapeHtml(issue.code)}</code>
+          </button>
+        </li>
+      `)
+      .join("");
+  }
+
+  elements.saveTemplateButton.disabled = templateBuilderSaving;
+  elements.activateTemplateButton.disabled =
+    templateBuilderSaving || issues.length > 0;
+}
+
+function renderTemplateRecovery() {
+  if (!elements.templateDraftRecovery) return;
+
+  const recoverable = hasRecoverableTemplateDraft();
+  elements.templateDraftRecovery.hidden = !recoverable;
+
+  if (!recoverable) return;
+
+  const name =
+    String(state.templateDraft?.template_name ?? "").trim() ||
+    "Untitled programme";
+
+  elements.templateDraftRecoveryTitle.textContent =
+    `Recover ${name}`;
+
+  elements.templateDraftRecoveryText.textContent =
+    state.templateDraft?.template_id
+      ? "Unsaved browser changes were found for this server draft."
+      : "An unsaved new programme was found in this browser.";
+}
+
+function resumeRecoveredTemplateDraft() {
+  if (!hasRecoverableTemplateDraft()) return false;
+
+  return openTemplateBuilder(
+    state.templateDraft,
+    {
+      preserveBaseline: true,
+      recovered: true,
+      skipRecoveryCheck: true
+    }
+  );
+}
+
+function discardRecoveredTemplateDraft() {
+  if (!hasRecoverableTemplateDraft()) {
+    clearTemplateDraftState();
+    saveState();
+    renderTemplateRecovery();
+    return true;
+  }
+
+  if (
+    !globalThis.confirm(
+      "Discard the recovered programme changes stored in this browser?"
+    )
+  ) {
+    return false;
+  }
+
+  clearTemplateDraftState();
+  saveState();
+  renderTemplateRecovery();
+  showNotice("Recovered programme changes discarded.");
+  return true;
+}
+
+function scheduleTemplateBuilderStateRefresh() {
+  queueMicrotask(() => {
+    if (
+      !state.templateDraft ||
+      elements.templateBuilderView.hidden
+    ) {
+      return;
+    }
+
+    templateBuilderSaveError = "";
+    state.templateDraftDirty = templateDraftIsDirty();
+    saveState();
+    renderTemplateBuilderState();
+  });
+}
+
+function openTemplateBuilder(draft, options = {}) {
+  if (
+    options.skipRecoveryCheck !== true &&
+    hasRecoverableTemplateDraft()
+  ) {
+    if (!confirmRecoveredTemplateReplacement()) {
+      return false;
+    }
+  }
+
+  state.selectedTemplateId = "";
   state.templateDraft = normalisePersistedTemplateDraft(draft);
+
+  if (!state.templateDraft) {
+    throw new Error("The programme draft could not be opened.");
+  }
+
+  if (options.preserveBaseline !== true) {
+    state.templateDraftSavedSnapshot =
+      templateDraftSnapshot(state.templateDraft);
+    state.templateDraftSavedAt = String(
+      state.templateDraft.updated_at_iso8601 ?? ""
+    );
+  }
+
+  state.templateDraftWasOpen = true;
+  state.templateDraftRecovered = options.recovered === true;
+  state.templateDraftDirty = templateDraftIsDirty();
+  templateBuilderSaveError = "";
+
+  elements.templateDetailPanel.hidden = true;
   elements.templateLibraryView.hidden = true;
   elements.templateBuilderView.hidden = false;
   elements.templateBuilderTitle.textContent = state.templateDraft.template_id
@@ -3078,16 +8657,49 @@ function openTemplateBuilder(draft) {
   elements.templateName.value = state.templateDraft.template_name;
   elements.templateActivity.value = state.templateDraft.activity_id;
   elements.templateDescription.value = state.templateDraft.description;
-  elements.activateTemplateButton.hidden = state.templateDraft.template_status !== "draft";
+  elements.activateTemplateButton.hidden =
+    state.templateDraft.template_status !== "draft";
+
+  saveState();
   rerenderTemplateBuilder();
+
+  if (
+    options.recovered === true &&
+    elements.templateBuilderSaveState
+  ) {
+    elements.templateBuilderSaveState.focus({
+      preventScroll: true
+    });
+  }
+
+  return true;
 }
 
-function closeTemplateBuilder() {
-  state.templateDraft = null;
+function closeTemplateBuilder(options = {}) {
+  if (
+    options.force !== true &&
+    !confirmTemplateBuilderDeparture()
+  ) {
+    return false;
+  }
+
+  clearTemplateDraftState();
   saveState();
+
   elements.templateBuilderView.hidden = true;
   elements.templateLibraryView.hidden = false;
+  elements.templateDetailPanel.hidden = true;
   renderTemplateLibrary();
+
+  if (options.updateRoute !== false) {
+    location.hash = "#/coach/programmes";
+  }
+
+  if (options.silent !== true) {
+    showNotice("Programme builder closed.");
+  }
+
+  return true;
 }
 
 function syncTemplateHeader() {
@@ -3345,33 +8957,107 @@ function templatePayloadFromDraft() {
 }
 
 async function saveTemplateDraft(options = {}) {
-  const payload = templatePayloadFromDraft();
-  if (!options.quiet) showBusy("Saving programme draft…");
+  if (!state.templateDraft) {
+    throw new Error("No programme is open.");
+  }
+
+  if (!options.quiet) {
+    showBusy("Saving programme draft…");
+  }
+
+  templateBuilderSaving = true;
+  templateBuilderSaveError = "";
+  renderTemplateBuilderState();
 
   try {
+    const payload = templatePayloadFromDraft();
     const response = await api("POST", "/templates", payload);
-    state.templateDraft = templateRecordToDraft(response.template);
-    await refreshTemplates({ quiet: true });
-    openTemplateBuilder(state.templateDraft);
-    if (!options.quiet) showNotice("Programme draft saved.");
+    const savedDraft = templateRecordToDraft(response.template);
+
+    state.templateDraft = normalisePersistedTemplateDraft(savedDraft);
+    state.templateDraftSavedSnapshot =
+      templateDraftSnapshot(state.templateDraft);
+    state.templateDraftSavedAt = String(
+      response.template?.updated_at_iso8601 ??
+      payload.updated_at_iso8601 ??
+      nowIso()
+    );
+    state.templateDraftWasOpen = true;
+    state.templateDraftRecovered = false;
+    state.templateDraftDirty = false;
+
+    await refreshProgrammeLibrary({ quiet: true });
+
+    openTemplateBuilder(
+      state.templateDraft,
+      {
+        preserveBaseline: true,
+        skipRecoveryCheck: true
+      }
+    );
+
+    if (!options.quiet) {
+      showNotice("Programme draft saved.");
+    }
+
     return response.template;
   }
+  catch (error) {
+    templateBuilderSaveError =
+      error instanceof Error
+        ? error.message
+        : "The programme draft could not be saved.";
+
+    state.templateDraftDirty = templateDraftIsDirty();
+    saveState();
+    renderTemplateBuilderState();
+    throw error;
+  }
   finally {
-    if (!options.quiet) hideBusy();
+    templateBuilderSaving = false;
+    renderTemplateBuilderState();
+
+    if (!options.quiet) {
+      hideBusy();
+    }
   }
 }
 
 async function activateTemplateById(templateId) {
+  const template = state.coachTemplates.find(
+    (candidate) => candidate.template_id === String(templateId ?? "")
+  );
+
+  if (!template) throw new Error("The programme could not be found.");
+
+  if (state.templateExercises.length === 0) {
+    await loadTemplateExercises();
+  }
+
+  const issues = programmeActivationIssues(template);
+
+  if (issues.length > 0) {
+    openProgrammeDetail(template.template_id);
+    showNotice(
+      `Programme has ${issues.length} activation issue${issues.length === 1 ? "" : "s"}.`,
+      "error"
+    );
+    return null;
+  }
+
   showBusy("Activating programme…");
+
   try {
-    await api(
+    const response = await api(
       "POST",
       `/templates/${encodeURIComponent(templateId)}/activate`,
       { coach_user_id: state.profile.coachUserId }
     );
-    await refreshTemplates({ quiet: true });
+
+    await refreshProgrammeLibrary({ quiet: true });
     closeTemplateBuilder();
     showNotice("Programme activated and available for assignment.");
+    return response.template ?? null;
   }
   finally {
     hideBusy();
@@ -3387,16 +9073,30 @@ async function activateOpenTemplate() {
 }
 
 async function duplicateTemplate(templateId) {
+  if (!confirmRecoveredTemplateReplacement()) {
+    return null;
+  }
+
   showBusy("Creating new programme version…");
+
   try {
     const response = await api(
       "POST",
       `/templates/${encodeURIComponent(templateId)}/duplicate`,
       { coach_user_id: state.profile.coachUserId }
     );
+
     await refreshTemplates({ quiet: true });
-    openTemplateBuilder(templateRecordToDraft(response.template));
+
+    openTemplateBuilder(
+      templateRecordToDraft(response.template),
+      {
+        skipRecoveryCheck: true
+      }
+    );
+
     showNotice("New draft programme version created.");
+    return response.template ?? null;
   }
   finally {
     hideBusy();
@@ -3404,15 +9104,34 @@ async function duplicateTemplate(templateId) {
 }
 
 async function archiveTemplate(templateId) {
+  const template = state.coachTemplates.find(
+    (candidate) => candidate.template_id === String(templateId ?? "")
+  );
+
+  if (!template) throw new Error("The programme could not be found.");
+
+  const usage = programmeAssignmentUsage(template.template_id);
+  const confirmation = usage.assignmentCount > 0
+    ? `Archive ${template.template_name} version ${programmeVersionNumber(template)}? ${usage.assignmentCount} assignment record${usage.assignmentCount === 1 ? "" : "s"} across ${usage.athleteCount} athlete${usage.athleteCount === 1 ? "" : "s"} retain this exact version.`
+    : `Archive ${template.template_name} version ${programmeVersionNumber(template)}? No assignment records use this exact version.`;
+
+  if (!globalThis.confirm(confirmation)) return null;
+
   showBusy("Archiving programme…");
+
   try {
-    await api(
+    const response = await api(
       "POST",
       `/templates/${encodeURIComponent(templateId)}/archive`,
       { coach_user_id: state.profile.coachUserId }
     );
-    await refreshTemplates({ quiet: true });
+
+    await refreshProgrammeLibrary({ quiet: true });
+    state.selectedTemplateId = String(templateId);
+    saveState();
+    renderTemplateLibrary();
     showNotice("Programme archived. Existing assignments retain this version.");
+    return response.template ?? null;
   }
   finally {
     hideBusy();
@@ -3730,7 +9449,7 @@ function renderAthleteProfileAssignment() {
         return `
           <article class="record-card athlete-event-link-card">
             <div>
-              <p class="eyebrow">Linked event</p>
+              <p class="eyebrow">Current event link</p>
               <h3>${escapeHtml(plan.event_name ?? "Event")}</h3>
               <p>${escapeHtml(formatDate(plan.event_date))}${plan.location ? ` · ${escapeHtml(plan.location)}` : ""}</p>
             </div>
@@ -3741,9 +9460,10 @@ function renderAthleteProfileAssignment() {
           </article>
         `;
       }).join("")
-    : '<div class="empty-state compact-empty"><p>No event-linked programme assignments recorded.</p></div>';
+    : '<div class="empty-state compact-empty"><p>The current assignment has no event link.</p></div>';
 
   renderAthleteProfileAssignmentRequirements();
+  renderAssignmentLifecycleSurfaces();
 }
 
 async function recordAthleteProfileAssignment(event) {
@@ -3758,79 +9478,393 @@ async function recordAthleteProfileAssignment(event) {
     throw new Error("Complete the athlete assignment requirements first.");
   }
 
-  showBusy("Assigning programme…");
+  const current = currentAssignmentForAthlete(athlete.userId);
+  const eventPlan = coachEventPlan(eventRecord);
+  const confirmation = current
+    ? `Replace ${assignmentTemplateName(current)} version ${assignmentTemplateVersion(current)} with ${template.template_name} version ${Number(template.template_version)}${eventPlan?.event_name ? ` linked to ${eventPlan.event_name}` : " without an event link"}? Existing compiled sessions remain unchanged.`
+    : `Assign ${template.template_name} version ${Number(template.template_version)}${eventPlan?.event_name ? ` and link ${eventPlan.event_name}` : " without an event link"}?`;
+
+  if (!globalThis.confirm(confirmation)) return;
+
+  elements.athleteAssignmentButton.disabled = true;
+  showBusy(current ? "Replacing programme assignment…" : "Assigning programme…");
 
   try {
-    const response = await api("POST", "/coach-workspace/athlete-assignment", {
-      request_id: createId("assignment_request"),
+    const payload = {
+      request_id: createId(current ? "assignment_replace" : "assignment_request"),
       requested_at_iso8601: nowIso(),
       coach_user_id: state.profile.coachUserId,
       athlete_user_id: athlete.userId,
       template_id: template.template_id,
       activity_id: athlete.activityId,
       event_id: eventRecord?.event_id ?? ""
-    });
+    };
+
+    const response = current
+      ? await api(
+          "POST",
+          `/coach-workspace/athlete-assignment/${encodeURIComponent(current.assignmentId)}/replace`,
+          payload
+        )
+      : await api("POST", "/coach-workspace/athlete-assignment", payload);
 
     await Promise.all([
       refreshCoachAssignments({ quiet: true }),
       refreshCoachEvents({ quiet: true }),
-      refreshAthleteEventLinks(athlete.userId, { quiet: true })
+      refreshAthleteEventLinks(athlete.userId, { quiet: true }),
+      refreshAthleteDetail(athlete.userId, { quiet: true }).catch(() => null)
     ]);
 
+    const preservedCount = Number(response.preserved_session_count ?? 0);
     elements.athleteAssignmentResult.hidden = false;
-    elements.athleteAssignmentResult.textContent = response.event_link
-      ? `${template.template_name} assigned and linked to ${coachEventPlan(eventRecord)?.event_name ?? "the event"}.`
-      : `${template.template_name} assigned without an event link.`;
+    elements.athleteAssignmentResult.textContent = current
+      ? `${template.template_name} version ${Number(template.template_version)} replaced the current assignment. ${preservedCount} existing session${preservedCount === 1 ? "" : "s"} remain attached to the earlier assignment.`
+      : response.event_link
+        ? `${template.template_name} version ${Number(template.template_version)} assigned and linked to ${eventPlan?.event_name ?? "the event"}.`
+        : `${template.template_name} version ${Number(template.template_version)} assigned without an event link.`;
 
     renderCoachWorkspace();
     renderAthleteProfileAssignment();
-    showNotice("Athlete assignment recorded.");
+    showNotice(current ? "Athlete assignment replaced." : "Athlete assignment recorded.");
   }
   finally {
+    elements.athleteAssignmentButton.disabled = false;
     hideBusy();
   }
 }
 
 
+function renderAccountHistory() {
+  const history = Array.isArray(
+    state.accountDetail?.consent_history
+  )
+    ? state.accountDetail.consent_history
+    : [];
+
+  elements.accountConsentHistory.innerHTML =
+    history.length
+      ? history.map((event) => `
+          <article class="record-card">
+            <div>
+              <strong>${escapeHtml(titleCase(event.event_type))}</strong>
+              <p>${escapeHtml(formatDate(event.occurred_at_iso8601))}</p>
+            </div>
+          </article>
+        `).join("")
+      : '<div class="empty-state compact-empty"><p>No consent or verification events recorded.</p></div>';
+}
+
 function renderAccount() {
   const id = currentAccountId();
+  const account =
+    state.serverAccount ?? {};
 
-  elements.accountName.textContent = state.profile?.displayName ?? "Kolosseum user";
-  elements.accountEmail.textContent = state.profile?.email ?? "";
-  elements.accountRoleBadge.textContent = roleLabel();
-  elements.accountCode.textContent = id || "—";
+  elements.accountName.textContent =
+    account.display_name ??
+    state.profile?.displayName ??
+    "Kolosseum user";
 
-  let coachLinkPanel = document.getElementById("athleteCoachLinkPanel");
+  elements.accountEmail.textContent =
+    account.email ??
+    state.profile?.email ??
+    "";
+
+  elements.accountRoleBadge.textContent =
+    roleLabel();
+
+  elements.accountStateBadge.textContent =
+    titleCase(
+      account.account_state ??
+      "active"
+    );
+
+  elements.accountVerificationBadge.textContent =
+    account.email_verified
+      ? "Email verified"
+      : "Email not verified";
+
+  elements.accountVerificationBadge.className =
+    account.email_verified
+      ? "badge complete"
+      : "badge neutral";
+
+  elements.accountCode.textContent =
+    id || "—";
+
+  elements.accountProfileName.value =
+    account.display_name ??
+    state.profile?.displayName ??
+    "";
+
+  elements.accountProfileEmail.value =
+    account.email ??
+    state.profile?.email ??
+    "";
+
+  elements.requestVerificationButton.disabled =
+    account.email_verified === true;
+
+  elements.completeVerificationButton.disabled =
+    account.email_verified === true;
+
+  renderAccountHistory();
+
+  let coachLinkPanel =
+    document.getElementById(
+      "athleteCoachLinkPanel"
+    );
 
   if (state.role === "athlete") {
     if (!coachLinkPanel) {
-      coachLinkPanel = document.createElement("article");
-      coachLinkPanel.id = "athleteCoachLinkPanel";
-      coachLinkPanel.className = "panel";
+      coachLinkPanel =
+        document.createElement(
+          "article"
+        );
+
+      coachLinkPanel.id =
+        "athleteCoachLinkPanel";
+
+      coachLinkPanel.className =
+        "panel";
+
       coachLinkPanel.innerHTML = `
         <p class="eyebrow">Coach-managed training</p>
         <h3>Coach account code</h3>
-        <p class="muted">After your coach connects this athlete account and records an assignment, enter the coach account code here.</p>
+        <p class="muted">Enter the coach account code only after the coach has connected this athlete account.</p>
         <div class="inline-controls">
           <input id="coachCodeInput" autocomplete="off" placeholder="Coach account code" />
           <button id="saveCoachCodeButton" class="button secondary" type="button">Save code</button>
         </div>
       `;
 
-      document.querySelector("#view-account .two-column").insertAdjacentElement("afterend", coachLinkPanel);
-      coachLinkPanel.querySelector("#saveCoachCodeButton").addEventListener("click", () => {
-        state.coachCode = coachLinkPanel.querySelector("#coachCodeInput").value.trim();
-        saveState();
-        showNotice(state.coachCode ? "Coach account code saved." : "Coach account code cleared.");
-      });
+      document
+        .querySelector(
+          "#view-account .two-column"
+        )
+        .insertAdjacentElement(
+          "afterend",
+          coachLinkPanel
+        );
+
+      coachLinkPanel
+        .querySelector(
+          "#saveCoachCodeButton"
+        )
+        .addEventListener(
+          "click",
+          () => {
+            state.coachCode =
+              coachLinkPanel
+                .querySelector(
+                  "#coachCodeInput"
+                )
+                .value
+                .trim();
+
+            saveState();
+
+            showNotice(
+              state.coachCode
+                ? "Coach account code saved."
+                : "Coach account code cleared."
+            );
+          }
+        );
     }
 
     coachLinkPanel.hidden = false;
-    coachLinkPanel.querySelector("#coachCodeInput").value = state.coachCode ?? "";
+
+    coachLinkPanel
+      .querySelector(
+        "#coachCodeInput"
+      )
+      .value =
+        state.coachCode ?? "";
   }
   else if (coachLinkPanel) {
     coachLinkPanel.hidden = true;
   }
+}
+
+async function loadPersistentAccountDetail(
+  options = {}
+) {
+  const detail =
+    await fetchAccountDetail();
+
+  state.accountDetail = detail;
+  state.csrfToken =
+    detail.csrf_token ??
+    state.csrfToken;
+
+  if (detail.account) {
+    applyAccountIdentity(
+      detail.account
+    );
+  }
+
+  saveState();
+  renderIdentity();
+  renderAccount();
+
+  if (!options.quiet) {
+    showNotice(
+      "Account refreshed."
+    );
+  }
+
+  return detail;
+}
+
+async function saveAccountProfile(
+  event
+) {
+  event.preventDefault();
+
+  const response =
+    await updateAccountProfile(
+      {
+        display_name:
+          elements.accountProfileName.value
+            .trim(),
+        email:
+          elements.accountProfileEmail.value
+            .trim()
+            .toLowerCase()
+      },
+      state.csrfToken
+    );
+
+  applyAccountIdentity(
+    response.account
+  );
+
+  state.accountDetail = null;
+  saveState();
+  renderIdentity();
+  renderAccount();
+
+  const developmentCode =
+    response.verification
+      ?.development_code;
+
+  elements.accountProfileResult.hidden =
+    false;
+
+  elements.accountProfileResult.textContent =
+    developmentCode
+      ? `Profile updated. Development verification code: ${developmentCode}`
+      : "Profile updated.";
+
+  if (developmentCode) {
+    elements.verificationCode.value =
+      developmentCode;
+  }
+}
+
+async function requestAccountVerificationCode() {
+  const response =
+    await requestEmailVerification(
+      state.csrfToken
+    );
+
+  const developmentCode =
+    String(
+      response?.development_code ??
+      ""
+    );
+
+  if (developmentCode) {
+    elements.verificationCode.value =
+      developmentCode;
+  }
+
+  elements.verificationResult.hidden =
+    false;
+
+  elements.verificationResult.textContent =
+    response?.already_verified
+      ? "Email is already verified."
+      : developmentCode
+        ? `Development code: ${developmentCode}`
+        : "Verification code requested.";
+}
+
+async function verifyAccountEmail() {
+  const response =
+    await completeEmailVerification(
+      {
+        code:
+          elements.verificationCode.value
+            .trim()
+      },
+      state.csrfToken
+    );
+
+  applyAccountIdentity(
+    response.account
+  );
+
+  state.accountDetail = null;
+  saveState();
+  renderIdentity();
+  renderAccount();
+
+  elements.verificationResult.hidden =
+    false;
+
+  elements.verificationResult.textContent =
+    "Email verified.";
+}
+
+async function saveAccountPassword(
+  event
+) {
+  event.preventDefault();
+
+  await changeAccountPassword(
+    {
+      current_password:
+        elements.currentPassword.value,
+      new_password:
+        elements.newPassword.value
+    },
+    state.csrfToken
+  );
+
+  elements.accountPasswordForm.reset();
+
+  elements.passwordChangeResult.hidden =
+    false;
+
+  elements.passwordChangeResult.textContent =
+    "Password changed. Other sessions were revoked.";
+}
+
+async function closePersistentAccount(
+  event
+) {
+  event.preventDefault();
+
+  const confirmation =
+    elements.accountClosureConfirmation.value
+      .trim();
+
+  const response =
+    await requestAccountClosure(
+      { confirmation },
+      state.csrfToken
+    );
+
+  elements.accountClosureResult.hidden =
+    false;
+
+  elements.accountClosureResult.textContent =
+    `Closure request recorded: ${response.closure_request_id}`;
+
+  resetAccountState();
+
+  location.assign("/app/");
 }
 
 async function checkConnection() {
@@ -3845,9 +9879,18 @@ async function checkConnection() {
   }
 }
 
-function clearLocalSession() {
-  localStorage.removeItem(STORAGE_KEY);
-  location.assign("/app/");
+async function clearLocalSession() {
+  try {
+    if (state.csrfToken) {
+      await signOutAccount(
+        state.csrfToken
+      );
+    }
+  }
+  finally {
+    resetAccountState();
+    location.assign("/app/");
+  }
 }
 
 function handleError(error) {
@@ -3932,9 +9975,54 @@ for (const button of document.querySelectorAll("[data-view-link]")) {
   button.addEventListener("click", () => setView(button.dataset.viewLink));
 }
 
-elements.entryForm.addEventListener("submit", (event) => {
-  handleEntrySubmit(event).catch(handleError);
-});
+elements.entryCreateTab.addEventListener(
+  "click",
+  () => setEntryMode("create")
+);
+
+elements.entrySignInTab.addEventListener(
+  "click",
+  () => setEntryMode("sign-in")
+);
+
+elements.entryForm.addEventListener(
+  "submit",
+  (event) => {
+    handleEntrySubmit(event)
+      .catch(handleError);
+  }
+);
+
+elements.forgotPasswordButton.addEventListener(
+  "click",
+  showPasswordResetRequest
+);
+
+elements.passwordResetRequestForm.addEventListener(
+  "submit",
+  (event) => {
+    handleResetRequest(event)
+      .catch(handleError);
+  }
+);
+
+elements.passwordResetCompleteForm.addEventListener(
+  "submit",
+  (event) => {
+    handleResetComplete(event)
+      .catch(handleError);
+  }
+);
+
+elements.cancelPasswordResetButton.addEventListener(
+  "click",
+  showSignInForm
+);
+
+elements.cancelPasswordResetCompleteButton.addEventListener(
+  "click",
+  showSignInForm
+);
 
 elements.menuButton.addEventListener("click", () => {
   elements.sidebar.classList.toggle("open");
@@ -3961,10 +10049,109 @@ elements.connectAthleteForm.addEventListener("submit", (event) => {
   connectAthlete(event).catch(handleError);
 });
 
+// FULL-UI-05B builder interaction bindings.
+elements.templateDraftRecoveryResumeButton.addEventListener(
+  "click",
+  resumeRecoveredTemplateDraft
+);
+
+elements.templateDraftRecoveryDiscardButton.addEventListener(
+  "click",
+  discardRecoveredTemplateDraft
+);
+
+elements.templateBuilderDiscardButton.addEventListener(
+  "click",
+  () => closeTemplateBuilder()
+);
+
+elements.templateBuilderValidationList.addEventListener(
+  "click",
+  (event) => {
+    const button = event.target.closest(
+      "[data-builder-validation-index]"
+    );
+
+    if (button) {
+      focusTemplateValidationIssue(
+        button.dataset.builderValidationIndex
+      );
+    }
+  }
+);
+
+for (const eventName of ["input", "change"]) {
+  document.addEventListener(eventName, (event) => {
+    if (
+      !elements.templateBuilderView.hidden &&
+      event.target.closest("#templateBuilderView")
+    ) {
+      scheduleTemplateBuilderStateRefresh();
+    }
+  });
+}
+
+document.addEventListener("click", (event) => {
+  if (elements.templateBuilderView.hidden) return;
+
+  const target = event.target.closest(
+    "#templateBuilderView button"
+  );
+
+  if (!target) return;
+
+  if (
+    target.matches(
+      "#saveTemplateButton, " +
+      "#activateTemplateButton, " +
+      "#backToTemplatesButton, " +
+      "#templateBuilderDiscardButton, " +
+      ".template-validation-link"
+    )
+  ) {
+    return;
+  }
+
+  scheduleTemplateBuilderStateRefresh();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (elements.templateBuilderView.hidden) return;
+
+  if (
+    (event.ctrlKey || event.metaKey) &&
+    event.key.toLowerCase() === "s"
+  ) {
+    event.preventDefault();
+
+    if (!templateBuilderSaving) {
+      saveTemplateDraft().catch(handleError);
+    }
+
+    return;
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeTemplateBuilder();
+  }
+});
+
+globalThis.addEventListener("beforeunload", (event) => {
+  if (!templateDraftIsDirty()) return;
+
+  event.preventDefault();
+  event.returnValue = "";
+});
+
 elements.newTemplateButton.addEventListener("click", () => {
   loadTemplateExercises()
     .then(() => openTemplateBuilder(newTemplateDraft()))
     .catch(handleError);
+});
+
+elements.coachDashboardRefreshButton.addEventListener("click", () => {
+  refreshCoachDashboard().catch(handleError);
 });
 
 elements.refreshEventsButton.addEventListener("click", () => {
@@ -3989,8 +10176,48 @@ elements.eventForm.addEventListener("submit", (event) => {
 });
 
 elements.refreshTemplatesButton.addEventListener("click", () => {
-  refreshTemplates().catch(handleError);
+  refreshProgrammeLibrary().catch(handleError);
 });
+
+elements.templateLibrarySearch.addEventListener("input", () => {
+  state.templateLibrarySearch = elements.templateLibrarySearch.value;
+  saveState();
+  renderTemplateLibrary();
+});
+
+elements.templateLibraryStatusFilter.addEventListener("change", () => {
+  state.templateLibraryStatusFilter =
+    elements.templateLibraryStatusFilter.value;
+  saveState();
+  renderTemplateLibrary();
+});
+
+elements.templateLibraryActivityFilter.addEventListener("change", () => {
+  state.templateLibraryActivityFilter =
+    elements.templateLibraryActivityFilter.value;
+  saveState();
+  renderTemplateLibrary();
+});
+
+elements.templateLibrarySort.addEventListener("change", () => {
+  state.templateLibrarySort = elements.templateLibrarySort.value;
+  saveState();
+  renderTemplateLibrary();
+});
+
+elements.templateLibraryClearFilters.addEventListener("click", () => {
+  state.templateLibrarySearch = "";
+  state.templateLibraryStatusFilter = "all";
+  state.templateLibraryActivityFilter = "all";
+  state.templateLibrarySort = "updated_desc";
+  saveState();
+  renderTemplateLibrary();
+});
+
+elements.templateDetailCloseButton.addEventListener(
+  "click",
+  closeProgrammeDetail
+);
 
 elements.backToTemplatesButton.addEventListener("click", closeTemplateBuilder);
 
@@ -4161,16 +10388,34 @@ elements.athleteAssignmentEvent.addEventListener("change", renderAthleteProfileA
   elements.athleteAssignmentForm.addEventListener("submit", (event) => {
     recordAthleteProfileAssignment(event).catch(handleError);
   });
+  elements.athleteAssignmentCancelButton.addEventListener("click", () => {
+    cancelAssignmentForAthlete(state.selectedCoachAthleteId, "profile").catch(handleError);
+  });
 
 elements.assignmentAthlete.addEventListener("change", () => {
   renderAssignmentTemplateOptions();
+  renderAssignmentLifecycleSurfaces();
   refreshAssignmentAthleteProfile().catch(handleError);
 });
 elements.assignmentTemplate.addEventListener("change", renderAssignmentRequirements);
 elements.assignmentForm.addEventListener("submit", (event) => {
   recordAssignment(event).catch(handleError);
 });
+elements.assignmentCancelButton.addEventListener("click", () => {
+  cancelAssignmentForAthlete(elements.assignmentAthlete.value, "workspace").catch(handleError);
+});
 elements.loadReviewButton.addEventListener("click", () => loadCoachReview().catch(handleError));
+elements.reviewSearch.addEventListener("input", () => {
+  state.coachReviewSearch = elements.reviewSearch.value;
+  renderCoachReviewWorkspace();
+});
+elements.reviewStatusFilter.addEventListener("change", () => {
+  state.coachReviewFilter = elements.reviewStatusFilter.value;
+  renderCoachReviewWorkspace();
+});
+elements.reviewAthlete.addEventListener("change", () => {
+  renderCoachReviewWorkspace();
+});
 elements.coachNoteForm.addEventListener("submit", (event) => {
   recordCoachNote(event).catch(handleError);
 });
@@ -4183,11 +10428,224 @@ elements.copyAccountCodeButton.addEventListener("click", async () => {
     showNotice("Copy was blocked by the browser.", "error");
   }
 });
-elements.signOutButton.addEventListener("click", clearLocalSession);
+elements.refreshAccountButton.addEventListener(
+  "click",
+  () => {
+    loadPersistentAccountDetail()
+      .catch(handleError);
+  }
+);
 
-if (state.role && state.profile) {
-  enterApplication().catch(handleError);
+elements.accountProfileForm.addEventListener(
+  "submit",
+  (event) => {
+    saveAccountProfile(event)
+      .catch(handleError);
+  }
+);
+
+elements.requestVerificationButton.addEventListener(
+  "click",
+  () => {
+    requestAccountVerificationCode()
+      .catch(handleError);
+  }
+);
+
+elements.completeVerificationButton.addEventListener(
+  "click",
+  () => {
+    verifyAccountEmail()
+      .catch(handleError);
+  }
+);
+
+elements.accountPasswordForm.addEventListener(
+  "submit",
+  (event) => {
+    saveAccountPassword(event)
+      .catch(handleError);
+  }
+);
+
+elements.accountClosureForm.addEventListener(
+  "submit",
+  (event) => {
+    closePersistentAccount(event)
+      .catch(handleError);
+  }
+);
+
+elements.signOutButton.addEventListener(
+  "click",
+  () => {
+    clearLocalSession()
+      .catch(handleError);
+  }
+);
+
+async function bootstrapApplication() {
+  try {
+    const response =
+      await restoreAccountSession();
+
+    applyAccountSession(response);
+
+    await enterApplication();
+  }
+  catch (error) {
+    resetAccountState();
+    showEntry();
+    setEntryMode("sign-in");
+
+    if (
+      error?.status &&
+      error.status !== 401
+    ) {
+      showEntryMessage(
+        friendlyError(
+          error.payload,
+          error.status
+        ),
+        true
+      );
+    }
+  }
 }
-else {
-  showEntry();
+
+bootstrapApplication()
+  .catch(handleError);
+
+
+// FULL-UI-04A relationship directory event wiring.
+elements.connectAthleteRelationshipState
+  ?.addEventListener(
+    "change",
+    syncConnectAthleteRelationshipForm
+  );
+
+elements.refreshAthleteDirectoryButton
+  ?.addEventListener(
+    "click",
+    () => {
+      refreshCoachAthletes()
+        .catch(handleError);
+    }
+  );
+
+elements.athleteDirectorySearch
+  ?.addEventListener(
+    "input",
+    () => {
+      state.coachAthleteSearch =
+        elements.athleteDirectorySearch.value;
+
+      saveState();
+      renderCoachAthleteDirectory();
+    }
+  );
+
+elements.athleteRelationshipFilter
+  ?.addEventListener(
+    "change",
+    () => {
+      state.coachAthleteRelationshipFilter =
+        elements.athleteRelationshipFilter.value;
+
+      saveState();
+      renderCoachAthleteDirectory();
+    }
+  );
+
+elements.closeAthleteRelationshipDetailButton
+  ?.addEventListener(
+    "click",
+    closeAthleteRelationshipDetail
+  );
+
+elements.athleteRelationshipProfileButton
+  ?.addEventListener(
+    "click",
+    () => {
+      const athleteUserId =
+        elements.athleteRelationshipProfileButton
+          .dataset.athleteId;
+
+      openAthleteProfile(
+        athleteUserId
+      ).catch(handleError);
+    }
+  );
+
+elements.athleteRelationshipTransitionButton
+  ?.addEventListener(
+    "click",
+    () => {
+      const button =
+        elements.athleteRelationshipTransitionButton;
+
+      transitionCoachRelationship(
+        button.dataset.relationshipAthleteId,
+        button.dataset.relationshipAction
+      ).catch(handleError);
+    }
+  );
+
+document.addEventListener(
+  "click",
+  (event) => {
+    const button =
+      event.target.closest(
+        "[data-relationship-action='audit']"
+      );
+
+    if (!button) return;
+
+    openAthleteRelationshipDetail(
+      button.dataset.relationshipAthleteId
+    );
+  }
+);
+
+if (elements.athleteDirectorySearch) {
+  elements.athleteDirectorySearch.value =
+    state.coachAthleteSearch ?? "";
 }
+
+if (elements.athleteRelationshipFilter) {
+  elements.athleteRelationshipFilter.value =
+    state.coachAthleteRelationshipFilter ??
+    "all";
+}
+
+syncConnectAthleteRelationshipForm();
+
+// FULL-UI-04B athlete-detail controls.
+elements.athleteDetailRefreshButton
+  ?.addEventListener(
+    "click",
+    () => {
+      refreshAthleteDetail(
+        state.selectedCoachAthleteId
+      ).catch(handleError);
+    }
+  );
+
+elements.athleteDetailNoteForm
+  ?.addEventListener(
+    "submit",
+    (event) => {
+      recordAthleteDetailNote(
+        event
+      ).catch(handleError);
+    }
+  );
+
+elements.athleteDetailNoteCancelButton
+  ?.addEventListener(
+    "click",
+    () => {
+      elements.athleteDetailNoteForm
+        .hidden = true;
+    }
+  );

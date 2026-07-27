@@ -383,6 +383,29 @@ for (const capability of manifest.prohibited_capabilities ?? []) {
   }
 }
 
+for (const item of manifest.api_route_catalog ?? []) {
+  for (const key of [
+    "method",
+    "path",
+    "source",
+    "tracked_by_area"
+  ]) {
+    if (
+      typeof item[key] !== "string" ||
+      item[key].trim() === ""
+    ) {
+      fail(
+        "api_route_catalog_field_missing:" +
+        item.method +
+        " " +
+        item.path +
+        ":" +
+        key
+      );
+    }
+  }
+}
+
 const catalog = (manifest.api_route_catalog ?? [])
   .map((item) => item.method + " " + item.path)
   .sort();

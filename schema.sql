@@ -238,3 +238,275 @@ ALTER TABLE beta_product_records
         'beta19_event_athlete_link'
       )
     );
+
+-- FULL-UI-02 PRODUCT ACCOUNT ACCESS
+
+-- FULL-UI-02 runtime account principal bridge.
+CREATE TABLE IF NOT EXISTS beta_accounts (
+  user_id TEXT PRIMARY KEY,
+  actor_type TEXT NOT NULL
+    CHECK (
+      actor_type IN (
+        'individual_user',
+        'coach'
+      )
+    ),
+  account_state TEXT NOT NULL
+    CHECK (
+      account_state IN (
+        'active',
+        'suspended'
+      )
+    )
+);
+CREATE TABLE IF NOT EXISTS product_accounts (
+  user_id text PRIMARY KEY,
+  email_canonical text NOT NULL UNIQUE,
+  display_name text NOT NULL,
+  actor_type text NOT NULL
+    CHECK (actor_type IN ('athlete', 'coach')),
+  account_state text NOT NULL DEFAULT 'active'
+    CHECK (
+      account_state IN (
+        'active',
+        'suspended',
+        'closed',
+        'deleted'
+      )
+    ),
+  password_salt text NOT NULL,
+  password_hash text NOT NULL,
+  email_verified_at timestamptz,
+  accepted_terms_version text NOT NULL,
+  accepted_consent_version text NOT NULL,
+  failed_sign_in_count integer NOT NULL DEFAULT 0
+    CHECK (failed_sign_in_count >= 0),
+  locked_until timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS product_auth_sessions (
+  session_hash text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  last_seen_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL,
+  revoked_at timestamptz,
+  user_agent_hash text NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS
+  product_auth_sessions_user_id_idx
+ON product_auth_sessions(user_id);
+
+CREATE INDEX IF NOT EXISTS
+  product_auth_sessions_expiry_idx
+ON product_auth_sessions(expires_at);
+
+CREATE TABLE IF NOT EXISTS product_auth_challenges (
+  challenge_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  challenge_type text NOT NULL
+    CHECK (
+      challenge_type IN (
+        'email_verification',
+        'password_reset'
+      )
+    ),
+  token_hash text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL,
+  consumed_at timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS
+  product_auth_challenges_user_idx
+ON product_auth_challenges(
+  user_id,
+  challenge_type,
+  created_at DESC
+);
+
+CREATE TABLE IF NOT EXISTS product_account_events (
+  event_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  event_type text NOT NULL,
+  event_payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+  occurred_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  product_account_events_user_idx
+ON product_account_events(
+  user_id,
+  occurred_at DESC
+);
+
+CREATE TABLE IF NOT EXISTS product_account_closure_requests (
+  closure_request_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  request_state text NOT NULL
+    CHECK (
+      request_state IN (
+        'requested',
+        'completed',
+        'cancelled'
+      )
+    ),
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  completed_at timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS
+  product_account_closure_user_idx
+ON product_account_closure_requests(
+  user_id,
+  requested_at DESC
+);
+
+-- FULL-UI-04B COACH NOTE HISTORY
+-- Immutable, non-binding coach commentary is stored separately from session
+-- artefacts and deterministic engine state.
+CREATE TABLE IF NOT EXISTS product_coach_notes (
+  note_id          TEXT PRIMARY KEY,
+  coach_user_id    TEXT NOT NULL,
+  athlete_user_id  TEXT NOT NULL,
+  relationship_id  TEXT NOT NULL,
+  session_id       TEXT NOT NULL,
+  artefact_id      TEXT NOT NULL,
+  note_text        TEXT NOT NULL,
+  visibility       TEXT NOT NULL
+    CHECK (
+      visibility IN (
+        'coach_private',
+        'athlete_visible'
+      )
+    ),
+  record_sha256    TEXT NOT NULL
+    CHECK (
+      record_sha256 ~ '^[a-f0-9]{64}$'
+    ),
+  note_payload     JSONB NOT NULL
+    CHECK (
+      jsonb_typeof(note_payload) =
+        'object'
+    ),
+  created_at       TIMESTAMPTZ NOT NULL
+    DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_coach_notes_coach_athlete_created
+ON product_coach_notes (
+  coach_user_id,
+  athlete_user_id,
+  created_at DESC
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_coach_notes_session_created
+ON product_coach_notes (
+  session_id,
+  created_at DESC
+);
+
+-- FULL-UI-07 DURABLE COACH REVIEW STATE
+-- Immutable product review transitions remain separate from session artefacts,
+-- runtime events and deterministic engine state.
+CREATE TABLE IF NOT EXISTS product_session_reviews (
+  review_record_id  TEXT PRIMARY KEY,
+  coach_user_id     TEXT NOT NULL,
+  athlete_user_id   TEXT NOT NULL,
+  relationship_id   TEXT NOT NULL,
+  session_id        TEXT NOT NULL,
+  artefact_id       TEXT NOT NULL,
+  review_status     TEXT NOT NULL
+    CHECK (
+      review_status IN (
+        'reviewed',
+        'unreviewed'
+      )
+    ),
+  reviewed_at       TIMESTAMPTZ,
+  recorded_at       TIMESTAMPTZ NOT NULL,
+  record_sha256     TEXT NOT NULL
+    CHECK (
+      record_sha256 ~
+        '^[a-f0-9]{64}$'
+    ),
+  review_payload    JSONB NOT NULL
+    CHECK (
+      jsonb_typeof(
+        review_payload
+      ) = 'object'
+    )
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_session_reviews_coach_recorded
+ON product_session_reviews (
+  coach_user_id,
+  recorded_at DESC
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_session_reviews_session_recorded
+ON product_session_reviews (
+  session_id,
+  recorded_at DESC
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_session_reviews_coach_athlete
+ON product_session_reviews (
+  coach_user_id,
+  athlete_user_id,
+  recorded_at DESC
+);
+-- FULL-UI-08 controlled-launch commercial product records.
+-- Commercial state is immutable product state and is never engine input.
+CREATE TABLE IF NOT EXISTS product_commercial_records (
+  commercial_record_id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE RESTRICT,
+  request_id TEXT NOT NULL,
+  record_type TEXT NOT NULL
+    CHECK (
+      record_type IN (
+        'commercial_checkout_requested',
+        'commercial_payment_return_recorded',
+        'commercial_billing_access_updated',
+        'commercial_portal_requested'
+      )
+    ),
+  effective_at TIMESTAMPTZ NOT NULL,
+  record_payload JSONB NOT NULL,
+  record_sha256 TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, request_id)
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_commercial_records_user_effective
+ON product_commercial_records (
+  user_id,
+  effective_at DESC,
+  created_at DESC
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_commercial_records_type_effective
+ON product_commercial_records (
+  record_type,
+  effective_at DESC
+);

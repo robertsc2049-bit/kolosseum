@@ -376,7 +376,7 @@ function normaliseProfileInput(input: JsonRecord): Readonly<JsonRecord> {
   });
 }
 
-export async function listConnectedCoachAthletes(
+export async function listCoachAthleteRelationships(
   coachUserIdInput: string
 ): Promise<readonly Readonly<JsonRecord>[]> {
   const coachUserId =
@@ -410,27 +410,23 @@ export async function listConnectedCoachAthletes(
     [coachUserId]
   );
 
-  const accepted = result.rows
+  const relationships = result.rows
     .map((row) =>
       isRecord(row.record_payload)
         ? row.record_payload
         : null
     )
-    .filter((relationship): relationship is JsonRecord => {
-      if (!relationship) {
-        return false;
-      }
-
-      return (
-        relationship.relationship_state === "accepted" &&
-        cleanString(relationship.revoked_at_iso8601) === ""
-      );
-    });
+    .filter(
+      (relationship): relationship is JsonRecord =>
+        relationship !== null
+    );
 
   const athletes = await Promise.all(
-    accepted.map(async (relationship) => {
+    relationships.map(async (relationship) => {
       const athleteUserId =
-        cleanString(relationship.athlete_user_id);
+        cleanString(
+          relationship.athlete_user_id
+        );
 
       const [auth, declaration] =
         await Promise.all([
@@ -455,6 +451,22 @@ export async function listConnectedCoachAthletes(
       const activityId =
         cleanString(phase1Input.activity_id);
 
+      const storedState =
+        cleanString(
+          relationship.relationship_state
+        );
+
+      const expiresAt =
+        cleanString(
+          relationship.expires_at_iso8601
+        );
+
+      const expired =
+        storedState === "invited" &&
+        Boolean(expiresAt) &&
+        Number.isFinite(Date.parse(expiresAt)) &&
+        Date.parse(expiresAt) <= Date.now();
+
       return deepFreeze({
         athlete_user_id: athleteUserId,
         display_name:
@@ -467,6 +479,12 @@ export async function listConnectedCoachAthletes(
           supportedActivities.has(activityId)
             ? activityId
             : null,
+        relationship_state:
+          expired
+            ? "expired"
+            : storedState,
+        relationship_expired:
+          expired,
         relationship
       });
     })
@@ -478,6 +496,24 @@ export async function listConnectedCoachAthletes(
         .localeCompare(
           String(right.display_name)
         )
+    )
+  );
+}
+
+export async function listConnectedCoachAthletes(
+  coachUserIdInput: string
+): Promise<readonly Readonly<JsonRecord>[]> {
+  const relationships =
+    await listCoachAthleteRelationships(
+      coachUserIdInput
+    );
+
+  return deepFreeze(
+    relationships.filter(
+      (athlete) =>
+        athlete.relationship_state ===
+          "accepted" &&
+        athlete.relationship_expired !== true
     )
   );
 }
@@ -514,17 +550,73 @@ export async function listCoachAssignments(
     [coachUserId]
   );
 
-  return deepFreeze(
-    result.rows
-      .map((row) =>
-        isRecord(row.record_payload)
-          ? deepFreeze(row.record_payload)
-          : null
-      )
-      .filter((record): record is Readonly<JsonRecord> =>
+  const records = result.rows
+    .map((row) =>
+      isRecord(row.record_payload)
+        ? row.record_payload
+        : null
+    )
+    .filter(
+      (record): record is JsonRecord =>
         record !== null
-      )
+    );
+
+  const lifecycleRecords = records.map(
+    (record, index) => {
+      const athleteUserId = cleanString(
+        record.assigned_athlete_id
+      );
+      const assignmentId = cleanString(
+        record.assignment_id
+      );
+
+      const newerForAthlete = records
+        .slice(0, index)
+        .filter(
+          (candidate) =>
+            cleanString(
+              candidate.assigned_athlete_id
+            ) === athleteUserId
+        );
+
+      let lifecycleStatus = cleanString(
+        record.assignment_status
+      ) || "assigned";
+
+      if (lifecycleStatus === "assigned") {
+        if (
+          newerForAthlete.some(
+            (candidate) =>
+              cleanString(
+                candidate.cancels_assignment_id
+              ) === assignmentId
+          )
+        ) {
+          lifecycleStatus = "cancelled";
+        }
+        else if (
+          newerForAthlete.length > 0
+        ) {
+          lifecycleStatus = "replaced";
+        }
+      }
+
+      const isCurrent =
+        newerForAthlete.length === 0 &&
+        lifecycleStatus === "assigned";
+
+      return deepFreeze({
+        ...record,
+        lifecycle_status:
+          lifecycleStatus,
+        is_current: isCurrent,
+        current_for_athlete: isCurrent,
+        engine_visible: false
+      });
+    }
   );
+
+  return deepFreeze(lifecycleRecords);
 }
 
 export async function saveAthleteStrengthProfile(
@@ -697,5 +789,369 @@ export function resolvePercentageLoad(
     benchmark_id: cleanString(benchmark.benchmark_id),
     athlete_profile_record_sha256: cleanString(profile.record_sha256),
     rounding_increment: increment
+  });
+}
+
+// FULL-UI-04B athlete-detail factual read model.
+// FUNCTION NOTE:
+// Purpose: Loads one accepted coach-athlete detail surface containing immutable
+// programme, event-link, strength-reference, bodyweight, session, and note history.
+// Boundary: Read-only product/runtime projection. It does not call the engine,
+// infer readiness, rank athletes, or alter assignment/session truth.
+// Determinism: Records are ordered by persisted effective and creation timestamps.
+// Failure: Identity and accepted-relationship checks fail closed.
+export async function loadCoachAthleteDetail(
+  coachUserIdInput: string,
+  athleteUserIdInput: string
+): Promise<Readonly<JsonRecord>> {
+  const coachUserId =
+    cleanString(coachUserIdInput);
+
+  const athleteUserId =
+    cleanString(athleteUserIdInput);
+
+  if (!coachUserId || !athleteUserId) {
+    throw new Beta19CoachWorkspaceError(
+      "athlete_detail_identity_required"
+    );
+  }
+
+  await requireCoachAthleteAccess(
+    coachUserId,
+    athleteUserId
+  );
+
+  const [
+    recordResult,
+    sessionResult,
+    noteResult
+  ] = await Promise.all([
+    pool.query(
+      `
+      SELECT
+        record_type,
+        record_payload,
+        effective_at,
+        created_at
+      FROM beta_product_records
+      WHERE
+        actor_user_id = $1
+        AND subject_user_id = $2
+        AND record_type IN (
+          'beta17_assignment_trigger',
+          'beta19_athlete_strength_profile',
+          'beta19_event_athlete_link'
+        )
+      ORDER BY
+        effective_at DESC,
+        created_at DESC,
+        record_id DESC,
+        record_sha256 DESC
+      `,
+      [
+        coachUserId,
+        athleteUserId
+      ]
+    ),
+    pool.query(
+      `
+      SELECT
+        s.session_id,
+        s.block_id,
+        s.status,
+        s.beta_assignment_id,
+        s.created_at,
+        s.updated_at,
+        count(re.seq)::integer
+          AS runtime_event_count
+      FROM sessions s
+      LEFT JOIN runtime_events re
+        ON re.session_id = s.session_id
+      WHERE
+        s.beta_subject_user_id = $1
+        AND s.beta_coach_user_id = $2
+      GROUP BY
+        s.session_id,
+        s.block_id,
+        s.status,
+        s.beta_assignment_id,
+        s.created_at,
+        s.updated_at
+      ORDER BY
+        s.updated_at DESC,
+        s.session_id DESC
+      `,
+      [
+        athleteUserId,
+        coachUserId
+      ]
+    ),
+    pool.query(
+      `
+      SELECT
+        note_payload,
+        created_at
+      FROM product_coach_notes
+      WHERE
+        coach_user_id = $1
+        AND athlete_user_id = $2
+      ORDER BY
+        created_at DESC,
+        note_id DESC
+      `,
+      [
+        coachUserId,
+        athleteUserId
+      ]
+    )
+  ]);
+
+  const assignmentHistory:
+    Readonly<JsonRecord>[] = [];
+
+  const strengthProfileHistory:
+    Readonly<JsonRecord>[] = [];
+
+  const eventLinkHistory:
+    Readonly<JsonRecord>[] = [];
+
+  for (const row of recordResult.rows) {
+    if (!isRecord(row.record_payload)) {
+      continue;
+    }
+
+    const record = deepFreeze({
+      ...row.record_payload,
+      stored_effective_at:
+        new Date(
+          row.effective_at
+        ).toISOString(),
+      stored_created_at:
+        new Date(
+          row.created_at
+        ).toISOString()
+    });
+
+    if (
+      row.record_type ===
+      "beta17_assignment_trigger"
+    ) {
+      assignmentHistory.push(record);
+    }
+    else if (
+      row.record_type ===
+      "beta19_athlete_strength_profile"
+    ) {
+      strengthProfileHistory.push(record);
+    }
+    else if (
+      row.record_type ===
+      "beta19_event_athlete_link"
+    ) {
+      eventLinkHistory.push(record);
+    }
+  }
+
+  const assignmentLifecycleHistory =
+    assignmentHistory.map(
+      (assignment, index) => {
+        const assignmentId =
+          cleanString(
+            assignment.assignment_id
+          );
+
+        const newer =
+          assignmentHistory
+            .slice(0, index);
+
+        let lifecycleStatus =
+          cleanString(
+            assignment.assignment_status
+          ) || "assigned";
+
+        if (lifecycleStatus === "assigned") {
+          if (
+            newer.some(
+              (candidate) =>
+                cleanString(
+                  candidate.cancels_assignment_id
+                ) === assignmentId
+            )
+          ) {
+            lifecycleStatus = "cancelled";
+          }
+          else if (newer.length > 0) {
+            lifecycleStatus = "replaced";
+          }
+        }
+
+        return deepFreeze({
+          ...assignment,
+          lifecycle_status:
+            lifecycleStatus,
+          is_current:
+            index === 0 &&
+            lifecycleStatus === "assigned"
+        });
+      }
+    );
+
+  const currentAssignment:
+    Readonly<JsonRecord> | null =
+      assignmentLifecycleHistory[0]
+        ?.lifecycle_status === "assigned"
+        ? assignmentLifecycleHistory[0] as
+            Readonly<JsonRecord>
+        : null;
+
+  const bodyweightHistory =
+    strengthProfileHistory
+      .filter(
+        (profile) =>
+          typeof profile.bodyweight ===
+            "number" &&
+          Number.isFinite(
+            profile.bodyweight
+          )
+      )
+      .map(
+        (profile) =>
+          deepFreeze({
+            bodyweight:
+              profile.bodyweight,
+            unit:
+              profile.bodyweight_unit,
+            effective_at:
+              profile.updated_at_iso8601 ??
+              profile.stored_effective_at,
+            profile_id:
+              profile.profile_id
+          })
+      );
+
+  const sessionHistory =
+    sessionResult.rows.map(
+      (row) =>
+        deepFreeze({
+          session_id:
+            String(row.session_id),
+          artefact_id:
+            `beta_e2e_artefact_${String(
+              row.session_id
+            )}`,
+          block_id:
+            String(row.block_id ?? ""),
+          session_status:
+            String(row.status),
+          assignment_id:
+            cleanString(
+              row.beta_assignment_id
+            ) || null,
+          runtime_event_count:
+            Number(
+              row.runtime_event_count
+            ),
+          created_at:
+            new Date(
+              row.created_at
+            ).toISOString(),
+          updated_at:
+            new Date(
+              row.updated_at
+            ).toISOString()
+        })
+    );
+
+  const noteHistory =
+    noteResult.rows
+      .map((row) => {
+        if (!isRecord(row.note_payload)) {
+          return null;
+        }
+
+        return deepFreeze({
+          ...row.note_payload,
+          created_at:
+            new Date(
+              row.created_at
+            ).toISOString()
+        });
+      })
+      .filter(
+        (
+          note
+        ): note is Readonly<JsonRecord> =>
+          note !== null
+      );
+
+  const latestEventLinks = [];
+  const seenEventLinkIds =
+    new Set<string>();
+
+  for (const link of eventLinkHistory) {
+    const linkId = cleanString(
+      link.event_athlete_link_id
+    );
+
+    if (!linkId || seenEventLinkIds.has(linkId)) {
+      continue;
+    }
+
+    seenEventLinkIds.add(linkId);
+    latestEventLinks.push(link);
+  }
+
+  const currentEventLink =
+    currentAssignment
+      ? latestEventLinks.find(
+          (link) =>
+            link.link_state === "linked" &&
+            cleanString(link.assignment_id) ===
+              cleanString(
+                currentAssignment.assignment_id
+              )
+        ) ?? null
+      : null;
+
+  return deepFreeze({
+    coach_user_id: coachUserId,
+    athlete_user_id: athleteUserId,
+    current_assignment:
+      currentAssignment,
+    current_event_link:
+      currentEventLink,
+    current_strength_profile:
+      strengthProfileHistory[0] ??
+      null,
+    assignment_history:
+      assignmentLifecycleHistory,
+    strength_profile_history:
+      strengthProfileHistory,
+    bodyweight_history:
+      bodyweightHistory,
+    event_link_history:
+      eventLinkHistory,
+    session_history:
+      sessionHistory,
+    note_history:
+      noteHistory,
+    counts: deepFreeze({
+      assignments:
+        assignmentHistory.length,
+      strength_profiles:
+        strengthProfileHistory.length,
+      bodyweight_records:
+        bodyweightHistory.length,
+      event_links:
+        eventLinkHistory.length,
+      sessions:
+        sessionHistory.length,
+      notes:
+        noteHistory.length
+    }),
+    factual_records_only: true,
+    read_only: true,
+    calls_engine: false,
+    engine_visible: false
   });
 }

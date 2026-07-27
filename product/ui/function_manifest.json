@@ -167,9 +167,9 @@
             "/sessions/beta-auth"
           ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_app_surface.test.mjs",
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": "test/beta_e2e_01_product_record_store.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
@@ -187,10 +187,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -208,10 +208,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -229,10 +229,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -250,10 +250,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -271,10 +271,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -334,10 +334,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -355,10 +355,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -376,10 +376,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -397,10 +397,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -419,9 +419,9 @@
           "route_id": "shared_account",
           "api_routes": [],
           "persistence": "navigation_cache",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_app_surface.test.mjs",
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -628,7 +628,7 @@
       "area_id": "coach_commercial",
       "title": "Coach onboarding and commercial state",
       "slice_id": "FULL-UI-04",
-      "state": "missing",
+      "state": "partial",
       "functions": [
         {
           "function_id": "coach_profile_setup",
@@ -680,10 +680,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -700,10 +700,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -720,10 +720,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -740,10 +740,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -760,10 +760,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -780,10 +780,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -949,7 +949,9 @@
             "coach"
           ],
           "route_id": "coach_athletes",
-          "api_routes": [],
+          "api_routes": [
+            "/coach-workspace/relationships"
+          ],
           "persistence": "server_product_records",
           "state": "partial",
           "governing_boundary": null,
@@ -1008,7 +1010,7 @@
       "area_id": "coach_overview",
       "title": "Coach overview",
       "slice_id": "FULL-UI-06",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "overview_factual_counts",
@@ -1040,11 +1042,13 @@
             "coach"
           ],
           "route_id": "coach_overview",
-          "api_routes": [],
+          "api_routes": [
+            "/coach-workspace/relationships"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1061,10 +1065,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1082,9 +1086,9 @@
           "route_id": "coach_overview",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1101,10 +1105,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1121,10 +1125,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1142,9 +1146,9 @@
           "route_id": "coach_overview",
           "api_routes": [],
           "persistence": "navigation_cache",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_route_map.test.mjs",
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1168,11 +1172,13 @@
             "athlete"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/coach-workspace/relationships"
+          ],
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1189,7 +1195,8 @@
           ],
           "route_id": "coach_athletes",
           "api_routes": [
-            "/coach-workspace/athletes"
+            "/coach-workspace/athletes",
+            "/coach-workspace/relationships"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -1232,11 +1239,13 @@
             "athlete"
           ],
           "route_id": "coach_athlete_detail",
-          "api_routes": [],
+          "api_routes": [
+            "/coach-workspace/athlete-detail"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1252,11 +1261,13 @@
             "athlete"
           ],
           "route_id": "coach_athlete_detail",
-          "api_routes": [],
+          "api_routes": [
+            "/coach-workspace/athlete-detail"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1272,11 +1283,13 @@
             "athlete"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/coach-workspace/athlete-detail"
+          ],
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1292,11 +1305,13 @@
             "athlete"
           ],
           "route_id": null,
-          "api_routes": [],
+          "api_routes": [
+            "/coach-workspace/athlete-detail"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1312,11 +1327,13 @@
             "athlete"
           ],
           "route_id": null,
-          "api_routes": [],
+          "api_routes": [
+            "/coach-workspace/athlete-detail"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1332,11 +1349,13 @@
             "athlete"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/coach-workspace/athlete-detail"
+          ],
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1352,11 +1371,13 @@
             "athlete"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/coach-workspace/athlete-detail"
+          ],
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1372,11 +1393,13 @@
             "athlete"
           ],
           "route_id": null,
-          "api_routes": [],
+          "api_routes": [
+            "/coach-workspace/athlete-detail"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1943,7 +1966,7 @@
       "area_id": "programme_library",
       "title": "Programme library",
       "slice_id": "FULL-UI-10",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "programme_states",
@@ -1956,9 +1979,9 @@
             "/templates"
           ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -1975,10 +1998,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2040,9 +2063,9 @@
           "route_id": "coach_programme_detail",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2060,9 +2083,9 @@
           "route_id": "coach_programme_detail",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2123,10 +2146,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2143,10 +2166,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2184,9 +2207,9 @@
           "route_id": "coach_programme_detail",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2201,7 +2224,7 @@
       "area_id": "programme_builder",
       "title": "Programme builder",
       "slice_id": "FULL-UI-11",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "builder_identity",
@@ -2533,10 +2556,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2554,9 +2577,9 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2573,10 +2596,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2594,9 +2617,9 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2839,7 +2862,7 @@
       "area_id": "assignments",
       "title": "Athlete-specific assignment",
       "slice_id": "FULL-UI-13",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "assignment_from_profile",
@@ -2952,9 +2975,9 @@
           "route_id": "coach_athlete_detail",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2972,9 +2995,9 @@
           "route_id": "coach_athlete_detail",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -2991,10 +3014,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3011,10 +3034,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3031,10 +3054,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3052,9 +3075,9 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3072,9 +3095,9 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3801,7 +3824,7 @@
       "area_id": "coach_review",
       "title": "Coach review and live status",
       "slice_id": "FULL-UI-17",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "review_athlete_search",
@@ -3812,9 +3835,9 @@
           "route_id": "coach_review",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3831,10 +3854,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3852,9 +3875,9 @@
           "route_id": "coach_review",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3872,9 +3895,9 @@
           "route_id": "coach_review",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3892,9 +3915,9 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3912,9 +3935,9 @@
           "route_id": "coach_review",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3953,10 +3976,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -3974,9 +3997,9 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -4033,10 +4056,10 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "incomplete",
@@ -4466,7 +4489,7 @@
       "area_id": "status_support",
       "title": "Status, support and error reporting",
       "slice_id": "FULL-UI-20",
-      "state": "missing",
+      "state": "partial",
       "functions": [
         {
           "function_id": "status_current",
@@ -5315,26 +5338,14 @@
       "tracked_by_area": "session_execution"
     },
     {
-      "method": "POST",
-      "path": "/blocks/:block_id/sessions",
-      "source": "src/api/blocks.routes.ts",
-      "tracked_by_area": "session_execution"
-    },
-    {
-      "method": "POST",
-      "path": "/blocks/compile",
-      "source": "src/api/blocks.routes.ts",
-      "tracked_by_area": "session_execution"
-    },
-    {
       "method": "GET",
       "path": "/coach-workspace/assignments",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
     },
     {
-      "method": "POST",
-      "path": "/coach-workspace/athlete-assignment",
+      "method": "GET",
+      "path": "/coach-workspace/athlete-detail",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
     },
@@ -5351,34 +5362,22 @@
       "tracked_by_area": "strength_references"
     },
     {
-      "method": "POST",
-      "path": "/coach-workspace/athlete-strength-profile",
-      "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "strength_references"
-    },
-    {
       "method": "GET",
       "path": "/coach-workspace/athletes",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
     },
     {
-      "method": "POST",
-      "path": "/coach-workspace/event-compile-preview",
-      "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "coach_workspace"
-    },
-    {
       "method": "GET",
       "path": "/coach-workspace/events",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "events"
     },
     {
-      "method": "POST",
-      "path": "/coach-workspace/events",
+      "method": "GET",
+      "path": "/coach-workspace/relationships",
       "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "events"
+      "tracked_by_area": "coach_workspace"
     },
     {
       "method": "GET",
@@ -5393,6 +5392,66 @@
       "tracked_by_area": "product_journey"
     },
     {
+      "method": "GET",
+      "path": "/sessions/:session_id/state",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/decision-summary/:run_id",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "GET",
+      "path": "/templates",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "GET",
+      "path": "/templates/exercises",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
+      "path": "/blocks/:block_id/sessions",
+      "source": "src/api/blocks.routes.ts",
+      "tracked_by_area": "session_execution"
+    },
+    {
+      "method": "POST",
+      "path": "/blocks/compile",
+      "source": "src/api/blocks.routes.ts",
+      "tracked_by_area": "session_execution"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-assignment",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-strength-profile",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "strength_references"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/event-compile-preview",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/events",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
       "method": "POST",
       "path": "/sessions/:session_id/events",
       "source": "src/api/sessions.routes.ts",
@@ -5401,12 +5460,6 @@
     {
       "method": "POST",
       "path": "/sessions/:session_id/start",
-      "source": "src/api/sessions.routes.ts",
-      "tracked_by_area": "product_journey"
-    },
-    {
-      "method": "GET",
-      "path": "/sessions/:session_id/state",
       "source": "src/api/sessions.routes.ts",
       "tracked_by_area": "product_journey"
     },
@@ -5465,22 +5518,10 @@
       "tracked_by_area": "product_journey"
     },
     {
-      "method": "GET",
-      "path": "/sessions/decision-summary/:run_id",
-      "source": "src/api/sessions.routes.ts",
-      "tracked_by_area": "product_journey"
-    },
-    {
       "method": "POST",
       "path": "/sessions/plan",
       "source": "src/api/sessions.routes.ts",
       "tracked_by_area": "product_journey"
-    },
-    {
-      "method": "GET",
-      "path": "/templates",
-      "source": "src/api/templates.routes.ts",
-      "tracked_by_area": "programme_library"
     },
     {
       "method": "POST",
@@ -5503,12 +5544,6 @@
     {
       "method": "POST",
       "path": "/templates/:template_id/duplicate",
-      "source": "src/api/templates.routes.ts",
-      "tracked_by_area": "programme_library"
-    },
-    {
-      "method": "GET",
-      "path": "/templates/exercises",
       "source": "src/api/templates.routes.ts",
       "tracked_by_area": "programme_library"
     }
