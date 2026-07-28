@@ -27,23 +27,47 @@ jobs:
           fetch-depth: 1
           show-progress: false
 
+      - name: Check whether diagnostic already exists
+        id: diagnostic
+        run: |
+          if [ -f .full-ui-02c-build-error.txt ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup Node
+        if: steps.diagnostic.outputs.exists != 'true'
         uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
 
       - name: Install locked dependencies
+        if: steps.diagnostic.outputs.exists != 'true'
         run: npm ci --silent
 
       - name: Apply FULL-UI-02C patch
+        if: steps.diagnostic.outputs.exists != 'true'
         run: node scripts/full_ui_02c_apply.mjs
 
-      - name: Diagnose compiled build
+      - name: Capture compiled build failure
+        if: steps.diagnostic.outputs.exists != 'true'
         run: |
-          if ! npm run build:fast > /tmp/full-ui-02c-build.log 2>&1; then
-            echo "FULL-UI-02C BUILD FAILURE"
-            tail -n 120 /tmp/full-ui-02c-build.log
-            exit 1
+          set +e
+          npm run build:fast > /tmp/full-ui-02c-build.log 2>&1
+          build_exit=$?
+          set -e
+
+          if [ "$build_exit" -eq 0 ]; then
+            echo "FULL-UI-02C BUILD PASSED"
+            exit 0
           fi
-          echo "FULL-UI-02C BUILD PASSED"
+
+          tail -n 200 /tmp/full-ui-02c-build.log > .full-ui-02c-build-error.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .full-ui-02c-build-error.txt
+          git commit -m "chore(ui): record full ui 02c build failure"
+          git push origin HEAD:automation/full-ui-02c-identity-proof
+          exit "$build_exit"
