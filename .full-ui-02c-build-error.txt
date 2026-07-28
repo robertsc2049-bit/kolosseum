@@ -1,0 +1,34 @@
+
+> kolosseum@0.1.24 build:fast
+> node ci/guards/green_entrypoint_guard.mjs && node ci/guards/clean_tree_guard.mjs && tsc -p tsconfig.json && npm run engine:shim:check && node ci/guards/run_pipeline_contract_version_guard.mjs
+
+❌ clean_tree_guard: WORKING TREE: DIRTY
+
+Untracked entries:
+ ?? test/full_ui_02c_identity_account_persistent_http.integration.test.mjs
+
+Unstaged entries (working tree drift):
+  M ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json
+  M docs/releases/BETA_E2E_01_PERSISTENT_HTTP_PRODUCT_JOURNEY.json
+  M docs/releases/BETA_E2E_01_PERSISTENT_HTTP_PRODUCT_JOURNEY.md
+  M product/ui/function_manifest.json
+  M public/app/account_ui.js
+  M public/app/app.js
+  M public/app/index.html
+  M src/api/product_account.routes.ts
+  M src/api/product_account_service.ts
+  M test/full_ui_02_account_routes.test.mjs
+  M test/full_ui_02_account_ui.test.mjs
+
+Unstaged files (git diff --name-only):
+ ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json
+ docs/releases/BETA_E2E_01_PERSISTENT_HTTP_PRODUCT_JOURNEY.json
+ docs/releases/BETA_E2E_01_PERSISTENT_HTTP_PRODUCT_JOURNEY.md
+ product/ui/function_manifest.json
+ public/app/account_ui.js
+ public/app/app.js
+ public/app/index.html
+ src/api/product_account.routes.ts
+ src/api/product_account_service.ts
+ test/full_ui_02_account_routes.test.mjs
+ test/full_ui_02_account_ui.test.mjs
