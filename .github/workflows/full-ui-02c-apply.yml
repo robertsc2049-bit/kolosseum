@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - automation/full-ui-02c-identity-proof
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 permissions:
   contents: write
