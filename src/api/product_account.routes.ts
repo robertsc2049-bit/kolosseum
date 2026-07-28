@@ -16,6 +16,7 @@ import {
   changeProductPassword,
   completeProductEmailVerification,
   completeProductPasswordReset,
+  getCurrentProductTerms,
   getProductAccountDetail,
   registerProductAccount,
   requestProductAccountClosure,
@@ -153,6 +154,15 @@ function clearSessionCookie(
     }
   );
 }
+
+productAccountRouter.get(
+  "/terms",
+  (_request, response) => {
+    return response.status(200).json(
+      getCurrentProductTerms()
+    );
+  }
+);
 
 productAccountRouter.post(
   "/register",

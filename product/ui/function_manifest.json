@@ -153,7 +153,7 @@
       "area_id": "identity_account",
       "title": "Identity and account access",
       "slice_id": "FULL-UI-02",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "account_create",
@@ -164,18 +164,18 @@
           ],
           "route_id": "shared_account",
           "api_routes": [
-            "/sessions/beta-auth"
+            "/account/register"
           ],
-          "persistence": "server_product_records",
+          "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": "test/beta_e2e_01_product_record_store.integration.test.mjs",
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -185,18 +185,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/sign-in"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -206,18 +208,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/session"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -227,18 +231,21 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/email-verification/request",
+            "/account/email-verification/complete"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -248,18 +255,21 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/password/reset/request",
+            "/account/password/reset/complete"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -269,18 +279,21 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/sign-in",
+            "/account/session"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -291,12 +304,14 @@
             "coach"
           ],
           "route_id": "shared_account",
-          "api_routes": [],
-          "persistence": "navigation_cache",
+          "api_routes": [
+            "/account/session"
+          ],
+          "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_route_map.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -312,17 +327,20 @@
             "coach"
           ],
           "route_id": "shared_account",
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "api_routes": [
+            "/account/terms",
+            "/account/detail"
+          ],
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -332,18 +350,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/detail"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -353,18 +373,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/profile"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -374,18 +396,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/password/change"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -395,18 +419,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/closure"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -417,17 +443,19 @@
             "coach"
           ],
           "route_id": "shared_account",
-          "api_routes": [],
-          "persistence": "navigation_cache",
+          "api_routes": [
+            "/account/sign-out"
+          ],
+          "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -5202,7 +5230,7 @@
     },
     {
       "slice_id": "FULL-UI-02",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-03",
@@ -5326,6 +5354,84 @@
   ],
   "api_route_catalog": [
     {
+      "method": "POST",
+      "path": "/account/closure",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "GET",
+      "path": "/account/detail",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/account/email-verification/complete",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/account/email-verification/request",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/account/password/change",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/account/password/reset/complete",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/account/password/reset/request",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "PATCH",
+      "path": "/account/profile",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/account/register",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "GET",
+      "path": "/account/session",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/account/sign-in",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/account/sign-out",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "GET",
+      "path": "/account/terms",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
       "method": "GET",
       "path": "/blocks/:block_id",
       "source": "src/api/blocks.routes.ts",
@@ -5338,8 +5444,26 @@
       "tracked_by_area": "session_execution"
     },
     {
+      "method": "POST",
+      "path": "/blocks/:block_id/sessions",
+      "source": "src/api/blocks.routes.ts",
+      "tracked_by_area": "session_execution"
+    },
+    {
+      "method": "POST",
+      "path": "/blocks/compile",
+      "source": "src/api/blocks.routes.ts",
+      "tracked_by_area": "session_execution"
+    },
+    {
       "method": "GET",
       "path": "/coach-workspace/assignments",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-assignment",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
     },
@@ -5362,13 +5486,31 @@
       "tracked_by_area": "strength_references"
     },
     {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-strength-profile",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "strength_references"
+    },
+    {
       "method": "GET",
       "path": "/coach-workspace/athletes",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
     },
     {
+      "method": "POST",
+      "path": "/coach-workspace/event-compile-preview",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
       "method": "GET",
+      "path": "/coach-workspace/events",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "POST",
       "path": "/coach-workspace/events",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "events"
@@ -5392,66 +5534,6 @@
       "tracked_by_area": "product_journey"
     },
     {
-      "method": "GET",
-      "path": "/sessions/:session_id/state",
-      "source": "src/api/sessions.routes.ts",
-      "tracked_by_area": "product_journey"
-    },
-    {
-      "method": "GET",
-      "path": "/sessions/decision-summary/:run_id",
-      "source": "src/api/sessions.routes.ts",
-      "tracked_by_area": "product_journey"
-    },
-    {
-      "method": "GET",
-      "path": "/templates",
-      "source": "src/api/templates.routes.ts",
-      "tracked_by_area": "programme_library"
-    },
-    {
-      "method": "GET",
-      "path": "/templates/exercises",
-      "source": "src/api/templates.routes.ts",
-      "tracked_by_area": "programme_library"
-    },
-    {
-      "method": "POST",
-      "path": "/blocks/:block_id/sessions",
-      "source": "src/api/blocks.routes.ts",
-      "tracked_by_area": "session_execution"
-    },
-    {
-      "method": "POST",
-      "path": "/blocks/compile",
-      "source": "src/api/blocks.routes.ts",
-      "tracked_by_area": "session_execution"
-    },
-    {
-      "method": "POST",
-      "path": "/coach-workspace/athlete-assignment",
-      "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "coach_workspace"
-    },
-    {
-      "method": "POST",
-      "path": "/coach-workspace/athlete-strength-profile",
-      "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "strength_references"
-    },
-    {
-      "method": "POST",
-      "path": "/coach-workspace/event-compile-preview",
-      "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "coach_workspace"
-    },
-    {
-      "method": "POST",
-      "path": "/coach-workspace/events",
-      "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "events"
-    },
-    {
       "method": "POST",
       "path": "/sessions/:session_id/events",
       "source": "src/api/sessions.routes.ts",
@@ -5460,6 +5542,12 @@
     {
       "method": "POST",
       "path": "/sessions/:session_id/start",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/:session_id/state",
       "source": "src/api/sessions.routes.ts",
       "tracked_by_area": "product_journey"
     },
@@ -5518,10 +5606,22 @@
       "tracked_by_area": "product_journey"
     },
     {
+      "method": "GET",
+      "path": "/sessions/decision-summary/:run_id",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "product_journey"
+    },
+    {
       "method": "POST",
       "path": "/sessions/plan",
       "source": "src/api/sessions.routes.ts",
       "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "GET",
+      "path": "/templates",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
     },
     {
       "method": "POST",
@@ -5544,6 +5644,12 @@
     {
       "method": "POST",
       "path": "/templates/:template_id/duplicate",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "GET",
+      "path": "/templates/exercises",
       "source": "src/api/templates.routes.ts",
       "tracked_by_area": "programme_library"
     }

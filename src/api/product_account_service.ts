@@ -69,6 +69,17 @@ export const PRODUCT_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 export const CURRENT_TERMS_VERSION = "terms_v1";
 export const CURRENT_CONSENT_VERSION = "consent_v1";
 
+export function getCurrentProductTerms(): Readonly<JsonRecord> {
+  return Object.freeze({
+    current_terms_version:
+      CURRENT_TERMS_VERSION,
+    current_consent_version:
+      CURRENT_CONSENT_VERSION,
+    source: "server_authoritative_product_configuration",
+    acceptance_required: true
+  });
+}
+
 const PASSWORD_MIN_LENGTH = 12;
 const SESSION_TTL_MS = PRODUCT_SESSION_MAX_AGE_SECONDS * 1000;
 const CHALLENGE_TTL_MS = 30 * 60 * 1000;
@@ -271,6 +282,10 @@ function publicAccount(row: AccountRow): Readonly<JsonRecord> {
     email: row.email_canonical,
     display_name: row.display_name,
     actor_type: row.actor_type,
+    actor_home_route:
+      row.actor_type === "coach"
+        ? "#/coach/overview"
+        : "#/athlete/today",
     account_state: row.account_state,
     email_verified: Boolean(row.email_verified_at),
     email_verified_at_iso8601: row.email_verified_at,
@@ -819,6 +834,20 @@ export async function registerProductAccount(
     throw new ProductAccountError("account_acceptance_required");
   }
 
+  if (
+    cleanString(
+      input.accepted_terms_version
+    ) !== CURRENT_TERMS_VERSION ||
+    cleanString(
+      input.accepted_consent_version
+    ) !== CURRENT_CONSENT_VERSION
+  ) {
+    throw new ProductAccountError(
+      "account_acceptance_version_mismatch",
+      409
+    );
+  }
+
   if (await accountBy("email_canonical", email)) {
     throw new ProductAccountError(
       "account_email_already_registered",
@@ -1273,6 +1302,7 @@ export async function getProductAccountDetail(
   return Object.freeze({
     account: session.account,
     bootstrap: session.bootstrap,
+    terms: getCurrentProductTerms(),
     account_history: history,
     consent_history: history.filter(
       (event) =>

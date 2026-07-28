@@ -29,6 +29,7 @@ const schema = fs.readFileSync(
 );
 
 const requiredRoutes = [
+  '"/terms"',
   '"/register"',
   '"/sign-in"',
   '"/session"',
@@ -112,6 +113,31 @@ test(
         `missing service function ${functionName}`
       );
     }
+
+    assert.match(
+      service,
+      /export function getCurrentProductTerms\b/u
+    );
+
+    assert.match(
+      service,
+      /account_acceptance_version_mismatch/u
+    );
+
+    assert.match(
+      service,
+      /accepted_terms_version/u
+    );
+
+    assert.match(
+      service,
+      /accepted_consent_version/u
+    );
+
+    assert.match(
+      routes,
+      /getCurrentProductTerms/u
+    );
 
     assert.match(
       service,

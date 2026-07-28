@@ -3,6 +3,7 @@ import {
   completeEmailVerification,
   completePasswordReset,
   loadAccountDetail as fetchAccountDetail,
+  loadCurrentTerms,
   registerAccount,
   requestAccountClosure,
   requestEmailVerification,
@@ -65,7 +66,8 @@ const DEFAULT_STATE = Object.freeze({
   coachCode: "",
   csrfToken: "",
   serverAccount: null,
-  accountDetail: null
+  accountDetail: null,
+  currentTerms: null
 });
 
 const state = loadState();
@@ -371,6 +373,12 @@ const elements = {
   newPassword: document.getElementById("newPassword"),
   passwordChangeResult: document.getElementById("passwordChangeResult"),
   accountConsentHistory: document.getElementById("accountConsentHistory"),
+  entryTermsVersion: document.getElementById("entryTermsVersion"),
+  entryConsentVersion: document.getElementById("entryConsentVersion"),
+  accountCurrentTermsVersion: document.getElementById("accountCurrentTermsVersion"),
+  accountAcceptedTermsVersion: document.getElementById("accountAcceptedTermsVersion"),
+  accountCurrentConsentVersion: document.getElementById("accountCurrentConsentVersion"),
+  accountAcceptedConsentVersion: document.getElementById("accountAcceptedConsentVersion"),
   accountClosureForm: document.getElementById("accountClosureForm"),
   accountClosureConfirmation: document.getElementById("accountClosureConfirmation"),
   accountClosureResult: document.getElementById("accountClosureResult"),
@@ -520,7 +528,8 @@ function loadState() {
         : null,
       selectedCoachAthleteId: String(parsed.selectedCoachAthleteId ?? ""),
       history: Array.isArray(parsed.history) ? parsed.history : [],
-      localSessions: Array.isArray(parsed.localSessions) ? parsed.localSessions : []
+      localSessions: Array.isArray(parsed.localSessions) ? parsed.localSessions : [],
+      currentTerms: null
     };
   }
   catch {
@@ -651,6 +660,17 @@ async function readJson(response) {
   }
 }
 
+function factualAccountStateMessage(accountState) {
+  const messages = {
+    suspended: "This account is suspended. Workspace access is unavailable.",
+    closed: "This account is closed. Sign-in and workspace access are unavailable.",
+    deleted: "This account has been deleted. Sign-in and workspace access are unavailable."
+  };
+
+  return messages[String(accountState ?? "")] ??
+    "This account is not currently active.";
+}
+
 function friendlyError(payload, status) {
   const reason = String(
     payload?.reason ??
@@ -658,6 +678,12 @@ function friendlyError(payload, status) {
     payload?.error ??
     `request_${status}`
   );
+
+  if (reason === "account_unavailable") {
+    return factualAccountStateMessage(
+      payload?.account_state
+    );
+  }
 
   const messages = {
     account_email_invalid: "Enter a valid email address.",
@@ -667,6 +693,7 @@ function friendlyError(payload, status) {
     account_actor_type_invalid: "Choose an athlete or coach account.",
     account_activity_invalid: "Choose a supported primary activity.",
     account_acceptance_required: "Accept the terms and account consent before continuing.",
+    account_acceptance_version_mismatch: "The terms or consent version changed. Review the current versions and try again.",
     account_email_already_registered: "An account already uses this email address.",
     account_existing_role_mismatch: "This existing identity belongs to a different account type.",
     account_sign_in_failed: "The email or password is incorrect.",
@@ -963,6 +990,12 @@ function roleLabel() {
   return state.role === "coach" ? "Coach" : "Athlete";
 }
 
+function actorHomeView(actorType) {
+  return actorType === "coach"
+    ? "coach-overview"
+    : "today";
+}
+
 function viewTitle(view) {
   const titles = {
     today: "Today",
@@ -1060,7 +1093,7 @@ function renderRoleNavigation() {
   elements.topbarEyebrow.textContent = athlete ? "Athlete workspace" : "Coach workspace";
   elements.sidebarRole.textContent = roleLabel();
 
-  const fallbackView = athlete ? "today" : "coach-overview";
+  const fallbackView = actorHomeView(state.role);
   const permittedViews = athlete
     ? new Set(["today", "session", "history", "account"])
     : new Set(["coach-overview", "athletes", "events", "templates", "review", "account"]);
@@ -1147,7 +1180,7 @@ function applyAccountSession(
     state.view =
       state.view === "account"
         ? "account"
-        : "coach-overview";
+        : actorHomeView(state.role);
   }
   else {
     state.authRecord =
@@ -1184,17 +1217,23 @@ function applyAccountSession(
     state.view =
       state.view === "account"
         ? "account"
-        : "today";
+        : actorHomeView(state.role);
   }
 
   saveState();
 }
 
 function resetAccountState() {
+  const currentTerms =
+    state.currentTerms;
+
   Object.assign(
     state,
     cloneDefaultState()
   );
+
+  state.currentTerms =
+    currentTerms;
 
   localStorage.removeItem(
     STORAGE_KEY
@@ -1256,6 +1295,7 @@ function setEntryMode(mode) {
     createMode;
 
   elements.entryError.hidden = true;
+  renderTermsState();
 }
 
 function showEntryMessage(
@@ -1339,6 +1379,12 @@ async function handleEntrySubmit(
       const displayName =
         elements.entryName.value.trim();
 
+      if (!currentTermsAvailable()) {
+        throw new Error(
+          "Current terms and consent versions are unavailable. Account creation is disabled."
+        );
+      }
+
       if (
         !elements.entryBetaConsent.checked ||
         !elements.entryDeclarationConsent.checked
@@ -1358,7 +1404,13 @@ async function handleEntrySubmit(
             ? elements.entryActivity.value
             : null,
         accepted_terms: true,
-        accepted_consent: true
+        accepted_consent: true,
+        accepted_terms_version:
+          state.currentTerms
+            .current_terms_version,
+        accepted_consent_version:
+          state.currentTerms
+            .current_consent_version
       });
     }
     else {
@@ -9534,6 +9586,83 @@ async function recordAthleteProfileAssignment(event) {
 }
 
 
+function currentTermsAvailable() {
+  return Boolean(
+    state.currentTerms &&
+    typeof state.currentTerms === "object" &&
+    state.currentTerms
+      .current_terms_version &&
+    state.currentTerms
+      .current_consent_version
+  );
+}
+
+function renderTermsState() {
+  const account =
+    state.serverAccount ?? {};
+
+  const terms =
+    state.currentTerms ??
+    state.accountDetail?.terms ??
+    {};
+
+  const currentTerms = String(
+    terms.current_terms_version ??
+    account.current_terms_version ??
+    ""
+  );
+
+  const currentConsent = String(
+    terms.current_consent_version ??
+    account.current_consent_version ??
+    ""
+  );
+
+  const acceptedTerms = String(
+    account.accepted_terms_version ??
+    ""
+  );
+
+  const acceptedConsent = String(
+    account.accepted_consent_version ??
+    ""
+  );
+
+  elements.entryTermsVersion.textContent =
+    currentTerms || "unavailable";
+
+  elements.entryConsentVersion.textContent =
+    currentConsent || "unavailable";
+
+  elements.accountCurrentTermsVersion.textContent =
+    currentTerms || "Unavailable";
+
+  elements.accountCurrentConsentVersion.textContent =
+    currentConsent || "Unavailable";
+
+  elements.accountAcceptedTermsVersion.textContent =
+    acceptedTerms || "Not recorded";
+
+  elements.accountAcceptedConsentVersion.textContent =
+    acceptedConsent || "Not recorded";
+
+  if (elements.entrySubmit) {
+    elements.entrySubmit.disabled =
+      elements.entryMode.value === "create" &&
+      (!currentTerms || !currentConsent);
+  }
+}
+
+async function loadServerTerms() {
+  const terms =
+    await loadCurrentTerms();
+
+  state.currentTerms = terms;
+  renderTermsState();
+
+  return terms;
+}
+
 function renderAccountHistory() {
   const history = Array.isArray(
     state.accountDetail?.consent_history
@@ -9543,14 +9672,34 @@ function renderAccountHistory() {
 
   elements.accountConsentHistory.innerHTML =
     history.length
-      ? history.map((event) => `
-          <article class="record-card">
-            <div>
-              <strong>${escapeHtml(titleCase(event.event_type))}</strong>
-              <p>${escapeHtml(formatDate(event.occurred_at_iso8601))}</p>
-            </div>
-          </article>
-        `).join("")
+      ? history.map((event) => {
+          const payload =
+            event.event_payload &&
+            typeof event.event_payload === "object"
+              ? event.event_payload
+              : {};
+
+          const versions = [
+            payload.terms_version
+              ? `Terms ${payload.terms_version}`
+              : "",
+            payload.consent_version
+              ? `Consent ${payload.consent_version}`
+              : ""
+          ].filter(Boolean);
+
+          return `
+            <article class="record-card">
+              <div>
+                <strong>${escapeHtml(titleCase(event.event_type))}</strong>
+                <p>${escapeHtml(formatDate(event.occurred_at_iso8601))}</p>
+                ${versions.length > 0
+                  ? `<p class="muted small">${escapeHtml(versions.join(" · "))}</p>`
+                  : ""}
+              </div>
+            </article>
+          `;
+        }).join("")
       : '<div class="empty-state compact-empty"><p>No consent or verification events recorded.</p></div>';
 }
 
@@ -9572,11 +9721,21 @@ function renderAccount() {
   elements.accountRoleBadge.textContent =
     roleLabel();
 
-  elements.accountStateBadge.textContent =
-    titleCase(
+  const accountState =
+    String(
       account.account_state ??
       "active"
     );
+
+  elements.accountStateBadge.textContent =
+    titleCase(accountState);
+
+  elements.accountStateBadge.className =
+    accountState === "active"
+      ? "badge complete"
+      : accountState === "suspended"
+        ? "badge warning"
+        : "badge danger";
 
   elements.accountVerificationBadge.textContent =
     account.email_verified
@@ -9607,6 +9766,7 @@ function renderAccount() {
   elements.completeVerificationButton.disabled =
     account.email_verified === true;
 
+  renderTermsState();
   renderAccountHistory();
 
   let coachLinkPanel =
@@ -9693,6 +9853,15 @@ async function loadPersistentAccountDetail(
     await fetchAccountDetail();
 
   state.accountDetail = detail;
+
+  if (
+    detail.terms &&
+    typeof detail.terms === "object"
+  ) {
+    state.currentTerms =
+      detail.terms;
+  }
+
   state.csrfToken =
     detail.csrf_token ??
     state.csrfToken;
@@ -9959,6 +10128,7 @@ function showEntry() {
   elements.bootScreen.hidden = true;
   elements.appShell.hidden = true;
   elements.entryView.hidden = false;
+  renderTermsState();
 }
 
 for (const radio of document.querySelectorAll('input[name="role"]')) {
@@ -10485,6 +10655,17 @@ elements.signOutButton.addEventListener(
 );
 
 async function bootstrapApplication() {
+  let termsError = null;
+
+  try {
+    await loadServerTerms();
+  }
+  catch (error) {
+    termsError = error;
+    state.currentTerms = null;
+    renderTermsState();
+  }
+
   try {
     const response =
       await restoreAccountSession();
@@ -10507,6 +10688,12 @@ async function bootstrapApplication() {
           error.payload,
           error.status
         ),
+        true
+      );
+    }
+    else if (termsError) {
+      showEntryMessage(
+        "Current terms and consent versions are unavailable. Account creation is disabled; existing users may still sign in.",
         true
       );
     }
