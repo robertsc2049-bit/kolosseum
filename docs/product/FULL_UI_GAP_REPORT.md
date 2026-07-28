@@ -7,8 +7,8 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 127
-- partial: 50
+- implemented: 128
+- partial: 49
 - missing: 60
 - prohibited: 0
 
@@ -18,9 +18,9 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 Slice: FULL-UI-02
 
-Area state: partial
+Area state: implemented
 
-Implemented: 12 · Partial: 1 · Missing: 0 · Prohibited: 0
+Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -31,15 +31,12 @@ Implemented: 12 · Partial: 1 · Missing: 0 · Prohibited: 0
 - `password_reset` — Forgotten-password and reset flow
 - `account_state_message` — Display active, suspended, closed and deleted account states
 - `role_redirect` — Redirect to the lawful actor home route
+- `terms_version` — Display current terms and consent versions
 - `consent_history` — Display consent history
 - `profile_update` — Update display name and email
 - `password_change` — Change password
 - `account_close_request` — Request account closure
 - `sign_out` — Sign out and clear browser authentication state
-
-#### partial
-
-- `terms_version` — Display current terms and consent versions
 
 ### Athlete onboarding and declarations
 
@@ -538,18 +535,6 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 
 ## Functions without persistent integration proof
 
-- `account_sign_in` — Sign in to an existing account
-- `authenticated_session` — Persist authenticated browser session
-- `email_verification` — Display and complete email verification
-- `password_reset` — Forgotten-password and reset flow
-- `account_state_message` — Display active, suspended, closed and deleted account states
-- `role_redirect` — Redirect to the lawful actor home route
-- `terms_version` — Display current terms and consent versions
-- `consent_history` — Display consent history
-- `profile_update` — Update display name and email
-- `password_change` — Change password
-- `account_close_request` — Request account closure
-- `sign_out` — Sign out and clear browser authentication state
 - `execution_scope_declaration` — Declare execution scope
 - `beta_acknowledgement` — Accept product acknowledgement
 - `jurisdiction_acknowledgement` — Accept jurisdiction acknowledgement
@@ -709,7 +694,7 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 ## Delivery sequence
 
 - FULL-UI-01: in_progress
-- FULL-UI-02: planned
+- FULL-UI-02: implemented
 - FULL-UI-03: planned
 - FULL-UI-04: planned
 - FULL-UI-05: planned

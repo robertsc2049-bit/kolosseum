@@ -46,4 +46,4 @@ This record does not declare the live controlled beta ready. The live-beta decis
 - `2a7d9e800b6f28a995d93049547c9103495b32e1b6bcea7ae6c047f4e943405a` ? `test/beta_e2e_01_product_record_store.integration.test.mjs`
 - `e4f6f8710164200663e42e3a68065fb1c53e6fda3a0b6728ce73a84f5ba1d89c` ? `test/beta_e2e_01_stored_journey_composition.integration.test.mjs`
 - `e6ccb7d4296afc1a5a3b832a4705e7317c5b8ed432b0b3825aa1aaf107ee3693` ? `test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs`
-- `34bf9e73adf8c475ef8bad1e7f891467d5e93b6ae93cceb98f877a7fc3d8a97d` ? `ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json`
+- `07b95481e1605e50a0737d138a12a1bb895ebe7f9f544b42c872e57069d60017` ? `ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json`

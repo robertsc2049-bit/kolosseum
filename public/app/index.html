@@ -87,11 +87,17 @@
             <div id="entryConsentFields" class="consent-box">
               <label>
                 <input id="entryBetaConsent" type="checkbox" />
-                <span>I accept the current controlled-beta terms.</span>
+                <span>
+                  I accept the controlled-beta terms
+                  (<strong id="entryTermsVersion">loading current version</strong>).
+                </span>
               </label>
               <label>
                 <input id="entryDeclarationConsent" type="checkbox" />
-                <span>I consent to the account and factual product records being stored.</span>
+                <span>
+                  I consent to the account and factual product records being stored
+                  (<strong id="entryConsentVersion">loading current version</strong>).
+                </span>
               </label>
             </div>
           </div>
@@ -1576,7 +1582,31 @@
             <article class="panel">
               <div>
                 <p class="eyebrow">Terms and consent</p>
-                <h3>Account history</h3>
+                <h3>Current and accepted versions</h3>
+              </div>
+
+              <div class="commercial-fact-grid account-version-grid">
+                <div class="commercial-fact">
+                  <span>Current terms</span>
+                  <strong id="accountCurrentTermsVersion">Loading</strong>
+                </div>
+                <div class="commercial-fact">
+                  <span>Accepted terms</span>
+                  <strong id="accountAcceptedTermsVersion">Not recorded</strong>
+                </div>
+                <div class="commercial-fact">
+                  <span>Current consent</span>
+                  <strong id="accountCurrentConsentVersion">Loading</strong>
+                </div>
+                <div class="commercial-fact">
+                  <span>Accepted consent</span>
+                  <strong id="accountAcceptedConsentVersion">Not recorded</strong>
+                </div>
+              </div>
+
+              <div>
+                <p class="eyebrow">Versioned history</p>
+                <h4>Account history</h4>
               </div>
               <div id="accountConsentHistory" class="record-list compact-record-list">
                 <div class="empty-state compact-empty"><p>Loading account history…</p></div>

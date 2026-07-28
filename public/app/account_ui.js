@@ -69,6 +69,13 @@ async function request(
   return payload;
 }
 
+export function loadCurrentTerms() {
+  return request(
+    "GET",
+    "/account/terms"
+  );
+}
+
 export function registerAccount(input) {
   return request(
     "POST",
