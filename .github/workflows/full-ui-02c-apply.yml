@@ -24,12 +24,8 @@ jobs:
         uses: actions/checkout@v5
         with:
           ref: automation/full-ui-02c-identity-proof
-          fetch-depth: 0
-
-      - name: Setup Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24
+          fetch-depth: 1
+          show-progress: false
 
       - name: Apply FULL-UI-02C patch
         run: node scripts/full_ui_02c_apply.mjs
