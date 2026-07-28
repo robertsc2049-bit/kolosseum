@@ -12,62 +12,122 @@ permissions:
   contents: write
 
 concurrency:
-  group: full-ui-02c-build-diagnostic
+  group: full-ui-02c-completion
   cancel-in-progress: false
 
 jobs:
-  diagnose-build:
+  apply-prove-and-push:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kolosseum_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d kolosseum_test"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=30
+    env:
+      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/kolosseum_test
+      NODE_ENV: test
     steps:
       - name: Checkout slice branch
         uses: actions/checkout@v5
         with:
           ref: automation/full-ui-02c-identity-proof
-          fetch-depth: 1
+          fetch-depth: 0
           show-progress: false
 
-      - name: Check whether diagnostic already exists
-        id: diagnostic
-        run: |
-          if [ -f .full-ui-02c-build-error.txt ]; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Setup Node
-        if: steps.diagnostic.outputs.exists != 'true'
         uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
 
       - name: Install locked dependencies
-        if: steps.diagnostic.outputs.exists != 'true'
-        run: npm ci --silent
+        run: npm ci
 
       - name: Apply FULL-UI-02C patch
-        if: steps.diagnostic.outputs.exists != 'true'
         run: node scripts/full_ui_02c_apply.mjs
 
-      - name: Capture compiled build failure
-        if: steps.diagnostic.outputs.exists != 'true'
+      - name: Remove temporary application machinery
         run: |
-          set +e
-          npm run build:fast > /tmp/full-ui-02c-build.log 2>&1
-          build_exit=$?
-          set -e
+          rm -f scripts/full_ui_02c_apply.mjs
+          rm -rf scripts/.full_ui_02c_payload
+          rm -f .github/workflows/full-ui-02c-apply.yml
+          rm -f .full-ui-02c-build-error.txt
 
-          if [ "$build_exit" -eq 0 ]; then
-            echo "FULL-UI-02C BUILD PASSED"
-            exit 0
-          fi
+      - name: Regenerate and verify gap report
+        run: |
+          node scripts/full_ui_gap_report.mjs --write
+          node scripts/full_ui_gap_report.mjs --check
 
-          tail -n 200 /tmp/full-ui-02c-build.log > .full-ui-02c-build-error.txt
+      - name: Create exact slice commit locally
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .full-ui-02c-build-error.txt
-          git commit -m "chore(ui): record full ui 02c build failure"
-          git push origin HEAD:automation/full-ui-02c-identity-proof
-          exit "$build_exit"
+          git add -A
+          git diff --cached --check
+          git commit -m "feat(ui): close identity and account proof gaps"
+          test -z "$(git status --porcelain)"
+
+      - name: Verify final pull-request surface
+        run: |
+          cat > /tmp/full-ui-02c-expected.txt <<'EOF'
+          ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json
+          docs/product/FULL_UI_GAP_REPORT.md
+          docs/releases/BETA_E2E_01_PERSISTENT_HTTP_PRODUCT_JOURNEY.json
+          docs/releases/BETA_E2E_01_PERSISTENT_HTTP_PRODUCT_JOURNEY.md
+          product/ui/function_manifest.json
+          public/app/account_ui.js
+          public/app/app.js
+          public/app/index.html
+          src/api/product_account.routes.ts
+          src/api/product_account_service.ts
+          test/full_ui_02_account_routes.test.mjs
+          test/full_ui_02_account_ui.test.mjs
+          test/full_ui_02c_identity_account_persistent_http.integration.test.mjs
+          EOF
+          sed -i 's/^          //' /tmp/full-ui-02c-expected.txt
+          sort -o /tmp/full-ui-02c-expected.txt /tmp/full-ui-02c-expected.txt
+          git diff --name-only origin/main...HEAD | sort > /tmp/full-ui-02c-actual.txt
+          diff -u /tmp/full-ui-02c-expected.txt /tmp/full-ui-02c-actual.txt
+          git diff --check origin/main...HEAD
+
+      - name: Direct identity product proof
+        run: |
+          node --test \
+            test/full_ui_02_account_bootstrap.test.mjs \
+            test/full_ui_02_account_routes.test.mjs \
+            test/full_ui_02_account_ui.test.mjs
+          node test/beta_e2e_01_closure_evidence.test.mjs
+
+      - name: Build compiled server
+        run: npm run build:fast
+
+      - name: Apply database schema
+        run: node scripts/apply-schema.mjs --db-url "${DATABASE_URL}"
+
+      - name: Persistent identity HTTP proof
+        run: node test/full_ui_02c_identity_account_persistent_http.integration.test.mjs
+
+      - name: Full repository CI
+        run: npm run ci
+
+      - name: Full persistent integration CI
+        run: npm run test:ci:integration
+
+      - name: Confirm clean proven commit
+        run: |
+          test -z "$(git status --porcelain)"
+          git diff --check origin/main...HEAD
+          git log -1 --format=%s | grep -Fx "feat(ui): close identity and account proof gaps"
+
+      - name: Push proven slice commit
+        run: git push origin HEAD:automation/full-ui-02c-identity-proof
