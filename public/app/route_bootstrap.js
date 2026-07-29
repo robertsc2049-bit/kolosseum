@@ -1,6 +1,13 @@
+import {
+  installAthleteOnboardingUi,
+  openAthleteOnboardingView,
+  resolveAthleteOnboardingGate
+} from "./athlete_onboarding_ui.js";
+
 const STORAGE_KEY = "kolosseum.product.app.v1";
 
 export const PRODUCT_ROUTE_MAP = Object.freeze([
+  { route_id: "athlete_onboarding", pattern: "#/athlete/onboarding", view: "onboarding", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_today", pattern: "#/athlete/today", view: "today", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_session", pattern: "#/athlete/session/:session_id", view: "session", actors: ["athlete"], entity_key: "session_id" },
   { route_id: "athlete_history", pattern: "#/athlete/history", view: "history", actors: ["athlete"], entity_key: null },
@@ -108,6 +115,7 @@ export function routeForView(actor, view, entity = {}) {
     if (view === "review") return serializeProductRoute("coach_review");
   }
   else {
+    if (view === "onboarding") return serializeProductRoute("athlete_onboarding");
     if (view === "session" && entity.session_id) {
       return serializeProductRoute("athlete_session", entity);
     }
@@ -226,6 +234,33 @@ async function applyEntityRoute(route) {
   return route.entity_key === null;
 }
 
+async function resolvedAthleteRoute(route, options) {
+  installAthleteOnboardingUi();
+
+  if (route?.route_id === "shared_account") return route;
+
+  try {
+    const state = await resolveAthleteOnboardingGate();
+    if (!state) return route;
+
+    if (state.onboarding_status !== "completed" && route?.route_id !== "athlete_onboarding") {
+      const onboardingHash = serializeProductRoute("athlete_onboarding");
+      history.replaceState({ kolosseum_route: onboardingHash }, "", onboardingHash);
+      if (!options.silent) {
+        showRouteNotice("Complete athlete onboarding before opening the training workspace.");
+      }
+      return parseProductRoute(onboardingHash);
+    }
+
+    return route;
+  }
+  catch {
+    const onboardingHash = serializeProductRoute("athlete_onboarding");
+    history.replaceState({ kolosseum_route: onboardingHash }, "", onboardingHash);
+    return parseProductRoute(onboardingHash);
+  }
+}
+
 export async function applyCurrentProductRoute(options = {}) {
   const actor = readRole();
   if (!actor) return false;
@@ -240,11 +275,20 @@ export async function applyCurrentProductRoute(options = {}) {
     }
   }
 
+  if (actor === "athlete") {
+    route = await resolvedAthleteRoute(route, options);
+  }
+
   applyingRoute = true;
   try {
-    const navigation = document.querySelector(`[data-view="${escapeSelector(route.view)}"]`);
-    navigation?.click();
-    document.getElementById("sidebar")?.classList.remove("open");
+    if (route.route_id === "athlete_onboarding") {
+      await openAthleteOnboardingView();
+    }
+    else {
+      const navigation = document.querySelector(`[data-view="${escapeSelector(route.view)}"]`);
+      navigation?.click();
+      document.getElementById("sidebar")?.classList.remove("open");
+    }
 
     const entityApplied = await applyEntityRoute(route);
     if (!entityApplied && route.entity_key) {
@@ -303,6 +347,12 @@ function syncRouteFromElement(element, replace = false) {
   else history.pushState({ kolosseum_route: hash }, "", hash);
 }
 
+function scheduleRouteApplication() {
+  for (const delay of [150, 600, 1500]) {
+    setTimeout(() => applyCurrentProductRoute({ silent: true }), delay);
+  }
+}
+
 function installProductRouting() {
   document.addEventListener(
     "click",
@@ -315,9 +365,7 @@ function installProductRouting() {
     true
   );
 
-  document.getElementById("entryForm")?.addEventListener("submit", () => {
-    setTimeout(() => applyCurrentProductRoute({ silent: true }), 150);
-  });
+  document.getElementById("entryForm")?.addEventListener("submit", scheduleRouteApplication);
 
   addEventListener("hashchange", () => applyCurrentProductRoute());
   addEventListener("popstate", () => applyCurrentProductRoute());
@@ -334,6 +382,13 @@ function installProductRouting() {
       attributes: true,
       attributeFilter: ["hidden"]
     });
+  }
+
+  const appShell = document.getElementById("appShell");
+  if (appShell) {
+    new MutationObserver(() => {
+      if (!appShell.hidden) scheduleRouteApplication();
+    }).observe(appShell, { attributes: true, attributeFilter: ["hidden"] });
   }
 
   setTimeout(() => applyCurrentProductRoute({ silent: true }), 0);

@@ -1,0 +1,50 @@
+{
+  "schema_version": "FULL-UI-03C.1.0.0",
+  "slice_id": "FULL-UI-03C",
+  "area_id": "athlete_onboarding",
+  "title": "Athlete onboarding and declarations",
+  "state": "implemented",
+  "route": {
+    "route_id": "athlete_onboarding",
+    "pattern": "#/athlete/onboarding",
+    "view": "onboarding",
+    "actors": ["athlete"],
+    "state": "implemented"
+  },
+  "functions": [
+    "onboarding_staged",
+    "activity_declaration",
+    "execution_scope_declaration",
+    "beta_acknowledgement",
+    "jurisdiction_acknowledgement",
+    "accessibility_preferences",
+    "onboarding_review",
+    "onboarding_completion",
+    "declaration_history"
+  ],
+  "api_routes": [
+    "GET /account/onboarding/",
+    "PATCH /account/onboarding/draft",
+    "POST /account/onboarding/confirm",
+    "PATCH /account/onboarding/preferences"
+  ],
+  "persistence": "append_only_server_account_events",
+  "direct_test": "test/full_ui_03c_athlete_onboarding.test.mjs",
+  "integration_test": "test/full_ui_03c_athlete_onboarding_persistent_http.integration.test.mjs",
+  "coverage": {
+    "incomplete": "covered",
+    "validation_failure": "covered",
+    "saved_draft": "covered",
+    "completed": "covered",
+    "current": "covered",
+    "superseded": "covered",
+    "unavailable": "covered",
+    "fresh_process": "covered"
+  },
+  "inference_boundary": {
+    "ability": "prohibited",
+    "safety": "prohibited",
+    "readiness": "prohibited",
+    "suitability": "prohibited"
+  }
+}
