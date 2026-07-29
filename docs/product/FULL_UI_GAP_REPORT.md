@@ -7,8 +7,8 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 137
-- partial: 44
+- implemented: 139
+- partial: 42
 - missing: 56
 - prohibited: 0
 
@@ -62,23 +62,20 @@ Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 Slice: FULL-UI-04
 
-Area state: partial
+Area state: implemented
 
-Implemented: 6 · Partial: 2 · Missing: 0 · Prohibited: 0
+Implemented: 8 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
+- `coach_profile_setup` — Create coach profile
+- `coach_terms` — Accept coach terms
 - `subscription_state` — Display current subscription state
 - `seat_allowance` — Display seat allowance and usage
 - `checkout_entry` — Open checkout
 - `payment_return` — Handle payment success and cancellation
 - `billing_portal` — Open billing portal
 - `entitlement_error` — Display factual entitlement failure
-
-#### partial
-
-- `coach_profile_setup` — Create coach profile
-- `coach_terms` — Accept coach terms
 
 ### Coach–athlete relationships
 
@@ -532,14 +529,6 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 
 ## Functions without persistent integration proof
 
-- `coach_profile_setup` — Create coach profile
-- `coach_terms` — Accept coach terms
-- `subscription_state` — Display current subscription state
-- `seat_allowance` — Display seat allowance and usage
-- `checkout_entry` — Open checkout
-- `payment_return` — Handle payment success and cancellation
-- `billing_portal` — Open billing portal
-- `entitlement_error` — Display factual entitlement failure
 - `relationship_accept` — Accept relationship
 - `relationship_lists` — Display pending and accepted relationships
 - `relationship_audit` — Display relationship detail and audit facts

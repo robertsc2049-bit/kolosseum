@@ -4,10 +4,17 @@ import {
   resolveAthleteOnboardingGate
 } from "./athlete_onboarding_ui.js";
 
+import {
+  installCoachOnboardingUi,
+  openCoachOnboardingView,
+  resolveCoachOnboardingGate
+} from "./coach_onboarding_ui.js";
+
 const STORAGE_KEY = "kolosseum.product.app.v1";
 
 export const PRODUCT_ROUTE_MAP = Object.freeze([
   { route_id: "athlete_onboarding", pattern: "#/athlete/onboarding", view: "onboarding", actors: ["athlete"], entity_key: null },
+  { route_id: "coach_onboarding", pattern: "#/coach/onboarding", view: "coach-onboarding", actors: ["coach"], entity_key: null },
   { route_id: "athlete_today", pattern: "#/athlete/today", view: "today", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_session", pattern: "#/athlete/session/:session_id", view: "session", actors: ["athlete"], entity_key: "session_id" },
   { route_id: "athlete_history", pattern: "#/athlete/history", view: "history", actors: ["athlete"], entity_key: null },
@@ -96,6 +103,7 @@ export function fallbackRouteForActor(actor) {
 
 export function routeForView(actor, view, entity = {}) {
   if (actor === "coach") {
+    if (view === "coach-onboarding") return serializeProductRoute("coach_onboarding");
     if (view === "coach-overview") return serializeProductRoute("coach_overview");
     if (view === "athletes" && entity.athlete_id) {
       return serializeProductRoute("coach_athlete_detail", entity);
@@ -261,6 +269,43 @@ async function resolvedAthleteRoute(route, options) {
   }
 }
 
+async function resolvedCoachRoute(route, options) {
+  installCoachOnboardingUi();
+
+  if (route?.route_id === "shared_account") return route;
+
+  try {
+    const state = await resolveCoachOnboardingGate();
+
+    if (!state) {
+      const onboardingHash = serializeProductRoute("coach_onboarding");
+      history.replaceState({ kolosseum_route: onboardingHash }, "", onboardingHash);
+      return parseProductRoute(onboardingHash);
+    }
+
+    if (
+      state.onboarding_status !== "completed" &&
+      route?.route_id !== "coach_onboarding"
+    ) {
+      const onboardingHash = serializeProductRoute("coach_onboarding");
+      history.replaceState({ kolosseum_route: onboardingHash }, "", onboardingHash);
+
+      if (!options.silent) {
+        showRouteNotice("Complete coach onboarding before opening the coach workspace.");
+      }
+
+      return parseProductRoute(onboardingHash);
+    }
+
+    return route;
+  }
+  catch {
+    const onboardingHash = serializeProductRoute("coach_onboarding");
+    history.replaceState({ kolosseum_route: onboardingHash }, "", onboardingHash);
+    return parseProductRoute(onboardingHash);
+  }
+}
+
 export async function applyCurrentProductRoute(options = {}) {
   const actor = readRole();
   if (!actor) return false;
@@ -278,11 +323,17 @@ export async function applyCurrentProductRoute(options = {}) {
   if (actor === "athlete") {
     route = await resolvedAthleteRoute(route, options);
   }
+  else if (actor === "coach") {
+    route = await resolvedCoachRoute(route, options);
+  }
 
   applyingRoute = true;
   try {
     if (route.route_id === "athlete_onboarding") {
       await openAthleteOnboardingView();
+    }
+    else if (route.route_id === "coach_onboarding") {
+      await openCoachOnboardingView();
     }
     else {
       const navigation = document.querySelector(`[data-view="${escapeSelector(route.view)}"]`);

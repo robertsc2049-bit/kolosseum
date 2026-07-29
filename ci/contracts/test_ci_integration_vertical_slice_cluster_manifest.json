@@ -10,6 +10,7 @@
     "node test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs",
     "node test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
     "node test/full_ui_03c_athlete_onboarding_persistent_http.integration.test.mjs",
+    "node test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
     "node test/beta_18_template_builder.integration.test.mjs",
     "node test/event_programme_compiler_service.test.mjs",
     "node test/beta19_coach_event_service.test.mjs",

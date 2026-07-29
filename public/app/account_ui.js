@@ -237,3 +237,46 @@ export function requestCommercialBillingPortal(
     csrfToken
   );
 }
+
+export function loadCoachOnboardingState() {
+  return request(
+    "GET",
+    "/account/coach-onboarding"
+  );
+}
+
+export function saveCoachOnboardingProfile(
+  input,
+  csrfToken
+) {
+  return request(
+    "PATCH",
+    "/account/coach-onboarding/profile",
+    input,
+    csrfToken
+  );
+}
+
+export function acceptCoachOnboardingTerms(
+  input,
+  csrfToken
+) {
+  return request(
+    "POST",
+    "/account/coach-onboarding/terms",
+    input,
+    csrfToken
+  );
+}
+
+export function completeCoachOnboarding(
+  input,
+  csrfToken
+) {
+  return request(
+    "POST",
+    "/account/coach-onboarding/complete",
+    input,
+    csrfToken
+  );
+}

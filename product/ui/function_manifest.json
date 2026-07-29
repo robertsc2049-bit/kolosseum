@@ -27,6 +27,16 @@
       "state": "implemented"
     },
     {
+      "route_id": "coach_onboarding",
+      "pattern": "#/coach/onboarding",
+      "view": "coach-onboarding",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
       "route_id": "athlete_today",
       "pattern": "#/athlete/today",
       "view": "today",
@@ -707,7 +717,7 @@
       "area_id": "coach_commercial",
       "title": "Coach onboarding and commercial state",
       "slice_id": "FULL-UI-04",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "coach_profile_setup",
@@ -715,20 +725,21 @@
           "actors": [
             "coach"
           ],
-          "route_id": "shared_account",
+          "route_id": "coach_onboarding",
           "api_routes": [
-            "/sessions/beta-coach-profile"
+            "/account/coach-onboarding",
+            "/account/coach-onboarding/profile"
           ],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "persistence": "append_only_account_events_and_immutable_coach_profile_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_04c_coach_commercial.test.mjs",
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -737,18 +748,22 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "route_id": "coach_onboarding",
+          "api_routes": [
+            "/account/coach-onboarding",
+            "/account/coach-onboarding/terms",
+            "/account/coach-onboarding/complete"
+          ],
+          "persistence": "append_only_account_events",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_04c_coach_commercial.test.mjs",
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -757,18 +772,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/commercial"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -777,18 +794,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/commercial"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -797,18 +816,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/commercial/checkout"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -817,18 +838,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/commercial/payment-return"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -837,18 +860,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/commercial/portal"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -857,18 +882,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/commercial"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
