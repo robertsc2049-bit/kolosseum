@@ -379,6 +379,10 @@
     {
       "kind": "command",
       "value": "node test/full_ui_01_completion_guard.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/full_ui_03c_athlete_onboarding.test.mjs"
     }
   ]
 }

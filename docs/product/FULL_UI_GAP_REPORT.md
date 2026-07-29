@@ -7,9 +7,9 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 128
-- partial: 49
-- missing: 60
+- implemented: 137
+- partial: 44
+- missing: 56
 - prohibited: 0
 
 ## Product areas
@@ -42,23 +42,20 @@ Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 Slice: FULL-UI-03
 
-Area state: partial
+Area state: implemented
 
-Implemented: 0 · Partial: 5 · Missing: 4 · Prohibited: 0
+Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 
-#### partial
+#### implemented
 
+- `onboarding_staged` — Complete staged athlete onboarding
 - `activity_declaration` — Declare activity
 - `execution_scope_declaration` — Declare execution scope
 - `beta_acknowledgement` — Accept product acknowledgement
 - `jurisdiction_acknowledgement` — Accept jurisdiction acknowledgement
-- `onboarding_completion` — Persist onboarding completion state
-
-#### missing
-
-- `onboarding_staged` — Complete staged athlete onboarding
 - `accessibility_preferences` — Set accessibility and instruction-density preferences
 - `onboarding_review` — Review and confirm onboarding declarations
+- `onboarding_completion` — Persist onboarding completion state
 - `declaration_history` — Display current and historical declarations
 
 ### Coach onboarding and commercial state
@@ -535,10 +532,6 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 
 ## Functions without persistent integration proof
 
-- `execution_scope_declaration` — Declare execution scope
-- `beta_acknowledgement` — Accept product acknowledgement
-- `jurisdiction_acknowledgement` — Accept jurisdiction acknowledgement
-- `onboarding_completion` — Persist onboarding completion state
 - `coach_profile_setup` — Create coach profile
 - `coach_terms` — Accept coach terms
 - `subscription_state` — Display current subscription state
