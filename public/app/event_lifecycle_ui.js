@@ -532,9 +532,11 @@ function initialise() {
   }
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initialise, { once: true });
-}
-else {
-  initialise();
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialise, { once: true });
+  }
+  else {
+    initialise();
+  }
 }
