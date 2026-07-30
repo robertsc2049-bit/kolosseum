@@ -1,7 +1,7 @@
 // DEV NOTE: FULL-UI-08C immutable strength-reference lifecycle law.
 // This module performs factual selection, unit presentation, programme preflight,
 // immutable replacement validation and resolved-load source reconstruction.
-// It does not infer readiness, suitability, safety, capability or recommendation.
+// The module is limited to declared facts and deterministic reconstruction.
 
 const SOURCE_TYPES =
   new Set([

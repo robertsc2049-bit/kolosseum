@@ -67,6 +67,7 @@ const explicitLaterSliceAllowedChangedPaths =
     "ci/guards/golden_manifest_guard.mjs",
     "LOCKFILE_CHANGE_NOTE.md",
     "package-lock.json",
+    "product/ui/full_ui_08c_strength_reference_lifecycle_closure.json",
     "product/ui/function_manifest.json",
     "public/app/account_ui.js",
     "public/app/app.js",

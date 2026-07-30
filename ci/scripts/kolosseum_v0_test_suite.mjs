@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -32,6 +33,16 @@ const allowedReadModelRelativeFiles = new Set([
   "src/api/coachReviewQueueApi.mjs",
   "src/coachReviewQueueProjection.mjs",
 ]);
+
+// Exact active surface that names forbidden inference fields solely to reject
+// them. The exception remains valid only while all matched language is confined
+// to the verified rejection-key declaration and the rejection path remains.
+const allowedInferenceDenialRelativeFiles = new Set([
+  "src/api/athlete_onboarding_service.ts"
+]);
+
+const postV0AnalyticsPattern =
+  /\breadiness[_ -]?scor|\boutcome[_ -]?evaluation|\branking|\brankings|\bdashboard/i;
 
 function normalisePath(value) {
   return String(value ?? "").replaceAll("\\", "/");
@@ -76,6 +87,41 @@ function isAllowedV1BoundaryFailure(failure) {
     return details.includes("Post-v0 analytics");
   }
 
+  if (matchesAllowedFile(file, allowedInferenceDenialRelativeFiles)) {
+    if (!details.includes("Post-v0 analytics")) {
+      return false;
+    }
+
+    const sourcePath = path.isAbsolute(file)
+      ? file
+      : path.join(process.cwd(), file);
+
+    try {
+      const source = fs.readFileSync(sourcePath, "utf8");
+      const denialBlockPattern =
+        /const INFERENCE_KEYS = new Set\(\[[\s\S]*?\]\);/u;
+      const denialBlock = source.match(denialBlockPattern)?.[0] ?? "";
+
+      if (
+        !denialBlock ||
+        !source.includes("if (INFERENCE_KEYS.has(key))") ||
+        !source.includes('"athlete_onboarding_inference_field_prohibited"')
+      ) {
+        return false;
+      }
+
+      const remainingSource = source
+        .replace(denialBlockPattern, "")
+        .split(/\r?\n/u)
+        .map((line) => line.replace(/\/\/.*$/u, ""))
+        .join("\n");
+
+      return !postV0AnalyticsPattern.test(remainingSource);
+    } catch {
+      return false;
+    }
+  }
+
   return false;
 }
 
@@ -107,7 +153,8 @@ if (result.status === 0) {
         allowed_failure_count: failures.length,
         allowed_files: [
           ...allowedPhase8RelativeFiles,
-          ...allowedReadModelRelativeFiles
+          ...allowedReadModelRelativeFiles,
+          ...allowedInferenceDenialRelativeFiles
         ],
         original_failures: failures
       }
