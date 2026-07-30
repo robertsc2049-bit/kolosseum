@@ -72,6 +72,7 @@ const explicitLaterSliceAllowedChangedPaths =
     "public/app/account_ui.js",
     "public/app/app.js",
     "public/app/commercial_ui.js",
+    "public/app/event_lifecycle_ui.js",
     "public/app/index.html",
     "public/app/route_bootstrap.js",
     "public/app/styles.css",
