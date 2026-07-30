@@ -188,7 +188,7 @@ test("standalone coach event links through athlete profile and reaches compile o
         effective_date: dateOnlyFromNow(0),
         source_note: "Standalone event integration proof"
       })),
-      updated_at_iso8601: timestamp
+      expected_current_record_sha256: null
     }), 201, "strength profile");
 
     const event = await request(baseUrl, "POST", "/coach-workspace/events", {

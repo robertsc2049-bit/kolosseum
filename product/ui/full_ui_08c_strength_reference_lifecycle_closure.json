@@ -1,5 +1,5 @@
 {
-  "schema_version": "FULL-UI-08C.1.0.0",
+  "schema_version": "FULL-UI-08C.1.1.0",
   "slice_id": "FULL-UI-08C",
   "area_id": "strength_references",
   "title": "Strength-Reference Lifecycle Closure",
@@ -28,6 +28,11 @@
   ],
   "immutable_replacement": "new_effective_record_only",
   "historical_mutation": "forbidden",
+  "concurrent_write_serialization": "postgres_transaction_advisory_lock_per_coach_athlete_pair",
+  "write_precondition": "expected_current_record_sha256",
+  "stale_write_failure_token": "strength_reference_profile_stale_write",
+  "ordering_time_authority": "postgres_server_clock",
+  "linear_history_chain": "profile_version_and_previous_profile_record_sha256",
   "current_selection": "latest_effective_record_not_after_as_of_date",
   "display_conversion": "presentation_only_source_value_unchanged",
   "missing_reference_preflight": "selected_programme_percentage_requirements_compared_to_current_effective_records",

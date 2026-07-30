@@ -101,8 +101,6 @@ test(
     const initialTimestamp =
       "2026-07-01T09:00:00.000Z";
 
-    const replacementTimestamp =
-      "2026-07-15T09:00:00.000Z";
 
     await persistBetaProductRecord(
       recordWithHash({
@@ -237,8 +235,8 @@ test(
               null
           }
         ],
-        updated_at_iso8601:
-          initialTimestamp
+        expected_current_record_sha256:
+          null
       });
 
     assert.equal(
@@ -301,8 +299,8 @@ test(
               initialReferenceId
           }
         ],
-        updated_at_iso8601:
-          replacementTimestamp
+        expected_current_record_sha256:
+          initialProfile.record_sha256
       });
 
     const current =
@@ -563,6 +561,377 @@ test(
       initialReferenceId
     );
 
+    const concurrentSuffix =
+      randomUUID()
+        .replaceAll("-", "")
+        .slice(0, 16);
+
+    const concurrentCoachUserId =
+      `coach_full_ui_08c_concurrent_${concurrentSuffix}`;
+
+    const concurrentAthleteUserId =
+      `athlete_full_ui_08c_concurrent_${concurrentSuffix}`;
+
+    const concurrentInitialReferenceId =
+      `reference_concurrent_initial_${concurrentSuffix}`;
+
+    const concurrentReplacementAId =
+      `reference_concurrent_a_${concurrentSuffix}`;
+
+    const concurrentReplacementBId =
+      `reference_concurrent_b_${concurrentSuffix}`;
+
+    const concurrentSetupTimestamp =
+      new Date()
+        .toISOString();
+
+    await persistBetaProductRecord(
+      recordWithHash({
+        record_type:
+          "beta17_coach_profile",
+        coach_user_id:
+          concurrentCoachUserId,
+        coach_profile_id:
+          `profile_concurrent_${concurrentSuffix}`,
+        display_name:
+          "FULL-UI-08C Concurrent Coach",
+        account_role:
+          "coach",
+        account_state:
+          "active",
+        created_at_iso8601:
+          concurrentSetupTimestamp
+      })
+    );
+
+    await persistBetaProductRecord(
+      recordWithHash({
+        record_type:
+          "beta17_coach_relationship",
+        relationship_id:
+          `relationship_concurrent_${concurrentSuffix}`,
+        coach_user_id:
+          concurrentCoachUserId,
+        athlete_user_id:
+          concurrentAthleteUserId,
+        relationship_state:
+          "accepted",
+        updated_at_iso8601:
+          concurrentSetupTimestamp
+      })
+    );
+
+    const concurrentBaseBenchmark = {
+      benchmark_id:
+        concurrentInitialReferenceId,
+      exercise_id:
+        exerciseId,
+      value:
+        120,
+      unit:
+        "kg",
+      basis:
+        "tested_1rm",
+      effective_date:
+        "2026-07-01",
+      source_note:
+        "Concurrent-write base",
+      replaces_reference_id:
+        null
+    };
+
+    const serverTimeBefore =
+      Date.now();
+
+    const concurrentInitialProfile =
+      await saveAthleteStrengthProfile({
+        coach_user_id:
+          concurrentCoachUserId,
+        athlete_user_id:
+          concurrentAthleteUserId,
+        preferred_weight_unit:
+          "kg",
+        load_rounding_increment:
+          2.5,
+        bodyweight:
+          null,
+        bodyweight_unit:
+          "kg",
+        benchmarks: [
+          concurrentBaseBenchmark
+        ],
+        expected_current_record_sha256:
+          null
+      });
+
+    const serverTimeAfter =
+      Date.now();
+
+    const concurrentInitialTime =
+      Date.parse(
+        concurrentInitialProfile
+          .updated_at_iso8601
+      );
+
+    assert.ok(
+      concurrentInitialTime >=
+        serverTimeBefore - 1000 &&
+      concurrentInitialTime <=
+        serverTimeAfter + 1000,
+      "Profile ordering time must come from the database transaction."
+    );
+
+    assert.equal(
+      concurrentInitialProfile
+        .ordering_time_authority,
+      "postgres_server_clock"
+    );
+
+    assert.equal(
+      concurrentInitialProfile
+        .profile_version,
+      1
+    );
+
+    assert.equal(
+      concurrentInitialProfile
+        .previous_profile_record_sha256,
+      null
+    );
+
+    const replacementInput =
+      (
+        benchmarkId,
+        value
+      ) => ({
+        coach_user_id:
+          concurrentCoachUserId,
+        athlete_user_id:
+          concurrentAthleteUserId,
+        preferred_weight_unit:
+          "kg",
+        load_rounding_increment:
+          2.5,
+        bodyweight:
+          null,
+        bodyweight_unit:
+          "kg",
+        benchmarks: [
+          concurrentBaseBenchmark,
+          {
+            benchmark_id:
+              benchmarkId,
+            exercise_id:
+              exerciseId,
+            value,
+            unit:
+              "kg",
+            basis:
+              "estimated_1rm",
+            effective_date:
+              "2026-07-20",
+            source_note:
+              "Concurrent replacement",
+            replaces_reference_id:
+              concurrentInitialReferenceId
+          }
+        ],
+        expected_current_record_sha256:
+          concurrentInitialProfile
+            .record_sha256
+      });
+
+    const concurrentOutcomes =
+      await Promise.allSettled([
+        saveAthleteStrengthProfile(
+          replacementInput(
+            concurrentReplacementAId,
+            125
+          )
+        ),
+        saveAthleteStrengthProfile(
+          replacementInput(
+            concurrentReplacementBId,
+            127.5
+          )
+        )
+      ]);
+
+    const acceptedWrites =
+      concurrentOutcomes.filter(
+        (outcome) =>
+          outcome.status ===
+            "fulfilled"
+      );
+
+    const rejectedWrites =
+      concurrentOutcomes.filter(
+        (outcome) =>
+          outcome.status ===
+            "rejected"
+      );
+
+    assert.equal(
+      acceptedWrites.length,
+      1,
+      "Exactly one concurrent replacement may succeed."
+    );
+
+    assert.equal(
+      rejectedWrites.length,
+      1,
+      "The competing replacement must be rejected."
+    );
+
+    assert.equal(
+      rejectedWrites[0]
+        .reason
+        ?.reason,
+      "strength_reference_profile_stale_write"
+    );
+
+    const acceptedProfile =
+      acceptedWrites[0]
+        .value;
+
+    const acceptedReferenceId =
+      acceptedProfile
+        .benchmarks
+        .at(-1)
+        .benchmark_id;
+
+    assert.ok(
+      [
+        concurrentReplacementAId,
+        concurrentReplacementBId
+      ].includes(
+        acceptedReferenceId
+      )
+    );
+
+    const concurrentCurrent =
+      await loadAthleteStrengthProfile(
+        concurrentCoachUserId,
+        concurrentAthleteUserId
+      );
+
+    assert.equal(
+      concurrentCurrent
+        .record_sha256,
+      acceptedProfile
+        .record_sha256
+    );
+
+    assert.equal(
+      concurrentCurrent
+        .profile_version,
+      2
+    );
+
+    assert.equal(
+      concurrentCurrent
+        .previous_profile_record_sha256,
+      concurrentInitialProfile
+        .record_sha256
+    );
+
+    assert.deepEqual(
+      concurrentCurrent
+        .benchmarks
+        .map(
+          (benchmark) =>
+            benchmark.benchmark_id
+        ),
+      [
+        concurrentInitialReferenceId,
+        acceptedReferenceId
+      ]
+    );
+
+    assert.equal(
+      concurrentCurrent
+        .strength_reference_lifecycle
+        .current[0]
+        .reference_id,
+      acceptedReferenceId
+    );
+
+    assert.equal(
+      concurrentCurrent
+        .strength_reference_lifecycle
+        .superseded[0]
+        .reference_id,
+      concurrentInitialReferenceId
+    );
+
+    const concurrentRows =
+      await pool.query(
+        `
+        SELECT record_payload
+        FROM beta_product_records
+        WHERE
+          record_type =
+            'beta19_athlete_strength_profile'
+          AND actor_user_id = $1
+          AND subject_user_id = $2
+        ORDER BY
+          COALESCE(
+            NULLIF(
+              record_payload ->> 'profile_version',
+              ''
+            )::integer,
+            1
+          ) ASC
+        `,
+        [
+          concurrentCoachUserId,
+          concurrentAthleteUserId
+        ]
+      );
+
+    assert.equal(
+      concurrentRows.rowCount,
+      2,
+      "Only the initial record and one replacement may persist."
+    );
+
+    const concurrentProfiles =
+      concurrentRows.rows.map(
+        (row) =>
+          row.record_payload
+      );
+
+    assert.deepEqual(
+      concurrentProfiles.map(
+        (profile) =>
+          profile.profile_version
+      ),
+      [
+        1,
+        2
+      ]
+    );
+
+    assert.equal(
+      concurrentProfiles[1]
+        .previous_profile_record_sha256,
+      concurrentProfiles[0]
+        .record_sha256
+    );
+
+    assert.deepEqual(
+      concurrentProfiles[1]
+        .benchmarks
+        .slice(
+          0,
+          concurrentProfiles[0]
+            .benchmarks
+            .length
+        ),
+      concurrentProfiles[0]
+        .benchmarks,
+      "Every accepted predecessor must remain in the linear lifecycle."
+    );
     await pool.end();
   }
 );

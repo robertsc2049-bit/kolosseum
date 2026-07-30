@@ -7,6 +7,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import {
@@ -23,6 +24,7 @@ import {
 } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 
 type JsonRecord = Record<string, unknown>;
+type QueryClient = Pick<PoolClient, "query">;
 
 export class Beta19CoachWorkspaceError extends Error {
   readonly reason: string;
@@ -328,7 +330,7 @@ function normaliseProfileInput(input: JsonRecord): Readonly<JsonRecord> {
       "bodyweight",
       "bodyweight_unit",
       "benchmarks",
-      "updated_at_iso8601"
+      "expected_current_record_sha256"
     ],
     "athlete_profile"
   );
@@ -385,10 +387,34 @@ function normaliseProfileInput(input: JsonRecord): Readonly<JsonRecord> {
     benchmarkIds.add(benchmarkId);
   }
 
-  const updatedAt = iso8601(
-    input.updated_at_iso8601 ?? new Date().toISOString(),
-    "updated_at_invalid"
-  );
+  if (
+    !Object.prototype.hasOwnProperty.call(
+      input,
+      "expected_current_record_sha256"
+    )
+  ) {
+    throw new Beta19CoachWorkspaceError(
+      "strength_reference_expected_current_hash_required"
+    );
+  }
+
+  const expectedCurrentRecordSha256 =
+    input.expected_current_record_sha256 === null
+      ? null
+      : cleanString(
+          input.expected_current_record_sha256
+        );
+
+  if (
+    expectedCurrentRecordSha256 !== null &&
+    !/^[a-f0-9]{64}$/u.test(
+      expectedCurrentRecordSha256
+    )
+  ) {
+    throw new Beta19CoachWorkspaceError(
+      "strength_reference_expected_current_hash_invalid"
+    );
+  }
 
   return deepFreeze({
     coach_user_id: coachUserId,
@@ -398,7 +424,8 @@ function normaliseProfileInput(input: JsonRecord): Readonly<JsonRecord> {
     bodyweight,
     bodyweight_unit: bodyweightUnit,
     benchmarks,
-    updated_at_iso8601: updatedAt
+    expected_current_record_sha256:
+      expectedCurrentRecordSha256
   });
 }
 
@@ -645,11 +672,57 @@ export async function listCoachAssignments(
   return deepFreeze(lifecycleRecords);
 }
 
+async function loadStoredStrengthProfileRecord(
+  client: QueryClient,
+  coachUserId: string,
+  athleteUserId: string,
+  lockForUpdate = false
+): Promise<JsonRecord | null> {
+  const result =
+    await client.query(
+      `
+      SELECT record_payload
+      FROM beta_product_records
+      WHERE
+        record_type =
+          'beta19_athlete_strength_profile'
+        AND actor_user_id = $1
+        AND subject_user_id = $2
+      ORDER BY
+        COALESCE(
+          NULLIF(
+            record_payload ->> 'profile_version',
+            ''
+          )::integer,
+          1
+        ) DESC,
+        effective_at DESC,
+        created_at DESC,
+        record_sha256 DESC
+      LIMIT 1
+      ${lockForUpdate ? "FOR UPDATE" : ""}
+      `,
+      [
+        coachUserId,
+        athleteUserId
+      ]
+    );
+
+  const payload =
+    result.rows?.[0]
+      ?.record_payload;
+
+  return isRecord(payload)
+    ? payload
+    : null;
+}
 export async function saveAthleteStrengthProfile(
   input: unknown
 ): Promise<Readonly<JsonRecord>> {
   if (!isRecord(input)) {
-    throw new Beta19CoachWorkspaceError("input_invalid");
+    throw new Beta19CoachWorkspaceError(
+      "input_invalid"
+    );
   }
 
   const normalised =
@@ -670,100 +743,211 @@ export async function saveAthleteStrengthProfile(
     athleteUserId
   );
 
-  const previousProfile =
-    await loadAthleteStrengthProfile(
-      coachUserId,
-      athleteUserId
-    );
-
-  let immutableBenchmarks:
-    readonly Readonly<JsonRecord>[];
+  const client =
+    await pool.connect();
 
   try {
-    immutableBenchmarks =
-      assertImmutableStrengthReferenceAppend(
-        previousProfile?.benchmarks ?? [],
-        normalised.benchmarks
-      ) as
-        readonly Readonly<JsonRecord>[];
-  }
-  catch (error) {
-    const code =
-      isRecord(error) &&
-      typeof error.code === "string"
-        ? error.code
-        : "strength_reference_history_invalid";
-
-    throw new Beta19CoachWorkspaceError(
-      code
+    await client.query(
+      "BEGIN"
     );
-  }
 
-  const profileId =
-    `beta19_athlete_profile_${sha256({
-      coachUserId,
-      athleteUserId
-    }).slice(0, 24)}`;
+    await client.query(
+      `
+      SELECT pg_advisory_xact_lock(
+        hashtextextended($1, 0)
+      )
+      `,
+      [
+        `full_ui_08c_strength_profile:${coachUserId}:${athleteUserId}`
+      ]
+    );
 
-  const recordWithoutHash =
-    deepFreeze({
-      record_type:
-        "beta19_athlete_strength_profile",
-      profile_id:
-        profileId,
-      contract_version:
-        "full_ui_08c.1.0.0",
-      coach_user_id:
+    const previousProfile =
+      await loadStoredStrengthProfileRecord(
+        client,
         coachUserId,
-      athlete_user_id:
         athleteUserId,
-      preferred_weight_unit:
-        normalised.preferred_weight_unit,
-      load_rounding_increment:
-        normalised.load_rounding_increment,
-      bodyweight:
-        normalised.bodyweight,
-      bodyweight_unit:
-        normalised.bodyweight_unit,
-      benchmarks:
-        immutableBenchmarks,
-      updated_at_iso8601:
-        normalised.updated_at_iso8601,
-      factual_user_supplied_state: true,
-      immutable_reference_history: true,
-      inference_applied: false,
-      readiness_semantics: false,
-      safety_semantics: false,
-      suitability_semantics: false,
-      recommendation_semantics: false,
-      engine_visible: false,
-      compile_reference_visible:
         true
-    });
+      );
 
-  const persisted =
-    await persistBetaProductRecord(
+    const currentRecordSha256 =
+      previousProfile
+        ? cleanString(
+            previousProfile.record_sha256
+          )
+        : null;
+
+    if (
+      normalised
+        .expected_current_record_sha256 !==
+      currentRecordSha256
+    ) {
+      throw new Beta19CoachWorkspaceError(
+        "strength_reference_profile_stale_write"
+      );
+    }
+
+    let immutableBenchmarks:
+      readonly Readonly<JsonRecord>[];
+
+    try {
+      immutableBenchmarks =
+        assertImmutableStrengthReferenceAppend(
+          previousProfile?.benchmarks ?? [],
+          normalised.benchmarks
+        ) as
+          readonly Readonly<JsonRecord>[];
+    }
+    catch (error) {
+      const code =
+        isRecord(error) &&
+        typeof error.code === "string"
+          ? error.code
+          : "strength_reference_history_invalid";
+
+      throw new Beta19CoachWorkspaceError(
+        code
+      );
+    }
+
+    const previousProfileVersion =
+      previousProfile
+        ? Number(
+            previousProfile
+              .profile_version ?? 1
+          )
+        : 0;
+
+    if (
+      !Number.isInteger(
+        previousProfileVersion
+      ) ||
+      previousProfileVersion < 0
+    ) {
+      throw new Beta19CoachWorkspaceError(
+        "strength_reference_profile_version_invalid"
+      );
+    }
+
+    const serverClock =
+      await client.query(
+        `
+        SELECT to_char(
+          clock_timestamp()
+            AT TIME ZONE 'UTC',
+          'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
+        ) AS server_now
+        `
+      );
+
+    const updatedAt =
+      iso8601(
+        serverClock.rows?.[0]
+          ?.server_now,
+        "strength_reference_server_time_invalid"
+      );
+
+    const profileId =
+      `beta19_athlete_profile_${sha256({
+        coachUserId,
+        athleteUserId
+      }).slice(0, 24)}`;
+
+    const recordWithoutHash =
+      deepFreeze({
+        record_type:
+          "beta19_athlete_strength_profile",
+        profile_id:
+          profileId,
+        contract_version:
+          "full_ui_08c.1.1.0",
+        profile_version:
+          previousProfileVersion + 1,
+        previous_profile_record_sha256:
+          currentRecordSha256,
+        coach_user_id:
+          coachUserId,
+        athlete_user_id:
+          athleteUserId,
+        preferred_weight_unit:
+          normalised.preferred_weight_unit,
+        load_rounding_increment:
+          normalised.load_rounding_increment,
+        bodyweight:
+          normalised.bodyweight,
+        bodyweight_unit:
+          normalised.bodyweight_unit,
+        benchmarks:
+          immutableBenchmarks,
+        updated_at_iso8601:
+          updatedAt,
+        ordering_time_authority:
+          "postgres_server_clock",
+        factual_user_supplied_state: true,
+        immutable_reference_history: true,
+        inference_applied: false,
+        readiness_semantics: false,
+        safety_semantics: false,
+        suitability_semantics: false,
+        recommendation_semantics: false,
+        engine_visible: false,
+        compile_reference_visible:
+          true
+      });
+
+    const record =
       deepFreeze({
         ...recordWithoutHash,
         record_sha256:
           sha256(
             recordWithoutHash
           )
-      })
+      });
+
+    const persisted =
+      await persistBetaProductRecord(
+        record,
+        client
+      );
+
+    if (!isRecord(persisted)) {
+      throw new Beta19CoachWorkspaceError(
+        "strength_reference_profile_persist_failed"
+      );
+    }
+
+    const response =
+      deepFreeze({
+        ...persisted,
+        strength_reference_lifecycle:
+          projectStrengthReferenceLifecycle(
+            persisted,
+            String(
+              persisted
+                .preferred_weight_unit ??
+              "kg"
+            )
+          )
+      });
+
+    await client.query(
+      "COMMIT"
     );
 
-  return deepFreeze({
-    ...persisted,
-    strength_reference_lifecycle:
-      projectStrengthReferenceLifecycle(
-        persisted,
-        String(
-          persisted
-            .preferred_weight_unit ??
-          "kg"
-        )
-      )
-  });
+    return response;
+  }
+  catch (error) {
+    await client.query(
+      "ROLLBACK"
+    ).catch(
+      () => undefined
+    );
+
+    throw error;
+  }
+  finally {
+    client.release();
+  }
 }
 
 export async function loadAthleteStrengthProfile(
@@ -805,6 +989,13 @@ export async function loadAthleteStrengthProfile(
         AND actor_user_id = $1
         AND subject_user_id = $2
       ORDER BY
+        COALESCE(
+          NULLIF(
+            record_payload ->> 'profile_version',
+            ''
+          )::integer,
+          1
+        ) DESC,
         effective_at DESC,
         created_at DESC,
         record_id DESC,

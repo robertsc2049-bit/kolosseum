@@ -2815,6 +2815,10 @@ function profileRecordToDraft(profile, athlete) {
   return {
     coach_user_id: state.profile?.coachUserId ?? "",
     athlete_user_id: athlete.userId,
+    expected_current_record_sha256:
+      typeof profile?.record_sha256 === "string"
+        ? profile.record_sha256
+        : null,
     preferred_weight_unit: profile?.preferred_weight_unit === "lb" ? "lb" : "kg",
     load_rounding_increment: Number(
       profile?.load_rounding_increment ??
@@ -4257,7 +4261,19 @@ async function saveOpenAthleteProfile(event) {
           benchmark.replaces_reference_id ||
           null
       })),
-      updated_at_iso8601: nowIso()
+      expected_current_record_sha256:
+        typeof draft.expected_current_record_sha256 === "string"
+          ? draft.expected_current_record_sha256
+          : typeof state
+              .athleteProfiles
+              ?.[athlete.userId]
+              ?.record_sha256 === "string"
+            ? state
+                .athleteProfiles[
+                  athlete.userId
+                ]
+                .record_sha256
+            : null
     });
 
     state.athleteProfiles[athlete.userId] = response.profile;

@@ -642,9 +642,8 @@ test(
                   "BETA-19 persistent proof"
               })
             ),
-          updated_at_iso8601:
-            new Date()
-              .toISOString()
+          expected_current_record_sha256:
+            null
         }
       );
 
@@ -675,7 +674,53 @@ test(
         ?.profile
         ?.record_sha256
     );
+    const staleAthleteProfile =
+      await request(
+        server.baseUrl,
+        "POST",
+        "/coach-workspace/athlete-strength-profile",
+        {
+          coach_user_id:
+            coachUserId,
+          athlete_user_id:
+            athleteUserId,
+          preferred_weight_unit:
+            athleteProfile.json
+              .profile
+              .preferred_weight_unit,
+          load_rounding_increment:
+            athleteProfile.json
+              .profile
+              .load_rounding_increment,
+          bodyweight:
+            athleteProfile.json
+              .profile
+              .bodyweight,
+          bodyweight_unit:
+            athleteProfile.json
+              .profile
+              .bodyweight_unit,
+          benchmarks:
+            athleteProfile.json
+              .profile
+              .benchmarks,
+          expected_current_record_sha256:
+            null
+        }
+      );
 
+    assertStatus(
+      staleAthleteProfile,
+      409,
+      "stale athlete strength profile"
+    );
+
+    assert.equal(
+      staleAthleteProfile.json
+        ?.details
+        ?.failure_token,
+      "strength_reference_profile_stale_write"
+    );
     const percentageWorkItems =
       (
         selectedIds,

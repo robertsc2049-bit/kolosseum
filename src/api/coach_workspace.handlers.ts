@@ -14,7 +14,10 @@ import {
   reconstructResolvedStrengthLoadSource,
   saveAthleteStrengthProfile
 } from "./beta19_coach_workspace_service.js";
-import { badRequest } from "./http_errors.js";
+import {
+  badRequest,
+  conflict
+} from "./http_errors.js";
 import {
   EventProgrammeCompilerError,
   compileEventProgrammeCalendar
@@ -52,6 +55,21 @@ function rethrowWorkspaceError(error: unknown): never {
   }
 
   if (error instanceof Beta19CoachWorkspaceError) {
+    if (
+      error.reason ===
+        "strength_reference_profile_stale_write"
+    ) {
+      throw conflict(
+        "STRENGTH_REFERENCE_PROFILE_STALE_WRITE",
+        {
+          failure_token:
+            "strength_reference_profile_stale_write",
+          reason:
+            error.reason
+        }
+      );
+    }
+
     throw badRequest("BETA19_COACH_WORKSPACE_INVALID", {
       failure_token: "beta19_coach_workspace_invalid",
       reason: error.reason
