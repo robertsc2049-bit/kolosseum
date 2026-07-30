@@ -1410,7 +1410,33 @@ test(
           athleteProfile.json
             ?.profile
             ?.record_sha256,
-        rounding_increment: 2.5
+        rounding_increment: 2.5,
+        factual_source_only: true,
+        readiness_inferred: false,
+        safety_inferred: false,
+        suitability_inferred: false,
+        source: {
+          reference_id:
+            athleteProfile.json
+              ?.profile
+              ?.benchmarks
+              ?.[0]
+              ?.benchmark_id,
+          exercise_id:
+            exerciseIds[0],
+          source_type:
+            "tested_1rm",
+          source_value:
+            100,
+          source_unit:
+            "kg",
+          effective_date:
+            "2026-07-20",
+          source_note:
+            "BETA-19 persistent proof",
+          replaces_reference_id:
+            null
+        }
       }
     );
 

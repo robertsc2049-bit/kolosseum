@@ -7,8 +7,8 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 139
-- partial: 42
+- implemented: 143
+- partial: 38
 - missing: 56
 - prohibited: 0
 
@@ -150,9 +150,9 @@ Implemented: 11 · Partial: 0 · Missing: 2 · Prohibited: 0
 
 Slice: FULL-UI-08
 
-Area state: partial
+Area state: implemented
 
-Implemented: 7 · Partial: 4 · Missing: 0 · Prohibited: 0
+Implemented: 11 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -161,14 +161,11 @@ Implemented: 7 · Partial: 4 · Missing: 0 · Prohibited: 0
 - `strength_training_max` — Add training max
 - `strength_effective_date` — Validate effective date
 - `strength_source_note` — Record source note
-- `strength_effective_selection` — Select current effective record
-- `strength_missing_requirements` — Display missing references for selected programme
-
-#### partial
-
 - `strength_unit_conversion` — Display converted reference values
+- `strength_effective_selection` — Select current effective record
 - `strength_superseded_history` — Display superseded history
 - `strength_immutable_add` — Add a new immutable effective record
+- `strength_missing_requirements` — Display missing references for selected programme
 - `strength_resolved_source` — Display athlete-facing resolved-load source
 
 ### Standalone events
@@ -551,16 +548,6 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 - `athlete_bodyweight_history` — Display bodyweight history
 - `athlete_notes_list` — Display coach notes and visibility
 - `athlete_session_history` — Display athlete session history
-- `strength_estimated_1rm` — Add estimated 1RM
-- `strength_training_max` — Add training max
-- `strength_effective_date` — Validate effective date
-- `strength_source_note` — Record source note
-- `strength_unit_conversion` — Display converted reference values
-- `strength_effective_selection` — Select current effective record
-- `strength_superseded_history` — Display superseded history
-- `strength_immutable_add` — Add a new immutable effective record
-- `strength_missing_requirements` — Display missing references for selected programme
-- `strength_resolved_source` — Display athlete-facing resolved-load source
 - `event_detail` — Open event detail
 - `event_countdown` — Display factual event countdown
 - `event_metadata` — Display location, timezone, notes, activity and type

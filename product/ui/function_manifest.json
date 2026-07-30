@@ -1560,7 +1560,7 @@
       "area_id": "strength_references",
       "title": "Strength-reference management",
       "slice_id": "FULL-UI-08",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "strength_tested_1rm",
@@ -1572,11 +1572,11 @@
           "api_routes": [
             "/coach-workspace/athlete-strength-profile"
           ],
-          "persistence": "server_product_records",
+          "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_builder_surface.test.mjs",
-          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1594,11 +1594,11 @@
           "api_routes": [
             "/coach-workspace/athlete-strength-profile"
           ],
-          "persistence": "server_product_records",
+          "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_builder_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1616,11 +1616,11 @@
           "api_routes": [
             "/coach-workspace/athlete-strength-profile"
           ],
-          "persistence": "server_product_records",
+          "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_builder_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1638,11 +1638,11 @@
           "api_routes": [
             "/coach-workspace/athlete-strength-profile"
           ],
-          "persistence": "server_product_records",
+          "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_builder_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1657,12 +1657,14 @@
             "coach"
           ],
           "route_id": "coach_athlete_detail",
-          "api_routes": [],
-          "persistence": "server_product_records",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-profile"
+          ],
+          "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1674,20 +1676,23 @@
           "function_id": "strength_unit_conversion",
           "label": "Display converted reference values",
           "actors": [
-            "coach"
+            "coach",
+            "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-profile"
+          ],
+          "persistence": "append_only_immutable_strength_reference_snapshots",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1697,12 +1702,14 @@
             "coach"
           ],
           "route_id": "coach_athlete_detail",
-          "api_routes": [],
-          "persistence": "server_product_records",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-profile"
+          ],
+          "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1716,18 +1723,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-profile"
+          ],
+          "persistence": "append_only_immutable_strength_reference_snapshots",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1736,18 +1745,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-profile"
+          ],
+          "persistence": "append_only_immutable_strength_reference_snapshots",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1757,12 +1768,14 @@
             "coach"
           ],
           "route_id": "coach_athlete_detail",
-          "api_routes": [],
-          "persistence": "server_product_records",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-preflight"
+          ],
+          "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_coach_programme_workspace.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1774,20 +1787,23 @@
           "function_id": "strength_resolved_source",
           "label": "Display athlete-facing resolved-load source",
           "actors": [
-            "coach"
+            "coach",
+            "athlete"
           ],
           "route_id": "athlete_session",
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "api_routes": [
+            "/coach-workspace/athlete-strength-resolve"
+          ],
+          "persistence": "append_only_immutable_strength_reference_snapshots",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -5566,6 +5582,18 @@
     {
       "method": "POST",
       "path": "/coach-workspace/athlete-strength-profile",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "strength_references"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-strength-preflight",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "strength_references"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-strength-resolve",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "strength_references"
     },

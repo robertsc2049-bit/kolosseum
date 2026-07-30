@@ -3,6 +3,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "Bundler",
+    "allowJs": true,
 
     "outDir": "dist",
     "rootDir": ".",
@@ -19,6 +20,7 @@
     "engine/src/**/*.ts",
     "cli/src/**/*.ts",
     "src/**/*.ts",
+    "shared/strength-reference/**/*.mjs",
     "engine/src/runtime/**/*.ts",
     "engine/src/render/**/*.ts"
   ],

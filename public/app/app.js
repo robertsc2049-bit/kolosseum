@@ -966,6 +966,25 @@ function exerciseDetails(exercise) {
     if (resolved && Number.isFinite(Number(resolved.value))) {
       const unit = resolved.unit === "lb" ? "lb" : "kg";
       details.push(`${Number(intensity.value)}% 1RM · ${Number(resolved.value)} ${unit}`);
+
+      const source =
+        resolved?.source &&
+        typeof resolved.source === "object"
+          ? resolved.source
+          : null;
+
+      if (source) {
+        details.push(
+          `${strengthSourceLabel(
+            source.source_type
+          )} source · ${Number(
+            source.source_value
+          )} ${source.source_unit === "lb" ? "lb" : "kg"} · effective ${String(
+            source.effective_date ??
+            ""
+          )}`
+        );
+      }
     }
     else {
       details.push(`${Number(intensity.value)}% 1RM`);
@@ -2805,6 +2824,9 @@ function profileRecordToDraft(profile, athlete) {
       ? ""
       : Number(profile.bodyweight),
     bodyweight_unit: profile?.bodyweight_unit === "lb" ? "lb" : "kg",
+    strength_reference_lifecycle:
+      profile?.strength_reference_lifecycle ??
+      null,
     benchmarks: Array.isArray(profile?.benchmarks)
       ? profile.benchmarks.map((benchmark) => ({
           benchmark_id: String(benchmark.benchmark_id ?? ""),
@@ -2815,7 +2837,13 @@ function profileRecordToDraft(profile, athlete) {
             ? benchmark.basis
             : "tested_1rm",
           effective_date: String(benchmark.effective_date ?? new Date().toISOString().slice(0, 10)),
-          source_note: String(benchmark.source_note ?? "")
+          source_note: String(benchmark.source_note ?? ""),
+          replaces_reference_id:
+            String(
+              benchmark.replaces_reference_id ??
+              ""
+            ),
+          persisted: true
         }))
       : []
   };
@@ -2826,26 +2854,284 @@ function profileForAthlete(athleteUserId) {
   return profile && typeof profile === "object" ? profile : null;
 }
 
-function currentProfileBenchmarks(profile) {
-  const current = new Map();
-  const benchmarks = Array.isArray(profile?.benchmarks) ? profile.benchmarks : [];
+function currentProfileBenchmarks(
+  profile,
+  asOfDate =
+    new Date()
+      .toISOString()
+      .slice(0, 10)
+) {
+  const authoritativeCurrent =
+    Array.isArray(
+      profile
+        ?.strength_reference_lifecycle
+        ?.current
+    )
+      ? profile
+          .strength_reference_lifecycle
+          .current
+      : null;
 
-  for (const benchmark of benchmarks) {
-    const exerciseId = String(benchmark?.exercise_id ?? "");
-    if (!exerciseId) continue;
+  if (authoritativeCurrent) {
+    return new Map(
+      authoritativeCurrent.map(
+        (reference) => [
+          String(
+            reference.exercise_id ??
+            ""
+          ),
+          {
+            benchmark_id:
+              reference.reference_id,
+            exercise_id:
+              reference.exercise_id,
+            value:
+              reference.source_value,
+            unit:
+              reference.source_unit,
+            basis:
+              reference.source_type,
+            effective_date:
+              reference.effective_date,
+            source_note:
+              reference.source_note ??
+              "",
+            replaces_reference_id:
+              reference
+                .replaces_reference_id ??
+              ""
+          }
+        ]
+      )
+    );
+  }
 
-    const existing = current.get(exerciseId);
-    const candidateKey = `${String(benchmark?.effective_date ?? "")}::${String(benchmark?.benchmark_id ?? "")}`;
-    const existingKey = existing
-      ? `${String(existing.effective_date ?? "")}::${String(existing.benchmark_id ?? "")}`
-      : "";
+  const current =
+    new Map();
 
-    if (!existing || candidateKey > existingKey) {
-      current.set(exerciseId, benchmark);
+  const benchmarks =
+    Array.isArray(
+      profile?.benchmarks
+    )
+      ? profile.benchmarks
+      : [];
+
+  for (
+    const benchmark of benchmarks
+  ) {
+    const exerciseId =
+      String(
+        benchmark
+          ?.exercise_id ??
+        ""
+      );
+
+    const effectiveDate =
+      String(
+        benchmark
+          ?.effective_date ??
+        ""
+      );
+
+    if (
+      !exerciseId ||
+      !effectiveDate ||
+      effectiveDate > asOfDate
+    ) {
+      continue;
+    }
+
+    const existing =
+      current.get(
+        exerciseId
+      );
+
+    const candidateKey =
+      `${effectiveDate}::${String(
+        benchmark
+          ?.benchmark_id ??
+        ""
+      )}`;
+
+    const existingKey =
+      existing
+        ? `${String(
+            existing.effective_date ??
+            ""
+          )}::${String(
+            existing.benchmark_id ??
+            ""
+          )}`
+        : "";
+
+    if (
+      !existing ||
+      candidateKey > existingKey
+    ) {
+      current.set(
+        exerciseId,
+        benchmark
+      );
     }
   }
 
   return current;
+}
+
+function convertedStrengthValue(
+  value,
+  sourceUnit,
+  displayUnit
+) {
+  const numeric =
+    Number(value);
+
+  if (
+    !Number.isFinite(numeric)
+  ) {
+    return null;
+  }
+
+  if (
+    sourceUnit === displayUnit
+  ) {
+    return Number(
+      numeric.toFixed(3)
+    );
+  }
+
+  const converted =
+    sourceUnit === "kg"
+      ? numeric *
+        2.2046226218487757
+      : numeric /
+        2.2046226218487757;
+
+  return Number(
+    converted.toFixed(3)
+  );
+}
+
+function strengthSourceLabel(
+  sourceType
+) {
+  if (
+    sourceType ===
+    "estimated_1rm"
+  ) {
+    return "Estimated 1RM";
+  }
+
+  if (
+    sourceType ===
+    "training_max"
+  ) {
+    return "Training max";
+  }
+
+  return "Tested 1RM";
+}
+
+function strengthReferenceStatus(
+  benchmark,
+  benchmarks,
+  asOfDate =
+    new Date()
+      .toISOString()
+      .slice(0, 10)
+) {
+  if (
+    String(
+      benchmark
+        ?.effective_date ??
+      ""
+    ) > asOfDate
+  ) {
+    return "Scheduled";
+  }
+
+  const current =
+    currentProfileBenchmarks({
+      benchmarks
+    }, asOfDate);
+
+  return String(
+    current
+      .get(
+        String(
+          benchmark
+            ?.exercise_id ??
+          ""
+        )
+      )
+      ?.benchmark_id ??
+    ""
+  ) ===
+  String(
+    benchmark
+      ?.benchmark_id ??
+    ""
+  )
+    ? "Current"
+    : "Superseded";
+}
+
+function formatStrengthReferenceSummary(
+  benchmark,
+  displayUnit
+) {
+  const sourceValue =
+    Number(
+      benchmark?.value ??
+      benchmark?.source_value ??
+      0
+    );
+
+  const sourceUnit =
+    benchmark?.unit === "lb" ||
+    benchmark?.source_unit === "lb"
+      ? "lb"
+      : "kg";
+
+  const targetUnit =
+    displayUnit === "lb"
+      ? "lb"
+      : "kg";
+
+  const converted =
+    convertedStrengthValue(
+      sourceValue,
+      sourceUnit,
+      targetUnit
+    );
+
+  const conversionText =
+    sourceUnit === targetUnit
+      ? ""
+      : ` · ${converted} ${targetUnit}`;
+
+  const sourceNote =
+    String(
+      benchmark?.source_note ??
+      ""
+    ).trim();
+
+  return [
+    strengthSourceLabel(
+      benchmark?.basis ??
+      benchmark?.source_type
+    ),
+    `${sourceValue} ${sourceUnit}${conversionText}`,
+    `Effective ${String(
+      benchmark?.effective_date ??
+      ""
+    )}`,
+    sourceNote
+      ? `Source: ${sourceNote}`
+      : ""
+  ]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function benchmarkExerciseOptions(selectedExerciseId = "") {
@@ -2869,7 +3155,9 @@ function newAthleteBenchmark() {
     unit: preferredUnit,
     basis: "tested_1rm",
     effective_date: new Date().toISOString().slice(0, 10),
-    source_note: ""
+    source_note: "",
+    replaces_reference_id: "",
+    persisted: false
   };
 }
 
@@ -2897,22 +3185,22 @@ function renderAthleteProfileEditor() {
         <article class="benchmark-row" data-benchmark-index="${index}">
           <label class="field benchmark-exercise-field">
             <span>Exercise</span>
-            <select data-profile-field="exercise_id">${benchmarkExerciseOptions(benchmark.exercise_id)}</select>
+            <select data-profile-field="exercise_id" ${benchmark.persisted ? "disabled" : ""}>${benchmarkExerciseOptions(benchmark.exercise_id)}</select>
           </label>
           <label class="field benchmark-value-field">
             <span>Reference load</span>
-            <input data-profile-field="value" type="number" min="0.25" max="1500" step="0.25" value="${Number(benchmark.value)}" />
+            <input data-profile-field="value" type="number" min="0.25" max="1500" step="0.25" value="${Number(benchmark.value)}" ${benchmark.persisted ? "disabled" : ""} />
           </label>
           <label class="field benchmark-unit-field">
             <span>Unit</span>
-            <select data-profile-field="unit">
+            <select data-profile-field="unit" ${benchmark.persisted ? "disabled" : ""}>
               <option value="kg" ${benchmark.unit === "lb" ? "" : "selected"}>kg</option>
               <option value="lb" ${benchmark.unit === "lb" ? "selected" : ""}>lb</option>
             </select>
           </label>
           <label class="field benchmark-basis-field">
             <span>Record type</span>
-            <select data-profile-field="basis">
+            <select data-profile-field="basis" ${benchmark.persisted ? "disabled" : ""}>
               <option value="tested_1rm" ${benchmark.basis === "tested_1rm" ? "selected" : ""}>Tested 1RM</option>
               <option value="estimated_1rm" ${benchmark.basis === "estimated_1rm" ? "selected" : ""}>Estimated 1RM</option>
               <option value="training_max" ${benchmark.basis === "training_max" ? "selected" : ""}>Training max</option>
@@ -2920,13 +3208,36 @@ function renderAthleteProfileEditor() {
           </label>
           <label class="field benchmark-date-field">
             <span>Effective date</span>
-            <input data-profile-field="effective_date" type="date" value="${escapeHtml(benchmark.effective_date)}" />
+            <input data-profile-field="effective_date" type="date" value="${escapeHtml(benchmark.effective_date)}" ${benchmark.persisted ? "disabled" : ""} />
           </label>
           <label class="field benchmark-note-field">
             <span>Source note</span>
-            <input data-profile-field="source_note" maxlength="240" value="${escapeHtml(benchmark.source_note)}" placeholder="Optional factual source" />
+            <input data-profile-field="source_note" maxlength="240" value="${escapeHtml(benchmark.source_note)}" placeholder="Optional factual source" ${benchmark.persisted ? "disabled" : ""} />
           </label>
-          <button class="button danger small-button remove-athlete-benchmark" type="button" data-benchmark-index="${index}">Remove</button>
+          <p class="muted small">
+            ${escapeHtml(
+              formatStrengthReferenceSummary(
+                benchmark,
+                draft.preferred_weight_unit
+              )
+            )}
+          </p>
+          <span class="badge neutral">
+            ${escapeHtml(
+              strengthReferenceStatus(
+                benchmark,
+                draft.benchmarks
+              )
+            )}
+          </span>
+          <button
+            class="button danger small-button remove-athlete-benchmark"
+            type="button"
+            data-benchmark-index="${index}"
+            ${benchmark.persisted ? "disabled" : ""}
+          >
+            ${benchmark.persisted ? "Immutable record" : "Remove"}
+          </button>
         </article>
       `).join("")
     : `
@@ -2960,7 +3271,7 @@ function updateAthleteBenchmarkControl(control) {
   const index = Number(row?.dataset.benchmarkIndex);
   const field = control.dataset.profileField;
   const benchmark = state.athleteProfileDraft?.benchmarks?.[index];
-  if (!benchmark || !field) return;
+  if (!benchmark || !field || benchmark.persisted) return;
 
   benchmark[field] = control.type === "number" ? Number(control.value) : control.value;
   saveState();
@@ -3462,9 +3773,10 @@ function renderAthleteDetail() {
                         (benchmark) =>
                           `${exerciseDisplayName(
                             benchmark.exercise_id
-                          )}: ${Number(
-                            benchmark.value
-                          )} ${benchmark.unit}`
+                          )}: ${formatStrengthReferenceSummary(
+                            benchmark,
+                            profile.preferred_weight_unit
+                          )}`
                       )
                       .join(" · ")
                   : "No strength references";
@@ -3890,7 +4202,24 @@ function addAthleteBenchmark() {
 
 function removeAthleteBenchmark(index) {
   if (!state.athleteProfileDraft) return;
-  state.athleteProfileDraft.benchmarks.splice(index, 1);
+
+  const benchmark =
+    state
+      .athleteProfileDraft
+      .benchmarks[index];
+
+  if (
+    !benchmark ||
+    benchmark.persisted
+  ) {
+    return;
+  }
+
+  state
+    .athleteProfileDraft
+    .benchmarks
+    .splice(index, 1);
+
   saveState();
   renderAthleteProfileEditor();
 }
@@ -3923,7 +4252,10 @@ async function saveOpenAthleteProfile(event) {
         unit: benchmark.unit,
         basis: benchmark.basis,
         effective_date: benchmark.effective_date,
-        source_note: benchmark.source_note.trim()
+        source_note: benchmark.source_note.trim(),
+        replaces_reference_id:
+          benchmark.replaces_reference_id ||
+          null
       })),
       updated_at_iso8601: nowIso()
     });

@@ -10,6 +10,8 @@ import {
   listCoachAthleteRelationships,
   listConnectedCoachAthletes,
   loadAthleteStrengthProfile,
+  loadPersistedProgrammeStrengthPreflight,
+  reconstructResolvedStrengthLoadSource,
   saveAthleteStrengthProfile
 } from "./beta19_coach_workspace_service.js";
 import { badRequest } from "./http_errors.js";
@@ -158,7 +160,89 @@ export async function saveAthleteStrengthProfileHandler(
 
     return res.status(201).json({
       ok: true,
-      profile
+      profile,
+      lifecycle:
+        profile
+          .strength_reference_lifecycle ??
+        null
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function preflightAthleteStrengthProfile(
+  req: Request,
+  res: Response
+) {
+  try {
+    const preflight =
+      await loadPersistedProgrammeStrengthPreflight(
+        cleanString(
+          req.body?.coach_user_id
+        ),
+        cleanString(
+          req.body?.athlete_user_id
+        ),
+        cleanString(
+          req.body?.template_id
+        ),
+        cleanString(
+          req.body?.as_of_date
+        ) ||
+        new Date()
+          .toISOString()
+          .slice(0, 10)
+      );
+
+    return res.status(200).json({
+      ok: true,
+      preflight
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function resolveAthleteStrengthLoad(
+  req: Request,
+  res: Response
+) {
+  try {
+    const resolved =
+      await reconstructResolvedStrengthLoadSource(
+        cleanString(
+          req.body?.coach_user_id
+        ),
+        cleanString(
+          req.body?.athlete_user_id
+        ),
+        cleanString(
+          req.body?.exercise_id
+        ),
+        Number(
+          req.body?.percentage
+        ),
+        {
+          target_unit:
+            cleanString(
+              req.body?.target_unit
+            ),
+          rounding_increment:
+            req.body
+              ?.rounding_increment,
+          as_of_date:
+            cleanString(
+              req.body?.as_of_date
+            )
+        }
+      );
+
+    return res.status(200).json({
+      ok: true,
+      resolved
     });
   }
   catch (error) {

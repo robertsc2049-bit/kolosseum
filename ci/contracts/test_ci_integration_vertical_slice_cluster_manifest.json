@@ -14,6 +14,7 @@
     "node test/beta_18_template_builder.integration.test.mjs",
     "node test/event_programme_compiler_service.test.mjs",
     "node test/beta19_coach_event_service.test.mjs",
-    "node test/beta19_coach_event_assignment.integration.test.mjs"
+    "node test/beta19_coach_event_assignment.integration.test.mjs",
+    "node test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs"
   ]
 }

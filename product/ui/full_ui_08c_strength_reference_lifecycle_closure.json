@@ -1,0 +1,44 @@
+{
+  "schema_version": "FULL-UI-08C.1.0.0",
+  "slice_id": "FULL-UI-08C",
+  "area_id": "strength_references",
+  "title": "Strength-Reference Lifecycle Closure",
+  "state": "implemented",
+  "functions": [
+    "strength_tested_1rm",
+    "strength_estimated_1rm",
+    "strength_training_max",
+    "strength_effective_date",
+    "strength_source_note",
+    "strength_unit_conversion",
+    "strength_effective_selection",
+    "strength_superseded_history",
+    "strength_immutable_add",
+    "strength_missing_requirements",
+    "strength_resolved_source"
+  ],
+  "source_types": [
+    "tested_1rm",
+    "estimated_1rm",
+    "training_max"
+  ],
+  "units": [
+    "kg",
+    "lb"
+  ],
+  "immutable_replacement": "new_effective_record_only",
+  "historical_mutation": "forbidden",
+  "current_selection": "latest_effective_record_not_after_as_of_date",
+  "display_conversion": "presentation_only_source_value_unchanged",
+  "missing_reference_preflight": "selected_programme_percentage_requirements_compared_to_current_effective_records",
+  "resolved_source": "exact_source_type_value_unit_effective_date_note_and_reference_id",
+  "direct_proof": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+  "persistent_proof": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
+  "restart_reconstruction": "covered",
+  "coach_athlete_authority": "same_persisted_effective_source",
+  "inference_boundary": {
+    "readiness": false,
+    "suitability": false,
+    "safety": false
+  }
+}
