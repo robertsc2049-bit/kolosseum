@@ -234,20 +234,32 @@ async function request(
   baseUrl,
   method,
   route,
-  body
+  body,
+  options = {}
 ) {
+  const headers = {};
+
+  if (body !== undefined) {
+    headers["content-type"] =
+      "application/json";
+  }
+
+  if (options.cookie) {
+    headers.cookie =
+      options.cookie;
+  }
+
+  if (options.csrf) {
+    headers["x-kolosseum-csrf"] =
+      options.csrf;
+  }
+
   const response =
     await fetch(
       `${baseUrl}${route}`,
       {
         method,
-        headers:
-          body === undefined
-            ? undefined
-            : {
-                "content-type":
-                  "application/json"
-              },
+        headers,
         body:
           body === undefined
             ? undefined
@@ -277,6 +289,21 @@ async function request(
     text,
     json
   };
+}
+
+function sessionCookie(result, label) {
+  const values =
+    typeof result.response.headers.getSetCookie === "function"
+      ? result.response.headers.getSetCookie()
+      : [result.response.headers.get("set-cookie")].filter(Boolean);
+
+  const session = values.find(
+    (value) => String(value).startsWith("kolosseum_session=")
+  );
+
+  assert.ok(session, `${label}: expected session cookie`);
+
+  return String(session).split(";")[0];
 }
 
 function dateOnlyFromNow(dayOffset) {
@@ -356,11 +383,53 @@ test(
     const eventDate =
       dateOnlyFromNow(15);
 
-    const coachUserId =
-      `beta18_coach_${nonce}`;
-
     const athleteUserId =
       `beta18_athlete_${nonce}`;
+
+    const coachRegistration =
+      await request(
+        server.baseUrl,
+        "POST",
+        "/account/register",
+        {
+          actor_type: "coach",
+          display_name: "Template Builder Coach",
+          email: `beta18_coach_${nonce}@example.com`,
+          password: "Beta18TemplateCoach!2026",
+          accepted_terms: true,
+          accepted_consent: true,
+          accepted_terms_version: "terms_v1",
+          accepted_consent_version: "consent_v1"
+        }
+      );
+
+    assertStatus(
+      coachRegistration,
+      201,
+      "coach account registration"
+    );
+
+    const coachUserId =
+      coachRegistration.json?.account?.user_id ?? "";
+
+    assert.ok(
+      coachUserId,
+      "Expected registered coach user_id"
+    );
+
+    const coachCookie =
+      sessionCookie(
+        coachRegistration,
+        "coach account registration"
+      );
+
+    const coachCsrf =
+      coachRegistration.json?.csrf_token;
+
+    assert.ok(
+      coachCsrf,
+      "Expected coach csrf token"
+    );
 
     const phase1Input = {
       consent_granted: true,
@@ -547,7 +616,9 @@ test(
       await request(
         server.baseUrl,
         "GET",
-        `/coach-workspace/athletes?coach_user_id=${encodeURIComponent(coachUserId)}`
+        "/coach-workspace/athletes",
+        undefined,
+        { cookie: coachCookie }
       );
 
     assertStatus(
@@ -644,7 +715,8 @@ test(
             ),
           expected_current_record_sha256:
             null
-        }
+        },
+        { cookie: coachCookie, csrf: coachCsrf }
       );
 
     assertStatus(
@@ -657,7 +729,9 @@ test(
       await request(
         server.baseUrl,
         "GET",
-        `/coach-workspace/athlete-strength-profile?coach_user_id=${encodeURIComponent(coachUserId)}&athlete_user_id=${encodeURIComponent(athleteUserId)}`
+        `/coach-workspace/athlete-strength-profile?athlete_user_id=${encodeURIComponent(athleteUserId)}`,
+        undefined,
+        { cookie: coachCookie }
       );
 
     assertStatus(
@@ -706,7 +780,8 @@ test(
               .benchmarks,
           expected_current_record_sha256:
             null
-        }
+        },
+        { cookie: coachCookie, csrf: coachCsrf }
       );
 
     assertStatus(
@@ -1367,7 +1442,9 @@ test(
       await request(
         server.baseUrl,
         "GET",
-        `/coach-workspace/assignments?coach_user_id=${encodeURIComponent(coachUserId)}`
+        "/coach-workspace/assignments",
+        undefined,
+        { cookie: coachCookie }
       );
 
     assertStatus(

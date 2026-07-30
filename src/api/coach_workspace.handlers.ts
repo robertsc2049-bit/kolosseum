@@ -5,6 +5,9 @@
 import type { Request, Response } from "express";
 
 import {
+  authenticatedCoach
+} from "./coach_session_auth.js";
+import {
   Beta19CoachWorkspaceError,
   listCoachAssignments,
   listCoachAthleteRelationships,
@@ -85,10 +88,7 @@ export async function getCoachAthleteRelationships(
   res: Response
 ) {
   try {
-    const coachUserId =
-      cleanString(
-        req.query.coach_user_id
-      );
+    const coachUserId = await authenticatedCoach(req, false);
 
     const relationships =
       await listCoachAthleteRelationships(
@@ -111,7 +111,7 @@ export async function getConnectedCoachAthletes(
   res: Response
 ) {
   try {
-    const coachUserId = cleanString(req.query.coach_user_id);
+    const coachUserId = await authenticatedCoach(req, false);
     const athletes = await listConnectedCoachAthletes(coachUserId);
 
     return res.status(200).json({
@@ -130,7 +130,7 @@ export async function getCoachAssignments(
   res: Response
 ) {
   try {
-    const coachUserId = cleanString(req.query.coach_user_id);
+    const coachUserId = await authenticatedCoach(req, false);
     const assignments = await listCoachAssignments(coachUserId);
 
     return res.status(200).json({
@@ -149,7 +149,7 @@ export async function getAthleteStrengthProfile(
   res: Response
 ) {
   try {
-    const coachUserId = cleanString(req.query.coach_user_id);
+    const coachUserId = await authenticatedCoach(req, false);
     const athleteUserId = cleanString(req.query.athlete_user_id);
 
     const profile = await loadAthleteStrengthProfile(
@@ -174,7 +174,11 @@ export async function saveAthleteStrengthProfileHandler(
   res: Response
 ) {
   try {
-    const profile = await saveAthleteStrengthProfile(req.body);
+    const coachUserId = await authenticatedCoach(req, true);
+    const profile = await saveAthleteStrengthProfile({
+      ...req.body,
+      coach_user_id: coachUserId
+    });
 
     return res.status(201).json({
       ok: true,
@@ -195,11 +199,10 @@ export async function preflightAthleteStrengthProfile(
   res: Response
 ) {
   try {
+    const coachUserId = await authenticatedCoach(req, true);
     const preflight =
       await loadPersistedProgrammeStrengthPreflight(
-        cleanString(
-          req.body?.coach_user_id
-        ),
+        coachUserId,
         cleanString(
           req.body?.athlete_user_id
         ),
@@ -229,11 +232,10 @@ export async function resolveAthleteStrengthLoad(
   res: Response
 ) {
   try {
+    const coachUserId = await authenticatedCoach(req, true);
     const resolved =
       await reconstructResolvedStrengthLoadSource(
-        cleanString(
-          req.body?.coach_user_id
-        ),
+        coachUserId,
         cleanString(
           req.body?.athlete_user_id
         ),
@@ -292,7 +294,7 @@ export async function getCoachEvents(
   res: Response
 ) {
   try {
-    const coachUserId = cleanString(req.query.coach_user_id);
+    const coachUserId = await authenticatedCoach(req, false);
     const events = await listCoachEvents(coachUserId);
 
     return res.status(200).json({
@@ -311,7 +313,11 @@ export async function createCoachEventHandler(
   res: Response
 ) {
   try {
-    const event = await createCoachEventRecord(req.body);
+    const coachUserId = await authenticatedCoach(req, true);
+    const event = await createCoachEventRecord({
+      ...req.body,
+      coach_user_id: coachUserId
+    });
 
     return res.status(201).json({
       ok: true,
@@ -328,7 +334,7 @@ export async function getAthleteEventLinks(
   res: Response
 ) {
   try {
-    const coachUserId = cleanString(req.query.coach_user_id);
+    const coachUserId = await authenticatedCoach(req, false);
     const athleteUserId = cleanString(req.query.athlete_user_id);
     const links = await listAthleteEventLinks(
       coachUserId,
@@ -352,7 +358,11 @@ export async function createAthleteProfileAssignment(
   res: Response
 ) {
   try {
-    const result = await assignAthleteProgrammeFromProfile(req.body);
+    const coachUserId = await authenticatedCoach(req, true);
+    const result = await assignAthleteProgrammeFromProfile({
+      ...req.body,
+      coach_user_id: coachUserId
+    });
 
     return res.status(201).json({
       ok: true,
@@ -374,10 +384,7 @@ export async function getCoachAthleteDetail(
   res: Response
 ) {
   try {
-    const coachUserId =
-      cleanString(
-        req.query.coach_user_id
-      );
+    const coachUserId = await authenticatedCoach(req, false);
 
     const athleteUserId =
       cleanString(
