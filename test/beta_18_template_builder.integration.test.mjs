@@ -780,7 +780,8 @@ test(
               .benchmarks,
           expected_current_record_sha256:
             null
-        }
+        },
+        { cookie: coachCookie, csrf: coachCsrf }
       );
 
     assertStatus(
