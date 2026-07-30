@@ -17,6 +17,16 @@ import {
   resolveAthleteStrengthLoad,
   saveAthleteStrengthProfileHandler
 } from "./coach_workspace.handlers.js";
+import {
+  archiveStandaloneEventHandler,
+  cancelStandaloneEventHandler,
+  createStandaloneEventHandler,
+  createStandaloneEventVersionHandler,
+  getStandaloneEventDetailHandler,
+  getStandaloneEventLibraryHandler,
+  linkStandaloneEventAthleteHandler,
+  unlinkStandaloneEventAthleteHandler
+} from "./full_ui_09c_event_lifecycle.handlers.js";
 
 // FULL-UI-04B athlete-detail handler import.
 import {
@@ -40,14 +50,48 @@ coachWorkspaceRouter.get(
   asyncHandler(getCoachAssignments)
 );
 
+// Existing BETA-19 routes remain available for earlier slice compatibility.
 coachWorkspaceRouter.get(
   "/events",
   asyncHandler(getCoachEvents)
 );
-
 coachWorkspaceRouter.post(
   "/events",
   asyncHandler(createCoachEventHandler)
+);
+
+// FULL-UI-09C authenticated standalone event lifecycle.
+coachWorkspaceRouter.get(
+  "/events/library",
+  asyncHandler(getStandaloneEventLibraryHandler)
+);
+coachWorkspaceRouter.post(
+  "/events/create",
+  asyncHandler(createStandaloneEventHandler)
+);
+coachWorkspaceRouter.get(
+  "/events/:event_id",
+  asyncHandler(getStandaloneEventDetailHandler)
+);
+coachWorkspaceRouter.post(
+  "/events/:event_id/version",
+  asyncHandler(createStandaloneEventVersionHandler)
+);
+coachWorkspaceRouter.post(
+  "/events/:event_id/cancel",
+  asyncHandler(cancelStandaloneEventHandler)
+);
+coachWorkspaceRouter.post(
+  "/events/:event_id/archive",
+  asyncHandler(archiveStandaloneEventHandler)
+);
+coachWorkspaceRouter.post(
+  "/events/:event_id/athletes/:athlete_id/link",
+  asyncHandler(linkStandaloneEventAthleteHandler)
+);
+coachWorkspaceRouter.post(
+  "/events/:event_id/athletes/:athlete_id/unlink",
+  asyncHandler(unlinkStandaloneEventAthleteHandler)
 );
 
 coachWorkspaceRouter.get(
@@ -79,7 +123,6 @@ coachWorkspaceRouter.post(
   "/athlete-strength-resolve",
   asyncHandler(resolveAthleteStrengthLoad)
 );
-
 
 coachWorkspaceRouter.post(
   "/event-compile-preview",

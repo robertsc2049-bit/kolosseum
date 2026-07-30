@@ -10,6 +10,9 @@ import {
   resolveCoachOnboardingGate
 } from "./coach_onboarding_ui.js";
 
+// FULL-UI-09C installs the server-backed event library and stable detail route.
+import "./event_lifecycle_ui.js";
+
 const STORAGE_KEY = "kolosseum.product.app.v1";
 
 export const PRODUCT_ROUTE_MAP = Object.freeze([
@@ -33,7 +36,7 @@ export const PRODUCT_ROUTE_MAP = Object.freeze([
 function segments(value) {
   return String(value ?? "")
     .replace(/^#/u, "")
-    .replace(/^\/+/u, "")
+    .replace(/^\/+?/u, "")
     .split("/")
     .filter(Boolean)
     .map((part) => decodeURIComponent(part));
@@ -52,11 +55,9 @@ export function parseProductRoute(hash) {
 
     const params = {};
     let matches = true;
-
     for (let index = 0; index < pattern.length; index += 1) {
       const expected = pattern[index];
       const actual = candidate[index];
-
       if (expected.startsWith(":")) {
         if (!actual) {
           matches = false;
@@ -69,7 +70,6 @@ export function parseProductRoute(hash) {
         break;
       }
     }
-
     if (matches) return { ...route, params };
   }
 
@@ -105,28 +105,18 @@ export function routeForView(actor, view, entity = {}) {
   if (actor === "coach") {
     if (view === "coach-onboarding") return serializeProductRoute("coach_onboarding");
     if (view === "coach-overview") return serializeProductRoute("coach_overview");
-    if (view === "athletes" && entity.athlete_id) {
-      return serializeProductRoute("coach_athlete_detail", entity);
-    }
+    if (view === "athletes" && entity.athlete_id) return serializeProductRoute("coach_athlete_detail", entity);
     if (view === "athletes") return serializeProductRoute("coach_athletes");
-    if (view === "events" && entity.event_id) {
-      return serializeProductRoute("coach_event_detail", entity);
-    }
+    if (view === "events" && entity.event_id) return serializeProductRoute("coach_event_detail", entity);
     if (view === "events") return serializeProductRoute("coach_events");
-    if (view === "templates" && entity.template_id) {
-      return serializeProductRoute("coach_programme_detail", entity);
-    }
+    if (view === "templates" && entity.template_id) return serializeProductRoute("coach_programme_detail", entity);
     if (view === "templates") return serializeProductRoute("coach_programmes");
-    if (view === "review" && entity.athlete_id) {
-      return serializeProductRoute("coach_review_athlete", entity);
-    }
+    if (view === "review" && entity.athlete_id) return serializeProductRoute("coach_review_athlete", entity);
     if (view === "review") return serializeProductRoute("coach_review");
   }
   else {
     if (view === "onboarding") return serializeProductRoute("athlete_onboarding");
-    if (view === "session" && entity.session_id) {
-      return serializeProductRoute("athlete_session", entity);
-    }
+    if (view === "session" && entity.session_id) return serializeProductRoute("athlete_session", entity);
     if (view === "history") return serializeProductRoute("athlete_history");
     if (view === "today") return serializeProductRoute("athlete_today");
   }
@@ -138,7 +128,11 @@ export function routeForView(actor, view, entity = {}) {
 function readRole() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
-    return parsed?.role === "coach" ? "coach" : parsed?.role === "athlete" ? "athlete" : null;
+    return parsed?.role === "coach"
+      ? "coach"
+      : parsed?.role === "athlete"
+        ? "athlete"
+        : null;
   }
   catch {
     return null;
@@ -190,8 +184,9 @@ async function applyEntityRoute(route) {
   const params = route.params ?? {};
 
   if (route.route_id === "coach_athlete_detail") {
-    const selector = `.open-athlete-profile[data-athlete-id="${escapeSelector(params.athlete_id)}"]`;
-    const button = await waitForSelector(selector);
+    const button = await waitForSelector(
+      `.open-athlete-profile[data-athlete-id="${escapeSelector(params.athlete_id)}"]`
+    );
     if (button) {
       button.click();
       return true;
@@ -199,8 +194,9 @@ async function applyEntityRoute(route) {
   }
 
   if (route.route_id === "athlete_session") {
-    const selector = `[data-session-id="${escapeSelector(params.session_id)}"]`;
-    const card = await waitForSelector(selector);
+    const card = await waitForSelector(
+      `[data-session-id="${escapeSelector(params.session_id)}"]`
+    );
     if (card) {
       card.click();
       return true;
@@ -208,13 +204,18 @@ async function applyEntityRoute(route) {
   }
 
   if (route.route_id === "coach_event_detail") {
-    const selector = `[data-event-id="${escapeSelector(params.event_id)}"]`;
-    return markRouteTarget(await waitForSelector(selector));
+    document.dispatchEvent(
+      new CustomEvent("kolosseum:event-detail-route", {
+        detail: { event_id: params.event_id }
+      })
+    );
+    return true;
   }
 
   if (route.route_id === "coach_programme_detail") {
-    const selector = `[data-template-id="${escapeSelector(params.template_id)}"]`;
-    const target = await waitForSelector(selector);
+    const target = await waitForSelector(
+      `[data-template-id="${escapeSelector(params.template_id)}"]`
+    );
     if (target) {
       const detail = target.matches(".template-detail")
         ? target
@@ -244,65 +245,44 @@ async function applyEntityRoute(route) {
 
 async function resolvedAthleteRoute(route, options) {
   installAthleteOnboardingUi();
-
   if (route?.route_id === "shared_account") return route;
 
   try {
     const state = await resolveAthleteOnboardingGate();
     if (!state) return route;
-
     if (state.onboarding_status !== "completed" && route?.route_id !== "athlete_onboarding") {
-      const onboardingHash = serializeProductRoute("athlete_onboarding");
-      history.replaceState({ kolosseum_route: onboardingHash }, "", onboardingHash);
-      if (!options.silent) {
-        showRouteNotice("Complete athlete onboarding before opening the training workspace.");
-      }
-      return parseProductRoute(onboardingHash);
+      const hash = serializeProductRoute("athlete_onboarding");
+      history.replaceState({ kolosseum_route: hash }, "", hash);
+      if (!options.silent) showRouteNotice("Complete athlete onboarding before opening the training workspace.");
+      return parseProductRoute(hash);
     }
-
     return route;
   }
   catch {
-    const onboardingHash = serializeProductRoute("athlete_onboarding");
-    history.replaceState({ kolosseum_route: onboardingHash }, "", onboardingHash);
-    return parseProductRoute(onboardingHash);
+    const hash = serializeProductRoute("athlete_onboarding");
+    history.replaceState({ kolosseum_route: hash }, "", hash);
+    return parseProductRoute(hash);
   }
 }
 
 async function resolvedCoachRoute(route, options) {
   installCoachOnboardingUi();
-
   if (route?.route_id === "shared_account") return route;
 
   try {
     const state = await resolveCoachOnboardingGate();
-
-    if (!state) {
-      const onboardingHash = serializeProductRoute("coach_onboarding");
-      history.replaceState({ kolosseum_route: onboardingHash }, "", onboardingHash);
-      return parseProductRoute(onboardingHash);
+    if (!state || (state.onboarding_status !== "completed" && route?.route_id !== "coach_onboarding")) {
+      const hash = serializeProductRoute("coach_onboarding");
+      history.replaceState({ kolosseum_route: hash }, "", hash);
+      if (!options.silent) showRouteNotice("Complete coach onboarding before opening the coach workspace.");
+      return parseProductRoute(hash);
     }
-
-    if (
-      state.onboarding_status !== "completed" &&
-      route?.route_id !== "coach_onboarding"
-    ) {
-      const onboardingHash = serializeProductRoute("coach_onboarding");
-      history.replaceState({ kolosseum_route: onboardingHash }, "", onboardingHash);
-
-      if (!options.silent) {
-        showRouteNotice("Complete coach onboarding before opening the coach workspace.");
-      }
-
-      return parseProductRoute(onboardingHash);
-    }
-
     return route;
   }
   catch {
-    const onboardingHash = serializeProductRoute("coach_onboarding");
-    history.replaceState({ kolosseum_route: onboardingHash }, "", onboardingHash);
-    return parseProductRoute(onboardingHash);
+    const hash = serializeProductRoute("coach_onboarding");
+    history.replaceState({ kolosseum_route: hash }, "", hash);
+    return parseProductRoute(hash);
   }
 }
 
@@ -312,20 +292,17 @@ export async function applyCurrentProductRoute(options = {}) {
 
   let route = parseProductRoute(location.hash);
   if (!route || !actorCanAccessRoute(actor, route)) {
-    const fallback = fallbackRouteForActor(actor);
-    history.replaceState({ kolosseum_route: fallback }, "", fallback);
-    route = parseProductRoute(fallback);
+    const hash = fallbackRouteForActor(actor);
+    history.replaceState({ kolosseum_route: hash }, "", hash);
+    route = parseProductRoute(hash);
     if (!options.silent) {
       showRouteNotice("That page is not available for this account. The workspace home page has been opened.");
     }
   }
 
-  if (actor === "athlete") {
-    route = await resolvedAthleteRoute(route, options);
-  }
-  else if (actor === "coach") {
-    route = await resolvedCoachRoute(route, options);
-  }
+  route = actor === "athlete"
+    ? await resolvedAthleteRoute(route, options)
+    : await resolvedCoachRoute(route, options);
 
   applyingRoute = true;
   try {
@@ -336,8 +313,7 @@ export async function applyCurrentProductRoute(options = {}) {
       await openCoachOnboardingView();
     }
     else {
-      const navigation = document.querySelector(`[data-view="${escapeSelector(route.view)}"]`);
-      navigation?.click();
+      document.querySelector(`[data-view="${escapeSelector(route.view)}"]`)?.click();
       document.getElementById("sidebar")?.classList.remove("open");
     }
 
@@ -355,7 +331,6 @@ export async function applyCurrentProductRoute(options = {}) {
         }
       })
     );
-
     return true;
   }
   finally {
@@ -368,16 +343,13 @@ export async function applyCurrentProductRoute(options = {}) {
 function entityFromElement(element) {
   const athlete = element.closest("[data-athlete-id]");
   if (athlete?.dataset.athleteId) return { athlete_id: athlete.dataset.athleteId };
-
-  const event = element.closest("[data-event-id]");
+  const event = element.closest("[data-event-id], [data-open-event-id]");
   if (event?.dataset.eventId) return { event_id: event.dataset.eventId };
-
+  if (event?.dataset.openEventId) return { event_id: event.dataset.openEventId };
   const template = element.closest("[data-template-id]");
   if (template?.dataset.templateId) return { template_id: template.dataset.templateId };
-
   const session = element.closest("[data-session-id]");
   if (session?.dataset.sessionId) return { session_id: session.dataset.sessionId };
-
   return {};
 }
 
@@ -387,13 +359,13 @@ function syncRouteFromElement(element, replace = false) {
 
   const entity = entityFromElement(element);
   const viewControl = element.closest("[data-view], [data-view-link]");
-  const activeView = viewControl?.dataset.view ?? viewControl?.dataset.viewLink ?? (
-    [...document.querySelectorAll(".view")].find((section) => !section.hidden)?.id.replace(/^view-/u, "")
-  );
+  const activeView = viewControl?.dataset.view ?? viewControl?.dataset.viewLink ??
+    [...document.querySelectorAll(".view")]
+      .find((section) => !section.hidden)
+      ?.id.replace(/^view-/u, "");
 
   const hash = routeForView(actor, activeView, entity);
   if (!hash || hash === location.hash) return;
-
   if (replace) history.replaceState({ kolosseum_route: hash }, "", hash);
   else history.pushState({ kolosseum_route: hash }, "", hash);
 }
@@ -409,7 +381,7 @@ function installProductRouting() {
     "click",
     (event) => {
       const element = event.target.closest(
-        "[data-view], [data-view-link], [data-athlete-id], [data-event-id], [data-template-id], [data-session-id]"
+        "[data-view], [data-view-link], [data-athlete-id], [data-event-id], [data-open-event-id], [data-template-id], [data-session-id]"
       );
       if (element) syncRouteFromElement(element);
     },
@@ -417,18 +389,15 @@ function installProductRouting() {
   );
 
   document.getElementById("entryForm")?.addEventListener("submit", scheduleRouteApplication);
-
   addEventListener("hashchange", () => applyCurrentProductRoute());
   addEventListener("popstate", () => applyCurrentProductRoute());
 
-  const observer = new MutationObserver(() => {
-    const visible = [...document.querySelectorAll(".view")].find((section) => !section.hidden);
-    if (visible) syncRouteFromElement(visible, true);
-  });
-
   const views = document.querySelector(".views");
   if (views) {
-    observer.observe(views, {
+    new MutationObserver(() => {
+      const visible = [...document.querySelectorAll(".view")].find((section) => !section.hidden);
+      if (visible) syncRouteFromElement(visible, true);
+    }).observe(views, {
       subtree: true,
       attributes: true,
       attributeFilter: ["hidden"]

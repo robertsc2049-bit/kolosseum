@@ -7,9 +7,9 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 143
+- implemented: 146
 - partial: 38
-- missing: 56
+- missing: 53
 - prohibited: 0
 
 ## Product areas
@@ -174,12 +174,15 @@ Slice: FULL-UI-09
 
 Area state: partial
 
-Implemented: 4 · Partial: 6 · Missing: 3 · Prohibited: 0
+Implemented: 7 · Partial: 6 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `events_section` — Open separate Events section
 - `event_create_compile` — Create and compile coach-owned event
+- `event_search_filter` — Search and filter event library
+- `event_version_edit` — Create immutable future event version
+- `event_cancel_archive` — Cancel or archive event
 - `event_countdown` — Display factual event countdown
 - `event_metadata` — Display location, timezone, notes, activity and type
 
@@ -191,12 +194,6 @@ Implemented: 4 · Partial: 6 · Missing: 3 · Prohibited: 0
 - `event_link_unlink` — Link and unlink athlete
 - `event_history_preserved` — Preserve assignment and session history after unlink
 - `event_validation` — Validate conflicts and past dates
-
-#### missing
-
-- `event_search_filter` — Search and filter event library
-- `event_version_edit` — Create immutable future event version
-- `event_cancel_archive` — Cancel or archive event
 
 ### Programme library
 
@@ -548,7 +545,10 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 - `athlete_bodyweight_history` — Display bodyweight history
 - `athlete_notes_list` — Display coach notes and visibility
 - `athlete_session_history` — Display athlete session history
+- `event_search_filter` — Search and filter event library
 - `event_detail` — Open event detail
+- `event_version_edit` — Create immutable future event version
+- `event_cancel_archive` — Cancel or archive event
 - `event_countdown` — Display factual event countdown
 - `event_metadata` — Display location, timezone, notes, activity and type
 - `event_linked_athletes` — Display linked-athlete list
