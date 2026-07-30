@@ -618,10 +618,64 @@ function subscriptionState(
   return "access_required";
 }
 
+function factualCommercialState(
+  state: string,
+  seatLimitReached: boolean
+): string {
+  if (seatLimitReached) {
+    return "seat_limit_reached";
+  }
+
+  if (state === "active") {
+    return "active";
+  }
+
+  if (state === "not_started") {
+    return "controlled_launch";
+  }
+
+  if (
+    state === "checkout_pending" ||
+    state === "confirmation_pending" ||
+    state === "access_required"
+  ) {
+    return "payment_action_required";
+  }
+
+  if (state === "cancelled") {
+    return "cancelled";
+  }
+
+  if (
+    state === "not_configured" ||
+    state === "suspended"
+  ) {
+    return "unavailable";
+  }
+
+  if (state === "not_applicable") {
+    return "not_applicable";
+  }
+
+  return "unavailable";
+}
+
 function factualEntitlementError(
   state: string,
-  config: CommercialConfig
+  config: CommercialConfig,
+  seatLimitReached: boolean
 ): Readonly<JsonRecord> | null {
+  if (seatLimitReached) {
+    return Object.freeze({
+      code:
+        "commercial_seat_limit_reached",
+      message:
+        "The current seat allowance is fully used.",
+      missing_configuration:
+        Object.freeze([])
+    });
+  }
+
   if (
     state === "active" ||
     state === "not_applicable"
@@ -749,6 +803,15 @@ function publicCommercialOverview(
     typeof seatLimit === "number"
       ? Math.max(seatLimit - occupied, 0)
       : null;
+  const seatLimitReached =
+    typeof seatLimit === "number" &&
+    seatLimit > 0 &&
+    occupied >= seatLimit;
+  const factualState =
+    factualCommercialState(
+      state,
+      seatLimitReached
+    );
   const providerSessionId =
     cleanString(
       accessRecord?.provider_session_id
@@ -770,6 +833,8 @@ function publicCommercialOverview(
       configuration_state:
         config.configuration_state,
       subscription_state: state,
+      factual_state:
+        factualState,
       product_access_state:
         accessActive
           ? "allowed"
@@ -793,6 +858,8 @@ function publicCommercialOverview(
       seat_limit: seatLimit,
       occupied_seat_count: occupied,
       available_seat_count: available,
+      seat_limit_reached:
+        seatLimitReached,
       checkout_available:
         config.configuration_state === "ready",
       checkout_redirect_available:
@@ -804,7 +871,11 @@ function publicCommercialOverview(
       provider_session_present:
         Boolean(providerSessionId),
       entitlement_error:
-        factualEntitlementError(state, config),
+        factualEntitlementError(
+          state,
+          config,
+          seatLimitReached
+        ),
       provider_call_performed: false,
       provider_call_boundary:
         "not_performed_in_product_slice",

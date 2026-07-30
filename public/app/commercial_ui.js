@@ -21,6 +21,10 @@ const elements = {
     document.getElementById(
       "commercialAccessState"
     ),
+  factualState:
+    document.getElementById(
+      "commercialFactualState"
+    ),
   billingStatus:
     document.getElementById(
       "commercialBillingStatus"
@@ -135,6 +139,8 @@ function errorMessage(error) {
       "Controlled-launch checkout is not configured on this server.",
     commercial_coach_account_required:
       "Commercial controls are available to coach accounts only.",
+    commercial_seat_limit_reached:
+      "The current seat allowance is fully used.",
     commercial_checkout_record_missing:
       "No checkout request exists for this account.",
     commercial_billing_record_missing:
@@ -230,6 +236,13 @@ function renderCommercial(payload) {
   }
 
   lastRenderedSignature = signature;
+
+  if (elements.factualState) {
+    elements.factualState.textContent =
+      humanise(
+        commercial.factual_state
+      );
+  }
 
   if (elements.subscriptionState) {
     elements.subscriptionState.textContent =

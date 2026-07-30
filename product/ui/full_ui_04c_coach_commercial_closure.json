@@ -1,0 +1,55 @@
+{
+    "schema_version":  "FULL-UI-04C.1.0.0",
+    "slice_id":  "FULL-UI-04C",
+    "area_id":  "coach_commercial",
+    "title":  "Coach Onboarding and Commercial Closure",
+    "state":  "implemented",
+    "route":  {
+                  "route_id":  "coach_onboarding",
+                  "pattern":  "#/coach/onboarding",
+                  "actors":  [
+                                 "coach"
+                             ],
+                  "state":  "implemented"
+              },
+    "functions":  [
+                      "coach_profile_setup",
+                      "coach_terms",
+                      "subscription_state",
+                      "seat_allowance",
+                      "checkout_entry",
+                      "payment_return",
+                      "billing_portal",
+                      "entitlement_error"
+                  ],
+    "factual_states":  [
+                           "active",
+                           "controlled_launch",
+                           "payment_action_required",
+                           "cancelled",
+                           "unavailable",
+                           "seat_limit_reached"
+                       ],
+    "persistent_proof":  "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
+    "direct_proof":  "test/full_ui_04c_coach_commercial.test.mjs",
+    "onboarding_persistence":  "append_only_product_account_events_and_immutable_coach_profile_records",
+    "commercial_persistence":  "append_only_product_commercial_records",
+    "lawful_workspace_redirect":  "#/coach/overview",
+    "commercial_engine_isolation":  {
+                                        "calls_engine":  false,
+                                        "engine_visible":  false,
+                                        "engine_legality":  "not_mutated",
+                                        "compile_input":  "not_read_or_written",
+                                        "compile_output":  "canonical_engine_payload_stable_before_and_after_commercial_mutation",
+                                        "session_state":  "not_read_or_written"
+                                    },
+    "coverage":  {
+                     "loading":  "covered",
+                     "empty":  "covered",
+                     "error":  "covered",
+                     "recovery":  "covered",
+                     "fresh_process_restart":  "covered",
+                     "persistent_http":  "covered",
+                     "deterministic_engine_isolation":  "covered"
+                 }
+}

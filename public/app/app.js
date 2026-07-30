@@ -1001,6 +1001,7 @@ function viewTitle(view) {
     today: "Today",
     session: "Session",
     history: "History",
+    "coach-onboarding": "Coach setup",
     "coach-overview": "Overview",
     athletes: "Athletes",
     events: "Events",
@@ -1096,7 +1097,7 @@ function renderRoleNavigation() {
   const fallbackView = actorHomeView(state.role);
   const permittedViews = athlete
     ? new Set(["today", "session", "history", "account"])
-    : new Set(["coach-overview", "athletes", "events", "templates", "review", "account"]);
+    : new Set(["coach-onboarding", "coach-overview", "athletes", "events", "templates", "review", "account"]);
 
   if (!permittedViews.has(state.view)) state.view = fallbackView;
 }

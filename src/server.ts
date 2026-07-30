@@ -15,6 +15,7 @@ import { productAssignmentRouter } from "./api/product_assignment.routes.js";
 import { productReviewRouter } from "./api/product_review.routes.js";
 import { productAccountRouter } from "./api/product_account.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
+import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
 import { apiErrorMiddleware } from "./api/error_middleware.js";
 
@@ -82,6 +83,7 @@ app.get("/ui/decision-summary/:run_id", (req, res) => {
 });
 
 app.use("/account/commercial", productCommercialRouter);
+app.use("/account/coach-onboarding", coachOnboardingRouter);
 app.use("/account/onboarding", athleteOnboardingRouter);
 app.use("/account", productAccountRouter);
 app.use("/templates", templatesRouter);
