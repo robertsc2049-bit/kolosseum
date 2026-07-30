@@ -223,23 +223,14 @@ test("Phase4: timebox pruning (general_strength) tb<30 drops all accessories; tb
   }
 });
 
-test("Phase4: unsupported activity returns stub program with empty plan + carries Phase3 constraints", () => {
+test("Phase4: unsupported activity fails closed instead of returning a stub program", () => {
   const constraints = { constraints_version: "1.0.0", demo: true };
   const canonicalInput = { activity_id: "unknown_activity" };
   const phase3 = mkPhase3(constraints);
 
   const r = phase4AssembleProgram(canonicalInput, phase3);
-  assert.equal(r.ok, true, "phase4AssembleProgram should succeed (stub)");
-  assert.ok(r.program, "result.program must exist");
-
-  assert.equal(r.program.program_id, "PROGRAM_STUB");
-  assert.equal(r.program.version, "1.0.0");
-
-  assert.deepEqual(r.program.planned_items, [], "stub planned_items must be empty");
-  assert.deepEqual(r.program.planned_exercise_ids, [], "stub planned_exercise_ids must be empty");
-  assert.equal(r.program.target_exercise_id, "", "stub target_exercise_id must be empty");
-
-  assert.deepEqual(r.program.constraints, constraints, "stub must carry Phase3 constraints");
+  assert.equal(r.ok, false, "phase4AssembleProgram must fail closed for an unrecognised activity_id");
+  assert.equal(r.failure_token, "phase4_unsupported_activity");
 });
 
 test("Phase4: Phase3 timebox is sovereign over raw input when both are present and disagree", () => {

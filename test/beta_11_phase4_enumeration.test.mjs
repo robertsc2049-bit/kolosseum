@@ -163,8 +163,7 @@ test("legacy Phase 4 call is not intercepted by BETA-11 binding fields", () => {
     { entries: {} }
   );
 
-  assert.equal(result.ok, true);
-  assert.equal(result.program.program_id, "PROGRAM_STUB");
+  assert.equal(result.ok, false);
+  assert.equal(result.failure_token, "phase4_unsupported_activity");
   assert.equal(result.phase4, undefined);
-  assert.deepEqual(result.notes, ["PHASE_4_STUB"]);
 });
