@@ -16,9 +16,11 @@ import {
   FullUi09cEventLifecycleError,
   linkAthleteToStandaloneEvent,
   loadStandaloneEventDetail,
-  loadStandaloneEventLibrary,
-  unlinkAthleteFromStandaloneEvent
+  loadStandaloneEventLibrary
 } from "./full_ui_09c_event_lifecycle_service.js";
+import {
+  unlinkAthleteFromStandaloneEventSafely
+} from "./full_ui_09c_event_unlink_service.js";
 import {
   badRequest,
   conflict,
@@ -272,7 +274,7 @@ export async function unlinkStandaloneEventAthleteHandler(
 ) {
   try {
     const coachUserId = await authenticatedCoach(request, true);
-    const link = await unlinkAthleteFromStandaloneEvent({
+    const link = await unlinkAthleteFromStandaloneEventSafely({
       coach_user_id: coachUserId,
       event_id: cleanString(request.params.event_id),
       athlete_user_id: cleanString(request.params.athlete_id)
