@@ -19,16 +19,32 @@ async function closeServer(server) {
   });
 }
 
-async function request(baseUrl, method, route, body) {
+async function request(baseUrl, method, route, body, options = {}) {
+  const headers = {};
+  if (body !== undefined) headers["content-type"] = "application/json";
+  if (options.cookie) headers.cookie = options.cookie;
+  if (options.csrf) headers["x-kolosseum-csrf"] = options.csrf;
+
   const response = await fetch(`${baseUrl}${route}`, {
     method,
-    headers: body === undefined ? undefined : { "content-type": "application/json" },
+    headers,
     body: body === undefined ? undefined : JSON.stringify(body)
   });
   const text = await response.text();
   let json = null;
   try { json = text ? JSON.parse(text) : null; } catch {}
   return { response, text, json };
+}
+
+function sessionCookie(result, label) {
+  const values =
+    typeof result.response.headers.getSetCookie === "function"
+      ? result.response.headers.getSetCookie()
+      : [result.response.headers.get("set-cookie")].filter(Boolean);
+
+  const session = values.find((value) => String(value).startsWith("kolosseum_session="));
+  assert.ok(session, `${label}: expected session cookie`);
+  return String(session).split(";")[0];
 }
 
 function assertStatus(result, status, label) {
@@ -72,7 +88,7 @@ function workItems() {
 
 test("standalone coach event links through athlete profile and reaches compile output", async () => {
   const nonce = crypto.randomUUID().replaceAll("-", "");
-  const coachUserId = `beta19_event_coach_${nonce}`;
+  let coachUserId = "";
   const athleteUserId = `beta19_event_athlete_${nonce}`;
   const relationshipId = `beta19_event_relationship_${nonce}`;
   let blockId = null;
@@ -83,23 +99,48 @@ test("standalone coach event links through athlete profile and reaches compile o
       await pool.query("DELETE FROM sessions WHERE block_id = $1", [blockId]);
       await pool.query("DELETE FROM blocks WHERE block_id = $1", [blockId]);
     }
+    if (coachUserId) {
+      await pool.query("DELETE FROM product_account_events WHERE user_id = $1", [coachUserId]).catch(() => {});
+      await pool.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [coachUserId]).catch(() => {});
+      await pool.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [coachUserId]).catch(() => {});
+      await pool.query("DELETE FROM product_accounts WHERE user_id = $1", [coachUserId]).catch(() => {});
+    }
     await pool.query(
       `
       DELETE FROM beta_product_records
       WHERE subject_user_id = ANY($1::text[])
          OR actor_user_id = ANY($1::text[])
       `,
-      [[coachUserId, athleteUserId]]
+      [[coachUserId, athleteUserId].filter(Boolean)]
     );
   };
 
   try {
-    await cleanup();
     server = await listen();
     const address = server.address();
     assert.ok(address && typeof address === "object");
     const baseUrl = `http://127.0.0.1:${address.port}`;
     const timestamp = new Date().toISOString();
+
+    const coachRegistration = await request(baseUrl, "POST", "/account/register", {
+      actor_type: "coach",
+      display_name: "Event Workspace Coach",
+      email: `beta19_event_coach_${nonce}@example.com`,
+      password: "Beta19EventCoach!2026",
+      accepted_terms: true,
+      accepted_consent: true,
+      accepted_terms_version: "terms_v1",
+      accepted_consent_version: "consent_v1"
+    });
+    assertStatus(coachRegistration, 201, "coach account registration");
+
+    coachUserId = coachRegistration.json?.account?.user_id ?? "";
+    assert.ok(coachUserId, "Expected registered coach user_id");
+
+    const coachCookie = sessionCookie(coachRegistration, "coach account registration");
+    const coachCsrf = coachRegistration.json?.csrf_token;
+    assert.ok(coachCsrf, "Expected coach csrf token");
+
     const phase1Input = {
       consent_granted: true,
       engine_version: "EB2-1.0.0",
@@ -189,7 +230,7 @@ test("standalone coach event links through athlete profile and reaches compile o
         source_note: "Standalone event integration proof"
       })),
       expected_current_record_sha256: null
-    }), 201, "strength profile");
+    }, { cookie: coachCookie, csrf: coachCsrf }), 201, "strength profile");
 
     const event = await request(baseUrl, "POST", "/coach-workspace/events", {
       coach_user_id: coachUserId,
@@ -204,7 +245,7 @@ test("standalone coach event links through athlete profile and reaches compile o
       notes: "Factual integration event",
       created_at_iso8601: timestamp,
       updated_at_iso8601: timestamp
-    });
+    }, { cookie: coachCookie, csrf: coachCsrf });
     assertStatus(event, 201, "standalone event");
     const eventId = event.json?.event?.event_id;
     assert.ok(eventId);
@@ -256,7 +297,7 @@ test("standalone coach event links through athlete profile and reaches compile o
       template_id: templateId,
       activity_id: "powerlifting",
       event_id: eventId
-    });
+    }, { cookie: coachCookie, csrf: coachCsrf });
     assertStatus(assignment, 201, "profile assignment");
     assert.equal(assignment.json?.event_link?.event_id, eventId);
     assert.equal(assignment.json?.event_link?.template_id, templateId);
@@ -264,7 +305,9 @@ test("standalone coach event links through athlete profile and reaches compile o
     const links = await request(
       baseUrl,
       "GET",
-      `/coach-workspace/athlete-event-links?coach_user_id=${encodeURIComponent(coachUserId)}&athlete_user_id=${encodeURIComponent(athleteUserId)}`
+      `/coach-workspace/athlete-event-links?athlete_user_id=${encodeURIComponent(athleteUserId)}`,
+      undefined,
+      { cookie: coachCookie }
     );
     assertStatus(links, 200, "athlete event links");
     assert.equal(links.json?.links?.length, 1);
