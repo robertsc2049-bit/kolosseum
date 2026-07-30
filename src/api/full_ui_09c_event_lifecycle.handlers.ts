@@ -3,11 +3,8 @@
 import type { Request, Response } from "express";
 
 import {
-  PRODUCT_SESSION_COOKIE,
-  ProductAccountError,
-  assertProductCsrf,
-  resolveProductSession
-} from "./product_account_service.js";
+  authenticatedCoach
+} from "./coach_session_auth.js";
 import {
   archiveStandaloneEvent,
   cancelStandaloneEvent,
@@ -25,8 +22,7 @@ import {
   badRequest,
   conflict,
   forbidden,
-  notFound,
-  unauthorized
+  notFound
 } from "./http_errors.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -37,59 +33,6 @@ function isRecord(value: unknown): value is JsonRecord {
 
 function cleanString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
-}
-
-function cookieValue(request: Request, name: string): string {
-  const header = String(request.headers.cookie ?? "");
-  for (const item of header.split(";")) {
-    const separator = item.indexOf("=");
-    if (separator < 0 || item.slice(0, separator).trim() !== name) continue;
-    try {
-      return decodeURIComponent(item.slice(separator + 1).trim());
-    }
-    catch {
-      return "";
-    }
-  }
-  return "";
-}
-
-async function authenticatedCoach(
-  request: Request,
-  mutation: boolean
-): Promise<string> {
-  const rawToken = cookieValue(request, PRODUCT_SESSION_COOKIE);
-  if (!rawToken) {
-    throw unauthorized("ACCOUNT_SESSION_REQUIRED", {
-      failure_token: "account_session_missing"
-    });
-  }
-
-  try {
-    if (mutation) {
-      assertProductCsrf(rawToken, request.get("x-kolosseum-csrf"));
-    }
-    const session = await resolveProductSession(rawToken);
-    if (session.account_row.actor_type !== "coach") {
-      throw forbidden("COACH_ACCOUNT_REQUIRED", {
-        failure_token: "coach_account_required"
-      });
-    }
-    return session.account_row.user_id;
-  }
-  catch (error) {
-    if (error instanceof ProductAccountError) {
-      if (error.status === 401) {
-        throw unauthorized("ACCOUNT_SESSION_REQUIRED", {
-          failure_token: error.code
-        });
-      }
-      throw forbidden("ACCOUNT_ACTION_DENIED", {
-        failure_token: error.code
-      });
-    }
-    throw error;
-  }
 }
 
 function lifecycleHttpError(error: unknown): never {

@@ -789,6 +789,11 @@ async function api(method, path, body) {
       "application/json";
   }
 
+  if (method !== "GET") {
+    headers["x-kolosseum-csrf"] =
+      String(state.csrfToken ?? "");
+  }
+
   const response = await fetch(path, {
     method,
     credentials: "same-origin",
