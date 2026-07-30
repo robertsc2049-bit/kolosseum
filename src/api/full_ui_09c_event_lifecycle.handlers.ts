@@ -188,7 +188,11 @@ export async function getStandaloneEventDetailHandler(
       coachUserId,
       cleanString(request.params.event_id)
     );
-    return response.status(200).json({ ok: true, detail });
+    return response.status(200).json({
+      ok: true,
+      route_id: "coach_event_detail",
+      detail
+    });
   }
   catch (error) {
     lifecycleHttpError(error);

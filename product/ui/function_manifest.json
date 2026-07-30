@@ -1864,18 +1864,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "coach_events",
+          "api_routes": [
+            "/coach-workspace/events/library"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09c_event_lifecycle.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1906,18 +1908,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "coach_event_detail",
+          "api_routes": [
+            "/coach-workspace/events/:event_id/version"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09c_event_lifecycle.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1926,18 +1930,21 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "coach_event_detail",
+          "api_routes": [
+            "/coach-workspace/events/:event_id/cancel",
+            "/coach-workspace/events/:event_id/archive"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_09c_event_lifecycle.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5618,6 +5625,54 @@
     {
       "method": "POST",
       "path": "/coach-workspace/events",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/events/library",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/events/create",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/events/:event_id",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/events/:event_id/version",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/events/:event_id/cancel",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/events/:event_id/archive",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/events/:event_id/athletes/:athlete_id/link",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/events/:event_id/athletes/:athlete_id/unlink",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "events"
     },
