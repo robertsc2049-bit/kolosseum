@@ -642,9 +642,8 @@ test(
                   "BETA-19 persistent proof"
               })
             ),
-          updated_at_iso8601:
-            new Date()
-              .toISOString()
+          expected_current_record_sha256:
+            null
         }
       );
 
@@ -675,7 +674,53 @@ test(
         ?.profile
         ?.record_sha256
     );
+    const staleAthleteProfile =
+      await request(
+        server.baseUrl,
+        "POST",
+        "/coach-workspace/athlete-strength-profile",
+        {
+          coach_user_id:
+            coachUserId,
+          athlete_user_id:
+            athleteUserId,
+          preferred_weight_unit:
+            athleteProfile.json
+              .profile
+              .preferred_weight_unit,
+          load_rounding_increment:
+            athleteProfile.json
+              .profile
+              .load_rounding_increment,
+          bodyweight:
+            athleteProfile.json
+              .profile
+              .bodyweight,
+          bodyweight_unit:
+            athleteProfile.json
+              .profile
+              .bodyweight_unit,
+          benchmarks:
+            athleteProfile.json
+              .profile
+              .benchmarks,
+          expected_current_record_sha256:
+            null
+        }
+      );
 
+    assertStatus(
+      staleAthleteProfile,
+      409,
+      "stale athlete strength profile"
+    );
+
+    assert.equal(
+      staleAthleteProfile.json
+        ?.details
+        ?.failure_token,
+      "strength_reference_profile_stale_write"
+    );
     const percentageWorkItems =
       (
         selectedIds,
@@ -1410,7 +1455,33 @@ test(
           athleteProfile.json
             ?.profile
             ?.record_sha256,
-        rounding_increment: 2.5
+        rounding_increment: 2.5,
+        factual_source_only: true,
+        readiness_inferred: false,
+        safety_inferred: false,
+        suitability_inferred: false,
+        source: {
+          reference_id:
+            athleteProfile.json
+              ?.profile
+              ?.benchmarks
+              ?.[0]
+              ?.benchmark_id,
+          exercise_id:
+            exerciseIds[0],
+          source_type:
+            "tested_1rm",
+          source_value:
+            100,
+          source_unit:
+            "kg",
+          effective_date:
+            "2026-07-20",
+          source_note:
+            "BETA-19 persistent proof",
+          replaces_reference_id:
+            null
+        }
       }
     );
 

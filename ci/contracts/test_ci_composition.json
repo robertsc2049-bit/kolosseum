@@ -387,6 +387,10 @@
     {
       "kind": "command",
       "value": "node test/full_ui_04c_coach_commercial.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/full_ui_08c_strength_reference_lifecycle.test.mjs"
     }
   ]
 }

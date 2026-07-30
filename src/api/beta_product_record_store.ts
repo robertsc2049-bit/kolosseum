@@ -5,6 +5,9 @@
 
 import { pool } from "../db/pool.js";
 
+type QueryClient =
+  Pick<typeof pool, "query">;
+
 type JsonRecord =
   Record<string, unknown>;
 
@@ -422,10 +425,11 @@ function recordMetadata(
 }
 
 async function storedExactRecord(
-  metadata: ProductRecordMetadata
+  metadata: ProductRecordMetadata,
+  client: QueryClient = pool
 ): Promise<JsonRecord | null> {
   const result =
-    await pool.query(
+    await client.query(
       `
       SELECT record_payload
       FROM beta_product_records
@@ -458,7 +462,8 @@ async function storedExactRecord(
  * Failure: Unsupported or malformed records fail closed.
  */
 export async function persistBetaProductRecord(
-  record: unknown
+  record: unknown,
+  client: QueryClient = pool
 ): Promise<Readonly<JsonRecord>> {
   const metadata =
     recordMetadata(record);
@@ -466,7 +471,7 @@ export async function persistBetaProductRecord(
   const recordPayload =
     JSON.stringify(record);
 
-  await pool.query(
+  await client.query(
     `
     INSERT INTO beta_product_records (
       record_type,
@@ -505,7 +510,10 @@ export async function persistBetaProductRecord(
   );
 
   const stored =
-    await storedExactRecord(metadata);
+    await storedExactRecord(
+      metadata,
+      client
+    );
 
   if (!stored) {
     throw new Error(
