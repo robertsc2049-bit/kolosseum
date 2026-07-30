@@ -107,19 +107,8 @@ export function phase4AssembleProgram(
 
   if (!template) {
     return {
-      ok: true,
-      program: {
-        program_id: "PROGRAM_STUB",
-        version: "1.0.0",
-        blocks: [],
-        planned_items: [],
-        planned_exercise_ids: [],
-        exercises: [],
-        exercise_pool: {},
-        target_exercise_id: "",
-        constraints: phase3.constraints
-      },
-      notes: ["PHASE_4_STUB"]
+      ok: false,
+      failure_token: "phase4_unsupported_activity"
     };
   }
 
