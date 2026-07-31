@@ -39,6 +39,7 @@ const DEFAULT_STATE = Object.freeze({
   athleteEventLinks: {},
   standaloneEventLibrary: [],
   templateEventBindingStatus: null,
+  athleteToday: null,
   coachTemplates: [],
   templateLibrarySearch: "",
   templateLibraryStatusFilter: "all",
@@ -124,7 +125,16 @@ const elements = {
 
   todayGreeting: document.getElementById("todayGreeting"),
   createSessionButton: document.getElementById("createSessionButton"),
+  todayServiceUnavailable: document.getElementById("todayServiceUnavailable"),
+  todayRetryButton: document.getElementById("todayRetryButton"),
+  todayProgrammeSummary: document.getElementById("todayProgrammeSummary"),
+  todayProgrammeName: document.getElementById("todayProgrammeName"),
+  todayProgrammeVersion: document.getElementById("todayProgrammeVersion"),
+  todayBlockWeek: document.getElementById("todayBlockWeek"),
   todaySessionEmpty: document.getElementById("todaySessionEmpty"),
+  todaySessionEmptyIcon: document.getElementById("todaySessionEmptyIcon"),
+  todaySessionEmptyHeading: document.getElementById("todaySessionEmptyHeading"),
+  todaySessionEmptyBody: document.getElementById("todaySessionEmptyBody"),
   todaySessionContent: document.getElementById("todaySessionContent"),
   todayStatusBadge: document.getElementById("todayStatusBadge"),
   todayActivity: document.getElementById("todayActivity"),
@@ -132,7 +142,12 @@ const elements = {
   todayCompleted: document.getElementById("todayCompleted"),
   todayRemaining: document.getElementById("todayRemaining"),
   todayDropped: document.getElementById("todayDropped"),
+  todayResolvedLoad: document.getElementById("todayResolvedLoad"),
+  todayResolvedLoadValue: document.getElementById("todayResolvedLoadValue"),
+  todayResolvedLoadSource: document.getElementById("todayResolvedLoadSource"),
   continueSessionButton: document.getElementById("continueSessionButton"),
+  todayNotes: document.getElementById("todayNotes"),
+  todayNotesList: document.getElementById("todayNotesList"),
   todayHistoryCount: document.getElementById("todayHistoryCount"),
   todayRecentList: document.getElementById("todayRecentList"),
   todayEventCard: document.getElementById("todayEventCard"),
@@ -1076,6 +1091,10 @@ function setView(view) {
   elements.topbarTitle.textContent = viewTitle(view);
   elements.sidebar.classList.remove("open");
 
+  if (view === "today" && state.role === "athlete") {
+    loadAthleteToday().catch(handleError);
+  }
+
   if (view === "history" && state.role === "athlete") {
     refreshHistory().catch(handleError);
   }
@@ -1542,11 +1561,16 @@ async function createSession() {
   showBusy("Creating session…");
 
   try {
-    const body = state.coachCode
+    // A freshly-resolved coach id from the server-authoritative Today state
+    // always wins over the older, potentially-stale coachCode cache - this
+    // is what actually decides whose assignment the next session comes from.
+    const coachUserId = state.athleteToday?.coach_user_id || state.coachCode;
+
+    const body = coachUserId
       ? {
           phase1_input: state.phase1Input,
           beta_user_id: state.profile.userId,
-          beta_coach_user_id: state.coachCode
+          beta_coach_user_id: coachUserId
         }
       : {
           phase1_input: state.phase1Input,
@@ -1586,6 +1610,7 @@ async function createSession() {
     }
 
     await loadSessionState();
+    await loadAthleteToday();
     setView("session");
     showNotice("Session created.");
   }
@@ -1841,50 +1866,255 @@ function bindSessionCards(container) {
   }
 }
 
-function renderToday() {
-  const sessionState = state.activeSessionState;
-  const hasSession = Boolean(state.activeSessionId && sessionState);
-  const activeLocalSession = state.localSessions.find(
-    (session) => session.session_id === state.activeSessionId
-  );
-  const eventPlan = activeLocalSession?.event_plan && typeof activeLocalSession.event_plan === "object"
-    ? activeLocalSession.event_plan
-    : null;
+// FULL-UI-14C: server-authoritative copy for every declared Today state.
+// Coach notes are rendered separately (renderTodayNotes) and never feed into
+// any of this - they cannot change which state, session, exercise, load, or
+// order is shown.
+const TODAY_STATE_COPY = Object.freeze({
+  no_current_assignment: Object.freeze({
+    icon: "•",
+    heading: "No active programme",
+    body: "You don't have a coach-assigned programme right now. Ask your coach to assign one, or start a self-directed session below.",
+    badge: { label: "No programme", className: "neutral" }
+  }),
+  relationship_ended: Object.freeze({
+    icon: "•",
+    heading: "Coaching relationship ended",
+    body: "Your coaching relationship for this programme is no longer active. Contact your coach to reconnect.",
+    badge: { label: "Relationship ended", className: "partial" }
+  }),
+  missing_strength_reference: Object.freeze({
+    icon: "•",
+    heading: "Waiting on a strength reference",
+    body: "This programme needs a working-max reference your coach hasn't recorded yet. Ask your coach to add it to your profile before you can continue.",
+    badge: { label: "Reference needed", className: "partial" }
+  }),
+  programme_complete: Object.freeze({
+    icon: "✓",
+    heading: "Programme complete",
+    body: "You've completed every session in this programme. Your coach will assign what's next.",
+    badge: { label: "Complete", className: "complete" }
+  }),
+  no_session: Object.freeze({
+    icon: "+",
+    heading: "No session is open",
+    body: "Start your next session from this programme when you're ready to train.",
+    badge: { label: "No session", className: "neutral" }
+  }),
+  session_already_complete: Object.freeze({
+    icon: "✓",
+    heading: "Session complete",
+    body: "You already completed this session. Start the next one from this programme when you're ready.",
+    badge: { label: "Session complete", className: "complete" }
+  })
+});
 
-  elements.todaySessionEmpty.hidden = hasSession;
-  elements.todaySessionContent.hidden = !hasSession;
-  elements.createSessionButton.textContent = hasSession ? "Create another session" : "Create session";
+function todaySessionLabel(session) {
+  const parts = [];
+  if (session?.template_block_name) parts.push(`Block: ${session.template_block_name}`);
+  if (Number.isInteger(session?.template_week_index_global)) {
+    parts.push(`Week ${session.template_week_index_global}`);
+  }
+  if (Number.isInteger(session?.template_session_index) && session?.total_session_count) {
+    parts.push(`Session ${session.template_session_index + 1} of ${session.total_session_count}`);
+  }
+  return parts.join(" · ");
+}
+
+function renderTodayProgramme(today) {
+  const assignment = today?.assignment ?? null;
+  elements.todayProgrammeSummary.hidden = !assignment;
+  if (!assignment) return;
+
+  elements.todayProgrammeName.textContent = assignment.template_name || "Assigned programme";
+  elements.todayProgrammeVersion.textContent = assignment.template_version
+    ? `Version ${assignment.template_version}`
+    : "";
+  elements.todayBlockWeek.textContent = todaySessionLabel(today.session);
+}
+
+function renderTodayResolvedLoad(session) {
+  const firstItem = Array.isArray(session?.planned_items) ? session.planned_items[0] : null;
+  const resolved = firstItem?.resolved_load;
+
+  elements.todayResolvedLoad.hidden = !resolved;
+  if (!resolved) return;
+
+  elements.todayResolvedLoadValue.textContent = `${resolved.value} ${resolved.unit}`;
+  const source = resolved.source;
+  elements.todayResolvedLoadSource.textContent = source
+    ? `${strengthSourceLabel(source.source_type)} · effective ${formatDate(source.effective_date)}`
+    : "";
+}
+
+function renderTodayNotes(notes) {
+  const list = Array.isArray(notes) ? notes : [];
+  elements.todayNotes.hidden = list.length === 0;
+  elements.todayNotesList.innerHTML = list
+    .map((note) => `<li>${escapeHtml(note.note_text)}<br /><small class="muted">${formatDate(note.created_at_iso8601)}</small></li>`)
+    .join("");
+}
+
+function renderTodayEvent(event) {
+  if (!event) {
+    elements.todayEventCard.hidden = true;
+    return;
+  }
+
+  if (event.status === "unavailable") {
+    elements.todayEventCard.hidden = false;
+    elements.todayEventType.textContent = "Unavailable";
+    elements.todayEventCountdown.textContent = "—";
+    elements.todayEventName.textContent = "This event is no longer available";
+    elements.todayEventDate.textContent = titleCase(event.reason ?? "event_unavailable");
+    return;
+  }
+
+  elements.todayEventCard.hidden = false;
+  elements.todayEventType.textContent = titleCase(event.event_type ?? "event");
+  elements.todayEventCountdown.textContent = countdownLabel(event.event_date);
+  elements.todayEventName.textContent = event.event_name || "Event";
+  elements.todayEventDate.textContent = `${formatDate(event.event_date)}${event.location ? ` · ${event.location}` : ""}`;
+}
+
+function renderTodayRecent() {
   elements.todayHistoryCount.textContent = String(state.history.length);
-
-  if (hasSession) {
-    const counts = countsFromSession(sessionState);
-    const classification = sessionClassification(sessionState);
-    setBadge(elements.todayStatusBadge, classification);
-    elements.todayActivity.textContent = titleCase(state.profile?.activityId ?? "training");
-    elements.todaySessionTitle.textContent = activeLocalSession?.template_session_title
-      ? String(activeLocalSession.template_session_title)
-      : `${titleCase(state.profile?.activityId ?? "training")} session`;
-    elements.todayCompleted.textContent = String(counts.completed.length);
-    elements.todayRemaining.textContent = String(counts.remaining.length);
-    elements.todayDropped.textContent = String(counts.dropped.length);
-  }
-  else {
-    setBadge(elements.todayStatusBadge, { label: "No session", className: "neutral" });
-  }
-
-  elements.todayEventCard.hidden = !eventPlan;
-  if (eventPlan) {
-    elements.todayEventType.textContent = titleCase(eventPlan.event_type ?? "event");
-    elements.todayEventCountdown.textContent = countdownLabel(eventPlan.event_date);
-    elements.todayEventName.textContent = String(eventPlan.event_name ?? "Event");
-    elements.todayEventDate.textContent = `${formatDate(eventPlan.event_date)}${eventPlan.location ? ` · ${eventPlan.location}` : ""}`;
-  }
-
   const latest = [...state.history].reverse().slice(0, 4);
   elements.todayRecentList.innerHTML = latest.length
     ? latest.map((session) => recordCard(session)).join("")
     : '<div class="empty-state"><p>No recent sessions are recorded.</p></div>';
   bindSessionCards(elements.todayRecentList);
+}
+
+function renderToday() {
+  const today = state.athleteToday;
+
+  elements.todayServiceUnavailable.hidden = true;
+  elements.todayProgrammeSummary.hidden = true;
+  elements.todaySessionEmpty.hidden = true;
+  elements.todaySessionContent.hidden = true;
+
+  renderTodayRecent();
+
+  if (!today || today.state === "service_unavailable") {
+    elements.todayServiceUnavailable.hidden = false;
+    elements.todayEventCard.hidden = true;
+    elements.todayNotes.hidden = true;
+    setBadge(elements.todayStatusBadge, { label: "Unavailable", className: "partial" });
+    elements.createSessionButton.textContent = "Create session";
+    return;
+  }
+
+  renderTodayNotes(today.notes);
+  renderTodayEvent(today.event);
+  renderTodayProgramme(today);
+
+  const messageStates = [
+    "no_current_assignment",
+    "relationship_ended",
+    "missing_strength_reference",
+    "programme_complete",
+    "no_session",
+    "session_already_complete"
+  ];
+
+  if (messageStates.includes(today.state)) {
+    const copy = TODAY_STATE_COPY[today.state];
+    elements.todaySessionEmpty.hidden = false;
+    elements.todaySessionEmptyIcon.textContent = copy.icon;
+    elements.todaySessionEmptyHeading.textContent = copy.heading;
+    elements.todaySessionEmptyBody.textContent = copy.body;
+    setBadge(elements.todayStatusBadge, copy.badge);
+
+    if (today.state === "session_already_complete") {
+      elements.createSessionButton.textContent = "Start next session";
+    }
+    else if (today.state === "no_session") {
+      elements.createSessionButton.textContent = "Start session";
+    }
+    else {
+      elements.createSessionButton.textContent = "Create session";
+    }
+    return;
+  }
+
+  // today.state === "ok": a real, server-selected session exists to continue.
+  const sessionState = state.activeSessionId === today.session?.session_id
+    ? state.activeSessionState
+    : null;
+
+  elements.todaySessionContent.hidden = false;
+  elements.createSessionButton.textContent = "Create another session";
+
+  if (sessionState) {
+    const counts = countsFromSession(sessionState);
+    const classification = sessionClassification(sessionState);
+    setBadge(elements.todayStatusBadge, classification);
+    elements.todayCompleted.textContent = String(counts.completed.length);
+    elements.todayRemaining.textContent = String(counts.remaining.length);
+    elements.todayDropped.textContent = String(counts.dropped.length);
+  }
+  else {
+    setBadge(elements.todayStatusBadge, { label: "In progress", className: "active" });
+    elements.todayCompleted.textContent = "0";
+    elements.todayRemaining.textContent = "4";
+    elements.todayDropped.textContent = "0";
+  }
+
+  elements.todayActivity.textContent = titleCase(state.profile?.activityId ?? "training");
+  elements.todaySessionTitle.textContent = today.session?.template_session_title
+    ? String(today.session.template_session_title)
+    : `${titleCase(state.profile?.activityId ?? "training")} session`;
+
+  renderTodayResolvedLoad(today.session);
+}
+
+// Fetches the athlete's single, server-authoritative Today state. This is
+// the only thing allowed to decide which session is current - it must be
+// re-run on every load/refresh, never inferred from cached localStorage
+// state, and its session_id always wins over whatever was last cached.
+async function loadAthleteToday() {
+  if (state.role !== "athlete" || !state.profile?.userId) return null;
+
+  try {
+    const response = await api("POST", "/sessions/beta-athlete-today", {
+      athlete_user_id: state.profile.userId
+    });
+    state.athleteToday = response;
+  }
+  catch {
+    state.athleteToday = { state: "service_unavailable" };
+  }
+
+  const serverSessionId = state.athleteToday?.session?.session_id ?? null;
+
+  if (serverSessionId) {
+    if (state.activeSessionId !== serverSessionId) {
+      state.activeSessionId = serverSessionId;
+      state.activeSessionState = null;
+    }
+    saveState();
+    if (!state.activeSessionState) {
+      try {
+        await loadSessionState();
+      }
+      catch {
+        // Today can still render from the server-reported facts above even
+        // if the deeper session-state fetch fails; the session view itself
+        // will retry when opened.
+      }
+    }
+  }
+  else {
+    // No session to continue right now - a leftover cached session id must
+    // never be allowed to drive Today's next-action decision.
+    state.activeSessionId = null;
+    state.activeSessionState = null;
+    saveState();
+  }
+
+  renderToday();
+  return state.athleteToday;
 }
 
 
@@ -10672,16 +10902,12 @@ async function enterApplication() {
 
     try {
       await refreshHistory({ quiet: true });
-
-      if (!state.activeSessionId && state.history.length > 0) {
-        const latest = state.history[state.history.length - 1];
-        state.activeSessionId = latest.session_id;
-        saveState();
-      }
-
-      if (state.activeSessionId) {
-        await loadSessionState();
-      }
+      // Server state after refresh decides which session is current - a
+      // locally-cached activeSessionId (from a previous programme, a since-
+      // replaced assignment, or a stale reload) must never be trusted on
+      // its own. loadAthleteToday() re-derives it from the athlete's actual
+      // current assignment/session every time.
+      await loadAthleteToday();
     }
     catch (error) {
       showNotice(error.message, "error");
@@ -10789,6 +11015,7 @@ elements.menuButton.addEventListener("click", () => {
 elements.topbarAccount.addEventListener("click", () => setView("account"));
 elements.createSessionButton.addEventListener("click", () => createSession().catch(handleError));
 elements.continueSessionButton.addEventListener("click", () => setView("session"));
+elements.todayRetryButton.addEventListener("click", () => loadAthleteToday().catch(handleError));
 elements.startSessionButton.addEventListener("click", () => startSession().catch(handleError));
 elements.completeExerciseButton.addEventListener("click", () => {
   postSessionEvent({ type: "COMPLETE_STEP" }).catch(handleError);

@@ -41,6 +41,10 @@ import {
   buildStoredBetaAthleteHistoryResult,
   createStoredBeta17AssignmentResult
 } from "./beta_product_journey_service.js";
+import {
+  AthleteTodayError,
+  loadAthleteTodayView
+} from "./athlete_today_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -285,6 +289,38 @@ export async function getBetaAthleteHistory(
   return res
     .status(result.status)
     .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Returns the athlete's single, server-authoritative "Today" view -
+ * current assignment/programme version, next executable (or in-progress)
+ * session with resolved load and source, linked event status, and any
+ * athlete-visible coach notes - or one of the declared empty/unavailable
+ * states when the normal path does not apply.
+ * Boundary: Read-only. Never creates a session or assignment; a client must
+ * call the existing compile/session endpoints to act on what this reports.
+ */
+export async function getAthleteTodayView(
+  req: Request,
+  res: Response
+) {
+  const body = isRecord(req.body) ? req.body : {};
+  const athleteUserId = asString(body.athlete_user_id) ?? "";
+
+  try {
+    const today = await loadAthleteTodayView(athleteUserId);
+    return res.status(200).json({ ok: true, ...today });
+  }
+  catch (error) {
+    if (error instanceof AthleteTodayError) {
+      throw badRequest("ATHLETE_TODAY_INVALID", {
+        failure_token: "athlete_today_invalid",
+        reason: error.reason
+      });
+    }
+    throw error;
+  }
 }
 
 /**

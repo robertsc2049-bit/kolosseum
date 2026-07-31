@@ -3249,7 +3249,7 @@
       "area_id": "athlete_today",
       "title": "Athlete Today",
       "slice_id": "FULL-UI-14",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "today_programme",
@@ -3258,17 +3258,19 @@
             "athlete"
           ],
           "route_id": "athlete_today",
-          "api_routes": [],
+          "api_routes": [
+            "/sessions/beta-athlete-today"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3278,17 +3280,19 @@
             "athlete"
           ],
           "route_id": "athlete_today",
-          "api_routes": [],
+          "api_routes": [
+            "/sessions/beta-athlete-today"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3299,13 +3303,14 @@
           ],
           "route_id": "athlete_today",
           "api_routes": [
+            "/sessions/beta-athlete-today",
             "/blocks/compile"
           ],
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_coach_programme_workspace.test.mjs",
-          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3320,12 +3325,14 @@
             "athlete"
           ],
           "route_id": "athlete_today",
-          "api_routes": [],
+          "api_routes": [
+            "/sessions/beta-athlete-today"
+          ],
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_event_programme_compiler_surface.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3340,17 +3347,19 @@
             "athlete"
           ],
           "route_id": "athlete_today",
-          "api_routes": [],
+          "api_routes": [
+            "/sessions/beta-athlete-today"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3360,17 +3369,19 @@
             "athlete"
           ],
           "route_id": "athlete_today",
-          "api_routes": [],
+          "api_routes": [
+            "/sessions/beta-athlete-today"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3380,17 +3391,19 @@
             "athlete"
           ],
           "route_id": "athlete_today",
-          "api_routes": [],
+          "api_routes": [
+            "/sessions/beta-athlete-today"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3399,18 +3412,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "athlete_today",
+          "api_routes": [
+            "/sessions/beta-athlete-today"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3420,12 +3435,15 @@
             "athlete"
           ],
           "route_id": "athlete_today",
-          "api_routes": [],
+          "api_routes": [
+            "/sessions/beta-athlete-today",
+            "/blocks/compile"
+          ],
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_app_surface.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -5731,6 +5749,12 @@
       "path": "/sessions/beta-athlete-history",
       "source": "src/api/sessions.routes.ts",
       "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-athlete-today",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "athlete_today"
     },
     {
       "method": "POST",

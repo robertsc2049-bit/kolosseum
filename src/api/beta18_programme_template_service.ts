@@ -3293,6 +3293,12 @@ export async function materialiseNextCoachTemplateProgram(
     event_compile_summary_override?: Readonly<JsonRecord> | null;
     event_record_sha256?: string | null;
     base_program: JsonRecord;
+    // FULL-UI-14C: when provided, materialise the session at this exact
+    // index instead of counting existing rows to find the next one to
+    // create. Used only for a read-only "what does the athlete's current,
+    // already-created session actually contain" lookup (Athlete Today's
+    // "continue" case) - it never changes which session gets created next.
+    session_index_override?: number;
   }>
 ): Promise<Readonly<JsonRecord>> {
   const coachUserId =
@@ -3346,25 +3352,27 @@ export async function materialiseNextCoachTemplateProgram(
       template
     );
 
-  const countResult =
-    await pool.query(
-      `
-      SELECT count(*)::integer
-        AS session_count
-      FROM sessions
-      WHERE beta_assignment_id = $1
-      `,
-      [
-        assignmentId
-      ]
-    );
-
   const nextIndex =
-    Number(
-      countResult.rows?.[0]
-        ?.session_count ??
-      0
-    );
+    Number.isInteger(
+      input.session_index_override
+    )
+      ? Number(input.session_index_override)
+      : Number(
+          (
+            await pool.query(
+              `
+              SELECT count(*)::integer
+                AS session_count
+              FROM sessions
+              WHERE beta_assignment_id = $1
+              `,
+              [
+                assignmentId
+              ]
+            )
+          ).rows?.[0]?.session_count ??
+          0
+        );
 
   const selectedSession =
     sessions[nextIndex];

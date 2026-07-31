@@ -253,11 +253,26 @@
                 <span>Current session</span>
                 <span id="todayStatusBadge" class="badge neutral">No session</span>
               </div>
-              <div id="todaySessionEmpty" class="empty-state">
-                <div class="empty-icon">+</div>
-                <h3>No session is open</h3>
-                <p>Create a session from your declared activity when you are ready to train.</p>
+
+              <div id="todayServiceUnavailable" class="empty-state" data-today-state="service_unavailable" hidden>
+                <div class="empty-icon">!</div>
+                <h3>Today is unavailable right now</h3>
+                <p>We could not reach the server to load your current programme. Check your connection and try again.</p>
+                <button id="todayRetryButton" class="button secondary" type="button">Retry</button>
               </div>
+
+              <div id="todayProgrammeSummary" class="today-programme-summary" hidden>
+                <p id="todayProgrammeName" class="eyebrow"></p>
+                <p id="todayProgrammeVersion" class="muted"></p>
+                <p id="todayBlockWeek" class="muted"></p>
+              </div>
+
+              <div id="todaySessionEmpty" class="empty-state" hidden>
+                <div class="empty-icon" id="todaySessionEmptyIcon">+</div>
+                <h3 id="todaySessionEmptyHeading">No session is open</h3>
+                <p id="todaySessionEmptyBody">Create a session from your declared activity when you are ready to train.</p>
+              </div>
+
               <div id="todaySessionContent" hidden>
                 <p id="todayActivity" class="eyebrow">Powerlifting</p>
                 <h3 id="todaySessionTitle">Training session</h3>
@@ -266,7 +281,16 @@
                   <div><strong id="todayRemaining">0</strong><span>Remaining</span></div>
                   <div><strong id="todayDropped">0</strong><span>Dropped</span></div>
                 </div>
+                <div id="todayResolvedLoad" class="today-resolved-load" hidden>
+                  <p id="todayResolvedLoadValue" class="today-resolved-load-value"></p>
+                  <p id="todayResolvedLoadSource" class="muted"></p>
+                </div>
                 <button id="continueSessionButton" class="button primary" type="button">Open session</button>
+              </div>
+
+              <div id="todayNotes" class="today-notes" hidden>
+                <p class="eyebrow">From your coach</p>
+                <ul id="todayNotesList" class="today-notes-list"></ul>
               </div>
             </article>
 

@@ -15,6 +15,7 @@ import {
   createBeta17CoachNote,
   createBeta17CoachProfile,
   createBeta17Relationship,
+  getAthleteTodayView,
   getBeta17CoachArtefacts,
   getBetaAthleteHistory,
   getDecisionSummaryByRunId,
@@ -71,6 +72,11 @@ sessionsRouter.post(
 sessionsRouter.post(
   "/beta-athlete-history",
   asyncHandler(getBetaAthleteHistory)
+);
+
+sessionsRouter.post(
+  "/beta-athlete-today",
+  asyncHandler(getAthleteTodayView)
 );
 
 sessionsRouter.post("/plan", asyncHandler(planSession));
