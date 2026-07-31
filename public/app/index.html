@@ -330,6 +330,19 @@
             <span id="sessionStatusBadge" class="badge neutral">Not started</span>
           </div>
 
+          <div id="sessionLoading" class="panel empty-state" hidden>
+            <div class="empty-icon">…</div>
+            <h3>Loading session…</h3>
+            <p>Fetching the current session record.</p>
+          </div>
+
+          <div id="sessionServiceUnavailable" class="panel empty-state" hidden>
+            <div class="empty-icon">!</div>
+            <h3>Session could not be loaded</h3>
+            <p>The session record could not be fetched. Check your connection and try again.</p>
+            <button id="sessionRetryButton" class="button primary" type="button">Retry</button>
+          </div>
+
           <div id="sessionEmpty" class="panel empty-state">
             <div class="empty-icon">S</div>
             <h3>No session selected</h3>
@@ -353,9 +366,53 @@
                     <button id="returnSkipButton" class="button secondary" type="button">Finish without remaining work</button>
                   </div>
                 </div>
+
+                <div id="skipReasonPanel" class="skip-reason-panel" hidden>
+                  <h3>Skip this exercise?</h3>
+                  <p>Choose the factual reason for the skip.</p>
+                  <select id="skipReasonSelect">
+                    <option value="equipment_unavailable">Equipment unavailable</option>
+                    <option value="time_constraint">Time constraint</option>
+                    <option value="pain_or_discomfort">Pain or discomfort</option>
+                    <option value="fatigue">Fatigue</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <div class="button-row">
+                    <button id="confirmSkipButton" class="button primary" type="button">Confirm skip</button>
+                    <button id="cancelSkipButton" class="button secondary" type="button">Cancel</button>
+                  </div>
+                </div>
+
+                <div id="painReportPanel" class="pain-report-panel" hidden>
+                  <h3>Report pain during this exercise?</h3>
+                  <p>This records only that pain was reported for this exercise. It does not diagnose, score risk, or provide treatment advice.</p>
+                  <div class="button-row">
+                    <button id="confirmPainReportButton" class="button primary" type="button">Record pain reported</button>
+                    <button id="cancelPainReportButton" class="button secondary" type="button">Cancel</button>
+                  </div>
+                </div>
+
+                <div id="substitutionPanel" class="substitution-panel" hidden>
+                  <h3>Request a substitution</h3>
+                  <p>Select any equipment that is unavailable right now.</p>
+                  <div class="button-row" id="substitutionEquipmentChoices">
+                    <label><input type="checkbox" value="barbell" class="substitution-equipment-option"> Barbell</label>
+                    <label><input type="checkbox" value="dumbbell" class="substitution-equipment-option"> Dumbbell</label>
+                    <label><input type="checkbox" value="kettlebell" class="substitution-equipment-option"> Kettlebell</label>
+                  </div>
+                  <div class="button-row">
+                    <button id="checkSubstitutionButton" class="button primary" type="button">Check for substitute</button>
+                    <button id="cancelSubstitutionButton" class="button secondary" type="button">Cancel</button>
+                  </div>
+                  <div id="substitutionResult" class="substitution-result" hidden></div>
+                </div>
+
                 <div id="sessionActions" class="session-actions">
                   <button id="startSessionButton" class="button primary wide" type="button">Start session</button>
                   <button id="completeExerciseButton" class="button primary wide" type="button" hidden>Mark exercise complete</button>
+                  <button id="skipExerciseButton" class="button secondary wide" type="button" hidden>Skip exercise</button>
+                  <button id="reportPainButton" class="button secondary wide" type="button" hidden>Report pain</button>
+                  <button id="requestSubstitutionButton" class="button secondary wide" type="button" hidden>Request substitution</button>
                   <button id="splitSessionButton" class="button secondary wide" type="button" hidden>Stop and return later</button>
                 </div>
               </article>
@@ -370,6 +427,20 @@
                 </div>
               </aside>
             </div>
+
+            <article id="sessionCompletionSummary" class="panel session-completion-summary" hidden>
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Session ended</p>
+                  <h3 id="sessionCompletionHeading">Session complete</h3>
+                </div>
+              </div>
+              <p id="sessionCompletionBody" class="muted"></p>
+              <div class="metric-stack">
+                <div><span>Completed</span><strong id="sessionCompletionCompletedCount">0</strong></div>
+                <div><span>Dropped</span><strong id="sessionCompletionDroppedCount">0</strong></div>
+              </div>
+            </article>
 
             <article class="panel">
               <div class="panel-header">

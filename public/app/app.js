@@ -160,14 +160,31 @@ const elements = {
   sessionTitle: document.getElementById("sessionTitle"),
   sessionSubtitle: document.getElementById("sessionSubtitle"),
   sessionStatusBadge: document.getElementById("sessionStatusBadge"),
+  sessionLoading: document.getElementById("sessionLoading"),
+  sessionServiceUnavailable: document.getElementById("sessionServiceUnavailable"),
+  sessionRetryButton: document.getElementById("sessionRetryButton"),
   sessionEmpty: document.getElementById("sessionEmpty"),
   sessionWorkspace: document.getElementById("sessionWorkspace"),
   sessionProgressText: document.getElementById("sessionProgressText"),
   currentExercise: document.getElementById("currentExercise"),
   returnDecision: document.getElementById("returnDecision"),
+  skipReasonPanel: document.getElementById("skipReasonPanel"),
+  skipReasonSelect: document.getElementById("skipReasonSelect"),
+  confirmSkipButton: document.getElementById("confirmSkipButton"),
+  cancelSkipButton: document.getElementById("cancelSkipButton"),
+  painReportPanel: document.getElementById("painReportPanel"),
+  confirmPainReportButton: document.getElementById("confirmPainReportButton"),
+  cancelPainReportButton: document.getElementById("cancelPainReportButton"),
+  substitutionPanel: document.getElementById("substitutionPanel"),
+  checkSubstitutionButton: document.getElementById("checkSubstitutionButton"),
+  cancelSubstitutionButton: document.getElementById("cancelSubstitutionButton"),
+  substitutionResult: document.getElementById("substitutionResult"),
   sessionActions: document.getElementById("sessionActions"),
   startSessionButton: document.getElementById("startSessionButton"),
   completeExerciseButton: document.getElementById("completeExerciseButton"),
+  skipExerciseButton: document.getElementById("skipExerciseButton"),
+  reportPainButton: document.getElementById("reportPainButton"),
+  requestSubstitutionButton: document.getElementById("requestSubstitutionButton"),
   splitSessionButton: document.getElementById("splitSessionButton"),
   returnContinueButton: document.getElementById("returnContinueButton"),
   returnSkipButton: document.getElementById("returnSkipButton"),
@@ -175,6 +192,11 @@ const elements = {
   sessionCompletedCount: document.getElementById("sessionCompletedCount"),
   sessionRemainingCount: document.getElementById("sessionRemainingCount"),
   sessionDroppedCount: document.getElementById("sessionDroppedCount"),
+  sessionCompletionSummary: document.getElementById("sessionCompletionSummary"),
+  sessionCompletionHeading: document.getElementById("sessionCompletionHeading"),
+  sessionCompletionBody: document.getElementById("sessionCompletionBody"),
+  sessionCompletionCompletedCount: document.getElementById("sessionCompletionCompletedCount"),
+  sessionCompletionDroppedCount: document.getElementById("sessionCompletionDroppedCount"),
   exerciseQueue: document.getElementById("exerciseQueue"),
 
   refreshHistoryButton: document.getElementById("refreshHistoryButton"),
@@ -1638,12 +1660,22 @@ async function startSession() {
   }
 }
 
-async function postSessionEvent(event) {
+function newClientRequestId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `crid_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
+async function postSessionEvent(event, clientRequestId = newClientRequestId()) {
   if (!state.activeSessionId) return;
 
   showBusy("Recording session…");
   try {
-    await api("POST", `/sessions/${encodeURIComponent(state.activeSessionId)}/events`, { event });
+    await api("POST", `/sessions/${encodeURIComponent(state.activeSessionId)}/events`, {
+      ...event,
+      client_request_id: clientRequestId
+    });
     const local = state.localSessions.find((session) => session.session_id === state.activeSessionId);
     upsertLocalSession(state.activeSessionId, {
       runtime_event_count: Number(local?.runtime_event_count ?? 0) + 1
@@ -1659,14 +1691,31 @@ async function postSessionEvent(event) {
 async function loadSessionState() {
   if (!state.activeSessionId) {
     state.activeSessionState = null;
+    elements.sessionLoading.hidden = true;
+    elements.sessionServiceUnavailable.hidden = true;
     renderAthleteSession();
     return null;
   }
 
-  const sessionState = await api(
-    "GET",
-    `/sessions/${encodeURIComponent(state.activeSessionId)}/state`
-  );
+  elements.sessionServiceUnavailable.hidden = true;
+  elements.sessionLoading.hidden = false;
+  elements.sessionEmpty.hidden = true;
+  elements.sessionWorkspace.hidden = true;
+
+  let sessionState;
+  try {
+    sessionState = await api(
+      "GET",
+      `/sessions/${encodeURIComponent(state.activeSessionId)}/state`
+    );
+  }
+  catch (error) {
+    elements.sessionLoading.hidden = true;
+    elements.sessionServiceUnavailable.hidden = false;
+    throw error;
+  }
+
+  elements.sessionLoading.hidden = true;
 
   state.activeSessionState = sessionState;
 
@@ -1681,12 +1730,142 @@ async function loadSessionState() {
   return sessionState;
 }
 
+let currentFocusExerciseId = null;
+
+function hideAllActionPanels() {
+  elements.skipReasonPanel.hidden = true;
+  elements.painReportPanel.hidden = true;
+  elements.substitutionPanel.hidden = true;
+  elements.substitutionResult.hidden = true;
+  elements.substitutionResult.innerHTML = "";
+  for (const box of document.querySelectorAll(".substitution-equipment-option")) {
+    box.checked = false;
+  }
+}
+
+function openSkipReasonPanel() {
+  if (!currentFocusExerciseId) return;
+  hideAllActionPanels();
+  elements.skipReasonPanel.hidden = false;
+}
+
+function openPainReportPanel() {
+  if (!currentFocusExerciseId) return;
+  hideAllActionPanels();
+  elements.painReportPanel.hidden = false;
+}
+
+function openSubstitutionPanel() {
+  if (!currentFocusExerciseId) return;
+  hideAllActionPanels();
+  elements.substitutionPanel.hidden = false;
+}
+
+async function confirmSkipWithReason() {
+  const exerciseId = currentFocusExerciseId;
+  if (!exerciseId) return;
+  const reasonCode = elements.skipReasonSelect.value;
+
+  hideAllActionPanels();
+  await postSessionEvent({
+    type: "SKIP_EXERCISE",
+    exercise_id: exerciseId,
+    reason_code: reasonCode
+  });
+}
+
+async function confirmPainReport() {
+  const exerciseId = currentFocusExerciseId;
+  if (!exerciseId) return;
+
+  hideAllActionPanels();
+  await postSessionEvent({
+    type: "PAIN_REPORT",
+    exercise_id: exerciseId,
+    pain_reported: true
+  });
+  showNotice("Pain reported for this exercise.");
+}
+
+let lastSubstitutionResult = null;
+
+function renderSubstitutionResult(outcome) {
+  elements.substitutionResult.hidden = false;
+
+  if (outcome?.ok === true) {
+    const result = outcome.result;
+    if (result.substitution_status === "substitution_applied") {
+      elements.substitutionResult.innerHTML = `
+        <p><strong>Substitute available:</strong> ${escapeHtml(result.substitution_output.target_exercise_id)}</p>
+        <div class="button-row">
+          <button id="applySubstitutionCompleteButton" class="button primary" type="button">Complete with substitute</button>
+          <button id="applySubstitutionSkipButton" class="button secondary" type="button">Skip with substitute</button>
+        </div>
+      `;
+      document.getElementById("applySubstitutionCompleteButton").addEventListener("click", () => {
+        applySubstitution("COMPLETE_EXERCISE").catch(handleError);
+      });
+      document.getElementById("applySubstitutionSkipButton").addEventListener("click", () => {
+        applySubstitution("SKIP_EXERCISE").catch(handleError);
+      });
+    }
+    else {
+      elements.substitutionResult.innerHTML = `<p>No substitution is required for the selected equipment.</p>`;
+    }
+  }
+  else {
+    elements.substitutionResult.innerHTML = `<p>No lawful substitute is available for this exercise.</p>`;
+  }
+}
+
+async function checkSubstitution() {
+  const exerciseId = currentFocusExerciseId;
+  if (!exerciseId || !state.activeSessionId) return;
+
+  const unavailableEquipmentIds = [...document.querySelectorAll(".substitution-equipment-option:checked")]
+    .map((box) => box.value);
+
+  showBusy("Checking substitution…");
+  try {
+    const outcome = await api(
+      "POST",
+      `/sessions/${encodeURIComponent(state.activeSessionId)}/substitution-request`,
+      { exercise_id: exerciseId, unavailable_equipment_ids: unavailableEquipmentIds }
+    );
+    lastSubstitutionResult = { exerciseId, outcome };
+    renderSubstitutionResult(outcome);
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function applySubstitution(eventType) {
+  if (!lastSubstitutionResult || lastSubstitutionResult.exerciseId !== currentFocusExerciseId) return;
+  const outcome = lastSubstitutionResult.outcome;
+  if (outcome?.ok !== true || outcome.result?.substitution_status !== "substitution_applied") return;
+
+  const exerciseId = currentFocusExerciseId;
+  hideAllActionPanels();
+  await postSessionEvent({
+    type: eventType,
+    exercise_id: exerciseId,
+    substituted_exercise_id: outcome.result.substitution_output.target_exercise_id,
+    substitution_edge_id: outcome.result.substitution_output.substitution_edge_id
+  });
+}
+
 function renderExerciseFocus(step, classification) {
   elements.returnDecision.hidden = true;
   elements.sessionActions.hidden = false;
   elements.startSessionButton.hidden = true;
   elements.completeExerciseButton.hidden = true;
+  elements.skipExerciseButton.hidden = true;
+  elements.reportPainButton.hidden = true;
+  elements.requestSubstitutionButton.hidden = true;
   elements.splitSessionButton.hidden = true;
+  hideAllActionPanels();
+  currentFocusExerciseId = null;
 
   if (!step) {
     elements.currentExercise.innerHTML = `
@@ -1708,6 +1887,7 @@ function renderExerciseFocus(step, classification) {
 
   const exercise = step.exercise ?? {};
   const details = exerciseDetails(exercise);
+  currentFocusExerciseId = String(exercise?.exercise_id ?? exercise?.item_id ?? "") || null;
 
   elements.currentExercise.innerHTML = `
     <div class="exercise-focus">
@@ -1721,6 +1901,9 @@ function renderExerciseFocus(step, classification) {
 
   if (state.activeSessionState?.started === true) {
     elements.completeExerciseButton.hidden = false;
+    elements.skipExerciseButton.hidden = false;
+    elements.reportPainButton.hidden = false;
+    elements.requestSubstitutionButton.hidden = false;
     elements.splitSessionButton.hidden = false;
   }
   else {
@@ -1804,6 +1987,24 @@ function renderAthleteSession() {
 
   renderExerciseFocus(sessionState.current_step, classification);
   renderExerciseQueue(sessionState);
+  renderSessionCompletionSummary(sessionState, counts);
+}
+
+function renderSessionCompletionSummary(sessionState, counts) {
+  const executionStatus = sessionState?.execution_status;
+  const isEnded = executionStatus === "completed" || executionStatus === "partial";
+
+  elements.sessionCompletionSummary.hidden = !isEnded;
+  if (!isEnded) return;
+
+  elements.sessionCompletionHeading.textContent =
+    executionStatus === "completed" ? "Session complete" : "Session partially completed";
+  elements.sessionCompletionBody.textContent =
+    executionStatus === "completed"
+      ? "Every exercise in this session was completed."
+      : "This session ended with one or more exercises dropped.";
+  elements.sessionCompletionCompletedCount.textContent = String(counts.completed.length);
+  elements.sessionCompletionDroppedCount.textContent = String(counts.dropped.length);
 }
 
 async function refreshHistory(options = {}) {
@@ -11016,9 +11217,25 @@ elements.topbarAccount.addEventListener("click", () => setView("account"));
 elements.createSessionButton.addEventListener("click", () => createSession().catch(handleError));
 elements.continueSessionButton.addEventListener("click", () => setView("session"));
 elements.todayRetryButton.addEventListener("click", () => loadAthleteToday().catch(handleError));
+elements.sessionRetryButton.addEventListener("click", () => loadSessionState().catch(handleError));
 elements.startSessionButton.addEventListener("click", () => startSession().catch(handleError));
 elements.completeExerciseButton.addEventListener("click", () => {
   postSessionEvent({ type: "COMPLETE_STEP" }).catch(handleError);
+});
+elements.skipExerciseButton.addEventListener("click", openSkipReasonPanel);
+elements.cancelSkipButton.addEventListener("click", hideAllActionPanels);
+elements.confirmSkipButton.addEventListener("click", () => {
+  confirmSkipWithReason().catch(handleError);
+});
+elements.reportPainButton.addEventListener("click", openPainReportPanel);
+elements.cancelPainReportButton.addEventListener("click", hideAllActionPanels);
+elements.confirmPainReportButton.addEventListener("click", () => {
+  confirmPainReport().catch(handleError);
+});
+elements.requestSubstitutionButton.addEventListener("click", openSubstitutionPanel);
+elements.cancelSubstitutionButton.addEventListener("click", hideAllActionPanels);
+elements.checkSubstitutionButton.addEventListener("click", () => {
+  checkSubstitution().catch(handleError);
 });
 elements.splitSessionButton.addEventListener("click", () => {
   postSessionEvent({ type: "SPLIT_SESSION" }).catch(handleError);

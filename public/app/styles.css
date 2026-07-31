@@ -844,6 +844,25 @@ input:focus, select:focus, textarea:focus {
   place-content: center;
 }
 
+.skip-reason-panel,
+.pain-report-panel,
+.substitution-panel {
+  display: grid;
+  margin-top: 1rem;
+  padding: 1rem;
+  gap: 0.65rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+}
+
+.substitution-result {
+  padding: 0.85rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+}
+
+.session-completion-summary { margin-top: 1.25rem; }
+
 .button-row { display: flex; flex-wrap: wrap; gap: 0.65rem; }
 
 .metric-cards {

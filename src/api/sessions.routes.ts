@@ -22,6 +22,7 @@ import {
   getSessionState,
   listRuntimeEvents,
   planSession,
+  postSessionSubstitutionRequest,
   startSession
 } from "./sessions.handlers.js";
 
@@ -85,3 +86,4 @@ sessionsRouter.post("/:session_id/start", asyncHandler(startSession));
 sessionsRouter.post("/:session_id/events", asyncHandler(appendRuntimeEvent));
 sessionsRouter.get("/:session_id/events", asyncHandler(listRuntimeEvents));
 sessionsRouter.get("/:session_id/state", asyncHandler(getSessionState));
+sessionsRouter.post("/:session_id/substitution-request", asyncHandler(postSessionSubstitutionRequest));

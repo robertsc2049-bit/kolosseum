@@ -12,6 +12,7 @@ import { pool } from "../db/pool.js";
 import { badRequest } from "./http_errors.js";
 import {
   appendRuntimeEventMutation,
+  extractClientRequestIdFromBody,
   extractRawEventFromBody,
   startSessionMutation
 } from "./session_state_write_service.js";
@@ -45,6 +46,7 @@ import {
   AthleteTodayError,
   loadAthleteTodayView
 } from "./athlete_today_service.js";
+import { requestSessionSubstitution } from "./session_substitution_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -453,15 +455,28 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
   if (!session_id) throw badRequest("Missing session_id");
 
   const raw = extractRawEventFromBody(req.body);
-  const result = await appendRuntimeEventMutation(session_id, raw);
+  const clientRequestId = extractClientRequestIdFromBody(req.body);
+  const result = await appendRuntimeEventMutation(session_id, raw, clientRequestId);
   const statePayload = await getSessionStateQuery(session_id);
 
   return res.status(201).json({
     ...statePayload,
     ok: result?.ok === true,
     session_id: result?.session_id ?? session_id,
-    seq: result?.seq ?? null
+    seq: result?.seq ?? null,
+    replayed: result?.replayed === true
   });
+}
+
+export async function postSessionSubstitutionRequest(req: Request, res: Response) {
+  const session_id = asString(req.params?.session_id);
+  if (!session_id) throw badRequest("Missing session_id");
+
+  const exerciseId = asString((req.body as any)?.exercise_id) ?? "";
+  const unavailableEquipmentIds = (req.body as any)?.unavailable_equipment_ids;
+
+  const outcome = await requestSessionSubstitution(session_id, exerciseId, unavailableEquipmentIds);
+  return res.status(200).json(outcome);
 }
 
 export async function listRuntimeEvents(req: Request, res: Response) {
