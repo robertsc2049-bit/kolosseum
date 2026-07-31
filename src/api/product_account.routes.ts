@@ -27,8 +27,21 @@ import {
   signOutProductAccount,
   updateProductAccountProfile
 } from "./product_account_service.js";
+import {
+  confirmDataDeletion,
+  downloadDataExport,
+  getDataDeletionStatus,
+  getDataExportStatus,
+  previewDataDeletion,
+  requestDataExport
+} from "./data_rights_service.js";
+import { badRequest } from "./http_errors.js";
 
 export const productAccountRouter = Router();
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
 
 type AsyncHandler = (
   request: Request,
@@ -394,6 +407,109 @@ productAccountRouter.post(
     clearSessionCookie(response);
 
     return response.status(202).json(result);
+  })
+);
+
+// FULL-UI-19 data rights and consent: complete personal-data export and
+// deletion-request self-service, session-authenticated exactly like every
+// other account mutation above. Distinct from and broader than the narrower
+// Athlete History export (session/runtime history only).
+
+productAccountRouter.post(
+  "/data-rights/export",
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    assertMutationAuthorised(request, token);
+
+    const session = await resolveProductSession(token);
+    const result = await requestDataExport(session.account_row.user_id);
+
+    return response.status(202).json(result);
+  })
+);
+
+productAccountRouter.get(
+  "/data-rights/export",
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    const session = await resolveProductSession(token);
+    const result = await getDataExportStatus(session.account_row.user_id);
+
+    return response.status(200).json({ exports: result });
+  })
+);
+
+productAccountRouter.get(
+  "/data-rights/export/:export_request_id/download",
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    const session = await resolveProductSession(token);
+
+    const payload = await downloadDataExport(
+      session.account_row.user_id,
+      String(request.params.export_request_id)
+    );
+
+    response.setHeader(
+      "Content-Disposition",
+      `attachment; filename="kolosseum-data-export-${encodeURIComponent(String(request.params.export_request_id))}.json"`
+    );
+
+    return response.status(200).json(payload);
+  })
+);
+
+productAccountRouter.post(
+  "/data-rights/deletion/preview",
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    assertMutationAuthorised(request, token);
+
+    const session = await resolveProductSession(token);
+    const result = await previewDataDeletion(session.account_row.user_id);
+
+    return response.status(200).json(result);
+  })
+);
+
+productAccountRouter.post(
+  "/data-rights/deletion",
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    assertMutationAuthorised(request, token);
+
+    const session = await resolveProductSession(token);
+    const body = isRecord(request.body) ? request.body : {};
+
+    const clientRequestId =
+      typeof body.client_request_id === "string" ? body.client_request_id.trim() : "";
+
+    if (!clientRequestId) {
+      throw badRequest("Missing client_request_id", {
+        failure_token: "data_rights_deletion_client_request_id_required"
+      });
+    }
+
+    const result = await confirmDataDeletion(
+      session.account_row.user_id,
+      session.account_row.actor_type,
+      body.confirmation,
+      body.reason_code,
+      clientRequestId
+    );
+
+    return response.status(202).json(result);
+  })
+);
+
+productAccountRouter.get(
+  "/data-rights/deletion",
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    const session = await resolveProductSession(token);
+    const result = await getDataDeletionStatus(session.account_row.user_id);
+
+    return response.status(200).json({ deletion_requests: result });
   })
 );
 
