@@ -15,6 +15,8 @@ import {
   createBeta17CoachNote,
   createBeta17CoachProfile,
   createBeta17Relationship,
+  getAthleteHistoryDetail,
+  getAthleteHistoryExport,
   getAthleteTodayView,
   getBeta17CoachArtefacts,
   getBetaAthleteHistory,
@@ -73,6 +75,16 @@ sessionsRouter.post(
 sessionsRouter.post(
   "/beta-athlete-history",
   asyncHandler(getBetaAthleteHistory)
+);
+
+sessionsRouter.post(
+  "/beta-athlete-history-detail",
+  asyncHandler(getAthleteHistoryDetail)
+);
+
+sessionsRouter.post(
+  "/beta-athlete-history-export",
+  asyncHandler(getAthleteHistoryExport)
 );
 
 sessionsRouter.post(
