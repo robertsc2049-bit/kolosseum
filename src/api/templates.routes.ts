@@ -10,7 +10,9 @@ import {
 import {
   activateCoachTemplate,
   archiveCoachTemplate,
+  bindCoachTemplateEvent,
   duplicateCoachTemplate,
+  getCoachTemplateEventBinding,
   getCoachTemplates,
   getTemplateExercises,
   saveCoachTemplate
@@ -58,5 +60,19 @@ templatesRouter.post(
   "/:template_id/duplicate",
   asyncHandler(
     duplicateCoachTemplate
+  )
+);
+
+templatesRouter.post(
+  "/:template_id/bind-event",
+  asyncHandler(
+    bindCoachTemplateEvent
+  )
+);
+
+templatesRouter.get(
+  "/:template_id/event-binding",
+  asyncHandler(
+    getCoachTemplateEventBinding
   )
 );

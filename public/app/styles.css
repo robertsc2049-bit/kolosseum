@@ -1480,6 +1480,13 @@ input:focus, select:focus, textarea:focus {
   border-top: 1px solid var(--line-soft);
 }
 
+.event-binding-picker {
+  display: grid;
+  gap: 0.6rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+
 .event-toggle-row {
   align-items: flex-start;
 }

@@ -37,6 +37,8 @@ const DEFAULT_STATE = Object.freeze({
   coachAssignments: [],
   coachEvents: [],
   athleteEventLinks: {},
+  standaloneEventLibrary: [],
+  templateEventBindingStatus: null,
   coachTemplates: [],
   templateLibrarySearch: "",
   templateLibraryStatusFilter: "all",
@@ -302,6 +304,9 @@ const elements = {
   templateName: document.getElementById("templateName"),
   templateActivity: document.getElementById("templateActivity"),
   templateDescription: document.getElementById("templateDescription"),
+  templateEventBindingSelect: document.getElementById("templateEventBindingSelect"),
+  bindTemplateEventButton: document.getElementById("bindTemplateEventButton"),
+  templateEventBindingStatus: document.getElementById("templateEventBindingStatus"),
   templateEventEnabled: document.getElementById("templateEventEnabled"),
   templateEventFields: document.getElementById("templateEventFields"),
   templateEventName: document.getElementById("templateEventName"),
@@ -486,6 +491,8 @@ function normalisePersistedTemplateDraft(draft) {
     event_compile_summary: draft.event_compile_summary && typeof draft.event_compile_summary === "object"
       ? draft.event_compile_summary
       : null,
+    bound_event_id: String(draft.bound_event_id ?? ""),
+    bound_event_record_sha256: String(draft.bound_event_record_sha256 ?? ""),
     blocks
   };
 }
@@ -6600,6 +6607,8 @@ function newTemplateDraft() {
     activity_id: "powerlifting",
     event_plan: null,
     event_compile_summary: null,
+    bound_event_id: "",
+    bound_event_record_sha256: "",
     blocks: [newTemplateBlock(1)]
   };
 }
@@ -6730,6 +6739,8 @@ function templateRecordToDraft(template) {
     event_compile_summary: template?.event_compile_summary && typeof template.event_compile_summary === "object"
       ? template.event_compile_summary
       : null,
+    bound_event_id: String(template?.bound_event_id ?? ""),
+    bound_event_record_sha256: String(template?.bound_event_record_sha256 ?? ""),
     blocks: blocks.length ? blocks : [newTemplateBlock(1)]
   };
 }
@@ -8083,10 +8094,110 @@ function syncTemplateEventFields() {
   saveState();
 }
 
+// FULL-UI-12C: when a template is bound to a standalone event, that event
+// remains the single event-date truth. The typed fields below become a
+// read-only display of the bound event's own facts - they are never a
+// second, independently-editable copy of the date. Only
+// bindSelectedEventToTemplate() (an explicit lawful action) may change what
+// the template is bound to or pull in a newer event version.
+function renderEventBindingPicker() {
+  const draft = state.templateDraft;
+  if (!draft) return;
+
+  const bound = Boolean(draft.bound_event_id);
+
+  // Preserve whatever the coach has currently picked in the dropdown (which
+  // may not be bound yet) across a re-render triggered by their own
+  // selection - only a real bind/rebind or a fresh library load should move
+  // the selection.
+  const previousValue = elements.templateEventBindingSelect.value;
+
+  const options = ['<option value="">— Type event details manually —</option>']
+    .concat(
+      state.standaloneEventLibrary.map((event) => {
+        const label = `${event.event_plan?.event_name ?? event.event_id} · ${formatDate(event.event_plan?.event_date)}`;
+        return `<option value="${escapeHtml(event.event_id)}">${escapeHtml(label)}</option>`;
+      })
+    );
+
+  if (bound && !state.standaloneEventLibrary.some((event) => event.event_id === draft.bound_event_id)) {
+    const boundName = draft.event_plan?.event_name || draft.bound_event_id;
+    options.push(`<option value="${escapeHtml(draft.bound_event_id)}">${escapeHtml(boundName)} (bound)</option>`);
+  }
+
+  elements.templateEventBindingSelect.innerHTML = options.join("");
+
+  const availableValues = new Set(Array.from(elements.templateEventBindingSelect.options).map((option) => option.value));
+  elements.templateEventBindingSelect.value = bound
+    ? draft.bound_event_id
+    : (availableValues.has(previousValue) ? previousValue : "");
+  elements.templateEventEnabled.disabled = bound;
+
+  const status = state.templateEventBindingStatus;
+  const selectedForBind = elements.templateEventBindingSelect.value;
+
+  if (!bound) {
+    elements.bindTemplateEventButton.textContent = "Bind event";
+    elements.bindTemplateEventButton.disabled = !selectedForBind;
+    elements.templateEventBindingStatus.hidden = true;
+    return;
+  }
+
+  elements.templateEventBindingStatus.hidden = false;
+
+  if (!status || status.event_id !== draft.bound_event_id) {
+    elements.bindTemplateEventButton.textContent = "Rebind event";
+    elements.bindTemplateEventButton.disabled = true;
+    elements.templateEventBindingStatus.className = "assignment-requirements neutral";
+    elements.templateEventBindingStatus.textContent = "Checking the bound event's current state…";
+    return;
+  }
+
+  if (!status.accessible) {
+    elements.bindTemplateEventButton.textContent = "Bind a different event";
+    elements.bindTemplateEventButton.disabled = !selectedForBind || selectedForBind === draft.bound_event_id;
+    elements.templateEventBindingStatus.className = "assignment-requirements warning";
+    elements.templateEventBindingStatus.textContent = "This event is no longer accessible. Select a different event to continue.";
+    return;
+  }
+
+  if (status.event_status === "cancelled") {
+    elements.bindTemplateEventButton.textContent = "Rebind event";
+    elements.bindTemplateEventButton.disabled = !selectedForBind || selectedForBind === draft.bound_event_id;
+    elements.templateEventBindingStatus.className = "assignment-requirements warning";
+    elements.templateEventBindingStatus.textContent = "The bound event has been cancelled. Activation is blocked until you rebind to another event.";
+    return;
+  }
+
+  if (status.event_status === "archived") {
+    elements.bindTemplateEventButton.textContent = "Rebind event";
+    elements.bindTemplateEventButton.disabled = !selectedForBind || selectedForBind === draft.bound_event_id;
+    elements.templateEventBindingStatus.className = "assignment-requirements warning";
+    elements.templateEventBindingStatus.textContent = "The bound event has been archived. Activation is blocked until you rebind to another event.";
+    return;
+  }
+
+  if (!status.is_current) {
+    elements.bindTemplateEventButton.textContent = "Rebind to latest version";
+    elements.bindTemplateEventButton.disabled = false;
+    elements.templateEventBindingStatus.className = "assignment-requirements warning";
+    elements.templateEventBindingStatus.textContent = "This event has a newer version. The programme still shows the date and details bound earlier - rebind to pull in the latest version.";
+    return;
+  }
+
+  elements.bindTemplateEventButton.textContent = "Bound";
+  elements.bindTemplateEventButton.disabled = true;
+  elements.templateEventBindingStatus.className = "assignment-requirements complete";
+  elements.templateEventBindingStatus.textContent = "This programme is bound to the current version of this event.";
+}
+
 function renderEventCompiler() {
   const draft = state.templateDraft;
   if (!draft) return;
 
+  renderEventBindingPicker();
+
+  const bound = Boolean(draft.bound_event_id);
   const enabled = Boolean(draft.event_plan);
   elements.templateEventEnabled.checked = enabled;
   elements.templateEventFields.hidden = !enabled;
@@ -8105,6 +8216,19 @@ function renderEventCompiler() {
   elements.templateEventTimezone.value = eventPlan.timezone;
   elements.templateEventNotes.value = eventPlan.notes;
   elements.templateEventCountdown.textContent = countdownLabel(eventPlan.event_date);
+
+  for (const field of [
+    elements.templateEventName,
+    elements.templateEventType,
+    elements.templateProgrammeStartDate,
+    elements.templateEventDate,
+    elements.templateEventLocation,
+    elements.templateEventTimezone,
+    elements.templateEventNotes
+  ]) {
+    field.disabled = bound;
+  }
+  elements.compileEventCalendarButton.disabled = bound;
 
   const summary = localEventCompileSummary(draft);
   const allocated = templateCounts(draft).weeks;
@@ -8155,7 +8279,108 @@ function renderEventCompiler() {
   const precedingWeeks = draft.blocks.slice(0, -1).reduce((total, block) => total + block.weeks.length, 0);
   const finalTarget = summary.required_week_count - precedingWeeks;
   elements.fitFinalBlockButton.disabled = finalTarget < 1 || finalTarget > 52;
-  elements.activateTemplateButton.disabled = !balanced || eventPlan.event_date < todayDateOnly();
+
+  const status = state.templateEventBindingStatus;
+  const bindingBlocksActivation = bound && (
+    !status ||
+    status.event_id !== draft.bound_event_id ||
+    !status.accessible ||
+    status.event_status !== "active" ||
+    !status.is_current
+  );
+
+  elements.activateTemplateButton.disabled =
+    !balanced ||
+    eventPlan.event_date < todayDateOnly() ||
+    bindingBlocksActivation;
+}
+
+async function loadStandaloneEventLibraryForBuilder() {
+  if (state.role !== "coach") return [];
+
+  try {
+    const response = await api("GET", "/coach-workspace/events/library?status=active");
+    state.standaloneEventLibrary = Array.isArray(response.events) ? response.events : [];
+  }
+  catch {
+    // The event library is a convenience picker; a load failure should not
+    // block the rest of the builder from working.
+    state.standaloneEventLibrary = [];
+  }
+
+  if (state.templateDraft) {
+    renderEventBindingPicker();
+  }
+
+  return state.standaloneEventLibrary;
+}
+
+async function loadTemplateEventBindingStatusForDraft() {
+  const draft = state.templateDraft;
+  if (!draft?.template_id || !draft?.bound_event_id) {
+    state.templateEventBindingStatus = null;
+    return null;
+  }
+
+  const coachUserId = state.profile?.coachUserId ?? "";
+
+  try {
+    const response = await api(
+      "GET",
+      `/templates/${encodeURIComponent(draft.template_id)}/event-binding?coach_user_id=${encodeURIComponent(coachUserId)}`
+    );
+    state.templateEventBindingStatus = response.bound ? response : null;
+  }
+  catch {
+    state.templateEventBindingStatus = null;
+  }
+
+  renderEventCompiler();
+  return state.templateEventBindingStatus;
+}
+
+async function bindSelectedEventToTemplate() {
+  const draft = state.templateDraft;
+  if (!draft) return;
+
+  const eventId = elements.templateEventBindingSelect.value;
+  if (!eventId) return;
+
+  showBusy("Binding to the selected event…");
+  try {
+    if (!draft.template_id) {
+      await saveTemplateDraft({ quiet: true });
+    }
+
+    const response = await api(
+      "POST",
+      `/templates/${encodeURIComponent(state.templateDraft.template_id)}/bind-event`,
+      {
+        coach_user_id: state.profile.coachUserId,
+        event_id: eventId
+      }
+    );
+
+    const boundDraft = templateRecordToDraft(response.template);
+    state.templateDraft = normalisePersistedTemplateDraft(boundDraft);
+    state.templateDraftSavedSnapshot = templateDraftSnapshot(state.templateDraft);
+    state.templateDraftSavedAt = String(response.template?.updated_at_iso8601 ?? nowIso());
+    state.templateDraftDirty = false;
+    saveState();
+
+    await loadTemplateEventBindingStatusForDraft();
+    await refreshProgrammeLibrary({ quiet: true });
+
+    openTemplateBuilder(state.templateDraft, {
+      preserveBaseline: true,
+      skipRecoveryCheck: true
+    });
+
+    showNotice("Programme bound to the selected event.");
+  }
+  finally {
+    hideBusy();
+  }
 }
 
 function eventPreviewPayload() {
@@ -9069,6 +9294,9 @@ function openTemplateBuilder(draft, options = {}) {
   saveState();
   rerenderTemplateBuilder();
 
+  loadStandaloneEventLibraryForBuilder();
+  loadTemplateEventBindingStatusForDraft();
+
   if (
     options.recovered === true &&
     elements.templateBuilderSaveState
@@ -9325,6 +9553,12 @@ function templatePayloadFromDraft() {
           notes: draft.event_plan.notes.trim()
         }
       : null,
+    // Echoed back unchanged: only bindSelectedEventToTemplate() may create or
+    // move this binding (see the immutability guard in
+    // saveCoachProgrammeTemplate on the server). An ordinary content save can
+    // resize blocks/weeks but must never duplicate or drift the event date.
+    bound_event_id: draft.bound_event_id || "",
+    bound_event_record_sha256: draft.bound_event_record_sha256 || "",
     blocks: draft.blocks.map((block) => ({
       block_id: block.block_id,
       order_index: Number(block.order_index),
@@ -10820,6 +11054,14 @@ elements.fitFinalBlockButton.addEventListener("click", () => {
   catch (error) {
     handleError(error);
   }
+});
+
+elements.templateEventBindingSelect.addEventListener("change", () => {
+  renderEventBindingPicker();
+});
+
+elements.bindTemplateEventButton.addEventListener("click", () => {
+  bindSelectedEventToTemplate().catch(handleError);
 });
 
 elements.templateBlocks.addEventListener("input", (event) => {

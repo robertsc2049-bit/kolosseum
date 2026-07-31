@@ -1295,7 +1295,20 @@
                   <textarea id="templateDescription" maxlength="1000" placeholder="Factual description of this programme"></textarea>
                 </label>
 
-                <section class="event-compiler-settings" hidden>
+                <section class="event-compiler-settings">
+                  <div class="event-binding-picker">
+                    <label class="field">
+                      <span>Bind to an existing event</span>
+                      <select id="templateEventBindingSelect">
+                        <option value="">— Type event details manually —</option>
+                      </select>
+                    </label>
+                    <div class="button-row">
+                      <button id="bindTemplateEventButton" class="button secondary small-button" type="button" disabled>Bind event</button>
+                    </div>
+                    <div id="templateEventBindingStatus" class="assignment-requirements neutral" hidden></div>
+                  </div>
+
                   <label class="toggle-row event-toggle-row">
                     <input id="templateEventEnabled" type="checkbox" />
                     <span>
