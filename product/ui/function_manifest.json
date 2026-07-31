@@ -4469,7 +4469,7 @@
       "area_id": "data_rights",
       "title": "Data rights and consent",
       "slice_id": "FULL-UI-19",
-      "state": "missing",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "data_terms_current",
@@ -4478,18 +4478,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/terms"
+          ],
+          "persistence": "server_accounts",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4499,18 +4501,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/detail"
+          ],
+          "persistence": "server_accounts",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4520,18 +4524,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/data-rights/export"
+          ],
+          "persistence": "server_accounts",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4541,18 +4547,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/data-rights/export"
+          ],
+          "persistence": "server_accounts",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4562,18 +4570,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/data-rights/export/:export_request_id/download"
+          ],
+          "persistence": "server_accounts",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4583,18 +4593,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/data-rights/deletion"
+          ],
+          "persistence": "server_accounts",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4604,18 +4616,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/data-rights/deletion/preview"
+          ],
+          "persistence": "server_accounts",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4625,18 +4639,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/data-rights/deletion"
+          ],
+          "persistence": "server_accounts",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4646,18 +4662,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/data-rights/deletion"
+          ],
+          "persistence": "server_accounts",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4667,18 +4685,20 @@
             "athlete",
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/account/data-rights/deletion/preview"
+          ],
+          "persistence": "server_accounts",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -5528,6 +5548,42 @@
       "path": "/account/closure",
       "source": "src/api/product_account.routes.ts",
       "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "GET",
+      "path": "/account/data-rights/deletion",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "data_rights"
+    },
+    {
+      "method": "POST",
+      "path": "/account/data-rights/deletion",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "data_rights"
+    },
+    {
+      "method": "POST",
+      "path": "/account/data-rights/deletion/preview",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "data_rights"
+    },
+    {
+      "method": "GET",
+      "path": "/account/data-rights/export",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "data_rights"
+    },
+    {
+      "method": "POST",
+      "path": "/account/data-rights/export",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "data_rights"
+    },
+    {
+      "method": "GET",
+      "path": "/account/data-rights/export/:export_request_id/download",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "data_rights"
     },
     {
       "method": "GET",

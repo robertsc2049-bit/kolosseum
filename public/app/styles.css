@@ -1830,6 +1830,30 @@ input:focus, select:focus, textarea:focus {
   overflow: auto;
 }
 
+.data-rights-section {
+  margin-top: 1.25rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+.data-rights-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.data-rights-section-heading h4 { margin: 0; }
+
+.data-deletion-review {
+  margin: 0.75rem 0 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+}
+
 .closure-panel {
   margin-top: 1rem;
   align-items: end;

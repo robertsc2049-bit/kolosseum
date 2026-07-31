@@ -388,6 +388,68 @@ ON product_account_closure_requests(
   requested_at DESC
 );
 
+-- FULL-UI-19 DATA RIGHTS AND CONSENT
+-- Complete personal-data export requests, generated server-side through the
+-- existing sealed S-V1-L-02 GDPR export boundary. This is a lawfully-expiring
+-- artefact record only - it never stores credentials, and access is always
+-- re-checked against the caller's own authenticated session at download time.
+CREATE TABLE IF NOT EXISTS data_export_requests (
+  export_request_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  status text NOT NULL DEFAULT 'pending'
+    CHECK (
+      status IN (
+        'pending',
+        'ready',
+        'expired',
+        'failed'
+      )
+    ),
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  ready_at timestamptz,
+  expires_at timestamptz,
+  export_payload jsonb,
+  export_payload_hash text,
+  included_category_counts jsonb,
+  downloaded_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  data_export_requests_user_idx
+ON data_export_requests(
+  user_id,
+  requested_at DESC
+);
+
+-- Deletion (erasure) requests, recorded through the existing sealed S-V1-L-03
+-- GDPR delete queue contract. This table only ever persists a queued review
+-- state - it never performs or records a hard delete of any row.
+CREATE TABLE IF NOT EXISTS data_deletion_requests (
+  deletion_request_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  reason_code text NOT NULL,
+  queue_status text NOT NULL DEFAULT 'queued_for_review',
+  request_hash text NOT NULL,
+  retained_records jsonb NOT NULL DEFAULT '[]'::jsonb,
+  retention_boundary jsonb NOT NULL,
+  client_request_id text NOT NULL,
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (user_id, client_request_id)
+);
+
+CREATE INDEX IF NOT EXISTS
+  data_deletion_requests_user_idx
+ON data_deletion_requests(
+  user_id,
+  requested_at DESC
+);
+
 -- FULL-UI-04B COACH NOTE HISTORY
 -- Immutable, non-binding coach commentary is stored separately from session
 -- artefacts and deterministic engine state.

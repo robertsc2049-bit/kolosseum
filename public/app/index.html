@@ -1782,6 +1782,55 @@
                 <div class="empty-state compact-empty"><p>Loading account history…</p></div>
               </div>
             </article>
+
+            <article id="dataRightsPanel" class="panel">
+              <div>
+                <p class="eyebrow">Data rights</p>
+                <h3>Export and deletion</h3>
+                <p class="muted">Request a complete copy of your personal data, or request deletion. Some records are retained for audit, legal or billing reasons before any deletion decision is made - see the factual notice below.</p>
+              </div>
+
+              <div id="dataRightsLoading" class="empty-state compact-empty" hidden>
+                <p>Loading data rights status…</p>
+              </div>
+              <div id="dataRightsServiceUnavailable" class="empty-state compact-empty" hidden>
+                <p>Data rights status could not be loaded.</p>
+                <button id="dataRightsRetryButton" class="button secondary" type="button">Retry</button>
+              </div>
+
+              <div class="data-rights-section">
+                <div class="data-rights-section-heading">
+                  <h4>Data export</h4>
+                  <button id="requestDataExportButton" class="button primary" type="button">Request data export</button>
+                </div>
+                <p id="dataExportResult" class="inline-result" hidden></p>
+                <div id="dataExportList" class="record-list compact-record-list">
+                  <div class="empty-state compact-empty"><p>No export requested yet.</p></div>
+                </div>
+              </div>
+
+              <div class="data-rights-section">
+                <div class="data-rights-section-heading">
+                  <h4>Deletion request</h4>
+                  <button id="reviewDataDeletionButton" class="button secondary" type="button">Review deletion consequences</button>
+                </div>
+
+                <div id="dataDeletionReviewPanel" class="data-deletion-review" hidden>
+                  <p id="dataDeletionRetentionNotice" class="muted"></p>
+                  <div id="dataDeletionRetentionList" class="record-list compact-record-list"></div>
+
+                  <form id="dataDeletionConfirmForm" class="closure-controls">
+                    <input id="dataDeletionConfirmation" autocomplete="off" placeholder="Type DELETE" required />
+                    <button class="button danger" type="submit">Request deletion</button>
+                  </form>
+                  <p id="dataDeletionResult" class="inline-result" hidden></p>
+                </div>
+
+                <div id="dataDeletionList" class="record-list compact-record-list">
+                  <div class="empty-state compact-empty"><p>No deletion requested yet.</p></div>
+                </div>
+              </div>
+            </article>
           </div>
 
 

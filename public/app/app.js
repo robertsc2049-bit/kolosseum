@@ -2,10 +2,16 @@ import {
   changeAccountPassword,
   completeEmailVerification,
   completePasswordReset,
+  confirmDataDeletion as submitDataDeletionConfirmationRequest,
+  downloadDataExport as fetchDataExportDownload,
   loadAccountDetail as fetchAccountDetail,
   loadCurrentTerms,
+  loadDataDeletionPreview,
+  loadDataDeletionStatus,
+  loadDataExportStatus,
   registerAccount,
   requestAccountClosure,
+  requestDataExport as submitDataExportRequest,
   requestEmailVerification,
   requestPasswordReset,
   restoreAccountSession,
@@ -437,6 +443,20 @@ const elements = {
   accountClosureForm: document.getElementById("accountClosureForm"),
   accountClosureConfirmation: document.getElementById("accountClosureConfirmation"),
   accountClosureResult: document.getElementById("accountClosureResult"),
+  dataRightsLoading: document.getElementById("dataRightsLoading"),
+  dataRightsServiceUnavailable: document.getElementById("dataRightsServiceUnavailable"),
+  dataRightsRetryButton: document.getElementById("dataRightsRetryButton"),
+  requestDataExportButton: document.getElementById("requestDataExportButton"),
+  dataExportResult: document.getElementById("dataExportResult"),
+  dataExportList: document.getElementById("dataExportList"),
+  reviewDataDeletionButton: document.getElementById("reviewDataDeletionButton"),
+  dataDeletionReviewPanel: document.getElementById("dataDeletionReviewPanel"),
+  dataDeletionRetentionNotice: document.getElementById("dataDeletionRetentionNotice"),
+  dataDeletionRetentionList: document.getElementById("dataDeletionRetentionList"),
+  dataDeletionConfirmForm: document.getElementById("dataDeletionConfirmForm"),
+  dataDeletionConfirmation: document.getElementById("dataDeletionConfirmation"),
+  dataDeletionResult: document.getElementById("dataDeletionResult"),
+  dataDeletionList: document.getElementById("dataDeletionList"),
   accountCode: document.getElementById("accountCode"),
   copyAccountCodeButton: document.getElementById("copyAccountCodeButton"),
   signOutButton: document.getElementById("signOutButton")
@@ -1166,6 +1186,8 @@ function setView(view) {
     loadPersistentAccountDetail({
       quiet: true
     }).catch(handleError);
+
+    loadDataRightsState({ quiet: true }).catch(handleError);
   }
 }
 
@@ -11338,6 +11360,162 @@ async function closePersistentAccount(
   location.assign("/app/");
 }
 
+function dataExportRecordCard(entry) {
+  const statusClass =
+    entry.status === "ready" ? "complete" :
+    entry.status === "expired" ? "partial" :
+    entry.status === "failed" ? "danger" : "neutral";
+  const canDownload = entry.status === "ready";
+
+  return `
+    <article class="record-card">
+      <div>
+        <h3>Export requested ${escapeHtml(formatDate(entry.requested_at_iso8601))}</h3>
+        <p>${entry.expires_at_iso8601 ? `Expires ${escapeHtml(formatDate(entry.expires_at_iso8601))}` : "No expiry recorded"}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge ${statusClass}">${escapeHtml(titleCase(entry.status))}</span>
+        ${canDownload ? `<button class="button secondary small-button" type="button" data-download-export-id="${escapeHtml(entry.export_request_id)}">Download</button>` : ""}
+      </div>
+    </article>
+  `;
+}
+
+function renderDataExportList(entries) {
+  elements.dataExportList.innerHTML = entries.length
+    ? entries.map(dataExportRecordCard).join("")
+    : '<div class="empty-state compact-empty"><p>No export requested yet.</p></div>';
+
+  for (const button of elements.dataExportList.querySelectorAll("[data-download-export-id]")) {
+    button.addEventListener("click", () => {
+      triggerDataExportDownload(button.dataset.downloadExportId).catch(handleError);
+    });
+  }
+}
+
+function dataDeletionRecordCard(entry) {
+  return `
+    <article class="record-card">
+      <div>
+        <h3>Deletion requested ${escapeHtml(formatDate(entry.requested_at_iso8601))}</h3>
+        <p>${escapeHtml(titleCase(entry.reason_code))}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge active">${escapeHtml(titleCase(entry.queue_status))}</span>
+        <span class="badge neutral">${Number(entry.retention_boundary?.retained_record_count ?? 0)} retained</span>
+      </div>
+    </article>
+  `;
+}
+
+function renderDataDeletionList(entries) {
+  elements.dataDeletionList.innerHTML = entries.length
+    ? entries.map(dataDeletionRecordCard).join("")
+    : '<div class="empty-state compact-empty"><p>No deletion requested yet.</p></div>';
+}
+
+async function loadDataRightsState(options = {}) {
+  elements.dataRightsServiceUnavailable.hidden = true;
+  elements.dataRightsLoading.hidden = false;
+
+  let exportStatus;
+  let deletionStatus;
+  try {
+    [exportStatus, deletionStatus] = await Promise.all([
+      loadDataExportStatus(),
+      loadDataDeletionStatus()
+    ]);
+  }
+  catch (error) {
+    elements.dataRightsLoading.hidden = true;
+    elements.dataRightsServiceUnavailable.hidden = false;
+    if (options.quiet) return;
+    throw error;
+  }
+
+  elements.dataRightsLoading.hidden = true;
+  renderDataExportList(Array.isArray(exportStatus.exports) ? exportStatus.exports : []);
+  renderDataDeletionList(Array.isArray(deletionStatus.deletion_requests) ? deletionStatus.deletion_requests : []);
+}
+
+async function requestDataExportAction() {
+  const result = await submitDataExportRequest(state.csrfToken);
+
+  elements.dataExportResult.hidden = false;
+  elements.dataExportResult.textContent = `Export ready: ${result.export_request_id}`;
+
+  await loadDataRightsState({ quiet: true });
+}
+
+async function triggerDataExportDownload(exportRequestId) {
+  const payload = await fetchDataExportDownload(exportRequestId);
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `kolosseum-data-export-${exportRequestId}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+
+  showNotice("Data export downloaded.");
+  await loadDataRightsState({ quiet: true });
+}
+
+function renderDataDeletionRetentionPreview(preview) {
+  elements.dataDeletionRetentionNotice.textContent = preview.factual_notice ?? "";
+
+  const notices = Array.isArray(preview.retention_notices) ? preview.retention_notices : [];
+  elements.dataDeletionRetentionList.innerHTML = notices.length
+    ? notices.map((notice) => `
+        <div class="record-card">
+          <div>
+            <h3>${escapeHtml(titleCase(notice.retention_reason))}</h3>
+            <p>${escapeHtml(notice.copy)}</p>
+          </div>
+          <div class="record-meta"><span class="badge neutral">${Number(notice.record_count)} records</span></div>
+        </div>
+      `).join("")
+    : '<div class="empty-state compact-empty"><p>No records are retained; nothing blocks a deletion request.</p></div>';
+}
+
+async function reviewDataDeletionAction() {
+  const preview = await loadDataDeletionPreview(state.csrfToken);
+  renderDataDeletionRetentionPreview(preview);
+  elements.dataDeletionReviewPanel.hidden = false;
+}
+
+async function confirmDataDeletionAction(event) {
+  event.preventDefault();
+
+  const confirmation = elements.dataDeletionConfirmation.value.trim();
+
+  // Kept across a failed submission (network error, validation rejection) so
+  // a retry replays the same logical request instead of queuing a second one;
+  // cleared only once a request has actually been recorded.
+  const clientRequestId = state.dataDeletionClientRequestId || newClientRequestId();
+  state.dataDeletionClientRequestId = clientRequestId;
+  saveState();
+
+  const result = await submitDataDeletionConfirmationRequest(
+    { confirmation, client_request_id: clientRequestId },
+    state.csrfToken
+  );
+
+  elements.dataDeletionResult.hidden = false;
+  elements.dataDeletionResult.textContent = result.replayed
+    ? `Deletion already requested: ${result.deletion_request_id}`
+    : `Deletion requested: ${result.deletion_request_id}`;
+
+  state.dataDeletionClientRequestId = null;
+  saveState();
+
+  elements.dataDeletionConfirmForm.reset();
+  await loadDataRightsState({ quiet: true });
+}
+
 async function checkConnection() {
   try {
     const health = await api("GET", "/health");
@@ -11975,6 +12153,34 @@ elements.accountClosureForm.addEventListener(
   (event) => {
     closePersistentAccount(event)
       .catch(handleError);
+  }
+);
+
+elements.dataRightsRetryButton.addEventListener(
+  "click",
+  () => {
+    loadDataRightsState().catch(handleError);
+  }
+);
+
+elements.requestDataExportButton.addEventListener(
+  "click",
+  () => {
+    requestDataExportAction().catch(handleError);
+  }
+);
+
+elements.reviewDataDeletionButton.addEventListener(
+  "click",
+  () => {
+    reviewDataDeletionAction().catch(handleError);
+  }
+);
+
+elements.dataDeletionConfirmForm.addEventListener(
+  "submit",
+  (event) => {
+    confirmDataDeletionAction(event).catch(handleError);
   }
 );
 
