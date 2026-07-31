@@ -44,6 +44,13 @@ function cleanString(value: unknown): string {
 
 function rethrowWorkspaceError(error: unknown): never {
   if (error instanceof Beta19CoachEventError) {
+    if (error.reason === "event_link_date_conflict") {
+      throw conflict("EVENT_LINK_DATE_CONFLICT", {
+        failure_token: "event_link_date_conflict",
+        reason: error.reason
+      });
+    }
+
     throw badRequest("BETA19_COACH_EVENT_INVALID", {
       failure_token: "beta19_coach_event_invalid",
       reason: error.reason

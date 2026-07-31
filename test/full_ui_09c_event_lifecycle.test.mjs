@@ -118,6 +118,10 @@ test("FULL-UI-09C exposes authenticated detail and lifecycle actions", () => {
     "src/api/full_ui_09c_event_lifecycle.handlers.ts",
     "utf8"
   );
+  const sessionAuth = fs.readFileSync(
+    "src/api/coach_session_auth.ts",
+    "utf8"
+  );
   const service = fs.readFileSync(
     "src/api/full_ui_09c_event_lifecycle_service.ts",
     "utf8"
@@ -136,8 +140,11 @@ test("FULL-UI-09C exposes authenticated detail and lifecycle actions", () => {
     assert.match(routes, new RegExp(route.replaceAll("/", "\\/")));
   }
 
-  assert.match(handlers, /resolveProductSession/u);
-  assert.match(handlers, /assertProductCsrf/u);
+  // Every mutating and reading handler derives coach identity from the shared,
+  // verified product-session boundary rather than a client-supplied id.
+  assert.match(handlers, /authenticatedCoach/u);
+  assert.match(sessionAuth, /resolveProductSession/u);
+  assert.match(sessionAuth, /assertProductCsrf/u);
   assert.match(handlers, /coach_event_detail/u);
 
   assert.match(service, /event_version_created/u);
