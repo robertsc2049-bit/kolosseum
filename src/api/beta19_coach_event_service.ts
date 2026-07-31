@@ -175,6 +175,61 @@ async function latestLinkByPair(
   return isRecord(payload) ? deepFreeze(payload) : null;
 }
 
+// Mirrors the date-conflict rule enforced by the FULL-UI-09C event-detail link path
+// (full_ui_09c_event_lifecycle_service.ts) so an athlete cannot be double-booked onto
+// two same-day active events regardless of which surface created the link.
+async function eventAthleteLinkDateConflictExists(
+  coachUserId: string,
+  athleteUserId: string,
+  targetEventId: string,
+  targetEventDate: string
+): Promise<boolean> {
+  const result = await pool.query(
+    `
+    SELECT DISTINCT ON (record_id)
+      record_payload
+    FROM beta_product_records
+    WHERE
+      record_type = 'beta19_event_athlete_link'
+      AND actor_user_id = $1
+      AND subject_user_id = $2
+    ORDER BY
+      record_id,
+      effective_at DESC,
+      created_at DESC,
+      record_sha256 DESC
+    `,
+    [coachUserId, athleteUserId]
+  );
+
+  for (const row of result.rows) {
+    const link = row.record_payload;
+    if (!isRecord(link) || link.link_state !== "linked") continue;
+    const linkedEventId = cleanString(link.event_id);
+    if (!linkedEventId || linkedEventId === targetEventId) continue;
+
+    const linkedEvent = await latestEventById(coachUserId, linkedEventId);
+    const linkedEventPlan = linkedEvent && isRecord(linkedEvent.event_plan)
+      ? linkedEvent.event_plan
+      : {};
+
+    if (
+      linkedEvent &&
+      linkedEvent.event_status === "active" &&
+      cleanString(linkedEventPlan.event_date) === targetEventDate
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function linkRevision(record: JsonRecord | null): number {
+  if (!record) return 0;
+  const revision = Number(record.link_revision ?? 1);
+  return Number.isFinite(revision) && revision >= 1 ? Math.trunc(revision) : 1;
+}
+
 function eventCompileInput(
   input: JsonRecord,
   eventId: string,
@@ -601,6 +656,18 @@ export async function assignAthleteProgrammeFromProfile(
         "event_programme_week_count_mismatch"
       );
     }
+
+    const eventPlanRecord = isRecord(event.event_plan) ? event.event_plan : {};
+    if (
+      await eventAthleteLinkDateConflictExists(
+        coachUserId,
+        athleteUserId,
+        eventId,
+        cleanString(eventPlanRecord.event_date)
+      )
+    ) {
+      throw new Beta19CoachEventError("event_link_date_conflict");
+    }
   }
 
   const assignmentResult: AssignmentResult = createBeta17AssignmentRecord({
@@ -648,19 +715,29 @@ export async function assignAthleteProgrammeFromProfile(
 
   const linkWithoutHash = {
     record_type: "beta19_event_athlete_link",
+    contract_version: "full_ui_09c.1.0.0",
     event_athlete_link_id: linkId,
     event_id: eventId,
+    event_version_at_link: Number(event.event_version ?? 1),
+    event_record_sha256: cleanString(event.record_sha256),
     coach_user_id: coachUserId,
     athlete_user_id: athleteUserId,
     assignment_id: assignment.assignment_id,
     template_id: templateId,
     activity_id: activityId,
     link_state: "linked",
+    link_revision: linkRevision(existingLink) + 1,
+    previous_link_record_sha256:
+      cleanString(existingLink?.record_sha256) || null,
+    lifecycle_action: "athlete_linked",
     created_at_iso8601:
       cleanString(existingLink?.created_at_iso8601) || requestedAt,
     updated_at_iso8601: requestedAt,
+    immutable_link_history: true,
+    factual_product_state: true,
     engine_visible: false,
     creates_team_runtime: false,
+    creates_roster_runtime: false,
     creates_organisation_runtime: false
   };
 
