@@ -43,7 +43,7 @@ function recordWithHash(
   };
 }
 
-function firstExerciseId() {
+function exerciseRegistryIds() {
   const registry =
     JSON.parse(
       fs.readFileSync(
@@ -52,15 +52,31 @@ function firstExerciseId() {
       )
     );
 
+  return Object.keys(
+    registry.entries ??
+    {}
+  );
+}
+
+function firstExerciseId() {
   const exerciseId =
-    Object.keys(
-      registry.entries ??
-      {}
-    )[0];
+    exerciseRegistryIds()[0];
 
   assert.ok(
     exerciseId,
     "Exercise registry must contain at least one exercise."
+  );
+
+  return exerciseId;
+}
+
+function secondExerciseId() {
+  const exerciseId =
+    exerciseRegistryIds()[1];
+
+  assert.ok(
+    exerciseId,
+    "Exercise registry must contain at least two exercises."
   );
 
   return exerciseId;
@@ -97,6 +113,12 @@ test(
 
     const missingExerciseId =
       `${exerciseId}_missing_reference`;
+
+    const trainingMaxExerciseId =
+      secondExerciseId();
+
+    const trainingMaxReferenceId =
+      `reference_training_max_${suffix}`;
 
     const initialTimestamp =
       "2026-07-01T09:00:00.000Z";
@@ -233,6 +255,24 @@ test(
               "Competition result",
             replaces_reference_id:
               null
+          },
+          {
+            benchmark_id:
+              trainingMaxReferenceId,
+            exercise_id:
+              trainingMaxExerciseId,
+            value:
+              140,
+            unit:
+              "kg",
+            basis:
+              "training_max",
+            effective_date:
+              "2026-07-01",
+            source_note:
+              "Block-set training max",
+            replaces_reference_id:
+              null
           }
         ],
         expected_current_record_sha256:
@@ -245,6 +285,31 @@ test(
         .current[0]
         .reference_id,
       initialReferenceId
+    );
+
+    const initialTrainingMax =
+      initialProfile
+        .strength_reference_lifecycle
+        .current
+        .find(
+          (record) =>
+            record.exercise_id ===
+            trainingMaxExerciseId
+        );
+
+    assert.equal(
+      initialTrainingMax.reference_id,
+      trainingMaxReferenceId
+    );
+
+    assert.equal(
+      initialTrainingMax.source_type,
+      "training_max"
+    );
+
+    assert.equal(
+      initialTrainingMax.source_value,
+      140
     );
 
     const replacementProfile =
@@ -297,6 +362,24 @@ test(
               "Repetition calculation",
             replaces_reference_id:
               initialReferenceId
+          },
+          {
+            benchmark_id:
+              trainingMaxReferenceId,
+            exercise_id:
+              trainingMaxExerciseId,
+            value:
+              140,
+            unit:
+              "kg",
+            basis:
+              "training_max",
+            effective_date:
+              "2026-07-01",
+            source_note:
+              "Block-set training max",
+            replaces_reference_id:
+              null
           }
         ],
         expected_current_record_sha256:
@@ -331,6 +414,31 @@ test(
     assert.equal(
       superseded.source_type,
       "tested_1rm"
+    );
+
+    const replacementTrainingMax =
+      replacementProfile
+        .strength_reference_lifecycle
+        .current
+        .find(
+          (record) =>
+            record.exercise_id ===
+            trainingMaxExerciseId
+        );
+
+    assert.equal(
+      replacementTrainingMax.reference_id,
+      trainingMaxReferenceId
+    );
+
+    assert.equal(
+      replacementTrainingMax.source_type,
+      "training_max"
+    );
+
+    assert.equal(
+      replacementTrainingMax.source_value,
+      140
     );
 
     const rows =
@@ -371,7 +479,7 @@ test(
       rows.rows[0]
         .record_payload
         .benchmarks.length,
-      1
+      2
     );
 
     const preflightBeforeRestart =
@@ -426,6 +534,42 @@ test(
       "estimated_1rm"
     );
 
+    const resolvedTrainingMaxBeforeRestart =
+      await reconstructResolvedStrengthLoadSource(
+        coachUserId,
+        athleteUserId,
+        trainingMaxExerciseId,
+        80,
+        {
+          target_unit:
+            "kg",
+          rounding_increment:
+            2.5,
+          as_of_date:
+            "2026-07-20"
+        }
+      );
+
+    assert.equal(
+      resolvedTrainingMaxBeforeRestart
+        .source
+        .reference_id,
+      trainingMaxReferenceId
+    );
+
+    assert.equal(
+      resolvedTrainingMaxBeforeRestart
+        .source
+        .source_type,
+      "training_max"
+    );
+
+    assert.equal(
+      resolvedTrainingMaxBeforeRestart
+        .value,
+      112.5
+    );
+
     const childScript = `
       import {
         loadAthleteStrengthProfile,
@@ -464,11 +608,25 @@ test(
           }
         );
 
+      const resolvedTrainingMax =
+        await reconstructResolvedStrengthLoadSource(
+          ${JSON.stringify(coachUserId)},
+          ${JSON.stringify(athleteUserId)},
+          ${JSON.stringify(trainingMaxExerciseId)},
+          80,
+          {
+            target_unit: "kg",
+            rounding_increment: 2.5,
+            as_of_date: "2026-07-20"
+          }
+        );
+
       console.log(
         JSON.stringify({
           profile,
           preflight,
-          resolved
+          resolved,
+          resolvedTrainingMax
         })
       );
 
@@ -541,6 +699,49 @@ test(
     assert.equal(
       athleteSource.source_type,
       "estimated_1rm"
+    );
+
+    const trainingMaxProfileAfterRestart =
+      afterRestart
+        .profile
+        .strength_reference_lifecycle
+        .current
+        .find(
+          (record) =>
+            record.exercise_id ===
+            trainingMaxExerciseId
+        );
+
+    assert.equal(
+      trainingMaxProfileAfterRestart.reference_id,
+      trainingMaxReferenceId
+    );
+
+    assert.equal(
+      trainingMaxProfileAfterRestart.source_type,
+      "training_max"
+    );
+
+    const trainingMaxSourceAfterRestart =
+      afterRestart
+        .resolvedTrainingMax
+        .source;
+
+    assert.equal(
+      trainingMaxSourceAfterRestart.reference_id,
+      trainingMaxReferenceId
+    );
+
+    assert.equal(
+      trainingMaxSourceAfterRestart.source_type,
+      "training_max"
+    );
+
+    assert.equal(
+      afterRestart
+        .resolvedTrainingMax
+        .value,
+      112.5
     );
 
     assert.deepEqual(
