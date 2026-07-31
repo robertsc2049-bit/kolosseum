@@ -10,6 +10,19 @@ import {
   resolveStrengthReferenceLoad
 } from "../shared/strength-reference/strengthReferenceLifecycle.mjs";
 
+function assertFails(
+  thunk,
+  code
+) {
+  assert.throws(
+    thunk,
+    (error) =>
+      error instanceof
+        StrengthReferenceLifecycleError &&
+      error.code === code
+  );
+}
+
 const squatTested = Object.freeze({
   benchmark_id: "reference_squat_tested",
   exercise_id: "back_squat",
@@ -360,4 +373,177 @@ test("FULL-UI-08C exposes the exact source used for a resolved load", () => {
     resolved.benchmark_basis,
     "estimated_1rm"
   );
+});
+
+test("FULL-UI-08C enforces the strength value range boundary", () => {
+  assertFails(
+    () =>
+      projectStrengthReferenceLifecycle([
+        { ...squatTested, value: 0.24 }
+      ]),
+    "strength_reference_value_invalid"
+  );
+
+  assertFails(
+    () =>
+      projectStrengthReferenceLifecycle([
+        { ...squatTested, value: 1500.01 }
+      ]),
+    "strength_reference_value_invalid"
+  );
+
+  const atMin = projectStrengthReferenceLifecycle(
+    [{ ...squatTested, value: 0.25 }],
+    "kg",
+    "2026-07-10"
+  );
+  assert.equal(atMin.current[0].source_value, 0.25);
+
+  const atMax = projectStrengthReferenceLifecycle(
+    [{ ...squatTested, value: 1500 }],
+    "kg",
+    "2026-07-10"
+  );
+  assert.equal(atMax.current[0].source_value, 1500);
+});
+
+test("FULL-UI-08C rejects strength values with more than three decimal places", () => {
+  assertFails(
+    () =>
+      projectStrengthReferenceLifecycle([
+        { ...squatTested, value: 100.1234 }
+      ]),
+    "strength_reference_value_precision_invalid"
+  );
+
+  const exact = projectStrengthReferenceLifecycle(
+    [{ ...squatTested, value: 100.125 }],
+    "kg",
+    "2026-07-10"
+  );
+  assert.equal(exact.current[0].source_value, 100.125);
+});
+
+test("FULL-UI-08C enforces the rounding-increment boundary on load resolution", () => {
+  const profile = {
+    preferred_weight_unit: "kg",
+    benchmarks: [squatTested]
+  };
+
+  const atMin = resolveStrengthReferenceLoad(
+    profile,
+    "back_squat",
+    80,
+    { target_unit: "kg", rounding_increment: 0.25, as_of_date: "2026-07-10" }
+  );
+  assert.equal(atMin.rounding_increment, 0.25);
+
+  const atMax = resolveStrengthReferenceLoad(
+    profile,
+    "back_squat",
+    80,
+    { target_unit: "kg", rounding_increment: 25, as_of_date: "2026-07-10" }
+  );
+  assert.equal(atMax.rounding_increment, 25);
+
+  assertFails(
+    () =>
+      resolveStrengthReferenceLoad(
+        profile,
+        "back_squat",
+        80,
+        { target_unit: "kg", rounding_increment: 0.24, as_of_date: "2026-07-10" }
+      ),
+    "strength_reference_rounding_increment_invalid"
+  );
+
+  assertFails(
+    () =>
+      resolveStrengthReferenceLoad(
+        profile,
+        "back_squat",
+        80,
+        { target_unit: "kg", rounding_increment: 25.01, as_of_date: "2026-07-10" }
+      ),
+    "strength_reference_rounding_increment_invalid"
+  );
+});
+
+test("FULL-UI-08C rejects a replacement dated the same day as its predecessor", () => {
+  assertFails(
+    () =>
+      assertImmutableStrengthReferenceAppend(
+        [squatTested],
+        [
+          squatTested,
+          {
+            ...squatEstimated,
+            effective_date: squatTested.effective_date
+          }
+        ]
+      ),
+    "strength_reference_replacement_effective_date_invalid"
+  );
+});
+
+test("FULL-UI-08C exercises training_max through selection, resolution and immutable replacement", () => {
+  const benchTrainingMax = Object.freeze({
+    benchmark_id: "reference_bench_training_max",
+    exercise_id: "bench_press",
+    value: 120,
+    unit: "kg",
+    basis: "training_max",
+    effective_date: "2026-07-01",
+    source_note: "Coach-set training max",
+    replaces_reference_id: null
+  });
+
+  const benchTrainingMaxRevised = Object.freeze({
+    benchmark_id: "reference_bench_training_max_v2",
+    exercise_id: "bench_press",
+    value: 125,
+    unit: "kg",
+    basis: "training_max",
+    effective_date: "2026-07-20",
+    source_note: "Cycle-end recalibration",
+    replaces_reference_id: "reference_bench_training_max"
+  });
+
+  const lifecycle = projectStrengthReferenceLifecycle(
+    [benchTrainingMax],
+    "kg",
+    "2026-07-10"
+  );
+  assert.equal(lifecycle.current[0].source_type, "training_max");
+  assert.equal(lifecycle.current[0].source_value, 120);
+
+  const resolved = resolveStrengthReferenceLoad(
+    { preferred_weight_unit: "kg", benchmarks: [benchTrainingMax] },
+    "bench_press",
+    80,
+    { target_unit: "kg", rounding_increment: 2.5, as_of_date: "2026-07-10" }
+  );
+  assert.equal(resolved.benchmark_basis, "training_max");
+  assert.equal(resolved.value, 95);
+  assert.equal(resolved.source.source_type, "training_max");
+
+  const appended = assertImmutableStrengthReferenceAppend(
+    [benchTrainingMax],
+    [benchTrainingMax, benchTrainingMaxRevised]
+  );
+  assert.equal(appended.length, 2);
+  assert.equal(
+    appended[1].replaces_reference_id,
+    "reference_bench_training_max"
+  );
+
+  const lifecycleAfter = projectStrengthReferenceLifecycle(
+    [benchTrainingMax, benchTrainingMaxRevised],
+    "kg",
+    "2026-07-25"
+  );
+  assert.equal(lifecycleAfter.current[0].reference_id, "reference_bench_training_max_v2");
+  assert.equal(lifecycleAfter.current[0].source_value, 125);
+  assert.equal(lifecycleAfter.superseded[0].reference_id, "reference_bench_training_max");
+  assert.equal(lifecycleAfter.superseded[0].source_type, "training_max");
 });
