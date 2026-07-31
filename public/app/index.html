@@ -461,9 +461,71 @@
               <h2>Training record</h2>
               <p class="muted">Persisted session facts for this athlete account.</p>
             </div>
-            <button id="refreshHistoryButton" class="button secondary" type="button">Refresh</button>
+            <div class="button-row">
+              <button id="exportHistoryButton" class="button secondary" type="button">Export history</button>
+              <button id="refreshHistoryButton" class="button secondary" type="button">Refresh</button>
+            </div>
           </div>
+
+          <div id="historyFilters" class="history-filters">
+            <label class="field">
+              <span>Status</span>
+              <select id="historyFilterStatus">
+                <option value="">All statuses</option>
+                <option value="ready">Ready</option>
+                <option value="in_progress">In progress</option>
+                <option value="completed">Completed</option>
+                <option value="partial">Partial</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>From</span>
+              <input id="historyFilterDateFrom" type="date" />
+            </label>
+            <label class="field">
+              <span>To</span>
+              <input id="historyFilterDateTo" type="date" />
+            </label>
+            <label class="field">
+              <span>Activity</span>
+              <select id="historyFilterActivity">
+                <option value="">All activities</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Programme</span>
+              <select id="historyFilterProgramme">
+                <option value="">All programmes</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Event</span>
+              <select id="historyFilterEvent">
+                <option value="">All events</option>
+              </select>
+            </label>
+            <div class="button-row">
+              <button id="applyHistoryFiltersButton" class="button primary" type="button">Apply filters</button>
+              <button id="clearHistoryFiltersButton" class="button secondary" type="button">Clear filters</button>
+            </div>
+          </div>
+
+          <div id="historyLoading" class="panel empty-state" hidden>
+            <div class="empty-icon">…</div>
+            <h3>Loading history…</h3>
+            <p>Fetching persisted session facts.</p>
+          </div>
+
+          <div id="historyServiceUnavailable" class="panel empty-state" hidden>
+            <div class="empty-icon">!</div>
+            <h3>History could not be loaded</h3>
+            <p>Training history could not be fetched. Check your connection and try again.</p>
+            <button id="historyRetryButton" class="button primary" type="button">Retry</button>
+          </div>
+
           <div id="historyList" class="record-list"></div>
+
+          <div id="historyDetailPanel" class="panel history-detail-panel" hidden></div>
         </section>
 
         <section id="view-coach-overview" class="view" hidden>

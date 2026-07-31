@@ -200,7 +200,20 @@ const elements = {
   exerciseQueue: document.getElementById("exerciseQueue"),
 
   refreshHistoryButton: document.getElementById("refreshHistoryButton"),
+  exportHistoryButton: document.getElementById("exportHistoryButton"),
   historyList: document.getElementById("historyList"),
+  historyLoading: document.getElementById("historyLoading"),
+  historyServiceUnavailable: document.getElementById("historyServiceUnavailable"),
+  historyRetryButton: document.getElementById("historyRetryButton"),
+  historyFilterStatus: document.getElementById("historyFilterStatus"),
+  historyFilterDateFrom: document.getElementById("historyFilterDateFrom"),
+  historyFilterDateTo: document.getElementById("historyFilterDateTo"),
+  historyFilterActivity: document.getElementById("historyFilterActivity"),
+  historyFilterProgramme: document.getElementById("historyFilterProgramme"),
+  historyFilterEvent: document.getElementById("historyFilterEvent"),
+  applyHistoryFiltersButton: document.getElementById("applyHistoryFiltersButton"),
+  clearHistoryFiltersButton: document.getElementById("clearHistoryFiltersButton"),
+  historyDetailPanel: document.getElementById("historyDetailPanel"),
 
   coachGreeting: document.getElementById("coachGreeting"),
   coachAthleteCount: document.getElementById("coachAthleteCount"),
@@ -2010,18 +2023,288 @@ function renderSessionCompletionSummary(sessionState, counts) {
 async function refreshHistory(options = {}) {
   if (state.role !== "athlete") return [];
 
-  const history = await api("POST", "/sessions/beta-athlete-history", {
-    athlete_user_id: state.profile.userId
-  });
+  elements.historyServiceUnavailable.hidden = true;
+  elements.historyLoading.hidden = false;
+
+  let history;
+  try {
+    history = await api("POST", "/sessions/beta-athlete-history", {
+      athlete_user_id: state.profile.userId
+    });
+  }
+  catch (error) {
+    elements.historyLoading.hidden = true;
+    elements.historyServiceUnavailable.hidden = false;
+    throw error;
+  }
+
+  elements.historyLoading.hidden = true;
 
   const serverSessions = Array.isArray(history.sessions) ? history.sessions : [];
   state.history = mergeHistory(serverSessions);
+  state.historyEnriched = serverSessions;
+  state.historyFiltered = null;
   saveState();
-  renderHistory();
+  populateHistoryFilterOptions(serverSessions);
+  renderHistoryList(serverSessions);
   renderToday();
 
   if (!options.quiet) showNotice("Training history refreshed.");
   return state.history;
+}
+
+function populateHistoryFilterOptions(sessions) {
+  const activities = new Set();
+  const programmes = new Map();
+  const events = new Map();
+
+  for (const session of sessions) {
+    if (session.activity_id) activities.add(session.activity_id);
+    const programme = session.provenance?.programme;
+    if (programme?.template_id) programmes.set(programme.template_id, programme.template_name || programme.template_id);
+    const event = session.provenance?.event;
+    if (event?.event_id) events.set(event.event_id, event.event_name || event.event_id);
+  }
+
+  const previousActivity = elements.historyFilterActivity.value;
+  const previousProgramme = elements.historyFilterProgramme.value;
+  const previousEvent = elements.historyFilterEvent.value;
+
+  elements.historyFilterActivity.innerHTML = '<option value="">All activities</option>' +
+    [...activities].map((id) => `<option value="${escapeHtml(id)}">${escapeHtml(titleCase(id))}</option>`).join("");
+  elements.historyFilterProgramme.innerHTML = '<option value="">All programmes</option>' +
+    [...programmes.entries()].map(([id, name]) => `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`).join("");
+  elements.historyFilterEvent.innerHTML = '<option value="">All events</option>' +
+    [...events.entries()].map(([id, name]) => `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`).join("");
+
+  elements.historyFilterActivity.value = previousActivity;
+  elements.historyFilterProgramme.value = previousProgramme;
+  elements.historyFilterEvent.value = previousEvent;
+}
+
+async function applyHistoryFilters() {
+  if (state.role !== "athlete") return;
+
+  const filters = {
+    status: elements.historyFilterStatus.value,
+    date_from: elements.historyFilterDateFrom.value,
+    date_to: elements.historyFilterDateTo.value,
+    activity_id: elements.historyFilterActivity.value,
+    template_id: elements.historyFilterProgramme.value,
+    event_id: elements.historyFilterEvent.value
+  };
+
+  showBusy("Applying filters…");
+  try {
+    const result = await api("POST", "/sessions/beta-athlete-history", {
+      athlete_user_id: state.profile.userId,
+      ...filters
+    });
+    state.historyFiltered = Array.isArray(result.sessions) ? result.sessions : [];
+    renderHistoryList(state.historyFiltered);
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+function clearHistoryFilters() {
+  elements.historyFilterStatus.value = "";
+  elements.historyFilterDateFrom.value = "";
+  elements.historyFilterDateTo.value = "";
+  elements.historyFilterActivity.value = "";
+  elements.historyFilterProgramme.value = "";
+  elements.historyFilterEvent.value = "";
+  state.historyFiltered = null;
+  renderHistoryList(state.historyEnriched ?? []);
+}
+
+async function exportHistory() {
+  if (state.role !== "athlete") return;
+
+  showBusy("Preparing export…");
+  try {
+    const result = await api("POST", "/sessions/beta-athlete-history-export", {
+      athlete_user_id: state.profile.userId
+    });
+
+    const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${result.export_id || "athlete-history-export"}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    showNotice("Training history export generated.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+function syncHistoryDetailRoute(sessionId) {
+  // Toggling historyDetailPanel's hidden attribute lands inside the shared
+  // .views MutationObserver (route_bootstrap.js), which resyncs the hash from
+  // whichever top-level .view section is visible - #view-history itself,
+  // which carries no session entity - clobbering the detail URL we just set.
+  // Re-asserting it here, after the async fetch/render settles, is a self-
+  // healing fix that does not require touching that shared observer.
+  const detailHash = `#/athlete/history/${encodeURIComponent(sessionId)}`;
+  if (location.hash !== detailHash) {
+    history.replaceState({ kolosseum_route: detailHash }, "", detailHash);
+  }
+}
+
+async function openHistoryDetail(sessionId) {
+  if (!sessionId || state.role !== "athlete") return;
+
+  elements.historyDetailPanel.hidden = false;
+  elements.historyDetailPanel.innerHTML = `
+    <div class="panel-header"><div><p class="eyebrow">Session detail</p><h3>Loading…</h3></div></div>
+  `;
+
+  try {
+    const detail = await api("POST", "/sessions/beta-athlete-history-detail", {
+      athlete_user_id: state.profile.userId,
+      session_id: sessionId
+    });
+    renderHistoryDetail(detail);
+    syncHistoryDetailRoute(sessionId);
+  }
+  catch (error) {
+    elements.historyDetailPanel.innerHTML = `
+      <div class="panel-header">
+        <div><p class="eyebrow">Session detail</p><h3>Could not load this session</h3></div>
+        <button id="closeHistoryDetailButton" class="button secondary" type="button">Close detail</button>
+      </div>
+      <p class="muted">${escapeHtml(error?.message ?? "The session record could not be fetched.")}</p>
+    `;
+    document.getElementById("closeHistoryDetailButton")?.addEventListener("click", closeHistoryDetail);
+  }
+}
+
+function closeHistoryDetail() {
+  elements.historyDetailPanel.hidden = true;
+  elements.historyDetailPanel.innerHTML = "";
+  if (location.hash.startsWith("#/athlete/history/")) {
+    location.hash = "#/athlete/history";
+  }
+}
+
+function renderHistoryDetail(detail) {
+  const programme = detail.provenance?.programme;
+  const assignment = detail.provenance?.assignment;
+  const event = detail.provenance?.event;
+  const canContinue = detail.execution_status === "ready" || detail.execution_status === "in_progress";
+
+  elements.historyDetailPanel.innerHTML = `
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Session detail</p>
+        <h3>${escapeHtml(programme?.template_name || "Training session")}</h3>
+        <p class="muted">${escapeHtml(formatDate(detail.created_at))} · ${escapeHtml(titleCase(detail.execution_status))}</p>
+      </div>
+      <div class="button-row">
+        ${canContinue ? `<button id="continueHistorySessionButton" class="button primary" type="button">Continue session</button>` : ""}
+        <button id="closeHistoryDetailButton" class="button secondary" type="button">Close detail</button>
+      </div>
+    </div>
+
+    <div class="history-facts">
+      <div><span>Status</span><strong>${escapeHtml(titleCase(detail.execution_status))}</strong></div>
+      <div><span>Split entered</span><strong>${detail.split_entered ? "Yes" : "No"}</strong></div>
+      <div><span>Return decision</span><strong>${escapeHtml(titleCase(detail.split_return_decision || "None"))}</strong></div>
+      <div><span>Programme</span><strong>${escapeHtml(programme ? `${programme.template_name} (v${programme.template_version})` : "Not recorded")}</strong></div>
+      <div><span>Assignment</span><strong>${escapeHtml(assignment?.assignment_id || "Not recorded")}</strong></div>
+      <div><span>Event</span><strong>${escapeHtml(event?.event_name || "No linked event")}</strong></div>
+    </div>
+
+    <div class="panel-header"><div><p class="eyebrow">Planned versus recorded</p><h4>Exercises</h4></div></div>
+    <div id="historyDetailExercises">
+      ${(Array.isArray(detail.exercises) ? detail.exercises : []).map((exercise) => `
+        <div class="history-exercise-row">
+          <strong>${escapeHtml(exerciseName(exercise.planned))}</strong>
+          <span class="badge ${exercise.recorded_state === "completed" ? "complete" : exercise.recorded_state === "dropped" ? "partial" : "neutral"}">${escapeHtml(titleCase(exercise.recorded_state))}</span>
+          ${exercise.skip_reason ? `<small>Skip reason: ${escapeHtml(titleCase(exercise.skip_reason))}</small>` : ""}
+          ${exercise.pain_reported ? "<small>Pain reported</small>" : ""}
+          ${exercise.substitution ? `<small>Substituted with ${escapeHtml(exercise.substitution.substituted_exercise_id)}</small>` : ""}
+        </div>
+      `).join("")}
+    </div>
+
+    ${Array.isArray(detail.split_return_events) && detail.split_return_events.length ? `
+      <div class="panel-header"><div><p class="eyebrow">Split and return record</p><h4>Events</h4></div></div>
+      <div class="record-list">
+        ${detail.split_return_events.map((event) => `
+          <div class="history-exercise-row">
+            <strong>${escapeHtml(titleCase(event.type))}</strong>
+            <small>${escapeHtml(formatDate(event.created_at))}</small>
+          </div>
+        `).join("")}
+      </div>
+    ` : ""}
+  `;
+
+  document.getElementById("closeHistoryDetailButton")?.addEventListener("click", closeHistoryDetail);
+  document.getElementById("continueHistorySessionButton")?.addEventListener("click", () => {
+    state.activeSessionId = detail.session_id;
+    state.activeSessionState = null;
+    saveState();
+    setView("session");
+  });
+}
+
+function historyRecordCard(session) {
+  const date = formatDate(session.updated_at ?? session.created_at);
+  const executionStatus = session.execution_status ?? session.status ?? "recorded";
+  const statusClass = executionStatus === "completed"
+    ? "complete"
+    : executionStatus === "partial"
+      ? "partial"
+      : executionStatus === "in_progress"
+        ? "active"
+        : "neutral";
+  const programmeName = session.provenance?.programme?.template_name;
+  const eventName = session.provenance?.event?.event_name;
+
+  return `
+    <article class="record-card interactive" data-history-detail-id="${escapeHtml(session.session_id)}">
+      <div>
+        <h3>${escapeHtml(programmeName || "Training session")}</h3>
+        <p>${escapeHtml(date)}${eventName ? ` · ${escapeHtml(eventName)}` : ""}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge ${statusClass}">${escapeHtml(titleCase(executionStatus))}</span>
+        <span class="badge neutral">${Number(session.completed_count ?? 0)} completed</span>
+        ${session.dropped_count ? `<span class="badge partial">${Number(session.dropped_count)} dropped</span>` : ""}
+      </div>
+    </article>
+  `;
+}
+
+function renderHistoryList(sessions) {
+  elements.historyList.innerHTML = sessions.length
+    ? [...sessions].reverse().map((session) => historyRecordCard(session)).join("")
+    : `
+      <div class="panel empty-state">
+        <div class="empty-icon">H</div>
+        <h3>No sessions recorded</h3>
+        <p>Your persisted session history will appear here.</p>
+      </div>
+    `;
+
+  bindHistoryCards(elements.historyList);
+}
+
+function bindHistoryCards(container) {
+  for (const card of container.querySelectorAll("[data-history-detail-id]")) {
+    card.addEventListener("click", () => {
+      openHistoryDetail(card.dataset.historyDetailId);
+    });
+  }
 }
 
 function recordCard(session, interactive = true) {
@@ -11247,6 +11530,15 @@ elements.returnSkipButton.addEventListener("click", () => {
   postSessionEvent({ type: "RETURN_SKIP" }).catch(handleError);
 });
 elements.refreshHistoryButton.addEventListener("click", () => refreshHistory().catch(handleError));
+elements.historyRetryButton.addEventListener("click", () => refreshHistory().catch(handleError));
+elements.applyHistoryFiltersButton.addEventListener("click", () => applyHistoryFilters().catch(handleError));
+elements.clearHistoryFiltersButton.addEventListener("click", clearHistoryFilters);
+elements.exportHistoryButton.addEventListener("click", () => exportHistory().catch(handleError));
+
+document.addEventListener("kolosseum:history-detail-route", (event) => {
+  const sessionId = event.detail?.session_id;
+  if (sessionId) openHistoryDetail(sessionId).catch(handleError);
+});
 elements.connectAthleteForm.addEventListener("submit", (event) => {
   connectAthlete(event).catch(handleError);
 });

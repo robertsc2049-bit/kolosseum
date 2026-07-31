@@ -67,6 +67,16 @@
       "state": "implemented"
     },
     {
+      "route_id": "athlete_history_detail",
+      "pattern": "#/athlete/history/:session_id",
+      "view": "history",
+      "actors": [
+        "athlete"
+      ],
+      "entity_key": "session_id",
+      "state": "implemented"
+    },
+    {
       "route_id": "coach_overview",
       "pattern": "#/coach/overview",
       "view": "coach-overview",
@@ -3806,7 +3816,7 @@
       "area_id": "athlete_history",
       "title": "Athlete history",
       "slice_id": "FULL-UI-16",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "history_list",
@@ -3821,8 +3831,8 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_app_surface.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3836,18 +3846,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/sessions/beta-athlete-history"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3856,18 +3868,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": "athlete_session",
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "route_id": "athlete_history_detail",
+          "api_routes": [
+            "/sessions/beta-athlete-history-detail"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3876,18 +3890,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "route_id": "athlete_history_detail",
+          "api_routes": [
+            "/sessions/beta-athlete-history-detail"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3896,18 +3912,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "route_id": "athlete_history_detail",
+          "api_routes": [
+            "/sessions/beta-athlete-history-detail"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3916,18 +3934,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "route_id": "athlete_history_detail",
+          "api_routes": [
+            "/sessions/beta-athlete-history-detail"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3936,18 +3956,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "route_id": "athlete_history_detail",
+          "api_routes": [
+            "/sessions/beta-athlete-history-detail"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3956,18 +3978,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/sessions/beta-athlete-history-export"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3977,17 +4001,19 @@
             "athlete"
           ],
           "route_id": "athlete_history",
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "api_routes": [
+            "/sessions/beta-athlete-history"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -5771,7 +5797,19 @@
       "method": "POST",
       "path": "/sessions/beta-athlete-history",
       "source": "src/api/sessions.routes.ts",
-      "tracked_by_area": "product_journey"
+      "tracked_by_area": "athlete_history"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-athlete-history-detail",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "athlete_history"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/beta-athlete-history-export",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "athlete_history"
     },
     {
       "method": "POST",

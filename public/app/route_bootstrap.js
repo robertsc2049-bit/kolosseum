@@ -21,6 +21,7 @@ export const PRODUCT_ROUTE_MAP = Object.freeze([
   { route_id: "athlete_today", pattern: "#/athlete/today", view: "today", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_session", pattern: "#/athlete/session/:session_id", view: "session", actors: ["athlete"], entity_key: "session_id" },
   { route_id: "athlete_history", pattern: "#/athlete/history", view: "history", actors: ["athlete"], entity_key: null },
+  { route_id: "athlete_history_detail", pattern: "#/athlete/history/:session_id", view: "history", actors: ["athlete"], entity_key: "session_id" },
   { route_id: "coach_overview", pattern: "#/coach/overview", view: "coach-overview", actors: ["coach"], entity_key: null },
   { route_id: "coach_athletes", pattern: "#/coach/athletes", view: "athletes", actors: ["coach"], entity_key: null },
   { route_id: "coach_athlete_detail", pattern: "#/coach/athletes/:athlete_id", view: "athletes", actors: ["coach"], entity_key: "athlete_id" },
@@ -117,6 +118,7 @@ export function routeForView(actor, view, entity = {}) {
   else {
     if (view === "onboarding") return serializeProductRoute("athlete_onboarding");
     if (view === "session" && entity.session_id) return serializeProductRoute("athlete_session", entity);
+    if (view === "history" && entity.session_id) return serializeProductRoute("athlete_history_detail", entity);
     if (view === "history") return serializeProductRoute("athlete_history");
     if (view === "today") return serializeProductRoute("athlete_today");
   }
@@ -207,6 +209,15 @@ async function applyEntityRoute(route) {
     document.dispatchEvent(
       new CustomEvent("kolosseum:event-detail-route", {
         detail: { event_id: params.event_id }
+      })
+    );
+    return true;
+  }
+
+  if (route.route_id === "athlete_history_detail") {
+    document.dispatchEvent(
+      new CustomEvent("kolosseum:history-detail-route", {
+        detail: { session_id: params.session_id }
       })
     );
     return true;
@@ -348,6 +359,8 @@ function entityFromElement(element) {
   if (event?.dataset.openEventId) return { event_id: event.dataset.openEventId };
   const template = element.closest("[data-template-id]");
   if (template?.dataset.templateId) return { template_id: template.dataset.templateId };
+  const historyDetail = element.closest("[data-history-detail-id]");
+  if (historyDetail?.dataset.historyDetailId) return { session_id: historyDetail.dataset.historyDetailId };
   const session = element.closest("[data-session-id]");
   if (session?.dataset.sessionId) return { session_id: session.dataset.sessionId };
   return {};
@@ -381,7 +394,7 @@ function installProductRouting() {
     "click",
     (event) => {
       const element = event.target.closest(
-        "[data-view], [data-view-link], [data-athlete-id], [data-event-id], [data-open-event-id], [data-template-id], [data-session-id]"
+        "[data-view], [data-view-link], [data-athlete-id], [data-event-id], [data-open-event-id], [data-template-id], [data-session-id], [data-history-detail-id]"
       );
       if (element) syncRouteFromElement(element);
     },

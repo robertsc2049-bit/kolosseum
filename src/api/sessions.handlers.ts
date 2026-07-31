@@ -39,7 +39,6 @@ import {
 } from "./beta_product_record_store.js";
 import {
   buildStoredBeta17CoachArtefactResult,
-  buildStoredBetaAthleteHistoryResult,
   createStoredBeta17AssignmentResult
 } from "./beta_product_journey_service.js";
 import {
@@ -47,6 +46,11 @@ import {
   loadAthleteTodayView
 } from "./athlete_today_service.js";
 import { requestSessionSubstitution } from "./session_substitution_service.js";
+import {
+  buildAthleteHistoryDetailResult,
+  buildAthleteHistoryListResult
+} from "./athlete_history_service.js";
+import { buildAthleteHistoryExportResult } from "./athlete_history_export_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -284,13 +288,37 @@ export async function getBetaAthleteHistory(
   res: Response
 ) {
   const result =
-    await buildStoredBetaAthleteHistoryResult(
+    await buildAthleteHistoryListResult(
       req.body
     );
 
   return res
     .status(result.status)
     .json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Returns one session's complete factual history detail - planned
+ * versus recorded state, split/return record, skip/pain/substitution
+ * annotations and programme/assignment/event provenance.
+ * Boundary: Read-only; rejects access to any session not owned by the caller.
+ */
+export async function getAthleteHistoryDetail(req: Request, res: Response) {
+  const result = await buildAthleteHistoryDetailResult(req.body);
+  return res.status(result.status).json(result.body);
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Returns a server-generated, hash-sealed export of the athlete's
+ * own training history via the existing GDPR export boundary.
+ * Boundary: Read-only; delegates all permission/shape enforcement to the
+ * existing lawful export boundary contract.
+ */
+export async function getAthleteHistoryExport(req: Request, res: Response) {
+  const result = await buildAthleteHistoryExportResult(req.body);
+  return res.status(result.status).json(result.body);
 }
 
 /**

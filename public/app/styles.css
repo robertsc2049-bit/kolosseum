@@ -730,6 +730,46 @@ input:focus, select:focus, textarea:focus {
 .record-card p { margin: 0; color: var(--stone-dim); font-size: 0.78rem; }
 .record-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.45rem; }
 
+.history-filters {
+  display: grid;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  align-items: end;
+  border: 1px solid var(--line-soft);
+  border-radius: 11px;
+}
+
+.history-filters .button-row { grid-column: 1 / -1; }
+
+.history-detail-panel { margin-top: 1.25rem; }
+
+.history-exercise-row {
+  display: grid;
+  padding: 0.75rem 0.85rem;
+  gap: 0.35rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+}
+
+.history-exercise-row + .history-exercise-row { margin-top: 0.5rem; }
+
+.history-facts {
+  display: grid;
+  margin: 1rem 0;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.history-facts > div {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.history-facts span { display: block; color: var(--stone-dim); font-size: 0.78rem; }
+.history-facts strong { display: block; margin-top: 0.3rem; }
+
 .session-layout {
   display: grid;
   margin-bottom: 1rem;
