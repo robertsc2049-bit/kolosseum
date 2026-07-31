@@ -12,9 +12,11 @@ import {
   Beta18ProgrammeTemplateError,
   activateCoachProgrammeTemplate,
   archiveCoachProgrammeTemplate,
+  bindStandaloneEventToProgrammeTemplate,
   duplicateCoachProgrammeTemplate,
   listActiveExerciseOptions,
   listCoachProgrammeTemplates,
+  loadTemplateEventBindingStatus,
   saveCoachProgrammeTemplate
 } from "./beta18_programme_template_service.js";
 import {
@@ -204,6 +206,71 @@ export async function duplicateCoachTemplate(
       .json({
         ok: true,
         template
+      });
+  }
+  catch (error) {
+    rethrowTemplateError(
+      error
+    );
+  }
+}
+
+export async function bindCoachTemplateEvent(
+  req: Request,
+  res: Response
+) {
+  try {
+    const template =
+      await bindStandaloneEventToProgrammeTemplate(
+        {
+          ...(
+            req.body &&
+            typeof req.body ===
+              "object"
+              ? req.body
+              : {}
+          ),
+          template_id:
+            cleanString(
+              req.params.template_id
+            )
+        }
+      );
+
+    return res
+      .status(200)
+      .json({
+        ok: true,
+        template
+      });
+  }
+  catch (error) {
+    rethrowTemplateError(
+      error
+    );
+  }
+}
+
+export async function getCoachTemplateEventBinding(
+  req: Request,
+  res: Response
+) {
+  try {
+    const binding =
+      await loadTemplateEventBindingStatus(
+        cleanString(
+          req.query.coach_user_id
+        ),
+        cleanString(
+          req.params.template_id
+        )
+      );
+
+    return res
+      .status(200)
+      .json({
+        ok: true,
+        ...binding
       });
   }
   catch (error) {

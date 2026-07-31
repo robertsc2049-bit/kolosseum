@@ -1869,7 +1869,13 @@ export function listActiveExerciseOptions(): Readonly<{
 }
 
 export async function saveCoachProgrammeTemplate(
-  input: unknown
+  input: unknown,
+  // DEV NOTE: internal-only escape hatch. `allowEventBindingChange` must never be
+  // set from an HTTP handler decoding client input — only bindStandaloneEventToProgrammeTemplate,
+  // the sole lawful entry point for creating or changing a standalone-event binding, may pass it.
+  options: Readonly<{
+    allowEventBindingChange?: boolean;
+  }> = {}
 ): Promise<Readonly<JsonRecord>> {
   if (!isRecord(input)) {
     throw new Beta18ProgrammeTemplateError(
@@ -1888,6 +1894,8 @@ export async function saveCoachProgrammeTemplate(
       "description",
       "activity_id",
       "event_plan",
+      "bound_event_id",
+      "bound_event_record_sha256",
       "blocks",
       "weeks",
       "updated_at_iso8601"
@@ -2033,6 +2041,62 @@ export async function saveCoachProgrammeTemplate(
     );
   }
 
+  // A standalone-event binding may only be created or changed through the
+  // explicit bindStandaloneEventToProgrammeTemplate action, never as a side
+  // effect of an ordinary content save. An ordinary save may only omit these
+  // fields (preserving whatever binding already exists) or echo the
+  // currently-stored values back unchanged.
+  const existingBoundEventId =
+    cleanString(
+      existing?.bound_event_id
+    );
+
+  const existingBoundEventRecordSha256 =
+    cleanString(
+      existing?.bound_event_record_sha256
+    );
+
+  const submittedBoundEventId =
+    Object.prototype.hasOwnProperty.call(
+      input,
+      "bound_event_id"
+    )
+      ? cleanString(
+          input.bound_event_id
+        )
+      : existingBoundEventId;
+
+  const submittedBoundEventRecordSha256 =
+    Object.prototype.hasOwnProperty.call(
+      input,
+      "bound_event_record_sha256"
+    )
+      ? cleanString(
+          input.bound_event_record_sha256
+        )
+      : existingBoundEventRecordSha256;
+
+  if (
+    !options.allowEventBindingChange &&
+    (
+      submittedBoundEventId !==
+        existingBoundEventId ||
+      submittedBoundEventRecordSha256 !==
+        existingBoundEventRecordSha256
+    )
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      "template_event_binding_immutable_via_save"
+    );
+  }
+
+  const boundEventId =
+    submittedBoundEventId || null;
+
+  const boundEventRecordSha256 =
+    submittedBoundEventRecordSha256 ||
+    null;
+
   const updatedAt =
     iso8601(
       input.updated_at_iso8601 ??
@@ -2075,6 +2139,10 @@ export async function saveCoachProgrammeTemplate(
         normalised.event_plan,
       event_compile_summary:
         normalised.event_compile_summary,
+      bound_event_id:
+        boundEventId,
+      bound_event_record_sha256:
+        boundEventRecordSha256,
       assignment_scope:
         "coach_athlete_assigned_execution",
       source_record_id:
@@ -2296,12 +2364,448 @@ export async function activateCoachProgrammeTemplate(
     }
   }
 
+  const boundEventId =
+    cleanString(
+      existing.bound_event_id
+    );
+
+  if (boundEventId) {
+    const liveEvent =
+      await latestOwnedStandaloneEvent(
+        coachUserId,
+        boundEventId
+      );
+
+    if (!liveEvent) {
+      const foreign =
+        await standaloneEventExistsForAnotherActor(
+          coachUserId,
+          boundEventId
+        );
+
+      throw new Beta18ProgrammeTemplateError(
+        foreign
+          ? "event_binding_inaccessible"
+          : "event_binding_not_found"
+      );
+    }
+
+    if (
+      liveEvent.event_status ===
+      "cancelled"
+    ) {
+      throw new Beta18ProgrammeTemplateError(
+        "event_binding_event_cancelled"
+      );
+    }
+
+    if (
+      liveEvent.event_status ===
+      "archived"
+    ) {
+      throw new Beta18ProgrammeTemplateError(
+        "event_binding_event_archived"
+      );
+    }
+
+    if (
+      cleanString(
+        liveEvent.record_sha256
+      ) !==
+      cleanString(
+        existing.bound_event_record_sha256
+      )
+    ) {
+      throw new Beta18ProgrammeTemplateError(
+        "event_binding_stale_requires_rebind"
+      );
+    }
+  }
+
   return persistTemplateRecord(
     transitionTemplateRecord(
       existing,
       "active"
     )
   );
+}
+
+// FULL-UI-12C: the standalone event referenced here (record_type
+// 'beta19_coach_event', owned by src/api/full_ui_09c_event_lifecycle_service.ts
+// and src/api/beta19_coach_event_service.ts) remains the single event-date
+// truth. These helpers only ever read that record; they never create, version,
+// cancel or archive it, and never duplicate team/roster/organisation runtime.
+async function latestOwnedStandaloneEvent(
+  coachUserId: string,
+  eventId: string
+): Promise<Readonly<JsonRecord> | null> {
+  const result =
+    await pool.query(
+      `
+      SELECT record_payload
+      FROM beta_product_records
+      WHERE
+        record_type = 'beta19_coach_event'
+        AND record_id = $1
+        AND actor_user_id = $2
+      ORDER BY
+        effective_at DESC,
+        created_at DESC,
+        record_sha256 DESC
+      LIMIT 1
+      `,
+      [
+        eventId,
+        coachUserId
+      ]
+    );
+
+  const payload =
+    result.rows?.[0]?.record_payload;
+
+  return isRecord(payload)
+    ? deepFreeze(payload)
+    : null;
+}
+
+async function standaloneEventExistsForAnotherActor(
+  coachUserId: string,
+  eventId: string
+): Promise<boolean> {
+  const result =
+    await pool.query(
+      `
+      SELECT 1
+      FROM beta_product_records
+      WHERE
+        record_type = 'beta19_coach_event'
+        AND record_id = $1
+        AND actor_user_id <> $2
+      LIMIT 1
+      `,
+      [
+        eventId,
+        coachUserId
+      ]
+    );
+
+  return (
+    result.rowCount ?? 0
+  ) > 0;
+}
+
+// The sole lawful action that may create or change a template's standalone-event
+// binding. It re-derives the template's event_plan snapshot from the event's
+// CURRENT record at the moment of this explicit call and pins it (via
+// bound_event_record_sha256) until the coach explicitly calls this again -
+// ordinary content saves may not move it (see the immutability check inside
+// saveCoachProgrammeTemplate).
+export async function bindStandaloneEventToProgrammeTemplate(
+  inputValue: unknown
+): Promise<Readonly<JsonRecord>> {
+  if (!isRecord(inputValue)) {
+    throw new Beta18ProgrammeTemplateError(
+      "event_binding_input_invalid"
+    );
+  }
+
+  exactKeys(
+    inputValue,
+    [
+      "coach_user_id",
+      "template_id",
+      "event_id"
+    ],
+    "event_binding"
+  );
+
+  const coachUserId =
+    cleanString(
+      inputValue.coach_user_id
+    );
+
+  const templateId =
+    cleanString(
+      inputValue.template_id
+    );
+
+  const eventId =
+    cleanString(
+      inputValue.event_id
+    );
+
+  if (
+    !coachUserId ||
+    !templateId ||
+    !eventId
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      "event_binding_identity_required"
+    );
+  }
+
+  await requireActiveCoach(
+    coachUserId
+  );
+
+  const existingTemplate =
+    await latestTemplateById(
+      coachUserId,
+      templateId
+    );
+
+  if (!existingTemplate) {
+    throw new Beta18ProgrammeTemplateError(
+      "template_not_found"
+    );
+  }
+
+  if (
+    existingTemplate.template_status !==
+    "draft"
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      "active_or_archived_template_is_immutable"
+    );
+  }
+
+  const event =
+    await latestOwnedStandaloneEvent(
+      coachUserId,
+      eventId
+    );
+
+  if (!event) {
+    const foreign =
+      await standaloneEventExistsForAnotherActor(
+        coachUserId,
+        eventId
+      );
+
+    throw new Beta18ProgrammeTemplateError(
+      foreign
+        ? "event_binding_inaccessible"
+        : "event_binding_not_found"
+    );
+  }
+
+  if (
+    event.event_status !==
+    "active"
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      event.event_status ===
+      "cancelled"
+        ? "event_binding_event_cancelled"
+        : "event_binding_event_archived"
+    );
+  }
+
+  if (
+    cleanString(
+      event.activity_id
+    ) !==
+    cleanString(
+      existingTemplate.activity_id
+    )
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      "event_binding_activity_mismatch"
+    );
+  }
+
+  const eventRecordSha256 =
+    cleanString(
+      event.record_sha256
+    );
+
+  if (
+    !/^[a-f0-9]{64}$/u.test(
+      eventRecordSha256
+    )
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      "event_binding_reference_invalid"
+    );
+  }
+
+  const eventPlan =
+    isRecord(event.event_plan)
+      ? event.event_plan
+      : {};
+
+  const baseInput =
+    templateRecordInput(
+      existingTemplate as JsonRecord
+    );
+
+  const bindInput = {
+    ...baseInput,
+    event_plan:
+      cloneRecord(eventPlan),
+    bound_event_id:
+      eventId,
+    bound_event_record_sha256:
+      eventRecordSha256,
+    updated_at_iso8601:
+      new Date().toISOString()
+  };
+
+  return saveCoachProgrammeTemplate(
+    bindInput,
+    {
+      allowEventBindingChange:
+        true
+    }
+  );
+}
+
+// Read-side factual comparison between what the template has pinned
+// (bound_event_id / bound_event_record_sha256, and the event_plan snapshot
+// taken at that binding) and the standalone event's current, live state.
+// This never mutates the template and never silently updates the pinned
+// snapshot - it only reports whether an explicit rebind is required.
+export async function loadTemplateEventBindingStatus(
+  coachUserIdInput: string,
+  templateIdInput: string
+): Promise<Readonly<JsonRecord>> {
+  const coachUserId =
+    cleanString(
+      coachUserIdInput
+    );
+
+  const templateId =
+    cleanString(
+      templateIdInput
+    );
+
+  await requireActiveCoach(
+    coachUserId
+  );
+
+  const template =
+    await latestTemplateById(
+      coachUserId,
+      templateId
+    );
+
+  if (!template) {
+    throw new Beta18ProgrammeTemplateError(
+      "template_not_found"
+    );
+  }
+
+  const boundEventId =
+    cleanString(
+      template.bound_event_id
+    );
+
+  if (!boundEventId) {
+    return deepFreeze({
+      template_id:
+        templateId,
+      bound: false
+    });
+  }
+
+  const boundEventRecordSha256 =
+    cleanString(
+      template.bound_event_record_sha256
+    );
+
+  const templateEventPlan =
+    isRecord(
+      template.event_plan
+    )
+      ? template.event_plan
+      : null;
+
+  const templateEventCompileSummary =
+    isRecord(
+      template.event_compile_summary
+    )
+      ? template.event_compile_summary
+      : null;
+
+  const liveEvent =
+    await latestOwnedStandaloneEvent(
+      coachUserId,
+      boundEventId
+    );
+
+  if (!liveEvent) {
+    const foreign =
+      await standaloneEventExistsForAnotherActor(
+        coachUserId,
+        boundEventId
+      );
+
+    return deepFreeze({
+      template_id:
+        templateId,
+      bound: true,
+      event_id:
+        boundEventId,
+      bound_event_record_sha256:
+        boundEventRecordSha256,
+      event_plan:
+        templateEventPlan,
+      event_compile_summary:
+        templateEventCompileSummary,
+      accessible: false,
+      ownership_denied:
+        foreign,
+      event_status: null,
+      live_event_record_sha256:
+        null,
+      live_event_version:
+        null,
+      is_current: false,
+      requires_rebind: false
+    });
+  }
+
+  const liveEventRecordSha256 =
+    cleanString(
+      liveEvent.record_sha256
+    );
+
+  const isCurrent =
+    liveEventRecordSha256 ===
+    boundEventRecordSha256;
+
+  return deepFreeze({
+    template_id:
+      templateId,
+    bound: true,
+    event_id:
+      boundEventId,
+    bound_event_record_sha256:
+      boundEventRecordSha256,
+    event_plan:
+      templateEventPlan,
+    event_compile_summary:
+      templateEventCompileSummary,
+    accessible: true,
+    ownership_denied: false,
+    event_status:
+      cleanString(
+        liveEvent.event_status
+      ),
+    live_event_record_sha256:
+      liveEventRecordSha256,
+    live_event_version:
+      Number(
+        liveEvent.event_version ??
+        1
+      ),
+    is_current:
+      isCurrent,
+    requires_rebind:
+      !isCurrent ||
+      liveEvent.event_status !==
+        "active"
+  });
 }
 
 export async function archiveCoachProgrammeTemplate(

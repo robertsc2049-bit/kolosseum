@@ -23,7 +23,10 @@ test("events are a separate coach workspace section", () => {
   assert.match(index, /id="eventForm"/u);
   assert.match(index, /id="eventList"/u);
   assert.doesNotMatch(index, /class="nav-item coach-nav" data-view="assign"/u);
-  assert.match(index, /class="event-compiler-settings" hidden/u);
+  // FULL-UI-12C: this section must actually render (not be permanently
+  // display:none) - it hosts both the typed event_plan compiler and the
+  // standalone-event binding picker, and neither is reachable if hidden.
+  assert.match(index, /<section class="event-compiler-settings">/u);
 });
 
 test("athlete profile owns programme and event assignment", () => {
