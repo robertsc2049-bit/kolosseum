@@ -128,6 +128,21 @@ CREATE TABLE IF NOT EXISTS session_event_seq (
 );
 
 -- ----------------
+-- SESSION EVENT REQUESTS (idempotency dedup for /events retries)
+-- ----------------
+-- Records which client-supplied request id produced which runtime event
+-- sequence number, so a duplicate submission or network retry replays the
+-- prior sequence instead of appending a second runtime event.
+CREATE TABLE IF NOT EXISTS session_event_requests (
+  session_id        TEXT NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+  client_request_id TEXT NOT NULL,
+  seq               INTEGER NOT NULL,
+  event_json        JSONB NOT NULL,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (session_id, client_request_id)
+);
+
+-- ----------------
 -- BETA PRODUCT RECORDS
 -- ----------------
 -- Immutable product/application records only.

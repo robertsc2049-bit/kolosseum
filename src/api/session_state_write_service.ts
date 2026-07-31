@@ -25,6 +25,7 @@ import {
   normalizeSummary,
   validateWireRuntimeEvent
 } from "@kolosseum/engine/runtime/session_summary.js";
+import { findSubstitutionRegistryEdge } from "./session_substitution_registry.js";
 
 function cloneJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
@@ -331,6 +332,162 @@ function ensureExerciseReplayRejected(summary: any, raw: unknown): void {
   }
 }
 
+function canonicalStableJson(value: unknown): string {
+  const sort = (v: any): any => {
+    if (Array.isArray(v)) return v.map(sort);
+    if (v && typeof v === "object") {
+      const out: Record<string, any> = {};
+      for (const key of Object.keys(v).sort()) out[key] = sort(v[key]);
+      return out;
+    }
+    return v;
+  };
+  return JSON.stringify(sort(value));
+}
+
+async function findCachedEventRequest(client: any, session_id: string, clientRequestId: string) {
+  const r = await client.query(
+    `SELECT seq, event_json
+     FROM session_event_requests
+     WHERE session_id = $1 AND client_request_id = $2`,
+    [session_id, clientRequestId]
+  );
+  return (r.rowCount ?? 0) > 0 ? r.rows[0] : null;
+}
+
+async function recordEventRequest(
+  client: any,
+  session_id: string,
+  clientRequestId: string,
+  seq: number,
+  raw: unknown
+): Promise<void> {
+  await client.query(
+    `INSERT INTO session_event_requests(session_id, client_request_id, seq, event_json)
+     VALUES ($1, $2, $3, $4::jsonb)
+     ON CONFLICT (session_id, client_request_id) DO NOTHING`,
+    [session_id, clientRequestId, seq, JSON.stringify(raw)]
+  );
+}
+
+const SKIP_REASON_CODES = Object.freeze([
+  "equipment_unavailable",
+  "time_constraint",
+  "pain_or_discomfort",
+  "fatigue",
+  "other"
+]);
+
+export const skipReasonCodes = SKIP_REASON_CODES;
+
+function ensureSkipReasonValid(event: unknown): void {
+  const t = rawEventType(event);
+  if (t !== "SKIP_EXERCISE") return;
+
+  const reasonCode = typeof (event as any)?.reason_code === "string" ? (event as any).reason_code : "";
+  if (!SKIP_REASON_CODES.includes(reasonCode as any)) {
+    throw badRequest("Runtime event rejected (missing/invalid skip reason)", {
+      failure_token: "phase6_runtime_skip_reason_invalid",
+      cause: `PHASE6_RUNTIME_SKIP_REASON_INVALID: ${reasonCode || "missing"}`
+    });
+  }
+}
+
+const PAIN_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "pain_reported", "client_request_id"]);
+
+function ensurePainReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "PAIN_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!PAIN_REPORT_ALLOWED_KEYS.has(key)) {
+      throw badRequest("Runtime event rejected (pain report must record only the permitted factual input)", {
+        failure_token: "phase6_runtime_pain_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_PAIN_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) {
+    throw badRequest("Runtime event rejected (missing pain report exercise_id)", {
+      failure_token: "phase6_runtime_pain_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_PAIN_REPORT_INVALID_SHAPE: exercise_id"
+    });
+  }
+
+  if (obj.pain_reported !== true) {
+    throw badRequest("Runtime event rejected (pain report must be a factual true flag)", {
+      failure_token: "phase6_runtime_pain_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_PAIN_REPORT_INVALID_SHAPE: pain_reported"
+    });
+  }
+
+  const trace = readSummaryTrace(summary);
+  const knownIds = new Set<string>([
+    ...uniqStable(trace?.remaining_ids),
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const id = typeof (ex as any)?.exercise_id === "string" ? (ex as any).exercise_id : "";
+    if (id) knownIds.add(id);
+  }
+
+  if (!knownIds.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (pain report exercise_id not part of this session)", {
+      failure_token: "phase6_runtime_pain_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_PAIN_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
+function ensureSubstitutionTagValid(event: unknown): void {
+  const t = rawEventType(event);
+  if (!isExerciseProgressEventType(t)) return;
+
+  const obj = event as Record<string, unknown>;
+  const substitutedExerciseId =
+    typeof obj.substituted_exercise_id === "string" ? obj.substituted_exercise_id.trim() : "";
+  const substitutionEdgeId =
+    typeof obj.substitution_edge_id === "string" ? obj.substitution_edge_id.trim() : "";
+
+  if (!substitutedExerciseId && !substitutionEdgeId) return;
+
+  if (!substitutedExerciseId || !substitutionEdgeId) {
+    throw badRequest("Runtime event rejected (incomplete substitution annotation)", {
+      failure_token: "phase6_runtime_substitution_tag_invalid",
+      cause: "PHASE6_RUNTIME_SUBSTITUTION_TAG_INVALID: substituted_exercise_id/substitution_edge_id must both be present"
+    });
+  }
+
+  const sourceExerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id : "";
+  const edge = findSubstitutionRegistryEdge(substitutionEdgeId, sourceExerciseId, substitutedExerciseId);
+  if (!edge) {
+    throw conflict("Runtime event rejected (substitution not declared by the substitution registry)", {
+      failure_token: "phase6_runtime_substitution_tag_unlawful",
+      cause: `PHASE6_RUNTIME_SUBSTITUTION_TAG_UNLAWFUL: ${sourceExerciseId}->${substitutedExerciseId}`
+    });
+  }
+}
+
+function ensureTerminalSessionEventRejected(summary: any, raw: unknown): void {
+  const t = rawEventType(raw);
+  if (isExerciseProgressEventType(t) || isReturnDecisionEventType(t)) return;
+
+  const trace = readSummaryTrace(summary);
+  const started = trace?.started === true;
+  const remainingIds = uniqStable(trace?.remaining_ids);
+
+  if (started && remainingIds.length === 0) {
+    throw conflict("Runtime event rejected (session already terminal)", {
+      failure_token: "phase6_runtime_terminal_session_event_rejected",
+      cause: `PHASE6_RUNTIME_TERMINAL_SESSION_EVENT_REJECTED: ${t ?? "unknown"}`
+    });
+  }
+}
+
 export function extractRawEventFromBody(body: unknown): unknown {
   if (!body || typeof body !== "object" || Array.isArray(body)) return null;
 
@@ -348,6 +505,12 @@ export function extractRawEventFromBody(body: unknown): unknown {
   }
 
   return null;
+}
+
+export function extractClientRequestIdFromBody(body: unknown): string | null {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return null;
+  const id = (body as any).client_request_id;
+  return typeof id === "string" && id.trim().length > 0 ? id.trim() : null;
 }
 
 export async function startSessionMutation(session_id: string) {
@@ -421,12 +584,21 @@ export async function startSessionMutation(session_id: string) {
   }
 }
 
-export async function appendRuntimeEventMutation(session_id: string, raw: unknown) {
+export async function appendRuntimeEventMutation(
+  session_id: string,
+  raw: unknown,
+  clientRequestId?: string | null
+) {
   if (!raw) throw badRequest("Missing/invalid event");
 
   if (rawEventType(raw) === "START_SESSION") {
     throw badRequest("START_SESSION must be created via /start");
   }
+
+  const requestId =
+    typeof clientRequestId === "string" && clientRequestId.trim().length > 0
+      ? clientRequestId.trim()
+      : null;
 
   const client = await pool.connect();
   try {
@@ -434,6 +606,21 @@ export async function appendRuntimeEventMutation(session_id: string, raw: unknow
 
     const s = await loadSessionForUpdate(client, session_id);
     if (!s) throw notFound("Session not found");
+
+    if (requestId) {
+      const cached = await findCachedEventRequest(client, session_id, requestId);
+      if (cached) {
+        if (canonicalStableJson(cached.event_json) !== canonicalStableJson(raw)) {
+          throw conflict("Runtime event rejected (client_request_id reused for a different event)", {
+            failure_token: "phase6_runtime_request_id_conflict",
+            cause: `PHASE6_RUNTIME_REQUEST_ID_CONFLICT: ${requestId}`
+          });
+        }
+
+        await client.query("COMMIT");
+        return { ok: true, session_id, seq: Number(cached.seq), replayed: true };
+      }
+    }
 
     if (
       process.env.KOLOSSEUM_HTTP_E2E_UNKNOWN_ENGINE_500 === "1" &&
@@ -514,8 +701,12 @@ export async function appendRuntimeEventMutation(session_id: string, raw: unknow
       };
     }
 
+    ensureSkipReasonValid(event);
+    ensurePainReportShapeValid(event, planned, workingSummary);
+    ensureSubstitutionTagValid(event);
     ensureResolvedReturnDecisionReplayRejected(workingSummary, event);
     ensureExerciseReplayRejected(workingSummary, event);
+    ensureTerminalSessionEventRejected(workingSummary, event);
 
     const seq = await allocNextSeq(client, session_id);
 
@@ -553,6 +744,10 @@ export async function appendRuntimeEventMutation(session_id: string, raw: unknow
        WHERE session_id = $1`,
       [session_id, JSON.stringify(nextSummary)]
     );
+
+    if (requestId) {
+      await recordEventRequest(client, session_id, requestId, seq, raw);
+    }
 
     await client.query("COMMIT");
     invalidateSessionStateCache(session_id);

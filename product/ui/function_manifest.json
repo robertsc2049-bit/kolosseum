@@ -3457,7 +3457,7 @@
       "area_id": "session_execution",
       "title": "Session execution",
       "slice_id": "FULL-UI-15",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "session_overview",
@@ -3466,17 +3466,19 @@
             "athlete"
           ],
           "route_id": "athlete_session",
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "api_routes": [
+            "/sessions/:id/state"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_15c_session_execution_surface.test.mjs",
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3501,7 +3503,7 @@
         },
         {
           "function_id": "session_prescription",
-          "label": "Display sets, reps, load, rest and role",
+          "label": "Display sets, reps, load and rest",
           "actors": [
             "athlete"
           ],
@@ -3532,8 +3534,8 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/api_session_state_write_service.contract.test.mjs",
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3554,8 +3556,8 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/api_session_state_write_service.contract.test.mjs",
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3570,17 +3572,19 @@
             "athlete"
           ],
           "route_id": "athlete_session",
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "api_routes": [
+            "/sessions/:id/events"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_15c_session_execution_surface.test.mjs",
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3594,7 +3598,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "direct_test": "test/s_v1_37_split_return_flow.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "covered_or_declared",
@@ -3614,7 +3618,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "direct_test": "test/s_v1_37_split_return_flow.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "covered_or_declared",
@@ -3634,7 +3638,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "direct_test": "test/s_v1_37_split_return_flow.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "covered_or_declared",
@@ -3654,7 +3658,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "direct_test": "test/s_v1_37_split_return_flow.test.mjs",
           "integration_test": null,
           "coverage": {
             "loading": "covered_or_declared",
@@ -3669,18 +3673,21 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "athlete_session",
+          "api_routes": [
+            "/sessions/:id/substitution-request",
+            "/sessions/:id/events"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_15c_session_execution_surface.test.mjs",
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3689,18 +3696,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "athlete_session",
+          "api_routes": [
+            "/sessions/:id/events"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_15c_session_execution_surface.test.mjs",
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3710,17 +3719,19 @@
             "athlete"
           ],
           "route_id": "athlete_session",
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "api_routes": [
+            "/sessions/:id/state"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_15c_session_execution_surface.test.mjs",
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3729,18 +3740,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "athlete_session",
+          "api_routes": [
+            "/sessions/:id/events"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_15c_session_execution_surface.test.mjs",
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3750,17 +3763,19 @@
             "athlete"
           ],
           "route_id": "athlete_session",
-          "api_routes": [],
-          "persistence": "server_product_records",
-          "state": "partial",
+          "api_routes": [
+            "/sessions/:id/state"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_15c_session_execution_surface.test.mjs",
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -3770,12 +3785,14 @@
             "athlete"
           ],
           "route_id": "athlete_session",
-          "api_routes": [],
-          "persistence": "server_product_records",
+          "api_routes": [
+            "/sessions/:id/events"
+          ],
+          "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "direct_test": "test/full_ui_15c_session_execution_surface.test.mjs",
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -5737,6 +5754,12 @@
       "path": "/sessions/:session_id/state",
       "source": "src/api/sessions.routes.ts",
       "tracked_by_area": "product_journey"
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/:session_id/substitution-request",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "session_execution"
     },
     {
       "method": "POST",
