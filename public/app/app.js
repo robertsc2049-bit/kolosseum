@@ -20,6 +20,9 @@ import {
   updateAccountProfile
 } from "./account_ui.js";
 
+// FULL-UI-18 factual in-product notifications.
+import { serializeProductRoute } from "./route_bootstrap.js";
+
 const STORAGE_KEY = "kolosseum.product.app.v1";
 
 const DEFAULT_STATE = Object.freeze({
@@ -125,6 +128,15 @@ const elements = {
   topbarTitle: document.getElementById("topbarTitle"),
   topbarAccount: document.getElementById("topbarAccount"),
   connectionStatus: document.getElementById("connectionStatus"),
+  notificationBellButton: document.getElementById("notificationBellButton"),
+  notificationUnreadBadge: document.getElementById("notificationUnreadBadge"),
+  notificationPanel: document.getElementById("notificationPanel"),
+  notificationMarkAllReadButton: document.getElementById("notificationMarkAllReadButton"),
+  notificationLoading: document.getElementById("notificationLoading"),
+  notificationServiceUnavailable: document.getElementById("notificationServiceUnavailable"),
+  notificationRetryButton: document.getElementById("notificationRetryButton"),
+  notificationEmpty: document.getElementById("notificationEmpty"),
+  notificationList: document.getElementById("notificationList"),
   notice: document.getElementById("notice"),
   busyOverlay: document.getElementById("busyOverlay"),
   busyText: document.getElementById("busyText"),
@@ -11598,6 +11610,7 @@ async function enterApplication() {
 
   setView(state.view);
   checkConnection();
+  refreshNotificationUnreadCount().catch(() => {});
 }
 
 function showEntry() {
@@ -11669,6 +11682,201 @@ elements.cancelPasswordResetCompleteButton.addEventListener(
   "click",
   showSignInForm
 );
+
+// FULL-UI-18 factual in-product notifications. Every notification comes
+// from the server's own derivation of already-durable product events - this
+// module never invents urgency, priority or a recommendation, and every
+// deep link either opens a real existing route or shows the explicit
+// unavailable-target state.
+const NOTIFICATION_TYPE_LABELS = Object.freeze({
+  relationship_invited: "Relationship invited",
+  relationship_accepted: "Relationship accepted",
+  relationship_declined: "Relationship declined",
+  relationship_revoked: "Relationship revoked",
+  assignment_created: "Assignment created",
+  assignment_replaced: "Assignment replaced",
+  assignment_cancelled: "Assignment cancelled",
+  event_linked: "Event linked",
+  event_unlinked: "Event unlinked",
+  event_cancelled: "Event cancelled",
+  programme_available: "Programme available",
+  session_completed: "Session completed",
+  coach_note_visible: "Coach note visible",
+  billing_action_required: "Billing action required"
+});
+
+function renderNotificationUnreadBadge(count) {
+  const value = Number(count) || 0;
+  if (value > 0) {
+    elements.notificationUnreadBadge.hidden = false;
+    elements.notificationUnreadBadge.textContent = value > 99 ? "99+" : String(value);
+  }
+  else {
+    elements.notificationUnreadBadge.hidden = true;
+    elements.notificationUnreadBadge.textContent = "0";
+  }
+}
+
+async function refreshNotificationUnreadCount() {
+  try {
+    const payload = await api("GET", "/account/notifications/unread-count");
+    renderNotificationUnreadBadge(payload.unread_count);
+  }
+  catch {
+    // The badge keeps its last known value; opening the panel shows the
+    // explicit unavailable state if the surface truly cannot be reached.
+  }
+}
+
+function notificationTargetHref(notification) {
+  if (notification.target_available !== true) return null;
+  try {
+    return serializeProductRoute(notification.deep_link.route_id, notification.deep_link.params ?? {});
+  }
+  catch {
+    return null;
+  }
+}
+
+function openNotificationTarget(notification, href) {
+  if (!href) return;
+  closeNotificationPanel();
+  location.hash = href;
+  if (notification.read_at_iso8601 === null) {
+    markNotificationRead(notification.notification_id).catch(() => {});
+  }
+}
+
+async function markNotificationRead(notificationId) {
+  await api("POST", `/account/notifications/${encodeURIComponent(notificationId)}/read`, {});
+  await refreshNotificationUnreadCount();
+}
+
+async function markNotificationUnread(notificationId) {
+  await api("POST", `/account/notifications/${encodeURIComponent(notificationId)}/unread`, {});
+  await refreshNotificationUnreadCount();
+}
+
+async function toggleNotificationReadState(notificationId, markRead) {
+  if (markRead) await markNotificationRead(notificationId);
+  else await markNotificationUnread(notificationId);
+  await loadNotificationPanelContent();
+}
+
+function renderNotificationList(notifications) {
+  elements.notificationList.innerHTML = "";
+
+  if (notifications.length === 0) {
+    elements.notificationEmpty.hidden = false;
+    return;
+  }
+  elements.notificationEmpty.hidden = true;
+
+  for (const notification of notifications) {
+    const isRead = notification.read_at_iso8601 !== null;
+    const label = NOTIFICATION_TYPE_LABELS[notification.notification_type] ?? titleCase(notification.notification_type);
+    const href = notificationTargetHref(notification);
+
+    const item = document.createElement("li");
+    item.className = "notification-item";
+    item.dataset.notificationId = notification.notification_id;
+
+    const openButton = document.createElement("button");
+    openButton.type = "button";
+    openButton.className = "notification-item-open";
+    openButton.dataset.targetAvailable = String(notification.target_available === true);
+    if (!isRead) openButton.dataset.unread = "true";
+    openButton.innerHTML = `
+      <span class="notification-item-dot" ${isRead ? "hidden" : ""} aria-hidden="true"></span>
+      <span class="notification-item-body">
+        <span class="notification-item-type">${escapeHtml(label)}</span>
+        <span class="notification-item-time">${escapeHtml(formatDate(notification.occurred_at_iso8601))}</span>
+        ${notification.target_available === true ? "" : '<span class="notification-item-unavailable">This item is no longer available</span>'}
+      </span>
+    `;
+    openButton.addEventListener("click", () => openNotificationTarget(notification, href));
+
+    const toggleButton = document.createElement("button");
+    toggleButton.type = "button";
+    toggleButton.className = "notification-item-toggle-read";
+    toggleButton.dataset.read = String(isRead);
+    toggleButton.textContent = isRead ? "Mark unread" : "Mark read";
+    toggleButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleNotificationReadState(notification.notification_id, !isRead).catch(handleError);
+    });
+
+    item.append(openButton, toggleButton);
+    elements.notificationList.appendChild(item);
+  }
+}
+
+async function loadNotificationPanelContent() {
+  elements.notificationLoading.hidden = false;
+  elements.notificationServiceUnavailable.hidden = true;
+  elements.notificationEmpty.hidden = true;
+  elements.notificationList.innerHTML = "";
+
+  try {
+    const payload = await api("GET", "/account/notifications");
+    renderNotificationList(payload.notifications ?? []);
+    renderNotificationUnreadBadge(payload.unread_count);
+  }
+  catch {
+    elements.notificationServiceUnavailable.hidden = false;
+  }
+  finally {
+    elements.notificationLoading.hidden = true;
+  }
+}
+
+async function markAllNotificationsReadAction() {
+  await api("POST", "/account/notifications/mark-all-read", {});
+  await loadNotificationPanelContent();
+}
+
+function isNotificationPanelOpen() {
+  return !elements.notificationPanel.hidden;
+}
+
+function openNotificationPanel() {
+  elements.notificationPanel.hidden = false;
+  elements.notificationBellButton.setAttribute("aria-expanded", "true");
+  loadNotificationPanelContent().catch(handleError);
+}
+
+function closeNotificationPanel() {
+  elements.notificationPanel.hidden = true;
+  elements.notificationBellButton.setAttribute("aria-expanded", "false");
+}
+
+function toggleNotificationPanel() {
+  if (isNotificationPanelOpen()) closeNotificationPanel();
+  else openNotificationPanel();
+}
+
+elements.notificationBellButton?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  toggleNotificationPanel();
+});
+
+elements.notificationRetryButton?.addEventListener("click", () => {
+  loadNotificationPanelContent().catch(handleError);
+});
+
+elements.notificationMarkAllReadButton?.addEventListener("click", () => {
+  markAllNotificationsReadAction().catch(handleError);
+});
+
+document.addEventListener("click", (event) => {
+  if (!isNotificationPanelOpen()) return;
+  if (event.target.closest("#notificationPanel, #notificationBellButton")) return;
+  closeNotificationPanel();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && isNotificationPanelOpen()) closeNotificationPanel();
+});
 
 elements.menuButton.addEventListener("click", () => {
   elements.sidebar.classList.toggle("open");

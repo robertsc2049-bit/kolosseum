@@ -230,6 +230,32 @@
         </div>
         <div class="topbar-actions">
           <span id="connectionStatus" class="connection-status">Connected</span>
+          <div class="notification-bell-wrap">
+            <button
+              id="notificationBellButton"
+              class="icon-button notification-bell"
+              type="button"
+              aria-label="Open notifications"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <span aria-hidden="true">&#128276;</span>
+              <span id="notificationUnreadBadge" class="notification-unread-badge" hidden>0</span>
+            </button>
+            <div id="notificationPanel" class="notification-panel" hidden role="menu" aria-label="Notifications">
+              <div class="notification-panel-header">
+                <strong>Notifications</strong>
+                <button id="notificationMarkAllReadButton" class="button link" type="button">Mark all read</button>
+              </div>
+              <div id="notificationLoading" class="notification-loading" hidden>Loading notifications...</div>
+              <div id="notificationServiceUnavailable" class="notification-unavailable" hidden>
+                <p>Notifications are unavailable right now.</p>
+                <button id="notificationRetryButton" class="button" type="button">Retry</button>
+              </div>
+              <div id="notificationEmpty" class="notification-empty" hidden>No notifications yet.</div>
+              <ul id="notificationList" class="notification-list"></ul>
+            </div>
+          </div>
           <button id="topbarAccount" class="avatar button-avatar" type="button" aria-label="Open account">C</button>
         </div>
       </header>

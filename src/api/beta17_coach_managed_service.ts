@@ -36,6 +36,8 @@ export const BETA17_COACH_COPY_IDS =
       "BETA17_COPY_RELATIONSHIP_ACCEPTED",
     relationshipRevoked:
       "BETA17_COPY_RELATIONSHIP_REVOKED",
+    relationshipDeclined:
+      "BETA17_COPY_RELATIONSHIP_DECLINED",
     assignmentRecorded:
       "BETA17_COPY_ASSIGNMENT_RECORDED",
     artefactLoaded:
@@ -725,6 +727,8 @@ export function createBeta17RelationshipRecord(
       input.relationship_state !==
         "accepted" &&
       input.relationship_state !==
+        "declined" &&
+      input.relationship_state !==
         "revoked"
     ) {
       throw new Beta17CoachManagedError(
@@ -766,19 +770,26 @@ export function createBeta17RelationshipRecord(
     }
 
     if (
-      input.relationship_state ===
-        "revoked" &&
+      (input.relationship_state ===
+        "revoked" ||
+        input.relationship_state ===
+          "declined") &&
       input.revoked_at_iso8601 ===
         null
     ) {
       throw new Beta17CoachManagedError(
-        "relationship_revocation_required"
+        input.relationship_state ===
+          "declined"
+          ? "relationship_decline_required"
+          : "relationship_revocation_required"
       );
     }
 
     if (
       input.relationship_state !==
         "revoked" &&
+      input.relationship_state !==
+        "declined" &&
       input.revoked_at_iso8601 !==
         null
     ) {
@@ -796,8 +807,12 @@ export function createBeta17RelationshipRecord(
             "accepted"
           ? BETA17_COACH_COPY_IDS
               .relationshipAccepted
-          : BETA17_COACH_COPY_IDS
-              .relationshipRevoked;
+          : input.relationship_state ===
+              "declined"
+            ? BETA17_COACH_COPY_IDS
+                .relationshipDeclined
+            : BETA17_COACH_COPY_IDS
+                .relationshipRevoked;
 
     const relationship =
       withRecordHash({

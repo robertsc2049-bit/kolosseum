@@ -298,10 +298,12 @@ function read(relativePath) {
 function discoverApiRoutes() {
   const mounts = [
     ["src/api/sessions.routes.ts", "/sessions"],
+    ["src/api/beta17_coach_note_write.routes.ts", "/sessions"],
     ["src/api/blocks.routes.ts", "/blocks"],
     ["src/api/templates.routes.ts", "/templates"],
     ["src/api/coach_workspace.routes.ts", "/coach-workspace"],
-    ["src/api/product_account.routes.ts", "/account"]
+    ["src/api/product_account.routes.ts", "/account"],
+    ["src/api/product_notification.routes.ts", "/account"]
   ];
   const routes = [];
   const pattern = /(?:router|[A-Za-z][A-Za-z0-9]*Router)\.(get|post|put|patch|delete)\(\s*["'`]([^"'`]+)["'`]/gu;

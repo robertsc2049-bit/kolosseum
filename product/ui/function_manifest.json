@@ -4272,7 +4272,7 @@
       "area_id": "notifications",
       "title": "Notifications and task state",
       "slice_id": "FULL-UI-18",
-      "state": "missing",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "notification_relationship",
@@ -4282,17 +4282,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_18_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_18_notifications_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4303,17 +4305,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_18_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_18_notifications_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4324,17 +4328,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_18_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_18_notifications_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4345,17 +4351,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_18_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_18_notifications_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4366,17 +4374,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_18_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_18_notifications_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4387,17 +4397,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_18_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_18_notifications_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4408,17 +4420,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_18_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_18_notifications_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4429,17 +4443,21 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/notifications/:notification_id/read",
+            "/account/notifications/:notification_id/unread",
+            "/account/notifications/mark-all-read"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_18_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_18_notifications_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4450,17 +4468,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_18_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_18_notifications_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -5604,6 +5624,36 @@
       "tracked_by_area": "identity_account"
     },
     {
+      "method": "GET",
+      "path": "/account/notifications",
+      "source": "src/api/product_notification.routes.ts",
+      "tracked_by_area": "notifications"
+    },
+    {
+      "method": "GET",
+      "path": "/account/notifications/unread-count",
+      "source": "src/api/product_notification.routes.ts",
+      "tracked_by_area": "notifications"
+    },
+    {
+      "method": "POST",
+      "path": "/account/notifications/:notification_id/read",
+      "source": "src/api/product_notification.routes.ts",
+      "tracked_by_area": "notifications"
+    },
+    {
+      "method": "POST",
+      "path": "/account/notifications/:notification_id/unread",
+      "source": "src/api/product_notification.routes.ts",
+      "tracked_by_area": "notifications"
+    },
+    {
+      "method": "POST",
+      "path": "/account/notifications/mark-all-read",
+      "source": "src/api/product_notification.routes.ts",
+      "tracked_by_area": "notifications"
+    },
+    {
       "method": "POST",
       "path": "/account/password/change",
       "source": "src/api/product_account.routes.ts",
@@ -5894,7 +5944,7 @@
     {
       "method": "POST",
       "path": "/sessions/beta-coach-notes",
-      "source": "src/api/sessions.routes.ts",
+      "source": "src/api/beta17_coach_note_write.routes.ts",
       "tracked_by_area": "product_journey"
     },
     {

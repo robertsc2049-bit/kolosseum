@@ -12,7 +12,6 @@ import {
   createBeta16Auth,
   createBeta16Declaration,
   createBeta17Assignment,
-  createBeta17CoachNote,
   createBeta17CoachProfile,
   createBeta17Relationship,
   getAthleteHistoryDetail,
@@ -65,11 +64,6 @@ sessionsRouter.post(
 sessionsRouter.post(
   "/beta-coach-artefacts",
   asyncHandler(getBeta17CoachArtefacts)
-);
-
-sessionsRouter.post(
-  "/beta-coach-notes",
-  asyncHandler(createBeta17CoachNote)
 );
 
 sessionsRouter.post(

@@ -65,6 +65,11 @@
     "surface_id": "beta17_coach_managed_path"
   },
   {
+    "copy_id": "BETA17_COPY_RELATIONSHIP_DECLINED",
+    "text": "Relationship declined.",
+    "surface_id": "beta17_coach_managed_path"
+  },
+  {
     "copy_id": "BETA17_COPY_TEMPLATE_ID_LABEL",
     "text": "Template ID",
     "surface_id": "beta17_coach_managed_path"

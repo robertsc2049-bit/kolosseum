@@ -8,12 +8,14 @@ import express from "express";
 import path from "node:path";
 
 import { sessionsRouter } from "./api/sessions.routes.js";
+import { beta17CoachNoteWriteRouter } from "./api/beta17_coach_note_write.routes.js";
 import { blocksRouter } from "./api/blocks.routes.js";
 import { templatesRouter } from "./api/templates.routes.js";
 import { coachWorkspaceRouter } from "./api/coach_workspace.routes.js";
 import { productAssignmentRouter } from "./api/product_assignment.routes.js";
 import { productReviewRouter } from "./api/product_review.routes.js";
 import { productAccountRouter } from "./api/product_account.routes.js";
+import { productNotificationRouter } from "./api/product_notification.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
 import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
@@ -86,11 +88,13 @@ app.use("/account/commercial", productCommercialRouter);
 app.use("/account/coach-onboarding", coachOnboardingRouter);
 app.use("/account/onboarding", athleteOnboardingRouter);
 app.use("/account", productAccountRouter);
+app.use("/account", productNotificationRouter);
 app.use("/templates", templatesRouter);
 app.use("/coach-workspace", coachWorkspaceRouter);
 app.use("/coach-workspace", productAssignmentRouter);
 app.use("/coach-workspace", productReviewRouter);
 app.use("/sessions", sessionsRouter);
+app.use("/sessions", beta17CoachNoteWriteRouter);
 app.use("/blocks", blocksRouter);
 
 app.use(apiErrorMiddleware);
