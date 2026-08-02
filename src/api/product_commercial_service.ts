@@ -1252,6 +1252,30 @@ export async function recordProductCommercialPaymentReturn(
     }
   );
 
+  // FULL-UI-18: a cancelled checkout return leaves billing access blocked -
+  // record this as its own durable access-state row (derived request id,
+  // so retries of the same payment return stay idempotent) so the
+  // notifications surface has a real event to derive a billing action-
+  // required notification from, distinct from the payment-return record.
+  if (outcome === "cancelled") {
+    await appendCommercialRecord(
+      userId,
+      `${requestedId}__billing_access_updated`,
+      "commercial_billing_access_updated",
+      now,
+      {
+        contract_version: "FULL-UI-18",
+        status:
+          "controlled_launch_billing_access_action_required",
+        billing_access_record:
+          updatedBillingRecord,
+        source_request_id: requestedId,
+        provider_call_performed: false,
+        ...ENGINE_INERT_STATE
+      }
+    );
+  }
+
   return Object.freeze({
     ok: true,
     idempotent_replay: false,

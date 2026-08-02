@@ -587,3 +587,52 @@ ON product_commercial_records (
   record_type,
   effective_at DESC
 );
+
+-- FULL-UI-18 factual in-product notifications.
+-- Every row is derived from an explicit, already-durable product event
+-- (relationship, assignment, event, session, coach-note or commercial
+-- record). Notifications never carry inferred urgency, priority or risk
+-- language. One row per (recipient, notification_type, source_record_id) -
+-- ON CONFLICT DO NOTHING makes derivation idempotent and safe to re-run.
+CREATE TABLE IF NOT EXISTS product_notifications (
+  notification_id      TEXT PRIMARY KEY,
+  recipient_user_id     TEXT NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  notification_type     TEXT NOT NULL
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required'
+      )
+    ),
+  source_record_type    TEXT NOT NULL,
+  source_record_id      TEXT NOT NULL,
+  deep_link_route_id     TEXT NOT NULL,
+  deep_link_params       JSONB NOT NULL DEFAULT '{}'::jsonb,
+  notification_payload   JSONB NOT NULL DEFAULT '{}'::jsonb,
+  occurred_at           TIMESTAMPTZ NOT NULL,
+  read_at               TIMESTAMPTZ,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (recipient_user_id, notification_type, source_record_id)
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_notifications_recipient_unread
+ON product_notifications (
+  recipient_user_id,
+  read_at,
+  occurred_at DESC
+);
