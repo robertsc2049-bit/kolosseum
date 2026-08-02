@@ -38,9 +38,9 @@ const routes =
     "src/api/coach_workspace.routes.ts"
   );
 
-const sessionHandlers =
+const coachNoteWriteRoute =
   read(
-    "src/api/sessions.handlers.ts"
+    "src/api/beta17_coach_note_write.routes.ts"
   );
 
 const schema =
@@ -143,17 +143,17 @@ test(
     );
 
     assert.match(
-      sessionHandlers,
+      coachNoteWriteRoute,
       /INSERT INTO product_coach_notes/u
     );
 
     assert.match(
-      sessionHandlers,
+      coachNoteWriteRoute,
       /ON CONFLICT \(note_id\)/u
     );
 
     assert.match(
-      sessionHandlers,
+      coachNoteWriteRoute,
       /JSON\.stringify\(note\)/u
     );
 

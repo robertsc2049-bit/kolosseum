@@ -8,6 +8,7 @@ import express from "express";
 import path from "node:path";
 
 import { sessionsRouter } from "./api/sessions.routes.js";
+import { beta17CoachNoteWriteRouter } from "./api/beta17_coach_note_write.routes.js";
 import { blocksRouter } from "./api/blocks.routes.js";
 import { templatesRouter } from "./api/templates.routes.js";
 import { coachWorkspaceRouter } from "./api/coach_workspace.routes.js";
@@ -91,6 +92,7 @@ app.use("/coach-workspace", coachWorkspaceRouter);
 app.use("/coach-workspace", productAssignmentRouter);
 app.use("/coach-workspace", productReviewRouter);
 app.use("/sessions", sessionsRouter);
+app.use("/sessions", beta17CoachNoteWriteRouter);
 app.use("/blocks", blocksRouter);
 
 app.use(apiErrorMiddleware);
