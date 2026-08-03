@@ -746,6 +746,8 @@
             </button>
           </div>
 
+          <p id="athleteDirectoryStatus" class="muted small" role="status" aria-live="polite"></p>
+
           <div class="two-column athlete-directory-layout">
             <form id="connectAthleteForm" class="panel form-panel">
               <div>
@@ -808,6 +810,7 @@
               <div
                 id="athleteRelationshipCounts"
                 class="metric-cards relationship-metric-cards"
+                role="status"
                 aria-live="polite"
               ></div>
 
@@ -1207,6 +1210,8 @@
             </div>
           </div>
 
+          <p id="eventsStatus" class="muted small" role="status" aria-live="polite"></p>
+
           <div class="metric-cards">
             <article class="panel metric-card"><span>Events</span><strong id="eventCount">0</strong></article>
             <article class="panel metric-card"><span>Upcoming</span><strong id="eventUpcomingCount">0</strong></article>
@@ -1333,7 +1338,7 @@
 
               <div class="programme-library-result-line">
                 <p id="templateLibraryResultCount" class="muted small">0 programmes</p>
-                <p id="templateLibraryStatus" class="muted small" role="status">Programme data not loaded.</p>
+                <p id="templateLibraryStatus" class="muted small" role="status" aria-live="polite">Programme data not loaded.</p>
               </div>
 
               <aside
