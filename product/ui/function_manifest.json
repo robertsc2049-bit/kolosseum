@@ -922,18 +922,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/coach-workspace/relationship-invitations"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_24_athlete_self_service_journey_surface.test.mjs",
+          "integration_test": "test/full_ui_24_athlete_self_service_journey_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -960,22 +962,24 @@
           "function_id": "relationship_accept",
           "label": "Accept relationship",
           "actors": [
-            "coach"
+            "coach",
+            "athlete"
           ],
           "route_id": "coach_athlete_detail",
           "api_routes": [
-            "/sessions/beta-coach-relationship"
+            "/sessions/beta-coach-relationship",
+            "/coach-workspace/relationship-invitations/:relationship_id/accept"
           ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_24_athlete_self_service_journey_surface.test.mjs",
           "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5862,6 +5866,24 @@
     {
       "method": "GET",
       "path": "/coach-workspace/athlete-detail",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/relationship-invitations",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/relationship-invitations",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/relationship-invitations/:relationship_id/accept",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
     },

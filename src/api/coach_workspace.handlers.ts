@@ -5,7 +5,8 @@
 import type { Request, Response } from "express";
 
 import {
-  authenticatedCoach
+  authenticatedCoach,
+  cookieValue
 } from "./coach_session_auth.js";
 import {
   Beta19CoachWorkspaceError,
@@ -19,7 +20,10 @@ import {
 } from "./beta19_coach_workspace_service.js";
 import {
   badRequest,
-  conflict
+  conflict,
+  forbidden,
+  notFound,
+  unauthorized
 } from "./http_errors.js";
 import {
   EventProgrammeCompilerError,
@@ -32,6 +36,18 @@ import {
   listAthleteEventLinks,
   listCoachEvents
 } from "./beta19_coach_event_service.js";
+import {
+  PRODUCT_SESSION_COOKIE,
+  ProductAccountError,
+  assertProductCsrf,
+  resolveProductSession
+} from "./product_account_service.js";
+import {
+  RelationshipInvitationError,
+  acceptRelationshipInvitation,
+  createRelationshipInvitationByEmail,
+  listPendingRelationshipInvitationsForAthlete
+} from "./relationship_invitation_service.js";
 
 // FULL-UI-04B athlete-detail service import.
 import {
@@ -40,6 +56,10 @@ import {
 
 function cleanString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function rethrowWorkspaceError(error: unknown): never {
@@ -411,5 +431,130 @@ export async function getCoachAthleteDetail(
   }
   catch (error) {
     rethrowWorkspaceError(error);
+  }
+}
+
+// FULL-UI-24 lawful coach-athlete invitation, by email only - never a
+// client-supplied athlete_user_id - so an athlete never has to hand a coach
+// an internal id, and a coach never has to type one either.
+
+function athleteSessionToken(req: Request): string {
+  const token = cookieValue(req, PRODUCT_SESSION_COOKIE);
+  if (!token) {
+    throw unauthorized("ACCOUNT_SESSION_REQUIRED", {
+      failure_token: "account_session_missing"
+    });
+  }
+  return token;
+}
+
+async function authenticatedAthlete(
+  req: Request,
+  mutation: boolean
+): Promise<string> {
+  const token = athleteSessionToken(req);
+
+  try {
+    if (mutation) {
+      assertProductCsrf(token, req.get("x-kolosseum-csrf"));
+    }
+    const session = await resolveProductSession(token);
+    if (session.account_row.actor_type !== "athlete") {
+      throw forbidden("ATHLETE_ACCOUNT_REQUIRED", {
+        failure_token: "athlete_account_required"
+      });
+    }
+    return session.account_row.user_id;
+  }
+  catch (error) {
+    if (error instanceof ProductAccountError) {
+      throw error.status === 401
+        ? unauthorized("ACCOUNT_SESSION_REQUIRED", { failure_token: error.code })
+        : forbidden(error.code, { failure_token: error.code });
+    }
+    throw error;
+  }
+}
+
+function rethrowInvitationError(error: unknown): never {
+  if (error instanceof RelationshipInvitationError) {
+    if (error.status === 404) throw notFound(error.message, { failure_token: error.reason });
+    if (error.status === 403) throw forbidden(error.message, { failure_token: error.reason });
+    if (error.status === 409) throw conflict(error.message, { failure_token: error.reason });
+    throw badRequest(error.message, { failure_token: error.reason });
+  }
+  throw error;
+}
+
+// FUNCTION NOTE:
+// Purpose: Coach invites an athlete they already know the email of - a real
+// human identifier, never the athlete's internal opaque user_id.
+// Boundary: Resolves the email to an active athlete account server-side;
+// persists only the existing beta17_coach_relationship transition record.
+export async function createCoachRelationshipInvitationHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, true);
+    const relationship = await createRelationshipInvitationByEmail(
+      coachUserId,
+      isRecord(req.body) ? req.body.athlete_email : undefined
+    );
+
+    return res.status(201).json({
+      ok: true,
+      relationship
+    });
+  }
+  catch (error) {
+    rethrowInvitationError(error);
+  }
+}
+
+// FUNCTION NOTE:
+// Purpose: Athlete reads their own pending coach invitations.
+// Boundary: Athlete identity comes only from the resolved session cookie.
+export async function listAthleteRelationshipInvitationsHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const athleteUserId = await authenticatedAthlete(req, false);
+    const invitations = await listPendingRelationshipInvitationsForAthlete(athleteUserId);
+
+    return res.status(200).json({
+      ok: true,
+      invitations
+    });
+  }
+  catch (error) {
+    rethrowInvitationError(error);
+  }
+}
+
+// FUNCTION NOTE:
+// Purpose: Athlete accepts one of their own pending invitations, naming only
+// the relationship_id their own invitations list already gave them.
+// Boundary: Server independently verifies the invitation names this
+// athlete's session and is still pending before writing an accepted record.
+export async function acceptAthleteRelationshipInvitationHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const athleteUserId = await authenticatedAthlete(req, true);
+    const relationship = await acceptRelationshipInvitation(
+      athleteUserId,
+      req.params.relationship_id
+    );
+
+    return res.status(201).json({
+      ok: true,
+      relationship
+    });
+  }
+  catch (error) {
+    rethrowInvitationError(error);
   }
 }

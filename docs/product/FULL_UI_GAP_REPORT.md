@@ -7,9 +7,9 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 219
-- partial: 10
-- missing: 8
+- implemented: 221
+- partial: 9
+- missing: 7
 - prohibited: 0
 
 ## Product areas
@@ -83,18 +83,21 @@ Slice: FULL-UI-05
 
 Area state: partial
 
-Implemented: 0 · Partial: 4 · Missing: 6 · Prohibited: 0
+Implemented: 2 · Partial: 3 · Missing: 5 · Prohibited: 0
+
+#### implemented
+
+- `relationship_invite_create` — Create coach invitation
+- `relationship_accept` — Accept relationship
 
 #### partial
 
-- `relationship_accept` — Accept relationship
 - `relationship_lists` — Display pending and accepted relationships
 - `relationship_audit` — Display relationship detail and audit facts
 - `relationship_history_preserved` — Preserve historical records after relationship closure
 
 #### missing
 
-- `relationship_invite_create` — Create coach invitation
 - `relationship_invite_receive` — Receive athlete invitation
 - `relationship_decline` — Decline invitation
 - `relationship_cancel` — Cancel pending invitation

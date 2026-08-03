@@ -76,6 +76,7 @@ const DEFAULT_STATE = Object.freeze({
   selectedCoachReviewSessionId: "",
   athleteDetails: {},
   coachCode: "",
+  pendingRelationshipInvitations: [],
   csrfToken: "",
   serverAccount: null,
   accountDetail: null,
@@ -275,6 +276,8 @@ const elements = {
   connectAthleteConsentText: document.getElementById("connectAthleteConsentText"),
   refreshAthleteDirectoryButton: document.getElementById("refreshAthleteDirectoryButton"),
   athleteDirectoryStatus: document.getElementById("athleteDirectoryStatus"),
+  inviteAthleteByEmailForm: document.getElementById("inviteAthleteByEmailForm"),
+  inviteAthleteEmail: document.getElementById("inviteAthleteEmail"),
   eventsStatus: document.getElementById("eventsStatus"),
   athleteDirectorySearch: document.getElementById("athleteDirectorySearch"),
   athleteRelationshipFilter: document.getElementById("athleteRelationshipFilter"),
@@ -1354,6 +1357,7 @@ function setView(view) {
     loadDataRightsState({ quiet: true }).catch(handleError);
     refreshPlatformStatus().catch(() => {});
     refreshSupportHistory().catch(() => {});
+    refreshPendingRelationshipInvitations().catch(handleError);
   }
 }
 
@@ -3578,6 +3582,30 @@ async function refreshCoachAthleteProfiles() {
     if (outcome.status === "rejected") {
       console.error(outcome.reason);
     }
+  }
+}
+
+// FULL-UI-24: the coach names the athlete by email only - never the
+// athlete's internal account code - and the athlete accepts the invitation
+// themselves from their own account.
+async function inviteAthleteByEmail(event) {
+  event.preventDefault();
+
+  const athleteEmail = elements.inviteAthleteEmail.value.trim();
+  if (!athleteEmail) return;
+
+  showBusy("Sending invitation…");
+
+  try {
+    await api("POST", "/coach-workspace/relationship-invitations", {
+      athlete_email: athleteEmail
+    });
+
+    elements.inviteAthleteByEmailForm.reset();
+    showNotice(`Invitation sent to ${athleteEmail}.`);
+  }
+  finally {
+    hideBusy();
   }
 }
 
@@ -11336,6 +11364,91 @@ function renderAccount() {
   else if (coachLinkPanel) {
     coachLinkPanel.hidden = true;
   }
+
+  renderPendingRelationshipInvitations();
+}
+
+// FULL-UI-24: a coach invites an athlete by email, never by the athlete's
+// internal user_id; the athlete accepts here by clicking a real button, never
+// by typing any id.
+function renderPendingRelationshipInvitations() {
+  let panel = document.getElementById("pendingRelationshipInvitationsPanel");
+
+  if (state.role !== "athlete") {
+    if (panel) panel.hidden = true;
+    return;
+  }
+
+  if (!panel) {
+    panel = document.createElement("article");
+    panel.id = "pendingRelationshipInvitationsPanel";
+    panel.className = "panel";
+
+    document
+      .querySelector("#view-account .two-column")
+      .insertAdjacentElement("afterend", panel);
+  }
+
+  const invitations = Array.isArray(state.pendingRelationshipInvitations)
+    ? state.pendingRelationshipInvitations
+    : [];
+
+  if (invitations.length === 0) {
+    panel.hidden = true;
+    return;
+  }
+
+  panel.hidden = false;
+  panel.innerHTML = `
+    <p class="eyebrow">Coach invitations</p>
+    <h3>Pending coach invitations</h3>
+    <div class="record-list">
+      ${invitations.map((invitation) => `
+        <article class="record-row" data-relationship-id="${escapeHtml(invitation.relationship_id)}">
+          <div>
+            <strong>${escapeHtml(invitation.coach_display_name)}</strong>
+            <p class="muted small">${escapeHtml(invitation.coach_email ?? "")}</p>
+          </div>
+          <button type="button" class="button primary accept-relationship-invitation-button">Accept</button>
+        </article>
+      `).join("")}
+    </div>
+  `;
+
+  for (const button of panel.querySelectorAll(".accept-relationship-invitation-button")) {
+    button.addEventListener(
+      "click",
+      guardedAction(button, async () => {
+        const relationshipId = button.closest("[data-relationship-id]")?.dataset.relationshipId;
+        await acceptRelationshipInvitation(relationshipId);
+      })
+    );
+  }
+}
+
+async function refreshPendingRelationshipInvitations() {
+  if (state.role !== "athlete") return [];
+
+  const response = await api("GET", "/coach-workspace/relationship-invitations");
+  state.pendingRelationshipInvitations = Array.isArray(response.invitations)
+    ? response.invitations
+    : [];
+
+  renderPendingRelationshipInvitations();
+  return state.pendingRelationshipInvitations;
+}
+
+async function acceptRelationshipInvitation(relationshipId) {
+  if (!relationshipId) return;
+
+  await api(
+    "POST",
+    `/coach-workspace/relationship-invitations/${encodeURIComponent(relationshipId)}/accept`
+  );
+
+  showNotice("Coach invitation accepted.");
+  await refreshPendingRelationshipInvitations();
+  await loadAthleteToday().catch(handleError);
 }
 
 async function loadPersistentAccountDetail(
@@ -12286,6 +12399,9 @@ document.addEventListener("kolosseum:history-detail-route", (event) => {
 });
 elements.connectAthleteForm.addEventListener("submit", (event) => {
   connectAthlete(event).catch(handleError);
+});
+elements.inviteAthleteByEmailForm.addEventListener("submit", (event) => {
+  guardedAction(submitButtonOf, inviteAthleteByEmail)(event).catch(handleError);
 });
 
 // FULL-UI-05B builder interaction bindings.

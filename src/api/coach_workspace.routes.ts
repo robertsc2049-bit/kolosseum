@@ -4,14 +4,17 @@ import { Router } from "express";
 
 import { asyncHandler } from "./async_handler.js";
 import {
+  acceptAthleteRelationshipInvitationHandler,
   createAthleteProfileAssignment,
   createCoachEventHandler,
+  createCoachRelationshipInvitationHandler,
   getAthleteEventLinks,
   getAthleteStrengthProfile,
   getCoachAssignments,
   getCoachAthleteRelationships,
   getCoachEvents,
   getConnectedCoachAthletes,
+  listAthleteRelationshipInvitationsHandler,
   preflightAthleteStrengthProfile,
   previewEventProgrammeCalendar,
   resolveAthleteStrengthLoad,
@@ -132,4 +135,18 @@ coachWorkspaceRouter.post(
 coachWorkspaceRouter.get(
   "/athlete-detail",
   asyncHandler(getCoachAthleteDetail)
+);
+
+// FULL-UI-24 lawful, non-opaque-ID coach-athlete invitation.
+coachWorkspaceRouter.post(
+  "/relationship-invitations",
+  asyncHandler(createCoachRelationshipInvitationHandler)
+);
+coachWorkspaceRouter.get(
+  "/relationship-invitations",
+  asyncHandler(listAthleteRelationshipInvitationsHandler)
+);
+coachWorkspaceRouter.post(
+  "/relationship-invitations/:relationship_id/accept",
+  asyncHandler(acceptAthleteRelationshipInvitationHandler)
 );
