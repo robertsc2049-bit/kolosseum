@@ -970,7 +970,7 @@
           "state": "partial",
           "governing_boundary": null,
           "direct_test": null,
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1072,7 +1072,7 @@
           "state": "partial",
           "governing_boundary": null,
           "direct_test": null,
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1165,7 +1165,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1362,7 +1362,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1384,7 +1384,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -3045,7 +3045,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3065,7 +3065,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3105,7 +3105,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3125,7 +3125,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -3145,7 +3145,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -3503,7 +3503,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_app_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3523,7 +3523,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_coach_programme_workspace.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -4076,7 +4076,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -4096,7 +4096,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -4158,7 +4158,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_app_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -4218,7 +4218,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -4238,7 +4238,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -5412,7 +5412,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_route_map.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -5433,7 +5433,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_route_map.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -5454,7 +5454,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",

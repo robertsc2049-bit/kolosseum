@@ -1,0 +1,197 @@
+{
+  "schema_version": "kolosseum.full_ui_23.coach_athlete_journey.v1.0.0",
+  "slice_id": "FULL-UI-23",
+  "recorded_at_iso8601": "2026-08-03T15:39:27.056Z",
+  "nonce": "23665b7470fe4af1",
+  "steps": [
+    {
+      "id": "step_01_coach_sign_in",
+      "label": "Coach signs in",
+      "result": "PASS",
+      "detail": {
+        "coach_user_id": "coach_94771e9f176a415399ed9420d1bd8f95",
+        "actor_home_route": "#/coach/overview"
+      }
+    },
+    {
+      "id": "step_02_coach_onboarding",
+      "label": "Coach completes required onboarding",
+      "result": "PASS",
+      "detail": {
+        "workspace_route": "#/coach/overview"
+      }
+    },
+    {
+      "id": "step_03_coach_creates_event",
+      "label": "Coach creates a standalone event",
+      "result": "PASS",
+      "detail": {
+        "event_id": "coach_event_b5654b5bd3f46f2582ae44ec",
+        "required_week_count": 2
+      }
+    },
+    {
+      "id": "step_04_coach_creates_programme",
+      "label": "Coach creates a programme",
+      "result": "PASS",
+      "detail": {
+        "template_id": "coach_template_2a82b47bfd76475787f9878250258b68_v1",
+        "week_count": 2
+      }
+    },
+    {
+      "id": "step_05_coach_binds_calendar",
+      "label": "Coach binds the programme calendar to the event",
+      "result": "PASS",
+      "detail": {
+        "allocation_state": "balanced"
+      }
+    },
+    {
+      "id": "step_06_coach_activates_programme",
+      "label": "Coach activates the programme",
+      "result": "PASS",
+      "detail": {
+        "template_status": "active"
+      }
+    },
+    {
+      "id": "step_07_coach_opens_athlete_profile",
+      "label": "Coach opens an athlete profile through a stable route",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7c5d3d9321ce4651a806792721fdf552"
+      }
+    },
+    {
+      "id": "step_08_coach_links_athlete_to_event",
+      "label": "Coach links the athlete to the event",
+      "result": "PASS",
+      "detail": {
+        "event_id": "coach_event_b5654b5bd3f46f2582ae44ec",
+        "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3"
+      }
+    },
+    {
+      "id": "step_09_coach_assigns_programme_and_version",
+      "label": "Coach assigns the active programme and exact version",
+      "result": "PASS",
+      "detail": {
+        "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3",
+        "template_id": "coach_template_2a82b47bfd76475787f9878250258b68_v1"
+      }
+    },
+    {
+      "id": "step_10_coach_reviews_persisted_assignment",
+      "label": "Coach reviews the persisted assignment",
+      "result": "PASS",
+      "detail": {
+        "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3"
+      }
+    },
+    {
+      "id": "deep_link_coach_programme_detail",
+      "label": "coach_programme_detail deep link target is real, persisted, addressable data",
+      "result": "PASS",
+      "detail": {
+        "template_id": "coach_template_2a82b47bfd76475787f9878250258b68_v1"
+      }
+    },
+    {
+      "id": "deep_link_coach_review_athlete",
+      "label": "coach_review_athlete deep link target is real, persisted, addressable data",
+      "result": "PASS",
+      "detail": {
+        "athlete_id": "athlete_7c5d3d9321ce4651a806792721fdf552"
+      }
+    },
+    {
+      "id": "step_11_athlete_sign_in",
+      "label": "Athlete signs in",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7c5d3d9321ce4651a806792721fdf552"
+      }
+    },
+    {
+      "id": "step_12_athlete_sees_today",
+      "label": "Athlete sees programme, version, event and countdown",
+      "result": "PASS",
+      "detail": {
+        "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3",
+        "event_status": "active"
+      }
+    },
+    {
+      "id": "step_13_athlete_compiles_session",
+      "label": "Athlete compiles/opens the next assigned session",
+      "result": "PASS",
+      "detail": {
+        "session_id": "s_2641f2bb5ac24381bf0e379231075b99"
+      }
+    },
+    {
+      "id": "step_14_athlete_completes_session",
+      "label": "Athlete executes and completes the session",
+      "result": "PASS",
+      "detail": {
+        "session_id": "s_2641f2bb5ac24381bf0e379231075b99",
+        "execution_status": "completed"
+      }
+    },
+    {
+      "id": "step_15_coach_sees_completed_session",
+      "label": "Coach sees the factual completed-session record",
+      "result": "PASS",
+      "detail": {
+        "session_id": "s_2641f2bb5ac24381bf0e379231075b99"
+      }
+    },
+    {
+      "id": "step_16_coach_adds_note",
+      "label": "Coach adds a non-binding athlete-visible note",
+      "result": "PASS",
+      "detail": {
+        "athlete_visible_note": "Great tempo control today."
+      }
+    },
+    {
+      "id": "step_17_athlete_sees_note",
+      "label": "Athlete sees that note without any engine or session mutation",
+      "result": "PASS",
+      "detail": {
+        "visible_note_count": 1
+      }
+    },
+    {
+      "id": "step_18_refresh_reconstruction",
+      "label": "Refreshing both actor contexts reconstructs the same server-backed state",
+      "result": "PASS",
+      "detail": {
+        "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3"
+      }
+    },
+    {
+      "id": "step_19_fresh_process_restart",
+      "label": "A fresh operating-system process reconstructs the same state",
+      "result": "PASS",
+      "detail": {
+        "first_pid": 9724,
+        "restarted_pid": 7576
+      }
+    },
+    {
+      "id": "step_20_unrelated_coach_denied",
+      "label": "An unrelated coach is denied",
+      "result": "PASS",
+      "detail": {
+        "other_coach_user_id": "coach_5cf93a0c01184975bc0b3af54334de7d"
+      }
+    }
+  ],
+  "status": "PASS",
+  "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3",
+  "session_id": "s_2641f2bb5ac24381bf0e379231075b99",
+  "template_id": "coach_template_2a82b47bfd76475787f9878250258b68_v1",
+  "event_id": "coach_event_b5654b5bd3f46f2582ae44ec"
+}

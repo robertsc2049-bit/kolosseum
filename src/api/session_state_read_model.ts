@@ -190,7 +190,7 @@ function readSplitEntered(summary: any): boolean {
   return false;
 }
 
-function deriveExecutionStatus(
+export function deriveExecutionStatus(
   remainingIds: string[],
   completedIds: string[],
   droppedIds: string[],
