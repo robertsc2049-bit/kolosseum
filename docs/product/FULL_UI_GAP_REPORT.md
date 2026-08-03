@@ -493,12 +493,9 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 ## Functions without persistent integration proof
 
-- `relationship_accept` — Accept relationship
-- `relationship_lists` — Display pending and accepted relationships
 - `relationship_audit` — Display relationship detail and audit facts
 - `relationship_history_preserved` — Preserve historical records after relationship closure
 - `overview_factual_counts` — Display factual coach counts
-- `overview_relationships` — Display connected and pending athletes
 - `overview_assignment_queue` — Display assignments requiring action
 - `overview_upcoming_events` — Display upcoming events
 - `overview_open_sessions` — Display open sessions
@@ -507,8 +504,6 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `athlete_search_filter` — Search and filter connected athletes
 - `athlete_relationship_state` — Display relationship state
 - `athlete_identity_activity` — Display athlete identity and activity
-- `athlete_current_programme` — Display current programme assignment
-- `athlete_current_event` — Display current event link
 - `athlete_assignment_history` — Display assignment history
 - `athlete_event_history` — Display event-link history
 - `athlete_strength_history` — Display strength-reference history
@@ -563,34 +558,22 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `calendar_dates` — Display block and week dates
 - `calendar_partial_week` — Display partial final week
 - `calendar_activation_fail` — Fail activation when unbalanced
-- `assignment_select_programme` — Select active programme
-- `assignment_select_event` — Select optional linked event
 - `assignment_preflight` — Preflight missing strength references
-- `assignment_exact_version` — Display exact programme version
-- `assignment_confirmation` — Confirm assignment creation
-- `assignment_current_detail` — Display current assignment
 - `assignment_replace` — Replace assignment
 - `assignment_cancel` — Cancel future assignment
 - `assignment_history` — Display assignment history
 - `assignment_separate_event` — Display event link and assignment separately
 - `assignment_preserve_sessions` — Preserve prior compiled sessions
-- `session_four_exercises` — Display four ordered exercises
-- `session_prescription` — Display sets, reps, load and rest
 - `session_partial` — Record partial completion
 - `session_stop_return` — Stop and return later
 - `session_return_continue` — Continue returned session
 - `session_return_skip` — Finish without remaining work
 - `review_athlete_search` — Select and search athlete
 - `review_open_sessions` — Display open sessions
-- `review_completed_queue` — Display completed sessions awaiting review
-- `review_factual_detail` — Display factual session detail
 - `review_provenance` — Display event, programme and assignment provenance
 - `review_live_status` — Display live read-only status
-- `review_note_create` — Create non-binding coach note
 - `review_note_list` — Display coach-note list
 - `review_note_visibility` — Display note visibility
-- `review_nonbinding_copy` — Display exact non-binding note copy
-- `review_no_override` — Prevent coach override of engine truth
 - `review_state` — Store reviewed or unreviewed product state
 - `quality_responsive` — Support phone, tablet and desktop
 - `quality_keyboard` — Support keyboard navigation
@@ -605,9 +588,6 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `quality_unsaved` — Protect unsaved changes
 - `quality_destructive_confirm` — Confirm destructive actions
 - `quality_friendly_errors` — Display user-facing errors rather than raw tokens
-- `quality_deep_links` — Support stable lawful deep links
-- `quality_refresh_recovery` — Recover route after refresh
-- `quality_server_authority` — Keep core server records authoritative over local cache
 
 ## Delivery sequence
 

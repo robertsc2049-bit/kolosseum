@@ -15,6 +15,7 @@ import {
 } from "./http_errors.js";
 import {
   type PlannedSession,
+  deriveExecutionStatus,
   ensureReturnDecisionContract,
   invalidateSessionStateCache,
   uniqStable
@@ -737,13 +738,38 @@ export async function appendRuntimeEventMutation(
     nextSummary.last_seq = seq;
     nextSummary = ensureReturnDecisionContract(nextSummary, deriveTrace).summary;
 
-    await client.query(
-      `UPDATE sessions
-       SET session_state_summary = $2::jsonb,
-           updated_at = now()
-       WHERE session_id = $1`,
-      [session_id, JSON.stringify(nextSummary)]
+    // The coach-facing review surface (product_review.routes.ts) reads this
+    // column directly to decide whether a session is still "open" (live) or
+    // eligible for review - it must leave 'in_progress' once execution
+    // actually reaches a terminal state, using the exact same derivation the
+    // read-side state endpoint uses, or a finished session would appear
+    // permanently live.
+    const nextTrace: any = deriveTrace(nextSummary as any) as any;
+    const terminalStatus = deriveExecutionStatus(
+      uniqStable(nextTrace?.remaining_ids),
+      uniqStable(nextTrace?.completed_ids),
+      uniqStable(nextTrace?.dropped_ids),
+      nextTrace?.started === true
     );
+
+    if (terminalStatus === "completed" || terminalStatus === "partial") {
+      await client.query(
+        `UPDATE sessions
+         SET session_state_summary = $2::jsonb,
+             status = $3,
+             updated_at = now()
+         WHERE session_id = $1`,
+        [session_id, JSON.stringify(nextSummary), terminalStatus]
+      );
+    } else {
+      await client.query(
+        `UPDATE sessions
+         SET session_state_summary = $2::jsonb,
+             updated_at = now()
+         WHERE session_id = $1`,
+        [session_id, JSON.stringify(nextSummary)]
+      );
+    }
 
     if (requestId) {
       await recordEventRequest(client, session_id, requestId, seq, raw);
