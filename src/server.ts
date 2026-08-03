@@ -17,6 +17,7 @@ import { productReviewRouter } from "./api/product_review.routes.js";
 import { productAccountRouter } from "./api/product_account.routes.js";
 import { productNotificationRouter } from "./api/product_notification.routes.js";
 import { productSupportRouter } from "./api/product_support.routes.js";
+import { productAdminRouter } from "./api/product_admin.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
 import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
@@ -48,6 +49,7 @@ app.use(express.json({ limit: "1mb" }));
  */
 const publicDir = path.resolve(process.cwd(), "public");
 const productAppDir = path.join(publicDir, "app");
+const adminAppDir = path.join(publicDir, "admin");
 
 /**
  * Product application surface.
@@ -59,6 +61,16 @@ app.get("/", (_req, res) => {
   return res.redirect(302, "/app/");
 });
 app.use("/app", express.static(productAppDir));
+/**
+ * Founder/admin operations workspace.
+ *
+ * A wholly separate, minimal, unstyled static page - never part of the
+ * athlete/coach SPA shell, never reachable through PRODUCT_ROUTE_MAP. Its
+ * own API lives under the same /admin prefix, guarded by its own session
+ * cookie (see product_admin_auth.ts) that an athlete/coach session can
+ * never satisfy.
+ */
+app.use("/admin", express.static(adminAppDir));
 /**
  * Local diagnostic UI gate.
  *
@@ -91,6 +103,7 @@ app.use("/account/onboarding", athleteOnboardingRouter);
 app.use("/account", productAccountRouter);
 app.use("/account", productNotificationRouter);
 app.use("/account", productSupportRouter);
+app.use("/admin", productAdminRouter);
 app.use("/templates", templatesRouter);
 app.use("/coach-workspace", coachWorkspaceRouter);
 app.use("/coach-workspace", productAssignmentRouter);

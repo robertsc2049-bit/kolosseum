@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Kolosseum Founder/Admin Operations</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; color: #111; }
+    section { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
+    h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    input, select, textarea { padding: 0.4rem; margin: 0.2rem 0; }
+    button { padding: 0.4rem 0.8rem; cursor: pointer; }
+    button.danger { background: #b4442e; color: #fff; border: none; border-radius: 4px; }
+    button.confirm { background: #7f2f20; color: #fff; border: none; border-radius: 4px; }
+    .muted { color: #666; font-size: 0.85rem; }
+    .error-text { color: #b4442e; }
+    [hidden] { display: none !important; }
+    .row-actions { display: flex; gap: 0.4rem; align-items: center; }
+  </style>
+</head>
+<body>
+  <h1>Founder / Admin Operations</h1>
+  <p class="muted">A minimum lawful operations workspace, scoped to individual accounts only. No engine, session, or runtime-event editing.</p>
+
+  <section id="adminSignInSection">
+    <h2>Sign in</h2>
+    <form id="adminSignInForm">
+      <label>Email<br /><input id="adminSignInEmail" type="email" required autocomplete="username" /></label><br />
+      <label>Password<br /><input id="adminSignInPassword" type="password" required autocomplete="current-password" /></label><br />
+      <button type="submit">Sign in</button>
+    </form>
+    <p id="adminSignInError" class="error-text" hidden></p>
+  </section>
+
+  <section id="adminWorkspaceSection" hidden>
+    <div class="row-actions">
+      <p>Signed in as <strong id="adminDisplayName"></strong></p>
+      <button id="adminSignOutButton" type="button">Sign out</button>
+    </div>
+  </section>
+
+  <section id="accountSearchSection" hidden>
+    <h2>Account search</h2>
+    <form id="accountSearchForm">
+      <input id="accountSearchQuery" type="text" placeholder="Search by user id, email or name" />
+      <button type="submit">Search</button>
+    </form>
+    <table id="accountSearchTable">
+      <thead><tr><th>User ID</th><th>Email</th><th>Name</th><th>Actor</th><th>State</th></tr></thead>
+      <tbody id="accountSearchResults"></tbody>
+    </table>
+  </section>
+
+  <section id="accountDetailSection" hidden>
+    <h2>Account detail: <span id="accountDetailUserId"></span></h2>
+    <p>Actor: <strong id="accountDetailActorType"></strong> | State: <strong id="accountDetailState"></strong> | Test account: <strong id="accountDetailTestFlag"></strong></p>
+
+    <div class="row-actions">
+      <button id="accountToggleStateButton" type="button">Toggle active/suspended</button>
+      <button id="accountToggleStateConfirmButton" type="button" class="confirm" hidden>Confirm state change</button>
+    </div>
+    <div class="row-actions">
+      <button id="accountToggleTestButton" type="button">Toggle test-account marking</button>
+      <button id="accountToggleTestConfirmButton" type="button" class="confirm" hidden>Confirm test marking change</button>
+    </div>
+    <p id="accountActionResult" class="muted" hidden></p>
+
+    <h3>Account event history</h3>
+    <table>
+      <thead><tr><th>Event</th><th>Occurred</th></tr></thead>
+      <tbody id="accountEventHistory"></tbody>
+    </table>
+  </section>
+
+  <section id="entitlementSection" hidden>
+    <h2>Coach entitlement and payment review</h2>
+    <table>
+      <thead><tr><th>User ID</th><th>Record type</th><th>Billing access state</th><th>Effective at</th></tr></thead>
+      <tbody id="commercialRecordsList"></tbody>
+    </table>
+  </section>
+
+  <section id="supportSection" hidden>
+    <h2>Support and error-record review</h2>
+    <table>
+      <thead><tr><th>Correlation ID</th><th>User</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="supportRequestsList"></tbody>
+    </table>
+  </section>
+
+  <section id="dataRightsReviewSection" hidden>
+    <h2>Export-request review</h2>
+    <table>
+      <thead><tr><th>Export request</th><th>User</th><th>Status</th><th>Requested</th></tr></thead>
+      <tbody id="exportRequestsList"></tbody>
+    </table>
+
+    <h2>Deletion-request review</h2>
+    <table>
+      <thead><tr><th>Deletion request</th><th>User</th><th>Queue status</th><th>Requested</th></tr></thead>
+      <tbody id="deletionRequestsList"></tbody>
+    </table>
+  </section>
+
+  <section id="auditSection" hidden>
+    <h2>Operational audit records</h2>
+    <table>
+      <thead><tr><th>Actor</th><th>Action</th><th>Target</th><th>Before</th><th>After</th><th>When</th></tr></thead>
+      <tbody id="auditRecordsList"></tbody>
+    </table>
+  </section>
+
+  <script type="module" src="/admin/admin.js"></script>
+</body>
+</html>
