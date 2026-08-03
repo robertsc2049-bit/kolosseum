@@ -692,3 +692,120 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- FULL-UI-21 founder/admin operations.
+-- Deliberately a wholly separate identity/session surface from
+-- product_accounts/product_auth_sessions - a founder/admin account is
+-- never an athlete/coach actor_type, is never created through the public
+-- /account/register route, and its session cookie is never the same
+-- cookie an athlete or coach session uses. This keeps "an admin action can
+-- never flow into engine/relationship/session truth" true by physical
+-- separation rather than by policing every call site.
+CREATE TABLE IF NOT EXISTS product_admin_accounts (
+  user_id          TEXT PRIMARY KEY,
+  email_canonical  TEXT NOT NULL UNIQUE,
+  display_name     TEXT NOT NULL,
+  password_salt    TEXT NOT NULL,
+  password_hash    TEXT NOT NULL,
+  account_state    TEXT NOT NULL DEFAULT 'active'
+    CHECK (
+      account_state IN ('active', 'suspended')
+    ),
+  failed_sign_in_count INTEGER NOT NULL DEFAULT 0,
+  locked_until     TIMESTAMPTZ,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger
+    WHERE tgname = 'product_admin_accounts_set_updated_at'
+  ) THEN
+    CREATE TRIGGER product_admin_accounts_set_updated_at
+    BEFORE UPDATE ON product_admin_accounts
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();
+  END IF;
+END;
+$$;
+
+CREATE TABLE IF NOT EXISTS product_admin_sessions (
+  session_hash  TEXT PRIMARY KEY,
+  user_id       TEXT NOT NULL
+    REFERENCES product_admin_accounts(user_id)
+    ON DELETE CASCADE,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_seen_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at    TIMESTAMPTZ NOT NULL,
+  revoked_at    TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_admin_sessions_user
+ON product_admin_sessions (
+  user_id,
+  expires_at DESC
+);
+
+-- A marker table, not a column on product_accounts - lower blast radius,
+-- and it makes "which accounts are test accounts" its own explicit,
+-- append-and-remove record rather than a silent flag threaded through the
+-- athlete/coach account model.
+CREATE TABLE IF NOT EXISTS product_test_accounts (
+  user_id                  TEXT PRIMARY KEY
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  marked_by_admin_user_id  TEXT NOT NULL
+    REFERENCES product_admin_accounts(user_id),
+  reason                   TEXT,
+  created_at               TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Immutable operational audit trail. Append-only by design - no
+-- updated_at, no in-place edits. One row per confirmed admin action, with
+-- an explicit before/after factual state and a caller-supplied correlation
+-- id so a duplicate submission (e.g. a double-click) replays rather than
+-- creating a second audit record for the same action.
+CREATE TABLE IF NOT EXISTS product_admin_audit_records (
+  audit_record_id      TEXT PRIMARY KEY,
+  actor_user_id         TEXT NOT NULL
+    REFERENCES product_admin_accounts(user_id),
+  action_type           TEXT NOT NULL
+    CHECK (
+      action_type IN (
+        'account_state_change',
+        'test_account_marked',
+        'test_account_unmarked',
+        'support_request_status_change'
+      )
+    ),
+  target_record_type    TEXT NOT NULL,
+  target_record_id      TEXT NOT NULL,
+  before_state          JSONB NOT NULL
+    CHECK (
+      jsonb_typeof(before_state) = 'object'
+    ),
+  after_state           JSONB NOT NULL
+    CHECK (
+      jsonb_typeof(after_state) = 'object'
+    ),
+  correlation_id        TEXT NOT NULL,
+  record_sha256         TEXT NOT NULL
+    CHECK (
+      record_sha256 ~ '^[a-f0-9]{64}$'
+    ),
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  UNIQUE (actor_user_id, correlation_id)
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_admin_audit_records_target
+ON product_admin_audit_records (
+  target_record_type,
+  target_record_id,
+  created_at DESC
+);

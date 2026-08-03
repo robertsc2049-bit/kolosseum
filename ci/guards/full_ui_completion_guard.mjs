@@ -304,7 +304,8 @@ function discoverApiRoutes() {
     ["src/api/coach_workspace.routes.ts", "/coach-workspace"],
     ["src/api/product_account.routes.ts", "/account"],
     ["src/api/product_notification.routes.ts", "/account"],
-    ["src/api/product_support.routes.ts", "/account"]
+    ["src/api/product_support.routes.ts", "/account"],
+    ["src/api/product_admin.routes.ts", "/admin"]
   ];
   const routes = [];
   const pattern = /(?:router|[A-Za-z][A-Za-z0-9]*Router)\.(get|post|put|patch|delete)\(\s*["'`]([^"'`]+)["'`]/gu;

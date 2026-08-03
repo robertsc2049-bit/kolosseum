@@ -4894,7 +4894,7 @@
       "area_id": "founder_admin",
       "title": "Founder and admin operations",
       "slice_id": "FULL-UI-21",
-      "state": "missing",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "admin_auth",
@@ -4903,17 +4903,20 @@
             "founder_admin"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/admin/sign-in",
+            "/admin/sign-out"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
+          "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4923,17 +4926,19 @@
             "founder_admin"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/admin/accounts"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
+          "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4943,17 +4948,20 @@
             "founder_admin"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/admin/accounts/:user_id",
+            "/admin/accounts/:user_id/state"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
+          "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4963,17 +4971,19 @@
             "founder_admin"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/admin/commercial"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
+          "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4983,17 +4993,19 @@
             "founder_admin"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/admin/commercial"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
+          "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5003,17 +5015,20 @@
             "founder_admin"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/admin/support-requests",
+            "/admin/support-requests/:correlation_id/status"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
+          "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5023,17 +5038,19 @@
             "founder_admin"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/admin/accounts/:user_id/test-marking"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
+          "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5043,17 +5060,20 @@
             "founder_admin"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/admin/data-rights/exports",
+            "/admin/data-rights/deletions"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
+          "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5063,17 +5083,19 @@
             "founder_admin"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/admin/audit-records"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
+          "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5084,16 +5106,16 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
+          "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -5728,6 +5750,78 @@
       "path": "/account/terms",
       "source": "src/api/product_account.routes.ts",
       "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/sign-in",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/sign-out",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/accounts",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/accounts/:user_id",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/accounts/:user_id/state",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/accounts/:user_id/test-marking",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/commercial",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/support-requests",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/support-requests/:correlation_id/status",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/data-rights/exports",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/data-rights/deletions",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/audit-records",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
     },
     {
       "method": "GET",
