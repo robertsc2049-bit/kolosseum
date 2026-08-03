@@ -154,3 +154,26 @@ productNotificationRouter.post(
     return response.status(200).json({ ok: true });
   })
 );
+
+// ProductAccountError is not an ApiError, so without this router-scoped
+// handler it would otherwise reach the generic error mapper, which
+// mistakes its string `code` field for a Postgres error code and returns a
+// misleading 500 instead of the correct 401/423.
+productNotificationRouter.use(
+  (
+    error: unknown,
+    _request: Request,
+    response: Response,
+    next: NextFunction
+  ) => {
+    if (!(error instanceof ProductAccountError)) {
+      next(error);
+      return;
+    }
+
+    response.status(error.status).json({
+      error: error.code,
+      account_state: error.account_state ?? null
+    });
+  }
+);

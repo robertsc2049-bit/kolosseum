@@ -636,3 +636,59 @@ ON product_notifications (
   read_at,
   occurred_at DESC
 );
+
+-- FULL-UI-20 factual status, support and error-reporting.
+-- Every row stores only an explicit, narrow allowlist of caller-supplied
+-- context (never a raw error payload, stack trace, header set, cookie or
+-- token - that redaction happens in the service layer before this INSERT
+-- is ever built). status starts at 'submitted' and only ever changes
+-- through direct operator action on this table; the product client never
+-- writes 'acknowledged' or 'closed' itself.
+CREATE TABLE IF NOT EXISTS product_support_requests (
+  correlation_id   TEXT PRIMARY KEY,
+  user_id          TEXT NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  route_hash       TEXT NOT NULL,
+  occurred_at      TIMESTAMPTZ NOT NULL,
+  description      TEXT NOT NULL
+    CHECK (
+      char_length(description) BETWEEN 1 AND 4000
+    ),
+  browser_context  JSONB NOT NULL DEFAULT '{}'::jsonb
+    CHECK (
+      jsonb_typeof(browser_context) = 'object'
+    ),
+  failure_context  JSONB NOT NULL DEFAULT '{}'::jsonb
+    CHECK (
+      jsonb_typeof(failure_context) = 'object'
+    ),
+  status           TEXT NOT NULL DEFAULT 'submitted'
+    CHECK (
+      status IN ('submitted', 'acknowledged', 'closed')
+    ),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_support_requests_user_created
+ON product_support_requests (
+  user_id,
+  created_at DESC
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger
+    WHERE tgname = 'product_support_requests_set_updated_at'
+  ) THEN
+    CREATE TRIGGER product_support_requests_set_updated_at
+    BEFORE UPDATE ON product_support_requests
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();
+  END IF;
+END;
+$$;

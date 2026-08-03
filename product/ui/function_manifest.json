@@ -4727,7 +4727,7 @@
       "area_id": "status_support",
       "title": "Status, support and error reporting",
       "slice_id": "FULL-UI-20",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "status_current",
@@ -4741,15 +4741,15 @@
             "/health"
           ],
           "persistence": "runtime_health",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4760,17 +4760,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/support/reports"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4781,17 +4783,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/support/reports"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4802,17 +4806,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/support/reports"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4823,17 +4829,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
+          "api_routes": [
+            "/account/support/reports"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4846,15 +4854,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -4865,17 +4873,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/support/reports"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -5700,6 +5710,18 @@
       "path": "/account/sign-out",
       "source": "src/api/product_account.routes.ts",
       "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/account/support/reports",
+      "source": "src/api/product_support.routes.ts",
+      "tracked_by_area": "status_support"
+    },
+    {
+      "method": "GET",
+      "path": "/account/support/reports",
+      "source": "src/api/product_support.routes.ts",
+      "tracked_by_area": "status_support"
     },
     {
       "method": "GET",
