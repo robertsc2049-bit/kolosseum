@@ -748,6 +748,26 @@
 
           <p id="athleteDirectoryStatus" class="muted small" role="status" aria-live="polite"></p>
 
+          <form id="inviteAthleteByEmailForm" class="panel form-panel">
+            <div>
+              <p class="eyebrow">Lawful invitation</p>
+              <h3>Invite athlete by email</h3>
+              <p class="muted small">
+                The athlete receives this invitation in their own account and
+                accepts it themselves - no account code is exchanged.
+              </p>
+            </div>
+
+            <label class="field">
+              <span>Athlete email</span>
+              <input id="inviteAthleteEmail" type="email" required autocomplete="off" />
+            </label>
+
+            <button class="button primary" type="submit">
+              Send invitation
+            </button>
+          </form>
+
           <div class="two-column athlete-directory-layout">
             <form id="connectAthleteForm" class="panel form-panel">
               <div>

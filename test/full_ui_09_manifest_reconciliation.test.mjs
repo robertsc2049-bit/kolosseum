@@ -953,8 +953,12 @@ test(
 test(
   "FULL-UI-09 leaves unproved relationship lifecycle functions unresolved",
   () => {
+    // relationship_invite_create was resolved by FULL-UI-24's lawful,
+    // non-opaque-ID invite-by-email + athlete-accept flow and is deliberately
+    // no longer pinned here. relationship_invite_receive names a different,
+    // still-unbuilt direction (an athlete inviting a coach), and remains
+    // unresolved along with the rest of this set.
     const unresolved = new Set([
-      "relationship_invite_create",
       "relationship_invite_receive",
       "relationship_decline",
       "relationship_cancel",

@@ -1,0 +1,193 @@
+{
+  "schema_version": "kolosseum.full_ui_24.athlete_self_service_journey.v1.0.0",
+  "slice_id": "FULL-UI-24",
+  "recorded_at_iso8601": "2026-08-03T16:46:14.379Z",
+  "nonce": "ef6571c329964547",
+  "steps": [
+    {
+      "id": "step_01_athlete_creates_account",
+      "label": "Athlete creates an account",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_02_athlete_verifies_account",
+      "label": "Athlete verifies the account through the supported product route",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_03_athlete_signs_in",
+      "label": "Athlete signs in",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_05_athlete_accessibility_preferences",
+      "label": "Athlete records accessibility and instruction-density preferences",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_04_athlete_staged_onboarding",
+      "label": "Athlete completes staged onboarding",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_06_athlete_reviews_confirms_declarations",
+      "label": "Athlete reviews and confirms declarations",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_07_athlete_sees_terms_and_consent",
+      "label": "Athlete sees current terms and consent history",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_08_athlete_accepts_invitation",
+      "label": "Athlete receives and accepts a coach invitation without typing opaque IDs",
+      "result": "PASS",
+      "detail": {
+        "relationship_id": "relationship_e305ad3fd0cd4e8b81c35e7b2dfa57c9"
+      }
+    },
+    {
+      "id": "step_09_athlete_sees_assigned_programme_and_event",
+      "label": "Athlete sees a lawful assigned programme and event",
+      "result": "PASS",
+      "detail": {
+        "assignment_id": "beta17_assignment_9e71992c68af6f48e647e3a1",
+        "event_status": "active"
+      }
+    },
+    {
+      "id": "step_10_athlete_opens_today",
+      "label": "Athlete opens Today",
+      "result": "PASS",
+      "detail": {
+        "session_action": "start"
+      }
+    },
+    {
+      "id": "step_11_athlete_starts_session",
+      "label": "Athlete starts a session",
+      "result": "PASS",
+      "detail": {
+        "session_id": "s_b6aefb95346041168e3c328f499e6fb9"
+      }
+    },
+    {
+      "id": "step_12_athlete_records_lawful_skip",
+      "label": "Athlete records at least one lawful partial, skip or stop/return path",
+      "result": "PASS",
+      "detail": {
+        "session_id": "s_b6aefb95346041168e3c328f499e6fb9",
+        "skipped_exercise_id": "back_squat"
+      }
+    },
+    {
+      "id": "step_13_refresh_reconstructs_open_session",
+      "label": "Refresh reconstructs the open session",
+      "result": "PASS",
+      "detail": {
+        "session_id": "s_b6aefb95346041168e3c328f499e6fb9"
+      }
+    },
+    {
+      "id": "step_14_athlete_completes_or_closes_session",
+      "label": "Athlete completes or lawfully closes the session",
+      "result": "PASS",
+      "detail": {
+        "session_id": "s_b6aefb95346041168e3c328f499e6fb9",
+        "execution_status": "partial"
+      }
+    },
+    {
+      "id": "step_15_athlete_opens_history_and_detail",
+      "label": "Athlete opens factual history and session detail",
+      "result": "PASS",
+      "detail": {
+        "session_id": "s_b6aefb95346041168e3c328f499e6fb9"
+      }
+    },
+    {
+      "id": "step_16_athlete_updates_profile",
+      "label": "Athlete updates lawful account profile fields",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_17_athlete_changes_password_and_signs_in",
+      "label": "Athlete changes password and signs in again",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_18_athlete_submits_support_request",
+      "label": "Athlete submits a support request",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_19_athlete_requests_export_sees_status",
+      "label": "Athlete requests a personal-data export and sees its status",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "step_20_athlete_reviews_deletion_without_submitting",
+      "label": "Athlete opens deletion consequence review without accidentally submitting deletion",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+      }
+    },
+    {
+      "id": "restart_fresh_process_reconstruction",
+      "label": "A fresh operating-system process reconstructs the same state",
+      "result": "PASS",
+      "detail": {
+        "first_pid": 1388,
+        "restarted_pid": 12592
+      }
+    },
+    {
+      "id": "step_21_different_athlete_denied",
+      "label": "A different athlete is denied access to all records from this journey",
+      "result": "PASS",
+      "detail": {
+        "other_athlete_user_id": "athlete_95814962b2ae44b7914bac5e4e92132a"
+      }
+    }
+  ],
+  "status": "PASS",
+  "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07",
+  "coach_user_id": "coach_ecf10243f6d74b5e87829ece4c29295a",
+  "session_id": "s_b6aefb95346041168e3c328f499e6fb9",
+  "assignment_id": "beta17_assignment_9e71992c68af6f48e647e3a1"
+}
