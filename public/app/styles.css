@@ -3105,3 +3105,67 @@ input:focus, select:focus, textarea:focus {
     max-height: 60vh;
   }
 }
+
+/* FULL-UI-20 factual status, support and error-reporting. */
+.notice-actions {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.status-support-panel {
+  margin-top: 1.4rem;
+}
+
+.status-support-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#platformStatusValue.status-ok {
+  color: var(--green);
+}
+
+.support-report-panel {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.support-report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.support-history-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.support-history-row:last-child {
+  border-bottom: none;
+}
+
+.support-history-description {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.support-history-time {
+  font-size: 0.78rem;
+  color: var(--stone-dim);
+}
+
+@media (max-width: 920px) {
+  .status-support-grid {
+    grid-template-columns: 1fr;
+  }
+}

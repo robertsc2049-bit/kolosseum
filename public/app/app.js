@@ -137,6 +137,23 @@ const elements = {
   notificationRetryButton: document.getElementById("notificationRetryButton"),
   notificationEmpty: document.getElementById("notificationEmpty"),
   notificationList: document.getElementById("notificationList"),
+  platformStatusValue: document.getElementById("platformStatusValue"),
+  platformStatusChecked: document.getElementById("platformStatusChecked"),
+  checkPlatformStatusButton: document.getElementById("checkPlatformStatusButton"),
+  openSupportReportButton: document.getElementById("openSupportReportButton"),
+  supportReportPanel: document.getElementById("supportReportPanel"),
+  supportReportCorrelationId: document.getElementById("supportReportCorrelationId"),
+  supportReportRoute: document.getElementById("supportReportRoute"),
+  supportReportTimestamp: document.getElementById("supportReportTimestamp"),
+  supportReportBrowserSummary: document.getElementById("supportReportBrowserSummary"),
+  supportReportForm: document.getElementById("supportReportForm"),
+  supportReportDescription: document.getElementById("supportReportDescription"),
+  supportRetryButton: document.getElementById("supportRetryButton"),
+  supportRecoveryButton: document.getElementById("supportRecoveryButton"),
+  cancelSupportReportButton: document.getElementById("cancelSupportReportButton"),
+  supportReportResult: document.getElementById("supportReportResult"),
+  supportHistoryEmpty: document.getElementById("supportHistoryEmpty"),
+  supportHistoryList: document.getElementById("supportHistoryList"),
   notice: document.getElementById("notice"),
   busyOverlay: document.getElementById("busyOverlay"),
   busyText: document.getElementById("busyText"),
@@ -729,11 +746,28 @@ function hideBusy() {
 
 let noticeTimer = null;
 
-function showNotice(message, type = "success") {
+function showNotice(message, type = "success", options = {}) {
   clearTimeout(noticeTimer);
   elements.notice.textContent = message;
   elements.notice.classList.toggle("error", type === "error");
   elements.notice.hidden = false;
+
+  const existingActions = elements.notice.querySelector(".notice-actions");
+  if (existingActions) existingActions.remove();
+
+  if (type === "error" && options.failureContext) {
+    const actions = document.createElement("div");
+    actions.className = "notice-actions";
+    const reportButton = document.createElement("button");
+    reportButton.type = "button";
+    reportButton.className = "button secondary notice-report-button";
+    reportButton.textContent = "Report this problem";
+    reportButton.addEventListener("click", () => openSupportReportForm(options.failureContext));
+    actions.appendChild(reportButton);
+    elements.notice.appendChild(actions);
+    return;
+  }
+
   noticeTimer = setTimeout(() => {
     elements.notice.hidden = true;
   }, 4200);
@@ -905,6 +939,8 @@ async function api(method, path, body) {
 
     error.payload = payload;
     error.status = response.status;
+    error.requestMethod = method;
+    error.requestPath = path;
 
     throw error;
   }
@@ -1200,6 +1236,8 @@ function setView(view) {
     }).catch(handleError);
 
     loadDataRightsState({ quiet: true }).catch(handleError);
+    refreshPlatformStatus().catch(() => {});
+    refreshSupportHistory().catch(() => {});
   }
 }
 
@@ -11554,9 +11592,31 @@ async function clearLocalSession() {
   }
 }
 
+function buildFailureContextFromError(error) {
+  if (!error?.requestPath) return null;
+
+  const reason = String(
+    error?.payload?.reason ??
+    error?.payload?.failure_token ??
+    error?.payload?.error ??
+    ""
+  ).slice(0, 200);
+
+  return {
+    status: Number.isInteger(error.status) ? error.status : null,
+    reason,
+    method: String(error.requestMethod ?? "").toUpperCase(),
+    path: String(error.requestPath ?? "")
+  };
+}
+
 function handleError(error) {
   hideBusy();
-  showNotice(error?.message ?? "The request could not be completed.", "error");
+  showNotice(
+    error?.message ?? "The request could not be completed.",
+    "error",
+    { failureContext: buildFailureContextFromError(error) }
+  );
   console.error(error);
 }
 
@@ -11854,6 +11914,177 @@ function toggleNotificationPanel() {
   if (isNotificationPanelOpen()) closeNotificationPanel();
   else openNotificationPanel();
 }
+
+// FULL-UI-20 factual platform status and error-reporting. A report is
+// built entirely from an explicit allowlist captured client-side (route
+// hash, timestamp, a fixed set of browser fields, and - only when the
+// report was opened from a failed request - status/method/path of that
+// one request). Nothing from localStorage, cookies or auth state is ever
+// read here.
+let currentSupportReportContext = null;
+
+function generateCorrelationId() {
+  if (typeof crypto?.randomUUID === "function") return crypto.randomUUID();
+  return `corr-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function buildBrowserContextSnapshot() {
+  return {
+    user_agent: navigator.userAgent ?? "",
+    language: navigator.language ?? "",
+    viewport_width: window.innerWidth ?? null,
+    viewport_height: window.innerHeight ?? null,
+    timezone_offset_minutes: new Date().getTimezoneOffset()
+  };
+}
+
+function openSupportReportForm(failureContext) {
+  const browserContext = buildBrowserContextSnapshot();
+
+  currentSupportReportContext = {
+    correlation_id: generateCorrelationId(),
+    route_hash: location.hash || "#/",
+    occurred_at_iso8601: new Date().toISOString(),
+    browser_context: browserContext,
+    failure_context: failureContext && failureContext.path ? failureContext : null
+  };
+
+  elements.supportReportCorrelationId.textContent = currentSupportReportContext.correlation_id;
+  elements.supportReportRoute.textContent = currentSupportReportContext.route_hash;
+  elements.supportReportTimestamp.textContent = formatDate(currentSupportReportContext.occurred_at_iso8601);
+  elements.supportReportBrowserSummary.textContent =
+    `${browserContext.viewport_width}x${browserContext.viewport_height}, ${browserContext.language || "unknown language"}`;
+  elements.supportReportDescription.value = "";
+  elements.supportReportResult.hidden = true;
+
+  const canRetry =
+    currentSupportReportContext.failure_context?.method === "GET" &&
+    Boolean(currentSupportReportContext.failure_context?.path);
+  elements.supportRetryButton.hidden = !canRetry;
+
+  elements.supportReportPanel.hidden = false;
+  elements.supportReportPanel.scrollIntoView?.({ block: "center", behavior: "smooth" });
+}
+
+function closeSupportReportForm() {
+  elements.supportReportPanel.hidden = true;
+}
+
+async function submitSupportReport(event) {
+  event.preventDefault();
+  if (!currentSupportReportContext) return;
+
+  const description = elements.supportReportDescription.value.trim();
+  if (!description) {
+    elements.supportReportResult.hidden = false;
+    elements.supportReportResult.textContent = "Enter a description before submitting.";
+    return;
+  }
+
+  const result = await api("POST", "/account/support/reports", {
+    correlation_id: currentSupportReportContext.correlation_id,
+    route_hash: currentSupportReportContext.route_hash,
+    occurred_at_iso8601: currentSupportReportContext.occurred_at_iso8601,
+    description,
+    browser_context: currentSupportReportContext.browser_context,
+    failure_context: currentSupportReportContext.failure_context ?? {}
+  });
+
+  elements.supportReportResult.hidden = false;
+  elements.supportReportResult.textContent = `Report submitted. Correlation ID: ${result.report.correlation_id}`;
+  await refreshSupportHistory();
+}
+
+async function retrySupportFailedRequest() {
+  const context = currentSupportReportContext?.failure_context;
+  if (!context || context.method !== "GET" || !context.path) return;
+
+  await api("GET", context.path);
+  showNotice("The request succeeded on retry.", "success");
+  closeSupportReportForm();
+}
+
+function recoverToSafeScreen() {
+  closeSupportReportForm();
+  setView(state.role === "coach" ? "coach-overview" : "today");
+}
+
+function renderSupportHistory(reports) {
+  elements.supportHistoryList.innerHTML = "";
+
+  if (reports.length === 0) {
+    elements.supportHistoryEmpty.hidden = false;
+    return;
+  }
+  elements.supportHistoryEmpty.hidden = true;
+
+  for (const report of reports) {
+    const row = document.createElement("div");
+    row.className = "support-history-row";
+
+    const statusBadge = document.createElement("span");
+    statusBadge.className = "badge neutral support-history-status";
+    statusBadge.textContent = titleCase(report.status);
+
+    const description = document.createElement("span");
+    description.className = "support-history-description";
+    description.textContent = report.description;
+
+    const time = document.createElement("span");
+    time.className = "support-history-time";
+    time.textContent = formatDate(report.created_at_iso8601);
+
+    row.append(statusBadge, description, time);
+    elements.supportHistoryList.appendChild(row);
+  }
+}
+
+async function refreshSupportHistory() {
+  const result = await api("GET", "/account/support/reports");
+  renderSupportHistory(Array.isArray(result.reports) ? result.reports : []);
+}
+
+async function refreshPlatformStatus() {
+  elements.platformStatusValue.textContent = "Checking...";
+  elements.platformStatusValue.classList.remove("status-ok");
+
+  try {
+    const result = await api("GET", "/health");
+    const operational = result.status === "ok";
+    elements.platformStatusValue.textContent = operational ? "Operational" : "Degraded";
+    elements.platformStatusValue.classList.toggle("status-ok", operational);
+  }
+  catch {
+    elements.platformStatusValue.textContent = "Unavailable";
+  }
+  finally {
+    elements.platformStatusChecked.textContent = `Checked ${formatDate(new Date().toISOString())}`;
+  }
+}
+
+elements.checkPlatformStatusButton?.addEventListener("click", () => {
+  refreshPlatformStatus().catch(handleError);
+});
+
+elements.openSupportReportButton?.addEventListener("click", () => {
+  openSupportReportForm(null);
+});
+
+elements.cancelSupportReportButton?.addEventListener("click", () => {
+  closeSupportReportForm();
+});
+
+elements.supportRetryButton?.addEventListener("click", () => {
+  retrySupportFailedRequest().catch(handleError);
+});
+
+elements.supportRecoveryButton?.addEventListener("click", () => {
+  recoverToSafeScreen();
+});
+
+elements.supportReportForm?.addEventListener("submit", (event) => {
+  submitSupportReport(event).catch(handleError);
+});
 
 elements.notificationBellButton?.addEventListener("click", (event) => {
   event.stopPropagation();

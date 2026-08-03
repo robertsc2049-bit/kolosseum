@@ -1859,6 +1859,89 @@
             </article>
           </div>
 
+          <section id="statusSupportPanel" class="panel status-support-panel" aria-labelledby="statusSupportHeading">
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">Status and support</p>
+                <h3 id="statusSupportHeading">Platform status and error reporting</h3>
+                <p class="muted">Check current platform status, or report a problem with the exact context that will be attached shown before you send it.</p>
+              </div>
+            </div>
+
+            <div class="status-support-grid">
+              <article class="panel">
+                <div>
+                  <p class="eyebrow">Platform status</p>
+                  <h4>Current status</h4>
+                </div>
+                <div class="commercial-fact-grid account-version-grid">
+                  <div class="commercial-fact">
+                    <span>Status</span>
+                    <strong id="platformStatusValue">Checking...</strong>
+                  </div>
+                  <div class="commercial-fact">
+                    <span>Last checked</span>
+                    <strong id="platformStatusChecked">Not checked yet</strong>
+                  </div>
+                </div>
+                <button id="checkPlatformStatusButton" class="button secondary" type="button">Check platform status</button>
+              </article>
+
+              <article class="panel">
+                <div>
+                  <p class="eyebrow">Support</p>
+                  <h4>Report a problem</h4>
+                  <p class="muted">Opens a form that shows exactly what route, timestamp, browser context and correlation ID will be attached before you submit a description.</p>
+                </div>
+                <button id="openSupportReportButton" class="button primary" type="button">Report a problem</button>
+
+                <div id="supportReportPanel" class="support-report-panel" hidden>
+                  <div class="commercial-fact-grid account-version-grid">
+                    <div class="commercial-fact">
+                      <span>Correlation ID</span>
+                      <strong id="supportReportCorrelationId">-</strong>
+                    </div>
+                    <div class="commercial-fact">
+                      <span>Route</span>
+                      <strong id="supportReportRoute">-</strong>
+                    </div>
+                    <div class="commercial-fact">
+                      <span>Timestamp</span>
+                      <strong id="supportReportTimestamp">-</strong>
+                    </div>
+                    <div class="commercial-fact">
+                      <span>Browser context</span>
+                      <strong id="supportReportBrowserSummary">-</strong>
+                    </div>
+                  </div>
+
+                  <form id="supportReportForm" class="form-panel">
+                    <label class="field">
+                      <span>What happened?</span>
+                      <textarea id="supportReportDescription" required maxlength="4000" rows="4"></textarea>
+                    </label>
+
+                    <div class="support-report-actions">
+                      <button id="supportRetryButton" class="button secondary" type="button" hidden>Retry the failed request</button>
+                      <button id="supportRecoveryButton" class="button secondary" type="button">Return to a safe screen</button>
+                      <button id="cancelSupportReportButton" class="button secondary" type="button">Cancel</button>
+                      <button class="button primary" type="submit">Submit report</button>
+                    </div>
+                    <p id="supportReportResult" class="inline-result" hidden></p>
+                  </form>
+                </div>
+              </article>
+
+              <article class="panel">
+                <div>
+                  <p class="eyebrow">Support history</p>
+                  <h4>Your submitted reports</h4>
+                </div>
+                <div id="supportHistoryEmpty" class="empty-state compact-empty"><p>No problems reported yet.</p></div>
+                <div id="supportHistoryList" class="record-list compact-record-list"></div>
+              </article>
+            </div>
+          </section>
 
           <section id="accountCommercialPanel" class="panel commercial-panel" aria-labelledby="commercialHeading">
             <div class="commercial-heading">
