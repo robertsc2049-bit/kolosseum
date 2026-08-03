@@ -286,7 +286,21 @@ textarea { min-height: 135px; padding: 0.85rem; resize: vertical; }
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--bronze);
-  box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.12);
+  box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.45);
+}
+
+/* FULL-UI-22 cross-product quality: a single, consistent visible-focus
+   ring for every interactive element that doesn't already declare its own
+   :focus-visible style, applied only for keyboard focus (not mouse
+   clicks) so it never changes the look of a plain pointer interaction. */
+a:focus-visible,
+button:focus-visible,
+.button:focus-visible,
+[role="button"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--bronze-light);
+  outline-offset: 2px;
 }
 
 .consent-box {
@@ -550,6 +564,17 @@ input:focus, select:focus, textarea:focus {
 .notice.error {
   border-color: rgba(180, 68, 46, 0.6);
   color: #f0b2a5;
+}
+
+/* FULL-UI-22 cross-product quality: the same error-affordance colour as
+   .notice.error, applied to any status line reused as a route-level
+   service-unavailable state (see catchWithViewRetry). */
+[role="status"].error {
+  color: #f0b2a5;
+}
+
+.status-retry-button {
+  margin-left: 0.4rem;
 }
 
 .views {
@@ -1769,6 +1794,19 @@ input:focus, select:focus, textarea:focus {
 @media (prefers-reduced-motion: reduce) {
   .route-target {
     scroll-behavior: auto;
+  }
+}
+
+/* FULL-UI-22 cross-product quality: a general reduced-motion policy.
+   Anyone with prefers-reduced-motion:reduce gets every animation and
+   transition collapsed to effectively-instant, and scrolling stops being
+   smooth, without changing what anything looks like at rest. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

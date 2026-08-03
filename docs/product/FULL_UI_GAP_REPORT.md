@@ -7,9 +7,9 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 146
-- partial: 38
-- missing: 53
+- implemented: 219
+- partial: 10
+- missing: 8
 - prohibited: 0
 
 ## Product areas
@@ -253,12 +253,14 @@ Implemented: 20 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 Slice: FULL-UI-12
 
-Area state: partial
+Area state: implemented
 
-Implemented: 8 · Partial: 0 · Missing: 3 · Prohibited: 0
+Implemented: 11 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
+- `calendar_select_existing_event` — Select existing standalone event
+- `calendar_single_event_truth` — Use standalone event as date source
 - `calendar_start_date` — Set preparation start date
 - `calendar_required_weeks` — Display required weeks
 - `calendar_allocated_weeks` — Display allocated weeks
@@ -267,11 +269,6 @@ Implemented: 8 · Partial: 0 · Missing: 3 · Prohibited: 0
 - `calendar_dates` — Display block and week dates
 - `calendar_partial_week` — Display partial final week
 - `calendar_activation_fail` — Fail activation when unbalanced
-
-#### missing
-
-- `calendar_select_existing_event` — Select existing standalone event
-- `calendar_single_event_truth` — Use standalone event as date source
 - `calendar_event_source` — Retain standalone event as authoritative source
 
 ### Athlete-specific assignment
@@ -301,86 +298,68 @@ Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 Slice: FULL-UI-14
 
-Area state: partial
+Area state: implemented
 
-Implemented: 3 · Partial: 5 · Missing: 1 · Prohibited: 0
+Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
-- `today_next_session` — Display next executable session
-- `today_event_countdown` — Display assigned event and countdown
-- `today_start_continue` — Start or continue current session
-
-#### partial
-
 - `today_programme` — Display current programme
 - `today_assignment_version` — Display assignment version
+- `today_next_session` — Display next executable session
+- `today_event_countdown` — Display assigned event and countdown
 - `today_block_week` — Display block and week context
 - `today_resolved_load_source` — Display resolved load and source
 - `today_empty_states` — Display all declared empty and unavailable states
-
-#### missing
-
 - `today_visible_notes` — Display visible coach notes
+- `today_start_continue` — Start or continue current session
 
 ### Session execution
 
 Slice: FULL-UI-15
 
-Area state: partial
+Area state: implemented
 
-Implemented: 9 · Partial: 4 · Missing: 3 · Prohibited: 0
+Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
+- `session_overview` — Display pre-start session overview
 - `session_four_exercises` — Display four ordered exercises
-- `session_prescription` — Display sets, reps, load, rest and role
+- `session_prescription` — Display sets, reps, load and rest
 - `session_start` — Start session
 - `session_complete_work` — Mark work complete
+- `session_skip_reason` — Skip lawful work with factual reason
 - `session_partial` — Record partial completion
 - `session_stop_return` — Stop and return later
 - `session_return_continue` — Continue returned session
 - `session_return_skip` — Finish without remaining work
-- `session_terminal_guard` — Prevent terminal-session resurrection
-
-#### partial
-
-- `session_overview` — Display pre-start session overview
-- `session_skip_reason` — Skip lawful work with factual reason
-- `session_completion_summary` — Display completion summary
-- `session_reload_recovery` — Recover session after refresh
-
-#### missing
-
 - `session_substitution` — Request and display lawful substitution
 - `session_pain_input` — Record contract-permitted pain input
+- `session_completion_summary` — Display completion summary
 - `session_idempotent_retry` — Display idempotent retry state
+- `session_reload_recovery` — Recover session after refresh
+- `session_terminal_guard` — Prevent terminal-session resurrection
 
 ### Athlete history
 
 Slice: FULL-UI-16
 
-Area state: partial
+Area state: implemented
 
-Implemented: 1 · Partial: 6 · Missing: 2 · Prohibited: 0
+Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `history_list` — Display session list
-
-#### partial
-
+- `history_filters` — Filter by status, date, activity, programme and event
 - `history_detail` — Open session detail
 - `history_planned_recorded` — Display planned versus recorded state
 - `history_split_return` — Display split and return record
 - `history_partial_skip` — Display partial and skip record
 - `history_provenance` — Display programme, assignment and event provenance
-- `history_empty_unavailable` — Display empty and unavailable states
-
-#### missing
-
-- `history_filters` — Filter by status, date, activity, programme and event
 - `history_export` — Export athlete history
+- `history_empty_unavailable` — Display empty and unavailable states
 
 ### Coach review and live status
 
@@ -409,11 +388,11 @@ Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 Slice: FULL-UI-18
 
-Area state: missing
+Area state: implemented
 
-Implemented: 0 · Partial: 0 · Missing: 9 · Prohibited: 0
+Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 
-#### missing
+#### implemented
 
 - `notification_relationship` — Notify relationship invitation and state changes
 - `notification_assignment` — Notify assignment create, replace and cancel
@@ -429,11 +408,11 @@ Implemented: 0 · Partial: 0 · Missing: 9 · Prohibited: 0
 
 Slice: FULL-UI-19
 
-Area state: missing
+Area state: implemented
 
-Implemented: 0 · Partial: 0 · Missing: 10 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
-#### missing
+#### implemented
 
 - `data_terms_current` — Display current consent and terms
 - `data_consent_history` — Display consent history
@@ -450,32 +429,29 @@ Implemented: 0 · Partial: 0 · Missing: 10 · Prohibited: 0
 
 Slice: FULL-UI-20
 
-Area state: partial
+Area state: implemented
 
-Implemented: 0 · Partial: 3 · Missing: 4 · Prohibited: 0
+Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
 
-#### partial
+#### implemented
 
 - `status_current` — Display current factual platform status
-- `support_secret_boundary` — Hide engine internals and secrets
-- `support_retry` — Offer retry and recovery actions
-
-#### missing
-
 - `support_report_problem` — Report a problem
 - `support_context` — Attach route, timestamp, browser and correlation ID
 - `support_description` — Record user description
+- `support_secret_boundary` — Hide engine internals and secrets
+- `support_retry` — Offer retry and recovery actions
 - `support_history` — Display support request history
 
 ### Founder and admin operations
 
 Slice: FULL-UI-21
 
-Area state: missing
+Area state: implemented
 
-Implemented: 0 · Partial: 0 · Missing: 10 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
-#### missing
+#### implemented
 
 - `admin_auth` — Guard founder and admin sign-in
 - `admin_account_search` — Search accounts
@@ -492,17 +468,11 @@ Implemented: 0 · Partial: 0 · Missing: 10 · Prohibited: 0
 
 Slice: FULL-UI-22
 
-Area state: partial
+Area state: implemented
 
-Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
+Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
-
-- `quality_loading` — Display persistent loading state
-- `quality_deep_links` — Support stable lawful deep links
-- `quality_refresh_recovery` — Recover route after refresh
-
-#### partial
 
 - `quality_responsive` — Support phone, tablet and desktop
 - `quality_keyboard` — Support keyboard navigation
@@ -510,16 +480,16 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 - `quality_semantics` — Use semantic labels and headings
 - `quality_announcements` — Announce status and errors
 - `quality_contrast` — Meet colour contrast requirements
+- `quality_reduced_motion` — Respect reduced-motion preference
+- `quality_loading` — Display persistent loading state
 - `quality_duplicate_submit` — Prevent duplicate submissions
 - `quality_route_states` — Display route-level empty, error and unavailable states
-- `quality_friendly_errors` — Display user-facing errors rather than raw tokens
-- `quality_server_authority` — Keep core server records authoritative over local cache
-
-#### missing
-
-- `quality_reduced_motion` — Respect reduced-motion preference
 - `quality_unsaved` — Protect unsaved changes
 - `quality_destructive_confirm` — Confirm destructive actions
+- `quality_friendly_errors` — Display user-facing errors rather than raw tokens
+- `quality_deep_links` — Support stable lawful deep links
+- `quality_refresh_recovery` — Recover route after refresh
+- `quality_server_authority` — Keep core server records authoritative over local cache
 
 ## Functions without persistent integration proof
 
@@ -604,33 +574,12 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 - `assignment_history` — Display assignment history
 - `assignment_separate_event` — Display event link and assignment separately
 - `assignment_preserve_sessions` — Preserve prior compiled sessions
-- `today_programme` — Display current programme
-- `today_assignment_version` — Display assignment version
-- `today_event_countdown` — Display assigned event and countdown
-- `today_block_week` — Display block and week context
-- `today_resolved_load_source` — Display resolved load and source
-- `today_empty_states` — Display all declared empty and unavailable states
-- `today_start_continue` — Start or continue current session
-- `session_overview` — Display pre-start session overview
 - `session_four_exercises` — Display four ordered exercises
-- `session_prescription` — Display sets, reps, load, rest and role
-- `session_start` — Start session
-- `session_complete_work` — Mark work complete
-- `session_skip_reason` — Skip lawful work with factual reason
+- `session_prescription` — Display sets, reps, load and rest
 - `session_partial` — Record partial completion
 - `session_stop_return` — Stop and return later
 - `session_return_continue` — Continue returned session
 - `session_return_skip` — Finish without remaining work
-- `session_completion_summary` — Display completion summary
-- `session_reload_recovery` — Recover session after refresh
-- `session_terminal_guard` — Prevent terminal-session resurrection
-- `history_list` — Display session list
-- `history_detail` — Open session detail
-- `history_planned_recorded` — Display planned versus recorded state
-- `history_split_return` — Display split and return record
-- `history_partial_skip` — Display partial and skip record
-- `history_provenance` — Display programme, assignment and event provenance
-- `history_empty_unavailable` — Display empty and unavailable states
 - `review_athlete_search` — Select and search athlete
 - `review_open_sessions` — Display open sessions
 - `review_completed_queue` — Display completed sessions awaiting review
@@ -643,18 +592,18 @@ Implemented: 3 · Partial: 10 · Missing: 3 · Prohibited: 0
 - `review_nonbinding_copy` — Display exact non-binding note copy
 - `review_no_override` — Prevent coach override of engine truth
 - `review_state` — Store reviewed or unreviewed product state
-- `status_current` — Display current factual platform status
-- `support_secret_boundary` — Hide engine internals and secrets
-- `support_retry` — Offer retry and recovery actions
 - `quality_responsive` — Support phone, tablet and desktop
 - `quality_keyboard` — Support keyboard navigation
 - `quality_focus` — Display visible focus
 - `quality_semantics` — Use semantic labels and headings
 - `quality_announcements` — Announce status and errors
 - `quality_contrast` — Meet colour contrast requirements
+- `quality_reduced_motion` — Respect reduced-motion preference
 - `quality_loading` — Display persistent loading state
 - `quality_duplicate_submit` — Prevent duplicate submissions
 - `quality_route_states` — Display route-level empty, error and unavailable states
+- `quality_unsaved` — Protect unsaved changes
+- `quality_destructive_confirm` — Confirm destructive actions
 - `quality_friendly_errors` — Display user-facing errors rather than raw tokens
 - `quality_deep_links` — Support stable lawful deep links
 - `quality_refresh_recovery` — Recover route after refresh

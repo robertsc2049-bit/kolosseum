@@ -124,7 +124,7 @@
         "coach"
       ],
       "entity_key": "event_id",
-      "state": "partial"
+      "state": "implemented"
     },
     {
       "route_id": "coach_programmes",
@@ -144,7 +144,7 @@
         "coach"
       ],
       "entity_key": "template_id",
-      "state": "partial"
+      "state": "implemented"
     },
     {
       "route_id": "coach_review",
@@ -164,7 +164,7 @@
         "coach"
       ],
       "entity_key": "athlete_id",
-      "state": "partial"
+      "state": "implemented"
     },
     {
       "route_id": "shared_account",
@@ -5124,7 +5124,7 @@
       "area_id": "cross_product_quality",
       "title": "Cross-product quality",
       "slice_id": "FULL-UI-22",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "quality_responsive",
@@ -5136,15 +5136,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5157,15 +5157,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5178,15 +5178,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5199,15 +5199,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5220,15 +5220,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5241,15 +5241,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5261,16 +5261,16 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5304,15 +5304,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5325,15 +5325,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5345,16 +5345,16 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5366,16 +5366,16 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5388,15 +5388,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -5451,15 +5451,15 @@
           "route_id": null,
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]

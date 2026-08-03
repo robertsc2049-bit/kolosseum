@@ -274,6 +274,8 @@ const elements = {
   connectAthleteConsent: document.getElementById("connectAthleteConsent"),
   connectAthleteConsentText: document.getElementById("connectAthleteConsentText"),
   refreshAthleteDirectoryButton: document.getElementById("refreshAthleteDirectoryButton"),
+  athleteDirectoryStatus: document.getElementById("athleteDirectoryStatus"),
+  eventsStatus: document.getElementById("eventsStatus"),
   athleteDirectorySearch: document.getElementById("athleteDirectorySearch"),
   athleteRelationshipFilter: document.getElementById("athleteRelationshipFilter"),
   athleteRelationshipCounts: document.getElementById("athleteRelationshipCounts"),
@@ -744,12 +746,88 @@ function hideBusy() {
   elements.busyOverlay.hidden = true;
 }
 
+// FULL-UI-22 cross-product quality: a single reusable duplicate-submit
+// guard. Disables the relevant button for the duration of the async
+// action (covering both a mouse double-click and a keyboard double-
+// Enter) and always re-enables it afterwards, success or failure.
+// `buttonSource` is either the button itself, or a function that derives
+// it from the handler's own arguments (e.g. a form submit event).
+function guardedAction(buttonSource, asyncFn) {
+  return async (...args) => {
+    const button = typeof buttonSource === "function" ? buttonSource(...args) : buttonSource;
+    if (button?.disabled) return;
+    if (button) button.disabled = true;
+    try {
+      await asyncFn(...args);
+    }
+    finally {
+      if (button) button.disabled = false;
+    }
+  };
+}
+
+function submitButtonOf(event) {
+  return event?.target?.querySelector?.('button[type="submit"]') ?? null;
+}
+
+// FULL-UI-22 cross-product quality: a route-level service-unavailable +
+// retry state, reusing whatever status line a view already has (never a
+// new dedicated panel per view) so a failed load leaves a persistent,
+// actionable message instead of silently going stale or only flashing
+// the global toast. The global error notice (with its own "Report this
+// problem" action) still fires too - this is additive, not a
+// replacement.
+function catchWithViewRetry(statusElement, retryFn, message) {
+  const handler = (error) => {
+    if (statusElement) {
+      statusElement.textContent = "";
+      statusElement.classList.add("error");
+
+      const text = document.createElement("span");
+      text.textContent = message;
+
+      const retryButton = document.createElement("button");
+      retryButton.type = "button";
+      retryButton.className = "button secondary status-retry-button";
+      retryButton.textContent = "Retry";
+      retryButton.addEventListener("click", () => {
+        statusElement.classList.remove("error");
+        statusElement.textContent = "Retrying...";
+        retryFn().catch(handler);
+      });
+
+      statusElement.append(text, " ", retryButton);
+    }
+    handleError(error);
+  };
+  return handler;
+}
+
 let noticeTimer = null;
+
+// FULL-UI-22 cross-product quality: unsaved-change protection, extended
+// beyond the programme builder (its own longer-standing draft/dirty
+// tracking is unchanged) to the coach note form. A simple, non-persisted
+// dirty flag is enough here - unlike a programme draft, a half-written
+// note isn't meant to survive a reload, only to warn against an
+// accidental departure that would silently discard it.
+let coachNoteDirty = false;
+
+function confirmCoachNoteDeparture() {
+  if (!coachNoteDirty || elements.coachNoteForm.hidden) return true;
+  return globalThis.confirm(
+    "This note has unsaved changes. Leave without saving?"
+  );
+}
 
 function showNotice(message, type = "success", options = {}) {
   clearTimeout(noticeTimer);
   elements.notice.textContent = message;
   elements.notice.classList.toggle("error", type === "error");
+  // An error is announced assertively (interrupts) since it usually
+  // requires the person to notice and act; a success/status message is
+  // announced politely (waits its turn) so it doesn't interrupt anything.
+  elements.notice.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
   elements.notice.hidden = false;
 
   const existingActions = elements.notice.querySelector(".notice-actions");
@@ -901,7 +979,23 @@ function friendlyError(payload, status) {
     relationship_access_denied: "The coach-athlete relationship is not active."
   };
 
-  return messages[reason] ?? titleCase(reason);
+  return messages[reason] ?? genericFriendlyMessageForStatus(status);
+}
+
+// FULL-UI-22 cross-product quality: an unmapped internal reason/failure
+// token must never become the user's only message on its own - it stays
+// available in console.error()/support-report context for diagnosis, but
+// the person using the product always sees plain, factual, actionable
+// copy instead of a raw code.
+function genericFriendlyMessageForStatus(status) {
+  if (status === 401) return "Sign in again to continue.";
+  if (status === 403) return "This action is not available for this account.";
+  if (status === 404) return "That record could not be found.";
+  if (status === 409) return "That could not be completed because something changed. Refresh and try again.";
+  if (status === 423) return "This account is not currently active.";
+  if (status === 429) return "Too many attempts. Wait a moment and try again.";
+  if (typeof status === "number" && status >= 500) return "Something went wrong on our end. Try again in a moment.";
+  return "That request could not be completed. Try again, or report this problem if it continues.";
 }
 
 async function api(method, path, body) {
@@ -1164,6 +1258,10 @@ function viewTitle(view) {
 }
 
 function setView(view) {
+  if (!confirmCoachNoteDeparture()) {
+    return false;
+  }
+
   if (
     view !== "templates" &&
     elements.templateBuilderView &&
@@ -1208,12 +1306,24 @@ function setView(view) {
 
   if (view === "events" && state.role === "coach") {
     renderCoachEvents();
-    refreshCoachEvents({ quiet: true }).catch(handleError);
+    refreshCoachEvents({ quiet: true }).catch(
+      catchWithViewRetry(
+        elements.eventsStatus,
+        () => refreshCoachEvents({ quiet: true }),
+        "Events could not be loaded."
+      )
+    );
   }
 
   if (view === "templates" && state.role === "coach") {
     renderTemplateLibrary();
-    refreshProgrammeLibrary({ quiet: true }).catch(handleError);
+    refreshProgrammeLibrary({ quiet: true }).catch(
+      catchWithViewRetry(
+        elements.templateLibraryStatus,
+        () => refreshProgrammeLibrary({ quiet: true }),
+        "Programme library could not be loaded."
+      )
+    );
   }
 
   if (view === "coach-overview" && state.role === "coach") {
@@ -1221,7 +1331,13 @@ function setView(view) {
 
     refreshCoachDashboard({
       quiet: true
-    }).catch(handleError);
+    }).catch(
+      catchWithViewRetry(
+        elements.coachDashboardStatus,
+        () => refreshCoachDashboard({ quiet: true }),
+        "Coach dashboard could not be loaded."
+      )
+    );
   }
 
   if (view === "review" && state.role === "coach") {
@@ -6902,6 +7018,7 @@ function openReviewNote(record) {
     `Add note for ${athlete.displayName}`;
 
   elements.coachNoteText.value = "";
+  coachNoteDirty = false;
   elements.coachNoteForm.hidden = false;
   elements.coachNoteText.focus();
 }
@@ -7283,6 +7400,7 @@ async function recordCoachNote(event) {
 
     elements.coachNoteForm.hidden =
       true;
+    coachNoteDirty = false;
 
     if (
       athleteDetailFor(
@@ -11630,21 +11748,31 @@ async function enterApplication() {
   renderAccount();
 
   if (state.role === "athlete") {
+    // FULL-UI-22 cross-product quality: server authority over local cache.
+    // The locally-cached today/history/session state is never shown on
+    // its own on a fresh boot/refresh - it's covered by the busy overlay
+    // until the corresponding server call has actually confirmed or
+    // superseded it, so a stale cached session/assignment/completion
+    // state is never visible, even briefly, as if it were current.
+    showBusy("Loading your training data...");
     renderAthleteSession();
     renderToday();
     renderHistory();
 
     try {
-      await refreshHistory({ quiet: true });
       // Server state after refresh decides which session is current - a
       // locally-cached activeSessionId (from a previous programme, a since-
       // replaced assignment, or a stale reload) must never be trusted on
       // its own. loadAthleteToday() re-derives it from the athlete's actual
       // current assignment/session every time.
+      await refreshHistory({ quiet: true });
       await loadAthleteToday();
     }
     catch (error) {
       showNotice(error.message, "error");
+    }
+    finally {
+      hideBusy();
     }
   }
   else {
@@ -11720,7 +11848,7 @@ elements.forgotPasswordButton.addEventListener(
 elements.passwordResetRequestForm.addEventListener(
   "submit",
   (event) => {
-    handleResetRequest(event)
+    guardedAction(submitButtonOf, handleResetRequest)(event)
       .catch(handleError);
   }
 );
@@ -11728,7 +11856,7 @@ elements.passwordResetRequestForm.addEventListener(
 elements.passwordResetCompleteForm.addEventListener(
   "submit",
   (event) => {
-    handleResetComplete(event)
+    guardedAction(submitButtonOf, handleResetComplete)(event)
       .catch(handleError);
   }
 );
@@ -12083,7 +12211,7 @@ elements.supportRecoveryButton?.addEventListener("click", () => {
 });
 
 elements.supportReportForm?.addEventListener("submit", (event) => {
-  submitSupportReport(event).catch(handleError);
+  guardedAction(submitButtonOf, submitSupportReport)(event).catch(handleError);
 });
 
 elements.notificationBellButton?.addEventListener("click", (event) => {
@@ -12249,10 +12377,15 @@ document.addEventListener("keydown", (event) => {
 });
 
 globalThis.addEventListener("beforeunload", (event) => {
-  if (!templateDraftIsDirty()) return;
+  const coachNoteFormOpenAndDirty = coachNoteDirty && !elements.coachNoteForm.hidden;
+  if (!templateDraftIsDirty() && !coachNoteFormOpenAndDirty) return;
 
   event.preventDefault();
   event.returnValue = "";
+});
+
+elements.coachNoteText.addEventListener("input", () => {
+  coachNoteDirty = true;
 });
 
 elements.newTemplateButton.addEventListener("click", () => {
@@ -12523,7 +12656,9 @@ elements.assignmentForm.addEventListener("submit", (event) => {
 elements.assignmentCancelButton.addEventListener("click", () => {
   cancelAssignmentForAthlete(elements.assignmentAthlete.value, "workspace").catch(handleError);
 });
-elements.loadReviewButton.addEventListener("click", () => loadCoachReview().catch(handleError));
+elements.loadReviewButton.addEventListener("click", () => loadCoachReview().catch(
+  catchWithViewRetry(elements.reviewStatus, () => loadCoachReview(), "Review queue could not be loaded.")
+));
 elements.reviewSearch.addEventListener("input", () => {
   state.coachReviewSearch = elements.reviewSearch.value;
   renderCoachReviewWorkspace();
@@ -12558,7 +12693,7 @@ elements.refreshAccountButton.addEventListener(
 elements.accountProfileForm.addEventListener(
   "submit",
   (event) => {
-    saveAccountProfile(event)
+    guardedAction(submitButtonOf, saveAccountProfile)(event)
       .catch(handleError);
   }
 );
@@ -12566,7 +12701,7 @@ elements.accountProfileForm.addEventListener(
 elements.requestVerificationButton.addEventListener(
   "click",
   () => {
-    requestAccountVerificationCode()
+    guardedAction(elements.requestVerificationButton, requestAccountVerificationCode)()
       .catch(handleError);
   }
 );
@@ -12574,7 +12709,7 @@ elements.requestVerificationButton.addEventListener(
 elements.completeVerificationButton.addEventListener(
   "click",
   () => {
-    verifyAccountEmail()
+    guardedAction(elements.completeVerificationButton, verifyAccountEmail)()
       .catch(handleError);
   }
 );
@@ -12582,7 +12717,7 @@ elements.completeVerificationButton.addEventListener(
 elements.accountPasswordForm.addEventListener(
   "submit",
   (event) => {
-    saveAccountPassword(event)
+    guardedAction(submitButtonOf, saveAccountPassword)(event)
       .catch(handleError);
   }
 );
@@ -12590,7 +12725,7 @@ elements.accountPasswordForm.addEventListener(
 elements.accountClosureForm.addEventListener(
   "submit",
   (event) => {
-    closePersistentAccount(event)
+    guardedAction(submitButtonOf, closePersistentAccount)(event)
       .catch(handleError);
   }
 );
@@ -12605,7 +12740,8 @@ elements.dataRightsRetryButton.addEventListener(
 elements.requestDataExportButton.addEventListener(
   "click",
   () => {
-    requestDataExportAction().catch(handleError);
+    guardedAction(elements.requestDataExportButton, requestDataExportAction)()
+      .catch(handleError);
   }
 );
 
@@ -12619,7 +12755,7 @@ elements.reviewDataDeletionButton.addEventListener(
 elements.dataDeletionConfirmForm.addEventListener(
   "submit",
   (event) => {
-    confirmDataDeletionAction(event).catch(handleError);
+    guardedAction(submitButtonOf, confirmDataDeletionAction)(event).catch(handleError);
   }
 );
 
@@ -12693,7 +12829,13 @@ elements.refreshAthleteDirectoryButton
     "click",
     () => {
       refreshCoachAthletes()
-        .catch(handleError);
+        .catch(
+          catchWithViewRetry(
+            elements.athleteDirectoryStatus,
+            () => refreshCoachAthletes(),
+            "Athlete directory could not be loaded."
+          )
+        );
     }
   );
 

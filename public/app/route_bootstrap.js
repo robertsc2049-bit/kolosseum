@@ -206,12 +206,16 @@ async function applyEntityRoute(route) {
   }
 
   if (route.route_id === "coach_event_detail") {
-    document.dispatchEvent(
-      new CustomEvent("kolosseum:event-detail-route", {
-        detail: { event_id: params.event_id }
-      })
+    const card = await waitForSelector(
+      `[data-event-id="${escapeSelector(params.event_id)}"]`
     );
-    return true;
+    if (card) {
+      markRouteTarget(card);
+      return true;
+    }
+    // No matching event card - fall through to the generic
+    // "record not available" notice below rather than reporting success
+    // for a stale/invalid event_id.
   }
 
   if (route.route_id === "athlete_history_detail") {
@@ -243,12 +247,18 @@ async function applyEntityRoute(route) {
 
   if (route.route_id === "coach_review_athlete") {
     const select = await waitForSelector("#reviewAthlete");
-    if (select) {
+    const hasOption = select
+      ? [...select.options].some((option) => option.value === params.athlete_id)
+      : false;
+    if (select && hasOption) {
       select.value = params.athlete_id;
       select.dispatchEvent(new Event("change", { bubbles: true }));
       document.getElementById("loadReviewButton")?.click();
       return true;
     }
+    // No matching athlete option - fall through to the generic
+    // "record not available" notice rather than silently leaving the
+    // select unchanged and reporting success for a stale athlete_id.
   }
 
   return route.entity_key === null;
