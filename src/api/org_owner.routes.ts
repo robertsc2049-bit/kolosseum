@@ -22,6 +22,14 @@ import {
   signOutOrgOwnerSession
 } from "./org_owner_account_service.js";
 import { authenticatedOrgOwner, orgOwnerCookieValue } from "./org_owner_auth.js";
+import {
+  OrgRosterError,
+  createOrganisation,
+  inviteCoachToOrganisation,
+  listOrganisationRoster,
+  listOrganisationsForOwner,
+  removeCoachMembership
+} from "./org_roster_service.js";
 
 export const orgOwnerRouter = Router();
 
@@ -100,17 +108,72 @@ orgOwnerRouter.get(
   })
 );
 
-// OrgOwnerAuthError is not an ApiError, so without this router-scoped
-// handler it would otherwise reach the generic error mapper, which
-// mistakes its string message for a Postgres error code and returns a
-// misleading 500 instead of the correct 401/403/409/423/429 (mirrors the
+orgOwnerRouter.post(
+  "/organisations",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await createOrganisation(user_id, request.body?.org_name);
+    return response.status(201).json({ ok: true, organisation: result.organisation });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const organisations = await listOrganisationsForOwner(user_id);
+    return response.status(200).json({ ok: true, organisations });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/roster/invite",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await inviteCoachToOrganisation(
+      user_id,
+      String(request.params.org_id),
+      request.body?.coach_email,
+      request.body?.request_id
+    );
+    return response.status(201).json({ ok: true, membership: result.membership });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/roster",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const roster = await listOrganisationRoster(user_id, String(request.params.org_id));
+    return response.status(200).json({ ok: true, roster });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/roster/:membership_id/remove",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await removeCoachMembership(
+      user_id,
+      String(request.params.org_id),
+      String(request.params.membership_id),
+      request.body?.request_id
+    );
+    return response.status(200).json({ ok: true, membership: result.membership });
+  })
+);
+
+// OrgOwnerAuthError/OrgRosterError are not ApiError, so without this
+// router-scoped handler they would otherwise reach the generic error
+// mapper, which mistakes the string message for a Postgres error code and
+// returns a misleading 500 instead of the correct status (mirrors the
 // identical, deliberate pattern in product_admin.routes.ts).
 orgOwnerRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
-    if (!(error instanceof OrgOwnerAuthError)) {
-      next(error);
+    if (error instanceof OrgOwnerAuthError || error instanceof OrgRosterError) {
+      response.status(error.status).json({ error: error.message });
       return;
     }
-    response.status(error.status).json({ error: error.message });
+    next(error);
   }
 );

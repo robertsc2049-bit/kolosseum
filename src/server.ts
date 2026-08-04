@@ -19,6 +19,7 @@ import { productNotificationRouter } from "./api/product_notification.routes.js"
 import { productSupportRouter } from "./api/product_support.routes.js";
 import { productAdminRouter } from "./api/product_admin.routes.js";
 import { orgOwnerRouter } from "./api/org_owner.routes.js";
+import { coachOrgMembershipRouter } from "./api/coach_org_membership.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
 import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
@@ -108,6 +109,7 @@ app.use("/admin", productAdminRouter);
 app.use("/org", orgOwnerRouter);
 app.use("/templates", templatesRouter);
 app.use("/coach-workspace", coachWorkspaceRouter);
+app.use("/coach-workspace", coachOrgMembershipRouter);
 app.use("/coach-workspace", productAssignmentRouter);
 app.use("/coach-workspace", productReviewRouter);
 app.use("/sessions", sessionsRouter);
