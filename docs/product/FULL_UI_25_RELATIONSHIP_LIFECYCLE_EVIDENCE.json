@@ -1,15 +1,15 @@
 {
   "schema_version": "kolosseum.full_ui_25.relationship_lifecycle.v1.0.0",
   "slice_id": "FULL-UI-25",
-  "recorded_at_iso8601": "2026-08-04T13:47:39.780Z",
-  "nonce": "53f5581ce27e4b72",
+  "recorded_at_iso8601": "2026-08-04T14:17:15.359Z",
+  "nonce": "5ec0e442a1874455",
   "steps": [
     {
       "id": "relationship_decline",
       "label": "Athlete declines a pending invitation",
       "result": "PASS",
       "detail": {
-        "relationship_id": "relationship_c2ab5c987028495a9422f2ebac765d0f"
+        "relationship_id": "relationship_b8407e75c02f48ed827ab7a7d85df4c4"
       }
     },
     {
@@ -17,7 +17,7 @@
       "label": "Athlete ends an accepted relationship from their own profile",
       "result": "PASS",
       "detail": {
-        "relationship_id": "relationship_9e45f79bdbfe47c0a7d779bb42234ffc"
+        "relationship_id": "relationship_37786f2052184eedbe0f8a9b711d9770"
       }
     },
     {
@@ -25,7 +25,7 @@
       "label": "A relationship the athlete ended is preserved and visible as past history, not deleted",
       "result": "PASS",
       "detail": {
-        "relationship_id": "relationship_9e45f79bdbfe47c0a7d779bb42234ffc"
+        "relationship_id": "relationship_37786f2052184eedbe0f8a9b711d9770"
       }
     },
     {
@@ -33,7 +33,7 @@
       "label": "Coach revokes an accepted relationship",
       "result": "PASS",
       "detail": {
-        "relationship_id": "relationship_ff607a44c6794e3783a7c3e4bb49a033"
+        "relationship_id": "relationship_2053bf259fd444369d399153a7e167dd"
       }
     },
     {
@@ -41,7 +41,7 @@
       "label": "Coach cancels a pending invitation",
       "result": "PASS",
       "detail": {
-        "relationship_id": "relationship_edf6f1a9c215402a8c9cfd08363825b6"
+        "relationship_id": "relationship_92e1e9b82ebb47fc8627d72b545d2a8a"
       }
     },
     {
@@ -49,7 +49,7 @@
       "label": "Coach sees an expired relationship as a distinct, correctly labelled state",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_69bedab4a7914dd39187a2fee970c508"
+        "athlete_user_id": "athlete_bc32081bc6aa4a9998ded4c61b7a3e12"
       }
     },
     {
@@ -57,7 +57,7 @@
       "label": "Coach sees relationship detail and audit facts (ids and timestamps), not just a name",
       "result": "PASS",
       "detail": {
-        "relationship_id": "relationship_ff607a44c6794e3783a7c3e4bb49a033"
+        "relationship_id": "relationship_2053bf259fd444369d399153a7e167dd"
       }
     },
     {
@@ -84,11 +84,11 @@
       "label": "A fresh operating-system process reconstructs the same relationship-lifecycle state",
       "result": "PASS",
       "detail": {
-        "first_pid": 19472,
-        "restarted_pid": 21016
+        "first_pid": 9368,
+        "restarted_pid": 28448
       }
     }
   ],
   "status": "PASS",
-  "coach_user_id": "coach_4909ee52c65c4aa29d5505d7481e150d"
+  "coach_user_id": "coach_0645dea6846d431293b06c692b5cece7"
 }

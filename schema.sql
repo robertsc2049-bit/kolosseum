@@ -809,3 +809,185 @@ ON product_admin_audit_records (
   target_record_id,
   created_at DESC
 );
+
+-- Organisation/team billing and roster shell (commercial expansion, part B).
+-- An org owner is a wholly separate identity/session surface from
+-- product_accounts and product_admin_accounts, mirroring the same physical-
+-- separation pattern proven for founder/admin accounts. None of these
+-- tables carry an athlete_user_id column, a session_id column, or an FK
+-- into beta_product_records - an org owner has no schema path to any
+-- athlete-scoped data, by construction, not by policy. The actual coach-
+-- athlete relationship model is entirely untouched by this expansion; an
+-- org only groups EXISTING coach accounts under shared billing/roster
+-- management.
+CREATE TABLE IF NOT EXISTS product_org_owner_accounts (
+  user_id          TEXT PRIMARY KEY,
+  email_canonical  TEXT NOT NULL UNIQUE,
+  display_name     TEXT NOT NULL,
+  password_salt    TEXT NOT NULL,
+  password_hash    TEXT NOT NULL,
+  account_state    TEXT NOT NULL DEFAULT 'active'
+    CHECK (
+      account_state IN ('active', 'suspended', 'closed')
+    ),
+  failed_sign_in_count INTEGER NOT NULL DEFAULT 0,
+  locked_until     TIMESTAMPTZ,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger
+    WHERE tgname = 'product_org_owner_accounts_set_updated_at'
+  ) THEN
+    CREATE TRIGGER product_org_owner_accounts_set_updated_at
+    BEFORE UPDATE ON product_org_owner_accounts
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();
+  END IF;
+END;
+$$;
+
+CREATE TABLE IF NOT EXISTS product_org_owner_sessions (
+  session_hash  TEXT PRIMARY KEY,
+  user_id       TEXT NOT NULL
+    REFERENCES product_org_owner_accounts(user_id)
+    ON DELETE CASCADE,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_seen_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at    TIMESTAMPTZ NOT NULL,
+  revoked_at    TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_org_owner_sessions_user
+ON product_org_owner_sessions (
+  user_id,
+  expires_at DESC
+);
+
+CREATE TABLE IF NOT EXISTS product_organisations (
+  org_id        TEXT PRIMARY KEY,
+  owner_user_id TEXT NOT NULL
+    REFERENCES product_org_owner_accounts(user_id),
+  org_name      TEXT NOT NULL,
+  org_state     TEXT NOT NULL DEFAULT 'active'
+    CHECK (
+      org_state IN ('active', 'suspended', 'closed')
+    ),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger
+    WHERE tgname = 'product_organisations_set_updated_at'
+  ) THEN
+    CREATE TRIGGER product_organisations_set_updated_at
+    BEFORE UPDATE ON product_organisations
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();
+  END IF;
+END;
+$$;
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_organisations_owner
+ON product_organisations (
+  owner_user_id
+);
+
+-- Roster membership: which EXISTING coach accounts belong to which org.
+-- No athlete_user_id anywhere in this table on purpose - membership is a
+-- billing/roster fact only, never a data-visibility grant.
+CREATE TABLE IF NOT EXISTS product_org_coach_memberships (
+  membership_id     TEXT PRIMARY KEY,
+  org_id            TEXT NOT NULL
+    REFERENCES product_organisations(org_id)
+    ON DELETE CASCADE,
+  coach_user_id     TEXT NOT NULL
+    REFERENCES product_accounts(user_id),
+  membership_status TEXT NOT NULL DEFAULT 'invited'
+    CHECK (
+      membership_status IN ('invited', 'active', 'removed')
+    ),
+  invited_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  activated_at      TIMESTAMPTZ,
+  removed_at        TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  UNIQUE (org_id, coach_user_id)
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger
+    WHERE tgname = 'product_org_coach_memberships_set_updated_at'
+  ) THEN
+    CREATE TRIGGER product_org_coach_memberships_set_updated_at
+    BEFORE UPDATE ON product_org_coach_memberships
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();
+  END IF;
+END;
+$$;
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_org_coach_memberships_coach
+ON product_org_coach_memberships (
+  coach_user_id,
+  membership_status
+);
+
+-- Immutable operational audit trail for org billing/roster actions,
+-- mirroring product_admin_audit_records exactly (append-only, correlation-
+-- id deduped, explicit before/after factual state).
+CREATE TABLE IF NOT EXISTS product_org_audit_records (
+  audit_record_id  TEXT PRIMARY KEY,
+  org_id           TEXT NOT NULL
+    REFERENCES product_organisations(org_id),
+  actor_user_id    TEXT NOT NULL
+    REFERENCES product_org_owner_accounts(user_id),
+  action_type      TEXT NOT NULL
+    CHECK (
+      action_type IN (
+        'org_created',
+        'coach_invited',
+        'coach_membership_activated',
+        'coach_membership_removed',
+        'seat_plan_changed'
+      )
+    ),
+  before_state     JSONB NOT NULL
+    CHECK (
+      jsonb_typeof(before_state) = 'object'
+    ),
+  after_state      JSONB NOT NULL
+    CHECK (
+      jsonb_typeof(after_state) = 'object'
+    ),
+  correlation_id   TEXT NOT NULL,
+  record_sha256    TEXT NOT NULL
+    CHECK (
+      record_sha256 ~ '^[a-f0-9]{64}$'
+    ),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  UNIQUE (actor_user_id, correlation_id)
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_org_audit_records_org
+ON product_org_audit_records (
+  org_id,
+  created_at DESC
+);
