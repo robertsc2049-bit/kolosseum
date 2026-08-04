@@ -45,8 +45,11 @@ import {
 import {
   RelationshipInvitationError,
   acceptRelationshipInvitation,
+  athleteEndsRelationship,
   createRelationshipInvitationByEmail,
-  listPendingRelationshipInvitationsForAthlete
+  declineRelationshipInvitation,
+  listPendingRelationshipInvitationsForAthlete,
+  listRelationshipsForAthlete
 } from "./relationship_invitation_service.js";
 
 // FULL-UI-04B athlete-detail service import.
@@ -550,6 +553,80 @@ export async function acceptAthleteRelationshipInvitationHandler(
     );
 
     return res.status(201).json({
+      ok: true,
+      relationship
+    });
+  }
+  catch (error) {
+    rethrowInvitationError(error);
+  }
+}
+
+// FUNCTION NOTE:
+// Purpose: Athlete declines one of their own pending invitations - the
+// symmetric counterpart to accept.
+// Boundary: Server independently verifies the invitation names this
+// athlete's session and is still pending before writing a declined record.
+export async function declineAthleteRelationshipInvitationHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const athleteUserId = await authenticatedAthlete(req, true);
+    const relationship = await declineRelationshipInvitation(
+      athleteUserId,
+      req.params.relationship_id
+    );
+
+    return res.status(201).json({
+      ok: true,
+      relationship
+    });
+  }
+  catch (error) {
+    rethrowInvitationError(error);
+  }
+}
+
+// FUNCTION NOTE:
+// Purpose: Athlete reads their own current and past coach relationships.
+// Boundary: Athlete identity comes only from the resolved session cookie;
+// history is read-only and never deleted.
+export async function listAthleteOwnRelationshipsHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const athleteUserId = await authenticatedAthlete(req, false);
+    const relationships = await listRelationshipsForAthlete(athleteUserId);
+
+    return res.status(200).json({
+      ok: true,
+      relationships
+    });
+  }
+  catch (error) {
+    rethrowInvitationError(error);
+  }
+}
+
+// FUNCTION NOTE:
+// Purpose: Athlete ends an accepted relationship from their own profile -
+// the athlete-initiated counterpart to the coach's existing revoke control.
+// Boundary: Server independently re-verifies the relationship is currently
+// accepted and names this athlete before writing the closure.
+export async function endAthleteRelationshipHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const athleteUserId = await authenticatedAthlete(req, true);
+    const relationship = await athleteEndsRelationship(
+      athleteUserId,
+      req.params.relationship_id
+    );
+
+    return res.status(200).json({
       ok: true,
       relationship
     });

@@ -149,10 +149,11 @@ function writeRelationshipTransition(
     relationship_id: string;
     coach_user_id: string;
     athlete_user_id: string;
-    relationship_state: "invited" | "accepted";
+    relationship_state: "invited" | "accepted" | "declined" | "revoked";
     created_at_iso8601: string;
     updated_at_iso8601: string;
     accepted_at_iso8601: string | null;
+    revoked_at_iso8601?: string | null;
   }>
 ): Promise<Readonly<JsonRecord>> {
   const result = createBeta17RelationshipRecord({
@@ -164,7 +165,7 @@ function writeRelationshipTransition(
     accepted_at_iso8601: input.accepted_at_iso8601,
     created_at_iso8601: input.created_at_iso8601,
     updated_at_iso8601: input.updated_at_iso8601,
-    revoked_at_iso8601: null,
+    revoked_at_iso8601: input.revoked_at_iso8601 ?? null,
     expires_at_iso8601: null
   });
 
@@ -218,17 +219,9 @@ export async function createRelationshipInvitationByEmail(
   });
 }
 
-// Athlete action: list this athlete's own pending invitations. The athlete
-// identity comes only from the caller's resolved session - never a
-// client-supplied id.
-export async function listPendingRelationshipInvitationsForAthlete(
-  athleteUserIdInput: string
+async function latestRelationshipRecordsForAthlete(
+  athleteUserId: string
 ): Promise<readonly Readonly<JsonRecord>[]> {
-  const athleteUserId = cleanString(athleteUserIdInput);
-  if (!athleteUserId) {
-    throw new RelationshipInvitationError("athlete_user_id_required");
-  }
-
   const result = await pool.query(
     `
     SELECT DISTINCT ON (actor_user_id)
@@ -247,33 +240,75 @@ export async function listPendingRelationshipInvitationsForAthlete(
     [athleteUserId]
   );
 
-  const pending = result.rows
+  return result.rows
     .map((row) => (isRecord(row.record_payload) ? row.record_payload : null))
-    .filter(
-      (relationship): relationship is JsonRecord =>
-        relationship !== null && relationship.relationship_state === "invited"
-    );
+    .filter((relationship): relationship is JsonRecord => relationship !== null);
+}
 
-  return Promise.all(
-    pending.map(async (relationship) => {
-      const coachUserId = cleanString(relationship.coach_user_id);
-      const coachProfile = await loadLatestBetaProductRecord(
-        "beta17_coach_profile",
-        coachUserId,
-        coachUserId
-      );
+function relationshipExpired(relationship: Readonly<JsonRecord>): boolean {
+  if (relationship.relationship_state !== "invited") return false;
+  const expiresAt = cleanString(relationship.expires_at_iso8601);
+  return Boolean(expiresAt) && Number.isFinite(Date.parse(expiresAt)) && Date.parse(expiresAt) <= Date.now();
+}
 
-      return Object.freeze({
-        relationship_id: cleanString(relationship.relationship_id),
-        coach_user_id: coachUserId,
-        coach_display_name:
-          cleanString(coachProfile?.display_name) || coachUserId,
-        coach_email: cleanString(coachProfile?.email) || null,
-        relationship_state: "invited",
-        created_at_iso8601: cleanString(relationship.created_at_iso8601)
-      });
-    })
+async function withCoachDisplay(
+  relationship: Readonly<JsonRecord>
+): Promise<Readonly<JsonRecord>> {
+  const coachUserId = cleanString(relationship.coach_user_id);
+  const coachProfile = await loadLatestBetaProductRecord(
+    "beta17_coach_profile",
+    coachUserId,
+    coachUserId
   );
+
+  return Object.freeze({
+    relationship_id: cleanString(relationship.relationship_id),
+    coach_user_id: coachUserId,
+    coach_display_name: cleanString(coachProfile?.display_name) || coachUserId,
+    coach_email: cleanString(coachProfile?.email) || null,
+    relationship_state: relationshipExpired(relationship) ? "expired" : relationship.relationship_state,
+    created_at_iso8601: cleanString(relationship.created_at_iso8601),
+    accepted_at_iso8601: cleanString(relationship.accepted_at_iso8601) || null,
+    revoked_at_iso8601: cleanString(relationship.revoked_at_iso8601) || null,
+    updated_at_iso8601: cleanString(relationship.updated_at_iso8601)
+  });
+}
+
+// Athlete action: list this athlete's own pending invitations. The athlete
+// identity comes only from the caller's resolved session - never a
+// client-supplied id.
+export async function listPendingRelationshipInvitationsForAthlete(
+  athleteUserIdInput: string
+): Promise<readonly Readonly<JsonRecord>[]> {
+  const athleteUserId = cleanString(athleteUserIdInput);
+  if (!athleteUserId) {
+    throw new RelationshipInvitationError("athlete_user_id_required");
+  }
+
+  const all = await latestRelationshipRecordsForAthlete(athleteUserId);
+  const pending = all.filter(
+    (relationship) => relationship.relationship_state === "invited" && !relationshipExpired(relationship)
+  );
+
+  return Promise.all(pending.map(withCoachDisplay));
+}
+
+// Athlete action: list this athlete's own current and past coach
+// relationships (accepted, declined, revoked or expired) - history is never
+// deleted, only ever appended to, so a relationship that ended remains fully
+// visible and queryable here.
+export async function listRelationshipsForAthlete(
+  athleteUserIdInput: string
+): Promise<readonly Readonly<JsonRecord>[]> {
+  const athleteUserId = cleanString(athleteUserIdInput);
+  if (!athleteUserId) {
+    throw new RelationshipInvitationError("athlete_user_id_required");
+  }
+
+  const all = await latestRelationshipRecordsForAthlete(athleteUserId);
+  const relevant = all.filter((relationship) => relationship.relationship_state !== "invited");
+
+  return Promise.all(relevant.map(withCoachDisplay));
 }
 
 // Athlete action: accept a pending invitation. The athlete supplies only the
@@ -311,5 +346,85 @@ export async function acceptRelationshipInvitation(
     created_at_iso8601: cleanString(current.created_at_iso8601) || timestamp,
     updated_at_iso8601: timestamp,
     accepted_at_iso8601: timestamp
+  });
+}
+
+// Athlete action: decline a pending invitation - the symmetric counterpart
+// to acceptRelationshipInvitation. The coach is notified of the decline the
+// same way they are notified of an acceptance (product_notification_service
+// derives relationship_declined from this same record).
+export async function declineRelationshipInvitation(
+  athleteUserIdInput: string,
+  relationshipIdInput: unknown
+): Promise<Readonly<JsonRecord>> {
+  const athleteUserId = cleanString(athleteUserIdInput);
+  const relationshipId = cleanString(relationshipIdInput);
+
+  if (!athleteUserId || !relationshipId) {
+    throw new RelationshipInvitationError("relationship_identity_required");
+  }
+
+  const current = await relationshipRecordById(relationshipId);
+
+  if (
+    !current ||
+    cleanString(current.athlete_user_id) !== athleteUserId ||
+    current.relationship_state !== "invited"
+  ) {
+    throw new RelationshipInvitationError("invitation_not_pending", 404);
+  }
+
+  const timestamp = new Date().toISOString();
+
+  return writeRelationshipTransition({
+    relationship_id: relationshipId,
+    coach_user_id: cleanString(current.coach_user_id),
+    athlete_user_id: athleteUserId,
+    relationship_state: "declined",
+    created_at_iso8601: cleanString(current.created_at_iso8601) || timestamp,
+    updated_at_iso8601: timestamp,
+    accepted_at_iso8601: null,
+    revoked_at_iso8601: timestamp
+  });
+}
+
+// Athlete action: end an accepted relationship from their own profile - the
+// athlete-initiated counterpart to the coach's existing "revoke" control.
+// The server independently re-verifies the relationship is currently
+// accepted and names this athlete before writing the closure; the prior
+// invited/accepted history remains fully preserved and queryable, never
+// deleted.
+export async function athleteEndsRelationship(
+  athleteUserIdInput: string,
+  relationshipIdInput: unknown
+): Promise<Readonly<JsonRecord>> {
+  const athleteUserId = cleanString(athleteUserIdInput);
+  const relationshipId = cleanString(relationshipIdInput);
+
+  if (!athleteUserId || !relationshipId) {
+    throw new RelationshipInvitationError("relationship_identity_required");
+  }
+
+  const current = await relationshipRecordById(relationshipId);
+
+  if (
+    !current ||
+    cleanString(current.athlete_user_id) !== athleteUserId ||
+    current.relationship_state !== "accepted"
+  ) {
+    throw new RelationshipInvitationError("relationship_not_active", 404);
+  }
+
+  const timestamp = new Date().toISOString();
+
+  return writeRelationshipTransition({
+    relationship_id: relationshipId,
+    coach_user_id: cleanString(current.coach_user_id),
+    athlete_user_id: athleteUserId,
+    relationship_state: "revoked",
+    created_at_iso8601: cleanString(current.created_at_iso8601) || timestamp,
+    updated_at_iso8601: timestamp,
+    accepted_at_iso8601: cleanString(current.accepted_at_iso8601) || null,
+    revoked_at_iso8601: timestamp
   });
 }

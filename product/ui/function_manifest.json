@@ -914,7 +914,7 @@
       "area_id": "relationships",
       "title": "Coach–athlete relationships",
       "slice_id": "FULL-UI-05",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "relationship_invite_create",
@@ -945,17 +945,19 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_18_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -988,18 +990,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/coach-workspace/relationship-invitations/:relationship_id/decline"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_25_relationship_lifecycle_surface.test.mjs",
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1008,18 +1012,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/sessions/beta-coach-relationship"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_04a_coach_athlete_directory.test.mjs",
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1028,18 +1034,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/sessions/beta-coach-relationship"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_04a_coach_athlete_directory.test.mjs",
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1048,18 +1056,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/coach-workspace/relationships"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_04a_coach_athlete_directory.test.mjs",
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1073,15 +1083,15 @@
             "/coach-workspace/relationships"
           ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
+          "direct_test": "test/full_ui_04a_coach_athlete_directory.test.mjs",
           "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1090,18 +1100,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": "coach_athlete_detail",
-          "api_routes": [],
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/coach-workspace/relationships"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_04a_coach_athlete_directory.test.mjs",
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1110,18 +1122,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/coach-workspace/relationships"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_04a_coach_athlete_directory.test.mjs",
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -1147,7 +1161,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_coach_programme_workspace.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1163,7 +1177,8 @@
           ],
           "route_id": "coach_overview",
           "api_routes": [
-            "/coach-workspace/relationships"
+            "/coach-workspace/relationships",
+            "/coach-workspace/athletes"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -1171,10 +1186,10 @@
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1183,18 +1198,21 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "coach_overview",
+          "api_routes": [
+            "/coach-workspace/athletes",
+            "/coach-workspace/assignments"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1209,12 +1227,12 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1223,18 +1241,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "coach_overview",
+          "api_routes": [
+            "/sessions/beta-coach-artefacts"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1243,18 +1263,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "coach_overview",
+          "api_routes": [
+            "/sessions/beta-coach-artefacts"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1271,10 +1293,10 @@
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
           "integration_test": null,
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -1283,7 +1305,7 @@
       "area_id": "athlete_directory",
       "title": "Athlete directory and athlete profile",
       "slice_id": "FULL-UI-07",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "athlete_search_filter",
@@ -1299,7 +1321,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1322,7 +1344,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_coach_programme_workspace.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1344,7 +1366,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_coach_programme_workspace.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1410,7 +1432,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1432,7 +1454,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1454,7 +1476,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1476,7 +1498,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1498,7 +1520,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1520,7 +1542,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -1534,18 +1556,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/coach-workspace/relationships/:relationship_id/end"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_25_relationship_lifecycle_surface.test.mjs",
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1554,18 +1578,20 @@
           "actors": [
             "athlete"
           ],
-          "route_id": null,
-          "api_routes": [],
-          "persistence": "not_implemented",
-          "state": "missing",
+          "route_id": "shared_account",
+          "api_routes": [
+            "/coach-workspace/relationships/mine"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/full_ui_25_relationship_lifecycle_surface.test.mjs",
+          "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -1826,7 +1852,7 @@
       "area_id": "events",
       "title": "Standalone events",
       "slice_id": "FULL-UI-09",
-      "state": "partial",
+      "state": "implemented",
       "functions": [
         {
           "function_id": "events_section",
@@ -1886,7 +1912,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09c_event_lifecycle.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1905,15 +1931,15 @@
             "/coach-workspace/events"
           ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_route_map.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -1930,7 +1956,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09c_event_lifecycle.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1953,7 +1979,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09c_event_lifecycle.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1973,7 +1999,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_event_workspace_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1993,7 +2019,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2010,15 +2036,15 @@
           "route_id": "coach_event_detail",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -2030,15 +2056,15 @@
           "route_id": "coach_event_detail",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -2052,15 +2078,15 @@
             "/coach-workspace/athlete-event-links"
           ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_event_workspace_surface.test.mjs",
           "integration_test": "test/beta19_coach_event_assignment.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -2069,18 +2095,18 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_event_detail",
           "api_routes": [],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         },
         {
@@ -2089,18 +2115,20 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "coach_events",
+          "api_routes": [
+            "/coach-workspace/events"
+          ],
           "persistence": "server_product_records",
-          "state": "partial",
+          "state": "implemented",
           "governing_boundary": null,
-          "direct_test": null,
-          "integration_test": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
-            "loading": "incomplete",
-            "empty": "incomplete",
-            "error": "incomplete",
-            "recovery": "incomplete"
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -2125,7 +2153,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -2139,13 +2167,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_programmes",
           "api_routes": [],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -2189,7 +2217,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_builder_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2209,7 +2237,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -2229,7 +2257,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -2273,7 +2301,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_builder_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2287,13 +2315,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_programme_detail",
           "api_routes": [],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -2307,13 +2335,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_programme_detail",
           "api_routes": [],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -2333,7 +2361,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_builder_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2353,7 +2381,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_12c_event_calendar_binding_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -2381,7 +2409,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2401,7 +2429,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2421,7 +2449,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2441,7 +2469,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2461,7 +2489,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2481,7 +2509,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2501,7 +2529,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2521,7 +2549,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_builder_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2543,7 +2571,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_builder_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2563,7 +2591,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2583,7 +2611,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2603,7 +2631,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_prescription_modes.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2623,7 +2651,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_prescription_modes.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2643,7 +2671,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2663,7 +2691,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2683,7 +2711,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2697,9 +2725,9 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_programme_detail",
           "api_routes": [],
-          "persistence": "server_authoritative_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
@@ -2717,9 +2745,9 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_programme_detail",
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
@@ -2737,9 +2765,9 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_programme_detail",
           "api_routes": [],
-          "persistence": "server_authoritative_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
@@ -2757,9 +2785,9 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_programme_detail",
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
@@ -2837,7 +2865,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_12c_event_calendar_binding_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2857,7 +2885,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_12c_event_calendar_binding_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2877,7 +2905,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_12c_event_calendar_binding_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2897,7 +2925,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_12c_event_calendar_binding_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2917,7 +2945,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_12c_event_calendar_binding_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2937,7 +2965,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_12c_event_calendar_binding_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2957,7 +2985,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_12c_event_calendar_binding_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2977,7 +3005,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_event_programme_compiler_surface.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_12c_event_calendar_binding_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3089,7 +3117,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_01_function_manifest.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3163,13 +3191,15 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-assignment/:assignment_id/replace"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -3183,13 +3213,15 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
-          "api_routes": [],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/coach-workspace/athlete-assignment/:assignment_id/cancel"
+          ],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -3203,13 +3235,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_athlete_detail",
           "api_routes": [],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -3223,13 +3255,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_athlete_detail",
           "api_routes": [],
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -3243,13 +3275,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_athlete_detail",
           "api_routes": [],
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_25_programme_assignment_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -3613,7 +3645,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/s_v1_37_split_return_flow.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/v0_compile_created_session_block_linkage_readback_parity.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3633,7 +3665,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/s_v1_37_split_return_flow.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/v0_compile_created_session_block_linkage_readback_parity.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3653,7 +3685,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/s_v1_37_split_return_flow.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/v0_compile_created_session_block_linkage_readback_parity.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3673,7 +3705,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/s_v1_37_split_return_flow.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/v0_compile_created_session_block_linkage_readback_parity.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -4040,7 +4072,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -4054,13 +4086,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_review",
           "api_routes": [],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -4114,13 +4146,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_review",
           "api_routes": [],
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -4140,7 +4172,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -4176,13 +4208,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_review",
           "api_routes": [],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -4196,13 +4228,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_review",
           "api_routes": [],
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -4256,13 +4288,13 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_review",
           "api_routes": [],
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
-          "integration_test": null,
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
           "coverage": {
             "loading": "incomplete",
             "empty": "incomplete",
@@ -4856,7 +4888,9 @@
             "coach"
           ],
           "route_id": null,
-          "api_routes": [],
+          "api_routes": [
+            "/account/support/reports"
+          ],
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
@@ -5139,7 +5173,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5160,7 +5194,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5181,7 +5215,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5202,7 +5236,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5223,7 +5257,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5244,7 +5278,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5265,7 +5299,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5307,7 +5341,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5328,7 +5362,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5349,7 +5383,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5370,7 +5404,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5391,7 +5425,7 @@
           ],
           "route_id": null,
           "api_routes": [],
-          "persistence": "server_product_records",
+          "persistence": "navigation_cache",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_22_quality_closure_surface.test.mjs",
@@ -5472,7 +5506,7 @@
   "delivery_slices": [
     {
       "slice_id": "FULL-UI-01",
-      "state": "in_progress"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-02",
@@ -5480,95 +5514,95 @@
     },
     {
       "slice_id": "FULL-UI-03",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-04",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-05",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-06",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-07",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-08",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-09",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-10",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-11",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-12",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-13",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-14",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-15",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-16",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-17",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-18",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-19",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-20",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-21",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-22",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-23",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-24",
-      "state": "planned"
+      "state": "implemented"
     },
     {
       "slice_id": "FULL-UI-25",
-      "state": "planned"
+      "state": "implemented"
     }
   ],
   "prohibited_capabilities": [
@@ -5884,6 +5918,24 @@
     {
       "method": "POST",
       "path": "/coach-workspace/relationship-invitations/:relationship_id/accept",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/relationship-invitations/:relationship_id/decline",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/relationships/mine",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/relationships/:relationship_id/end",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
     },

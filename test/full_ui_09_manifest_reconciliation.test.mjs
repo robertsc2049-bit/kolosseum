@@ -922,22 +922,48 @@ test(
 
     assert.equal(targets.length, 33);
 
+    // FULL-UI-25 corrected the persistence classification of these two
+    // client-only builder behaviours from a stale "server_authoritative_records"
+    // bookkeeping value to "navigation_cache" (they hold no server record of
+    // their own - matching the sibling quality_* client-only functions).
+    const RECLASSIFIED_NAVIGATION_CACHE = new Set([
+      "builder_unsaved_warning",
+      "builder_validation_links"
+    ]);
+
     for (const target of targets) {
       const item = byId.get(target.id);
 
       assert.ok(item, target.id);
       assert.equal(item.area_id, target.area, target.id);
       assert.equal(item.entry.state, "implemented", target.id);
-      assert.equal(
-        item.entry.persistence,
-        "server_authoritative_records",
-        target.id
-      );
-      assert.equal(
-        item.entry.direct_test,
-        "test/full_ui_09_manifest_reconciliation.test.mjs",
-        target.id
-      );
+
+      if (RECLASSIFIED_NAVIGATION_CACHE.has(target.id)) {
+        assert.equal(item.entry.persistence, "navigation_cache", target.id);
+      }
+      else {
+        assert.equal(
+          item.entry.persistence,
+          "server_authoritative_records",
+          target.id
+        );
+      }
+
+      // identity_account owns its own, more specific direct_test
+      // (test/full_ui_02_account_ui.test.mjs, enforced by that area's own
+      // "FULL-UI-02C identity manifest is implemented and persistently
+      // proven" test) - this generic cross-area reconciliation pass defers
+      // to it rather than re-stamping a competing pointer.
+      if (target.area === "identity_account") {
+        assert.ok(item.entry.direct_test, target.id);
+      }
+      else {
+        assert.equal(
+          item.entry.direct_test,
+          "test/full_ui_09_manifest_reconciliation.test.mjs",
+          target.id
+        );
+      }
 
       for (const rule of target.source) {
         verifyRule(rule, target.id);
@@ -951,20 +977,27 @@ test(
 );
 
 test(
-  "FULL-UI-09 leaves unproved relationship lifecycle functions unresolved",
+  "FULL-UI-09/24/25 resolved the full relationship lifecycle backlog - none of it remains deliberately unresolved",
   () => {
-    // relationship_invite_create was resolved by FULL-UI-24's lawful,
-    // non-opaque-ID invite-by-email + athlete-accept flow and is deliberately
-    // no longer pinned here. relationship_invite_receive names a different,
-    // still-unbuilt direction (an athlete inviting a coach), and remains
-    // unresolved along with the rest of this set.
-    const unresolved = new Set([
+    // Originally pinned "missing" by FULL-UI-09 pending later slices:
+    // relationship_invite_create -> resolved by FULL-UI-24 (invite by email).
+    // relationship_decline, athlete_relationship_revoke -> resolved by
+    // FULL-UI-25 (athlete decline; athlete-initiated end-relationship).
+    // relationship_invite_receive, relationship_cancel, relationship_revoke,
+    // relationship_expiry -> resolved by FULL-UI-25 as bookkeeping fixes:
+    // the coach-side "Revoke relationship"/"Cancel invitation" controls,
+    // the expiry-aware relationship listing, and the coach's own
+    // relationship_accepted/relationship_declined notifications were already
+    // real and working, just never reflected in the manifest.
+    const resolved = new Set([
+      "relationship_invite_create",
       "relationship_invite_receive",
       "relationship_decline",
       "relationship_cancel",
       "relationship_revoke",
       "relationship_expiry",
-      "athlete_relationship_revoke"
+      "athlete_relationship_revoke",
+      "athlete_archive_inactive"
     ]);
 
     const byId = new Map(
@@ -973,15 +1006,12 @@ test(
         .map((entry) => [entry.function_id, entry])
     );
 
-    for (const functionId of unresolved) {
+    for (const functionId of resolved) {
       const entry = byId.get(functionId);
       assert.ok(entry, functionId);
-      assert.equal(entry.state, "missing", functionId);
-      assert.equal(
-        entry.persistence,
-        "not_implemented",
-        functionId
-      );
+      assert.equal(entry.state, "implemented", functionId);
+      assert.ok(entry.direct_test, functionId);
+      assert.notEqual(entry.persistence, "not_implemented", functionId);
     }
   }
 );
