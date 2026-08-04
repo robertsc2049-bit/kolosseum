@@ -16,6 +16,7 @@ import crypto from "node:crypto";
 import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
+import { assertOrgSeatCapacity } from "./org_billing_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -183,6 +184,7 @@ export type OrganisationRow = Readonly<{
   owner_user_id: string;
   org_name: string;
   org_state: "active" | "suspended" | "closed";
+  seat_limit: number | null;
   created_at_iso8601: string;
 }>;
 
@@ -196,8 +198,17 @@ function mapOrganisationRow(value: unknown): OrganisationRow | null {
     owner_user_id: cleanString(value.owner_user_id),
     org_name: cleanString(value.org_name),
     org_state: state,
+    seat_limit: Number.isInteger(value.seat_limit) ? (value.seat_limit as number) : null,
     created_at_iso8601: value.created_at instanceof Date ? value.created_at.toISOString() : ""
   });
+}
+
+// Part B.3 - a new org is seeded with the same controlled-launch default
+// used for single-coach billing, if configured. Owners change it afterwards
+// only through the audited seat_plan_changed action in org_billing_service.ts.
+function defaultSeatLimitFromEnv(): number | null {
+  const raw = Number(process.env.KOLOSSEUM_CONTROLLED_LAUNCH_SEAT_LIMIT);
+  return Number.isInteger(raw) && raw > 0 ? raw : null;
 }
 
 export async function createOrganisation(
@@ -216,11 +227,11 @@ export async function createOrganisation(
     const orgId = randomId("org");
     const inserted = await client.query(
       `
-      INSERT INTO product_organisations (org_id, owner_user_id, org_name)
-      VALUES ($1, $2, $3)
+      INSERT INTO product_organisations (org_id, owner_user_id, org_name, seat_limit)
+      VALUES ($1, $2, $3, $4)
       RETURNING *
       `,
-      [orgId, ownerUserId, cleanOrgName]
+      [orgId, ownerUserId, cleanOrgName, defaultSeatLimitFromEnv()]
     );
 
     await writeAuditRecord(client, {
@@ -343,12 +354,13 @@ export async function inviteCoachToOrganisation(
   try {
     await client.query("BEGIN");
 
-    await requireOrganisationOwnedBy(client, orgId, ownerUserId);
+    const organisation = await requireOrganisationOwnedBy(client, orgId, ownerUserId);
     const coach = await findActiveCoachByEmail(client, coachEmail);
 
     // A repeated correlation_id from the same owner replays the original
-    // invite rather than re-running the "already a member" guard against
-    // the state that invite itself already created.
+    // invite rather than re-running the "already a member" guard (and the
+    // seat-capacity check) against the state that invite itself already
+    // created.
     const existingAudit = await findExistingAudit(client, ownerUserId, correlationId);
 
     if (!existingAudit) {
@@ -362,6 +374,8 @@ export async function inviteCoachToOrganisation(
           throw new OrgRosterError("org_roster_coach_already_member", 409);
         }
       }
+
+      await assertOrgSeatCapacity(client, organisation, 1);
     }
 
     await withIdempotentAudit(
