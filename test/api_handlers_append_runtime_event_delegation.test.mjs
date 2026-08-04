@@ -45,8 +45,14 @@ test("sessions.handlers source contract: appendRuntimeEvent extracts raw body ev
 
   assert.match(
     src,
-    /const\s+result\s*=\s*await\s+appendRuntimeEventMutation\(session_id,\s*raw\);/,
-    "expected appendRuntimeEvent to delegate to appendRuntimeEventMutation(session_id, raw)"
+    /const\s+clientRequestId\s*=\s*extractClientRequestIdFromBody\(req\.body\);/,
+    "expected appendRuntimeEvent to extract the idempotency key via extractClientRequestIdFromBody"
+  );
+
+  assert.match(
+    src,
+    /const\s+result\s*=\s*await\s+appendRuntimeEventMutation\(session_id,\s*raw,\s*clientRequestId\);/,
+    "expected appendRuntimeEvent to delegate to appendRuntimeEventMutation(session_id, raw, clientRequestId)"
   );
 
   assert.match(
@@ -57,7 +63,7 @@ test("sessions.handlers source contract: appendRuntimeEvent extracts raw body ev
 
   assert.match(
     src,
-    /return\s+res\.status\(201\)\.json\(\s*\{\s*\.\.\.statePayload\s*,\s*ok:\s*result\?\.ok\s*===\s*true\s*,\s*session_id:\s*result\?\.session_id\s*\?\?\s*session_id\s*,\s*seq:\s*result\?\.seq\s*\?\?\s*null\s*\}\s*\);/s,
-    "expected appendRuntimeEvent to preserve state-plus-ack 201 JSON response contract"
+    /return\s+res\.status\(201\)\.json\(\s*\{\s*\.\.\.statePayload\s*,\s*ok:\s*result\?\.ok\s*===\s*true\s*,\s*session_id:\s*result\?\.session_id\s*\?\?\s*session_id\s*,\s*seq:\s*result\?\.seq\s*\?\?\s*null\s*,\s*replayed:\s*result\?\.replayed\s*===\s*true\s*\}\s*\);/s,
+    "expected appendRuntimeEvent to preserve state-plus-ack 201 JSON response contract including the idempotent-replay flag"
   );
 });

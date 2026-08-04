@@ -75,6 +75,9 @@ mock.module(distSessionStateWriteUrl, {
     extractRawEventFromBody(body) {
       return body;
     },
+    extractClientRequestIdFromBody(body) {
+      return body?.client_request_id ?? null;
+    },
     async appendRuntimeEventMutation(sessionId, raw) {
       return { session_id: sessionId, accepted: true, event: raw };
     }

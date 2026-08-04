@@ -104,6 +104,9 @@ function installCommonMocks({ normalizedRaw, mutationResult, extractError, mutat
       },
       async startSessionMutation() {
         throw new Error("not used in this test");
+      },
+      extractClientRequestIdFromBody(body) {
+        return body?.client_request_id ?? null;
       }
     }
   });
@@ -178,7 +181,8 @@ test("appendRuntimeEvent executed path: returns 201 with delegated JSON payload 
     session_id: "sess_123",
     trace: {},
     ok: true,
-    seq: 7
+    seq: 7,
+    replayed: false
   });
 });
 

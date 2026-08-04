@@ -1,0 +1,94 @@
+{
+  "schema_version": "kolosseum.full_ui_25.relationship_lifecycle.v1.0.0",
+  "slice_id": "FULL-UI-25",
+  "recorded_at_iso8601": "2026-08-04T09:55:50.916Z",
+  "nonce": "aa569e5e73d54560",
+  "steps": [
+    {
+      "id": "relationship_decline",
+      "label": "Athlete declines a pending invitation",
+      "result": "PASS",
+      "detail": {
+        "relationship_id": "relationship_9847d92448624d488a495f1cc83fd9c6"
+      }
+    },
+    {
+      "id": "athlete_relationship_revoke",
+      "label": "Athlete ends an accepted relationship from their own profile",
+      "result": "PASS",
+      "detail": {
+        "relationship_id": "relationship_32ea040337c24912866c7456c6150152"
+      }
+    },
+    {
+      "id": "athlete_archive_inactive",
+      "label": "A relationship the athlete ended is preserved and visible as past history, not deleted",
+      "result": "PASS",
+      "detail": {
+        "relationship_id": "relationship_32ea040337c24912866c7456c6150152"
+      }
+    },
+    {
+      "id": "relationship_revoke",
+      "label": "Coach revokes an accepted relationship",
+      "result": "PASS",
+      "detail": {
+        "relationship_id": "relationship_3dde534514ce45219b805aefe915d95c"
+      }
+    },
+    {
+      "id": "relationship_cancel",
+      "label": "Coach cancels a pending invitation",
+      "result": "PASS",
+      "detail": {
+        "relationship_id": "relationship_283be03eaaee4faf997bedb4f6a5182b"
+      }
+    },
+    {
+      "id": "relationship_expiry",
+      "label": "Coach sees an expired relationship as a distinct, correctly labelled state",
+      "result": "PASS",
+      "detail": {
+        "athlete_user_id": "athlete_a85a68a781c841dd859b19fba0a9c249"
+      }
+    },
+    {
+      "id": "relationship_audit",
+      "label": "Coach sees relationship detail and audit facts (ids and timestamps), not just a name",
+      "result": "PASS",
+      "detail": {
+        "relationship_id": "relationship_3dde534514ce45219b805aefe915d95c"
+      }
+    },
+    {
+      "id": "relationship_history_preserved",
+      "label": "Every closed relationship (declined, ended, revoked, cancelled, expired) remains visible through the coach's relationship list - nothing is deleted",
+      "result": "PASS",
+      "detail": {
+        "preserved_count": 5
+      }
+    },
+    {
+      "id": "relationship_invite_receive",
+      "label": "Coach receives the athlete's response (accepted/declined) to an invitation",
+      "result": "PASS",
+      "detail": {
+        "notification_types": [
+          "relationship_accepted",
+          "relationship_declined"
+        ]
+      }
+    },
+    {
+      "id": "restart_fresh_process_reconstruction",
+      "label": "A fresh operating-system process reconstructs the same relationship-lifecycle state",
+      "result": "PASS",
+      "detail": {
+        "first_pid": 27096,
+        "restarted_pid": 28932
+      }
+    }
+  ],
+  "status": "PASS",
+  "coach_user_id": "coach_5105cdb137b944d7891d5051088a419a"
+}

@@ -8,12 +8,15 @@ import {
   createAthleteProfileAssignment,
   createCoachEventHandler,
   createCoachRelationshipInvitationHandler,
+  declineAthleteRelationshipInvitationHandler,
+  endAthleteRelationshipHandler,
   getAthleteEventLinks,
   getAthleteStrengthProfile,
   getCoachAssignments,
   getCoachAthleteRelationships,
   getCoachEvents,
   getConnectedCoachAthletes,
+  listAthleteOwnRelationshipsHandler,
   listAthleteRelationshipInvitationsHandler,
   preflightAthleteStrengthProfile,
   previewEventProgrammeCalendar,
@@ -149,4 +152,19 @@ coachWorkspaceRouter.get(
 coachWorkspaceRouter.post(
   "/relationship-invitations/:relationship_id/accept",
   asyncHandler(acceptAthleteRelationshipInvitationHandler)
+);
+coachWorkspaceRouter.post(
+  "/relationship-invitations/:relationship_id/decline",
+  asyncHandler(declineAthleteRelationshipInvitationHandler)
+);
+
+// FULL-UI-25 athlete-initiated relationship lifecycle: reading their own
+// current+past relationships, and ending an accepted one from their profile.
+coachWorkspaceRouter.get(
+  "/relationships/mine",
+  asyncHandler(listAthleteOwnRelationshipsHandler)
+);
+coachWorkspaceRouter.post(
+  "/relationships/:relationship_id/end",
+  asyncHandler(endAthleteRelationshipHandler)
 );

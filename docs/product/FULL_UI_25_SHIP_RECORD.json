@@ -1,0 +1,108 @@
+{
+  "record_type": "full_ui_25_final_acceptance_ship_record",
+  "source": "FULL-UI-25 / GitHub issues #798 and #799",
+  "git": {
+    "main_base_sha": "0908d962ccb520e6fa42fe9d3fe85b88a93003cd",
+    "candidate_branch": "automation/full-ui-25-final-acceptance",
+    "candidate_sha_pre_ship_record_commit": "1249346acb76c1635afe842cf7b05b1169d40c60",
+    "note": "candidate_sha_pre_ship_record_commit is the exact tree this record validates. This file's own commit lands on top of it and is the final commit merged."
+  },
+  "inventory_totals": {
+    "product_areas": 21,
+    "functions_total": 237,
+    "functions_implemented": 237,
+    "functions_partial": 0,
+    "functions_missing": 0,
+    "functions_prohibited": 0,
+    "functions_with_direct_test": 237,
+    "functions_with_persistent_integration_test": 219,
+    "functions_lawfully_excluded_from_persistent_proof": 18,
+    "delivery_slices_total": 25,
+    "delivery_slices_implemented": 25
+  },
+  "route_totals": {
+    "spa_routes": 16,
+    "api_route_catalog_entries": 97
+  },
+  "known_prohibited_capabilities": [
+    { "capability_id": "organisation_runtime", "governing_boundary": "Actors remain individual athlete and coach only." },
+    { "capability_id": "resistance_rpe", "governing_boundary": "Resistance training remains percentage, fixed-load or bodyweight based." },
+    { "capability_id": "readiness_inference", "governing_boundary": "Product output remains factual and deterministic." },
+    { "capability_id": "engine_override", "governing_boundary": "Engine legality and deterministic output remain independent of product state." },
+    { "capability_id": "diagnostic_dependency", "governing_boundary": "The product UI must use public application routes only." }
+  ],
+  "validation_results": {
+    "full_ui_completion_guard": "PASS",
+    "full_ui_gap_report_drift_check": "PASS",
+    "full_ui_25_final_acceptance_gate_test": "PASS (18/18, test/full_ui_25_final_acceptance_gate.test.mjs)",
+    "full_ui_test_suite_with_database": "PASS (241/241, node --test test/full_ui_*.test.mjs, --test-concurrency=1)",
+    "full_ui_23_coach_athlete_journey": "PASS",
+    "full_ui_24_athlete_self_service_journey": "PASS",
+    "full_ui_25_relationship_lifecycle_persistent": "PASS",
+    "full_ui_25_programme_assignment_lifecycle_persistent": "PASS",
+    "typescript_build": "PASS (npm run build)",
+    "engine_shim_check": "PASS",
+    "schema_replay": "PASS (node ci/scripts/schema_guard.mjs)",
+    "git_diff_check": "PASS (no whitespace errors)",
+    "full_npm_run_ci": "PASS (exit code 0 - lint:fast, test:unit, build:fast, e2e:golden all green)"
+  },
+  "pre_existing_defects_found_and_fixed_during_this_slice": [
+    {
+      "defect": "fast-uri and js-yaml high-severity dependency advisories",
+      "scope": "unrelated to UI completion; blocked the production dependency audit CI gate",
+      "fix": "npm audit fix (patch-level lockfile bump only, no direct dependency range change)",
+      "commits": ["d858d55", "6b90de7"]
+    },
+    {
+      "defect": "session_state_write_service.ts's deriveExecutionStatus export (added in FULL-UI-23) was never added to a contract test's mock.module stub",
+      "scope": "reproducible on unmodified origin/main; unrelated to FULL-UI-25's own changes",
+      "fix": "added the missing stub, matching the real pure function",
+      "commits": ["e56e84c"]
+    },
+    {
+      "defect": "13 test files (mostly plan_session/start_session/session-handler contract wrappers) had mock.module namedExports lists that fell behind the real modules' exports over multiple prior slices; one assertion also predated the idempotent-replay feature's replayed response field",
+      "scope": "reproducible on unmodified origin/main under the exact NODE_OPTIONS + invocation style ci/scripts/run_test_ci_from_index.mjs uses; unrelated to FULL-UI-25's own changes",
+      "fix": "completed each stub against the real dist import graph; updated the stale regex assertion",
+      "commits": ["0b4fceb", "6b95fde"]
+    },
+    {
+      "defect": "BETA-17 CI guard checked sessions.routes.ts/sessions.handlers.ts for the coach-notes route and handler, but that route was deliberately isolated into its own beta17_coach_note_write.routes.ts module in an earlier slice and the guard was never updated",
+      "scope": "pre-existing architectural drift unrelated to FULL-UI-25",
+      "fix": "pointed the guard's route/handler check at the correct module for that one entry only",
+      "commits": ["063fe7e"]
+    },
+    {
+      "defect": "BETA-28 security manifest snapshot fixture pinned a stale content hash of beta17_coach_managed_service.ts from before the FULL-UI-18 notifications commit added the declined relationship state",
+      "scope": "pre-existing drift from an earlier, already-reviewed feature commit; unrelated to FULL-UI-25",
+      "fix": "regenerated the fixture via the same buildBeta28AuthRlsSecurityManifest function the test itself uses",
+      "commits": ["078f63b"]
+    },
+    {
+      "defect": "copy/beta_copy_registry.json never gained BETA17_COPY_RELATIONSHIP_DECLINED (added by the same FULL-UI-18 commit) in its canonical union, its own surface's copy_ids list, or its pinned content/mirror checksums",
+      "scope": "same root cause as the BETA-28 fixture drift; pre-existing, unrelated to FULL-UI-25",
+      "fix": "reconciled all three against the current, already-reviewed copy files",
+      "commits": ["f1ad600", "1249346"]
+    }
+  ],
+  "reconciliation_audit": {
+    "no_silent_function_removal": "confirmed - inventory floor enforced at 237, no duplicate function_id",
+    "no_missing_function": "confirmed - 0 missing",
+    "no_partial_function": "confirmed - 0 partial",
+    "every_implemented_function_has_route_or_discoverable_action": "confirmed - route_id or api_routes present; cross-cutting quality/no-override functions documented as applying to every route rather than owning one",
+    "every_implemented_function_has_direct_test": "confirmed - 237/237",
+    "every_persisted_function_has_persistent_integration_proof": "confirmed - 219/219 persisted functions; 18 client-only (navigation_cache) functions lawfully excluded",
+    "every_route_has_correct_actor_ownership": "confirmed - every route declares a non-empty actors array drawn from {athlete, coach, founder_admin, shared}",
+    "every_implemented_api_route_has_manifest_ownership": "confirmed - every api_route_catalog entry carries a non-empty tracked_by_area",
+    "every_coverage_field_complete_or_lawfully_declared": "confirmed - every coverage dimension is one of covered_or_declared, incomplete, not_applicable; none blank or fabricated",
+    "every_prohibited_function_names_a_governing_boundary": "confirmed - 0 prohibited functions currently declared; the 5 top-level prohibited_capabilities each carry a real governing_boundary and no function references an undeclared boundary",
+    "no_backend_only_completion": "confirmed - no implemented function carries persistence direct_api_only",
+    "no_localstorage_only_completion": "confirmed - no implemented function carries persistence localStorage_only",
+    "no_diagnostic_page_dependency": "confirmed - no implemented function carries persistence diagnostic_ui_only",
+    "no_copied_id_workflow": "confirmed - FULL-UI-24/25 relationship flows use coach-supplied email and server-issued relationship_id only, never a client-copied internal user_id",
+    "no_raw_database_edit_workflow": "confirmed - no implemented function carries persistence database_edit_only; all proofs drive real public HTTP routes",
+    "delivery_slices_canonical_vocabulary": "confirmed - every delivery_slices[].state is one of {planned, in_progress, implemented} and matches its mapped product area's actual state (test/full_ui_25_final_acceptance_gate.test.mjs)"
+  },
+  "unresolved_items_count": 0,
+  "production_deployment_or_release_tag_created": false,
+  "final_result": "PASS"
+}

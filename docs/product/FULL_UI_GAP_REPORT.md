@@ -7,9 +7,9 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 221
-- partial: 9
-- missing: 7
+- implemented: 237
+- partial: 0
+- missing: 0
 - prohibited: 0
 
 ## Product areas
@@ -81,28 +81,22 @@ Implemented: 8 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 Slice: FULL-UI-05
 
-Area state: partial
+Area state: implemented
 
-Implemented: 2 · Partial: 3 · Missing: 5 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `relationship_invite_create` — Create coach invitation
-- `relationship_accept` — Accept relationship
-
-#### partial
-
-- `relationship_lists` — Display pending and accepted relationships
-- `relationship_audit` — Display relationship detail and audit facts
-- `relationship_history_preserved` — Preserve historical records after relationship closure
-
-#### missing
-
 - `relationship_invite_receive` — Receive athlete invitation
+- `relationship_accept` — Accept relationship
 - `relationship_decline` — Decline invitation
 - `relationship_cancel` — Cancel pending invitation
 - `relationship_revoke` — Revoke accepted relationship
 - `relationship_expiry` — Display expired relationship
+- `relationship_lists` — Display pending and accepted relationships
+- `relationship_audit` — Display relationship detail and audit facts
+- `relationship_history_preserved` — Preserve historical records after relationship closure
 
 ### Coach overview
 
@@ -126,9 +120,9 @@ Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 Slice: FULL-UI-07
 
-Area state: partial
+Area state: implemented
 
-Implemented: 11 · Partial: 0 · Missing: 2 · Prohibited: 0
+Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -143,9 +137,6 @@ Implemented: 11 · Partial: 0 · Missing: 2 · Prohibited: 0
 - `athlete_bodyweight_history` — Display bodyweight history
 - `athlete_notes_list` — Display coach notes and visibility
 - `athlete_session_history` — Display athlete session history
-
-#### missing
-
 - `athlete_relationship_revoke` — Revoke relationship from profile
 - `athlete_archive_inactive` — Archive inactive relationship without deleting history
 
@@ -175,23 +166,20 @@ Implemented: 11 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 Slice: FULL-UI-09
 
-Area state: partial
+Area state: implemented
 
-Implemented: 7 · Partial: 6 · Missing: 0 · Prohibited: 0
+Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `events_section` — Open separate Events section
 - `event_create_compile` — Create and compile coach-owned event
 - `event_search_filter` — Search and filter event library
+- `event_detail` — Open event detail
 - `event_version_edit` — Create immutable future event version
 - `event_cancel_archive` — Cancel or archive event
 - `event_countdown` — Display factual event countdown
 - `event_metadata` — Display location, timezone, notes, activity and type
-
-#### partial
-
-- `event_detail` — Open event detail
 - `event_linked_athletes` — Display linked-athlete list
 - `event_linked_programme` — Display linked programme per athlete
 - `event_link_unlink` — Link and unlink athlete
@@ -496,129 +484,35 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 ## Functions without persistent integration proof
 
-- `relationship_audit` — Display relationship detail and audit facts
-- `relationship_history_preserved` — Preserve historical records after relationship closure
-- `overview_factual_counts` — Display factual coach counts
-- `overview_assignment_queue` — Display assignments requiring action
-- `overview_upcoming_events` — Display upcoming events
-- `overview_open_sessions` — Display open sessions
-- `overview_completed_since_review` — Display sessions completed since review
-- `overview_direct_links` — Link directly to athlete, event, programme, assignment and review records
-- `athlete_search_filter` — Search and filter connected athletes
-- `athlete_relationship_state` — Display relationship state
-- `athlete_identity_activity` — Display athlete identity and activity
-- `athlete_assignment_history` — Display assignment history
-- `athlete_event_history` — Display event-link history
-- `athlete_strength_history` — Display strength-reference history
-- `athlete_bodyweight_history` — Display bodyweight history
-- `athlete_notes_list` — Display coach notes and visibility
-- `athlete_session_history` — Display athlete session history
-- `event_search_filter` — Search and filter event library
-- `event_detail` — Open event detail
-- `event_version_edit` — Create immutable future event version
-- `event_cancel_archive` — Cancel or archive event
-- `event_countdown` — Display factual event countdown
-- `event_metadata` — Display location, timezone, notes, activity and type
-- `event_linked_athletes` — Display linked-athlete list
-- `event_linked_programme` — Display linked programme per athlete
-- `event_history_preserved` — Preserve assignment and session history after unlink
-- `event_validation` — Validate conflicts and past dates
-- `programme_states` — Display draft, active, archived and superseded states
-- `programme_search_filter` — Search, filter and sort programmes
-- `programme_duplicate` — Duplicate programme version
-- `programme_detail` — Open programme detail
-- `programme_preview` — Preview complete programme structure
-- `programme_archive` — Archive programme
-- `programme_version_metadata` — Compare factual version metadata
-- `programme_assignment_usage` — Display assignment usage before archive
-- `programme_immutable_active` — Prevent edits to active and archived versions
-- `programme_activation_validation` — Display full activation validation summary
-- `builder_identity` — Edit programme identity and activity
-- `builder_ordered_blocks` — Build ordered blocks
-- `builder_block_type` — Set explicit block type
-- `builder_week_count` — Set weeks per block
-- `builder_block_actions` — Add, remove, duplicate and reorder blocks
-- `builder_week_actions` — Add, remove, duplicate and reorder weeks
-- `builder_session_actions` — Add, remove, duplicate and reorder sessions
-- `builder_exactly_four` — Enforce exactly four exercises
-- `builder_registry_exercises` — Select registry-backed exercises
-- `builder_role` — Set primary or accessory role
-- `builder_sets` — Set planned sets
-- `builder_repetitions` — Set fixed repetitions or range
-- `builder_loading` — Set percentage, fixed load or bodyweight
-- `builder_load_unit` — Set load unit
-- `builder_rest` — Set rest time
-- `builder_summary` — Display deterministic structure summary
-- `builder_unsaved_warning` — Warn about unsaved changes
-- `builder_save_feedback` — Display save state and confirmation
-- `builder_validation_links` — Link validation failures to fields
-- `builder_keyboard_mobile` — Operate builder by keyboard and phone
-- `calendar_start_date` — Set preparation start date
-- `calendar_required_weeks` — Display required weeks
-- `calendar_allocated_weeks` — Display allocated weeks
-- `calendar_allocation_state` — Display balanced, under or over allocation
-- `calendar_fit_final` — Fit final block
-- `calendar_dates` — Display block and week dates
-- `calendar_partial_week` — Display partial final week
-- `calendar_activation_fail` — Fail activation when unbalanced
-- `assignment_preflight` — Preflight missing strength references
-- `assignment_replace` — Replace assignment
-- `assignment_cancel` — Cancel future assignment
-- `assignment_history` — Display assignment history
-- `assignment_separate_event` — Display event link and assignment separately
-- `assignment_preserve_sessions` — Preserve prior compiled sessions
-- `session_partial` — Record partial completion
-- `session_stop_return` — Stop and return later
-- `session_return_continue` — Continue returned session
-- `session_return_skip` — Finish without remaining work
-- `review_athlete_search` — Select and search athlete
-- `review_open_sessions` — Display open sessions
-- `review_provenance` — Display event, programme and assignment provenance
-- `review_live_status` — Display live read-only status
-- `review_note_list` — Display coach-note list
-- `review_note_visibility` — Display note visibility
-- `review_state` — Store reviewed or unreviewed product state
-- `quality_responsive` — Support phone, tablet and desktop
-- `quality_keyboard` — Support keyboard navigation
-- `quality_focus` — Display visible focus
-- `quality_semantics` — Use semantic labels and headings
-- `quality_announcements` — Announce status and errors
-- `quality_contrast` — Meet colour contrast requirements
-- `quality_reduced_motion` — Respect reduced-motion preference
-- `quality_loading` — Display persistent loading state
-- `quality_duplicate_submit` — Prevent duplicate submissions
-- `quality_route_states` — Display route-level empty, error and unavailable states
-- `quality_unsaved` — Protect unsaved changes
-- `quality_destructive_confirm` — Confirm destructive actions
-- `quality_friendly_errors` — Display user-facing errors rather than raw tokens
+- None
 
 ## Delivery sequence
 
-- FULL-UI-01: in_progress
+- FULL-UI-01: implemented
 - FULL-UI-02: implemented
-- FULL-UI-03: planned
-- FULL-UI-04: planned
-- FULL-UI-05: planned
-- FULL-UI-06: planned
-- FULL-UI-07: planned
-- FULL-UI-08: planned
-- FULL-UI-09: planned
-- FULL-UI-10: planned
-- FULL-UI-11: planned
-- FULL-UI-12: planned
-- FULL-UI-13: planned
-- FULL-UI-14: planned
-- FULL-UI-15: planned
-- FULL-UI-16: planned
-- FULL-UI-17: planned
-- FULL-UI-18: planned
-- FULL-UI-19: planned
-- FULL-UI-20: planned
-- FULL-UI-21: planned
-- FULL-UI-22: planned
-- FULL-UI-23: planned
-- FULL-UI-24: planned
-- FULL-UI-25: planned
+- FULL-UI-03: implemented
+- FULL-UI-04: implemented
+- FULL-UI-05: implemented
+- FULL-UI-06: implemented
+- FULL-UI-07: implemented
+- FULL-UI-08: implemented
+- FULL-UI-09: implemented
+- FULL-UI-10: implemented
+- FULL-UI-11: implemented
+- FULL-UI-12: implemented
+- FULL-UI-13: implemented
+- FULL-UI-14: implemented
+- FULL-UI-15: implemented
+- FULL-UI-16: implemented
+- FULL-UI-17: implemented
+- FULL-UI-18: implemented
+- FULL-UI-19: implemented
+- FULL-UI-20: implemented
+- FULL-UI-21: implemented
+- FULL-UI-22: implemented
+- FULL-UI-23: implemented
+- FULL-UI-24: implemented
+- FULL-UI-25: implemented
 
 ## Prohibited capabilities
 

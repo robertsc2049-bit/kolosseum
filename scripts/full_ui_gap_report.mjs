@@ -57,8 +57,16 @@ function render(manifest) {
     }
   }
 
+  // "Persistent integration proof" is only a lawful requirement for
+  // functions that are actually backed by a persisted server record.
+  // navigation_cache (client-only route/UI state) and not_implemented
+  // (missing) carry no server record to prove restart-survival for.
+  const NON_PERSISTED = new Set(["navigation_cache", "not_implemented"]);
   const withoutIntegration = functions.filter(
-    (item) => item.state !== "missing" && !item.integration_test
+    (item) =>
+      item.state !== "missing" &&
+      !NON_PERSISTED.has(item.persistence) &&
+      !item.integration_test
   );
 
   lines.push("## Functions without persistent integration proof", "");

@@ -51,3 +51,26 @@ Verified totals after remediation:
 - critical: 0.
 
 This refresh does not alter Kolosseum engine law, deterministic output, registry content, sealed artefact bytes, access-policy decisions, runtime scope, or intended user-facing behaviour.
+
+## FULL-UI-25 production dependency audit refresh
+
+Commit subject: fix(deps): resolve fast-uri and js-yaml high-severity advisories
+
+Production dependency audit totals before remediation:
+
+- high: 1;
+- critical: 0;
+- affected audit entries: fast-uri.
+
+package-lock.json was refreshed through:
+
+`npm audit fix --package-lock-only --omit=dev --audit-level=high`
+
+No direct dependency declaration was added to or removed from package.json by the audit repair.
+
+Verified totals after remediation:
+
+- high: 0;
+- critical: 0.
+
+This refresh does not alter Kolosseum engine law, deterministic output, registry content, sealed artefact bytes, access-policy decisions, runtime scope, or intended user-facing behaviour.

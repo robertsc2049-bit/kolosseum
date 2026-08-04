@@ -77,6 +77,7 @@ const DEFAULT_STATE = Object.freeze({
   athleteDetails: {},
   coachCode: "",
   pendingRelationshipInvitations: [],
+  athleteRelationships: [],
   csrfToken: "",
   serverAccount: null,
   accountDetail: null,
@@ -1358,6 +1359,7 @@ function setView(view) {
     refreshPlatformStatus().catch(() => {});
     refreshSupportHistory().catch(() => {});
     refreshPendingRelationshipInvitations().catch(handleError);
+    refreshAthleteRelationships().catch(handleError);
   }
 }
 
@@ -5891,8 +5893,29 @@ function renderCoachDashboard() {
       upcomingEvents.length
     );
 
+  const pendingRelationshipInvitations =
+    (
+      Array.isArray(state.coachRelationships)
+        ? state.coachRelationships
+        : []
+    ).filter(
+      (entry) =>
+        relationshipEffectiveState(entry) === "invited"
+    );
+
+  const pendingRelationshipsSummary = `
+    <p class="dashboard-pending-summary">
+      ${
+        pendingRelationshipInvitations.length
+          ? `${pendingRelationshipInvitations.length} pending athlete invitation${pendingRelationshipInvitations.length === 1 ? "" : "s"} awaiting acceptance.`
+          : "No pending athlete invitations."
+      }
+    </p>
+  `;
+
   elements.coachOverviewAthletes.innerHTML =
-    state.coachAthletes.length
+    pendingRelationshipsSummary +
+    (state.coachAthletes.length
       ? state.coachAthletes
           .slice(0, 6)
           .map(coachAthleteCard)
@@ -5900,7 +5923,7 @@ function renderCoachDashboard() {
       : dashboardEmptyState(
           "No connected athletes",
           "Connect an athlete to begin programme assignment and session review."
-        );
+        ));
 
   elements.coachOverviewAssignments.innerHTML =
     assignmentActions.length
@@ -11366,6 +11389,7 @@ function renderAccount() {
   }
 
   renderPendingRelationshipInvitations();
+  renderAthleteRelationships();
 }
 
 // FULL-UI-24: a coach invites an athlete by email, never by the athlete's
@@ -11409,7 +11433,10 @@ function renderPendingRelationshipInvitations() {
             <strong>${escapeHtml(invitation.coach_display_name)}</strong>
             <p class="muted small">${escapeHtml(invitation.coach_email ?? "")}</p>
           </div>
-          <button type="button" class="button primary accept-relationship-invitation-button">Accept</button>
+          <div class="inline-controls">
+            <button type="button" class="button secondary decline-relationship-invitation-button">Decline</button>
+            <button type="button" class="button primary accept-relationship-invitation-button">Accept</button>
+          </div>
         </article>
       `).join("")}
     </div>
@@ -11421,6 +11448,16 @@ function renderPendingRelationshipInvitations() {
       guardedAction(button, async () => {
         const relationshipId = button.closest("[data-relationship-id]")?.dataset.relationshipId;
         await acceptRelationshipInvitation(relationshipId);
+      })
+    );
+  }
+
+  for (const button of panel.querySelectorAll(".decline-relationship-invitation-button")) {
+    button.addEventListener(
+      "click",
+      guardedAction(button, async () => {
+        const relationshipId = button.closest("[data-relationship-id]")?.dataset.relationshipId;
+        await declineRelationshipInvitation(relationshipId);
       })
     );
   }
@@ -11448,6 +11485,126 @@ async function acceptRelationshipInvitation(relationshipId) {
 
   showNotice("Coach invitation accepted.");
   await refreshPendingRelationshipInvitations();
+  await refreshAthleteRelationships().catch(handleError);
+  await loadAthleteToday().catch(handleError);
+}
+
+async function declineRelationshipInvitation(relationshipId) {
+  if (!relationshipId) return;
+
+  await api(
+    "POST",
+    `/coach-workspace/relationship-invitations/${encodeURIComponent(relationshipId)}/decline`
+  );
+
+  showNotice("Coach invitation declined.");
+  await refreshPendingRelationshipInvitations();
+  await refreshAthleteRelationships().catch(handleError);
+}
+
+// FULL-UI-25: the athlete's own current and past coach relationships - a
+// closed relationship is never deleted, only ever appended to, so its
+// history remains visible here even after the athlete or coach ends it.
+function renderAthleteRelationships() {
+  let panel = document.getElementById("athleteRelationshipsPanel");
+
+  if (state.role !== "athlete") {
+    if (panel) panel.hidden = true;
+    return;
+  }
+
+  if (!panel) {
+    panel = document.createElement("article");
+    panel.id = "athleteRelationshipsPanel";
+    panel.className = "panel";
+
+    document
+      .querySelector("#view-account .two-column")
+      .insertAdjacentElement("afterend", panel);
+  }
+
+  const relationships = Array.isArray(state.athleteRelationships)
+    ? state.athleteRelationships
+    : [];
+
+  if (relationships.length === 0) {
+    panel.hidden = true;
+    return;
+  }
+
+  const current = relationships.filter((entry) => entry.relationship_state === "accepted");
+  const past = relationships.filter((entry) => entry.relationship_state !== "accepted");
+
+  panel.hidden = false;
+  panel.innerHTML = `
+    <p class="eyebrow">Coach relationships</p>
+    <h3>My coach</h3>
+    <div class="record-list">
+      ${current.length > 0
+        ? current.map((entry) => `
+          <article class="record-row" data-relationship-id="${escapeHtml(entry.relationship_id)}">
+            <div>
+              <strong>${escapeHtml(entry.coach_display_name)}</strong>
+              <p class="muted small">${escapeHtml(entry.coach_email ?? "")}</p>
+            </div>
+            <button type="button" class="button secondary end-relationship-button">End relationship</button>
+          </article>
+        `).join("")
+        : `<p class="muted small">No current coach.</p>`
+      }
+    </div>
+    ${past.length > 0 ? `
+      <p class="eyebrow">Past relationships</p>
+      <div class="record-list">
+        ${past.map((entry) => `
+          <article class="record-row">
+            <div>
+              <strong>${escapeHtml(entry.coach_display_name)}</strong>
+              <p class="muted small">${escapeHtml(titleCase(entry.relationship_state))}</p>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    ` : ""}
+  `;
+
+  for (const button of panel.querySelectorAll(".end-relationship-button")) {
+    button.addEventListener(
+      "click",
+      guardedAction(button, async () => {
+        const relationshipId = button.closest("[data-relationship-id]")?.dataset.relationshipId;
+        await endAthleteRelationship(relationshipId);
+      })
+    );
+  }
+}
+
+async function refreshAthleteRelationships() {
+  if (state.role !== "athlete") return [];
+
+  const response = await api("GET", "/coach-workspace/relationships/mine");
+  state.athleteRelationships = Array.isArray(response.relationships)
+    ? response.relationships
+    : [];
+
+  renderAthleteRelationships();
+  return state.athleteRelationships;
+}
+
+async function endAthleteRelationship(relationshipId) {
+  if (!relationshipId) return;
+
+  if (!globalThis.confirm("End this relationship with your coach? Historical records will be preserved.")) {
+    return;
+  }
+
+  await api(
+    "POST",
+    `/coach-workspace/relationships/${encodeURIComponent(relationshipId)}/end`
+  );
+
+  showNotice("Relationship ended.");
+  await refreshAthleteRelationships();
   await loadAthleteToday().catch(handleError);
 }
 

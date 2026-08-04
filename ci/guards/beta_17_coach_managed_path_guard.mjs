@@ -71,6 +71,8 @@ const files = {
     "src/api/sessions.handlers.ts",
   routes:
     "src/api/sessions.routes.ts",
+  noteWrite:
+    "src/api/beta17_coach_note_write.routes.ts",
   html:
     "public/v0-session-runner.html",
   browser:
@@ -188,7 +190,12 @@ const coachManagedRoutes = [
     router:
       '"/beta-coach-notes"',
     browser:
-      '"/sessions/beta-coach-notes"'
+      '"/sessions/beta-coach-notes"',
+    // Note-write is deliberately isolated into its own router module (see
+    // beta17_coach_note_write.routes.ts) so it never sits in the same file as
+    // a direct import of engine/session truth-reading or truth-writing
+    // services - the route lives there, not in sessions.routes.ts.
+    routerSource: "noteWrite"
   }
 ];
 
@@ -196,8 +203,10 @@ for (
   const route
   of coachManagedRoutes
 ) {
+  const routerSource = source[route.routerSource ?? "routes"];
+
   if (
-    !source.routes.includes(
+    !routerSource.includes(
       route.router
     )
   ) {
@@ -221,12 +230,17 @@ for (const handler of [
   "createBeta17CoachProfile",
   "createBeta17Relationship",
   "createBeta17Assignment",
-  "getBeta17CoachArtefacts",
-  "createBeta17CoachNote"
+  "getBeta17CoachArtefacts"
 ]) {
   if (!source.handlers.includes(handler)) {
     fail(`handler_missing::${handler}`);
   }
+}
+
+// createBeta17CoachNote is isolated in its own module for the same reason as
+// its route - see the routerSource note above.
+if (!source.noteWrite.includes("createBeta17CoachNote")) {
+  fail("handler_missing::createBeta17CoachNote");
 }
 
 if (

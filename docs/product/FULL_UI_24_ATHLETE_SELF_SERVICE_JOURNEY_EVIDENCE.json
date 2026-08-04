@@ -1,15 +1,15 @@
 {
   "schema_version": "kolosseum.full_ui_24.athlete_self_service_journey.v1.0.0",
   "slice_id": "FULL-UI-24",
-  "recorded_at_iso8601": "2026-08-03T16:46:14.379Z",
-  "nonce": "ef6571c329964547",
+  "recorded_at_iso8601": "2026-08-04T09:55:42.563Z",
+  "nonce": "ca239d9db5284a25",
   "steps": [
     {
       "id": "step_01_athlete_creates_account",
       "label": "Athlete creates an account",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -17,7 +17,7 @@
       "label": "Athlete verifies the account through the supported product route",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -25,7 +25,7 @@
       "label": "Athlete signs in",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -33,7 +33,7 @@
       "label": "Athlete records accessibility and instruction-density preferences",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -41,7 +41,7 @@
       "label": "Athlete completes staged onboarding",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -49,7 +49,7 @@
       "label": "Athlete reviews and confirms declarations",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -57,7 +57,7 @@
       "label": "Athlete sees current terms and consent history",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -65,7 +65,7 @@
       "label": "Athlete receives and accepts a coach invitation without typing opaque IDs",
       "result": "PASS",
       "detail": {
-        "relationship_id": "relationship_e305ad3fd0cd4e8b81c35e7b2dfa57c9"
+        "relationship_id": "relationship_f772fa7024504f8fa12ab7979b0a4fb7"
       }
     },
     {
@@ -73,7 +73,7 @@
       "label": "Athlete sees a lawful assigned programme and event",
       "result": "PASS",
       "detail": {
-        "assignment_id": "beta17_assignment_9e71992c68af6f48e647e3a1",
+        "assignment_id": "beta17_assignment_da183643a035f18ca0f79711",
         "event_status": "active"
       }
     },
@@ -90,7 +90,7 @@
       "label": "Athlete starts a session",
       "result": "PASS",
       "detail": {
-        "session_id": "s_b6aefb95346041168e3c328f499e6fb9"
+        "session_id": "s_838bf303b8704b82bb6bc1271c8db338"
       }
     },
     {
@@ -98,7 +98,7 @@
       "label": "Athlete records at least one lawful partial, skip or stop/return path",
       "result": "PASS",
       "detail": {
-        "session_id": "s_b6aefb95346041168e3c328f499e6fb9",
+        "session_id": "s_838bf303b8704b82bb6bc1271c8db338",
         "skipped_exercise_id": "back_squat"
       }
     },
@@ -107,7 +107,7 @@
       "label": "Refresh reconstructs the open session",
       "result": "PASS",
       "detail": {
-        "session_id": "s_b6aefb95346041168e3c328f499e6fb9"
+        "session_id": "s_838bf303b8704b82bb6bc1271c8db338"
       }
     },
     {
@@ -115,7 +115,7 @@
       "label": "Athlete completes or lawfully closes the session",
       "result": "PASS",
       "detail": {
-        "session_id": "s_b6aefb95346041168e3c328f499e6fb9",
+        "session_id": "s_838bf303b8704b82bb6bc1271c8db338",
         "execution_status": "partial"
       }
     },
@@ -124,7 +124,7 @@
       "label": "Athlete opens factual history and session detail",
       "result": "PASS",
       "detail": {
-        "session_id": "s_b6aefb95346041168e3c328f499e6fb9"
+        "session_id": "s_838bf303b8704b82bb6bc1271c8db338"
       }
     },
     {
@@ -132,7 +132,7 @@
       "label": "Athlete updates lawful account profile fields",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -140,7 +140,7 @@
       "label": "Athlete changes password and signs in again",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -148,7 +148,7 @@
       "label": "Athlete submits a support request",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -156,7 +156,7 @@
       "label": "Athlete requests a personal-data export and sees its status",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -164,7 +164,7 @@
       "label": "Athlete opens deletion consequence review without accidentally submitting deletion",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07"
+        "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b"
       }
     },
     {
@@ -172,8 +172,8 @@
       "label": "A fresh operating-system process reconstructs the same state",
       "result": "PASS",
       "detail": {
-        "first_pid": 1388,
-        "restarted_pid": 12592
+        "first_pid": 10716,
+        "restarted_pid": 28748
       }
     },
     {
@@ -181,13 +181,13 @@
       "label": "A different athlete is denied access to all records from this journey",
       "result": "PASS",
       "detail": {
-        "other_athlete_user_id": "athlete_95814962b2ae44b7914bac5e4e92132a"
+        "other_athlete_user_id": "athlete_843c930fa7694262b78f61797a61d6ad"
       }
     }
   ],
   "status": "PASS",
-  "athlete_user_id": "athlete_7050fef513244b9c900effc466777c07",
-  "coach_user_id": "coach_ecf10243f6d74b5e87829ece4c29295a",
-  "session_id": "s_b6aefb95346041168e3c328f499e6fb9",
-  "assignment_id": "beta17_assignment_9e71992c68af6f48e647e3a1"
+  "athlete_user_id": "athlete_4d02e129d1d04c66b72aa6879650d92b",
+  "coach_user_id": "coach_0ad72198666e4d88983223f76f1b569c",
+  "session_id": "s_838bf303b8704b82bb6bc1271c8db338",
+  "assignment_id": "beta17_assignment_da183643a035f18ca0f79711"
 }

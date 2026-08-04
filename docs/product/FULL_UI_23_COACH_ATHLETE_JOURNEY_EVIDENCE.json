@@ -1,15 +1,15 @@
 {
   "schema_version": "kolosseum.full_ui_23.coach_athlete_journey.v1.0.0",
   "slice_id": "FULL-UI-23",
-  "recorded_at_iso8601": "2026-08-03T15:39:27.056Z",
-  "nonce": "23665b7470fe4af1",
+  "recorded_at_iso8601": "2026-08-04T09:55:38.412Z",
+  "nonce": "fa835238cdb24766",
   "steps": [
     {
       "id": "step_01_coach_sign_in",
       "label": "Coach signs in",
       "result": "PASS",
       "detail": {
-        "coach_user_id": "coach_94771e9f176a415399ed9420d1bd8f95",
+        "coach_user_id": "coach_c3779c71f6d343a786ecd6a20e695932",
         "actor_home_route": "#/coach/overview"
       }
     },
@@ -26,7 +26,7 @@
       "label": "Coach creates a standalone event",
       "result": "PASS",
       "detail": {
-        "event_id": "coach_event_b5654b5bd3f46f2582ae44ec",
+        "event_id": "coach_event_a745c992edfd4725f7bf1c04",
         "required_week_count": 2
       }
     },
@@ -35,7 +35,7 @@
       "label": "Coach creates a programme",
       "result": "PASS",
       "detail": {
-        "template_id": "coach_template_2a82b47bfd76475787f9878250258b68_v1",
+        "template_id": "coach_template_3a75cc94a9844265b3b4a028024d6258_v1",
         "week_count": 2
       }
     },
@@ -60,7 +60,7 @@
       "label": "Coach opens an athlete profile through a stable route",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7c5d3d9321ce4651a806792721fdf552"
+        "athlete_user_id": "athlete_f987aec3560d428c92de131469644c5c"
       }
     },
     {
@@ -68,8 +68,8 @@
       "label": "Coach links the athlete to the event",
       "result": "PASS",
       "detail": {
-        "event_id": "coach_event_b5654b5bd3f46f2582ae44ec",
-        "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3"
+        "event_id": "coach_event_a745c992edfd4725f7bf1c04",
+        "assignment_id": "beta17_assignment_3ff717cb27bf87088cdbc8f0"
       }
     },
     {
@@ -77,8 +77,8 @@
       "label": "Coach assigns the active programme and exact version",
       "result": "PASS",
       "detail": {
-        "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3",
-        "template_id": "coach_template_2a82b47bfd76475787f9878250258b68_v1"
+        "assignment_id": "beta17_assignment_3ff717cb27bf87088cdbc8f0",
+        "template_id": "coach_template_3a75cc94a9844265b3b4a028024d6258_v1"
       }
     },
     {
@@ -86,7 +86,7 @@
       "label": "Coach reviews the persisted assignment",
       "result": "PASS",
       "detail": {
-        "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3"
+        "assignment_id": "beta17_assignment_3ff717cb27bf87088cdbc8f0"
       }
     },
     {
@@ -94,7 +94,7 @@
       "label": "coach_programme_detail deep link target is real, persisted, addressable data",
       "result": "PASS",
       "detail": {
-        "template_id": "coach_template_2a82b47bfd76475787f9878250258b68_v1"
+        "template_id": "coach_template_3a75cc94a9844265b3b4a028024d6258_v1"
       }
     },
     {
@@ -102,7 +102,7 @@
       "label": "coach_review_athlete deep link target is real, persisted, addressable data",
       "result": "PASS",
       "detail": {
-        "athlete_id": "athlete_7c5d3d9321ce4651a806792721fdf552"
+        "athlete_id": "athlete_f987aec3560d428c92de131469644c5c"
       }
     },
     {
@@ -110,7 +110,7 @@
       "label": "Athlete signs in",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_7c5d3d9321ce4651a806792721fdf552"
+        "athlete_user_id": "athlete_f987aec3560d428c92de131469644c5c"
       }
     },
     {
@@ -118,7 +118,7 @@
       "label": "Athlete sees programme, version, event and countdown",
       "result": "PASS",
       "detail": {
-        "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3",
+        "assignment_id": "beta17_assignment_3ff717cb27bf87088cdbc8f0",
         "event_status": "active"
       }
     },
@@ -127,7 +127,7 @@
       "label": "Athlete compiles/opens the next assigned session",
       "result": "PASS",
       "detail": {
-        "session_id": "s_2641f2bb5ac24381bf0e379231075b99"
+        "session_id": "s_355db7da3de149a09971cebdcb04314d"
       }
     },
     {
@@ -135,7 +135,7 @@
       "label": "Athlete executes and completes the session",
       "result": "PASS",
       "detail": {
-        "session_id": "s_2641f2bb5ac24381bf0e379231075b99",
+        "session_id": "s_355db7da3de149a09971cebdcb04314d",
         "execution_status": "completed"
       }
     },
@@ -144,7 +144,7 @@
       "label": "Coach sees the factual completed-session record",
       "result": "PASS",
       "detail": {
-        "session_id": "s_2641f2bb5ac24381bf0e379231075b99"
+        "session_id": "s_355db7da3de149a09971cebdcb04314d"
       }
     },
     {
@@ -168,7 +168,7 @@
       "label": "Refreshing both actor contexts reconstructs the same server-backed state",
       "result": "PASS",
       "detail": {
-        "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3"
+        "assignment_id": "beta17_assignment_3ff717cb27bf87088cdbc8f0"
       }
     },
     {
@@ -176,8 +176,8 @@
       "label": "A fresh operating-system process reconstructs the same state",
       "result": "PASS",
       "detail": {
-        "first_pid": 9724,
-        "restarted_pid": 7576
+        "first_pid": 15960,
+        "restarted_pid": 12996
       }
     },
     {
@@ -185,13 +185,13 @@
       "label": "An unrelated coach is denied",
       "result": "PASS",
       "detail": {
-        "other_coach_user_id": "coach_5cf93a0c01184975bc0b3af54334de7d"
+        "other_coach_user_id": "coach_389afb42fbee46cb9a2523ab29a7d684"
       }
     }
   ],
   "status": "PASS",
-  "assignment_id": "beta17_assignment_83a8da1f0e770629f52afaa3",
-  "session_id": "s_2641f2bb5ac24381bf0e379231075b99",
-  "template_id": "coach_template_2a82b47bfd76475787f9878250258b68_v1",
-  "event_id": "coach_event_b5654b5bd3f46f2582ae44ec"
+  "assignment_id": "beta17_assignment_3ff717cb27bf87088cdbc8f0",
+  "session_id": "s_355db7da3de149a09971cebdcb04314d",
+  "template_id": "coach_template_3a75cc94a9844265b3b4a028024d6258_v1",
+  "event_id": "coach_event_a745c992edfd4725f7bf1c04"
 }

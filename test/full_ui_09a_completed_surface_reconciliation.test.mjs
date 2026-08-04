@@ -613,11 +613,21 @@ test(
         "not_implemented",
         target.id
       );
-      assert.equal(
-        item.entry.direct_test,
-        "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
-        target.id
-      );
+
+      // identity_account owns its own, more specific direct_test
+      // (test/full_ui_02_account_ui.test.mjs) - this generic cross-area
+      // reconciliation pass defers to it rather than re-stamping a
+      // competing pointer.
+      if (target.area === "identity_account") {
+        assert.ok(item.entry.direct_test, target.id);
+      }
+      else {
+        assert.equal(
+          item.entry.direct_test,
+          "test/full_ui_09a_completed_surface_reconciliation.test.mjs",
+          target.id
+        );
+      }
 
       for (const [relativePath, needles] of target.evidence) {
         const source = read(relativePath);
@@ -635,8 +645,13 @@ test(
 );
 
 test(
-  "FULL-UI-09A leaves terms-version display partial",
+  "FULL-UI-25 confirms terms-version display is fully implemented, not left partial",
   () => {
+    // FULL-UI-09A originally left this deliberately partial. It has since
+    // been genuinely completed (GET /account/terms + /account/detail, real
+    // direct and integration test coverage, exercised throughout
+    // FULL-UI-23/24/25) - the manifest caught up to reality first, so this
+    // lock is updated to match rather than the reverse.
     const functionMap = new Map(
       manifest.product_areas
         .flatMap((area) => area.functions)
@@ -646,7 +661,9 @@ test(
     const entry = functionMap.get("terms_version");
 
     assert.ok(entry);
-    assert.equal(entry.state, "partial");
+    assert.equal(entry.state, "implemented");
+    assert.ok(entry.direct_test);
+    assert.ok(entry.integration_test);
     assert.notEqual(entry.persistence, "not_implemented");
   }
 );

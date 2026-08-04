@@ -131,6 +131,17 @@ mock.module(distHttpErrorsUrl, {
 
 mock.module(distReadModelUrl, {
   namedExports: {
+    deriveExecutionStatus: (remainingIds, completedIds, droppedIds, started) => {
+      const doneCount = completedIds.length;
+      const droppedCount = droppedIds.length;
+      const remainingCount = remainingIds.length;
+      const total = doneCount + droppedCount + remainingCount;
+
+      if (!started) return "ready";
+      if (remainingCount > 0) return "in_progress";
+      if (total > 0 && droppedCount === 0 && doneCount === total) return "completed";
+      return "partial";
+    },
     uniqStable: (xs) => {
       const out = [];
       const seen = new Set();

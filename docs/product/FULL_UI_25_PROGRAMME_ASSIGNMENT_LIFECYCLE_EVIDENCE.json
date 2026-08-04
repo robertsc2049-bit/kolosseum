@@ -1,0 +1,110 @@
+{
+  "schema_version": "kolosseum.full_ui_25.programme_assignment_lifecycle.v1.0.0",
+  "slice_id": "FULL-UI-25",
+  "recorded_at_iso8601": "2026-08-04T09:55:46.929Z",
+  "nonce": "fc21aed1ee3a410e",
+  "steps": [
+    {
+      "id": "programme_immutable_active",
+      "label": "Active template cannot be edited in place",
+      "result": "PASS",
+      "detail": {
+        "template_id": "coach_template_2bd9a8d121d240d3b34a04dddf3d6fba_v1",
+        "rejected_status": 400
+      }
+    },
+    {
+      "id": "programme_duplicate",
+      "label": "Coach duplicates an active programme into a new draft version",
+      "result": "PASS",
+      "detail": {
+        "original_template_id": "coach_template_2bd9a8d121d240d3b34a04dddf3d6fba_v1",
+        "duplicate_template_id": "coach_template_2bd9a8d121d240d3b34a04dddf3d6fba_v2"
+      }
+    },
+    {
+      "id": "programme_version_metadata",
+      "label": "The duplicate and original share a template family but carry distinct version metadata",
+      "result": "PASS",
+      "detail": {
+        "family_id": "coach_template_2bd9a8d121d240d3b34a04dddf3d6fba"
+      }
+    },
+    {
+      "id": "assignment_replace",
+      "label": "Coach replaces an assignment with a new programme version",
+      "result": "PASS",
+      "detail": {
+        "original_assignment_id": "beta17_assignment_738c70a52c7dbf5fc1e273b2",
+        "replacement_assignment_id": "beta17_assignment_baf8ccbf5a0ef28ac8686496"
+      }
+    },
+    {
+      "id": "assignment_history",
+      "label": "The original (now-superseded) assignment remains visible in the coach's assignment history",
+      "result": "PASS",
+      "detail": {
+        "assignment_id": "beta17_assignment_738c70a52c7dbf5fc1e273b2"
+      }
+    },
+    {
+      "id": "assignment_preserve_sessions",
+      "label": "A session compiled under the original assignment remains in the athlete's history after replacement",
+      "result": "PASS",
+      "detail": {
+        "session_id": "s_560189bf82e1433bb6ffe873659e3bbb"
+      }
+    },
+    {
+      "id": "assignment_cancel",
+      "label": "Coach cancels a future assignment and the athlete no longer sees it as current",
+      "result": "PASS",
+      "detail": {
+        "cancelled_assignment_id": "beta17_assignment_baf8ccbf5a0ef28ac8686496"
+      }
+    },
+    {
+      "id": "assignment_separate_event",
+      "label": "Assignment and event linkage remain independently trackable (no event was linked to this assignment, and cancellation did not require or imply one)",
+      "result": "PASS",
+      "detail": {}
+    },
+    {
+      "id": "programme_assignment_usage",
+      "label": "Coach can see assignment usage for a programme before archiving it",
+      "result": "PASS",
+      "detail": {
+        "template_id": "coach_template_2bd9a8d121d240d3b34a04dddf3d6fba_v1"
+      }
+    },
+    {
+      "id": "programme_archive",
+      "label": "Coach archives a programme; it remains queryable, and archived programmes remain immutable",
+      "result": "PASS",
+      "detail": {
+        "template_id": "coach_template_2bd9a8d121d240d3b34a04dddf3d6fba_v1"
+      }
+    },
+    {
+      "id": "programme_states_and_detail",
+      "label": "The template library distinctly lists draft, active and archived states for every version",
+      "result": "PASS",
+      "detail": {
+        "archived_state": "archived",
+        "active_state": "active"
+      }
+    },
+    {
+      "id": "restart_fresh_process_reconstruction",
+      "label": "A fresh operating-system process reconstructs the same programme and assignment lifecycle state",
+      "result": "PASS",
+      "detail": {
+        "first_pid": 19472,
+        "restarted_pid": 18384
+      }
+    }
+  ],
+  "status": "PASS",
+  "coach_user_id": "coach_a6b7ffdf304d464c9c9c987b8b2cd896",
+  "athlete_user_id": "athlete_c763785eb8504261a23ac0dfb6f218e0"
+}
