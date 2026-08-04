@@ -7,7 +7,6 @@
     "athlete",
     "coach",
     "founder_admin",
-    "org_owner",
     "shared"
   ],
   "implementation_states": [
@@ -5160,132 +5159,6 @@
       ]
     },
     {
-      "area_id": "organisation_billing",
-      "title": "Organisation owner billing and roster (v1 shell)",
-      "slice_id": "FULL-UI-26",
-      "state": "implemented",
-      "functions": [
-        {
-          "function_id": "org_owner_auth",
-          "label": "Organisation owner self-service identity",
-          "actors": [
-            "org_owner"
-          ],
-          "route_id": null,
-          "api_routes": [
-            "/org/register",
-            "/org/sign-in",
-            "/org/sign-out",
-            "/org/session"
-          ],
-          "persistence": "server_product_records",
-          "state": "implemented",
-          "governing_boundary": null,
-          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
-          "integration_test": "test/org_owner_identity_persistent.integration.test.mjs",
-          "coverage": {
-            "loading": "covered_or_declared",
-            "empty": "covered_or_declared",
-            "error": "covered_or_declared",
-            "recovery": "covered_or_declared"
-          }
-        },
-        {
-          "function_id": "org_owner_organisations",
-          "label": "Create and list owned organisations",
-          "actors": [
-            "org_owner"
-          ],
-          "route_id": null,
-          "api_routes": [
-            "/org/organisations"
-          ],
-          "persistence": "server_product_records",
-          "state": "implemented",
-          "governing_boundary": null,
-          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
-          "integration_test": "test/org_roster_lifecycle_persistent.integration.test.mjs",
-          "coverage": {
-            "loading": "covered_or_declared",
-            "empty": "covered_or_declared",
-            "error": "covered_or_declared",
-            "recovery": "covered_or_declared"
-          }
-        },
-        {
-          "function_id": "org_owner_roster",
-          "label": "Invite, list and remove coach roster memberships by email",
-          "actors": [
-            "org_owner"
-          ],
-          "route_id": null,
-          "api_routes": [
-            "/org/organisations/:org_id/roster/invite",
-            "/org/organisations/:org_id/roster",
-            "/org/organisations/:org_id/roster/:membership_id/remove"
-          ],
-          "persistence": "server_product_records",
-          "state": "implemented",
-          "governing_boundary": null,
-          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
-          "integration_test": "test/org_roster_lifecycle_persistent.integration.test.mjs",
-          "coverage": {
-            "loading": "covered_or_declared",
-            "empty": "covered_or_declared",
-            "error": "covered_or_declared",
-            "recovery": "covered_or_declared"
-          }
-        },
-        {
-          "function_id": "org_owner_billing",
-          "label": "View seat usage and change the org's seat plan",
-          "actors": [
-            "org_owner"
-          ],
-          "route_id": null,
-          "api_routes": [
-            "/org/organisations/:org_id/billing",
-            "/org/organisations/:org_id/billing/seat-plan"
-          ],
-          "persistence": "server_product_records",
-          "state": "implemented",
-          "governing_boundary": null,
-          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
-          "integration_test": "test/org_billing_lifecycle_persistent.integration.test.mjs",
-          "coverage": {
-            "loading": "covered_or_declared",
-            "empty": "covered_or_declared",
-            "error": "covered_or_declared",
-            "recovery": "covered_or_declared"
-          }
-        },
-        {
-          "function_id": "coach_org_membership",
-          "label": "Coach reads, accepts and leaves org memberships from their own session",
-          "actors": [
-            "coach"
-          ],
-          "route_id": null,
-          "api_routes": [
-            "/coach-workspace/org-memberships",
-            "/coach-workspace/org-memberships/:membership_id/accept",
-            "/coach-workspace/org-memberships/:membership_id/leave"
-          ],
-          "persistence": "server_product_records",
-          "state": "implemented",
-          "governing_boundary": null,
-          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
-          "integration_test": "test/org_roster_lifecycle_persistent.integration.test.mjs",
-          "coverage": {
-            "loading": "covered_or_declared",
-            "empty": "covered_or_declared",
-            "error": "covered_or_declared",
-            "recovery": "covered_or_declared"
-          }
-        }
-      ]
-    },
-    {
       "area_id": "cross_product_quality",
       "title": "Cross-product quality",
       "slice_id": "FULL-UI-22",
@@ -5730,13 +5603,14 @@
     {
       "slice_id": "FULL-UI-25",
       "state": "implemented"
-    },
-    {
-      "slice_id": "FULL-UI-26",
-      "state": "implemented"
     }
   ],
   "prohibited_capabilities": [
+    {
+      "capability_id": "organisation_runtime",
+      "label": "Organisation, team, unit or gym coaching runtime",
+      "governing_boundary": "Actors remain individual athlete and coach only."
+    },
     {
       "capability_id": "readiness_inference",
       "label": "Readiness, safety, suitability, risk or optimisation inference",

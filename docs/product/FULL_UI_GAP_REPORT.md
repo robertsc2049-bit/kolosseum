@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 242
+- implemented: 237
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -455,22 +455,6 @@ Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `admin_audit_action` — Record operational action audit
 - `admin_no_engine_override` — Prevent admin engine override
 
-### Organisation owner billing and roster (v1 shell)
-
-Slice: FULL-UI-26
-
-Area state: implemented
-
-Implemented: 5 · Partial: 0 · Missing: 0 · Prohibited: 0
-
-#### implemented
-
-- `org_owner_auth` — Organisation owner self-service identity
-- `org_owner_organisations` — Create and list owned organisations
-- `org_owner_roster` — Invite, list and remove coach roster memberships by email
-- `org_owner_billing` — View seat usage and change the org's seat plan
-- `coach_org_membership` — Coach reads, accepts and leaves org memberships from their own session
-
 ### Cross-product quality
 
 Slice: FULL-UI-22
@@ -529,10 +513,10 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-23: implemented
 - FULL-UI-24: implemented
 - FULL-UI-25: implemented
-- FULL-UI-26: implemented
 
 ## Prohibited capabilities
 
+- `organisation_runtime` — Organisation, team, unit or gym coaching runtime. Boundary: Actors remain individual athlete and coach only.
 - `readiness_inference` — Readiness, safety, suitability, risk or optimisation inference. Boundary: Product output remains factual and deterministic.
 - `engine_override` — Coach, payment, admin or UI override of engine truth. Boundary: Engine legality and deterministic output remain independent of product state.
 - `diagnostic_dependency` — Diagnostic UI as a product workflow dependency. Boundary: The product UI must use public application routes only.
