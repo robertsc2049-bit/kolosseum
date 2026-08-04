@@ -949,14 +949,23 @@ ON product_org_coach_memberships (
 );
 
 -- Immutable operational audit trail for org billing/roster actions,
--- mirroring product_admin_audit_records exactly (append-only, correlation-
--- id deduped, explicit before/after factual state).
+-- mirroring product_admin_audit_records's shape (append-only, correlation-
+-- id deduped, explicit before/after factual state). Unlike the admin audit
+-- table, the actor here can be EITHER the org owner (create/invite/remove/
+-- billing) OR the invited coach acting on their own membership (accept/
+-- leave) - mirroring the coach-athlete relationship ledger's symmetric
+-- self-service pattern. actor_user_id therefore carries no single-table FK
+-- (same reasoning as beta_product_records.actor_user_id); actor_role
+-- records which identity surface the id belongs to.
 CREATE TABLE IF NOT EXISTS product_org_audit_records (
   audit_record_id  TEXT PRIMARY KEY,
   org_id           TEXT NOT NULL
     REFERENCES product_organisations(org_id),
-  actor_user_id    TEXT NOT NULL
-    REFERENCES product_org_owner_accounts(user_id),
+  actor_user_id    TEXT NOT NULL,
+  actor_role       TEXT NOT NULL
+    CHECK (
+      actor_role IN ('org_owner', 'coach')
+    ),
   action_type      TEXT NOT NULL
     CHECK (
       action_type IN (
@@ -964,6 +973,7 @@ CREATE TABLE IF NOT EXISTS product_org_audit_records (
         'coach_invited',
         'coach_membership_activated',
         'coach_membership_removed',
+        'coach_membership_left',
         'seat_plan_changed'
       )
     ),
@@ -991,3 +1001,58 @@ ON product_org_audit_records (
   org_id,
   created_at DESC
 );
+
+-- Migration for environments that already applied the original B.1
+-- product_org_audit_records shape (org-owner-only actor FK, no coach-
+-- initiated actions in the action_type enum) before this fix landed.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.table_constraints
+    WHERE table_name = 'product_org_audit_records'
+      AND constraint_name = 'product_org_audit_records_actor_user_id_fkey'
+  ) THEN
+    ALTER TABLE product_org_audit_records
+      DROP CONSTRAINT product_org_audit_records_actor_user_id_fkey;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'product_org_audit_records'
+      AND column_name = 'actor_role'
+  ) THEN
+    ALTER TABLE product_org_audit_records
+      ADD COLUMN actor_role TEXT;
+    UPDATE product_org_audit_records SET actor_role = 'org_owner' WHERE actor_role IS NULL;
+    ALTER TABLE product_org_audit_records
+      ALTER COLUMN actor_role SET NOT NULL;
+    ALTER TABLE product_org_audit_records
+      ADD CONSTRAINT product_org_audit_records_actor_role_check
+      CHECK (actor_role IN ('org_owner', 'coach'));
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.constraint_column_usage
+    WHERE table_name = 'product_org_audit_records'
+      AND constraint_name = 'product_org_audit_records_action_type_check'
+  ) THEN
+    ALTER TABLE product_org_audit_records
+      DROP CONSTRAINT product_org_audit_records_action_type_check;
+    ALTER TABLE product_org_audit_records
+      ADD CONSTRAINT product_org_audit_records_action_type_check
+      CHECK (
+        action_type IN (
+          'org_created',
+          'coach_invited',
+          'coach_membership_activated',
+          'coach_membership_removed',
+          'coach_membership_left',
+          'seat_plan_changed'
+        )
+      );
+  END IF;
+END;
+$$;
