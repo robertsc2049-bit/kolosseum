@@ -231,7 +231,7 @@ Implemented: 20 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `builder_role` — Set primary or accessory role
 - `builder_sets` — Set planned sets
 - `builder_repetitions` — Set fixed repetitions or range
-- `builder_loading` — Set percentage, fixed load or bodyweight
+- `builder_loading` — Set percentage, fixed load, bodyweight or RPE
 - `builder_load_unit` — Set load unit
 - `builder_rest` — Set rest time
 - `builder_summary` — Display deterministic structure summary
@@ -517,7 +517,6 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 ## Prohibited capabilities
 
 - `organisation_runtime` — Organisation, team, unit or gym coaching runtime. Boundary: Actors remain individual athlete and coach only.
-- `resistance_rpe` — Resistance-training RPE prescription. Boundary: Resistance training remains percentage, fixed-load or bodyweight based.
 - `readiness_inference` — Readiness, safety, suitability, risk or optimisation inference. Boundary: Product output remains factual and deterministic.
 - `engine_override` — Coach, payment, admin or UI override of engine truth. Boundary: Engine legality and deterministic output remain independent of product state.
 - `diagnostic_dependency` — Diagnostic UI as a product workflow dependency. Boundary: The product UI must use public application routes only.

@@ -444,6 +444,57 @@ function ensurePainReportShapeValid(event: unknown, planned: PlannedSession, sum
   }
 }
 
+const RPE_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "rpe_value", "client_request_id"]);
+
+function ensureRpeReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "RPE_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!RPE_REPORT_ALLOWED_KEYS.has(key)) {
+      throw badRequest("Runtime event rejected (RPE report must record only the permitted factual input)", {
+        failure_token: "phase6_runtime_rpe_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_RPE_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) {
+    throw badRequest("Runtime event rejected (missing RPE report exercise_id)", {
+      failure_token: "phase6_runtime_rpe_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_RPE_REPORT_INVALID_SHAPE: exercise_id"
+    });
+  }
+
+  const rpeValue = obj.rpe_value;
+  if (!Number.isInteger(rpeValue) || (rpeValue as number) < 1 || (rpeValue as number) > 10) {
+    throw badRequest("Runtime event rejected (RPE report must be a whole number between 1 and 10)", {
+      failure_token: "phase6_runtime_rpe_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_RPE_REPORT_INVALID_SHAPE: rpe_value"
+    });
+  }
+
+  const trace = readSummaryTrace(summary);
+  const knownIds = new Set<string>([
+    ...uniqStable(trace?.remaining_ids),
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const id = typeof (ex as any)?.exercise_id === "string" ? (ex as any).exercise_id : "";
+    if (id) knownIds.add(id);
+  }
+
+  if (!knownIds.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (RPE report exercise_id not part of this session)", {
+      failure_token: "phase6_runtime_rpe_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_RPE_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
 function ensureSubstitutionTagValid(event: unknown): void {
   const t = rawEventType(event);
   if (!isExerciseProgressEventType(t)) return;
@@ -704,6 +755,7 @@ export async function appendRuntimeEventMutation(
 
     ensureSkipReasonValid(event);
     ensurePainReportShapeValid(event, planned, workingSummary);
+    ensureRpeReportShapeValid(event, planned, workingSummary);
     ensureSubstitutionTagValid(event);
     ensureResolvedReturnDecisionReplayRejected(workingSummary, event);
     ensureExerciseReplayRejected(workingSummary, event);
