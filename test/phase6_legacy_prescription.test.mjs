@@ -44,3 +44,26 @@ test("Phase6 planned_items preserves prescription metadata deterministically", (
   assert.equal(ex.rest_seconds, 120);
   assert.deepEqual(ex.intensity, { type: "percent_1rm", value: 75 });
 });
+
+test("Phase6 planned_items accepts RPE intensity and passes it through with no resolved_load", () => {
+  const program = {
+    planned_items: [
+      {
+        block_id: "B0",
+        item_id: "B0_I0",
+        exercise_id: "bench_press",
+        sets: 3,
+        reps: 5,
+        rest_seconds: 120,
+        intensity: { type: "rpe", value: 8 }
+      }
+    ]
+  };
+
+  const r = phase6ProduceSessionOutput(program, {}, undefined);
+  assert.equal(r.ok, true);
+  const ex = r.session.exercises[0];
+  assert.equal(ex.exercise_id, "bench_press");
+  assert.deepEqual(ex.intensity, { type: "rpe", value: 8 });
+  assert.equal(ex.resolved_load, null);
+});

@@ -72,10 +72,10 @@ test("builder is registry-bound and supports complete explicit prescriptions", (
   assert.match(templateService, /const repModes/u);
   assert.match(templateService, /"fixed",\s*"range"/u);
   assert.match(templateService, /const loadModes/u);
-  assert.match(templateService, /"percent_1rm",\s*"fixed_weight",\s*"bodyweight"/u);
+  assert.match(templateService, /"percent_1rm",\s*"fixed_weight",\s*"bodyweight",\s*"rpe"/u);
   assert.match(templateService, /rep_range_order_invalid/u);
   assert.match(templateService, /weight_unit_invalid/u);
-  assert.doesNotMatch(templateService, /planned_rpe|resistance_rpe/u);
+  assert.match(templateService, /rpe_value_invalid/u);
 });
 
 test("athlete profile supports factual 1RM, estimated 1RM and training max records", () => {

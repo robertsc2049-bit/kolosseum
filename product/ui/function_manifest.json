@@ -2641,7 +2641,7 @@
         },
         {
           "function_id": "builder_loading",
-          "label": "Set percentage, fixed load or bodyweight",
+          "label": "Set percentage, fixed load, bodyweight or RPE",
           "actors": [
             "coach"
           ],
@@ -2651,7 +2651,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_template_prescription_modes.test.mjs",
-          "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
+          "integration_test": "test/rpe_prescription_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -5610,11 +5610,6 @@
       "capability_id": "organisation_runtime",
       "label": "Organisation, team, unit or gym coaching runtime",
       "governing_boundary": "Actors remain individual athlete and coach only."
-    },
-    {
-      "capability_id": "resistance_rpe",
-      "label": "Resistance-training RPE prescription",
-      "governing_boundary": "Resistance training remains percentage, fixed-load or bodyweight based."
     },
     {
       "capability_id": "readiness_inference",

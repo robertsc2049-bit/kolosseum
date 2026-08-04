@@ -212,6 +212,10 @@ const elements = {
   painReportPanel: document.getElementById("painReportPanel"),
   confirmPainReportButton: document.getElementById("confirmPainReportButton"),
   cancelPainReportButton: document.getElementById("cancelPainReportButton"),
+  rpeReportPanel: document.getElementById("rpeReportPanel"),
+  rpeReportValue: document.getElementById("rpeReportValue"),
+  confirmRpeReportButton: document.getElementById("confirmRpeReportButton"),
+  cancelRpeReportButton: document.getElementById("cancelRpeReportButton"),
   substitutionPanel: document.getElementById("substitutionPanel"),
   checkSubstitutionButton: document.getElementById("checkSubstitutionButton"),
   cancelSubstitutionButton: document.getElementById("cancelSubstitutionButton"),
@@ -221,6 +225,7 @@ const elements = {
   completeExerciseButton: document.getElementById("completeExerciseButton"),
   skipExerciseButton: document.getElementById("skipExerciseButton"),
   reportPainButton: document.getElementById("reportPainButton"),
+  reportRpeButton: document.getElementById("reportRpeButton"),
   requestSubstitutionButton: document.getElementById("requestSubstitutionButton"),
   splitSessionButton: document.getElementById("splitSessionButton"),
   returnContinueButton: document.getElementById("returnContinueButton"),
@@ -520,7 +525,7 @@ function normalisePersistedTemplateDraft(draft) {
 
   const normaliseWorkItem = (workItem, workItemIndex) => {
     const fallbackReps = Number(workItem?.planned_reps ?? 5);
-    const loadMode = ["fixed_weight", "bodyweight"].includes(workItem?.load_mode)
+    const loadMode = ["fixed_weight", "bodyweight", "rpe"].includes(workItem?.load_mode)
       ? workItem.load_mode
       : "percent_1rm";
 
@@ -537,6 +542,7 @@ function normalisePersistedTemplateDraft(draft) {
       percent_1rm: Number(workItem?.percent_1rm ?? 75),
       weight_value: Number(workItem?.weight_value ?? 20),
       weight_unit: workItem?.weight_unit === "lb" ? "lb" : "kg",
+      rpe_value: Number(workItem?.rpe_value ?? 8),
       rest_seconds: Number(workItem?.rest_seconds ?? 120),
       role: workItem?.role === "primary" ? "primary" : "accessory"
     };
@@ -940,11 +946,13 @@ function friendlyError(payload, status) {
     rep_range_min_invalid: "The minimum reps must be between 1 and 100.",
     rep_range_max_invalid: "The maximum reps must be between 1 and 100.",
     rep_range_order_invalid: "The maximum reps cannot be lower than the minimum reps.",
-    load_mode_invalid: "Choose percentage, weight, or bodyweight loading.",
+    load_mode_invalid: "Choose percentage, weight, bodyweight, or RPE loading.",
     percent_1rm_invalid: "Percentage must be between 1 and 100.",
     weight_value_invalid: "Weight must be between 0.25 and 1,000.",
     weight_value_invalid_precision_invalid: "Weight may use up to three decimal places.",
     weight_unit_invalid: "Choose kilograms or pounds.",
+    rpe_value_invalid: "RPE must be a whole number between 1 and 10.",
+    stored_rpe_value_invalid: "RPE must be a whole number between 1 and 10.",
     rest_seconds_invalid: "Rest must be between 0 and 900 seconds.",
     active_or_archived_template_is_immutable: "Active and archived templates cannot be edited. Duplicate the template to create a new version.",
     only_draft_can_activate: "Only a draft template can be activated.",
@@ -1224,6 +1232,9 @@ function exerciseDetails(exercise) {
   }
   else if (intensity?.type === "bodyweight") {
     details.push("Bodyweight");
+  }
+  else if (intensity?.type === "rpe" && Number.isFinite(Number(intensity.value))) {
+    details.push(`RPE ${Number(intensity.value)}`);
   }
 
   if (Number.isInteger(exercise?.rest_seconds)) {
@@ -1942,6 +1953,7 @@ let currentFocusExerciseId = null;
 function hideAllActionPanels() {
   elements.skipReasonPanel.hidden = true;
   elements.painReportPanel.hidden = true;
+  elements.rpeReportPanel.hidden = true;
   elements.substitutionPanel.hidden = true;
   elements.substitutionResult.hidden = true;
   elements.substitutionResult.innerHTML = "";
@@ -1960,6 +1972,12 @@ function openPainReportPanel() {
   if (!currentFocusExerciseId) return;
   hideAllActionPanels();
   elements.painReportPanel.hidden = false;
+}
+
+function openRpeReportPanel() {
+  if (!currentFocusExerciseId) return;
+  hideAllActionPanels();
+  elements.rpeReportPanel.hidden = false;
 }
 
 function openSubstitutionPanel() {
@@ -1992,6 +2010,20 @@ async function confirmPainReport() {
     pain_reported: true
   });
   showNotice("Pain reported for this exercise.");
+}
+
+async function confirmRpeReport() {
+  const exerciseId = currentFocusExerciseId;
+  if (!exerciseId) return;
+
+  const rpeValue = Number(elements.rpeReportValue.value);
+  hideAllActionPanels();
+  await postSessionEvent({
+    type: "RPE_REPORT",
+    exercise_id: exerciseId,
+    rpe_value: rpeValue
+  });
+  showNotice("RPE reported for this exercise.");
 }
 
 let lastSubstitutionResult = null;
@@ -2069,6 +2101,7 @@ function renderExerciseFocus(step, classification) {
   elements.completeExerciseButton.hidden = true;
   elements.skipExerciseButton.hidden = true;
   elements.reportPainButton.hidden = true;
+  elements.reportRpeButton.hidden = true;
   elements.requestSubstitutionButton.hidden = true;
   elements.splitSessionButton.hidden = true;
   hideAllActionPanels();
@@ -2110,6 +2143,7 @@ function renderExerciseFocus(step, classification) {
     elements.completeExerciseButton.hidden = false;
     elements.skipExerciseButton.hidden = false;
     elements.reportPainButton.hidden = false;
+    elements.reportRpeButton.hidden = false;
     elements.requestSubstitutionButton.hidden = false;
     elements.splitSessionButton.hidden = false;
   }
@@ -7584,7 +7618,9 @@ function storedWorkItemToDraft(workItem, workItemIndex) {
     ? "fixed_weight"
     : loadingReference.type === "bodyweight"
       ? "bodyweight"
-      : "percent_1rm";
+      : loadingReference.type === "rpe"
+        ? "rpe"
+        : "percent_1rm";
   const fallbackReps = Number(workItem?.planned_reps ?? 5);
 
   return {
@@ -7604,6 +7640,9 @@ function storedWorkItemToDraft(workItem, workItemIndex) {
       ? Number(loadingReference.value ?? 20)
       : 20,
     weight_unit: loadingReference.unit === "lb" ? "lb" : "kg",
+    rpe_value: loadingReference.type === "rpe"
+      ? Number(loadingReference.value ?? 8)
+      : 8,
     rest_seconds: Number(workItem?.rest_seconds ?? 120),
     role: workItem?.role === "primary" ? "primary" : "accessory"
   };
@@ -7944,6 +7983,10 @@ function programmePreviewLoad(workItem) {
     return `${Number(workItem?.weight_value ?? 0)} ${unit}`;
   }
 
+  if (workItem?.load_mode === "rpe") {
+    return `RPE ${Number(workItem?.rpe_value ?? 0)}`;
+  }
+
   return `${Number(workItem?.percent_1rm ?? 0)}% 1RM`;
 }
 
@@ -8240,7 +8283,7 @@ function programmeActivationIssues(template) {
           }
 
           const loadMode = String(workItem?.load_mode ?? "");
-          if (!["percent_1rm", "fixed_weight", "bodyweight"].includes(loadMode)) {
+          if (!["percent_1rm", "fixed_weight", "bodyweight", "rpe"].includes(loadMode)) {
             addIssue(
               "load_mode_invalid",
               `${itemPath} has an unsupported loading mode.`,
@@ -8271,6 +8314,16 @@ function programmeActivationIssues(template) {
               addIssue(
                 "weight_unit_invalid",
                 `${itemPath} requires kilograms or pounds.`,
+                itemPath
+              );
+            }
+          }
+          else if (loadMode === "rpe") {
+            const rpeValue = Number(workItem?.rpe_value);
+            if (!Number.isInteger(rpeValue) || rpeValue < 1 || rpeValue > 10) {
+              addIssue(
+                "rpe_value_invalid",
+                `${itemPath} RPE must be a whole number between one and 10.`,
                 itemPath
               );
             }
@@ -9505,7 +9558,7 @@ function renderTemplateLoadControls(
   sessionIndex,
   workItemIndex
 ) {
-  const loadMode = ["fixed_weight", "bodyweight"].includes(workItem.load_mode)
+  const loadMode = ["fixed_weight", "bodyweight", "rpe"].includes(workItem.load_mode)
     ? workItem.load_mode
     : "percent_1rm";
 
@@ -9519,6 +9572,7 @@ function renderTemplateLoadControls(
             <option value="percent_1rm" ${loadMode === "percent_1rm" ? "selected" : ""}>% of athlete 1RM</option>
             <option value="fixed_weight" ${loadMode === "fixed_weight" ? "selected" : ""}>Fixed weight</option>
             <option value="bodyweight" ${loadMode === "bodyweight" ? "selected" : ""}>Bodyweight</option>
+            <option value="rpe" ${loadMode === "rpe" ? "selected" : ""}>RPE</option>
           </select>
         </label>
         ${loadMode === "percent_1rm"
@@ -9530,7 +9584,11 @@ function renderTemplateLoadControls(
               <label><span>Weight</span><input type="number" min="0.25" max="1000" step="0.25" value="${Number(workItem.weight_value)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
               <label><span>Unit</span><select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_unit")}><option value="kg" ${workItem.weight_unit === "lb" ? "" : "selected"}>kg</option><option value="lb" ${workItem.weight_unit === "lb" ? "selected" : ""}>lb</option></select></label>
             `
-            : '<div class="template-bodyweight-note">No external load is prescribed.</div>'}
+            : loadMode === "rpe"
+              ? `
+                <label><span>RPE</span><input type="number" min="1" max="10" step="1" value="${Number(workItem.rpe_value)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "rpe_value")} /></label>
+              `
+              : '<div class="template-bodyweight-note">No external load is prescribed.</div>'}
       </div>
     </fieldset>
   `;
@@ -9835,6 +9893,7 @@ function templateDraftValidationRecord() {
                       percent_1rm: Number(workItem?.percent_1rm),
                       weight_value: Number(workItem?.weight_value),
                       weight_unit: String(workItem?.weight_unit ?? ""),
+                      rpe_value: Number(workItem?.rpe_value),
                       rest_seconds: Number(workItem?.rest_seconds),
                       role: String(workItem?.role ?? "")
                     }))
@@ -9952,6 +10011,9 @@ function templateValidationSelector(issue) {
   }
   else if (code === "weight_unit_invalid") {
     field = "weight_unit";
+  }
+  else if (code === "rpe_value_invalid") {
+    field = "rpe_value";
   }
   else if (code === "rest_seconds_invalid") {
     field = "rest_seconds";
@@ -10541,6 +10603,7 @@ function templatePayloadFromDraft() {
             percent_1rm: Number(workItem.percent_1rm),
             weight_value: Number(workItem.weight_value),
             weight_unit: workItem.weight_unit,
+            rpe_value: Number(workItem.rpe_value),
             rest_seconds: Number(workItem.rest_seconds),
             role: workItem.role
           }))
@@ -12529,6 +12592,11 @@ elements.reportPainButton.addEventListener("click", openPainReportPanel);
 elements.cancelPainReportButton.addEventListener("click", hideAllActionPanels);
 elements.confirmPainReportButton.addEventListener("click", () => {
   confirmPainReport().catch(handleError);
+});
+elements.reportRpeButton.addEventListener("click", openRpeReportPanel);
+elements.cancelRpeReportButton.addEventListener("click", hideAllActionPanels);
+elements.confirmRpeReportButton.addEventListener("click", () => {
+  confirmRpeReport().catch(handleError);
 });
 elements.requestSubstitutionButton.addEventListener("click", openSubstitutionPanel);
 elements.cancelSubstitutionButton.addEventListener("click", hideAllActionPanels);

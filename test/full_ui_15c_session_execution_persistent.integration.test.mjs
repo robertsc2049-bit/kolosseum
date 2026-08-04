@@ -440,6 +440,48 @@ test(
       });
       assertStatus(unknownExercisePainReport, 400, "pain report for an unknown exercise must be rejected");
 
+      // --- RPE input: a closed, bounded factual value only, no free text, no scoring/inference. ---
+      const rpeStateBefore = await getState(baseUrl, sessionId);
+
+      const rpeReport = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+        type: "RPE_REPORT",
+        exercise_id: nextExerciseId,
+        rpe_value: 8
+      });
+      assertStatus(rpeReport, 201, "rpe report");
+
+      const rpeStateAfter = await getState(baseUrl, sessionId);
+      assert.deepEqual(
+        rpeStateAfter.trace,
+        rpeStateBefore.trace,
+        "an unrecognized/no-op event type must not change reducer truth"
+      );
+
+      const badRpeShape = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+        type: "RPE_REPORT",
+        exercise_id: nextExerciseId,
+        rpe_value: 8,
+        rpe_text: "felt like an 8"
+      });
+      assertStatus(badRpeShape, 400, "rpe report with an unlisted key must be rejected");
+      assert.equal(badRpeShape.json.details?.failure_token, "phase6_runtime_rpe_report_invalid_shape");
+
+      const badRpeRange = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+        type: "RPE_REPORT",
+        exercise_id: nextExerciseId,
+        rpe_value: 11
+      });
+      assertStatus(badRpeRange, 400, "rpe report outside the closed 1-10 range must be rejected");
+      assert.equal(badRpeRange.json.details?.failure_token, "phase6_runtime_rpe_report_invalid_shape");
+
+      const unknownExerciseRpeReport = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+        type: "RPE_REPORT",
+        exercise_id: "not_a_real_exercise",
+        rpe_value: 8
+      });
+      assertStatus(unknownExerciseRpeReport, 400, "rpe report for an unknown exercise must be rejected");
+      assert.equal(unknownExerciseRpeReport.json.details?.failure_token, "phase6_runtime_rpe_report_unknown_exercise");
+
       // --- Substitution: must use the existing contract/registry, and must
       //     never change which exercise_id is authoritative. ---
       const deadliftSubstitution = await request(
@@ -509,6 +551,14 @@ test(
       });
       assertStatus(postTerminalPain, 409, "event after terminal must be rejected");
       assert.equal(postTerminalPain.json.details?.failure_token, "phase6_runtime_terminal_session_event_rejected");
+
+      const postTerminalRpe = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+        type: "RPE_REPORT",
+        exercise_id: "back_squat",
+        rpe_value: 8
+      });
+      assertStatus(postTerminalRpe, 409, "rpe event after terminal must be rejected");
+      assert.equal(postTerminalRpe.json.details?.failure_token, "phase6_runtime_terminal_session_event_rejected");
 
       const stateAfterIllegalAttempt = await getState(baseUrl, sessionId);
       assert.deepEqual(

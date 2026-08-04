@@ -206,18 +206,6 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
     const originalId = String(it.exercise_id ?? "");
     if (!originalId) continue;
 
-    // No activity in the current closed-world registry is cardiovascular.
-    // RPE prescription is reserved for cardio work only; every supported
-    // activity today is resistance-based, so RPE intensity must fail closed
-    // here regardless of which builder produced the planned item.
-    if (isRecord(it.intensity) && it.intensity.type === "rpe") {
-      return {
-        ok: false,
-        failure_token: "phase6_resistance_rpe_prohibited",
-        details: { exercise_id: originalId }
-      };
-    }
-
     const r = applyRulesToId(originalId, rules);
     const finalId = r.finalId;
 

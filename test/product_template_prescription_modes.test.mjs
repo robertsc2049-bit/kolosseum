@@ -22,14 +22,16 @@ test("template input supports fixed reps and rep ranges", () => {
   assert.match(service, /rep_prescription/u);
 });
 
-test("template input supports percentage, weight and bodyweight loading", () => {
+test("template input supports percentage, weight, bodyweight and RPE loading", () => {
   assert.match(service, /const loadModes/u);
-  assert.match(service, /"percent_1rm",\s*"fixed_weight",\s*"bodyweight"/u);
+  assert.match(service, /"percent_1rm",\s*"fixed_weight",\s*"bodyweight",\s*"rpe"/u);
   assert.match(service, /loadingReferenceFromInput/u);
   assert.match(service, /weightUnits/u);
   assert.match(service, /weight_value_invalid/u);
   assert.match(service, /type: "bodyweight"/u);
-  assert.doesNotMatch(service, /planned_rpe|resistance_rpe/u);
+  assert.match(service, /type: "rpe"/u);
+  assert.match(service, /rpe_value_invalid/u);
+  assert.match(service, /stored_rpe_value_invalid/u);
 });
 
 test("engine carries the complete explicit prescription to the session", () => {
@@ -43,13 +45,14 @@ test("engine carries the complete explicit prescription to the session", () => {
 
 test("coach builder exposes conditional rep and loading controls", () => {
   assert.match(html, /Repetitions may be fixed or a range/u);
-  assert.match(html, /fixed weight, or bodyweight/u);
+  assert.match(html, /fixed weight, bodyweight, or RPE/u);
   assert.match(js, /renderTemplateRepControls/u);
   assert.match(js, /renderTemplateLoadControls/u);
   assert.match(js, />Fixed reps</u);
   assert.match(js, />Rep range</u);
   assert.match(js, />Weight</u);
   assert.match(js, />Bodyweight</u);
+  assert.match(js, />RPE</u);
   assert.match(js, /weight_unit/u);
   assert.match(js, /normalisePersistedTemplateDraft/u);
   assert.match(css, /\.template-prescription-grid/u);
@@ -61,4 +64,5 @@ test("athlete session formatting distinguishes range and loading type", () => {
   assert.match(js, /% 1RM/u);
   assert.ok(js.includes("details.push(`${Number(intensity.value)} ${unit}`)"));
   assert.match(js, /details\.push\("Bodyweight"\)/u);
+  assert.match(js, /RPE \$\{Number\(intensity\.value\)\}/u);
 });

@@ -418,6 +418,16 @@
                   </div>
                 </div>
 
+                <div id="rpeReportPanel" class="pain-report-panel" hidden>
+                  <h3>Report RPE for this exercise?</h3>
+                  <p>This records only your own factual effort rating for this exercise. It does not infer readiness, risk, or optimisation.</p>
+                  <label><span>RPE (1-10)</span><input id="rpeReportValue" type="number" min="1" max="10" step="1" value="8" /></label>
+                  <div class="button-row">
+                    <button id="confirmRpeReportButton" class="button primary" type="button">Record RPE</button>
+                    <button id="cancelRpeReportButton" class="button secondary" type="button">Cancel</button>
+                  </div>
+                </div>
+
                 <div id="substitutionPanel" class="substitution-panel" hidden>
                   <h3>Request a substitution</h3>
                   <p>Select any equipment that is unavailable right now.</p>
@@ -438,6 +448,7 @@
                   <button id="completeExerciseButton" class="button primary wide" type="button" hidden>Mark exercise complete</button>
                   <button id="skipExerciseButton" class="button secondary wide" type="button" hidden>Skip exercise</button>
                   <button id="reportPainButton" class="button secondary wide" type="button" hidden>Report pain</button>
+                  <button id="reportRpeButton" class="button secondary wide" type="button" hidden>Report RPE</button>
                   <button id="requestSubstitutionButton" class="button secondary wide" type="button" hidden>Request substitution</button>
                   <button id="splitSessionButton" class="button secondary wide" type="button" hidden>Stop and return later</button>
                 </div>
@@ -1450,7 +1461,7 @@
                 <button id="backToTemplatesButton" class="text-button back-button" type="button">← Programme library</button>
                 <p class="eyebrow">Programme builder</p>
                 <h2 id="templateBuilderTitle">New programme</h2>
-                <p class="muted">Build ordered training blocks. Each block contains weeks, each week contains sessions, and each session contains exactly four registry-backed exercises. Repetitions may be fixed or a range. Loading may use percentage of 1RM, fixed weight, or bodyweight. Percentage prescriptions resolve from the athlete profile when assigned.</p>
+                <p class="muted">Build ordered training blocks. Each block contains weeks, each week contains sessions, and each session contains exactly four registry-backed exercises. Repetitions may be fixed or a range. Loading may use percentage of 1RM, fixed weight, bodyweight, or RPE. Percentage prescriptions resolve from the athlete profile when assigned.</p>
               </div>
               <div class="button-row">
                 <button id="saveTemplateButton" class="button secondary" type="button">Save draft</button>

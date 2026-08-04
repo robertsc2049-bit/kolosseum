@@ -2,8 +2,11 @@
 // This service validates coach-authored templates against the active exercise
 // registry, persists immutable product records, and materialises an explicit
 // planned_items programme for the existing deterministic Phase 6 boundary.
-// It does not expose formula internals, accept RPE for resistance work, or let
-// coach notes, UI state, billing state, or relationship state alter prescriptions.
+// It does not expose formula internals, or let coach notes, UI state, billing
+// state, or relationship state alter prescriptions. Resistance work may be
+// prescribed by percent_1rm, fixed weight, bodyweight, or RPE - RPE is an
+// explicit coach-entered value passed through as-is, never inferred or
+// resolved to a weight.
 
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -76,7 +79,8 @@ const loadModes =
   new Set([
     "percent_1rm",
     "fixed_weight",
-    "bodyweight"
+    "bodyweight",
+    "rpe"
   ]);
 
 const weightUnits =
@@ -187,6 +191,10 @@ type LoadingReference =
     }>
   | Readonly<{
       type: "bodyweight";
+    }>
+  | Readonly<{
+      type: "rpe";
+      value: number;
     }>;
 
 function repPrescriptionFromInput(
@@ -286,6 +294,19 @@ function loadingReferenceFromInput(
   if (loadMode === "bodyweight") {
     return deepFreeze({
       type: "bodyweight"
+    });
+  }
+
+  if (loadMode === "rpe") {
+    return deepFreeze({
+      type: "rpe",
+      value:
+        integerInRange(
+          workItem.rpe_value,
+          1,
+          10,
+          "rpe_value_invalid"
+        )
     });
   }
 
@@ -430,6 +451,19 @@ function loadingReferenceFromStored(
         ),
       unit:
         unit as "kg" | "lb"
+    });
+  }
+
+  if (type === "rpe") {
+    return deepFreeze({
+      type: "rpe",
+      value:
+        integerInRange(
+          raw.value,
+          1,
+          10,
+          "stored_rpe_value_invalid"
+        )
     });
   }
 
@@ -1124,6 +1158,7 @@ function normaliseTemplateStructure(
                               "percent_1rm",
                               "weight_value",
                               "weight_unit",
+                              "rpe_value",
                               "rest_seconds",
                               "role"
                             ],
@@ -1597,7 +1632,11 @@ function templateRecordInput(
                                         loading.type
                                       ) === "bodyweight"
                                       ? "bodyweight"
-                                      : "percent_1rm",
+                                      : cleanString(
+                                          loading.type
+                                        ) === "rpe"
+                                        ? "rpe"
+                                        : "percent_1rm",
                                 percent_1rm:
                                   cleanString(
                                     loading.type
@@ -1620,6 +1659,14 @@ function templateRecordInput(
                                   ) === "lb"
                                     ? "lb"
                                     : "kg",
+                                rpe_value:
+                                  cleanString(
+                                    loading.type
+                                  ) === "rpe"
+                                    ? Number(
+                                        loading.value
+                                      )
+                                    : 8,
                                 rest_seconds:
                                   Number(
                                     workItem
