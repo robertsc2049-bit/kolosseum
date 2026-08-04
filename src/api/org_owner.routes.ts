@@ -23,11 +23,6 @@ import {
 } from "./org_owner_account_service.js";
 import { authenticatedOrgOwner, orgOwnerCookieValue } from "./org_owner_auth.js";
 import {
-  OrgBillingError,
-  changeOrgSeatPlan,
-  getOrgBillingStatus
-} from "./org_billing_service.js";
-import {
   OrgRosterError,
   createOrganisation,
   inviteCoachToOrganisation,
@@ -168,41 +163,14 @@ orgOwnerRouter.post(
   })
 );
 
-orgOwnerRouter.get(
-  "/organisations/:org_id/billing",
-  asyncHandler(async (request, response) => {
-    const { user_id } = await authenticatedOrgOwner(request, false);
-    const billing = await getOrgBillingStatus(user_id, String(request.params.org_id));
-    return response.status(200).json({ ok: true, billing });
-  })
-);
-
-orgOwnerRouter.post(
-  "/organisations/:org_id/billing/seat-plan",
-  asyncHandler(async (request, response) => {
-    const { user_id } = await authenticatedOrgOwner(request, true);
-    const result = await changeOrgSeatPlan(
-      user_id,
-      String(request.params.org_id),
-      request.body?.seat_limit,
-      request.body?.request_id
-    );
-    return response.status(200).json({ ok: true, billing: result });
-  })
-);
-
-// OrgOwnerAuthError/OrgRosterError/OrgBillingError are not ApiError, so
-// without this router-scoped handler they would otherwise reach the generic
-// error mapper, which mistakes the string message for a Postgres error code
-// and returns a misleading 500 instead of the correct status (mirrors the
+// OrgOwnerAuthError/OrgRosterError are not ApiError, so without this
+// router-scoped handler they would otherwise reach the generic error
+// mapper, which mistakes the string message for a Postgres error code and
+// returns a misleading 500 instead of the correct status (mirrors the
 // identical, deliberate pattern in product_admin.routes.ts).
 orgOwnerRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
-    if (
-      error instanceof OrgOwnerAuthError ||
-      error instanceof OrgRosterError ||
-      error instanceof OrgBillingError
-    ) {
+    if (error instanceof OrgOwnerAuthError || error instanceof OrgRosterError) {
       response.status(error.status).json({ error: error.message });
       return;
     }

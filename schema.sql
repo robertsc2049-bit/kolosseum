@@ -878,37 +878,9 @@ CREATE TABLE IF NOT EXISTS product_organisations (
     CHECK (
       org_state IN ('active', 'suspended', 'closed')
     ),
-  -- Real, per-org seat allowance (part B.3, seat-entitlement billing) - set
-  -- at creation from the controlled-launch default and changed only
-  -- through an explicit, audited seat_plan_changed action. Unlike the
-  -- single-coach commercial config (env-var only, one global limit), each
-  -- org carries its own persisted limit.
-  seat_limit    INTEGER
-    CHECK (
-      seat_limit IS NULL OR seat_limit > 0
-    ),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-
--- Migration for environments that already applied the original B.1
--- product_organisations shape (no seat_limit column) before this fix
--- landed.
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1
-    FROM information_schema.columns
-    WHERE table_name = 'product_organisations'
-      AND column_name = 'seat_limit'
-  ) THEN
-    ALTER TABLE product_organisations ADD COLUMN seat_limit INTEGER;
-    ALTER TABLE product_organisations
-      ADD CONSTRAINT product_organisations_seat_limit_check
-      CHECK (seat_limit IS NULL OR seat_limit > 0);
-  END IF;
-END;
-$$;
 
 DO $$
 BEGIN

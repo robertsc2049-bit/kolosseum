@@ -153,60 +153,6 @@ test("S-V1-P-03 rejects enterprise organisation and team seat scopes", () => {
   }
 });
 
-test("S-V1-P-03 allows org billing to roll up seat consumption across member coaches", () => {
-  // A single shared org billing_access_record; current_occupied_seat_count
-  // represents the SUM of active coach memberships across the whole org,
-  // not one coach's own count - the caller (org_billing_service.ts) is
-  // responsible for computing that aggregate before calling this pure
-  // evaluator, which itself has no knowledge of coaches or orgs.
-  const orgBillingAccessRecord = activeBillingAccessRecord({
-    checkout: {
-      actor_id: "org_owner_001",
-      subject_id: "org_owner_001",
-      seat_limit: 3,
-      idempotency_key: "idem_checkout_org_001"
-    },
-    event_id: "evt_checkout_completed_org_001",
-    provider_session_id: "cs_test_org_001",
-    webhook_idempotency_key: "idem_webhook_org_001"
-  });
-
-  const allowed = evaluateSeatEntitlement({
-    billing_access_record: orgBillingAccessRecord,
-    requested_product_surface: "controlled_launch_org_coach_product_access",
-    requesting_actor_id: "org_owner_001",
-    requested_subject_id: "coach_003",
-    current_occupied_seat_count: 2,
-    requested_seat_count: 1,
-    requested_seat_scope: "controlled_launch_org_coach_seat",
-    requested_at: "2026-06-17T10:10:00.000Z",
-    deterministic_probe: deterministicProbe
-  });
-
-  assert.equal(allowed.ok, true);
-  assert.equal(allowed.reason_code, SEAT_ENTITLEMENT_REASON_CODES.ALLOWED);
-  assert.equal(allowed.available_seat_count_after_request, 0);
-  assert.equal(allowed.engine_decision, false);
-  assert.equal(allowed.engine_visible, false);
-
-  const rejected = evaluateSeatEntitlement({
-    billing_access_record: orgBillingAccessRecord,
-    requested_product_surface: "controlled_launch_org_coach_product_access",
-    requesting_actor_id: "org_owner_001",
-    requested_subject_id: "coach_004",
-    current_occupied_seat_count: 3,
-    requested_seat_count: 1,
-    requested_seat_scope: "controlled_launch_org_coach_seat",
-    requested_at: "2026-06-17T10:10:00.000Z",
-    deterministic_probe: deterministicProbe
-  });
-
-  assert.equal(rejected.ok, false);
-  assert.equal(rejected.reason_code, SEAT_ENTITLEMENT_REASON_CODES.SEAT_LIMIT_EXCEEDED);
-  assert.equal(rejected.product_access_failure, true);
-  assert.equal(rejected.engine_decision, false);
-});
-
 test("S-V1-P-03 rejects actor mismatch as product access failure", () => {
   const result = evaluateSeatEntitlement(entitlementRequest({
     requesting_actor_id: "coach_999"

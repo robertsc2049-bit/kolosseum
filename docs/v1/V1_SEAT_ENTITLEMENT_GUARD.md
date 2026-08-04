@@ -20,24 +20,11 @@ S-V1-P-03 permits:
 
 - controlled-launch coach seat entitlement
 - controlled-launch athlete seat entitlement
-- controlled-launch org coach seat entitlement
 - product access allow verdicts
 - product access reject verdicts
 - seat limit comparison against explicit recorded counts
 - factual copy for product access state
 - an API-shaped adapter for entitlement requests
-
-Org coach seat entitlement (`controlled_launch_org_coach_seat` /
-`controlled_launch_org_coach_product_access`) evaluates one shared,
-org-owner-held `billing_access_record` against a roll-up seat count. The
-guard itself has no concept of "org" or "coach" - it only compares a
-`current_occupied_seat_count` integer against the record's `seat_limit`.
-The caller (`src/api/org_billing_service.ts`) is responsible for computing
-that count as the number of `product_org_coach_memberships` rows for the
-organisation that are not yet `removed` (a pending invite reserves a seat
-the same as an accepted one) before calling `evaluateSeatEntitlement`, and
-for setting `requesting_actor_id` to the org owner's `user_id` (matching
-`billing_access_record.actor_id`), never an individual coach's id.
 
 ## Not included
 
