@@ -15,12 +15,14 @@ export const S_V1_P_03_SEAT_ENTITLEMENT_GUARD_VERSION = "S-V1-P-03";
 
 export const SEAT_ENTITLEMENT_ALLOWED_SCOPES = Object.freeze([
   "controlled_launch_coach_seat",
-  "controlled_launch_athlete_seat"
+  "controlled_launch_athlete_seat",
+  "controlled_launch_org_coach_seat"
 ]);
 
 export const SEAT_ENTITLEMENT_ALLOWED_PRODUCT_SURFACES = Object.freeze([
   "controlled_launch_coach_product_access",
-  "controlled_launch_athlete_product_access"
+  "controlled_launch_athlete_product_access",
+  "controlled_launch_org_coach_product_access"
 ]);
 
 export const SEAT_ENTITLEMENT_FORBIDDEN_SCOPES = Object.freeze([
