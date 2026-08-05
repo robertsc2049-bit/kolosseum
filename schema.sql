@@ -1114,3 +1114,74 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- Part D - messaging. thread_type discriminates between coach_athlete
+-- threads (a coach and their currently-accepted athlete) and
+-- org_owner_coach threads (an org owner and an active-member coach of
+-- their org). Exactly one of athlete_user_id/org_id is populated per row,
+-- enforced by the CHECK below.
+CREATE TABLE IF NOT EXISTS product_message_threads (
+  thread_id        TEXT PRIMARY KEY,
+  thread_type      TEXT NOT NULL
+    CHECK (
+      thread_type IN ('coach_athlete', 'org_owner_coach')
+    ),
+  coach_user_id    TEXT NOT NULL
+    REFERENCES product_accounts(user_id),
+  athlete_user_id  TEXT
+    REFERENCES product_accounts(user_id),
+  org_id           TEXT
+    REFERENCES product_organisations(org_id),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK (
+    (thread_type = 'coach_athlete' AND athlete_user_id IS NOT NULL AND org_id IS NULL)
+    OR
+    (thread_type = 'org_owner_coach' AND org_id IS NOT NULL AND athlete_user_id IS NULL)
+  )
+);
+
+-- A plain multi-column UNIQUE would not work here - NULL <> NULL in
+-- Postgres, so it would silently allow duplicate org_owner_coach threads
+-- (athlete_user_id is always NULL on those rows). Partial unique indexes,
+-- scoped per thread_type, are the correct construct.
+CREATE UNIQUE INDEX IF NOT EXISTS
+  idx_product_message_threads_coach_athlete_unique
+ON product_message_threads (coach_user_id, athlete_user_id)
+WHERE thread_type = 'coach_athlete';
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+  idx_product_message_threads_org_owner_coach_unique
+ON product_message_threads (org_id, coach_user_id)
+WHERE thread_type = 'org_owner_coach';
+
+-- No length bound exists on product_coach_notes.note_text (this
+-- codebase's only prior free-text precedent) - messages are much
+-- higher-frequency, so a deliberate cap is added here rather than
+-- blindly copying the unbounded precedent.
+CREATE TABLE IF NOT EXISTS product_messages (
+  message_id         TEXT PRIMARY KEY,
+  thread_id          TEXT NOT NULL
+    REFERENCES product_message_threads(thread_id)
+    ON DELETE CASCADE,
+  sender_user_id     TEXT NOT NULL,
+  sender_role        TEXT NOT NULL
+    CHECK (
+      sender_role IN ('coach', 'athlete', 'org_owner')
+    ),
+  body_text          TEXT NOT NULL
+    CHECK (
+      char_length(btrim(body_text)) BETWEEN 1 AND 4000
+    ),
+  client_request_id  TEXT NOT NULL,
+  created_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  UNIQUE (thread_id, sender_user_id, client_request_id)
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_messages_thread
+ON product_messages (
+  thread_id,
+  created_at ASC
+);

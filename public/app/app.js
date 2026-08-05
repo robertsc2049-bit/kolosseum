@@ -356,6 +356,11 @@ const elements = {
   athleteDetailNoteText: document.getElementById("athleteDetailNoteText"),
   athleteDetailNoteVisibility: document.getElementById("athleteDetailNoteVisibility"),
   athleteDetailNoteCancelButton: document.getElementById("athleteDetailNoteCancelButton"),
+  athleteDetailMessageHistory: document.getElementById("athleteDetailMessageHistory"),
+  athleteDetailMessageButton: document.getElementById("athleteDetailMessageButton"),
+  athleteDetailMessageForm: document.getElementById("athleteDetailMessageForm"),
+  athleteDetailMessageText: document.getElementById("athleteDetailMessageText"),
+  athleteDetailMessageCancelButton: document.getElementById("athleteDetailMessageCancelButton"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -5103,6 +5108,96 @@ async function recordAthleteDetailNote(
   }
 }
 
+async function refreshCoachAthleteMessages(athleteUserId, options = {}) {
+  if (!athleteUserId || !elements.athleteDetailMessageHistory) return;
+
+  try {
+    const response = await api("GET", "/messages/coach/threads");
+    const threads = Array.isArray(response.threads) ? response.threads : [];
+    const thread = threads.find((entry) => entry.athlete_user_id === athleteUserId) ?? null;
+
+    if (!thread) {
+      state.coachAthleteMessages = [];
+      renderCoachAthleteMessages();
+      return;
+    }
+
+    const messagesResponse = await api(
+      "GET",
+      `/messages/coach/threads/${encodeURIComponent(thread.thread_id)}`
+    );
+    state.coachAthleteMessages = Array.isArray(messagesResponse.messages) ? messagesResponse.messages : [];
+    renderCoachAthleteMessages();
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
+function renderCoachAthleteMessages() {
+  if (!elements.athleteDetailMessageHistory) return;
+
+  const messages = Array.isArray(state.coachAthleteMessages) ? state.coachAthleteMessages : [];
+
+  if (messages.length === 0) {
+    elements.athleteDetailMessageHistory.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No messages yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  elements.athleteDetailMessageHistory.innerHTML = messages.map((message) => `
+    <article class="review-note-card">
+      <div class="record-meta">
+        <span class="badge neutral">${message.sender_role === "coach" ? "You" : "Athlete"}</span>
+        <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
+      </div>
+      <p>${escapeHtml(message.body_text ?? "")}</p>
+    </article>
+  `).join("");
+}
+
+function openComposeAthleteMessagePanel() {
+  if (!state.selectedCoachAthleteId) return;
+  elements.athleteDetailMessageText.value = "";
+  elements.athleteDetailMessageForm.hidden = false;
+  elements.athleteDetailMessageText.focus();
+}
+
+function closeComposeAthleteMessagePanel() {
+  elements.athleteDetailMessageForm.hidden = true;
+}
+
+async function confirmSendAthleteMessage(event) {
+  event.preventDefault();
+
+  const athleteUserId = state.selectedCoachAthleteId;
+  if (!athleteUserId) return;
+
+  const bodyText = elements.athleteDetailMessageText.value.trim();
+  if (!bodyText) {
+    throw new Error("Enter a message before sending it.");
+  }
+
+  showBusy("Sending message…");
+  try {
+    await api(
+      "POST",
+      `/messages/coach/athletes/${encodeURIComponent(athleteUserId)}/send`,
+      { body_text: bodyText, client_request_id: newClientRequestId() }
+    );
+
+    closeComposeAthleteMessagePanel();
+    await refreshCoachAthleteMessages(athleteUserId, { quiet: true });
+    showNotice("Message sent.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
 async function openAthleteProfile(athleteUserId) {
   await loadTemplateExercises();
 
@@ -5146,6 +5241,12 @@ async function openAthleteProfile(athleteUserId) {
       {
         quiet: true
       }
+    ),
+    refreshCoachAthleteMessages(
+      athleteUserId,
+      {
+        quiet: true
+      }
     )
   ]);
 
@@ -5171,6 +5272,13 @@ function closeAthleteProfile() {
     elements.athleteDetailNoteForm
   ) {
     elements.athleteDetailNoteForm
+      .hidden = true;
+  }
+
+  if (
+    elements.athleteDetailMessageForm
+  ) {
+    elements.athleteDetailMessageForm
       .hidden = true;
   }
 }
@@ -11597,6 +11705,7 @@ function renderAthleteRelationships() {
 
   const current = relationships.filter((entry) => entry.relationship_state === "accepted");
   const past = relationships.filter((entry) => entry.relationship_state !== "accepted");
+  const currentCoach = current[0] ?? null;
 
   panel.hidden = false;
   panel.innerHTML = `
@@ -11629,6 +11738,19 @@ function renderAthleteRelationships() {
         `).join("")}
       </div>
     ` : ""}
+    ${currentCoach ? `
+      <p class="eyebrow">Messages</p>
+      <div id="athleteMessageHistory" class="record-list"></div>
+      <form id="athleteMessageForm" class="athlete-detail-note-form" data-coach-user-id="${escapeHtml(currentCoach.coach_user_id)}">
+        <label class="field">
+          <span>Message your coach</span>
+          <textarea id="athleteMessageText" required maxlength="4000"></textarea>
+        </label>
+        <div class="inline-controls">
+          <button class="button primary" type="submit">Send</button>
+        </div>
+      </form>
+    ` : ""}
   `;
 
   for (const button of panel.querySelectorAll(".end-relationship-button")) {
@@ -11640,6 +11762,17 @@ function renderAthleteRelationships() {
       })
     );
   }
+
+  const messageForm = panel.querySelector("#athleteMessageForm");
+  if (messageForm) {
+    messageForm.addEventListener(
+      "submit",
+      (event) => {
+        confirmSendAthleteOwnMessage(event, messageForm.dataset.coachUserId).catch(handleError);
+      }
+    );
+    renderAthleteOwnMessages();
+  }
 }
 
 async function refreshAthleteRelationships() {
@@ -11650,8 +11783,82 @@ async function refreshAthleteRelationships() {
     ? response.relationships
     : [];
 
+  await refreshAthleteOwnMessages().catch(() => {});
   renderAthleteRelationships();
   return state.athleteRelationships;
+}
+
+async function refreshAthleteOwnMessages() {
+  if (state.role !== "athlete") return;
+
+  const response = await api("GET", "/messages/athlete/threads");
+  const threads = Array.isArray(response.threads) ? response.threads : [];
+  const thread = threads[0] ?? null;
+
+  if (!thread) {
+    state.athleteMessages = [];
+    renderAthleteOwnMessages();
+    return;
+  }
+
+  const messagesResponse = await api(
+    "GET",
+    `/messages/athlete/threads/${encodeURIComponent(thread.thread_id)}`
+  );
+  state.athleteMessages = Array.isArray(messagesResponse.messages) ? messagesResponse.messages : [];
+  renderAthleteOwnMessages();
+}
+
+function renderAthleteOwnMessages() {
+  const container = document.getElementById("athleteMessageHistory");
+  if (!container) return;
+
+  const messages = Array.isArray(state.athleteMessages) ? state.athleteMessages : [];
+
+  if (messages.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No messages yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = messages.map((message) => `
+    <article class="review-note-card">
+      <div class="record-meta">
+        <span class="badge neutral">${message.sender_role === "athlete" ? "You" : "Coach"}</span>
+        <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
+      </div>
+      <p>${escapeHtml(message.body_text ?? "")}</p>
+    </article>
+  `).join("");
+}
+
+async function confirmSendAthleteOwnMessage(event, coachUserId) {
+  event.preventDefault();
+  if (!coachUserId) return;
+
+  const textarea = document.getElementById("athleteMessageText");
+  const bodyText = textarea?.value.trim() ?? "";
+  if (!bodyText) {
+    throw new Error("Enter a message before sending it.");
+  }
+
+  showBusy("Sending message…");
+  try {
+    await api(
+      "POST",
+      `/messages/athlete/coaches/${encodeURIComponent(coachUserId)}/send`,
+      { body_text: bodyText, client_request_id: newClientRequestId() }
+    );
+
+    await refreshAthleteOwnMessages();
+    showNotice("Message sent.");
+  }
+  finally {
+    hideBusy();
+  }
 }
 
 async function endAthleteRelationship(relationshipId) {
@@ -13295,4 +13502,26 @@ elements.athleteDetailNoteCancelButton
       elements.athleteDetailNoteForm
         .hidden = true;
     }
+  );
+
+elements.athleteDetailMessageButton
+  ?.addEventListener(
+    "click",
+    openComposeAthleteMessagePanel
+  );
+
+elements.athleteDetailMessageForm
+  ?.addEventListener(
+    "submit",
+    (event) => {
+      confirmSendAthleteMessage(
+        event
+      ).catch(handleError);
+    }
+  );
+
+elements.athleteDetailMessageCancelButton
+  ?.addEventListener(
+    "click",
+    closeComposeAthleteMessagePanel
   );
