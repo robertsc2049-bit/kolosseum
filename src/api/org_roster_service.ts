@@ -46,6 +46,15 @@ function canonicalEmail(value: unknown): string {
   return email;
 }
 
+// Part C - declared once at creation, immutable afterward (see schema.sql).
+// Omitted/empty defaults to the safe, privacy-preserving "individual" mode;
+// any other non-empty value is rejected rather than silently coerced.
+function cleanVisibilityMode(value: unknown): "individual" | "shared" {
+  if (value === undefined || value === null || value === "") return "individual";
+  if (value === "individual" || value === "shared") return value;
+  throw new OrgRosterError("org_roster_visibility_mode_invalid", 400);
+}
+
 function canonicalJson(value: unknown): string {
   const sortKeys = (input: unknown): unknown => {
     if (Array.isArray(input)) return input.map(sortKeys);
@@ -185,6 +194,7 @@ export type OrganisationRow = Readonly<{
   org_name: string;
   org_state: "active" | "suspended" | "closed";
   seat_limit: number | null;
+  visibility_mode: "individual" | "shared";
   created_at_iso8601: string;
 }>;
 
@@ -199,6 +209,7 @@ function mapOrganisationRow(value: unknown): OrganisationRow | null {
     org_name: cleanString(value.org_name),
     org_state: state,
     seat_limit: Number.isInteger(value.seat_limit) ? (value.seat_limit as number) : null,
+    visibility_mode: value.visibility_mode === "shared" ? "shared" : "individual",
     created_at_iso8601: value.created_at instanceof Date ? value.created_at.toISOString() : ""
   });
 }
@@ -213,12 +224,14 @@ function defaultSeatLimitFromEnv(): number | null {
 
 export async function createOrganisation(
   ownerUserId: string,
-  orgName: unknown
+  orgName: unknown,
+  visibilityModeInput?: unknown
 ): Promise<Readonly<{ organisation: OrganisationRow }>> {
   const cleanOrgName = cleanString(orgName);
   if (!cleanOrgName) {
     throw new OrgRosterError("org_roster_org_name_required", 400);
   }
+  const visibilityMode = cleanVisibilityMode(visibilityModeInput);
 
   const client = await pool.connect();
   try {
@@ -227,11 +240,11 @@ export async function createOrganisation(
     const orgId = randomId("org");
     const inserted = await client.query(
       `
-      INSERT INTO product_organisations (org_id, owner_user_id, org_name, seat_limit)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO product_organisations (org_id, owner_user_id, org_name, seat_limit, visibility_mode)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
       `,
-      [orgId, ownerUserId, cleanOrgName, defaultSeatLimitFromEnv()]
+      [orgId, ownerUserId, cleanOrgName, defaultSeatLimitFromEnv(), visibilityMode]
     );
 
     await writeAuditRecord(client, {
@@ -323,12 +336,17 @@ export type OrgMembershipRow = Readonly<{
   invited_at_iso8601: string;
   activated_at_iso8601: string | null;
   removed_at_iso8601: string | null;
+  // Only populated when the underlying query joins product_organisations
+  // (listOrgMembershipsForCoach) - null everywhere else. Lets a coach see
+  // what visibility they're agreeing to before calling accept.
+  visibility_mode: "individual" | "shared" | null;
 }>;
 
 function mapMembershipRow(value: unknown): OrgMembershipRow | null {
   if (!isRecord(value)) return null;
   const status = value.membership_status;
   if (status !== "invited" && status !== "active" && status !== "removed") return null;
+  const visibilityMode = value.visibility_mode;
 
   return Object.freeze({
     membership_id: cleanString(value.membership_id),
@@ -337,7 +355,8 @@ function mapMembershipRow(value: unknown): OrgMembershipRow | null {
     membership_status: status,
     invited_at_iso8601: value.invited_at instanceof Date ? value.invited_at.toISOString() : "",
     activated_at_iso8601: value.activated_at instanceof Date ? value.activated_at.toISOString() : null,
-    removed_at_iso8601: value.removed_at instanceof Date ? value.removed_at.toISOString() : null
+    removed_at_iso8601: value.removed_at instanceof Date ? value.removed_at.toISOString() : null,
+    visibility_mode: visibilityMode === "individual" || visibilityMode === "shared" ? visibilityMode : null
   });
 }
 
@@ -526,7 +545,13 @@ export async function listOrgMembershipsForCoach(
   coachUserId: string
 ): Promise<readonly OrgMembershipRow[]> {
   const result = await pool.query(
-    `SELECT * FROM product_org_coach_memberships WHERE coach_user_id = $1 ORDER BY invited_at ASC`,
+    `
+    SELECT m.*, o.visibility_mode
+    FROM product_org_coach_memberships m
+    JOIN product_organisations o ON o.org_id = m.org_id
+    WHERE m.coach_user_id = $1
+    ORDER BY m.invited_at ASC
+    `,
     [coachUserId]
   );
   return result.rows.map(mapMembershipRow).filter((row): row is OrgMembershipRow => row !== null);
