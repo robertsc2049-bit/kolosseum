@@ -471,7 +471,7 @@ Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `org_owner_billing` — View seat usage and change the org's seat plan
 - `org_owner_athlete_visibility` — View athlete-level visibility scoped by the organisation's declared visibility mode
 - `coach_org_membership` — Coach reads, accepts and leaves org memberships from their own session
-- `org_coach_messaging` — Org owner and an active-member coach exchange threaded messages, API-only
+- `org_coach_messaging` — Org owner and an active-member coach exchange threaded messages with live delivery, API-only
 
 ### Coach-athlete messaging
 
@@ -483,7 +483,7 @@ Implemented: 1 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
-- `coach_athlete_messaging` — Coach and athlete exchange threaded messages while their relationship is accepted
+- `coach_athlete_messaging` — Coach and athlete exchange threaded messages with live delivery while their relationship is accepted
 
 ### Cross-product quality
 
