@@ -13,6 +13,7 @@ import crypto from "node:crypto";
 import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
+import { pushToUser } from "./realtime_hub.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -212,6 +213,27 @@ async function sendMessageToThread(
     const thread = mapThreadRow(threadRow.rows[0]);
     const message = mapMessageRow(messageRow.rows[0]);
     if (!thread || !message) throw new OrgCoachMessagingError("org_coach_messaging_send_failed", 500);
+
+    // Best-effort live push to whichever side did NOT send - a missed
+    // push is never a correctness problem, only a delayed one. The
+    // sender's role is what's known here; the coach's id is already in
+    // scope, but the org owner's id isn't (this function only ever
+    // receives orgId/coachUserId) - resolved via product_organisations
+    // only when the recipient actually is the owner.
+    if (senderRole === "coach") {
+      const ownerRow = await pool.query(
+        `SELECT owner_user_id FROM product_organisations WHERE org_id = $1 LIMIT 1`,
+        [orgId]
+      );
+      const ownerUserId = cleanString(ownerRow.rows[0]?.owner_user_id);
+      if (ownerUserId) {
+        pushToUser("org_owner", ownerUserId, { type: "org_coach_message", thread, message });
+      }
+    }
+    else {
+      pushToUser("coach", coachUserId, { type: "org_coach_message", thread, message });
+    }
+
     return Object.freeze({ thread, message });
   }
   catch (error) {

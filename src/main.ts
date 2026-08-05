@@ -5,6 +5,7 @@
 
 // src/main.ts
 import { app } from "./server.js";
+import { attachRealtimeWebSocketServer } from "./api/realtime_hub.js";
 
 function getPort(): number {
   const raw = process.env.PORT;
@@ -27,3 +28,6 @@ server.on("error", (err) => {
   console.error("FATAL: server listen error", err);
   process.exitCode = 1;
 });
+
+// Part E - live delivery for messaging.
+attachRealtimeWebSocketServer(server);
