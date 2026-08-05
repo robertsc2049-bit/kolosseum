@@ -21,7 +21,6 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { loadBeta17StoredCoachContext } from "./beta_product_record_store.js";
-import { pushToUser } from "./realtime_hub.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -214,15 +213,6 @@ export async function sendCoachAthleteMessage(
     const thread = mapThreadRow(threadRow.rows[0]);
     const message = mapMessageRow(messageRow.rows[0]);
     if (!thread || !message) throw new CoachAthleteMessagingError("coach_athlete_messaging_send_failed", 500);
-
-    // Best-effort live push to whichever side did NOT send - a missed
-    // push (no live connection) is never a correctness problem, only a
-    // delayed one; the recipient sees it next time they open/refresh the
-    // thread exactly as before this existed.
-    const recipientRole = senderRole === "coach" ? "athlete" : "coach";
-    const recipientUserId = senderRole === "coach" ? athleteUserId : coachUserId;
-    pushToUser(recipientRole, recipientUserId, { type: "coach_athlete_message", thread, message });
-
     return Object.freeze({ thread, message });
   }
   catch (error) {

@@ -81,8 +81,7 @@ const DEFAULT_STATE = Object.freeze({
   csrfToken: "",
   serverAccount: null,
   accountDetail: null,
-  currentTerms: null,
-  liveMessageThreadId: null
+  currentTerms: null
 });
 
 const state = loadState();
@@ -5118,13 +5117,11 @@ async function refreshCoachAthleteMessages(athleteUserId, options = {}) {
     const thread = threads.find((entry) => entry.athlete_user_id === athleteUserId) ?? null;
 
     if (!thread) {
-      state.liveMessageThreadId = null;
       state.coachAthleteMessages = [];
       renderCoachAthleteMessages();
       return;
     }
 
-    state.liveMessageThreadId = thread.thread_id;
     const messagesResponse = await api(
       "GET",
       `/messages/coach/threads/${encodeURIComponent(thread.thread_id)}`
@@ -5260,7 +5257,6 @@ async function openAthleteProfile(athleteUserId) {
 function closeAthleteProfile() {
   state.selectedCoachAthleteId = "";
   state.athleteProfileDraft = null;
-  state.liveMessageThreadId = null;
   saveState();
   elements.athleteProfilePanel.hidden = true;
   elements.athleteAssignmentPanel.hidden = true;
@@ -11800,13 +11796,11 @@ async function refreshAthleteOwnMessages() {
   const thread = threads[0] ?? null;
 
   if (!thread) {
-    state.liveMessageThreadId = null;
     state.athleteMessages = [];
     renderAthleteOwnMessages();
     return;
   }
 
-  state.liveMessageThreadId = thread.thread_id;
   const messagesResponse = await api(
     "GET",
     `/messages/athlete/threads/${encodeURIComponent(thread.thread_id)}`
@@ -12242,105 +12236,6 @@ async function checkConnection() {
   }
 }
 
-// Part E - live delivery for messaging. Server->client push only: this
-// socket never sends application data, it only reflects messages already
-// persisted and returned by the existing POST /messages/... routes, so a
-// dropped/never-established connection is never a correctness problem -
-// refreshCoachAthleteMessages()/refreshAthleteOwnMessages() (refresh-on-
-// open) remain the source of truth. Native WebSocket has no built-in
-// reconnect, unlike EventSource, so a capped exponential backoff is
-// handled here manually.
-let messagingSocket = null;
-let messagingReconnectTimer = null;
-let messagingReconnectDelayMs = 2000;
-const MESSAGING_RECONNECT_MAX_DELAY_MS = 30000;
-
-function setLiveConnectionStatus(connected) {
-  elements.connectionStatus.textContent = connected ? "Connected" : "Offline";
-  elements.connectionStatus.classList.toggle("offline", !connected);
-}
-
-function connectMessagingSocket() {
-  if (state.role !== "coach" && state.role !== "athlete") return;
-
-  if (messagingReconnectTimer) {
-    clearTimeout(messagingReconnectTimer);
-    messagingReconnectTimer = null;
-  }
-
-  const wsUrl = `${location.origin.replace(/^http/u, "ws")}/ws/messages`;
-  const socket = new WebSocket(wsUrl);
-  messagingSocket = socket;
-
-  socket.addEventListener("open", () => {
-    if (messagingSocket !== socket) return;
-    messagingReconnectDelayMs = 2000;
-    setLiveConnectionStatus(true);
-  });
-
-  socket.addEventListener("message", (event) => {
-    if (messagingSocket !== socket) return;
-    let envelope = null;
-    try { envelope = JSON.parse(event.data); }
-    catch { return; }
-    handleMessagingSocketPayload(envelope);
-  });
-
-  socket.addEventListener("close", () => {
-    if (messagingSocket !== socket) return;
-    setLiveConnectionStatus(false);
-    scheduleMessagingReconnect();
-  });
-
-  socket.addEventListener("error", () => {
-    if (messagingSocket !== socket) return;
-    setLiveConnectionStatus(false);
-  });
-}
-
-function scheduleMessagingReconnect() {
-  if (messagingReconnectTimer) return;
-  messagingReconnectTimer = setTimeout(() => {
-    messagingReconnectTimer = null;
-    connectMessagingSocket();
-  }, messagingReconnectDelayMs);
-  messagingReconnectDelayMs = Math.min(messagingReconnectDelayMs * 2, MESSAGING_RECONNECT_MAX_DELAY_MS);
-}
-
-// v1 only live-updates the thread the user currently has open
-// (state.liveMessageThreadId) - cross-thread notification is out of scope,
-// same as the D.1/D.2 plan. Org-owner<->coach pushes have no client here:
-// org owner has no dedicated frontend, and the coach-side org inbox is
-// API-only, same as every prior org slice.
-function handleMessagingSocketPayload(envelope) {
-  if (!envelope || envelope.type !== "coach_athlete_message") return;
-  const thread = envelope.thread;
-  const message = envelope.message;
-  if (!thread || !message) return;
-
-  if (state.role === "coach") {
-    if (thread.thread_id !== state.liveMessageThreadId) return;
-    const existing = Array.isArray(state.coachAthleteMessages) ? state.coachAthleteMessages : [];
-    if (existing.some((entry) => entry.message_id === message.message_id)) return;
-    state.coachAthleteMessages = [...existing, message];
-    renderCoachAthleteMessages();
-  }
-  else if (state.role === "athlete") {
-    // An athlete has at most one current coach thread open at a time. A
-    // still-null liveMessageThreadId means the panel is open but no
-    // message has been sent yet - the thread doesn't exist server-side
-    // until the first send, so there's no prior id to match. Adopt the
-    // pushed thread's id in that case instead of discarding the push.
-    if (!document.getElementById("athleteMessageHistory")) return;
-    if (state.liveMessageThreadId && thread.thread_id !== state.liveMessageThreadId) return;
-    state.liveMessageThreadId = thread.thread_id;
-    const existing = Array.isArray(state.athleteMessages) ? state.athleteMessages : [];
-    if (existing.some((entry) => entry.message_id === message.message_id)) return;
-    state.athleteMessages = [...existing, message];
-    renderAthleteOwnMessages();
-  }
-}
-
 async function clearLocalSession() {
   try {
     if (state.csrfToken) {
@@ -12443,7 +12338,6 @@ async function enterApplication() {
 
   setView(state.view);
   checkConnection();
-  connectMessagingSocket();
   refreshNotificationUnreadCount().catch(() => {});
 }
 
