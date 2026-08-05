@@ -21,12 +21,6 @@ import {
   leaveOrganisation,
   listOrgMembershipsForCoach
 } from "./org_roster_service.js";
-import {
-  OrgCoachMessagingError,
-  listOrgCoachThreadMessagesForCoach,
-  listOrgCoachThreadsForCoach,
-  sendOrgCoachMessageFromCoach
-} from "./org_coach_messaging_service.js";
 
 export const coachOrgMembershipRouter = Router();
 
@@ -77,47 +71,14 @@ coachOrgMembershipRouter.post(
   })
 );
 
-coachOrgMembershipRouter.get(
-  "/org-messages/threads",
-  asyncHandler(async (request, response) => {
-    const coachUserId = await authenticatedCoach(request, false);
-    const threads = await listOrgCoachThreadsForCoach(coachUserId);
-    return response.status(200).json({ ok: true, threads });
-  })
-);
-
-coachOrgMembershipRouter.get(
-  "/org-messages/threads/:thread_id",
-  asyncHandler(async (request, response) => {
-    const coachUserId = await authenticatedCoach(request, false);
-    const messages = await listOrgCoachThreadMessagesForCoach(String(request.params.thread_id), coachUserId);
-    return response.status(200).json({ ok: true, messages });
-  })
-);
-
-coachOrgMembershipRouter.post(
-  "/org-messages/organisations/:org_id/send",
-  asyncHandler(async (request, response) => {
-    const coachUserId = await authenticatedCoach(request, true);
-    const result = await sendOrgCoachMessageFromCoach(
-      coachUserId,
-      String(request.params.org_id),
-      request.body?.body_text,
-      request.body?.client_request_id
-    );
-    return response.status(201).json({ ok: true, thread: result.thread, message: result.message });
-  })
-);
-
-// OrgRosterError/OrgCoachMessagingError are not ApiError, so without this
-// router-scoped handler they would otherwise reach the generic error
-// mapper, which mistakes the string message for a Postgres error code and
-// returns a misleading 500 instead of the correct status (mirrors the
-// identical, deliberate pattern in product_admin.routes.ts /
-// org_owner.routes.ts).
+// OrgRosterError is not an ApiError, so without this router-scoped handler
+// it would otherwise reach the generic error mapper, which mistakes the
+// string message for a Postgres error code and returns a misleading 500
+// instead of the correct status (mirrors the identical, deliberate pattern
+// in product_admin.routes.ts / org_owner.routes.ts).
 coachOrgMembershipRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
-    if (!(error instanceof OrgRosterError || error instanceof OrgCoachMessagingError)) {
+    if (!(error instanceof OrgRosterError)) {
       next(error);
       return;
     }

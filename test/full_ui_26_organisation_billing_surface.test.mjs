@@ -16,13 +16,12 @@ const rosterService = read("src/api/org_roster_service.ts");
 const billingService = read("src/api/org_billing_service.ts");
 const coachRoutes = read("src/api/coach_org_membership.routes.ts");
 const visibilityService = read("src/api/org_visibility_service.ts");
-const orgCoachMessagingService = read("src/api/org_coach_messaging_service.ts");
 const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
 const appJs = read("public/app/app.js");
 const routeBootstrap = read("public/app/route_bootstrap.js");
 
-const orgFiles = [accountService, auth, ownerRoutes, rosterService, billingService, coachRoutes, orgCoachMessagingService];
+const orgFiles = [accountService, auth, ownerRoutes, rosterService, billingService, coachRoutes];
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -53,16 +52,13 @@ test("org routes are mounted at their own /org and /coach-workspace prefixes, ne
     '"/organisations"', '"/organisations/:org_id/roster/invite"',
     '"/organisations/:org_id/roster"', '"/organisations/:org_id/roster/:membership_id/remove"',
     '"/organisations/:org_id/billing"', '"/organisations/:org_id/billing/seat-plan"',
-    '"/organisations/:org_id/athlete-visibility"',
-    '"/organisations/:org_id/messages/threads"', '"/organisations/:org_id/messages/threads/:thread_id"',
-    '"/organisations/:org_id/messages/coaches/:coach_user_id/send"'
+    '"/organisations/:org_id/athlete-visibility"'
   ]) {
     assert.ok(ownerRoutes.includes(path_), `expected org owner route ${path_}`);
   }
 
   for (const path_ of [
-    '"/org-memberships"', '"/org-memberships/:membership_id/accept"', '"/org-memberships/:membership_id/leave"',
-    '"/org-messages/threads"', '"/org-messages/threads/:thread_id"', '"/org-messages/organisations/:org_id/send"'
+    '"/org-memberships"', '"/org-memberships/:membership_id/accept"', '"/org-memberships/:membership_id/leave"'
   ]) {
     assert.ok(coachRoutes.includes(path_), `expected coach org membership route ${path_}`);
   }
@@ -73,10 +69,10 @@ test("every org-owner route resolves identity from authenticatedOrgOwner, and ev
   assert.doesNotMatch(coachRoutes, /request\.body\.coach_user_id|request\.query\.coach_user_id/u);
 
   const ownerAuthCalls = [...ownerRoutes.matchAll(/authenticatedOrgOwner\(request,\s*(?:false|true)\)/gu)].length;
-  assert.ok(ownerAuthCalls >= 10, "every mutating/protected org owner route must resolve identity from authenticatedOrgOwner");
+  assert.ok(ownerAuthCalls >= 7, "every mutating/protected org owner route must resolve identity from authenticatedOrgOwner");
 
   const coachAuthCalls = [...coachRoutes.matchAll(/authenticatedCoach\(request,\s*(?:false|true)\)/gu)].length;
-  assert.equal(coachAuthCalls, 6, "all six coach org-membership/org-messaging routes must resolve identity from authenticatedCoach");
+  assert.equal(coachAuthCalls, 3, "all three coach org-membership routes must resolve identity from authenticatedCoach");
 
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, false\)/u);
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, true\)/u);
@@ -192,26 +188,4 @@ test("visibility_mode is declared once at org creation and immutable afterward -
   // A coach sees the org's visibility_mode before they accept an invite -
   // the same call that already supplies the membership_id needed to accept.
   assert.match(rosterService, /o\.visibility_mode/u);
-});
-
-test("org-owner<->coach messaging (part D.2) requires an EXACT 'active' membership match - not the '!= removed' aggregate check used by billing/visibility - and never touches athlete-scoped data", () => {
-  assert.match(orgCoachMessagingService, /membership_status = 'active'/u);
-  // Distinguishes this from activeAndInvitedCoachMemberships/orgOccupiedSeatCount,
-  // which only ever exclude 'removed' for roster/aggregate purposes.
-  assert.doesNotMatch(orgCoachMessagingService, /membership_status\s*!=\s*'removed'/u);
-
-  // The file's own DEV NOTE names beta_product_records in prose to
-  // document that it never touches it - the real check is that no query
-  // ever actually targets that table (mirrors the same fix already
-  // applied to the analogous check on org_roster_service.ts).
-  assert.doesNotMatch(
-    orgCoachMessagingService,
-    /FROM\s+beta_product_records|INTO\s+beta_product_records|UPDATE\s+beta_product_records|beta17_coach_relationship/iu
-  );
-
-  // Reuses the D.1 schema (thread_type discriminator) rather than a
-  // second migration.
-  assert.match(orgCoachMessagingService, /'org_owner_coach'/u);
-  assert.match(orgCoachMessagingService, /ON CONFLICT \(org_id, coach_user_id\) WHERE thread_type = 'org_owner_coach'/u);
-  assert.match(orgCoachMessagingService, /ON CONFLICT \(thread_id, sender_user_id, client_request_id\) DO NOTHING/u);
 });

@@ -5304,34 +5304,6 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
-        },
-        {
-          "function_id": "org_coach_messaging",
-          "label": "Org owner and an active-member coach exchange threaded messages, API-only",
-          "actors": [
-            "org_owner",
-            "coach"
-          ],
-          "route_id": null,
-          "api_routes": [
-            "/org/organisations/:org_id/messages/threads",
-            "/org/organisations/:org_id/messages/threads/:thread_id",
-            "/org/organisations/:org_id/messages/coaches/:coach_user_id/send",
-            "/coach-workspace/org-messages/threads",
-            "/coach-workspace/org-messages/threads/:thread_id",
-            "/coach-workspace/org-messages/organisations/:org_id/send"
-          ],
-          "persistence": "server_product_records",
-          "state": "implemented",
-          "governing_boundary": null,
-          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
-          "integration_test": "test/org_coach_messaging_persistent.integration.test.mjs",
-          "coverage": {
-            "loading": "covered_or_declared",
-            "empty": "covered_or_declared",
-            "error": "covered_or_declared",
-            "recovery": "covered_or_declared"
-          }
         }
       ]
     },
