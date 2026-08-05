@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 244
+- implemented: 243
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -472,18 +472,6 @@ Implemented: 6 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `org_owner_athlete_visibility` — View athlete-level visibility scoped by the organisation's declared visibility mode
 - `coach_org_membership` — Coach reads, accepts and leaves org memberships from their own session
 
-### Coach-athlete messaging
-
-Slice: FULL-UI-27
-
-Area state: implemented
-
-Implemented: 1 · Partial: 0 · Missing: 0 · Prohibited: 0
-
-#### implemented
-
-- `coach_athlete_messaging` — Coach and athlete exchange threaded messages while their relationship is accepted
-
 ### Cross-product quality
 
 Slice: FULL-UI-22
@@ -543,7 +531,6 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-24: implemented
 - FULL-UI-25: implemented
 - FULL-UI-26: implemented
-- FULL-UI-27: implemented
 
 ## Prohibited capabilities
 
