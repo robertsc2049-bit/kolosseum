@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 244
+- implemented: 245
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -461,7 +461,7 @@ Slice: FULL-UI-26
 
 Area state: implemented
 
-Implemented: 6 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -471,6 +471,7 @@ Implemented: 6 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `org_owner_billing` — View seat usage and change the org's seat plan
 - `org_owner_athlete_visibility` — View athlete-level visibility scoped by the organisation's declared visibility mode
 - `coach_org_membership` — Coach reads, accepts and leaves org memberships from their own session
+- `org_coach_messaging` — Org owner and an active-member coach exchange threaded messages, API-only
 
 ### Coach-athlete messaging
 
