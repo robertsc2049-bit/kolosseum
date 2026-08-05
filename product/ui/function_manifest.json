@@ -5260,28 +5260,6 @@
           }
         },
         {
-          "function_id": "org_owner_athlete_visibility",
-          "label": "View athlete-level visibility scoped by the organisation's declared visibility mode",
-          "actors": [
-            "org_owner"
-          ],
-          "route_id": null,
-          "api_routes": [
-            "/org/organisations/:org_id/athlete-visibility"
-          ],
-          "persistence": "server_product_records",
-          "state": "implemented",
-          "governing_boundary": null,
-          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
-          "integration_test": "test/org_visibility_lifecycle_persistent.integration.test.mjs",
-          "coverage": {
-            "loading": "covered_or_declared",
-            "empty": "covered_or_declared",
-            "error": "covered_or_declared",
-            "recovery": "covered_or_declared"
-          }
-        },
-        {
           "function_id": "coach_org_membership",
           "label": "Coach reads, accepts and leaves org memberships from their own session",
           "actors": [
