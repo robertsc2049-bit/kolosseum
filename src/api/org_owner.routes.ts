@@ -35,6 +35,10 @@ import {
   listOrganisationsForOwner,
   removeCoachMembership
 } from "./org_roster_service.js";
+import {
+  OrgVisibilityError,
+  getOrgAthleteVisibility
+} from "./org_visibility_service.js";
 
 export const orgOwnerRouter = Router();
 
@@ -117,7 +121,7 @@ orgOwnerRouter.post(
   "/organisations",
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
-    const result = await createOrganisation(user_id, request.body?.org_name);
+    const result = await createOrganisation(user_id, request.body?.org_name, request.body?.visibility_mode);
     return response.status(201).json({ ok: true, organisation: result.organisation });
   })
 );
@@ -191,17 +195,28 @@ orgOwnerRouter.post(
   })
 );
 
-// OrgOwnerAuthError/OrgRosterError/OrgBillingError are not ApiError, so
-// without this router-scoped handler they would otherwise reach the generic
-// error mapper, which mistakes the string message for a Postgres error code
-// and returns a misleading 500 instead of the correct status (mirrors the
-// identical, deliberate pattern in product_admin.routes.ts).
+orgOwnerRouter.get(
+  "/organisations/:org_id/athlete-visibility",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const visibility = await getOrgAthleteVisibility(user_id, String(request.params.org_id));
+    return response.status(200).json({ ok: true, visibility });
+  })
+);
+
+// OrgOwnerAuthError/OrgRosterError/OrgBillingError/OrgVisibilityError are
+// not ApiError, so without this router-scoped handler they would otherwise
+// reach the generic error mapper, which mistakes the string message for a
+// Postgres error code and returns a misleading 500 instead of the correct
+// status (mirrors the identical, deliberate pattern in
+// product_admin.routes.ts).
 orgOwnerRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
     if (
       error instanceof OrgOwnerAuthError ||
       error instanceof OrgRosterError ||
-      error instanceof OrgBillingError
+      error instanceof OrgBillingError ||
+      error instanceof OrgVisibilityError
     ) {
       response.status(error.status).json({ error: error.message });
       return;

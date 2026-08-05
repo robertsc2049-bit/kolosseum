@@ -887,6 +887,17 @@ CREATE TABLE IF NOT EXISTS product_organisations (
     CHECK (
       seat_limit IS NULL OR seat_limit > 0
     ),
+  -- Part C, org-owner athlete visibility - declared once at creation and
+  -- immutable afterward (by design: this makes silent widening of an
+  -- already-joined coach's exposure structurally impossible rather than
+  -- policed). 'individual' (default) exposes aggregate athlete counts per
+  -- coach only, never an athlete_user_id or name - for gyms billing
+  -- independent coaches. 'shared' exposes a real per-coach athlete roster -
+  -- for teams/units where the org owner already is the coaching authority.
+  visibility_mode TEXT NOT NULL DEFAULT 'individual'
+    CHECK (
+      visibility_mode IN ('individual', 'shared')
+    ),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -906,6 +917,25 @@ BEGIN
     ALTER TABLE product_organisations
       ADD CONSTRAINT product_organisations_seat_limit_check
       CHECK (seat_limit IS NULL OR seat_limit > 0);
+  END IF;
+END;
+$$;
+
+-- Migration for environments that already applied the product_organisations
+-- shape from before Part C (no visibility_mode column).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'product_organisations'
+      AND column_name = 'visibility_mode'
+  ) THEN
+    ALTER TABLE product_organisations
+      ADD COLUMN visibility_mode TEXT NOT NULL DEFAULT 'individual';
+    ALTER TABLE product_organisations
+      ADD CONSTRAINT product_organisations_visibility_mode_check
+      CHECK (visibility_mode IN ('individual', 'shared'));
   END IF;
 END;
 $$;

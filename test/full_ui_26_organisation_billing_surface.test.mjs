@@ -15,6 +15,7 @@ const ownerRoutes = read("src/api/org_owner.routes.ts");
 const rosterService = read("src/api/org_roster_service.ts");
 const billingService = read("src/api/org_billing_service.ts");
 const coachRoutes = read("src/api/coach_org_membership.routes.ts");
+const visibilityService = read("src/api/org_visibility_service.ts");
 const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
 const appJs = read("public/app/app.js");
@@ -50,7 +51,8 @@ test("org routes are mounted at their own /org and /coach-workspace prefixes, ne
     '"/register"', '"/sign-in"', '"/sign-out"', '"/session"',
     '"/organisations"', '"/organisations/:org_id/roster/invite"',
     '"/organisations/:org_id/roster"', '"/organisations/:org_id/roster/:membership_id/remove"',
-    '"/organisations/:org_id/billing"', '"/organisations/:org_id/billing/seat-plan"'
+    '"/organisations/:org_id/billing"', '"/organisations/:org_id/billing/seat-plan"',
+    '"/organisations/:org_id/athlete-visibility"'
   ]) {
     assert.ok(ownerRoutes.includes(path_), `expected org owner route ${path_}`);
   }
@@ -67,7 +69,7 @@ test("every org-owner route resolves identity from authenticatedOrgOwner, and ev
   assert.doesNotMatch(coachRoutes, /request\.body\.coach_user_id|request\.query\.coach_user_id/u);
 
   const ownerAuthCalls = [...ownerRoutes.matchAll(/authenticatedOrgOwner\(request,\s*(?:false|true)\)/gu)].length;
-  assert.ok(ownerAuthCalls >= 6, "every mutating/protected org owner route must resolve identity from authenticatedOrgOwner");
+  assert.ok(ownerAuthCalls >= 7, "every mutating/protected org owner route must resolve identity from authenticatedOrgOwner");
 
   const coachAuthCalls = [...coachRoutes.matchAll(/authenticatedCoach\(request,\s*(?:false|true)\)/gu)].length;
   assert.equal(coachAuthCalls, 3, "all three coach org-membership routes must resolve identity from authenticatedCoach");
@@ -138,4 +140,52 @@ test("an org's seat plan is changed only through an explicit, audited action - a
 test("negative access: org owner routes and cookie are invisible to the athlete/coach single-page app", () => {
   assert.doesNotMatch(appJs, /\/org\/organisations|kolosseum_org_owner_session/u);
   assert.doesNotMatch(routeBootstrap, /org_owner/u);
+});
+
+function extractFunctionSource(source, functionName) {
+  const startPattern = new RegExp(`async function ${functionName}\\(`, "u");
+  const startMatch = startPattern.exec(source);
+  assert.ok(startMatch, `expected to find function ${functionName} in org_visibility_service.ts`);
+  const start = startMatch.index;
+  const rest = source.slice(start + startMatch[0].length);
+  // Top-level declarations in this file start at column 0 with no leading
+  // whitespace - any inline helper inside a .map()/.filter() callback is
+  // always indented, so this reliably bounds just this one function.
+  const nextBoundary = rest.search(/\n(?:async function|function|export )/u);
+  return nextBoundary === -1 ? source.slice(start) : source.slice(start, start + startMatch[0].length + nextBoundary);
+}
+
+// org_visibility_service.ts (part C) is the deliberate, sole exception to
+// the "no org file ever reads or writes athlete-scoped data" rule proved
+// by the test above - it is NOT added to orgFiles, and must never be:
+// doing so would make that test correctly fail the moment its real
+// athlete-scoped queries land. This test instead proves the boundary is
+// mode-aware: the file legitimately touches beta_product_records, but its
+// "individual"-mode aggregate path never touches athlete identity, while
+// its "shared"-mode roster path does.
+test("org_visibility_service.ts is the sole, explicitly-gated exception to the athlete-data boundary, and its individual-mode path never touches athlete identity", () => {
+  assert.match(visibilityService, /beta_product_records/u);
+  assert.match(visibilityService, /beta17_coach_relationship/u);
+
+  for (const source of orgFiles) {
+    assert.doesNotMatch(source, /athlete_user_id/u);
+  }
+
+  const aggregateFn = extractFunctionSource(visibilityService, "aggregateCountsForOrg");
+  assert.doesNotMatch(aggregateFn, /athlete_user_id/u);
+  assert.doesNotMatch(aggregateFn, /display_name|email|loadLatestBetaProductRecord/u);
+
+  const rosterFn = extractFunctionSource(visibilityService, "fullRosterForOrg");
+  assert.match(rosterFn, /athlete_user_id/u);
+  assert.match(rosterFn, /display_name/u);
+});
+
+test("visibility_mode is declared once at org creation and immutable afterward - no route or function changes it", () => {
+  assert.match(rosterService, /cleanVisibilityMode/u);
+  assert.doesNotMatch(ownerRoutes, /visibility-mode|visibilityMode/u);
+  assert.doesNotMatch(visibilityService, /UPDATE\s+product_organisations/iu);
+
+  // A coach sees the org's visibility_mode before they accept an invite -
+  // the same call that already supplies the membership_id needed to accept.
+  assert.match(rosterService, /o\.visibility_mode/u);
 });
