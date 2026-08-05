@@ -74,3 +74,24 @@ Verified totals after remediation:
 - critical: 0.
 
 This refresh does not alter Kolosseum engine law, deterministic output, registry content, sealed artefact bytes, access-policy decisions, runtime scope, or intended user-facing behaviour.
+
+## Part E live messaging: add ws dependency
+
+Commit subject: feat(messaging): add live delivery via WebSocket push (part E)
+
+package-lock.json changed because a new direct dependency was added:
+
+- `ws` (`^8.21.2`) added to `dependencies`.
+- `@types/ws` (`^8.18.1`) added to `devDependencies`.
+
+`ws` is the minimal, standard native WebSocket server implementation for
+Node, used to push coach<->athlete and org-owner<->coach messages live to
+connected clients on top of the existing async send/refresh flow. This
+matches the repo's existing posture of small, purpose-specific dependencies
+(`express`, `pg`, `ajv`, `dotenv`). No other dependency versions were
+intentionally changed; any other lockfile movement is transitive
+resolution from this addition.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or any
+existing user-facing behaviour - it is purely additive.
