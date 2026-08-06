@@ -15,6 +15,7 @@ import {
   getCoachAssignments,
   getCoachAthleteRelationships,
   getCoachEvents,
+  getAthleteOrgContextHandler,
   getConnectedCoachAthletes,
   listAthleteOwnRelationshipsHandler,
   listAthleteRelationshipInvitationsHandler,
@@ -167,4 +168,12 @@ coachWorkspaceRouter.get(
 coachWorkspaceRouter.post(
   "/relationships/:relationship_id/end",
   asyncHandler(endAthleteRelationshipHandler)
+);
+
+// Part O.6 - athlete-facing team/org context (org_id, org_name,
+// visibility_mode only, never a teammate roster), scoped to accepted
+// relationships with an active org coach.
+coachWorkspaceRouter.get(
+  "/org-context/mine",
+  asyncHandler(getAthleteOrgContextHandler)
 );

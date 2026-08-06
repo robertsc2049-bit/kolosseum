@@ -83,7 +83,8 @@ const DEFAULT_STATE = Object.freeze({
   accountDetail: null,
   currentTerms: null,
   liveMessageThreadId: null,
-  athleteOrgMessageThreads: []
+  athleteOrgMessageThreads: [],
+  athleteOrgContexts: []
 });
 
 const state = loadState();
@@ -11964,11 +11965,25 @@ async function confirmSendAthleteOwnMessage(event, coachUserId) {
 // "My coach" singular assumption elsewhere on this page. The org owner
 // side has no UI at all (API-only, same as every other org-owner
 // capability), so this is the only place these threads are ever rendered.
+//
+// Part O.6 - the panel used to be gated entirely on a thread already
+// existing, but threads are created lazily on first send
+// (findOrCreateThread server-side) and this was the only place the
+// frontend ever learned an org's org_id - so an athlete could never send
+// the FIRST message to their own team; only the org owner could initiate
+// (the same gap O.5 found and fixed on the owner's side). GET
+// /coach-workspace/org-context/mine now supplies every org the athlete's
+// accepted coach relationship(s) give team context for, independent of
+// message history, so the panel and its send form can appear before any
+// thread exists.
 async function refreshAthleteOrgMessages() {
   if (state.role !== "athlete") return;
 
-  const response = await api("GET", "/messages/athlete/org-messages/threads");
-  const threads = Array.isArray(response.threads) ? response.threads : [];
+  const [threadsResponse, contextResponse] = await Promise.all([
+    api("GET", "/messages/athlete/org-messages/threads"),
+    api("GET", "/coach-workspace/org-context/mine").catch(() => ({ contexts: [] }))
+  ]);
+  const threads = Array.isArray(threadsResponse.threads) ? threadsResponse.threads : [];
 
   state.athleteOrgMessageThreads = await Promise.all(
     threads.map(async (thread) => {
@@ -11982,7 +11997,48 @@ async function refreshAthleteOrgMessages() {
       };
     })
   );
+  state.athleteOrgContexts = Array.isArray(contextResponse.contexts) ? contextResponse.contexts : [];
   renderAthleteOrgMessages();
+}
+
+// Merges org-context entries (always available once an accepted
+// relationship + active org coach exists) with thread entries (only once
+// a message has actually been sent) by org_id, so every team the athlete
+// is genuinely part of appears - not just ones with prior messages.
+function combinedAthleteOrgEntries() {
+  const threadEntries = Array.isArray(state.athleteOrgMessageThreads) ? state.athleteOrgMessageThreads : [];
+  const contexts = Array.isArray(state.athleteOrgContexts) ? state.athleteOrgContexts : [];
+  const threadEntryByOrgId = new Map(threadEntries.map((entry) => [entry.thread.org_id, entry]));
+
+  const combined = [];
+  const seenOrgIds = new Set();
+
+  for (const context of contexts) {
+    const threadEntry = threadEntryByOrgId.get(context.org_id) || null;
+    combined.push({
+      org_id: context.org_id,
+      org_name: threadEntry ? threadEntry.thread.org_name : context.org_name,
+      visibility_mode: context.visibility_mode,
+      threadEntry
+    });
+    seenOrgIds.add(context.org_id);
+  }
+
+  // A thread can exist for an org no longer returned by org-context (e.g.
+  // the coach relationship later ended) - still show its history, but the
+  // route itself (not this client) remains the authority on whether a
+  // further send is allowed.
+  for (const entry of threadEntries) {
+    if (seenOrgIds.has(entry.thread.org_id)) continue;
+    combined.push({
+      org_id: entry.thread.org_id,
+      org_name: entry.thread.org_name,
+      visibility_mode: "shared",
+      threadEntry: entry
+    });
+  }
+
+  return combined;
 }
 
 function renderAthleteOrgMessages() {
@@ -11993,7 +12049,7 @@ function renderAthleteOrgMessages() {
     return;
   }
 
-  const entries = Array.isArray(state.athleteOrgMessageThreads) ? state.athleteOrgMessageThreads : [];
+  const entries = combinedAthleteOrgEntries();
 
   if (entries.length === 0) {
     if (panel) panel.hidden = true;
@@ -12015,14 +12071,14 @@ function renderAthleteOrgMessages() {
     <p class="eyebrow">Organisation messages</p>
     <h3>Messages from your team</h3>
     ${entries.map((entry) => `
-      <div class="record-row org-message-thread" data-thread-id="${escapeHtml(entry.thread.thread_id)}">
-        <strong>${escapeHtml(entry.thread.org_name)}</strong>
+      <div class="record-row org-message-thread" data-thread-id="${escapeHtml(entry.threadEntry?.thread.thread_id ?? "")}">
+        <strong>${escapeHtml(entry.org_name)}</strong>
         <div class="record-list">
-          ${entry.messages.length > 0
-            ? entry.messages.map((message) => `
+          ${entry.threadEntry && entry.threadEntry.messages.length > 0
+            ? entry.threadEntry.messages.map((message) => `
               <article class="review-note-card">
                 <div class="record-meta">
-                  <span class="badge neutral">${message.sender_role === "athlete" ? "You" : escapeHtml(entry.thread.org_name)}</span>
+                  <span class="badge neutral">${message.sender_role === "athlete" ? "You" : escapeHtml(entry.org_name)}</span>
                   <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
                 </div>
                 ${renderMessageAttachment(message.attachment)}
@@ -12032,19 +12088,24 @@ function renderAthleteOrgMessages() {
             : `<p class="muted small">No messages yet.</p>`
           }
         </div>
-        <form class="athlete-detail-note-form org-message-form" data-org-id="${escapeHtml(entry.thread.org_id)}">
-          <label class="field">
-            <span>Reply to ${escapeHtml(entry.thread.org_name)}</span>
-            <textarea class="org-message-text" maxlength="4000"></textarea>
-          </label>
-          <label class="field">
-            <span>Attach photo or video (optional)</span>
-            <input type="file" class="org-message-attachment" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" capture="environment">
-          </label>
-          <div class="inline-controls">
-            <button class="button primary" type="submit">Send</button>
-          </div>
-        </form>
+        ${entry.visibility_mode === "shared"
+          ? `
+            <form class="athlete-detail-note-form org-message-form" data-org-id="${escapeHtml(entry.org_id)}">
+              <label class="field">
+                <span>Reply to ${escapeHtml(entry.org_name)}</span>
+                <textarea class="org-message-text" maxlength="4000"></textarea>
+              </label>
+              <label class="field">
+                <span>Attach photo or video (optional)</span>
+                <input type="file" class="org-message-attachment" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" capture="environment">
+              </label>
+              <div class="inline-controls">
+                <button class="button primary" type="submit">Send</button>
+              </div>
+            </form>
+          `
+          : `<p class="muted small">Your coach's independent gym - no team messaging.</p>`
+        }
       </div>
     `).join("")}
   `;

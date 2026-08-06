@@ -25,6 +25,8 @@ const appJs = read("public/app/app.js");
 const routeBootstrap = read("public/app/route_bootstrap.js");
 const orgDashboardHtml = read("public/org/index.html");
 const orgDashboardJs = read("public/org/org.js");
+const coachWorkspaceRoutes = read("src/api/coach_workspace.routes.ts");
+const athleteOrgContextService = read("src/api/athlete_org_context_service.ts");
 
 const orgFiles = [accountService, auth, ownerRoutes, rosterService, billingService, coachRoutes, orgCoachMessagingService];
 
@@ -448,4 +450,46 @@ test("the athlete-visibility view renders individual-mode aggregate counts and s
 test("athlete names and emails rendered into the visibility view are escaped before being inserted into innerHTML", () => {
   assert.match(orgDashboardJs, /escapeHtml\(athlete\.display_name\)/u);
   assert.match(orgDashboardJs, /escapeHtml\(athlete\.email \|\| "no email"\)/u);
+});
+
+// Part O.6 - athlete-facing team/org context. The athlete panel used to be
+// gated entirely on a message thread already existing, but threads are
+// created lazily on first send and the panel was the only place the
+// frontend ever learned an org's org_id - so an athlete could never send
+// the FIRST message to their own team. GET /coach-workspace/org-context/
+// mine now supplies every org an athlete's accepted+active coach
+// relationship gives team context for, independent of message history.
+test("the athlete-facing org-context route exists on the coach-workspace router, and its service composes two already-tested read paths rather than adding a new query of its own", () => {
+  assert.ok(coachWorkspaceRoutes.includes('"/org-context/mine"'), "expected the org-context/mine route");
+  assert.match(coachWorkspaceRoutes, /getAthleteOrgContextHandler/u);
+
+  assert.match(athleteOrgContextService, /listRelationshipsForAthlete/u);
+  assert.match(athleteOrgContextService, /listOrgMembershipsForCoach/u);
+  assert.doesNotMatch(
+    athleteOrgContextService,
+    /SELECT\s|FROM\s+beta_product_records|FROM\s+product_org_coach_memberships/iu,
+    "athlete_org_context_service.ts must never run a query of its own - only compose already-tested functions"
+  );
+  assert.match(athleteOrgContextService, /relationship\.relationship_state !== "accepted"/u);
+  assert.match(athleteOrgContextService, /membership\.membership_status !== "active"/u);
+});
+
+test("the athlete org-messages panel calls the new org-context route and merges it with existing threads by org_id, so it no longer requires a thread to already exist", () => {
+  assert.match(appJs, /api\("GET", "\/coach-workspace\/org-context\/mine"\)/u);
+  assert.match(appJs, /function combinedAthleteOrgEntries/u);
+  assert.match(appJs, /const entries = combinedAthleteOrgEntries\(\);/u);
+  assert.doesNotMatch(
+    appJs,
+    /const entries = Array\.isArray\(state\.athleteOrgMessageThreads\) \? state\.athleteOrgMessageThreads : \[\];\s*\n\s*if \(entries\.length === 0\)/u,
+    "the panel's emptiness check must no longer be gated solely on thread existence"
+  );
+});
+
+test("the athlete org-messages panel only renders a send form for shared-mode org context, never individual-mode", () => {
+  assert.match(appJs, /entry\.visibility_mode === "shared"/u);
+  assert.match(appJs, /no team messaging/u);
+});
+
+test("org names rendered into the athlete org-messages panel are escaped before being inserted into innerHTML", () => {
+  assert.match(appJs, /escapeHtml\(entry\.org_name\)/u);
 });
