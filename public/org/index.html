@@ -137,6 +137,19 @@
       </form>
       <p id="orgBillingError" class="muted small" hidden></p>
     </section>
+
+    <section id="orgVisibilitySection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Athletes</p>
+          <h2>Athlete visibility for <strong id="orgVisibilityOrgName"></strong></h2>
+        </div>
+        <button id="orgVisibilityBackButton" class="button secondary" type="button">Back to organisations</button>
+      </div>
+
+      <div id="orgVisibilityList" class="record-list"></div>
+      <p id="orgVisibilityError" class="muted small" hidden></p>
+    </section>
   </main>
 
   <script type="module" src="/org/org.js"></script>

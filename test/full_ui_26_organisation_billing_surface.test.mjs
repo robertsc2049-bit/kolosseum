@@ -411,3 +411,41 @@ test("opening the roster view for one organisation hides the billing view and vi
   assert.match(orgDashboardJs, /function showRosterSection[\s\S]{0,200}orgBillingSection"\)\.hidden = true/u);
   assert.match(orgDashboardJs, /function showBillingSection[\s\S]{0,200}orgRosterSection"\)\.hidden = true/u);
 });
+
+// Part O.4 - the athlete-visibility view, built entirely on top of the
+// already-integration-tested org_owner_athlete_visibility route (part C) -
+// zero new backend calls. Coach names come from the already-fetched
+// roster route, joined client-side by coach_user_id.
+test("each organisation card exposes a real, keyboard-reachable button to view athlete visibility, and opening it hides every other detail section", () => {
+  assert.match(orgDashboardHtml, /<section id="orgVisibilitySection"/u);
+  assert.match(orgDashboardJs, /data-view-athletes="\$\{escapeHtml\(organisation\.org_id\)\}"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-view-athletes=/u);
+  assert.match(orgDashboardJs, /querySelectorAll\("\[data-view-athletes\]"\)/u);
+  assert.match(
+    orgDashboardJs,
+    /function showVisibilitySection[\s\S]{0,200}orgRosterSection"\)\.hidden = true[\s\S]{0,200}orgBillingSection"\)\.hidden = true/u
+  );
+});
+
+test("the athlete-visibility view calls the existing athlete-visibility route and the roster route, and its back button is a real, keyboard-reachable control", () => {
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgVisibilityBackButton"[^>]*type="button"/u,
+    "orgVisibilityBackButton must be a real <button type=\"button\">"
+  );
+
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/roster`\)/u);
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/athlete-visibility`\)/u);
+});
+
+test("the athlete-visibility view renders individual-mode aggregate counts and shared-mode per-athlete rosters as two distinct branches, driven only by the server's own visibility_mode", () => {
+  assert.match(orgDashboardJs, /visibility\.visibility_mode === "individual"/u);
+  assert.match(orgDashboardJs, /coach\.active_athlete_count/u);
+  assert.match(orgDashboardJs, /coach\.invited_athlete_count/u);
+  assert.match(orgDashboardJs, /coach\.athletes\.map/u);
+});
+
+test("athlete names and emails rendered into the visibility view are escaped before being inserted into innerHTML", () => {
+  assert.match(orgDashboardJs, /escapeHtml\(athlete\.display_name\)/u);
+  assert.match(orgDashboardJs, /escapeHtml\(athlete\.email \|\| "no email"\)/u);
+});
