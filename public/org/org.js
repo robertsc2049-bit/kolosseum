@@ -1,6 +1,12 @@
-// DEV NOTE: Parts O.1/O.2/O.3 - org-owner dashboard shell + identity,
+// DEV NOTE: Parts O.1/O.2/O.3/O.4 - org-owner dashboard shell + identity,
 // organisation list/create, the coach roster view (invite by email, list,
-// remove), and the seat-plan billing view (status + update). Deliberately
+// remove), the seat-plan billing view (status + update), and the
+// athlete-visibility view (org_visibility_service.ts's own individual/
+// shared boundary - aggregate counts only vs a full per-athlete roster,
+// decided entirely server-side by the org's declared visibility_mode).
+// The visibility view's coach names come from a second call to the
+// already-fetched roster route, joined client-side by coach_user_id - no
+// new backend call beyond what O.2 already added. Deliberately
 // a standalone module, mirroring
 // public/admin/admin.js's shape exactly - it never imports anything from
 // public/app/, never reads the athlete/coach session cookie, and never
@@ -96,6 +102,7 @@ function renderOrganisations(organisations) {
         <span class="badge ${organisation.visibility_mode === "shared" ? "active" : "neutral"}">${visibilityModeLabel(organisation.visibility_mode)}</span>
         <button class="button secondary" type="button" data-manage-roster="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage roster</button>
         <button class="button secondary" type="button" data-manage-billing="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage billing</button>
+        <button class="button secondary" type="button" data-view-athletes="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">View athletes</button>
       </div>
     </article>
   `).join("");
@@ -109,6 +116,12 @@ function renderOrganisations(organisations) {
   for (const button of container.querySelectorAll("[data-manage-billing]")) {
     button.addEventListener("click", () => {
       showBillingSection(button.getAttribute("data-manage-billing"), button.getAttribute("data-org-name"));
+    });
+  }
+
+  for (const button of container.querySelectorAll("[data-view-athletes]")) {
+    button.addEventListener("click", () => {
+      showVisibilitySection(button.getAttribute("data-view-athletes"), button.getAttribute("data-org-name"));
     });
   }
 }
@@ -162,6 +175,7 @@ function showRosterSection(orgId, orgName) {
   el("orgListSection").hidden = true;
   el("orgCreateSection").hidden = true;
   el("orgBillingSection").hidden = true;
+  el("orgVisibilitySection").hidden = true;
   el("orgRosterSection").hidden = false;
   el("orgRosterOrgName").textContent = orgName;
   el("orgRosterInviteForm").reset();
@@ -202,6 +216,7 @@ function showBillingSection(orgId, orgName) {
   el("orgListSection").hidden = true;
   el("orgCreateSection").hidden = true;
   el("orgRosterSection").hidden = true;
+  el("orgVisibilitySection").hidden = true;
   el("orgBillingSection").hidden = false;
   el("orgBillingOrgName").textContent = orgName;
   el("orgBillingSeatPlanForm").reset();
@@ -212,6 +227,96 @@ function showBillingSection(orgId, orgName) {
 function hideBillingSection() {
   state.selectedOrgId = null;
   el("orgBillingSection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+function relationshipStateLabel(relationshipState) {
+  if (relationshipState === "accepted") return "Active";
+  if (relationshipState === "invited") return "Invited";
+  if (relationshipState === "declined") return "Declined";
+  if (relationshipState === "revoked") return "Revoked";
+  return "Expired";
+}
+
+function coachLabel(coachUserId, coachNamesById) {
+  return coachNamesById.get(coachUserId) || coachUserId;
+}
+
+function renderVisibility(visibility, coachNamesById) {
+  const container = el("orgVisibilityList");
+  if (visibility.coaches.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No coaches on this organisation's roster yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  if (visibility.visibility_mode === "individual") {
+    container.innerHTML = visibility.coaches.map((coach) => `
+      <article class="record-card">
+        <div>
+          <h3>${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</h3>
+          <p>${escapeHtml(coach.active_athlete_count)} active, ${escapeHtml(coach.invited_athlete_count)} invited</p>
+        </div>
+        <div class="record-meta">
+          <span class="badge ${coach.membership_status === "active" ? "active" : "neutral"}">${membershipStatusLabel(coach.membership_status)}</span>
+        </div>
+      </article>
+    `).join("");
+    return;
+  }
+
+  container.innerHTML = visibility.coaches.map((coach) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</h3>
+        <p>${coach.athletes.length === 0 ? "No athletes yet." : coach.athletes.map((athlete) => `
+          ${escapeHtml(athlete.display_name)} (${escapeHtml(athlete.email || "no email")}) - ${escapeHtml(relationshipStateLabel(athlete.relationship_state))}
+        `).join("<br />")}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge ${coach.membership_status === "active" ? "active" : "neutral"}">${membershipStatusLabel(coach.membership_status)}</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshVisibility() {
+  const [rosterResult, visibilityResult] = await Promise.all([
+    api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/roster`),
+    api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/athlete-visibility`)
+  ]);
+
+  const coachNamesById = new Map();
+  for (const membership of Array.isArray(rosterResult.roster) ? rosterResult.roster : []) {
+    if (membership.coach_display_name) coachNamesById.set(membership.coach_user_id, membership.coach_display_name);
+  }
+
+  renderVisibility(visibilityResult.visibility, coachNamesById);
+}
+
+function showVisibilitySection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  el("orgListSection").hidden = true;
+  el("orgCreateSection").hidden = true;
+  el("orgRosterSection").hidden = true;
+  el("orgBillingSection").hidden = true;
+  el("orgVisibilitySection").hidden = false;
+  el("orgVisibilityOrgName").textContent = orgName;
+  el("orgVisibilityError").hidden = true;
+  refreshVisibility().catch((error) => {
+    el("orgVisibilityError").hidden = false;
+    el("orgVisibilityError").textContent = "Could not load athlete visibility.";
+    console.error(error);
+  });
+}
+
+function hideVisibilitySection() {
+  state.selectedOrgId = null;
+  el("orgVisibilitySection").hidden = true;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
 }
@@ -369,6 +474,7 @@ function boot() {
   el("orgRosterBackButton").addEventListener("click", () => hideRosterSection());
   el("orgBillingSeatPlanForm").addEventListener("submit", (event) => updateSeatPlan(event).catch(console.error));
   el("orgBillingBackButton").addEventListener("click", () => hideBillingSection());
+  el("orgVisibilityBackButton").addEventListener("click", () => hideVisibilitySection());
 }
 
 boot();
