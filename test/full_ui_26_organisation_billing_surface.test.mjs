@@ -384,3 +384,30 @@ test("org_roster_service.ts's coach_display_name/coach_email are display-only ad
   assert.match(rosterService, /coach_email: string \| null/u);
   assert.match(rosterService, /LEFT JOIN product_accounts a ON a\.user_id = m\.coach_user_id/u);
 });
+
+// Part O.3 - the seat-plan billing view (status + update), built entirely
+// on top of the already-integration-tested org_owner_billing routes (part
+// B.3) - zero backend changes, unlike O.2's display-only join.
+test("each organisation card exposes a real, keyboard-reachable button to manage its billing", () => {
+  assert.match(orgDashboardHtml, /<section id="orgBillingSection"/u);
+  assert.match(orgDashboardJs, /data-manage-billing="\$\{escapeHtml\(organisation\.org_id\)\}"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-manage-billing=/u);
+  assert.match(orgDashboardJs, /querySelectorAll\("\[data-manage-billing\]"\)/u);
+});
+
+test("the billing seat-plan form and back button are real, keyboard-reachable controls calling the existing billing routes", () => {
+  assert.match(orgDashboardHtml, /<form id="orgBillingSeatPlanForm">/u);
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgBillingBackButton"[^>]*type="button"/u,
+    "orgBillingBackButton must be a real <button type=\"button\">"
+  );
+
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/billing`\)/u);
+  assert.match(orgDashboardJs, /api\("POST", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/billing\/seat-plan`/u);
+});
+
+test("opening the roster view for one organisation hides the billing view and vice versa, so both never show at once", () => {
+  assert.match(orgDashboardJs, /function showRosterSection[\s\S]{0,200}orgBillingSection"\)\.hidden = true/u);
+  assert.match(orgDashboardJs, /function showBillingSection[\s\S]{0,200}orgRosterSection"\)\.hidden = true/u);
+});
