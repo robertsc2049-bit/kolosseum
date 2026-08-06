@@ -5307,7 +5307,7 @@
         },
         {
           "function_id": "org_coach_messaging",
-          "label": "Org owner and an active-member coach exchange threaded messages with live delivery, API-only",
+          "label": "Org owner and an active-member coach exchange threaded messages with live delivery and photo/video attachments, API-only",
           "actors": [
             "org_owner",
             "coach"
@@ -5317,9 +5317,13 @@
             "/org/organisations/:org_id/messages/threads",
             "/org/organisations/:org_id/messages/threads/:thread_id",
             "/org/organisations/:org_id/messages/coaches/:coach_user_id/send",
+            "/org/organisations/:org_id/messages/attachments/:message_id",
+            "/org/organisations/:org_id/messages/attachments/:message_id/thumbnail",
             "/coach-workspace/org-messages/threads",
             "/coach-workspace/org-messages/threads/:thread_id",
             "/coach-workspace/org-messages/organisations/:org_id/send",
+            "/coach-workspace/org-messages/attachments/:message_id",
+            "/coach-workspace/org-messages/attachments/:message_id/thumbnail",
             "/ws/messages"
           ],
           "persistence": "server_product_records",
@@ -5344,7 +5348,7 @@
       "functions": [
         {
           "function_id": "coach_athlete_messaging",
-          "label": "Coach and athlete exchange threaded messages with live delivery while their relationship is accepted",
+          "label": "Coach and athlete exchange threaded messages with live delivery and photo/video attachments while their relationship is accepted",
           "actors": [
             "coach",
             "athlete"
@@ -5354,9 +5358,13 @@
             "/messages/coach/threads",
             "/messages/coach/threads/:thread_id",
             "/messages/coach/athletes/:athlete_user_id/send",
+            "/messages/coach/attachments/:message_id",
+            "/messages/coach/attachments/:message_id/thumbnail",
             "/messages/athlete/threads",
             "/messages/athlete/threads/:thread_id",
             "/messages/athlete/coaches/:coach_user_id/send",
+            "/messages/athlete/attachments/:message_id",
+            "/messages/athlete/attachments/:message_id/thumbnail",
             "/ws/messages"
           ],
           "persistence": "server_product_records",

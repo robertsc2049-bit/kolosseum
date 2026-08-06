@@ -14,6 +14,12 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { pushToUser } from "./realtime_hub.js";
+import {
+  cleanupAttachmentFiles,
+  finalizeAttachment,
+  resolveAttachmentPath,
+  type PendingAttachmentUpload
+} from "./message_attachment_storage.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -109,6 +115,14 @@ function mapThreadRow(value: unknown): OrgCoachThreadRow | null {
   });
 }
 
+export type OrgCoachMessageAttachment = Readonly<{
+  media_type: "image" | "video";
+  mime_type: string;
+  byte_size: number;
+  url: string;
+  thumbnail_url: string | null;
+}>;
+
 export type OrgCoachMessageRow = Readonly<{
   message_id: string;
   thread_id: string;
@@ -116,20 +130,53 @@ export type OrgCoachMessageRow = Readonly<{
   sender_role: "org_owner" | "coach";
   body_text: string;
   created_at_iso8601: string;
+  attachment: OrgCoachMessageAttachment | null;
 }>;
 
-function mapMessageRow(value: unknown): OrgCoachMessageRow | null {
+// Unlike the coach<->athlete side, the owner-side attachment route is
+// nested under its org (mirrors every other owner-side route in
+// org_owner.routes.ts, e.g. /organisations/:org_id/messages/threads/...),
+// while the coach-side route isn't (mirrors /org-messages/threads/...,
+// which also carries no org_id - a coach's own message_id/thread_id is
+// already enough to resolve without one).
+type MessageViewer =
+  | Readonly<{ role: "org_owner"; orgId: string }>
+  | Readonly<{ role: "coach" }>;
+
+function attachmentRouteBase(viewer: MessageViewer): string {
+  return viewer.role === "org_owner"
+    ? `/org/organisations/${encodeURIComponent(viewer.orgId)}/messages/attachments`
+    : `/coach-workspace/org-messages/attachments`;
+}
+
+function mapMessageRow(value: unknown, viewer: MessageViewer): OrgCoachMessageRow | null {
   if (!isRecord(value)) return null;
   const role = value.sender_role;
   if (role !== "org_owner" && role !== "coach") return null;
 
+  const messageId = cleanString(value.message_id);
+  const attachmentMediaType = value.attachment_media_type;
+  const attachment: OrgCoachMessageAttachment | null =
+    attachmentMediaType === "image" || attachmentMediaType === "video"
+      ? Object.freeze({
+          media_type: attachmentMediaType,
+          mime_type: cleanString(value.attachment_mime_type),
+          byte_size: typeof value.attachment_byte_size === "number" ? value.attachment_byte_size : 0,
+          url: `${attachmentRouteBase(viewer)}/${encodeURIComponent(messageId)}`,
+          thumbnail_url: cleanString(value.attachment_thumbnail_storage_key)
+            ? `${attachmentRouteBase(viewer)}/${encodeURIComponent(messageId)}/thumbnail`
+            : null
+        })
+      : null;
+
   return Object.freeze({
-    message_id: cleanString(value.message_id),
+    message_id: messageId,
     thread_id: cleanString(value.thread_id),
     sender_user_id: cleanString(value.sender_user_id),
     sender_role: role,
     body_text: cleanString(value.body_text),
-    created_at_iso8601: value.created_at instanceof Date ? value.created_at.toISOString() : ""
+    created_at_iso8601: value.created_at instanceof Date ? value.created_at.toISOString() : "",
+    attachment
   });
 }
 
@@ -170,13 +217,24 @@ async function sendMessageToThread(
   senderRole: "org_owner" | "coach",
   senderUserId: string,
   bodyTextInput: unknown,
-  clientRequestIdInput: unknown
+  clientRequestIdInput: unknown,
+  attachment: PendingAttachmentUpload | null = null
 ): Promise<SentOrgCoachMessage> {
-  const bodyText = cleanString(bodyTextInput);
-  if (!bodyText || bodyText.length > 4000) {
+  const bodyTextRaw = cleanString(bodyTextInput);
+  if (!attachment && !bodyTextRaw) {
     throw new OrgCoachMessagingError("org_coach_messaging_body_text_invalid", 400);
   }
+  if (bodyTextRaw && bodyTextRaw.length > 4000) {
+    throw new OrgCoachMessagingError("org_coach_messaging_body_text_invalid", 400);
+  }
+  const bodyText = bodyTextRaw || null;
   const clientRequestId = cleanString(clientRequestIdInput) || randomId("msg_req");
+
+  const messageId = randomId("msg");
+  let attachmentColumns: Readonly<{ storageKey: string; thumbnailStorageKey: string | null }> | null = null;
+  if (attachment) {
+    attachmentColumns = await finalizeAttachment(attachment, messageId);
+  }
 
   const client = await pool.connect();
   try {
@@ -184,15 +242,29 @@ async function sendMessageToThread(
 
     const threadId = await findOrCreateThread(client, orgId, coachUserId);
 
-    const messageId = randomId("msg");
-    await client.query(
+    const insertResult = await client.query(
       `
-      INSERT INTO product_messages (message_id, thread_id, sender_user_id, sender_role, body_text, client_request_id)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO product_messages (
+        message_id, thread_id, sender_user_id, sender_role, body_text, client_request_id,
+        attachment_media_type, attachment_mime_type, attachment_byte_size,
+        attachment_storage_key, attachment_thumbnail_storage_key
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       ON CONFLICT (thread_id, sender_user_id, client_request_id) DO NOTHING
       `,
-      [messageId, threadId, senderUserId, senderRole, bodyText, clientRequestId]
+      [
+        messageId, threadId, senderUserId, senderRole, bodyText, clientRequestId,
+        attachment?.mediaType ?? null, attachment?.mimeType ?? null, attachment?.byteSize ?? null,
+        attachmentColumns?.storageKey ?? null, attachmentColumns?.thumbnailStorageKey ?? null
+      ]
     );
+
+    // Idempotent replay - see the identical comment in
+    // coach_athlete_messaging_service.ts's sendCoachAthleteMessage for
+    // why this cleanup has no text-only precedent.
+    if (attachment && insertResult.rowCount === 0) {
+      await cleanupAttachmentFiles(messageId).catch(() => {});
+    }
 
     await client.query(
       `UPDATE product_message_threads SET updated_at = now() WHERE thread_id = $1`,
@@ -211,15 +283,18 @@ async function sendMessageToThread(
     );
 
     const thread = mapThreadRow(threadRow.rows[0]);
-    const message = mapMessageRow(messageRow.rows[0]);
-    if (!thread || !message) throw new OrgCoachMessagingError("org_coach_messaging_send_failed", 500);
+    const senderViewer: MessageViewer = senderRole === "org_owner" ? { role: "org_owner", orgId } : { role: "coach" };
+    const senderMessage = mapMessageRow(messageRow.rows[0], senderViewer);
+    if (!thread || !senderMessage) throw new OrgCoachMessagingError("org_coach_messaging_send_failed", 500);
 
     // Best-effort live push to whichever side did NOT send - a missed
     // push is never a correctness problem, only a delayed one. The
     // sender's role is what's known here; the coach's id is already in
     // scope, but the org owner's id isn't (this function only ever
     // receives orgId/coachUserId) - resolved via product_organisations
-    // only when the recipient actually is the owner.
+    // only when the recipient actually is the owner. Projected separately
+    // from the sender's own copy since the attachment URL depends on
+    // which side is viewing the exact same underlying row.
     if (senderRole === "coach") {
       const ownerRow = await pool.query(
         `SELECT owner_user_id FROM product_organisations WHERE org_id = $1 LIMIT 1`,
@@ -227,17 +302,20 @@ async function sendMessageToThread(
       );
       const ownerUserId = cleanString(ownerRow.rows[0]?.owner_user_id);
       if (ownerUserId) {
-        pushToUser("org_owner", ownerUserId, { type: "org_coach_message", thread, message });
+        const ownerMessage = mapMessageRow(messageRow.rows[0], { role: "org_owner", orgId });
+        pushToUser("org_owner", ownerUserId, { type: "org_coach_message", thread, message: ownerMessage });
       }
     }
     else {
-      pushToUser("coach", coachUserId, { type: "org_coach_message", thread, message });
+      const coachMessage = mapMessageRow(messageRow.rows[0], { role: "coach" });
+      pushToUser("coach", coachUserId, { type: "org_coach_message", thread, message: coachMessage });
     }
 
-    return Object.freeze({ thread, message });
+    return Object.freeze({ thread, message: senderMessage });
   }
   catch (error) {
     await client.query("ROLLBACK");
+    if (attachment) await cleanupAttachmentFiles(messageId).catch(() => {});
     throw error;
   }
   finally {
@@ -250,7 +328,8 @@ export async function sendOrgCoachMessageFromOwner(
   orgId: string,
   coachUserIdInput: unknown,
   bodyTextInput: unknown,
-  clientRequestIdInput: unknown
+  clientRequestIdInput: unknown,
+  attachment: PendingAttachmentUpload | null = null
 ): Promise<SentOrgCoachMessage> {
   const coachUserId = cleanString(coachUserIdInput);
   if (!coachUserId) {
@@ -266,14 +345,15 @@ export async function sendOrgCoachMessageFromOwner(
     ownershipClient.release();
   }
 
-  return sendMessageToThread(orgId, coachUserId, "org_owner", ownerUserId, bodyTextInput, clientRequestIdInput);
+  return sendMessageToThread(orgId, coachUserId, "org_owner", ownerUserId, bodyTextInput, clientRequestIdInput, attachment);
 }
 
 export async function sendOrgCoachMessageFromCoach(
   coachUserId: string,
   orgId: string,
   bodyTextInput: unknown,
-  clientRequestIdInput: unknown
+  clientRequestIdInput: unknown,
+  attachment: PendingAttachmentUpload | null = null
 ): Promise<SentOrgCoachMessage> {
   const membershipClient = await pool.connect();
   try {
@@ -283,7 +363,7 @@ export async function sendOrgCoachMessageFromCoach(
     membershipClient.release();
   }
 
-  return sendMessageToThread(orgId, coachUserId, "coach", coachUserId, bodyTextInput, clientRequestIdInput);
+  return sendMessageToThread(orgId, coachUserId, "coach", coachUserId, bodyTextInput, clientRequestIdInput, attachment);
 }
 
 export async function listOrgCoachThreadsForOwner(
@@ -342,7 +422,10 @@ export async function listOrgCoachThreadMessagesForOwner(
       `SELECT * FROM product_messages WHERE thread_id = $1 ORDER BY created_at ASC`,
       [threadId]
     );
-    return messages.rows.map(mapMessageRow).filter((row): row is OrgCoachMessageRow => row !== null);
+    const viewer: MessageViewer = { role: "org_owner", orgId: thread.org_id };
+    return messages.rows
+      .map((row) => mapMessageRow(row, viewer))
+      .filter((row): row is OrgCoachMessageRow => row !== null);
   }
   finally {
     client.release();
@@ -369,5 +452,102 @@ export async function listOrgCoachThreadMessagesForCoach(
     `SELECT * FROM product_messages WHERE thread_id = $1 ORDER BY created_at ASC`,
     [threadId]
   );
-  return messages.rows.map(mapMessageRow).filter((row): row is OrgCoachMessageRow => row !== null);
+  return messages.rows
+    .map((row) => mapMessageRow(row, { role: "coach" }))
+    .filter((row): row is OrgCoachMessageRow => row !== null);
+}
+
+export type ResolvedOrgMessageAttachmentFile = Readonly<{
+  absolutePath: string;
+  mimeType: string;
+}>;
+
+async function loadOrgMessageAttachmentRowForOwner(messageId: string, ownerUserId: string): Promise<JsonRecord> {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(`SELECT * FROM product_messages WHERE message_id = $1 LIMIT 1`, [messageId]);
+    const row = result.rows[0];
+    if (!isRecord(row)) {
+      throw new OrgCoachMessagingError("org_coach_messaging_attachment_not_found", 404);
+    }
+    const threadResult = await client.query(
+      `SELECT * FROM product_message_threads WHERE thread_id = $1 AND thread_type = 'org_owner_coach' LIMIT 1`,
+      [cleanString(row.thread_id)]
+    );
+    const thread = mapThreadRow(threadResult.rows[0]);
+    if (!thread) {
+      throw new OrgCoachMessagingError("org_coach_messaging_attachment_not_found", 404);
+    }
+    await requireOrgOwnedBy(client, thread.org_id, ownerUserId);
+    return row;
+  }
+  finally {
+    client.release();
+  }
+}
+
+async function loadOrgMessageAttachmentRowForCoach(messageId: string, coachUserId: string): Promise<JsonRecord> {
+  const result = await pool.query(`SELECT * FROM product_messages WHERE message_id = $1 LIMIT 1`, [messageId]);
+  const row = result.rows[0];
+  if (!isRecord(row)) {
+    throw new OrgCoachMessagingError("org_coach_messaging_attachment_not_found", 404);
+  }
+  const threadResult = await pool.query(
+    `SELECT * FROM product_message_threads WHERE thread_id = $1 AND thread_type = 'org_owner_coach' LIMIT 1`,
+    [cleanString(row.thread_id)]
+  );
+  const thread = mapThreadRow(threadResult.rows[0]);
+  if (!thread) {
+    throw new OrgCoachMessagingError("org_coach_messaging_attachment_not_found", 404);
+  }
+  // Matches listOrgCoachThreadMessagesForCoach's identical split: a
+  // genuinely missing thread is 404, but a real thread belonging to a
+  // DIFFERENT coach is 403 access-denied, not "not found".
+  if (thread.coach_user_id !== coachUserId) {
+    throw new OrgCoachMessagingError("org_coach_messaging_thread_access_denied", 403);
+  }
+  return row;
+}
+
+function resolvedAttachmentFromRow(row: JsonRecord, key: "attachment_storage_key" | "attachment_thumbnail_storage_key"): ResolvedOrgMessageAttachmentFile | null {
+  const storageKey = cleanString(row[key]);
+  if (!storageKey) return null;
+  const absolutePath = resolveAttachmentPath(storageKey);
+  if (!absolutePath) return null;
+  return Object.freeze({
+    absolutePath,
+    mimeType: key === "attachment_thumbnail_storage_key" ? "image/jpeg" : (cleanString(row.attachment_mime_type) || "application/octet-stream")
+  });
+}
+
+export async function resolveOrgCoachMessageAttachmentForOwner(
+  messageId: string,
+  ownerUserId: string
+): Promise<ResolvedOrgMessageAttachmentFile | null> {
+  const row = await loadOrgMessageAttachmentRowForOwner(messageId, ownerUserId);
+  return resolvedAttachmentFromRow(row, "attachment_storage_key");
+}
+
+export async function resolveOrgCoachMessageAttachmentThumbnailForOwner(
+  messageId: string,
+  ownerUserId: string
+): Promise<ResolvedOrgMessageAttachmentFile | null> {
+  const row = await loadOrgMessageAttachmentRowForOwner(messageId, ownerUserId);
+  return resolvedAttachmentFromRow(row, "attachment_thumbnail_storage_key");
+}
+
+export async function resolveOrgCoachMessageAttachmentForCoach(
+  messageId: string,
+  coachUserId: string
+): Promise<ResolvedOrgMessageAttachmentFile | null> {
+  const row = await loadOrgMessageAttachmentRowForCoach(messageId, coachUserId);
+  return resolvedAttachmentFromRow(row, "attachment_storage_key");
+}
+
+export async function resolveOrgCoachMessageAttachmentThumbnailForCoach(
+  messageId: string,
+  coachUserId: string
+): Promise<ResolvedOrgMessageAttachmentFile | null> {
+  const row = await loadOrgMessageAttachmentRowForCoach(messageId, coachUserId);
+  return resolvedAttachmentFromRow(row, "attachment_thumbnail_storage_key");
 }

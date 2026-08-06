@@ -361,6 +361,7 @@ const elements = {
   athleteDetailMessageButton: document.getElementById("athleteDetailMessageButton"),
   athleteDetailMessageForm: document.getElementById("athleteDetailMessageForm"),
   athleteDetailMessageText: document.getElementById("athleteDetailMessageText"),
+  athleteDetailMessageAttachment: document.getElementById("athleteDetailMessageAttachment"),
   athleteDetailMessageCancelButton: document.getElementById("athleteDetailMessageCancelButton"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
@@ -5109,6 +5110,72 @@ async function recordAthleteDetailNote(
   }
 }
 
+const ATTACHMENT_MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const ATTACHMENT_MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+const ATTACHMENT_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ATTACHMENT_VIDEO_TYPES = ["video/mp4", "video/quicktime"];
+
+// Fast feedback only - never the actual security boundary, which is the
+// server's own content-sniffed validation (message_attachment_storage.ts).
+function validateAttachmentClientSide(file) {
+  if (!file) return null;
+  const isImage = ATTACHMENT_IMAGE_TYPES.includes(file.type);
+  const isVideo = ATTACHMENT_VIDEO_TYPES.includes(file.type);
+  if (!isImage && !isVideo) {
+    return "That file type isn't supported. Use a JPEG/PNG/WEBP photo or an MP4/MOV video.";
+  }
+  const maxBytes = isImage ? ATTACHMENT_MAX_IMAGE_BYTES : ATTACHMENT_MAX_VIDEO_BYTES;
+  if (file.size > maxBytes) {
+    return isImage ? "Photos must be 10MB or smaller." : "Videos must be 50MB or smaller.";
+  }
+  return null;
+}
+
+// api() (above) always JSON.stringify's the body - it can't send
+// multipart/form-data. This is the one send path that needs a raw fetch
+// instead, mirroring api()'s own CSRF/credentials handling by hand.
+async function sendMessageRequest(path, bodyText, attachmentFile) {
+  if (!attachmentFile) {
+    return api("POST", path, { body_text: bodyText, client_request_id: newClientRequestId() });
+  }
+
+  const formData = new FormData();
+  formData.append("body_text", bodyText);
+  formData.append("client_request_id", newClientRequestId());
+  formData.append("attachment", attachmentFile);
+
+  const response = await fetch(path, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "x-kolosseum-csrf": String(state.csrfToken ?? "") },
+    body: formData
+  });
+
+  const payload = await readJson(response);
+  if (!response.ok) {
+    const error = new Error(friendlyError(payload, response.status));
+    error.payload = payload;
+    error.status = response.status;
+    error.requestMethod = "POST";
+    error.requestPath = path;
+    throw error;
+  }
+  return payload;
+}
+
+function renderMessageAttachment(attachment) {
+  if (!attachment) return "";
+  if (attachment.media_type === "image") {
+    return `<img class="message-attachment-image" src="${escapeHtml(attachment.url)}" alt="Attached photo" loading="lazy">`;
+  }
+  return `
+    <video class="message-attachment-video" controls preload="metadata"
+      ${attachment.thumbnail_url ? `poster="${escapeHtml(attachment.thumbnail_url)}"` : ""}>
+      <source src="${escapeHtml(attachment.url)}">
+    </video>
+  `;
+}
+
 async function refreshCoachAthleteMessages(athleteUserId, options = {}) {
   if (!athleteUserId || !elements.athleteDetailMessageHistory) return;
 
@@ -5157,7 +5224,8 @@ function renderCoachAthleteMessages() {
         <span class="badge neutral">${message.sender_role === "coach" ? "You" : "Athlete"}</span>
         <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
       </div>
-      <p>${escapeHtml(message.body_text ?? "")}</p>
+      ${renderMessageAttachment(message.attachment)}
+      ${message.body_text ? `<p>${escapeHtml(message.body_text)}</p>` : ""}
     </article>
   `).join("");
 }
@@ -5165,6 +5233,7 @@ function renderCoachAthleteMessages() {
 function openComposeAthleteMessagePanel() {
   if (!state.selectedCoachAthleteId) return;
   elements.athleteDetailMessageText.value = "";
+  if (elements.athleteDetailMessageAttachment) elements.athleteDetailMessageAttachment.value = "";
   elements.athleteDetailMessageForm.hidden = false;
   elements.athleteDetailMessageText.focus();
 }
@@ -5180,16 +5249,21 @@ async function confirmSendAthleteMessage(event) {
   if (!athleteUserId) return;
 
   const bodyText = elements.athleteDetailMessageText.value.trim();
-  if (!bodyText) {
-    throw new Error("Enter a message before sending it.");
+  const attachmentFile = elements.athleteDetailMessageAttachment?.files?.[0] ?? null;
+  if (!bodyText && !attachmentFile) {
+    throw new Error("Enter a message or attach a photo/video before sending.");
+  }
+  const attachmentError = validateAttachmentClientSide(attachmentFile);
+  if (attachmentError) {
+    throw new Error(attachmentError);
   }
 
   showBusy("Sending message…");
   try {
-    await api(
-      "POST",
+    await sendMessageRequest(
       `/messages/coach/athletes/${encodeURIComponent(athleteUserId)}/send`,
-      { body_text: bodyText, client_request_id: newClientRequestId() }
+      bodyText,
+      attachmentFile
     );
 
     closeComposeAthleteMessagePanel();
@@ -11748,7 +11822,11 @@ function renderAthleteRelationships() {
       <form id="athleteMessageForm" class="athlete-detail-note-form" data-coach-user-id="${escapeHtml(currentCoach.coach_user_id)}">
         <label class="field">
           <span>Message your coach</span>
-          <textarea id="athleteMessageText" required maxlength="4000"></textarea>
+          <textarea id="athleteMessageText" maxlength="4000"></textarea>
+        </label>
+        <label class="field">
+          <span>Attach photo or video (optional)</span>
+          <input type="file" id="athleteMessageAttachment" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" capture="environment">
         </label>
         <div class="inline-controls">
           <button class="button primary" type="submit">Send</button>
@@ -11836,7 +11914,8 @@ function renderAthleteOwnMessages() {
         <span class="badge neutral">${message.sender_role === "athlete" ? "You" : "Coach"}</span>
         <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
       </div>
-      <p>${escapeHtml(message.body_text ?? "")}</p>
+      ${renderMessageAttachment(message.attachment)}
+      ${message.body_text ? `<p>${escapeHtml(message.body_text)}</p>` : ""}
     </article>
   `).join("");
 }
@@ -11847,17 +11926,26 @@ async function confirmSendAthleteOwnMessage(event, coachUserId) {
 
   const textarea = document.getElementById("athleteMessageText");
   const bodyText = textarea?.value.trim() ?? "";
-  if (!bodyText) {
-    throw new Error("Enter a message before sending it.");
+  const attachmentFile = document.getElementById("athleteMessageAttachment")?.files?.[0] ?? null;
+  if (!bodyText && !attachmentFile) {
+    throw new Error("Enter a message or attach a photo/video before sending.");
+  }
+  const attachmentError = validateAttachmentClientSide(attachmentFile);
+  if (attachmentError) {
+    throw new Error(attachmentError);
   }
 
   showBusy("Sending message…");
   try {
-    await api(
-      "POST",
+    await sendMessageRequest(
       `/messages/athlete/coaches/${encodeURIComponent(coachUserId)}/send`,
-      { body_text: bodyText, client_request_id: newClientRequestId() }
+      bodyText,
+      attachmentFile
     );
+
+    if (textarea) textarea.value = "";
+    const attachmentInput = document.getElementById("athleteMessageAttachment");
+    if (attachmentInput) attachmentInput.value = "";
 
     await refreshAthleteOwnMessages();
     showNotice("Message sent.");

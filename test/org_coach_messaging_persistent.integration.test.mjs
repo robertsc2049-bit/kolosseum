@@ -12,12 +12,13 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import net from "node:net";
 import path from "node:path";
-import test from "node:test";
+import test, { after } from "node:test";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { app } from "../dist/src/server.js";
 import { pool } from "../dist/src/db/pool.js";
+import { STORAGE_ROOT } from "../dist/src/api/message_attachment_storage.js";
 
 function repoRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -56,6 +57,34 @@ async function request(baseUrl, method, route, body, options = {}) {
   let json = null;
   try { json = text ? JSON.parse(text) : null; } catch {}
   return { response, text, json };
+}
+
+async function requestMultipart(baseUrl, route, fields, filePart, options = {}) {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(fields)) {
+    if (value !== undefined) formData.append(key, value);
+  }
+  if (filePart) {
+    formData.append(
+      "attachment",
+      new Blob([filePart.buffer], { type: filePart.mimeType ?? "application/octet-stream" }),
+      filePart.filename ?? "upload.bin"
+    );
+  }
+
+  const headers = {};
+  if (options.cookie) headers.cookie = options.cookie;
+  if (options.csrf) headers["x-kolosseum-csrf"] = options.csrf;
+
+  const response = await fetch(`${baseUrl}${route}`, { method: "POST", headers, body: formData });
+  const text = await response.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch {}
+  return { response, text, json };
+}
+
+function tinyJpegBuffer() {
+  return Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01]);
 }
 
 function cookieNamed(result, cookieName, label) {
@@ -261,7 +290,6 @@ test(
       await stopFreshServerProcess(restarted);
       await closeServer(server);
       await cleanup();
-      await pool.end();
     });
 
     server = await listen();
@@ -446,3 +474,161 @@ test(
     );
   }
 );
+
+test(
+  "Org-owner<->coach messaging: photo/video attachments persist, authorize per-membership, clean up idempotent-replay orphans, and support attachment-only sends",
+  async (testContext) => {
+    const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+
+    let server = null;
+    const orgOwnerUserIds = [];
+    const coachUserIds = [];
+    const knownMessageIds = new Set();
+
+    const cleanup = async () => {
+      const allUserIds = [...orgOwnerUserIds, ...coachUserIds].filter(Boolean);
+      if (allUserIds.length > 0) {
+        await pool.query(
+          `DELETE FROM product_messages WHERE sender_user_id = ANY($1::text[])`,
+          [allUserIds]
+        ).catch(() => {});
+        await pool.query(
+          `DELETE FROM product_message_threads WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = ANY($1::text[])) OR coach_user_id = ANY($1::text[])`,
+          [allUserIds]
+        ).catch(() => {});
+      }
+      for (const userId of orgOwnerUserIds) {
+        if (!userId) continue;
+        await pool.query(
+          "DELETE FROM product_org_audit_records WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)",
+          [userId]
+        ).catch(() => {});
+        await pool.query(
+          "DELETE FROM product_org_coach_memberships WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)",
+          [userId]
+        ).catch(() => {});
+        await pool.query("DELETE FROM product_organisations WHERE owner_user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_org_owner_sessions WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_org_owner_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+      for (const userId of coachUserIds) {
+        if (!userId) continue;
+        await pool.query("DELETE FROM product_account_events WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+      for (const messageId of knownMessageIds) {
+        await fs.rm(path.join(STORAGE_ROOT, messageId), { recursive: true, force: true }).catch(() => {});
+      }
+    };
+
+    testContext.after(async () => {
+      await closeServer(server);
+      await cleanup();
+    });
+
+    server = await listen();
+    const address = server.address();
+    const baseUrl = `http://127.0.0.1:${address.port}`;
+
+    const owner = await registerOrgOwner(baseUrl, nonce, "attach");
+    orgOwnerUserIds.push(owner.userId);
+    const coach = await registerCoach(baseUrl, nonce, "attach");
+    coachUserIds.push(coach.userId);
+    const strangerOwner = await registerOrgOwner(baseUrl, nonce, "attachstranger");
+    orgOwnerUserIds.push(strangerOwner.userId);
+    const strangerCoach = await registerCoach(baseUrl, nonce, "attachstranger");
+    coachUserIds.push(strangerCoach.userId);
+
+    const org = await request(baseUrl, "POST", "/org/organisations", { org_name: "Attach Test Gym" }, {
+      cookie: owner.cookie, csrf: owner.csrf
+    });
+    assertStatus(org, 201, "create organisation");
+    const orgId = org.json?.organisation?.org_id;
+
+    const invite = await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(orgId)}/roster/invite`,
+      { coach_email: coach.email, request_id: `invite_${nonce}_attach` }, { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(invite, 201, "invite coach");
+    await acceptOrgInvite(baseUrl, coach, invite.json?.membership?.membership_id, `accept_${nonce}_attach`);
+
+    // ============================================================
+    // A valid image attachment, sent by the owner.
+    // ============================================================
+    const imageSend = await requestMultipart(
+      baseUrl, `/org/organisations/${encodeURIComponent(orgId)}/messages/coaches/${encodeURIComponent(coach.userId)}/send`,
+      { body_text: "Here's the new equipment.", client_request_id: `msg_${nonce}_image` },
+      { buffer: tinyJpegBuffer(), mimeType: "image/jpeg", filename: "equipment.jpg" },
+      { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(imageSend, 201, "owner sends an image attachment");
+    const imageMessageId = imageSend.json?.message?.message_id;
+    assert.ok(imageMessageId, "expected a message_id");
+    knownMessageIds.add(imageMessageId);
+    assert.equal(imageSend.json?.message?.attachment?.media_type, "image");
+    const ownerAttachmentUrl = imageSend.json?.message?.attachment?.url;
+    assert.ok(ownerAttachmentUrl?.startsWith(`/org/organisations/${orgId}/messages/attachments/`), "the owner's own URL is nested under their org");
+
+    // ============================================================
+    // Idempotent replay must not leave an orphaned attachment directory
+    // - checked via the directory-count delta, matching the coach<->
+    // athlete side's equivalent test (a stale/unrelated leftover under
+    // the shared storage root must never make this assertion flaky).
+    // ============================================================
+    const entryCountBeforeReplay = (await fs.readdir(STORAGE_ROOT).catch(() => [])).length;
+    const replay = await requestMultipart(
+      baseUrl, `/org/organisations/${encodeURIComponent(orgId)}/messages/coaches/${encodeURIComponent(coach.userId)}/send`,
+      { body_text: "Here's the new equipment.", client_request_id: `msg_${nonce}_image` },
+      { buffer: tinyJpegBuffer(), mimeType: "image/jpeg", filename: "replay.jpg" },
+      { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(replay, 201, "idempotent replay with an attachment still returns 201");
+    assert.equal(replay.json?.message?.message_id, imageMessageId);
+    const entryCountAfterReplay = (await fs.readdir(STORAGE_ROOT).catch(() => [])).length;
+    assert.equal(entryCountAfterReplay, entryCountBeforeReplay, "the replay attempt's own attachment directory must not persist as an orphan");
+
+    // ============================================================
+    // Attachment GET authorization: the sender (owner) and the active
+    // member coach can both fetch it, each via their own route; an
+    // unrelated owner/coach cannot (matching the existing membership-
+    // based authorization already proven for thread reads above).
+    // ============================================================
+    const ownerFetches = await fetch(`${baseUrl}${ownerAttachmentUrl}`, { headers: { cookie: owner.cookie } });
+    assert.equal(ownerFetches.status, 200, "the sending owner can fetch the attachment");
+    assert.equal(ownerFetches.headers.get("content-type"), "image/jpeg");
+
+    const coachAttachmentUrl = `/coach-workspace/org-messages/attachments/${encodeURIComponent(imageMessageId)}`;
+    const coachFetches = await fetch(`${baseUrl}${coachAttachmentUrl}`, { headers: { cookie: coach.cookie } });
+    assert.equal(coachFetches.status, 200, "the active-member coach can fetch the same attachment via their own route");
+
+    const strangerOwnerFetches = await fetch(`${baseUrl}${ownerAttachmentUrl}`, { headers: { cookie: strangerOwner.cookie } });
+    assert.equal(strangerOwnerFetches.status, 403, "an unrelated org owner cannot fetch the attachment");
+
+    const strangerCoachFetches = await fetch(`${baseUrl}${coachAttachmentUrl}`, { headers: { cookie: strangerCoach.cookie } });
+    assert.equal(strangerCoachFetches.status, 403, "an unrelated coach cannot fetch the attachment");
+
+    // ============================================================
+    // Attachment-only send (no body_text field at all), from the coach.
+    // ============================================================
+    const attachmentOnly = await requestMultipart(
+      baseUrl, `/coach-workspace/org-messages/organisations/${encodeURIComponent(orgId)}/send`,
+      { client_request_id: `msg_${nonce}_attachonly` },
+      { buffer: tinyJpegBuffer(), mimeType: "image/jpeg", filename: "no-caption.jpg" },
+      { cookie: coach.cookie, csrf: coach.csrf }
+    );
+    assertStatus(attachmentOnly, 201, "an attachment-only send with no caption is accepted");
+    knownMessageIds.add(attachmentOnly.json?.message?.message_id);
+    assert.equal(attachmentOnly.json?.message?.body_text, "", "an absent caption reads back as an empty string");
+    assert.equal(attachmentOnly.json?.message?.attachment?.media_type, "image");
+  }
+);
+
+// File-scoped, not per-test: both tests above share the same imported
+// pool singleton, and node:test runs top-level test() blocks in this file
+// sequentially - ending the pool inside either test's own after() would
+// leave the pool unusable for whichever test runs next.
+after(async () => {
+  await pool.end();
+});

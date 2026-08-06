@@ -1159,6 +1159,14 @@ WHERE thread_type = 'org_owner_coach';
 -- codebase's only prior free-text precedent) - messages are much
 -- higher-frequency, so a deliberate cap is added here rather than
 -- blindly copying the unbounded precedent.
+--
+-- Part D.3 - photo/video attachments. body_text becomes an optional
+-- caption when an attachment is present (still bounded/non-blank when
+-- it IS present), never both absent. The four core attachment columns
+-- are all-NULL or all-NOT-NULL together (no state where only some are
+-- set); the thumbnail key is video-only, and nullable even then - a
+-- failed poster extraction (message_attachment_storage.ts) is a valid,
+-- storable outcome, never a reason to fail the send.
 CREATE TABLE IF NOT EXISTS product_messages (
   message_id         TEXT PRIMARY KEY,
   thread_id          TEXT NOT NULL
@@ -1169,14 +1177,46 @@ CREATE TABLE IF NOT EXISTS product_messages (
     CHECK (
       sender_role IN ('coach', 'athlete', 'org_owner')
     ),
-  body_text          TEXT NOT NULL
+  body_text          TEXT
     CHECK (
-      char_length(btrim(body_text)) BETWEEN 1 AND 4000
+      (body_text IS NULL AND attachment_media_type IS NOT NULL)
+      OR
+      (body_text IS NOT NULL AND char_length(btrim(body_text)) BETWEEN 1 AND 4000)
     ),
+  attachment_media_type             TEXT
+    CHECK (
+      attachment_media_type IS NULL OR attachment_media_type IN ('image', 'video')
+    ),
+  attachment_mime_type              TEXT,
+  attachment_byte_size              INTEGER
+    CHECK (
+      attachment_byte_size IS NULL OR attachment_byte_size > 0
+    ),
+  attachment_storage_key            TEXT,
+  attachment_thumbnail_storage_key  TEXT,
   client_request_id  TEXT NOT NULL,
   created_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-  UNIQUE (thread_id, sender_user_id, client_request_id)
+  UNIQUE (thread_id, sender_user_id, client_request_id),
+
+  CHECK (
+    (
+      attachment_media_type IS NULL
+      AND attachment_mime_type IS NULL
+      AND attachment_byte_size IS NULL
+      AND attachment_storage_key IS NULL
+    )
+    OR
+    (
+      attachment_media_type IS NOT NULL
+      AND attachment_mime_type IS NOT NULL
+      AND attachment_byte_size IS NOT NULL
+      AND attachment_storage_key IS NOT NULL
+    )
+  ),
+  CHECK (
+    attachment_thumbnail_storage_key IS NULL OR attachment_media_type = 'video'
+  )
 );
 
 CREATE INDEX IF NOT EXISTS
@@ -1185,3 +1225,61 @@ ON product_messages (
   thread_id,
   created_at ASC
 );
+
+-- Migration for environments that already applied product_messages before
+-- attachment support (Part D.3) landed. Attachment columns must be added
+-- BEFORE the body_text CHECK is replaced, since the new CHECK references
+-- attachment_media_type.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'product_messages' AND column_name = 'attachment_media_type'
+  ) THEN
+    ALTER TABLE product_messages ADD COLUMN attachment_media_type TEXT;
+    ALTER TABLE product_messages ADD COLUMN attachment_mime_type TEXT;
+    ALTER TABLE product_messages ADD COLUMN attachment_byte_size INTEGER;
+    ALTER TABLE product_messages ADD COLUMN attachment_storage_key TEXT;
+    ALTER TABLE product_messages ADD COLUMN attachment_thumbnail_storage_key TEXT;
+
+    ALTER TABLE product_messages
+      ADD CONSTRAINT product_messages_attachment_media_type_check
+      CHECK (attachment_media_type IS NULL OR attachment_media_type IN ('image', 'video'));
+
+    ALTER TABLE product_messages
+      ADD CONSTRAINT product_messages_attachment_byte_size_check
+      CHECK (attachment_byte_size IS NULL OR attachment_byte_size > 0);
+
+    ALTER TABLE product_messages
+      ADD CONSTRAINT product_messages_attachment_columns_consistency_check
+      CHECK (
+        (attachment_media_type IS NULL AND attachment_mime_type IS NULL
+          AND attachment_byte_size IS NULL AND attachment_storage_key IS NULL)
+        OR
+        (attachment_media_type IS NOT NULL AND attachment_mime_type IS NOT NULL
+          AND attachment_byte_size IS NOT NULL AND attachment_storage_key IS NOT NULL)
+      );
+
+    ALTER TABLE product_messages
+      ADD CONSTRAINT product_messages_attachment_thumbnail_video_only_check
+      CHECK (attachment_thumbnail_storage_key IS NULL OR attachment_media_type = 'video');
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.constraint_column_usage
+    WHERE table_name = 'product_messages'
+      AND constraint_name = 'product_messages_body_text_check'
+  ) THEN
+    ALTER TABLE product_messages DROP CONSTRAINT product_messages_body_text_check;
+    ALTER TABLE product_messages ALTER COLUMN body_text DROP NOT NULL;
+    ALTER TABLE product_messages
+      ADD CONSTRAINT product_messages_body_text_check
+      CHECK (
+        (body_text IS NULL AND attachment_media_type IS NOT NULL)
+        OR
+        (body_text IS NOT NULL AND char_length(btrim(body_text)) BETWEEN 1 AND 4000)
+      );
+  END IF;
+END;
+$$;

@@ -2848,6 +2848,15 @@ button:focus-visible,
     var(--ink-2);
 }
 
+.message-attachment-image,
+.message-attachment-video {
+  max-width: 280px;
+  width: 100%;
+  border-radius: 0.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
 @media (max-width: 980px) {
   .review-toolbar,
   .review-summary-grid {

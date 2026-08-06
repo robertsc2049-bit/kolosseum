@@ -41,3 +41,6 @@ verify.full.log
 
 # local smoke-run logs
 .logs/
+
+# message attachment storage (local disk, dev/runtime only)
+var/
