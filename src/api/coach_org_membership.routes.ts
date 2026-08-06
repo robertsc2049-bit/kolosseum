@@ -20,7 +20,8 @@ import {
   OrgRosterError,
   acceptOrgMembershipInvitation,
   leaveOrganisation,
-  listOrgMembershipsForCoach
+  listOrgMembershipsForCoach,
+  listOrganisationRosterForCoach
 } from "./org_roster_service.js";
 import {
   OrgCoachMessagingError,
@@ -70,6 +71,18 @@ coachOrgMembershipRouter.post(
       request.body?.request_id
     );
     return response.status(200).json({ ok: true, membership: result.membership });
+  })
+);
+
+// Part O.7 - a coach's own view of fellow coaches in a shared org (never
+// for individual/gym orgs - listOrganisationRosterForCoach itself is the
+// authority on that boundary, this route just exposes it).
+coachOrgMembershipRouter.get(
+  "/organisations/:org_id/roster",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const roster = await listOrganisationRosterForCoach(coachUserId, String(request.params.org_id));
+    return response.status(200).json({ ok: true, roster });
   })
 );
 
