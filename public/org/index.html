@@ -114,6 +114,29 @@
       <div id="orgRosterList" class="record-list"></div>
       <p id="orgRosterError" class="muted small" hidden></p>
     </section>
+
+    <section id="orgBillingSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Billing</p>
+          <h2>Seat plan for <strong id="orgBillingOrgName"></strong></h2>
+        </div>
+        <button id="orgBillingBackButton" class="button secondary" type="button">Back to organisations</button>
+      </div>
+
+      <div id="orgBillingStatus" class="record-list"></div>
+
+      <form id="orgBillingSeatPlanForm">
+        <label class="field">
+          <span>Seat limit</span>
+          <input id="orgBillingSeatLimit" type="number" min="1" step="1" required />
+        </label>
+        <div class="button-row">
+          <button class="button primary" type="submit">Update seat plan</button>
+        </div>
+      </form>
+      <p id="orgBillingError" class="muted small" hidden></p>
+    </section>
   </main>
 
   <script type="module" src="/org/org.js"></script>

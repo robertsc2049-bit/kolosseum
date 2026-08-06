@@ -1,6 +1,7 @@
-// DEV NOTE: Parts O.1/O.2 - org-owner dashboard shell + identity +
-// organisation list/create, plus the coach roster view (invite by email,
-// list, remove). Deliberately a standalone module, mirroring
+// DEV NOTE: Parts O.1/O.2/O.3 - org-owner dashboard shell + identity,
+// organisation list/create, the coach roster view (invite by email, list,
+// remove), and the seat-plan billing view (status + update). Deliberately
+// a standalone module, mirroring
 // public/admin/admin.js's shape exactly - it never imports anything from
 // public/app/, never reads the athlete/coach session cookie, and never
 // calls any /account, /coach-workspace, /sessions, /blocks or /messages
@@ -94,6 +95,7 @@ function renderOrganisations(organisations) {
       <div class="record-meta">
         <span class="badge ${organisation.visibility_mode === "shared" ? "active" : "neutral"}">${visibilityModeLabel(organisation.visibility_mode)}</span>
         <button class="button secondary" type="button" data-manage-roster="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage roster</button>
+        <button class="button secondary" type="button" data-manage-billing="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage billing</button>
       </div>
     </article>
   `).join("");
@@ -101,6 +103,12 @@ function renderOrganisations(organisations) {
   for (const button of container.querySelectorAll("[data-manage-roster]")) {
     button.addEventListener("click", () => {
       showRosterSection(button.getAttribute("data-manage-roster"), button.getAttribute("data-org-name"));
+    });
+  }
+
+  for (const button of container.querySelectorAll("[data-manage-billing]")) {
+    button.addEventListener("click", () => {
+      showBillingSection(button.getAttribute("data-manage-billing"), button.getAttribute("data-org-name"));
     });
   }
 }
@@ -153,6 +161,7 @@ function showRosterSection(orgId, orgName) {
   state.selectedOrgId = orgId;
   el("orgListSection").hidden = true;
   el("orgCreateSection").hidden = true;
+  el("orgBillingSection").hidden = true;
   el("orgRosterSection").hidden = false;
   el("orgRosterOrgName").textContent = orgName;
   el("orgRosterInviteForm").reset();
@@ -166,6 +175,67 @@ function hideRosterSection() {
   el("orgRosterSection").hidden = true;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
+}
+
+function renderBillingStatus(billing) {
+  const container = el("orgBillingStatus");
+  container.innerHTML = `
+    <article class="record-card">
+      <div>
+        <h3>${billing.seat_plan_configured ? `${escapeHtml(billing.seat_limit)} seats` : "No seat plan configured"}</h3>
+        <p>${escapeHtml(billing.occupied_seat_count)} occupied${billing.available_seat_count === null ? "" : `, ${escapeHtml(billing.available_seat_count)} available`}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge ${billing.seat_plan_configured ? "active" : "neutral"}">${billing.seat_plan_configured ? "Configured" : "Unrestricted"}</span>
+      </div>
+    </article>
+  `;
+}
+
+async function refreshBilling() {
+  const result = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/billing`);
+  renderBillingStatus(result.billing);
+}
+
+function showBillingSection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  el("orgListSection").hidden = true;
+  el("orgCreateSection").hidden = true;
+  el("orgRosterSection").hidden = true;
+  el("orgBillingSection").hidden = false;
+  el("orgBillingOrgName").textContent = orgName;
+  el("orgBillingSeatPlanForm").reset();
+  el("orgBillingError").hidden = true;
+  refreshBilling().catch(console.error);
+}
+
+function hideBillingSection() {
+  state.selectedOrgId = null;
+  el("orgBillingSection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+async function updateSeatPlan(event) {
+  event.preventDefault();
+  el("orgBillingError").hidden = true;
+
+  try {
+    await api("POST", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/billing/seat-plan`, {
+      seat_limit: Number(el("orgBillingSeatLimit").value)
+    });
+    el("orgBillingSeatPlanForm").reset();
+    await refreshBilling();
+  }
+  catch (error) {
+    el("orgBillingError").hidden = false;
+    el("orgBillingError").textContent = error.message === "org_billing_seat_limit_below_occupied"
+      ? "That limit is below the number of coaches already occupying a seat."
+      : error.message === "org_billing_seat_limit_invalid"
+        ? "Enter a whole number of seats greater than zero."
+        : "Could not update the seat plan.";
+    console.error(error);
+  }
 }
 
 async function inviteCoach(event) {
@@ -297,6 +367,8 @@ function boot() {
   el("orgCreateForm").addEventListener("submit", (event) => createOrganisation(event).catch(console.error));
   el("orgRosterInviteForm").addEventListener("submit", (event) => inviteCoach(event).catch(console.error));
   el("orgRosterBackButton").addEventListener("click", () => hideRosterSection());
+  el("orgBillingSeatPlanForm").addEventListener("submit", (event) => updateSeatPlan(event).catch(console.error));
+  el("orgBillingBackButton").addEventListener("click", () => hideBillingSection());
 }
 
 boot();
