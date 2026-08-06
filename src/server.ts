@@ -76,7 +76,7 @@ app.use("/app", express.static(productAppDir));
  */
 app.use("/admin", express.static(adminAppDir));
 /**
- * Org-owner dashboard (part O.1).
+ * Org-owner workspace surface (part O.1).
  *
  * A wholly separate, minimal static page, mirroring the /admin surface
  * above - never part of the athlete/coach SPA shell, never reachable
