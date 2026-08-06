@@ -338,3 +338,49 @@ test("organisation names rendered into the org-owner dashboard are escaped befor
   assert.match(orgDashboardJs, /function escapeHtml/u);
   assert.match(orgDashboardJs, /escapeHtml\(organisation\.org_name\)/u);
 });
+
+// Part O.2 - the coach roster view (invite by email, list, remove), built
+// entirely on top of the already-integration-tested org_owner_roster
+// routes (part B.2) plus a display-only join onto product_accounts so the
+// owner sees a coach's name/email instead of a bare user_id (part O.2's
+// only backend change - covered by org_roster_lifecycle_persistent's
+// existing assertions still passing, not by a new integration test).
+test("each organisation card exposes a real, keyboard-reachable button to manage its roster", () => {
+  assert.match(orgDashboardHtml, /<section id="orgRosterSection"/u);
+  assert.match(orgDashboardJs, /data-manage-roster="\$\{escapeHtml\(organisation\.org_id\)\}"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-manage-roster=/u);
+  assert.match(orgDashboardJs, /querySelectorAll\("\[data-manage-roster\]"\)/u);
+});
+
+test("the roster invite form and back button are real, keyboard-reachable controls calling the existing roster routes", () => {
+  assert.match(orgDashboardHtml, /<form id="orgRosterInviteForm">/u);
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgRosterBackButton"[^>]*type="button"/u,
+    "orgRosterBackButton must be a real <button type=\"button\">"
+  );
+
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/roster`\)/u);
+  assert.match(orgDashboardJs, /api\("POST", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/roster\/invite`/u);
+  assert.match(
+    orgDashboardJs,
+    /api\("POST", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/roster\/\$\{encodeURIComponent\(membershipId\)\}\/remove`/u
+  );
+});
+
+test("roster remove buttons only render for non-removed memberships and are real, keyboard-reachable controls", () => {
+  assert.match(orgDashboardJs, /membership\.membership_status === "removed"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-remove-membership=/u);
+  assert.match(orgDashboardJs, /querySelectorAll\("\[data-remove-membership\]"\)/u);
+});
+
+test("coach display names and emails rendered into the roster view are escaped before being inserted into innerHTML", () => {
+  assert.match(orgDashboardJs, /escapeHtml\(membership\.coach_display_name \|\| membership\.coach_user_id\)/u);
+  assert.match(orgDashboardJs, /escapeHtml\(membership\.coach_email \|\| ""\)/u);
+});
+
+test("org_roster_service.ts's coach_display_name/coach_email are display-only additions, populated solely by the roster-list join", () => {
+  assert.match(rosterService, /coach_display_name: string \| null/u);
+  assert.match(rosterService, /coach_email: string \| null/u);
+  assert.match(rosterService, /LEFT JOIN product_accounts a ON a\.user_id = m\.coach_user_id/u);
+});

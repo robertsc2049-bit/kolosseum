@@ -90,6 +90,30 @@
       </form>
       <p id="orgCreateError" class="muted small" hidden></p>
     </section>
+
+    <section id="orgRosterSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Roster</p>
+          <h2>Coach roster for <strong id="orgRosterOrgName"></strong></h2>
+        </div>
+        <button id="orgRosterBackButton" class="button secondary" type="button">Back to organisations</button>
+      </div>
+
+      <form id="orgRosterInviteForm">
+        <label class="field">
+          <span>Coach email</span>
+          <input id="orgRosterInviteEmail" type="email" required autocomplete="off" />
+        </label>
+        <div class="button-row">
+          <button class="button primary" type="submit">Invite coach</button>
+        </div>
+      </form>
+      <p id="orgRosterInviteError" class="muted small" hidden></p>
+
+      <div id="orgRosterList" class="record-list"></div>
+      <p id="orgRosterError" class="muted small" hidden></p>
+    </section>
   </main>
 
   <script type="module" src="/org/org.js"></script>
