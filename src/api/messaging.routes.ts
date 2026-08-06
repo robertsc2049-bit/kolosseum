@@ -30,6 +30,14 @@ import {
   sendCoachAthleteMessage
 } from "./coach_athlete_messaging_service.js";
 import {
+  OrgAthleteMessagingError,
+  listOrgAthleteThreadMessagesForAthlete,
+  listOrgAthleteThreadsForAthlete,
+  resolveOrgAthleteMessageAttachmentForAthlete,
+  resolveOrgAthleteMessageAttachmentThumbnailForAthlete,
+  sendOrgAthleteMessageFromAthlete
+} from "./org_athlete_messaging_service.js";
+import {
   MessageAttachmentError,
   attachmentUpload,
   sendAttachmentFile,
@@ -189,17 +197,80 @@ messagingRouter.get(
   })
 );
 
-// CoachAthleteMessagingError/MessageAttachmentError are not ApiErrors, so
-// without this router-scoped handler they would otherwise reach the
-// generic error mapper, which mistakes the string message for a Postgres
-// error code and returns a misleading 500 instead of the correct status
-// (mirrors the identical, deliberate pattern in product_admin.routes.ts /
-// org_owner.routes.ts). MulterError (e.g. an oversized upload exceeding
-// the multer-level ceiling before content sniffing even runs) is mapped
-// the same way, for the same reason.
+// Part D.4 - org-owner<->athlete messaging, athlete side. Nested under
+// /athlete/org-messages/... so it can't collide with the coach<->athlete
+// routes above (mirrors the coach-side /coach-workspace/org-messages/...
+// differentiator already used for org-owner<->coach messaging).
+messagingRouter.get(
+  "/athlete/org-messages/threads",
+  asyncHandler(async (request, response) => {
+    const athleteUserId = await authenticatedAthlete(request, false);
+    const threads = await listOrgAthleteThreadsForAthlete(athleteUserId);
+    return response.status(200).json({ ok: true, threads });
+  })
+);
+
+messagingRouter.get(
+  "/athlete/org-messages/threads/:thread_id",
+  asyncHandler(async (request, response) => {
+    const athleteUserId = await authenticatedAthlete(request, false);
+    const messages = await listOrgAthleteThreadMessagesForAthlete(String(request.params.thread_id), athleteUserId);
+    return response.status(200).json({ ok: true, messages });
+  })
+);
+
+messagingRouter.post(
+  "/athlete/org-messages/organisations/:org_id/send",
+  attachmentUpload.single("attachment"),
+  asyncHandler(async (request, response) => {
+    const athleteUserId = await authenticatedAthlete(request, true);
+    const attachment = await validateStagedUpload(request.file);
+    const result = await sendOrgAthleteMessageFromAthlete(
+      athleteUserId,
+      String(request.params.org_id),
+      request.body?.body_text,
+      request.body?.client_request_id,
+      attachment
+    );
+    return response.status(201).json({ ok: true, thread: result.thread, message: result.message });
+  })
+);
+
+messagingRouter.get(
+  "/athlete/org-messages/attachments/:message_id",
+  asyncHandler(async (request, response) => {
+    const athleteUserId = await authenticatedAthlete(request, false);
+    const attachment = await resolveOrgAthleteMessageAttachmentForAthlete(String(request.params.message_id), athleteUserId);
+    if (!attachment) return response.status(404).json({ error: "org_athlete_messaging_attachment_not_found" });
+    return sendAttachmentFile(response, attachment);
+  })
+);
+
+messagingRouter.get(
+  "/athlete/org-messages/attachments/:message_id/thumbnail",
+  asyncHandler(async (request, response) => {
+    const athleteUserId = await authenticatedAthlete(request, false);
+    const thumbnail = await resolveOrgAthleteMessageAttachmentThumbnailForAthlete(String(request.params.message_id), athleteUserId);
+    if (!thumbnail) return response.status(404).json({ error: "org_athlete_messaging_thumbnail_not_found" });
+    return sendAttachmentFile(response, thumbnail);
+  })
+);
+
+// CoachAthleteMessagingError/OrgAthleteMessagingError/MessageAttachmentError
+// are not ApiErrors, so without this router-scoped handler they would
+// otherwise reach the generic error mapper, which mistakes the string
+// message for a Postgres error code and returns a misleading 500 instead
+// of the correct status (mirrors the identical, deliberate pattern in
+// product_admin.routes.ts / org_owner.routes.ts). MulterError (e.g. an
+// oversized upload exceeding the multer-level ceiling before content
+// sniffing even runs) is mapped the same way, for the same reason.
 messagingRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
-    if (error instanceof CoachAthleteMessagingError || error instanceof MessageAttachmentError) {
+    if (
+      error instanceof CoachAthleteMessagingError ||
+      error instanceof OrgAthleteMessagingError ||
+      error instanceof MessageAttachmentError
+    ) {
       response.status(error.status).json({ error: error.message });
       return;
     }

@@ -433,5 +433,57 @@ test(
     assert.equal(ownerPushed.type, "org_coach_message");
     assert.equal(ownerPushed.message.message_id, coachBReply.json?.message?.message_id);
     assert.equal(ownerPushed.message.sender_role, "coach");
+
+    // ============================================================
+    // Org-owner<->athlete (part D.4): both directions. The athlete side
+    // has real UI, unlike the coach/owner org-messaging above, but the
+    // push mechanism is the same generic infra either way.
+    // ============================================================
+    const teamOrg = await request(
+      baseUrl, "POST", "/org/organisations", { org_name: "Live Msg Team Org", visibility_mode: "shared" },
+      { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(teamOrg, 201, "create shared-mode organisation");
+    const teamOrgId = teamOrg.json?.organisation?.org_id;
+
+    const inviteC = await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/roster/invite`,
+      { coach_email: coachA.email, request_id: `live_team_invite_${nonce}` }, { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(inviteC, 201, "invite coachA to the team org");
+    assertStatus(
+      await request(
+        baseUrl, "POST", `/coach-workspace/org-memberships/${encodeURIComponent(inviteC.json?.membership?.membership_id)}/accept`,
+        { request_id: `live_team_accept_${nonce}` }, { cookie: coachA.cookie, csrf: coachA.csrf }
+      ),
+      200, "coachA accepts the team org membership"
+    );
+
+    const athleteOrgPush = waitForMessage(athleteSocket);
+    const ownerToAthleteSend = await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/athlete-messages/athletes/${encodeURIComponent(athlete1.userId)}/send`,
+      { body_text: "Live org->athlete push test from owner", client_request_id: `live_org_ath_${nonce}_1` },
+      { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(ownerToAthleteSend, 201, "owner sends to athlete1 via the team org");
+
+    const athleteOrgPushed = await athleteOrgPush;
+    assert.equal(athleteOrgPushed.type, "org_athlete_message");
+    assert.equal(athleteOrgPushed.thread.org_name, "Live Msg Team Org");
+    assert.equal(athleteOrgPushed.message.message_id, ownerToAthleteSend.json?.message?.message_id);
+    assert.equal(athleteOrgPushed.message.sender_role, "org_owner");
+
+    const ownerOrgAthletePush = waitForMessage(ownerSocket);
+    const athleteToOwnerReply = await request(
+      baseUrl, "POST", `/messages/athlete/org-messages/organisations/${encodeURIComponent(teamOrgId)}/send`,
+      { body_text: "Live org->athlete push reply from athlete", client_request_id: `live_org_ath_${nonce}_2` },
+      { cookie: athlete1.cookie, csrf: athlete1.csrf }
+    );
+    assertStatus(athleteToOwnerReply, 201, "athlete1 replies to the owner via the team org");
+
+    const ownerOrgAthletePushed = await ownerOrgAthletePush;
+    assert.equal(ownerOrgAthletePushed.type, "org_athlete_message");
+    assert.equal(ownerOrgAthletePushed.message.message_id, athleteToOwnerReply.json?.message?.message_id);
+    assert.equal(ownerOrgAthletePushed.message.sender_role, "athlete");
   }
 );

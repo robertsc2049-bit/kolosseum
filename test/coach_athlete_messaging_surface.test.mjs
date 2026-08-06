@@ -67,10 +67,10 @@ test("client_request_id makes a resend idempotent - a repeated send does not dup
   assert.match(service, /ON CONFLICT \(thread_id, sender_user_id, client_request_id\) DO NOTHING/u);
 });
 
-test("body_text is bounded and non-empty, and a thread_type discriminator keeps coach_athlete and org_owner_coach threads structurally separate", () => {
+test("body_text is bounded and non-empty, and a thread_type discriminator keeps coach_athlete, org_owner_coach and org_owner_athlete threads structurally separate", () => {
   assert.match(schema, /char_length\(btrim\(body_text\)\) BETWEEN 1 AND 4000/u);
-  assert.match(service, /bodyText\.length > 4000/u);
-  assert.match(schema, /thread_type IN \('coach_athlete', 'org_owner_coach'\)/u);
+  assert.match(service, /bodyTextRaw\.length > 4000/u);
+  assert.match(schema, /thread_type IN \('coach_athlete', 'org_owner_coach', 'org_owner_athlete'\)/u);
 });
 
 test("no messaging file imports any engine-truth service", () => {
