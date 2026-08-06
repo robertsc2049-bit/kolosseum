@@ -1,13 +1,17 @@
-// DEV NOTE: Parts O.1/O.2/O.3/O.4 - org-owner dashboard shell + identity,
-// organisation list/create, the coach roster view (invite by email, list,
-// remove), the seat-plan billing view (status + update), and the
+// DEV NOTE: Parts O.1/O.2/O.3/O.4/O.5 - org-owner dashboard shell +
+// identity, organisation list/create, the coach roster view (invite by
+// email, list, remove), the seat-plan billing view (status + update), the
 // athlete-visibility view (org_visibility_service.ts's own individual/
 // shared boundary - aggregate counts only vs a full per-athlete roster,
-// decided entirely server-side by the org's declared visibility_mode).
-// The visibility view's coach names come from a second call to the
-// already-fetched roster route, joined client-side by coach_user_id - no
-// new backend call beyond what O.2 already added. Deliberately
-// a standalone module, mirroring
+// decided entirely server-side by the org's declared visibility_mode), and
+// the org<->coach / org<->athlete messaging inboxes. O.5 is text-only -
+// it sends no attachment (mirrors sendMessageRequest's own text-only
+// branch in public/app/app.js) but still renders any attachment already
+// present on a received message (photo/video), read-only. Athlete-thread
+// counterpart names reuse O.4's shared-mode visibility data (athlete
+// messaging is itself gated to shared orgs only, so this always has
+// names to draw from); coach-thread names reuse O.2's roster join.
+// Deliberately a standalone module, mirroring
 // public/admin/admin.js's shape exactly - it never imports anything from
 // public/app/, never reads the athlete/coach session cookie, and never
 // calls any /account, /coach-workspace, /sessions, /blocks or /messages
@@ -18,7 +22,11 @@
 
 const state = {
   csrfToken: "",
-  selectedOrgId: null
+  selectedOrgId: null,
+  selectedThreadKind: null,
+  selectedThreadId: null,
+  selectedCounterpartId: null,
+  selectedCounterpartName: ""
 };
 
 function el(id) {
@@ -103,6 +111,7 @@ function renderOrganisations(organisations) {
         <button class="button secondary" type="button" data-manage-roster="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage roster</button>
         <button class="button secondary" type="button" data-manage-billing="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage billing</button>
         <button class="button secondary" type="button" data-view-athletes="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">View athletes</button>
+        <button class="button secondary" type="button" data-view-messages="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Messages</button>
       </div>
     </article>
   `).join("");
@@ -122,6 +131,12 @@ function renderOrganisations(organisations) {
   for (const button of container.querySelectorAll("[data-view-athletes]")) {
     button.addEventListener("click", () => {
       showVisibilitySection(button.getAttribute("data-view-athletes"), button.getAttribute("data-org-name"));
+    });
+  }
+
+  for (const button of container.querySelectorAll("[data-view-messages]")) {
+    button.addEventListener("click", () => {
+      showMessagesSection(button.getAttribute("data-view-messages"), button.getAttribute("data-org-name"));
     });
   }
 }
@@ -176,6 +191,8 @@ function showRosterSection(orgId, orgName) {
   el("orgCreateSection").hidden = true;
   el("orgBillingSection").hidden = true;
   el("orgVisibilitySection").hidden = true;
+  el("orgMessagesSection").hidden = true;
+  el("orgThreadDetailSection").hidden = true;
   el("orgRosterSection").hidden = false;
   el("orgRosterOrgName").textContent = orgName;
   el("orgRosterInviteForm").reset();
@@ -217,6 +234,8 @@ function showBillingSection(orgId, orgName) {
   el("orgCreateSection").hidden = true;
   el("orgRosterSection").hidden = true;
   el("orgVisibilitySection").hidden = true;
+  el("orgMessagesSection").hidden = true;
+  el("orgThreadDetailSection").hidden = true;
   el("orgBillingSection").hidden = false;
   el("orgBillingOrgName").textContent = orgName;
   el("orgBillingSeatPlanForm").reset();
@@ -304,6 +323,8 @@ function showVisibilitySection(orgId, orgName) {
   el("orgCreateSection").hidden = true;
   el("orgRosterSection").hidden = true;
   el("orgBillingSection").hidden = true;
+  el("orgMessagesSection").hidden = true;
+  el("orgThreadDetailSection").hidden = true;
   el("orgVisibilitySection").hidden = false;
   el("orgVisibilityOrgName").textContent = orgName;
   el("orgVisibilityError").hidden = true;
@@ -319,6 +340,238 @@ function hideVisibilitySection() {
   el("orgVisibilitySection").hidden = true;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
+}
+
+function renderMessageAttachment(attachment) {
+  if (!attachment) return "";
+  if (attachment.media_type === "image") {
+    return `<img class="message-attachment-image" src="${escapeHtml(attachment.url)}" alt="Attached photo" loading="lazy" />`;
+  }
+  return `
+    <video class="message-attachment-video" controls preload="metadata"
+      ${attachment.thumbnail_url ? `poster="${escapeHtml(attachment.thumbnail_url)}"` : ""}>
+      <source src="${escapeHtml(attachment.url)}" />
+    </video>
+  `;
+}
+
+// Threads only exist once a first message has been sent (findOrCreateThread
+// in both org_coach_messaging_service.ts and org_athlete_messaging_service.ts
+// creates them lazily on send). Every messageable counterpart therefore
+// needs an entry here whether or not a thread exists yet - "Message" starts
+// a new conversation (no thread_id, resolved after the first send), "Open"
+// continues an existing one.
+function buildCombinedThreadList(counterparts, threadsByCounterpartId) {
+  const withThread = [];
+  const withoutThread = [];
+
+  for (const counterpart of counterparts) {
+    const thread = threadsByCounterpartId.get(counterpart.id) || null;
+    (thread ? withThread : withoutThread).push({ ...counterpart, thread });
+  }
+
+  withThread.sort((a, b) => (b.thread.updated_at_iso8601 || "").localeCompare(a.thread.updated_at_iso8601 || ""));
+  withoutThread.sort((a, b) => a.name.localeCompare(b.name));
+  return [...withThread, ...withoutThread];
+}
+
+function renderThreadList(container, entries, kind) {
+  if (entries.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No ${kind === "coach" ? "coaches" : "athletes"} to message yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = entries.map((entry, index) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(entry.name)}</h3>
+        <p>${entry.thread ? `Updated ${escapeHtml(formatDate(entry.thread.updated_at_iso8601))}` : "No messages yet"}</p>
+      </div>
+      <div class="record-meta">
+        <button class="button secondary" type="button" data-open-counterpart="${index}">${entry.thread ? "Open" : "Message"}</button>
+      </div>
+    </article>
+  `).join("");
+
+  for (const button of container.querySelectorAll("[data-open-counterpart]")) {
+    button.addEventListener("click", () => {
+      const entry = entries[Number(button.getAttribute("data-open-counterpart"))];
+      if (!entry) return;
+      showThreadDetail(kind, entry.thread, entry.id, entry.name);
+    });
+  }
+}
+
+async function refreshMessages() {
+  const [rosterResult, coachThreadsResult, athleteThreadsResult] = await Promise.all([
+    api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/roster`),
+    api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/messages/threads`),
+    api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/athlete-messages/threads`)
+  ]);
+
+  const coachCounterparts = [];
+  for (const membership of Array.isArray(rosterResult.roster) ? rosterResult.roster : []) {
+    if (membership.membership_status === "removed") continue;
+    coachCounterparts.push({ id: membership.coach_user_id, name: membership.coach_display_name || membership.coach_user_id });
+  }
+
+  // Athlete messaging is itself gated to shared-visibility orgs only, so an
+  // individual-mode org's visibility call below always resolves to
+  // visibility_mode "individual" and simply yields no athlete counterparts
+  // to message - matching the same boundary org_athlete_messaging_service.ts
+  // enforces server-side.
+  const athleteCounterparts = [];
+  try {
+    const visibilityResult = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/athlete-visibility`);
+    if (visibilityResult.visibility.visibility_mode === "shared") {
+      for (const coach of visibilityResult.visibility.coaches) {
+        for (const athlete of coach.athletes) {
+          if (athlete.relationship_state === "accepted") {
+            athleteCounterparts.push({ id: athlete.athlete_user_id, name: athlete.display_name });
+          }
+        }
+      }
+    }
+  }
+  catch (error) {
+    console.error(error);
+  }
+
+  const coachThreadsByCoachId = new Map();
+  for (const thread of Array.isArray(coachThreadsResult.threads) ? coachThreadsResult.threads : []) {
+    coachThreadsByCoachId.set(thread.coach_user_id, thread);
+  }
+  const athleteThreadsByAthleteId = new Map();
+  for (const thread of Array.isArray(athleteThreadsResult.threads) ? athleteThreadsResult.threads : []) {
+    athleteThreadsByAthleteId.set(thread.athlete_user_id, thread);
+  }
+
+  renderThreadList(el("orgCoachThreadList"), buildCombinedThreadList(coachCounterparts, coachThreadsByCoachId), "coach");
+  renderThreadList(el("orgAthleteThreadList"), buildCombinedThreadList(athleteCounterparts, athleteThreadsByAthleteId), "athlete");
+}
+
+function showMessagesSection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  el("orgListSection").hidden = true;
+  el("orgCreateSection").hidden = true;
+  el("orgRosterSection").hidden = true;
+  el("orgBillingSection").hidden = true;
+  el("orgVisibilitySection").hidden = true;
+  el("orgThreadDetailSection").hidden = true;
+  el("orgMessagesSection").hidden = false;
+  el("orgMessagesOrgName").textContent = orgName;
+  el("orgMessagesError").hidden = true;
+  refreshMessages().catch((error) => {
+    el("orgMessagesError").hidden = false;
+    el("orgMessagesError").textContent = "Could not load messages.";
+    console.error(error);
+  });
+}
+
+function hideMessagesSection() {
+  state.selectedOrgId = null;
+  el("orgMessagesSection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+function threadMessagesRoute() {
+  return state.selectedThreadKind === "coach"
+    ? `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/messages/threads/${encodeURIComponent(state.selectedThreadId)}`
+    : `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/athlete-messages/threads/${encodeURIComponent(state.selectedThreadId)}`;
+}
+
+function threadSendRoute() {
+  return state.selectedThreadKind === "coach"
+    ? `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/messages/coaches/${encodeURIComponent(state.selectedCounterpartId)}/send`
+    : `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/athlete-messages/athletes/${encodeURIComponent(state.selectedCounterpartId)}/send`;
+}
+
+function renderThreadMessages(messages) {
+  const container = el("orgThreadMessageList");
+  if (messages.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No messages yet. Say hello below.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = messages.map((message) => `
+    <article class="record-card">
+      <div>
+        <h3>${message.sender_role === "org_owner" ? "You" : escapeHtml(state.selectedCounterpartName)}</h3>
+        ${message.body_text ? `<p>${escapeHtml(message.body_text)}</p>` : ""}
+        ${renderMessageAttachment(message.attachment)}
+      </div>
+      <div class="record-meta">
+        <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshThreadMessages() {
+  // No thread exists yet for a not-yet-started conversation - nothing to
+  // fetch, the reply form's first successful send resolves this via the
+  // sent message's own thread_id (see sendThreadReply).
+  if (!state.selectedThreadId) {
+    renderThreadMessages([]);
+    return;
+  }
+  const result = await api("GET", threadMessagesRoute());
+  renderThreadMessages(Array.isArray(result.messages) ? result.messages : []);
+}
+
+function showThreadDetail(kind, thread, counterpartId, counterpartName) {
+  state.selectedThreadKind = kind;
+  state.selectedThreadId = thread ? thread.thread_id : null;
+  state.selectedCounterpartId = counterpartId;
+  state.selectedCounterpartName = counterpartName;
+
+  el("orgMessagesSection").hidden = true;
+  el("orgThreadDetailSection").hidden = false;
+  el("orgThreadCounterpartName").textContent = counterpartName;
+  el("orgThreadReplyForm").reset();
+  el("orgThreadReplyError").hidden = true;
+  refreshThreadMessages().catch(console.error);
+}
+
+function hideThreadDetailSection() {
+  state.selectedThreadKind = null;
+  state.selectedThreadId = null;
+  state.selectedCounterpartId = null;
+  state.selectedCounterpartName = "";
+  el("orgThreadDetailSection").hidden = true;
+  el("orgMessagesSection").hidden = false;
+}
+
+async function sendThreadReply(event) {
+  event.preventDefault();
+  el("orgThreadReplyError").hidden = true;
+
+  try {
+    const result = await api("POST", threadSendRoute(), {
+      body_text: el("orgThreadReplyText").value,
+      client_request_id: `org_owner_msg_${Date.now()}_${Math.random().toString(36).slice(2)}`
+    });
+    // A not-yet-started conversation has no thread_id until this first
+    // send resolves one via findOrCreateThread - capture it so the
+    // now-real thread can be refetched below.
+    if (!state.selectedThreadId && result.thread) state.selectedThreadId = result.thread.thread_id;
+    el("orgThreadReplyForm").reset();
+    await refreshThreadMessages();
+  }
+  catch (error) {
+    el("orgThreadReplyError").hidden = false;
+    el("orgThreadReplyError").textContent = "Could not send that message.";
+    console.error(error);
+  }
 }
 
 async function updateSeatPlan(event) {
@@ -475,6 +728,9 @@ function boot() {
   el("orgBillingSeatPlanForm").addEventListener("submit", (event) => updateSeatPlan(event).catch(console.error));
   el("orgBillingBackButton").addEventListener("click", () => hideBillingSection());
   el("orgVisibilityBackButton").addEventListener("click", () => hideVisibilitySection());
+  el("orgMessagesBackButton").addEventListener("click", () => hideMessagesSection());
+  el("orgThreadDetailBackButton").addEventListener("click", () => hideThreadDetailSection());
+  el("orgThreadReplyForm").addEventListener("submit", (event) => sendThreadReply(event).catch(console.error));
 }
 
 boot();

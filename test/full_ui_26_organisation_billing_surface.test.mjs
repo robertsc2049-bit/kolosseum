@@ -308,7 +308,12 @@ test("the org-owner dashboard is mounted at its own /org static prefix, served b
 test("org.js is wholly separate from the athlete/coach app and the founder/admin app", () => {
   assert.doesNotMatch(orgDashboardJs, /^import /mu);
   assert.doesNotMatch(orgDashboardJs, /kolosseum_session\b|kolosseum_admin_session/u);
-  assert.doesNotMatch(orgDashboardJs, /\/account\/|\/coach-workspace\/|\/sessions\/|\/blocks\/|\/messages\//u);
+  // Anchored to the start of a fetched path (right after a quote or
+  // backtick) so O.5's legitimate /org/organisations/:org_id/messages/...
+  // and .../athlete-messages/... routes - which contain "/messages/" as a
+  // nested segment, never as the top-level prefix - don't false-positive
+  // against the athlete/coach app's own top-level /messages family.
+  assert.doesNotMatch(orgDashboardJs, /["`]\/(?:account|coach-workspace|sessions|blocks|messages)\//u);
   assert.doesNotMatch(appJs, /\/org\/register|\/org\/sign-in|org\.js/u);
   assert.doesNotMatch(routeBootstrap, /org_owner|public\/org\//u);
 });
@@ -448,4 +453,63 @@ test("the athlete-visibility view renders individual-mode aggregate counts and s
 test("athlete names and emails rendered into the visibility view are escaped before being inserted into innerHTML", () => {
   assert.match(orgDashboardJs, /escapeHtml\(athlete\.display_name\)/u);
   assert.match(orgDashboardJs, /escapeHtml\(athlete\.email \|\| "no email"\)/u);
+});
+
+// Part O.5 - the org<->coach and org<->athlete messaging inboxes, built
+// entirely on top of the already-integration-tested D.2/D.4 routes.
+// Text-only send (mirrors public/app/app.js's sendMessageRequest text-only
+// branch exactly); any attachment already on a received message still
+// renders read-only via the same img/video markup app.js uses. Athlete
+// counterpart names reuse O.4's shared-mode visibility data (athlete
+// messaging is itself gated to shared orgs only); coach counterpart names
+// reuse O.2's roster join.
+test("each organisation card exposes a real, keyboard-reachable button to open its messages, and opening it hides every other detail section", () => {
+  assert.match(orgDashboardHtml, /<section id="orgMessagesSection"/u);
+  assert.match(orgDashboardHtml, /<section id="orgThreadDetailSection"/u);
+  assert.match(orgDashboardJs, /data-view-messages="\$\{escapeHtml\(organisation\.org_id\)\}"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-view-messages=/u);
+  assert.match(
+    orgDashboardJs,
+    /function showMessagesSection[\s\S]{0,300}orgRosterSection"\)\.hidden = true[\s\S]{0,300}orgBillingSection"\)\.hidden = true[\s\S]{0,300}orgVisibilitySection"\)\.hidden = true/u
+  );
+});
+
+test("the messaging inbox calls the existing coach-thread, athlete-thread, roster and athlete-visibility routes", () => {
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/messages\/threads`\)/u);
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/athlete-messages\/threads`\)/u);
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/roster`\)/u);
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/athlete-visibility`\)/u);
+});
+
+test("a thread's send route depends only on which kind of thread is open, never a hardcoded route", () => {
+  assert.match(
+    orgDashboardJs,
+    /function threadSendRoute\(\)[\s\S]{0,200}\/messages\/coaches\/\$\{encodeURIComponent\(state\.selectedCounterpartId\)\}\/send[\s\S]{0,200}\/athlete-messages\/athletes\/\$\{encodeURIComponent\(state\.selectedCounterpartId\)\}\/send/u
+  );
+  assert.match(orgDashboardJs, /api\("POST", threadSendRoute\(\), \{/u);
+  assert.match(orgDashboardJs, /body_text: el\("orgThreadReplyText"\)\.value/u);
+});
+
+test("the thread reply form and both back buttons are real, keyboard-reachable controls", () => {
+  assert.match(orgDashboardHtml, /<form id="orgThreadReplyForm">/u);
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgMessagesBackButton"[^>]*type="button"/u,
+    "orgMessagesBackButton must be a real <button type=\"button\">"
+  );
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgThreadDetailBackButton"[^>]*type="button"/u,
+    "orgThreadDetailBackButton must be a real <button type=\"button\">"
+  );
+});
+
+test("message body text and attachment URLs rendered into the thread view are escaped before being inserted into innerHTML", () => {
+  assert.match(orgDashboardJs, /escapeHtml\(message\.body_text\)/u);
+  assert.match(orgDashboardJs, /escapeHtml\(attachment\.url\)/u);
+});
+
+test("O.5 sends no attachment upload from the org-owner UI - text-only, matching public/app/app.js's own text-only send branch", () => {
+  assert.doesNotMatch(orgDashboardJs, /FormData/u);
+  assert.doesNotMatch(orgDashboardJs, /attachmentUpload|\.single\("attachment"\)/u);
 });
