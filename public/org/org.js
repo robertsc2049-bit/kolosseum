@@ -1,15 +1,17 @@
-// DEV NOTE: Part O.1 - org-owner dashboard shell + identity + organisation
-// list/create. Deliberately a standalone module, mirroring
+// DEV NOTE: Parts O.1/O.2 - org-owner dashboard shell + identity +
+// organisation list/create, plus the coach roster view (invite by email,
+// list, remove). Deliberately a standalone module, mirroring
 // public/admin/admin.js's shape exactly - it never imports anything from
 // public/app/, never reads the athlete/coach session cookie, and never
 // calls any /account, /coach-workspace, /sessions, /blocks or /messages
 // endpoint. Every route called here already exists and is already
 // covered by real Postgres integration tests (parts B.1/B.2) - this file
-// adds no new backend behaviour, only a UI on top of what already worked
+// adds no new backend routes, only a UI on top of what already worked
 // via curl.
 
 const state = {
-  csrfToken: ""
+  csrfToken: "",
+  selectedOrgId: null
 };
 
 function el(id) {
@@ -91,9 +93,115 @@ function renderOrganisations(organisations) {
       </div>
       <div class="record-meta">
         <span class="badge ${organisation.visibility_mode === "shared" ? "active" : "neutral"}">${visibilityModeLabel(organisation.visibility_mode)}</span>
+        <button class="button secondary" type="button" data-manage-roster="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage roster</button>
       </div>
     </article>
   `).join("");
+
+  for (const button of container.querySelectorAll("[data-manage-roster]")) {
+    button.addEventListener("click", () => {
+      showRosterSection(button.getAttribute("data-manage-roster"), button.getAttribute("data-org-name"));
+    });
+  }
+}
+
+function membershipStatusLabel(status) {
+  if (status === "active") return "Active";
+  if (status === "removed") return "Removed";
+  return "Invited";
+}
+
+function renderRoster(roster) {
+  const container = el("orgRosterList");
+  if (roster.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No coaches invited yet. Invite one above.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = roster.map((membership) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(membership.coach_display_name || membership.coach_user_id)}</h3>
+        <p>${escapeHtml(membership.coach_email || "")}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge ${membership.membership_status === "active" ? "active" : "neutral"}">${membershipStatusLabel(membership.membership_status)}</span>
+        ${membership.membership_status === "removed"
+          ? ""
+          : `<button class="button secondary" type="button" data-remove-membership="${escapeHtml(membership.membership_id)}">Remove</button>`}
+      </div>
+    </article>
+  `).join("");
+
+  for (const button of container.querySelectorAll("[data-remove-membership]")) {
+    button.addEventListener("click", () => {
+      removeMembership(button.getAttribute("data-remove-membership")).catch(console.error);
+    });
+  }
+}
+
+async function refreshRoster() {
+  const result = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/roster`);
+  renderRoster(Array.isArray(result.roster) ? result.roster : []);
+}
+
+function showRosterSection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  el("orgListSection").hidden = true;
+  el("orgCreateSection").hidden = true;
+  el("orgRosterSection").hidden = false;
+  el("orgRosterOrgName").textContent = orgName;
+  el("orgRosterInviteForm").reset();
+  el("orgRosterInviteError").hidden = true;
+  el("orgRosterError").hidden = true;
+  refreshRoster().catch(console.error);
+}
+
+function hideRosterSection() {
+  state.selectedOrgId = null;
+  el("orgRosterSection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+async function inviteCoach(event) {
+  event.preventDefault();
+  el("orgRosterInviteError").hidden = true;
+
+  try {
+    await api("POST", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/roster/invite`, {
+      coach_email: el("orgRosterInviteEmail").value
+    });
+    el("orgRosterInviteForm").reset();
+    await refreshRoster();
+  }
+  catch (error) {
+    el("orgRosterInviteError").hidden = false;
+    el("orgRosterInviteError").textContent = error.message === "org_roster_coach_not_found"
+      ? "No active coach account found with that email."
+      : error.message === "org_roster_coach_already_member"
+        ? "That coach is already on this roster."
+        : "Could not invite that coach.";
+    console.error(error);
+  }
+}
+
+async function removeMembership(membershipId) {
+  el("orgRosterError").hidden = true;
+
+  try {
+    await api("POST", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/roster/${encodeURIComponent(membershipId)}/remove`, {});
+    await refreshRoster();
+  }
+  catch (error) {
+    el("orgRosterError").hidden = false;
+    el("orgRosterError").textContent = "Could not remove that coach.";
+    console.error(error);
+  }
 }
 
 function formatDate(iso) {
@@ -187,6 +295,8 @@ function boot() {
   el("orgRegisterForm").addEventListener("submit", (event) => register(event).catch(console.error));
   el("orgSignOutButton").addEventListener("click", () => signOut().catch(console.error));
   el("orgCreateForm").addEventListener("submit", (event) => createOrganisation(event).catch(console.error));
+  el("orgRosterInviteForm").addEventListener("submit", (event) => inviteCoach(event).catch(console.error));
+  el("orgRosterBackButton").addEventListener("click", () => hideRosterSection());
 }
 
 boot();

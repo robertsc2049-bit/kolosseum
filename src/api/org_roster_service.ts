@@ -340,6 +340,12 @@ export type OrgMembershipRow = Readonly<{
   // (listOrgMembershipsForCoach) - null everywhere else. Lets a coach see
   // what visibility they're agreeing to before calling accept.
   visibility_mode: "individual" | "shared" | null;
+  // Only populated when the underlying query joins product_accounts
+  // (listOrganisationRoster) - null everywhere else. Lets the org owner's
+  // roster view show who a membership actually belongs to instead of a
+  // bare coach_user_id.
+  coach_display_name: string | null;
+  coach_email: string | null;
 }>;
 
 function mapMembershipRow(value: unknown): OrgMembershipRow | null {
@@ -356,7 +362,9 @@ function mapMembershipRow(value: unknown): OrgMembershipRow | null {
     invited_at_iso8601: value.invited_at instanceof Date ? value.invited_at.toISOString() : "",
     activated_at_iso8601: value.activated_at instanceof Date ? value.activated_at.toISOString() : null,
     removed_at_iso8601: value.removed_at instanceof Date ? value.removed_at.toISOString() : null,
-    visibility_mode: visibilityMode === "individual" || visibilityMode === "shared" ? visibilityMode : null
+    visibility_mode: visibilityMode === "individual" || visibilityMode === "shared" ? visibilityMode : null,
+    coach_display_name: typeof value.coach_display_name === "string" ? value.coach_display_name : null,
+    coach_email: typeof value.coach_email === "string" ? value.coach_email : null
   });
 }
 
@@ -456,7 +464,13 @@ export async function listOrganisationRoster(
   try {
     await requireOrganisationOwnedBy(client, orgId, ownerUserId);
     const result = await client.query(
-      `SELECT * FROM product_org_coach_memberships WHERE org_id = $1 ORDER BY invited_at ASC`,
+      `
+      SELECT m.*, a.display_name AS coach_display_name, a.email_canonical AS coach_email
+      FROM product_org_coach_memberships m
+      LEFT JOIN product_accounts a ON a.user_id = m.coach_user_id
+      WHERE m.org_id = $1
+      ORDER BY m.invited_at ASC
+      `,
       [orgId]
     );
     return result.rows.map(mapMembershipRow).filter((row): row is OrgMembershipRow => row !== null);
