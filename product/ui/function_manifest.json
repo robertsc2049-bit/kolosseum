@@ -5337,6 +5337,39 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "org_athlete_messaging",
+          "label": "Org owner and an athlete currently coached by one of the org's active coaches exchange threaded messages with live delivery and photo/video attachments, gated to team (shared-visibility) orgs only",
+          "actors": [
+            "org_owner",
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/athlete-messages/threads",
+            "/org/organisations/:org_id/athlete-messages/threads/:thread_id",
+            "/org/organisations/:org_id/athlete-messages/athletes/:athlete_user_id/send",
+            "/org/organisations/:org_id/athlete-messages/attachments/:message_id",
+            "/org/organisations/:org_id/athlete-messages/attachments/:message_id/thumbnail",
+            "/messages/athlete/org-messages/threads",
+            "/messages/athlete/org-messages/threads/:thread_id",
+            "/messages/athlete/org-messages/organisations/:org_id/send",
+            "/messages/athlete/org-messages/attachments/:message_id",
+            "/messages/athlete/org-messages/attachments/:message_id/thumbnail",
+            "/ws/messages"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
+          "integration_test": "test/org_athlete_messaging_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },

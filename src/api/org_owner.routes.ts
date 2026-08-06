@@ -49,6 +49,14 @@ import {
   sendOrgCoachMessageFromOwner
 } from "./org_coach_messaging_service.js";
 import {
+  OrgAthleteMessagingError,
+  listOrgAthleteThreadMessagesForOwner,
+  listOrgAthleteThreadsForOwner,
+  resolveOrgAthleteMessageAttachmentForOwner,
+  resolveOrgAthleteMessageAttachmentThumbnailForOwner,
+  sendOrgAthleteMessageFromOwner
+} from "./org_athlete_messaging_service.js";
+import {
   MessageAttachmentError,
   attachmentUpload,
   sendAttachmentFile,
@@ -275,13 +283,70 @@ orgOwnerRouter.get(
   })
 );
 
+orgOwnerRouter.get(
+  "/organisations/:org_id/athlete-messages/threads",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const threads = await listOrgAthleteThreadsForOwner(user_id, String(request.params.org_id));
+    return response.status(200).json({ ok: true, threads });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/athlete-messages/threads/:thread_id",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const messages = await listOrgAthleteThreadMessagesForOwner(String(request.params.thread_id), user_id);
+    return response.status(200).json({ ok: true, messages });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/athlete-messages/athletes/:athlete_user_id/send",
+  attachmentUpload.single("attachment"),
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const attachment = await validateStagedUpload(request.file);
+    const result = await sendOrgAthleteMessageFromOwner(
+      user_id,
+      String(request.params.org_id),
+      String(request.params.athlete_user_id),
+      request.body?.body_text,
+      request.body?.client_request_id,
+      attachment
+    );
+    return response.status(201).json({ ok: true, thread: result.thread, message: result.message });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/athlete-messages/attachments/:message_id",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const attachment = await resolveOrgAthleteMessageAttachmentForOwner(String(request.params.message_id), user_id);
+    if (!attachment) return response.status(404).json({ error: "org_athlete_messaging_attachment_not_found" });
+    return sendAttachmentFile(response, attachment);
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/athlete-messages/attachments/:message_id/thumbnail",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const thumbnail = await resolveOrgAthleteMessageAttachmentThumbnailForOwner(String(request.params.message_id), user_id);
+    if (!thumbnail) return response.status(404).json({ error: "org_athlete_messaging_thumbnail_not_found" });
+    return sendAttachmentFile(response, thumbnail);
+  })
+);
+
 // OrgOwnerAuthError/OrgRosterError/OrgBillingError/OrgVisibilityError/
-// OrgCoachMessagingError/MessageAttachmentError are not ApiError, so
-// without this router-scoped handler they would otherwise reach the
-// generic error mapper, which mistakes the string message for a Postgres
-// error code and returns a misleading 500 instead of the correct status
-// (mirrors the identical, deliberate pattern in product_admin.routes.ts).
-// MulterError is mapped the same way, for the same reason.
+// OrgCoachMessagingError/OrgAthleteMessagingError/MessageAttachmentError
+// are not ApiError, so without this router-scoped handler they would
+// otherwise reach the generic error mapper, which mistakes the string
+// message for a Postgres error code and returns a misleading 500 instead
+// of the correct status (mirrors the identical, deliberate pattern in
+// product_admin.routes.ts). MulterError is mapped the same way, for the
+// same reason.
 orgOwnerRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
     if (
@@ -290,6 +355,7 @@ orgOwnerRouter.use(
       error instanceof OrgBillingError ||
       error instanceof OrgVisibilityError ||
       error instanceof OrgCoachMessagingError ||
+      error instanceof OrgAthleteMessagingError ||
       error instanceof MessageAttachmentError
     ) {
       response.status(error.status).json({ error: error.message });

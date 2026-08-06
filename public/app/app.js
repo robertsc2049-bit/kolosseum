@@ -82,7 +82,8 @@ const DEFAULT_STATE = Object.freeze({
   serverAccount: null,
   accountDetail: null,
   currentTerms: null,
-  liveMessageThreadId: null
+  liveMessageThreadId: null,
+  athleteOrgMessageThreads: []
 });
 
 const state = loadState();
@@ -11866,6 +11867,7 @@ async function refreshAthleteRelationships() {
     : [];
 
   await refreshAthleteOwnMessages().catch(() => {});
+  await refreshAthleteOrgMessages().catch(() => {});
   renderAthleteRelationships();
   return state.athleteRelationships;
 }
@@ -11948,6 +11950,143 @@ async function confirmSendAthleteOwnMessage(event, coachUserId) {
     if (attachmentInput) attachmentInput.value = "";
 
     await refreshAthleteOwnMessages();
+    showNotice("Message sent.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+// Part D.4 - org-owner<->athlete messaging, athlete side. A separate
+// panel/concern from the coach-relationships code above (own function
+// group, own state field) - plural by construction, since an athlete
+// could in principle be reached by more than one team org, unlike the
+// "My coach" singular assumption elsewhere on this page. The org owner
+// side has no UI at all (API-only, same as every other org-owner
+// capability), so this is the only place these threads are ever rendered.
+async function refreshAthleteOrgMessages() {
+  if (state.role !== "athlete") return;
+
+  const response = await api("GET", "/messages/athlete/org-messages/threads");
+  const threads = Array.isArray(response.threads) ? response.threads : [];
+
+  state.athleteOrgMessageThreads = await Promise.all(
+    threads.map(async (thread) => {
+      const messagesResponse = await api(
+        "GET",
+        `/messages/athlete/org-messages/threads/${encodeURIComponent(thread.thread_id)}`
+      );
+      return {
+        thread,
+        messages: Array.isArray(messagesResponse.messages) ? messagesResponse.messages : []
+      };
+    })
+  );
+  renderAthleteOrgMessages();
+}
+
+function renderAthleteOrgMessages() {
+  let panel = document.getElementById("athleteOrgMessagesPanel");
+
+  if (state.role !== "athlete") {
+    if (panel) panel.hidden = true;
+    return;
+  }
+
+  const entries = Array.isArray(state.athleteOrgMessageThreads) ? state.athleteOrgMessageThreads : [];
+
+  if (entries.length === 0) {
+    if (panel) panel.hidden = true;
+    return;
+  }
+
+  if (!panel) {
+    panel = document.createElement("article");
+    panel.id = "athleteOrgMessagesPanel";
+    panel.className = "panel";
+
+    document
+      .querySelector("#view-account .two-column")
+      .insertAdjacentElement("afterend", panel);
+  }
+
+  panel.hidden = false;
+  panel.innerHTML = `
+    <p class="eyebrow">Organisation messages</p>
+    <h3>Messages from your team</h3>
+    ${entries.map((entry) => `
+      <div class="record-row org-message-thread" data-thread-id="${escapeHtml(entry.thread.thread_id)}">
+        <strong>${escapeHtml(entry.thread.org_name)}</strong>
+        <div class="record-list">
+          ${entry.messages.length > 0
+            ? entry.messages.map((message) => `
+              <article class="review-note-card">
+                <div class="record-meta">
+                  <span class="badge neutral">${message.sender_role === "athlete" ? "You" : escapeHtml(entry.thread.org_name)}</span>
+                  <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
+                </div>
+                ${renderMessageAttachment(message.attachment)}
+                ${message.body_text ? `<p>${escapeHtml(message.body_text)}</p>` : ""}
+              </article>
+            `).join("")
+            : `<p class="muted small">No messages yet.</p>`
+          }
+        </div>
+        <form class="athlete-detail-note-form org-message-form" data-org-id="${escapeHtml(entry.thread.org_id)}">
+          <label class="field">
+            <span>Reply to ${escapeHtml(entry.thread.org_name)}</span>
+            <textarea class="org-message-text" maxlength="4000"></textarea>
+          </label>
+          <label class="field">
+            <span>Attach photo or video (optional)</span>
+            <input type="file" class="org-message-attachment" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" capture="environment">
+          </label>
+          <div class="inline-controls">
+            <button class="button primary" type="submit">Send</button>
+          </div>
+        </form>
+      </div>
+    `).join("")}
+  `;
+
+  for (const form of panel.querySelectorAll(".org-message-form")) {
+    form.addEventListener(
+      "submit",
+      (event) => {
+        confirmSendAthleteOrgMessage(event, form).catch(handleError);
+      }
+    );
+  }
+}
+
+async function confirmSendAthleteOrgMessage(event, form) {
+  event.preventDefault();
+  const orgId = form.dataset.orgId;
+  if (!orgId) return;
+
+  const textarea = form.querySelector(".org-message-text");
+  const bodyText = textarea?.value.trim() ?? "";
+  const attachmentInput = form.querySelector(".org-message-attachment");
+  const attachmentFile = attachmentInput?.files?.[0] ?? null;
+  if (!bodyText && !attachmentFile) {
+    throw new Error("Enter a message or attach a photo/video before sending.");
+  }
+  const attachmentError = validateAttachmentClientSide(attachmentFile);
+  if (attachmentError) {
+    throw new Error(attachmentError);
+  }
+
+  showBusy("Sending message…");
+  try {
+    await sendMessageRequest(
+      `/messages/athlete/org-messages/organisations/${encodeURIComponent(orgId)}/send`,
+      bodyText,
+      attachmentFile
+    );
+
+    if (attachmentInput) attachmentInput.value = "";
+
+    await refreshAthleteOrgMessages();
     showNotice("Message sent.");
   }
   finally {
@@ -12395,37 +12534,65 @@ function scheduleMessagingReconnect() {
   messagingReconnectDelayMs = Math.min(messagingReconnectDelayMs * 2, MESSAGING_RECONNECT_MAX_DELAY_MS);
 }
 
-// v1 only live-updates the thread the user currently has open
-// (state.liveMessageThreadId) - cross-thread notification is out of scope,
-// same as the D.1/D.2 plan. Org-owner<->coach pushes have no client here:
+// coach<->athlete only live-updates the single thread the user currently
+// has open (state.liveMessageThreadId) - cross-thread notification is out
+// of scope there, same as the original D.1/D.2 plan. org_athlete_message
+// (part D.4) is the one exception with no "currently open" gate at all,
+// since its athlete-side UI renders every org thread simultaneously - see
+// the branch below. Org-owner<->coach pushes still have no client here:
 // org owner has no dedicated frontend, and the coach-side org inbox is
 // API-only, same as every prior org slice.
 function handleMessagingSocketPayload(envelope) {
-  if (!envelope || envelope.type !== "coach_athlete_message") return;
-  const thread = envelope.thread;
-  const message = envelope.message;
-  if (!thread || !message) return;
+  if (!envelope) return;
 
-  if (state.role === "coach") {
-    if (thread.thread_id !== state.liveMessageThreadId) return;
-    const existing = Array.isArray(state.coachAthleteMessages) ? state.coachAthleteMessages : [];
-    if (existing.some((entry) => entry.message_id === message.message_id)) return;
-    state.coachAthleteMessages = [...existing, message];
-    renderCoachAthleteMessages();
+  if (envelope.type === "coach_athlete_message") {
+    const thread = envelope.thread;
+    const message = envelope.message;
+    if (!thread || !message) return;
+
+    if (state.role === "coach") {
+      if (thread.thread_id !== state.liveMessageThreadId) return;
+      const existing = Array.isArray(state.coachAthleteMessages) ? state.coachAthleteMessages : [];
+      if (existing.some((entry) => entry.message_id === message.message_id)) return;
+      state.coachAthleteMessages = [...existing, message];
+      renderCoachAthleteMessages();
+    }
+    else if (state.role === "athlete") {
+      // An athlete has at most one current coach thread open at a time. A
+      // still-null liveMessageThreadId means the panel is open but no
+      // message has been sent yet - the thread doesn't exist server-side
+      // until the first send, so there's no prior id to match. Adopt the
+      // pushed thread's id in that case instead of discarding the push.
+      if (!document.getElementById("athleteMessageHistory")) return;
+      if (state.liveMessageThreadId && thread.thread_id !== state.liveMessageThreadId) return;
+      state.liveMessageThreadId = thread.thread_id;
+      const existing = Array.isArray(state.athleteMessages) ? state.athleteMessages : [];
+      if (existing.some((entry) => entry.message_id === message.message_id)) return;
+      state.athleteMessages = [...existing, message];
+      renderAthleteOwnMessages();
+    }
   }
-  else if (state.role === "athlete") {
-    // An athlete has at most one current coach thread open at a time. A
-    // still-null liveMessageThreadId means the panel is open but no
-    // message has been sent yet - the thread doesn't exist server-side
-    // until the first send, so there's no prior id to match. Adopt the
-    // pushed thread's id in that case instead of discarding the push.
-    if (!document.getElementById("athleteMessageHistory")) return;
-    if (state.liveMessageThreadId && thread.thread_id !== state.liveMessageThreadId) return;
-    state.liveMessageThreadId = thread.thread_id;
-    const existing = Array.isArray(state.athleteMessages) ? state.athleteMessages : [];
-    if (existing.some((entry) => entry.message_id === message.message_id)) return;
-    state.athleteMessages = [...existing, message];
-    renderAthleteOwnMessages();
+  // Part D.4 - unlike the single-thread coach<->athlete case above, an
+  // athlete can have several simultaneously-rendered org threads (no
+  // "currently open" gate), so a push either appends to an existing entry
+  // or - for an org's very first message to this athlete - adds a brand
+  // new one using the thread row the push already carries.
+  else if (envelope.type === "org_athlete_message" && state.role === "athlete") {
+    const thread = envelope.thread;
+    const message = envelope.message;
+    if (!thread || !message) return;
+
+    const entries = Array.isArray(state.athleteOrgMessageThreads) ? state.athleteOrgMessageThreads : [];
+    const existingEntry = entries.find((entry) => entry.thread.thread_id === thread.thread_id);
+    if (existingEntry) {
+      if (existingEntry.messages.some((entry) => entry.message_id === message.message_id)) return;
+      existingEntry.messages = [...existingEntry.messages, message];
+    }
+    else {
+      entries.push({ thread, messages: [message] });
+    }
+    state.athleteOrgMessageThreads = entries;
+    renderAthleteOrgMessages();
   }
 }
 

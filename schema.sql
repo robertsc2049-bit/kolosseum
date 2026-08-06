@@ -1116,17 +1116,20 @@ END;
 $$;
 
 -- Part D - messaging. thread_type discriminates between coach_athlete
--- threads (a coach and their currently-accepted athlete) and
--- org_owner_coach threads (an org owner and an active-member coach of
--- their org). Exactly one of athlete_user_id/org_id is populated per row,
--- enforced by the CHECK below.
+-- threads (a coach and their currently-accepted athlete), org_owner_coach
+-- threads (an org owner and an active-member coach of their org), and
+-- org_owner_athlete threads (part D.4 - an org owner and an athlete
+-- currently coached by one of that org's active coaches, gated by the
+-- org's visibility_mode = 'shared' - see org_athlete_messaging_service.ts).
+-- Exactly one shape of {coach_user_id, athlete_user_id, org_id} is
+-- populated per row, enforced by the CHECK below.
 CREATE TABLE IF NOT EXISTS product_message_threads (
   thread_id        TEXT PRIMARY KEY,
   thread_type      TEXT NOT NULL
     CHECK (
-      thread_type IN ('coach_athlete', 'org_owner_coach')
+      thread_type IN ('coach_athlete', 'org_owner_coach', 'org_owner_athlete')
     ),
-  coach_user_id    TEXT NOT NULL
+  coach_user_id    TEXT
     REFERENCES product_accounts(user_id),
   athlete_user_id  TEXT
     REFERENCES product_accounts(user_id),
@@ -1135,16 +1138,19 @@ CREATE TABLE IF NOT EXISTS product_message_threads (
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   CHECK (
-    (thread_type = 'coach_athlete' AND athlete_user_id IS NOT NULL AND org_id IS NULL)
+    (thread_type = 'coach_athlete' AND coach_user_id IS NOT NULL AND athlete_user_id IS NOT NULL AND org_id IS NULL)
     OR
-    (thread_type = 'org_owner_coach' AND org_id IS NOT NULL AND athlete_user_id IS NULL)
+    (thread_type = 'org_owner_coach' AND coach_user_id IS NOT NULL AND org_id IS NOT NULL AND athlete_user_id IS NULL)
+    OR
+    (thread_type = 'org_owner_athlete' AND coach_user_id IS NULL AND org_id IS NOT NULL AND athlete_user_id IS NOT NULL)
   )
 );
 
 -- A plain multi-column UNIQUE would not work here - NULL <> NULL in
--- Postgres, so it would silently allow duplicate org_owner_coach threads
--- (athlete_user_id is always NULL on those rows). Partial unique indexes,
--- scoped per thread_type, are the correct construct.
+-- Postgres, so it would silently allow duplicate org_owner_coach/
+-- org_owner_athlete threads (their unused id column is always NULL).
+-- Partial unique indexes, scoped per thread_type, are the correct
+-- construct.
 CREATE UNIQUE INDEX IF NOT EXISTS
   idx_product_message_threads_coach_athlete_unique
 ON product_message_threads (coach_user_id, athlete_user_id)
@@ -1154,6 +1160,43 @@ CREATE UNIQUE INDEX IF NOT EXISTS
   idx_product_message_threads_org_owner_coach_unique
 ON product_message_threads (org_id, coach_user_id)
 WHERE thread_type = 'org_owner_coach';
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+  idx_product_message_threads_org_owner_athlete_unique
+ON product_message_threads (org_id, athlete_user_id)
+WHERE thread_type = 'org_owner_athlete';
+
+-- Migration for environments that already applied product_message_threads
+-- before org_owner_athlete threads (Part D.4) landed. coach_user_id must
+-- become nullable before the widened shape CHECK is installed, since the
+-- new thread type requires it to be NULL.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.check_constraints
+    WHERE constraint_name = 'product_message_threads_thread_type_check'
+      AND check_clause LIKE '%org_owner_athlete%'
+  ) THEN
+    ALTER TABLE product_message_threads ALTER COLUMN coach_user_id DROP NOT NULL;
+
+    ALTER TABLE product_message_threads DROP CONSTRAINT IF EXISTS product_message_threads_thread_type_check;
+    ALTER TABLE product_message_threads
+      ADD CONSTRAINT product_message_threads_thread_type_check
+      CHECK (thread_type IN ('coach_athlete', 'org_owner_coach', 'org_owner_athlete'));
+
+    ALTER TABLE product_message_threads DROP CONSTRAINT IF EXISTS product_message_threads_check;
+    ALTER TABLE product_message_threads
+      ADD CONSTRAINT product_message_threads_shape_check
+      CHECK (
+        (thread_type = 'coach_athlete' AND coach_user_id IS NOT NULL AND athlete_user_id IS NOT NULL AND org_id IS NULL)
+        OR
+        (thread_type = 'org_owner_coach' AND coach_user_id IS NOT NULL AND org_id IS NOT NULL AND athlete_user_id IS NULL)
+        OR
+        (thread_type = 'org_owner_athlete' AND coach_user_id IS NULL AND org_id IS NOT NULL AND athlete_user_id IS NOT NULL)
+      );
+  END IF;
+END;
+$$;
 
 -- No length bound exists on product_coach_notes.note_text (this
 -- codebase's only prior free-text precedent) - messages are much

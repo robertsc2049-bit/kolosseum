@@ -17,6 +17,8 @@ const billingService = read("src/api/org_billing_service.ts");
 const coachRoutes = read("src/api/coach_org_membership.routes.ts");
 const visibilityService = read("src/api/org_visibility_service.ts");
 const orgCoachMessagingService = read("src/api/org_coach_messaging_service.ts");
+const orgAthleteMessagingService = read("src/api/org_athlete_messaging_service.ts");
+const messagingRoutes = read("src/api/messaging.routes.ts");
 const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
 const appJs = read("public/app/app.js");
@@ -55,7 +57,9 @@ test("org routes are mounted at their own /org and /coach-workspace prefixes, ne
     '"/organisations/:org_id/billing"', '"/organisations/:org_id/billing/seat-plan"',
     '"/organisations/:org_id/athlete-visibility"',
     '"/organisations/:org_id/messages/threads"', '"/organisations/:org_id/messages/threads/:thread_id"',
-    '"/organisations/:org_id/messages/coaches/:coach_user_id/send"'
+    '"/organisations/:org_id/messages/coaches/:coach_user_id/send"',
+    '"/organisations/:org_id/athlete-messages/threads"', '"/organisations/:org_id/athlete-messages/threads/:thread_id"',
+    '"/organisations/:org_id/athlete-messages/athletes/:athlete_user_id/send"'
   ]) {
     assert.ok(ownerRoutes.includes(path_), `expected org owner route ${path_}`);
   }
@@ -65,6 +69,19 @@ test("org routes are mounted at their own /org and /coach-workspace prefixes, ne
     '"/org-messages/threads"', '"/org-messages/threads/:thread_id"', '"/org-messages/organisations/:org_id/send"'
   ]) {
     assert.ok(coachRoutes.includes(path_), `expected coach org membership route ${path_}`);
+  }
+
+  // Part D.4's athlete-side routes live in messaging.routes.ts (mounted at
+  // /messages, alongside the D.1 coach<->athlete routes) rather than in
+  // ownerRoutes/coachRoutes above - proven here rather than duplicated in
+  // coach_athlete_messaging_surface.test.mjs, which is explicitly scoped
+  // to the D.1 slice only.
+  for (const path_ of [
+    '"/athlete/org-messages/threads"', '"/athlete/org-messages/threads/:thread_id"',
+    '"/athlete/org-messages/organisations/:org_id/send"',
+    '"/athlete/org-messages/attachments/:message_id"', '"/athlete/org-messages/attachments/:message_id/thumbnail"'
+  ]) {
+    assert.ok(messagingRoutes.includes(path_), `expected athlete-side org-messaging route ${path_}`);
   }
 });
 
@@ -76,24 +93,48 @@ test("every org-owner route resolves identity from authenticatedOrgOwner, and ev
   assert.ok(ownerAuthCalls >= 10, "every mutating/protected org owner route must resolve identity from authenticatedOrgOwner");
 
   const coachAuthCalls = [...coachRoutes.matchAll(/authenticatedCoach\(request,\s*(?:false|true)\)/gu)].length;
-  assert.equal(coachAuthCalls, 6, "all six coach org-membership/org-messaging routes must resolve identity from authenticatedCoach");
+  assert.equal(coachAuthCalls, 8, "all eight coach org-membership/org-messaging routes (including the two D.3 attachment routes) must resolve identity from authenticatedCoach");
 
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, false\)/u);
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, true\)/u);
 });
 
+// ownerRoutes is excluded from the athlete_user_id string check only (part
+// D.4): its new /organisations/:org_id/athlete-messages/athletes/
+// :athlete_user_id/send route genuinely names an athlete by id, purely as
+// a route param it passes straight through to org_athlete_messaging_
+// service.ts's own gated functions - it still never queries
+// beta_product_records itself (checked below, over the FULL orgFiles
+// list, unchanged), and the dedicated test further down proves its only
+// athlete_user_id occurrences are exactly that pass-through, never inline
+// business logic.
+const orgFilesForAthleteIdCheck = orgFiles.filter((source) => source !== ownerRoutes);
+
 test("no org file ever reads or writes any athlete-scoped table or record - the MVP boundary is structural, not policy", () => {
-  for (const source of orgFiles) {
+  for (const source of orgFilesForAthleteIdCheck) {
     assert.doesNotMatch(source, /athlete_user_id/u, "an org file must never reference athlete_user_id");
+  }
+  for (const source of orgFiles) {
     // org_roster_service.ts's own DEV NOTE names beta_product_records in
     // prose to document that it never touches it - the real check is that
-    // no query ever actually targets that table.
+    // no query ever actually targets that table. This holds for ownerRoutes
+    // too - it delegates to org_athlete_messaging_service.ts rather than
+    // querying anything athlete-scoped itself.
     assert.doesNotMatch(
       source,
       /FROM\s+beta_product_records|INTO\s+beta_product_records|UPDATE\s+beta_product_records/iu,
       "an org file must never query beta_product_records"
     );
   }
+});
+
+test("ownerRoutes' only athlete_user_id references are the D.4 route param and its pass-through to org_athlete_messaging_service.ts - never inline business logic", () => {
+  const occurrences = [...ownerRoutes.matchAll(/athlete_user_id/gu)].length;
+  // :athlete_user_id (route param) + request.params.athlete_user_id
+  // (passed straight to sendOrgAthleteMessageFromOwner) = exactly 2.
+  assert.equal(occurrences, 2, "expected exactly the route param and its single pass-through");
+  assert.match(ownerRoutes, /"\/organisations\/:org_id\/athlete-messages\/athletes\/:athlete_user_id\/send"/u);
+  assert.match(ownerRoutes, /String\(request\.params\.athlete_user_id\)/u);
 });
 
 test("no org file imports any engine-truth service - org billing/roster are product state only", () => {
@@ -159,19 +200,25 @@ function extractFunctionSource(source, functionName) {
   return nextBoundary === -1 ? source.slice(start) : source.slice(start, start + startMatch[0].length + nextBoundary);
 }
 
-// org_visibility_service.ts (part C) is the deliberate, sole exception to
-// the "no org file ever reads or writes athlete-scoped data" rule proved
-// by the test above - it is NOT added to orgFiles, and must never be:
+// org_visibility_service.ts (part C) and org_athlete_messaging_service.ts
+// (part D.4) are the two deliberate, explicitly-gated exceptions to the
+// "no org file ever reads or writes athlete-scoped data" rule proved by
+// the test above - neither is added to orgFiles, and must never be:
 // doing so would make that test correctly fail the moment its real
 // athlete-scoped queries land. This test instead proves the boundary is
-// mode-aware: the file legitimately touches beta_product_records, but its
-// "individual"-mode aggregate path never touches athlete identity, while
-// its "shared"-mode roster path does.
-test("org_visibility_service.ts is the sole, explicitly-gated exception to the athlete-data boundary, and its individual-mode path never touches athlete identity", () => {
+// mode-aware: both files legitimately touch beta_product_records, but
+// org_visibility_service.ts's "individual"-mode aggregate path never
+// touches athlete identity, while its "shared"-mode roster path does -
+// and org_athlete_messaging_service.ts reuses that exact same
+// visibility_mode gate for its own messaging boundary (proved in the
+// dedicated D.4 test below).
+test("org_visibility_service.ts and org_athlete_messaging_service.ts are the only two explicitly-gated exceptions to the athlete-data boundary, and org_visibility_service.ts's individual-mode path never touches athlete identity", () => {
   assert.match(visibilityService, /beta_product_records/u);
   assert.match(visibilityService, /beta17_coach_relationship/u);
+  assert.match(orgAthleteMessagingService, /beta_product_records/u);
+  assert.match(orgAthleteMessagingService, /beta17_coach_relationship/u);
 
-  for (const source of orgFiles) {
+  for (const source of orgFilesForAthleteIdCheck) {
     assert.doesNotMatch(source, /athlete_user_id/u);
   }
 
@@ -214,4 +261,28 @@ test("org-owner<->coach messaging (part D.2) requires an EXACT 'active' membersh
   assert.match(orgCoachMessagingService, /'org_owner_coach'/u);
   assert.match(orgCoachMessagingService, /ON CONFLICT \(org_id, coach_user_id\) WHERE thread_type = 'org_owner_coach'/u);
   assert.match(orgCoachMessagingService, /ON CONFLICT \(thread_id, sender_user_id, client_request_id\) DO NOTHING/u);
+});
+
+test("org-owner<->athlete messaging (part D.4) is gated to visibility_mode = 'shared' orgs only, on top of an accepted relationship with an active org coach - never the '!= removed' aggregate check", () => {
+  assert.match(orgAthleteMessagingService, /visibility_mode !== "shared"/u);
+  assert.match(orgAthleteMessagingService, /membership_status = 'active'/u);
+  // Distinguishes this from activeAndInvitedCoachMemberships/orgOccupiedSeatCount,
+  // which only ever exclude 'removed' for roster/aggregate purposes - and
+  // from a hypothetical "invited counts too" gate, which would let a
+  // merely-invited coach's athletes be messaged.
+  assert.doesNotMatch(orgAthleteMessagingService, /membership_status\s*!=\s*'removed'/u);
+  assert.match(orgAthleteMessagingService, /state === "accepted"/u);
+
+  // The relationship-freshness check is duplicated locally from
+  // org_visibility_service.ts's own isRelationshipExpired/DISTINCT-ON
+  // shape rather than imported - same convention as every sibling org
+  // file.
+  assert.match(orgAthleteMessagingService, /DISTINCT ON \(actor_user_id\)/u);
+  assert.match(orgAthleteMessagingService, /isRelationshipExpired/u);
+
+  // Reuses the D.1/D.3 schema (thread_type discriminator, attachment
+  // columns) rather than a second migration.
+  assert.match(orgAthleteMessagingService, /'org_owner_athlete'/u);
+  assert.match(orgAthleteMessagingService, /ON CONFLICT \(org_id, athlete_user_id\) WHERE thread_type = 'org_owner_athlete'/u);
+  assert.match(orgAthleteMessagingService, /ON CONFLICT \(thread_id, sender_user_id, client_request_id\) DO NOTHING/u);
 });
