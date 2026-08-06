@@ -53,6 +53,7 @@ app.use(express.json({ limit: "1mb" }));
 const publicDir = path.resolve(process.cwd(), "public");
 const productAppDir = path.join(publicDir, "app");
 const adminAppDir = path.join(publicDir, "admin");
+const orgAppDir = path.join(publicDir, "org");
 
 /**
  * Product application surface.
@@ -74,6 +75,18 @@ app.use("/app", express.static(productAppDir));
  * never satisfy.
  */
 app.use("/admin", express.static(adminAppDir));
+/**
+ * Org-owner dashboard (part O.1).
+ *
+ * A wholly separate, minimal static page, mirroring the /admin surface
+ * above - never part of the athlete/coach SPA shell, never reachable
+ * through PRODUCT_ROUTE_MAP. Its own API lives under the same /org prefix
+ * (orgOwnerRouter, below), guarded by its own session cookie that an
+ * athlete/coach session can never satisfy. Static files are served here
+ * before the API router so a real file always wins, and the router picks
+ * up every other /org/* path.
+ */
+app.use("/org", express.static(orgAppDir));
 /**
  * Local diagnostic UI gate.
  *

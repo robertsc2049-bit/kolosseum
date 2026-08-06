@@ -23,6 +23,8 @@ const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
 const appJs = read("public/app/app.js");
 const routeBootstrap = read("public/app/route_bootstrap.js");
+const orgDashboardHtml = read("public/org/index.html");
+const orgDashboardJs = read("public/org/org.js");
 
 const orgFiles = [accountService, auth, ownerRoutes, rosterService, billingService, coachRoutes, orgCoachMessagingService];
 
@@ -285,4 +287,54 @@ test("org-owner<->athlete messaging (part D.4) is gated to visibility_mode = 'sh
   assert.match(orgAthleteMessagingService, /'org_owner_athlete'/u);
   assert.match(orgAthleteMessagingService, /ON CONFLICT \(org_id, athlete_user_id\) WHERE thread_type = 'org_owner_athlete'/u);
   assert.match(orgAthleteMessagingService, /ON CONFLICT \(thread_id, sender_user_id, client_request_id\) DO NOTHING/u);
+});
+
+// Part O.1 - the org owner's first real UI, mirroring the founder/admin
+// surface's exact precedent (test/full_ui_21_founder_admin_surface.test.mjs's
+// own coverage of public/admin/index.html + admin.js): a wholly separate,
+// minimal static page, never part of the athlete/coach SPA shell, never
+// reachable through PRODUCT_ROUTE_MAP. Every route it calls already
+// existed and was already covered by real Postgres integration tests
+// (parts B.1/B.2) before this UI existed - these checks prove the static
+// files exist and wire up correctly, not the routes themselves again.
+test("the org-owner dashboard is mounted at its own /org static prefix, served before the API router on the same prefix", () => {
+  const staticMountIndex = serverTs.indexOf('app.use("/org", express.static(orgAppDir));');
+  const routerMountIndex = serverTs.indexOf('app.use("/org", orgOwnerRouter);');
+  assert.ok(staticMountIndex >= 0, "expected the /org static mount");
+  assert.ok(routerMountIndex >= 0, "expected the /org API router mount");
+  assert.ok(staticMountIndex < routerMountIndex, "the static mount must come before the API router mount, same as /admin");
+});
+
+test("org.js is wholly separate from the athlete/coach app and the founder/admin app", () => {
+  assert.doesNotMatch(orgDashboardJs, /^import /mu);
+  assert.doesNotMatch(orgDashboardJs, /kolosseum_session\b|kolosseum_admin_session/u);
+  assert.doesNotMatch(orgDashboardJs, /\/account\/|\/coach-workspace\/|\/sessions\/|\/blocks\/|\/messages\//u);
+  assert.doesNotMatch(appJs, /\/org\/register|\/org\/sign-in|org\.js/u);
+  assert.doesNotMatch(routeBootstrap, /org_owner|public\/org\//u);
+});
+
+test("the org-owner dashboard's sign-in, register and create-organisation forms are real focusable controls posting to the existing org-owner routes", () => {
+  assert.match(orgDashboardHtml, /<form id="orgSignInForm">/u);
+  assert.match(orgDashboardHtml, /<form id="orgRegisterForm">/u);
+  assert.match(orgDashboardHtml, /<form id="orgCreateForm">/u);
+  for (const id of ["orgSignOutButton"]) {
+    const re = new RegExp(`<button[^>]*id="${id}"[^>]*type="button"`, "u");
+    assert.match(orgDashboardHtml, re, `${id} must be a real <button type="button">`);
+  }
+
+  assert.match(orgDashboardJs, /api\("POST", "\/org\/sign-in"/u);
+  assert.match(orgDashboardJs, /api\("POST", "\/org\/register"/u);
+  assert.match(orgDashboardJs, /api\("POST", "\/org\/sign-out"/u);
+  assert.match(orgDashboardJs, /api\("GET", "\/org\/organisations"\)/u);
+  assert.match(orgDashboardJs, /api\("POST", "\/org\/organisations"/u);
+});
+
+test("the org-owner dashboard reuses the shared product stylesheet, never the bare inline styling the admin surface uses", () => {
+  assert.match(orgDashboardHtml, /<link rel="stylesheet" href="\/app\/styles\.css" \/>/u);
+  assert.doesNotMatch(orgDashboardHtml, /<style>/u);
+});
+
+test("organisation names rendered into the org-owner dashboard are escaped before being inserted into innerHTML", () => {
+  assert.match(orgDashboardJs, /function escapeHtml/u);
+  assert.match(orgDashboardJs, /escapeHtml\(organisation\.org_name\)/u);
 });
