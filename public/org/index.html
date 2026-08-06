@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Kolosseum Organisation Owner</title>
+  <link rel="stylesheet" href="/app/styles.css" />
+</head>
+<body>
+  <main style="max-width: 720px; margin: 2rem auto; padding: 0 1rem;">
+    <p class="eyebrow">Kolosseum</p>
+    <h1>Organisation owner</h1>
+
+    <section id="orgSignInSection" class="panel">
+      <p class="eyebrow">Sign in</p>
+      <h2>Sign in to your organisation account</h2>
+      <form id="orgSignInForm">
+        <label class="field">
+          <span>Email</span>
+          <input id="orgSignInEmail" type="email" required autocomplete="username" />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input id="orgSignInPassword" type="password" required autocomplete="current-password" />
+        </label>
+        <div class="button-row">
+          <button class="button primary" type="submit">Sign in</button>
+        </div>
+      </form>
+      <p id="orgSignInError" class="muted small" hidden></p>
+    </section>
+
+    <section id="orgRegisterSection" class="panel">
+      <p class="eyebrow">Create account</p>
+      <h2>Register an organisation owner account</h2>
+      <form id="orgRegisterForm">
+        <label class="field">
+          <span>Display name</span>
+          <input id="orgRegisterDisplayName" type="text" required />
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input id="orgRegisterEmail" type="email" required autocomplete="username" />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input id="orgRegisterPassword" type="password" required autocomplete="new-password" minlength="12" />
+          <span class="muted small">At least 12 characters.</span>
+        </label>
+        <div class="button-row">
+          <button class="button secondary" type="submit">Create account</button>
+        </div>
+      </form>
+      <p id="orgRegisterError" class="muted small" hidden></p>
+    </section>
+
+    <section id="orgWorkspaceSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <p>Signed in as <strong id="orgDisplayName"></strong></p>
+        <button id="orgSignOutButton" class="button secondary" type="button">Sign out</button>
+      </div>
+    </section>
+
+    <section id="orgListSection" class="panel" hidden>
+      <p class="eyebrow">Organisations</p>
+      <h2>Your organisations</h2>
+      <div id="orgList" class="record-list"></div>
+    </section>
+
+    <section id="orgCreateSection" class="panel" hidden>
+      <p class="eyebrow">New organisation</p>
+      <h2>Create an organisation</h2>
+      <form id="orgCreateForm">
+        <label class="field">
+          <span>Organisation name</span>
+          <input id="orgCreateName" type="text" required />
+        </label>
+        <label class="field">
+          <span>Type</span>
+          <select id="orgCreateVisibilityMode">
+            <option value="individual" selected>Gym — independent coaches, each athlete relationship stays private to their own coach</option>
+            <option value="shared">Team — you're the coaching authority over the whole roster</option>
+          </select>
+          <span class="muted small">This cannot be changed after the organisation is created.</span>
+        </label>
+        <div class="button-row">
+          <button class="button primary" type="submit">Create organisation</button>
+        </div>
+      </form>
+      <p id="orgCreateError" class="muted small" hidden></p>
+    </section>
+  </main>
+
+  <script type="module" src="/org/org.js"></script>
+</body>
+</html>
