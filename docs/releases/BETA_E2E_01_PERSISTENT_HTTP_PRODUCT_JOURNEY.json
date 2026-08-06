@@ -60,13 +60,13 @@
     ]
   },
   "sha256": {
-    "schema.sql": "b6498ddee4dca3a43e12e5fb81dcc55a4ab4823caab780a986713ec769c5a6dd",
+    "schema.sql": "a487ba8bea207a2937747e82c2ffd5c446f64d232419c14ae4377aa90c068a7f",
     "src/api/beta_product_record_store.ts": "e4f264f5fb46ce76582128f0f19b0c8377ed84a5c9bd74e48557352dba8cf7ea",
     "src/api/beta_product_journey_service.ts": "ea2a7e05c7468212705f5bb0c2972237fd8f030d46c3ce21d381a9b523e0565e",
     "src/api/block_compile_write_service.ts": "45db532638eb42b45da0cd93669422d3985ec35556afae05a592c4196f24f642",
     "src/api/blocks.handlers.ts": "ef77dc0b648016ea35f802303ae3758c08aa16094cfaec57dcf7508c280a4b12",
-    "src/api/sessions.handlers.ts": "cd177c7d6033abc9956a4b6c7173cb14985b4dd91182d53d215d054ec5cdd872",
-    "src/api/sessions.routes.ts": "56a21096bea50e1e255639facd3707a24b1fcbd123b10f6f0e713873ec2f47b7",
+    "src/api/sessions.handlers.ts": "ecfc5443b57863840206133d36ce02e028fcc23912d150f328814fc6ea920343",
+    "src/api/sessions.routes.ts": "d44564ea5663a999bab2d2beaa0a1fa3001c2352a2473b0d921a2f20877b3ea7",
     "src/api/session_state_query_service.ts": "d2ab6d48933ce7d9535cd970956909f47351ff153b6ee975147ad4f1dfac92d8",
     "test/beta_e2e_01_product_record_store.integration.test.mjs": "2a7d9e800b6f28a995d93049547c9103495b32e1b6bcea7ae6c047f4e943405a",
     "test/beta_e2e_01_stored_journey_composition.integration.test.mjs": "e4f6f8710164200663e42e3a68065fb1c53e6fda3a0b6728ce73a84f5ba1d89c",

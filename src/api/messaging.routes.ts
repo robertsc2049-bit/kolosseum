@@ -11,6 +11,7 @@ import {
   type Request,
   type Response
 } from "express";
+import { MulterError } from "multer";
 
 import {
   PRODUCT_SESSION_COOKIE,
@@ -24,8 +25,16 @@ import {
   CoachAthleteMessagingError,
   listCoachAthleteThreadMessages,
   listCoachAthleteThreads,
+  resolveCoachAthleteMessageAttachment,
+  resolveCoachAthleteMessageAttachmentThumbnail,
   sendCoachAthleteMessage
 } from "./coach_athlete_messaging_service.js";
+import {
+  MessageAttachmentError,
+  attachmentUpload,
+  sendAttachmentFile,
+  validateStagedUpload
+} from "./message_attachment_storage.js";
 
 export const messagingRouter = Router();
 
@@ -88,16 +97,39 @@ messagingRouter.get(
 
 messagingRouter.post(
   "/coach/athletes/:athlete_user_id/send",
+  attachmentUpload.single("attachment"),
   asyncHandler(async (request, response) => {
     const coachUserId = await authenticatedCoach(request, true);
+    const attachment = await validateStagedUpload(request.file);
     const result = await sendCoachAthleteMessage(
       "coach",
       coachUserId,
       String(request.params.athlete_user_id),
       request.body?.body_text,
-      request.body?.client_request_id
+      request.body?.client_request_id,
+      attachment
     );
     return response.status(201).json({ ok: true, thread: result.thread, message: result.message });
+  })
+);
+
+messagingRouter.get(
+  "/coach/attachments/:message_id",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const attachment = await resolveCoachAthleteMessageAttachment(String(request.params.message_id), coachUserId, "coach");
+    if (!attachment) return response.status(404).json({ error: "coach_athlete_messaging_attachment_not_found" });
+    return sendAttachmentFile(response, attachment);
+  })
+);
+
+messagingRouter.get(
+  "/coach/attachments/:message_id/thumbnail",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const thumbnail = await resolveCoachAthleteMessageAttachmentThumbnail(String(request.params.message_id), coachUserId, "coach");
+    if (!thumbnail) return response.status(404).json({ error: "coach_athlete_messaging_thumbnail_not_found" });
+    return sendAttachmentFile(response, thumbnail);
   })
 );
 
@@ -121,30 +153,60 @@ messagingRouter.get(
 
 messagingRouter.post(
   "/athlete/coaches/:coach_user_id/send",
+  attachmentUpload.single("attachment"),
   asyncHandler(async (request, response) => {
     const athleteUserId = await authenticatedAthlete(request, true);
+    const attachment = await validateStagedUpload(request.file);
     const result = await sendCoachAthleteMessage(
       "athlete",
       athleteUserId,
       String(request.params.coach_user_id),
       request.body?.body_text,
-      request.body?.client_request_id
+      request.body?.client_request_id,
+      attachment
     );
     return response.status(201).json({ ok: true, thread: result.thread, message: result.message });
   })
 );
 
-// CoachAthleteMessagingError is not an ApiError, so without this
-// router-scoped handler it would otherwise reach the generic error
-// mapper, which mistakes the string message for a Postgres error code and
-// returns a misleading 500 instead of the correct status (mirrors the
-// identical, deliberate pattern in product_admin.routes.ts / org_owner.routes.ts).
+messagingRouter.get(
+  "/athlete/attachments/:message_id",
+  asyncHandler(async (request, response) => {
+    const athleteUserId = await authenticatedAthlete(request, false);
+    const attachment = await resolveCoachAthleteMessageAttachment(String(request.params.message_id), athleteUserId, "athlete");
+    if (!attachment) return response.status(404).json({ error: "coach_athlete_messaging_attachment_not_found" });
+    return sendAttachmentFile(response, attachment);
+  })
+);
+
+messagingRouter.get(
+  "/athlete/attachments/:message_id/thumbnail",
+  asyncHandler(async (request, response) => {
+    const athleteUserId = await authenticatedAthlete(request, false);
+    const thumbnail = await resolveCoachAthleteMessageAttachmentThumbnail(String(request.params.message_id), athleteUserId, "athlete");
+    if (!thumbnail) return response.status(404).json({ error: "coach_athlete_messaging_thumbnail_not_found" });
+    return sendAttachmentFile(response, thumbnail);
+  })
+);
+
+// CoachAthleteMessagingError/MessageAttachmentError are not ApiErrors, so
+// without this router-scoped handler they would otherwise reach the
+// generic error mapper, which mistakes the string message for a Postgres
+// error code and returns a misleading 500 instead of the correct status
+// (mirrors the identical, deliberate pattern in product_admin.routes.ts /
+// org_owner.routes.ts). MulterError (e.g. an oversized upload exceeding
+// the multer-level ceiling before content sniffing even runs) is mapped
+// the same way, for the same reason.
 messagingRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
-    if (!(error instanceof CoachAthleteMessagingError)) {
-      next(error);
+    if (error instanceof CoachAthleteMessagingError || error instanceof MessageAttachmentError) {
+      response.status(error.status).json({ error: error.message });
       return;
     }
-    response.status(error.status).json({ error: error.message });
+    if (error instanceof MulterError) {
+      response.status(400).json({ error: `message_attachment_upload_${error.code.toLowerCase()}` });
+      return;
+    }
+    next(error);
   }
 );

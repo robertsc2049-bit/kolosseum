@@ -12,6 +12,7 @@ import {
   type Request,
   type Response
 } from "express";
+import { MulterError } from "multer";
 
 import {
   ORG_OWNER_SESSION_COOKIE,
@@ -43,8 +44,16 @@ import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
   listOrgCoachThreadsForOwner,
+  resolveOrgCoachMessageAttachmentForOwner,
+  resolveOrgCoachMessageAttachmentThumbnailForOwner,
   sendOrgCoachMessageFromOwner
 } from "./org_coach_messaging_service.js";
+import {
+  MessageAttachmentError,
+  attachmentUpload,
+  sendAttachmentFile,
+  validateStagedUpload
+} from "./message_attachment_storage.js";
 
 export const orgOwnerRouter = Router();
 
@@ -230,25 +239,49 @@ orgOwnerRouter.get(
 
 orgOwnerRouter.post(
   "/organisations/:org_id/messages/coaches/:coach_user_id/send",
+  attachmentUpload.single("attachment"),
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
+    const attachment = await validateStagedUpload(request.file);
     const result = await sendOrgCoachMessageFromOwner(
       user_id,
       String(request.params.org_id),
       String(request.params.coach_user_id),
       request.body?.body_text,
-      request.body?.client_request_id
+      request.body?.client_request_id,
+      attachment
     );
     return response.status(201).json({ ok: true, thread: result.thread, message: result.message });
   })
 );
 
+orgOwnerRouter.get(
+  "/organisations/:org_id/messages/attachments/:message_id",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const attachment = await resolveOrgCoachMessageAttachmentForOwner(String(request.params.message_id), user_id);
+    if (!attachment) return response.status(404).json({ error: "org_coach_messaging_attachment_not_found" });
+    return sendAttachmentFile(response, attachment);
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/messages/attachments/:message_id/thumbnail",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const thumbnail = await resolveOrgCoachMessageAttachmentThumbnailForOwner(String(request.params.message_id), user_id);
+    if (!thumbnail) return response.status(404).json({ error: "org_coach_messaging_thumbnail_not_found" });
+    return sendAttachmentFile(response, thumbnail);
+  })
+);
+
 // OrgOwnerAuthError/OrgRosterError/OrgBillingError/OrgVisibilityError/
-// OrgCoachMessagingError are not ApiError, so without this router-scoped
-// handler they would otherwise reach the generic error mapper, which
-// mistakes the string message for a Postgres error code and returns a
-// misleading 500 instead of the correct status (mirrors the identical,
-// deliberate pattern in product_admin.routes.ts).
+// OrgCoachMessagingError/MessageAttachmentError are not ApiError, so
+// without this router-scoped handler they would otherwise reach the
+// generic error mapper, which mistakes the string message for a Postgres
+// error code and returns a misleading 500 instead of the correct status
+// (mirrors the identical, deliberate pattern in product_admin.routes.ts).
+// MulterError is mapped the same way, for the same reason.
 orgOwnerRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
     if (
@@ -256,9 +289,14 @@ orgOwnerRouter.use(
       error instanceof OrgRosterError ||
       error instanceof OrgBillingError ||
       error instanceof OrgVisibilityError ||
-      error instanceof OrgCoachMessagingError
+      error instanceof OrgCoachMessagingError ||
+      error instanceof MessageAttachmentError
     ) {
       response.status(error.status).json({ error: error.message });
+      return;
+    }
+    if (error instanceof MulterError) {
+      response.status(400).json({ error: `message_attachment_upload_${error.code.toLowerCase()}` });
       return;
     }
     next(error);

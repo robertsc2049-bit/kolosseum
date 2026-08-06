@@ -95,3 +95,29 @@ resolution from this addition.
 This change does not alter Kolosseum engine law, deterministic output,
 registry content, sealed artefact bytes, access-policy decisions, or any
 existing user-facing behaviour - it is purely additive.
+
+## Part D.3 messaging attachments: add multer and ffmpeg dependencies
+
+Commit subject: feat(messaging): add photo/video attachments (part D.3)
+
+package-lock.json changed because new direct dependencies were added:
+
+- `multer` (`^2.2.0`) added to `dependencies`.
+- `@ffmpeg-installer/ffmpeg` (`^1.1.0`) added to `dependencies`.
+- `@types/multer` (`^2.2.0`) added to `devDependencies`.
+
+`multer` is the standard, minimal Express wrapper for multipart/form-data
+uploads, used to accept photo/video attachments on the existing message
+send routes. `@ffmpeg-installer/ffmpeg` resolves a per-platform prebuilt
+ffmpeg binary via `optionalDependencies`, used only to extract a single
+poster frame from a video attachment for the message list - no video
+transcoding or other processing is performed. Both are new, purpose-
+specific dependencies for this one feature, matching the repo's existing
+posture of small, single-purpose additions (`ws` for live messaging,
+`express`/`pg`/`ajv`/`dotenv` otherwise). No other dependency versions were
+intentionally changed; any other lockfile movement is transitive
+resolution from this addition.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or any
+existing user-facing behaviour - it is purely additive.

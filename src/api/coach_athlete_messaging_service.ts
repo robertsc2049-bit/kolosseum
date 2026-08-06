@@ -22,6 +22,12 @@ import type { PoolClient } from "pg";
 import { pool } from "../db/pool.js";
 import { loadBeta17StoredCoachContext } from "./beta_product_record_store.js";
 import { pushToUser } from "./realtime_hub.js";
+import {
+  cleanupAttachmentFiles,
+  finalizeAttachment,
+  resolveAttachmentPath,
+  type PendingAttachmentUpload
+} from "./message_attachment_storage.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -103,6 +109,14 @@ function mapThreadRow(value: unknown): CoachAthleteThreadRow | null {
   });
 }
 
+export type CoachAthleteMessageAttachment = Readonly<{
+  media_type: "image" | "video";
+  mime_type: string;
+  byte_size: number;
+  url: string;
+  thumbnail_url: string | null;
+}>;
+
 export type CoachAthleteMessageRow = Readonly<{
   message_id: string;
   thread_id: string;
@@ -110,20 +124,43 @@ export type CoachAthleteMessageRow = Readonly<{
   sender_role: "coach" | "athlete";
   body_text: string;
   created_at_iso8601: string;
+  attachment: CoachAthleteMessageAttachment | null;
 }>;
 
-function mapMessageRow(value: unknown): CoachAthleteMessageRow | null {
+// viewerRole picks the URL prefix for the attachment routes
+// (/messages/coach/attachments/... vs /messages/athlete/attachments/...) -
+// the same underlying row is projected once per side when it matters
+// (see the two mapMessageRow calls in sendCoachAthleteMessage), since a
+// coach and an athlete authenticate via different cookies/routes even
+// when looking at the exact same message.
+function mapMessageRow(value: unknown, viewerRole: "coach" | "athlete"): CoachAthleteMessageRow | null {
   if (!isRecord(value)) return null;
   const role = value.sender_role;
   if (role !== "coach" && role !== "athlete") return null;
 
+  const messageId = cleanString(value.message_id);
+  const attachmentMediaType = value.attachment_media_type;
+  const attachment: CoachAthleteMessageAttachment | null =
+    attachmentMediaType === "image" || attachmentMediaType === "video"
+      ? Object.freeze({
+          media_type: attachmentMediaType,
+          mime_type: cleanString(value.attachment_mime_type),
+          byte_size: typeof value.attachment_byte_size === "number" ? value.attachment_byte_size : 0,
+          url: `/messages/${viewerRole}/attachments/${encodeURIComponent(messageId)}`,
+          thumbnail_url: cleanString(value.attachment_thumbnail_storage_key)
+            ? `/messages/${viewerRole}/attachments/${encodeURIComponent(messageId)}/thumbnail`
+            : null
+        })
+      : null;
+
   return Object.freeze({
-    message_id: cleanString(value.message_id),
+    message_id: messageId,
     thread_id: cleanString(value.thread_id),
     sender_user_id: cleanString(value.sender_user_id),
     sender_role: role,
     body_text: cleanString(value.body_text),
-    created_at_iso8601: value.created_at instanceof Date ? value.created_at.toISOString() : ""
+    created_at_iso8601: value.created_at instanceof Date ? value.created_at.toISOString() : "",
+    attachment
   });
 }
 
@@ -163,7 +200,8 @@ export async function sendCoachAthleteMessage(
   senderUserId: string,
   peerUserId: string,
   bodyTextInput: unknown,
-  clientRequestIdInput: unknown
+  clientRequestIdInput: unknown,
+  attachment: PendingAttachmentUpload | null = null
 ): Promise<SentCoachAthleteMessage> {
   const coachUserId = senderRole === "coach" ? senderUserId : cleanString(peerUserId);
   const athleteUserId = senderRole === "athlete" ? senderUserId : cleanString(peerUserId);
@@ -173,11 +211,21 @@ export async function sendCoachAthleteMessage(
 
   await requireAcceptedCoachAthleteRelationship(coachUserId, athleteUserId);
 
-  const bodyText = cleanString(bodyTextInput);
-  if (!bodyText || bodyText.length > 4000) {
+  const bodyTextRaw = cleanString(bodyTextInput);
+  if (!attachment && !bodyTextRaw) {
     throw new CoachAthleteMessagingError("coach_athlete_messaging_body_text_invalid", 400);
   }
+  if (bodyTextRaw && bodyTextRaw.length > 4000) {
+    throw new CoachAthleteMessagingError("coach_athlete_messaging_body_text_invalid", 400);
+  }
+  const bodyText = bodyTextRaw || null;
   const clientRequestId = cleanString(clientRequestIdInput) || randomId("msg_req");
+
+  const messageId = randomId("msg");
+  let attachmentColumns: Readonly<{ storageKey: string; thumbnailStorageKey: string | null }> | null = null;
+  if (attachment) {
+    attachmentColumns = await finalizeAttachment(attachment, messageId);
+  }
 
   const client = await pool.connect();
   try {
@@ -185,15 +233,32 @@ export async function sendCoachAthleteMessage(
 
     const threadId = await findOrCreateThread(client, coachUserId, athleteUserId);
 
-    const messageId = randomId("msg");
-    await client.query(
+    const insertResult = await client.query(
       `
-      INSERT INTO product_messages (message_id, thread_id, sender_user_id, sender_role, body_text, client_request_id)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO product_messages (
+        message_id, thread_id, sender_user_id, sender_role, body_text, client_request_id,
+        attachment_media_type, attachment_mime_type, attachment_byte_size,
+        attachment_storage_key, attachment_thumbnail_storage_key
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       ON CONFLICT (thread_id, sender_user_id, client_request_id) DO NOTHING
       `,
-      [messageId, threadId, senderUserId, senderRole, bodyText, clientRequestId]
+      [
+        messageId, threadId, senderUserId, senderRole, bodyText, clientRequestId,
+        attachment?.mediaType ?? null, attachment?.mimeType ?? null, attachment?.byteSize ?? null,
+        attachmentColumns?.storageKey ?? null, attachmentColumns?.thumbnailStorageKey ?? null
+      ]
     );
+
+    // Idempotent replay of an existing (thread_id, sender_user_id,
+    // client_request_id) tuple - the row we tried to insert already
+    // exists under a different message_id, so the file we just moved
+    // into place under THIS message_id is now an orphan nothing will
+    // ever reference. Text-only messaging never needed this cleanup
+    // (nothing but the DB row itself exists on a replay); attachments do.
+    if (attachment && insertResult.rowCount === 0) {
+      await cleanupAttachmentFiles(messageId).catch(() => {});
+    }
 
     await client.query(
       `UPDATE product_message_threads SET updated_at = now() WHERE thread_id = $1`,
@@ -212,21 +277,26 @@ export async function sendCoachAthleteMessage(
     );
 
     const thread = mapThreadRow(threadRow.rows[0]);
-    const message = mapMessageRow(messageRow.rows[0]);
-    if (!thread || !message) throw new CoachAthleteMessagingError("coach_athlete_messaging_send_failed", 500);
+    const senderMessage = mapMessageRow(messageRow.rows[0], senderRole);
+    if (!thread || !senderMessage) throw new CoachAthleteMessagingError("coach_athlete_messaging_send_failed", 500);
 
     // Best-effort live push to whichever side did NOT send - a missed
     // push (no live connection) is never a correctness problem, only a
     // delayed one; the recipient sees it next time they open/refresh the
-    // thread exactly as before this existed.
+    // thread exactly as before this existed. Projected separately from
+    // the sender's own copy since the attachment URL prefix
+    // (/messages/coach/... vs /messages/athlete/...) depends on which
+    // side is viewing the exact same underlying row.
     const recipientRole = senderRole === "coach" ? "athlete" : "coach";
     const recipientUserId = senderRole === "coach" ? athleteUserId : coachUserId;
-    pushToUser(recipientRole, recipientUserId, { type: "coach_athlete_message", thread, message });
+    const recipientMessage = mapMessageRow(messageRow.rows[0], recipientRole);
+    pushToUser(recipientRole, recipientUserId, { type: "coach_athlete_message", thread, message: recipientMessage });
 
-    return Object.freeze({ thread, message });
+    return Object.freeze({ thread, message: senderMessage });
   }
   catch (error) {
     await client.query("ROLLBACK");
+    if (attachment) await cleanupAttachmentFiles(messageId).catch(() => {});
     throw error;
   }
   finally {
@@ -281,5 +351,55 @@ export async function listCoachAthleteThreadMessages(
     `SELECT * FROM product_messages WHERE thread_id = $1 ORDER BY created_at ASC`,
     [threadId]
   );
-  return result.rows.map(mapMessageRow).filter((row): row is CoachAthleteMessageRow => row !== null);
+  return result.rows
+    .map((row) => mapMessageRow(row, role))
+    .filter((row): row is CoachAthleteMessageRow => row !== null);
+}
+
+export type ResolvedMessageAttachmentFile = Readonly<{
+  absolutePath: string;
+  mimeType: string;
+}>;
+
+async function loadMessageAttachmentRow(
+  messageId: string,
+  userId: string,
+  role: "coach" | "athlete"
+): Promise<JsonRecord> {
+  const result = await pool.query(
+    `SELECT * FROM product_messages WHERE message_id = $1 LIMIT 1`,
+    [messageId]
+  );
+  const row = result.rows[0];
+  if (!isRecord(row)) {
+    throw new CoachAthleteMessagingError("coach_athlete_messaging_attachment_not_found", 404);
+  }
+  await requireThreadAccessibleBy(cleanString(row.thread_id), userId, role);
+  return row;
+}
+
+export async function resolveCoachAthleteMessageAttachment(
+  messageId: string,
+  userId: string,
+  role: "coach" | "athlete"
+): Promise<ResolvedMessageAttachmentFile | null> {
+  const row = await loadMessageAttachmentRow(messageId, userId, role);
+  const storageKey = cleanString(row.attachment_storage_key);
+  if (!storageKey) return null;
+  const absolutePath = resolveAttachmentPath(storageKey);
+  if (!absolutePath) return null;
+  return Object.freeze({ absolutePath, mimeType: cleanString(row.attachment_mime_type) || "application/octet-stream" });
+}
+
+export async function resolveCoachAthleteMessageAttachmentThumbnail(
+  messageId: string,
+  userId: string,
+  role: "coach" | "athlete"
+): Promise<ResolvedMessageAttachmentFile | null> {
+  const row = await loadMessageAttachmentRow(messageId, userId, role);
+  const storageKey = cleanString(row.attachment_thumbnail_storage_key);
+  if (!storageKey) return null;
+  const absolutePath = resolveAttachmentPath(storageKey);
+  if (!absolutePath) return null;
+  return Object.freeze({ absolutePath, mimeType: "image/jpeg" });
 }

@@ -17,6 +17,9 @@ import { WebSocket } from "ws";
 import { app } from "../dist/src/server.js";
 import { pool } from "../dist/src/db/pool.js";
 import { attachRealtimeWebSocketServer } from "../dist/src/api/realtime_hub.js";
+import { STORAGE_ROOT } from "../dist/src/api/message_attachment_storage.js";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 async function listen() {
   return await new Promise((resolve, reject) => {
@@ -47,6 +50,34 @@ async function request(baseUrl, method, route, body, options = {}) {
   let json = null;
   try { json = text ? JSON.parse(text) : null; } catch {}
   return { response, text, json };
+}
+
+async function requestMultipart(baseUrl, route, fields, filePart, options = {}) {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(fields)) {
+    if (value !== undefined) formData.append(key, value);
+  }
+  if (filePart) {
+    formData.append(
+      "attachment",
+      new Blob([filePart.buffer], { type: filePart.mimeType ?? "application/octet-stream" }),
+      filePart.filename ?? "upload.bin"
+    );
+  }
+
+  const headers = {};
+  if (options.cookie) headers.cookie = options.cookie;
+  if (options.csrf) headers["x-kolosseum-csrf"] = options.csrf;
+
+  const response = await fetch(`${baseUrl}${route}`, { method: "POST", headers, body: formData });
+  const text = await response.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch {}
+  return { response, text, json };
+}
+
+function tinyJpegBuffer() {
+  return Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01]);
 }
 
 function cookieNamed(result, cookieName, label) {
@@ -201,6 +232,7 @@ test(
     const coachUserIds = [];
     const athleteUserIds = [];
     const orgOwnerUserIds = [];
+    const attachmentMessageIds = [];
 
     const cleanup = async () => {
       const allUserIds = [...coachUserIds, ...athleteUserIds, ...orgOwnerUserIds].filter(Boolean);
@@ -232,6 +264,10 @@ test(
         await pool.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [userId]).catch(() => {});
         await pool.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [userId]).catch(() => {});
         await pool.query("DELETE FROM product_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+      for (const messageId of attachmentMessageIds) {
+        if (!messageId) continue;
+        await fs.rm(path.join(STORAGE_ROOT, messageId), { recursive: true, force: true }).catch(() => {});
       }
     };
 
@@ -308,6 +344,35 @@ test(
     assert.equal(coachPushed.type, "coach_athlete_message");
     assert.equal(coachPushed.message.message_id, reply.json?.message?.message_id);
     assert.equal(coachPushed.message.sender_role, "athlete");
+
+    // ============================================================
+    // A push after an attachment send carries the same attachment shape
+    // as the HTTP response (Part D.3) - pushToUser forwards the message
+    // object verbatim, so this only needs a single assertion, not the
+    // full validation/authorization coverage already proven against real
+    // Postgres in coach_athlete_messaging_persistent.integration.test.mjs.
+    // ============================================================
+    const athleteAttachmentPush = waitForMessage(athleteSocket);
+    const attachmentSend = await requestMultipart(
+      baseUrl, `/messages/coach/athletes/${encodeURIComponent(athlete1.userId)}/send`,
+      { body_text: "Here's a photo", client_request_id: `live_${nonce}_attach` },
+      { buffer: tinyJpegBuffer(), mimeType: "image/jpeg", filename: "photo.jpg" },
+      { cookie: coachA.cookie, csrf: coachA.csrf }
+    );
+    assertStatus(attachmentSend, 201, "coach sends a message with an attachment");
+    attachmentMessageIds.push(attachmentSend.json?.message?.message_id);
+
+    const athleteAttachmentPushed = await athleteAttachmentPush;
+    assert.equal(athleteAttachmentPushed.message.message_id, attachmentSend.json?.message?.message_id);
+    assert.equal(athleteAttachmentPushed.message.attachment?.media_type, "image");
+    assert.equal(athleteAttachmentPushed.message.attachment?.mime_type, "image/jpeg");
+    // The pushed envelope is projected for the ATHLETE recipient, while
+    // attachmentSend's own response is projected for the sending coach -
+    // same underlying row, deliberately different URL prefixes (each
+    // viewer's own attachment route), per coach_athlete_messaging_service.ts's
+    // per-viewer mapMessageRow projection.
+    assert.ok(athleteAttachmentPushed.message.attachment?.url?.startsWith("/messages/athlete/attachments/"));
+    assert.ok(attachmentSend.json?.message?.attachment?.url?.startsWith("/messages/coach/attachments/"));
 
     // ============================================================
     // Org-owner<->coach: both directions (API-only, no client UI, but the
