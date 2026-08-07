@@ -81,6 +81,8 @@ const allowedChangedFiles = new Set([
   // dependency wiring, or candidate content was touched.
   "ci/guards/s_reg_05_canonical_registry_contract_candidate_surface_guard.mjs",
   "test/s_reg_05_canonical_registry_contract_candidate_surface.test.mjs",
+  "ci/registry/s_reg_22_candidate_registry_build_review.mjs",
+  "test/s_reg_22_candidate_registry_build_review.test.mjs",
   "ci/guards/s_reg_06_canonical_activity_movement_exercise_candidate_seeds_guard.mjs",
   "ci/guards/s_reg_07_canonical_equipment_candidate_seeds_guard.mjs",
   "ci/guards/s_reg_08_exercise_equipment_fk_closure_candidate_update_guard.mjs",
