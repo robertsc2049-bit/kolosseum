@@ -85,7 +85,8 @@ const DEFAULT_STATE = Object.freeze({
   liveMessageThreadId: null,
   athleteOrgMessageThreads: [],
   athleteOrgContexts: [],
-  coachOrgContexts: []
+  coachOrgContexts: [],
+  coachAthleteOrgMessageThreads: []
 });
 
 const state = loadState();
@@ -366,6 +367,7 @@ const elements = {
   athleteDetailMessageText: document.getElementById("athleteDetailMessageText"),
   athleteDetailMessageAttachment: document.getElementById("athleteDetailMessageAttachment"),
   athleteDetailMessageCancelButton: document.getElementById("athleteDetailMessageCancelButton"),
+  athleteDetailOrgMessageHistory: document.getElementById("athleteDetailOrgMessageHistory"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -5234,6 +5236,70 @@ function renderCoachAthleteMessages() {
   `).join("");
 }
 
+// Part O.8 - read-only coach visibility into an athlete's org-owner
+// threads. A list, not a single thread, since an athlete could in
+// principle have threads across more than one shared org this coach
+// belongs to (in practice almost always 0 or 1). No send form - the coach
+// never sends into this thread, it stays exactly two-party for writes.
+async function refreshCoachAthleteOrgMessages(athleteUserId, options = {}) {
+  if (!athleteUserId || !elements.athleteDetailOrgMessageHistory) return;
+
+  try {
+    const threadsResponse = await api(
+      "GET",
+      `/messages/coach/athletes/${encodeURIComponent(athleteUserId)}/org-messages/threads`
+    );
+    const threads = Array.isArray(threadsResponse.threads) ? threadsResponse.threads : [];
+
+    state.coachAthleteOrgMessageThreads = await Promise.all(
+      threads.map(async (thread) => {
+        const messagesResponse = await api(
+          "GET",
+          `/messages/coach/org-messages/threads/${encodeURIComponent(thread.thread_id)}`
+        );
+        return { thread, messages: Array.isArray(messagesResponse.messages) ? messagesResponse.messages : [] };
+      })
+    );
+    renderCoachAthleteOrgMessages();
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
+function renderCoachAthleteOrgMessages() {
+  if (!elements.athleteDetailOrgMessageHistory) return;
+
+  const entries = Array.isArray(state.coachAthleteOrgMessageThreads) ? state.coachAthleteOrgMessageThreads : [];
+
+  if (entries.length === 0) {
+    elements.athleteDetailOrgMessageHistory.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No team messages yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  elements.athleteDetailOrgMessageHistory.innerHTML = entries.map((entry) => `
+    <div class="record-row org-message-thread">
+      <strong>${escapeHtml(entry.thread.org_name)}</strong>
+      <div class="record-list">
+        ${entry.messages.map((message) => `
+          <article class="review-note-card">
+            <div class="record-meta">
+              <span class="badge neutral">${message.sender_role === "org_owner" ? escapeHtml(entry.thread.org_name) : "Athlete"}</span>
+              <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
+            </div>
+            ${renderMessageAttachment(message.attachment)}
+            ${message.body_text ? `<p>${escapeHtml(message.body_text)}</p>` : ""}
+          </article>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
 function openComposeAthleteMessagePanel() {
   if (!state.selectedCoachAthleteId) return;
   elements.athleteDetailMessageText.value = "";
@@ -5328,6 +5394,12 @@ async function openAthleteProfile(athleteUserId) {
       {
         quiet: true
       }
+    ),
+    refreshCoachAthleteOrgMessages(
+      athleteUserId,
+      {
+        quiet: true
+      }
     )
   ]);
 
@@ -5339,6 +5411,7 @@ function closeAthleteProfile() {
   state.selectedCoachAthleteId = "";
   state.athleteProfileDraft = null;
   state.liveMessageThreadId = null;
+  state.coachAthleteOrgMessageThreads = [];
   saveState();
   elements.athleteProfilePanel.hidden = true;
   elements.athleteAssignmentPanel.hidden = true;

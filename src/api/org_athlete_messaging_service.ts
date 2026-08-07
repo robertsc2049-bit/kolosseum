@@ -18,6 +18,7 @@ import crypto from "node:crypto";
 import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
+import { loadBeta17StoredCoachContext } from "./beta_product_record_store.js";
 import { pushToUser } from "./realtime_hub.js";
 import {
   cleanupAttachmentFiles,
@@ -147,6 +148,50 @@ async function requireOrgAthleteMessagingContext(
   }
 }
 
+// Part O.8 - the coach's own accepted-relationship gate for viewing an
+// org<->athlete thread. Duplicated from coach_athlete_messaging_service.ts's
+// requireAcceptedCoachAthleteRelationship (same field-level checks: scope,
+// state, revoked/expires timestamps, product/engine-visibility flags,
+// active coach profile) rather than cross-imported, matching this file's own
+// requireOrgOwnedBy precedent of duplicating small gate functions across
+// sibling service files. Stricter than requireOrgAthleteMessagingContext's
+// "is there any accepted relationship with one of the org's coaches" check,
+// because here a SPECIFIC coach is asserting a claim to a SPECIFIC athlete's
+// thread.
+async function requireCoachHasAcceptedRelationshipWithAthlete(
+  coachUserId: string,
+  athleteUserId: string
+): Promise<void> {
+  const context = await loadBeta17StoredCoachContext(coachUserId, athleteUserId);
+  if (!context) {
+    throw new OrgAthleteMessagingError("org_athlete_messaging_coach_relationship_not_found", 403);
+  }
+
+  const profile = isRecord(context.coach_profile) ? context.coach_profile : {};
+  if (
+    profile.account_role !== "coach" ||
+    profile.account_state !== "active" ||
+    profile.product_auth_state_only !== true ||
+    profile.engine_visible !== false
+  ) {
+    throw new OrgAthleteMessagingError("org_athlete_messaging_coach_profile_not_active", 403);
+  }
+
+  const relationship = isRecord(context.relationship) ? context.relationship : {};
+  if (
+    relationship.coach_user_id !== coachUserId ||
+    relationship.athlete_user_id !== athleteUserId ||
+    relationship.relationship_scope !== "individual_coach_athlete" ||
+    relationship.relationship_state !== "accepted" ||
+    relationship.revoked_at_iso8601 !== null ||
+    relationship.expires_at_iso8601 !== null ||
+    relationship.product_permission_state_only !== true ||
+    relationship.engine_visible !== false
+  ) {
+    throw new OrgAthleteMessagingError("org_athlete_messaging_coach_relationship_not_accepted", 403);
+  }
+}
+
 export type OrgAthleteThreadRow = Readonly<{
   thread_id: string;
   org_id: string;
@@ -196,15 +241,24 @@ export type OrgAthleteMessageRow = Readonly<{
 // athlete-side route lives under the existing /messages/athlete/... family
 // (mirrors /messages/athlete/attachments/... from the coach<->athlete
 // side) with an org-messages differentiator so it can't collide with
-// coach_athlete_messaging_service.ts's own attachment routes.
+// coach_athlete_messaging_service.ts's own attachment routes. Part O.8 adds
+// a third, read-only "coach" viewer - symmetric with the athlete-side path,
+// under /messages/coach/org-messages/... so it can't collide with either
+// the D.1 /messages/coach/attachments/... family (no org-messages segment)
+// or the D.2 /coach-workspace/org-messages/... family (a different router
+// entirely, for the coach's own thread with the org owner).
 type MessageViewer =
   | Readonly<{ role: "org_owner"; orgId: string }>
-  | Readonly<{ role: "athlete" }>;
+  | Readonly<{ role: "athlete" }>
+  | Readonly<{ role: "coach" }>;
 
 function attachmentRouteBase(viewer: MessageViewer): string {
-  return viewer.role === "org_owner"
-    ? `/org/organisations/${encodeURIComponent(viewer.orgId)}/athlete-messages/attachments`
-    : `/messages/athlete/org-messages/attachments`;
+  if (viewer.role === "org_owner") {
+    return `/org/organisations/${encodeURIComponent(viewer.orgId)}/athlete-messages/attachments`;
+  }
+  return viewer.role === "athlete"
+    ? `/messages/athlete/org-messages/attachments`
+    : `/messages/coach/org-messages/attachments`;
 }
 
 function mapMessageRow(value: unknown, viewer: MessageViewer): OrgAthleteMessageRow | null {
@@ -471,6 +525,71 @@ export async function listOrgAthleteThreadsForAthlete(
   return result.rows.map(mapThreadRow).filter((row): row is OrgAthleteThreadRow => row !== null);
 }
 
+// Part O.8 - a coach's read-only view of their own athlete's org<->owner
+// threads. Two-tier gate mirroring listOrganisationRosterForCoach's own
+// precedent (org_roster_service.ts, part O.7): a real access-control
+// failure (no accepted relationship with this athlete at all) throws, but
+// a structural non-match (no active membership in any shared-mode org that
+// happens to have a thread with this athlete) returns an empty list quietly
+// - "nothing to show" is not the same as "access denied".
+export async function listOrgAthleteThreadsVisibleToCoach(
+  coachUserId: string,
+  athleteUserId: string
+): Promise<readonly OrgAthleteThreadRow[]> {
+  await requireCoachHasAcceptedRelationshipWithAthlete(coachUserId, athleteUserId);
+
+  const result = await pool.query(
+    `
+    SELECT t.*, o.org_name
+    FROM product_message_threads t
+    JOIN product_organisations o ON o.org_id = t.org_id
+    JOIN product_org_coach_memberships m ON m.org_id = t.org_id
+    WHERE t.thread_type = 'org_owner_athlete'
+      AND t.athlete_user_id = $1
+      AND m.coach_user_id = $2
+      AND m.membership_status = 'active'
+      AND o.visibility_mode = 'shared'
+    ORDER BY t.updated_at DESC
+    `,
+    [athleteUserId, coachUserId]
+  );
+  return result.rows.map(mapThreadRow).filter((row): row is OrgAthleteThreadRow => row !== null);
+}
+
+export async function listOrgAthleteThreadMessagesForCoach(
+  threadId: string,
+  coachUserId: string
+): Promise<readonly OrgAthleteMessageRow[]> {
+  const threadRow = await loadThreadWithOrgName(threadId);
+  const thread = mapThreadRow(threadRow);
+  if (!thread) {
+    throw new OrgAthleteMessagingError("org_athlete_messaging_thread_not_found", 404);
+  }
+
+  await requireCoachHasAcceptedRelationshipWithAthlete(coachUserId, thread.athlete_user_id);
+
+  // Re-verify this coach is an ACTIVE member of THIS thread's org - unlike
+  // the list function above, a failure here IS a genuine access denial
+  // (the thread_id is real, just not this coach's to see), not a quiet
+  // empty result.
+  const membershipResult = await pool.query(
+    `SELECT 1 FROM product_org_coach_memberships WHERE org_id = $1 AND coach_user_id = $2 AND membership_status = 'active' LIMIT 1`,
+    [thread.org_id, coachUserId]
+  );
+  if (!membershipResult.rows[0]) {
+    throw new OrgAthleteMessagingError("org_athlete_messaging_thread_access_denied", 403);
+  }
+
+  const messages = await pool.query(
+    `SELECT * FROM product_messages WHERE thread_id = $1 ORDER BY created_at ASC`,
+    [threadId]
+  );
+  const viewer: MessageViewer = { role: "coach" };
+  return messages.rows
+    .map((row) => mapMessageRow(row, viewer))
+    .filter((row): row is OrgAthleteMessageRow => row !== null);
+}
+
 export async function listOrgAthleteThreadMessagesForOwner(
   threadId: string,
   ownerUserId: string
@@ -566,6 +685,36 @@ async function loadOrgAthleteMessageAttachmentRowForAthlete(messageId: string, a
   return row;
 }
 
+// Part O.8 - mirrors loadOrgAthleteMessageAttachmentRowForOwner/ForAthlete
+// exactly, with the same two-tier gate as listOrgAthleteThreadMessagesForCoach:
+// accepted relationship with the thread's athlete, then active membership
+// in the thread's org - both real access-control checks (an attachment
+// fetch always names a specific message/thread, never a list, so there is
+// no "structural, quiet empty" branch here).
+async function loadOrgAthleteMessageAttachmentRowForCoach(messageId: string, coachUserId: string): Promise<JsonRecord> {
+  const result = await pool.query(`SELECT * FROM product_messages WHERE message_id = $1 LIMIT 1`, [messageId]);
+  const row = result.rows[0];
+  if (!isRecord(row)) {
+    throw new OrgAthleteMessagingError("org_athlete_messaging_attachment_not_found", 404);
+  }
+  const threadRow = await loadThreadWithOrgName(cleanString(row.thread_id));
+  const thread = mapThreadRow(threadRow);
+  if (!thread) {
+    throw new OrgAthleteMessagingError("org_athlete_messaging_attachment_not_found", 404);
+  }
+
+  await requireCoachHasAcceptedRelationshipWithAthlete(coachUserId, thread.athlete_user_id);
+
+  const membershipResult = await pool.query(
+    `SELECT 1 FROM product_org_coach_memberships WHERE org_id = $1 AND coach_user_id = $2 AND membership_status = 'active' LIMIT 1`,
+    [thread.org_id, coachUserId]
+  );
+  if (!membershipResult.rows[0]) {
+    throw new OrgAthleteMessagingError("org_athlete_messaging_thread_access_denied", 403);
+  }
+  return row;
+}
+
 function resolvedAttachmentFromRow(row: JsonRecord, key: "attachment_storage_key" | "attachment_thumbnail_storage_key"): ResolvedOrgAthleteMessageAttachmentFile | null {
   const storageKey = cleanString(row[key]);
   if (!storageKey) return null;
@@ -606,5 +755,21 @@ export async function resolveOrgAthleteMessageAttachmentThumbnailForAthlete(
   athleteUserId: string
 ): Promise<ResolvedOrgAthleteMessageAttachmentFile | null> {
   const row = await loadOrgAthleteMessageAttachmentRowForAthlete(messageId, athleteUserId);
+  return resolvedAttachmentFromRow(row, "attachment_thumbnail_storage_key");
+}
+
+export async function resolveOrgAthleteMessageAttachmentForCoach(
+  messageId: string,
+  coachUserId: string
+): Promise<ResolvedOrgAthleteMessageAttachmentFile | null> {
+  const row = await loadOrgAthleteMessageAttachmentRowForCoach(messageId, coachUserId);
+  return resolvedAttachmentFromRow(row, "attachment_storage_key");
+}
+
+export async function resolveOrgAthleteMessageAttachmentThumbnailForCoach(
+  messageId: string,
+  coachUserId: string
+): Promise<ResolvedOrgAthleteMessageAttachmentFile | null> {
+  const row = await loadOrgAthleteMessageAttachmentRowForCoach(messageId, coachUserId);
   return resolvedAttachmentFromRow(row, "attachment_thumbnail_storage_key");
 }

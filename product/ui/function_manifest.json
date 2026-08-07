@@ -5365,7 +5365,8 @@
           "label": "Org owner and an athlete currently coached by one of the org's active coaches exchange threaded messages with live delivery and photo/video attachments, gated to team (shared-visibility) orgs only",
           "actors": [
             "org_owner",
-            "athlete"
+            "athlete",
+            "coach"
           ],
           "route_id": null,
           "api_routes": [
@@ -5379,6 +5380,10 @@
             "/messages/athlete/org-messages/organisations/:org_id/send",
             "/messages/athlete/org-messages/attachments/:message_id",
             "/messages/athlete/org-messages/attachments/:message_id/thumbnail",
+            "/messages/coach/athletes/:athlete_user_id/org-messages/threads",
+            "/messages/coach/org-messages/threads/:thread_id",
+            "/messages/coach/org-messages/attachments/:message_id",
+            "/messages/coach/org-messages/attachments/:message_id/thumbnail",
             "/ws/messages"
           ],
           "persistence": "server_product_records",
