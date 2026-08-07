@@ -1,0 +1,84 @@
+{
+  "slice_id": "S-REG-26",
+  "activation_id": "sport_subdivision_registry_activation",
+  "decision_type": "activation",
+  "source_hold_slice_id": "S-REG-23",
+  "source_contract_slice_id": "S-REG-24",
+  "source_candidate_slice_id": "S-REG-10",
+  "runtime_status": "non_runtime",
+  "activation_decision": "authorised",
+  "activation_target": "sport_subdivision_registry",
+  "activated_registry_id": "sport_subdivision",
+  "activation_authorised": true,
+  "activation_ready": true,
+  "active_registry_activation": true,
+  "active_registry_mutation": true,
+  "active_bundle_mutation": true,
+  "registry_law_mutation": false,
+  "registry_index_mutation": true,
+  "registry_bundle_mutation": true,
+  "registry_seal_mutation": true,
+  "engine_runtime_mutation": false,
+  "phase1_runtime_schema_mutation": false,
+  "marker_evaluator_mutation": false,
+  "comparison_result_mutation": false,
+  "recorded_value_input_mutation": false,
+  "advice_mutation": false,
+  "outcome_inference_mutation": false,
+  "programme_assignment_mutation": false,
+  "substitution_runtime_mutation": false,
+  "ui_behaviour_mutation": false,
+  "coach_interpretation_mutation": false,
+  "covered_required_before_activation": [
+    "explicit_activation_slice",
+    "active_registry_mutation_contract",
+    "registry_index_update_contract",
+    "registry_bundle_promotion_plan",
+    "registry_loader_contract",
+    "active_registry_schema_plan",
+    "fk_closure_replay_against_active_bundle",
+    "registry_seal_freeze_and_gate_plan",
+    "engine_consumption_boundary_decision",
+    "runtime_no_behaviour_change_proof",
+    "rollback_or_revert_plan"
+  ],
+  "active_registry_order_after": [
+    "activity",
+    "movement",
+    "exercise",
+    "program",
+    "equipment",
+    "sport_subdivision"
+  ],
+  "activated_record_count": 4,
+  "human_authorisation": {
+    "authorised_by": "repository owner",
+    "authorisation_method": "explicit_chat_instruction",
+    "authorised_at_iso8601_date": "2026-08-07",
+    "authorisation_note": "User asked to activate the next candidate registry after S-REG-25 (equipment); shown tradeoffs across the remaining candidates (sport_subdivision_registry_1a, exercise_token_registry_3b, exercise_activity_applicability_registry) and chose sport_subdivision_registry_1a specifically because it has zero unmet candidate dependencies, no hidden S-V1-style launch-readiness blocker, and is the root of the sport_* candidate chain."
+  },
+  "active_registry_hashes_before": {
+    "registry_index": "7e44bdb95dba20a1ae3628fd48c9835647adbd4405268d72b0d79050654e5ae2",
+    "registry_bundle": "08cc8582255cbb40e7e2fded67aaac1a3f2a238efecce3908ae5513a4e734d3b"
+  },
+  "active_registry_hashes_after": {
+    "registry_index": "9b259452504c6030acd63f074e6da3aef8f93a0c7b6bd4a87362f5dde0cecdce",
+    "registry_bundle": "ccdcd70845d74966b3b627175b3bef564ded9fcbc23f552e05a4e1a9f82ecb04"
+  },
+  "rollback_plan": {
+    "primary": "git revert <this-slice-commit> - reverses every data file (registries/sport_subdivision/sport_subdivision.registry.json, ci/schemas/sport_subdivision.registry.schema.json, registry_index.json, registry_bundle.json, registry_surface_classification.json, the four seal evidence files, and this slice's own scaffolding) atomically back to the pre-activation sealed state in one step.",
+    "fallback": "If a clean revert is not possible: remove 'sport_subdivision' from registries/registry_index.json order[], delete registries/sport_subdivision/sport_subdivision.registry.json and ci/schemas/sport_subdivision.registry.schema.json, remove the sport_subdivision.registry entry from registries/registry_surface_classification.json and from ci/evidence/registry_seal_manifest.v1.json, ci/evidence/registry_seal_live_surface.v1.json, ci/evidence/registry_seal_snapshot.v1.json, then run `npm run registry:bundle`, `node ci/scripts/run_registry_seal_freeze.mjs`, and `node ci/scripts/run_registry_seal_gate.mjs` to confirm the tree returns to a clean sealed state matching the pre-activation snapshot recorded in active_registry_hashes_before."
+  },
+  "runtime_parity_proof": {
+    "method": "npm run e2e:golden",
+    "fixture_count": 13,
+    "identical": true,
+    "byte_identical_fixture_count": 11,
+    "changed_fixtures": [
+      "phase3_precedence_banned_over_available",
+      "phase3_sovereign_constraints_envelope"
+    ],
+    "changed_field": "phase3.notes / phase3's loaded_registries list",
+    "note": "All 13 e2e:golden fixtures were captured before this activation and re-captured after every mutation in this slice. 11 of 13 were byte-identical. The remaining 2 (the only fixtures that exercise PHASE_3's constraints-resolution output) changed in exactly one place: the factual 'which registry files were loaded' list correctly gained 'sport_subdivision', since PHASE_3 builds that list generically from registry_index.json's order[] - the same mechanism every other registry already goes through. No decision, content, exercise, template, or compile-output field changed in either fixture; the two updated golden snapshots were re-pinned via UPDATE_GOLDEN=1 npm run e2e:golden and re-verified by golden_manifest_guard.mjs and golden_outputs_guard.mjs. 'identical: true' above refers to engine DECISION output (exercise selection, template assignment, compile results) - not to the byte-level snapshot, which is honestly not identical for these 2 of 13 fixtures for the reason given. This activation also required the same BETA replay-corpus re-pin cascade already established for S-REG-25 (replay/suite/beta_phase1_7's vectors/bindings/expected-outputs and the chain of dependent manifests through BETA-23/24/26) - equipment already appears in those fixtures from S-REG-25, and sport_subdivision was appended after it identically."
+  }
+}

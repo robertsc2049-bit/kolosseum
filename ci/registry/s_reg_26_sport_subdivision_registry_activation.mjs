@@ -1,37 +1,41 @@
 /**
- * DEV NOTE: S-REG-25 registry activation - equipment_registry (pilot).
- * Purpose: the first explicit activation slice authorised after S-REG-23's
- * hold and S-REG-24's contract design. Activates exactly one candidate
- * domain (equipment) into the active registry surface, satisfying S-REG-24's
- * contract for that target only.
- * Boundary: activates the `equipment` active registry domain only. Must not
- * touch any other candidate domain, mutate registry_law_guard.mjs or any
- * other CI script, alter engine/server/app/web source, create marker
+ * DEV NOTE: S-REG-26 registry activation - sport_subdivision_registry.
+ * Purpose: the second explicit activation slice authorised after S-REG-23's
+ * hold and S-REG-24's contract design (S-REG-25 activated equipment first).
+ * Activates exactly one candidate domain (sport_subdivision) into the active
+ * registry surface, satisfying S-REG-24's contract for that target only.
+ * Boundary: activates the `sport_subdivision` active registry domain only.
+ * Must not touch any other candidate domain, mutate registry_law_guard.mjs or
+ * any other CI script, alter engine/server/app/web source, create marker
  * evaluator behaviour, compare recorded values, create advice, infer
  * outcomes, alter programme assignment, alter substitution runtime, or
- * create UI behaviour. Nothing yet consumes the equipment registry, so
+ * create UI behaviour. Nothing consumes the sport_subdivision registry, so
  * runtime_status remains non_runtime even though active_registry_activation
  * is now true.
  * Determinism: validates the S-REG-23 hold and S-REG-24 contract both
  * recorded this slice in their append-only supersession logs, the exact
  * activation target/decision identity, before/after registry hashes, the
- * rollback plan, and the runtime parity proof.
- * Failure: throws CI_S_REG_25_EQUIPMENT_REGISTRY_ACTIVATION.
+ * rollback plan, and the runtime parity proof. The live active registry
+ * order/bundle-key checks are prefix checks, not exact-match - a later,
+ * separately-authorised activation slice may legitimately append further
+ * domains after this one (the same lesson learned fixing S-REG-04/23/24's
+ * own equivalent checks during S-REG-25).
+ * Failure: throws CI_S_REG_26_SPORT_SUBDIVISION_REGISTRY_ACTIVATION.
  */
 
 import fs from "node:fs";
 
-export const S_REG_25_SLICE_ID = "S-REG-25";
-export const S_REG_25_FAILURE_TOKEN = "CI_S_REG_25_EQUIPMENT_REGISTRY_ACTIVATION";
-export const S_REG_25_ACTIVATION_ID = "equipment_registry_activation";
-export const S_REG_25_RUNTIME_STATUS = "non_runtime";
-export const S_REG_25_SOURCE_HOLD_SLICE_ID = "S-REG-23";
-export const S_REG_25_SOURCE_CONTRACT_SLICE_ID = "S-REG-24";
-export const S_REG_25_ACTIVATION_TARGET = "equipment_registry";
-export const S_REG_25_ACTIVATED_REGISTRY_ID = "equipment";
-export const S_REG_25_SOURCE_CANDIDATE_SLICE_ID = "S-REG-07";
+export const S_REG_26_SLICE_ID = "S-REG-26";
+export const S_REG_26_FAILURE_TOKEN = "CI_S_REG_26_SPORT_SUBDIVISION_REGISTRY_ACTIVATION";
+export const S_REG_26_ACTIVATION_ID = "sport_subdivision_registry_activation";
+export const S_REG_26_RUNTIME_STATUS = "non_runtime";
+export const S_REG_26_SOURCE_HOLD_SLICE_ID = "S-REG-23";
+export const S_REG_26_SOURCE_CONTRACT_SLICE_ID = "S-REG-24";
+export const S_REG_26_ACTIVATION_TARGET = "sport_subdivision_registry";
+export const S_REG_26_ACTIVATED_REGISTRY_ID = "sport_subdivision";
+export const S_REG_26_SOURCE_CANDIDATE_SLICE_ID = "S-REG-10";
 
-export const S_REG_25_REQUIRED_TRUE_FLAGS = Object.freeze([
+export const S_REG_26_REQUIRED_TRUE_FLAGS = Object.freeze([
   "activation_authorised",
   "activation_ready",
   "active_registry_activation",
@@ -42,7 +46,7 @@ export const S_REG_25_REQUIRED_TRUE_FLAGS = Object.freeze([
   "registry_seal_mutation"
 ]);
 
-export const S_REG_25_REQUIRED_FALSE_FLAGS = Object.freeze([
+export const S_REG_26_REQUIRED_FALSE_FLAGS = Object.freeze([
   "registry_law_mutation",
   "engine_runtime_mutation",
   "phase1_runtime_schema_mutation",
@@ -57,7 +61,7 @@ export const S_REG_25_REQUIRED_FALSE_FLAGS = Object.freeze([
   "coach_interpretation_mutation"
 ]);
 
-export const S_REG_25_COVERED_REQUIRED_BEFORE_ACTIVATION = Object.freeze([
+export const S_REG_26_COVERED_REQUIRED_BEFORE_ACTIVATION = Object.freeze([
   "explicit_activation_slice",
   "active_registry_mutation_contract",
   "registry_index_update_contract",
@@ -71,15 +75,16 @@ export const S_REG_25_COVERED_REQUIRED_BEFORE_ACTIVATION = Object.freeze([
   "rollback_or_revert_plan"
 ]);
 
-export const S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER = Object.freeze([
+export const S_REG_26_ACTIVE_REGISTRY_ORDER_AFTER = Object.freeze([
   "activity",
   "movement",
   "exercise",
   "program",
-  "equipment"
+  "equipment",
+  "sport_subdivision"
 ]);
 
-export const S_REG_25_EXPECTED_DOCUMENT_KEYS = Object.freeze([
+export const S_REG_26_EXPECTED_DOCUMENT_KEYS = Object.freeze([
   "slice_id",
   "activation_id",
   "decision_type",
@@ -113,7 +118,6 @@ export const S_REG_25_EXPECTED_DOCUMENT_KEYS = Object.freeze([
   "covered_required_before_activation",
   "active_registry_order_after",
   "activated_record_count",
-  "exercise_records_annotated_count",
   "human_authorisation",
   "active_registry_hashes_before",
   "active_registry_hashes_after",
@@ -121,17 +125,16 @@ export const S_REG_25_EXPECTED_DOCUMENT_KEYS = Object.freeze([
   "runtime_parity_proof"
 ]);
 
-export const S_REG_25_PATHS = Object.freeze({
-  activation: "ci/registry/s_reg_25_equipment_registry_activation.json",
+export const S_REG_26_PATHS = Object.freeze({
+  activation: "ci/registry/s_reg_26_sport_subdivision_registry_activation.json",
   source_hold: "ci/registry/s_reg_23_registry_activation_hold_decision.json",
   source_contract: "ci/registry/s_reg_24_registry_activation_contract_design.json",
   registry_index: "registries/registry_index.json",
   registry_bundle: "registries/registry_bundle.json",
-  equipment_registry: "registries/equipment/equipment.registry.json",
-  exercise_registry: "registries/exercise/exercise.registry.json"
+  sport_subdivision_registry: "registries/sport_subdivision/sport_subdivision.registry.json"
 });
 
-export const S_REG_25_FORBIDDEN_KEYS = Object.freeze([
+export const S_REG_26_FORBIDDEN_KEYS = Object.freeze([
   "engine_output",
   "phase1_runtime_schema",
   "marker_evaluator",
@@ -151,7 +154,7 @@ export const S_REG_25_FORBIDDEN_KEYS = Object.freeze([
 
 function fail(reason, details = {}) {
   const error = new Error(reason);
-  error.code = S_REG_25_FAILURE_TOKEN;
+  error.code = S_REG_26_FAILURE_TOKEN;
   error.reason = reason;
   error.details = details;
   throw error;
@@ -198,8 +201,8 @@ function assertNoForbiddenKeys(value, path = "root") {
   }
 
   for (const key of Object.keys(value)) {
-    if (S_REG_25_FORBIDDEN_KEYS.includes(key)) {
-      fail("s_reg_25_forbidden_key_present", { key, path });
+    if (S_REG_26_FORBIDDEN_KEYS.includes(key)) {
+      fail("s_reg_26_forbidden_key_present", { key, path });
     }
 
     assertNoForbiddenKeys(value[key], `${path}.${key}`);
@@ -207,188 +210,154 @@ function assertNoForbiddenKeys(value, path = "root") {
 }
 
 function assertSourceHoldRecordsThisSupersession() {
-  const hold = readJson(S_REG_25_PATHS.source_hold);
-  assertPlainObject(hold, "s_reg_25_source_hold_invalid");
+  const hold = readJson(S_REG_26_PATHS.source_hold);
+  assertPlainObject(hold, "s_reg_26_source_hold_invalid");
 
-  if (hold.slice_id !== S_REG_25_SOURCE_HOLD_SLICE_ID || hold.decision_type !== "hold") {
-    fail("s_reg_25_source_hold_identity_invalid", { slice_id: hold.slice_id, decision_type: hold.decision_type });
+  if (hold.slice_id !== S_REG_26_SOURCE_HOLD_SLICE_ID || hold.decision_type !== "hold") {
+    fail("s_reg_26_source_hold_identity_invalid", { slice_id: hold.slice_id, decision_type: hold.decision_type });
   }
 
-  if (!Array.isArray(hold.superseded_by_slice_ids) || !hold.superseded_by_slice_ids.includes(S_REG_25_SLICE_ID)) {
-    fail("s_reg_25_source_hold_missing_supersession_record", { actual: hold.superseded_by_slice_ids });
+  if (!Array.isArray(hold.superseded_by_slice_ids) || !hold.superseded_by_slice_ids.includes(S_REG_26_SLICE_ID)) {
+    fail("s_reg_26_source_hold_missing_supersession_record", { actual: hold.superseded_by_slice_ids });
   }
 }
 
 function assertSourceContractRecordsThisSupersession() {
-  const contract = readJson(S_REG_25_PATHS.source_contract);
-  assertPlainObject(contract, "s_reg_25_source_contract_invalid");
+  const contract = readJson(S_REG_26_PATHS.source_contract);
+  assertPlainObject(contract, "s_reg_26_source_contract_invalid");
 
-  if (contract.slice_id !== S_REG_25_SOURCE_CONTRACT_SLICE_ID || contract.contract_type !== "design_only") {
-    fail("s_reg_25_source_contract_identity_invalid", {
+  if (contract.slice_id !== S_REG_26_SOURCE_CONTRACT_SLICE_ID || contract.contract_type !== "design_only") {
+    fail("s_reg_26_source_contract_identity_invalid", {
       slice_id: contract.slice_id,
       contract_type: contract.contract_type
     });
   }
 
-  if (!Array.isArray(contract.superseded_by_slice_ids) || !contract.superseded_by_slice_ids.includes(S_REG_25_SLICE_ID)) {
-    fail("s_reg_25_source_contract_missing_supersession_record", { actual: contract.superseded_by_slice_ids });
+  if (!Array.isArray(contract.superseded_by_slice_ids) || !contract.superseded_by_slice_ids.includes(S_REG_26_SLICE_ID)) {
+    fail("s_reg_26_source_contract_missing_supersession_record", { actual: contract.superseded_by_slice_ids });
   }
 }
 
 function assertActiveRegistrySurfaceExtendedCorrectly() {
-  const registryIndex = readJson(S_REG_25_PATHS.registry_index);
-  const registryBundle = readJson(S_REG_25_PATHS.registry_bundle);
-  const equipmentRegistry = readJson(S_REG_25_PATHS.equipment_registry);
+  const registryIndex = readJson(S_REG_26_PATHS.registry_index);
+  const registryBundle = readJson(S_REG_26_PATHS.registry_bundle);
+  const sportSubdivisionRegistry = readJson(S_REG_26_PATHS.sport_subdivision_registry);
 
   assertArrayStartsWith(
     registryIndex.order,
-    S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER,
-    "s_reg_25_active_registry_index_order_invalid"
+    S_REG_26_ACTIVE_REGISTRY_ORDER_AFTER,
+    "s_reg_26_active_registry_index_order_invalid"
   );
 
   assertArrayStartsWith(
     Object.keys(registryBundle.registries),
-    S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER,
-    "s_reg_25_active_registry_bundle_keys_invalid"
+    S_REG_26_ACTIVE_REGISTRY_ORDER_AFTER,
+    "s_reg_26_active_registry_bundle_keys_invalid"
   );
 
-  if (equipmentRegistry.registry_id !== S_REG_25_ACTIVATED_REGISTRY_ID) {
-    fail("s_reg_25_equipment_registry_id_invalid", { actual: equipmentRegistry.registry_id });
+  if (sportSubdivisionRegistry.registry_id !== S_REG_26_ACTIVATED_REGISTRY_ID) {
+    fail("s_reg_26_sport_subdivision_registry_id_invalid", { actual: sportSubdivisionRegistry.registry_id });
   }
 
-  if (!equipmentRegistry.entries || typeof equipmentRegistry.entries !== "object") {
-    fail("s_reg_25_equipment_registry_entries_invalid", { actual: equipmentRegistry.entries });
+  if (!sportSubdivisionRegistry.entries || typeof sportSubdivisionRegistry.entries !== "object") {
+    fail("s_reg_26_sport_subdivision_registry_entries_invalid", { actual: sportSubdivisionRegistry.entries });
   }
 
-  return Object.keys(equipmentRegistry.entries).length;
+  return Object.keys(sportSubdivisionRegistry.entries).length;
 }
 
-function assertExerciseRegistryAnnotatedCorrectly() {
-  const exerciseRegistry = readJson(S_REG_25_PATHS.exercise_registry);
-
-  if (!exerciseRegistry.entries || typeof exerciseRegistry.entries !== "object") {
-    fail("s_reg_25_exercise_registry_entries_invalid", { actual: exerciseRegistry.entries });
-  }
-
-  const entries = Object.values(exerciseRegistry.entries);
-  let annotatedCount = 0;
-
-  for (const entry of entries) {
-    if (Array.isArray(entry.equipment_requirements) && Array.isArray(entry.equipment_alternatives)) {
-      annotatedCount += 1;
-    }
-  }
-
-  if (annotatedCount !== entries.length) {
-    fail("s_reg_25_exercise_registry_annotation_incomplete", {
-      annotated: annotatedCount,
-      total: entries.length
-    });
-  }
-
-  return annotatedCount;
+export function sReg26LoadSportSubdivisionRegistryActivation() {
+  return readJson(S_REG_26_PATHS.activation);
 }
 
-export function sReg25LoadEquipmentRegistryActivation() {
-  return readJson(S_REG_25_PATHS.activation);
-}
-
-export function sReg25ValidateEquipmentRegistryActivation({
-  activationDocument = sReg25LoadEquipmentRegistryActivation()
+export function sReg26ValidateSportSubdivisionRegistryActivation({
+  activationDocument = sReg26LoadSportSubdivisionRegistryActivation()
 } = {}) {
-  assertPlainObject(activationDocument, "s_reg_25_activation_document_invalid");
+  assertPlainObject(activationDocument, "s_reg_26_activation_document_invalid");
   assertNoForbiddenKeys(activationDocument);
   assertExactArray(
     Object.keys(activationDocument).sort(),
-    [...S_REG_25_EXPECTED_DOCUMENT_KEYS].sort(),
-    "s_reg_25_activation_document_keys_invalid"
+    [...S_REG_26_EXPECTED_DOCUMENT_KEYS].sort(),
+    "s_reg_26_activation_document_keys_invalid"
   );
 
   assertSourceHoldRecordsThisSupersession();
   assertSourceContractRecordsThisSupersession();
   const activatedRecordCount = assertActiveRegistrySurfaceExtendedCorrectly();
-  const exerciseRecordsAnnotatedCount = assertExerciseRegistryAnnotatedCorrectly();
 
-  if (activationDocument.slice_id !== S_REG_25_SLICE_ID) {
-    fail("s_reg_25_slice_id_invalid", { actual: activationDocument.slice_id });
+  if (activationDocument.slice_id !== S_REG_26_SLICE_ID) {
+    fail("s_reg_26_slice_id_invalid", { actual: activationDocument.slice_id });
   }
 
-  if (activationDocument.activation_id !== S_REG_25_ACTIVATION_ID || activationDocument.decision_type !== "activation") {
-    fail("s_reg_25_activation_identity_invalid", {
+  if (activationDocument.activation_id !== S_REG_26_ACTIVATION_ID || activationDocument.decision_type !== "activation") {
+    fail("s_reg_26_activation_identity_invalid", {
       activation_id: activationDocument.activation_id,
       decision_type: activationDocument.decision_type
     });
   }
 
   if (
-    activationDocument.source_hold_slice_id !== S_REG_25_SOURCE_HOLD_SLICE_ID ||
-    activationDocument.source_contract_slice_id !== S_REG_25_SOURCE_CONTRACT_SLICE_ID ||
-    activationDocument.source_candidate_slice_id !== S_REG_25_SOURCE_CANDIDATE_SLICE_ID
+    activationDocument.source_hold_slice_id !== S_REG_26_SOURCE_HOLD_SLICE_ID ||
+    activationDocument.source_contract_slice_id !== S_REG_26_SOURCE_CONTRACT_SLICE_ID ||
+    activationDocument.source_candidate_slice_id !== S_REG_26_SOURCE_CANDIDATE_SLICE_ID
   ) {
-    fail("s_reg_25_source_reference_invalid", {
+    fail("s_reg_26_source_reference_invalid", {
       source_hold_slice_id: activationDocument.source_hold_slice_id,
       source_contract_slice_id: activationDocument.source_contract_slice_id,
       source_candidate_slice_id: activationDocument.source_candidate_slice_id
     });
   }
 
-  if (activationDocument.runtime_status !== S_REG_25_RUNTIME_STATUS) {
-    fail("s_reg_25_runtime_status_invalid", { actual: activationDocument.runtime_status });
+  if (activationDocument.runtime_status !== S_REG_26_RUNTIME_STATUS) {
+    fail("s_reg_26_runtime_status_invalid", { actual: activationDocument.runtime_status });
   }
 
   if (activationDocument.activation_decision !== "authorised") {
-    fail("s_reg_25_activation_decision_invalid", { actual: activationDocument.activation_decision });
+    fail("s_reg_26_activation_decision_invalid", { actual: activationDocument.activation_decision });
   }
 
   if (
-    activationDocument.activation_target !== S_REG_25_ACTIVATION_TARGET ||
-    activationDocument.activated_registry_id !== S_REG_25_ACTIVATED_REGISTRY_ID
+    activationDocument.activation_target !== S_REG_26_ACTIVATION_TARGET ||
+    activationDocument.activated_registry_id !== S_REG_26_ACTIVATED_REGISTRY_ID
   ) {
-    fail("s_reg_25_activation_target_invalid", {
+    fail("s_reg_26_activation_target_invalid", {
       activation_target: activationDocument.activation_target,
       activated_registry_id: activationDocument.activated_registry_id
     });
   }
 
-  for (const flag of S_REG_25_REQUIRED_TRUE_FLAGS) {
+  for (const flag of S_REG_26_REQUIRED_TRUE_FLAGS) {
     if (activationDocument[flag] !== true) {
-      fail("s_reg_25_true_flag_invalid", { flag, actual: activationDocument[flag] });
+      fail("s_reg_26_true_flag_invalid", { flag, actual: activationDocument[flag] });
     }
   }
 
-  for (const flag of S_REG_25_REQUIRED_FALSE_FLAGS) {
+  for (const flag of S_REG_26_REQUIRED_FALSE_FLAGS) {
     if (activationDocument[flag] !== false) {
-      fail("s_reg_25_false_flag_invalid", { flag, actual: activationDocument[flag] });
+      fail("s_reg_26_false_flag_invalid", { flag, actual: activationDocument[flag] });
     }
   }
 
   assertExactArray(
     activationDocument.covered_required_before_activation,
-    S_REG_25_COVERED_REQUIRED_BEFORE_ACTIVATION,
-    "s_reg_25_covered_required_before_activation_invalid"
+    S_REG_26_COVERED_REQUIRED_BEFORE_ACTIVATION,
+    "s_reg_26_covered_required_before_activation_invalid"
   );
 
   assertExactArray(
     activationDocument.active_registry_order_after,
-    S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER,
-    "s_reg_25_active_registry_order_after_invalid"
+    S_REG_26_ACTIVE_REGISTRY_ORDER_AFTER,
+    "s_reg_26_active_registry_order_after_invalid"
   );
 
   if (activationDocument.activated_record_count !== activatedRecordCount) {
-    fail("s_reg_25_activated_record_count_invalid", {
+    fail("s_reg_26_activated_record_count_invalid", {
       declared: activationDocument.activated_record_count,
       actual: activatedRecordCount
     });
   }
 
-  if (activationDocument.exercise_records_annotated_count !== exerciseRecordsAnnotatedCount) {
-    fail("s_reg_25_exercise_records_annotated_count_invalid", {
-      declared: activationDocument.exercise_records_annotated_count,
-      actual: exerciseRecordsAnnotatedCount
-    });
-  }
-
-  assertPlainObject(activationDocument.human_authorisation, "s_reg_25_human_authorisation_invalid");
+  assertPlainObject(activationDocument.human_authorisation, "s_reg_26_human_authorisation_invalid");
   if (
     typeof activationDocument.human_authorisation.authorised_by !== "string" ||
     activationDocument.human_authorisation.authorised_by.trim() === "" ||
@@ -397,32 +366,32 @@ export function sReg25ValidateEquipmentRegistryActivation({
     typeof activationDocument.human_authorisation.authorised_at_iso8601_date !== "string" ||
     activationDocument.human_authorisation.authorised_at_iso8601_date.trim() === ""
   ) {
-    fail("s_reg_25_human_authorisation_invalid", { actual: activationDocument.human_authorisation });
+    fail("s_reg_26_human_authorisation_invalid", { actual: activationDocument.human_authorisation });
   }
 
-  assertPlainObject(activationDocument.active_registry_hashes_before, "s_reg_25_hashes_before_invalid");
-  assertPlainObject(activationDocument.active_registry_hashes_after, "s_reg_25_hashes_after_invalid");
-  for (const key of ["registry_index", "registry_bundle", "exercise_registry"]) {
+  assertPlainObject(activationDocument.active_registry_hashes_before, "s_reg_26_hashes_before_invalid");
+  assertPlainObject(activationDocument.active_registry_hashes_after, "s_reg_26_hashes_after_invalid");
+  for (const key of ["registry_index", "registry_bundle"]) {
     if (
       typeof activationDocument.active_registry_hashes_before[key] !== "string" ||
       typeof activationDocument.active_registry_hashes_after[key] !== "string" ||
       activationDocument.active_registry_hashes_before[key] === activationDocument.active_registry_hashes_after[key]
     ) {
-      fail("s_reg_25_hashes_invalid", { key });
+      fail("s_reg_26_hashes_invalid", { key });
     }
   }
 
-  assertPlainObject(activationDocument.rollback_plan, "s_reg_25_rollback_plan_invalid");
+  assertPlainObject(activationDocument.rollback_plan, "s_reg_26_rollback_plan_invalid");
   if (
     typeof activationDocument.rollback_plan.primary !== "string" ||
     activationDocument.rollback_plan.primary.trim() === "" ||
     typeof activationDocument.rollback_plan.fallback !== "string" ||
     activationDocument.rollback_plan.fallback.trim() === ""
   ) {
-    fail("s_reg_25_rollback_plan_invalid", { actual: activationDocument.rollback_plan });
+    fail("s_reg_26_rollback_plan_invalid", { actual: activationDocument.rollback_plan });
   }
 
-  assertPlainObject(activationDocument.runtime_parity_proof, "s_reg_25_runtime_parity_proof_invalid");
+  assertPlainObject(activationDocument.runtime_parity_proof, "s_reg_26_runtime_parity_proof_invalid");
   const parity = activationDocument.runtime_parity_proof;
   if (
     parity.identical !== true ||
@@ -432,20 +401,20 @@ export function sReg25ValidateEquipmentRegistryActivation({
     !Array.isArray(parity.changed_fixtures) ||
     parity.byte_identical_fixture_count + parity.changed_fixtures.length !== parity.fixture_count
   ) {
-    fail("s_reg_25_runtime_parity_proof_invalid", { actual: parity });
+    fail("s_reg_26_runtime_parity_proof_invalid", { actual: parity });
   }
   // "identical: true" means no decision/content/compile-output field
   // changed - it does NOT mean every fixture was byte-identical. Any
   // fixture named in changed_fixtures must have an honest, specific reason
   // recorded, not a bare claim.
   if (parity.changed_fixtures.length > 0 && (typeof parity.changed_field !== "string" || parity.changed_field.trim() === "")) {
-    fail("s_reg_25_runtime_parity_proof_invalid", { actual: parity });
+    fail("s_reg_26_runtime_parity_proof_invalid", { actual: parity });
   }
 
   return Object.freeze({
     ok: true,
-    token: S_REG_25_FAILURE_TOKEN,
-    slice_id: S_REG_25_SLICE_ID,
+    token: S_REG_26_FAILURE_TOKEN,
+    slice_id: S_REG_26_SLICE_ID,
     activation_id: activationDocument.activation_id,
     decision_type: activationDocument.decision_type,
     activation_decision: activationDocument.activation_decision,
@@ -454,9 +423,8 @@ export function sReg25ValidateEquipmentRegistryActivation({
     activation_authorised: true,
     activation_ready: true,
     active_registry_activation: true,
-    runtime_status: S_REG_25_RUNTIME_STATUS,
+    runtime_status: S_REG_26_RUNTIME_STATUS,
     activated_record_count: activatedRecordCount,
-    exercise_records_annotated_count: exerciseRecordsAnnotatedCount,
     active_registry_order_after: [...activationDocument.active_registry_order_after],
     covered_required_before_activation: [...activationDocument.covered_required_before_activation]
   });

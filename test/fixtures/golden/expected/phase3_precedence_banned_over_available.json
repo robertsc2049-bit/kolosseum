@@ -40,7 +40,8 @@
           "movement",
           "exercise",
           "program",
-          "equipment"
+          "equipment",
+          "sport_subdivision"
         ],
         "notes": [
           "PHASE_3: registries loaded",

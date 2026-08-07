@@ -138,3 +138,9 @@ Expected proof:
 S-REG-25 activates the `equipment` registry domain only.
 
 It does not activate any other candidate domain, create marker evaluator behaviour, compare real values, emit advice, infer outcomes, alter programme assignment, alter substitution runtime, create UI behaviour, or alter deterministic engine output.
+
+## Supersession log (append-only)
+
+S-REG-26 later extended the active registry index and bundle with a sixth domain, `sport_subdivision`, appended after `equipment`. That extension was a separate, explicitly human-authorised activation decision and does not touch this slice's own equipment content, schema, or claims in any way - `equipment` remains in its same position, fifth in the active order. This module's own live-file checks (`assertActiveRegistrySurfaceExtendedCorrectly`) were relaxed from an exact-length match to a prefix match against `registries/registry_index.json`'s `order[]` and `registries/registry_bundle.json`'s keys, mirroring the identical fix already applied to S-REG-04/23/24 during this slice's own development - this slice's own historical `active_registry_order_after` field (recorded in `ci/registry/s_reg_25_equipment_registry_activation.json`) is unchanged and still exact-matched, since it is a frozen record of what was true at authoring time, not a live-file check.
+
+- superseded_by_slice_ids: S-REG-26

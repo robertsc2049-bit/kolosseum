@@ -17,7 +17,8 @@
           "movement",
           "exercise",
           "program",
-          "equipment"
+          "equipment",
+          "sport_subdivision"
         ],
         "constraints": {},
         "canonical_input_hash": "da4c1ceccd9eb6a33fa08e871f2d3b39604afa78d0b9eb5df1f3a39b6784cbb6",
@@ -47,7 +48,8 @@
           "movement",
           "exercise",
           "program",
-          "equipment"
+          "equipment",
+          "sport_subdivision"
         ],
         "constraints": {},
         "canonical_input_hash": "3aaf2df24730d12cef0e39b4eb9222d6136bc93ae88ef837b296153f7e060b87",
@@ -77,7 +79,8 @@
           "movement",
           "exercise",
           "program",
-          "equipment"
+          "equipment",
+          "sport_subdivision"
         ],
         "constraints": {},
         "canonical_input_hash": "1fc9e10c922a967540b03cbe3a76753c374543962120f00b5cb4e152c49bed0b",
@@ -107,7 +110,8 @@
           "movement",
           "exercise",
           "program",
-          "equipment"
+          "equipment",
+          "sport_subdivision"
         ],
         "constraints": {},
         "canonical_input_hash": "da4c1ceccd9eb6a33fa08e871f2d3b39604afa78d0b9eb5df1f3a39b6784cbb6",
@@ -137,7 +141,8 @@
           "movement",
           "exercise",
           "program",
-          "equipment"
+          "equipment",
+          "sport_subdivision"
         ],
         "constraints": {},
         "canonical_input_hash": "3aaf2df24730d12cef0e39b4eb9222d6136bc93ae88ef837b296153f7e060b87",

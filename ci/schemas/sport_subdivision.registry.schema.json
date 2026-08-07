@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/sport_subdivision.registry.schema.json",
+  "title": "Sport Subdivision Registry Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_id", "version", "entries"],
+  "properties": {
+    "registry_id": { "type": "string", "const": "sport_subdivision" },
+    "version": { "type": "string", "minLength": 1 },
+    "entries": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sport_subdivision_id",
+          "id",
+          "activity_id",
+          "display_label",
+          "context_type",
+          "copy_boundary_notes"
+        ],
+        "properties": {
+          "sport_subdivision_id": { "type": "string", "minLength": 1 },
+          "id": { "type": "string", "minLength": 1 },
+          "activity_id": { "type": "string", "minLength": 1 },
+          "display_label": { "type": "string", "minLength": 1 },
+          "context_type": { "type": "string", "minLength": 1 },
+          "copy_boundary_notes": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
