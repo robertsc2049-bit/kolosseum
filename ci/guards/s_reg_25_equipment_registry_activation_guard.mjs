@@ -40,7 +40,19 @@ const allowedChangedFiles = new Set([
   "registries/registry_surface_classification.json",
   "registries/equipment/",
   "registries/equipment/equipment.registry.json",
+  "registries/exercise/exercise.registry.json",
   "ci/schemas/equipment.registry.schema.json",
+  "ci/schemas/exercise_registry.schema.json",
+  "ci/schemas/exercise.registry.schema.json",
+  "ci/schemas/exercise.registry.schema.v1.0.0.json",
+  // S-V1-22 was a separate, stricter, pre-existing V1 launch-readiness
+  // contract this activation was required to satisfy for real - see
+  // docs/roadmap/S_REG_25_EQUIPMENT_REGISTRY_ACTIVATION.md for the full
+  // account. Its guard evolved from "must not exist" to "must satisfy the
+  // contract for real" alongside the exercise-side FK wiring below.
+  "ci/guards/s_v1_22_equipment_registry_coverage_contract_guard.mjs",
+  "test/s_v1_22_equipment_registry_coverage_contract.test.mjs",
+  "docs/v1/V1_EQUIPMENT_REGISTRY_COVERAGE_CONTRACT.md",
   "ci/evidence/registry_seal_lifecycle.v1.json",
   "ci/evidence/registry_seal_manifest.v1.json",
   "ci/evidence/registry_seal_live_surface.v1.json",
@@ -73,9 +85,10 @@ const allowedChangedFiles = new Set([
 ]);
 
 // No other candidate domain's active-file counterpart may ever appear here -
-// this slice activates equipment only.
+// this slice activates equipment only. exercise.registry.json is allowed
+// above (annotation-only FK wiring, not a domain activation) so it is not
+// listed here.
 const forbiddenChangedFiles = new Set([
-  "registries/exercise/exercise.registry.json",
   "registries/movement/movement.registry.json",
   "registries/activity/activity.registry.json",
   "registries/program/program.registry.json"

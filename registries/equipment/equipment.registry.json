@@ -8,23 +8,35 @@
       "display_label": "Barbell",
       "equipment_class": "free_weight",
       "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
-      "movement_pattern_applicability": ["squat", "hinge", "horizontal_push"]
+      "movement_pattern_applicability": ["squat", "hinge", "horizontal_push", "vertical_push"],
+      "substitution_relevance": "required_or_lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
     },
     "rack": {
       "equipment_id": "rack",
       "id": "rack",
       "display_label": "Rack",
-      "equipment_class": "support_station",
+      "equipment_class": "support",
       "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
-      "movement_pattern_applicability": ["squat", "horizontal_push"]
+      "movement_pattern_applicability": ["squat", "horizontal_push", "vertical_push"],
+      "substitution_relevance": "required_or_lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
     },
     "bench": {
       "equipment_id": "bench",
       "id": "bench",
       "display_label": "Bench",
-      "equipment_class": "support_station",
+      "equipment_class": "support",
       "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
-      "movement_pattern_applicability": ["horizontal_push"]
+      "movement_pattern_applicability": ["horizontal_push", "vertical_push"],
+      "substitution_relevance": "required_or_lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
     },
     "plate": {
       "equipment_id": "plate",
@@ -32,23 +44,167 @@
       "display_label": "Plate",
       "equipment_class": "load",
       "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
-      "movement_pattern_applicability": ["squat", "hinge", "horizontal_push"]
+      "movement_pattern_applicability": ["squat", "hinge", "horizontal_push", "vertical_push", "carry"],
+      "substitution_relevance": "load_component",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "dumbbell": {
+      "equipment_id": "dumbbell",
+      "id": "dumbbell",
+      "display_label": "Dumbbell",
+      "equipment_class": "free_weight",
+      "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["squat", "hinge", "horizontal_push", "vertical_push", "horizontal_pull", "carry", "lunge_split_stance"],
+      "substitution_relevance": "lateral_or_low_equipment_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "low_equipment_option",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "kettlebell": {
+      "equipment_id": "kettlebell",
+      "id": "kettlebell",
+      "display_label": "Kettlebell",
+      "equipment_class": "free_weight",
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["squat", "hinge", "vertical_push", "carry", "lunge_split_stance"],
+      "substitution_relevance": "lateral_or_low_equipment_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "low_equipment_option",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "cable_machine": {
+      "equipment_id": "cable_machine",
+      "id": "cable_machine",
+      "display_label": "Cable machine",
+      "equipment_class": "machine",
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["horizontal_pull", "vertical_pull", "horizontal_push", "trunk_rotation_anti_rotation"],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "resistance_band": {
+      "equipment_id": "resistance_band",
+      "id": "resistance_band",
+      "display_label": "Resistance band",
+      "equipment_class": "portable_resistance",
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["horizontal_pull", "vertical_pull", "horizontal_push", "brace"],
+      "substitution_relevance": "low_equipment_alternative",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "primary_low_equipment_option",
+      "copy_legal_boundary_notes": "Factual equipment label only."
     },
     "bodyweight": {
       "equipment_id": "bodyweight",
       "id": "bodyweight",
       "display_label": "Bodyweight",
-      "equipment_class": "no_external_load",
-      "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
-      "movement_pattern_applicability": ["brace"]
+      "equipment_class": "bodyweight",
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["horizontal_push", "brace", "lunge_split_stance", "jump_land", "sprint_acceleration", "deceleration_change_of_direction", "conditioning_general"],
+      "substitution_relevance": "low_equipment_alternative",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "primary_low_equipment_option",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "pull_up_bar": {
+      "equipment_id": "pull_up_bar",
+      "id": "pull_up_bar",
+      "display_label": "Pull-up bar",
+      "equipment_class": "fixed_support",
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["vertical_pull", "brace"],
+      "substitution_relevance": "required_or_lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "trap_bar": {
+      "equipment_id": "trap_bar",
+      "id": "trap_bar",
+      "display_label": "Trap bar",
+      "equipment_class": "free_weight",
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["hinge", "carry"],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "medicine_ball": {
+      "equipment_id": "medicine_ball",
+      "id": "medicine_ball",
+      "display_label": "Medicine ball",
+      "equipment_class": "free_weight",
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["horizontal_push", "trunk_rotation_anti_rotation", "conditioning_general"],
+      "substitution_relevance": "activity_specific_option",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "low_equipment_option",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "sled": {
+      "equipment_id": "sled",
+      "id": "sled",
+      "display_label": "Sled",
+      "equipment_class": "conditioning_tool",
+      "activity_applicability": ["rugby_union"],
+      "movement_pattern_applicability": ["sprint_acceleration", "conditioning_general"],
+      "substitution_relevance": "activity_specific_option",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "box": {
+      "equipment_id": "box",
+      "id": "box",
+      "display_label": "Box",
+      "equipment_class": "support",
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["squat", "jump_land", "lunge_split_stance"],
+      "substitution_relevance": "activity_specific_option",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "machine_general": {
+      "equipment_id": "machine_general",
+      "id": "machine_general",
+      "display_label": "General machine",
+      "equipment_class": "machine",
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["squat", "hinge", "horizontal_push", "horizontal_pull", "vertical_pull"],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "cardio_machine_general": {
+      "equipment_id": "cardio_machine_general",
+      "id": "cardio_machine_general",
+      "display_label": "General cardio machine",
+      "equipment_class": "conditioning_machine",
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["conditioning_general"],
+      "substitution_relevance": "conditioning_option",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
     },
     "open_floor_space": {
       "equipment_id": "open_floor_space",
       "id": "open_floor_space",
       "display_label": "Open floor space",
       "equipment_class": "space",
-      "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
-      "movement_pattern_applicability": ["brace"]
+      "activity_applicability": ["general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["sprint_acceleration", "deceleration_change_of_direction", "jump_land", "conditioning_general", "brace"],
+      "substitution_relevance": "low_equipment_alternative",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "primary_low_equipment_option",
+      "copy_legal_boundary_notes": "Factual equipment label only."
     }
   }
 }

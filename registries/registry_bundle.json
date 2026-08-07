@@ -187,7 +187,13 @@
           "instruction": {
             "short": "Lower bar to chest, then press to full extension"
           },
-          "fast_execution": false
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell",
+            "bench",
+            "rack"
+          ],
+          "equipment_alternatives": []
         },
         "incline_bench_press": {
           "exercise_id": "incline_bench_press",
@@ -212,7 +218,13 @@
           "instruction": {
             "short": "Lower dumbbells or bar to upper chest, then press to full extension"
           },
-          "fast_execution": false
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell",
+            "bench",
+            "rack"
+          ],
+          "equipment_alternatives": []
         },
         "dumbbell_bench_press": {
           "exercise_id": "dumbbell_bench_press",
@@ -236,7 +248,12 @@
           "instruction": {
             "short": "Lower dumbbells to chest level, then press to full extension"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "dumbbell",
+            "bench"
+          ],
+          "equipment_alternatives": []
         },
         "push_up": {
           "exercise_id": "push_up",
@@ -259,7 +276,11 @@
           "instruction": {
             "short": "Lower chest toward floor, then press back to the start position"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "bodyweight"
+          ],
+          "equipment_alternatives": []
         },
         "machine_chest_press": {
           "exercise_id": "machine_chest_press",
@@ -282,7 +303,11 @@
           "instruction": {
             "short": "Lower handles under control, then press to full extension"
           },
-          "fast_execution": false
+          "fast_execution": false,
+          "equipment_requirements": [
+            "machine_general"
+          ],
+          "equipment_alternatives": []
         },
         "single_arm_dumbbell_press": {
           "exercise_id": "single_arm_dumbbell_press",
@@ -306,7 +331,12 @@
           "instruction": {
             "short": "Lower dumbbell to chest level, then press to full extension with one arm"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "dumbbell",
+            "bench"
+          ],
+          "equipment_alternatives": []
         },
         "overhead_press": {
           "exercise_id": "overhead_press",
@@ -329,7 +359,11 @@
           "instruction": {
             "short": "Press bar overhead to lockout, then lower under control"
           },
-          "fast_execution": false
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell"
+          ],
+          "equipment_alternatives": []
         },
         "dumbbell_overhead_press": {
           "exercise_id": "dumbbell_overhead_press",
@@ -352,7 +386,11 @@
           "instruction": {
             "short": "Press dumbbells overhead to lockout, then lower under control"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "dumbbell"
+          ],
+          "equipment_alternatives": []
         },
         "single_arm_overhead_press": {
           "exercise_id": "single_arm_overhead_press",
@@ -375,7 +413,11 @@
           "instruction": {
             "short": "Press dumbbell overhead to lockout with one arm, then lower under control"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "dumbbell"
+          ],
+          "equipment_alternatives": []
         },
         "back_squat": {
           "exercise_id": "back_squat",
@@ -400,7 +442,12 @@
           "instruction": {
             "short": "Squat down to target depth, then stand back up to full extension"
           },
-          "fast_execution": false
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell",
+            "rack"
+          ],
+          "equipment_alternatives": []
         },
         "goblet_squat": {
           "exercise_id": "goblet_squat",
@@ -424,7 +471,11 @@
           "instruction": {
             "short": "Squat down holding the weight at chest height, then stand to full extension"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "dumbbell"
+          ],
+          "equipment_alternatives": []
         },
         "split_squat": {
           "exercise_id": "split_squat",
@@ -450,7 +501,12 @@
           "instruction": {
             "short": "Lower into the split stance, then drive back up to the start position"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "bodyweight",
+            "dumbbell"
+          ],
+          "equipment_alternatives": []
         },
         "deadlift": {
           "exercise_id": "deadlift",
@@ -474,7 +530,11 @@
           "instruction": {
             "short": "Pull bar from floor to lockout, then return it under control"
           },
-          "fast_execution": false
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell"
+          ],
+          "equipment_alternatives": []
         },
         "kettlebell_deadlift": {
           "exercise_id": "kettlebell_deadlift",
@@ -498,7 +558,11 @@
           "instruction": {
             "short": "Pull kettlebell from floor to standing lockout, then lower under control"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "kettlebell"
+          ],
+          "equipment_alternatives": []
         },
         "single_leg_rdl": {
           "exercise_id": "single_leg_rdl",
@@ -526,7 +590,13 @@
           "instruction": {
             "short": "Hinge on one leg until target range, then return to upright balance"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "bodyweight",
+            "dumbbell",
+            "kettlebell"
+          ],
+          "equipment_alternatives": []
         },
         "pike_push_up": {
           "exercise_id": "pike_push_up",
@@ -549,7 +619,11 @@
           "instruction": {
             "short": "Lower head toward the floor, then press back to the start position"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "bodyweight"
+          ],
+          "equipment_alternatives": []
         },
         "box_squat": {
           "exercise_id": "box_squat",
@@ -574,7 +648,12 @@
           "instruction": {
             "short": "Sit back to the box under control, then stand to full extension"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "barbell",
+            "rack"
+          ],
+          "equipment_alternatives": []
         },
         "pin_press": {
           "exercise_id": "pin_press",
@@ -599,7 +678,13 @@
           "instruction": {
             "short": "Press bar from the pins to lockout, then return it to the pins under control"
           },
-          "fast_execution": false
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell",
+            "bench",
+            "rack"
+          ],
+          "equipment_alternatives": []
         },
         "partial_deadlift": {
           "exercise_id": "partial_deadlift",
@@ -623,7 +708,11 @@
           "instruction": {
             "short": "Pull bar from the set height to lockout, then return under control"
           },
-          "fast_execution": true
+          "fast_execution": true,
+          "equipment_requirements": [
+            "barbell"
+          ],
+          "equipment_alternatives": []
         }
       }
     },
@@ -686,14 +775,19 @@
           "movement_pattern_applicability": [
             "squat",
             "hinge",
-            "horizontal_push"
-          ]
+            "horizontal_push",
+            "vertical_push"
+          ],
+          "substitution_relevance": "required_or_lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
         },
         "rack": {
           "equipment_id": "rack",
           "id": "rack",
           "display_label": "Rack",
-          "equipment_class": "support_station",
+          "equipment_class": "support",
           "activity_applicability": [
             "powerlifting",
             "general_strength",
@@ -701,22 +795,32 @@
           ],
           "movement_pattern_applicability": [
             "squat",
-            "horizontal_push"
-          ]
+            "horizontal_push",
+            "vertical_push"
+          ],
+          "substitution_relevance": "required_or_lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
         },
         "bench": {
           "equipment_id": "bench",
           "id": "bench",
           "display_label": "Bench",
-          "equipment_class": "support_station",
+          "equipment_class": "support",
           "activity_applicability": [
             "powerlifting",
             "general_strength",
             "rugby_union"
           ],
           "movement_pattern_applicability": [
-            "horizontal_push"
-          ]
+            "horizontal_push",
+            "vertical_push"
+          ],
+          "substitution_relevance": "required_or_lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
         },
         "plate": {
           "equipment_id": "plate",
@@ -731,22 +835,251 @@
           "movement_pattern_applicability": [
             "squat",
             "hinge",
-            "horizontal_push"
-          ]
+            "horizontal_push",
+            "vertical_push",
+            "carry"
+          ],
+          "substitution_relevance": "load_component",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
         },
-        "bodyweight": {
-          "equipment_id": "bodyweight",
-          "id": "bodyweight",
-          "display_label": "Bodyweight",
-          "equipment_class": "no_external_load",
+        "dumbbell": {
+          "equipment_id": "dumbbell",
+          "id": "dumbbell",
+          "display_label": "Dumbbell",
+          "equipment_class": "free_weight",
           "activity_applicability": [
             "powerlifting",
             "general_strength",
             "rugby_union"
           ],
           "movement_pattern_applicability": [
+            "squat",
+            "hinge",
+            "horizontal_push",
+            "vertical_push",
+            "horizontal_pull",
+            "carry",
+            "lunge_split_stance"
+          ],
+          "substitution_relevance": "lateral_or_low_equipment_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "low_equipment_option",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "kettlebell": {
+          "equipment_id": "kettlebell",
+          "id": "kettlebell",
+          "display_label": "Kettlebell",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "squat",
+            "hinge",
+            "vertical_push",
+            "carry",
+            "lunge_split_stance"
+          ],
+          "substitution_relevance": "lateral_or_low_equipment_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "low_equipment_option",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "cable_machine": {
+          "equipment_id": "cable_machine",
+          "id": "cable_machine",
+          "display_label": "Cable machine",
+          "equipment_class": "machine",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "horizontal_pull",
+            "vertical_pull",
+            "horizontal_push",
+            "trunk_rotation_anti_rotation"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "resistance_band": {
+          "equipment_id": "resistance_band",
+          "id": "resistance_band",
+          "display_label": "Resistance band",
+          "equipment_class": "portable_resistance",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "horizontal_pull",
+            "vertical_pull",
+            "horizontal_push",
             "brace"
-          ]
+          ],
+          "substitution_relevance": "low_equipment_alternative",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "primary_low_equipment_option",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "bodyweight": {
+          "equipment_id": "bodyweight",
+          "id": "bodyweight",
+          "display_label": "Bodyweight",
+          "equipment_class": "bodyweight",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "horizontal_push",
+            "brace",
+            "lunge_split_stance",
+            "jump_land",
+            "sprint_acceleration",
+            "deceleration_change_of_direction",
+            "conditioning_general"
+          ],
+          "substitution_relevance": "low_equipment_alternative",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "primary_low_equipment_option",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "pull_up_bar": {
+          "equipment_id": "pull_up_bar",
+          "id": "pull_up_bar",
+          "display_label": "Pull-up bar",
+          "equipment_class": "fixed_support",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "vertical_pull",
+            "brace"
+          ],
+          "substitution_relevance": "required_or_lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "trap_bar": {
+          "equipment_id": "trap_bar",
+          "id": "trap_bar",
+          "display_label": "Trap bar",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "hinge",
+            "carry"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "medicine_ball": {
+          "equipment_id": "medicine_ball",
+          "id": "medicine_ball",
+          "display_label": "Medicine ball",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "horizontal_push",
+            "trunk_rotation_anti_rotation",
+            "conditioning_general"
+          ],
+          "substitution_relevance": "activity_specific_option",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "low_equipment_option",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "sled": {
+          "equipment_id": "sled",
+          "id": "sled",
+          "display_label": "Sled",
+          "equipment_class": "conditioning_tool",
+          "activity_applicability": [
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "sprint_acceleration",
+            "conditioning_general"
+          ],
+          "substitution_relevance": "activity_specific_option",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "box": {
+          "equipment_id": "box",
+          "id": "box",
+          "display_label": "Box",
+          "equipment_class": "support",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "squat",
+            "jump_land",
+            "lunge_split_stance"
+          ],
+          "substitution_relevance": "activity_specific_option",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "machine_general": {
+          "equipment_id": "machine_general",
+          "id": "machine_general",
+          "display_label": "General machine",
+          "equipment_class": "machine",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "squat",
+            "hinge",
+            "horizontal_push",
+            "horizontal_pull",
+            "vertical_pull"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "cardio_machine_general": {
+          "equipment_id": "cardio_machine_general",
+          "id": "cardio_machine_general",
+          "display_label": "General cardio machine",
+          "equipment_class": "conditioning_machine",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "conditioning_general"
+          ],
+          "substitution_relevance": "conditioning_option",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
         },
         "open_floor_space": {
           "equipment_id": "open_floor_space",
@@ -754,13 +1087,20 @@
           "display_label": "Open floor space",
           "equipment_class": "space",
           "activity_applicability": [
-            "powerlifting",
             "general_strength",
             "rugby_union"
           ],
           "movement_pattern_applicability": [
+            "sprint_acceleration",
+            "deceleration_change_of_direction",
+            "jump_land",
+            "conditioning_general",
             "brace"
-          ]
+          ],
+          "substitution_relevance": "low_equipment_alternative",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "primary_low_equipment_option",
+          "copy_legal_boundary_notes": "Factual equipment label only."
         }
       }
     }

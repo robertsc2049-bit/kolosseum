@@ -8,6 +8,16 @@ It activates exactly one candidate domain - `equipment` - satisfying S-REG-24's 
 
 Human-authorised activation, not a hold or a design.
 
+Full CI on this slice's initial 6-record activation surfaced a separate,
+pre-existing, stricter contract - S-V1-22, `ci/guards/s_v1_22_equipment_registry_coverage_contract_guard.mjs`
+- that unconditionally blocked any active equipment registry file until 17
+equipment ids exist and every active exercise record carries explicit
+`equipment_requirements`/`equipment_alternatives` FK-closing arrays. The
+repository owner explicitly chose to build that full real contract rather
+than abandon or roll back equipment as the activation target. This slice's
+final scope therefore covers both the original 6-domain activation and the
+full 17-record, exercise-annotated V1 contract described below.
+
 ## Boundary
 
 S-REG-25 includes:
@@ -15,13 +25,16 @@ S-REG-25 includes:
 - Equipment registry activation record.
 - S-REG-23 hold reference and supersession record.
 - S-REG-24 contract reference and supersession record.
-- The new active `registries/equipment/equipment.registry.json` file, converted from the six existing `equipment_registry` candidate records (S-REG-07).
-- The new `ci/schemas/equipment.registry.schema.json` file, required by `registry_schema_presence_guard.mjs`.
+- The active `registries/equipment/equipment.registry.json` file - all 17 equipment ids S-V1-22 requires, sourced from the real, differentiated dataset already present in `ci/fixtures/v1_equipment_registry_coverage_contract_negative/s_v1_22_missing_equipment_reference_negative.json`'s `equipment_records` array (this replaced the original 6-record set, which had been sourced from a different, less-authoritative track - the S-REG-07 candidate content - to avoid mixing two data sources for the same registry).
+- The `ci/schemas/equipment.registry.schema.json` file, required by `registry_schema_presence_guard.mjs`, extended to require the 4 additional S-V1-22 contract fields (`substitution_relevance`, `template_relevance`, `low_equipment_alternative_relevance`, `copy_legal_boundary_notes`) on every entry.
+- The three byte-identical exercise registry schema files (`ci/schemas/exercise_registry.schema.json`, `exercise.registry.schema.json`, `exercise.registry.schema.v1.0.0.json`), each extended with two new optional per-entry array fields: `equipment_requirements`, `equipment_alternatives`.
+- `registries/exercise/exercise.registry.json` - all 19 active entries annotated with `equipment_requirements` (translated from each entry's existing legacy `equipment[]` field via a direct token mapping: `dumbbells`→`dumbbell`, `incline_bench`→`bench`, `machine`→`machine_general`, everything else already matched) and `equipment_alternatives: []` (left honestly empty for every entry - no existing data source in this repository distinguishes true substitutable alternatives from requirements, and inventing that distinction would be a product judgement call outside this slice's scope).
+- `ci/guards/s_v1_22_equipment_registry_coverage_contract_guard.mjs` evolved from unconditionally blocking any active equipment registry file to additionally validating real active content, once present, against the same `validateEquipmentRegistryCoverage` function its fixture-based negative proof already exercised. The fixture-based proof is unchanged. `test/s_v1_22_equipment_registry_coverage_contract.test.mjs` and `docs/v1/V1_EQUIPMENT_REGISTRY_COVERAGE_CONTRACT.md` gained matching real-content coverage, appended rather than rewritten (see that doc's own supersession log).
 - `registries/registry_index.json` order extended with `equipment`.
-- `registries/registry_bundle.json` regenerated to include the equipment domain.
+- `registries/registry_bundle.json` regenerated to include the equipment domain and the exercise-side annotations.
 - `registries/registry_surface_classification.json` extended with the equipment registry, classified `launch_critical` like every sibling active domain.
-- A full seal `pre_seal` → `sealed` round-trip across all four seal evidence files.
-- Test and guard proof, including running all of S-REG-24's required proof commands for real.
+- A full seal `pre_seal` → `sealed` round-trip across all four seal evidence files, re-pinning both the equipment and exercise registry hashes.
+- Test and guard proof, including running all of S-REG-24's required proof commands for real, plus S-V1-22's own guard and test now validating real content and S-V1-24's FK-closure guard now genuinely enforcing (previously a no-op with no exercise carrying these fields).
 - Documentation.
 - Package proof script.
 - Generated indexes and checksums through existing generators.
@@ -32,7 +45,7 @@ S-REG-25 must not touch:
 
 - Any other candidate domain (`exercise_registry_3a`, `sport_metric_registry_1c`, `metric_exercise_link_registry_1c_a`, `threshold_marker_registry`, etc.) - equipment only.
 - `engine/`, `src/`, `server/`, `app/`, `web/`, or `supabase/` source.
-- `ci/guards/registry_law_guard.mjs`, `scripts/bundle_writer.cjs`, or any other existing CI script - both are already generic over `registry_index.json`'s `order[]` and require no edit for a new domain.
+- `ci/guards/registry_law_guard.mjs`, `scripts/bundle_writer.cjs`, `ci/guards/s_v1_24_registry_load_order_fk_closure_guard.mjs`, or any other existing CI script not named in this slice's boundary above - all are already generic over `registry_index.json`'s `order[]` and either require no edit for a new domain, or (for S-V1-24's FK-closure logic) already contained the enforcement this slice needed and simply began firing for real once real `equipment_requirements`/`equipment_alternatives` data existed. `ci/guards/s_v1_22_equipment_registry_coverage_contract_guard.mjs` is the sole exception, named explicitly in this slice's boundary above, because S-V1-22's own contract is what this slice's expanded scope exists to satisfy.
 - Marker evaluator behaviour, real value comparison, advice, outcome inference.
 - Programme assignment, substitution runtime, UI behaviour, coach interpretation.
 - Deterministic engine output - proven unchanged by the runtime parity proof below, since nothing yet consumes the equipment registry.
@@ -68,7 +81,7 @@ S-REG-25 satisfies, for the equipment target only, every category S-REG-23 requi
 - `registry_bundle_promotion_plan` - `npm run registry:bundle`, fully generic.
 - `registry_loader_contract` - `engine/src/registries/loadRegistries.ts` already iterates `order[]` generically; unaffected.
 - `active_registry_schema_plan` - `ci/schemas/equipment.registry.schema.json`.
-- `fk_closure_replay_against_active_bundle` - `registry_law_guard.mjs` and the load-order FK closure guard both re-run and pass; equipment introduces no new FK edges.
+- `fk_closure_replay_against_active_bundle` - `registry_law_guard.mjs` re-runs and passes; `s_v1_24_registry_load_order_fk_closure_guard.mjs`'s FK-closure logic, previously a no-op with no exercise carrying `equipment_requirements`/`equipment_alternatives`, now genuinely enforces every exercise's equipment reference against the real 17-id equipment registry, and passes.
 - `registry_seal_freeze_and_gate_plan` - the full `pre_seal` → `sealed` round-trip below.
 - `engine_consumption_boundary_decision` - deliberately none: nothing consumes the equipment registry yet, `runtime_status` stays `non_runtime`.
 - `runtime_no_behaviour_change_proof` - the runtime parity proof below.
@@ -109,6 +122,8 @@ Expected proof:
 - `node ci/guards/registry_law_guard.mjs`
 - `node ci/guards/registry_schema_presence_guard.mjs`
 - `node ci/guards/s_v1_24_registry_load_order_fk_closure_guard.mjs`
+- `node ci/guards/s_v1_22_equipment_registry_coverage_contract_guard.mjs`
+- `node --test test/s_v1_22_equipment_registry_coverage_contract.test.mjs`
 - `node ci/scripts/run_registry_seal_gate.mjs`
 - `node ci/scripts/run_registry_seal_drift_diff_reporter.mjs`
 - `node ci/scripts/run_failure_token_index_guard.mjs`

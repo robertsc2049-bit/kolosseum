@@ -113,6 +113,7 @@ export const S_REG_25_EXPECTED_DOCUMENT_KEYS = Object.freeze([
   "covered_required_before_activation",
   "active_registry_order_after",
   "activated_record_count",
+  "exercise_records_annotated_count",
   "human_authorisation",
   "active_registry_hashes_before",
   "active_registry_hashes_after",
@@ -126,7 +127,8 @@ export const S_REG_25_PATHS = Object.freeze({
   source_contract: "ci/registry/s_reg_24_registry_activation_contract_design.json",
   registry_index: "registries/registry_index.json",
   registry_bundle: "registries/registry_bundle.json",
-  equipment_registry: "registries/equipment/equipment.registry.json"
+  equipment_registry: "registries/equipment/equipment.registry.json",
+  exercise_registry: "registries/exercise/exercise.registry.json"
 });
 
 export const S_REG_25_FORBIDDEN_KEYS = Object.freeze([
@@ -251,6 +253,32 @@ function assertActiveRegistrySurfaceExtendedCorrectly() {
   return Object.keys(equipmentRegistry.entries).length;
 }
 
+function assertExerciseRegistryAnnotatedCorrectly() {
+  const exerciseRegistry = readJson(S_REG_25_PATHS.exercise_registry);
+
+  if (!exerciseRegistry.entries || typeof exerciseRegistry.entries !== "object") {
+    fail("s_reg_25_exercise_registry_entries_invalid", { actual: exerciseRegistry.entries });
+  }
+
+  const entries = Object.values(exerciseRegistry.entries);
+  let annotatedCount = 0;
+
+  for (const entry of entries) {
+    if (Array.isArray(entry.equipment_requirements) && Array.isArray(entry.equipment_alternatives)) {
+      annotatedCount += 1;
+    }
+  }
+
+  if (annotatedCount !== entries.length) {
+    fail("s_reg_25_exercise_registry_annotation_incomplete", {
+      annotated: annotatedCount,
+      total: entries.length
+    });
+  }
+
+  return annotatedCount;
+}
+
 export function sReg25LoadEquipmentRegistryActivation() {
   return readJson(S_REG_25_PATHS.activation);
 }
@@ -269,6 +297,7 @@ export function sReg25ValidateEquipmentRegistryActivation({
   assertSourceHoldRecordsThisSupersession();
   assertSourceContractRecordsThisSupersession();
   const activatedRecordCount = assertActiveRegistrySurfaceExtendedCorrectly();
+  const exerciseRecordsAnnotatedCount = assertExerciseRegistryAnnotatedCorrectly();
 
   if (activationDocument.slice_id !== S_REG_25_SLICE_ID) {
     fail("s_reg_25_slice_id_invalid", { actual: activationDocument.slice_id });
@@ -342,6 +371,13 @@ export function sReg25ValidateEquipmentRegistryActivation({
     });
   }
 
+  if (activationDocument.exercise_records_annotated_count !== exerciseRecordsAnnotatedCount) {
+    fail("s_reg_25_exercise_records_annotated_count_invalid", {
+      declared: activationDocument.exercise_records_annotated_count,
+      actual: exerciseRecordsAnnotatedCount
+    });
+  }
+
   assertPlainObject(activationDocument.human_authorisation, "s_reg_25_human_authorisation_invalid");
   if (
     typeof activationDocument.human_authorisation.authorised_by !== "string" ||
@@ -356,7 +392,7 @@ export function sReg25ValidateEquipmentRegistryActivation({
 
   assertPlainObject(activationDocument.active_registry_hashes_before, "s_reg_25_hashes_before_invalid");
   assertPlainObject(activationDocument.active_registry_hashes_after, "s_reg_25_hashes_after_invalid");
-  for (const key of ["registry_index", "registry_bundle"]) {
+  for (const key of ["registry_index", "registry_bundle", "exercise_registry"]) {
     if (
       typeof activationDocument.active_registry_hashes_before[key] !== "string" ||
       typeof activationDocument.active_registry_hashes_after[key] !== "string" ||
@@ -410,6 +446,7 @@ export function sReg25ValidateEquipmentRegistryActivation({
     active_registry_activation: true,
     runtime_status: S_REG_25_RUNTIME_STATUS,
     activated_record_count: activatedRecordCount,
+    exercise_records_annotated_count: exerciseRecordsAnnotatedCount,
     active_registry_order_after: [...activationDocument.active_registry_order_after],
     covered_required_before_activation: [...activationDocument.covered_required_before_activation]
   });
