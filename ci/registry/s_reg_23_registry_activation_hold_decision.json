@@ -93,6 +93,7 @@
     "direct_marker_evaluator_runtime"
   ],
   "superseded_by_slice_ids": [
-    "S-REG-25"
+    "S-REG-25",
+    "S-REG-26"
   ]
 }

@@ -24,6 +24,9 @@
     },
     {
       "path": "registries/equipment/equipment.registry.json"
+    },
+    {
+      "path": "registries/sport_subdivision/sport_subdivision.registry.json"
     }
   ]
 }

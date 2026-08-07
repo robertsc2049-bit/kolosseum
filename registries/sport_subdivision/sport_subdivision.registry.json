@@ -1,0 +1,38 @@
+{
+  "registry_id": "sport_subdivision",
+  "version": "1.0.0",
+  "entries": {
+    "powerlifting__competition_lift": {
+      "sport_subdivision_id": "powerlifting__competition_lift",
+      "id": "powerlifting__competition_lift",
+      "activity_id": "powerlifting",
+      "display_label": "Competition lift",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport subdivision label only"
+    },
+    "powerlifting__general_preparation": {
+      "sport_subdivision_id": "powerlifting__general_preparation",
+      "id": "powerlifting__general_preparation",
+      "activity_id": "powerlifting",
+      "display_label": "General preparation",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport subdivision label only"
+    },
+    "general_strength__training": {
+      "sport_subdivision_id": "general_strength__training",
+      "id": "general_strength__training",
+      "activity_id": "general_strength",
+      "display_label": "Training",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport subdivision label only"
+    },
+    "rugby_union__general_preparation": {
+      "sport_subdivision_id": "rugby_union__general_preparation",
+      "id": "rugby_union__general_preparation",
+      "activity_id": "rugby_union",
+      "display_label": "General preparation",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport subdivision label only"
+    }
+  }
+}

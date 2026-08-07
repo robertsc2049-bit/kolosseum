@@ -162,3 +162,4 @@ It does not activate canonical registries, create marker evaluator behaviour, co
 This decision record is never rewritten once a later slice acts on it. `superseded_by_slice_ids` names every explicitly-authorised activation slice that has since acted on part of this hold, in the order they occurred:
 
 - S-REG-25 (`equipment_registry` activation) - authorised by explicit human decision. Activated the `equipment` domain only. The other 10 hold reasons and 10 remaining candidate domains named in this record remain held.
+- S-REG-26 (`sport_subdivision_registry` activation) - authorised by explicit human decision. Activated the `sport_subdivision` domain only, appended after `equipment`. The remaining candidate domains named in this record remain held.

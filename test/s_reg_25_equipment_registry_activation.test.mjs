@@ -59,8 +59,18 @@ test("S-REG-25 extends the active registry surface with equipment only, appended
   const registryBundle = readJson("registries/registry_bundle.json");
   const equipmentRegistry = readJson("registries/equipment/equipment.registry.json");
 
-  assert.deepEqual(registryIndex.order, S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER);
-  assert.deepEqual(Object.keys(registryBundle.registries), S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER);
+  // Live-file checks are prefix checks, not exact-match - a later, separately-
+  // authorised activation slice (S-REG-26) legitimately appended `sport_subdivision`
+  // after `equipment`. The activation record's own historical field below stays
+  // exact-matched since it is frozen at authoring time, not a live-file check.
+  assert.deepEqual(
+    registryIndex.order.slice(0, S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER.length),
+    S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER
+  );
+  assert.deepEqual(
+    Object.keys(registryBundle.registries).slice(0, S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER.length),
+    S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER
+  );
   assert.deepEqual(activation.active_registry_order_after, S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER);
 
   assert.equal(equipmentRegistry.registry_id, "equipment");
