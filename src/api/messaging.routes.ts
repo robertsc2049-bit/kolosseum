@@ -32,9 +32,13 @@ import {
 import {
   OrgAthleteMessagingError,
   listOrgAthleteThreadMessagesForAthlete,
+  listOrgAthleteThreadMessagesForCoach,
   listOrgAthleteThreadsForAthlete,
+  listOrgAthleteThreadsVisibleToCoach,
   resolveOrgAthleteMessageAttachmentForAthlete,
+  resolveOrgAthleteMessageAttachmentForCoach,
   resolveOrgAthleteMessageAttachmentThumbnailForAthlete,
+  resolveOrgAthleteMessageAttachmentThumbnailForCoach,
   sendOrgAthleteMessageFromAthlete
 } from "./org_athlete_messaging_service.js";
 import {
@@ -251,6 +255,52 @@ messagingRouter.get(
   asyncHandler(async (request, response) => {
     const athleteUserId = await authenticatedAthlete(request, false);
     const thumbnail = await resolveOrgAthleteMessageAttachmentThumbnailForAthlete(String(request.params.message_id), athleteUserId);
+    if (!thumbnail) return response.status(404).json({ error: "org_athlete_messaging_thumbnail_not_found" });
+    return sendAttachmentFile(response, thumbnail);
+  })
+);
+
+// Part O.8 - coach visibility into an org owner's thread with their own
+// athlete, read-only (no POST route - the coach never sends into this
+// thread, it stays exactly two-party for writes). Nested under
+// /coach/org-messages/... to mirror /athlete/org-messages/... symmetrically,
+// and to avoid colliding with the D.1 /coach/threads,/coach/attachments/...
+// family above (a different thread_type entirely) or the D.2
+// /coach-workspace/org-messages/... family (coach_org_membership.routes.ts -
+// the coach's OWN thread with the org owner, a different feature).
+messagingRouter.get(
+  "/coach/athletes/:athlete_user_id/org-messages/threads",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const threads = await listOrgAthleteThreadsVisibleToCoach(coachUserId, String(request.params.athlete_user_id));
+    return response.status(200).json({ ok: true, threads });
+  })
+);
+
+messagingRouter.get(
+  "/coach/org-messages/threads/:thread_id",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const messages = await listOrgAthleteThreadMessagesForCoach(String(request.params.thread_id), coachUserId);
+    return response.status(200).json({ ok: true, messages });
+  })
+);
+
+messagingRouter.get(
+  "/coach/org-messages/attachments/:message_id",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const attachment = await resolveOrgAthleteMessageAttachmentForCoach(String(request.params.message_id), coachUserId);
+    if (!attachment) return response.status(404).json({ error: "org_athlete_messaging_attachment_not_found" });
+    return sendAttachmentFile(response, attachment);
+  })
+);
+
+messagingRouter.get(
+  "/coach/org-messages/attachments/:message_id/thumbnail",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const thumbnail = await resolveOrgAthleteMessageAttachmentThumbnailForCoach(String(request.params.message_id), coachUserId);
     if (!thumbnail) return response.status(404).json({ error: "org_athlete_messaging_thumbnail_not_found" });
     return sendAttachmentFile(response, thumbnail);
   })

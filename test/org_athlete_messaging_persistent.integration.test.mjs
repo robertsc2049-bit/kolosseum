@@ -760,7 +760,246 @@ test(
   }
 );
 
-// File-scoped, not per-test: both tests above share the same imported
+test(
+  "Part O.8 - coach visibility into org-owner<->athlete threads: the assigned coach sees the full thread, a coach with the relationship but the wrong org membership gets a quiet empty list yet a genuine 403 on a named thread_id, a coach with no relationship at all is denied outright, attachment fetch mirrors the same gate, and revoking the relationship removes the coach's visibility too",
+  async (testContext) => {
+    const root = repoRoot();
+    const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+
+    let server = null;
+    const orgOwnerUserIds = [];
+    const coachUserIds = [];
+    const athleteUserIds = [];
+    const knownMessageIds = new Set();
+
+    const cleanup = async () => {
+      const allAccountIds = [...coachUserIds, ...athleteUserIds].filter(Boolean);
+      const allUserIds = [...orgOwnerUserIds, ...allAccountIds].filter(Boolean);
+      if (allUserIds.length > 0) {
+        await pool.query(
+          `DELETE FROM product_messages WHERE sender_user_id = ANY($1::text[])`,
+          [allUserIds]
+        ).catch(() => {});
+        await pool.query(
+          `DELETE FROM product_message_threads WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = ANY($1::text[])) OR athlete_user_id = ANY($1::text[])`,
+          [allUserIds]
+        ).catch(() => {});
+      }
+      if (allAccountIds.length > 0) {
+        await pool.query(
+          `DELETE FROM beta_product_records WHERE subject_user_id = ANY($1::text[]) OR actor_user_id = ANY($1::text[])`,
+          [allAccountIds]
+        ).catch(() => {});
+      }
+      for (const userId of orgOwnerUserIds) {
+        if (!userId) continue;
+        await pool.query(
+          "DELETE FROM product_org_audit_records WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)",
+          [userId]
+        ).catch(() => {});
+        await pool.query(
+          "DELETE FROM product_org_coach_memberships WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)",
+          [userId]
+        ).catch(() => {});
+        await pool.query("DELETE FROM product_organisations WHERE owner_user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_org_owner_sessions WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_org_owner_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+      for (const userId of allAccountIds) {
+        await pool.query("DELETE FROM product_account_events WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+      for (const messageId of knownMessageIds) {
+        await fs.rm(path.join(STORAGE_ROOT, messageId), { recursive: true, force: true }).catch(() => {});
+      }
+    };
+
+    testContext.after(async () => {
+      await closeServer(server);
+      await cleanup();
+    });
+
+    server = await listen();
+    const address = server.address();
+    const baseUrl = `http://127.0.0.1:${address.port}`;
+
+    const owner = await registerOrgOwner(baseUrl, nonce, "cv");
+    orgOwnerUserIds.push(owner.userId);
+    const coachA = await registerCoach(baseUrl, nonce, "cva");
+    coachUserIds.push(coachA.userId);
+    const athlete1 = await registerAthlete(baseUrl, nonce, "cv1");
+    athleteUserIds.push(athlete1.userId);
+
+    await seedRelationship(baseUrl, {
+      relationshipId: `org_ath_cv_rel_${nonce}_a1`, coachUserId: coachA.userId, athleteUserId: athlete1.userId, state: "accepted"
+    });
+
+    const orgId = await createOrg(baseUrl, owner, "Coach Visibility Team Org", "shared");
+    const invite = await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(orgId)}/roster/invite`,
+      { coach_email: coachA.email, request_id: `invite_${nonce}_cv_a` }, { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(invite, 201, "invite coachA to the shared-mode org");
+    await acceptOrgInvite(baseUrl, coachA, invite.json?.membership?.membership_id, `accept_${nonce}_cv_a`);
+
+    // ============================================================
+    // Owner sends a message and the athlete replies, exactly like test 1 -
+    // this creates the thread this whole test exercises coach visibility
+    // against.
+    // ============================================================
+    const ownerSend = await requestMultipart(
+      baseUrl, `/org/organisations/${encodeURIComponent(orgId)}/athlete-messages/athletes/${encodeURIComponent(athlete1.userId)}/send`,
+      { body_text: "Welcome to the team!", client_request_id: `msg_${nonce}_cv_1` },
+      { buffer: tinyJpegBuffer(), mimeType: "image/jpeg", filename: "welcome.jpg" },
+      { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(ownerSend, 201, "owner sends the first message with an attachment");
+    const threadId = ownerSend.json?.thread?.thread_id;
+    assert.ok(threadId, "expected a thread_id");
+    const attachmentMessageId = ownerSend.json?.message?.message_id;
+    knownMessageIds.add(attachmentMessageId);
+
+    const athleteReply = await request(
+      baseUrl, "POST", `/messages/athlete/org-messages/organisations/${encodeURIComponent(orgId)}/send`,
+      { body_text: "Thanks, excited to get started.", client_request_id: `msg_${nonce}_cv_2` },
+      { cookie: athlete1.cookie, csrf: athlete1.csrf }
+    );
+    assertStatus(athleteReply, 201, "athlete1 replies");
+
+    // ============================================================
+    // The assigned coach sees the full thread: it appears in their thread
+    // list, and both messages (both roles) are readable.
+    // ============================================================
+    const coachAThreads = await request(
+      baseUrl, "GET", `/messages/coach/athletes/${encodeURIComponent(athlete1.userId)}/org-messages/threads`, undefined,
+      { cookie: coachA.cookie }
+    );
+    assertStatus(coachAThreads, 200, "coachA lists org-message threads for their own athlete");
+    assert.equal(coachAThreads.json?.threads?.length, 1);
+    assert.equal(coachAThreads.json?.threads?.[0]?.thread_id, threadId);
+    assert.equal(coachAThreads.json?.threads?.[0]?.org_name, "Coach Visibility Team Org");
+
+    const coachAMessages = await request(
+      baseUrl, "GET", `/messages/coach/org-messages/threads/${encodeURIComponent(threadId)}`, undefined,
+      { cookie: coachA.cookie }
+    );
+    assertStatus(coachAMessages, 200, "coachA reads the full thread");
+    assert.equal(coachAMessages.json?.messages?.length, 2);
+    assert.deepEqual(
+      coachAMessages.json?.messages?.map((m) => m.sender_role),
+      ["org_owner", "athlete"]
+    );
+
+    // ============================================================
+    // Attachment fetch mirrors the same gate: coachA (the right coach) can
+    // fetch it via their own route.
+    // ============================================================
+    const coachAttachmentUrl = coachAMessages.json?.messages?.[0]?.attachment?.url;
+    assert.ok(coachAttachmentUrl?.startsWith("/messages/coach/org-messages/attachments/"), "the coach's own attachment URL uses the coach viewer base");
+    const coachAttachmentFetch = await fetch(`${baseUrl}${coachAttachmentUrl}`, { headers: { cookie: coachA.cookie } });
+    assert.equal(coachAttachmentFetch.status, 200, "coachA can fetch the attachment via their own route");
+    assert.equal(coachAttachmentFetch.headers.get("content-type"), "image/jpeg");
+
+    // ============================================================
+    // coachC: HAS an accepted relationship with athlete1 (passes the
+    // strict gate) but is an active member of a DIFFERENT shared org, not
+    // orgId - proves the structural "quiet empty" branch (gate passed, no
+    // matching active+shared membership) is genuinely distinct from a real
+    // access denial.
+    // ============================================================
+    const coachC = await registerCoach(baseUrl, nonce, "cvc");
+    coachUserIds.push(coachC.userId);
+    await seedRelationship(baseUrl, {
+      relationshipId: `org_ath_cv_rel_${nonce}_c1`, coachUserId: coachC.userId, athleteUserId: athlete1.userId, state: "accepted"
+    });
+    const otherOrgId = await createOrg(baseUrl, owner, "Unrelated Team Org", "shared");
+    const otherInvite = await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(otherOrgId)}/roster/invite`,
+      { coach_email: coachC.email, request_id: `invite_${nonce}_cv_c` }, { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(otherInvite, 201, "invite coachC to an unrelated shared-mode org");
+    await acceptOrgInvite(baseUrl, coachC, otherInvite.json?.membership?.membership_id, `accept_${nonce}_cv_c`);
+
+    const coachCThreads = await request(
+      baseUrl, "GET", `/messages/coach/athletes/${encodeURIComponent(athlete1.userId)}/org-messages/threads`, undefined,
+      { cookie: coachC.cookie }
+    );
+    assertStatus(coachCThreads, 200, "coachC's list route returns 200, not an error - the gate passed, there is simply nothing to show");
+    assert.equal(coachCThreads.json?.threads?.length, 0, "coachC has no active membership in the org that actually has a thread with this athlete");
+
+    const coachCDirectThreadFetch = await request(
+      baseUrl, "GET", `/messages/coach/org-messages/threads/${encodeURIComponent(threadId)}`, undefined,
+      { cookie: coachC.cookie }
+    );
+    assertStatus(coachCDirectThreadFetch, 403, "coachC hitting the real thread_id directly is a genuine access denial, unlike the quiet list");
+    assert.equal(coachCDirectThreadFetch.json?.error, "org_athlete_messaging_thread_access_denied");
+
+    const coachCAttachmentFetch = await fetch(`${baseUrl}${coachAttachmentUrl}`, { headers: { cookie: coachC.cookie } });
+    assert.equal(coachCAttachmentFetch.status, 403, "coachC cannot fetch the attachment either");
+
+    // ============================================================
+    // coachD: no relationship with athlete1 at all - the strict gate
+    // itself denies both the list and the direct thread read.
+    // ============================================================
+    const coachD = await registerCoach(baseUrl, nonce, "cvd");
+    coachUserIds.push(coachD.userId);
+
+    const coachDThreads = await request(
+      baseUrl, "GET", `/messages/coach/athletes/${encodeURIComponent(athlete1.userId)}/org-messages/threads`, undefined,
+      { cookie: coachD.cookie }
+    );
+    assertStatus(coachDThreads, 403, "coachD has no relationship at all with athlete1 - a real denial, not a quiet empty list");
+    assert.equal(coachDThreads.json?.error, "org_athlete_messaging_coach_relationship_not_found");
+
+    const coachDDirectThreadFetch = await request(
+      baseUrl, "GET", `/messages/coach/org-messages/threads/${encodeURIComponent(threadId)}`, undefined,
+      { cookie: coachD.cookie }
+    );
+    assertStatus(coachDDirectThreadFetch, 403, "coachD is denied the direct thread read for the same reason");
+
+    // ============================================================
+    // No coach-side send route exists at all - a guessed path 404s,
+    // proving the coach never gained a write path into this thread.
+    // ============================================================
+    const guessedSendAttempt = await request(
+      baseUrl, "POST", `/messages/coach/org-messages/organisations/${encodeURIComponent(orgId)}/send`,
+      { body_text: "Can I send here?", client_request_id: `msg_${nonce}_cv_guess` },
+      { cookie: coachA.cookie, csrf: coachA.csrf }
+    );
+    assertStatus(guessedSendAttempt, 404, "no coach-facing send route was ever wired for org<->athlete threads");
+
+    // ============================================================
+    // Revoking coachA's own relationship with athlete1 removes coachA's
+    // visibility too - unlike the org owner/athlete sides (whose reads
+    // never depended on relationship state), the coach's whole claim to
+    // see this thread IS the relationship, so ending it ends the view.
+    // ============================================================
+    await seedRelationship(baseUrl, {
+      relationshipId: `org_ath_cv_rel_${nonce}_a1`, coachUserId: coachA.userId, athleteUserId: athlete1.userId, state: "revoked"
+    });
+
+    const coachAThreadsAfterRevoke = await request(
+      baseUrl, "GET", `/messages/coach/athletes/${encodeURIComponent(athlete1.userId)}/org-messages/threads`, undefined,
+      { cookie: coachA.cookie }
+    );
+    assertStatus(coachAThreadsAfterRevoke, 403, "coachA loses visibility once their own relationship with the athlete is revoked");
+
+    // ============================================================
+    // The thread's history is, of course, still intact for the parties who
+    // were always independent of the coach relationship - the owner.
+    // ============================================================
+    const ownerReadsAfterRevoke = await request(
+      baseUrl, "GET", `/org/organisations/${encodeURIComponent(orgId)}/athlete-messages/threads/${encodeURIComponent(threadId)}`, undefined,
+      { cookie: owner.cookie }
+    );
+    assertStatus(ownerReadsAfterRevoke, 200, "the owner's own read is unaffected by coachA's relationship state");
+    assert.equal(ownerReadsAfterRevoke.json?.messages?.length, 2);
+  }
+);
+
+// File-scoped, not per-test: all three tests above share the same imported
 // pool singleton, and node:test runs top-level test() blocks in this file
 // sequentially - ending the pool inside either test's own after() would
 // leave the pool unusable for whichever test runs next.
