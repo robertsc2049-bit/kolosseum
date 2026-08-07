@@ -69,6 +69,15 @@ const allowedChangedFiles = new Set([
   "ci/guards/s_reg_04_legacy_to_canonical_registry_loader_bridge_guard.mjs",
   "test/s_reg_04_legacy_to_canonical_registry_loader_bridge.test.mjs",
   "docs/roadmap/S_REG_04_LEGACY_TO_CANONICAL_REGISTRY_LOADER_BRIDGE.md",
+  // BETA-07's atomic registry loader lives inside this same module and had
+  // the identical hardcoded-4-domain assumption baked into its actual load
+  // algorithm (not just an assertion) - test/beta_07_registry_loader_core.test.mjs
+  // feeds it the real live registry_index/registry_bundle and expects a
+  // full, generic load. Made the loader generic over the real active
+  // order (still requiring the 4 canonical ids as an unreordered prefix),
+  // matching registry_law_guard.mjs's existing genericness.
+  "ci/registry/s_reg_04_legacy_to_canonical_registry_bridge.mjs",
+  "test/beta_07_registry_loader_core.test.mjs",
   // Full CI swept the entire older candidate-track S-REG chain (05-21) and
   // found every one of them shared the same class of conflict as S-REG-04:
   // a hardcoded exact-match (or, for 16-20, an additional hash-pin) against
