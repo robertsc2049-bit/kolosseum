@@ -150,6 +150,46 @@
       <div id="orgVisibilityList" class="record-list"></div>
       <p id="orgVisibilityError" class="muted small" hidden></p>
     </section>
+
+    <section id="orgMessagesSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Messages</p>
+          <h2>Messages for <strong id="orgMessagesOrgName"></strong></h2>
+        </div>
+        <button id="orgMessagesBackButton" class="button secondary" type="button">Back to organisations</button>
+      </div>
+
+      <p class="eyebrow">Coach threads</p>
+      <div id="orgCoachThreadList" class="record-list"></div>
+
+      <p class="eyebrow">Athlete threads</p>
+      <div id="orgAthleteThreadList" class="record-list"></div>
+      <p id="orgMessagesError" class="muted small" hidden></p>
+    </section>
+
+    <section id="orgThreadDetailSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Thread</p>
+          <h2>Conversation with <strong id="orgThreadCounterpartName"></strong></h2>
+        </div>
+        <button id="orgThreadDetailBackButton" class="button secondary" type="button">Back to messages</button>
+      </div>
+
+      <div id="orgThreadMessageList" class="record-list"></div>
+
+      <form id="orgThreadReplyForm">
+        <label class="field">
+          <span>Message</span>
+          <textarea id="orgThreadReplyText" required maxlength="4000"></textarea>
+        </label>
+        <div class="button-row">
+          <button class="button primary" type="submit">Send</button>
+        </div>
+      </form>
+      <p id="orgThreadReplyError" class="muted small" hidden></p>
+    </section>
   </main>
 
   <script type="module" src="/org/org.js"></script>
