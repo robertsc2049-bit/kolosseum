@@ -51,6 +51,7 @@ import {
   listPendingRelationshipInvitationsForAthlete,
   listRelationshipsForAthlete
 } from "./relationship_invitation_service.js";
+import { getAthleteOrgContexts } from "./athlete_org_context_service.js";
 
 // FULL-UI-04B athlete-detail service import.
 import {
@@ -603,6 +604,31 @@ export async function listAthleteOwnRelationshipsHandler(
     return res.status(200).json({
       ok: true,
       relationships
+    });
+  }
+  catch (error) {
+    rethrowInvitationError(error);
+  }
+}
+
+// FUNCTION NOTE:
+// Purpose: Part O.6 - athlete reads which org(s) their own accepted coach
+// relationship(s) currently give them team context for (org_id, org_name,
+// visibility_mode only - never a teammate roster).
+// Boundary: Athlete identity comes only from the resolved session cookie;
+// getAthleteOrgContexts independently re-derives accepted relationships and
+// active org memberships rather than trusting anything client-supplied.
+export async function getAthleteOrgContextHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const athleteUserId = await authenticatedAthlete(req, false);
+    const contexts = await getAthleteOrgContexts(athleteUserId);
+
+    return res.status(200).json({
+      ok: true,
+      contexts
     });
   }
   catch (error) {

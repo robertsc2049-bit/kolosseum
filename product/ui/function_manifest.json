@@ -5370,6 +5370,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "athlete_org_context",
+          "label": "Athlete reads which org(s) their own accepted coach relationship gives them team context for - org_id, org_name and visibility_mode only, never a teammate roster",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/coach-workspace/org-context/mine"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
+          "integration_test": "test/athlete_org_context_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -6192,6 +6214,12 @@
       "path": "/coach-workspace/relationships/:relationship_id/end",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/org-context/mine",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "organisation_billing"
     },
     {
       "method": "GET",

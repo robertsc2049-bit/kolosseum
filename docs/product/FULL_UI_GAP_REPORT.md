@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 246
+- implemented: 247
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -461,7 +461,7 @@ Slice: FULL-UI-26
 
 Area state: implemented
 
-Implemented: 8 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -473,6 +473,7 @@ Implemented: 8 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `coach_org_membership` — Coach reads, accepts and leaves org memberships from their own session
 - `org_coach_messaging` — Org owner and an active-member coach exchange threaded messages with live delivery and photo/video attachments, API-only
 - `org_athlete_messaging` — Org owner and an athlete currently coached by one of the org's active coaches exchange threaded messages with live delivery and photo/video attachments, gated to team (shared-visibility) orgs only
+- `athlete_org_context` — Athlete reads which org(s) their own accepted coach relationship gives them team context for - org_id, org_name and visibility_mode only, never a teammate roster
 
 ### Coach-athlete messaging
 

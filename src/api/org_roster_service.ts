@@ -340,6 +340,12 @@ export type OrgMembershipRow = Readonly<{
   // (listOrgMembershipsForCoach) - null everywhere else. Lets a coach see
   // what visibility they're agreeing to before calling accept.
   visibility_mode: "individual" | "shared" | null;
+  // Only populated when the underlying query joins product_organisations
+  // for org_name (listOrgMembershipsForCoach) - null everywhere else.
+  // Part O.6 - lets athlete_org_context_service.ts resolve an org's name
+  // for the athlete's own team-context view without a second query of
+  // its own.
+  org_name: string | null;
   // Only populated when the underlying query joins product_accounts
   // (listOrganisationRoster) - null everywhere else. Lets the org owner's
   // roster view show who a membership actually belongs to instead of a
@@ -362,6 +368,7 @@ function mapMembershipRow(value: unknown): OrgMembershipRow | null {
     invited_at_iso8601: value.invited_at instanceof Date ? value.invited_at.toISOString() : "",
     activated_at_iso8601: value.activated_at instanceof Date ? value.activated_at.toISOString() : null,
     removed_at_iso8601: value.removed_at instanceof Date ? value.removed_at.toISOString() : null,
+    org_name: typeof value.org_name === "string" ? value.org_name : null,
     visibility_mode: visibilityMode === "individual" || visibilityMode === "shared" ? visibilityMode : null,
     coach_display_name: typeof value.coach_display_name === "string" ? value.coach_display_name : null,
     coach_email: typeof value.coach_email === "string" ? value.coach_email : null
@@ -560,7 +567,7 @@ export async function listOrgMembershipsForCoach(
 ): Promise<readonly OrgMembershipRow[]> {
   const result = await pool.query(
     `
-    SELECT m.*, o.visibility_mode
+    SELECT m.*, o.visibility_mode, o.org_name
     FROM product_org_coach_memberships m
     JOIN product_organisations o ON o.org_id = m.org_id
     WHERE m.coach_user_id = $1
