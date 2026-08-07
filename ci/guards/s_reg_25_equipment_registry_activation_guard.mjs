@@ -158,6 +158,7 @@ const allowedChangedFiles = new Set([
   "replay/suite/beta_phase1_8/production_beta_rehearsal_manifest.json",
   "replay/suite/beta_phase1_7/runner_verdict_manifest.json",
   "replay/suite/beta_phase1_8/evidence_schema_manifest.json",
+  "replay/suite/beta_phase1_8/evidence_immutability_manifest.json",
   // S-REG-23/24 gained an append-only supersession record naming this slice -
   // their own guards independently re-verify their historical fields stayed
   // frozen, this guard only needs to permit the file itself changing.
