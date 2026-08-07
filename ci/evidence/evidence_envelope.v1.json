@@ -30,12 +30,16 @@
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "registry_bundle_sha256": "3AE38479B85AAD2BBF03EC1EA9613D17D9EE97997B529BACBFDD9D41773E61DF",
+    "registry_bundle_sha256": "08CC8582255CBB40E7E2FDED67AAAC1A3F2A238EFECCE3908AE5513A4E734D3B",
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
     "schema_sha256s": [
       {
         "path": "ci/schemas/activity.registry.schema.json",
         "sha256": "0BB4D745CA655437F099E0E7D20FBFC4300A5489B23CA104A3F164231F3A577C"
+      },
+      {
+        "path": "ci/schemas/equipment.registry.schema.json",
+        "sha256": "BD0CC2378BCF7E9EC1A7B795C37DCFD32BAF2CB865275FD34FC654DF69DC4AA6"
       },
       {
         "path": "ci/schemas/evidence_envelope.schema.v1.0.0.json",
@@ -47,7 +51,7 @@
       },
       {
         "path": "ci/schemas/exercise_registry.schema.json",
-        "sha256": "45646395EC5813CF32137B10C9C571402A013A1CBA902D97A1DCF8F2A2983B0A"
+        "sha256": "585DC200AA2E5646FD110890BBF996EF3CBD1C1454DFA42A3E5592AC4CDB35F4"
       },
       {
         "path": "ci/schemas/exercise_warmup_mapping.registry.schema.json",
@@ -55,11 +59,11 @@
       },
       {
         "path": "ci/schemas/exercise.registry.schema.json",
-        "sha256": "45646395EC5813CF32137B10C9C571402A013A1CBA902D97A1DCF8F2A2983B0A"
+        "sha256": "585DC200AA2E5646FD110890BBF996EF3CBD1C1454DFA42A3E5592AC4CDB35F4"
       },
       {
         "path": "ci/schemas/exercise.registry.schema.v1.0.0.json",
-        "sha256": "45646395EC5813CF32137B10C9C571402A013A1CBA902D97A1DCF8F2A2983B0A"
+        "sha256": "585DC200AA2E5646FD110890BBF996EF3CBD1C1454DFA42A3E5592AC4CDB35F4"
       },
       {
         "path": "ci/schemas/movement.registry.schema.json",

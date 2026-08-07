@@ -65,6 +65,11 @@ const allowedChangedFiles = new Set([
   "ci/evidence/registry_seal_manifest.v1.json",
   "ci/evidence/registry_seal_live_surface.v1.json",
   "ci/evidence/registry_seal_snapshot.v1.json",
+  // Generated envelope/seal recompute, same class as the failure-token index
+  // and checksums regeneration below - required whenever tracked file
+  // content changes, not a new mutation surface of its own.
+  "ci/evidence/evidence_envelope.v1.json",
+  "ci/evidence/evidence_seal.v1.json",
   // The engine's own PHASE_3 `loaded_registries` list is a factual record of
   // which registry files were loaded - it truthfully gained "equipment", so
   // exactly these two golden fixtures (the only ones that exercise phase3's
