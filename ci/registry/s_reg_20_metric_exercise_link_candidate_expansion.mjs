@@ -252,8 +252,16 @@ function assertActiveRegistrySurface() {
   const registryIndex = readJson(S_REG_20_CANDIDATE_PATHS.active_registry_index);
   const registryBundle = readJson(S_REG_20_CANDIDATE_PATHS.active_registry_bundle);
 
-  assertExactArray(registryIndex.order, S_REG_20_ACTIVE_REGISTRY_ORDER, "active_registry_index_order_changed");
-  assertExactArray(Object.keys(registryBundle.registries ?? {}), S_REG_20_ACTIVE_REGISTRY_ORDER, "active_registry_bundle_changed");
+  assertExactArray(
+    registryIndex.order.slice(0, S_REG_20_ACTIVE_REGISTRY_ORDER.length),
+    S_REG_20_ACTIVE_REGISTRY_ORDER,
+    "active_registry_index_order_changed"
+  );
+  assertExactArray(
+    Object.keys(registryBundle.registries ?? {}).slice(0, S_REG_20_ACTIVE_REGISTRY_ORDER.length),
+    S_REG_20_ACTIVE_REGISTRY_ORDER,
+    "active_registry_bundle_changed"
+  );
 }
 
 function assertDocumentBoundary(document) {

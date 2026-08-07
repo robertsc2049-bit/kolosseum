@@ -36,8 +36,8 @@ const expectedCompactIds = Object.freeze([
 ]);
 
 test("S-REG-21 keeps the active registry surface compact", () => {
-  assert.deepEqual(registryIndex.order, expectedCompactIds);
-  assert.deepEqual(Object.keys(registryBundle.registries), expectedCompactIds);
+  assert.deepEqual(registryIndex.order.slice(0, expectedCompactIds.length), expectedCompactIds);
+  assert.deepEqual(Object.keys(registryBundle.registries).slice(0, expectedCompactIds.length), expectedCompactIds);
   assert.equal(fs.existsSync("registries/threshold_marker_registry"), false);
   assert.equal(fs.existsSync("registries/threshold_marker_registry.json"), false);
   assert.equal(

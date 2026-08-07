@@ -69,6 +69,49 @@ const allowedChangedFiles = new Set([
   "ci/guards/s_reg_04_legacy_to_canonical_registry_loader_bridge_guard.mjs",
   "test/s_reg_04_legacy_to_canonical_registry_loader_bridge.test.mjs",
   "docs/roadmap/S_REG_04_LEGACY_TO_CANONICAL_REGISTRY_LOADER_BRIDGE.md",
+  // Full CI swept the entire older candidate-track S-REG chain (05-21) and
+  // found every one of them shared the same class of conflict as S-REG-04:
+  // a hardcoded exact-match (or, for 16-20, an additional hash-pin) against
+  // the live registry_index/registry_bundle files, asserting the active
+  // surface would never change. Each was relaxed to a prefix-match on the
+  // live files only (any local frozen snapshot constant used for a
+  // different, historical purpose was left untouched), and S-REG-16's
+  // previously-ungated forbidden-file check gained the same branch-scoping
+  // every sibling guard already uses. No slice's own alias mapping,
+  // dependency wiring, or candidate content was touched.
+  "ci/guards/s_reg_06_canonical_activity_movement_exercise_candidate_seeds_guard.mjs",
+  "ci/guards/s_reg_07_canonical_equipment_candidate_seeds_guard.mjs",
+  "ci/guards/s_reg_08_exercise_equipment_fk_closure_candidate_update_guard.mjs",
+  "ci/guards/s_reg_09_exercise_activity_applicability_candidate_seeds_guard.mjs",
+  "ci/guards/s_reg_10_sport_context_candidate_seeds_guard.mjs",
+  "ci/guards/s_reg_11_sport_metric_candidate_seeds_guard.mjs",
+  "ci/guards/s_reg_12_metric_exercise_link_candidate_seeds_guard.mjs",
+  "ci/guards/s_reg_13_threshold_marker_candidate_boundary_contract_guard.mjs",
+  "ci/guards/s_reg_14_registry_build_readiness_start_gate_guard.mjs",
+  "ci/guards/s_reg_15_candidate_exercise_registry_content_batch_1_guard.mjs",
+  "ci/guards/s_reg_16_candidate_equipment_registry_content_batch_1_guard.mjs",
+  "ci/guards/s_reg_17_exercise_equipment_candidate_fk_closure_expansion_guard.mjs",
+  "ci/guards/s_reg_18_exercise_activity_applicability_candidate_expansion_guard.mjs",
+  "ci/guards/s_reg_19_sport_metric_candidate_expansion_guard.mjs",
+  "ci/guards/s_reg_20_metric_exercise_link_candidate_expansion_guard.mjs",
+  "ci/guards/s_reg_21_threshold_marker_candidate_records_guard.mjs",
+  "ci/registry/s_reg_14_registry_build_readiness_start_gate.mjs",
+  "ci/registry/s_reg_15_candidate_exercise_registry_content_batch_1.mjs",
+  "ci/registry/s_reg_16_candidate_equipment_registry_content_batch_1.mjs",
+  "ci/registry/s_reg_17_exercise_equipment_candidate_fk_closure_expansion.mjs",
+  "ci/registry/s_reg_18_exercise_activity_applicability_candidate_expansion.mjs",
+  "ci/registry/s_reg_19_sport_metric_candidate_expansion.mjs",
+  "ci/registry/s_reg_20_metric_exercise_link_candidate_expansion.mjs",
+  "test/s_reg_06_canonical_activity_movement_exercise_candidate_seeds.test.mjs",
+  "test/s_reg_07_canonical_equipment_candidate_seeds.test.mjs",
+  "test/s_reg_08_exercise_equipment_fk_closure_candidate_update.test.mjs",
+  "test/s_reg_09_exercise_activity_applicability_candidate_seeds.test.mjs",
+  "test/s_reg_10_sport_context_candidate_seeds.test.mjs",
+  "test/s_reg_11_sport_metric_candidate_seeds.test.mjs",
+  "test/s_reg_12_metric_exercise_link_candidate_seeds.test.mjs",
+  "test/s_reg_13_threshold_marker_candidate_boundary_contract.test.mjs",
+  "test/s_reg_14_registry_build_readiness_start_gate.test.mjs",
+  "test/s_reg_21_threshold_marker_candidate_records.test.mjs",
   "ci/evidence/registry_seal_lifecycle.v1.json",
   "ci/evidence/registry_seal_manifest.v1.json",
   "ci/evidence/registry_seal_live_surface.v1.json",
