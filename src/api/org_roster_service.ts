@@ -463,6 +463,20 @@ export async function inviteCoachToOrganisation(
   }
 }
 
+async function queryRosterRows(client: PoolClient, orgId: string): Promise<readonly OrgMembershipRow[]> {
+  const result = await client.query(
+    `
+    SELECT m.*, a.display_name AS coach_display_name, a.email_canonical AS coach_email
+    FROM product_org_coach_memberships m
+    LEFT JOIN product_accounts a ON a.user_id = m.coach_user_id
+    WHERE m.org_id = $1
+    ORDER BY m.invited_at ASC
+    `,
+    [orgId]
+  );
+  return result.rows.map(mapMembershipRow).filter((row): row is OrgMembershipRow => row !== null);
+}
+
 export async function listOrganisationRoster(
   ownerUserId: string,
   orgId: string
@@ -470,17 +484,43 @@ export async function listOrganisationRoster(
   const client = await pool.connect();
   try {
     await requireOrganisationOwnedBy(client, orgId, ownerUserId);
-    const result = await client.query(
-      `
-      SELECT m.*, a.display_name AS coach_display_name, a.email_canonical AS coach_email
-      FROM product_org_coach_memberships m
-      LEFT JOIN product_accounts a ON a.user_id = m.coach_user_id
-      WHERE m.org_id = $1
-      ORDER BY m.invited_at ASC
-      `,
+    return await queryRosterRows(client, orgId);
+  }
+  finally {
+    client.release();
+  }
+}
+
+// Part O.7 - a coach's own mirror of listOrganisationRoster, authorized by
+// an ACTIVE membership rather than ownership. Gated to shared-visibility
+// orgs only (matching org_visibility_service.ts's and O.6's own per-mode
+// boundary) - an individual-mode org stays exactly as coach-private as it
+// already is, so this returns an empty roster rather than an error, the
+// same "structural, not policy" quiet-gate pattern used everywhere else in
+// this codebase.
+export async function listOrganisationRosterForCoach(
+  coachUserId: string,
+  orgId: string
+): Promise<readonly OrgMembershipRow[]> {
+  const client = await pool.connect();
+  try {
+    const membershipResult = await client.query(
+      `SELECT * FROM product_org_coach_memberships WHERE org_id = $1 AND coach_user_id = $2 AND membership_status = 'active' LIMIT 1`,
+      [orgId, coachUserId]
+    );
+    if (!membershipResult.rows[0]) {
+      throw new OrgRosterError("org_roster_membership_access_denied", 403);
+    }
+
+    const orgResult = await client.query(
+      `SELECT visibility_mode FROM product_organisations WHERE org_id = $1 LIMIT 1`,
       [orgId]
     );
-    return result.rows.map(mapMembershipRow).filter((row): row is OrgMembershipRow => row !== null);
+    if (orgResult.rows[0]?.visibility_mode !== "shared") {
+      return Object.freeze([]);
+    }
+
+    return await queryRosterRows(client, orgId);
   }
   finally {
     client.release();

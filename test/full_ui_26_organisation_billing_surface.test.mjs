@@ -70,7 +70,8 @@ test("org routes are mounted at their own /org and /coach-workspace prefixes, ne
 
   for (const path_ of [
     '"/org-memberships"', '"/org-memberships/:membership_id/accept"', '"/org-memberships/:membership_id/leave"',
-    '"/org-messages/threads"', '"/org-messages/threads/:thread_id"', '"/org-messages/organisations/:org_id/send"'
+    '"/org-messages/threads"', '"/org-messages/threads/:thread_id"', '"/org-messages/organisations/:org_id/send"',
+    '"/organisations/:org_id/roster"'
   ]) {
     assert.ok(coachRoutes.includes(path_), `expected coach org membership route ${path_}`);
   }
@@ -97,7 +98,7 @@ test("every org-owner route resolves identity from authenticatedOrgOwner, and ev
   assert.ok(ownerAuthCalls >= 10, "every mutating/protected org owner route must resolve identity from authenticatedOrgOwner");
 
   const coachAuthCalls = [...coachRoutes.matchAll(/authenticatedCoach\(request,\s*(?:false|true)\)/gu)].length;
-  assert.equal(coachAuthCalls, 8, "all eight coach org-membership/org-messaging routes (including the two D.3 attachment routes) must resolve identity from authenticatedCoach");
+  assert.equal(coachAuthCalls, 9, "all nine coach org-membership/org-messaging routes (including the two D.3 attachment routes and O.7's fellow-coach roster route) must resolve identity from authenticatedCoach");
 
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, false\)/u);
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, true\)/u);
@@ -497,6 +498,41 @@ test("the athlete org-messages panel only renders a send form for shared-mode or
 
 test("org names rendered into the athlete org-messages panel are escaped before being inserted into innerHTML", () => {
   assert.match(appJs, /escapeHtml\(entry\.org_name\)/u);
+});
+
+// Part O.7 - coach-facing org/team context, the mirror of O.6's athlete
+// side. A coach sees fellow coaches only in shared (team) orgs; individual
+// (gym) orgs stay exactly as coach-private as they already were.
+test("the coach fellow-roster route is authorized by active membership, never by org ownership", () => {
+  assert.ok(coachRoutes.includes('"/organisations/:org_id/roster"'), "expected the coach-facing fellow-roster route");
+  assert.match(coachRoutes, /listOrganisationRosterForCoach/u);
+
+  assert.match(rosterService, /export async function listOrganisationRosterForCoach/u);
+  const functionBody = rosterService.slice(rosterService.indexOf("export async function listOrganisationRosterForCoach"));
+  const functionEnd = functionBody.indexOf("\nexport async function", 1);
+  const scopedBody = functionEnd === -1 ? functionBody : functionBody.slice(0, functionEnd);
+  assert.doesNotMatch(scopedBody, /requireOrganisationOwnedBy/u, "the coach-facing roster function must never authorize by ownership");
+  assert.match(scopedBody, /membership_status = 'active'/u);
+  assert.match(scopedBody, /visibility_mode !== "shared"/u);
+});
+
+test("the coach org-context panel calls both the org-memberships and fellow-roster routes, and only fetches the roster for shared-mode orgs", () => {
+  assert.match(appJs, /api\("GET", "\/coach-workspace\/org-memberships"\)/u);
+  assert.match(appJs, /api\(\s*"GET",\s*`\/coach-workspace\/organisations\/\$\{encodeURIComponent\(membership\.org_id\)\}\/roster`/u);
+  assert.match(appJs, /if \(membership\.visibility_mode !== "shared"\)/u);
+});
+
+test("the coach org-context panel is gated to state.role === \"coach\" and mirrors the athlete panel's insertion pattern", () => {
+  assert.match(appJs, /function refreshCoachOrgContext/u);
+  assert.match(appJs, /if \(state\.role !== "coach"\) return;/u);
+  assert.match(appJs, /panel\.id = "coachOrgContextPanel";/u);
+  assert.match(appJs, /\.querySelector\("#view-account \.two-column"\)\s*\n\s*\.insertAdjacentElement\("afterend", panel\);/u);
+});
+
+test("org names and fellow-coach names/emails rendered into the coach org-context panel are escaped before being inserted into innerHTML", () => {
+  assert.match(appJs, /escapeHtml\(entry\.membership\.org_name\)/u);
+  assert.match(appJs, /escapeHtml\(fellow\.coach_display_name \|\| fellow\.coach_user_id\)/u);
+  assert.match(appJs, /escapeHtml\(fellow\.coach_email\)/u);
 });
 
 // Part O.5 - the org<->coach and org<->athlete messaging inboxes, built

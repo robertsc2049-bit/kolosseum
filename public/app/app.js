@@ -84,7 +84,8 @@ const DEFAULT_STATE = Object.freeze({
   currentTerms: null,
   liveMessageThreadId: null,
   athleteOrgMessageThreads: [],
-  athleteOrgContexts: []
+  athleteOrgContexts: [],
+  coachOrgContexts: []
 });
 
 const state = loadState();
@@ -1380,6 +1381,7 @@ function setView(view) {
     refreshSupportHistory().catch(() => {});
     refreshPendingRelationshipInvitations().catch(handleError);
     refreshAthleteRelationships().catch(handleError);
+    refreshCoachOrgContext().catch(handleError);
   }
 }
 
@@ -11857,6 +11859,88 @@ function renderAthleteRelationships() {
     );
     renderAthleteOwnMessages();
   }
+}
+
+// Part O.7 - coach-side org/team context, the mirror of O.6's athlete-side
+// panel. Read-only (no send action) - which org(s) a coach belongs to,
+// and, only for shared (team) orgs, who else coaches there. Individual
+// (gym) orgs render org name/badge only; listOrganisationRosterForCoach
+// itself is the authority on that boundary (it returns an empty roster for
+// individual mode), this is purely display.
+async function refreshCoachOrgContext() {
+  if (state.role !== "coach") return;
+
+  const response = await api("GET", "/coach-workspace/org-memberships");
+  const memberships = Array.isArray(response.memberships) ? response.memberships : [];
+  const activeMemberships = memberships.filter((membership) => membership.membership_status !== "removed");
+
+  state.coachOrgContexts = await Promise.all(
+    activeMemberships.map(async (membership) => {
+      if (membership.visibility_mode !== "shared") {
+        return { membership, roster: [] };
+      }
+      const rosterResponse = await api(
+        "GET",
+        `/coach-workspace/organisations/${encodeURIComponent(membership.org_id)}/roster`
+      );
+      return { membership, roster: Array.isArray(rosterResponse.roster) ? rosterResponse.roster : [] };
+    })
+  );
+  renderCoachOrgContext();
+}
+
+function coachOrgVisibilityModeLabel(mode) {
+  return mode === "shared" ? "Team" : "Gym";
+}
+
+function renderCoachOrgContext() {
+  let panel = document.getElementById("coachOrgContextPanel");
+
+  if (state.role !== "coach") {
+    if (panel) panel.hidden = true;
+    return;
+  }
+
+  const entries = Array.isArray(state.coachOrgContexts) ? state.coachOrgContexts : [];
+
+  if (entries.length === 0) {
+    if (panel) panel.hidden = true;
+    return;
+  }
+
+  if (!panel) {
+    panel = document.createElement("article");
+    panel.id = "coachOrgContextPanel";
+    panel.className = "panel";
+
+    document
+      .querySelector("#view-account .two-column")
+      .insertAdjacentElement("afterend", panel);
+  }
+
+  panel.hidden = false;
+  panel.innerHTML = `
+    <p class="eyebrow">Organisations</p>
+    <h3>Your organisations</h3>
+    ${entries.map((entry) => `
+      <div class="record-row coach-org-context-entry">
+        <strong>${escapeHtml(entry.membership.org_name)}</strong>
+        <span class="badge ${entry.membership.visibility_mode === "shared" ? "active" : "neutral"}">${coachOrgVisibilityModeLabel(entry.membership.visibility_mode)}</span>
+        ${entry.membership.visibility_mode === "shared"
+          ? `
+            <div class="record-list">
+              ${entry.roster.map((fellow) => `
+                <p class="muted small">
+                  ${escapeHtml(fellow.coach_display_name || fellow.coach_user_id)}${fellow.coach_user_id === state.profile?.coachUserId ? " (You)" : ""}${fellow.coach_email ? ` - ${escapeHtml(fellow.coach_email)}` : ""}
+                </p>
+              `).join("")}
+            </div>
+          `
+          : ""
+        }
+      </div>
+    `).join("")}
+  `;
 }
 
 async function refreshAthleteRelationships() {
