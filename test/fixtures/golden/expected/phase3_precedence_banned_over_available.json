@@ -39,7 +39,8 @@
           "activity",
           "movement",
           "exercise",
-          "program"
+          "program",
+          "equipment"
         ],
         "notes": [
           "PHASE_3: registries loaded",

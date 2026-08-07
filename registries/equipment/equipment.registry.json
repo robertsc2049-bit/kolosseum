@@ -1,0 +1,54 @@
+{
+  "registry_id": "equipment",
+  "version": "1.0.0",
+  "entries": {
+    "barbell": {
+      "equipment_id": "barbell",
+      "id": "barbell",
+      "display_label": "Barbell",
+      "equipment_class": "free_weight",
+      "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["squat", "hinge", "horizontal_push"]
+    },
+    "rack": {
+      "equipment_id": "rack",
+      "id": "rack",
+      "display_label": "Rack",
+      "equipment_class": "support_station",
+      "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["squat", "horizontal_push"]
+    },
+    "bench": {
+      "equipment_id": "bench",
+      "id": "bench",
+      "display_label": "Bench",
+      "equipment_class": "support_station",
+      "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["horizontal_push"]
+    },
+    "plate": {
+      "equipment_id": "plate",
+      "id": "plate",
+      "display_label": "Plate",
+      "equipment_class": "load",
+      "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["squat", "hinge", "horizontal_push"]
+    },
+    "bodyweight": {
+      "equipment_id": "bodyweight",
+      "id": "bodyweight",
+      "display_label": "Bodyweight",
+      "equipment_class": "no_external_load",
+      "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["brace"]
+    },
+    "open_floor_space": {
+      "equipment_id": "open_floor_space",
+      "id": "open_floor_space",
+      "display_label": "Open floor space",
+      "equipment_class": "space",
+      "activity_applicability": ["powerlifting", "general_strength", "rugby_union"],
+      "movement_pattern_applicability": ["brace"]
+    }
+  }
+}

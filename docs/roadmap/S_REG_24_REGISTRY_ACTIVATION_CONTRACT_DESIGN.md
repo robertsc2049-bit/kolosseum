@@ -220,3 +220,9 @@ It does not activate canonical registries, create marker evaluator behaviour, co
 ## Exact guard markers
 
 - Required exact contract marker: separate explicit activation slice.
+
+## Supersession log (append-only)
+
+This contract record is never rewritten once a later slice acts on it. `superseded_by_slice_ids` names every explicitly-authorised activation slice that has since satisfied this contract for a specific target, in the order they occurred:
+
+- S-REG-25 (`equipment_registry` activation) - satisfied this contract's requirements for the `equipment` domain only: a separate explicit slice, a human-authorised decision, active registry hashes recorded before/after, a rollback packet, and a runtime output parity proof. `ci/schemas/<registry_id>.registry.schema.json` was also created as a necessary companion to the new registry file, required by `registry_schema_presence_guard.mjs` (one of this contract's own required proof commands) though not itself named in "Future allowed activation mutations" above - a gap in this design's literal enumeration, not a forbidden shortcut.

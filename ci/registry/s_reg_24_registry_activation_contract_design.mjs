@@ -186,7 +186,8 @@ export const S_REG_24_EXPECTED_DOCUMENT_KEYS = Object.freeze([
   "future_registry_load_order_edges",
   "future_required_proof_commands",
   "next_allowed_slice_categories",
-  "next_disallowed_actions"
+  "next_disallowed_actions",
+  "superseded_by_slice_ids"
 ]);
 
 export const S_REG_24_PATHS = Object.freeze({
@@ -242,6 +243,23 @@ function assertExactArray(actual, expected, reason) {
 
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
     fail(reason, { actual, expected });
+  }
+}
+
+// A later, explicitly-authorised activation slice (e.g. S-REG-25) may append
+// new domains to the LIVE registry index/bundle - this design's own recorded
+// observation (asserted separately, below, with assertExactArray against
+// S_REG_24_COMPACT_ACTIVE_REGISTRY_ORDER) remains an immutable fact about
+// what was true when S-REG-24 was written. What must never happen is the
+// original compact set being reordered, renamed, or removed underneath this
+// record - hence "prefix", not "exact".
+function assertArrayStartsWith(actual, prefix, reason) {
+  if (!Array.isArray(actual)) {
+    fail(reason, { actual });
+  }
+
+  if (JSON.stringify(actual.slice(0, prefix.length)) !== JSON.stringify(prefix)) {
+    fail(reason, { actual, expected_prefix: prefix });
   }
 }
 
@@ -326,13 +344,13 @@ function assertActiveRegistrySurfaceUnchanged(contractDocument) {
   const registryIndex = readJson(S_REG_24_PATHS.registry_index);
   const registryBundle = readJson(S_REG_24_PATHS.registry_bundle);
 
-  assertExactArray(
+  assertArrayStartsWith(
     registryIndex.order,
     S_REG_24_COMPACT_ACTIVE_REGISTRY_ORDER,
     "s_reg_24_active_registry_index_order_changed"
   );
 
-  assertExactArray(
+  assertArrayStartsWith(
     Object.keys(registryBundle.registries),
     S_REG_24_COMPACT_ACTIVE_REGISTRY_ORDER,
     "s_reg_24_active_registry_bundle_keys_changed"
@@ -454,6 +472,17 @@ export function sReg24ValidateRegistryActivationContractDesign({
 
   assertFutureActivationContract(contractDocument);
 
+  // Same append-only supersession log as S-REG-23 - this design record is
+  // never rewritten when a later slice acts on part of it.
+  if (!Array.isArray(contractDocument.superseded_by_slice_ids)) {
+    fail("s_reg_24_superseded_by_slice_ids_invalid", { actual: contractDocument.superseded_by_slice_ids });
+  }
+  for (const sliceId of contractDocument.superseded_by_slice_ids) {
+    if (typeof sliceId !== "string" || sliceId.trim() === "") {
+      fail("s_reg_24_superseded_by_slice_ids_invalid", { actual: contractDocument.superseded_by_slice_ids });
+    }
+  }
+
   return Object.freeze({
     ok: true,
     token: S_REG_24_FAILURE_TOKEN,
@@ -470,6 +499,7 @@ export function sReg24ValidateRegistryActivationContractDesign({
     future_allowed_activation_mutation_count: contractDocument.future_allowed_activation_mutations.length,
     future_forbidden_activation_shortcut_count: contractDocument.future_forbidden_activation_shortcuts.length,
     future_registry_load_order_edge_count: contractDocument.future_registry_load_order_edges.length,
-    future_required_proof_command_count: contractDocument.future_required_proof_commands.length
+    future_required_proof_command_count: contractDocument.future_required_proof_commands.length,
+    superseded_by_slice_ids: [...contractDocument.superseded_by_slice_ids]
   });
 }

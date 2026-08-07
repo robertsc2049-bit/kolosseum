@@ -156,3 +156,9 @@ Expected proof:
 S-REG-23 is a hold decision only.
 
 It does not activate canonical registries, create marker evaluator behaviour, compare real values, emit advice, infer outcomes, or alter deterministic engine output.
+
+## Supersession log (append-only)
+
+This decision record is never rewritten once a later slice acts on it. `superseded_by_slice_ids` names every explicitly-authorised activation slice that has since acted on part of this hold, in the order they occurred:
+
+- S-REG-25 (`equipment_registry` activation) - authorised by explicit human decision. Activated the `equipment` domain only. The other 10 hold reasons and 10 remaining candidate domains named in this record remain held.
