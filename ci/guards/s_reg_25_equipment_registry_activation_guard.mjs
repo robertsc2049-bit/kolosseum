@@ -151,6 +151,7 @@ const allowedChangedFiles = new Set([
   // loaded_registries list and the registry_index/bundle hashes it derives
   // from changed; no vector's intended pass/reject outcome changed.
   "replay/suite/beta_phase1_7/vectors.json",
+  "replay/suite/beta_phase1_7/manifest.json",
   "replay/suite/beta_phase1_7/verify_inputs.json",
   "replay/suite/beta_phase1_7/expected_outputs.json",
   "replay/suite/beta_phase1_7/verify_manifest.json",

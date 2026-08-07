@@ -25,7 +25,7 @@
     "contract": "ec4dbe9fa7d320fc4d1ce20e3773d49c27af9c2420651a428e98531f77204ef7",
     "failure_tokens": "32e2bd7c3c120f7014de8316a5ccb5aa3008c088c4afb1c03edd8e09e19ee714",
     "vectors": "08828cd26fa34850bb0541fd50d107fee11de741fc03663de911fdf084717134",
-    "vector_manifest": "7793a4619023cc34350aa4958adae51fab3b98d1ee01c3cddb1da2d8852fe873",
+    "vector_manifest": "95f29c9ad2b64dfbc83a49fc697e527de4b1e6619e6b94b2c0967a2ae2f3c17d",
     "verify_inputs": "c15fbb4bc5a5941af7aed3612f4bf4311a3ff11ebdb65e899fcdbbdd797d5c27",
     "expected_outputs": "eae05933bfbf5f0dd7f6fadffb9681f8169c47e66a69aa715b04a40d705c7f56"
   },
