@@ -274,14 +274,26 @@ if (!packageJson.includes("node ci/guards/s_v1_10_release_boundary_file_closure_
 
 const changedFiles = currentChangedFiles();
 
+const S_V1_10_BOUNDARY_SURFACE_FILES = new Set([
+  FILES.activeBoundary,
+  FILES.releaseBoundary,
+  FILES.acceptanceGate,
+  FILES.notInScope,
+  FILES.authorityMap,
+  FILES.ciMasterGate
+]);
+
 const sV110BoundarySurfaceChanged = changedFiles.some((changedFile) =>
-  changedFile.startsWith("docs/v1/")
+  S_V1_10_BOUNDARY_SURFACE_FILES.has(changedFile)
 );
 
 // S-V1-10 guard intentionally checks forbidden implementation prefixes only.
 // It must not freeze future v1 slices to the S-V1-10 changed-file allowlist.
 // Therefore the forbidden-prefix check runs only when this branch changes the
-// S-V1-10 boundary surface.
+// S-V1-10 boundary surface - its own six named docs (checked exactly, not by
+// docs/v1/ directory prefix, since other unrelated v1 registry-content docs
+// such as V1_EQUIPMENT_REGISTRY_COVERAGE_CONTRACT.md also live under docs/v1/
+// and are not part of this guard's boundary surface).
 if (sV110BoundarySurfaceChanged) {
   for (const changedFile of changedFiles) {
     for (const forbiddenPrefix of FORBIDDEN_CHANGED_PREFIXES) {

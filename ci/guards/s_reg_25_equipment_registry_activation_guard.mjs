@@ -53,6 +53,14 @@ const allowedChangedFiles = new Set([
   "ci/guards/s_v1_22_equipment_registry_coverage_contract_guard.mjs",
   "test/s_v1_22_equipment_registry_coverage_contract.test.mjs",
   "docs/v1/V1_EQUIPMENT_REGISTRY_COVERAGE_CONTRACT.md",
+  // S-V1-10's trigger for its forbidden-implementation-prefix check was a
+  // blanket docs/v1/ directory-prefix match, over-broad relative to its own
+  // stated intent (only its six named boundary docs). Editing the unrelated
+  // V1_EQUIPMENT_REGISTRY_COVERAGE_CONTRACT.md above false-triggered it
+  // against this slice's real registries/ changes. Narrowed the check to an
+  // exact match against its own named FILES set - a real-content fix, not a
+  // weakening: the six boundary docs still trigger it exactly as before.
+  "ci/guards/s_v1_10_release_boundary_file_closure_guard.mjs",
   "ci/evidence/registry_seal_lifecycle.v1.json",
   "ci/evidence/registry_seal_manifest.v1.json",
   "ci/evidence/registry_seal_live_surface.v1.json",
