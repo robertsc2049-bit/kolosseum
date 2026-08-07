@@ -24,14 +24,14 @@ It does not alter deterministic engine runtime behaviour.
 
 ## Inspection baseline
 
-The active registry index remains compact:
+At the time this slice was written, the active registry index was compact:
 
 - activity
 - movement
 - exercise
 - program
 
-The active registry bundle remains compact:
+The active registry bundle was compact:
 
 - activity
 - movement
@@ -39,6 +39,23 @@ The active registry bundle remains compact:
 - program
 
 Controlled-launch registry workability remains the active proof status.
+
+This baseline is a historical observation of the state at write-time, not a
+permanent ceiling on the active registry surface - see the supersession log
+below.
+
+## Supersession log (append-only)
+
+S-REG-25 later extended the active registry index and bundle with a fifth
+domain, `equipment`, appended after this bridge's 4 mapped legacy ids. That
+extension was a separate, explicitly human-authorised activation decision and
+does not touch this bridge's mapping, alias scope, or claims in any way - the
+4 legacy ids this bridge maps remain the leading, unreordered prefix of the
+active order. This guard's live-file checks were relaxed from an exact-length
+match to a prefix match to reflect that later, separately-authorised
+extensions are expected and do not constitute drift in this bridge.
+
+- superseded_by_slice_ids: S-REG-25
 
 ## Bridge mapping
 

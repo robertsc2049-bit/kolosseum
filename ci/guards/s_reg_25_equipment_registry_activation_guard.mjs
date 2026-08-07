@@ -61,6 +61,14 @@ const allowedChangedFiles = new Set([
   // exact match against its own named FILES set - a real-content fix, not a
   // weakening: the six boundary docs still trigger it exactly as before.
   "ci/guards/s_v1_10_release_boundary_file_closure_guard.mjs",
+  // S-REG-04 (an earlier, already-accepted bridge-only slice) also hardcoded
+  // an exact-length compact-order assertion against the live registry_index/
+  // registry_bundle files - the same class of conflict as S-REG-23/24, fixed
+  // the same way (prefix-match on live files, append-only supersession note
+  // on the doc; the bridge's own alias mapping/claims are untouched).
+  "ci/guards/s_reg_04_legacy_to_canonical_registry_loader_bridge_guard.mjs",
+  "test/s_reg_04_legacy_to_canonical_registry_loader_bridge.test.mjs",
+  "docs/roadmap/S_REG_04_LEGACY_TO_CANONICAL_REGISTRY_LOADER_BRIDGE.md",
   "ci/evidence/registry_seal_lifecycle.v1.json",
   "ci/evidence/registry_seal_manifest.v1.json",
   "ci/evidence/registry_seal_live_surface.v1.json",

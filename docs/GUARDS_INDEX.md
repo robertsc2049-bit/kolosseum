@@ -71,7 +71,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/run_pipeline_contract_version_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/run_v0_boundary_claim_consistency_guard.mjs` | V0 Boundary Pack | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/runtime-boundary.guard.ps1` | Repo Governance | medium | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
-| `ci/guards/s_reg_04_legacy_to_canonical_registry_loader_bridge_guard.mjs` | Registry Law | high | registry |  |
+| `ci/guards/s_reg_04_legacy_to_canonical_registry_loader_bridge_guard.mjs` | Registry Law | high | registry | S-REG-04's bridge maps exactly these 4 legacy ids and must never lose any |
 | `ci/guards/s_reg_05_canonical_registry_contract_candidate_surface_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_reg_06_canonical_activity_movement_exercise_candidate_seeds_guard.mjs` | Registry Law | high | registry |  |
 | `ci/guards/s_reg_07_canonical_equipment_candidate_seeds_guard.mjs` | Registry Law | high | registry |  |
