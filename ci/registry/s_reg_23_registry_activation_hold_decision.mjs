@@ -125,7 +125,8 @@ export const S_REG_23_EXPECTED_DOCUMENT_KEYS = Object.freeze([
   "active_registry_surface_observed",
   "candidate_chain_reviewed",
   "next_allowed_slice_categories",
-  "next_disallowed_actions"
+  "next_disallowed_actions",
+  "superseded_by_slice_ids"
 ]);
 
 export const S_REG_23_PATHS = Object.freeze({
@@ -186,6 +187,23 @@ function assertExactArray(actual, expected, reason) {
   }
 }
 
+// A later, explicitly-authorised activation slice (e.g. S-REG-25) may append
+// new domains to the LIVE registry index/bundle - this hold decision's own
+// historical observation (asserted separately, below, with assertExactArray
+// against S_REG_23_COMPACT_ACTIVE_REGISTRY_ORDER) remains an immutable fact
+// about what was true when S-REG-23 was written. What must never happen is
+// the original compact set being reordered, renamed, or removed underneath
+// this record - hence "prefix", not "exact".
+function assertArrayStartsWith(actual, prefix, reason) {
+  if (!Array.isArray(actual)) {
+    fail(reason, { actual });
+  }
+
+  if (JSON.stringify(actual.slice(0, prefix.length)) !== JSON.stringify(prefix)) {
+    fail(reason, { actual, expected_prefix: prefix });
+  }
+}
+
 function assertExactKeys(object, expectedKeys, reason) {
   const actual = Object.keys(object).sort();
   const expected = [...expectedKeys].sort();
@@ -218,13 +236,13 @@ function assertActiveRegistrySurfaceUnchanged(decisionDocument) {
   const registryIndex = readJson(S_REG_23_PATHS.registry_index);
   const registryBundle = readJson(S_REG_23_PATHS.registry_bundle);
 
-  assertExactArray(
+  assertArrayStartsWith(
     registryIndex.order,
     S_REG_23_COMPACT_ACTIVE_REGISTRY_ORDER,
     "s_reg_23_active_registry_index_order_changed"
   );
 
-  assertExactArray(
+  assertArrayStartsWith(
     Object.keys(registryBundle.registries),
     S_REG_23_COMPACT_ACTIVE_REGISTRY_ORDER,
     "s_reg_23_active_registry_bundle_keys_changed"
@@ -345,6 +363,19 @@ export function sReg23ValidateRegistryActivationHoldDecision({
     "s_reg_23_candidate_chain_reviewed_invalid"
   );
 
+  // A hold decision is a historical record - it is never rewritten when a
+  // later, explicitly-authorised activation slice acts on part of it. This
+  // field only ever grows (an append-only log of which later slices acted
+  // on this hold), never shrinks or reorders what was originally recorded.
+  if (!Array.isArray(decisionDocument.superseded_by_slice_ids)) {
+    fail("s_reg_23_superseded_by_slice_ids_invalid", { actual: decisionDocument.superseded_by_slice_ids });
+  }
+  for (const sliceId of decisionDocument.superseded_by_slice_ids) {
+    if (typeof sliceId !== "string" || sliceId.trim() === "") {
+      fail("s_reg_23_superseded_by_slice_ids_invalid", { actual: decisionDocument.superseded_by_slice_ids });
+    }
+  }
+
   return Object.freeze({
     ok: true,
     token: S_REG_23_FAILURE_TOKEN,
@@ -359,6 +390,7 @@ export function sReg23ValidateRegistryActivationHoldDecision({
     source_review_slice_id: decisionDocument.source_review_slice_id,
     hold_reason_codes: [...decisionDocument.hold_reason_codes],
     required_before_activation: [...decisionDocument.required_before_activation],
-    candidate_chain_reviewed: [...decisionDocument.candidate_chain_reviewed]
+    candidate_chain_reviewed: [...decisionDocument.candidate_chain_reviewed],
+    superseded_by_slice_ids: [...decisionDocument.superseded_by_slice_ids]
   });
 }

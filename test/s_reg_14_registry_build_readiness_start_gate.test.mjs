@@ -26,8 +26,8 @@ const registryIndex = readJson("registries/registry_index.json");
 const registryBundle = readJson("registries/registry_bundle.json");
 
 test("S-REG-14 keeps the active registry surface compact", () => {
-  assert.deepEqual(registryIndex.order, S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER);
-  assert.deepEqual(Object.keys(registryBundle.registries), S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER);
+  assert.deepEqual(registryIndex.order.slice(0, S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER.length), S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER);
+  assert.deepEqual(Object.keys(registryBundle.registries).slice(0, S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER.length), S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER);
 });
 
 test("S-REG-14 validates the registry build-readiness manifest", () => {

@@ -50,9 +50,12 @@ const expectedEntryCounts = Object.freeze({
   sport_program_profile_registry_5d: 3
 });
 
-test("S-REG-04 keeps active registry order and bundle compact", () => {
-  assert.deepEqual(registryIndex.order, expectedCompactOrder);
-  assert.deepEqual(Object.keys(registryBundle.registries), expectedCompactOrder);
+test("S-REG-04's 4 mapped legacy ids remain the leading, unreordered prefix of the active registry order and bundle - later authorised activations may append further domains after them", () => {
+  assert.deepEqual(registryIndex.order.slice(0, expectedCompactOrder.length), expectedCompactOrder);
+  assert.deepEqual(
+    Object.keys(registryBundle.registries).slice(0, expectedCompactOrder.length),
+    expectedCompactOrder
+  );
 });
 
 test("S-REG-04 exposes only the explicit canonical alias map", () => {

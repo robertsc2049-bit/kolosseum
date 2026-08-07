@@ -344,8 +344,16 @@ function assertActiveRegistrySurfaceUnchanged() {
   const registryBundle = readJson(S_REG_14_CONTRACT_PATHS.registry_bundle);
   const bundleIds = Object.keys(registryBundle.registries ?? {});
 
-  assertExactArray(registryIndex.order, S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER, "active_registry_order_changed");
-  assertExactArray(bundleIds, S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER, "active_registry_bundle_changed");
+  assertExactArray(
+    registryIndex.order.slice(0, S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER.length),
+    S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER,
+    "active_registry_order_changed"
+  );
+  assertExactArray(
+    bundleIds.slice(0, S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER.length),
+    S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER,
+    "active_registry_bundle_changed"
+  );
 }
 
 function assertFoundationClosed(manifest) {

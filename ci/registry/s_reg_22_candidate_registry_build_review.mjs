@@ -244,13 +244,13 @@ function assertActiveRegistrySurfaceUnchanged() {
   const registryBundle = readJson(S_REG_22_PATHS.registry_bundle);
 
   assertExactArray(
-    registryIndex.order,
+    registryIndex.order.slice(0, S_REG_22_COMPACT_ACTIVE_REGISTRY_ORDER.length),
     S_REG_22_COMPACT_ACTIVE_REGISTRY_ORDER,
     "s_reg_22_active_registry_index_order_changed"
   );
 
   assertExactArray(
-    Object.keys(registryBundle.registries),
+    Object.keys(registryBundle.registries).slice(0, S_REG_22_COMPACT_ACTIVE_REGISTRY_ORDER.length),
     S_REG_22_COMPACT_ACTIVE_REGISTRY_ORDER,
     "s_reg_22_active_registry_bundle_keys_changed"
   );

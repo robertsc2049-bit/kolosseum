@@ -67,8 +67,8 @@ const expectedDependencyOrder = Object.freeze([
 
 test("S-REG-05 keeps active registry law compact", () => {
   assert.deepEqual(S_REG_05_ACTIVE_COMPACT_REGISTRY_IDS, expectedCompactIds);
-  assert.deepEqual(registryIndex.order, expectedCompactIds);
-  assert.deepEqual(Object.keys(registryBundle.registries), expectedCompactIds);
+  assert.deepEqual(registryIndex.order.slice(0, expectedCompactIds.length), expectedCompactIds);
+  assert.deepEqual(Object.keys(registryBundle.registries).slice(0, expectedCompactIds.length), expectedCompactIds);
 });
 
 test("S-REG-05 declares the full canonical registry id set without activating it", () => {

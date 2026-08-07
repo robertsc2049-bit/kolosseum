@@ -4,6 +4,7 @@ import test from "node:test";
 
 import {
   S_REG_23_CANDIDATE_CHAIN_REVIEWED,
+  S_REG_23_COMPACT_ACTIVE_REGISTRY_ORDER,
   S_REG_23_FAILURE_TOKEN,
   S_REG_23_HOLD_REASON_CODES,
   S_REG_23_REQUIRED_BEFORE_ACTIVATION,
@@ -49,19 +50,39 @@ test("S-REG-23 source review remains the S-REG-22 later-activation requirement",
   assert.equal(review.activation_ready, false);
 });
 
-test("S-REG-23 active registry surface remains compact and unchanged", () => {
+test("S-REG-23's own historical observation of the active registry surface remains an immutable fact, even after a later slice legitimately extends the live surface", () => {
   const decision = sReg23LoadRegistryActivationHoldDecision();
   const registryIndex = readJson("registries/registry_index.json");
   const registryBundle = readJson("registries/registry_bundle.json");
 
-  assert.deepEqual(registryIndex.order, ["activity", "movement", "exercise", "program"]);
-  assert.deepEqual(Object.keys(registryBundle.registries), ["activity", "movement", "exercise", "program"]);
-  assert.deepEqual(decision.active_registry_surface_observed.registry_index_order, registryIndex.order);
-  assert.deepEqual(decision.active_registry_surface_observed.registry_bundle_keys, Object.keys(registryBundle.registries));
+  // The historical record itself never changes - it is exactly what S-REG-23
+  // observed at the time it was written.
+  assert.deepEqual(decision.active_registry_surface_observed.registry_index_order, S_REG_23_COMPACT_ACTIVE_REGISTRY_ORDER);
+  assert.deepEqual(decision.active_registry_surface_observed.registry_bundle_keys, S_REG_23_COMPACT_ACTIVE_REGISTRY_ORDER);
+
+  // The LIVE surface may since have been legitimately extended by a later,
+  // explicitly-authorised activation slice (recorded in
+  // superseded_by_slice_ids) - what must never happen is the original
+  // compact set being reordered, renamed, or removed underneath this record.
+  assert.deepEqual(registryIndex.order.slice(0, S_REG_23_COMPACT_ACTIVE_REGISTRY_ORDER.length), S_REG_23_COMPACT_ACTIVE_REGISTRY_ORDER);
+  assert.deepEqual(
+    Object.keys(registryBundle.registries).slice(0, S_REG_23_COMPACT_ACTIVE_REGISTRY_ORDER.length),
+    S_REG_23_COMPACT_ACTIVE_REGISTRY_ORDER
+  );
 
   assert.equal(fs.existsSync("registries/threshold_marker_registry.json"), false);
   assert.equal(fs.existsSync("registries/sport_metric_registry_1c.json"), false);
   assert.equal(fs.existsSync("registries/metric_exercise_link_registry_1c_a.json"), false);
+});
+
+test("S-REG-23 records which later slices have superseded (acted on) this hold, append-only", () => {
+  const decision = sReg23LoadRegistryActivationHoldDecision();
+
+  assert.ok(Array.isArray(decision.superseded_by_slice_ids));
+  for (const sliceId of decision.superseded_by_slice_ids) {
+    assert.equal(typeof sliceId, "string");
+    assert.ok(sliceId.trim().length > 0);
+  }
 });
 
 test("S-REG-23 candidate chain is reviewed but not activated", () => {

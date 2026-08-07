@@ -119,6 +119,21 @@ function assertDeepEqual(actual, expected, message, details = {}) {
   }
 }
 
+// S-REG-04's bridge maps exactly these 4 legacy ids and must never lose any
+// of them or see them reordered - but a later, separately-authorised
+// activation slice may legitimately APPEND further domains after them
+// without breaking this bridge's own mapping. Live-file checks below are
+// therefore prefix checks, not exact-length checks.
+function assertStartsWith(actual, prefix, message, details = {}) {
+  if (!Array.isArray(actual)) {
+    fail(message, { ...details, actual, expected_prefix: prefix });
+  }
+
+  if (JSON.stringify(actual.slice(0, prefix.length)) !== JSON.stringify(prefix)) {
+    fail(message, { ...details, actual, expected_prefix: prefix });
+  }
+}
+
 function assertIncludes(text, marker, context) {
   if (!text.includes(marker)) {
     fail("Required S-REG-04 marker is missing.", {
@@ -225,16 +240,16 @@ async function main() {
   const registryIndex = readJson(files.registryIndex);
   const registryBundle = readJson(files.registryBundle);
 
-  assertDeepEqual(
+  assertStartsWith(
     registryIndex.order,
     compactOrder,
-    "S-REG-04 requires the active registry_index order to remain compact."
+    "S-REG-04 requires its 4 mapped legacy ids to remain the leading, unreordered prefix of the active registry_index order."
   );
 
-  assertDeepEqual(
+  assertStartsWith(
     Object.keys(registryBundle.registries),
     compactOrder,
-    "S-REG-04 requires the active registry_bundle keys to remain compact."
+    "S-REG-04 requires its 4 mapped legacy ids to remain the leading, unreordered prefix of the active registry_bundle keys."
   );
 
   assertNoCanonicalRegistryActivation();

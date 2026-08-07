@@ -239,13 +239,13 @@ function assertActiveRegistryStillCompact() {
   const registryBundle = readJson(files.registryBundle);
 
   assertDeepEqual(
-    registryIndex.order,
+    registryIndex.order.slice(0, compactOrder.length),
     compactOrder,
     "S-REG-21 requires active registry_index order to remain compact."
   );
 
   assertDeepEqual(
-    Object.keys(registryBundle.registries),
+    Object.keys(registryBundle.registries).slice(0, compactOrder.length),
     compactOrder,
     "S-REG-21 requires active registry_bundle keys to remain compact."
   );

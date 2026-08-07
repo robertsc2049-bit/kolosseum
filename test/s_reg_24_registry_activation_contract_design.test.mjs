@@ -3,6 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 import {
+  S_REG_24_COMPACT_ACTIVE_REGISTRY_ORDER,
   S_REG_24_COVERED_S_REG_23_REQUIREMENTS,
   S_REG_24_FAILURE_TOKEN,
   S_REG_24_FUTURE_ALLOWED_ACTIVATION_MUTATIONS,
@@ -51,19 +52,33 @@ test("S-REG-24 covers the S-REG-23 required-before-activation checklist exactly"
   assert.equal(hold.active_registry_activation, false);
 });
 
-test("S-REG-24 active registry surface remains compact and unchanged", () => {
+test("S-REG-24's own historical observation of the active registry surface remains an immutable fact, even after a later slice legitimately extends the live surface", () => {
   const contract = sReg24LoadRegistryActivationContractDesign();
   const registryIndex = readJson("registries/registry_index.json");
   const registryBundle = readJson("registries/registry_bundle.json");
 
-  assert.deepEqual(registryIndex.order, ["activity", "movement", "exercise", "program"]);
-  assert.deepEqual(Object.keys(registryBundle.registries), ["activity", "movement", "exercise", "program"]);
-  assert.deepEqual(contract.current_active_registry_surface_observed.registry_index_order, registryIndex.order);
-  assert.deepEqual(contract.current_active_registry_surface_observed.registry_bundle_keys, Object.keys(registryBundle.registries));
+  assert.deepEqual(contract.current_active_registry_surface_observed.registry_index_order, S_REG_24_COMPACT_ACTIVE_REGISTRY_ORDER);
+  assert.deepEqual(contract.current_active_registry_surface_observed.registry_bundle_keys, S_REG_24_COMPACT_ACTIVE_REGISTRY_ORDER);
+
+  assert.deepEqual(registryIndex.order.slice(0, S_REG_24_COMPACT_ACTIVE_REGISTRY_ORDER.length), S_REG_24_COMPACT_ACTIVE_REGISTRY_ORDER);
+  assert.deepEqual(
+    Object.keys(registryBundle.registries).slice(0, S_REG_24_COMPACT_ACTIVE_REGISTRY_ORDER.length),
+    S_REG_24_COMPACT_ACTIVE_REGISTRY_ORDER
+  );
 
   assert.equal(fs.existsSync("registries/threshold_marker_registry.json"), false);
   assert.equal(fs.existsSync("registries/sport_metric_registry_1c.json"), false);
   assert.equal(fs.existsSync("registries/metric_exercise_link_registry_1c_a.json"), false);
+});
+
+test("S-REG-24 records which later slices have superseded (acted on) this contract, append-only", () => {
+  const contract = sReg24LoadRegistryActivationContractDesign();
+
+  assert.ok(Array.isArray(contract.superseded_by_slice_ids));
+  for (const sliceId of contract.superseded_by_slice_ids) {
+    assert.equal(typeof sliceId, "string");
+    assert.ok(sliceId.trim().length > 0);
+  }
 });
 
 test("S-REG-24 defines future activation contract gates without making current mutations", () => {

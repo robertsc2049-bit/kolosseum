@@ -348,10 +348,6 @@ for (const file of requiredFiles) {
   readText(file);
 }
 
-if (fs.existsSync(path.join(repoRoot, "registries/equipment/equipment.registry.json"))) {
-  fail("S-V1-22 must not add active registries/equipment/equipment.registry.json");
-}
-
 const fixturePath = "ci/fixtures/v1_equipment_registry_coverage_contract_negative/s_v1_22_missing_equipment_reference_negative.json";
 const fixture = readJson(fixturePath);
 
@@ -415,11 +411,33 @@ for (const requiredText of [
 }
 
 for (const forbiddenPath of [
-  "registries/equipment/equipment.registry.json",
   "shared/v1-registry/v1EquipmentRegistryCoverageContract.mjs"
 ]) {
   if (fs.existsSync(path.join(repoRoot, forbiddenPath))) {
     fail(`forbidden active or implementation surface present: ${forbiddenPath}`);
+  }
+}
+
+// S-REG-25 authorised the real activation this contract was written ahead of.
+// Once active equipment registry content exists, it must independently satisfy
+// the same coverage/FK-closure validator the fixture proof above exercises -
+// this is additive real-content enforcement, not a replacement of that proof.
+const activeEquipmentRegistryPath = "registries/equipment/equipment.registry.json";
+
+if (fs.existsSync(path.join(repoRoot, activeEquipmentRegistryPath))) {
+  const activeEquipmentRegistry = readJson(activeEquipmentRegistryPath);
+  const activeExerciseRegistry = readJson("registries/exercise/exercise.registry.json");
+
+  try {
+    validateEquipmentRegistryCoverage({
+      equipmentRecords: Object.values(activeEquipmentRegistry.entries ?? {}),
+      exerciseRecords: Object.values(activeExerciseRegistry.entries ?? {})
+    });
+  } catch (activeContentError) {
+    fail(
+      `active equipment registry coverage contract failed: ${activeContentError.message}`,
+      activeContentError.details ?? {}
+    );
   }
 }
 

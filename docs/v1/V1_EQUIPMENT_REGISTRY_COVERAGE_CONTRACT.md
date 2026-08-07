@@ -225,3 +225,25 @@ S-V1-22 is accepted when:
 - no UI screen is added
 - no database migration is added
 - no package version is changed
+
+## Supersession log (append-only)
+
+The sections above describe this slice's own boundary as originally written -
+a design-only contract accepted before active equipment registry content
+existed. They remain historically accurate for S-V1-22 itself and are not
+rewritten.
+
+S-REG-25 is the explicit, human-authorised activation slice that later
+satisfied this contract for real: it added the 17 required active equipment
+records to `registries/equipment/equipment.registry.json` and wired
+`equipment_requirements`/`equipment_alternatives` onto every active exercise
+registry entry, closing the FK requirement above.
+
+The guard now validates real active content, in addition to the original
+negative-fixture proof, whenever `registries/equipment/equipment.registry.json`
+exists: it re-runs the same `validateEquipmentRegistryCoverage` check against
+the live equipment and exercise registries. This is additive real-content
+enforcement, not a replacement of the fixture-based proof, and not a relaxing
+of any requirement stated above.
+
+- superseded_by_slice_ids: S-REG-25

@@ -1,0 +1,86 @@
+{
+  "slice_id": "S-REG-25",
+  "activation_id": "equipment_registry_activation",
+  "decision_type": "activation",
+  "source_hold_slice_id": "S-REG-23",
+  "source_contract_slice_id": "S-REG-24",
+  "source_candidate_slice_id": "S-REG-07",
+  "runtime_status": "non_runtime",
+  "activation_decision": "authorised",
+  "activation_target": "equipment_registry",
+  "activated_registry_id": "equipment",
+  "activation_authorised": true,
+  "activation_ready": true,
+  "active_registry_activation": true,
+  "active_registry_mutation": true,
+  "active_bundle_mutation": true,
+  "registry_law_mutation": false,
+  "registry_index_mutation": true,
+  "registry_bundle_mutation": true,
+  "registry_seal_mutation": true,
+  "engine_runtime_mutation": false,
+  "phase1_runtime_schema_mutation": false,
+  "marker_evaluator_mutation": false,
+  "comparison_result_mutation": false,
+  "recorded_value_input_mutation": false,
+  "advice_mutation": false,
+  "outcome_inference_mutation": false,
+  "programme_assignment_mutation": false,
+  "substitution_runtime_mutation": false,
+  "ui_behaviour_mutation": false,
+  "coach_interpretation_mutation": false,
+  "covered_required_before_activation": [
+    "explicit_activation_slice",
+    "active_registry_mutation_contract",
+    "registry_index_update_contract",
+    "registry_bundle_promotion_plan",
+    "registry_loader_contract",
+    "active_registry_schema_plan",
+    "fk_closure_replay_against_active_bundle",
+    "registry_seal_freeze_and_gate_plan",
+    "engine_consumption_boundary_decision",
+    "runtime_no_behaviour_change_proof",
+    "rollback_or_revert_plan"
+  ],
+  "active_registry_order_after": [
+    "activity",
+    "movement",
+    "exercise",
+    "program",
+    "equipment"
+  ],
+  "activated_record_count": 17,
+  "exercise_records_annotated_count": 19,
+  "human_authorisation": {
+    "authorised_by": "repository owner",
+    "authorisation_method": "explicit_chat_instruction",
+    "authorised_at_iso8601_date": "2026-08-07",
+    "authorisation_note": "User explicitly named equipment_registry as the activation target when asked which candidate registry domain to activate first, after being shown the tradeoffs against exercise_registry_3a and a generic-mechanics-only option. Full CI then surfaced S-V1-22's stricter, pre-existing 17-id-plus-exercise-FK contract; the user explicitly chose to scope and build that full real contract rather than abandon or roll back equipment as the activation target."
+  },
+  "active_registry_hashes_before": {
+    "registry_index": "c31139079df4ed7b0a4c58808a2fd1c8e399cb7c1c4d4499fc625ed2c7586d37",
+    "registry_bundle": "3ae38479b85aad2bbf03ec1ea9613d17d9ee97997b529bacbfdd9d41773e61df",
+    "exercise_registry": "69d778018220fca668afb2ddb915da24e0fd146f8e58c5e8b138fd1cfa54e514"
+  },
+  "active_registry_hashes_after": {
+    "registry_index": "7e44bdb95dba20a1ae3628fd48c9835647adbd4405268d72b0d79050654e5ae2",
+    "registry_bundle": "08cc8582255cbb40e7e2fded67aaac1a3f2a238efecce3908ae5513a4e734d3b",
+    "exercise_registry": "a96d491ffe5978b7f7b8bb0cf67326fb7ee22e9604037eb3967596133ab07e80"
+  },
+  "rollback_plan": {
+    "primary": "git revert <this-slice-commit> - reverses every data file (registries/equipment/equipment.registry.json, registries/exercise/exercise.registry.json, ci/schemas/equipment.registry.schema.json, the three exercise schema files, registry_index.json, registry_bundle.json, registry_surface_classification.json, the four seal evidence files, S-V1-22's guard/doc/test, and this slice's own scaffolding) atomically back to the pre-activation sealed state in one step.",
+    "fallback": "If a clean revert is not possible: remove 'equipment' from registries/registry_index.json order[], delete registries/equipment/equipment.registry.json and ci/schemas/equipment.registry.schema.json, restore registries/exercise/exercise.registry.json and the three exercise schema files to their pre-activation content (drop equipment_requirements/equipment_alternatives), restore ci/guards/s_v1_22_equipment_registry_coverage_contract_guard.mjs to its must-not-exist form, remove the equipment.registry entry from registries/registry_surface_classification.json and from ci/evidence/registry_seal_manifest.v1.json, ci/evidence/registry_seal_live_surface.v1.json, ci/evidence/registry_seal_snapshot.v1.json, then run `npm run registry:bundle`, `node ci/scripts/run_registry_seal_freeze.mjs`, and `node ci/scripts/run_registry_seal_gate.mjs` to confirm the tree returns to a clean sealed state matching the pre-activation snapshot recorded in active_registry_hashes_before."
+  },
+  "runtime_parity_proof": {
+    "method": "npm run e2e:golden",
+    "fixture_count": 13,
+    "identical": true,
+    "byte_identical_fixture_count": 11,
+    "changed_fixtures": [
+      "phase3_precedence_banned_over_available",
+      "phase3_sovereign_constraints_envelope"
+    ],
+    "changed_field": "phase3.notes / phase3's loaded_registries list",
+    "note": "All 13 e2e:golden fixtures were captured before this activation and re-captured after every mutation in this slice. 11 of 13 were byte-identical. The remaining 2 (the only fixtures that exercise PHASE_3's constraints-resolution output) changed in exactly one place: the factual 'which registry files were loaded' list correctly gained 'equipment', since PHASE_3 builds that list generically from registry_index.json's order[] - the same mechanism every other registry already goes through. No decision, content, exercise, template, or compile-output field changed in either fixture; the two updated golden snapshots were re-pinned via UPDATE_GOLDEN=1 npm run e2e:golden and re-verified by golden_manifest_guard.mjs and golden_outputs_guard.mjs. 'identical: true' above refers to engine DECISION output (exercise selection, template assignment, compile results) - not to the byte-level snapshot, which is honestly not identical for these 2 of 13 fixtures for the reason given. BETA-29's full CI run additionally surfaced a second, independent corpus with the identical class of pinned fact: replay/suite/beta_phase1_7's vectors/bindings/expected-outputs embed the same registry_index hash and a phase3 loaded_registries snapshot per replay vector, used by the BETA-22 verify-only replay runner. All 5 positive vectors' registry pins and phase3 loaded_registries lists were re-pinned identically to the golden fixtures above (equipment correctly appended); no vector's intended ACCEPTED/REJECTED verdict, phase attempt counts, or evidence-export content changed. Re-verified via node ci/scripts/run_beta_29_production_beta_rehearsal.mjs and node ci/guards/beta_29_production_beta_rehearsal_guard.mjs."
+  }
+}

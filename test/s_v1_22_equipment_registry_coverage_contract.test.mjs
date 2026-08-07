@@ -391,6 +391,35 @@ test("S-V1-22 refuses implicit equipment assumptions and unsupported operational
   );
 });
 
+test("S-V1-22 real active equipment and exercise registries satisfy the coverage contract for real (S-REG-25 activation)", () => {
+  const activeEquipmentRegistry = JSON.parse(
+    fs.readFileSync(path.join(repoRoot, "registries", "equipment", "equipment.registry.json"), "utf8")
+  );
+  const activeExerciseRegistry = JSON.parse(
+    fs.readFileSync(path.join(repoRoot, "registries", "exercise", "exercise.registry.json"), "utf8")
+  );
+
+  const result = validateEquipmentRegistryCoverage({
+    equipmentRecords: Object.values(activeEquipmentRegistry.entries),
+    exerciseRecords: Object.values(activeExerciseRegistry.entries)
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.equipment_count, 17);
+  assert.deepEqual(result.locked_activity_ids, lockedActivityIds);
+});
+
+test("S-V1-22 documentation records the S-REG-25 supersession without rewriting its own original boundary", () => {
+  const doc = fs.readFileSync(
+    path.join(repoRoot, "docs", "v1", "V1_EQUIPMENT_REGISTRY_COVERAGE_CONTRACT.md"),
+    "utf8"
+  );
+
+  assert.match(doc, /S-REG-25/);
+  assert.match(doc, /superseded_by_slice_ids/);
+  assert.match(doc, /No active equipment registry rows are added by this slice/);
+});
+
 test("S-V1-22 documentation binds equipment contract without adding active equipment content", () => {
   const doc = fs.readFileSync(
     path.join(repoRoot, "docs", "v1", "V1_EQUIPMENT_REGISTRY_COVERAGE_CONTRACT.md"),

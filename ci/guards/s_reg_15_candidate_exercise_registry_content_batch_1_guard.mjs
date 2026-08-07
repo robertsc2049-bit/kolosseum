@@ -175,14 +175,14 @@ function assertActiveRegistrySurface() {
   const registryBundle = readJson(files.registryBundle);
   const expected = ["activity", "movement", "exercise", "program"];
 
-  if (JSON.stringify(registryIndex.order) !== JSON.stringify(expected)) {
+  if (JSON.stringify(registryIndex.order.slice(0, expected.length)) !== JSON.stringify(expected)) {
     fail("Active registry index order changed.", {
       actual: registryIndex.order,
       expected
     });
   }
 
-  if (JSON.stringify(Object.keys(registryBundle.registries ?? {})) !== JSON.stringify(expected)) {
+  if (JSON.stringify(Object.keys(registryBundle.registries ?? {}).slice(0, expected.length)) !== JSON.stringify(expected)) {
     fail("Active registry bundle changed.", {
       actual: Object.keys(registryBundle.registries ?? {}),
       expected

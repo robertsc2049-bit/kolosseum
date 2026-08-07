@@ -134,6 +134,20 @@
           },
           "fast_execution": {
             "type": "boolean"
+          },
+          "equipment_requirements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "equipment_alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       }

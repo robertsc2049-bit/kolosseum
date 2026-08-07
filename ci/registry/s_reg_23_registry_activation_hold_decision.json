@@ -91,5 +91,8 @@
     "direct_engine_consumption",
     "direct_ui_exposure",
     "direct_marker_evaluator_runtime"
+  ],
+  "superseded_by_slice_ids": [
+    "S-REG-25"
   ]
 }

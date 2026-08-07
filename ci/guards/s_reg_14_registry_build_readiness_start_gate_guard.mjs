@@ -175,14 +175,14 @@ function assertActiveRegistrySurface() {
   const order = registryIndex.order;
   const bundleKeys = Object.keys(registryBundle.registries ?? {});
 
-  if (JSON.stringify(order) !== JSON.stringify(S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER)) {
+  if (JSON.stringify(order.slice(0, S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER.length)) !== JSON.stringify(S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER)) {
     fail("Active registry index order changed.", {
       actual: order,
       expected: S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER
     });
   }
 
-  if (JSON.stringify(bundleKeys) !== JSON.stringify(S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER)) {
+  if (JSON.stringify(bundleKeys.slice(0, S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER.length)) !== JSON.stringify(S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER)) {
     fail("Active registry bundle changed.", {
       actual: bundleKeys,
       expected: S_REG_14_COMPACT_ACTIVE_REGISTRY_ORDER

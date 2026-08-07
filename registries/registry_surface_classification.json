@@ -28,6 +28,10 @@
         "class": "launch_critical"
       },
       {
+        "document_id": "equipment.registry",
+        "class": "launch_critical"
+      },
+      {
         "document_id": "registry_index",
         "class": "excluded"
       }

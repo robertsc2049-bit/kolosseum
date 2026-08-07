@@ -323,8 +323,13 @@ function beta07AssertCanonicalOrder(order) {
     seen.add(registryId);
   }
 
-  if (JSON.stringify(order) !== JSON.stringify(BETA_07_CANONICAL_REGISTRY_ORDER)) {
-    beta07Fail(BETA_07_FAILURE_TOKENS.REGISTRY_ORDER_INVALID, "non_canonical_registry_order", "BETA-07 registry load order must match canonical beta order.", {
+  // The 4 canonical beta ids must remain the leading, unreordered prefix of
+  // the real active registry order - a later, separately-authorised
+  // activation slice may legitimately append further domains after them
+  // (e.g. S-REG-25 appending "equipment"), same as every other guard in
+  // this codebase that checks the live registry_index/registry_bundle.
+  if (JSON.stringify(order.slice(0, BETA_07_CANONICAL_REGISTRY_ORDER.length)) !== JSON.stringify(BETA_07_CANONICAL_REGISTRY_ORDER)) {
+    beta07Fail(BETA_07_FAILURE_TOKENS.REGISTRY_ORDER_INVALID, "non_canonical_registry_order", "BETA-07 registry load order must start with the canonical beta order.", {
       expected_order: [...BETA_07_CANONICAL_REGISTRY_ORDER],
       actual_order: [...order]
     });
@@ -409,16 +414,23 @@ function beta07LoadAtomicRegistryStore(input) {
 
   beta07AssertCanonicalOrder(input.registry_index.order);
 
-  for (const registryId of BETA_07_CANONICAL_REGISTRY_ORDER) {
+  // The real active order (already verified above to start with the 4
+  // canonical beta ids, unreordered) drives everything below, so a later,
+  // separately-authorised activation that legitimately appends further
+  // domains (e.g. S-REG-25's "equipment") is loaded too, not silently
+  // dropped.
+  const actualOrder = input.registry_index.order;
+
+  for (const registryId of actualOrder) {
     if (!Object.prototype.hasOwnProperty.call(input.registry_bundle.registries, registryId)) {
       beta07Fail(BETA_07_FAILURE_TOKENS.MISSING_REGISTRY, "missing_registry", "BETA-07 required registry is missing from the bundle.", { registry_id: registryId });
     }
   }
 
   const bundleKeys = Object.keys(input.registry_bundle.registries);
-  if (JSON.stringify(bundleKeys) !== JSON.stringify(BETA_07_CANONICAL_REGISTRY_ORDER)) {
-    beta07Fail(BETA_07_FAILURE_TOKENS.REGISTRY_ORDER_INVALID, "registry_bundle_key_order_mismatch", "BETA-07 registry_bundle.registries key order must match canonical order.", {
-      expected_order: [...BETA_07_CANONICAL_REGISTRY_ORDER],
+  if (JSON.stringify(bundleKeys) !== JSON.stringify(actualOrder)) {
+    beta07Fail(BETA_07_FAILURE_TOKENS.REGISTRY_ORDER_INVALID, "registry_bundle_key_order_mismatch", "BETA-07 registry_bundle.registries key order must match the active registry order.", {
+      expected_order: [...actualOrder],
       actual_order: bundleKeys
     });
   }
@@ -427,7 +439,7 @@ function beta07LoadAtomicRegistryStore(input) {
   const orderedRegistries = {};
   const idsByRegistry = {};
 
-  for (const registryId of BETA_07_CANONICAL_REGISTRY_ORDER) {
+  for (const registryId of actualOrder) {
     const registryDocument = input.registry_bundle.registries[registryId];
     beta07RequireObject(registryDocument, BETA_07_FAILURE_TOKENS.INPUT_INVALID, "registry_document_invalid", "BETA-07 registry document must be an object.", { registry_id: registryId });
 
@@ -452,10 +464,14 @@ function beta07LoadAtomicRegistryStore(input) {
     idsByRegistry[registryId] = beta07CollectIds(registryId, registryDocument);
   }
 
+  // Reference/forward-reference validation only ever runs over the 4
+  // canonical beta ids' own FK matrix (BETA_07_REFERENCE_FIELDS) - domains
+  // appended after them neither declare nor receive references in that
+  // matrix, so they need no additional validation here.
   beta07ValidateReferences(orderedRegistries, idsByRegistry);
 
   const clonedRegistries = {};
-  for (const registryId of BETA_07_CANONICAL_REGISTRY_ORDER) {
+  for (const registryId of actualOrder) {
     clonedRegistries[registryId] = cloneJson(orderedRegistries[registryId]);
   }
 
@@ -463,14 +479,14 @@ function beta07LoadAtomicRegistryStore(input) {
     ok: true,
     loader_slice_id: BETA_07_SLICE_ID,
     loader_version: BETA_07_LOADER_VERSION,
-    registry_order: [...BETA_07_CANONICAL_REGISTRY_ORDER],
-    registry_count: BETA_07_CANONICAL_REGISTRY_ORDER.length,
+    registry_order: [...actualOrder],
+    registry_count: actualOrder.length,
     atomic_load: true,
     partial_consumption_allowed: false,
     fallback_allowed: false,
     discovery_allowed: false,
     runtime_mutation_allowed: false,
-    loaded_registry_ids: [...BETA_07_CANONICAL_REGISTRY_ORDER],
+    loaded_registry_ids: [...actualOrder],
     registries: clonedRegistries
   });
 }

@@ -10,7 +10,7 @@
     },
     {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "69d778018220fca668afb2ddb915da24e0fd146f8e58c5e8b138fd1cfa54e514"
+      "sha256": "a96d491ffe5978b7f7b8bb0cf67326fb7ee22e9604037eb3967596133ab07e80"
     },
     {
       "path": "registries/exercise/exercise_substitution_graph.json",
@@ -27,6 +27,10 @@
     {
       "path": "registries/program/program.registry.json",
       "sha256": "f7c43076c43c54048c3a2c80f8c29cea224f8447051b56f7598187abc0f5437c"
+    },
+    {
+      "path": "registries/equipment/equipment.registry.json",
+      "sha256": "8381056e7375f8cabf8189ac58688dfe9e7f1aa2a0a0ec7c19d8631ee2d74870"
     }
   ]
 }

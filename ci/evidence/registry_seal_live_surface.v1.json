@@ -21,6 +21,9 @@
     },
     {
       "path": "registries/program/program.registry.json"
+    },
+    {
+      "path": "registries/equipment/equipment.registry.json"
     }
   ]
 }

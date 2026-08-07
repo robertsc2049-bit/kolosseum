@@ -267,13 +267,13 @@ function assertActiveRegistryStillCompact() {
   const registryIndex = readJson(files.registryIndex);
   const registryBundle = readJson(files.registryBundle);
 
-  assertDeepEqual(registryIndex.order, compactOrder, "Active registry index order changed.");
+  assertDeepEqual(registryIndex.order.slice(0, compactOrder.length), compactOrder, "Active registry index order changed.");
 
   if (!registryBundle.registries || typeof registryBundle.registries !== "object" || Array.isArray(registryBundle.registries)) {
     fail("Active registry bundle must expose a registries object.");
   }
 
-  assertDeepEqual(Object.keys(registryBundle.registries), compactOrder, "Active registry bundle keys changed.");
+  assertDeepEqual(Object.keys(registryBundle.registries).slice(0, compactOrder.length), compactOrder, "Active registry bundle keys changed.");
 
   for (const canonicalRegistryId of canonicalRegistryIds) {
     if (fs.existsSync(repoPath(path.join("registries", canonicalRegistryId)))) {
