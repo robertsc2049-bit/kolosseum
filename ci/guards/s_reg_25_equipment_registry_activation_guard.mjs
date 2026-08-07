@@ -134,6 +134,18 @@ const allowedChangedFiles = new Set([
   // itemised diff.
   "test/fixtures/golden/expected/phase3_precedence_banned_over_available.json",
   "test/fixtures/golden/expected/phase3_sovereign_constraints_envelope.json",
+  // BETA-29's integrated rehearsal replays a separate, pinned corpus
+  // (replay/suite/beta_phase1_7) that also embeds registry-index hashes and
+  // a factual loaded_registries snapshot per vector - the exact same class
+  // of "which registries were loaded" fact as the two golden fixtures above,
+  // just in a different corpus. Re-pinned identically: only the factual
+  // loaded_registries list and the registry_index/bundle hashes it derives
+  // from changed; no vector's intended pass/reject outcome changed.
+  "replay/suite/beta_phase1_7/vectors.json",
+  "replay/suite/beta_phase1_7/verify_inputs.json",
+  "replay/suite/beta_phase1_7/expected_outputs.json",
+  "replay/suite/beta_phase1_7/verify_manifest.json",
+  "replay/suite/beta_phase1_8/production_beta_rehearsal_manifest.json",
   // S-REG-23/24 gained an append-only supersession record naming this slice -
   // their own guards independently re-verify their historical fields stayed
   // frozen, this guard only needs to permit the file itself changing.
