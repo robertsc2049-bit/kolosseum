@@ -26,8 +26,17 @@
         "short": "Lower bar to chest, then press to full extension"
       },
       "fast_execution": false,
-      "equipment_requirements": ["barbell", "bench", "rack"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "barbell",
+        "bench",
+        "rack"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "powerlifting",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ]
     },
     "incline_bench_press": {
       "exercise_id": "incline_bench_press",
@@ -53,8 +62,17 @@
         "short": "Lower dumbbells or bar to upper chest, then press to full extension"
       },
       "fast_execution": false,
-      "equipment_requirements": ["barbell", "bench", "rack"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "barbell",
+        "bench",
+        "rack"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "dumbbell_bench_press": {
       "exercise_id": "dumbbell_bench_press",
@@ -79,8 +97,16 @@
         "short": "Lower dumbbells to chest level, then press to full extension"
       },
       "fast_execution": true,
-      "equipment_requirements": ["dumbbell", "bench"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "dumbbell",
+        "bench"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "push_up": {
       "exercise_id": "push_up",
@@ -104,8 +130,15 @@
         "short": "Lower chest toward floor, then press back to the start position"
       },
       "fast_execution": true,
-      "equipment_requirements": ["bodyweight"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "machine_chest_press": {
       "exercise_id": "machine_chest_press",
@@ -129,8 +162,15 @@
         "short": "Lower handles under control, then press to full extension"
       },
       "fast_execution": false,
-      "equipment_requirements": ["machine_general"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "single_arm_dumbbell_press": {
       "exercise_id": "single_arm_dumbbell_press",
@@ -155,8 +195,16 @@
         "short": "Lower dumbbell to chest level, then press to full extension with one arm"
       },
       "fast_execution": true,
-      "equipment_requirements": ["dumbbell", "bench"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "dumbbell",
+        "bench"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "overhead_press": {
       "exercise_id": "overhead_press",
@@ -180,8 +228,14 @@
         "short": "Press bar overhead to lockout, then lower under control"
       },
       "fast_execution": false,
-      "equipment_requirements": ["barbell"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ]
     },
     "dumbbell_overhead_press": {
       "exercise_id": "dumbbell_overhead_press",
@@ -205,8 +259,14 @@
         "short": "Press dumbbells overhead to lockout, then lower under control"
       },
       "fast_execution": true,
-      "equipment_requirements": ["dumbbell"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ]
     },
     "single_arm_overhead_press": {
       "exercise_id": "single_arm_overhead_press",
@@ -230,8 +290,14 @@
         "short": "Press dumbbell overhead to lockout with one arm, then lower under control"
       },
       "fast_execution": true,
-      "equipment_requirements": ["dumbbell"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ]
     },
     "back_squat": {
       "exercise_id": "back_squat",
@@ -257,8 +323,16 @@
         "short": "Squat down to target depth, then stand back up to full extension"
       },
       "fast_execution": false,
-      "equipment_requirements": ["barbell", "rack"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "barbell",
+        "rack"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "powerlifting",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ]
     },
     "goblet_squat": {
       "exercise_id": "goblet_squat",
@@ -283,8 +357,15 @@
         "short": "Squat down holding the weight at chest height, then stand to full extension"
       },
       "fast_execution": true,
-      "equipment_requirements": ["dumbbell"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "split_squat": {
       "exercise_id": "split_squat",
@@ -311,8 +392,16 @@
         "short": "Lower into the split stance, then drive back up to the start position"
       },
       "fast_execution": true,
-      "equipment_requirements": ["bodyweight", "dumbbell"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "bodyweight",
+        "dumbbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "deadlift": {
       "exercise_id": "deadlift",
@@ -337,8 +426,15 @@
         "short": "Pull bar from floor to lockout, then return it under control"
       },
       "fast_execution": false,
-      "equipment_requirements": ["barbell"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "powerlifting",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ]
     },
     "kettlebell_deadlift": {
       "exercise_id": "kettlebell_deadlift",
@@ -363,8 +459,15 @@
         "short": "Pull kettlebell from floor to standing lockout, then lower under control"
       },
       "fast_execution": true,
-      "equipment_requirements": ["kettlebell"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "kettlebell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "single_leg_rdl": {
       "exercise_id": "single_leg_rdl",
@@ -393,8 +496,17 @@
         "short": "Hinge on one leg until target range, then return to upright balance"
       },
       "fast_execution": true,
-      "equipment_requirements": ["bodyweight", "dumbbell", "kettlebell"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "bodyweight",
+        "dumbbell",
+        "kettlebell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "pike_push_up": {
       "exercise_id": "pike_push_up",
@@ -418,8 +530,14 @@
         "short": "Lower head toward the floor, then press back to the start position"
       },
       "fast_execution": true,
-      "equipment_requirements": ["bodyweight"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ]
     },
     "box_squat": {
       "exercise_id": "box_squat",
@@ -445,8 +563,16 @@
         "short": "Sit back to the box under control, then stand to full extension"
       },
       "fast_execution": true,
-      "equipment_requirements": ["barbell", "rack"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "barbell",
+        "rack"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "pin_press": {
       "exercise_id": "pin_press",
@@ -472,8 +598,17 @@
         "short": "Press bar from the pins to lockout, then return it to the pins under control"
       },
       "fast_execution": false,
-      "equipment_requirements": ["barbell", "bench", "rack"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "barbell",
+        "bench",
+        "rack"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     },
     "partial_deadlift": {
       "exercise_id": "partial_deadlift",
@@ -498,8 +633,15 @@
         "short": "Pull bar from the set height to lockout, then return under control"
       },
       "fast_execution": true,
-      "equipment_requirements": ["barbell"],
-      "equipment_alternatives": []
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union"
+      ]
     }
   }
 }

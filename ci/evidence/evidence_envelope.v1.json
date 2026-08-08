@@ -30,7 +30,7 @@
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "registry_bundle_sha256": "3505108E1807519956C22C9948F8E028C02DD6A800B5AE94597FBB9DA11A0EB4",
+    "registry_bundle_sha256": "14A5110FA4BCDE82D6DF13A23FBC8BA82E88CE94E5D87B5923582097CFB7D4DA",
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
     "schema_sha256s": [
       {
@@ -51,7 +51,7 @@
       },
       {
         "path": "ci/schemas/exercise_registry.schema.json",
-        "sha256": "585DC200AA2E5646FD110890BBF996EF3CBD1C1454DFA42A3E5592AC4CDB35F4"
+        "sha256": "5B754E5BEBD6F0A9ABEF125043993FAB84CC327823FD2979E87B1EA140ACE4C8"
       },
       {
         "path": "ci/schemas/exercise_token.registry.schema.json",
@@ -63,11 +63,11 @@
       },
       {
         "path": "ci/schemas/exercise.registry.schema.json",
-        "sha256": "585DC200AA2E5646FD110890BBF996EF3CBD1C1454DFA42A3E5592AC4CDB35F4"
+        "sha256": "5B754E5BEBD6F0A9ABEF125043993FAB84CC327823FD2979E87B1EA140ACE4C8"
       },
       {
         "path": "ci/schemas/exercise.registry.schema.v1.0.0.json",
-        "sha256": "585DC200AA2E5646FD110890BBF996EF3CBD1C1454DFA42A3E5592AC4CDB35F4"
+        "sha256": "5B754E5BEBD6F0A9ABEF125043993FAB84CC327823FD2979E87B1EA140ACE4C8"
       },
       {
         "path": "ci/schemas/metric_exercise_link.registry.schema.json",
