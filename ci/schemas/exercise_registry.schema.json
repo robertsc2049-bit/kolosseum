@@ -36,7 +36,9 @@
           "difficulty_tier",
           "joint_stress_tags",
           "instruction",
-          "fast_execution"
+          "fast_execution",
+          "primary_activity_applicability",
+          "secondary_activity_applicability"
         ],
         "properties": {
           "exercise_id": {
@@ -143,6 +145,17 @@
             }
           },
           "equipment_alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "primary_activity_applicability": {
+            "type": "string",
+            "minLength": 1
+          },
+          "secondary_activity_applicability": {
             "type": "array",
             "items": {
               "type": "string",

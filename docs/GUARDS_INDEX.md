@@ -99,6 +99,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_reg_29_metric_exercise_link_registry_activation_guard.mjs` | Registry Law | high | registry | No other candidate domain's active-file counterpart may ever appear here - |
 | `ci/guards/s_reg_30_sport_metric_extension_threshold_marker_activation_guard.mjs` | Registry Law | high | registry | No other candidate domain's active-file counterpart may ever appear here - |
 | `ci/guards/s_reg_31_exercise_token_registry_activation_guard.mjs` | Registry Law | high | registry | No other candidate domain's active-file counterpart may ever appear here - |
+| `ci/guards/s_reg_32_exercise_activity_applicability_schema_extension_guard.mjs` | Registry Law | high | registry | This slice must never touch registry_index.json (no new domain activated) |
 | `ci/guards/s_v1_01_active_boundary_confirmation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_02b_non_scope_guard_hardening_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_03_repository_top_level_folder_contract_guard.mjs` | Repo Governance | medium | repo |  |

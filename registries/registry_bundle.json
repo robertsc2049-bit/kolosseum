@@ -193,7 +193,12 @@
             "bench",
             "rack"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "powerlifting",
+          "secondary_activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ]
         },
         "incline_bench_press": {
           "exercise_id": "incline_bench_press",
@@ -224,7 +229,12 @@
             "bench",
             "rack"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "dumbbell_bench_press": {
           "exercise_id": "dumbbell_bench_press",
@@ -253,7 +263,12 @@
             "dumbbell",
             "bench"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "push_up": {
           "exercise_id": "push_up",
@@ -280,7 +295,12 @@
           "equipment_requirements": [
             "bodyweight"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "machine_chest_press": {
           "exercise_id": "machine_chest_press",
@@ -307,7 +327,12 @@
           "equipment_requirements": [
             "machine_general"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "single_arm_dumbbell_press": {
           "exercise_id": "single_arm_dumbbell_press",
@@ -336,7 +361,12 @@
             "dumbbell",
             "bench"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "overhead_press": {
           "exercise_id": "overhead_press",
@@ -363,7 +393,11 @@
           "equipment_requirements": [
             "barbell"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ]
         },
         "dumbbell_overhead_press": {
           "exercise_id": "dumbbell_overhead_press",
@@ -390,7 +424,11 @@
           "equipment_requirements": [
             "dumbbell"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ]
         },
         "single_arm_overhead_press": {
           "exercise_id": "single_arm_overhead_press",
@@ -417,7 +455,11 @@
           "equipment_requirements": [
             "dumbbell"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ]
         },
         "back_squat": {
           "exercise_id": "back_squat",
@@ -447,7 +489,12 @@
             "barbell",
             "rack"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "powerlifting",
+          "secondary_activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ]
         },
         "goblet_squat": {
           "exercise_id": "goblet_squat",
@@ -475,7 +522,12 @@
           "equipment_requirements": [
             "dumbbell"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "split_squat": {
           "exercise_id": "split_squat",
@@ -506,7 +558,12 @@
             "bodyweight",
             "dumbbell"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "deadlift": {
           "exercise_id": "deadlift",
@@ -534,7 +591,12 @@
           "equipment_requirements": [
             "barbell"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "powerlifting",
+          "secondary_activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ]
         },
         "kettlebell_deadlift": {
           "exercise_id": "kettlebell_deadlift",
@@ -562,7 +624,12 @@
           "equipment_requirements": [
             "kettlebell"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "single_leg_rdl": {
           "exercise_id": "single_leg_rdl",
@@ -596,7 +663,12 @@
             "dumbbell",
             "kettlebell"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "pike_push_up": {
           "exercise_id": "pike_push_up",
@@ -623,7 +695,11 @@
           "equipment_requirements": [
             "bodyweight"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ]
         },
         "box_squat": {
           "exercise_id": "box_squat",
@@ -653,7 +729,12 @@
             "barbell",
             "rack"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "pin_press": {
           "exercise_id": "pin_press",
@@ -684,7 +765,12 @@
             "bench",
             "rack"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         },
         "partial_deadlift": {
           "exercise_id": "partial_deadlift",
@@ -712,7 +798,12 @@
           "equipment_requirements": [
             "barbell"
           ],
-          "equipment_alternatives": []
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ]
         }
       }
     },
