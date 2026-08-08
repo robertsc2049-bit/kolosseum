@@ -67,6 +67,39 @@
       "unit": "seconds",
       "value_type": "number",
       "copy_boundary_notes": "factual sport metric definition only"
+    },
+    "powerlifting__attempt_count": {
+      "sport_metric_id": "powerlifting__attempt_count",
+      "id": "powerlifting__attempt_count",
+      "activity_id": "powerlifting",
+      "sport_subdivision_id": "powerlifting__competition_lift",
+      "display_label": "Attempt count",
+      "metric_kind": "factual_metric_definition",
+      "unit": "count",
+      "value_type": "integer",
+      "copy_boundary_notes": "factual sport metric definition only"
+    },
+    "general_strength__set_count": {
+      "sport_metric_id": "general_strength__set_count",
+      "id": "general_strength__set_count",
+      "activity_id": "general_strength",
+      "sport_subdivision_id": "general_strength__training",
+      "display_label": "Set count",
+      "metric_kind": "factual_metric_definition",
+      "unit": "count",
+      "value_type": "integer",
+      "copy_boundary_notes": "factual sport metric definition only"
+    },
+    "general_strength__duration_seconds": {
+      "sport_metric_id": "general_strength__duration_seconds",
+      "id": "general_strength__duration_seconds",
+      "activity_id": "general_strength",
+      "sport_subdivision_id": "general_strength__training",
+      "display_label": "Duration",
+      "metric_kind": "factual_metric_definition",
+      "unit": "seconds",
+      "value_type": "number",
+      "copy_boundary_notes": "factual sport metric definition only"
     }
   }
 }

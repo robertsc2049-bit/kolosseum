@@ -130,3 +130,7 @@ Expected proof:
 S-REG-27 activates the `sport_metric` registry domain only.
 
 It does not activate any other candidate domain, create marker evaluator behaviour, compare real values, emit advice, infer outcomes, alter programme assignment, alter substitution runtime, create UI behaviour, or alter deterministic engine output.
+
+## Supersession log
+
+- **S-REG-30** extended the live `sport_metric` registry from 6 to 9 entries (adding `powerlifting__attempt_count`, `general_strength__set_count`, `general_strength__duration_seconds`, sourced from S-REG-19's expansion batch) to satisfy `threshold_marker`'s foreign-key requirements. This is the first slice in the chain to extend an already-active domain's content rather than only add new domains. `ci/registry/s_reg_27_sport_metric_registry_activation.mjs`'s live-entry-count check was relaxed from an exact match against this slice's own frozen `activated_record_count` (6, unchanged - a historical fact of what S-REG-27 itself activated) to a membership check: the live registry must still contain every one of the 6 originally-activated `sport_metric_id`s (`S_REG_27_ORIGINALLY_ACTIVATED_SPORT_METRIC_IDS`). `test/s_reg_27_sport_metric_registry_activation.test.mjs` was updated to match, and its stale `existsSync("registries/threshold_marker/threshold_marker.registry.json") === false` assertion was removed since S-REG-30 legitimately activates that domain.

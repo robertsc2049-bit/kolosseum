@@ -1,0 +1,98 @@
+{
+  "slice_id": "S-REG-30",
+  "activation_id": "sport_metric_extension_threshold_marker_activation",
+  "decision_type": "activation",
+  "source_hold_slice_id": "S-REG-23",
+  "source_contract_slice_id": "S-REG-24",
+  "source_candidate_slice_id_extension": "S-REG-19",
+  "source_candidate_slice_id_activation": "S-REG-21",
+  "runtime_status": "non_runtime",
+  "activation_decision": "authorised",
+  "activation_target": "threshold_marker_registry",
+  "activated_registry_id": "threshold_marker",
+  "extended_registry_id": "sport_metric",
+  "activation_authorised": true,
+  "activation_ready": true,
+  "active_registry_activation": true,
+  "active_registry_extension_mutation": true,
+  "active_registry_mutation": true,
+  "active_bundle_mutation": true,
+  "registry_law_mutation": false,
+  "registry_index_mutation": true,
+  "registry_bundle_mutation": true,
+  "registry_seal_mutation": true,
+  "engine_runtime_mutation": false,
+  "phase1_runtime_schema_mutation": false,
+  "marker_evaluator_mutation": false,
+  "comparison_result_mutation": false,
+  "recorded_value_input_mutation": false,
+  "advice_mutation": false,
+  "outcome_inference_mutation": false,
+  "programme_assignment_mutation": false,
+  "substitution_runtime_mutation": false,
+  "ui_behaviour_mutation": false,
+  "coach_interpretation_mutation": false,
+  "covered_required_before_activation": [
+    "explicit_activation_slice",
+    "active_registry_mutation_contract",
+    "registry_index_update_contract",
+    "registry_bundle_promotion_plan",
+    "registry_loader_contract",
+    "active_registry_schema_plan",
+    "fk_closure_replay_against_active_bundle",
+    "registry_seal_freeze_and_gate_plan",
+    "engine_consumption_boundary_decision",
+    "runtime_no_behaviour_change_proof",
+    "rollback_or_revert_plan"
+  ],
+  "active_registry_order_after": [
+    "activity",
+    "movement",
+    "exercise",
+    "program",
+    "equipment",
+    "sport_subdivision",
+    "sport_metric",
+    "sport_role",
+    "metric_exercise_link",
+    "threshold_marker"
+  ],
+  "activated_record_count": 5,
+  "extended_record_count": 3,
+  "extended_record_ids": [
+    "powerlifting__attempt_count",
+    "general_strength__set_count",
+    "general_strength__duration_seconds"
+  ],
+  "human_authorisation": {
+    "authorised_by": "repository owner",
+    "authorisation_method": "explicit_chat_instruction",
+    "authorised_at_iso8601_date": "2026-08-08",
+    "authorisation_note": "User explicitly asked to activate threshold_marker_registry next, continuing the chain after S-REG-29 (metric_exercise_link). Research surfaced that all 5 threshold_marker candidate records (ci/registry/s_reg_21_threshold_marker_candidate_records.json) reference sport_metric_ids not present in the live 6-entry sport_metric registry, traced to a second, never-activated sport_metric expansion batch in ci/registry/s_reg_19_sport_metric_candidate_expansion.json (S-REG-27 only ever activated the original S-REG-11 seed batch). Shown this finding, the user chose to extend sport_metric with the 3 needed records (powerlifting__attempt_count, general_strength__set_count, general_strength__duration_seconds) and then activate threshold_marker, rather than hold the domain. The other 3 records in that same S-REG-19 batch are unreferenced by anything and were deliberately left inactive."
+  },
+  "active_registry_hashes_before": {
+    "registry_index": "72eb727c1e3fbaed463bbfc46a441e784e40181dacab825b6fc7b39b8f31e924",
+    "registry_bundle": "3f659f7581de35e53deb9ad16eafb1267188cf88681593be192130c629f68c5b"
+  },
+  "active_registry_hashes_after": {
+    "registry_index": "756421fad79a2cc2d1b93fefcfd50414d2cbb75f8b81d4b0734c9eafaf7a2004",
+    "registry_bundle": "14000102532890f3418e216d64b4a38cf2beeee0949ce4e03994a64b17e2daf9"
+  },
+  "rollback_plan": {
+    "primary": "git revert <this-slice-commit> - reverses every data file (registries/sport_metric/sport_metric.registry.json's 3 added entries, registries/threshold_marker/threshold_marker.registry.json, ci/schemas/threshold_marker.registry.schema.json, registry_index.json, registry_bundle.json, registry_surface_classification.json, the four seal evidence files, and this slice's own scaffolding) atomically back to the pre-extension, pre-activation sealed state in one step.",
+    "fallback": "If a clean revert is not possible: remove the 3 extended entries (powerlifting__attempt_count, general_strength__set_count, general_strength__duration_seconds) from registries/sport_metric/sport_metric.registry.json, remove 'threshold_marker' from registries/registry_index.json order[], delete registries/threshold_marker/threshold_marker.registry.json and ci/schemas/threshold_marker.registry.schema.json, remove the threshold_marker.registry entry from registries/registry_surface_classification.json and from ci/evidence/registry_seal_manifest.v1.json, ci/evidence/registry_seal_live_surface.v1.json, ci/evidence/registry_seal_snapshot.v1.json (also reverting the snapshot's sport_metric hash entry), then run `npm run registry:bundle`, `node ci/scripts/run_registry_seal_freeze.mjs`, and `node ci/scripts/run_registry_seal_gate.mjs` to confirm the tree returns to a clean sealed state matching the pre-extension snapshot recorded in active_registry_hashes_before.",
+    "note": "This is the first slice in the chain where a clean revert also restores the CONTENT of an already-active domain (sport_metric), not just the presence of new files - the fallback above accounts for that."
+  },
+  "runtime_parity_proof": {
+    "method": "npm run e2e:golden",
+    "fixture_count": 13,
+    "identical": true,
+    "byte_identical_fixture_count": 11,
+    "changed_fixtures": [
+      "phase3_precedence_banned_over_available",
+      "phase3_sovereign_constraints_envelope"
+    ],
+    "changed_field": "phase3.notes / phase3's loaded_registries list",
+    "note": "All 13 e2e:golden fixtures were captured before this slice and re-captured after every mutation in this slice. 11 of 13 were byte-identical. The remaining 2 (the only fixtures that exercise PHASE_3's constraints-resolution output) changed in exactly one place: the factual 'which registry files were loaded' list correctly gained 'threshold_marker' after 'metric_exercise_link', since PHASE_3 builds that list generically from registry_index.json's order[] - the same mechanism every other registry already goes through. sport_metric's growth from 6 to 9 entries is NOT reflected in this list, since it only lists domain names, not entry counts. No decision, content, exercise, template, or compile-output field changed in either fixture; the two updated golden snapshots were re-pinned via UPDATE_GOLDEN=1 npm run e2e:golden and re-verified by golden_manifest_guard.mjs and golden_outputs_guard.mjs. 'identical: true' above refers to engine DECISION output (exercise selection, template assignment, compile results) - not to the byte-level snapshot, which is honestly not identical for these 2 of 13 fixtures for the reason given. This slice also required the same BETA replay-corpus re-pin cascade already established for S-REG-25/26/27/28/29 (replay/suite/beta_phase1_7's vectors/bindings/expected-outputs and the chain of dependent manifests through BETA-22/23/24/26/29)."
+  }
+}

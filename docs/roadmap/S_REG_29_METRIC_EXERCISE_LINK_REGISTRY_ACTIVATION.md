@@ -135,3 +135,9 @@ Expected proof:
 S-REG-29 activates the `metric_exercise_link` registry domain only, with 12 of the source candidate's 13 records - the dangling `rugby_union__body_mass_kg__front_plank` record was explicitly excluded, documented honestly rather than shipped or silently dropped.
 
 It does not activate any other candidate domain, create marker evaluator behaviour, compare real values, emit advice, infer outcomes, alter programme assignment, alter substitution runtime, create UI behaviour, or alter deterministic engine output.
+
+## Supersession log (append-only)
+
+- superseded_by_slice_ids: S-REG-30
+
+S-REG-30 later activated `threshold_marker` as the tenth active domain, appended after `metric_exercise_link`. This slice's own test still asserted `fs.existsSync("registries/threshold_marker/threshold_marker.registry.json") === false` and was removed preemptively as part of S-REG-30's build, the same class of fix this slice itself applied to S-REG-25/26/27/28's tests during its own development.

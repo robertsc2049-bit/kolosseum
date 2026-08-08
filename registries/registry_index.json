@@ -9,6 +9,7 @@
     "sport_subdivision",
     "sport_metric",
     "sport_role",
-    "metric_exercise_link"
+    "metric_exercise_link",
+    "threshold_marker"
   ]
 }

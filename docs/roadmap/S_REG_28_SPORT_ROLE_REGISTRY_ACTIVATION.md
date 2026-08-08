@@ -131,3 +131,9 @@ Expected proof:
 S-REG-28 activates the `sport_role` registry domain only.
 
 It does not activate any other candidate domain, create marker evaluator behaviour, compare real values, emit advice, infer outcomes, alter programme assignment, alter substitution runtime, create UI behaviour, or alter deterministic engine output.
+
+## Supersession log (append-only)
+
+- superseded_by_slice_ids: S-REG-29, S-REG-30
+
+S-REG-30 later activated `threshold_marker` as the tenth active domain, appended after `metric_exercise_link`. This slice's own test still asserted `fs.existsSync("registries/threshold_marker/threshold_marker.registry.json") === false` - the same stale-negative-existence pattern already fixed for `metric_exercise_link` in this slice's own test during S-REG-29's development - and was removed preemptively as part of S-REG-30's build.

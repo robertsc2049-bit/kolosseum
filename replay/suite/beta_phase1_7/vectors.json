@@ -50,13 +50,13 @@
             "registry_id": "active_registry_index",
             "version": "1.0.0",
             "path": "registries/registry_index.json",
-            "sha256": "72eb727c1e3fbaed463bbfc46a441e784e40181dacab825b6fc7b39b8f31e924"
+            "sha256": "756421fad79a2cc2d1b93fefcfd50414d2cbb75f8b81d4b0734c9eafaf7a2004"
           },
           {
             "registry_id": "phase3_loaded_registry_snapshot",
             "version": "1.0.0",
             "path": null,
-            "sha256": "36ba4377c3b8a1e45d85cf6062bcb9b3f1479deb9eb1aaaf8157dc552e1c6cc9"
+            "sha256": "f79f93d3cd84c8a3abafc3344e1e8815280d59da319eabd76814f6216777822b"
           }
         ]
       },
@@ -175,13 +175,13 @@
             "registry_id": "active_registry_index",
             "version": "1.0.0",
             "path": "registries/registry_index.json",
-            "sha256": "72eb727c1e3fbaed463bbfc46a441e784e40181dacab825b6fc7b39b8f31e924"
+            "sha256": "756421fad79a2cc2d1b93fefcfd50414d2cbb75f8b81d4b0734c9eafaf7a2004"
           },
           {
             "registry_id": "phase3_loaded_registry_snapshot",
             "version": "1.0.0",
             "path": null,
-            "sha256": "36ba4377c3b8a1e45d85cf6062bcb9b3f1479deb9eb1aaaf8157dc552e1c6cc9"
+            "sha256": "f79f93d3cd84c8a3abafc3344e1e8815280d59da319eabd76814f6216777822b"
           }
         ]
       },
@@ -300,13 +300,13 @@
             "registry_id": "active_registry_index",
             "version": "1.0.0",
             "path": "registries/registry_index.json",
-            "sha256": "72eb727c1e3fbaed463bbfc46a441e784e40181dacab825b6fc7b39b8f31e924"
+            "sha256": "756421fad79a2cc2d1b93fefcfd50414d2cbb75f8b81d4b0734c9eafaf7a2004"
           },
           {
             "registry_id": "phase3_loaded_registry_snapshot",
             "version": "1.0.0",
             "path": null,
-            "sha256": "36ba4377c3b8a1e45d85cf6062bcb9b3f1479deb9eb1aaaf8157dc552e1c6cc9"
+            "sha256": "f79f93d3cd84c8a3abafc3344e1e8815280d59da319eabd76814f6216777822b"
           }
         ]
       },
@@ -426,13 +426,13 @@
             "registry_id": "active_registry_index",
             "version": "1.0.0",
             "path": "registries/registry_index.json",
-            "sha256": "72eb727c1e3fbaed463bbfc46a441e784e40181dacab825b6fc7b39b8f31e924"
+            "sha256": "756421fad79a2cc2d1b93fefcfd50414d2cbb75f8b81d4b0734c9eafaf7a2004"
           },
           {
             "registry_id": "phase3_loaded_registry_snapshot",
             "version": "1.0.0",
             "path": null,
-            "sha256": "36ba4377c3b8a1e45d85cf6062bcb9b3f1479deb9eb1aaaf8157dc552e1c6cc9"
+            "sha256": "f79f93d3cd84c8a3abafc3344e1e8815280d59da319eabd76814f6216777822b"
           }
         ]
       },
@@ -571,13 +571,13 @@
             "registry_id": "active_registry_index",
             "version": "1.0.0",
             "path": "registries/registry_index.json",
-            "sha256": "72eb727c1e3fbaed463bbfc46a441e784e40181dacab825b6fc7b39b8f31e924"
+            "sha256": "756421fad79a2cc2d1b93fefcfd50414d2cbb75f8b81d4b0734c9eafaf7a2004"
           },
           {
             "registry_id": "phase3_loaded_registry_snapshot",
             "version": "1.0.0",
             "path": null,
-            "sha256": "36ba4377c3b8a1e45d85cf6062bcb9b3f1479deb9eb1aaaf8157dc552e1c6cc9"
+            "sha256": "f79f93d3cd84c8a3abafc3344e1e8815280d59da319eabd76814f6216777822b"
           }
         ]
       },
@@ -696,13 +696,13 @@
             "registry_id": "active_registry_index",
             "version": "1.0.0",
             "path": "registries/registry_index.json",
-            "sha256": "72eb727c1e3fbaed463bbfc46a441e784e40181dacab825b6fc7b39b8f31e924"
+            "sha256": "756421fad79a2cc2d1b93fefcfd50414d2cbb75f8b81d4b0734c9eafaf7a2004"
           },
           {
             "registry_id": "phase3_loaded_registry_snapshot",
             "version": "1.0.0",
             "path": null,
-            "sha256": "36ba4377c3b8a1e45d85cf6062bcb9b3f1479deb9eb1aaaf8157dc552e1c6cc9"
+            "sha256": "f79f93d3cd84c8a3abafc3344e1e8815280d59da319eabd76814f6216777822b"
           }
         ]
       },
@@ -788,13 +788,13 @@
             "registry_id": "active_registry_index",
             "version": "1.0.0",
             "path": "registries/registry_index.json",
-            "sha256": "72eb727c1e3fbaed463bbfc46a441e784e40181dacab825b6fc7b39b8f31e924"
+            "sha256": "756421fad79a2cc2d1b93fefcfd50414d2cbb75f8b81d4b0734c9eafaf7a2004"
           },
           {
             "registry_id": "phase3_loaded_registry_snapshot",
             "version": "1.0.0",
             "path": null,
-            "sha256": "36ba4377c3b8a1e45d85cf6062bcb9b3f1479deb9eb1aaaf8157dc552e1c6cc9"
+            "sha256": "f79f93d3cd84c8a3abafc3344e1e8815280d59da319eabd76814f6216777822b"
           }
         ]
       },
@@ -880,13 +880,13 @@
             "registry_id": "active_registry_index",
             "version": "1.0.0",
             "path": "registries/registry_index.json",
-            "sha256": "72eb727c1e3fbaed463bbfc46a441e784e40181dacab825b6fc7b39b8f31e924"
+            "sha256": "756421fad79a2cc2d1b93fefcfd50414d2cbb75f8b81d4b0734c9eafaf7a2004"
           },
           {
             "registry_id": "phase3_loaded_registry_snapshot",
             "version": "1.0.0",
             "path": null,
-            "sha256": "36ba4377c3b8a1e45d85cf6062bcb9b3f1479deb9eb1aaaf8157dc552e1c6cc9"
+            "sha256": "f79f93d3cd84c8a3abafc3344e1e8815280d59da319eabd76814f6216777822b"
           }
         ]
       },

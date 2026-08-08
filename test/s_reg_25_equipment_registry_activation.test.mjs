@@ -77,10 +77,10 @@ test("S-REG-25 extends the active registry surface with equipment only, appended
   assert.equal(Object.keys(equipmentRegistry.entries).length, 17);
 
   // No other candidate domain was activated alongside this one. sport_subdivision
-  // (S-REG-26) and sport_metric (S-REG-27) were later, separately-authorised
-  // activations - not asserted absent here, since that would wrongly forbid
-  // legitimate future activations rather than checking this slice's own scope.
-  assert.equal(fs.existsSync("registries/threshold_marker/threshold_marker.registry.json"), false);
+  // (S-REG-26), sport_metric (S-REG-27), and threshold_marker (S-REG-30) were
+  // later, separately-authorised activations - not asserted absent here,
+  // since that would wrongly forbid legitimate future activations rather
+  // than checking this slice's own scope.
 });
 
 test("S-REG-25 covers every S-REG-23 required-before-activation category for this target", () => {
