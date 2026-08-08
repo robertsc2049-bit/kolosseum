@@ -30,7 +30,7 @@
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "registry_bundle_sha256": "B2C3B1FA866AA984B29D83583C8AE18DBEB05AD4CC63380568298337AF985FC2",
+    "registry_bundle_sha256": "D12550C9EDB72C475FC4D0A19C57E4DE07B918C6D6E1BC1AA89F508DC99062EE",
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
     "schema_sha256s": [
       {
@@ -116,6 +116,10 @@
       {
         "path": "ci/schemas/sport_metric.registry.schema.json",
         "sha256": "5B62252634EB891C9437AB9EFD6195A09A3BF4369DD04463D83E9DECD84D0099"
+      },
+      {
+        "path": "ci/schemas/sport_role.registry.schema.json",
+        "sha256": "23E45F0424B1E4BC4CA46E39542394D1E1708E1B5876078DBFA506263746B7D2"
       },
       {
         "path": "ci/schemas/sport_subdivision.registry.schema.json",

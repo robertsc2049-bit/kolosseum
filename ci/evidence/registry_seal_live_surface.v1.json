@@ -30,6 +30,9 @@
     },
     {
       "path": "registries/sport_metric/sport_metric.registry.json"
+    },
+    {
+      "path": "registries/sport_role/sport_role.registry.json"
     }
   ]
 }

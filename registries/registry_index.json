@@ -7,6 +7,7 @@
     "program",
     "equipment",
     "sport_subdivision",
-    "sport_metric"
+    "sport_metric",
+    "sport_role"
   ]
 }

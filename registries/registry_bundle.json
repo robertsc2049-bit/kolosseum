@@ -1213,6 +1213,39 @@
           "copy_boundary_notes": "factual sport metric definition only"
         }
       }
+    },
+    "sport_role": {
+      "registry_id": "sport_role",
+      "version": "1.0.0",
+      "entries": {
+        "powerlifting__athlete": {
+          "sport_role_id": "powerlifting__athlete",
+          "id": "powerlifting__athlete",
+          "activity_id": "powerlifting",
+          "sport_subdivision_id": "powerlifting__competition_lift",
+          "display_label": "Athlete",
+          "context_type": "declared_context",
+          "copy_boundary_notes": "factual sport role label only"
+        },
+        "general_strength__participant": {
+          "sport_role_id": "general_strength__participant",
+          "id": "general_strength__participant",
+          "activity_id": "general_strength",
+          "sport_subdivision_id": "general_strength__training",
+          "display_label": "Participant",
+          "context_type": "declared_context",
+          "copy_boundary_notes": "factual sport role label only"
+        },
+        "rugby_union__field_player": {
+          "sport_role_id": "rugby_union__field_player",
+          "id": "rugby_union__field_player",
+          "activity_id": "rugby_union",
+          "sport_subdivision_id": "rugby_union__general_preparation",
+          "display_label": "Field player",
+          "context_type": "declared_context",
+          "copy_boundary_notes": "factual sport role label only"
+        }
+      }
     }
   }
 }

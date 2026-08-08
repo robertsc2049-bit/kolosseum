@@ -65,15 +65,28 @@ test("S-REG-27 extends the active registry surface with sport_metric only, appen
   const registryBundle = readJson("registries/registry_bundle.json");
   const sportMetricRegistry = readJson("registries/sport_metric/sport_metric.registry.json");
 
-  assert.deepEqual(registryIndex.order, S_REG_27_ACTIVE_REGISTRY_ORDER_AFTER);
-  assert.deepEqual(Object.keys(registryBundle.registries), S_REG_27_ACTIVE_REGISTRY_ORDER_AFTER);
+  // Live-file checks are prefix checks, not exact-match - a later, separately-
+  // authorised activation slice (S-REG-28) legitimately appended `sport_role`
+  // after `sport_metric`. The activation record's own historical field below
+  // stays exact-matched since it is frozen at authoring time, not a live-file
+  // check.
+  assert.deepEqual(
+    registryIndex.order.slice(0, S_REG_27_ACTIVE_REGISTRY_ORDER_AFTER.length),
+    S_REG_27_ACTIVE_REGISTRY_ORDER_AFTER
+  );
+  assert.deepEqual(
+    Object.keys(registryBundle.registries).slice(0, S_REG_27_ACTIVE_REGISTRY_ORDER_AFTER.length),
+    S_REG_27_ACTIVE_REGISTRY_ORDER_AFTER
+  );
   assert.deepEqual(activation.active_registry_order_after, S_REG_27_ACTIVE_REGISTRY_ORDER_AFTER);
 
   assert.equal(sportMetricRegistry.registry_id, "sport_metric");
   assert.equal(Object.keys(sportMetricRegistry.entries).length, 6);
 
-  // No other candidate domain was activated alongside this one.
-  assert.equal(fs.existsSync("registries/sport_role/sport_role.registry.json"), false);
+  // No other candidate domain was activated alongside this one. sport_role
+  // (S-REG-28) was a later, separately-authorised activation - not asserted
+  // absent here, since that would wrongly forbid legitimate future
+  // activations rather than checking this slice's own scope.
   assert.equal(fs.existsSync("registries/metric_exercise_link/metric_exercise_link.registry.json"), false);
   assert.equal(fs.existsSync("registries/threshold_marker/threshold_marker.registry.json"), false);
 });
