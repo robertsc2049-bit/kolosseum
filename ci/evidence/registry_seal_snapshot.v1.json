@@ -51,6 +51,10 @@
     {
       "path": "registries/threshold_marker/threshold_marker.registry.json",
       "sha256": "91af097cabd57d471c513ebb0ceb03b57c21ee3f7f3c5032ece4b9f6eb6ecd38"
+    },
+    {
+      "path": "registries/exercise_token/exercise_token.registry.json",
+      "sha256": "299c58e848b79e18cda8d4bb65cac454f141587e45ab9883216ae4ba09c324d1"
     }
   ]
 }

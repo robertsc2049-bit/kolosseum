@@ -1,0 +1,92 @@
+{
+  "slice_id": "S-REG-31",
+  "activation_id": "exercise_token_registry_activation",
+  "decision_type": "activation",
+  "source_hold_slice_id": "S-REG-23",
+  "source_contract_slice_id": "S-REG-24",
+  "source_candidate_slice_id": "S-REG-06",
+  "runtime_status": "non_runtime",
+  "activation_decision": "authorised",
+  "activation_target": "exercise_token_registry",
+  "activated_registry_id": "exercise_token",
+  "activation_authorised": true,
+  "activation_ready": true,
+  "active_registry_activation": true,
+  "active_registry_mutation": true,
+  "active_bundle_mutation": true,
+  "registry_law_mutation": false,
+  "registry_index_mutation": true,
+  "registry_bundle_mutation": true,
+  "registry_seal_mutation": true,
+  "engine_runtime_mutation": false,
+  "phase1_runtime_schema_mutation": false,
+  "marker_evaluator_mutation": false,
+  "comparison_result_mutation": false,
+  "recorded_value_input_mutation": false,
+  "advice_mutation": false,
+  "outcome_inference_mutation": false,
+  "programme_assignment_mutation": false,
+  "substitution_runtime_mutation": false,
+  "ui_behaviour_mutation": false,
+  "coach_interpretation_mutation": false,
+  "covered_required_before_activation": [
+    "explicit_activation_slice",
+    "active_registry_mutation_contract",
+    "registry_index_update_contract",
+    "registry_bundle_promotion_plan",
+    "registry_loader_contract",
+    "active_registry_schema_plan",
+    "fk_closure_replay_against_active_bundle",
+    "registry_seal_freeze_and_gate_plan",
+    "engine_consumption_boundary_decision",
+    "runtime_no_behaviour_change_proof",
+    "rollback_or_revert_plan"
+  ],
+  "active_registry_order_after": [
+    "activity",
+    "movement",
+    "exercise",
+    "program",
+    "equipment",
+    "sport_subdivision",
+    "sport_metric",
+    "sport_role",
+    "metric_exercise_link",
+    "threshold_marker",
+    "exercise_token"
+  ],
+  "activated_record_count": 3,
+  "excluded_candidate_record_ids": [
+    "front_plank_token"
+  ],
+  "human_authorisation": {
+    "authorised_by": "repository owner",
+    "authorisation_method": "explicit_chat_instruction",
+    "authorised_at_iso8601_date": "2026-08-08",
+    "authorisation_note": "User explicitly asked to activate the next candidate registry, continuing the chain after S-REG-30 (sport_metric extension + threshold_marker). Research identified exercise_token_registry_3b (S-REG-06) as the safest next target - its dependencies (activity_registry_1, movement_registry_3) are already legacy-active via S-REG-04's bridge, and no generic guard blocks it (unlike exercise_activity_applicability_registry, which s_v1_23's stricter guard unconditionally blocks). Cross-checking every record's movement_id against the live movement registry surfaced a genuine dangling FK: candidate record 'front_plank_token' references movement_id 'brace', which does not exist in the live 4-entry active movement registry. Shown this finding and three options (activate the 3 valid records only, activate all 4 including the dangling one, or hold the domain entirely), the user chose to activate only the 3 records with verified-valid movement_id and activity_ids references, excluding the dangling one by explicit decision."
+  },
+  "active_registry_hashes_before": {
+    "registry_index": "756421fad79a2cc2d1b93fefcfd50414d2cbb75f8b81d4b0734c9eafaf7a2004",
+    "registry_bundle": "14000102532890f3418e216d64b4a38cf2beeee0949ce4e03994a64b17e2daf9"
+  },
+  "active_registry_hashes_after": {
+    "registry_index": "d3cbd93b685dfa096ea18acedcf082f30bfa976bb00b59f5f782ee8510ed7d8e",
+    "registry_bundle": "3505108e1807519956c22c9948f8e028c02dd6a800b5ae94597fbb9da11a0eb4"
+  },
+  "rollback_plan": {
+    "primary": "git revert <this-slice-commit> - reverses every data file (registries/exercise_token/exercise_token.registry.json, ci/schemas/exercise_token.registry.schema.json, registry_index.json, registry_bundle.json, registry_surface_classification.json, the four seal evidence files, and this slice's own scaffolding) atomically back to the pre-activation sealed state in one step.",
+    "fallback": "If a clean revert is not possible: remove 'exercise_token' from registries/registry_index.json order[], delete registries/exercise_token/exercise_token.registry.json and ci/schemas/exercise_token.registry.schema.json, remove the exercise_token.registry entry from registries/registry_surface_classification.json and from ci/evidence/registry_seal_manifest.v1.json, ci/evidence/registry_seal_live_surface.v1.json, ci/evidence/registry_seal_snapshot.v1.json, then run `npm run registry:bundle`, `node ci/scripts/run_registry_seal_freeze.mjs`, and `node ci/scripts/run_registry_seal_gate.mjs` to confirm the tree returns to a clean sealed state matching the pre-activation snapshot recorded in active_registry_hashes_before."
+  },
+  "runtime_parity_proof": {
+    "method": "npm run e2e:golden",
+    "fixture_count": 13,
+    "identical": true,
+    "byte_identical_fixture_count": 11,
+    "changed_fixtures": [
+      "phase3_precedence_banned_over_available",
+      "phase3_sovereign_constraints_envelope"
+    ],
+    "changed_field": "phase3.notes / phase3's loaded_registries list",
+    "note": "All 13 e2e:golden fixtures were captured before this activation and re-captured after every mutation in this slice. 11 of 13 were byte-identical. The remaining 2 (the only fixtures that exercise PHASE_3's constraints-resolution output) changed in exactly one place: the factual 'which registry files were loaded' list correctly gained 'exercise_token' after 'threshold_marker', since PHASE_3 builds that list generically from registry_index.json's order[] - the same mechanism every other registry already goes through. No decision, content, exercise, template, or compile-output field changed in either fixture; the two updated golden snapshots were re-pinned via UPDATE_GOLDEN=1 npm run e2e:golden and re-verified by golden_manifest_guard.mjs and golden_outputs_guard.mjs. 'identical: true' above refers to engine DECISION output (exercise selection, template assignment, compile results) - not to the byte-level snapshot, which is honestly not identical for these 2 of 13 fixtures for the reason given. This activation also required the same BETA replay-corpus re-pin cascade already established for S-REG-25/26/27/28/29/30 (replay/suite/beta_phase1_7's vectors/bindings/expected-outputs and the chain of dependent manifests through BETA-22/23/24/26/29)."
+  }
+}

@@ -52,6 +52,10 @@
         "class": "launch_critical"
       },
       {
+        "document_id": "exercise_token.registry",
+        "class": "launch_critical"
+      },
+      {
         "document_id": "registry_index",
         "class": "excluded"
       }

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/exercise_token.registry.schema.json",
+  "title": "Exercise Token Registry Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_id", "version", "entries"],
+  "properties": {
+    "registry_id": { "type": "string", "const": "exercise_token" },
+    "version": { "type": "string", "minLength": 1 },
+    "entries": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "exercise_token_id",
+          "id",
+          "display_label",
+          "activity_ids",
+          "movement_id",
+          "token_kind",
+          "copy_boundary_notes"
+        ],
+        "properties": {
+          "exercise_token_id": { "type": "string", "minLength": 1 },
+          "id": { "type": "string", "minLength": 1 },
+          "display_label": { "type": "string", "minLength": 1 },
+          "activity_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "movement_id": { "type": "string", "minLength": 1 },
+          "token_kind": { "type": "string", "minLength": 1 },
+          "copy_boundary_notes": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
