@@ -30,7 +30,7 @@
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "registry_bundle_sha256": "D12550C9EDB72C475FC4D0A19C57E4DE07B918C6D6E1BC1AA89F508DC99062EE",
+    "registry_bundle_sha256": "3F659F7581DE35E53DEB9AD16EAFB1267188CF88681593BE192130C629F68C5B",
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
     "schema_sha256s": [
       {
@@ -64,6 +64,10 @@
       {
         "path": "ci/schemas/exercise.registry.schema.v1.0.0.json",
         "sha256": "585DC200AA2E5646FD110890BBF996EF3CBD1C1454DFA42A3E5592AC4CDB35F4"
+      },
+      {
+        "path": "ci/schemas/metric_exercise_link.registry.schema.json",
+        "sha256": "7FC037A47D0C9FE7C76F64D604F4E8AE61219B6F3E3FB64167EA3BBF15D62858"
       },
       {
         "path": "ci/schemas/movement.registry.schema.json",

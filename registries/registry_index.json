@@ -8,6 +8,7 @@
     "equipment",
     "sport_subdivision",
     "sport_metric",
-    "sport_role"
+    "sport_role",
+    "metric_exercise_link"
   ]
 }
