@@ -1,0 +1,126 @@
+{
+  "registry_id": "metric_exercise_link",
+  "version": "1.0.0",
+  "entries": {
+    "powerlifting__load_kg__back_squat": {
+      "metric_exercise_link_id": "powerlifting__load_kg__back_squat",
+      "id": "powerlifting__load_kg__back_squat",
+      "sport_metric_id": "powerlifting__load_kg",
+      "exercise_id": "back_squat",
+      "activity_id": "powerlifting",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "powerlifting__load_kg__deadlift": {
+      "metric_exercise_link_id": "powerlifting__load_kg__deadlift",
+      "id": "powerlifting__load_kg__deadlift",
+      "sport_metric_id": "powerlifting__load_kg",
+      "exercise_id": "deadlift",
+      "activity_id": "powerlifting",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "powerlifting__load_kg__bench_press": {
+      "metric_exercise_link_id": "powerlifting__load_kg__bench_press",
+      "id": "powerlifting__load_kg__bench_press",
+      "sport_metric_id": "powerlifting__load_kg",
+      "exercise_id": "bench_press",
+      "activity_id": "powerlifting",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "powerlifting__repetition_count__back_squat": {
+      "metric_exercise_link_id": "powerlifting__repetition_count__back_squat",
+      "id": "powerlifting__repetition_count__back_squat",
+      "sport_metric_id": "powerlifting__repetition_count",
+      "exercise_id": "back_squat",
+      "activity_id": "powerlifting",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "powerlifting__repetition_count__deadlift": {
+      "metric_exercise_link_id": "powerlifting__repetition_count__deadlift",
+      "id": "powerlifting__repetition_count__deadlift",
+      "sport_metric_id": "powerlifting__repetition_count",
+      "exercise_id": "deadlift",
+      "activity_id": "powerlifting",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "powerlifting__repetition_count__bench_press": {
+      "metric_exercise_link_id": "powerlifting__repetition_count__bench_press",
+      "id": "powerlifting__repetition_count__bench_press",
+      "sport_metric_id": "powerlifting__repetition_count",
+      "exercise_id": "bench_press",
+      "activity_id": "powerlifting",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "general_strength__load_kg__back_squat": {
+      "metric_exercise_link_id": "general_strength__load_kg__back_squat",
+      "id": "general_strength__load_kg__back_squat",
+      "sport_metric_id": "general_strength__load_kg",
+      "exercise_id": "back_squat",
+      "activity_id": "general_strength",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "general_strength__load_kg__deadlift": {
+      "metric_exercise_link_id": "general_strength__load_kg__deadlift",
+      "id": "general_strength__load_kg__deadlift",
+      "sport_metric_id": "general_strength__load_kg",
+      "exercise_id": "deadlift",
+      "activity_id": "general_strength",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "general_strength__load_kg__bench_press": {
+      "metric_exercise_link_id": "general_strength__load_kg__bench_press",
+      "id": "general_strength__load_kg__bench_press",
+      "sport_metric_id": "general_strength__load_kg",
+      "exercise_id": "bench_press",
+      "activity_id": "general_strength",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "general_strength__repetition_count__back_squat": {
+      "metric_exercise_link_id": "general_strength__repetition_count__back_squat",
+      "id": "general_strength__repetition_count__back_squat",
+      "sport_metric_id": "general_strength__repetition_count",
+      "exercise_id": "back_squat",
+      "activity_id": "general_strength",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "general_strength__repetition_count__deadlift": {
+      "metric_exercise_link_id": "general_strength__repetition_count__deadlift",
+      "id": "general_strength__repetition_count__deadlift",
+      "sport_metric_id": "general_strength__repetition_count",
+      "exercise_id": "deadlift",
+      "activity_id": "general_strength",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    },
+    "general_strength__repetition_count__bench_press": {
+      "metric_exercise_link_id": "general_strength__repetition_count__bench_press",
+      "id": "general_strength__repetition_count__bench_press",
+      "sport_metric_id": "general_strength__repetition_count",
+      "exercise_id": "bench_press",
+      "activity_id": "general_strength",
+      "link_kind": "factual_metric_exercise_link",
+      "value_context": "recorded_value_context_only",
+      "copy_boundary_notes": "factual metric-exercise relationship only"
+    }
+  }
+}

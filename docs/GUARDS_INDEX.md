@@ -96,6 +96,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_reg_26_sport_subdivision_registry_activation_guard.mjs` | Registry Law | high | registry | No other candidate domain's active-file counterpart may ever appear here - |
 | `ci/guards/s_reg_27_sport_metric_registry_activation_guard.mjs` | Registry Law | high | registry | No other candidate domain's active-file counterpart may ever appear here - |
 | `ci/guards/s_reg_28_sport_role_registry_activation_guard.mjs` | Registry Law | high | registry | No other candidate domain's active-file counterpart may ever appear here - |
+| `ci/guards/s_reg_29_metric_exercise_link_registry_activation_guard.mjs` | Registry Law | high | registry | No other candidate domain's active-file counterpart may ever appear here - |
 | `ci/guards/s_v1_01_active_boundary_confirmation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_02b_non_scope_guard_hardening_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_03_repository_top_level_folder_contract_guard.mjs` | Repo Governance | medium | repo |  |

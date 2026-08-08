@@ -43,6 +43,10 @@
     {
       "path": "registries/sport_role/sport_role.registry.json",
       "sha256": "e2ee4f830c930d5f4de2ebe8ee10fe4be73ae8078634a4fb3993bbbc10fdb10c"
+    },
+    {
+      "path": "registries/metric_exercise_link/metric_exercise_link.registry.json",
+      "sha256": "2867508354aff3f15274050587d4293e38729179f4277e865c083e8ff3e157a3"
     }
   ]
 }

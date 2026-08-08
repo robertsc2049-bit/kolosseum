@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/metric_exercise_link.registry.schema.json",
+  "title": "Metric Exercise Link Registry Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_id", "version", "entries"],
+  "properties": {
+    "registry_id": { "type": "string", "const": "metric_exercise_link" },
+    "version": { "type": "string", "minLength": 1 },
+    "entries": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "metric_exercise_link_id",
+          "id",
+          "sport_metric_id",
+          "exercise_id",
+          "activity_id",
+          "link_kind",
+          "value_context",
+          "copy_boundary_notes"
+        ],
+        "properties": {
+          "metric_exercise_link_id": { "type": "string", "minLength": 1 },
+          "id": { "type": "string", "minLength": 1 },
+          "sport_metric_id": { "type": "string", "minLength": 1 },
+          "exercise_id": { "type": "string", "minLength": 1 },
+          "activity_id": { "type": "string", "minLength": 1 },
+          "link_kind": { "type": "string", "minLength": 1 },
+          "value_context": { "type": "string", "minLength": 1 },
+          "copy_boundary_notes": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
