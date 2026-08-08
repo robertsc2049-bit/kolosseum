@@ -39,6 +39,9 @@
     },
     {
       "path": "registries/threshold_marker/threshold_marker.registry.json"
+    },
+    {
+      "path": "registries/exercise_token/exercise_token.registry.json"
     }
   ]
 }
