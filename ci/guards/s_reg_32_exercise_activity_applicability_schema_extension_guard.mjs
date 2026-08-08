@@ -49,6 +49,10 @@ const allowedChangedFiles = new Set([
   "ci/evidence/registry_seal_snapshot.v1.json",
   "ci/evidence/evidence_envelope.v1.json",
   "ci/evidence/evidence_seal.v1.json",
+  // BETA-29's rehearsal manifest pins package.json's own sha256 - this
+  // slice's package.json wiring change requires re-pinning it, the same
+  // mechanic every activation slice's package.json change has needed.
+  "replay/suite/beta_phase1_8/production_beta_rehearsal_manifest.json",
   "package.json",
   "docs/GUARDS_INDEX.md",
   "docs/dev/FAILURE_TOKEN_INDEX.md",
