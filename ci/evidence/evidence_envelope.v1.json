@@ -30,7 +30,7 @@
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "registry_bundle_sha256": "14A5110FA4BCDE82D6DF13A23FBC8BA82E88CE94E5D87B5923582097CFB7D4DA",
+    "registry_bundle_sha256": "12DBA199E227DED3AC372485B9B811F81FFD09343363E1F0C6C715E62BB7FEAD",
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
     "schema_sha256s": [
       {
@@ -48,6 +48,10 @@
       {
         "path": "ci/schemas/evidence_seal.schema.v1.0.0.json",
         "sha256": "06E36522E257201BCB3F9595A7D7C3058B1EE13890EE7CE67ABA6B46D8276C6E"
+      },
+      {
+        "path": "ci/schemas/exercise_activity_applicability.registry.schema.json",
+        "sha256": "FD154211C212697D2991D3CD96E359AB5AA7E4671679E9D9F4A6FAE29102E77F"
       },
       {
         "path": "ci/schemas/exercise_registry.schema.json",

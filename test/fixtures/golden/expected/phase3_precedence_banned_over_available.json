@@ -46,7 +46,8 @@
           "sport_role",
           "metric_exercise_link",
           "threshold_marker",
-          "exercise_token"
+          "exercise_token",
+          "exercise_activity_applicability"
         ],
         "notes": [
           "PHASE_3: registries loaded",

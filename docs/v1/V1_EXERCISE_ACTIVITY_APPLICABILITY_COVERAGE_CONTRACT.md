@@ -226,3 +226,29 @@ S-V1-23 is accepted when:
 - no UI screen is added
 - no database migration is added
 - no package version is changed
+
+## Supersession log (append-only)
+
+The sections above describe this slice's own boundary as originally written -
+a design-only contract accepted before active exercise activity applicability
+registry content existed. They remain historically accurate for S-V1-23
+itself and are not rewritten.
+
+S-REG-33 is the explicit, human-authorised activation slice that later
+satisfied this contract for real: it added the full 159-record applicability
+closure (53 exercise-activity pairs across all 3 required contexts) to
+`registries/exercise_activity_applicability/exercise_activity_applicability.registry.json`,
+built on top of S-REG-32's earlier extension of
+`registries/exercise/exercise.registry.json` with
+`primary_activity_applicability`/`secondary_activity_applicability` fields on
+all 19 live exercise entries.
+
+The guard now validates real active content, in addition to the original
+negative-fixture proof, whenever
+`registries/exercise_activity_applicability/exercise_activity_applicability.registry.json`
+exists: it re-runs the same `validateExerciseActivityApplicabilityCoverage`
+check against the live exercise and applicability registries. This is
+additive real-content enforcement, not a replacement of the fixture-based
+proof, and not a relaxing of any requirement stated above.
+
+- superseded_by_slice_ids: S-REG-33

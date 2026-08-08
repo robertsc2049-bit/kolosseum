@@ -450,8 +450,6 @@ for (const file of requiredFiles) {
 }
 
 for (const forbiddenPath of [
-  "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-  "registries/applicability/applicability.registry.json",
   "shared/v1-registry/v1ExerciseActivityApplicabilityCoverageContract.mjs"
 ]) {
   if (fs.existsSync(path.join(repoRoot, forbiddenPath))) {
@@ -523,6 +521,30 @@ for (const requiredText of [
   "Missing applicability fails closed"
 ]) {
   assertIncludes(docText, requiredText, "docs/v1/V1_EXERCISE_ACTIVITY_APPLICABILITY_COVERAGE_CONTRACT.md");
+}
+
+// S-REG-33 authorised the real activation this contract was written ahead of.
+// Once active exercise_activity_applicability registry content exists, it
+// must independently satisfy the same coverage validator the fixture proof
+// above exercises - this is additive real-content enforcement, not a
+// replacement of that proof.
+const activeApplicabilityRegistryPath = "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json";
+
+if (fs.existsSync(path.join(repoRoot, activeApplicabilityRegistryPath))) {
+  const activeApplicabilityRegistry = readJson(activeApplicabilityRegistryPath);
+  const activeExerciseRegistry = readJson("registries/exercise/exercise.registry.json");
+
+  try {
+    validateExerciseActivityApplicabilityCoverage({
+      exerciseRecords: Object.values(activeExerciseRegistry.entries ?? {}),
+      applicabilityRecords: Object.values(activeApplicabilityRegistry.entries ?? {})
+    });
+  } catch (activeContentError) {
+    fail(
+      `active exercise activity applicability coverage contract failed: ${activeContentError.message}`,
+      activeContentError.details ?? {}
+    );
+  }
 }
 
 assertIncludes(

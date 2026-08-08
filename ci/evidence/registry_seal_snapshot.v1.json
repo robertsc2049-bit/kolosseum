@@ -55,6 +55,10 @@
     {
       "path": "registries/exercise_token/exercise_token.registry.json",
       "sha256": "299c58e848b79e18cda8d4bb65cac454f141587e45ab9883216ae4ba09c324d1"
+    },
+    {
+      "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
+      "sha256": "84a23de661e6adceeefef2de7d174a91a39c8cdfff00f5bfeb02cf749f5fab97"
     }
   ]
 }

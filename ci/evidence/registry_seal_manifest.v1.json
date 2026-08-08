@@ -42,6 +42,9 @@
     },
     {
       "path": "registries/exercise_token/exercise_token.registry.json"
+    },
+    {
+      "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json"
     }
   ]
 }
