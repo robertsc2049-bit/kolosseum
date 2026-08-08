@@ -24,6 +24,7 @@ S-REG-27 includes:
 - `registries/registry_surface_classification.json` extended with the sport_metric registry, classified `launch_critical` like every sibling active domain.
 - A full seal `pre_seal` → `sealed` round-trip across all four seal evidence files, re-pinning the sport_metric registry hash.
 - Test and guard proof, including running all of S-REG-24's required proof commands for real.
+- A fix to `test/s_reg_25_equipment_registry_activation.test.mjs` and `test/s_reg_26_sport_subdivision_registry_activation.test.mjs`, both of which hardcoded exact-match live-registry-order checks and a permanent "sport_metric was not activated" `existsSync(false)` assertion that broke the moment this slice's activation made that assertion false. Relaxed to prefix-match / removed the stale check, per each file's own appended supersession note.
 - Documentation.
 - Package proof script.
 - Generated indexes and checksums through existing generators.

@@ -128,3 +128,9 @@ Expected proof:
 S-REG-26 activates the `sport_subdivision` registry domain only.
 
 It does not activate any other candidate domain, create marker evaluator behaviour, compare real values, emit advice, infer outcomes, alter programme assignment, alter substitution runtime, create UI behaviour, or alter deterministic engine output.
+
+## Supersession log (append-only)
+
+- superseded_by_slice_ids: S-REG-27
+
+S-REG-27 later extended the active registry index and bundle with a seventh domain, `sport_metric`, appended after `sport_subdivision`. That extension also exposed a latent issue in this slice's own **test** file (not its module, which already used prefix-match from the start per its own DEV NOTE): `test/s_reg_26_sport_subdivision_registry_activation.test.mjs` still exact-matched the live registry order/bundle keys and asserted `fs.existsSync("registries/sport_metric/sport_metric.registry.json") === false` - a check meaning "no other domain was activated alongside sport_subdivision in this slice," expressed as a permanent live-filesystem assertion, so it broke the moment `sport_metric` was legitimately activated by a later, separate slice. The order/bundle-key checks were relaxed to prefix-match (mirroring the module's own approach), and the stale `sport_metric` existence check was removed; the still-held `sport_role`/`threshold_marker` checks are untouched since they remain true.

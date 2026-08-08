@@ -75,6 +75,15 @@ const allowedChangedFiles = new Set([
   "docs/roadmap/S_REG_23_REGISTRY_ACTIVATION_HOLD_DECISION.md",
   "ci/registry/s_reg_24_registry_activation_contract_design.json",
   "docs/roadmap/S_REG_24_REGISTRY_ACTIVATION_CONTRACT_DESIGN.md",
+  // S-REG-25/26's own test files hardcoded exact-match live-registry-order
+  // checks and a permanent "sport_metric was not activated" existsSync(false)
+  // assertion, both of which broke the moment this slice activated
+  // sport_metric - relaxed to prefix-match / removed the stale check, the
+  // same class of fix S-REG-04/23/24/25 already needed for the same reason.
+  "test/s_reg_25_equipment_registry_activation.test.mjs",
+  "test/s_reg_26_sport_subdivision_registry_activation.test.mjs",
+  "docs/roadmap/S_REG_25_EQUIPMENT_REGISTRY_ACTIVATION.md",
+  "docs/roadmap/S_REG_26_SPORT_SUBDIVISION_REGISTRY_ACTIVATION.md",
   "package.json",
   "docs/GUARDS_INDEX.md",
   "docs/dev/FAILURE_TOKEN_INDEX.md",
