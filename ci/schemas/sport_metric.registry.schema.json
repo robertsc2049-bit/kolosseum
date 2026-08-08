@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/sport_metric.registry.schema.json",
+  "title": "Sport Metric Registry Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_id", "version", "entries"],
+  "properties": {
+    "registry_id": { "type": "string", "const": "sport_metric" },
+    "version": { "type": "string", "minLength": 1 },
+    "entries": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sport_metric_id",
+          "id",
+          "activity_id",
+          "sport_subdivision_id",
+          "display_label",
+          "metric_kind",
+          "unit",
+          "value_type",
+          "copy_boundary_notes"
+        ],
+        "properties": {
+          "sport_metric_id": { "type": "string", "minLength": 1 },
+          "id": { "type": "string", "minLength": 1 },
+          "activity_id": { "type": "string", "minLength": 1 },
+          "sport_subdivision_id": { "type": "string", "minLength": 1 },
+          "display_label": { "type": "string", "minLength": 1 },
+          "metric_kind": { "type": "string", "minLength": 1 },
+          "unit": { "type": "string", "minLength": 1 },
+          "value_type": { "type": "string", "minLength": 1 },
+          "copy_boundary_notes": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

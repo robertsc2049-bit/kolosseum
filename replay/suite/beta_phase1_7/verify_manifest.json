@@ -24,10 +24,10 @@
   "sha256": {
     "contract": "ec4dbe9fa7d320fc4d1ce20e3773d49c27af9c2420651a428e98531f77204ef7",
     "failure_tokens": "32e2bd7c3c120f7014de8316a5ccb5aa3008c088c4afb1c03edd8e09e19ee714",
-    "vectors": "0b198b56eda3987d4c1741473b033b00694372be0072a9f0bd3d4f7c78ac8af0",
-    "vector_manifest": "1bb826e37b11d42c268b7590d83308fc489a1b6f45fba9d4c03958a70adf92eb",
-    "verify_inputs": "1110bd2b83d676f18143d553badbe7a7e2afa6e7179dedb19e77c556a48deb9e",
-    "expected_outputs": "f1b58606e8ac8b139a9c2625e36ddbd1556ca56e8c69924c4d6d1f332064956e"
+    "vectors": "6a89cfea131d4a6f984ade8a46a7b8eb20087f3197bd65b45778a3d5d36e6fed",
+    "vector_manifest": "a367ecda1c3b04be047b10337d2f25b4fef78bf68bad322eaeb516de14e38a67",
+    "verify_inputs": "c8608874f09bfa33e233327a8c4e07916392d306d511618c8bc68974c0b32257",
+    "expected_outputs": "08d6ebb666bc307acf44117ffcdf43b6e0ba42e3ac0232276d0c1c81511f2482"
   },
   "accepted_vector_ids": [
     "beta21_individual_powerlifting",

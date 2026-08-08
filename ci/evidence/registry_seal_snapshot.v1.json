@@ -35,6 +35,10 @@
     {
       "path": "registries/sport_subdivision/sport_subdivision.registry.json",
       "sha256": "ed4377d14dc56d9ed81ffadf5783a522dffa80aa825630ca731e8fd632c11762"
+    },
+    {
+      "path": "registries/sport_metric/sport_metric.registry.json",
+      "sha256": "32fe7bfc12a2c14676a59b42a75508b2291754b8e63e8bf2e55ae7ded268a907"
     }
   ]
 }
