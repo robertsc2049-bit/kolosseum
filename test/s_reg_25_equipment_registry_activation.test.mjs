@@ -76,8 +76,10 @@ test("S-REG-25 extends the active registry surface with equipment only, appended
   assert.equal(equipmentRegistry.registry_id, "equipment");
   assert.equal(Object.keys(equipmentRegistry.entries).length, 17);
 
-  // No other candidate domain was activated alongside this one.
-  assert.equal(fs.existsSync("registries/sport_metric/sport_metric.registry.json"), false);
+  // No other candidate domain was activated alongside this one. sport_subdivision
+  // (S-REG-26) and sport_metric (S-REG-27) were later, separately-authorised
+  // activations - not asserted absent here, since that would wrongly forbid
+  // legitimate future activations rather than checking this slice's own scope.
   assert.equal(fs.existsSync("registries/threshold_marker/threshold_marker.registry.json"), false);
 });
 
