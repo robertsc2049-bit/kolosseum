@@ -42,7 +42,8 @@
           "program",
           "equipment",
           "sport_subdivision",
-          "sport_metric"
+          "sport_metric",
+          "sport_role"
         ],
         "notes": [
           "PHASE_3: registries loaded",

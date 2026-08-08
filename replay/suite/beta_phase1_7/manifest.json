@@ -3,7 +3,7 @@
   "slice_id": "BETA-21",
   "suite_id": "beta_phase1_7",
   "suite_path": "replay/suite/beta_phase1_7/vectors.json",
-  "suite_sha256": "6a89cfea131d4a6f984ade8a46a7b8eb20087f3197bd65b45778a3d5d36e6fed",
+  "suite_sha256": "f4597601aec96e41914bc9b17819e594b803d5173edbde0f17e863bbd9a52d3d",
   "vector_ids": [
     "beta21_individual_powerlifting",
     "beta21_individual_general_strength",

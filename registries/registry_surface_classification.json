@@ -40,6 +40,10 @@
         "class": "launch_critical"
       },
       {
+        "document_id": "sport_role.registry",
+        "class": "launch_critical"
+      },
+      {
         "document_id": "registry_index",
         "class": "excluded"
       }
