@@ -48,6 +48,10 @@
         "class": "launch_critical"
       },
       {
+        "document_id": "threshold_marker.registry",
+        "class": "launch_critical"
+      },
+      {
         "document_id": "registry_index",
         "class": "excluded"
       }

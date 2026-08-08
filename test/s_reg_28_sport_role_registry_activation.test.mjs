@@ -84,9 +84,8 @@ test("S-REG-28 extends the active registry surface with sport_role only, appende
   assert.equal(Object.keys(sportRoleRegistry.entries).length, 3);
 
   // No other candidate domain was activated alongside this one.
-  // metric_exercise_link (S-REG-29) was a later, separately-authorised
-  // activation - not asserted absent here.
-  assert.equal(fs.existsSync("registries/threshold_marker/threshold_marker.registry.json"), false);
+  // metric_exercise_link (S-REG-29) and threshold_marker (S-REG-30) were
+  // later, separately-authorised activations - not asserted absent here.
 });
 
 test("S-REG-28 covers every S-REG-23 required-before-activation category for this target", () => {

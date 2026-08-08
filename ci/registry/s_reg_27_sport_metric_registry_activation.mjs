@@ -20,6 +20,16 @@
  * order/bundle-key checks are prefix checks, not exact-match - a later,
  * separately-authorised activation slice may legitimately append further
  * domains after this one.
+ * Supersession log (S-REG-30): S-REG-30 extended the live sport_metric
+ * registry from 6 to 9 entries (a later, separately-authorised slice - the
+ * first in this chain to extend an already-active domain's content rather
+ * than only ever add new domains). This module's live-entry-count check was
+ * relaxed from an exact match against this slice's own frozen
+ * activated_record_count (6, forever - a historical fact of what S-REG-27
+ * itself activated) to a membership check: the live registry must still
+ * contain every one of the 6 originally-activated sport_metric_ids. The
+ * returned activated_record_count continues to report the frozen historical
+ * value, not the live entry count.
  * Failure: throws CI_S_REG_27_SPORT_METRIC_REGISTRY_ACTIVATION.
  */
 
@@ -83,6 +93,19 @@ export const S_REG_27_ACTIVE_REGISTRY_ORDER_AFTER = Object.freeze([
   "equipment",
   "sport_subdivision",
   "sport_metric"
+]);
+
+// The 6 sport_metric_ids this slice itself activated. Frozen forever - a
+// later, separately-authorised slice (S-REG-30) may extend the live
+// sport_metric registry with further entries, but these 6 must always
+// remain present.
+export const S_REG_27_ORIGINALLY_ACTIVATED_SPORT_METRIC_IDS = Object.freeze([
+  "powerlifting__load_kg",
+  "powerlifting__repetition_count",
+  "general_strength__load_kg",
+  "general_strength__repetition_count",
+  "rugby_union__body_mass_kg",
+  "rugby_union__sprint_time_seconds"
 ]);
 
 export const S_REG_27_EXPECTED_DOCUMENT_KEYS = Object.freeze([
@@ -264,7 +287,15 @@ function assertActiveRegistrySurfaceExtendedCorrectly() {
     fail("s_reg_27_sport_metric_registry_entries_invalid", { actual: sportMetricRegistry.entries });
   }
 
-  return Object.keys(sportMetricRegistry.entries).length;
+  // Membership check, not exact count: the live registry may legitimately
+  // grow beyond what this slice itself activated (see S-REG-30's
+  // supersession-log note above). Every one of the 6 sport_metric_ids this
+  // slice activated must still be present.
+  for (const sportMetricId of S_REG_27_ORIGINALLY_ACTIVATED_SPORT_METRIC_IDS) {
+    if (!(sportMetricId in sportMetricRegistry.entries)) {
+      fail("s_reg_27_originally_activated_record_missing", { sport_metric_id: sportMetricId });
+    }
+  }
 }
 
 export function sReg27LoadSportMetricRegistryActivation() {
@@ -284,7 +315,7 @@ export function sReg27ValidateSportMetricRegistryActivation({
 
   assertSourceHoldRecordsThisSupersession();
   assertSourceContractRecordsThisSupersession();
-  const activatedRecordCount = assertActiveRegistrySurfaceExtendedCorrectly();
+  assertActiveRegistrySurfaceExtendedCorrectly();
 
   if (activationDocument.slice_id !== S_REG_27_SLICE_ID) {
     fail("s_reg_27_slice_id_invalid", { actual: activationDocument.slice_id });
@@ -351,10 +382,15 @@ export function sReg27ValidateSportMetricRegistryActivation({
     "s_reg_27_active_registry_order_after_invalid"
   );
 
-  if (activationDocument.activated_record_count !== activatedRecordCount) {
+  // This is the frozen historical count of what S-REG-27 itself activated
+  // (always 6) - not a live-surface check. The live registry may have grown
+  // since (see S-REG-30's supersession-log note above); that growth is
+  // validated by the membership check inside
+  // assertActiveRegistrySurfaceExtendedCorrectly, not here.
+  if (activationDocument.activated_record_count !== S_REG_27_ORIGINALLY_ACTIVATED_SPORT_METRIC_IDS.length) {
     fail("s_reg_27_activated_record_count_invalid", {
       declared: activationDocument.activated_record_count,
-      actual: activatedRecordCount
+      expected: S_REG_27_ORIGINALLY_ACTIVATED_SPORT_METRIC_IDS.length
     });
   }
 
@@ -425,7 +461,7 @@ export function sReg27ValidateSportMetricRegistryActivation({
     activation_ready: true,
     active_registry_activation: true,
     runtime_status: S_REG_27_RUNTIME_STATUS,
-    activated_record_count: activatedRecordCount,
+    activated_record_count: activationDocument.activated_record_count,
     active_registry_order_after: [...activationDocument.active_registry_order_after],
     covered_required_before_activation: [...activationDocument.covered_required_before_activation]
   });

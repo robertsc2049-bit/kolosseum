@@ -38,7 +38,7 @@
     },
     {
       "path": "registries/sport_metric/sport_metric.registry.json",
-      "sha256": "32fe7bfc12a2c14676a59b42a75508b2291754b8e63e8bf2e55ae7ded268a907"
+      "sha256": "7b02f8e1aec4e8a0a2dad9d1fe15395be79e0adf52fb172bc2ea8a3a55d19058"
     },
     {
       "path": "registries/sport_role/sport_role.registry.json",
@@ -47,6 +47,10 @@
     {
       "path": "registries/metric_exercise_link/metric_exercise_link.registry.json",
       "sha256": "2867508354aff3f15274050587d4293e38729179f4277e865c083e8ff3e157a3"
+    },
+    {
+      "path": "registries/threshold_marker/threshold_marker.registry.json",
+      "sha256": "91af097cabd57d471c513ebb0ceb03b57c21ee3f7f3c5032ece4b9f6eb6ecd38"
     }
   ]
 }

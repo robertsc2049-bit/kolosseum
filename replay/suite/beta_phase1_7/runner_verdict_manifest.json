@@ -19,8 +19,8 @@
     "schema": "366c4f2043fd13e278691d0cd6d27d0a3f9fddece3572d7c51304683b1446278",
     "failure_tokens": "772091299a65bb5a176d345ee8d521fbb6aa4e0781ea3e4f40cae49d99c5fe8d",
     "upstream_verify_contract": "ec4dbe9fa7d320fc4d1ce20e3773d49c27af9c2420651a428e98531f77204ef7",
-    "upstream_verify_manifest": "70391858f407dd4ec4dcb60b0e3676f55ff8b4586c31987064ff4cdc304c7471",
-    "vectors": "f90f8f2db61b3b2b2c5d3c27c6107418a53be531a526df277a0bbebaa63d08ac",
-    "expected_outputs": "0cc1d1bc0b299ad323fd1e90e3700a4f3adb85065fc7dc82e19f789bd403efa0"
+    "upstream_verify_manifest": "a0e42ffb855b45cdc5e53d362e6e74db0c91c2e203feb66043a5e140638b199d",
+    "vectors": "3c7681c4fe04ae130eb0fdf4d0896bffd2063d2fcdb895d77e59daf93aa009ce",
+    "expected_outputs": "d9aa928b28c498dc739d95e3d6b15becaa6e970b43f260371bc00401234cb874"
   }
 }

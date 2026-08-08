@@ -62,15 +62,27 @@ test("S-REG-29 extends the active registry surface with metric_exercise_link onl
   const registryBundle = readJson("registries/registry_bundle.json");
   const metricExerciseLinkRegistry = readJson("registries/metric_exercise_link/metric_exercise_link.registry.json");
 
-  assert.deepEqual(registryIndex.order, S_REG_29_ACTIVE_REGISTRY_ORDER_AFTER);
-  assert.deepEqual(Object.keys(registryBundle.registries), S_REG_29_ACTIVE_REGISTRY_ORDER_AFTER);
+  // Live-file checks are prefix checks, not exact-match - a later, separately-
+  // authorised activation slice (S-REG-30) legitimately appended
+  // `threshold_marker` after `metric_exercise_link`. The activation record's
+  // own historical field below stays exact-matched since it is frozen at
+  // authoring time, not a live-file check.
+  assert.deepEqual(
+    registryIndex.order.slice(0, S_REG_29_ACTIVE_REGISTRY_ORDER_AFTER.length),
+    S_REG_29_ACTIVE_REGISTRY_ORDER_AFTER
+  );
+  assert.deepEqual(
+    Object.keys(registryBundle.registries).slice(0, S_REG_29_ACTIVE_REGISTRY_ORDER_AFTER.length),
+    S_REG_29_ACTIVE_REGISTRY_ORDER_AFTER
+  );
   assert.deepEqual(activation.active_registry_order_after, S_REG_29_ACTIVE_REGISTRY_ORDER_AFTER);
 
   assert.equal(metricExerciseLinkRegistry.registry_id, "metric_exercise_link");
   assert.equal(Object.keys(metricExerciseLinkRegistry.entries).length, 12);
 
   // No other candidate domain was activated alongside this one.
-  assert.equal(fs.existsSync("registries/threshold_marker/threshold_marker.registry.json"), false);
+  // threshold_marker (S-REG-30) was a later, separately-authorised
+  // activation - not asserted absent here.
 });
 
 test("S-REG-29 excludes the dangling front_plank reference and every remaining record's cross-registry references are real", () => {

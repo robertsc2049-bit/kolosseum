@@ -36,6 +36,9 @@
     },
     {
       "path": "registries/metric_exercise_link/metric_exercise_link.registry.json"
+    },
+    {
+      "path": "registries/threshold_marker/threshold_marker.registry.json"
     }
   ]
 }

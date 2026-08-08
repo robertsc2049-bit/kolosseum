@@ -131,6 +131,8 @@ It does not activate any other candidate domain, create marker evaluator behavio
 
 ## Supersession log (append-only)
 
-- superseded_by_slice_ids: S-REG-27
+- superseded_by_slice_ids: S-REG-27, S-REG-30
 
 S-REG-27 later extended the active registry index and bundle with a seventh domain, `sport_metric`, appended after `sport_subdivision`. That extension also exposed a latent issue in this slice's own **test** file (not its module, which already used prefix-match from the start per its own DEV NOTE): `test/s_reg_26_sport_subdivision_registry_activation.test.mjs` still exact-matched the live registry order/bundle keys and asserted `fs.existsSync("registries/sport_metric/sport_metric.registry.json") === false` - a check meaning "no other domain was activated alongside sport_subdivision in this slice," expressed as a permanent live-filesystem assertion, so it broke the moment `sport_metric` was legitimately activated by a later, separate slice. The order/bundle-key checks were relaxed to prefix-match (mirroring the module's own approach), and the stale `sport_metric` existence check was removed; the still-held `sport_role`/`threshold_marker` checks are untouched since they remain true.
+
+S-REG-30 later activated `threshold_marker` as the tenth active domain, appended after `metric_exercise_link`. This slice's own test still asserted `fs.existsSync("registries/threshold_marker/threshold_marker.registry.json") === false` and was removed preemptively as part of S-REG-30's build, the same class of fix as above.

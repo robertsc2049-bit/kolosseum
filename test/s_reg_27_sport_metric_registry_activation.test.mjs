@@ -6,6 +6,7 @@ import {
   S_REG_27_ACTIVE_REGISTRY_ORDER_AFTER,
   S_REG_27_COVERED_REQUIRED_BEFORE_ACTIVATION,
   S_REG_27_FAILURE_TOKEN,
+  S_REG_27_ORIGINALLY_ACTIVATED_SPORT_METRIC_IDS,
   S_REG_27_REQUIRED_FALSE_FLAGS,
   S_REG_27_REQUIRED_TRUE_FLAGS,
   sReg27LoadSportMetricRegistryActivation,
@@ -81,14 +82,20 @@ test("S-REG-27 extends the active registry surface with sport_metric only, appen
   assert.deepEqual(activation.active_registry_order_after, S_REG_27_ACTIVE_REGISTRY_ORDER_AFTER);
 
   assert.equal(sportMetricRegistry.registry_id, "sport_metric");
-  assert.equal(Object.keys(sportMetricRegistry.entries).length, 6);
+
+  // Membership check, not exact count - S-REG-30 legitimately extended the
+  // live sport_metric registry from 6 to 9 entries. Every one of the 6
+  // sport_metric_ids this slice itself activated must still be present.
+  for (const sportMetricId of S_REG_27_ORIGINALLY_ACTIVATED_SPORT_METRIC_IDS) {
+    assert.ok(sportMetricId in sportMetricRegistry.entries, `expected ${sportMetricId} to still be present`);
+  }
+  assert.ok(Object.keys(sportMetricRegistry.entries).length >= S_REG_27_ORIGINALLY_ACTIVATED_SPORT_METRIC_IDS.length);
 
   // No other candidate domain was activated alongside this one. sport_role
-  // (S-REG-28) and metric_exercise_link (S-REG-29) were later, separately-
-  // authorised activations - not asserted absent here, since that would
-  // wrongly forbid legitimate future activations rather than checking this
-  // slice's own scope.
-  assert.equal(fs.existsSync("registries/threshold_marker/threshold_marker.registry.json"), false);
+  // (S-REG-28), metric_exercise_link (S-REG-29), and threshold_marker
+  // (S-REG-30) were later, separately-authorised activations - not asserted
+  // absent here, since that would wrongly forbid legitimate future
+  // activations rather than checking this slice's own scope.
 });
 
 test("S-REG-27 covers every S-REG-23 required-before-activation category for this target", () => {
