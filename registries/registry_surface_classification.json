@@ -36,6 +36,10 @@
         "class": "launch_critical"
       },
       {
+        "document_id": "sport_metric.registry",
+        "class": "launch_critical"
+      },
+      {
         "document_id": "registry_index",
         "class": "excluded"
       }

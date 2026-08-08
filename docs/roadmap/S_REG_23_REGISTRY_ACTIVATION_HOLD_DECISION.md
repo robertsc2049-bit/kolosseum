@@ -163,3 +163,4 @@ This decision record is never rewritten once a later slice acts on it. `supersed
 
 - S-REG-25 (`equipment_registry` activation) - authorised by explicit human decision. Activated the `equipment` domain only. The other 10 hold reasons and 10 remaining candidate domains named in this record remain held.
 - S-REG-26 (`sport_subdivision_registry` activation) - authorised by explicit human decision. Activated the `sport_subdivision` domain only, appended after `equipment`. The remaining candidate domains named in this record remain held.
+- S-REG-27 (`sport_metric_registry` activation) - authorised by explicit human decision. Activated the `sport_metric` domain only, appended after `sport_subdivision`. `sport_role_registry_2` (same dependency profile) and `metric_exercise_link_registry_1c_a` (now depends on this newly-active domain) remain held.

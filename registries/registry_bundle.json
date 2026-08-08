@@ -1141,6 +1141,78 @@
           "copy_boundary_notes": "factual sport subdivision label only"
         }
       }
+    },
+    "sport_metric": {
+      "registry_id": "sport_metric",
+      "version": "1.0.0",
+      "entries": {
+        "powerlifting__load_kg": {
+          "sport_metric_id": "powerlifting__load_kg",
+          "id": "powerlifting__load_kg",
+          "activity_id": "powerlifting",
+          "sport_subdivision_id": "powerlifting__competition_lift",
+          "display_label": "Load",
+          "metric_kind": "factual_metric_definition",
+          "unit": "kg",
+          "value_type": "number",
+          "copy_boundary_notes": "factual sport metric definition only"
+        },
+        "powerlifting__repetition_count": {
+          "sport_metric_id": "powerlifting__repetition_count",
+          "id": "powerlifting__repetition_count",
+          "activity_id": "powerlifting",
+          "sport_subdivision_id": "powerlifting__competition_lift",
+          "display_label": "Repetition count",
+          "metric_kind": "factual_metric_definition",
+          "unit": "count",
+          "value_type": "integer",
+          "copy_boundary_notes": "factual sport metric definition only"
+        },
+        "general_strength__load_kg": {
+          "sport_metric_id": "general_strength__load_kg",
+          "id": "general_strength__load_kg",
+          "activity_id": "general_strength",
+          "sport_subdivision_id": "general_strength__training",
+          "display_label": "Load",
+          "metric_kind": "factual_metric_definition",
+          "unit": "kg",
+          "value_type": "number",
+          "copy_boundary_notes": "factual sport metric definition only"
+        },
+        "general_strength__repetition_count": {
+          "sport_metric_id": "general_strength__repetition_count",
+          "id": "general_strength__repetition_count",
+          "activity_id": "general_strength",
+          "sport_subdivision_id": "general_strength__training",
+          "display_label": "Repetition count",
+          "metric_kind": "factual_metric_definition",
+          "unit": "count",
+          "value_type": "integer",
+          "copy_boundary_notes": "factual sport metric definition only"
+        },
+        "rugby_union__body_mass_kg": {
+          "sport_metric_id": "rugby_union__body_mass_kg",
+          "id": "rugby_union__body_mass_kg",
+          "activity_id": "rugby_union",
+          "sport_subdivision_id": "rugby_union__general_preparation",
+          "display_label": "Body mass",
+          "metric_kind": "factual_metric_definition",
+          "unit": "kg",
+          "value_type": "number",
+          "copy_boundary_notes": "factual sport metric definition only"
+        },
+        "rugby_union__sprint_time_seconds": {
+          "sport_metric_id": "rugby_union__sprint_time_seconds",
+          "id": "rugby_union__sprint_time_seconds",
+          "activity_id": "rugby_union",
+          "sport_subdivision_id": "rugby_union__general_preparation",
+          "display_label": "Sprint time",
+          "metric_kind": "factual_metric_definition",
+          "unit": "seconds",
+          "value_type": "number",
+          "copy_boundary_notes": "factual sport metric definition only"
+        }
+      }
     }
   }
 }
