@@ -56,6 +56,10 @@
         "class": "launch_critical"
       },
       {
+        "document_id": "exercise_activity_applicability.registry",
+        "class": "launch_critical"
+      },
+      {
         "document_id": "registry_index",
         "class": "excluded"
       }

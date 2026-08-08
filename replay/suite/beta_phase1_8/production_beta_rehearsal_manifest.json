@@ -34,9 +34,9 @@
     "opening_checklist": "612d39cfe0cccb2c3bf3287a1811b5756d358bf84e089e0b0f2e9973bff1b51c",
     "beta16_fixture": "4ce279a8b13c4db79160cd0fdd693ed1a50ee0582c2d2294735fb9dd42374c93",
     "beta17_fixture": "a834dc3ffa35f41614f4af0ec0334d6e2c96a4530cb0a369134a7ffe43898ef8",
-    "replay_vectors": "ce1705a82a6e34f6d031fcf8f35eed8ce9be03aea61dbee0cdbeeec6230a4986",
-    "replay_bindings": "1eee3d074a47637fd1801118618a48cecf43ad153b9fbf6c67aae52a5d06209c",
-    "replay_expected_outputs": "693c20c59836d77c224d626d98e3ed19c1c69f2bd91f99a20d0a716fe12ca10b",
+    "replay_vectors": "9d623949c02bbf6a011d8cf237cb5b88adebbc12870b51c0a5daf84bf784e6f9",
+    "replay_bindings": "9c6422e1e9990889f84a4118211d2a9c7eb1713fa84d10ec18566101d894bfeb",
+    "replay_expected_outputs": "de271a5335b74b5fc85a669f09a489444a5331cf81d0be4bae371a289af57b71",
     "release_workflow": "19ec55ff3782b8dff0f4878407319cac6d424f25800c5d6b2de554710df20d05",
     "operations_runbook": "3c333c48ba77616addb26be36bb22be7a2eba860fd1a642748403756e79346fe",
     "rollback_runbook": "dc9fe44b33fa68eaaf4ac3e8a028090953626e8e218b253921228ba36d9e1ce8",
@@ -44,6 +44,6 @@
     "v0_scope_scan": "d919c33ed6ce5f2fdb7310c195d1d16c19c61a40b6c6bb60ce490f5d69600d1e",
     "secret_scan": "9f2b7c30bb0c501ae4a071884bfee4fac940dfd18f6456e6918c0294c2405ea6",
     "dependency_audit": "f85285477fd4951fb22bbea9497d35ef3437f221aaa2e8a5a360203dedc8c9ef",
-    "package_json": "69f08f1b7dfdf85988681c1d5c03c0509ff7646c72d1c953b5bc371e43969b05"
+    "package_json": "30ddb1378cd2550d627bfb04bdaf64f00d737528b3b34032850502a16d0d06c9"
   }
 }

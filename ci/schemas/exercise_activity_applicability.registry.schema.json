@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/exercise_activity_applicability.registry.schema.json",
+  "title": "Exercise Activity Applicability Registry Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_id", "version", "entries"],
+  "properties": {
+    "registry_id": { "type": "string", "const": "exercise_activity_applicability" },
+    "version": { "type": "string", "minLength": 1 },
+    "entries": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "applicability_id",
+          "id",
+          "exercise_id",
+          "activity_id",
+          "activity_context",
+          "applicability_state",
+          "conditions",
+          "tier_cap",
+          "template_applicability",
+          "substitution_applicability",
+          "copy_legal_boundary_notes"
+        ],
+        "properties": {
+          "applicability_id": { "type": "string", "minLength": 1 },
+          "id": { "type": "string", "minLength": 1 },
+          "exercise_id": { "type": "string", "minLength": 1 },
+          "activity_id": { "type": "string", "minLength": 1 },
+          "activity_context": { "type": "string", "enum": ["training", "testing", "competition"] },
+          "applicability_state": { "type": "string", "enum": ["allowed", "conditional", "prohibited"] },
+          "conditions": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "tier_cap": {
+            "type": ["integer", "null"],
+            "minimum": 1,
+            "maximum": 4
+          },
+          "template_applicability": { "type": "string", "enum": ["eligible", "not_eligible"] },
+          "substitution_applicability": { "type": "string", "enum": ["eligible", "not_eligible"] },
+          "copy_legal_boundary_notes": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

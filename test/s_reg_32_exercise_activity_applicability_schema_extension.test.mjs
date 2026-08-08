@@ -37,13 +37,15 @@ test("S-REG-32 records a genuine schema extension, not a registry activation", (
 test("S-REG-32 does not touch registry_index.json order or activate any domain", () => {
   const registryIndex = readJson("registries/registry_index.json");
 
-  assert.deepEqual(registryIndex.order, [
+  // Prefix check, not exact-match - a later, separately-authorised
+  // activation slice (S-REG-33) legitimately appended
+  // exercise_activity_applicability after exercise_token.
+  const orderAtAuthoringTime = [
     "activity", "movement", "exercise", "program", "equipment",
     "sport_subdivision", "sport_metric", "sport_role", "metric_exercise_link",
     "threshold_marker", "exercise_token"
-  ]);
-
-  assert.equal(fs.existsSync("registries/exercise_activity_applicability/exercise_activity_applicability.registry.json"), false);
+  ];
+  assert.deepEqual(registryIndex.order.slice(0, orderAtAuthoringTime.length), orderAtAuthoringTime);
 });
 
 test("S-REG-32 gives every one of the 19 live exercises a genuinely-applicable primary and secondary activity set", () => {
@@ -122,14 +124,20 @@ test("S-REG-32 records human authorisation, before/after hashes, a rollback plan
   assert.deepEqual(extension.runtime_parity_proof.changed_fixtures, []);
 });
 
-test("S-REG-32's golden fixtures are byte-identical - this slice never touches loaded_registries", () => {
+test("S-REG-32's golden fixtures still list exercise_token as a loaded registry", () => {
+  // This slice itself never touched loaded_registries (confirmed by its own
+  // frozen runtime_parity_proof above, captured at authoring time). Whether
+  // a later slice's own domain name also appears is that slice's concern,
+  // not a permanent negative claim this test should keep making - the same
+  // stale-negative-existence lesson already applied repeatedly elsewhere in
+  // this chain, adapted for a golden-fixture substring instead of a file's
+  // existsSync.
   for (const path of [
     "test/fixtures/golden/expected/phase3_precedence_banned_over_available.json",
     "test/fixtures/golden/expected/phase3_sovereign_constraints_envelope.json"
   ]) {
     const serialized = fs.readFileSync(path, "utf8");
-    assert.ok(serialized.includes("\"exercise_token\""), `expected ${path} to still list exercise_token as the last loaded registry`);
-    assert.ok(!serialized.includes("\"exercise_activity_applicability\""), `expected ${path} to NOT yet list exercise_activity_applicability`);
+    assert.ok(serialized.includes("\"exercise_token\""), `expected ${path} to still list exercise_token as a loaded registry`);
   }
 });
 
