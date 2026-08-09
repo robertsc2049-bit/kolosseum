@@ -306,7 +306,9 @@ function discoverApiRoutes() {
     ["src/api/product_notification.routes.ts", "/account"],
     ["src/api/product_support.routes.ts", "/account"],
     ["src/api/product_admin.routes.ts", "/admin"],
-    ["src/api/progress_photos.routes.ts", "/progress-photos"]
+    ["src/api/progress_photos.routes.ts", "/progress-photos"],
+    ["src/api/body_metrics.routes.ts", "/body-metrics"],
+    ["src/api/habit_tracking.routes.ts", "/habits"]
   ];
   const routes = [];
   const pattern = /(?:router|[A-Za-z][A-Za-z0-9]*Router)\.(get|post|put|patch|delete)\(\s*["'`]([^"'`]+)["'`]/gu;

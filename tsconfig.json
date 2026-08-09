@@ -21,6 +21,7 @@
     "cli/src/**/*.ts",
     "src/**/*.ts",
     "shared/strength-reference/**/*.mjs",
+    "shared/body-metrics/**/*.mjs",
     "engine/src/runtime/**/*.ts",
     "engine/src/render/**/*.ts"
   ],
