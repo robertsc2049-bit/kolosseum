@@ -261,6 +261,12 @@ const elements = {
   applyHistoryFiltersButton: document.getElementById("applyHistoryFiltersButton"),
   clearHistoryFiltersButton: document.getElementById("clearHistoryFiltersButton"),
   historyDetailPanel: document.getElementById("historyDetailPanel"),
+  progressPhotoUploadForm: document.getElementById("progressPhotoUploadForm"),
+  progressPhotoFileInput: document.getElementById("progressPhotoFileInput"),
+  progressPhotoTakenAt: document.getElementById("progressPhotoTakenAt"),
+  progressPhotoCaption: document.getElementById("progressPhotoCaption"),
+  progressPhotoStatus: document.getElementById("progressPhotoStatus"),
+  progressPhotoGrid: document.getElementById("progressPhotoGrid"),
 
   coachGreeting: document.getElementById("coachGreeting"),
   coachAthleteCount: document.getElementById("coachAthleteCount"),
@@ -368,6 +374,7 @@ const elements = {
   athleteDetailMessageAttachment: document.getElementById("athleteDetailMessageAttachment"),
   athleteDetailMessageCancelButton: document.getElementById("athleteDetailMessageCancelButton"),
   athleteDetailOrgMessageHistory: document.getElementById("athleteDetailOrgMessageHistory"),
+  athleteDetailProgressPhotos: document.getElementById("athleteDetailProgressPhotos"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -2289,6 +2296,7 @@ async function refreshHistory(options = {}) {
   populateHistoryFilterOptions(serverSessions);
   renderHistoryList(serverSessions);
   renderToday();
+  refreshProgressPhotos({ quiet: true }).catch(() => {});
 
   if (!options.quiet) showNotice("Training history refreshed.");
   return state.history;
@@ -5182,6 +5190,142 @@ function renderMessageAttachment(attachment) {
   `;
 }
 
+const PROGRESS_PHOTO_MAX_BYTES = 10 * 1024 * 1024;
+const PROGRESS_PHOTO_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+function validateProgressPhotoClientSide(file) {
+  if (!file) return "Choose a photo to upload.";
+  if (!PROGRESS_PHOTO_IMAGE_TYPES.includes(file.type)) {
+    return "That file type isn't supported. Use a JPEG/PNG/WEBP photo.";
+  }
+  if (file.size > PROGRESS_PHOTO_MAX_BYTES) {
+    return "Photos must be 10MB or smaller.";
+  }
+  return null;
+}
+
+function renderProgressPhotoCard(photo) {
+  const caption = photo.caption ? `<p>${escapeHtml(photo.caption)}</p>` : "";
+  return `
+    <article class="progress-photo-card">
+      <img src="${escapeHtml(photo.url)}" alt="Progress photo" loading="lazy">
+      <span class="muted small">${escapeHtml(formatDate(photo.taken_at_iso8601))}</span>
+      ${caption}
+    </article>
+  `;
+}
+
+function renderProgressPhotos() {
+  if (!elements.progressPhotoGrid) return;
+
+  const photos = Array.isArray(state.progressPhotos) ? state.progressPhotos : [];
+
+  if (photos.length === 0) {
+    elements.progressPhotoGrid.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No progress photos yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  elements.progressPhotoGrid.innerHTML = photos.map(renderProgressPhotoCard).join("");
+}
+
+async function refreshProgressPhotos(options = {}) {
+  if (state.role !== "athlete") return;
+
+  try {
+    const response = await api("GET", "/progress-photos");
+    state.progressPhotos = Array.isArray(response.photos) ? response.photos : [];
+    renderProgressPhotos();
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
+async function uploadProgressPhoto() {
+  const file = elements.progressPhotoFileInput?.files?.[0];
+  const validationError = validateProgressPhotoClientSide(file);
+  if (validationError) {
+    elements.progressPhotoStatus.hidden = false;
+    elements.progressPhotoStatus.textContent = validationError;
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("photo", file);
+  if (elements.progressPhotoTakenAt?.value) {
+    formData.append("taken_at_iso8601", new Date(elements.progressPhotoTakenAt.value).toISOString());
+  }
+  if (elements.progressPhotoCaption?.value) {
+    formData.append("caption", elements.progressPhotoCaption.value);
+  }
+
+  showBusy("Uploading photo…");
+  try {
+    const response = await fetch("/progress-photos", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "x-kolosseum-csrf": String(state.csrfToken ?? "") },
+      body: formData
+    });
+    const payload = await readJson(response);
+    if (!response.ok) {
+      const error = new Error(friendlyError(payload, response.status));
+      error.payload = payload;
+      error.status = response.status;
+      throw error;
+    }
+
+    elements.progressPhotoUploadForm.reset();
+    elements.progressPhotoStatus.hidden = true;
+    await refreshProgressPhotos({ quiet: true });
+    showNotice("Progress photo uploaded.");
+  }
+  catch (error) {
+    elements.progressPhotoStatus.hidden = false;
+    elements.progressPhotoStatus.textContent = friendlyError(error.payload, error.status) || "Photo could not be uploaded.";
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+// Read-only coach view of an athlete's own progress photos - mirrors
+// refreshCoachAthleteOrgMessages's shape. No coach-facing upload/delete
+// route exists anywhere in this file.
+async function refreshCoachAthleteProgressPhotos(athleteUserId, options = {}) {
+  if (!athleteUserId || !elements.athleteDetailProgressPhotos) return;
+
+  try {
+    const response = await api("GET", `/progress-photos/coach/${encodeURIComponent(athleteUserId)}`);
+    state.coachAthleteProgressPhotos = Array.isArray(response.photos) ? response.photos : [];
+    renderCoachAthleteProgressPhotos();
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
+function renderCoachAthleteProgressPhotos() {
+  if (!elements.athleteDetailProgressPhotos) return;
+
+  const photos = Array.isArray(state.coachAthleteProgressPhotos) ? state.coachAthleteProgressPhotos : [];
+
+  if (photos.length === 0) {
+    elements.athleteDetailProgressPhotos.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No progress photos yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  elements.athleteDetailProgressPhotos.innerHTML = photos.map(renderProgressPhotoCard).join("");
+}
+
 async function refreshCoachAthleteMessages(athleteUserId, options = {}) {
   if (!athleteUserId || !elements.athleteDetailMessageHistory) return;
 
@@ -5400,6 +5544,12 @@ async function openAthleteProfile(athleteUserId) {
       {
         quiet: true
       }
+    ),
+    refreshCoachAthleteProgressPhotos(
+      athleteUserId,
+      {
+        quiet: true
+      }
     )
   ]);
 
@@ -5412,6 +5562,7 @@ function closeAthleteProfile() {
   state.athleteProfileDraft = null;
   state.liveMessageThreadId = null;
   state.coachAthleteOrgMessageThreads = [];
+  state.coachAthleteProgressPhotos = [];
   saveState();
   elements.athleteProfilePanel.hidden = true;
   elements.athleteAssignmentPanel.hidden = true;
@@ -13544,6 +13695,11 @@ for (const control of [
 
 elements.eventForm.addEventListener("submit", (event) => {
   createCoachEvent(event).catch(handleError);
+});
+
+elements.progressPhotoUploadForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  uploadProgressPhoto().catch(handleError);
 });
 
 elements.refreshTemplatesButton.addEventListener("click", () => {
