@@ -5806,6 +5806,80 @@
           }
         }
       ]
+    },
+    {
+      "area_id": "progress_photos",
+      "title": "Athlete progress photos",
+      "slice_id": "FULL-UI-28",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "progress_photo_upload",
+          "label": "Upload dated progress photo",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/progress-photos"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_28_progress_photos_surface.test.mjs",
+          "integration_test": "test/full_ui_28c_progress_photos_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "progress_photo_athlete_history",
+          "label": "Display own progress photo history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/progress-photos"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_28_progress_photos_surface.test.mjs",
+          "integration_test": "test/full_ui_28c_progress_photos_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "progress_photo_coach_view",
+          "label": "Display athlete progress photo history (read-only)",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/progress-photos/coach/:athlete_user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_28_progress_photos_surface.test.mjs",
+          "integration_test": "test/full_ui_28c_progress_photos_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
     }
   ],
   "delivery_slices": [
@@ -5915,6 +5989,10 @@
     },
     {
       "slice_id": "FULL-UI-27",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-28",
       "state": "implemented"
     }
   ],
@@ -6523,6 +6601,36 @@
       "path": "/templates/exercises",
       "source": "src/api/templates.routes.ts",
       "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
+      "path": "/progress-photos",
+      "source": "src/api/progress_photos.routes.ts",
+      "tracked_by_area": "progress_photos"
+    },
+    {
+      "method": "GET",
+      "path": "/progress-photos",
+      "source": "src/api/progress_photos.routes.ts",
+      "tracked_by_area": "progress_photos"
+    },
+    {
+      "method": "GET",
+      "path": "/progress-photos/:photo_id/file",
+      "source": "src/api/progress_photos.routes.ts",
+      "tracked_by_area": "progress_photos"
+    },
+    {
+      "method": "GET",
+      "path": "/progress-photos/coach/:athlete_user_id",
+      "source": "src/api/progress_photos.routes.ts",
+      "tracked_by_area": "progress_photos"
+    },
+    {
+      "method": "GET",
+      "path": "/progress-photos/coach/:athlete_user_id/:photo_id/file",
+      "source": "src/api/progress_photos.routes.ts",
+      "tracked_by_area": "progress_photos"
     }
   ],
   "completion_rules": [

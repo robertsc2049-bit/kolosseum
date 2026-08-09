@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 248
+- implemented: 251
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -515,6 +515,20 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `quality_refresh_recovery` — Recover route after refresh
 - `quality_server_authority` — Keep core server records authoritative over local cache
 
+### Athlete progress photos
+
+Slice: FULL-UI-28
+
+Area state: implemented
+
+Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `progress_photo_upload` — Upload dated progress photo
+- `progress_photo_athlete_history` — Display own progress photo history
+- `progress_photo_coach_view` — Display athlete progress photo history (read-only)
+
 ## Functions without persistent integration proof
 
 - None
@@ -548,6 +562,7 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-25: implemented
 - FULL-UI-26: implemented
 - FULL-UI-27: implemented
+- FULL-UI-28: implemented
 
 ## Prohibited capabilities
 

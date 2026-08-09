@@ -563,6 +563,52 @@
           <div id="historyList" class="record-list"></div>
 
           <div id="historyDetailPanel" class="panel history-detail-panel" hidden></div>
+
+          <div class="panel athlete-progress-photos-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Progress</p>
+                <h3>Progress photos</h3>
+                <p class="muted">Dated photos you choose to keep, visible to your coach.</p>
+              </div>
+            </div>
+
+            <form id="progressPhotoUploadForm" class="athlete-detail-note-form">
+              <label class="field">
+                <span>Photo</span>
+                <input
+                  type="file"
+                  id="progressPhotoFileInput"
+                  accept="image/jpeg,image/png,image/webp"
+                  required
+                >
+              </label>
+
+              <label class="field">
+                <span>Date taken</span>
+                <input type="date" id="progressPhotoTakenAt">
+              </label>
+
+              <label class="field">
+                <span>Caption (optional)</span>
+                <input type="text" id="progressPhotoCaption" maxlength="280">
+              </label>
+
+              <div class="inline-controls">
+                <button class="button primary" type="submit">Upload photo</button>
+              </div>
+            </form>
+
+            <p
+              id="progressPhotoStatus"
+              class="dashboard-status"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></p>
+
+            <div id="progressPhotoGrid" class="progress-photo-grid"></div>
+          </div>
         </section>
 
         <section id="view-coach-overview" class="view" hidden>
@@ -1296,6 +1342,20 @@
                   <div
                     id="athleteDetailOrgMessageHistory"
                     class="record-list athlete-detail-list"
+                  ></div>
+                </article>
+
+                <article class="panel athlete-detail-progress-photos-panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Progress</p>
+                      <h3>Progress photos</h3>
+                    </div>
+                  </div>
+
+                  <div
+                    id="athleteDetailProgressPhotos"
+                    class="progress-photo-grid athlete-detail-list"
                   ></div>
                 </article>
               </div>

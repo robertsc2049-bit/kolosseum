@@ -2857,6 +2857,29 @@ button:focus-visible,
   margin-bottom: 0.5rem;
 }
 
+.progress-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+}
+
+.progress-photo-card {
+  padding: 0.6rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 0.75rem;
+  background: var(--ink-2);
+}
+
+.progress-photo-card img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
 @media (max-width: 980px) {
   .review-toolbar,
   .review-summary-grid {

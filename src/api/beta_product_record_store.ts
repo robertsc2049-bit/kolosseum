@@ -21,7 +21,8 @@ type SupportedRecordType =
   | "beta18_programme_template"
   | "beta19_athlete_strength_profile"
   | "beta19_coach_event"
-  | "beta19_event_athlete_link";
+  | "beta19_event_athlete_link"
+  | "beta_progress_photo";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -44,7 +45,8 @@ const supportedRecordTypes =
     "beta18_programme_template",
     "beta19_athlete_strength_profile",
     "beta19_coach_event",
-    "beta19_event_athlete_link"
+    "beta19_event_athlete_link",
+    "beta_progress_photo"
   ]);
 
 function isRecord(
@@ -416,6 +418,37 @@ function recordMetadata(
             record,
             "updated_at_iso8601",
             "event_link_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "beta_progress_photo": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "photo_id",
+            "progress_photo_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "progress_photo_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "uploaded_by_user_id",
+            "progress_photo_uploader_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "taken_at_iso8601",
+            "progress_photo_effective_at_required"
           ),
         record_sha256: recordSha256
       };
