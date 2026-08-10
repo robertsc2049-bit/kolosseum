@@ -442,6 +442,10 @@ test(
     );
 
     // --- Step 6: coach activates the programme. ---
+    const completed = await request(baseUrl, "POST", `/templates/${encodeURIComponent(templateId)}/complete`, {
+      coach_user_id: coachUserId
+    });
+    assertStatus(completed, 200, "complete programme");
     const activated = await request(baseUrl, "POST", `/templates/${encodeURIComponent(templateId)}/activate`, {
       coach_user_id: coachUserId
     });

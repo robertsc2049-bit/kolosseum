@@ -365,6 +365,11 @@ test(
     });
     assertStatus(bound, 200, "setup calendar bind");
 
+    const completed = await request(baseUrl, "POST", `/templates/${encodeURIComponent(templateId)}/complete`, {
+      coach_user_id: coachUserId
+    });
+    assertStatus(completed, 200, "setup programme complete");
+
     const activated = await request(baseUrl, "POST", `/templates/${encodeURIComponent(templateId)}/activate`, {
       coach_user_id: coachUserId
     });

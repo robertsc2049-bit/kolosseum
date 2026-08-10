@@ -155,6 +155,13 @@ async function activateTemplate(baseUrl, coachUserId, weekCount, name, timestamp
   assertStatus(await request(
     baseUrl,
     "POST",
+    `/templates/${encodeURIComponent(templateId)}/complete`,
+    { coach_user_id: coachUserId }
+  ), 200, `${name}: programme completion`);
+
+  assertStatus(await request(
+    baseUrl,
+    "POST",
     `/templates/${encodeURIComponent(templateId)}/activate`,
     { coach_user_id: coachUserId }
   ), 200, `${name}: programme activation`);
