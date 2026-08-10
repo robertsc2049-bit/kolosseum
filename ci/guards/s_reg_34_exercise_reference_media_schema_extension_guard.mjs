@@ -65,7 +65,11 @@ const allowedChangedFiles = new Set([
   "src/server.ts",
   "test/full_ui_01_function_manifest.test.mjs",
   "test/full_ui_30_exercise_reference_media_surface.test.mjs",
-  "test/full_ui_30c_exercise_reference_media_persistent.integration.test.mjs"
+  "test/full_ui_30c_exercise_reference_media_persistent.integration.test.mjs",
+  // BETA-29's rehearsal manifest pins package.json's own sha256 - this
+  // slice's package.json wiring change requires re-pinning it, the same
+  // mechanic every activation slice's package.json change has needed.
+  "replay/suite/beta_phase1_8/production_beta_rehearsal_manifest.json"
 ]);
 
 // Unlike every S-REG content-mutation slice, this schema-only extension must
