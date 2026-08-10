@@ -98,7 +98,7 @@ type BodyMetricLogInput = {
 async function persistBodyMetricEntry(
   athleteUserId: string,
   loggedByUserId: string,
-  source: "athlete_entered" | "coach_entered",
+  source: "athlete_entered" | "coach_entered" | "device_synced",
   input: BodyMetricLogInput
 ): Promise<Readonly<JsonRecord>> {
   let normalised;
@@ -157,6 +157,20 @@ export async function logBodyMetricEntryAsAthlete(
     throw new BodyMetricsError("athlete_identity_required");
   }
   return persistBodyMetricEntry(athlete, athlete, "athlete_entered", input);
+}
+
+export async function logBodyMetricEntryAsDeviceSync(
+  athleteUserId: string,
+  input: BodyMetricLogInput
+): Promise<Readonly<JsonRecord>> {
+  const athlete = cleanString(athleteUserId);
+  if (!athlete) {
+    throw new BodyMetricsError("athlete_identity_required");
+  }
+  if (cleanString(input.metric_type) !== "body_weight_kg") {
+    throw new BodyMetricsError("device_metric_type_not_routed_here", 400);
+  }
+  return persistBodyMetricEntry(athlete, athlete, "device_synced", input);
 }
 
 export async function logBodyMetricEntryAsCoach(

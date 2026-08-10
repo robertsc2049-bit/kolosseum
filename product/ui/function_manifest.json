@@ -6080,6 +6080,147 @@
           }
         }
       ]
+    },
+    {
+      "area_id": "device_sync",
+      "title": "Device sync",
+      "slice_id": "FULL-UI-31",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "device_connect",
+          "label": "Connect a simulated wearable device",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/device-sync/connect"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "device_disconnect",
+          "label": "Disconnect a connected device",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/device-sync/disconnect"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "device_metric_ingest",
+          "label": "Ingest a synced metric reading (rejects provider-computed scores outright)",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/device-sync/ingest"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": "ci/guards/s_v1_p_06_device_sync_contract_ingestion_guard.mjs",
+          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "device_connections_list_athlete",
+          "label": "Display own connected devices",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/device-sync/connections"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "device_metric_history_athlete",
+          "label": "Display own synced metric history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/device-sync/metrics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "device_metric_history_coach",
+          "label": "Display athlete connected devices and synced metric history (read-only)",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/device-sync/connections/coach/:athlete_user_id",
+            "/device-sync/metrics/coach/:athlete_user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
     }
   ],
   "delivery_slices": [
@@ -6201,6 +6342,10 @@
     },
     {
       "slice_id": "FULL-UI-30",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-31",
       "state": "implemented"
     }
   ],
@@ -6899,6 +7044,48 @@
       "path": "/exercises/:exercise_id/reference-media",
       "source": "src/api/exercise_reference_media.routes.ts",
       "tracked_by_area": "exercise_reference_media"
+    },
+    {
+      "method": "POST",
+      "path": "/device-sync/connect",
+      "source": "src/api/device_sync.routes.ts",
+      "tracked_by_area": "device_sync"
+    },
+    {
+      "method": "POST",
+      "path": "/device-sync/disconnect",
+      "source": "src/api/device_sync.routes.ts",
+      "tracked_by_area": "device_sync"
+    },
+    {
+      "method": "POST",
+      "path": "/device-sync/ingest",
+      "source": "src/api/device_sync.routes.ts",
+      "tracked_by_area": "device_sync"
+    },
+    {
+      "method": "GET",
+      "path": "/device-sync/connections",
+      "source": "src/api/device_sync.routes.ts",
+      "tracked_by_area": "device_sync"
+    },
+    {
+      "method": "GET",
+      "path": "/device-sync/connections/coach/:athlete_user_id",
+      "source": "src/api/device_sync.routes.ts",
+      "tracked_by_area": "device_sync"
+    },
+    {
+      "method": "GET",
+      "path": "/device-sync/metrics",
+      "source": "src/api/device_sync.routes.ts",
+      "tracked_by_area": "device_sync"
+    },
+    {
+      "method": "GET",
+      "path": "/device-sync/metrics/coach/:athlete_user_id",
+      "source": "src/api/device_sync.routes.ts",
+      "tracked_by_area": "device_sync"
     }
   ],
   "completion_rules": [

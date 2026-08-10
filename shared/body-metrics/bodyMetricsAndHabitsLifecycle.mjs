@@ -14,13 +14,15 @@ const METRIC_TYPES =
     ["arm_circumference_cm", { unit: "cm", min: 10, max: 300 }],
     ["thigh_circumference_cm", { unit: "cm", min: 10, max: 300 }],
     ["hip_circumference_cm", { unit: "cm", min: 10, max: 300 }],
-    ["body_fat_percentage", { unit: "percent", min: 1, max: 60 }]
+    ["body_fat_percentage", { unit: "percent", min: 1, max: 60 }],
+    ["body_weight_kg", { unit: "kg", min: 20, max: 400 }]
   ]);
 
 const METRIC_SOURCES =
   new Set([
     "coach_entered",
-    "athlete_entered"
+    "athlete_entered",
+    "device_synced"
   ]);
 
 const HABIT_CADENCES =

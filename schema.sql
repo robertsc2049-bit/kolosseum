@@ -311,6 +311,44 @@ ALTER TABLE beta_product_records
       )
     );
 
+
+-- beta_product_records_full_ui_31_type_migration
+-- Additive FULL-UI-31 / S-V1-P-06 factual device-sync records. A device
+-- connection is an append-only fact stream keyed by connection_id (latest
+-- row per connection_id wins, mirroring habit_definition's archival
+-- pattern) - connect/disconnect never UPDATEs or DELETEs a row, it appends
+-- a new fact. A device metric entry is an independent immutable fact for
+-- metrics with no body_metric_entry equivalent (heart rate, steps, sleep);
+-- overlapping metrics (e.g. weight) route to body_metric_entry with
+-- source "device_synced" instead of duplicating the fact type. Neither
+-- type is ever engine-visible, inferred, or scored - provider-computed
+-- scores are rejected at ingestion, never stored.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.
