@@ -657,3 +657,24 @@ If any required acceptance item fails, the decision must be BLOCKED and the fix 
 S-V1-F-12 does not authorise product code, engine behaviour, feature implementation, acceptance gate law changes, release tag changes, open sign-up, marketplace scope, organisation scope, gym scope, team scope, federation scope, enterprise dashboard scope, messaging, commercial claims, or post-v1 scope.
 
 It does not make coaching advice, athlete condition, safety, readiness, optimisation, training effect, automated selection, automated recommendation, programme outcome, or external endorsement claims.
+
+<!-- S-V1-P-05:DEVICE-SYNC-BOUNDARY-NON-SCOPE:START -->
+## S-V1-P-05 Device Sync Boundary Non-Scope
+
+S-V1-P-05 declares the device or wearable sync boundary only. See `docs/v1/V1_DEVICE_SYNC_BOUNDARY_CONTRACT.md`.
+
+S-V1-P-05 must not activate:
+
+- live OAuth or SDK calls to any wearable or health provider
+- secret or token storage
+- provider-computed readiness, recovery, or strain scores
+- automatic engine input
+- automatic programme adjustment
+- automatic coaching decisions
+- real Apple Health, Garmin, or Whoop integration
+- device sync product code
+- device sync database migrations
+- device sync product UI
+
+A later slice (S-V1-P-06) may implement contract-style ingestion only after this boundary document is active, mirroring the existing Stripe controlled-launch pattern: no live provider calls, no secrets stored, external identity modelled as opaque, hash-frozen records.
+<!-- S-V1-P-05:DEVICE-SYNC-BOUNDARY-NON-SCOPE:END -->
