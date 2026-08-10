@@ -171,6 +171,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_p_02_stripe_checkout_controlled_launch_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_p_03_seat_entitlement_guard_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_p_04_billing_management_surface_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/s_v1_p_05_device_sync_boundary_contract_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_r_01_factual_session_reminder_notification_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_r_02_factual_weekly_summary_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_r_03_retention_access_window_policy_guard.mjs` | Repo Governance | medium | repo |  |
