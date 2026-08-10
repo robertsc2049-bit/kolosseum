@@ -5351,10 +5351,12 @@ const BODY_METRIC_TYPE_LABELS = {
   body_fat_percentage: "Body fat"
 };
 
-function renderBodyMetricEntry(entry) {
+function renderBodyMetricEntry(entry, options = {}) {
   const label = BODY_METRIC_TYPE_LABELS[entry.metric_type] || entry.metric_type;
   const unitSuffix = entry.unit === "percent" ? "%" : ` ${escapeHtml(entry.unit)}`;
-  const sourceBadge = entry.source === "coach_entered" ? "Coach" : "You";
+  const sourceBadge = entry.source === "coach_entered"
+    ? "Coach"
+    : (options.viewerIsCoach ? "Athlete" : "You");
   const note = entry.note ? `<p>${escapeHtml(entry.note)}</p>` : "";
 
   return `
@@ -5369,7 +5371,7 @@ function renderBodyMetricEntry(entry) {
   `;
 }
 
-function renderBodyMetricList(container, entries) {
+function renderBodyMetricList(container, entries, options = {}) {
   if (!container) return;
 
   if (entries.length === 0) {
@@ -5381,7 +5383,7 @@ function renderBodyMetricList(container, entries) {
     return;
   }
 
-  container.innerHTML = entries.map(renderBodyMetricEntry).join("");
+  container.innerHTML = entries.map((entry) => renderBodyMetricEntry(entry, options)).join("");
 }
 
 async function refreshBodyMetrics(options = {}) {
@@ -5432,7 +5434,7 @@ async function refreshCoachAthleteBodyMetrics(athleteUserId, options = {}) {
   try {
     const response = await api("GET", `/body-metrics/coach/${encodeURIComponent(athleteUserId)}`);
     state.coachAthleteBodyMetricEntries = Array.isArray(response.entries) ? response.entries : [];
-    renderBodyMetricList(elements.athleteDetailBodyMetricHistory, state.coachAthleteBodyMetricEntries);
+    renderBodyMetricList(elements.athleteDetailBodyMetricHistory, state.coachAthleteBodyMetricEntries, { viewerIsCoach: true });
   }
   catch (error) {
     if (!options.quiet) throw error;
