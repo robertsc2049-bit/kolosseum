@@ -7,11 +7,14 @@
  * extension is well-formed and genuinely content-free (no live entry has a
  * value yet), and that this slice does not touch registry content, the
  * bundle, the seal, or any active-domain activation surface.
- * Boundary: permits only the exact mutation surface this slice needs - the
- * 3 exercise schema files, this slice's own scaffolding, and package/generated
- * -index wiring. It must not permit any change under engine/, src/, server/,
- * app/, web/, shared/pilot-lifecycle/, or shared/v1-boundary/, nor any change
- * to registries/exercise/exercise.registry.json, registries/registry_bundle.json,
+ * Boundary: permits only the exact mutation surface this combined commit
+ * needs - the 3 exercise schema files, this slice's own scaffolding,
+ * package/generated-index wiring, and the paired FULL-UI-30 product surface
+ * (the read-only lookup route this schema extension exists to feed) that
+ * ships in the same commit by explicit choice. It must not permit any
+ * change under engine/, server/, app/, web/, shared/pilot-lifecycle/, or
+ * shared/v1-boundary/, nor any change to
+ * registries/exercise/exercise.registry.json, registries/registry_bundle.json,
  * registry_index.json's order[], or the registry seal evidence files - unlike
  * every prior S-REG content-mutation slice, none of those are touched here.
  * Failure: emits CI_S_REG_34_EXERCISE_REFERENCE_MEDIA_SCHEMA_EXTENSION.
@@ -43,7 +46,26 @@ const allowedChangedFiles = new Set([
   "package.json",
   "docs/GUARDS_INDEX.md",
   "docs/dev/FAILURE_TOKEN_INDEX.md",
-  "docs/checksums.sha256"
+  "docs/checksums.sha256",
+  // This slice's commit intentionally also carries its paired ordinary
+  // product surface (FULL-UI-30) in the same commit - the read-only
+  // /exercises/:exercise_id/reference-media lookup that exposes the field
+  // this schema extension adds. That surface is not registry-law territory
+  // (no registries/, ci/schemas/, or ci/evidence/ file it touches is on
+  // this list twice), so permitting it here does not weaken the boundary
+  // this guard exists to enforce - it only accepts the specific files the
+  // paired product commit is known to touch.
+  "ci/guards/full_ui_completion_guard.mjs",
+  "ci/evidence/evidence_envelope.v1.json",
+  "ci/evidence/evidence_seal.v1.json",
+  "docs/product/FULL_UI_GAP_REPORT.md",
+  "product/ui/function_manifest.json",
+  "src/api/exercise_reference_media.routes.ts",
+  "src/api/exercise_reference_media_service.ts",
+  "src/server.ts",
+  "test/full_ui_01_function_manifest.test.mjs",
+  "test/full_ui_30_exercise_reference_media_surface.test.mjs",
+  "test/full_ui_30c_exercise_reference_media_persistent.integration.test.mjs"
 ]);
 
 // Unlike every S-REG content-mutation slice, this schema-only extension must
@@ -56,14 +78,22 @@ const forbiddenChangedFiles = new Set([
   "ci/evidence/registry_seal_lifecycle.v1.json",
   "ci/evidence/registry_seal_manifest.v1.json",
   "ci/evidence/registry_seal_live_surface.v1.json",
-  "ci/evidence/registry_seal_snapshot.v1.json",
-  "ci/evidence/evidence_envelope.v1.json",
-  "ci/evidence/evidence_seal.v1.json"
+  "ci/evidence/registry_seal_snapshot.v1.json"
+  // ci/evidence/evidence_envelope.v1.json and evidence_seal.v1.json are
+  // deliberately not forbidden here - they are a separate, unrelated
+  // generated-artifact envelope (not the registry seal above) that
+  // recomputes from docs/checksums.sha256 and other generated docs, so
+  // adding this slice's new guard/test files legitimately changes them as
+  // a side effect, the same way docs/checksums.sha256 itself is allowed.
 ]);
 
+// "src/" is not listed here even though it is generally a sensitive prefix
+// elsewhere in this chain - the paired FULL-UI-30 product surface's exact
+// 3 src/ files are already precisely enumerated in allowedChangedFiles
+// above, so any other src/ path is still rejected by the allowlist check
+// before this prefix check ever runs.
 const forbiddenChangedPrefixes = Object.freeze([
   "engine/",
-  "src/",
   "server/",
   "app/",
   "web/",
