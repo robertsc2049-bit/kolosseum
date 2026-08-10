@@ -29,6 +29,7 @@ test("programme and athlete-reference routes are mounted", () => {
   assert.match(server, /app\.use\("\/templates", templatesRouter\);/u);
   assert.match(server, /import \{ coachWorkspaceRouter \} from "\.\/api\/coach_workspace\.routes\.js";/u);
   assert.match(server, /app\.use\("\/coach-workspace", coachWorkspaceRouter\);/u);
+  assert.match(templateRoutes, /\/:template_id\/complete/u);
   assert.match(templateRoutes, /\/:template_id\/activate/u);
   assert.match(templateRoutes, /\/:template_id\/duplicate/u);
   assert.match(templateRoutes, /\/:template_id\/archive/u);
@@ -49,7 +50,8 @@ test("programme and athlete strength records are immutable persisted state", () 
   assert.match(templateService, /persistBetaProductRecord/u);
   assert.match(workspaceService, /persistBetaProductRecord/u);
   assert.match(templateService, /active_or_archived_template_is_immutable/u);
-  assert.match(templateService, /only_draft_can_activate/u);
+  assert.match(templateService, /only_draft_can_complete/u);
+  assert.match(templateService, /only_complete_can_activate/u);
 });
 
 test("programme authoring contains explicit ordered training blocks", () => {

@@ -11,6 +11,7 @@ import {
   activateCoachTemplate,
   archiveCoachTemplate,
   bindCoachTemplateEvent,
+  completeCoachTemplate,
   duplicateCoachTemplate,
   getCoachTemplateEventBinding,
   getCoachTemplates,
@@ -39,6 +40,13 @@ templatesRouter.post(
   "/",
   asyncHandler(
     saveCoachTemplate
+  )
+);
+
+templatesRouter.post(
+  "/:template_id/complete",
+  asyncHandler(
+    completeCoachTemplate
   )
 );
 

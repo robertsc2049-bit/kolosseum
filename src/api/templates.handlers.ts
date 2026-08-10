@@ -13,6 +13,7 @@ import {
   activateCoachProgrammeTemplate,
   archiveCoachProgrammeTemplate,
   bindStandaloneEventToProgrammeTemplate,
+  completeCoachProgrammeTemplate,
   duplicateCoachProgrammeTemplate,
   listActiveExerciseOptions,
   listCoachProgrammeTemplates,
@@ -135,6 +136,35 @@ export async function activateCoachTemplate(
   try {
     const template =
       await activateCoachProgrammeTemplate(
+        cleanString(
+          req.body?.coach_user_id
+        ),
+        cleanString(
+          req.params.template_id
+        )
+      );
+
+    return res
+      .status(200)
+      .json({
+        ok: true,
+        template
+      });
+  }
+  catch (error) {
+    rethrowTemplateError(
+      error
+    );
+  }
+}
+
+export async function completeCoachTemplate(
+  req: Request,
+  res: Response
+) {
+  try {
+    const template =
+      await completeCoachProgrammeTemplate(
         cleanString(
           req.body?.coach_user_id
         ),

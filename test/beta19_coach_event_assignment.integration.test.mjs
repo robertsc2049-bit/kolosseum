@@ -285,6 +285,13 @@ test("standalone coach event links through athlete profile and reaches compile o
     assertStatus(await request(
       baseUrl,
       "POST",
+      `/templates/${encodeURIComponent(templateId)}/complete`,
+      { coach_user_id: coachUserId }
+    ), 200, "programme completion");
+
+    assertStatus(await request(
+      baseUrl,
+      "POST",
       `/templates/${encodeURIComponent(templateId)}/activate`,
       { coach_user_id: coachUserId }
     ), 200, "programme activation");

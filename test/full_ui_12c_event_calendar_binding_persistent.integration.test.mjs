@@ -248,6 +248,14 @@ test(
       assert.equal(bindingA.json.requires_rebind, false);
       assert.equal(bindingA.json.event_status, "active");
 
+      const completedA = await request(
+        baseUrl,
+        "POST",
+        `/templates/${encodeURIComponent(templateA.template_id)}/complete`,
+        { coach_user_id: coachUserId }
+      );
+      assertStatus(completedA, 200, "complete balanced, bound template A");
+
       const activatedA = await request(
         baseUrl,
         "POST",
@@ -275,10 +283,10 @@ test(
       const activateUnbalanced = await request(
         baseUrl,
         "POST",
-        `/templates/${encodeURIComponent(templateB.template_id)}/activate`,
+        `/templates/${encodeURIComponent(templateB.template_id)}/complete`,
         { coach_user_id: coachUserId }
       );
-      assertStatus(activateUnbalanced, 400, "activation blocked on unbalanced allocation");
+      assertStatus(activateUnbalanced, 400, "completion blocked on unbalanced allocation");
       assert.equal(activateUnbalanced.json.details.reason, "event_week_allocation_unbalanced");
 
       const fitFinalBlockSave = await request(baseUrl, "POST", "/templates", {
@@ -305,6 +313,14 @@ test(
         eventA.event_plan.event_date,
         "the event date must not move as a side effect of resizing blocks"
       );
+
+      const completeFixed = await request(
+        baseUrl,
+        "POST",
+        `/templates/${encodeURIComponent(templateB.template_id)}/complete`,
+        { coach_user_id: coachUserId }
+      );
+      assertStatus(completeFixed, 200, "completion succeeds once allocation is balanced");
 
       const activateFixed = await request(
         baseUrl,
@@ -396,10 +412,10 @@ test(
       const activateStaleC = await request(
         baseUrl,
         "POST",
-        `/templates/${encodeURIComponent(templateC.template_id)}/activate`,
+        `/templates/${encodeURIComponent(templateC.template_id)}/complete`,
         { coach_user_id: coachUserId }
       );
-      assertStatus(activateStaleC, 400, "activation blocked on a stale event binding");
+      assertStatus(activateStaleC, 400, "completion blocked on a stale event binding");
       assert.equal(activateStaleC.json.details.reason, "event_binding_stale_requires_rebind");
 
       const rebindC = await request(
@@ -420,6 +436,14 @@ test(
       assertStatus(bindingCAfterRebind, 200, "template C event-binding status after rebind");
       assert.equal(bindingCAfterRebind.json.is_current, true);
       assert.equal(bindingCAfterRebind.json.requires_rebind, false);
+
+      const completedC = await request(
+        baseUrl,
+        "POST",
+        `/templates/${encodeURIComponent(templateC.template_id)}/complete`,
+        { coach_user_id: coachUserId }
+      );
+      assertStatus(completedC, 200, "completion succeeds once rebound to the current event version");
 
       const activatedC = await request(
         baseUrl,
@@ -461,10 +485,10 @@ test(
       const activateCancelledD = await request(
         baseUrl,
         "POST",
-        `/templates/${encodeURIComponent(templateD.template_id)}/activate`,
+        `/templates/${encodeURIComponent(templateD.template_id)}/complete`,
         { coach_user_id: coachUserId }
       );
-      assertStatus(activateCancelledD, 400, "activation blocked when the bound event is cancelled");
+      assertStatus(activateCancelledD, 400, "completion blocked when the bound event is cancelled");
       assert.equal(activateCancelledD.json.details.reason, "event_binding_event_cancelled");
 
       // --- Template E: archived event blocks activation, and is a distinct
@@ -491,10 +515,10 @@ test(
       const activateArchivedE = await request(
         baseUrl,
         "POST",
-        `/templates/${encodeURIComponent(templateE.template_id)}/activate`,
+        `/templates/${encodeURIComponent(templateE.template_id)}/complete`,
         { coach_user_id: coachUserId }
       );
-      assertStatus(activateArchivedE, 400, "activation blocked when the bound event is archived");
+      assertStatus(activateArchivedE, 400, "completion blocked when the bound event is archived");
       assert.equal(activateArchivedE.json.details.reason, "event_binding_event_archived");
 
       // --- Fresh-process reconstruction. ---

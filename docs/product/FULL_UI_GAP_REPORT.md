@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 265
+- implemented: 266
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -192,16 +192,17 @@ Slice: FULL-UI-10
 
 Area state: implemented
 
-Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
-- `programme_states` — Display draft, active, archived and superseded states
+- `programme_states` — Display draft, complete, active, archived and superseded states
 - `programme_search_filter` — Search, filter and sort programmes
 - `programme_new` — Create programme
 - `programme_duplicate` — Duplicate programme version
 - `programme_detail` — Open programme detail
 - `programme_preview` — Preview complete programme structure
+- `programme_complete` — Save a fully-validated draft as a complete template, pending activation
 - `programme_activate` — Activate programme
 - `programme_archive` — Archive programme
 - `programme_version_metadata` — Compare factual version metadata

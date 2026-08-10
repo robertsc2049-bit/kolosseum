@@ -288,6 +288,14 @@ async function createActivatedTemplate(baseUrl, coachUserId, name) {
   const template = saved.json.template;
 
   assertStatus(
+    await request(baseUrl, "POST", `/templates/${encodeURIComponent(template.template_id)}/complete`, {
+      coach_user_id: coachUserId
+    }),
+    200,
+    `${name}: complete`
+  );
+
+  assertStatus(
     await request(baseUrl, "POST", `/templates/${encodeURIComponent(template.template_id)}/activate`, {
       coach_user_id: coachUserId
     }),

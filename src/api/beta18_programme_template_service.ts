@@ -49,6 +49,7 @@ const supportedActivities =
 const templateStatuses =
   new Set([
     "draft",
+    "complete",
     "active",
     "archived"
   ]);
@@ -2291,7 +2292,7 @@ export async function saveCoachProgrammeTemplate(
 
 function transitionTemplateRecord(
   record: Readonly<JsonRecord>,
-  nextStatus: "active" | "archived"
+  nextStatus: "complete" | "active" | "archived"
 ): JsonRecord {
   const mutable =
     cloneRecord(
@@ -2326,7 +2327,7 @@ function transitionTemplateRecord(
   return mutable;
 }
 
-export async function activateCoachProgrammeTemplate(
+export async function completeCoachProgrammeTemplate(
   coachUserIdInput: string,
   templateIdInput: string
 ): Promise<Readonly<JsonRecord>> {
@@ -2361,11 +2362,11 @@ export async function activateCoachProgrammeTemplate(
       "draft"
   ) {
     throw new Beta18ProgrammeTemplateError(
-      "only_draft_can_activate"
+      "only_draft_can_complete"
     );
   }
 
-  const activationNormalised =
+  const completionNormalised =
     normaliseTemplateStructure(
       templateRecordInput(
         existing as JsonRecord
@@ -2375,11 +2376,11 @@ export async function activateCoachProgrammeTemplate(
     );
 
   if (
-    activationNormalised
+    completionNormalised
       .event_compile_summary
   ) {
     if (
-      activationNormalised
+      completionNormalised
         .event_compile_summary
         .allocation_state !==
       "balanced"
@@ -2391,7 +2392,7 @@ export async function activateCoachProgrammeTemplate(
 
     const eventDate =
       cleanString(
-        activationNormalised
+        completionNormalised
           .event_plan
           ?.event_date
       );
@@ -2467,6 +2468,53 @@ export async function activateCoachProgrammeTemplate(
         "event_binding_stale_requires_rebind"
       );
     }
+  }
+
+  return persistTemplateRecord(
+    transitionTemplateRecord(
+      existing,
+      "complete"
+    )
+  );
+}
+
+export async function activateCoachProgrammeTemplate(
+  coachUserIdInput: string,
+  templateIdInput: string
+): Promise<Readonly<JsonRecord>> {
+  const coachUserId =
+    cleanString(
+      coachUserIdInput
+    );
+
+  const templateId =
+    cleanString(
+      templateIdInput
+    );
+
+  await requireActiveCoach(
+    coachUserId
+  );
+
+  const existing =
+    await latestTemplateById(
+      coachUserId,
+      templateId
+    );
+
+  if (!existing) {
+    throw new Beta18ProgrammeTemplateError(
+      "template_not_found"
+    );
+  }
+
+  if (
+    existing.template_status !==
+      "complete"
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      "only_complete_can_activate"
+    );
   }
 
   return persistTemplateRecord(
