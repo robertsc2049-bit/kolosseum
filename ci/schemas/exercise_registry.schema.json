@@ -161,6 +161,31 @@
               "type": "string",
               "minLength": 1
             }
+          },
+          "reference_media": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "video_url",
+              "source"
+            ],
+            "properties": {
+              "video_url": {
+                "type": "string",
+                "minLength": 1
+              },
+              "thumbnail_url": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "coach_entered",
+                  "admin_entered"
+                ]
+              }
+            }
           }
         }
       }
