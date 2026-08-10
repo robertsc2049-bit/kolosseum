@@ -414,6 +414,7 @@ const elements = {
   templateDraftRecoveryResumeButton: document.getElementById("templateDraftRecoveryResumeButton"),
   templateDraftRecoveryDiscardButton: document.getElementById("templateDraftRecoveryDiscardButton"),
   templateDraftCount: document.getElementById("templateDraftCount"),
+  templateCompleteCount: document.getElementById("templateCompleteCount"),
   templateActiveCount: document.getElementById("templateActiveCount"),
   templateArchivedCount: document.getElementById("templateArchivedCount"),
   templateSupersededCount: document.getElementById("templateSupersededCount"),
@@ -430,6 +431,7 @@ const elements = {
   templateDetailPreview: document.getElementById("templateDetailPreview"),
   backToTemplatesButton: document.getElementById("backToTemplatesButton"),
   saveTemplateButton: document.getElementById("saveTemplateButton"),
+  saveCompleteTemplateButton: document.getElementById("saveCompleteTemplateButton"),
   activateTemplateButton: document.getElementById("activateTemplateButton"),
   templateBuilderSaveState: document.getElementById("templateBuilderSaveState"),
   templateBuilderSaveDetail: document.getElementById("templateBuilderSaveDetail"),
@@ -666,7 +668,7 @@ function loadState() {
         : {},
       coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
       templateLibrarySearch: String(parsed.templateLibrarySearch ?? ""),
-      templateLibraryStatusFilter: ["all", "draft", "active", "archived", "superseded"].includes(parsed.templateLibraryStatusFilter)
+      templateLibraryStatusFilter: ["all", "draft", "complete", "active", "archived", "superseded"].includes(parsed.templateLibraryStatusFilter)
         ? parsed.templateLibraryStatusFilter
         : "all",
       templateLibraryActivityFilter: ["all", "powerlifting", "general_strength", "rugby_union"].includes(parsed.templateLibraryActivityFilter)
@@ -995,7 +997,8 @@ function friendlyError(payload, status) {
     stored_rpe_value_invalid: "RPE must be a whole number between 1 and 10.",
     rest_seconds_invalid: "Rest must be between 0 and 900 seconds.",
     active_or_archived_template_is_immutable: "Active and archived templates cannot be edited. Duplicate the template to create a new version.",
-    only_draft_can_activate: "Only a draft template can be activated.",
+    only_draft_can_complete: "Only a draft template can be marked complete.",
+    only_complete_can_activate: "Only a complete template can be activated.",
     template_not_found: "The template could not be found.",
     stored_template_not_active: "Select an active template owned by this coach.",
     stored_template_activity_mismatch: "The template activity does not match the athlete activity.",
@@ -8653,6 +8656,7 @@ function programmeDisplayState(template) {
 
   if (laterPublishedVersion) return "superseded";
   if (storedState === "archived") return "archived";
+  if (storedState === "complete") return "complete";
   return "active";
 }
 
@@ -8926,8 +8930,8 @@ function programmeActivationIssues(template) {
 
   if (String(template?.template_status ?? "draft") !== "draft") {
     addIssue(
-      "only_draft_can_activate",
-      "Only a draft programme can be activated.",
+      "only_draft_can_complete",
+      "Only a draft programme can be marked complete.",
       "programme"
     );
   }
@@ -9308,7 +9312,7 @@ function programmeValidationHtml(template) {
     return `
       <div class="assignment-requirements neutral">
         This persisted version is ${escapeHtml(programmeDisplayState(template))}.
-        Activation checks apply to draft versions only.
+        Completion checks apply to draft versions only.
       </div>
     `;
   }
@@ -9316,14 +9320,14 @@ function programmeValidationHtml(template) {
   if (issues.length === 0) {
     return `
       <div class="assignment-requirements complete">
-        All visible activation checks pass. The server remains authoritative when activation is submitted.
+        All visible completion checks pass. The server remains authoritative when the template is marked complete.
       </div>
     `;
   }
 
   return `
     <div class="assignment-requirements warning">
-      ${issues.length} activation issue${issues.length === 1 ? "" : "s"} recorded.
+      ${issues.length} completion issue${issues.length === 1 ? "" : "s"} recorded.
     </div>
     <ol class="programme-validation-list">
       ${issues.map((issue) => `
@@ -9390,7 +9394,8 @@ function renderProgrammeDetail() {
   const storedStatus = String(template.template_status ?? "draft");
   const actions = [
     `<button class="button secondary programme-detail-edit" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "draft" ? "" : "hidden"}>Edit draft</button>`,
-    `<button class="button primary programme-detail-activate" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "draft" ? "" : "hidden"}>Activate programme</button>`,
+    `<button class="button secondary programme-detail-complete" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "draft" ? "" : "hidden"}>Save complete template</button>`,
+    `<button class="button primary programme-detail-activate" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "complete" ? "" : "hidden"}>Activate programme</button>`,
     `<button class="button secondary programme-detail-duplicate" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "draft" ? "hidden" : ""}>Duplicate version</button>`,
     `<button class="button secondary programme-detail-archive" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "archived" ? "hidden" : ""}>Archive programme</button>`
   ];
@@ -9434,6 +9439,17 @@ function renderProgrammeDetail() {
         (candidate) => candidate.template_id === button.dataset.templateId
       );
       if (selected) openTemplateBuilder(templateRecordToDraft(selected));
+    });
+  }
+
+  for (
+    const button of
+    elements.templateDetailPanel.querySelectorAll(
+      ".programme-detail-complete"
+    )
+  ) {
+    button.addEventListener("click", () => {
+      completeTemplateById(button.dataset.templateId).catch(handleError);
     });
   }
 
@@ -9564,6 +9580,10 @@ function templateStatusBadge(status) {
     return '<span class="badge warning">Superseded</span>';
   }
 
+  if (status === "complete") {
+    return '<span class="badge status-complete">Complete</span>';
+  }
+
   return '<span class="badge active">Draft</span>';
 }
 
@@ -9601,7 +9621,11 @@ function templateCard(template) {
     ? `<button class="button secondary small-button template-edit" type="button" data-template-id="${escapeHtml(template.template_id)}">Edit</button>`
     : "";
 
-  const activateAction = storedStatus === "draft"
+  const completeAction = storedStatus === "draft"
+    ? `<button class="button secondary small-button template-complete" type="button" data-template-id="${escapeHtml(template.template_id)}">Mark complete</button>`
+    : "";
+
+  const activateAction = storedStatus === "complete"
     ? `<button class="button primary small-button template-activate" type="button" data-template-id="${escapeHtml(template.template_id)}">Activate</button>`
     : "";
 
@@ -9646,6 +9670,7 @@ function templateCard(template) {
           View detail
         </button>
         ${editAction}
+        ${completeAction}
         ${activateAction}
         ${duplicateAction}
         ${archiveAction}
@@ -9673,6 +9698,15 @@ function bindTemplateLibraryActions() {
         (entry) => entry.template_id === button.dataset.templateId
       );
       if (template) openTemplateBuilder(templateRecordToDraft(template));
+    });
+  }
+
+  for (
+    const button of
+    elements.templateLibraryList.querySelectorAll(".template-complete")
+  ) {
+    button.addEventListener("click", () => {
+      completeTemplateById(button.dataset.templateId).catch(handleError);
     });
   }
 
@@ -9707,6 +9741,7 @@ function bindTemplateLibraryActions() {
 function renderTemplateLibrary() {
   const counts = {
     draft: 0,
+    complete: 0,
     active: 0,
     archived: 0,
     superseded: 0
@@ -9718,6 +9753,7 @@ function renderTemplateLibrary() {
   }
 
   elements.templateDraftCount.textContent = String(counts.draft);
+  elements.templateCompleteCount.textContent = String(counts.complete);
   elements.templateActiveCount.textContent = String(counts.active);
   elements.templateArchivedCount.textContent = String(counts.archived);
   elements.templateSupersededCount.textContent = String(counts.superseded);
@@ -10050,7 +10086,7 @@ function renderEventCompiler() {
   elements.templateEventFields.hidden = !enabled;
 
   if (!enabled) {
-    elements.activateTemplateButton.disabled = false;
+    elements.saveCompleteTemplateButton.disabled = false;
     return;
   }
 
@@ -10087,7 +10123,7 @@ function renderEventCompiler() {
     elements.templateEventAllocationState.className = "assignment-requirements warning";
     elements.templateEventAllocationState.textContent = summary?.reason ?? "Set a start date and event date to compile the calendar.";
     elements.fitFinalBlockButton.disabled = true;
-    elements.activateTemplateButton.disabled = true;
+    elements.saveCompleteTemplateButton.disabled = true;
     return;
   }
 
@@ -10136,7 +10172,7 @@ function renderEventCompiler() {
     !status.is_current
   );
 
-  elements.activateTemplateButton.disabled =
+  elements.saveCompleteTemplateButton.disabled =
     !balanced ||
     eventPlan.event_date < todayDateOnly() ||
     bindingBlocksActivation;
@@ -11003,7 +11039,7 @@ function renderTemplateBuilderState() {
       "template-builder-validation complete";
     elements.templateBuilderValidationList.innerHTML = `
       <li class="template-builder-validation-pass">
-        All visible activation checks pass. The server remains authoritative.
+        All visible completion checks pass. The server remains authoritative.
       </li>
     `;
   }
@@ -11028,8 +11064,9 @@ function renderTemplateBuilderState() {
   }
 
   elements.saveTemplateButton.disabled = templateBuilderSaving;
-  elements.activateTemplateButton.disabled =
+  elements.saveCompleteTemplateButton.disabled =
     templateBuilderSaving || issues.length > 0;
+  elements.activateTemplateButton.disabled = templateBuilderSaving;
 }
 
 function renderTemplateRecovery() {
@@ -11144,8 +11181,12 @@ function openTemplateBuilder(draft, options = {}) {
   elements.templateName.value = state.templateDraft.template_name;
   elements.templateActivity.value = state.templateDraft.activity_id;
   elements.templateDescription.value = state.templateDraft.description;
-  elements.activateTemplateButton.hidden =
+  elements.saveTemplateButton.hidden =
     state.templateDraft.template_status !== "draft";
+  elements.saveCompleteTemplateButton.hidden =
+    state.templateDraft.template_status !== "draft";
+  elements.activateTemplateButton.hidden =
+    state.templateDraft.template_status !== "complete";
 
   saveState();
   rerenderTemplateBuilder();
@@ -11520,7 +11561,7 @@ async function saveTemplateDraft(options = {}) {
   }
 }
 
-async function activateTemplateById(templateId) {
+async function completeTemplateById(templateId) {
   const template = state.coachTemplates.find(
     (candidate) => candidate.template_id === String(templateId ?? "")
   );
@@ -11536,12 +11577,49 @@ async function activateTemplateById(templateId) {
   if (issues.length > 0) {
     openProgrammeDetail(template.template_id);
     showNotice(
-      `Programme has ${issues.length} activation issue${issues.length === 1 ? "" : "s"}.`,
+      `Programme has ${issues.length} completion issue${issues.length === 1 ? "" : "s"}.`,
       "error"
     );
     return null;
   }
 
+  showBusy("Saving complete template…");
+
+  try {
+    const response = await api(
+      "POST",
+      `/templates/${encodeURIComponent(templateId)}/complete`,
+      { coach_user_id: state.profile.coachUserId }
+    );
+
+    await refreshProgrammeLibrary({ quiet: true });
+    showNotice("Template marked complete. Ready to activate.");
+    return response.template ?? null;
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function completeOpenTemplate() {
+  if (!state.templateDraft) return;
+  let templateId = state.templateDraft.template_id;
+  const saved = await saveTemplateDraft({ quiet: true });
+  templateId = String(saved.template_id ?? templateId);
+  const completed = await completeTemplateById(templateId);
+
+  if (completed) {
+    openTemplateBuilder(
+      templateRecordToDraft(completed),
+      {
+        preserveBaseline: true,
+        skipRecoveryCheck: true
+      }
+    );
+  }
+}
+
+async function activateTemplateById(templateId) {
   showBusy("Activating programme…");
 
   try {
@@ -11563,10 +11641,7 @@ async function activateTemplateById(templateId) {
 
 async function activateOpenTemplate() {
   if (!state.templateDraft) return;
-  let templateId = state.templateDraft.template_id;
-  const saved = await saveTemplateDraft({ quiet: true });
-  templateId = String(saved.template_id ?? templateId);
-  await activateTemplateById(templateId);
+  await activateTemplateById(state.templateDraft.template_id);
 }
 
 async function duplicateTemplate(templateId) {
@@ -14045,6 +14120,7 @@ document.addEventListener("click", (event) => {
   if (
     target.matches(
       "#saveTemplateButton, " +
+      "#saveCompleteTemplateButton, " +
       "#activateTemplateButton, " +
       "#backToTemplatesButton, " +
       "#templateBuilderDiscardButton, " +
@@ -14208,6 +14284,10 @@ elements.backToTemplatesButton.addEventListener("click", closeTemplateBuilder);
 
 elements.saveTemplateButton.addEventListener("click", () => {
   saveTemplateDraft().catch(handleError);
+});
+
+elements.saveCompleteTemplateButton.addEventListener("click", () => {
+  completeOpenTemplate().catch(handleError);
 });
 
 elements.activateTemplateButton.addEventListener("click", () => {

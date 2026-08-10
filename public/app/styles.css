@@ -697,6 +697,7 @@ button:focus-visible,
 .badge.neutral { background: rgba(242, 233, 220, 0.045); color: var(--stone-dim); }
 .badge.active { border-color: rgba(200, 155, 60, 0.4); background: rgba(200, 155, 60, 0.1); color: var(--bronze-light); }
 .badge.complete { border-color: rgba(94, 155, 115, 0.42); background: rgba(94, 155, 115, 0.1); color: #9fc8ae; }
+.badge.status-complete { border-color: rgba(90, 140, 200, 0.42); background: rgba(90, 140, 200, 0.1); color: #9db8dd; }
 .badge.partial { border-color: rgba(180, 68, 46, 0.4); background: rgba(180, 68, 46, 0.1); color: #e5a597; }
 
 .empty-state {

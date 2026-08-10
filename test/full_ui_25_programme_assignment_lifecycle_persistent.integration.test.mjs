@@ -358,6 +358,12 @@ test(
     const templateId = savedTemplate.json?.template?.template_id;
     assert.equal(savedTemplate.json?.template?.template_status, "draft");
 
+    const completed = await request(baseUrl, "POST", `/templates/${encodeURIComponent(templateId)}/complete`, {
+      coach_user_id: coachUserId
+    });
+    assertStatus(completed, 200, "complete template");
+    assert.equal(completed.json?.template?.template_status, "complete");
+
     const activated = await request(baseUrl, "POST", `/templates/${encodeURIComponent(templateId)}/activate`, {
       coach_user_id: coachUserId
     });
@@ -460,8 +466,14 @@ test(
     const firstSessionId = compiled.json?.session_id;
     assert.equal(compiled.json?.beta_path?.assignment_id, firstAssignmentId);
 
-    // Activate the duplicate template so it can be assigned as the
-    // replacement.
+    // Complete then activate the duplicate template so it can be
+    // assigned as the replacement.
+    const duplicateCompleted = await request(
+      baseUrl, "POST", `/templates/${encodeURIComponent(duplicateTemplateId)}/complete`,
+      { coach_user_id: coachUserId }
+    );
+    assertStatus(duplicateCompleted, 200, "complete duplicate template");
+
     const duplicateActivated = await request(
       baseUrl, "POST", `/templates/${encodeURIComponent(duplicateTemplateId)}/activate`,
       { coach_user_id: coachUserId }

@@ -1616,6 +1616,7 @@
 
             <div class="metric-cards programme-metric-cards">
               <article class="panel metric-card"><span>Draft programmes</span><strong id="templateDraftCount">0</strong></article>
+              <article class="panel metric-card"><span>Complete programmes</span><strong id="templateCompleteCount">0</strong></article>
               <article class="panel metric-card"><span>Active programmes</span><strong id="templateActiveCount">0</strong></article>
               <article class="panel metric-card"><span>Archived programmes</span><strong id="templateArchivedCount">0</strong></article>
               <article class="panel metric-card"><span>Superseded versions</span><strong id="templateSupersededCount">0</strong></article>
@@ -1646,6 +1647,7 @@
                   <select id="templateLibraryStatusFilter">
                     <option value="all">All states</option>
                     <option value="draft">Draft</option>
+                    <option value="complete">Complete</option>
                     <option value="active">Active</option>
                     <option value="archived">Archived</option>
                     <option value="superseded">Superseded</option>
@@ -1779,6 +1781,7 @@
               </div>
               <div class="button-row">
                 <button id="saveTemplateButton" class="button secondary" type="button">Save draft</button>
+                <button id="saveCompleteTemplateButton" class="button secondary" type="button">Save complete template</button>
                 <button id="activateTemplateButton" class="button primary" type="button">Activate programme</button>
               </div>
             </div>
@@ -1802,7 +1805,7 @@
               </div>
 
               <div id="templateBuilderValidation" class="template-builder-validation warning">
-                <p class="eyebrow">Activation validation</p>
+                <p class="eyebrow">Completion validation</p>
                 <h3>Resolve visible issues</h3>
                 <ol id="templateBuilderValidationList" class="template-builder-validation-list"></ol>
               </div>

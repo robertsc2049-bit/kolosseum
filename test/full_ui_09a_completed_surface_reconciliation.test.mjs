@@ -497,7 +497,7 @@ const targets = [
         "public/app/index.html",
         [
           "Validation summary",
-          "Activation validation"
+          "Completion validation"
         ]
       ],
       [
@@ -564,6 +564,7 @@ const targets = [
         "public/app/index.html",
         [
           "Draft programmes",
+          "Complete programmes",
           "Active programmes",
           "Archived programmes",
           "Superseded versions"

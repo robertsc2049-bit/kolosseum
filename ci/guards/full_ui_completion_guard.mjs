@@ -122,6 +122,7 @@ const REQUIRED_FUNCTION_IDS = [
   "programme_duplicate",
   "programme_detail",
   "programme_preview",
+  "programme_complete",
   "programme_activate",
   "programme_archive",
   "programme_version_metadata",

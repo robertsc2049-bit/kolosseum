@@ -1117,11 +1117,11 @@ test(
       "under_allocated"
     );
 
-    const unbalancedActivation =
+    const unbalancedCompletion =
       await request(
         server.baseUrl,
         "POST",
-        `/templates/${encodeURIComponent(unbalancedDraft.json?.template?.template_id)}/activate`,
+        `/templates/${encodeURIComponent(unbalancedDraft.json?.template?.template_id)}/complete`,
         {
           coach_user_id:
             coachUserId
@@ -1129,15 +1129,15 @@ test(
       );
 
     assertStatus(
-      unbalancedActivation,
+      unbalancedCompletion,
       400,
-      "under allocated event activation"
+      "under allocated event completion"
     );
 
     assert.equal(
-      unbalancedActivation.json
+      unbalancedCompletion.json
         ?.reason ??
-      unbalancedActivation.json
+      unbalancedCompletion.json
         ?.details
         ?.reason,
       "event_week_allocation_unbalanced"
@@ -1380,6 +1380,68 @@ test(
         value: 225,
         unit: "lb"
       }
+    );
+
+    // programme_complete: a still-draft template cannot be activated
+    // directly - the coach must mark it complete first. This is the
+    // single most important guard assertion for the draft -> complete
+    // -> active state machine.
+    const prematureActivation =
+      await request(
+        server.baseUrl,
+        "POST",
+        `/templates/${
+          encodeURIComponent(
+            templateId
+          )
+        }/activate`,
+        {
+          coach_user_id:
+            coachUserId
+        }
+      );
+
+    assertStatus(
+      prematureActivation,
+      400,
+      "premature activation of a still-draft template"
+    );
+
+    assert.equal(
+      prematureActivation.json
+        ?.reason ??
+      prematureActivation.json
+        ?.details
+        ?.reason,
+      "only_complete_can_activate"
+    );
+
+    const completion =
+      await request(
+        server.baseUrl,
+        "POST",
+        `/templates/${
+          encodeURIComponent(
+            templateId
+          )
+        }/complete`,
+        {
+          coach_user_id:
+            coachUserId
+        }
+      );
+
+    assertStatus(
+      completion,
+      200,
+      "template completion"
+    );
+
+    assert.equal(
+      completion.json
+        ?.template
+        ?.template_status,
+      "complete"
     );
 
     const activation =
