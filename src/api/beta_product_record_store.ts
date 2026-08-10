@@ -22,7 +22,10 @@ type SupportedRecordType =
   | "beta19_athlete_strength_profile"
   | "beta19_coach_event"
   | "beta19_event_athlete_link"
-  | "beta_progress_photo";
+  | "beta_progress_photo"
+  | "body_metric_entry"
+  | "habit_definition"
+  | "habit_completion";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -46,7 +49,10 @@ const supportedRecordTypes =
     "beta19_athlete_strength_profile",
     "beta19_coach_event",
     "beta19_event_athlete_link",
-    "beta_progress_photo"
+    "beta_progress_photo",
+    "body_metric_entry",
+    "habit_definition",
+    "habit_completion"
   ]);
 
 function isRecord(
@@ -449,6 +455,96 @@ function recordMetadata(
             record,
             "taken_at_iso8601",
             "progress_photo_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "body_metric_entry": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "metric_entry_id",
+            "body_metric_entry_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "body_metric_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "logged_by_user_id",
+            "body_metric_logger_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "logged_at_iso8601",
+            "body_metric_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "habit_definition": {
+      const athleteUserId =
+        requiredString(
+          record,
+          "athlete_user_id",
+          "habit_definition_athlete_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "habit_id",
+            "habit_definition_id_required"
+          ),
+        subject_user_id: athleteUserId,
+        actor_user_id: athleteUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "created_at_iso8601",
+            "habit_definition_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "habit_completion": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "completion_id",
+            "habit_completion_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "habit_completion_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "logged_by_user_id",
+            "habit_completion_logger_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "logged_at_iso8601",
+            "habit_completion_effective_at_required"
           ),
         record_sha256: recordSha256
       };

@@ -280,6 +280,37 @@ ALTER TABLE beta_product_records
       )
     );
 
+
+-- beta_product_records_full_ui_29_type_migration
+-- Additive FULL-UI-29 factual body-metric and habit records. Each body
+-- metric entry and habit completion is an independent immutable fact
+-- (never a chained "profile"); habit_definition records the athlete's own
+-- self-declared habit, never engine-visible, inferred, or scored - streak
+-- counts are computed on read from these raw facts, never persisted.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.

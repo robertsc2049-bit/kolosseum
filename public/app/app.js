@@ -267,6 +267,18 @@ const elements = {
   progressPhotoCaption: document.getElementById("progressPhotoCaption"),
   progressPhotoStatus: document.getElementById("progressPhotoStatus"),
   progressPhotoGrid: document.getElementById("progressPhotoGrid"),
+  bodyMetricLogForm: document.getElementById("bodyMetricLogForm"),
+  bodyMetricTypeSelect: document.getElementById("bodyMetricTypeSelect"),
+  bodyMetricValueInput: document.getElementById("bodyMetricValueInput"),
+  bodyMetricDateInput: document.getElementById("bodyMetricDateInput"),
+  bodyMetricNoteInput: document.getElementById("bodyMetricNoteInput"),
+  bodyMetricStatus: document.getElementById("bodyMetricStatus"),
+  bodyMetricHistory: document.getElementById("bodyMetricHistory"),
+  habitCreateForm: document.getElementById("habitCreateForm"),
+  habitLabelInput: document.getElementById("habitLabelInput"),
+  habitCadenceSelect: document.getElementById("habitCadenceSelect"),
+  habitStatus: document.getElementById("habitStatus"),
+  habitList: document.getElementById("habitList"),
 
   coachGreeting: document.getElementById("coachGreeting"),
   coachAthleteCount: document.getElementById("coachAthleteCount"),
@@ -375,6 +387,8 @@ const elements = {
   athleteDetailMessageCancelButton: document.getElementById("athleteDetailMessageCancelButton"),
   athleteDetailOrgMessageHistory: document.getElementById("athleteDetailOrgMessageHistory"),
   athleteDetailProgressPhotos: document.getElementById("athleteDetailProgressPhotos"),
+  athleteDetailBodyMetricHistory: document.getElementById("athleteDetailBodyMetricHistory"),
+  athleteDetailHabitList: document.getElementById("athleteDetailHabitList"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -2297,6 +2311,8 @@ async function refreshHistory(options = {}) {
   renderHistoryList(serverSessions);
   renderToday();
   refreshProgressPhotos({ quiet: true }).catch(() => {});
+  refreshBodyMetrics({ quiet: true }).catch(() => {});
+  refreshHabits({ quiet: true }).catch(() => {});
 
   if (!options.quiet) showNotice("Training history refreshed.");
   return state.history;
@@ -5326,6 +5342,230 @@ function renderCoachAthleteProgressPhotos() {
   elements.athleteDetailProgressPhotos.innerHTML = photos.map(renderProgressPhotoCard).join("");
 }
 
+const BODY_METRIC_TYPE_LABELS = {
+  waist_circumference_cm: "Waist",
+  chest_circumference_cm: "Chest",
+  arm_circumference_cm: "Arm",
+  thigh_circumference_cm: "Thigh",
+  hip_circumference_cm: "Hip",
+  body_fat_percentage: "Body fat"
+};
+
+function renderBodyMetricEntry(entry) {
+  const label = BODY_METRIC_TYPE_LABELS[entry.metric_type] || entry.metric_type;
+  const unitSuffix = entry.unit === "percent" ? "%" : ` ${escapeHtml(entry.unit)}`;
+  const sourceBadge = entry.source === "coach_entered" ? "Coach" : "You";
+  const note = entry.note ? `<p>${escapeHtml(entry.note)}</p>` : "";
+
+  return `
+    <article class="record-card">
+      <div class="record-meta">
+        <span class="badge neutral">${escapeHtml(sourceBadge)}</span>
+        <span class="muted small">${escapeHtml(formatDate(entry.effective_date))}</span>
+      </div>
+      <strong>${escapeHtml(label)}: ${escapeHtml(String(entry.value))}${unitSuffix}</strong>
+      ${note}
+    </article>
+  `;
+}
+
+function renderBodyMetricList(container, entries) {
+  if (!container) return;
+
+  if (entries.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No body-metric entries yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = entries.map(renderBodyMetricEntry).join("");
+}
+
+async function refreshBodyMetrics(options = {}) {
+  if (state.role !== "athlete") return;
+
+  try {
+    const response = await api("GET", "/body-metrics");
+    state.bodyMetricEntries = Array.isArray(response.entries) ? response.entries : [];
+    renderBodyMetricList(elements.bodyMetricHistory, state.bodyMetricEntries);
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
+async function logBodyMetricEntry() {
+  const metricType = elements.bodyMetricTypeSelect?.value;
+  const value = Number(elements.bodyMetricValueInput?.value);
+  const effectiveDate = elements.bodyMetricDateInput?.value;
+  const note = elements.bodyMetricNoteInput?.value || undefined;
+
+  if (!metricType || !Number.isFinite(value) || !effectiveDate) {
+    elements.bodyMetricStatus.hidden = false;
+    elements.bodyMetricStatus.textContent = "Choose a measurement, value and date.";
+    return;
+  }
+
+  showBusy("Logging measurement…");
+  try {
+    await api("POST", "/body-metrics", { metric_type: metricType, value, effective_date: effectiveDate, note });
+    elements.bodyMetricLogForm.reset();
+    elements.bodyMetricStatus.hidden = true;
+    await refreshBodyMetrics({ quiet: true });
+    showNotice("Body-metric entry logged.");
+  }
+  catch (error) {
+    elements.bodyMetricStatus.hidden = false;
+    elements.bodyMetricStatus.textContent = friendlyError(error.payload, error.status) || "Entry could not be logged.";
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function refreshCoachAthleteBodyMetrics(athleteUserId, options = {}) {
+  if (!athleteUserId || !elements.athleteDetailBodyMetricHistory) return;
+
+  try {
+    const response = await api("GET", `/body-metrics/coach/${encodeURIComponent(athleteUserId)}`);
+    state.coachAthleteBodyMetricEntries = Array.isArray(response.entries) ? response.entries : [];
+    renderBodyMetricList(elements.athleteDetailBodyMetricHistory, state.coachAthleteBodyMetricEntries);
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
+// Habit streak counts are plain arithmetic over the athlete's own
+// self-declared completion dates - rendered as bare integers with no
+// color grading, percentage framing or comparison to a target the
+// athlete didn't set themselves.
+function renderHabitCard(habit, options = {}) {
+  const archived = Boolean(habit.archived_at_iso8601);
+  const actions = options.readOnly || archived
+    ? ""
+    : `
+      <div class="inline-controls">
+        <button class="button secondary" type="button" data-habit-action="complete" data-habit-id="${escapeHtml(habit.habit_id)}">Mark done today</button>
+        <button class="button secondary" type="button" data-habit-action="archive" data-habit-id="${escapeHtml(habit.habit_id)}">Archive</button>
+      </div>
+    `;
+
+  return `
+    <article class="record-card">
+      <div class="record-meta">
+        <span class="badge neutral">${escapeHtml(titleCase(habit.cadence))}</span>
+        ${archived ? '<span class="muted small">Archived</span>' : ""}
+      </div>
+      <strong>${escapeHtml(habit.habit_label)}</strong>
+      <p>${habit.current_streak_length} day${habit.current_streak_length === 1 ? "" : "s"} logged in a row - longest ${habit.longest_streak_length}, ${habit.total_completions} total.</p>
+      ${actions}
+    </article>
+  `;
+}
+
+function renderHabitList(container, habits, options = {}) {
+  if (!container) return;
+
+  if (habits.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No habits yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = habits.map((habit) => renderHabitCard(habit, options)).join("");
+}
+
+async function refreshHabits(options = {}) {
+  if (state.role !== "athlete") return;
+
+  try {
+    const response = await api("GET", "/habits");
+    state.habits = Array.isArray(response.habits) ? response.habits : [];
+    renderHabitList(elements.habitList, state.habits);
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
+async function createHabit() {
+  const habitLabel = elements.habitLabelInput?.value?.trim();
+  const cadence = elements.habitCadenceSelect?.value;
+
+  if (!habitLabel || !cadence) {
+    elements.habitStatus.hidden = false;
+    elements.habitStatus.textContent = "Enter a habit and choose a cadence.";
+    return;
+  }
+
+  showBusy("Creating habit…");
+  try {
+    await api("POST", "/habits", { habit_label: habitLabel, cadence });
+    elements.habitCreateForm.reset();
+    elements.habitStatus.hidden = true;
+    await refreshHabits({ quiet: true });
+    showNotice("Habit created.");
+  }
+  catch (error) {
+    elements.habitStatus.hidden = false;
+    elements.habitStatus.textContent = friendlyError(error.payload, error.status) || "Habit could not be created.";
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function logHabitCompletionToday(habitId) {
+  showBusy("Marking habit done…");
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    await api("POST", `/habits/${encodeURIComponent(habitId)}/completions`, { completion_date: today });
+    await refreshHabits({ quiet: true });
+    showNotice("Habit marked done for today.");
+  }
+  catch (error) {
+    showNotice(friendlyError(error.payload, error.status) || "Could not mark habit done.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function archiveHabit(habitId) {
+  showBusy("Archiving habit…");
+  try {
+    await api("POST", `/habits/${encodeURIComponent(habitId)}/archive`);
+    await refreshHabits({ quiet: true });
+    showNotice("Habit archived.");
+  }
+  catch (error) {
+    showNotice(friendlyError(error.payload, error.status) || "Could not archive habit.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function refreshCoachAthleteHabits(athleteUserId, options = {}) {
+  if (!athleteUserId || !elements.athleteDetailHabitList) return;
+
+  try {
+    const response = await api("GET", `/habits/coach/${encodeURIComponent(athleteUserId)}`);
+    state.coachAthleteHabits = Array.isArray(response.habits) ? response.habits : [];
+    renderHabitList(elements.athleteDetailHabitList, state.coachAthleteHabits, { readOnly: true });
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
 async function refreshCoachAthleteMessages(athleteUserId, options = {}) {
   if (!athleteUserId || !elements.athleteDetailMessageHistory) return;
 
@@ -5550,6 +5790,18 @@ async function openAthleteProfile(athleteUserId) {
       {
         quiet: true
       }
+    ),
+    refreshCoachAthleteBodyMetrics(
+      athleteUserId,
+      {
+        quiet: true
+      }
+    ),
+    refreshCoachAthleteHabits(
+      athleteUserId,
+      {
+        quiet: true
+      }
     )
   ]);
 
@@ -5563,6 +5815,8 @@ function closeAthleteProfile() {
   state.liveMessageThreadId = null;
   state.coachAthleteOrgMessageThreads = [];
   state.coachAthleteProgressPhotos = [];
+  state.coachAthleteBodyMetricEntries = [];
+  state.coachAthleteHabits = [];
   saveState();
   elements.athleteProfilePanel.hidden = true;
   elements.athleteAssignmentPanel.hidden = true;
@@ -13700,6 +13954,28 @@ elements.eventForm.addEventListener("submit", (event) => {
 elements.progressPhotoUploadForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   uploadProgressPhoto().catch(handleError);
+});
+
+elements.bodyMetricLogForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  logBodyMetricEntry().catch(handleError);
+});
+
+elements.habitCreateForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  createHabit().catch(handleError);
+});
+
+elements.habitList?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-habit-action]");
+  if (!button) return;
+  const habitId = button.dataset.habitId;
+  if (button.dataset.habitAction === "complete") {
+    logHabitCompletionToday(habitId).catch(handleError);
+  }
+  else if (button.dataset.habitAction === "archive") {
+    archiveHabit(habitId).catch(handleError);
+  }
 });
 
 elements.refreshTemplatesButton.addEventListener("click", () => {

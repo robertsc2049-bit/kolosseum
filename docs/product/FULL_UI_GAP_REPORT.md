@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 251
+- implemented: 258
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -529,6 +529,24 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `progress_photo_athlete_history` — Display own progress photo history
 - `progress_photo_coach_view` — Display athlete progress photo history (read-only)
 
+### Body metrics and habits
+
+Slice: FULL-UI-29
+
+Area state: implemented
+
+Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `body_metric_log` — Log a body-metric entry
+- `body_metric_history_athlete` — Display own body-metric history
+- `body_metric_history_coach` — Display athlete body-metric history (read-only)
+- `habit_create` — Create and archive a self-defined habit
+- `habit_log_completion` — Log a habit completion for a cadence unit
+- `habit_streak_display` — Display current/longest streak and total completions
+- `habit_history_list` — Display an athlete's habits list (read-only for coach)
+
 ## Functions without persistent integration proof
 
 - None
@@ -563,6 +581,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-26: implemented
 - FULL-UI-27: implemented
 - FULL-UI-28: implemented
+- FULL-UI-29: implemented
 
 ## Prohibited capabilities
 
