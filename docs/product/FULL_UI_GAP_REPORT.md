@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 259
+- implemented: 265
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -559,6 +559,23 @@ Implemented: 1 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 - `exercise_reference_media_lookup` — Look up an exercise reference-media record (read-only, null until content exists)
 
+### Device sync
+
+Slice: FULL-UI-31
+
+Area state: implemented
+
+Implemented: 6 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `device_connect` — Connect a simulated wearable device
+- `device_disconnect` — Disconnect a connected device
+- `device_metric_ingest` — Ingest a synced metric reading (rejects provider-computed scores outright)
+- `device_connections_list_athlete` — Display own connected devices
+- `device_metric_history_athlete` — Display own synced metric history
+- `device_metric_history_coach` — Display athlete connected devices and synced metric history (read-only)
+
 ## Functions without persistent integration proof
 
 - None
@@ -595,6 +612,7 @@ Implemented: 1 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-28: implemented
 - FULL-UI-29: implemented
 - FULL-UI-30: implemented
+- FULL-UI-31: implemented
 
 ## Prohibited capabilities
 

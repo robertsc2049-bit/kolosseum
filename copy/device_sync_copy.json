@@ -1,0 +1,26 @@
+{
+  "device_sync.connect_prompt": {
+    "text": "Connect a device to sync factual metrics you already track elsewhere.",
+    "claim_class": "product_action_fact"
+  },
+  "device_sync.connected": {
+    "text": "Device connected. Synced readings will appear in your history.",
+    "claim_class": "connection_state_fact"
+  },
+  "device_sync.disconnected": {
+    "text": "Device disconnected. Past synced readings remain in your history.",
+    "claim_class": "connection_state_fact"
+  },
+  "device_sync.metric_synced": {
+    "text": "Reading synced from your connected device.",
+    "claim_class": "metric_source_fact"
+  },
+  "device_sync.provider_score_rejected": {
+    "text": "This reading could not be synced because it included a provider-computed score, which this product does not store.",
+    "claim_class": "boundary_notice"
+  },
+  "device_sync.no_engine_change": {
+    "text": "Device sync data does not change engine truth, programme assignment, or replay/proof records.",
+    "claim_class": "boundary_notice"
+  }
+}

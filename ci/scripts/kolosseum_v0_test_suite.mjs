@@ -41,6 +41,16 @@ const allowedInferenceDenialRelativeFiles = new Set([
   "src/api/athlete_onboarding_service.ts"
 ]);
 
+// Exact active surface that names forbidden provider-computed score fields
+// (readiness/recovery/strain, etc.) solely to reject them outright at
+// ingestion. The exception remains valid only while all matched language is
+// confined to the verified rejection-list declaration and the rejection path
+// remains - see S-V1-P-06's contract-ingestion guard for the product-level
+// proof that this list is a denylist, never a stored or surfaced value.
+const allowedProviderScoreDenialRelativeFiles = new Set([
+  "src/v1DeviceSyncContract.mjs"
+]);
+
 const postV0AnalyticsPattern =
   /\breadiness[_ -]?scor|\boutcome[_ -]?evaluation|\branking|\brankings|\bdashboard/i;
 
@@ -122,6 +132,41 @@ function isAllowedV1BoundaryFailure(failure) {
     }
   }
 
+  if (matchesAllowedFile(file, allowedProviderScoreDenialRelativeFiles)) {
+    if (!details.includes("Post-v0 analytics")) {
+      return false;
+    }
+
+    const sourcePath = path.isAbsolute(file)
+      ? file
+      : path.join(process.cwd(), file);
+
+    try {
+      const source = fs.readFileSync(sourcePath, "utf8");
+      const denialBlockPattern =
+        /export const DEVICE_SYNC_FORBIDDEN_PROVIDER_SCORE_FIELDS = Object\.freeze\(\[[\s\S]*?\]\);/u;
+      const denialBlock = source.match(denialBlockPattern)?.[0] ?? "";
+
+      if (
+        !denialBlock ||
+        !source.includes("for (const forbiddenField of DEVICE_SYNC_FORBIDDEN_PROVIDER_SCORE_FIELDS)") ||
+        !source.includes('"device_sync_provider_score_field_rejected"')
+      ) {
+        return false;
+      }
+
+      const remainingSource = source
+        .replace(denialBlockPattern, "")
+        .split(/\r?\n/u)
+        .map((line) => line.replace(/\/\/.*$/u, ""))
+        .join("\n");
+
+      return !postV0AnalyticsPattern.test(remainingSource);
+    } catch {
+      return false;
+    }
+  }
+
   return false;
 }
 
@@ -154,7 +199,8 @@ if (result.status === 0) {
         allowed_files: [
           ...allowedPhase8RelativeFiles,
           ...allowedReadModelRelativeFiles,
-          ...allowedInferenceDenialRelativeFiles
+          ...allowedInferenceDenialRelativeFiles,
+          ...allowedProviderScoreDenialRelativeFiles
         ],
         original_failures: failures
       }

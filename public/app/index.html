@@ -699,6 +699,49 @@
 
             <div id="habitList" class="record-list"></div>
           </div>
+
+          <div class="panel device-sync-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Device sync</p>
+                <h3>Connected devices</h3>
+              </div>
+            </div>
+
+            <form id="deviceConnectForm" class="athlete-detail-note-form">
+              <label class="field">
+                <span>Provider</span>
+                <select id="deviceProviderSelect">
+                  <option value="apple_health">Apple Health</option>
+                  <option value="garmin">Garmin</option>
+                  <option value="whoop">Whoop</option>
+                  <option value="manual_import">Manual import</option>
+                </select>
+              </label>
+
+              <div class="inline-controls">
+                <button class="button primary" type="submit">Connect device</button>
+              </div>
+            </form>
+
+            <p
+              id="deviceSyncStatus"
+              class="dashboard-status"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></p>
+
+            <div id="deviceConnectionList" class="record-list"></div>
+
+            <div class="panel-header">
+              <div>
+                <h3>Synced metrics</h3>
+              </div>
+            </div>
+
+            <div id="deviceMetricHistory" class="record-list"></div>
+          </div>
         </section>
 
         <section id="view-coach-overview" class="view" hidden>
@@ -1473,6 +1516,25 @@
 
                   <div
                     id="athleteDetailHabitList"
+                    class="record-list athlete-detail-list"
+                  ></div>
+                </article>
+
+                <article class="panel athlete-detail-device-sync-panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Device sync</p>
+                      <h3>Connected devices and synced metrics</h3>
+                    </div>
+                  </div>
+
+                  <div
+                    id="athleteDetailDeviceConnectionList"
+                    class="record-list athlete-detail-list"
+                  ></div>
+
+                  <div
+                    id="athleteDetailDeviceMetricHistory"
                     class="record-list athlete-detail-list"
                   ></div>
                 </article>

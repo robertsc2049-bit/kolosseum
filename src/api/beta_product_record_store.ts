@@ -25,7 +25,9 @@ type SupportedRecordType =
   | "beta_progress_photo"
   | "body_metric_entry"
   | "habit_definition"
-  | "habit_completion";
+  | "habit_completion"
+  | "device_connection_record"
+  | "device_metric_entry";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -52,7 +54,9 @@ const supportedRecordTypes =
     "beta_progress_photo",
     "body_metric_entry",
     "habit_definition",
-    "habit_completion"
+    "habit_completion",
+    "device_connection_record",
+    "device_metric_entry"
   ]);
 
 function isRecord(
@@ -545,6 +549,65 @@ function recordMetadata(
             record,
             "logged_at_iso8601",
             "habit_completion_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "device_connection_record": {
+      const athleteUserId =
+        requiredString(
+          record,
+          "athlete_user_id",
+          "device_connection_athlete_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "connection_id",
+            "device_connection_id_required"
+          ),
+        subject_user_id: athleteUserId,
+        actor_user_id: athleteUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "device_connection_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "device_metric_entry": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "metric_entry_id",
+            "device_metric_entry_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "device_metric_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "device_metric_actor_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "ingested_at_iso8601",
+            "device_metric_effective_at_required"
           ),
         record_sha256: recordSha256
       };
