@@ -6049,6 +6049,37 @@
           }
         }
       ]
+    },
+    {
+      "area_id": "exercise_reference_media",
+      "title": "Exercise reference media",
+      "slice_id": "FULL-UI-30",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "exercise_reference_media_lookup",
+          "label": "Look up an exercise reference-media record (read-only, null until content exists)",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/exercises/:exercise_id/reference-media"
+          ],
+          "persistence": "server_registry_read",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_30_exercise_reference_media_surface.test.mjs",
+          "integration_test": "test/full_ui_30c_exercise_reference_media_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
     }
   ],
   "delivery_slices": [
@@ -6166,6 +6197,10 @@
     },
     {
       "slice_id": "FULL-UI-29",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-30",
       "state": "implemented"
     }
   ],
@@ -6858,6 +6893,12 @@
       "path": "/habits/coach/:athlete_user_id",
       "source": "src/api/habit_tracking.routes.ts",
       "tracked_by_area": "body_metrics_habits"
+    },
+    {
+      "method": "GET",
+      "path": "/exercises/:exercise_id/reference-media",
+      "source": "src/api/exercise_reference_media.routes.ts",
+      "tracked_by_area": "exercise_reference_media"
     }
   ],
   "completion_rules": [

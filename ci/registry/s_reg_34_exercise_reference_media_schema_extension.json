@@ -1,0 +1,59 @@
+{
+  "slice_id": "S-REG-34",
+  "extension_id": "exercise_reference_media_schema_extension",
+  "decision_type": "schema_extension",
+  "runtime_status": "non_runtime",
+  "extended_registry_id": "exercise",
+  "extended_record_count": 0,
+  "extended_field_names": [
+    "reference_media"
+  ],
+  "schema_files_mutation": true,
+  "content_free_invariant": true,
+  "active_registry_mutation": false,
+  "active_bundle_mutation": false,
+  "registry_index_mutation": false,
+  "registry_bundle_mutation": false,
+  "registry_law_mutation": false,
+  "registry_seal_mutation": false,
+  "active_registry_activation": false,
+  "engine_runtime_mutation": false,
+  "phase1_runtime_schema_mutation": false,
+  "marker_evaluator_mutation": false,
+  "comparison_result_mutation": false,
+  "recorded_value_input_mutation": false,
+  "advice_mutation": false,
+  "outcome_inference_mutation": false,
+  "programme_assignment_mutation": false,
+  "substitution_runtime_mutation": false,
+  "ui_behaviour_mutation": false,
+  "coach_interpretation_mutation": false,
+  "human_authorisation": {
+    "authorised_by": "repository owner",
+    "authorised_at_iso8601_date": "2026-08-10",
+    "authorisation_method": "explicit_chat_instruction",
+    "authorisation_note": "User asked the product to grow comparable features to other coaching apps, bounded by the repo's own guidelines, and approved a 4-feature plan (progress photos, body metrics/habits, exercise reference media, device sync) with the explicit caveat that exercise reference media should be infrastructure-only since there is no video content to populate yet. This slice is that infrastructure step: an optional reference_media field added to the exercise registry's schema, following the S-REG-32 precedent of a schema-only extension bundled outside the S-REG-23/24 activation authority. The field stays unset on all 19 live entries in this slice; a separate ordinary product-facing surface (FULL-UI-30) exposes it read-only, always returning null until a later slice adds real content."
+  },
+  "schema_file_hashes_before": {
+    "ci/schemas/exercise.registry.schema.json": "5b754e5bebd6f0a9abef125043993fab84cc327823fd2979e87b1ea140ace4c8",
+    "ci/schemas/exercise.registry.schema.v1.0.0.json": "5b754e5bebd6f0a9abef125043993fab84cc327823fd2979e87b1ea140ace4c8",
+    "ci/schemas/exercise_registry.schema.json": "5b754e5bebd6f0a9abef125043993fab84cc327823fd2979e87b1ea140ace4c8"
+  },
+  "schema_file_hashes_after": {
+    "ci/schemas/exercise.registry.schema.json": "eb1df4c1bf47295b805573307b93982712c876e99ccd26ddbd076b1ec1fac08e",
+    "ci/schemas/exercise.registry.schema.v1.0.0.json": "eb1df4c1bf47295b805573307b93982712c876e99ccd26ddbd076b1ec1fac08e",
+    "ci/schemas/exercise_registry.schema.json": "eb1df4c1bf47295b805573307b93982712c876e99ccd26ddbd076b1ec1fac08e"
+  },
+  "rollback_plan": {
+    "primary": "git revert <this-slice-commit> - reverses the 3 exercise schema files and this slice's own scaffolding atomically back to the pre-extension state in one step. No registry data, bundle, or seal file is touched by this slice, so no other rollback step is needed.",
+    "fallback": "If a clean revert is not possible: remove the reference_media property block from ci/schemas/exercise.registry.schema.json, ci/schemas/exercise.registry.schema.v1.0.0.json, and ci/schemas/exercise_registry.schema.json, confirming all 3 files return to the pre-extension hashes recorded in schema_file_hashes_before. No bundle regeneration or seal re-pin is required since neither was touched."
+  },
+  "runtime_parity_proof": {
+    "method": "npm run e2e:golden",
+    "fixture_count": 13,
+    "identical": true,
+    "byte_identical_fixture_count": 13,
+    "changed_fixtures": [],
+    "note": "This slice touches only ci/schemas/ files, which the engine's exercise loader (engine/src/registries/loadExerciseEntries.ts) never reads - it parses registries/exercise/exercise.registry.json directly with no schema/ajv validation step. Since exercise.registry.json's content and registry_index.json's order[] are both completely untouched, PHASE_3's loaded_registries list cannot be affected. All 13 e2e:golden fixtures were captured before this slice and re-captured after every mutation in this slice; all 13 were byte-identical. This was verified directly, not assumed."
+  }
+}

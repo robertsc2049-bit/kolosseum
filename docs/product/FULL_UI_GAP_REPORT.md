@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 258
+- implemented: 259
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -547,6 +547,18 @@ Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `habit_streak_display` — Display current/longest streak and total completions
 - `habit_history_list` — Display an athlete's habits list (read-only for coach)
 
+### Exercise reference media
+
+Slice: FULL-UI-30
+
+Area state: implemented
+
+Implemented: 1 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `exercise_reference_media_lookup` — Look up an exercise reference-media record (read-only, null until content exists)
+
 ## Functions without persistent integration proof
 
 - None
@@ -582,6 +594,7 @@ Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-27: implemented
 - FULL-UI-28: implemented
 - FULL-UI-29: implemented
+- FULL-UI-30: implemented
 
 ## Prohibited capabilities
 
