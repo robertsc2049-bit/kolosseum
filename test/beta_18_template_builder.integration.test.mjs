@@ -845,7 +845,15 @@ test(
             role:
               index === 0
                 ? "primary"
-                : "accessory"
+                : "accessory",
+            coaching_notes:
+              "",
+            segment:
+              "working",
+            group_id:
+              "",
+            group_type:
+              "straight"
           })
         );
 
@@ -945,6 +953,8 @@ test(
                   order_index: 1,
                   title:
                     "Invalid Range",
+                  coaching_notes:
+                    "",
                   work_items:
                     invalidRangeItems
                 }
@@ -1010,6 +1020,8 @@ test(
                   order_index: 1,
                   title:
                     "Invalid Weight",
+                  coaching_notes:
+                    "",
                   work_items:
                     invalidWeightItems
                 }
@@ -1087,6 +1099,8 @@ test(
                       order_index: 1,
                       title:
                         "Under Allocated Session",
+                      coaching_notes:
+                        "",
                       work_items:
                         percentageWorkItems(
                           exerciseIds.slice(0, 4),
@@ -1194,6 +1208,8 @@ test(
                       order_index: 1,
                       title:
                         "Session One",
+                      coaching_notes:
+                        "",
                       work_items:
                         mixedPrescriptionWorkItems(
                           exerciseIds.slice(
@@ -1224,6 +1240,8 @@ test(
                       order_index: 1,
                       title:
                         "Session Two",
+                      coaching_notes:
+                        "",
                       work_items:
                         percentageWorkItems(
                           exerciseIds.slice(
@@ -1793,6 +1811,254 @@ test(
       exhausted.json
         ?.reason,
       "assigned_template_sessions_exhausted"
+    );
+  }
+);
+
+test(
+  "BETA-18 template builder supports flexible session composition: variable exercise count, supersets, segments and coaching notes",
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(
+      typeof databaseUrl === "string" && databaseUrl.length > 0,
+      "DATABASE_URL is required"
+    );
+
+    const environment = { ...process.env, DATABASE_URL: databaseUrl };
+    delete environment.SMOKE_NO_DB;
+
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+    });
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+
+    const coachRegistration = await request(
+      server.baseUrl,
+      "POST",
+      "/account/register",
+      {
+        actor_type: "coach",
+        display_name: "Composition Coach",
+        email: `beta18_composition_coach_${nonce}@example.com`,
+        password: "Beta18CompositionCoach!2026",
+        accepted_terms: true,
+        accepted_consent: true,
+        accepted_terms_version: "terms_v1",
+        accepted_consent_version: "consent_v1"
+      }
+    );
+    assertStatus(coachRegistration, 201, "coach account registration");
+    const coachUserId = coachRegistration.json?.account?.user_id ?? "";
+    assert.ok(coachUserId, "Expected registered coach user_id");
+
+    const exerciseResponse = await request(server.baseUrl, "GET", "/templates/exercises");
+    assertStatus(exerciseResponse, 200, "exercise options");
+    const exercises = exerciseResponse.json?.exercises;
+    assert.ok(
+      Array.isArray(exercises) && exercises.length >= 13,
+      "Expected at least thirteen active exercise options"
+    );
+    const exerciseIds = exercises.map((exercise) => exercise.exercise_id);
+
+    function baseWorkItem(exerciseId, orderIndex, overrides = {}) {
+      return {
+        work_item_id: "",
+        order_index: orderIndex,
+        exercise_id: exerciseId,
+        planned_sets: 3,
+        rep_mode: "fixed",
+        planned_reps: 8,
+        rep_min: 8,
+        rep_max: 8,
+        load_mode: "bodyweight",
+        percent_1rm: 75,
+        weight_value: 20,
+        weight_unit: "kg",
+        rpe_value: 8,
+        rest_seconds: 90,
+        role: orderIndex === 1 ? "primary" : "accessory",
+        coaching_notes: "",
+        segment: "working",
+        group_id: "",
+        group_type: "straight",
+        ...overrides
+      };
+    }
+
+    function templatePayload(name, workItems, sessionNotes = "") {
+      return {
+        coach_user_id: coachUserId,
+        template_version: 1,
+        template_name: name,
+        description: "Flexible composition proof.",
+        activity_id: "powerlifting",
+        blocks: [{
+          block_id: "",
+          order_index: 1,
+          name: "Block 1",
+          description: "",
+          block_type: "general",
+          week_count: 1,
+          weeks: [{
+            week_id: "",
+            order_index: 1,
+            sessions: [{
+              session_id: "",
+              order_index: 1,
+              title: "Session 1",
+              coaching_notes: sessionNotes,
+              work_items: workItems
+            }]
+          }]
+        }],
+        updated_at_iso8601: new Date().toISOString()
+      };
+    }
+
+    // --- Positive: six exercises in one session (beyond the old hard cap of four). ---
+    const sixExercises = exerciseIds
+      .slice(0, 6)
+      .map((exerciseId, index) => baseWorkItem(exerciseId, index + 1));
+
+    const sixExerciseSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Six Exercise Session", sixExercises)
+    );
+    assertStatus(sixExerciseSave, 201, "six exercise session save");
+    assert.equal(
+      sixExerciseSave.json?.template?.template_structure?.blocks[0]?.weeks[0]?.days[0]?.sessions[0]?.work_items.length,
+      6,
+      "Expected six persisted work items"
+    );
+
+    // --- Positive: a superset pair plus a warm-up segment item plus coaching notes. ---
+    const supersetGroupId = "group_proof_1";
+    const groupedExercises = [
+      baseWorkItem(exerciseIds[0], 1, { segment: "warm_up", coaching_notes: "Easy pace, build up gradually." }),
+      baseWorkItem(exerciseIds[1], 2, { group_id: supersetGroupId, group_type: "superset", rest_seconds: 0 }),
+      baseWorkItem(exerciseIds[2], 3, { group_id: supersetGroupId, group_type: "superset", coaching_notes: "Go straight into this from the prior exercise." }),
+      baseWorkItem(exerciseIds[3], 4, { segment: "cool_down" })
+    ];
+
+    const groupedSave = await request(
+      server.baseUrl,
+      "POST",
+      "/templates",
+      templatePayload("Superset And Segments Session", groupedExercises, "Focus on bar speed today.")
+    );
+    assertStatus(groupedSave, 201, "grouped session save");
+
+    const storedGroupedSession =
+      groupedSave.json?.template?.template_structure?.blocks[0]?.weeks[0]?.days[0]?.sessions[0];
+    assert.equal(storedGroupedSession?.coaching_notes, "Focus on bar speed today.");
+
+    const storedGroupedItems = storedGroupedSession?.work_items ?? [];
+    assert.equal(storedGroupedItems[0]?.segment, "warm_up");
+    assert.equal(storedGroupedItems[0]?.coaching_notes, "Easy pace, build up gradually.");
+    assert.equal(storedGroupedItems[1]?.group_id, supersetGroupId);
+    assert.equal(storedGroupedItems[1]?.group_type, "superset");
+    assert.equal(storedGroupedItems[2]?.group_id, supersetGroupId);
+    assert.equal(storedGroupedItems[2]?.coaching_notes, "Go straight into this from the prior exercise.");
+    assert.equal(storedGroupedItems[3]?.segment, "cool_down");
+    assert.equal(storedGroupedItems[3]?.group_id, "");
+
+    // --- Negative: thirteen exercises exceeds the maximum of twelve. ---
+    const thirteenExercises = exerciseIds
+      .slice(0, 13)
+      .map((exerciseId, index) => baseWorkItem(exerciseId, index + 1));
+
+    const tooManySave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Too Many Exercises Session", thirteenExercises)
+    );
+    assertStatus(tooManySave, 400, "thirteen exercise session rejected");
+    assert.equal(
+      tooManySave.json?.details?.reason ?? tooManySave.json?.reason,
+      "session_work_item_count_invalid"
+    );
+
+    // --- Negative: a group with only one member. ---
+    const lonelyGroupItems = [
+      baseWorkItem(exerciseIds[0], 1, { group_id: "lonely_group", group_type: "superset" }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const lonelyGroupSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Lonely Group Session", lonelyGroupItems)
+    );
+    assertStatus(lonelyGroupSave, 400, "lonely group rejected");
+    assert.equal(
+      lonelyGroupSave.json?.details?.reason ?? lonelyGroupSave.json?.reason,
+      "work_item_group_too_small"
+    );
+
+    // --- Negative: a group whose members are not adjacent. ---
+    const nonContiguousGroupId = "non_contiguous_group";
+    const nonContiguousItems = [
+      baseWorkItem(exerciseIds[0], 1, { group_id: nonContiguousGroupId, group_type: "superset" }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3, { group_id: nonContiguousGroupId, group_type: "superset" }),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const nonContiguousSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Non Contiguous Group Session", nonContiguousItems)
+    );
+    assertStatus(nonContiguousSave, 400, "non-contiguous group rejected");
+    assert.equal(
+      nonContiguousSave.json?.details?.reason ?? nonContiguousSave.json?.reason,
+      "work_item_group_not_contiguous"
+    );
+
+    // --- Negative: a group whose members disagree on group_type. ---
+    const mismatchGroupId = "mismatch_group";
+    const mismatchItems = [
+      baseWorkItem(exerciseIds[0], 1, { group_id: mismatchGroupId, group_type: "superset" }),
+      baseWorkItem(exerciseIds[1], 2, { group_id: mismatchGroupId, group_type: "circuit" }),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const mismatchSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Mismatched Group Session", mismatchItems)
+    );
+    assertStatus(mismatchSave, 400, "mismatched group type rejected");
+    assert.equal(
+      mismatchSave.json?.details?.reason ?? mismatchSave.json?.reason,
+      "work_item_group_type_mismatch"
+    );
+
+    // --- Negative: a grouping type set without an actual group. ---
+    const ungroupedTypeItems = [
+      baseWorkItem(exerciseIds[0], 1, { group_type: "superset" }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const ungroupedTypeSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Ungrouped Type Session", ungroupedTypeItems)
+    );
+    assertStatus(ungroupedTypeSave, 400, "grouping type without a group rejected");
+    assert.equal(
+      ungroupedTypeSave.json?.details?.reason ?? ungroupedTypeSave.json?.reason,
+      "work_item_group_type_requires_group"
+    );
+
+    // --- Negative: coaching notes over the 500-character cap. ---
+    const overlongNote = "x".repeat(501);
+    const overlongNoteItems = [
+      baseWorkItem(exerciseIds[0], 1, { coaching_notes: overlongNote }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const overlongNoteSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Overlong Note Session", overlongNoteItems)
+    );
+    assertStatus(overlongNoteSave, 400, "overlong coaching note rejected");
+    assert.equal(
+      overlongNoteSave.json?.details?.reason ?? overlongNoteSave.json?.reason,
+      "work_item_coaching_notes_too_long"
     );
   }
 );

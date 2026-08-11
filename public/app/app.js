@@ -586,7 +586,11 @@ function normalisePersistedTemplateDraft(draft) {
       weight_unit: workItem?.weight_unit === "lb" ? "lb" : "kg",
       rpe_value: Number(workItem?.rpe_value ?? 8),
       rest_seconds: Number(workItem?.rest_seconds ?? 120),
-      role: workItem?.role === "primary" ? "primary" : "accessory"
+      role: workItem?.role === "primary" ? "primary" : "accessory",
+      coaching_notes: String(workItem?.coaching_notes ?? ""),
+      segment: ["warm_up", "cool_down"].includes(workItem?.segment) ? workItem.segment : "working",
+      group_id: String(workItem?.group_id ?? ""),
+      group_type: ["superset", "circuit"].includes(workItem?.group_type) ? workItem.group_type : "straight"
     };
   };
 
@@ -616,6 +620,7 @@ function normalisePersistedTemplateDraft(draft) {
                 session_id: String(session?.session_id ?? ""),
                 order_index: sessionIndex + 1,
                 title: String(session?.title ?? `Session ${sessionIndex + 1}`),
+                coaching_notes: String(session?.coaching_notes ?? ""),
                 work_items: Array.isArray(session?.work_items)
                   ? session.work_items.map(normaliseWorkItem)
                   : []
@@ -979,7 +984,15 @@ function friendlyError(payload, status) {
     total_week_count_invalid: "A programme cannot contain more than 104 weeks.",
     weeks_required: "Add at least one week.",
     session_count_per_week_invalid: "Each week must contain between one and seven sessions.",
-    session_requires_exactly_four_work_items: "Each session must contain exactly four exercises.",
+    session_work_item_count_invalid: "Each session must contain between one and 12 exercises.",
+    session_coaching_notes_too_long: "Session coaching notes must be 500 characters or fewer.",
+    work_item_coaching_notes_too_long: "Exercise coaching notes must be 500 characters or fewer.",
+    work_item_segment_invalid: "Choose warm-up, working, or cool-down for each exercise.",
+    work_item_group_type_invalid: "Choose superset, circuit, or leave the exercise ungrouped.",
+    work_item_group_type_requires_group: "Grouping type requires a group of at least two exercises.",
+    work_item_group_too_small: "A group needs at least two exercises.",
+    work_item_group_not_contiguous: "Grouped exercises must be next to each other in the session.",
+    work_item_group_type_mismatch: "All exercises in a group must share the same grouping type.",
     exercise_not_in_active_registry: "Choose exercises from the active exercise registry.",
     duplicate_exercise_in_session: "Each exercise in a session must be unique.",
     planned_sets_invalid: "Sets must be between 1 and 20.",
@@ -2173,13 +2186,20 @@ function renderExerciseFocus(step, classification) {
   const details = exerciseDetails(exercise);
   currentFocusExerciseId = String(exercise?.exercise_id ?? exercise?.item_id ?? "") || null;
 
+  const segment = String(exercise?.segment ?? "working");
+  const groupType = String(exercise?.group_type ?? "");
+  const coachingNotes = String(exercise?.coaching_notes ?? "").trim();
+
   elements.currentExercise.innerHTML = `
     <div class="exercise-focus">
       <p class="eyebrow">Current exercise</p>
       <h3>${escapeHtml(exerciseName(exercise))}</h3>
       <div class="exercise-detail-row">
+        ${segment !== "working" ? `<span class="badge neutral">${escapeHtml(titleCase(segment))}</span>` : ""}
+        ${exercise?.group_id ? `<span class="badge neutral">${escapeHtml(titleCase(groupType))}</span>` : ""}
         ${details.map((detail) => `<span class="exercise-detail">${escapeHtml(detail)}</span>`).join("")}
       </div>
+      ${coachingNotes ? `<p class="muted exercise-coaching-note">${escapeHtml(coachingNotes)}</p>` : ""}
     </div>
   `;
 
@@ -2221,12 +2241,19 @@ function renderExerciseQueue(sessionState) {
               ? "Current"
               : "Upcoming";
 
+        const segment = String(exercise?.segment ?? "working");
+        const groupType = String(exercise?.group_type ?? "");
+        const coachingNotes = String(exercise?.coaching_notes ?? "").trim();
+
         return `
-          <div class="exercise-row ${status}">
+          <div class="exercise-row ${status} ${exercise?.group_id ? "exercise-row-grouped" : ""}">
             <span class="exercise-order">${index + 1}</span>
             <div>
               <strong>${escapeHtml(exerciseName(exercise))}</strong>
+              ${segment !== "working" ? `<span class="badge neutral">${escapeHtml(titleCase(segment))}</span>` : ""}
+              ${exercise?.group_id ? `<span class="badge neutral">${escapeHtml(titleCase(groupType))}</span>` : ""}
               <small>${escapeHtml(exerciseDetails(exercise).join(" · ") || "Recorded exercise")}</small>
+              ${coachingNotes ? `<small class="exercise-coaching-note">${escapeHtml(coachingNotes)}</small>` : ""}
             </div>
             <span class="badge ${status === "complete" ? "complete" : status === "dropped" ? "partial" : status === "current" ? "active" : "neutral"}">${statusLabel}</span>
           </div>
@@ -8390,7 +8417,11 @@ function newTemplateWorkItem(index) {
     weight_value: index === 0 ? 100 : 20,
     weight_unit: "kg",
     rest_seconds: index === 0 ? 180 : 120,
-    role: index === 0 ? "primary" : "accessory"
+    role: index === 0 ? "primary" : "accessory",
+    coaching_notes: "",
+    segment: "working",
+    group_id: "",
+    group_type: "straight"
   };
 }
 
@@ -8399,6 +8430,7 @@ function newTemplateSession(orderIndex) {
     session_id: "",
     order_index: orderIndex,
     title: `Session ${orderIndex}`,
+    coaching_notes: "",
     work_items: Array.from({ length: 4 }, (_, index) => newTemplateWorkItem(index))
   };
 }
@@ -8486,7 +8518,11 @@ function storedWorkItemToDraft(workItem, workItemIndex) {
       ? Number(loadingReference.value ?? 8)
       : 8,
     rest_seconds: Number(workItem?.rest_seconds ?? 120),
-    role: workItem?.role === "primary" ? "primary" : "accessory"
+    role: workItem?.role === "primary" ? "primary" : "accessory",
+    coaching_notes: String(workItem?.coaching_notes ?? ""),
+    segment: ["warm_up", "cool_down"].includes(workItem?.segment) ? workItem.segment : "working",
+    group_id: String(workItem?.group_id ?? ""),
+    group_type: ["superset", "circuit"].includes(workItem?.group_type) ? workItem.group_type : "straight"
   };
 }
 
@@ -8530,6 +8566,7 @@ function templateRecordToDraft(template) {
                     session_id: String(session?.session_id ?? ""),
                     order_index: Number(day?.order_index ?? session?.order_index ?? sessionIndex + 1),
                     title: String(session?.title ?? `Session ${sessionIndex + 1}`),
+                    coaching_notes: String(session?.coaching_notes ?? ""),
                     work_items: (Array.isArray(session?.work_items) ? session.work_items : [])
                       .slice()
                       .sort((left, right) => Number(left.order_index) - Number(right.order_index))
@@ -8872,16 +8909,21 @@ function programmePreviewHtml(template) {
                 <article class="programme-preview-session">
                   <div class="programme-preview-session-heading">
                     <strong>${escapeHtml(session.title || `Session ${sessionIndex + 1}`)}</strong>
-                    <span class="badge ${session.work_items.length === 4 ? "complete" : "warning"}">
-                      ${session.work_items.length} exercises
+                    <span class="badge neutral">
+                      ${session.work_items.length} exercise${session.work_items.length === 1 ? "" : "s"}
                     </span>
                   </div>
+                  ${session.coaching_notes
+                    ? `<p class="muted small programme-preview-notes">${escapeHtml(session.coaching_notes)}</p>`
+                    : ""}
                   <ol>
                     ${session.work_items.map((workItem) => `
                       <li>
                         <div>
                           <strong>${escapeHtml(exerciseDisplayName(workItem.exercise_id))}</strong>
                           <span>${escapeHtml(titleCase(workItem.role))}</span>
+                          ${workItem.segment !== "working" ? `<span class="badge neutral">${escapeHtml(titleCase(workItem.segment))}</span>` : ""}
+                          ${workItem.group_id ? `<span class="badge neutral">${escapeHtml(titleCase(workItem.group_type))}</span>` : ""}
                         </div>
                         <span>
                           ${Number(workItem.planned_sets)} sets ·
@@ -8889,6 +8931,9 @@ function programmePreviewHtml(template) {
                           ${escapeHtml(programmePreviewLoad(workItem))} ·
                           ${Number(workItem.rest_seconds)}s rest
                         </span>
+                        ${workItem.coaching_notes
+                          ? `<p class="muted small programme-preview-notes">${escapeHtml(workItem.coaching_notes)}</p>`
+                          : ""}
                       </li>
                     `).join("")}
                   </ol>
@@ -9014,10 +9059,18 @@ function programmeActivationIssues(template) {
           ? session.work_items
           : [];
 
-        if (workItems.length !== 4) {
+        if (workItems.length < 1 || workItems.length > 12) {
           addIssue(
-            "session_requires_exactly_four_work_items",
-            `${sessionPath} must contain exactly four exercises.`,
+            "session_work_item_count_invalid",
+            `${sessionPath} must contain between one and 12 exercises.`,
+            sessionPath
+          );
+        }
+
+        if (String(session?.coaching_notes ?? "").length > 500) {
+          addIssue(
+            "session_coaching_notes_too_long",
+            `${sessionPath} coaching notes must be 500 characters or fewer.`,
             sessionPath
           );
         }
@@ -9032,6 +9085,48 @@ function programmeActivationIssues(template) {
             `${sessionPath} contains a duplicate exercise.`,
             sessionPath
           );
+        }
+
+        const groupOrderIndices = new Map();
+        const groupTypes = new Map();
+        workItems.forEach((workItem, workItemIndex) => {
+          const groupId = String(workItem?.group_id ?? "");
+          if (!groupId) return;
+          const orderIndices = groupOrderIndices.get(groupId) ?? [];
+          orderIndices.push(workItemIndex + 1);
+          groupOrderIndices.set(groupId, orderIndices);
+          groupTypes.set(groupId, groupTypes.get(groupId) ?? new Set());
+          groupTypes.get(groupId).add(String(workItem?.group_type ?? ""));
+        });
+
+        for (const [groupId, orderIndices] of groupOrderIndices) {
+          if (orderIndices.length < 2) {
+            addIssue(
+              "work_item_group_too_small",
+              `${sessionPath} has a grouped exercise without a partner.`,
+              sessionPath
+            );
+          }
+
+          const sorted = [...orderIndices].sort((a, b) => a - b);
+          for (let index = 1; index < sorted.length; index += 1) {
+            if (sorted[index] !== sorted[index - 1] + 1) {
+              addIssue(
+                "work_item_group_not_contiguous",
+                `${sessionPath} has a group with non-adjacent exercises.`,
+                sessionPath
+              );
+              break;
+            }
+          }
+
+          if (groupTypes.get(groupId).size > 1) {
+            addIssue(
+              "work_item_group_type_mismatch",
+              `${sessionPath} has a group with mismatched grouping types.`,
+              sessionPath
+            );
+          }
         }
 
         workItems.forEach((workItem, workItemIndex) => {
@@ -9057,6 +9152,38 @@ function programmeActivationIssues(template) {
             addIssue(
               "role_invalid",
               `${itemPath} requires a primary or accessory role.`,
+              itemPath
+            );
+          }
+
+          if (!["warm_up", "working", "cool_down"].includes(String(workItem?.segment ?? ""))) {
+            addIssue(
+              "work_item_segment_invalid",
+              `${itemPath} requires a warm-up, working, or cool-down segment.`,
+              itemPath
+            );
+          }
+
+          const groupType = String(workItem?.group_type ?? "");
+          if (!["straight", "superset", "circuit"].includes(groupType)) {
+            addIssue(
+              "work_item_group_type_invalid",
+              `${itemPath} has an unsupported grouping type.`,
+              itemPath
+            );
+          }
+          else if (!String(workItem?.group_id ?? "") && groupType !== "straight") {
+            addIssue(
+              "work_item_group_type_requires_group",
+              `${itemPath} has a grouping type without a group.`,
+              itemPath
+            );
+          }
+
+          if (String(workItem?.coaching_notes ?? "").length > 500) {
+            addIssue(
+              "work_item_coaching_notes_too_long",
+              `${itemPath} coaching notes must be 500 characters or fewer.`,
               itemPath
             );
           }
@@ -10469,9 +10596,11 @@ function renderTemplateLoadControls(
   `;
 }
 
-function renderTemplateWorkItem(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex) {
+function renderTemplateWorkItem(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex, workItemCount) {
+  const grouped = Boolean(workItem.group_id);
+
   return `
-    <div class="template-work-item">
+    <div class="template-work-item ${grouped ? "template-work-item-grouped" : ""}">
       <div class="template-work-item-header">
         <span class="exercise-order">${workItemIndex + 1}</span>
         <label class="template-exercise-field">
@@ -10487,6 +10616,20 @@ function renderTemplateWorkItem(workItem, blockIndex, weekIndex, sessionIndex, w
             <option value="accessory" ${workItem.role === "accessory" ? "selected" : ""}>Accessory</option>
           </select>
         </label>
+        <label class="template-segment-field">
+          <span>Segment</span>
+          <select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "segment")}>
+            <option value="warm_up" ${workItem.segment === "warm_up" ? "selected" : ""}>Warm-up</option>
+            <option value="working" ${workItem.segment === "working" ? "selected" : ""}>Working</option>
+            <option value="cool_down" ${workItem.segment === "cool_down" ? "selected" : ""}>Cool-down</option>
+          </select>
+        </label>
+        <div class="builder-action-row">
+          <button class="button secondary small-button move-template-work-item" type="button" aria-label="Move exercise up" title="Move exercise up" data-direction="-1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}" ${workItemIndex === 0 ? "disabled" : ""}>↑</button>
+          <button class="button secondary small-button move-template-work-item" type="button" aria-label="Move exercise down" title="Move exercise down" data-direction="1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}" ${workItemIndex === workItemCount - 1 ? "disabled" : ""}>↓</button>
+          <button class="button secondary small-button duplicate-template-work-item" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}" ${workItemCount >= 12 ? "disabled" : ""}>Duplicate</button>
+          ${workItemCount > 1 ? `<button class="button danger small-button remove-template-work-item" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}">Remove</button>` : ""}
+        </div>
       </div>
       <div class="template-prescription-grid">
         <label class="template-sets-field">
@@ -10500,6 +10643,26 @@ function renderTemplateWorkItem(workItem, blockIndex, weekIndex, sessionIndex, w
           <input type="number" min="0" max="900" step="5" value="${Number(workItem.rest_seconds)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "rest_seconds")} />
         </label>
       </div>
+      <div class="template-grouping-row">
+        ${grouped
+          ? `
+            <label class="template-group-type-field">
+              <span>Grouping</span>
+              <select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "group_type")}>
+                <option value="superset" ${workItem.group_type === "superset" ? "selected" : ""}>Superset</option>
+                <option value="circuit" ${workItem.group_type === "circuit" ? "selected" : ""}>Circuit</option>
+              </select>
+            </label>
+            <button class="button secondary small-button ungroup-work-item" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}">Ungroup</button>
+          `
+          : workItemIndex < workItemCount - 1
+            ? `<button class="button secondary small-button group-with-next-work-item" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}">Group with next</button>`
+            : ""}
+      </div>
+      <label class="field template-work-item-notes-field">
+        <span>Coaching notes</span>
+        <textarea maxlength="500" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "coaching_notes")}>${escapeHtml(workItem.coaching_notes)}</textarea>
+      </label>
     </div>
   `;
 }
@@ -10527,9 +10690,14 @@ function renderTemplateSession(session, blockIndex, weekIndex, sessionIndex, ses
           ${sessionCount > 1 ? `<button class="button danger small-button remove-template-session" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}">Remove</button>` : ""}
         </div>
       </div>
+      <label class="field template-session-notes-field">
+        <span>Session coaching notes</span>
+        <textarea maxlength="500" data-template-kind="session" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-field="coaching_notes">${escapeHtml(session.coaching_notes)}</textarea>
+      </label>
       <div class="template-work-items">
-        ${session.work_items.map((workItem, workItemIndex) => renderTemplateWorkItem(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex)).join("")}
+        ${session.work_items.map((workItem, workItemIndex) => renderTemplateWorkItem(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex, session.work_items.length)).join("")}
       </div>
+      <button class="button secondary add-template-work-item" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" ${session.work_items.length >= 12 ? "disabled" : ""}>Add exercise</button>
     </section>
   `;
 }
@@ -10751,6 +10919,7 @@ function templateDraftValidationRecord() {
                     session_id: String(session?.session_id ?? ""),
                     order_index: 1,
                     title: String(session?.title ?? ""),
+                    coaching_notes: String(session?.coaching_notes ?? ""),
                     work_items: (
                       Array.isArray(session?.work_items)
                         ? session.work_items
@@ -10770,7 +10939,11 @@ function templateDraftValidationRecord() {
                       weight_unit: String(workItem?.weight_unit ?? ""),
                       rpe_value: Number(workItem?.rpe_value),
                       rest_seconds: Number(workItem?.rest_seconds),
-                      role: String(workItem?.role ?? "")
+                      role: String(workItem?.role ?? ""),
+                      coaching_notes: String(workItem?.coaching_notes ?? ""),
+                      segment: String(workItem?.segment ?? "working"),
+                      group_id: String(workItem?.group_id ?? ""),
+                      group_type: String(workItem?.group_type ?? "straight")
                     }))
                   }]
                 })
@@ -10901,9 +11074,27 @@ function templateValidationSelector(issue) {
   }
   else if (
     code === "session_count_per_week_invalid" ||
-    code === "session_requires_exactly_four_work_items"
+    code === "session_work_item_count_invalid"
   ) {
     field = "title";
+  }
+  else if (code === "session_coaching_notes_too_long") {
+    field = "coaching_notes";
+  }
+  else if (code === "work_item_coaching_notes_too_long") {
+    field = "coaching_notes";
+  }
+  else if (code === "work_item_segment_invalid") {
+    field = "segment";
+  }
+  else if (
+    code === "work_item_group_type_invalid" ||
+    code === "work_item_group_type_requires_group" ||
+    code === "work_item_group_too_small" ||
+    code === "work_item_group_not_contiguous" ||
+    code === "work_item_group_type_mismatch"
+  ) {
+    field = "group_type";
   }
 
   const kind =
@@ -11416,6 +11607,78 @@ function moveTemplateSession(blockIndex, weekIndex, sessionIndex, direction) {
   rerenderTemplateBuilder();
 }
 
+function addTemplateWorkItem(blockIndex, weekIndex, sessionIndex) {
+  const session = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex];
+  if (!session || session.work_items.length >= 12) return;
+  session.work_items.push(newTemplateWorkItem(session.work_items.length));
+  rerenderTemplateBuilder();
+}
+
+function removeTemplateWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex) {
+  const session = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex];
+  if (!session || session.work_items.length <= 1) return;
+  const removed = session.work_items[workItemIndex];
+  session.work_items.splice(workItemIndex, 1);
+  ungroupIfTooSmall(session, removed?.group_id);
+  rerenderTemplateBuilder();
+}
+
+function duplicateTemplateWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex) {
+  const session = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex];
+  if (!session || session.work_items.length >= 12) return;
+  const source = session.work_items[workItemIndex];
+  if (!source) return;
+  const copy = cloneTemplateNode(source);
+  copy.group_id = "";
+  copy.group_type = "straight";
+  session.work_items.splice(workItemIndex + 1, 0, copy);
+  rerenderTemplateBuilder();
+}
+
+function moveTemplateWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex, direction) {
+  const session = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex];
+  if (!session) return;
+  moveArrayItem(session.work_items, workItemIndex, direction);
+  rerenderTemplateBuilder();
+}
+
+function ungroupIfTooSmall(session, groupId) {
+  if (!groupId) return;
+  const remaining = session.work_items.filter((item) => item.group_id === groupId);
+  if (remaining.length === 1) {
+    remaining[0].group_id = "";
+    remaining[0].group_type = "straight";
+  }
+}
+
+function groupWorkItemWithNext(blockIndex, weekIndex, sessionIndex, workItemIndex) {
+  const session = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex];
+  const current = session?.work_items[workItemIndex];
+  const next = session?.work_items[workItemIndex + 1];
+  if (!current || !next) return;
+
+  const groupId = current.group_id || `group_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const groupType = current.group_type !== "straight" ? current.group_type : "superset";
+
+  current.group_id = groupId;
+  current.group_type = groupType;
+  next.group_id = groupId;
+  next.group_type = groupType;
+  rerenderTemplateBuilder();
+}
+
+function ungroupWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex) {
+  const session = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex];
+  const item = session?.work_items[workItemIndex];
+  if (!item || !item.group_id) return;
+
+  const groupId = item.group_id;
+  item.group_id = "";
+  item.group_type = "straight";
+  ungroupIfTooSmall(session, groupId);
+  rerenderTemplateBuilder();
+}
+
 function templatePayloadFromDraft() {
   const draft = state.templateDraft;
   if (!draft) throw new Error("No programme is open.");
@@ -11470,6 +11733,7 @@ function templatePayloadFromDraft() {
           session_id: session.session_id,
           order_index: Number(session.order_index),
           title: session.title.trim(),
+          coaching_notes: (session.coaching_notes ?? "").trim(),
           work_items: session.work_items.map((workItem) => ({
             work_item_id: workItem.work_item_id,
             order_index: Number(workItem.order_index),
@@ -11485,7 +11749,11 @@ function templatePayloadFromDraft() {
             weight_unit: workItem.weight_unit,
             rpe_value: Number(workItem.rpe_value),
             rest_seconds: Number(workItem.rest_seconds),
-            role: workItem.role
+            role: workItem.role,
+            coaching_notes: (workItem.coaching_notes ?? "").trim(),
+            segment: workItem.segment,
+            group_id: workItem.group_id,
+            group_type: workItem.group_type
           }))
         }))
       }))
@@ -14388,6 +14656,7 @@ elements.templateBlocks.addEventListener("click", (event) => {
   const blockIndex = Number(action.dataset.blockIndex);
   const weekIndex = Number(action.dataset.weekIndex);
   const sessionIndex = Number(action.dataset.sessionIndex);
+  const workItemIndex = Number(action.dataset.workItemIndex);
   const direction = Number(action.dataset.direction);
 
   if (action.classList.contains("add-template-session")) {
@@ -14401,6 +14670,24 @@ elements.templateBlocks.addEventListener("click", (event) => {
   }
   else if (action.classList.contains("move-template-session")) {
     moveTemplateSession(blockIndex, weekIndex, sessionIndex, direction);
+  }
+  else if (action.classList.contains("add-template-work-item")) {
+    addTemplateWorkItem(blockIndex, weekIndex, sessionIndex);
+  }
+  else if (action.classList.contains("remove-template-work-item")) {
+    removeTemplateWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex);
+  }
+  else if (action.classList.contains("duplicate-template-work-item")) {
+    duplicateTemplateWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex);
+  }
+  else if (action.classList.contains("move-template-work-item")) {
+    moveTemplateWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex, direction);
+  }
+  else if (action.classList.contains("group-with-next-work-item")) {
+    groupWorkItemWithNext(blockIndex, weekIndex, sessionIndex, workItemIndex);
+  }
+  else if (action.classList.contains("ungroup-work-item")) {
+    ungroupWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex);
   }
   else if (action.classList.contains("add-template-week")) {
     addTemplateWeek(blockIndex);

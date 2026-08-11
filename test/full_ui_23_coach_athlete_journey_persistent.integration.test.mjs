@@ -104,7 +104,11 @@ function workItems() {
     weight_value: 20,
     weight_unit: "kg",
     rest_seconds: index === 0 ? 180 : 120,
-    role: index === 0 ? "primary" : "accessory"
+    role: index === 0 ? "primary" : "accessory",
+    coaching_notes: "",
+    segment: "working",
+    group_id: "",
+    group_type: "straight"
   }));
 }
 
