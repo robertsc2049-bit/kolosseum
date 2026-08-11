@@ -225,6 +225,9 @@ const elements = {
   checkSubstitutionButton: document.getElementById("checkSubstitutionButton"),
   cancelSubstitutionButton: document.getElementById("cancelSubstitutionButton"),
   substitutionResult: document.getElementById("substitutionResult"),
+  restTimerPanel: document.getElementById("restTimerPanel"),
+  restTimerRemaining: document.getElementById("restTimerRemaining"),
+  skipRestButton: document.getElementById("skipRestButton"),
   sessionActions: document.getElementById("sessionActions"),
   startSessionButton: document.getElementById("startSessionButton"),
   completeExerciseButton: document.getElementById("completeExerciseButton"),
@@ -2067,6 +2070,7 @@ async function loadSessionState() {
 }
 
 let currentFocusExerciseId = null;
+let restTimerIntervalId = null;
 const exerciseContentCache = new Map();
 
 function renderExerciseHowto(container, content) {
@@ -2129,6 +2133,87 @@ function hideAllActionPanels() {
   elements.substitutionResult.innerHTML = "";
   for (const box of document.querySelectorAll(".substitution-equipment-option")) {
     box.checked = false;
+  }
+}
+
+function formatRestClock(totalSeconds) {
+  const safeSeconds = Math.max(0, Math.round(totalSeconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function playRestCompleteCue() {
+  try {
+    if (typeof navigator.vibrate === "function") {
+      navigator.vibrate([180, 80, 180]);
+    }
+  }
+  catch {
+    // Vibration is a best-effort cue; ignore if unsupported or blocked.
+  }
+
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const context = new AudioContextClass();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.value = 880;
+    gain.gain.setValueAtTime(0.15, context.currentTime);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.4);
+    oscillator.onended = () => context.close();
+  }
+  catch {
+    // AudioContext can be blocked pre-interaction in some browsers; the
+    // visual done-state is the primary cue, this is a best-effort extra.
+  }
+}
+
+function stopRestTimer() {
+  if (restTimerIntervalId !== null) {
+    clearInterval(restTimerIntervalId);
+    restTimerIntervalId = null;
+  }
+  elements.restTimerPanel.hidden = true;
+  elements.restTimerPanel.classList.remove("rest-timer-done");
+}
+
+function startRestTimer(totalSeconds) {
+  stopRestTimer();
+
+  let remaining = totalSeconds;
+  elements.restTimerPanel.hidden = false;
+  elements.restTimerRemaining.textContent = formatRestClock(remaining);
+
+  restTimerIntervalId = setInterval(() => {
+    remaining -= 1;
+
+    if (remaining <= 0) {
+      clearInterval(restTimerIntervalId);
+      restTimerIntervalId = null;
+      elements.restTimerRemaining.textContent = "Rest complete";
+      elements.restTimerPanel.classList.add("rest-timer-done");
+      playRestCompleteCue();
+      setTimeout(() => {
+        elements.restTimerPanel.hidden = true;
+        elements.restTimerPanel.classList.remove("rest-timer-done");
+      }, 2500);
+      return;
+    }
+
+    elements.restTimerRemaining.textContent = formatRestClock(remaining);
+  }, 1000);
+}
+
+function maybeStartRestTimer() {
+  const restSeconds = Number(state.activeSessionState?.current_step?.exercise?.rest_seconds);
+  if (Number.isInteger(restSeconds) && restSeconds > 0) {
+    startRestTimer(restSeconds);
   }
 }
 
@@ -2256,6 +2341,7 @@ async function applySubstitution(eventType) {
 
   const exerciseId = currentFocusExerciseId;
   hideAllActionPanels();
+  if (eventType === "COMPLETE_EXERCISE") maybeStartRestTimer();
   await postSessionEvent({
     type: eventType,
     exercise_id: exerciseId,
@@ -14783,8 +14869,10 @@ elements.todayRetryButton.addEventListener("click", () => loadAthleteToday().cat
 elements.sessionRetryButton.addEventListener("click", () => loadSessionState().catch(handleError));
 elements.startSessionButton.addEventListener("click", () => startSession().catch(handleError));
 elements.completeExerciseButton.addEventListener("click", () => {
+  maybeStartRestTimer();
   postSessionEvent({ type: "COMPLETE_STEP" }).catch(handleError);
 });
+elements.skipRestButton.addEventListener("click", stopRestTimer);
 elements.skipExerciseButton.addEventListener("click", openSkipReasonPanel);
 elements.cancelSkipButton.addEventListener("click", hideAllActionPanels);
 elements.confirmSkipButton.addEventListener("click", () => {

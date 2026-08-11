@@ -3715,6 +3715,26 @@
           }
         },
         {
+          "function_id": "session_rest_timer",
+          "label": "Countdown prescribed rest with a completion cue",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "navigation_cache",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_15c_session_execution_surface.test.mjs",
+          "integration_test": null,
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
           "function_id": "session_start",
           "label": "Start session",
           "actors": [

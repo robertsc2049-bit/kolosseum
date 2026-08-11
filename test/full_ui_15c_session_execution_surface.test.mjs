@@ -17,6 +17,7 @@ const substitutionService = read("src/api/session_substitution_service.ts");
 const sessionsRoutes = read("src/api/sessions.routes.ts");
 const sessionsHandlers = read("src/api/sessions.handlers.ts");
 const schema = read("schema.sql");
+const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 
 test("session view declares loading and error-recovery states", () => {
   for (const id of ["sessionLoading", "sessionServiceUnavailable", "sessionRetryButton"]) {
@@ -123,12 +124,54 @@ test("completion summary is a genuine dedicated artefact beyond the badge and co
   assert.match(readModel, /execution_status/u);
 });
 
+test("rest timer counts down prescribed rest with a completion cue, entirely client-side", () => {
+  for (const id of ["restTimerPanel", "restTimerRemaining", "skipRestButton"]) {
+    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
+  }
+
+  assert.match(html, /<button[^>]*id="skipRestButton"[^>]*type="button"/u);
+
+  for (const fnName of ["formatRestClock", "playRestCompleteCue", "stopRestTimer", "startRestTimer", "maybeStartRestTimer"]) {
+    assert.match(js, new RegExp(`function ${fnName}\\(`, "u"), `Expected function ${fnName}`);
+  }
+
+  assert.match(js, /state\.activeSessionState\?\.current_step\?\.exercise\?\.rest_seconds/u);
+
+  // Started before COMPLETE_STEP, and before the COMPLETE_EXERCISE branch of
+  // applySubstitution - never on skip, and never gated on a backend event.
+  assert.match(js, /maybeStartRestTimer\(\);\s*\n\s*postSessionEvent\(\{ type: "COMPLETE_STEP" \}\)/u);
+  assert.match(js, /if \(eventType === "COMPLETE_EXERCISE"\) maybeStartRestTimer\(\);/u);
+
+  assert.match(js, /elements\.skipRestButton\.addEventListener\("click", stopRestTimer\)/u);
+
+  // Never touched by the shared panel-reset paths - a timer started by the
+  // same click that triggers a re-render must survive it.
+  assert.doesNotMatch(
+    /function hideAllActionPanels\(\) \{[\s\S]*?\n\}/u.exec(js)?.[0] ?? "",
+    /restTimerPanel/u
+  );
+  assert.doesNotMatch(
+    /function renderExerciseFocus\(step, classification\) \{[\s\S]*?\n\n {2}if \(!step\)/u.exec(js)?.[0] ?? "",
+    /restTimer/u
+  );
+});
+
+test("the session_rest_timer manifest function is client-only, with no backend route or integration test", () => {
+  const area = manifest.product_areas.find((entry) => entry.area_id === "session_execution");
+  const fn = area?.functions.find((entry) => entry.function_id === "session_rest_timer");
+  assert.ok(fn, "expected a session_rest_timer function in session_execution");
+  assert.equal(fn.state, "implemented");
+  assert.deepEqual(fn.api_routes, []);
+  assert.equal(fn.integration_test, null);
+  assert.deepEqual(fn.actors, ["athlete"]);
+});
+
 test("every new interactive control is a real focusable button/select, not a div handler (keyboard reachability)", () => {
   for (const id of [
     "skipExerciseButton", "confirmSkipButton", "cancelSkipButton",
     "reportPainButton", "confirmPainReportButton", "cancelPainReportButton",
     "requestSubstitutionButton", "checkSubstitutionButton", "cancelSubstitutionButton",
-    "sessionRetryButton"
+    "sessionRetryButton", "skipRestButton"
   ]) {
     const re = new RegExp(`<button[^>]*id="${id}"[^>]*type="button"`, "u");
     assert.match(html, re, `${id} must be a real <button type="button">`);
@@ -148,7 +191,8 @@ test("new session execution markup does not get hidden on narrow (mobile) viewpo
       "pain-report-panel",
       "substitution-panel",
       "substitution-result",
-      "session-completion-summary"
+      "session-completion-summary",
+      "rest-timer-panel"
     ]) {
       assert.doesNotMatch(
         block,
@@ -161,4 +205,5 @@ test("new session execution markup does not get hidden on narrow (mobile) viewpo
   assert.match(css, /\.skip-reason-panel\b/u);
   assert.match(css, /\.substitution-panel\b/u);
   assert.match(css, /\.session-completion-summary\b/u);
+  assert.match(css, /\.rest-timer-panel\b/u);
 });
