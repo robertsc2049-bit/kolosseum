@@ -96,7 +96,11 @@ function rpeWorkItems() {
     weight_unit: "kg",
     rpe_value: rpeValue,
     rest_seconds: index === 0 ? 180 : 120,
-    role: index === 0 ? "primary" : "accessory"
+    role: index === 0 ? "primary" : "accessory",
+    coaching_notes: "",
+    segment: "working",
+    group_id: "",
+    group_type: "straight"
   }));
 }
 

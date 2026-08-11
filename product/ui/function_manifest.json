@@ -2561,8 +2561,8 @@
           }
         },
         {
-          "function_id": "builder_exactly_four",
-          "label": "Enforce exactly four exercises",
+          "function_id": "builder_session_composition",
+          "label": "Compose 1-12 exercises per session, grouped into supersets or circuits",
           "actors": [
             "coach"
           ],
@@ -2573,6 +2573,46 @@
           "governing_boundary": null,
           "direct_test": "test/product_template_builder_surface.test.mjs",
           "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_coaching_notes",
+          "label": "Add coaching notes at session and exercise level",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "builder_work_item_segment",
+          "label": "Mark exercises as warm-up, working, or cool-down",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -3551,8 +3591,8 @@
           }
         },
         {
-          "function_id": "session_four_exercises",
-          "label": "Display four ordered exercises",
+          "function_id": "session_ordered_exercises",
+          "label": "Display ordered exercises, grouped and annotated with coach notes",
           "actors": [
             "athlete"
           ],

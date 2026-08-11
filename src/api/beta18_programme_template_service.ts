@@ -60,6 +60,22 @@ const workItemRoles =
     "accessory"
   ]);
 
+const workItemSegments =
+  new Set([
+    "warm_up",
+    "working",
+    "cool_down"
+  ]);
+
+const workItemGroupTypes =
+  new Set([
+    "straight",
+    "superset",
+    "circuit"
+  ]);
+
+const MAX_WORK_ITEMS_PER_SESSION = 12;
+
 const trainingBlockTypes =
   new Set([
     "general",
@@ -350,6 +366,83 @@ function loadingReferenceFromInput(
         "percent_1rm_invalid"
       )
   });
+}
+
+function validateWorkItemGrouping(
+  workItems: ReadonlyArray<
+    Readonly<{
+      order_index: number;
+      group_id: string;
+      group_type: string;
+    }>
+  >
+): void {
+  const groupOrderIndices =
+    new Map<string, number[]>();
+  const groupTypes =
+    new Map<string, string>();
+
+  for (const workItem of workItems) {
+    if (workItem.group_id === "") continue;
+
+    const orderIndices =
+      groupOrderIndices.get(
+        workItem.group_id
+      ) ?? [];
+    orderIndices.push(
+      workItem.order_index
+    );
+    groupOrderIndices.set(
+      workItem.group_id,
+      orderIndices
+    );
+
+    const existingType =
+      groupTypes.get(workItem.group_id);
+    if (
+      existingType !== undefined &&
+      existingType !== workItem.group_type
+    ) {
+      throw new Beta18ProgrammeTemplateError(
+        "work_item_group_type_mismatch"
+      );
+    }
+    groupTypes.set(
+      workItem.group_id,
+      workItem.group_type
+    );
+  }
+
+  for (const [
+    ,
+    orderIndices
+  ] of groupOrderIndices) {
+    if (orderIndices.length < 2) {
+      throw new Beta18ProgrammeTemplateError(
+        "work_item_group_too_small"
+      );
+    }
+
+    const sorted =
+      [...orderIndices].sort(
+        (a, b) => a - b
+      );
+
+    for (
+      let index = 1;
+      index < sorted.length;
+      index += 1
+    ) {
+      if (
+        sorted[index] !==
+          sorted[index - 1] + 1
+      ) {
+        throw new Beta18ProgrammeTemplateError(
+          "work_item_group_not_contiguous"
+        );
+      }
+    }
+  }
 }
 
 function repPrescriptionFromStored(
@@ -1079,6 +1172,7 @@ function normaliseTemplateStructure(
                         "session_id",
                         "order_index",
                         "title",
+                        "coaching_notes",
                         "work_items"
                       ],
                       "session"
@@ -1113,15 +1207,31 @@ function normaliseTemplateStructure(
                       ) ||
                       `Session ${sessionOrder}`;
 
+                    const sessionCoachingNotes =
+                      cleanString(
+                        rawSession.coaching_notes
+                      );
+
+                    if (
+                      sessionCoachingNotes.length >
+                        500
+                    ) {
+                      throw new Beta18ProgrammeTemplateError(
+                        "session_coaching_notes_too_long"
+                      );
+                    }
+
                     if (
                       !Array.isArray(
                         rawSession.work_items
                       ) ||
-                      rawSession.work_items.length !==
-                        4
+                      rawSession.work_items.length <
+                        1 ||
+                      rawSession.work_items.length >
+                        MAX_WORK_ITEMS_PER_SESSION
                     ) {
                       throw new Beta18ProgrammeTemplateError(
-                        "session_requires_exactly_four_work_items"
+                        "session_work_item_count_invalid"
                       );
                     }
 
@@ -1161,7 +1271,11 @@ function normaliseTemplateStructure(
                               "weight_unit",
                               "rpe_value",
                               "rest_seconds",
-                              "role"
+                              "role",
+                              "coaching_notes",
+                              "segment",
+                              "group_id",
+                              "group_type"
                             ],
                             "work_item"
                           );
@@ -1171,7 +1285,7 @@ function normaliseTemplateStructure(
                               rawWorkItem
                                 .order_index,
                               1,
-                              4,
+                              MAX_WORK_ITEMS_PER_SESSION,
                               "work_item_order_invalid"
                             );
 
@@ -1282,6 +1396,65 @@ function normaliseTemplateStructure(
                             );
                           }
 
+                          const workItemCoachingNotes =
+                            cleanString(
+                              rawWorkItem
+                                .coaching_notes
+                            );
+
+                          if (
+                            workItemCoachingNotes.length >
+                              500
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_coaching_notes_too_long"
+                            );
+                          }
+
+                          const segment =
+                            cleanString(
+                              rawWorkItem.segment
+                            );
+
+                          if (
+                            !workItemSegments.has(
+                              segment
+                            )
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_segment_invalid"
+                            );
+                          }
+
+                          const groupId =
+                            cleanString(
+                              rawWorkItem.group_id
+                            );
+
+                          const groupType =
+                            cleanString(
+                              rawWorkItem.group_type
+                            );
+
+                          if (
+                            !workItemGroupTypes.has(
+                              groupType
+                            )
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_group_type_invalid"
+                            );
+                          }
+
+                          if (
+                            groupId === "" &&
+                            groupType !== "straight"
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_group_type_requires_group"
+                            );
+                          }
+
                           const workItemId =
                             cleanString(
                               rawWorkItem
@@ -1313,10 +1486,21 @@ function normaliseTemplateStructure(
                               "runtime_registry_default",
                             role,
                             rest_seconds:
-                              restSeconds
+                              restSeconds,
+                            coaching_notes:
+                              workItemCoachingNotes,
+                            segment,
+                            group_id:
+                              groupId,
+                            group_type:
+                              groupType
                           });
                         }
                       );
+
+                    validateWorkItemGrouping(
+                      workItems
+                    );
 
                     sessionCount += 1;
 
@@ -1332,6 +1516,8 @@ function normaliseTemplateStructure(
                           order_index: 1,
                           title:
                             sessionTitle,
+                          coaching_notes:
+                            sessionCoachingNotes,
                           work_items:
                             workItems
                         })
@@ -1676,7 +1862,38 @@ function templateRecordInput(
                                 role:
                                   cleanString(
                                     workItem.role
+                                  ),
+                                coaching_notes:
+                                  cleanString(
+                                    workItem
+                                      .coaching_notes
+                                  ),
+                                segment:
+                                  workItemSegments.has(
+                                    cleanString(
+                                      workItem.segment
+                                    )
                                   )
+                                    ? cleanString(
+                                        workItem.segment
+                                      )
+                                    : "working",
+                                group_id:
+                                  cleanString(
+                                    workItem.group_id
+                                  ),
+                                group_type:
+                                  workItemGroupTypes.has(
+                                    cleanString(
+                                      workItem
+                                        .group_type
+                                    )
+                                  )
+                                    ? cleanString(
+                                        workItem
+                                          .group_type
+                                      )
+                                    : "straight"
                               };
                             }
                           );
@@ -1699,6 +1916,11 @@ function templateRecordInput(
                           title:
                             cleanString(
                               session.title
+                            ),
+                          coaching_notes:
+                            cleanString(
+                              session
+                                .coaching_notes
                             ),
                           work_items:
                             workItems
@@ -3517,7 +3739,9 @@ export async function materialiseNextCoachTemplateProgram(
       : [];
 
   if (
-    rawWorkItems.length !== 4
+    rawWorkItems.length < 1 ||
+    rawWorkItems.length >
+      MAX_WORK_ITEMS_PER_SESSION
   ) {
     throw new Beta18ProgrammeTemplateError(
       "assigned_template_session_invalid"
@@ -3619,6 +3843,26 @@ export async function materialiseNextCoachTemplateProgram(
             ) === "primary"
               ? "primary"
               : "accessory",
+          coaching_notes:
+            cleanString(
+              workItem.coaching_notes
+            ),
+          segment:
+            workItemSegments.has(
+              cleanString(workItem.segment)
+            )
+              ? cleanString(workItem.segment)
+              : "working",
+          group_id:
+            cleanString(
+              workItem.group_id
+            ),
+          group_type:
+            workItemGroupTypes.has(
+              cleanString(workItem.group_type)
+            )
+              ? cleanString(workItem.group_type)
+              : "straight",
           sets:
             Number(
               workItem

@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 266
+- implemented: 268
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -216,7 +216,7 @@ Slice: FULL-UI-11
 
 Area state: implemented
 
-Implemented: 20 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 22 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -227,7 +227,9 @@ Implemented: 20 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `builder_block_actions` — Add, remove, duplicate and reorder blocks
 - `builder_week_actions` — Add, remove, duplicate and reorder weeks
 - `builder_session_actions` — Add, remove, duplicate and reorder sessions
-- `builder_exactly_four` — Enforce exactly four exercises
+- `builder_session_composition` — Compose 1-12 exercises per session, grouped into supersets or circuits
+- `builder_coaching_notes` — Add coaching notes at session and exercise level
+- `builder_work_item_segment` — Mark exercises as warm-up, working, or cool-down
 - `builder_registry_exercises` — Select registry-backed exercises
 - `builder_role` — Set primary or accessory role
 - `builder_sets` — Set planned sets
@@ -317,7 +319,7 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 #### implemented
 
 - `session_overview` — Display pre-start session overview
-- `session_four_exercises` — Display four ordered exercises
+- `session_ordered_exercises` — Display ordered exercises, grouped and annotated with coach notes
 - `session_prescription` — Display sets, reps, load and rest
 - `session_start` — Start session
 - `session_complete_work` — Mark work complete

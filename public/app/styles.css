@@ -700,6 +700,14 @@ button:focus-visible,
 .badge.status-complete { border-color: rgba(90, 140, 200, 0.42); background: rgba(90, 140, 200, 0.1); color: #9db8dd; }
 .badge.partial { border-color: rgba(180, 68, 46, 0.4); background: rgba(180, 68, 46, 0.1); color: #e5a597; }
 
+.template-work-item-grouped { border-left: 3px solid var(--bronze-light); }
+.template-grouping-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+.template-work-item-notes-field, .template-session-notes-field { margin-top: 0.5rem; }
+.template-work-item-notes-field textarea, .template-session-notes-field textarea { min-height: 3rem; resize: vertical; }
+.programme-preview-notes { margin: 0.25rem 0; font-style: italic; }
+.exercise-row-grouped { border-left: 3px solid var(--bronze-light); }
+.exercise-coaching-note { display: block; font-style: italic; margin-top: 0.25rem; }
+
 .empty-state {
   display: grid;
   min-height: 220px;
@@ -1159,10 +1167,24 @@ button:focus-visible,
 }
 
 .template-work-item-header {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.7rem;
-  grid-template-columns: 30px minmax(220px, 1fr) minmax(110px, 0.34fr);
   align-items: end;
+}
+
+.template-work-item-header .exercise-order {
+  flex: 0 0 auto;
+}
+
+.template-work-item-header label {
+  flex: 1 1 150px;
+  min-width: 150px;
+}
+
+.template-work-item-header .builder-action-row {
+  flex: 1 1 100%;
+  order: 99;
 }
 
 .template-work-item .exercise-order {
@@ -1305,10 +1327,6 @@ button:focus-visible,
     position: static;
   }
 
-  .template-work-item-header {
-    grid-template-columns: 30px minmax(0, 1fr) minmax(110px, 0.35fr);
-  }
-
   .template-prescription-grid {
     grid-template-columns: minmax(78px, 0.28fr) minmax(240px, 1fr);
   }
@@ -1345,12 +1363,6 @@ button:focus-visible,
   .template-card { grid-template-columns: 1fr; }
   .record-meta,
   .template-card-actions { justify-content: flex-start; }
-  .template-work-item-header {
-    grid-template-columns: 28px minmax(0, 1fr);
-  }
-  .template-role-field {
-    grid-column: 2;
-  }
   .template-prescription-grid {
     grid-template-columns: 1fr;
   }

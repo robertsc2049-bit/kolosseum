@@ -69,7 +69,7 @@ test("programme authoring contains explicit ordered training blocks", () => {
 
 test("builder is registry-bound and supports complete explicit prescriptions", () => {
   assert.match(templateService, /registries",\s*"exercise",\s*"exercise\.registry\.json"/u);
-  assert.match(templateService, /session_requires_exactly_four_work_items/u);
+  assert.match(templateService, /session_work_item_count_invalid/u);
   assert.match(templateService, /duplicate_exercise_in_session/u);
   assert.match(templateService, /const repModes/u);
   assert.match(templateService, /"fixed",\s*"range"/u);
@@ -78,6 +78,19 @@ test("builder is registry-bound and supports complete explicit prescriptions", (
   assert.match(templateService, /rep_range_order_invalid/u);
   assert.match(templateService, /weight_unit_invalid/u);
   assert.match(templateService, /rpe_value_invalid/u);
+});
+
+test("builder supports flexible session composition: variable exercise count, supersets, segments and coaching notes", () => {
+  assert.match(templateService, /const workItemSegments/u);
+  assert.match(templateService, /"warm_up",\s*"working",\s*"cool_down"/u);
+  assert.match(templateService, /const workItemGroupTypes/u);
+  assert.match(templateService, /"straight",\s*"superset",\s*"circuit"/u);
+  assert.match(templateService, /work_item_group_too_small/u);
+  assert.match(templateService, /work_item_group_not_contiguous/u);
+  assert.match(templateService, /work_item_group_type_mismatch/u);
+  assert.match(templateService, /work_item_group_type_requires_group/u);
+  assert.match(templateService, /session_coaching_notes_too_long/u);
+  assert.match(templateService, /work_item_coaching_notes_too_long/u);
 });
 
 test("athlete profile supports factual 1RM, estimated 1RM and training max records", () => {

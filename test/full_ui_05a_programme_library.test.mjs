@@ -64,7 +64,7 @@ test("FULL-UI-05A displays assignment usage before archive", () => {
 
 test("FULL-UI-05A provides a full visible activation validation summary", () => {
   assert.match(app, /function programmeActivationIssues\(/u);
-  assert.match(app, /session_requires_exactly_four_work_items/u);
+  assert.match(app, /session_work_item_count_invalid/u);
   assert.match(app, /exercise_not_in_active_registry/u);
   assert.match(app, /duplicate_exercise_in_session/u);
   assert.match(app, /percent_1rm_invalid/u);
