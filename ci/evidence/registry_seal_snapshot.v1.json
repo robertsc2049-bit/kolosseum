@@ -10,7 +10,7 @@
     },
     {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "34c1b1e8b5e6771f7ba9490118b3d97a0aa6c6b445889b18b05738bff863557f"
+      "sha256": "bf09e15776071b613129504573ea371662d9a3510844e736997cc5e565f07e01"
     },
     {
       "path": "registries/exercise/exercise_substitution_graph.json",

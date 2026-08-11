@@ -2101,6 +2101,7 @@ test(
     assertStatus(coachRegistration, 201, "coach account registration");
     const coachUserId = coachRegistration.json?.account?.user_id ?? "";
     assert.ok(coachUserId, "Expected registered coach user_id");
+    const coachCookie = sessionCookie(coachRegistration, "coach account registration");
 
     const exerciseResponse = await request(server.baseUrl, "GET", "/templates/exercises");
     assertStatus(exerciseResponse, 200, "exercise options");
@@ -2110,6 +2111,22 @@ test(
       "Expected at least four active exercise options"
     );
     const exerciseIds = exercises.map((exercise) => exercise.exercise_id);
+
+    // FULL-UI-35: the coach builder's "Exercise info" lookup reads written
+    // instructions, coaching cues and common faults for a registry exercise.
+    const exerciseContentResponse = await request(
+      server.baseUrl, "GET", "/exercises/back_squat/content", undefined, { cookie: coachCookie }
+    );
+    assertStatus(exerciseContentResponse, 200, "coach reads exercise coaching content");
+    assert.equal(exerciseContentResponse.json?.exercise_id, "back_squat");
+    assert.ok(
+      Array.isArray(exerciseContentResponse.json?.coaching_cues) && exerciseContentResponse.json.coaching_cues.length > 0,
+      "Expected non-empty coaching_cues"
+    );
+    assert.ok(
+      Array.isArray(exerciseContentResponse.json?.common_faults) && exerciseContentResponse.json.common_faults.length > 0,
+      "Expected non-empty common_faults"
+    );
 
     function baseWorkItem(exerciseId, orderIndex, overrides = {}) {
       return {

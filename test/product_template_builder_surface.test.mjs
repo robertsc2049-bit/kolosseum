@@ -93,6 +93,13 @@ test("builder supports flexible session composition: variable exercise count, su
   assert.match(templateService, /work_item_coaching_notes_too_long/u);
 });
 
+test("builder exposes a per-exercise written instructions, cues and faults lookup", () => {
+  assert.match(js, /class="template-work-item-info"/u);
+  assert.match(js, /template-work-item-info-toggle/u);
+  assert.match(js, /function toggleTemplateWorkItemInfo\(/u);
+  assert.match(js, /\/exercises\/\$\{encodeURIComponent\(exerciseId\)\}\/content/u);
+});
+
 test("athlete profile supports factual 1RM, estimated 1RM and training max records", () => {
   assert.match(workspaceService, /"tested_1rm",\s*"estimated_1rm",\s*"training_max"/u);
   assert.match(workspaceService, /preferred_weight_unit/u);

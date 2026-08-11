@@ -12,7 +12,7 @@ const manifest = JSON.parse(
 test("FULL-UI-01 manifest carries the complete product-area inventory", () => {
   assert.equal(manifest.schema_version, "FULL-UI-01.0.0");
   assert.equal(manifest.source_issue, 798);
-  assert.equal(manifest.product_areas.length, 27);
+  assert.equal(manifest.product_areas.length, 28);
 
   const areaIds = new Set(manifest.product_areas.map((area) => area.area_id));
   for (const required of [
@@ -42,20 +42,24 @@ test("FULL-UI-01 manifest carries the complete product-area inventory", () => {
     "progress_photos",
     "body_metrics_habits",
     "exercise_reference_media",
-    "device_sync"
+    "device_sync",
+    "exercise_content"
   ]) {
     assert.ok(areaIds.has(required), required);
   }
 });
 
 test("FULL-UI-01 manifest retains every delivery slice", () => {
-  assert.equal(manifest.delivery_slices.length, 31);
+  assert.equal(manifest.delivery_slices.length, 32);
+  const sliceIds = manifest.delivery_slices.map((slice) => slice.slice_id);
   assert.deepEqual(
-    manifest.delivery_slices.map((slice) => slice.slice_id),
+    sliceIds.slice(0, 31),
     Array.from({ length: 31 }, (_, index) =>
       "FULL-UI-" + String(index + 1).padStart(2, "0")
     )
   );
+  assert.equal(sliceIds[31], "FULL-UI-35");
+  assert.ok(manifest.delivery_slices.every((slice) => slice.state === "implemented"));
 });
 
 test("implemented functions have direct tests and no local-only completion evidence", () => {

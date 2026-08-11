@@ -2621,6 +2621,28 @@
           }
         },
         {
+          "function_id": "builder_exercise_info",
+          "label": "View written instructions, coaching cues and common faults for the selected exercise",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [
+            "/exercises/:exercise_id/content"
+          ],
+          "persistence": "server_registry_read",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
           "function_id": "builder_registry_exercises",
           "label": "Select registry-backed exercises",
           "actors": [
@@ -3639,6 +3661,28 @@
           "route_id": "athlete_session",
           "api_routes": [],
           "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_app_surface.test.mjs",
+          "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_exercise_howto",
+          "label": "Expand written instructions, coaching cues and common faults for the current exercise",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [
+            "/exercises/:exercise_id/content"
+          ],
+          "persistence": "server_registry_read",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/product_app_surface.test.mjs",
@@ -6184,6 +6228,37 @@
       ]
     },
     {
+      "area_id": "exercise_content",
+      "title": "Exercise coaching content",
+      "slice_id": "FULL-UI-35",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "exercise_content_lookup",
+          "label": "Look up written instructions, coaching cues and common faults for a registry exercise",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/exercises/:exercise_id/content"
+          ],
+          "persistence": "server_registry_read",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/exercise_content_lookup_surface.test.mjs",
+          "integration_test": "test/exercise_content_lookup_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
+    },
+    {
       "area_id": "device_sync",
       "title": "Device sync",
       "slice_id": "FULL-UI-31",
@@ -6448,6 +6523,10 @@
     },
     {
       "slice_id": "FULL-UI-31",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-35",
       "state": "implemented"
     }
   ],
@@ -7152,6 +7231,12 @@
       "path": "/exercises/:exercise_id/reference-media",
       "source": "src/api/exercise_reference_media.routes.ts",
       "tracked_by_area": "exercise_reference_media"
+    },
+    {
+      "method": "GET",
+      "path": "/exercises/:exercise_id/content",
+      "source": "src/api/exercise_content.routes.ts",
+      "tracked_by_area": "exercise_content"
     },
     {
       "method": "POST",
