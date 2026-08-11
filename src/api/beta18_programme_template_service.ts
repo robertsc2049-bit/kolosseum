@@ -106,6 +106,19 @@ const weightUnits =
     "lb"
   ]);
 
+const prescriptionModes =
+  new Set([
+    "reps",
+    "duration",
+    "distance"
+  ]);
+
+const distanceUnits =
+  new Set([
+    "meters",
+    "feet"
+  ]);
+
 export function isCoachAuthoredTemplateId(
   value: unknown
 ): boolean {
@@ -212,6 +225,30 @@ type LoadingReference =
   | Readonly<{
       type: "rpe";
       value: number;
+    }>;
+
+type DurationPrescription =
+  | Readonly<{
+      type: "fixed";
+      value: number;
+    }>
+  | Readonly<{
+      type: "range";
+      minimum: number;
+      maximum: number;
+    }>;
+
+type DistancePrescription =
+  | Readonly<{
+      type: "fixed";
+      value: number;
+      unit: "meters" | "feet";
+    }>
+  | Readonly<{
+      type: "range";
+      minimum: number;
+      maximum: number;
+      unit: "meters" | "feet";
     }>;
 
 function repPrescriptionFromInput(
@@ -365,6 +402,166 @@ function loadingReferenceFromInput(
         100,
         "percent_1rm_invalid"
       )
+  });
+}
+
+function durationPrescriptionFromInput(
+  workItem: JsonRecord
+): Readonly<{
+  planned_duration_seconds: number;
+  duration_prescription: DurationPrescription;
+}> {
+  const durationMode =
+    cleanString(
+      workItem.duration_mode
+    ) ||
+    "fixed";
+
+  if (!repModes.has(durationMode)) {
+    throw new Beta18ProgrammeTemplateError(
+      "duration_mode_invalid"
+    );
+  }
+
+  if (durationMode === "range") {
+    const minimum =
+      integerInRange(
+        workItem.duration_min_seconds,
+        1,
+        1800,
+        "duration_range_min_invalid"
+      );
+
+    const maximum =
+      integerInRange(
+        workItem.duration_max_seconds,
+        1,
+        1800,
+        "duration_range_max_invalid"
+      );
+
+    if (minimum > maximum) {
+      throw new Beta18ProgrammeTemplateError(
+        "duration_range_order_invalid"
+      );
+    }
+
+    return deepFreeze({
+      planned_duration_seconds:
+        minimum,
+      duration_prescription:
+        deepFreeze({
+          type: "range",
+          minimum,
+          maximum
+        })
+    });
+  }
+
+  const value =
+    integerInRange(
+      workItem.planned_duration_seconds,
+      1,
+      1800,
+      "planned_duration_seconds_invalid"
+    );
+
+  return deepFreeze({
+    planned_duration_seconds:
+      value,
+    duration_prescription:
+      deepFreeze({
+        type: "fixed",
+        value
+      })
+  });
+}
+
+function distancePrescriptionFromInput(
+  workItem: JsonRecord
+): Readonly<{
+  planned_distance_value: number;
+  distance_prescription: DistancePrescription;
+}> {
+  const distanceMode =
+    cleanString(
+      workItem.distance_mode
+    ) ||
+    "fixed";
+
+  if (!repModes.has(distanceMode)) {
+    throw new Beta18ProgrammeTemplateError(
+      "distance_mode_invalid"
+    );
+  }
+
+  const unit =
+    cleanString(
+      workItem.distance_unit
+    ) ||
+    "meters";
+
+  if (!distanceUnits.has(unit)) {
+    throw new Beta18ProgrammeTemplateError(
+      "distance_unit_invalid"
+    );
+  }
+
+  if (distanceMode === "range") {
+    const minimum =
+      numberInRange(
+        workItem.distance_min_value,
+        0.1,
+        10000,
+        "distance_range_min_invalid"
+      );
+
+    const maximum =
+      numberInRange(
+        workItem.distance_max_value,
+        0.1,
+        10000,
+        "distance_range_max_invalid"
+      );
+
+    if (minimum > maximum) {
+      throw new Beta18ProgrammeTemplateError(
+        "distance_range_order_invalid"
+      );
+    }
+
+    return deepFreeze({
+      planned_distance_value:
+        minimum,
+      distance_prescription:
+        deepFreeze({
+          type: "range",
+          minimum,
+          maximum,
+          unit:
+            unit as "meters" | "feet"
+        })
+    });
+  }
+
+  const value =
+    numberInRange(
+      workItem.planned_distance_value,
+      0.1,
+      10000,
+      "planned_distance_value_invalid"
+    );
+
+  return deepFreeze({
+    planned_distance_value:
+      value,
+    distance_prescription:
+      deepFreeze({
+        type: "fixed",
+        value,
+        unit:
+          unit as "meters" | "feet"
+      })
   });
 }
 
@@ -576,6 +773,153 @@ function loadingReferenceFromStored(
         100,
         "stored_percent_1rm_invalid"
       )
+  });
+}
+
+function prescriptionModeFromStored(
+  workItem: JsonRecord
+): "reps" | "duration" | "distance" {
+  const mode =
+    cleanString(
+      workItem.prescription_mode
+    ) ||
+    "reps";
+
+  return prescriptionModes.has(mode)
+    ? (mode as
+        | "reps"
+        | "duration"
+        | "distance")
+    : "reps";
+}
+
+function durationPrescriptionFromStored(
+  workItem: JsonRecord
+): DurationPrescription {
+  const raw =
+    isRecord(
+      workItem.duration_prescription
+    )
+      ? workItem.duration_prescription
+      : {};
+
+  if (
+    cleanString(raw.type) ===
+      "range"
+  ) {
+    const minimum =
+      integerInRange(
+        raw.minimum,
+        1,
+        1800,
+        "stored_duration_range_min_invalid"
+      );
+
+    const maximum =
+      integerInRange(
+        raw.maximum,
+        1,
+        1800,
+        "stored_duration_range_max_invalid"
+      );
+
+    if (minimum > maximum) {
+      throw new Beta18ProgrammeTemplateError(
+        "stored_duration_range_order_invalid"
+      );
+    }
+
+    return deepFreeze({
+      type: "range",
+      minimum,
+      maximum
+    });
+  }
+
+  const value =
+    integerInRange(
+      raw.value ??
+        workItem.planned_duration_seconds,
+      1,
+      1800,
+      "stored_fixed_duration_invalid"
+    );
+
+  return deepFreeze({
+    type: "fixed",
+    value
+  });
+}
+
+function distancePrescriptionFromStored(
+  workItem: JsonRecord
+): DistancePrescription {
+  const raw =
+    isRecord(
+      workItem.distance_prescription
+    )
+      ? workItem.distance_prescription
+      : {};
+
+  const unit =
+    cleanString(raw.unit) ||
+    "meters";
+
+  if (!distanceUnits.has(unit)) {
+    throw new Beta18ProgrammeTemplateError(
+      "stored_distance_unit_invalid"
+    );
+  }
+
+  if (
+    cleanString(raw.type) ===
+      "range"
+  ) {
+    const minimum =
+      numberInRange(
+        raw.minimum,
+        0.1,
+        10000,
+        "stored_distance_range_min_invalid"
+      );
+
+    const maximum =
+      numberInRange(
+        raw.maximum,
+        0.1,
+        10000,
+        "stored_distance_range_max_invalid"
+      );
+
+    if (minimum > maximum) {
+      throw new Beta18ProgrammeTemplateError(
+        "stored_distance_range_order_invalid"
+      );
+    }
+
+    return deepFreeze({
+      type: "range",
+      minimum,
+      maximum,
+      unit:
+        unit as "meters" | "feet"
+    });
+  }
+
+  const value =
+    numberInRange(
+      raw.value ??
+        workItem.planned_distance_value,
+      0.1,
+      10000,
+      "stored_fixed_distance_invalid"
+    );
+
+  return deepFreeze({
+    type: "fixed",
+    value,
+    unit:
+      unit as "meters" | "feet"
   });
 }
 
@@ -1261,10 +1605,21 @@ function normaliseTemplateStructure(
                               "order_index",
                               "exercise_id",
                               "planned_sets",
+                              "prescription_mode",
                               "rep_mode",
                               "planned_reps",
                               "rep_min",
                               "rep_max",
+                              "tempo",
+                              "duration_mode",
+                              "planned_duration_seconds",
+                              "duration_min_seconds",
+                              "duration_max_seconds",
+                              "distance_mode",
+                              "distance_unit",
+                              "planned_distance_value",
+                              "distance_min_value",
+                              "distance_max_value",
                               "load_mode",
                               "percent_1rm",
                               "weight_value",
@@ -1362,10 +1717,62 @@ function normaliseTemplateStructure(
                               "planned_sets_invalid"
                             );
 
-                          const repPrescription =
-                            repPrescriptionFromInput(
+                          const prescriptionMode =
+                            cleanString(
                               rawWorkItem
+                                .prescription_mode
+                            ) ||
+                            "reps";
+
+                          if (
+                            !prescriptionModes.has(
+                              prescriptionMode
+                            )
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "prescription_mode_invalid"
                             );
+                          }
+
+                          const repPrescription =
+                            prescriptionMode ===
+                              "reps"
+                              ? repPrescriptionFromInput(
+                                  rawWorkItem
+                                )
+                              : null;
+
+                          const durationPrescription =
+                            prescriptionMode ===
+                              "duration"
+                              ? durationPrescriptionFromInput(
+                                  rawWorkItem
+                                )
+                              : null;
+
+                          const distancePrescription =
+                            prescriptionMode ===
+                              "distance"
+                              ? distancePrescriptionFromInput(
+                                  rawWorkItem
+                                )
+                              : null;
+
+                          const tempo =
+                            cleanString(
+                              rawWorkItem.tempo
+                            );
+
+                          if (
+                            tempo &&
+                            !/^[0-9Xx]-[0-9Xx]-[0-9Xx]-[0-9Xx]$/u.test(
+                              tempo
+                            )
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_tempo_invalid"
+                            );
+                          }
 
                           const loadingReference =
                             loadingReferenceFromInput(
@@ -1471,12 +1878,39 @@ function normaliseTemplateStructure(
                               exerciseId,
                             planned_sets:
                               plannedSets,
-                            planned_reps:
-                              repPrescription
-                                .planned_reps,
-                            rep_prescription:
-                              repPrescription
-                                .rep_prescription,
+                            prescription_mode:
+                              prescriptionMode,
+                            tempo,
+                            ...(repPrescription
+                              ? {
+                                  planned_reps:
+                                    repPrescription
+                                      .planned_reps,
+                                  rep_prescription:
+                                    repPrescription
+                                      .rep_prescription
+                                }
+                              : {}),
+                            ...(durationPrescription
+                              ? {
+                                  planned_duration_seconds:
+                                    durationPrescription
+                                      .planned_duration_seconds,
+                                  duration_prescription:
+                                    durationPrescription
+                                      .duration_prescription
+                                }
+                              : {}),
+                            ...(distancePrescription
+                              ? {
+                                  planned_distance_value:
+                                    distancePrescription
+                                      .planned_distance_value,
+                                  distance_prescription:
+                                    distancePrescription
+                                      .distance_prescription
+                                }
+                              : {}),
                             loading_reference:
                               loadingReference,
                             equipment_requirement_ids:
@@ -1763,6 +2197,24 @@ function templateRecordInput(
                                       .rep_prescription
                                   : {};
 
+                              const duration =
+                                isRecord(
+                                  workItem
+                                    .duration_prescription
+                                )
+                                  ? workItem
+                                      .duration_prescription
+                                  : {};
+
+                              const distance =
+                                isRecord(
+                                  workItem
+                                    .distance_prescription
+                                )
+                                  ? workItem
+                                      .distance_prescription
+                                  : {};
+
                               return {
                                 work_item_id:
                                   cleanString(
@@ -1809,6 +2261,82 @@ function templateRecordInput(
                                     rep.maximum ??
                                     workItem
                                       .planned_reps
+                                  ),
+                                prescription_mode:
+                                  prescriptionModes.has(
+                                    cleanString(
+                                      workItem
+                                        .prescription_mode
+                                    )
+                                  )
+                                    ? cleanString(
+                                        workItem
+                                          .prescription_mode
+                                      )
+                                    : "reps",
+                                tempo:
+                                  cleanString(
+                                    workItem.tempo
+                                  ),
+                                duration_mode:
+                                  cleanString(
+                                    duration.type
+                                  ) === "range"
+                                    ? "range"
+                                    : "fixed",
+                                planned_duration_seconds:
+                                  Number(
+                                    duration.value ??
+                                    workItem
+                                      .planned_duration_seconds ??
+                                    30
+                                  ),
+                                duration_min_seconds:
+                                  Number(
+                                    duration.minimum ??
+                                    workItem
+                                      .planned_duration_seconds ??
+                                    30
+                                  ),
+                                duration_max_seconds:
+                                  Number(
+                                    duration.maximum ??
+                                    workItem
+                                      .planned_duration_seconds ??
+                                    30
+                                  ),
+                                distance_mode:
+                                  cleanString(
+                                    distance.type
+                                  ) === "range"
+                                    ? "range"
+                                    : "fixed",
+                                distance_unit:
+                                  cleanString(
+                                    distance.unit
+                                  ) === "feet"
+                                    ? "feet"
+                                    : "meters",
+                                planned_distance_value:
+                                  Number(
+                                    distance.value ??
+                                    workItem
+                                      .planned_distance_value ??
+                                    20
+                                  ),
+                                distance_min_value:
+                                  Number(
+                                    distance.minimum ??
+                                    workItem
+                                      .planned_distance_value ??
+                                    20
+                                  ),
+                                distance_max_value:
+                                  Number(
+                                    distance.maximum ??
+                                    workItem
+                                      .planned_distance_value ??
+                                    20
                                   ),
                                 load_mode:
                                   cleanString(
@@ -3771,10 +4299,31 @@ export async function materialiseNextCoachTemplateProgram(
         workItem,
         index
       ) => {
-        const repPrescription =
-          repPrescriptionFromStored(
+        const prescriptionMode =
+          prescriptionModeFromStored(
             workItem
           );
+
+        const repPrescription =
+          prescriptionMode === "reps"
+            ? repPrescriptionFromStored(
+                workItem
+              )
+            : null;
+
+        const durationPrescription =
+          prescriptionMode === "duration"
+            ? durationPrescriptionFromStored(
+                workItem
+              )
+            : null;
+
+        const distancePrescription =
+          prescriptionMode === "distance"
+            ? distancePrescriptionFromStored(
+                workItem
+              )
+            : null;
 
         const loadingReference =
           loadingReferenceFromStored(
@@ -3863,26 +4412,80 @@ export async function materialiseNextCoachTemplateProgram(
             )
               ? cleanString(workItem.group_type)
               : "straight",
+          prescription_mode:
+            prescriptionMode,
+          tempo:
+            cleanString(
+              workItem.tempo
+            ),
           sets:
             Number(
               workItem
                 .planned_sets
             ),
-          reps:
-            repPrescription.type ===
-              "range"
-              ? repPrescription.minimum
-              : repPrescription.value,
-          ...(repPrescription.type ===
-            "range"
+          ...(repPrescription
             ? {
-                rep_range:
-                  deepFreeze({
-                    minimum:
-                      repPrescription.minimum,
-                    maximum:
-                      repPrescription.maximum
-                  })
+                reps:
+                  repPrescription.type ===
+                    "range"
+                    ? repPrescription.minimum
+                    : repPrescription.value,
+                ...(repPrescription.type ===
+                  "range"
+                  ? {
+                      rep_range:
+                        deepFreeze({
+                          minimum:
+                            repPrescription.minimum,
+                          maximum:
+                            repPrescription.maximum
+                        })
+                    }
+                  : {})
+              }
+            : {}),
+          ...(durationPrescription
+            ? {
+                duration_seconds:
+                  durationPrescription.type ===
+                    "range"
+                    ? durationPrescription.minimum
+                    : durationPrescription.value,
+                ...(durationPrescription.type ===
+                  "range"
+                  ? {
+                      duration_range:
+                        deepFreeze({
+                          minimum:
+                            durationPrescription.minimum,
+                          maximum:
+                            durationPrescription.maximum
+                        })
+                    }
+                  : {})
+              }
+            : {}),
+          ...(distancePrescription
+            ? {
+                distance_value:
+                  distancePrescription.type ===
+                    "range"
+                    ? distancePrescription.minimum
+                    : distancePrescription.value,
+                distance_unit:
+                  distancePrescription.unit,
+                ...(distancePrescription.type ===
+                  "range"
+                  ? {
+                      distance_range:
+                        deepFreeze({
+                          minimum:
+                            distancePrescription.minimum,
+                          maximum:
+                            distancePrescription.maximum
+                        })
+                    }
+                  : {})
               }
             : {}),
           intensity:

@@ -567,6 +567,8 @@ function normalisePersistedTemplateDraft(draft) {
 
   const normaliseWorkItem = (workItem, workItemIndex) => {
     const fallbackReps = Number(workItem?.planned_reps ?? 5);
+    const fallbackDuration = Number(workItem?.planned_duration_seconds ?? 30);
+    const fallbackDistance = Number(workItem?.planned_distance_value ?? 20);
     const loadMode = ["fixed_weight", "bodyweight", "rpe"].includes(workItem?.load_mode)
       ? workItem.load_mode
       : "percent_1rm";
@@ -576,10 +578,23 @@ function normalisePersistedTemplateDraft(draft) {
       order_index: workItemIndex + 1,
       exercise_id: String(workItem?.exercise_id ?? ""),
       planned_sets: Number(workItem?.planned_sets ?? 3),
+      prescription_mode: ["duration", "distance"].includes(workItem?.prescription_mode)
+        ? workItem.prescription_mode
+        : "reps",
       rep_mode: workItem?.rep_mode === "range" ? "range" : "fixed",
       planned_reps: fallbackReps,
       rep_min: Number(workItem?.rep_min ?? fallbackReps),
       rep_max: Number(workItem?.rep_max ?? fallbackReps),
+      tempo: String(workItem?.tempo ?? ""),
+      duration_mode: workItem?.duration_mode === "range" ? "range" : "fixed",
+      planned_duration_seconds: fallbackDuration,
+      duration_min_seconds: Number(workItem?.duration_min_seconds ?? fallbackDuration),
+      duration_max_seconds: Number(workItem?.duration_max_seconds ?? fallbackDuration),
+      distance_mode: workItem?.distance_mode === "range" ? "range" : "fixed",
+      distance_unit: workItem?.distance_unit === "feet" ? "feet" : "meters",
+      planned_distance_value: fallbackDistance,
+      distance_min_value: Number(workItem?.distance_min_value ?? fallbackDistance),
+      distance_max_value: Number(workItem?.distance_max_value ?? fallbackDistance),
       load_mode: loadMode,
       percent_1rm: Number(workItem?.percent_1rm ?? 75),
       weight_value: Number(workItem?.weight_value ?? 20),
@@ -1001,6 +1016,19 @@ function friendlyError(payload, status) {
     rep_range_min_invalid: "The minimum reps must be between 1 and 100.",
     rep_range_max_invalid: "The maximum reps must be between 1 and 100.",
     rep_range_order_invalid: "The maximum reps cannot be lower than the minimum reps.",
+    prescription_mode_invalid: "Choose reps, duration, or distance for each exercise.",
+    work_item_tempo_invalid: "Tempo must look like 3-1-X-0.",
+    duration_mode_invalid: "Choose a fixed hold or a hold range.",
+    planned_duration_seconds_invalid: "The hold must be between 1 and 1,800 seconds.",
+    duration_range_min_invalid: "The minimum hold must be between 1 and 1,800 seconds.",
+    duration_range_max_invalid: "The maximum hold must be between 1 and 1,800 seconds.",
+    duration_range_order_invalid: "The maximum hold cannot be lower than the minimum hold.",
+    distance_mode_invalid: "Choose a fixed distance or a distance range.",
+    distance_unit_invalid: "Choose meters or feet.",
+    planned_distance_value_invalid: "Distance must be between 0.1 and 10,000.",
+    distance_range_min_invalid: "The minimum distance must be between 0.1 and 10,000.",
+    distance_range_max_invalid: "The maximum distance must be between 0.1 and 10,000.",
+    distance_range_order_invalid: "The maximum distance cannot be lower than the minimum distance.",
     load_mode_invalid: "Choose percentage, weight, bodyweight, or RPE loading.",
     percent_1rm_invalid: "Percentage must be between 1 and 100.",
     weight_value_invalid: "Weight must be between 0.25 and 1,000.",
@@ -1236,6 +1264,14 @@ function exerciseDetails(exercise) {
     ? exercise.rep_range
     : null;
 
+  const durationRange = exercise?.duration_range && typeof exercise.duration_range === "object"
+    ? exercise.duration_range
+    : null;
+
+  const distanceRange = exercise?.distance_range && typeof exercise.distance_range === "object"
+    ? exercise.distance_range
+    : null;
+
   if (
     Number.isInteger(repRange?.minimum) &&
     Number.isInteger(repRange?.maximum)
@@ -1244,6 +1280,31 @@ function exerciseDetails(exercise) {
   }
   else if (Number.isInteger(exercise?.reps)) {
     details.push(`${exercise.reps} reps`);
+  }
+  else if (
+    Number.isInteger(durationRange?.minimum) &&
+    Number.isInteger(durationRange?.maximum)
+  ) {
+    details.push(`Hold ${durationRange.minimum}–${durationRange.maximum}s`);
+  }
+  else if (Number.isInteger(exercise?.duration_seconds)) {
+    details.push(`Hold ${exercise.duration_seconds}s`);
+  }
+  else if (
+    Number.isFinite(distanceRange?.minimum) &&
+    Number.isFinite(distanceRange?.maximum)
+  ) {
+    const unit = exercise?.distance_unit === "feet" ? "ft" : "m";
+    details.push(`${distanceRange.minimum}–${distanceRange.maximum}${unit}`);
+  }
+  else if (Number.isFinite(exercise?.distance_value)) {
+    const unit = exercise?.distance_unit === "feet" ? "ft" : "m";
+    details.push(`${exercise.distance_value}${unit}`);
+  }
+
+  const tempo = String(exercise?.tempo ?? "");
+  if (tempo) {
+    details.push(`Tempo ${tempo}`);
   }
 
   const intensity = exercise?.intensity && typeof exercise.intensity === "object"
@@ -8408,10 +8469,21 @@ function newTemplateWorkItem(index) {
     order_index: index + 1,
     exercise_id: exercise?.exercise_id ?? "",
     planned_sets: 3,
+    prescription_mode: "reps",
     rep_mode: "fixed",
     planned_reps: index === 0 ? 5 : 8,
     rep_min: index === 0 ? 4 : 8,
     rep_max: index === 0 ? 6 : 12,
+    tempo: "",
+    duration_mode: "fixed",
+    planned_duration_seconds: 30,
+    duration_min_seconds: 20,
+    duration_max_seconds: 40,
+    distance_mode: "fixed",
+    distance_unit: "meters",
+    planned_distance_value: 20,
+    distance_min_value: 10,
+    distance_max_value: 30,
     load_mode: "percent_1rm",
     percent_1rm: index === 0 ? 75 : 65,
     weight_value: index === 0 ? 100 : 20,
@@ -8482,12 +8554,24 @@ function storedWorkItemToDraft(workItem, workItemIndex) {
     ? workItem.rep_prescription
     : {};
 
+  const durationPrescription = workItem?.duration_prescription &&
+    typeof workItem.duration_prescription === "object"
+    ? workItem.duration_prescription
+    : {};
+
+  const distancePrescription = workItem?.distance_prescription &&
+    typeof workItem.distance_prescription === "object"
+    ? workItem.distance_prescription
+    : {};
+
   const loadingReference = workItem?.loading_reference &&
     typeof workItem.loading_reference === "object"
     ? workItem.loading_reference
     : {};
 
   const repMode = repPrescription.type === "range" ? "range" : "fixed";
+  const durationMode = durationPrescription.type === "range" ? "range" : "fixed";
+  const distanceMode = distancePrescription.type === "range" ? "range" : "fixed";
   const loadMode = loadingReference.type === "load"
     ? "fixed_weight"
     : loadingReference.type === "bodyweight"
@@ -8496,16 +8580,31 @@ function storedWorkItemToDraft(workItem, workItemIndex) {
         ? "rpe"
         : "percent_1rm";
   const fallbackReps = Number(workItem?.planned_reps ?? 5);
+  const fallbackDuration = Number(workItem?.planned_duration_seconds ?? 30);
+  const fallbackDistance = Number(workItem?.planned_distance_value ?? 20);
 
   return {
     work_item_id: String(workItem?.work_item_id ?? ""),
     order_index: Number(workItem?.order_index ?? workItemIndex + 1),
     exercise_id: String(workItem?.exercise_id ?? ""),
     planned_sets: Number(workItem?.planned_sets ?? 3),
+    prescription_mode: ["duration", "distance"].includes(workItem?.prescription_mode)
+      ? workItem.prescription_mode
+      : "reps",
     rep_mode: repMode,
     planned_reps: Number(repPrescription.value ?? fallbackReps),
     rep_min: Number(repPrescription.minimum ?? fallbackReps),
     rep_max: Number(repPrescription.maximum ?? fallbackReps),
+    tempo: String(workItem?.tempo ?? ""),
+    duration_mode: durationMode,
+    planned_duration_seconds: Number(durationPrescription.value ?? fallbackDuration),
+    duration_min_seconds: Number(durationPrescription.minimum ?? fallbackDuration),
+    duration_max_seconds: Number(durationPrescription.maximum ?? fallbackDuration),
+    distance_mode: distanceMode,
+    distance_unit: distancePrescription.unit === "feet" ? "feet" : "meters",
+    planned_distance_value: Number(distancePrescription.value ?? fallbackDistance),
+    distance_min_value: Number(distancePrescription.minimum ?? fallbackDistance),
+    distance_max_value: Number(distancePrescription.maximum ?? fallbackDistance),
     load_mode: loadMode,
     percent_1rm: loadingReference.type === "percent_1rm"
       ? Number(loadingReference.value ?? 75)
@@ -8855,6 +8954,34 @@ function programmePreviewRepetitions(workItem) {
   return `${Number(workItem?.planned_reps ?? 0)} reps`;
 }
 
+function programmePreviewDuration(workItem) {
+  if (workItem?.duration_mode === "range") {
+    return `Hold ${Number(workItem.duration_min_seconds)}–${Number(workItem.duration_max_seconds)}s`;
+  }
+
+  return `Hold ${Number(workItem?.planned_duration_seconds ?? 0)}s`;
+}
+
+function programmePreviewDistance(workItem) {
+  const unit = workItem?.distance_unit === "feet" ? "ft" : "m";
+
+  if (workItem?.distance_mode === "range") {
+    return `${Number(workItem.distance_min_value)}–${Number(workItem.distance_max_value)}${unit}`;
+  }
+
+  return `${Number(workItem?.planned_distance_value ?? 0)}${unit}`;
+}
+
+function programmePreviewPrescription(workItem) {
+  const prescriptionMode = ["duration", "distance"].includes(workItem?.prescription_mode)
+    ? workItem.prescription_mode
+    : "reps";
+
+  if (prescriptionMode === "duration") return programmePreviewDuration(workItem);
+  if (prescriptionMode === "distance") return programmePreviewDistance(workItem);
+  return programmePreviewRepetitions(workItem);
+}
+
 function programmePreviewLoad(workItem) {
   if (workItem?.load_mode === "bodyweight") return "Bodyweight";
 
@@ -8927,9 +9054,10 @@ function programmePreviewHtml(template) {
                         </div>
                         <span>
                           ${Number(workItem.planned_sets)} sets ·
-                          ${escapeHtml(programmePreviewRepetitions(workItem))} ·
+                          ${escapeHtml(programmePreviewPrescription(workItem))} ·
                           ${escapeHtml(programmePreviewLoad(workItem))} ·
                           ${Number(workItem.rest_seconds)}s rest
+                          ${workItem.tempo ? ` · Tempo ${escapeHtml(workItem.tempo)}` : ""}
                         </span>
                         ${workItem.coaching_notes
                           ? `<p class="muted small programme-preview-notes">${escapeHtml(workItem.coaching_notes)}</p>`
@@ -9197,58 +9325,183 @@ function programmeActivationIssues(template) {
             );
           }
 
-          if (workItem?.rep_mode === "range") {
-            const minimum = Number(workItem?.rep_min);
-            const maximum = Number(workItem?.rep_max);
+          const prescriptionMode = ["duration", "distance"].includes(workItem?.prescription_mode)
+            ? workItem.prescription_mode
+            : "reps";
 
-            if (
-              !Number.isInteger(minimum) ||
-              minimum < 1 ||
-              minimum > 100
-            ) {
-              addIssue(
-                "rep_range_min_invalid",
-                `${itemPath} minimum repetitions must be between one and 100.`,
-                itemPath
-              );
+          if (!["reps", "duration", "distance"].includes(String(workItem?.prescription_mode ?? "reps"))) {
+            addIssue(
+              "prescription_mode_invalid",
+              `${itemPath} has an unsupported prescription type.`,
+              itemPath
+            );
+          }
+
+          const tempo = String(workItem?.tempo ?? "");
+          if (tempo && !/^[0-9Xx]-[0-9Xx]-[0-9Xx]-[0-9Xx]$/u.test(tempo)) {
+            addIssue(
+              "work_item_tempo_invalid",
+              `${itemPath} tempo must look like 3-1-X-0.`,
+              itemPath
+            );
+          }
+
+          if (prescriptionMode === "reps") {
+            if (workItem?.rep_mode === "range") {
+              const minimum = Number(workItem?.rep_min);
+              const maximum = Number(workItem?.rep_max);
+
+              if (
+                !Number.isInteger(minimum) ||
+                minimum < 1 ||
+                minimum > 100
+              ) {
+                addIssue(
+                  "rep_range_min_invalid",
+                  `${itemPath} minimum repetitions must be between one and 100.`,
+                  itemPath
+                );
+              }
+
+              if (
+                !Number.isInteger(maximum) ||
+                maximum < 1 ||
+                maximum > 100
+              ) {
+                addIssue(
+                  "rep_range_max_invalid",
+                  `${itemPath} maximum repetitions must be between one and 100.`,
+                  itemPath
+                );
+              }
+
+              if (
+                Number.isFinite(minimum) &&
+                Number.isFinite(maximum) &&
+                maximum < minimum
+              ) {
+                addIssue(
+                  "rep_range_order_invalid",
+                  `${itemPath} maximum repetitions cannot be lower than the minimum.`,
+                  itemPath
+                );
+              }
             }
-
-            if (
-              !Number.isInteger(maximum) ||
-              maximum < 1 ||
-              maximum > 100
-            ) {
-              addIssue(
-                "rep_range_max_invalid",
-                `${itemPath} maximum repetitions must be between one and 100.`,
-                itemPath
-              );
-            }
-
-            if (
-              Number.isFinite(minimum) &&
-              Number.isFinite(maximum) &&
-              maximum < minimum
-            ) {
-              addIssue(
-                "rep_range_order_invalid",
-                `${itemPath} maximum repetitions cannot be lower than the minimum.`,
-                itemPath
-              );
+            else {
+              const repetitions = Number(workItem?.planned_reps);
+              if (
+                !Number.isInteger(repetitions) ||
+                repetitions < 1 ||
+                repetitions > 100
+              ) {
+                addIssue(
+                  "planned_reps_invalid",
+                  `${itemPath} repetitions must be between one and 100.`,
+                  itemPath
+                );
+              }
             }
           }
-          else {
-            const repetitions = Number(workItem?.planned_reps);
-            if (
-              !Number.isInteger(repetitions) ||
-              repetitions < 1 ||
-              repetitions > 100
-            ) {
+          else if (prescriptionMode === "duration") {
+            if (!["fixed", "range"].includes(String(workItem?.duration_mode ?? ""))) {
               addIssue(
-                "planned_reps_invalid",
-                `${itemPath} repetitions must be between one and 100.`,
+                "duration_mode_invalid",
+                `${itemPath} has an unsupported duration mode.`,
                 itemPath
               );
+            }
+            else if (workItem?.duration_mode === "range") {
+              const minimum = Number(workItem?.duration_min_seconds);
+              const maximum = Number(workItem?.duration_max_seconds);
+
+              if (!Number.isInteger(minimum) || minimum < 1 || minimum > 1800) {
+                addIssue(
+                  "duration_range_min_invalid",
+                  `${itemPath} minimum hold must be between one and 1,800 seconds.`,
+                  itemPath
+                );
+              }
+
+              if (!Number.isInteger(maximum) || maximum < 1 || maximum > 1800) {
+                addIssue(
+                  "duration_range_max_invalid",
+                  `${itemPath} maximum hold must be between one and 1,800 seconds.`,
+                  itemPath
+                );
+              }
+
+              if (Number.isFinite(minimum) && Number.isFinite(maximum) && maximum < minimum) {
+                addIssue(
+                  "duration_range_order_invalid",
+                  `${itemPath} maximum hold cannot be lower than the minimum.`,
+                  itemPath
+                );
+              }
+            }
+            else {
+              const duration = Number(workItem?.planned_duration_seconds);
+              if (!Number.isInteger(duration) || duration < 1 || duration > 1800) {
+                addIssue(
+                  "planned_duration_seconds_invalid",
+                  `${itemPath} hold must be between one and 1,800 seconds.`,
+                  itemPath
+                );
+              }
+            }
+          }
+          else if (prescriptionMode === "distance") {
+            if (!["meters", "feet"].includes(String(workItem?.distance_unit ?? ""))) {
+              addIssue(
+                "distance_unit_invalid",
+                `${itemPath} requires meters or feet.`,
+                itemPath
+              );
+            }
+
+            if (!["fixed", "range"].includes(String(workItem?.distance_mode ?? ""))) {
+              addIssue(
+                "distance_mode_invalid",
+                `${itemPath} has an unsupported distance mode.`,
+                itemPath
+              );
+            }
+            else if (workItem?.distance_mode === "range") {
+              const minimum = Number(workItem?.distance_min_value);
+              const maximum = Number(workItem?.distance_max_value);
+
+              if (!Number.isFinite(minimum) || minimum < 0.1 || minimum > 10000) {
+                addIssue(
+                  "distance_range_min_invalid",
+                  `${itemPath} minimum distance must be between 0.1 and 10,000.`,
+                  itemPath
+                );
+              }
+
+              if (!Number.isFinite(maximum) || maximum < 0.1 || maximum > 10000) {
+                addIssue(
+                  "distance_range_max_invalid",
+                  `${itemPath} maximum distance must be between 0.1 and 10,000.`,
+                  itemPath
+                );
+              }
+
+              if (Number.isFinite(minimum) && Number.isFinite(maximum) && maximum < minimum) {
+                addIssue(
+                  "distance_range_order_invalid",
+                  `${itemPath} maximum distance cannot be lower than the minimum.`,
+                  itemPath
+                );
+              }
+            }
+            else {
+              const distance = Number(workItem?.planned_distance_value);
+              if (!Number.isFinite(distance) || distance < 0.1 || distance > 10000) {
+                addIssue(
+                  "planned_distance_value_invalid",
+                  `${itemPath} distance must be between 0.1 and 10,000.`,
+                  itemPath
+                );
+              }
             }
           }
 
@@ -10548,8 +10801,111 @@ function renderTemplateRepControls(
           : `
             <label><span>Reps</span><input type="number" min="1" max="100" step="1" value="${Number(workItem.planned_reps)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_reps")} /></label>
           `}
+        <label class="template-tempo-field">
+          <span>Tempo (optional)</span>
+          <input type="text" maxlength="7" placeholder="3-1-X-0" value="${escapeHtml(workItem.tempo ?? "")}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "tempo")} />
+        </label>
       </div>
     </fieldset>
+  `;
+}
+
+function renderTemplateDurationControls(
+  workItem,
+  blockIndex,
+  weekIndex,
+  sessionIndex,
+  workItemIndex
+) {
+  const rangeMode = workItem.duration_mode === "range";
+
+  return `
+    <fieldset class="template-prescription-card">
+      <legend>Duration</legend>
+      <div class="template-prescription-fields">
+        <label class="template-method-field">
+          <span>Method</span>
+          <select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "duration_mode")}>
+            <option value="fixed" ${rangeMode ? "" : "selected"}>Fixed hold</option>
+            <option value="range" ${rangeMode ? "selected" : ""}>Hold range</option>
+          </select>
+        </label>
+        ${rangeMode
+          ? `
+            <label><span>Minimum (s)</span><input type="number" min="1" max="1800" step="1" value="${Number(workItem.duration_min_seconds)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "duration_min_seconds")} /></label>
+            <label><span>Maximum (s)</span><input type="number" min="1" max="1800" step="1" value="${Number(workItem.duration_max_seconds)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "duration_max_seconds")} /></label>
+          `
+          : `
+            <label><span>Seconds</span><input type="number" min="1" max="1800" step="1" value="${Number(workItem.planned_duration_seconds)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_duration_seconds")} /></label>
+          `}
+      </div>
+    </fieldset>
+  `;
+}
+
+function renderTemplateDistanceControls(
+  workItem,
+  blockIndex,
+  weekIndex,
+  sessionIndex,
+  workItemIndex
+) {
+  const rangeMode = workItem.distance_mode === "range";
+
+  return `
+    <fieldset class="template-prescription-card">
+      <legend>Distance</legend>
+      <div class="template-prescription-fields">
+        <label class="template-method-field">
+          <span>Method</span>
+          <select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "distance_mode")}>
+            <option value="fixed" ${rangeMode ? "" : "selected"}>Fixed distance</option>
+            <option value="range" ${rangeMode ? "selected" : ""}>Distance range</option>
+          </select>
+        </label>
+        ${rangeMode
+          ? `
+            <label><span>Minimum</span><input type="number" min="0.1" max="10000" step="0.1" value="${Number(workItem.distance_min_value)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "distance_min_value")} /></label>
+            <label><span>Maximum</span><input type="number" min="0.1" max="10000" step="0.1" value="${Number(workItem.distance_max_value)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "distance_max_value")} /></label>
+          `
+          : `
+            <label><span>Distance</span><input type="number" min="0.1" max="10000" step="0.1" value="${Number(workItem.planned_distance_value)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_distance_value")} /></label>
+          `}
+        <label><span>Unit</span><select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "distance_unit")}><option value="meters" ${workItem.distance_unit === "feet" ? "" : "selected"}>meters</option><option value="feet" ${workItem.distance_unit === "feet" ? "selected" : ""}>feet</option></select></label>
+      </div>
+    </fieldset>
+  `;
+}
+
+function renderTemplatePrescriptionControls(
+  workItem,
+  blockIndex,
+  weekIndex,
+  sessionIndex,
+  workItemIndex
+) {
+  const prescriptionMode = ["duration", "distance"].includes(workItem.prescription_mode)
+    ? workItem.prescription_mode
+    : "reps";
+
+  const controls = prescriptionMode === "duration"
+    ? renderTemplateDurationControls(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex)
+    : prescriptionMode === "distance"
+      ? renderTemplateDistanceControls(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex)
+      : renderTemplateRepControls(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex);
+
+  return `
+    <div class="template-prescription-mode-field">
+      <label class="template-method-field">
+        <span>Prescribe by</span>
+        <select ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "prescription_mode")}>
+          <option value="reps" ${prescriptionMode === "reps" ? "selected" : ""}>Reps</option>
+          <option value="duration" ${prescriptionMode === "duration" ? "selected" : ""}>Duration</option>
+          <option value="distance" ${prescriptionMode === "distance" ? "selected" : ""}>Distance</option>
+        </select>
+      </label>
+    </div>
+    ${controls}
   `;
 }
 
@@ -10636,7 +10992,7 @@ function renderTemplateWorkItem(workItem, blockIndex, weekIndex, sessionIndex, w
           <span>Sets</span>
           <input type="number" min="1" max="20" step="1" value="${Number(workItem.planned_sets)}" ${templateWorkItemAttributes(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets")} />
         </label>
-        ${renderTemplateRepControls(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex)}
+        ${renderTemplatePrescriptionControls(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex)}
         ${renderTemplateLoadControls(workItem, blockIndex, weekIndex, sessionIndex, workItemIndex)}
         <label class="template-rest-field">
           <span>Rest seconds</span>
@@ -10929,10 +11285,21 @@ function templateDraftValidationRecord() {
                       order_index: workItemIndex + 1,
                       exercise_id: String(workItem?.exercise_id ?? ""),
                       planned_sets: Number(workItem?.planned_sets),
+                      prescription_mode: String(workItem?.prescription_mode ?? "reps"),
                       rep_mode: String(workItem?.rep_mode ?? ""),
                       planned_reps: Number(workItem?.planned_reps),
                       rep_min: Number(workItem?.rep_min),
                       rep_max: Number(workItem?.rep_max),
+                      tempo: String(workItem?.tempo ?? ""),
+                      duration_mode: String(workItem?.duration_mode ?? "fixed"),
+                      planned_duration_seconds: Number(workItem?.planned_duration_seconds),
+                      duration_min_seconds: Number(workItem?.duration_min_seconds),
+                      duration_max_seconds: Number(workItem?.duration_max_seconds),
+                      distance_mode: String(workItem?.distance_mode ?? "fixed"),
+                      distance_unit: String(workItem?.distance_unit ?? "meters"),
+                      planned_distance_value: Number(workItem?.planned_distance_value),
+                      distance_min_value: Number(workItem?.distance_min_value),
+                      distance_max_value: Number(workItem?.distance_max_value),
                       load_mode: String(workItem?.load_mode ?? ""),
                       percent_1rm: Number(workItem?.percent_1rm),
                       weight_value: Number(workItem?.weight_value),
@@ -11047,6 +11414,45 @@ function templateValidationSelector(issue) {
     code === "rep_range_order_invalid"
   ) {
     field = "rep_max";
+  }
+  else if (code === "prescription_mode_invalid") {
+    field = "prescription_mode";
+  }
+  else if (code === "work_item_tempo_invalid") {
+    field = "tempo";
+  }
+  else if (code === "duration_mode_invalid") {
+    field = "duration_mode";
+  }
+  else if (code === "planned_duration_seconds_invalid") {
+    field = "planned_duration_seconds";
+  }
+  else if (code === "duration_range_min_invalid") {
+    field = "duration_min_seconds";
+  }
+  else if (
+    code === "duration_range_max_invalid" ||
+    code === "duration_range_order_invalid"
+  ) {
+    field = "duration_max_seconds";
+  }
+  else if (code === "distance_mode_invalid") {
+    field = "distance_mode";
+  }
+  else if (code === "distance_unit_invalid") {
+    field = "distance_unit";
+  }
+  else if (code === "planned_distance_value_invalid") {
+    field = "planned_distance_value";
+  }
+  else if (code === "distance_range_min_invalid") {
+    field = "distance_min_value";
+  }
+  else if (
+    code === "distance_range_max_invalid" ||
+    code === "distance_range_order_invalid"
+  ) {
+    field = "distance_max_value";
   }
   else if (code === "load_mode_invalid") {
     field = "load_mode";
@@ -11470,7 +11876,7 @@ function updateTemplateFieldFromControl(control) {
     state.templateDraft.event_compile_summary = null;
   }
 
-  if (kind === "work-item" && ["rep_mode", "load_mode"].includes(field)) {
+  if (kind === "work-item" && ["rep_mode", "load_mode", "prescription_mode", "duration_mode", "distance_mode"].includes(field)) {
     rerenderTemplateBuilder();
     return;
   }
@@ -11739,10 +12145,21 @@ function templatePayloadFromDraft() {
             order_index: Number(workItem.order_index),
             exercise_id: workItem.exercise_id,
             planned_sets: Number(workItem.planned_sets),
+            prescription_mode: workItem.prescription_mode,
             rep_mode: workItem.rep_mode,
             planned_reps: Number(workItem.planned_reps),
             rep_min: Number(workItem.rep_min),
             rep_max: Number(workItem.rep_max),
+            tempo: (workItem.tempo ?? "").trim(),
+            duration_mode: workItem.duration_mode,
+            planned_duration_seconds: Number(workItem.planned_duration_seconds),
+            duration_min_seconds: Number(workItem.duration_min_seconds),
+            duration_max_seconds: Number(workItem.duration_max_seconds),
+            distance_mode: workItem.distance_mode,
+            distance_unit: workItem.distance_unit,
+            planned_distance_value: Number(workItem.planned_distance_value),
+            distance_min_value: Number(workItem.distance_min_value),
+            distance_max_value: Number(workItem.distance_max_value),
             load_mode: workItem.load_mode,
             percent_1rm: Number(workItem.percent_1rm),
             weight_value: Number(workItem.weight_value),

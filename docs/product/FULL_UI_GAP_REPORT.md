@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 268
+- implemented: 270
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -216,7 +216,7 @@ Slice: FULL-UI-11
 
 Area state: implemented
 
-Implemented: 22 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 24 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -235,6 +235,8 @@ Implemented: 22 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `builder_sets` — Set planned sets
 - `builder_repetitions` — Set fixed repetitions or range
 - `builder_loading` — Set percentage, fixed load, bodyweight or RPE
+- `builder_prescription_mode` — Prescribe reps, a timed hold, or a distance per exercise
+- `builder_tempo` — Set an optional coaching tempo per exercise
 - `builder_load_unit` — Set load unit
 - `builder_rest` — Set rest time
 - `builder_summary` — Display deterministic structure summary
@@ -320,7 +322,7 @@ Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 - `session_overview` — Display pre-start session overview
 - `session_ordered_exercises` — Display ordered exercises, grouped and annotated with coach notes
-- `session_prescription` — Display sets, reps, load and rest
+- `session_prescription` — Display sets, reps or a timed hold or distance, tempo, load and rest
 - `session_start` — Start session
 - `session_complete_work` — Mark work complete
 - `session_skip_reason` — Skip lawful work with factual reason
