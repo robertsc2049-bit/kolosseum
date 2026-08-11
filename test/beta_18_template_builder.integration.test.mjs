@@ -2062,3 +2062,310 @@ test(
     );
   }
 );
+
+test(
+  "BETA-18 template builder supports tempo and duration/distance prescriptions alongside reps",
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(
+      typeof databaseUrl === "string" && databaseUrl.length > 0,
+      "DATABASE_URL is required"
+    );
+
+    const environment = { ...process.env, DATABASE_URL: databaseUrl };
+    delete environment.SMOKE_NO_DB;
+
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+    });
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+
+    const coachRegistration = await request(
+      server.baseUrl,
+      "POST",
+      "/account/register",
+      {
+        actor_type: "coach",
+        display_name: "Prescription Coach",
+        email: `beta18_prescription_coach_${nonce}@example.com`,
+        password: "Beta18PrescriptionCoach!2026",
+        accepted_terms: true,
+        accepted_consent: true,
+        accepted_terms_version: "terms_v1",
+        accepted_consent_version: "consent_v1"
+      }
+    );
+    assertStatus(coachRegistration, 201, "coach account registration");
+    const coachUserId = coachRegistration.json?.account?.user_id ?? "";
+    assert.ok(coachUserId, "Expected registered coach user_id");
+
+    const exerciseResponse = await request(server.baseUrl, "GET", "/templates/exercises");
+    assertStatus(exerciseResponse, 200, "exercise options");
+    const exercises = exerciseResponse.json?.exercises;
+    assert.ok(
+      Array.isArray(exercises) && exercises.length >= 4,
+      "Expected at least four active exercise options"
+    );
+    const exerciseIds = exercises.map((exercise) => exercise.exercise_id);
+
+    function baseWorkItem(exerciseId, orderIndex, overrides = {}) {
+      return {
+        work_item_id: "",
+        order_index: orderIndex,
+        exercise_id: exerciseId,
+        planned_sets: 3,
+        rep_mode: "fixed",
+        planned_reps: 8,
+        rep_min: 8,
+        rep_max: 8,
+        load_mode: "bodyweight",
+        percent_1rm: 75,
+        weight_value: 20,
+        weight_unit: "kg",
+        rpe_value: 8,
+        rest_seconds: 90,
+        role: orderIndex === 1 ? "primary" : "accessory",
+        coaching_notes: "",
+        segment: "working",
+        group_id: "",
+        group_type: "straight",
+        ...overrides
+      };
+    }
+
+    function templatePayload(name, workItems) {
+      return {
+        coach_user_id: coachUserId,
+        template_version: 1,
+        template_name: name,
+        description: "Prescription mode proof.",
+        activity_id: "powerlifting",
+        blocks: [{
+          block_id: "",
+          order_index: 1,
+          name: "Block 1",
+          description: "",
+          block_type: "general",
+          week_count: 1,
+          weeks: [{
+            week_id: "",
+            order_index: 1,
+            sessions: [{
+              session_id: "",
+              order_index: 1,
+              title: "Session 1",
+              coaching_notes: "",
+              work_items: workItems
+            }]
+          }]
+        }],
+        updated_at_iso8601: new Date().toISOString()
+      };
+    }
+
+    // --- Positive: a duration-mode hold, fixed and then a range. ---
+    const durationFixedItems = [
+      baseWorkItem(exerciseIds[0], 1, {
+        prescription_mode: "duration",
+        duration_mode: "fixed",
+        planned_duration_seconds: 45
+      }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const durationFixedSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Duration Fixed Session", durationFixedItems)
+    );
+    assertStatus(durationFixedSave, 201, "duration fixed session save");
+    const storedDurationFixedItem =
+      durationFixedSave.json?.template?.template_structure?.blocks[0]?.weeks[0]?.days[0]?.sessions[0]?.work_items[0];
+    assert.equal(storedDurationFixedItem?.prescription_mode, "duration");
+    assert.equal(storedDurationFixedItem?.duration_prescription?.type, "fixed");
+    assert.equal(storedDurationFixedItem?.duration_prescription?.value, 45);
+
+    const durationRangeItems = [
+      baseWorkItem(exerciseIds[0], 1, {
+        prescription_mode: "duration",
+        duration_mode: "range",
+        duration_min_seconds: 30,
+        duration_max_seconds: 60
+      }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const durationRangeSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Duration Range Session", durationRangeItems)
+    );
+    assertStatus(durationRangeSave, 201, "duration range session save");
+    const storedDurationRangeItem =
+      durationRangeSave.json?.template?.template_structure?.blocks[0]?.weeks[0]?.days[0]?.sessions[0]?.work_items[0];
+    assert.equal(storedDurationRangeItem?.duration_prescription?.type, "range");
+    assert.equal(storedDurationRangeItem?.duration_prescription?.minimum, 30);
+    assert.equal(storedDurationRangeItem?.duration_prescription?.maximum, 60);
+
+    // --- Positive: a distance-mode prescription, fixed in feet and a range in meters. ---
+    const distanceFixedItems = [
+      baseWorkItem(exerciseIds[0], 1, {
+        prescription_mode: "distance",
+        distance_mode: "fixed",
+        distance_unit: "feet",
+        planned_distance_value: 40
+      }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const distanceFixedSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Distance Fixed Session", distanceFixedItems)
+    );
+    assertStatus(distanceFixedSave, 201, "distance fixed session save");
+    const storedDistanceFixedItem =
+      distanceFixedSave.json?.template?.template_structure?.blocks[0]?.weeks[0]?.days[0]?.sessions[0]?.work_items[0];
+    assert.equal(storedDistanceFixedItem?.prescription_mode, "distance");
+    assert.equal(storedDistanceFixedItem?.distance_prescription?.type, "fixed");
+    assert.equal(storedDistanceFixedItem?.distance_prescription?.value, 40);
+    assert.equal(storedDistanceFixedItem?.distance_prescription?.unit, "feet");
+
+    const distanceRangeItems = [
+      baseWorkItem(exerciseIds[0], 1, {
+        prescription_mode: "distance",
+        distance_mode: "range",
+        distance_unit: "meters",
+        distance_min_value: 20,
+        distance_max_value: 40
+      }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const distanceRangeSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Distance Range Session", distanceRangeItems)
+    );
+    assertStatus(distanceRangeSave, 201, "distance range session save");
+    const storedDistanceRangeItem =
+      distanceRangeSave.json?.template?.template_structure?.blocks[0]?.weeks[0]?.days[0]?.sessions[0]?.work_items[0];
+    assert.equal(storedDistanceRangeItem?.distance_prescription?.type, "range");
+    assert.equal(storedDistanceRangeItem?.distance_prescription?.minimum, 20);
+    assert.equal(storedDistanceRangeItem?.distance_prescription?.maximum, 40);
+    assert.equal(storedDistanceRangeItem?.distance_prescription?.unit, "meters");
+
+    // --- Positive: a reps-mode exercise carrying an optional coaching tempo. ---
+    const tempoItems = [
+      baseWorkItem(exerciseIds[0], 1, { tempo: "3-1-X-0" }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const tempoSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Tempo Session", tempoItems)
+    );
+    assertStatus(tempoSave, 201, "tempo session save");
+    const storedTempoItem =
+      tempoSave.json?.template?.template_structure?.blocks[0]?.weeks[0]?.days[0]?.sessions[0]?.work_items[0];
+    assert.equal(storedTempoItem?.tempo, "3-1-X-0");
+    assert.equal(storedTempoItem?.prescription_mode, "reps");
+
+    // --- Negative: an invalid tempo format. ---
+    const invalidTempoItems = [
+      baseWorkItem(exerciseIds[0], 1, { tempo: "not-a-tempo" }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const invalidTempoSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Invalid Tempo Session", invalidTempoItems)
+    );
+    assertStatus(invalidTempoSave, 400, "invalid tempo rejected");
+    assert.equal(
+      invalidTempoSave.json?.details?.reason ?? invalidTempoSave.json?.reason,
+      "work_item_tempo_invalid"
+    );
+
+    // --- Negative: an unsupported prescription_mode. ---
+    const invalidModeItems = [
+      baseWorkItem(exerciseIds[0], 1, { prescription_mode: "isometric" }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const invalidModeSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Invalid Prescription Mode Session", invalidModeItems)
+    );
+    assertStatus(invalidModeSave, 400, "invalid prescription mode rejected");
+    assert.equal(
+      invalidModeSave.json?.details?.reason ?? invalidModeSave.json?.reason,
+      "prescription_mode_invalid"
+    );
+
+    // --- Negative: a duration range whose maximum is lower than the minimum. ---
+    const invalidDurationRangeItems = [
+      baseWorkItem(exerciseIds[0], 1, {
+        prescription_mode: "duration",
+        duration_mode: "range",
+        duration_min_seconds: 60,
+        duration_max_seconds: 30
+      }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const invalidDurationRangeSave = await request(
+      server.baseUrl,
+      "POST",
+      "/templates",
+      templatePayload("Invalid Duration Range Session", invalidDurationRangeItems)
+    );
+    assertStatus(invalidDurationRangeSave, 400, "inverted duration range rejected");
+    assert.equal(
+      invalidDurationRangeSave.json?.details?.reason ?? invalidDurationRangeSave.json?.reason,
+      "duration_range_order_invalid"
+    );
+
+    // --- Negative: a distance value outside the supported bounds. ---
+    const invalidDistanceItems = [
+      baseWorkItem(exerciseIds[0], 1, {
+        prescription_mode: "distance",
+        distance_mode: "fixed",
+        planned_distance_value: 20000
+      }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const invalidDistanceSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Invalid Distance Session", invalidDistanceItems)
+    );
+    assertStatus(invalidDistanceSave, 400, "out-of-bounds distance rejected");
+    assert.equal(
+      invalidDistanceSave.json?.details?.reason ?? invalidDistanceSave.json?.reason,
+      "planned_distance_value_invalid"
+    );
+
+    // --- Negative: an unsupported distance unit. ---
+    const invalidDistanceUnitItems = [
+      baseWorkItem(exerciseIds[0], 1, {
+        prescription_mode: "distance",
+        distance_unit: "yards"
+      }),
+      baseWorkItem(exerciseIds[1], 2),
+      baseWorkItem(exerciseIds[2], 3),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const invalidDistanceUnitSave = await request(
+      server.baseUrl,
+      "POST",
+      "/templates",
+      templatePayload("Invalid Distance Unit Session", invalidDistanceUnitItems)
+    );
+    assertStatus(invalidDistanceUnitSave, 400, "unsupported distance unit rejected");
+    assert.equal(
+      invalidDistanceUnitSave.json?.details?.reason ?? invalidDistanceUnitSave.json?.reason,
+      "distance_unit_invalid"
+    );
+  }
+);

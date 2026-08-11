@@ -1264,6 +1264,14 @@ button:focus-visible,
   line-height: 1.35;
 }
 
+.template-prescription-mode-field {
+  margin-bottom: 0.5rem;
+}
+
+.template-tempo-field {
+  grid-column: 1 / -1;
+}
+
 .template-sets-field,
 .template-rest-field {
   align-self: end;

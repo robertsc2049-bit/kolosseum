@@ -144,6 +144,8 @@ const REQUIRED_FUNCTION_IDS = [
   "builder_sets",
   "builder_repetitions",
   "builder_loading",
+  "builder_prescription_mode",
+  "builder_tempo",
   "builder_load_unit",
   "builder_rest",
   "builder_summary",
