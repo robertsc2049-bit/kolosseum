@@ -32,6 +32,14 @@ test("product application contains bounded athlete and coach workspaces", () => 
   assert.match(html, /id="view-account"/u);
 });
 
+test("athlete session view exposes a lazily-loaded, cached exercise how-to disclosure", () => {
+  assert.match(js, /class="exercise-howto"/u);
+  assert.match(js, /summary>How to perform this exercise</u);
+  assert.match(js, /const exerciseContentCache = new Map\(\)/u);
+  assert.match(js, /elements\.currentExercise\.addEventListener\("toggle"/u);
+  assert.match(js, /\{ capture: true \}/u);
+});
+
 test("normal product surface does not expose diagnostic output panels", () => {
   assert.doesNotMatch(html, /Raw trace|Raw state|Console|phase1Input|beta17Output/u);
   assert.doesNotMatch(applicationJs, /\/ui\/v0-session-runner/u);

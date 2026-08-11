@@ -708,6 +708,37 @@ button:focus-visible,
 .exercise-row-grouped { border-left: 3px solid var(--bronze-light); }
 .exercise-coaching-note { display: block; font-style: italic; margin-top: 0.25rem; }
 
+.exercise-howto {
+  margin-top: 0.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+}
+
+.exercise-howto summary {
+  color: var(--bronze-light);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.exercise-howto-body {
+  margin-top: 0.6rem;
+  color: var(--stone-dim);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.exercise-howto-heading {
+  margin: 0.6rem 0 0.25rem;
+  font-weight: 600;
+}
+
+.exercise-howto-steps,
+.exercise-howto-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
 .empty-state {
   display: grid;
   min-height: 220px;
@@ -1270,6 +1301,16 @@ button:focus-visible,
 
 .template-tempo-field {
   grid-column: 1 / -1;
+}
+
+.template-work-item-info {
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px dashed var(--line-soft);
+  border-radius: 8px;
+  color: var(--stone-dim);
+  font-size: 0.78rem;
+  line-height: 1.4;
 }
 
 .template-sets-field,

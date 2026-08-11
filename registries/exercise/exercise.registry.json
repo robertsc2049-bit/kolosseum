@@ -23,8 +23,24 @@
       ],
       "tempo_capability": "paused_and_tempo",
       "instruction": {
-        "short": "Lower bar to chest, then press to full extension"
+        "short": "Lower bar to chest, then press to full extension",
+        "detailed": [
+          "Lie on the bench with eyes roughly under the bar, feet flat on the floor, and a slight arch through the upper back.",
+          "Unrack the bar over the shoulders, then lower it under control to the mid-chest while keeping the elbows tucked at roughly 45 degrees from the torso.",
+          "Press the bar back up in a straight line to full elbow extension, keeping the shoulder blades pinned to the bench throughout."
+        ]
       },
+      "coaching_cues": [
+        "Squeeze the bar and pull it into your palms",
+        "Drive your feet into the floor",
+        "Keep your shoulder blades pinned together",
+        "Bar path straight down to the chest, straight back up"
+      ],
+      "common_faults": [
+        "Elbows flare out to 90 degrees on the way down — tuck them closer to about 45 degrees from the torso to protect the shoulders.",
+        "Hips lift off the bench on heavy reps — keep glutes in contact with the bench throughout the lift.",
+        "Bar drifts toward the neck or stomach instead of a straight path — bring it down over the nipple line and press it back up in the same line."
+      ],
       "fast_execution": false,
       "equipment_requirements": [
         "barbell",
@@ -59,8 +75,23 @@
       ],
       "tempo_capability": "paused_and_tempo",
       "instruction": {
-        "short": "Lower dumbbells or bar to upper chest, then press to full extension"
+        "short": "Lower dumbbells or bar to upper chest, then press to full extension",
+        "detailed": [
+          "Set the bench to a 30-45 degree incline and lie back with the bar or dumbbells over the upper chest.",
+          "Lower the weight under control to the upper chest, keeping the elbows at roughly 45 degrees from the torso.",
+          "Press back up to full extension without letting the bar drift forward over the face."
+        ]
       },
+      "coaching_cues": [
+        "Bar or dumbbells to the upper chest, not the neck",
+        "Keep the incline moderate — steep angles turn this into a shoulder press",
+        "Drive through the feet and keep the shoulder blades set"
+      ],
+      "common_faults": [
+        "Setting the incline too steep turns this into an overhead press and takes tension off the chest — keep it in the 30-45 degree range.",
+        "Flaring the elbows to 90 degrees increases shoulder strain — keep them closer to the torso.",
+        "Bouncing the weight off the chest instead of controlling the descent — lower for a full 1-2 count."
+      ],
       "fast_execution": false,
       "equipment_requirements": [
         "barbell",
@@ -94,8 +125,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Lower dumbbells to chest level, then press to full extension"
+        "short": "Lower dumbbells to chest level, then press to full extension",
+        "detailed": [
+          "Lie on the bench with a dumbbell in each hand at chest level, elbows bent to roughly 45 degrees.",
+          "Press both dumbbells up and slightly inward until they nearly touch at the top.",
+          "Lower under control back to chest level, keeping the wrists stacked over the elbows throughout."
+        ]
       },
+      "coaching_cues": [
+        "Press the dumbbells up and slightly together",
+        "Keep the wrists stacked directly over the elbows",
+        "Control the dumbbells down — don't let them drop"
+      ],
+      "common_faults": [
+        "Letting the dumbbells drift out wide at the bottom puts unnecessary strain on the shoulder — keep the forearms roughly vertical.",
+        "Losing wrist position under load — keep the wrist stacked over the elbow rather than let it bend back.",
+        "Rushing the eccentric and losing control of the dumbbells — lower with the same control used to press."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "dumbbell",
@@ -127,8 +173,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Lower chest toward floor, then press back to the start position"
+        "short": "Lower chest toward floor, then press back to the start position",
+        "detailed": [
+          "Set up in a straight plank with hands slightly wider than shoulder width, body in one straight line from head to heels.",
+          "Lower the chest toward the floor by bending the elbows, keeping them at roughly 45 degrees from the torso.",
+          "Press back up to full extension without letting the hips sag or pike."
+        ]
       },
+      "coaching_cues": [
+        "Keep a straight line from head to heels",
+        "Brace the core like you're about to be tapped in the stomach",
+        "Elbows tracking back at about 45 degrees, not straight out to the sides"
+      ],
+      "common_faults": [
+        "Hips sag toward the floor as fatigue sets in — brace the core and glutes to keep the body in one line.",
+        "Elbows flare straight out to the sides, straining the shoulders — angle them back at roughly 45 degrees.",
+        "Only lowering partway — aim for the chest to get close to the floor on every rep for a full range of motion."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "bodyweight"
@@ -159,8 +220,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Lower handles under control, then press to full extension"
+        "short": "Lower handles under control, then press to full extension",
+        "detailed": [
+          "Adjust the seat so the handles sit at mid-chest height and sit back firmly against the pad.",
+          "Lower the handles under control to the starting position, keeping the shoulder blades pinned to the pad.",
+          "Press the handles forward to full extension without shrugging the shoulders up toward the ears."
+        ]
       },
+      "coaching_cues": [
+        "Set the seat height so the handles line up with mid-chest",
+        "Keep the shoulder blades pinned against the pad",
+        "Press through a full range of motion, don't lock out and slam"
+      ],
+      "common_faults": [
+        "Seat height set too high or low changes the pressing angle and shifts stress away from the chest — line the handles up with mid-chest before starting.",
+        "Shrugging the shoulders up toward the ears during the press — keep them pulled down and back throughout.",
+        "Using momentum to bounce the weight rather than a controlled press-and-return."
+      ],
       "fast_execution": false,
       "equipment_requirements": [
         "machine_general"
@@ -192,8 +268,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Lower dumbbell to chest level, then press to full extension with one arm"
+        "short": "Lower dumbbell to chest level, then press to full extension with one arm",
+        "detailed": [
+          "Lie on the bench with one dumbbell at chest level, keeping the non-working hand braced on the bench or hip for stability.",
+          "Press the dumbbell up to full extension while resisting rotation through the torso.",
+          "Lower under control back to chest level and repeat for the set before switching sides."
+        ]
       },
+      "coaching_cues": [
+        "Brace the core hard to resist rotating toward the working arm",
+        "Press straight up, not across the body",
+        "Control the descent — this side is doing all the work alone"
+      ],
+      "common_faults": [
+        "Letting the torso rotate toward the working side as the weight gets heavy — brace the core and keep the hips square.",
+        "Pressing the dumbbell across the midline instead of straight up over the shoulder.",
+        "Rushing between reps without resetting the brace, which compounds the rotation fault over a set."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "dumbbell",
@@ -225,8 +316,23 @@
       ],
       "tempo_capability": "paused_and_tempo",
       "instruction": {
-        "short": "Press bar overhead to lockout, then lower under control"
+        "short": "Press bar overhead to lockout, then lower under control",
+        "detailed": [
+          "Start with the bar at the front of the shoulders, hands just outside shoulder width, elbows slightly in front of the bar.",
+          "Press the bar straight up, moving the head back slightly to let the bar pass, then pushing the head through once it clears.",
+          "Lock out overhead with the bar over the midfoot, then lower back to the shoulders under control."
+        ]
       },
+      "coaching_cues": [
+        "Squeeze your glutes and brace before every rep",
+        "Move your head back then through as the bar passes your face",
+        "Lock out with the bar stacked over the midfoot, biceps by your ears"
+      ],
+      "common_faults": [
+        "Leaning back excessively to help the bar clear the face — move the head back and through instead of arching the lower back.",
+        "Pressing the bar forward instead of straight up, which ends with it out in front at lockout — the bar path should finish directly over the midfoot.",
+        "Flaring the elbows too wide at the start, which limits how well the bar tracks upward."
+      ],
       "fast_execution": false,
       "equipment_requirements": [
         "barbell"
@@ -256,8 +362,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Press dumbbells overhead to lockout, then lower under control"
+        "short": "Press dumbbells overhead to lockout, then lower under control",
+        "detailed": [
+          "Start with a dumbbell in each hand at shoulder height, palms facing forward or slightly inward.",
+          "Press both dumbbells overhead to full extension without arching the lower back excessively.",
+          "Lower under control back to shoulder height and repeat."
+        ]
       },
+      "coaching_cues": [
+        "Brace the core before pressing",
+        "Press the dumbbells up and slightly inward toward each other overhead",
+        "Keep the ribcage down rather than flaring it up as you press"
+      ],
+      "common_faults": [
+        "Arching the lower back to help drive the weight up — brace the core and keep the ribcage stacked over the pelvis.",
+        "Pressing the dumbbells out in front instead of straight overhead.",
+        "Letting one side lag behind the other on heavier sets — press both sides at the same tempo."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "dumbbell"
@@ -287,8 +408,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Press dumbbell overhead to lockout with one arm, then lower under control"
+        "short": "Press dumbbell overhead to lockout with one arm, then lower under control",
+        "detailed": [
+          "Start with one dumbbell at shoulder height, feet set shoulder width for a stable base.",
+          "Press the dumbbell straight overhead while resisting the urge to lean or lateral-flex away from the load.",
+          "Lower under control back to shoulder height and repeat for the set before switching sides."
+        ]
       },
+      "coaching_cues": [
+        "Brace hard through the core to stay upright",
+        "Press straight up over the shoulder, not out to the side",
+        "Keep the hips level — don't hike the hip on the working side"
+      ],
+      "common_faults": [
+        "Leaning or side-bending away from the working arm to compensate — brace the core and stay stacked.",
+        "Hiking the hip on the working side to help the weight up — keep the pelvis level.",
+        "Pressing the dumbbell out and around instead of straight up."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "dumbbell"
@@ -320,8 +456,23 @@
       ],
       "tempo_capability": "paused_and_tempo",
       "instruction": {
-        "short": "Squat down to target depth, then stand back up to full extension"
+        "short": "Squat down to target depth, then stand back up to full extension",
+        "detailed": [
+          "Set the bar across the upper back, brace the core, and unrack with feet roughly shoulder width.",
+          "Descend by pushing the hips back and bending the knees until reaching target depth, keeping the chest up and the bar over the midfoot.",
+          "Drive back up to full extension, keeping the knees tracking in line with the toes throughout."
+        ]
       },
+      "coaching_cues": [
+        "Big breath and brace before every rep",
+        "Knees track out in line with your toes",
+        "Chest up, bar stays over the middle of the foot"
+      ],
+      "common_faults": [
+        "Knees cave inward on the ascent — actively push them out in line with the toes throughout the lift.",
+        "Heels lift off the floor as depth increases — keep weight distributed across the whole foot, not just the toes.",
+        "Losing the brace partway through the rep, which lets the chest collapse forward — reset the brace before every rep, not just the first."
+      ],
       "fast_execution": false,
       "equipment_requirements": [
         "barbell",
@@ -354,8 +505,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Squat down holding the weight at chest height, then stand to full extension"
+        "short": "Squat down holding the weight at chest height, then stand to full extension",
+        "detailed": [
+          "Hold the dumbbell vertically against the chest with both hands cupping the top end.",
+          "Squat down between the knees to target depth, keeping the elbows inside the knees at the bottom.",
+          "Stand back up to full extension, keeping the weight held tight to the chest throughout."
+        ]
       },
+      "coaching_cues": [
+        "Keep the weight glued to your chest",
+        "Sit down between your knees, not back onto your heels",
+        "Elbows brush the inside of the knees at the bottom"
+      ],
+      "common_faults": [
+        "Letting the weight drift away from the chest, which pulls the torso forward — keep it pinned tight throughout.",
+        "Knees collapsing inward at the bottom — push them out toward the elbows.",
+        "Rounding the upper back at depth — keep the chest tall through the full range."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "dumbbell"
@@ -389,8 +555,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Lower into the split stance, then drive back up to the start position"
+        "short": "Lower into the split stance, then drive back up to the start position",
+        "detailed": [
+          "Set up in a staggered stance with the rear foot elevated or flat, front foot far enough forward for the shin to stay near vertical at the bottom.",
+          "Lower straight down until the rear knee approaches the floor, keeping the torso upright.",
+          "Drive through the front foot back up to the start position without the front knee traveling far past the toes."
+        ]
       },
+      "coaching_cues": [
+        "Drop straight down, not forward",
+        "Keep the torso tall through the whole rep",
+        "Drive through the whole front foot, not just the toes"
+      ],
+      "common_faults": [
+        "Front knee travels well past the toes on descent, shifting the stress forward — set the stance long enough that the shin stays close to vertical.",
+        "Torso leans forward excessively — keep the chest tall and the hips under the shoulders.",
+        "Pushing off the back foot to help complete the rep — the front leg should be doing the work."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "bodyweight",
@@ -423,8 +604,23 @@
       ],
       "tempo_capability": "paused",
       "instruction": {
-        "short": "Pull bar from floor to lockout, then return it under control"
+        "short": "Pull bar from floor to lockout, then return it under control",
+        "detailed": [
+          "Set up with the bar over the midfoot, shins close to the bar, and grip just outside the knees.",
+          "Brace the core, flatten the back, and drive the floor away with the legs while keeping the bar close to the shins.",
+          "Finish with hips and knees fully extended, then lower the bar back to the floor under control by reversing the same path."
+        ]
       },
+      "coaching_cues": [
+        "Bar stays close to the shins the whole way up",
+        "Push the floor away rather than pulling the bar up",
+        "Hips and shoulders rise together, not hips first"
+      ],
+      "common_faults": [
+        "Hips shoot up first while the shoulders stay low, turning the pull into a stiff-legged reach — drive the floor away so the hips and shoulders rise together.",
+        "Rounding the lower back under load — brace hard and set a flat back before the bar leaves the floor.",
+        "Letting the bar drift forward away from the shins, which adds strain and reduces power — keep it dragging up the legs."
+      ],
       "fast_execution": false,
       "equipment_requirements": [
         "barbell"
@@ -456,8 +652,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Pull kettlebell from floor to standing lockout, then lower under control"
+        "short": "Pull kettlebell from floor to standing lockout, then lower under control",
+        "detailed": [
+          "Stand with the kettlebell on the floor between the feet, hips back and shins near vertical.",
+          "Grip the handle, brace the core, and drive through the floor to stand to full extension.",
+          "Lower the kettlebell back to the floor under control by pushing the hips back first."
+        ]
       },
+      "coaching_cues": [
+        "Push the hips back before bending the knees",
+        "Keep the kettlebell close to the body throughout",
+        "Stand tall at the top — squeeze the glutes"
+      ],
+      "common_faults": [
+        "Squatting the weight up instead of hinging — push the hips back first so the movement stays a hinge, not a squat.",
+        "Letting the kettlebell swing away from the body during the pull — keep it close throughout.",
+        "Hyperextending the lower back at the top instead of finishing with a tall, neutral stance."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "kettlebell"
@@ -493,8 +704,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Hinge on one leg until target range, then return to upright balance"
+        "short": "Hinge on one leg until target range, then return to upright balance",
+        "detailed": [
+          "Stand on one leg with a slight bend in the knee, holding a light weight or bodyweight only.",
+          "Hinge forward at the hip while the free leg extends back, keeping the back flat until reaching the target range.",
+          "Return to standing by driving the hips forward, keeping balance on the standing leg throughout."
+        ]
       },
+      "coaching_cues": [
+        "Reach the free leg straight back as you hinge forward",
+        "Keep the hips square, don't let them rotate open",
+        "Keep a soft bend in the standing knee throughout"
+      ],
+      "common_faults": [
+        "Hips rotate open toward the free leg as balance is lost — keep the hips square to the floor throughout the movement.",
+        "Rounding the lower back to reach further — only go as far as a flat back allows.",
+        "Locking the standing knee out straight, which makes balance harder — keep a small, consistent bend."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "bodyweight",
@@ -527,8 +753,23 @@
       ],
       "tempo_capability": "tempo",
       "instruction": {
-        "short": "Lower head toward the floor, then press back to the start position"
+        "short": "Lower head toward the floor, then press back to the start position",
+        "detailed": [
+          "Set up in a pike position with hips lifted high and hands roughly shoulder width, feet closer to the hands than in a standard push-up.",
+          "Lower the head toward the floor between the hands by bending the elbows, keeping the hips high throughout.",
+          "Press back up to the start position without losing the pike shape."
+        ]
       },
+      "coaching_cues": [
+        "Keep the hips lifted high throughout the rep",
+        "Lower the crown of the head toward the floor, not the chest",
+        "Press through the whole hand, not just the fingers"
+      ],
+      "common_faults": [
+        "Hips drop toward a standard push-up position as fatigue sets in, taking load off the shoulders — actively keep the hips lifted high.",
+        "Only lowering a few inches — aim to bring the head close to the floor for a full range of motion.",
+        "Flaring the elbows straight out to the sides rather than tracking back at an angle."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "bodyweight"
@@ -560,8 +801,23 @@
       ],
       "tempo_capability": "paused",
       "instruction": {
-        "short": "Sit back to the box under control, then stand to full extension"
+        "short": "Sit back to the box under control, then stand to full extension",
+        "detailed": [
+          "Set the box or bench to the target depth and unrack the bar as in a standard back squat.",
+          "Descend under control, sitting back onto the box while keeping the shins closer to vertical than in a free squat.",
+          "Pause briefly on the box without relaxing the brace, then drive back up to full extension."
+        ]
       },
+      "coaching_cues": [
+        "Sit back onto the box, don't drop onto it",
+        "Keep the brace on during the pause — don't relax at the bottom",
+        "Drive up hard the instant you touch the box"
+      ],
+      "common_faults": [
+        "Dropping onto the box hard and relaxing the brace — sit back under control and stay tight throughout the pause.",
+        "Rocking forward off the box to build momentum before standing — the drive up should come from the legs and hips, not a forward rock.",
+        "Setting the box too low for the intended training purpose — box height should match the specific depth being trained."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "barbell",
@@ -595,8 +851,23 @@
       ],
       "tempo_capability": "paused",
       "instruction": {
-        "short": "Press bar from the pins to lockout, then return it to the pins under control"
+        "short": "Press bar from the pins to lockout, then return it to the pins under control",
+        "detailed": [
+          "Set the safety pins at the target height inside the rack and lie on the bench underneath.",
+          "Press the bar up from a dead stop on the pins to full extension, keeping the same bar path as a full bench press.",
+          "Lower the bar back down to rest fully on the pins under control before the next rep."
+        ]
       },
+      "coaching_cues": [
+        "Press hard from a true dead stop — no bounce off the pins",
+        "Keep the same elbow angle you'd use in a full bench press",
+        "Full extension every rep, don't cut it short"
+      ],
+      "common_faults": [
+        "Bouncing or jerking the bar off the pins instead of pressing from a true dead stop, which defeats the purpose of the exercise.",
+        "Flaring the elbows wide at the bottom because there's no stretch reflex to help — keep the same 45-degree elbow angle used in a full press.",
+        "Setting the pins at a height that doesn't match the intended sticking point being trained."
+      ],
       "fast_execution": false,
       "equipment_requirements": [
         "barbell",
@@ -630,8 +901,23 @@
       ],
       "tempo_capability": "paused",
       "instruction": {
-        "short": "Pull bar from the set height to lockout, then return under control"
+        "short": "Pull bar from the set height to lockout, then return under control",
+        "detailed": [
+          "Set the bar on blocks or pins at the target starting height, typically at or above knee level.",
+          "Set up with a flat back and braced core, then drive through the floor to lockout using the same technique as a full deadlift.",
+          "Lower the bar back to the blocks or pins under control before resetting for the next rep."
+        ]
       },
+      "coaching_cues": [
+        "Set the same flat back and brace as a full deadlift",
+        "Drive the floor away from the very first inch",
+        "Keep the bar close to the legs through the whole range"
+      ],
+      "common_faults": [
+        "Rounding the lower back because the reduced range feels lighter — keep the same brace and flat back discipline as a full deadlift.",
+        "Letting the bar drift away from the shins since there's less distance to travel — keep it close throughout.",
+        "Using too much weight for the trained range and losing bar control on the way down — lower under control every rep."
+      ],
       "fast_execution": true,
       "equipment_requirements": [
         "barbell"

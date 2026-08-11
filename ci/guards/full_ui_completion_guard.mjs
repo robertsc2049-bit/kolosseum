@@ -315,6 +315,7 @@ function discoverApiRoutes() {
     ["src/api/body_metrics.routes.ts", "/body-metrics"],
     ["src/api/habit_tracking.routes.ts", "/habits"],
     ["src/api/exercise_reference_media.routes.ts", "/exercises"],
+    ["src/api/exercise_content.routes.ts", "/exercises"],
     ["src/api/device_sync.routes.ts", "/device-sync"]
   ];
   const routes = [];

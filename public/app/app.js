@@ -2067,6 +2067,58 @@ async function loadSessionState() {
 }
 
 let currentFocusExerciseId = null;
+const exerciseContentCache = new Map();
+
+function renderExerciseHowto(container, content) {
+  const detailedSteps = Array.isArray(content?.instruction?.detailed) ? content.instruction.detailed : [];
+  const cues = Array.isArray(content?.coaching_cues) ? content.coaching_cues : [];
+  const faults = Array.isArray(content?.common_faults) ? content.common_faults : [];
+
+  if (!detailedSteps.length && !cues.length && !faults.length) {
+    container.innerHTML = '<p class="muted">No written instructions are available for this exercise yet.</p>';
+    return;
+  }
+
+  container.innerHTML = `
+    ${detailedSteps.length ? `
+      <ol class="exercise-howto-steps">
+        ${detailedSteps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
+      </ol>
+    ` : ""}
+    ${cues.length ? `
+      <p class="exercise-howto-heading">Coaching cues</p>
+      <ul class="exercise-howto-list">
+        ${cues.map((cue) => `<li>${escapeHtml(cue)}</li>`).join("")}
+      </ul>
+    ` : ""}
+    ${faults.length ? `
+      <p class="exercise-howto-heading">Common faults</p>
+      <ul class="exercise-howto-list">
+        ${faults.map((fault) => `<li>${escapeHtml(fault)}</li>`).join("")}
+      </ul>
+    ` : ""}
+  `;
+}
+
+async function loadExerciseHowto(exerciseId, container) {
+  if (!exerciseId || !container) return;
+
+  if (exerciseContentCache.has(exerciseId)) {
+    renderExerciseHowto(container, exerciseContentCache.get(exerciseId));
+    return;
+  }
+
+  container.innerHTML = '<p class="muted">Loading…</p>';
+
+  try {
+    const result = await api("GET", `/exercises/${encodeURIComponent(exerciseId)}/content`);
+    exerciseContentCache.set(exerciseId, result);
+    renderExerciseHowto(container, result);
+  }
+  catch (error) {
+    container.innerHTML = '<p class="muted">Instructions could not be loaded right now.</p>';
+  }
+}
 
 function hideAllActionPanels() {
   elements.skipReasonPanel.hidden = true;
@@ -2261,6 +2313,10 @@ function renderExerciseFocus(step, classification) {
         ${details.map((detail) => `<span class="exercise-detail">${escapeHtml(detail)}</span>`).join("")}
       </div>
       ${coachingNotes ? `<p class="muted exercise-coaching-note">${escapeHtml(coachingNotes)}</p>` : ""}
+      <details class="exercise-howto" data-exercise-id="${escapeHtml(currentFocusExerciseId ?? "")}">
+        <summary>How to perform this exercise</summary>
+        <div class="exercise-howto-body"></div>
+      </details>
     </div>
   `;
 
@@ -10983,10 +11039,12 @@ function renderTemplateWorkItem(workItem, blockIndex, weekIndex, sessionIndex, w
         <div class="builder-action-row">
           <button class="button secondary small-button move-template-work-item" type="button" aria-label="Move exercise up" title="Move exercise up" data-direction="-1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}" ${workItemIndex === 0 ? "disabled" : ""}>↑</button>
           <button class="button secondary small-button move-template-work-item" type="button" aria-label="Move exercise down" title="Move exercise down" data-direction="1" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}" ${workItemIndex === workItemCount - 1 ? "disabled" : ""}>↓</button>
+          <button class="button secondary small-button template-work-item-info-toggle" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}">Exercise info</button>
           <button class="button secondary small-button duplicate-template-work-item" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}" ${workItemCount >= 12 ? "disabled" : ""}>Duplicate</button>
           ${workItemCount > 1 ? `<button class="button danger small-button remove-template-work-item" type="button" data-block-index="${blockIndex}" data-week-index="${weekIndex}" data-session-index="${sessionIndex}" data-work-item-index="${workItemIndex}">Remove</button>` : ""}
         </div>
       </div>
+      <div class="template-work-item-info" hidden></div>
       <div class="template-prescription-grid">
         <label class="template-sets-field">
           <span>Sets</span>
@@ -12083,6 +12141,28 @@ function ungroupWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex) {
   item.group_type = "straight";
   ungroupIfTooSmall(session, groupId);
   rerenderTemplateBuilder();
+}
+
+function toggleTemplateWorkItemInfo(button, blockIndex, weekIndex, sessionIndex, workItemIndex) {
+  const panel = button.closest(".template-work-item")?.querySelector(".template-work-item-info");
+  if (!panel) return;
+
+  if (!panel.hidden) {
+    panel.hidden = true;
+    return;
+  }
+
+  const workItem = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex]?.work_items[workItemIndex];
+  const exerciseId = String(workItem?.exercise_id ?? "").trim();
+
+  panel.hidden = false;
+
+  if (!exerciseId) {
+    panel.innerHTML = '<p class="muted">Select an exercise to view instructions.</p>';
+    return;
+  }
+
+  loadExerciseHowto(exerciseId, panel);
 }
 
 function templatePayloadFromDraft() {
@@ -15100,6 +15180,9 @@ elements.templateBlocks.addEventListener("click", (event) => {
   else if (action.classList.contains("move-template-work-item")) {
     moveTemplateWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex, direction);
   }
+  else if (action.classList.contains("template-work-item-info-toggle")) {
+    toggleTemplateWorkItemInfo(action, blockIndex, weekIndex, sessionIndex, workItemIndex);
+  }
   else if (action.classList.contains("group-with-next-work-item")) {
     groupWorkItemWithNext(blockIndex, weekIndex, sessionIndex, workItemIndex);
   }
@@ -15128,6 +15211,16 @@ elements.templateBlocks.addEventListener("click", (event) => {
     moveTemplateBlock(blockIndex, direction);
   }
 });
+
+// <details> `toggle` events do not bubble, but a capture-phase listener on a
+// stable ancestor still receives them, and keeps working across the
+// innerHTML replacement renderExerciseFocus performs on every re-render.
+elements.currentExercise.addEventListener("toggle", (event) => {
+  const details = event.target;
+  if (!(details instanceof HTMLElement) || !details.classList.contains("exercise-howto")) return;
+  if (!details.open) return;
+  loadExerciseHowto(details.dataset.exerciseId, details.querySelector(".exercise-howto-body"));
+}, { capture: true });
 
 elements.closeAthleteProfileButton.addEventListener("click", closeAthleteProfile);
 elements.addAthleteBenchmarkButton.addEventListener("click", addAthleteBenchmark);

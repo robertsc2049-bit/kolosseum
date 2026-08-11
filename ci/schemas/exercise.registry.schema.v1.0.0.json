@@ -162,6 +162,20 @@
               "minLength": 1
             }
           },
+          "coaching_cues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "common_faults": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
           "reference_media": {
             "type": "object",
             "additionalProperties": false,
