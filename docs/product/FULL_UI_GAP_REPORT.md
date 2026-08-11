@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 270
+- implemented: 273
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -216,7 +216,7 @@ Slice: FULL-UI-11
 
 Area state: implemented
 
-Implemented: 24 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 25 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -230,6 +230,7 @@ Implemented: 24 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `builder_session_composition` — Compose 1-12 exercises per session, grouped into supersets or circuits
 - `builder_coaching_notes` — Add coaching notes at session and exercise level
 - `builder_work_item_segment` — Mark exercises as warm-up, working, or cool-down
+- `builder_exercise_info` — View written instructions, coaching cues and common faults for the selected exercise
 - `builder_registry_exercises` — Select registry-backed exercises
 - `builder_role` — Set primary or accessory role
 - `builder_sets` — Set planned sets
@@ -316,12 +317,13 @@ Slice: FULL-UI-15
 
 Area state: implemented
 
-Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 17 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `session_overview` — Display pre-start session overview
 - `session_ordered_exercises` — Display ordered exercises, grouped and annotated with coach notes
+- `session_exercise_howto` — Expand written instructions, coaching cues and common faults for the current exercise
 - `session_prescription` — Display sets, reps or a timed hold or distance, tempo, load and rest
 - `session_start` — Start session
 - `session_complete_work` — Mark work complete
@@ -564,6 +566,18 @@ Implemented: 1 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 - `exercise_reference_media_lookup` — Look up an exercise reference-media record (read-only, null until content exists)
 
+### Exercise coaching content
+
+Slice: FULL-UI-35
+
+Area state: implemented
+
+Implemented: 1 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `exercise_content_lookup` — Look up written instructions, coaching cues and common faults for a registry exercise
+
 ### Device sync
 
 Slice: FULL-UI-31
@@ -618,6 +632,7 @@ Implemented: 6 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-29: implemented
 - FULL-UI-30: implemented
 - FULL-UI-31: implemented
+- FULL-UI-35: implemented
 
 ## Prohibited capabilities
 
