@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 274
+- implemented: 275
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -317,7 +317,7 @@ Slice: FULL-UI-15
 
 Area state: implemented
 
-Implemented: 18 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 19 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -325,6 +325,7 @@ Implemented: 18 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `session_ordered_exercises` — Display ordered exercises, grouped and annotated with coach notes
 - `session_exercise_howto` — Expand written instructions, coaching cues and common faults for the current exercise
 - `session_prescription` — Display sets, reps or a timed hold or distance, tempo, load and rest
+- `session_coaching_notes` — Show the coach's session-level notes before the athlete starts
 - `session_rest_timer` — Countdown prescribed rest with a completion cue
 - `session_start` — Start session
 - `session_complete_work` — Mark work complete
