@@ -2140,6 +2140,19 @@ test(
     assert.equal(compiledGroupedExercises[2]?.coaching_notes, "Go straight into this from the prior exercise.");
     assert.equal(compiledGroupedExercises[3]?.segment, "cool_down");
 
+    // --- Positive: the session-level coaching note (distinct from the
+    // per-exercise ones above) also survives compilation. materialiseNextCoach-
+    // TemplateProgram stores it correctly but previously never read it back
+    // into coach_template_execution, so it never reached the compile
+    // response - the athlete's Today card already has nowhere to show a
+    // value that never arrived. ---
+    assert.equal(
+      groupedCompile.json
+        ?.beta_path
+        ?.template_session_coaching_notes,
+      "Focus on bar speed today."
+    );
+
     // --- Negative: thirteen exercises exceeds the maximum of twelve. ---
     const thirteenExercises = exerciseIds
       .slice(0, 13)

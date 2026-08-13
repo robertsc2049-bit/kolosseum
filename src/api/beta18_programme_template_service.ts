@@ -4585,6 +4585,8 @@ export async function materialiseNextCoachTemplateProgram(
           nextIndex,
         template_session_title:
           selectedSession.title,
+        template_session_coaching_notes:
+          selectedSession.coaching_notes,
         template_block_id:
           selectedSession
             .template_block_id,

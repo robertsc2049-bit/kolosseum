@@ -734,6 +734,13 @@ export async function compileBlock(req: Request, res: Response) {
                 .template_session_title
             ) ?? null
           : null,
+      template_session_coaching_notes:
+        coachTemplateExecution
+          ? asString(
+              coachTemplateExecution
+                .template_session_coaching_notes
+            ) ?? null
+          : null,
       template_block_name:
         coachTemplateExecution
           ? asString(

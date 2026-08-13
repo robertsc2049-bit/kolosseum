@@ -34,6 +34,18 @@ test("Today exposes current programme, exact assignment version and block/week c
   assert.match(todayService, /template_version:\s*Number\(template\.template_version/u);
 });
 
+test("Today exposes the coach's session-level note for the upcoming session", () => {
+  assert.ok(html.includes('id="todaySessionNotes"'));
+
+  assert.match(js, /elements\.todaySessionNotes\.hidden = !sessionNotes/u);
+  assert.match(js, /today\.session\?\.template_session_coaching_notes/u);
+
+  assert.match(
+    todayService,
+    /template_session_coaching_notes:\s*cleanString\(execution\.template_session_coaching_notes\)/u
+  );
+});
+
 test("Today exposes the resolved load and its exact source reference", () => {
   assert.ok(html.includes('id="todayResolvedLoad"'));
   assert.ok(html.includes('id="todayResolvedLoadValue"'));
