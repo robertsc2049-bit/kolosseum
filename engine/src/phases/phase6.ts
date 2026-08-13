@@ -44,6 +44,10 @@ export type Phase6SessionExercise = {
   } | null;
   rest_seconds?: number;
 
+  // Grouping trace (ONLY if the item belongs to a superset/circuit group)
+  group_id?: string;
+  group_type?: "superset" | "circuit";
+
   // Substitution trace (ONLY if the substituted exercise is emitted)
   substituted_from?: string;
 };
@@ -229,6 +233,13 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
         : null,
       rest_seconds: typeof it.rest_seconds === "number" ? it.rest_seconds : undefined
     };
+
+    // Grouping trace only exists if the item actually belongs to a group.
+    const groupId = typeof it.group_id === "string" ? it.group_id : "";
+    if (groupId) {
+      ex.group_id = groupId;
+      ex.group_type = it.group_type === "circuit" ? "circuit" : "superset";
+    }
 
     // Trace only exists if the substituted exercise is actually emitted.
     if (finalId !== originalId) ex.substituted_from = originalId;
