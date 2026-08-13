@@ -2129,6 +2129,17 @@ test(
     assert.equal(compiledGroupedExercises[2]?.group_type, "superset");
     assert.equal(compiledGroupedExercises[3]?.group_id, undefined, "cool-down item must not carry a group");
 
+    // --- Positive: segment/coaching_notes also survive compilation through Phase 6.
+    // Same regression class as group_id/group_type above - the athlete-facing UI
+    // already renders segment badges and coaching notes off these fields
+    // (public/app/app.js renderExerciseFocus/renderExerciseQueue), but Phase 6
+    // previously dropped both entirely. ---
+    assert.equal(compiledGroupedExercises[0]?.segment, "warm_up");
+    assert.equal(compiledGroupedExercises[0]?.coaching_notes, "Easy pace, build up gradually.");
+    assert.equal(compiledGroupedExercises[1]?.segment, "working", "default segment when not authored");
+    assert.equal(compiledGroupedExercises[2]?.coaching_notes, "Go straight into this from the prior exercise.");
+    assert.equal(compiledGroupedExercises[3]?.segment, "cool_down");
+
     // --- Negative: thirteen exercises exceeds the maximum of twelve. ---
     const thirteenExercises = exerciseIds
       .slice(0, 13)
@@ -2451,6 +2462,198 @@ test(
       tempoSave.json?.template?.template_structure?.blocks[0]?.weeks[0]?.days[0]?.sessions[0]?.work_items[0];
     assert.equal(storedTempoItem?.tempo, "3-1-X-0");
     assert.equal(storedTempoItem?.prescription_mode, "reps");
+
+    // --- Positive: tempo, duration-range and distance-fixed prescriptions all
+    // survive compilation through Phase 6. Same regression class as the
+    // grouping/segment fix above - the athlete-facing UI already renders
+    // exercise.duration_range/duration_seconds/distance_value/distance_unit/tempo
+    // (public/app/app.js exerciseDetails), but Phase 6 previously dropped all of
+    // them entirely. ---
+    const prescriptionCompileItems = [
+      baseWorkItem(exerciseIds[0], 1, {
+        prescription_mode: "duration",
+        duration_mode: "range",
+        duration_min_seconds: 30,
+        duration_max_seconds: 60
+      }),
+      baseWorkItem(exerciseIds[1], 2, {
+        prescription_mode: "distance",
+        distance_mode: "fixed",
+        distance_unit: "meters",
+        planned_distance_value: 400
+      }),
+      baseWorkItem(exerciseIds[2], 3, { tempo: "4-2-X-0" }),
+      baseWorkItem(exerciseIds[3], 4)
+    ];
+    const prescriptionCompileSave = await request(
+      server.baseUrl, "POST", "/templates", templatePayload("Prescription Compile Session", prescriptionCompileItems)
+    );
+    assertStatus(prescriptionCompileSave, 201, "prescription compile session save");
+    const prescriptionTemplateId = prescriptionCompileSave.json?.template?.template_id;
+    assert.equal(typeof prescriptionTemplateId, "string");
+
+    const prescriptionCompletion = await request(
+      server.baseUrl,
+      "POST",
+      `/templates/${encodeURIComponent(prescriptionTemplateId)}/complete`,
+      { coach_user_id: coachUserId }
+    );
+    assertStatus(prescriptionCompletion, 200, "prescription template completion");
+
+    const prescriptionActivation = await request(
+      server.baseUrl,
+      "POST",
+      `/templates/${encodeURIComponent(prescriptionTemplateId)}/activate`,
+      { coach_user_id: coachUserId }
+    );
+    assertStatus(prescriptionActivation, 200, "prescription template activation");
+
+    const prescriptionAthleteUserId = `beta18_prescription_athlete_${nonce}`;
+    const prescriptionPhase1Input = {
+      consent_granted: true,
+      engine_version: "EB2-1.0.0",
+      enum_bundle_version: "EB2-1.0.0",
+      phase1_schema_version: "1.0.0",
+      actor_type: "athlete",
+      execution_scope: "individual",
+      activity_id: "powerlifting",
+      nd_mode: false,
+      instruction_density: "standard",
+      exposure_prompt_density: "standard",
+      bias_mode: "none"
+    };
+    const prescriptionTimestamp = new Date().toISOString();
+
+    const prescriptionCoachProfile = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-coach-profile",
+      {
+        coach_user_id: coachUserId,
+        email: `${coachUserId}@example.com`,
+        display_name: "Prescription Coach",
+        account_role: "coach",
+        account_state: "active",
+        accepted_terms_version: "terms_v1",
+        created_at_iso8601: prescriptionTimestamp
+      }
+    );
+    assertStatus(prescriptionCoachProfile, 201, "prescription coach profile");
+
+    const prescriptionAthleteAuth = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-auth",
+      {
+        user_id: prescriptionAthleteUserId,
+        email: `${prescriptionAthleteUserId}@example.com`,
+        display_name: "Prescription Athlete",
+        account_role: "athlete",
+        account_state: "active",
+        accepted_terms_version: "terms_v1",
+        created_at_iso8601: prescriptionTimestamp
+      }
+    );
+    assertStatus(prescriptionAthleteAuth, 201, "prescription athlete auth");
+
+    const prescriptionAcknowledgement = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-acknowledgement",
+      {
+        acknowledgement_id: `beta18_prescription_ack_${nonce}`,
+        user_id: prescriptionAthleteUserId,
+        beta_id: "september_beta_2026",
+        accepted: true,
+        jurisdiction_acknowledged: true,
+        accepted_at_iso8601: prescriptionTimestamp,
+        copy_acknowledgement_id: "BETA16_COPY_ACKNOWLEDGEMENT_LABEL"
+      }
+    );
+    assertStatus(prescriptionAcknowledgement, 201, "prescription acknowledgement");
+
+    const prescriptionDeclaration = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-declaration",
+      {
+        declaration_id: `beta18_prescription_declaration_${nonce}`,
+        user_id: prescriptionAthleteUserId,
+        phase1_input: prescriptionPhase1Input,
+        jurisdiction_acknowledged: true,
+        declared_at_iso8601: prescriptionTimestamp,
+        accepted_terms_version: "terms_v1",
+        copy_acknowledgement_id: "BETA16_COPY_DECLARATION_ACKNOWLEDGEMENT"
+      }
+    );
+    assertStatus(prescriptionDeclaration, 201, "prescription declaration");
+
+    const prescriptionRelationship = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-coach-relationship",
+      {
+        relationship_id: `beta18_prescription_relationship_${nonce}`,
+        coach_user_id: coachUserId,
+        athlete_user_id: prescriptionAthleteUserId,
+        relationship_state: "accepted",
+        relationship_scope: "individual_coach_athlete",
+        accepted_at_iso8601: prescriptionTimestamp,
+        created_at_iso8601: prescriptionTimestamp,
+        updated_at_iso8601: prescriptionTimestamp,
+        revoked_at_iso8601: null,
+        expires_at_iso8601: null
+      }
+    );
+    assertStatus(prescriptionRelationship, 201, "prescription relationship");
+
+    const prescriptionAssignment = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-coach-assignment",
+      {
+        request_id: `beta18_prescription_assignment_${nonce}`,
+        requested_at_iso8601: prescriptionTimestamp,
+        coach_user_id: coachUserId,
+        athlete_user_id: prescriptionAthleteUserId,
+        template_id: prescriptionTemplateId,
+        activity_id: "powerlifting"
+      }
+    );
+    assertStatus(prescriptionAssignment, 201, "prescription template assignment");
+
+    const prescriptionCompile = await request(
+      server.baseUrl,
+      "POST",
+      "/blocks/compile?create_session=true&beta_path=true",
+      {
+        phase1_input: prescriptionPhase1Input,
+        beta_user_id: prescriptionAthleteUserId,
+        beta_coach_user_id: coachUserId
+      }
+    );
+    assertStatus(prescriptionCompile, 201, "prescription template compile");
+
+    const compiledPrescriptionExercises = prescriptionCompile.json?.planned_session?.exercises ?? [];
+    assert.equal(
+      compiledPrescriptionExercises.length,
+      4,
+      "Expected all four prescription-session exercises to compile"
+    );
+
+    assert.deepEqual(compiledPrescriptionExercises[0]?.duration_range, { minimum: 30, maximum: 60 });
+    assert.equal(compiledPrescriptionExercises[0]?.duration_seconds, undefined);
+    assert.equal(compiledPrescriptionExercises[0]?.distance_value, undefined);
+
+    assert.equal(compiledPrescriptionExercises[1]?.distance_value, 400);
+    assert.equal(compiledPrescriptionExercises[1]?.distance_unit, "meters");
+    assert.equal(compiledPrescriptionExercises[1]?.distance_range, undefined);
+
+    assert.equal(compiledPrescriptionExercises[2]?.tempo, "4-2-X-0");
+
+    assert.equal(compiledPrescriptionExercises[3]?.tempo, undefined, "control item must not carry a tempo");
+    assert.equal(compiledPrescriptionExercises[3]?.duration_range, undefined);
+    assert.equal(compiledPrescriptionExercises[3]?.distance_value, undefined);
 
     // --- Negative: an invalid tempo format. ---
     const invalidTempoItems = [

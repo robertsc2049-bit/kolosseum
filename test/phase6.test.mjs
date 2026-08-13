@@ -78,3 +78,64 @@ test("Phase 6 emits group_id/group_type only for items that actually belong to a
   assert.equal(r.session.exercises[3].group_id, "group_2");
   assert.equal(r.session.exercises[3].group_type, "circuit");
 });
+
+test("Phase 6 emits segment/coaching_notes/tempo/duration/distance for items that carry them", () => {
+  const program = {
+    planned_items: [
+      { block_id: "B0", item_id: "B0_I0", exercise_id: "back_squat", sets: 3, reps: 5 },
+      {
+        block_id: "B0",
+        item_id: "B0_I1",
+        exercise_id: "goblet_squat",
+        sets: 2,
+        reps: 15,
+        segment: "warm_up",
+        coaching_notes: "Easy pace, build up gradually.",
+        tempo: "3-1-X-0"
+      },
+      {
+        block_id: "B0",
+        item_id: "B0_I2",
+        exercise_id: "plank",
+        sets: 3,
+        segment: "working",
+        duration_range: { minimum: 30, maximum: 60 }
+      },
+      {
+        block_id: "B0",
+        item_id: "B0_I3",
+        exercise_id: "farmer_carry",
+        sets: 3,
+        segment: "cool_down",
+        distance_value: 20,
+        distance_unit: "feet"
+      }
+    ]
+  };
+  const r = phase6ProduceSessionOutput(program, {}, undefined);
+  assert.equal(r.ok, true);
+  assert.equal(r.session.exercises.length, 4);
+
+  // Item without any of the new fields still gets the unconditional default segment
+  // and none of the conditional annotation/prescription fields.
+  assert.equal(r.session.exercises[0].segment, "working");
+  assert.equal(r.session.exercises[0].coaching_notes, undefined);
+  assert.equal(r.session.exercises[0].tempo, undefined);
+  assert.equal(r.session.exercises[0].duration_seconds, undefined);
+  assert.equal(r.session.exercises[0].duration_range, undefined);
+  assert.equal(r.session.exercises[0].distance_value, undefined);
+  assert.equal(r.session.exercises[0].distance_range, undefined);
+
+  assert.equal(r.session.exercises[1].segment, "warm_up");
+  assert.equal(r.session.exercises[1].coaching_notes, "Easy pace, build up gradually.");
+  assert.equal(r.session.exercises[1].tempo, "3-1-X-0");
+
+  assert.equal(r.session.exercises[2].segment, "working");
+  assert.deepEqual(r.session.exercises[2].duration_range, { minimum: 30, maximum: 60 });
+  assert.equal(r.session.exercises[2].duration_seconds, undefined);
+
+  assert.equal(r.session.exercises[3].segment, "cool_down");
+  assert.equal(r.session.exercises[3].distance_value, 20);
+  assert.equal(r.session.exercises[3].distance_unit, "feet");
+  assert.equal(r.session.exercises[3].distance_range, undefined);
+});

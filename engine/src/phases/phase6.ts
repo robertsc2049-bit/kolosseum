@@ -48,6 +48,30 @@ export type Phase6SessionExercise = {
   group_id?: string;
   group_type?: "superset" | "circuit";
 
+  // Session-structure annotation (always present; defaults to "working")
+  segment?: "warm_up" | "working" | "cool_down";
+
+  // Coaching annotation (ONLY if a non-empty note was authored)
+  coaching_notes?: string;
+
+  // Coaching tempo annotation (ONLY if a non-empty tempo was authored)
+  tempo?: string;
+
+  // Duration-based prescription (ONLY if the item is duration-prescribed)
+  duration_seconds?: number;
+  duration_range?: {
+    minimum: number;
+    maximum: number;
+  };
+
+  // Distance-based prescription (ONLY if the item is distance-prescribed)
+  distance_value?: number;
+  distance_unit?: "meters" | "feet";
+  distance_range?: {
+    minimum: number;
+    maximum: number;
+  };
+
   // Substitution trace (ONLY if the substituted exercise is emitted)
   substituted_from?: string;
 };
@@ -157,6 +181,42 @@ function repRangeFromItem(item: any): { minimum: number; maximum: number } | und
   return { minimum, maximum };
 }
 
+function durationRangeFromItem(item: any): { minimum: number; maximum: number } | undefined {
+  if (!isRecord(item?.duration_range)) return undefined;
+
+  const minimum = Number(item.duration_range.minimum);
+  const maximum = Number(item.duration_range.maximum);
+
+  if (
+    !Number.isInteger(minimum) ||
+    !Number.isInteger(maximum) ||
+    minimum < 1 ||
+    maximum < minimum
+  ) {
+    return undefined;
+  }
+
+  return { minimum, maximum };
+}
+
+function distanceRangeFromItem(item: any): { minimum: number; maximum: number } | undefined {
+  if (!isRecord(item?.distance_range)) return undefined;
+
+  const minimum = Number(item.distance_range.minimum);
+  const maximum = Number(item.distance_range.maximum);
+
+  if (
+    !Number.isFinite(minimum) ||
+    !Number.isFinite(maximum) ||
+    minimum <= 0 ||
+    maximum < minimum
+  ) {
+    return undefined;
+  }
+
+  return { minimum, maximum };
+}
+
 /**
  * Phase 6
  * Contract required by tests/goldens:
@@ -239,6 +299,34 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
     if (groupId) {
       ex.group_id = groupId;
       ex.group_type = it.group_type === "circuit" ? "circuit" : "superset";
+    }
+
+    // Segment always carries a value (defaults to "working", same as the builder).
+    ex.segment = it.segment === "warm_up" || it.segment === "cool_down" ? it.segment : "working";
+
+    // Coaching annotations only exist if actually authored.
+    const coachingNotes = typeof it.coaching_notes === "string" ? it.coaching_notes.trim() : "";
+    if (coachingNotes) ex.coaching_notes = coachingNotes;
+
+    const tempo = typeof it.tempo === "string" ? it.tempo.trim() : "";
+    if (tempo) ex.tempo = tempo;
+
+    // Duration prescription only exists if the item is actually duration-prescribed.
+    const durationRange = durationRangeFromItem(it);
+    if (durationRange) {
+      ex.duration_range = durationRange;
+    } else if (typeof it.duration_seconds === "number" && Number.isInteger(it.duration_seconds) && it.duration_seconds > 0) {
+      ex.duration_seconds = it.duration_seconds;
+    }
+
+    // Distance prescription only exists if the item is actually distance-prescribed.
+    const distanceRange = distanceRangeFromItem(it);
+    if (distanceRange) {
+      ex.distance_range = distanceRange;
+      ex.distance_unit = it.distance_unit === "feet" ? "feet" : "meters";
+    } else if (typeof it.distance_value === "number" && Number.isFinite(it.distance_value) && it.distance_value > 0) {
+      ex.distance_value = it.distance_value;
+      ex.distance_unit = it.distance_unit === "feet" ? "feet" : "meters";
     }
 
     // Trace only exists if the substituted exercise is actually emitted.
