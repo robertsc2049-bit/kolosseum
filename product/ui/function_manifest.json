@@ -3715,6 +3715,26 @@
           }
         },
         {
+          "function_id": "session_coaching_notes",
+          "label": "Show the coach's session-level notes before the athlete starts",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
           "function_id": "session_rest_timer",
           "label": "Countdown prescribed rest with a completion cue",
           "actors": [

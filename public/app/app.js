@@ -181,6 +181,7 @@ const elements = {
   todayStatusBadge: document.getElementById("todayStatusBadge"),
   todayActivity: document.getElementById("todayActivity"),
   todaySessionTitle: document.getElementById("todaySessionTitle"),
+  todaySessionNotes: document.getElementById("todaySessionNotes"),
   todayCompleted: document.getElementById("todayCompleted"),
   todayRemaining: document.getElementById("todayRemaining"),
   todayDropped: document.getElementById("todayDropped"),
@@ -1958,6 +1959,7 @@ async function createSession() {
         assignment_id: response.beta_path?.assignment_id ?? null,
         template_id: response.beta_path?.template_id ?? null,
         template_session_title: response.beta_path?.template_session_title ?? null,
+        template_session_coaching_notes: response.beta_path?.template_session_coaching_notes ?? null,
         event_plan: response.beta_path?.event_plan ?? null,
         event_compile_summary: response.beta_path?.event_compile_summary ?? null,
         runtime_event_count: 0
@@ -3055,6 +3057,10 @@ function renderToday() {
   elements.todaySessionTitle.textContent = today.session?.template_session_title
     ? String(today.session.template_session_title)
     : `${titleCase(state.profile?.activityId ?? "training")} session`;
+
+  const sessionNotes = today.session?.template_session_coaching_notes;
+  elements.todaySessionNotes.hidden = !sessionNotes;
+  elements.todaySessionNotes.textContent = sessionNotes ? String(sessionNotes) : "";
 
   renderTodayResolvedLoad(today.session);
 }

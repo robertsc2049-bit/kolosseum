@@ -252,6 +252,7 @@ function sessionContextFromMaterialised(
     session_id: existingSessionId,
     template_session_index: Number(execution.template_session_index ?? 0),
     template_session_title: cleanString(execution.template_session_title),
+    template_session_coaching_notes: cleanString(execution.template_session_coaching_notes),
     template_block_id: cleanString(execution.template_block_id),
     template_block_name: cleanString(execution.template_block_name),
     template_block_order: execution.template_block_order ?? null,
