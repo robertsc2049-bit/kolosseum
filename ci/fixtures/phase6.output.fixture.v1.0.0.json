@@ -15,7 +15,10 @@
           "type": "percent_1rm",
           "value": 75
         },
-        "rest_seconds": 180
+        "rest_seconds": 180,
+        "segment": "working",
+        "coaching_notes": "Focus on depth.",
+        "tempo": "3-1-X-0"
       },
       {
         "exercise_id": "BENCH",
@@ -31,7 +34,34 @@
         "rest_seconds": 150,
         "group_id": "group_1",
         "group_type": "superset",
+        "segment": "working",
         "substituted_from": "DB_BENCH"
+      },
+      {
+        "exercise_id": "PLANK",
+        "source": "program",
+        "block_id": "B0",
+        "item_id": "B0_I2",
+        "sets": 3,
+        "reps": 0,
+        "rest_seconds": 60,
+        "segment": "warm_up",
+        "duration_range": {
+          "minimum": 30,
+          "maximum": 60
+        }
+      },
+      {
+        "exercise_id": "SLED_PUSH",
+        "source": "program",
+        "block_id": "B0",
+        "item_id": "B0_I3",
+        "sets": 3,
+        "reps": 0,
+        "rest_seconds": 90,
+        "segment": "cool_down",
+        "distance_value": 20,
+        "distance_unit": "meters"
       }
     ]
   },

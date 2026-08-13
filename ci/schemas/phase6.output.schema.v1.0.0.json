@@ -73,6 +73,33 @@
                   "group_id": { "type": "string" },
                   "group_type": { "enum": ["superset", "circuit"] },
 
+                  "segment": { "enum": ["warm_up", "working", "cool_down"] },
+                  "coaching_notes": { "type": "string" },
+                  "tempo": { "type": "string" },
+
+                  "duration_seconds": { "type": "integer", "minimum": 0 },
+                  "duration_range": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["minimum", "maximum"],
+                    "properties": {
+                      "minimum": { "type": "integer", "minimum": 1 },
+                      "maximum": { "type": "integer", "minimum": 1 }
+                    }
+                  },
+
+                  "distance_value": { "type": "number", "minimum": 0 },
+                  "distance_unit": { "enum": ["meters", "feet"] },
+                  "distance_range": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["minimum", "maximum"],
+                    "properties": {
+                      "minimum": { "type": "number", "minimum": 0 },
+                      "maximum": { "type": "number", "minimum": 0 }
+                    }
+                  },
+
                   "substituted_from": { "type": "string" }
                 }
               }

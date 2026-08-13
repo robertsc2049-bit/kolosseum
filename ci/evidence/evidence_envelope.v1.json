@@ -91,7 +91,7 @@
       },
       {
         "path": "ci/schemas/phase6.output.schema.v1.0.0.json",
-        "sha256": "782EC616B9865E24C90B750A0D445B215CFCBFAE1BD05B2984AB61B0FA2A3027"
+        "sha256": "31C6329F68D37FA720D76A5678F93D1EEE42927A4886EDE14D7AD4AE6B5919AC"
       },
       {
         "path": "ci/schemas/program.registry.schema.json",
