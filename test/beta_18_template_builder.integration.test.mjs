@@ -1964,6 +1964,171 @@ test(
     assert.equal(storedGroupedItems[3]?.segment, "cool_down");
     assert.equal(storedGroupedItems[3]?.group_id, "");
 
+    // --- Positive: the grouping trace survives compilation through Phase 6.
+    // Regression proof for a real gap - the athlete-facing UI already renders
+    // a "Superset"/"Circuit" badge off exercise.group_id/group_type
+    // (public/app/app.js renderExerciseFocus/renderExerciseQueue), but
+    // nothing ever proved those fields reach a compiled session. Phase 6
+    // (engine/src/phases/phase6.ts) whitelists emitted exercise fields and
+    // previously dropped group_id/group_type entirely. ---
+    const groupedTemplateId = groupedSave.json?.template?.template_id;
+    assert.equal(typeof groupedTemplateId, "string");
+
+    const groupedCompletion = await request(
+      server.baseUrl,
+      "POST",
+      `/templates/${encodeURIComponent(groupedTemplateId)}/complete`,
+      { coach_user_id: coachUserId }
+    );
+    assertStatus(groupedCompletion, 200, "grouped template completion");
+
+    const groupedActivation = await request(
+      server.baseUrl,
+      "POST",
+      `/templates/${encodeURIComponent(groupedTemplateId)}/activate`,
+      { coach_user_id: coachUserId }
+    );
+    assertStatus(groupedActivation, 200, "grouped template activation");
+
+    const groupedAthleteUserId = `beta18_grouped_athlete_${nonce}`;
+    const groupedPhase1Input = {
+      consent_granted: true,
+      engine_version: "EB2-1.0.0",
+      enum_bundle_version: "EB2-1.0.0",
+      phase1_schema_version: "1.0.0",
+      actor_type: "athlete",
+      execution_scope: "individual",
+      activity_id: "powerlifting",
+      nd_mode: false,
+      instruction_density: "standard",
+      exposure_prompt_density: "standard",
+      bias_mode: "none"
+    };
+    const groupedTimestamp = new Date().toISOString();
+
+    const groupedCoachProfile = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-coach-profile",
+      {
+        coach_user_id: coachUserId,
+        email: `${coachUserId}@example.com`,
+        display_name: "Composition Coach",
+        account_role: "coach",
+        account_state: "active",
+        accepted_terms_version: "terms_v1",
+        created_at_iso8601: groupedTimestamp
+      }
+    );
+    assertStatus(groupedCoachProfile, 201, "grouped coach profile");
+
+    const groupedAthleteAuth = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-auth",
+      {
+        user_id: groupedAthleteUserId,
+        email: `${groupedAthleteUserId}@example.com`,
+        display_name: "Composition Athlete",
+        account_role: "athlete",
+        account_state: "active",
+        accepted_terms_version: "terms_v1",
+        created_at_iso8601: groupedTimestamp
+      }
+    );
+    assertStatus(groupedAthleteAuth, 201, "grouped athlete auth");
+
+    const groupedAcknowledgement = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-acknowledgement",
+      {
+        acknowledgement_id: `beta18_grouped_ack_${nonce}`,
+        user_id: groupedAthleteUserId,
+        beta_id: "september_beta_2026",
+        accepted: true,
+        jurisdiction_acknowledged: true,
+        accepted_at_iso8601: groupedTimestamp,
+        copy_acknowledgement_id: "BETA16_COPY_ACKNOWLEDGEMENT_LABEL"
+      }
+    );
+    assertStatus(groupedAcknowledgement, 201, "grouped acknowledgement");
+
+    const groupedDeclaration = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-declaration",
+      {
+        declaration_id: `beta18_grouped_declaration_${nonce}`,
+        user_id: groupedAthleteUserId,
+        phase1_input: groupedPhase1Input,
+        jurisdiction_acknowledged: true,
+        declared_at_iso8601: groupedTimestamp,
+        accepted_terms_version: "terms_v1",
+        copy_acknowledgement_id: "BETA16_COPY_DECLARATION_ACKNOWLEDGEMENT"
+      }
+    );
+    assertStatus(groupedDeclaration, 201, "grouped declaration");
+
+    const groupedRelationship = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-coach-relationship",
+      {
+        relationship_id: `beta18_grouped_relationship_${nonce}`,
+        coach_user_id: coachUserId,
+        athlete_user_id: groupedAthleteUserId,
+        relationship_state: "accepted",
+        relationship_scope: "individual_coach_athlete",
+        accepted_at_iso8601: groupedTimestamp,
+        created_at_iso8601: groupedTimestamp,
+        updated_at_iso8601: groupedTimestamp,
+        revoked_at_iso8601: null,
+        expires_at_iso8601: null
+      }
+    );
+    assertStatus(groupedRelationship, 201, "grouped relationship");
+
+    const groupedAssignment = await request(
+      server.baseUrl,
+      "POST",
+      "/sessions/beta-coach-assignment",
+      {
+        request_id: `beta18_grouped_assignment_${nonce}`,
+        requested_at_iso8601: groupedTimestamp,
+        coach_user_id: coachUserId,
+        athlete_user_id: groupedAthleteUserId,
+        template_id: groupedTemplateId,
+        activity_id: "powerlifting"
+      }
+    );
+    assertStatus(groupedAssignment, 201, "grouped template assignment");
+
+    const groupedCompile = await request(
+      server.baseUrl,
+      "POST",
+      "/blocks/compile?create_session=true&beta_path=true",
+      {
+        phase1_input: groupedPhase1Input,
+        beta_user_id: groupedAthleteUserId,
+        beta_coach_user_id: coachUserId
+      }
+    );
+    assertStatus(groupedCompile, 201, "grouped template compile");
+
+    const compiledGroupedExercises = groupedCompile.json?.planned_session?.exercises ?? [];
+    assert.equal(
+      compiledGroupedExercises.length,
+      4,
+      "Expected all four grouped-session exercises to compile"
+    );
+    assert.equal(compiledGroupedExercises[0]?.group_id, undefined, "warm-up item must not carry a group");
+    assert.equal(compiledGroupedExercises[1]?.group_id, supersetGroupId);
+    assert.equal(compiledGroupedExercises[1]?.group_type, "superset");
+    assert.equal(compiledGroupedExercises[2]?.group_id, supersetGroupId);
+    assert.equal(compiledGroupedExercises[2]?.group_type, "superset");
+    assert.equal(compiledGroupedExercises[3]?.group_id, undefined, "cool-down item must not carry a group");
+
     // --- Negative: thirteen exercises exceeds the maximum of twelve. ---
     const thirteenExercises = exerciseIds
       .slice(0, 13)

@@ -29,6 +29,8 @@
           "value": 7.5
         },
         "rest_seconds": 150,
+        "group_id": "group_1",
+        "group_type": "superset",
         "substituted_from": "DB_BENCH"
       }
     ]
