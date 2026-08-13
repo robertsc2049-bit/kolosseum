@@ -1281,9 +1281,6 @@ function exerciseDetails(exercise) {
   ) {
     details.push(`${repRange.minimum}–${repRange.maximum} reps`);
   }
-  else if (Number.isInteger(exercise?.reps)) {
-    details.push(`${exercise.reps} reps`);
-  }
   else if (
     Number.isInteger(durationRange?.minimum) &&
     Number.isInteger(durationRange?.maximum)
@@ -1303,6 +1300,9 @@ function exerciseDetails(exercise) {
   else if (Number.isFinite(exercise?.distance_value)) {
     const unit = exercise?.distance_unit === "feet" ? "ft" : "m";
     details.push(`${exercise.distance_value}${unit}`);
+  }
+  else if (Number.isInteger(exercise?.reps)) {
+    details.push(`${exercise.reps} reps`);
   }
 
   const tempo = String(exercise?.tempo ?? "");
