@@ -64,7 +64,7 @@
     "src/api/beta_product_record_store.ts": "18478fbf36979ce5bae844df7836c385d32351197d5caf72e1c6b43a518f3d8c",
     "src/api/beta_product_journey_service.ts": "ea2a7e05c7468212705f5bb0c2972237fd8f030d46c3ce21d381a9b523e0565e",
     "src/api/block_compile_write_service.ts": "45db532638eb42b45da0cd93669422d3985ec35556afae05a592c4196f24f642",
-    "src/api/blocks.handlers.ts": "ef77dc0b648016ea35f802303ae3758c08aa16094cfaec57dcf7508c280a4b12",
+    "src/api/blocks.handlers.ts": "0a6bdf33b117de1340b470730799f506ea03c8c6ccbd1b38da3b258731d7100c",
     "src/api/sessions.handlers.ts": "ecfc5443b57863840206133d36ce02e028fcc23912d150f328814fc6ea920343",
     "src/api/sessions.routes.ts": "d44564ea5663a999bab2d2beaa0a1fa3001c2352a2473b0d921a2f20877b3ea7",
     "src/api/session_state_query_service.ts": "d2ab6d48933ce7d9535cd970956909f47351ff153b6ee975147ad4f1dfac92d8",
