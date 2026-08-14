@@ -1893,6 +1893,50 @@ button:focus-visible,
   }
 }
 
+/* Athlete-declared accessibility preferences (accessibility_preferences on the
+   athlete onboarding declaration - see athlete_onboarding_ui.js's
+   applyAccessibilityPreferences). Applied via data attributes on <html> so
+   the effect follows the account's own declared choice rather than only the
+   OS-level prefers-* media features above. */
+html[data-a11y-reduced-motion="true"] *,
+html[data-a11y-reduced-motion="true"] *::before,
+html[data-a11y-reduced-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-a11y-high-contrast="true"] {
+  --ink: #000000;
+  --ink-2: #0a0a0a;
+  --ink-3: #141414;
+  --line: #ffffff;
+  --line-soft: rgba(255, 255, 255, 0.45);
+  --stone: #ffffff;
+  --stone-dim: #e6e6e6;
+  --bronze: #ffd479;
+  --bronze-light: #ffe6ac;
+}
+
+html[data-a11y-larger-text="true"] {
+  font-size: 118%;
+}
+
+html[data-a11y-screen-reader-optimised="true"] {
+  --stone-dim: #d8d2c8;
+}
+
+html[data-a11y-screen-reader-optimised="true"] a:focus-visible,
+html[data-a11y-screen-reader-optimised="true"] button:focus-visible,
+html[data-a11y-screen-reader-optimised="true"] .button:focus-visible,
+html[data-a11y-screen-reader-optimised="true"] [role="button"]:focus-visible,
+html[data-a11y-screen-reader-optimised="true"] [role="menuitem"]:focus-visible,
+html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
+  outline-width: 4px;
+  outline-offset: 4px;
+}
+
 /* FULL-UI-02 persistent account access */
 .entry-access-panel {
   width: min(100%, 34rem);

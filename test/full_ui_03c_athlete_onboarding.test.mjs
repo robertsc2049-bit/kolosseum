@@ -28,6 +28,10 @@ const server = fs.readFileSync(
   new URL("../src/server.ts", import.meta.url),
   "utf8"
 );
+const css = fs.readFileSync(
+  new URL("../public/app/styles.css", import.meta.url),
+  "utf8"
+);
 const functionManifest = JSON.parse(
   fs.readFileSync(
     new URL("../product/ui/function_manifest.json", import.meta.url),
@@ -168,6 +172,49 @@ test("FULL-UI-03C UI distinguishes all required product states", () => {
   }
 
   assert.doesNotMatch(ui, /localStorage\.setItem\([^)]*onboarding/iu);
+});
+
+test("FULL-UI-03C declared accessibility preferences are actually applied to the page", () => {
+  // Same bug class as PR #865 (session-level coaching notes): a declared,
+  // validated, stored preference with no downstream effect. This one is
+  // applied via data attributes on <html>, not another server field, so the
+  // proof lives entirely in the UI source + stylesheet, not an API response.
+  assert.match(ui, /function applyAccessibilityPreferences/u);
+  assert.match(ui, /root\.dataset\.a11yReducedMotion/u);
+  assert.match(ui, /root\.dataset\.a11yHighContrast/u);
+  assert.match(ui, /root\.dataset\.a11yLargerText/u);
+  assert.match(ui, /root\.dataset\.a11yScreenReaderOptimised/u);
+
+  // Applied on every athlete route resolution (covers page load and normal
+  // navigation), not only inside the onboarding view itself.
+  const gateFunction = ui.slice(
+    ui.indexOf("export async function resolveAthleteOnboardingGate"),
+    ui.indexOf("export function installAthleteOnboardingUi")
+  );
+  assert.match(gateFunction, /applyAccessibilityPreferences\(/u);
+
+  // Applied immediately after both write paths that can change the
+  // declared preferences - first confirmation and the post-confirmation
+  // editor - so the effect is visible without a reload.
+  const confirmFunction = ui.slice(ui.indexOf("async function confirm()"), ui.indexOf("function preferenceEditor"));
+  assert.match(confirmFunction, /applyAccessibilityPreferences\(/u);
+  const saveFunction = ui.slice(ui.indexOf("async function savePreferences()"), ui.indexOf("function unavailable"));
+  assert.match(saveFunction, /applyAccessibilityPreferences\(/u);
+
+  // Each declared preference has a real, non-empty CSS effect keyed off the
+  // exact data attribute the UI sets - not just a declared-but-empty rule.
+  for (const [attribute, mustContain] of [
+    ["data-a11y-reduced-motion", "animation-duration"],
+    ["data-a11y-high-contrast", "--stone"],
+    ["data-a11y-larger-text", "font-size"],
+    ["data-a11y-screen-reader-optimised", "--stone-dim"]
+  ]) {
+    const selector = `html[${attribute}="true"]`;
+    const start = css.indexOf(selector);
+    assert.ok(start >= 0, `Expected a CSS rule for ${selector}`);
+    const block = css.slice(start, css.indexOf("}", start) + 1);
+    assert.match(block, new RegExp(mustContain.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
+  }
 });
 
 test("FULL-UI-03C mounts authenticated CSRF-protected HTTP routes", () => {

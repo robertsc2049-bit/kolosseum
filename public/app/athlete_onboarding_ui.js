@@ -81,6 +81,19 @@ function accessibilityLabel(value) {
     .map(([key]) => label(key));
   return chosen.length ? chosen.join(", ") : "No additional presentation preferences";
 }
+// Applies the athlete's declared presentation preferences to the live page via
+// data attributes on <html>, matched by CSS in styles.css. This is the only
+// place a declared preference is allowed to change how anything is styled -
+// it never reads or writes ability/safety/readiness fields.
+function applyAccessibilityPreferences(fields) {
+  if (typeof document === "undefined") return;
+  const a = accessibility(fields?.accessibility_preferences);
+  const root = document.documentElement;
+  root.dataset.a11yReducedMotion = String(a.reduced_motion);
+  root.dataset.a11yHighContrast = String(a.high_contrast);
+  root.dataset.a11yLargerText = String(a.larger_text);
+  root.dataset.a11yScreenReaderOptimised = String(a.screen_reader_optimised);
+}
 
 function installSurface() {
   if (!document.getElementById("athleteOnboardingStyles")) {
@@ -227,6 +240,7 @@ async function confirm() {
   try {
     state = await confirmAthleteOnboarding();
     draft = { ...(state.current_effective_declaration?.fields ?? {}) };
+    applyAccessibilityPreferences(state.current_effective_declaration?.fields);
     sessionStorage.setItem(RELOAD_KEY, "1");
     renderComplete();
   }
@@ -268,6 +282,7 @@ async function savePreferences() {
       },
       instruction_density: document.getElementById("editDensity")?.value ?? ""
     });
+    applyAccessibilityPreferences(state.current_effective_declaration?.fields);
     sessionStorage.setItem(RELOAD_KEY, "1");
     editing = false;
     renderComplete();
@@ -285,6 +300,7 @@ export async function refreshAthleteOnboarding() {
   try {
     state = await loadAthleteOnboardingState();
     draft = { ...(state.draft?.fields ?? state.current_effective_declaration?.fields ?? {}) };
+    applyAccessibilityPreferences(state.current_effective_declaration?.fields);
     if (state.onboarding_status === "completed") renderComplete(); else renderDraft();
     return state;
   }
@@ -292,7 +308,11 @@ export async function refreshAthleteOnboarding() {
 }
 export async function openAthleteOnboardingView() { visible(); return refreshAthleteOnboarding(); }
 export async function resolveAthleteOnboardingGate() {
-  try { return await loadAthleteOnboardingState(); }
+  try {
+    const result = await loadAthleteOnboardingState();
+    applyAccessibilityPreferences(result.current_effective_declaration?.fields);
+    return result;
+  }
   catch (error) { if (error?.status === 401) return null; throw error; }
 }
 export function installAthleteOnboardingUi() {
