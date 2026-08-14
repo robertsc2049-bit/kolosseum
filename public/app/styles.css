@@ -1855,6 +1855,12 @@ button:focus-visible,
   min-width: 180px;
 }
 
+.coach-event-notes {
+  margin: 0.35rem 0 0;
+  font-style: italic;
+  color: var(--stone-dim);
+}
+
 .athlete-assignment-panel {
   margin-top: 1.5rem;
   border-top: 1px solid var(--line);

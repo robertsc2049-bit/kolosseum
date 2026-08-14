@@ -12748,7 +12748,8 @@ function renderCoachEvents() {
             <div>
               <p class="eyebrow">${escapeHtml(titleCase(eventRecord.activity_id ?? "event"))}</p>
               <h3>${escapeHtml(plan.event_name ?? "Event")}</h3>
-              <p>${escapeHtml(titleCase(plan.event_type ?? "event"))} · ${escapeHtml(formatDate(plan.event_date))}${plan.location ? ` · ${escapeHtml(plan.location)}` : ""}</p>
+              <p>${escapeHtml(titleCase(plan.event_type ?? "event"))} · ${escapeHtml(formatDate(plan.event_date))}${plan.location ? ` · ${escapeHtml(plan.location)}` : ""}${plan.timezone ? ` · ${escapeHtml(plan.timezone)}` : ""}</p>
+              ${plan.notes ? `<p class="coach-event-notes">${escapeHtml(plan.notes)}</p>` : ""}
             </div>
             <div class="record-meta coach-event-meta">
               <strong>${escapeHtml(countdownLabel(plan.event_date))}</strong>

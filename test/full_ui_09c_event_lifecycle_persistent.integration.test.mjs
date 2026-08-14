@@ -402,6 +402,13 @@ test(
       assertStatus(detailBeforeLink, 200, "event A detail before link");
       assert.equal(detailBeforeLink.json?.route_id, "coach_event_detail");
       assert.equal(detailBeforeLink.json?.detail?.event?.event_id, eventAId);
+      // The manifest's event_metadata function claims "display location,
+      // timezone, notes, activity and type" - the two fields most likely to
+      // be silently dropped (they're not on the coach's own event list card
+      // by default) must round-trip through the detail read exactly as
+      // submitted at creation.
+      assert.equal(detailBeforeLink.json?.detail?.event?.event_plan?.timezone, "Europe/London");
+      assert.equal(detailBeforeLink.json?.detail?.event?.event_plan?.notes, "Persistent lifecycle proof");
       assert.equal(detailBeforeLink.json?.detail?.linked_athletes?.length, 0);
       assert.equal(detailBeforeLink.json?.detail?.event_versions?.length, 1);
       assert.deepEqual(detailBeforeLink.json?.detail?.historical_preservation, {
