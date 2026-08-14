@@ -409,6 +409,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
 
   const skipReasons = new Map<string, string>();
   const painReports = new Set<string>();
+  const rpeReports = new Map<string, number>();
   const substitutions = new Map<string, { substituted_exercise_id: string; substitution_edge_id: string }>();
   const splitReturnEvents: Array<{ type: string; seq: number; created_at: string | null }> = [];
 
@@ -421,6 +422,10 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
 
     if (type === "PAIN_REPORT" && typeof event.exercise_id === "string" && event.pain_reported === true) {
       painReports.add(event.exercise_id);
+    }
+
+    if (type === "RPE_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.rpe_value)) {
+      rpeReports.set(event.exercise_id, event.rpe_value as number);
     }
 
     if (
@@ -464,6 +469,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
       recorded_state: recordedState,
       skip_reason: skipReasons.get(exerciseId) ?? null,
       pain_reported: painReports.has(exerciseId),
+      rpe_reported: rpeReports.get(exerciseId) ?? null,
       substitution: substitutions.get(exerciseId) ?? null
     });
   });

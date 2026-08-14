@@ -2738,6 +2738,7 @@ function renderHistoryDetail(detail) {
           <span class="badge ${exercise.recorded_state === "completed" ? "complete" : exercise.recorded_state === "dropped" ? "partial" : "neutral"}">${escapeHtml(titleCase(exercise.recorded_state))}</span>
           ${exercise.skip_reason ? `<small>Skip reason: ${escapeHtml(titleCase(exercise.skip_reason))}</small>` : ""}
           ${exercise.pain_reported ? "<small>Pain reported</small>" : ""}
+          ${exercise.rpe_reported ? `<small>RPE reported: ${escapeHtml(String(exercise.rpe_reported))}</small>` : ""}
           ${exercise.substitution ? `<small>Substituted with ${escapeHtml(exercise.substitution.substituted_exercise_id)}</small>` : ""}
         </div>
       `).join("")}
@@ -5148,6 +5149,11 @@ function renderAthleteDetail() {
                     ${
                       Array.isArray(session.substitutions) && session.substitutions.length
                         ? `<p class="muted small">Substituted: ${session.substitutions.map((entry) => `${escapeHtml(titleCase(entry.exercise_id))} → ${escapeHtml(titleCase(entry.substituted_exercise_id))}`).join(", ")}</p>`
+                        : ""
+                    }
+                    ${
+                      Array.isArray(session.rpe_reports) && session.rpe_reports.length
+                        ? `<p class="muted small">RPE: ${session.rpe_reports.map((entry) => `${escapeHtml(titleCase(entry.exercise_id))} ${Number(entry.rpe_value)}`).join(", ")}</p>`
                         : ""
                     }
                   </div>

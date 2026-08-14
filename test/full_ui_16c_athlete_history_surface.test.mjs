@@ -78,6 +78,17 @@ test("planned versus recorded state, split/return record and partial/skip record
   assert.match(js, /split_return_events/u);
 });
 
+test("the athlete's own recorded RPE report is surfaced back on their session history detail - not silently discarded", () => {
+  // RPE_REPORT events are validated and persisted by
+  // session_state_write_service.ts's ensureRpeReportShapeValid exactly like
+  // SKIP_EXERCISE/PAIN_REPORT above it, but athlete_history_service.ts never
+  // read the rpe_value back out - not even to the athlete who submitted it.
+  assert.match(historyService, /rpe_reported/u);
+  assert.match(historyService, /RPE_REPORT/u);
+
+  assert.match(js, /exercise\.rpe_reported/u);
+});
+
 test("programme, assignment and event provenance are derived from immutable stored records, not inferred", () => {
   assert.match(historyService, /beta17_assignment_trigger/u);
   assert.match(historyService, /beta18_programme_template|loadExecutableCoachTemplateById/u);

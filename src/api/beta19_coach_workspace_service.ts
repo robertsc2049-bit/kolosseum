@@ -1514,7 +1514,19 @@ export async function loadCoachAthleteDetail(
               AND re.event->>'substituted_exercise_id' <> ''
           ),
           '[]'::json
-        ) AS session_substitutions
+        ) AS session_substitutions,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'rpe_value', (re.event->>'rpe_value')::int
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'RPE_REPORT'
+              AND re.event->>'rpe_value' IS NOT NULL
+          ),
+          '[]'::json
+        ) AS session_rpe_reports
       FROM sessions s
       LEFT JOIN runtime_events re
         ON re.session_id = s.session_id
@@ -1725,6 +1737,17 @@ export async function loadCoachAthleteDetail(
                     isRecord(entry) &&
                     typeof entry.exercise_id === "string" &&
                     typeof entry.substituted_exercise_id === "string"
+                )
+              : [],
+          rpe_reports:
+            Array.isArray(
+              row.session_rpe_reports
+            )
+              ? row.session_rpe_reports.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    Number.isInteger(entry.rpe_value)
                 )
               : [],
           created_at:
