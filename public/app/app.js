@@ -2087,10 +2087,18 @@ function referenceMediaMarkup(referenceMedia) {
   `;
 }
 
-function renderExerciseHowto(container, content, referenceMedia) {
+function renderExerciseHowto(container, content, referenceMedia, respectDensity = true) {
   const detailedSteps = Array.isArray(content?.instruction?.detailed) ? content.instruction.detailed : [];
-  const cues = Array.isArray(content?.coaching_cues) ? content.coaching_cues : [];
-  const faults = Array.isArray(content?.common_faults) ? content.common_faults : [];
+  // The athlete's declared instruction-density onboarding preference (applied
+  // to <html> by athlete_onboarding_ui.js's applyAccessibilityPreferences)
+  // controls how much written detail the athlete's own session view shows:
+  // "minimal" keeps steps only, "standard" adds coaching cues, "detailed"
+  // adds common faults too. It is an athlete-only declared preference, so
+  // the coach's template-builder call site passes respectDensity=false and
+  // always sees full content regardless of any athlete's setting.
+  const density = respectDensity ? (document.documentElement.dataset.instructionDensity || "standard") : "detailed";
+  const cues = density !== "minimal" && Array.isArray(content?.coaching_cues) ? content.coaching_cues : [];
+  const faults = density === "detailed" && Array.isArray(content?.common_faults) ? content.common_faults : [];
   const referenceMediaHtml = referenceMediaMarkup(referenceMedia);
 
   if (!detailedSteps.length && !cues.length && !faults.length && !referenceMediaHtml) {
@@ -2120,11 +2128,11 @@ function renderExerciseHowto(container, content, referenceMedia) {
   `;
 }
 
-async function loadExerciseHowto(exerciseId, container) {
+async function loadExerciseHowto(exerciseId, container, respectDensity = true) {
   if (!exerciseId || !container) return;
 
   if (exerciseContentCache.has(exerciseId) && exerciseReferenceMediaCache.has(exerciseId)) {
-    renderExerciseHowto(container, exerciseContentCache.get(exerciseId), exerciseReferenceMediaCache.get(exerciseId));
+    renderExerciseHowto(container, exerciseContentCache.get(exerciseId), exerciseReferenceMediaCache.get(exerciseId), respectDensity);
     return;
   }
 
@@ -2142,7 +2150,7 @@ async function loadExerciseHowto(exerciseId, container) {
     exerciseContentCache.set(exerciseId, content);
     const referenceMedia = referenceMediaResult?.reference_media ?? null;
     exerciseReferenceMediaCache.set(exerciseId, referenceMedia);
-    renderExerciseHowto(container, content, referenceMedia);
+    renderExerciseHowto(container, content, referenceMedia, respectDensity);
   }
   catch (error) {
     container.innerHTML = '<p class="muted">Instructions could not be loaded right now.</p>';
@@ -12301,7 +12309,7 @@ function toggleTemplateWorkItemInfo(button, blockIndex, weekIndex, sessionIndex,
     return;
   }
 
-  loadExerciseHowto(exerciseId, panel);
+  loadExerciseHowto(exerciseId, panel, false);
 }
 
 function templatePayloadFromDraft() {

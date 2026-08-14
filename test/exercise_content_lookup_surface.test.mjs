@@ -111,3 +111,22 @@ test("app.js wires an exercise-content cache, a shared render helper and both su
   assert.match(appJs, /class="template-work-item-info"/u);
   assert.match(appJs, /function toggleTemplateWorkItemInfo\(/u);
 });
+
+test("renderExerciseHowto gates coaching cues and common faults on the athlete's declared instruction-density preference, but never for the coach's builder call site", () => {
+  // instruction_density is an athlete-only onboarding preference. The howto
+  // renderer is a shared insertion point used by both the athlete's session
+  // focus panel and the coach's template-builder info panel, so the gate
+  // must be scoped with a respectDensity flag rather than applied globally -
+  // otherwise a coach authoring a template would see content vary based on
+  // whatever density some other athlete happened to declare.
+  const appJs = read("public/app/app.js");
+  assert.match(appJs, /function renderExerciseHowto\(container, content, referenceMedia, respectDensity = true\)/u);
+  assert.match(appJs, /respectDensity \? \(document\.documentElement\.dataset\.instructionDensity \|\| "standard"\) : "detailed"/u);
+  assert.match(appJs, /density !== "minimal" && Array\.isArray\(content\?\.coaching_cues\)/u);
+  assert.match(appJs, /density === "detailed" && Array\.isArray\(content\?\.common_faults\)/u);
+
+  // The coach's template-builder call site always sees full content.
+  assert.match(appJs, /loadExerciseHowto\(exerciseId, panel, false\)/u);
+  // The athlete's session focus call site is unmodified, defaulting to true.
+  assert.match(appJs, /loadExerciseHowto\(details\.dataset\.exerciseId, details\.querySelector\(".exercise-howto-body"\)\)/u);
+});

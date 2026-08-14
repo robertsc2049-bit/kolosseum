@@ -70,14 +70,14 @@ test("no live exercise entry has a reference_media value yet (content-free infra
 // registry entry and no user would ever see it.
 test("loadExerciseHowto fetches the reference-media route alongside exercise content, and renderExerciseHowto shows it to both the athlete and coach call sites it already serves", () => {
   assert.match(appJs, /reference-media/u);
-  assert.match(appJs, /function renderExerciseHowto\(container, content, referenceMedia\)/u);
+  assert.match(appJs, /function renderExerciseHowto\(container, content, referenceMedia/u);
   assert.match(appJs, /referenceMedia(?:Result)?\?\.reference_media/u);
   assert.match(appJs, /referenceMedia\?\.video_url/u);
 
   // Both existing call sites already route through loadExerciseHowto, so no
   // additional call site needs to be added for this fix to reach the
   // athlete's session focus panel and the coach's builder info panel.
-  assert.match(appJs, /loadExerciseHowto\(exerciseId, panel\)/u);
+  assert.match(appJs, /loadExerciseHowto\(exerciseId, panel, false\)/u);
   assert.match(appJs, /loadExerciseHowto\(details\.dataset\.exerciseId, details\.querySelector\(".exercise-howto-body"\)\)/u);
 });
 
