@@ -714,6 +714,117 @@ test(
       { session_id: sessionId, execution_status: terminalState.execution_status }
     );
 
+    // --- Step 14b: a second session records a real skip reason and a real
+    //     pain report, and the coach's athlete-detail surface reflects both
+    //     facts - not just an opaque recorded-event count. ---
+    const secondCompiled = await request(baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      phase1_input: {
+        consent_granted: true,
+        engine_version: "EB2-1.0.0",
+        enum_bundle_version: "EB2-1.0.0",
+        phase1_schema_version: "1.0.0",
+        actor_type: "athlete",
+        execution_scope: "individual",
+        activity_id: "powerlifting",
+        nd_mode: false,
+        instruction_density: "standard",
+        exposure_prompt_density: "standard",
+        bias_mode: "none"
+      },
+      beta_user_id: athleteUserId,
+      beta_coach_user_id: coachUserId
+    });
+    assertStatus(secondCompiled, 201, "compile second session");
+    const secondSessionId = secondCompiled.json?.session_id;
+    assert.ok(secondSessionId, "expected a second session_id");
+    assert.notEqual(secondSessionId, sessionId, "expected a distinct second session");
+
+    assertStatus(await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/start`, {}), 200, "second session start");
+
+    const usedSkipReason = "pain_or_discomfort";
+    let secondTerminalState = null;
+    let skippedExerciseId = null;
+    let painReportedExerciseId = null;
+
+    for (let i = 0; i < 10; i += 1) {
+      const stateResult = await request(baseUrl, "GET", `/sessions/${encodeURIComponent(secondSessionId)}/state`);
+      assertStatus(stateResult, 200, `second session state probe ${i}`);
+      const currentStep = stateResult.json?.current_step;
+      if (!currentStep) {
+        secondTerminalState = stateResult.json;
+        break;
+      }
+      const exerciseId = currentStep.exercise?.exercise_id;
+      assert.ok(exerciseId, `second session probe ${i}: expected an exercise_id on current step`);
+
+      if (!skippedExerciseId) {
+        skippedExerciseId = exerciseId;
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+            event: { type: "SKIP_EXERCISE", exercise_id: exerciseId, reason_code: usedSkipReason }
+          }),
+          201,
+          `skip exercise ${exerciseId} (second session)`
+        );
+        continue;
+      }
+
+      if (!painReportedExerciseId) {
+        painReportedExerciseId = exerciseId;
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+            event: { type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true }
+          }),
+          201,
+          `pain report ${exerciseId} (second session)`
+        );
+      }
+
+      assertStatus(
+        await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+          event: { type: "COMPLETE_EXERCISE", exercise_id: exerciseId }
+        }),
+        201,
+        `complete exercise ${exerciseId} (second session)`
+      );
+    }
+    assert.ok(secondTerminalState, "second session did not reach a terminal state");
+    assert.equal(secondTerminalState.execution_status, "partial");
+    assert.ok(skippedExerciseId, "expected a skipped exercise in the second session");
+    assert.ok(painReportedExerciseId, "expected a pain-reported exercise in the second session");
+
+    const athleteDetailAfterSecondSession = await request(
+      baseUrl, "GET",
+      `/coach-workspace/athlete-detail?athlete_user_id=${encodeURIComponent(athleteUserId)}`,
+      undefined, { cookie: coachCookie }
+    );
+    assertStatus(athleteDetailAfterSecondSession, 200, "coach athlete-detail after second session");
+    const secondSessionSummary = athleteDetailAfterSecondSession.json?.detail?.session_history?.find(
+      (entry) => entry.session_id === secondSessionId
+    );
+    assert.ok(secondSessionSummary, "expected the second session in the coach's session history");
+    assert.equal(secondSessionSummary.pain_reported, true);
+    assert.ok(
+      Array.isArray(secondSessionSummary.skip_reasons) && secondSessionSummary.skip_reasons.includes(usedSkipReason),
+      "expected the coach's session history to surface the athlete's recorded skip reason"
+    );
+
+    const firstSessionSummary = athleteDetailAfterSecondSession.json?.detail?.session_history?.find(
+      (entry) => entry.session_id === sessionId
+    );
+    assert.ok(firstSessionSummary, "expected the first session in the coach's session history");
+    assert.equal(firstSessionSummary.pain_reported, false);
+    assert.deepEqual(firstSessionSummary.skip_reasons, []);
+
+    record(
+      "step_14b_coach_sees_pain_and_skip_facts",
+      "Coach's session history surfaces the athlete's recorded pain report and skip reason, not just an event count",
+      secondSessionSummary.pain_reported === true &&
+        secondSessionSummary.skip_reasons.includes(usedSkipReason) &&
+        firstSessionSummary.pain_reported === false,
+      { session_id: secondSessionId, skip_reason: usedSkipReason }
+    );
+
     // --- Step 15: coach sees the factual completed-session record. ---
     const reviewQueue = await request(
       baseUrl, "GET",

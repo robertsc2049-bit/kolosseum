@@ -1488,7 +1488,21 @@ export async function loadCoachAthleteDetail(
         s.created_at,
         s.updated_at,
         count(re.seq)::integer
-          AS runtime_event_count
+          AS runtime_event_count,
+        bool_or(
+          re.event->>'type' = 'PAIN_REPORT'
+          AND re.event->>'pain_reported' = 'true'
+        ) AS session_pain_reported,
+        array_remove(
+          array_agg(
+            DISTINCT CASE
+              WHEN re.event->>'type' = 'SKIP_EXERCISE'
+                THEN re.event->>'reason_code'
+              ELSE NULL
+            END
+          ),
+          NULL
+        ) AS session_skip_reasons
       FROM sessions s
       LEFT JOIN runtime_events re
         ON re.session_id = s.session_id
@@ -1676,6 +1690,20 @@ export async function loadCoachAthleteDetail(
             Number(
               row.runtime_event_count
             ),
+          pain_reported:
+            Boolean(
+              row.session_pain_reported
+            ),
+          skip_reasons:
+            Array.isArray(
+              row.session_skip_reasons
+            )
+              ? row.session_skip_reasons.filter(
+                  (reason: unknown) =>
+                    typeof reason === "string" &&
+                    reason.length > 0
+                )
+              : [],
           created_at:
             new Date(
               row.created_at

@@ -5140,6 +5140,11 @@ function renderAthleteDetail() {
                       )}
                       recorded events
                     </p>
+                    ${
+                      Array.isArray(session.skip_reasons) && session.skip_reasons.length
+                        ? `<p class="muted small">Skipped: ${session.skip_reasons.map((reason) => escapeHtml(titleCase(reason))).join(", ")}</p>`
+                        : ""
+                    }
                   </div>
 
                   <div class="record-meta">
@@ -5151,6 +5156,8 @@ function renderAthleteDetail() {
                         )
                       )}
                     </span>
+
+                    ${session.pain_reported ? `<span class="badge partial">Pain reported</span>` : ""}
 
                     <button
                       class="button secondary small-button"

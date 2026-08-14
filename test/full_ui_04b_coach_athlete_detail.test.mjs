@@ -135,6 +135,41 @@ test(
 );
 
 test(
+  "FULL-UI-04B session history surfaces the athlete's recorded pain report and skip reason - not just an opaque event count",
+  () => {
+    // The service used to select and expose only count(re.seq) as
+    // runtime_event_count, leaving the reason_code/pain_reported facts an
+    // athlete recorded stranded inside runtime_events' JSONB - visible on
+    // the athlete's own history surface but never surfaced to the coach.
+    assert.match(
+      service,
+      /session_pain_reported/u
+    );
+    assert.match(
+      service,
+      /session_skip_reasons/u
+    );
+    assert.match(
+      service,
+      /pain_reported:\s*\n?\s*Boolean/u
+    );
+    assert.match(
+      service,
+      /skip_reasons:/u
+    );
+
+    assert.match(
+      application,
+      /session\.pain_reported/u
+    );
+    assert.match(
+      application,
+      /session\.skip_reasons/u
+    );
+  }
+);
+
+test(
   "FULL-UI-04B persists non-binding notes separately from artefacts",
   () => {
     assert.match(
