@@ -149,7 +149,7 @@ test(
         occurred_at_iso8601: new Date().toISOString(),
         description: "Full21 fixture support report",
         browser_context: { user_agent: "test", language: "en-GB", viewport_width: 1280, viewport_height: 800, timezone_offset_minutes: 0 },
-        failure_context: {}
+        failure_context: { status: 500, reason: "server_error", method: "GET", path: "/coach-workspace/athletes" }
       }, { cookie: athlete.cookie, csrf: athlete.csrf });
       assertStatus(supportReport, 201, "create support report fixture");
 
@@ -337,7 +337,24 @@ test(
       // ============================================================
       const supportList = await request(baseUrl, "GET", "/admin/support-requests", undefined, { cookie: admin.cookie });
       assertStatus(supportList, 200, "support request review");
-      assert.ok(supportList.json.reports.some((r) => r.correlation_id === supportCorrelationId));
+      const supportListEntry = supportList.json.reports.find((r) => r.correlation_id === supportCorrelationId);
+      assert.ok(supportListEntry, "expected the fixture support report in the admin's review list");
+
+      // The admin's review of a support/error report must include the same
+      // browser and failure diagnostic context the reporter submitted - not
+      // just the correlation id, description and status. This is what
+      // "review... error records" (the admin_support manifest label)
+      // actually requires; the fields exist in the database and are
+      // returned to the reporter's own history, but were previously
+      // dropped before ever reaching the admin's query.
+      assert.equal(supportListEntry.browser_context?.user_agent, "test");
+      assert.equal(supportListEntry.browser_context?.language, "en-GB");
+      assert.equal(supportListEntry.browser_context?.viewport_width, 1280);
+      assert.equal(supportListEntry.browser_context?.viewport_height, 800);
+      assert.equal(supportListEntry.failure_context?.status, 500);
+      assert.equal(supportListEntry.failure_context?.reason, "server_error");
+      assert.equal(supportListEntry.failure_context?.method, "GET");
+      assert.equal(supportListEntry.failure_context?.path, "/coach-workspace/athletes");
 
       const ackCorrelationId = crypto.randomUUID();
       correlationIds.push(ackCorrelationId);
