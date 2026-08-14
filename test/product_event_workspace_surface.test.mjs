@@ -62,3 +62,15 @@ test("event workspace does not create team or organisation runtime", () => {
   assert.match(eventService, /creates_organisation_runtime: false/u);
   assert.doesNotMatch(eventService, /recommend|readiness|safety|optimis/iu);
 });
+
+test("an event's timezone and notes are read back and rendered, not silently discarded", () => {
+  // The manifest's event_metadata function ("Display location, timezone,
+  // notes, activity and type") is marked implemented, but renderCoachEvents
+  // used to build each card from event_name/event_type/event_date/location
+  // only - timezone and notes were validated, persisted (beta19_coach_event_
+  // service.ts) and returned unmodified through GET /coach-workspace/events,
+  // but never appeared anywhere in the coach's own event list. Same bug
+  // class as the test-account-reason and support-context fixes before it.
+  assert.match(app, /plan\.timezone \? ` · \$\{escapeHtml\(plan\.timezone\)\}` : ""/u);
+  assert.match(app, /plan\.notes \? `<p class="coach-event-notes">\$\{escapeHtml\(plan\.notes\)\}<\/p>` : ""/u);
+});
