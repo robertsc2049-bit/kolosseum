@@ -17,6 +17,15 @@ function el(id) {
   return document.getElementById(id);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 function generateCorrelationId() {
   return typeof crypto?.randomUUID === "function"
     ? crypto.randomUUID()
@@ -201,6 +210,38 @@ async function refreshCommercialRecords() {
   }
 }
 
+function supportContextDetailMarkup(report) {
+  const browserContext = report.browser_context ?? {};
+  const failureContext = report.failure_context ?? {};
+
+  const browserLines = [
+    ["User agent", browserContext.user_agent],
+    ["Language", browserContext.language],
+    ["Viewport", (browserContext.viewport_width && browserContext.viewport_height) ? `${browserContext.viewport_width}x${browserContext.viewport_height}` : null],
+    ["Timezone offset (minutes)", browserContext.timezone_offset_minutes]
+  ].filter(([, value]) => value !== null && value !== undefined && value !== "");
+
+  const failureLines = [
+    ["Failed request", (failureContext.method && failureContext.path) ? `${failureContext.method} ${failureContext.path}` : null],
+    ["Status", failureContext.status],
+    ["Reason", failureContext.reason],
+    ["Retryable", typeof failureContext.retryable === "boolean" ? (failureContext.retryable ? "yes" : "no") : null]
+  ].filter(([, value]) => value !== null && value !== undefined && value !== "");
+
+  const listItems = (lines) => lines.map(([label, value]) => `<li><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</li>`).join("");
+
+  return `
+    <dl>
+      <dt>Route</dt><dd>${escapeHtml(report.route_hash || "-")}</dd>
+      <dt>Occurred at</dt><dd>${escapeHtml(report.occurred_at_iso8601 || "-")}</dd>
+    </dl>
+    <p>Browser context</p>
+    <ul>${listItems(browserLines) || "<li>No browser context recorded.</li>"}</ul>
+    <p>Failure context</p>
+    <ul>${listItems(failureLines) || "<li>No failed-request context attached.</li>"}</ul>
+  `;
+}
+
 async function refreshSupportRequests() {
   const result = await api("GET", "/admin/support-requests");
   const tbody = el("supportRequestsList");
@@ -213,13 +254,27 @@ async function refreshSupportRequests() {
       <td>${report.description}</td>
       <td>${report.status}</td>
       <td>
+        <button type="button" class="details-support" data-correlation-id="${report.correlation_id}">Details</button>
         <button type="button" class="ack-support" data-correlation-id="${report.correlation_id}" data-current-status="${report.status}">Acknowledge</button>
         <button type="button" class="close-support" data-correlation-id="${report.correlation_id}" data-current-status="${report.status}">Close</button>
       </td>
     `;
     tbody.appendChild(row);
+
+    const detailRow = document.createElement("tr");
+    detailRow.className = "support-detail-row";
+    detailRow.hidden = true;
+    detailRow.innerHTML = `<td colspan="5">${supportContextDetailMarkup(report)}</td>`;
+    tbody.appendChild(detailRow);
   }
 
+  tbody.querySelectorAll(".details-support").forEach((button) => {
+    button.addEventListener("click", () => {
+      const detailRow = button.closest("tr").nextElementSibling;
+      detailRow.hidden = !detailRow.hidden;
+      button.textContent = detailRow.hidden ? "Details" : "Hide details";
+    });
+  });
   tbody.querySelectorAll(".ack-support").forEach((button) => {
     button.addEventListener("click", () => confirmAndChangeSupportStatus(button.dataset.correlationId, "acknowledged"));
   });

@@ -156,14 +156,16 @@ export async function listAdminSupportRequests(
   const result = await pool.query(
     statusFilter
       ? `
-        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at
+        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at,
+               browser_context, failure_context
         FROM product_support_requests
         WHERE status = $1
         ORDER BY created_at DESC
         LIMIT 200
         `
       : `
-        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at
+        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at,
+               browser_context, failure_context
         FROM product_support_requests
         ORDER BY created_at DESC
         LIMIT 200
@@ -180,7 +182,9 @@ export async function listAdminSupportRequests(
         description: cleanString(row.description),
         status: cleanString(row.status),
         occurred_at_iso8601: toIso(row.occurred_at),
-        created_at_iso8601: toIso(row.created_at)
+        created_at_iso8601: toIso(row.created_at),
+        browser_context: isRecord(row.browser_context) ? row.browser_context : {},
+        failure_context: isRecord(row.failure_context) ? row.failure_context : {}
       })
     )
   );

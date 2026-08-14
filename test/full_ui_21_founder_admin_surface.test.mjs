@@ -183,6 +183,35 @@ test("the reason an admin gives for marking a test account is authorable, stored
   assert.match(js, /test_account_reason/u);
 });
 
+test("browser and failure context captured on a support report is read back and rendered for admin review, not silently discarded", () => {
+  // listAdminSupportRequests used to SELECT only correlation_id, user_id,
+  // route_hash, description, status, occurred_at and created_at from
+  // product_support_requests - the browser_context and failure_context
+  // JSONB columns were written by product_support_service.ts and returned
+  // to the reporting athlete/coach themselves, but never read back into the
+  // admin's own review query, so an admin reviewing a support/error report
+  // could never see the diagnostic context that gave the report its name.
+  // Same bug class as the test-account-reason fix above (PR #865/#866).
+  assert.match(reviewService, /SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at,\s*\n\s*browser_context, failure_context/u);
+  assert.match(reviewService, /browser_context: isRecord\(row\.browser_context\) \? row\.browser_context : \{\}/u);
+  assert.match(reviewService, /failure_context: isRecord\(row\.failure_context\) \? row\.failure_context : \{\}/u);
+
+  // The admin UI previously had no rendering of these fields at all - they
+  // reached the client in the API response but nothing in admin.js ever
+  // read report.browser_context or report.failure_context off of it.
+  assert.match(js, /function supportContextDetailMarkup/u);
+  assert.match(js, /report\.browser_context/u);
+  assert.match(js, /report\.failure_context/u);
+  assert.match(js, /class="details-support"/u);
+
+  // Free-text/caller-influenceable context fields are escaped before being
+  // inserted into innerHTML.
+  assert.match(js, /function escapeHtml/u);
+  assert.match(js, /escapeHtml\(value\)/u);
+  assert.match(js, /listItems\(browserLines\)/u);
+  assert.match(js, /listItems\(failureLines\)/u);
+});
+
 test("every route resolves the admin's own identity from the session, never a client-supplied admin id", () => {
   assert.doesNotMatch(routes, /request\.body\.admin_user_id|request\.query\.admin_user_id/u);
   assert.match(routes, /admin\.user_id/u);
