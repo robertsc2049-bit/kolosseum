@@ -1,15 +1,15 @@
 {
   "schema_version": "kolosseum.full_ui_23.coach_athlete_journey.v1.0.0",
   "slice_id": "FULL-UI-23",
-  "recorded_at_iso8601": "2026-08-14T12:31:09.809Z",
-  "nonce": "cab2b2c1472a42d8",
+  "recorded_at_iso8601": "2026-08-14T12:59:42.111Z",
+  "nonce": "2b2f1f8b2a7540d1",
   "steps": [
     {
       "id": "step_01_coach_sign_in",
       "label": "Coach signs in",
       "result": "PASS",
       "detail": {
-        "coach_user_id": "coach_677d79cd14aa4738bbfabee71717b858",
+        "coach_user_id": "coach_b5f9235539434f7bbc2198c7f8eca940",
         "actor_home_route": "#/coach/overview"
       }
     },
@@ -35,7 +35,7 @@
       "label": "Coach creates a programme",
       "result": "PASS",
       "detail": {
-        "template_id": "coach_template_08713a6b3e474f6db67cf049aa5bc555_v1",
+        "template_id": "coach_template_d98a582b7fb84cd2a40b53e34fa969e7_v1",
         "week_count": 2
       }
     },
@@ -60,7 +60,7 @@
       "label": "Coach opens an athlete profile through a stable route",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_fdcac61065ca4f83a20eefc39e6567a4"
+        "athlete_user_id": "athlete_959d91f1607f4d7b9a8548956e22bbe5"
       }
     },
     {
@@ -69,7 +69,7 @@
       "result": "PASS",
       "detail": {
         "event_id": "coach_event_697b64643e6cb058237b526a",
-        "assignment_id": "beta17_assignment_c965dbcf47e800729977001a"
+        "assignment_id": "beta17_assignment_1b81219baa3be0113fc0fab3"
       }
     },
     {
@@ -77,8 +77,8 @@
       "label": "Coach assigns the active programme and exact version",
       "result": "PASS",
       "detail": {
-        "assignment_id": "beta17_assignment_c965dbcf47e800729977001a",
-        "template_id": "coach_template_08713a6b3e474f6db67cf049aa5bc555_v1"
+        "assignment_id": "beta17_assignment_1b81219baa3be0113fc0fab3",
+        "template_id": "coach_template_d98a582b7fb84cd2a40b53e34fa969e7_v1"
       }
     },
     {
@@ -86,7 +86,7 @@
       "label": "Coach reviews the persisted assignment",
       "result": "PASS",
       "detail": {
-        "assignment_id": "beta17_assignment_c965dbcf47e800729977001a"
+        "assignment_id": "beta17_assignment_1b81219baa3be0113fc0fab3"
       }
     },
     {
@@ -94,7 +94,7 @@
       "label": "coach_programme_detail deep link target is real, persisted, addressable data",
       "result": "PASS",
       "detail": {
-        "template_id": "coach_template_08713a6b3e474f6db67cf049aa5bc555_v1"
+        "template_id": "coach_template_d98a582b7fb84cd2a40b53e34fa969e7_v1"
       }
     },
     {
@@ -102,7 +102,7 @@
       "label": "coach_review_athlete deep link target is real, persisted, addressable data",
       "result": "PASS",
       "detail": {
-        "athlete_id": "athlete_fdcac61065ca4f83a20eefc39e6567a4"
+        "athlete_id": "athlete_959d91f1607f4d7b9a8548956e22bbe5"
       }
     },
     {
@@ -110,7 +110,7 @@
       "label": "Athlete signs in",
       "result": "PASS",
       "detail": {
-        "athlete_user_id": "athlete_fdcac61065ca4f83a20eefc39e6567a4"
+        "athlete_user_id": "athlete_959d91f1607f4d7b9a8548956e22bbe5"
       }
     },
     {
@@ -118,7 +118,7 @@
       "label": "Athlete sees programme, version, event and countdown",
       "result": "PASS",
       "detail": {
-        "assignment_id": "beta17_assignment_c965dbcf47e800729977001a",
+        "assignment_id": "beta17_assignment_1b81219baa3be0113fc0fab3",
         "event_status": "active"
       }
     },
@@ -127,7 +127,7 @@
       "label": "Athlete compiles/opens the next assigned session",
       "result": "PASS",
       "detail": {
-        "session_id": "s_3520c713c23241b188a3a54b8af5f853"
+        "session_id": "s_a6087f1a735c45ca8c603bfa950a5f01"
       }
     },
     {
@@ -135,16 +135,16 @@
       "label": "Athlete executes and completes the session",
       "result": "PASS",
       "detail": {
-        "session_id": "s_3520c713c23241b188a3a54b8af5f853",
+        "session_id": "s_a6087f1a735c45ca8c603bfa950a5f01",
         "execution_status": "completed"
       }
     },
     {
-      "id": "step_14b_coach_sees_pain_skip_substitution_and_rpe_facts",
-      "label": "Coach's session history surfaces the athlete's recorded pain report, skip reason, exercise substitution and RPE report, not just an event count",
+      "id": "step_14b_coach_sees_pain_skip_substitution_rpe_and_split_return_facts",
+      "label": "Coach's session history surfaces the athlete's recorded pain report, skip reason, exercise substitution, RPE report and split/return decision, not just an event count",
       "result": "PASS",
       "detail": {
-        "session_id": "s_f492b4dc6f564df598b58c224bce4f83",
+        "session_id": "s_98d4f201403d418f83c01ae59af6641e",
         "skip_reason": "pain_or_discomfort",
         "substituted_to": "kettlebell_deadlift",
         "rpe_exercise_id": "overhead_press"
@@ -155,7 +155,7 @@
       "label": "Coach sees the factual completed-session record",
       "result": "PASS",
       "detail": {
-        "session_id": "s_3520c713c23241b188a3a54b8af5f853"
+        "session_id": "s_a6087f1a735c45ca8c603bfa950a5f01"
       }
     },
     {
@@ -179,7 +179,7 @@
       "label": "Refreshing both actor contexts reconstructs the same server-backed state",
       "result": "PASS",
       "detail": {
-        "assignment_id": "beta17_assignment_c965dbcf47e800729977001a"
+        "assignment_id": "beta17_assignment_1b81219baa3be0113fc0fab3"
       }
     },
     {
@@ -187,8 +187,8 @@
       "label": "A fresh operating-system process reconstructs the same state",
       "result": "PASS",
       "detail": {
-        "first_pid": 22812,
-        "restarted_pid": 20768
+        "first_pid": 26464,
+        "restarted_pid": 4884
       }
     },
     {
@@ -196,13 +196,13 @@
       "label": "An unrelated coach is denied",
       "result": "PASS",
       "detail": {
-        "other_coach_user_id": "coach_3522acb3515c43f6a7253d067c491972"
+        "other_coach_user_id": "coach_fc404269e20b497ca05a87d7eee093fa"
       }
     }
   ],
   "status": "PASS",
-  "assignment_id": "beta17_assignment_c965dbcf47e800729977001a",
-  "session_id": "s_3520c713c23241b188a3a54b8af5f853",
-  "template_id": "coach_template_08713a6b3e474f6db67cf049aa5bc555_v1",
+  "assignment_id": "beta17_assignment_1b81219baa3be0113fc0fab3",
+  "session_id": "s_a6087f1a735c45ca8c603bfa950a5f01",
+  "template_id": "coach_template_d98a582b7fb84cd2a40b53e34fa969e7_v1",
   "event_id": "coach_event_697b64643e6cb058237b526a"
 }

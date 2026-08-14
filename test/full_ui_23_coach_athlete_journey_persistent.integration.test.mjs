@@ -749,6 +749,7 @@ test(
     let substitutedFromExerciseId = null;
     let substitutedToExerciseId = null;
     let rpeReportedExerciseId = null;
+    let splitRecorded = false;
 
     for (let i = 0; i < 10; i += 1) {
       const stateResult = await request(baseUrl, "GET", `/sessions/${encodeURIComponent(secondSessionId)}/state`);
@@ -760,6 +761,24 @@ test(
       }
       const exerciseId = currentStep.exercise?.exercise_id;
       assert.ok(exerciseId, `second session probe ${i}: expected an exercise_id on current step`);
+
+      if (!splitRecorded) {
+        splitRecorded = true;
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+            event: { type: "SPLIT_SESSION" }
+          }),
+          201,
+          "split second session"
+        );
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+            event: { type: "RETURN_CONTINUE" }
+          }),
+          201,
+          "return-continue second session"
+        );
+      }
 
       if (!skippedExerciseId) {
         skippedExerciseId = exerciseId;
@@ -866,6 +885,8 @@ test(
       ),
       "expected the coach's session history to surface the athlete's recorded RPE report"
     );
+    assert.equal(secondSessionSummary.split_entered, true, "expected the coach's session history to surface that the athlete split the session");
+    assert.equal(secondSessionSummary.split_return_decision, "continue", "expected the coach's session history to surface the athlete's return decision");
 
     const firstSessionSummary = athleteDetailAfterSecondSession.json?.detail?.session_history?.find(
       (entry) => entry.session_id === sessionId
@@ -875,14 +896,18 @@ test(
     assert.deepEqual(firstSessionSummary.skip_reasons, []);
     assert.deepEqual(firstSessionSummary.substitutions, []);
     assert.deepEqual(firstSessionSummary.rpe_reports, []);
+    assert.equal(firstSessionSummary.split_entered, false, "a session with no SPLIT_SESSION event must not be reported as split");
+    assert.equal(firstSessionSummary.split_return_decision, null);
 
     record(
-      "step_14b_coach_sees_pain_skip_substitution_and_rpe_facts",
-      "Coach's session history surfaces the athlete's recorded pain report, skip reason, exercise substitution and RPE report, not just an event count",
+      "step_14b_coach_sees_pain_skip_substitution_rpe_and_split_return_facts",
+      "Coach's session history surfaces the athlete's recorded pain report, skip reason, exercise substitution, RPE report and split/return decision, not just an event count",
       secondSessionSummary.pain_reported === true &&
         secondSessionSummary.skip_reasons.includes(usedSkipReason) &&
         secondSessionSummary.substitutions.some((entry) => entry.exercise_id === "deadlift") &&
         secondSessionSummary.rpe_reports.some((entry) => entry.exercise_id === "overhead_press") &&
+        secondSessionSummary.split_entered === true &&
+        secondSessionSummary.split_return_decision === "continue" &&
         firstSessionSummary.pain_reported === false,
       { session_id: secondSessionId, skip_reason: usedSkipReason, substituted_to: substitutedToExerciseId, rpe_exercise_id: rpeReportedExerciseId }
     );

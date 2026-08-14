@@ -1526,7 +1526,18 @@ export async function loadCoachAthleteDetail(
               AND re.event->>'rpe_value' IS NOT NULL
           ),
           '[]'::json
-        ) AS session_rpe_reports
+        ) AS session_rpe_reports,
+        bool_or(
+          re.event->>'type' = 'SPLIT_SESSION'
+        ) AS session_split_entered,
+        (
+          array_agg(
+            re.event->>'type'
+            ORDER BY re.seq DESC
+          ) FILTER (
+            WHERE re.event->>'type' IN ('RETURN_CONTINUE', 'RETURN_SKIP')
+          )
+        )[1] AS session_last_return_decision_type
       FROM sessions s
       LEFT JOIN runtime_events re
         ON re.session_id = s.session_id
@@ -1750,6 +1761,16 @@ export async function loadCoachAthleteDetail(
                     Number.isInteger(entry.rpe_value)
                 )
               : [],
+          split_entered:
+            Boolean(
+              row.session_split_entered
+            ),
+          split_return_decision:
+            row.session_last_return_decision_type === "RETURN_CONTINUE"
+              ? "continue"
+              : row.session_last_return_decision_type === "RETURN_SKIP"
+                ? "skip"
+                : null,
           created_at:
             new Date(
               row.created_at

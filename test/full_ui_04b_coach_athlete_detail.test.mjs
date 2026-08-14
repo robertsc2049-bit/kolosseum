@@ -199,6 +199,31 @@ test(
       application,
       /session\.rpe_reports/u
     );
+
+    // Same gap for split/return: the athlete's own history detail already
+    // exposes split_entered/split_return_decision/split_return_events, but
+    // the coach's session history never surfaced whether an athlete split a
+    // session or what they decided on return - not even a badge.
+    assert.match(
+      service,
+      /session_split_entered/u
+    );
+    assert.match(
+      service,
+      /split_entered:/u
+    );
+    assert.match(
+      service,
+      /split_return_decision:/u
+    );
+    assert.match(
+      application,
+      /session\.split_entered/u
+    );
+    assert.match(
+      application,
+      /session\.split_return_decision/u
+    );
   }
 );
 
