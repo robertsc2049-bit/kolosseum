@@ -527,6 +527,57 @@ export async function listOrganisationRosterForCoach(
   }
 }
 
+export type OrgAuditRecordRow = Readonly<{
+  audit_record_id: string;
+  action_type: string;
+  actor_role: string;
+  actor_user_id: string;
+  before_state: JsonRecord;
+  after_state: JsonRecord;
+  created_at: string;
+}>;
+
+// Every real mutation in this file and org_billing_service.ts already writes
+// a factual audit record via writeAuditRecord()/withIdempotentAudit() - but
+// until this function, the only SELECT against product_org_audit_records
+// anywhere was findExistingAudit()'s single-row idempotency lookup, which
+// discards the row immediately after replay-checking. The org owner had no
+// route to ever read their own organisation's recorded activity back.
+export async function listOrgAuditLog(
+  ownerUserId: string,
+  orgId: string
+): Promise<readonly OrgAuditRecordRow[]> {
+  const client = await pool.connect();
+  try {
+    await requireOrganisationOwnedBy(client, orgId, ownerUserId);
+    const result = await client.query(
+      `
+      SELECT audit_record_id, action_type, actor_role, actor_user_id, before_state, after_state, created_at
+      FROM product_org_audit_records
+      WHERE org_id = $1
+      ORDER BY created_at DESC, audit_record_id DESC
+      `,
+      [orgId]
+    );
+    return Object.freeze(
+      result.rows.map((row) =>
+        Object.freeze({
+          audit_record_id: cleanString(row.audit_record_id),
+          action_type: cleanString(row.action_type),
+          actor_role: cleanString(row.actor_role),
+          actor_user_id: cleanString(row.actor_user_id),
+          before_state: row.before_state as JsonRecord,
+          after_state: row.after_state as JsonRecord,
+          created_at: new Date(row.created_at).toISOString()
+        })
+      )
+    );
+  }
+  finally {
+    client.release();
+  }
+}
+
 export async function removeCoachMembership(
   ownerUserId: string,
   orgId: string,

@@ -112,6 +112,7 @@ function renderOrganisations(organisations) {
         <button class="button secondary" type="button" data-manage-billing="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage billing</button>
         <button class="button secondary" type="button" data-view-athletes="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">View athletes</button>
         <button class="button secondary" type="button" data-view-messages="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Messages</button>
+        <button class="button secondary" type="button" data-view-audit="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Activity log</button>
       </div>
     </article>
   `).join("");
@@ -137,6 +138,12 @@ function renderOrganisations(organisations) {
   for (const button of container.querySelectorAll("[data-view-messages]")) {
     button.addEventListener("click", () => {
       showMessagesSection(button.getAttribute("data-view-messages"), button.getAttribute("data-org-name"));
+    });
+  }
+
+  for (const button of container.querySelectorAll("[data-view-audit]")) {
+    button.addEventListener("click", () => {
+      showAuditSection(button.getAttribute("data-view-audit"), button.getAttribute("data-org-name"));
     });
   }
 }
@@ -193,6 +200,7 @@ function showRosterSection(orgId, orgName) {
   el("orgVisibilitySection").hidden = true;
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
   el("orgRosterSection").hidden = false;
   el("orgRosterOrgName").textContent = orgName;
   el("orgRosterInviteForm").reset();
@@ -236,6 +244,7 @@ function showBillingSection(orgId, orgName) {
   el("orgVisibilitySection").hidden = true;
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
   el("orgBillingSection").hidden = false;
   el("orgBillingOrgName").textContent = orgName;
   el("orgBillingSeatPlanForm").reset();
@@ -325,6 +334,7 @@ function showVisibilitySection(orgId, orgName) {
   el("orgBillingSection").hidden = true;
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
   el("orgVisibilitySection").hidden = false;
   el("orgVisibilityOrgName").textContent = orgName;
   el("orgVisibilityError").hidden = true;
@@ -338,6 +348,77 @@ function showVisibilitySection(orgId, orgName) {
 function hideVisibilitySection() {
   state.selectedOrgId = null;
   el("orgVisibilitySection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+function auditActionTypeLabel(actionType) {
+  const labels = {
+    org_created: "Organisation created",
+    coach_invited: "Coach invited",
+    coach_membership_activated: "Coach joined",
+    coach_membership_removed: "Coach removed",
+    coach_membership_left: "Coach left",
+    seat_plan_changed: "Seat plan changed"
+  };
+  return labels[actionType] || actionType;
+}
+
+function auditActorRoleLabel(actorRole) {
+  return actorRole === "org_owner" ? "You" : "Coach";
+}
+
+function renderAuditLog(auditLog) {
+  const container = el("orgAuditList");
+  if (auditLog.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No recorded activity yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = auditLog.map((record) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(auditActionTypeLabel(record.action_type))}</h3>
+        <p>${escapeHtml(auditActorRoleLabel(record.actor_role))} · ${escapeHtml(formatDate(record.created_at))}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge neutral">${escapeHtml(record.actor_role)}</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshAuditLog() {
+  const result = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/audit-log`);
+  renderAuditLog(Array.isArray(result.audit_log) ? result.audit_log : []);
+}
+
+function showAuditSection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  el("orgListSection").hidden = true;
+  el("orgCreateSection").hidden = true;
+  el("orgRosterSection").hidden = true;
+  el("orgBillingSection").hidden = true;
+  el("orgVisibilitySection").hidden = true;
+  el("orgMessagesSection").hidden = true;
+  el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = false;
+  el("orgAuditOrgName").textContent = orgName;
+  el("orgAuditError").hidden = true;
+  refreshAuditLog().catch((error) => {
+    el("orgAuditError").hidden = false;
+    el("orgAuditError").textContent = "Could not load the activity log.";
+    console.error(error);
+  });
+}
+
+function hideAuditSection() {
+  state.selectedOrgId = null;
+  el("orgAuditSection").hidden = true;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
 }
@@ -462,6 +543,7 @@ function showMessagesSection(orgId, orgName) {
   el("orgBillingSection").hidden = true;
   el("orgVisibilitySection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
   el("orgMessagesSection").hidden = false;
   el("orgMessagesOrgName").textContent = orgName;
   el("orgMessagesError").hidden = true;
@@ -728,6 +810,7 @@ function boot() {
   el("orgBillingSeatPlanForm").addEventListener("submit", (event) => updateSeatPlan(event).catch(console.error));
   el("orgBillingBackButton").addEventListener("click", () => hideBillingSection());
   el("orgVisibilityBackButton").addEventListener("click", () => hideVisibilitySection());
+  el("orgAuditBackButton").addEventListener("click", () => hideAuditSection());
   el("orgMessagesBackButton").addEventListener("click", () => hideMessagesSection());
   el("orgThreadDetailBackButton").addEventListener("click", () => hideThreadDetailSection());
   el("orgThreadReplyForm").addEventListener("submit", (event) => sendThreadReply(event).catch(console.error));

@@ -59,7 +59,7 @@ test("org routes are mounted at their own /org and /coach-workspace prefixes, ne
     '"/organisations"', '"/organisations/:org_id/roster/invite"',
     '"/organisations/:org_id/roster"', '"/organisations/:org_id/roster/:membership_id/remove"',
     '"/organisations/:org_id/billing"', '"/organisations/:org_id/billing/seat-plan"',
-    '"/organisations/:org_id/athlete-visibility"',
+    '"/organisations/:org_id/athlete-visibility"', '"/organisations/:org_id/audit-log"',
     '"/organisations/:org_id/messages/threads"', '"/organisations/:org_id/messages/threads/:thread_id"',
     '"/organisations/:org_id/messages/coaches/:coach_user_id/send"',
     '"/organisations/:org_id/athlete-messages/threads"', '"/organisations/:org_id/athlete-messages/threads/:thread_id"',
@@ -456,6 +456,47 @@ test("the athlete-visibility view renders individual-mode aggregate counts and s
 test("athlete names and emails rendered into the visibility view are escaped before being inserted into innerHTML", () => {
   assert.match(orgDashboardJs, /escapeHtml\(athlete\.display_name\)/u);
   assert.match(orgDashboardJs, /escapeHtml\(athlete\.email \|\| "no email"\)/u);
+});
+
+// Part O.9 - the activity log view. Every real mutation in
+// org_roster_service.ts/org_billing_service.ts already writes a factual
+// audit record via writeAuditRecord()/withIdempotentAudit(), but until this
+// slice the only SELECT against product_org_audit_records anywhere was the
+// write-side's own idempotency lookup (findExistingAudit) - the org owner
+// had no route to ever read their own organisation's recorded activity
+// back.
+test("org_roster_service.ts exposes a listOrgAuditLog read path over product_org_audit_records, distinct from the write-side's idempotency-only lookup", () => {
+  assert.match(rosterService, /export async function listOrgAuditLog/u);
+  assert.match(rosterService, /FROM product_org_audit_records/u);
+  assert.match(rosterService, /requireOrganisationOwnedBy/u);
+});
+
+test("the audit-log route resolves identity from authenticatedOrgOwner and delegates to listOrgAuditLog, mirroring the athlete-visibility route's own shape", () => {
+  assert.match(
+    ownerRoutes,
+    /"\/organisations\/:org_id\/audit-log"[\s\S]{0,200}authenticatedOrgOwner\(request, false\)[\s\S]{0,200}listOrgAuditLog/u
+  );
+});
+
+test("each organisation card exposes a real, keyboard-reachable button to view the activity log, and opening it hides every other detail section", () => {
+  assert.match(orgDashboardHtml, /<section id="orgAuditSection"/u);
+  assert.match(orgDashboardJs, /data-view-audit="\$\{escapeHtml\(organisation\.org_id\)\}"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-view-audit=/u);
+  assert.match(orgDashboardJs, /querySelectorAll\("\[data-view-audit\]"\)/u);
+  assert.match(
+    orgDashboardJs,
+    /function showAuditSection[\s\S]{0,300}orgRosterSection"\)\.hidden = true[\s\S]{0,300}orgBillingSection"\)\.hidden = true[\s\S]{0,300}orgVisibilitySection"\)\.hidden = true/u
+  );
+});
+
+test("the activity log view calls the new audit-log route, and its back button is a real, keyboard-reachable control", () => {
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgAuditBackButton"[^>]*type="button"/u,
+    "orgAuditBackButton must be a real <button type=\"button\">"
+  );
+
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/audit-log`\)/u);
 });
 
 // Part O.6 - athlete-facing team/org context. The athlete panel used to be
