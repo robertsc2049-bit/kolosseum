@@ -71,6 +71,7 @@ const explicitLaterSliceAllowedChangedPaths =
     "product/ui/function_manifest.json",
     "public/app/account_ui.js",
     "public/app/app.js",
+    "public/app/athlete_onboarding_ui.js",
     "public/app/commercial_ui.js",
     "public/app/event_lifecycle_ui.js",
     "public/app/index.html",
