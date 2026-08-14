@@ -57,7 +57,7 @@
 
   <section id="accountDetailSection" hidden>
     <h2>Account detail: <span id="accountDetailUserId"></span></h2>
-    <p>Actor: <strong id="accountDetailActorType"></strong> | State: <strong id="accountDetailState"></strong> | Test account: <strong id="accountDetailTestFlag"></strong></p>
+    <p>Actor: <strong id="accountDetailActorType"></strong> | State: <strong id="accountDetailState"></strong> | Test account: <strong id="accountDetailTestFlag"></strong><span id="accountDetailTestReasonWrap" hidden> (reason: <em id="accountDetailTestReason"></em>)</span></p>
 
     <div class="row-actions">
       <button id="accountToggleStateButton" type="button">Toggle active/suspended</button>
@@ -65,6 +65,7 @@
     </div>
     <div class="row-actions">
       <button id="accountToggleTestButton" type="button">Toggle test-account marking</button>
+      <input id="accountTestMarkingReason" type="text" maxlength="500" placeholder="Reason (marking only)" hidden>
       <button id="accountToggleTestConfirmButton" type="button" class="confirm" hidden>Confirm test marking change</button>
     </div>
     <p id="accountActionResult" class="muted" hidden></p>

@@ -302,21 +302,27 @@ test(
       assertStatus(mark, 200, "mark test account");
       assert.equal(mark.json.audit.before_state.is_test_account, false);
       assert.equal(mark.json.audit.after_state.is_test_account, true);
+      // The reason an admin gives for marking an account was previously
+      // validated and stored, then silently discarded on every read path -
+      // never in the audit record, never in the account detail response.
+      assert.equal(mark.json.audit.after_state.reason, "fixture");
 
       const detailAfterMark = await request(baseUrl, "GET", `/admin/accounts/${encodeURIComponent(athlete.userId)}`, undefined, { cookie: admin.cookie });
       assert.equal(detailAfterMark.json.account.is_test_account, true);
+      assert.equal(detailAfterMark.json.account.test_account_reason, "fixture");
+      assert.equal(detailAfterMark.json.account.test_account_marked_by_admin_user_id, admin.userId);
 
       const unmarkCorrelationId = crypto.randomUUID();
       correlationIds.push(unmarkCorrelationId);
-      assertStatus(
-        await request(baseUrl, "POST", `/admin/accounts/${encodeURIComponent(athlete.userId)}/test-marking`,
-          { correlation_id: unmarkCorrelationId, marked: false },
-          { cookie: admin.cookie, csrf: admin.csrf }),
-        200,
-        "unmark test account"
-      );
+      const unmark = await request(baseUrl, "POST", `/admin/accounts/${encodeURIComponent(athlete.userId)}/test-marking`,
+        { correlation_id: unmarkCorrelationId, marked: false },
+        { cookie: admin.cookie, csrf: admin.csrf });
+      assertStatus(unmark, 200, "unmark test account");
+      assert.equal(unmark.json.audit.before_state.reason, "fixture");
+      assert.equal(unmark.json.audit.after_state.reason, null);
       const detailAfterUnmark = await request(baseUrl, "GET", `/admin/accounts/${encodeURIComponent(athlete.userId)}`, undefined, { cookie: admin.cookie });
       assert.equal(detailAfterUnmark.json.account.is_test_account, false);
+      assert.equal(detailAfterUnmark.json.account.test_account_reason, null);
 
       // ============================================================
       // Coach entitlement/payment review (read-only, cross-user).

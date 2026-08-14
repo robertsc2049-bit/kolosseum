@@ -98,6 +98,8 @@ export async function getAdminAccountDetail(
     created_at_iso8601: toIso(row.created_at),
     is_test_account: testAccountResult.rows.length > 0,
     test_account_marked_at_iso8601: toIso(testAccountResult.rows[0]?.created_at) ?? null,
+    test_account_marked_by_admin_user_id: cleanString(testAccountResult.rows[0]?.marked_by_admin_user_id) || null,
+    test_account_reason: cleanString(testAccountResult.rows[0]?.reason) || null,
     events: Object.freeze(
       eventsResult.rows.map((event) =>
         Object.freeze({

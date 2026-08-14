@@ -123,10 +123,14 @@ async function openAccountDetail(userId) {
   el("accountDetailActorType").textContent = account.actor_type;
   el("accountDetailState").textContent = account.account_state;
   el("accountDetailTestFlag").textContent = account.is_test_account ? "Yes" : "No";
+  el("accountDetailTestReasonWrap").hidden = !account.test_account_reason;
+  el("accountDetailTestReason").textContent = account.test_account_reason ?? "";
   el("accountActionResult").hidden = true;
 
   el("accountToggleStateConfirmButton").hidden = true;
   el("accountToggleTestConfirmButton").hidden = true;
+  el("accountTestMarkingReason").hidden = true;
+  el("accountTestMarkingReason").value = "";
   state.pendingStateChange = null;
   state.pendingTestMarking = null;
 
@@ -166,15 +170,21 @@ function requestTestMarkingToggle() {
   state.pendingTestMarking = { correlation_id: generateCorrelationId(), marked: !currentlyMarked };
   el("accountToggleTestConfirmButton").hidden = false;
   el("accountToggleTestConfirmButton").textContent = `Confirm: ${currentlyMarked ? "unmark" : "mark"} as test account`;
+  el("accountTestMarkingReason").hidden = currentlyMarked;
+  if (!currentlyMarked) el("accountTestMarkingReason").value = "";
 }
 
 async function confirmTestMarkingToggle() {
   if (!state.pendingTestMarking || !state.selectedUserId) return;
-  const pending = state.pendingTestMarking;
+  const pending = {
+    ...state.pendingTestMarking,
+    reason: state.pendingTestMarking.marked ? el("accountTestMarkingReason").value.trim() : null
+  };
   const outcome = await api("POST", `/admin/accounts/${encodeURIComponent(state.selectedUserId)}/test-marking`, pending);
   el("accountActionResult").hidden = false;
   el("accountActionResult").textContent = `Audit record ${outcome.audit.audit_record_id}: ${JSON.stringify(outcome.audit.before_state)} -> ${JSON.stringify(outcome.audit.after_state)}`;
   el("accountToggleTestConfirmButton").hidden = true;
+  el("accountTestMarkingReason").hidden = true;
   state.pendingTestMarking = null;
   await openAccountDetail(state.selectedUserId);
   await refreshAuditRecords();
