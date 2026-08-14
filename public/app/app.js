@@ -2074,13 +2074,26 @@ async function loadSessionState() {
 let currentFocusExerciseId = null;
 let restTimerIntervalId = null;
 const exerciseContentCache = new Map();
+const exerciseReferenceMediaCache = new Map();
 
-function renderExerciseHowto(container, content) {
+function referenceMediaMarkup(referenceMedia) {
+  if (!referenceMedia?.video_url) return "";
+  return `
+    <p class="exercise-howto-heading">Reference video</p>
+    <a class="exercise-reference-media-link" href="${escapeHtml(referenceMedia.video_url)}" target="_blank" rel="noopener noreferrer">
+      ${referenceMedia.thumbnail_url ? `<img class="exercise-reference-media-thumbnail" src="${escapeHtml(referenceMedia.thumbnail_url)}" alt="Reference video thumbnail" loading="lazy" />` : ""}
+      <span>Watch reference video</span>
+    </a>
+  `;
+}
+
+function renderExerciseHowto(container, content, referenceMedia) {
   const detailedSteps = Array.isArray(content?.instruction?.detailed) ? content.instruction.detailed : [];
   const cues = Array.isArray(content?.coaching_cues) ? content.coaching_cues : [];
   const faults = Array.isArray(content?.common_faults) ? content.common_faults : [];
+  const referenceMediaHtml = referenceMediaMarkup(referenceMedia);
 
-  if (!detailedSteps.length && !cues.length && !faults.length) {
+  if (!detailedSteps.length && !cues.length && !faults.length && !referenceMediaHtml) {
     container.innerHTML = '<p class="muted">No written instructions are available for this exercise yet.</p>';
     return;
   }
@@ -2103,23 +2116,33 @@ function renderExerciseHowto(container, content) {
         ${faults.map((fault) => `<li>${escapeHtml(fault)}</li>`).join("")}
       </ul>
     ` : ""}
+    ${referenceMediaHtml}
   `;
 }
 
 async function loadExerciseHowto(exerciseId, container) {
   if (!exerciseId || !container) return;
 
-  if (exerciseContentCache.has(exerciseId)) {
-    renderExerciseHowto(container, exerciseContentCache.get(exerciseId));
+  if (exerciseContentCache.has(exerciseId) && exerciseReferenceMediaCache.has(exerciseId)) {
+    renderExerciseHowto(container, exerciseContentCache.get(exerciseId), exerciseReferenceMediaCache.get(exerciseId));
     return;
   }
 
   container.innerHTML = '<p class="muted">Loading…</p>';
 
   try {
-    const result = await api("GET", `/exercises/${encodeURIComponent(exerciseId)}/content`);
-    exerciseContentCache.set(exerciseId, result);
-    renderExerciseHowto(container, result);
+    const [content, referenceMediaResult] = await Promise.all([
+      exerciseContentCache.has(exerciseId)
+        ? Promise.resolve(exerciseContentCache.get(exerciseId))
+        : api("GET", `/exercises/${encodeURIComponent(exerciseId)}/content`),
+      exerciseReferenceMediaCache.has(exerciseId)
+        ? Promise.resolve(exerciseReferenceMediaCache.get(exerciseId))
+        : api("GET", `/exercises/${encodeURIComponent(exerciseId)}/reference-media`).catch(() => null)
+    ]);
+    exerciseContentCache.set(exerciseId, content);
+    const referenceMedia = referenceMediaResult?.reference_media ?? null;
+    exerciseReferenceMediaCache.set(exerciseId, referenceMedia);
+    renderExerciseHowto(container, content, referenceMedia);
   }
   catch (error) {
     container.innerHTML = '<p class="muted">Instructions could not be loaded right now.</p>';
