@@ -81,10 +81,14 @@ function accessibilityLabel(value) {
     .map(([key]) => label(key));
   return chosen.length ? chosen.join(", ") : "No additional presentation preferences";
 }
+const INSTRUCTION_DENSITIES = ["minimal", "standard", "detailed"];
+
 // Applies the athlete's declared presentation preferences to the live page via
-// data attributes on <html>, matched by CSS in styles.css. This is the only
-// place a declared preference is allowed to change how anything is styled -
-// it never reads or writes ability/safety/readiness fields.
+// data attributes on <html>, matched by CSS in styles.css (accessibility) and
+// read directly by app.js's exercise-howto renderer (instruction density).
+// This is the only place a declared preference is allowed to change how
+// anything is styled or how much written content is shown - it never reads
+// or writes ability/safety/readiness fields.
 function applyAccessibilityPreferences(fields) {
   if (typeof document === "undefined") return;
   const a = accessibility(fields?.accessibility_preferences);
@@ -93,6 +97,9 @@ function applyAccessibilityPreferences(fields) {
   root.dataset.a11yHighContrast = String(a.high_contrast);
   root.dataset.a11yLargerText = String(a.larger_text);
   root.dataset.a11yScreenReaderOptimised = String(a.screen_reader_optimised);
+  root.dataset.instructionDensity = INSTRUCTION_DENSITIES.includes(fields?.instruction_density)
+    ? fields.instruction_density
+    : "standard";
 }
 
 function installSurface() {

@@ -217,6 +217,35 @@ test("FULL-UI-03C declared accessibility preferences are actually applied to the
   }
 });
 
+test("FULL-UI-03C declared instruction-density preference is actually applied to the page", () => {
+  // instruction_density is a required onboarding field validated and stored
+  // right alongside accessibility_preferences, editable through the same
+  // /account/onboarding/preferences route, but applyAccessibilityPreferences
+  // only read fields.accessibility_preferences - the declared density choice
+  // had no downstream reader anywhere. Same phantom-field bug class as the
+  // accessibility preferences fix above, and PR #865 before it.
+  assert.match(ui, /function applyAccessibilityPreferences/u);
+  assert.match(ui, /root\.dataset\.instructionDensity/u);
+  assert.match(ui, /\["minimal",\s*"standard",\s*"detailed"\]/u);
+
+  // Applied on every athlete route resolution, and immediately after both
+  // write paths that can change the declared preference - same three call
+  // sites already proven for the accessibility preferences above.
+  const gateFunction = ui.slice(
+    ui.indexOf("export async function resolveAthleteOnboardingGate"),
+    ui.indexOf("export function installAthleteOnboardingUi")
+  );
+  assert.match(gateFunction, /applyAccessibilityPreferences\(/u);
+  const confirmFunction = ui.slice(ui.indexOf("async function confirm()"), ui.indexOf("function preferenceEditor"));
+  assert.match(confirmFunction, /applyAccessibilityPreferences\(/u);
+  const saveFunction = ui.slice(ui.indexOf("async function savePreferences()"), ui.indexOf("function unavailable"));
+  assert.match(saveFunction, /applyAccessibilityPreferences\(/u);
+
+  // An invalid or missing stored value falls back to "standard" rather than
+  // leaving the attribute unset or crashing the page.
+  assert.match(ui, /INSTRUCTION_DENSITIES\.includes\(fields\?\.instruction_density\)\s*\n?\s*\?\s*fields\.instruction_density\s*\n?\s*:\s*"standard"/u);
+});
+
 test("FULL-UI-03C mounts authenticated CSRF-protected HTTP routes", () => {
   for (const route of ['"/"', '"/draft"', '"/confirm"', '"/preferences"']) {
     assert.match(routes, new RegExp(route.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
