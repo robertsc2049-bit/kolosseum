@@ -240,10 +240,13 @@ export async function setTestAccountMarking(
     }
 
     const before = await client.query(
-      `SELECT user_id FROM product_test_accounts WHERE user_id = $1`,
+      `SELECT user_id, reason FROM product_test_accounts WHERE user_id = $1`,
       [cleanTargetUserId]
     );
-    const beforeState = { is_test_account: before.rows.length > 0 };
+    const beforeState = {
+      is_test_account: before.rows.length > 0,
+      reason: cleanString(before.rows[0]?.reason) || null
+    };
 
     if (marked) {
       await client.query(
@@ -259,7 +262,7 @@ export async function setTestAccountMarking(
       await client.query(`DELETE FROM product_test_accounts WHERE user_id = $1`, [cleanTargetUserId]);
     }
 
-    const afterState = { is_test_account: marked };
+    const afterState = { is_test_account: marked, reason: marked ? reason : null };
 
     return writeAuditRecord(client, {
       adminUserId,

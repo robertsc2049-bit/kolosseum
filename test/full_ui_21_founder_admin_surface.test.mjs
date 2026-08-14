@@ -157,6 +157,32 @@ test("confirmed operational actions require an explicit second confirmation clic
   assert.match(js, /pendingStateChange/u);
 });
 
+test("the reason an admin gives for marking a test account is authorable, stored, and read back - not silently discarded", () => {
+  // getAdminAccountDetail used to SELECT marked_by_admin_user_id and reason
+  // from product_test_accounts and then never place them on the returned
+  // object - a producer that validates and stores a real value with zero
+  // downstream readers, same bug class as PR #865/#866.
+  assert.match(reviewService, /SELECT marked_by_admin_user_id, reason, created_at FROM product_test_accounts/u);
+  assert.match(reviewService, /test_account_reason:/u);
+  assert.match(reviewService, /test_account_marked_by_admin_user_id:/u);
+
+  // The audit trail for this action must reflect the actual reason, not
+  // just the boolean flag, on both sides of the change.
+  const markingFunction = actionService.slice(
+    actionService.indexOf("export async function setTestAccountMarking"),
+    actionService.indexOf("const SUPPORT_REQUEST_STATES")
+  );
+  assert.match(markingFunction, /beforeState = \{[\s\S]{0,80}reason:/u);
+  assert.match(markingFunction, /afterState = \{[\s\S]{0,80}reason:/u);
+
+  // The admin UI previously had no input for reason at all - it could only
+  // be supplied via a direct API call, never through the product surface.
+  assert.match(html, /id="accountTestMarkingReason"/u);
+  assert.match(html, /id="accountDetailTestReason"/u);
+  assert.match(js, /accountTestMarkingReason.*\.value/u);
+  assert.match(js, /test_account_reason/u);
+});
+
 test("every route resolves the admin's own identity from the session, never a client-supplied admin id", () => {
   assert.doesNotMatch(routes, /request\.body\.admin_user_id|request\.query\.admin_user_id/u);
   assert.match(routes, /admin\.user_id/u);
