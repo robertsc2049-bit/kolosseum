@@ -32,6 +32,7 @@ import {
   OrgRosterError,
   createOrganisation,
   inviteCoachToOrganisation,
+  listOrgAuditLog,
   listOrganisationRoster,
   listOrganisationsForOwner,
   removeCoachMembership
@@ -224,6 +225,15 @@ orgOwnerRouter.get(
     const { user_id } = await authenticatedOrgOwner(request, false);
     const visibility = await getOrgAthleteVisibility(user_id, String(request.params.org_id));
     return response.status(200).json({ ok: true, visibility });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/audit-log",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const auditLog = await listOrgAuditLog(user_id, String(request.params.org_id));
+    return response.status(200).json({ ok: true, audit_log: auditLog });
   })
 );
 
