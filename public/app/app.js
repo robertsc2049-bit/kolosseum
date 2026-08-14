@@ -5145,6 +5145,11 @@ function renderAthleteDetail() {
                         ? `<p class="muted small">Skipped: ${session.skip_reasons.map((reason) => escapeHtml(titleCase(reason))).join(", ")}</p>`
                         : ""
                     }
+                    ${
+                      Array.isArray(session.substitutions) && session.substitutions.length
+                        ? `<p class="muted small">Substituted: ${session.substitutions.map((entry) => `${escapeHtml(titleCase(entry.exercise_id))} → ${escapeHtml(titleCase(entry.substituted_exercise_id))}`).join(", ")}</p>`
+                        : ""
+                    }
                   </div>
 
                   <div class="record-meta">

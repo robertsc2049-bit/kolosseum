@@ -714,9 +714,10 @@ test(
       { session_id: sessionId, execution_status: terminalState.execution_status }
     );
 
-    // --- Step 14b: a second session records a real skip reason and a real
-    //     pain report, and the coach's athlete-detail surface reflects both
-    //     facts - not just an opaque recorded-event count. ---
+    // --- Step 14b: a second session records a real skip reason, a real
+    //     pain report and a real exercise substitution, and the coach's
+    //     athlete-detail surface reflects all three facts - not just an
+    //     opaque recorded-event count. ---
     const secondCompiled = await request(baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
       phase1_input: {
         consent_granted: true,
@@ -745,6 +746,8 @@ test(
     let secondTerminalState = null;
     let skippedExerciseId = null;
     let painReportedExerciseId = null;
+    let substitutedFromExerciseId = null;
+    let substitutedToExerciseId = null;
 
     for (let i = 0; i < 10; i += 1) {
       const stateResult = await request(baseUrl, "GET", `/sessions/${encodeURIComponent(secondSessionId)}/state`);
@@ -780,6 +783,32 @@ test(
         );
       }
 
+      if (exerciseId === "deadlift" && !substitutedFromExerciseId) {
+        const substitutionRequest = await request(
+          baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/substitution-request`,
+          { exercise_id: "deadlift", unavailable_equipment_ids: ["barbell"] }
+        );
+        const substitutionResult = substitutionRequest.json?.result;
+        const substitutionOutput = substitutionResult?.substitution_output;
+        if (substitutionRequest.response.status === 200 && substitutionResult?.substitution_status === "substitution_applied") {
+          substitutedFromExerciseId = substitutionOutput.source_exercise_id;
+          substitutedToExerciseId = substitutionOutput.target_exercise_id;
+          assertStatus(
+            await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+              event: {
+                type: "COMPLETE_EXERCISE",
+                exercise_id: exerciseId,
+                substituted_exercise_id: substitutionOutput.target_exercise_id,
+                substitution_edge_id: substitutionOutput.substitution_edge_id
+              }
+            }),
+            201,
+            `complete substituted exercise ${exerciseId} (second session)`
+          );
+          continue;
+        }
+      }
+
       assertStatus(
         await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
           event: { type: "COMPLETE_EXERCISE", exercise_id: exerciseId }
@@ -792,6 +821,8 @@ test(
     assert.equal(secondTerminalState.execution_status, "partial");
     assert.ok(skippedExerciseId, "expected a skipped exercise in the second session");
     assert.ok(painReportedExerciseId, "expected a pain-reported exercise in the second session");
+    assert.equal(substitutedFromExerciseId, "deadlift", "expected the deadlift substitution to be applied");
+    assert.equal(substitutedToExerciseId, "kettlebell_deadlift", "expected the lawful registry substitution target");
 
     const athleteDetailAfterSecondSession = await request(
       baseUrl, "GET",
@@ -808,6 +839,13 @@ test(
       Array.isArray(secondSessionSummary.skip_reasons) && secondSessionSummary.skip_reasons.includes(usedSkipReason),
       "expected the coach's session history to surface the athlete's recorded skip reason"
     );
+    assert.ok(Array.isArray(secondSessionSummary.substitutions), "expected a substitutions array on the coach's session summary");
+    assert.ok(
+      secondSessionSummary.substitutions.some(
+        (entry) => entry.exercise_id === "deadlift" && entry.substituted_exercise_id === "kettlebell_deadlift"
+      ),
+      "expected the coach's session history to surface the athlete's recorded exercise substitution"
+    );
 
     const firstSessionSummary = athleteDetailAfterSecondSession.json?.detail?.session_history?.find(
       (entry) => entry.session_id === sessionId
@@ -815,14 +853,16 @@ test(
     assert.ok(firstSessionSummary, "expected the first session in the coach's session history");
     assert.equal(firstSessionSummary.pain_reported, false);
     assert.deepEqual(firstSessionSummary.skip_reasons, []);
+    assert.deepEqual(firstSessionSummary.substitutions, []);
 
     record(
-      "step_14b_coach_sees_pain_and_skip_facts",
-      "Coach's session history surfaces the athlete's recorded pain report and skip reason, not just an event count",
+      "step_14b_coach_sees_pain_skip_and_substitution_facts",
+      "Coach's session history surfaces the athlete's recorded pain report, skip reason and exercise substitution, not just an event count",
       secondSessionSummary.pain_reported === true &&
         secondSessionSummary.skip_reasons.includes(usedSkipReason) &&
+        secondSessionSummary.substitutions.some((entry) => entry.exercise_id === "deadlift") &&
         firstSessionSummary.pain_reported === false,
-      { session_id: secondSessionId, skip_reason: usedSkipReason }
+      { session_id: secondSessionId, skip_reason: usedSkipReason, substituted_to: substitutedToExerciseId }
     );
 
     // --- Step 15: coach sees the factual completed-session record. ---
