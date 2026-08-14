@@ -5156,6 +5156,11 @@ function renderAthleteDetail() {
                         ? `<p class="muted small">RPE: ${session.rpe_reports.map((entry) => `${escapeHtml(titleCase(entry.exercise_id))} ${Number(entry.rpe_value)}`).join(", ")}</p>`
                         : ""
                     }
+                    ${
+                      session.split_return_decision
+                        ? `<p class="muted small">Return decision: ${escapeHtml(titleCase(session.split_return_decision))}</p>`
+                        : ""
+                    }
                   </div>
 
                   <div class="record-meta">
@@ -5169,6 +5174,7 @@ function renderAthleteDetail() {
                     </span>
 
                     ${session.pain_reported ? `<span class="badge partial">Pain reported</span>` : ""}
+                    ${session.split_entered ? `<span class="badge partial">Split session</span>` : ""}
 
                     <button
                       class="button secondary small-button"
