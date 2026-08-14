@@ -748,6 +748,7 @@ test(
     let painReportedExerciseId = null;
     let substitutedFromExerciseId = null;
     let substitutedToExerciseId = null;
+    let rpeReportedExerciseId = null;
 
     for (let i = 0; i < 10; i += 1) {
       const stateResult = await request(baseUrl, "GET", `/sessions/${encodeURIComponent(secondSessionId)}/state`);
@@ -809,6 +810,17 @@ test(
         }
       }
 
+      if (exerciseId === "overhead_press" && !rpeReportedExerciseId) {
+        rpeReportedExerciseId = exerciseId;
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+            event: { type: "RPE_REPORT", exercise_id: exerciseId, rpe_value: 8 }
+          }),
+          201,
+          `rpe report ${exerciseId} (second session)`
+        );
+      }
+
       assertStatus(
         await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
           event: { type: "COMPLETE_EXERCISE", exercise_id: exerciseId }
@@ -823,6 +835,7 @@ test(
     assert.ok(painReportedExerciseId, "expected a pain-reported exercise in the second session");
     assert.equal(substitutedFromExerciseId, "deadlift", "expected the deadlift substitution to be applied");
     assert.equal(substitutedToExerciseId, "kettlebell_deadlift", "expected the lawful registry substitution target");
+    assert.equal(rpeReportedExerciseId, "overhead_press", "expected an RPE report on overhead_press in the second session");
 
     const athleteDetailAfterSecondSession = await request(
       baseUrl, "GET",
@@ -846,6 +859,13 @@ test(
       ),
       "expected the coach's session history to surface the athlete's recorded exercise substitution"
     );
+    assert.ok(Array.isArray(secondSessionSummary.rpe_reports), "expected an rpe_reports array on the coach's session summary");
+    assert.ok(
+      secondSessionSummary.rpe_reports.some(
+        (entry) => entry.exercise_id === "overhead_press" && entry.rpe_value === 8
+      ),
+      "expected the coach's session history to surface the athlete's recorded RPE report"
+    );
 
     const firstSessionSummary = athleteDetailAfterSecondSession.json?.detail?.session_history?.find(
       (entry) => entry.session_id === sessionId
@@ -854,15 +874,17 @@ test(
     assert.equal(firstSessionSummary.pain_reported, false);
     assert.deepEqual(firstSessionSummary.skip_reasons, []);
     assert.deepEqual(firstSessionSummary.substitutions, []);
+    assert.deepEqual(firstSessionSummary.rpe_reports, []);
 
     record(
-      "step_14b_coach_sees_pain_skip_and_substitution_facts",
-      "Coach's session history surfaces the athlete's recorded pain report, skip reason and exercise substitution, not just an event count",
+      "step_14b_coach_sees_pain_skip_substitution_and_rpe_facts",
+      "Coach's session history surfaces the athlete's recorded pain report, skip reason, exercise substitution and RPE report, not just an event count",
       secondSessionSummary.pain_reported === true &&
         secondSessionSummary.skip_reasons.includes(usedSkipReason) &&
         secondSessionSummary.substitutions.some((entry) => entry.exercise_id === "deadlift") &&
+        secondSessionSummary.rpe_reports.some((entry) => entry.exercise_id === "overhead_press") &&
         firstSessionSummary.pain_reported === false,
-      { session_id: secondSessionId, skip_reason: usedSkipReason, substituted_to: substitutedToExerciseId }
+      { session_id: secondSessionId, skip_reason: usedSkipReason, substituted_to: substitutedToExerciseId, rpe_exercise_id: rpeReportedExerciseId }
     );
 
     // --- Step 15: coach sees the factual completed-session record. ---

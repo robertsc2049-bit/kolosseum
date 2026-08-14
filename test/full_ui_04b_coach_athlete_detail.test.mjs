@@ -183,6 +183,22 @@ test(
       application,
       /session\.substitutions/u
     );
+
+    // Same gap for RPE reports: an athlete's recorded RPE_REPORT was
+    // validated and persisted but read back nowhere - not even to the
+    // athlete themselves, let alone the coach's session history.
+    assert.match(
+      service,
+      /session_rpe_reports/u
+    );
+    assert.match(
+      service,
+      /rpe_reports:/u
+    );
+    assert.match(
+      application,
+      /session\.rpe_reports/u
+    );
   }
 );
 

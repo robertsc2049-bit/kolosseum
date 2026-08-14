@@ -398,6 +398,13 @@ test(
         201,
         "pain report bench_press (session 2)"
       );
+      assertStatus(
+        await request(baseUrl, "POST", `/sessions/${encodeURIComponent(partialSessionId)}/events`, {
+          type: "RPE_REPORT", exercise_id: "deadlift", rpe_value: 9
+        }),
+        201,
+        "rpe report deadlift (session 2)"
+      );
       for (const exerciseId of ["bench_press", "deadlift", "overhead_press"]) {
         assertStatus(
           await request(baseUrl, "POST", `/sessions/${encodeURIComponent(partialSessionId)}/events`, {
@@ -490,7 +497,7 @@ test(
       assert.equal(unfilteredAfterFilters.session_count, 3, "filtering must never alter the underlying stored record");
 
       // --- Detail: planned versus recorded, split/return record, skip
-      //     reason/pain, and provenance. ---
+      //     reason/pain, RPE report, and provenance. ---
       const detail = await historyDetail(baseUrl, athlete.userId, partialSessionId);
       assertStatus(detail, 200, "history detail (partial session)");
       assert.equal(detail.json.execution_status, "partial");
@@ -501,6 +508,8 @@ test(
       assert.equal(exercisesById.bench_press.recorded_state, "completed");
       assert.equal(exercisesById.bench_press.pain_reported, true);
       assert.equal(exercisesById.deadlift.pain_reported, false);
+      assert.equal(exercisesById.deadlift.rpe_reported, 9, "expected the athlete's own recorded RPE to be surfaced back to them");
+      assert.equal(exercisesById.bench_press.rpe_reported, null, "an exercise with no RPE_REPORT event must not fabricate a value");
 
       assert.equal(detail.json.provenance.programme.template_id, template.template_id);
       assert.equal(detail.json.provenance.assignment.coach_user_id, coach.userId);
