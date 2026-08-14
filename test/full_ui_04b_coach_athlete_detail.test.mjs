@@ -166,6 +166,23 @@ test(
       application,
       /session\.skip_reasons/u
     );
+
+    // Same gap for exercise substitutions: the athlete's own history surface
+    // already exposes substituted_exercise_id/substitution_edge_id per
+    // exercise, but the coach's session history only ever exposed the
+    // opaque event count until this fix.
+    assert.match(
+      service,
+      /session_substitutions/u
+    );
+    assert.match(
+      service,
+      /substitutions:/u
+    );
+    assert.match(
+      application,
+      /session\.substitutions/u
+    );
   }
 );
 

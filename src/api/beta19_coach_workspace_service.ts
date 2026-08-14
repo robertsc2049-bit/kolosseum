@@ -1502,7 +1502,19 @@ export async function loadCoachAthleteDetail(
             END
           ),
           NULL
-        ) AS session_skip_reasons
+        ) AS session_skip_reasons,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'substituted_exercise_id', re.event->>'substituted_exercise_id'
+            )
+          ) FILTER (
+            WHERE re.event->>'substituted_exercise_id' IS NOT NULL
+              AND re.event->>'substituted_exercise_id' <> ''
+          ),
+          '[]'::json
+        ) AS session_substitutions
       FROM sessions s
       LEFT JOIN runtime_events re
         ON re.session_id = s.session_id
@@ -1702,6 +1714,17 @@ export async function loadCoachAthleteDetail(
                   (reason: unknown) =>
                     typeof reason === "string" &&
                     reason.length > 0
+                )
+              : [],
+          substitutions:
+            Array.isArray(
+              row.session_substitutions
+            )
+              ? row.session_substitutions.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    typeof entry.substituted_exercise_id === "string"
                 )
               : [],
           created_at:
