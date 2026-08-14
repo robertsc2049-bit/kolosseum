@@ -44,3 +44,6 @@ verify.full.log
 
 # message attachment storage (local disk, dev/runtime only)
 var/
+
+# local Claude Code tool state (per-machine, never shared)
+.claude/
