@@ -12,6 +12,8 @@ const routes = read("src/api/exercise_reference_media.routes.ts");
 const serverTs = read("src/server.ts");
 const schema = read("ci/schemas/exercise.registry.schema.json");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
+const appJs = read("public/app/app.js");
+const stylesCss = read("public/app/styles.css");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -57,6 +59,33 @@ test("no live exercise entry has a reference_media value yet (content-free infra
   for (const exercise of Object.values(exerciseRegistry.entries)) {
     assert.equal("reference_media" in exercise, false, `${exercise.exercise_id}: expected no reference_media value yet`);
   }
+});
+
+// The manifest marks exercise_reference_media_lookup implemented for BOTH
+// athlete and coach actors, but until this test, nothing anywhere fetched
+// or rendered the route's response - the athlete's session focus panel and
+// the coach's template builder work-item-info panel (both driven by
+// loadExerciseHowto/renderExerciseHowto, the shared insertion point) never
+// called it, so a coach or admin could populate reference_media on a
+// registry entry and no user would ever see it.
+test("loadExerciseHowto fetches the reference-media route alongside exercise content, and renderExerciseHowto shows it to both the athlete and coach call sites it already serves", () => {
+  assert.match(appJs, /reference-media/u);
+  assert.match(appJs, /function renderExerciseHowto\(container, content, referenceMedia\)/u);
+  assert.match(appJs, /referenceMedia(?:Result)?\?\.reference_media/u);
+  assert.match(appJs, /referenceMedia\?\.video_url/u);
+
+  // Both existing call sites already route through loadExerciseHowto, so no
+  // additional call site needs to be added for this fix to reach the
+  // athlete's session focus panel and the coach's builder info panel.
+  assert.match(appJs, /loadExerciseHowto\(exerciseId, panel\)/u);
+  assert.match(appJs, /loadExerciseHowto\(details\.dataset\.exerciseId, details\.querySelector\(".exercise-howto-body"\)\)/u);
+});
+
+test("the reference-video link and thumbnail are escaped before being inserted into innerHTML, and have their own styling", () => {
+  assert.match(appJs, /escapeHtml\(referenceMedia\.video_url\)/u);
+  assert.match(appJs, /escapeHtml\(referenceMedia\.thumbnail_url\)/u);
+  assert.match(stylesCss, /\.exercise-reference-media-link/u);
+  assert.match(stylesCss, /\.exercise-reference-media-thumbnail/u);
 });
 
 test("the FULL-UI-30 manifest area declares the lookup function as implemented with a real route and tests", () => {

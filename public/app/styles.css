@@ -739,6 +739,23 @@ button:focus-visible,
   padding-left: 1.2rem;
 }
 
+.exercise-reference-media-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--bronze-light);
+  text-decoration: none;
+}
+
+.exercise-reference-media-link:hover { text-decoration: underline; }
+
+.exercise-reference-media-thumbnail {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
 .empty-state {
   display: grid;
   min-height: 220px;
