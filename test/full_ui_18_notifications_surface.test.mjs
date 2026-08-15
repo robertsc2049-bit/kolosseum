@@ -140,3 +140,34 @@ test("notification markup does not get hidden on narrow (mobile) viewports", () 
   assert.match(css, /\.notification-bell\b/u);
   assert.match(css, /\.notification-panel\b/u);
 });
+
+test("notification_payload is derived, persisted and returned by the API, and actually rendered - not a phantom field", () => {
+  // The server derives, persists (JSONB column round-tripped by
+  // toPublicNotification) and ships notification_payload.{coach_user_id,
+  // athlete_user_id} on the wire for every notification type, but until now
+  // nothing in the UI ever read it: every notification of the same type
+  // rendered as an identical row regardless of which coach or athlete
+  // triggered it. notificationSubject resolves the payload against the
+  // already-loaded coachAthletes / athleteRelationships /
+  // pendingRelationshipInvitations state maps, no extra fetch required.
+  assert.match(notificationService, /notification_payload:\s*isRecord\(row\.notification_payload\)\s*\?\s*row\.notification_payload\s*:\s*\{\}/u);
+
+  assert.match(js, /function notificationSubject\(notification\)/u);
+  assert.match(js, /payload\.athlete_user_id/u);
+  assert.match(js, /payload\.coach_user_id/u);
+  assert.match(js, /function notificationCoachName\(coachUserId\)/u);
+  assert.match(js, /function notificationAthleteName\(athleteUserId\)/u);
+
+  // Coach-directed payloads (athlete_user_id) resolve against the coach's
+  // own athlete directory; athlete-directed payloads (coach_user_id)
+  // resolve against the athlete's own relationship/invitation lists - both
+  // already populated in state with no dedicated notification-only fetch.
+  assert.match(js, /state\.coachAthletes/u);
+  assert.match(js, /state\.athleteRelationships/u);
+  assert.match(js, /state\.pendingRelationshipInvitations/u);
+
+  // The renderer actually inserts the resolved subject into the DOM.
+  assert.match(js, /const subject = notificationSubject\(notification\)/u);
+  assert.match(js, /class="notification-item-subject"/u);
+  assert.match(css, /\.notification-item-subject\b/u);
+});
