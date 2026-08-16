@@ -14178,6 +14178,7 @@ function dataExportRecordCard(entry) {
       <div>
         <h3>Export requested ${escapeHtml(formatDate(entry.requested_at_iso8601))}</h3>
         <p>${entry.expires_at_iso8601 ? `Expires ${escapeHtml(formatDate(entry.expires_at_iso8601))}` : "No expiry recorded"}</p>
+        <p>${entry.downloaded_at_iso8601 ? `Downloaded ${escapeHtml(formatDate(entry.downloaded_at_iso8601))}` : "Not yet downloaded"}</p>
       </div>
       <div class="record-meta">
         <span class="badge ${statusClass}">${escapeHtml(titleCase(entry.status))}</span>
