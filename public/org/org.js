@@ -170,6 +170,11 @@ function renderRoster(roster) {
       <div>
         <h3>${escapeHtml(membership.coach_display_name || membership.coach_user_id)}</h3>
         <p>${escapeHtml(membership.coach_email || "")}</p>
+        <p class="muted small">
+          Invited ${escapeHtml(formatDate(membership.invited_at_iso8601))}
+          ${membership.activated_at_iso8601 ? ` &middot; Joined ${escapeHtml(formatDate(membership.activated_at_iso8601))}` : ""}
+          ${membership.removed_at_iso8601 ? ` &middot; Removed ${escapeHtml(formatDate(membership.removed_at_iso8601))}` : ""}
+        </p>
       </div>
       <div class="record-meta">
         <span class="badge ${membership.membership_status === "active" ? "active" : "neutral"}">${membershipStatusLabel(membership.membership_status)}</span>

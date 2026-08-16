@@ -13641,12 +13641,17 @@ function renderCoachOrgContext() {
       <div class="record-row coach-org-context-entry">
         <strong>${escapeHtml(entry.membership.org_name)}</strong>
         <span class="badge ${entry.membership.visibility_mode === "shared" ? "active" : "neutral"}">${coachOrgVisibilityModeLabel(entry.membership.visibility_mode)}</span>
+        <p class="muted small">
+          ${entry.membership.activated_at_iso8601
+            ? `Joined ${escapeHtml(formatDate(entry.membership.activated_at_iso8601))}`
+            : `Invited ${escapeHtml(formatDate(entry.membership.invited_at_iso8601))}`}
+        </p>
         ${entry.membership.visibility_mode === "shared"
           ? `
             <div class="record-list">
               ${entry.roster.map((fellow) => `
                 <p class="muted small">
-                  ${escapeHtml(fellow.coach_display_name || fellow.coach_user_id)}${fellow.coach_user_id === state.profile?.coachUserId ? " (You)" : ""}${fellow.coach_email ? ` - ${escapeHtml(fellow.coach_email)}` : ""}
+                  ${escapeHtml(fellow.coach_display_name || fellow.coach_user_id)}${fellow.coach_user_id === state.profile?.coachUserId ? " (You)" : ""}${fellow.coach_email ? ` - ${escapeHtml(fellow.coach_email)}` : ""}${fellow.activated_at_iso8601 ? ` &middot; Joined ${escapeHtml(formatDate(fellow.activated_at_iso8601))}` : ""}
                 </p>
               `).join("")}
             </div>
