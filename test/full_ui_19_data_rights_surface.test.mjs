@@ -84,6 +84,16 @@ test("export status and download are lawfully bounded: status, ready_at, expires
   assert.match(js, /downloadDataExport/u);
 });
 
+test("an athlete's own export card shows whether they have actually downloaded it, not just its ready/expiry status", () => {
+  // getDataExportStatus has always computed downloaded_at_iso8601 from the
+  // real downloaded_at column that downloadDataExport() sets, but until now
+  // dataExportRecordCard never read it - an athlete had no way to tell which
+  // of their export requests they had already retrieved. Same phantom-field
+  // bug class as PR #877-#882.
+  assert.match(service, /downloaded_at_iso8601: isoString\(row\.downloaded_at\)/u);
+  assert.match(js, /entry\.downloaded_at_iso8601/u);
+});
+
 test("deletion review, request and status all route through the sealed S-V1-L-03 delete queue contract, never performing a hard delete", () => {
   assert.match(routes, /"\/data-rights\/deletion\/preview"/u);
   assert.match(routes, /"\/data-rights\/deletion"/u);

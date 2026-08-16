@@ -304,7 +304,7 @@ async function refreshDataRightsReview() {
   exportsBody.innerHTML = "";
   for (const request of exportsResult.requests ?? []) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td>${request.export_request_id}</td><td>${request.user_id}</td><td>${request.status}</td><td>${request.requested_at_iso8601 ?? ""}</td>`;
+    row.innerHTML = `<td>${request.export_request_id}</td><td>${request.user_id}</td><td>${request.status}</td><td>${request.requested_at_iso8601 ?? ""}</td><td>${request.ready_at_iso8601 ?? ""}</td><td>${request.expires_at_iso8601 ?? ""}</td><td>${request.downloaded_at_iso8601 ?? "Not downloaded"}</td>`;
     exportsBody.appendChild(row);
   }
 

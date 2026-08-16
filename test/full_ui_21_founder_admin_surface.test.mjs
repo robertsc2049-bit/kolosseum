@@ -110,6 +110,25 @@ test("support/error-record review and data-rights review are read-only, and supp
   assert.match(actionService, /SUPPORT_REQUEST_STATES = new Set\(\["submitted", "acknowledged", "closed"\]\)/u);
 });
 
+test("the export-requests review table shows ready/expiry/download facts, not just status - an admin can tell whether a user ever retrieved an export they requested", () => {
+  // listAdminDataExportRequests has always computed ready_at_iso8601,
+  // expires_at_iso8601 and downloaded_at_iso8601 from the real DB columns,
+  // but the admin table only ever rendered export_request_id/user_id/status/
+  // requested_at - a compliance reviewer had no way to see whether an export
+  // was ever fulfilled. Same phantom-field bug class as PR #877-#882.
+  assert.match(reviewService, /ready_at_iso8601: toIso\(row\.ready_at\)/u);
+  assert.match(reviewService, /expires_at_iso8601: toIso\(row\.expires_at\)/u);
+  assert.match(reviewService, /downloaded_at_iso8601: toIso\(row\.downloaded_at\)/u);
+
+  assert.match(js, /request\.ready_at_iso8601/u);
+  assert.match(js, /request\.expires_at_iso8601/u);
+  assert.match(js, /request\.downloaded_at_iso8601/u);
+
+  assert.match(html, /<th>Ready<\/th>/u);
+  assert.match(html, /<th>Expires<\/th>/u);
+  assert.match(html, /<th>Downloaded<\/th>/u);
+});
+
 test("account state changes are closed to active/suspended only - closed/deleted stays inside the sealed GDPR deletion queue", () => {
   assert.match(actionService, /ADMIN_ACCOUNT_STATES = new Set\(\["active", "suspended"\]\)/u);
   assert.doesNotMatch(actionService, /createGdprDeleteQueueRequest|v1GdprDeleteQueue/u);
