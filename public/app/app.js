@@ -373,6 +373,7 @@ const elements = {
   athleteDetailAssignmentCount: document.getElementById("athleteDetailAssignmentCount"),
   athleteDetailStrengthCount: document.getElementById("athleteDetailStrengthCount"),
   athleteDetailBodyweightCount: document.getElementById("athleteDetailBodyweightCount"),
+  athleteDetailEventCount: document.getElementById("athleteDetailEventCount"),
   athleteDetailSessionCount: document.getElementById("athleteDetailSessionCount"),
   athleteDetailNoteCount: document.getElementById("athleteDetailNoteCount"),
   athleteDetailCurrentProgramme: document.getElementById("athleteDetailCurrentProgramme"),
@@ -380,6 +381,7 @@ const elements = {
   athleteDetailAssignmentHistory: document.getElementById("athleteDetailAssignmentHistory"),
   athleteDetailStrengthHistory: document.getElementById("athleteDetailStrengthHistory"),
   athleteDetailBodyweightHistory: document.getElementById("athleteDetailBodyweightHistory"),
+  athleteDetailEventHistory: document.getElementById("athleteDetailEventHistory"),
   athleteDetailSessionHistory: document.getElementById("athleteDetailSessionHistory"),
   athleteDetailNoteHistory: document.getElementById("athleteDetailNoteHistory"),
   athleteDetailNoteForm: document.getElementById("athleteDetailNoteForm"),
@@ -4827,6 +4829,13 @@ function renderAthleteDetail() {
       ? detail.bodyweight_history
       : [];
 
+  const eventLinks =
+    Array.isArray(
+      detail.event_link_history
+    )
+      ? detail.event_link_history
+      : [];
+
   const sessions =
     Array.isArray(
       detail.session_history
@@ -4852,6 +4861,10 @@ function renderAthleteDetail() {
   elements.athleteDetailBodyweightCount
     .textContent =
       String(bodyweights.length);
+
+  elements.athleteDetailEventCount
+    .textContent =
+      String(eventLinks.length);
 
   elements.athleteDetailSessionCount
     .textContent =
@@ -5148,6 +5161,66 @@ function renderAthleteDetail() {
         : athleteDetailEmpty(
             "No bodyweight history",
             "Saved bodyweight records will appear here."
+          );
+
+  elements.athleteDetailEventHistory
+    .innerHTML =
+      eventLinks.length
+        ? eventLinks
+            .map((link) => {
+              const linkedEvent =
+                athleteDetailEvent(link);
+
+              const linkedEventPlan =
+                linkedEvent
+                  ? coachEventPlan(linkedEvent)
+                  : null;
+
+              return `
+                <article class="record-card">
+                  <div>
+                    <h4>${escapeHtml(
+                      linkedEventPlan?.event_name ??
+                      link.event_id ??
+                      "Event"
+                    )}</h4>
+                    <p>
+                      ${escapeHtml(
+                        titleCase(
+                          link.lifecycle_action ??
+                          link.link_state
+                        )
+                      )}
+                      ${
+                        link.unlink_reason
+                          ? ` · ${escapeHtml(titleCase(link.unlink_reason))}`
+                          : ""
+                      }
+                      ·
+                      ${escapeHtml(
+                        formatDate(
+                          athleteDetailRecordDate(
+                            link
+                          )
+                        )
+                      )}
+                    </p>
+                  </div>
+
+                  <span class="badge neutral">
+                    ${escapeHtml(
+                      titleCase(
+                        link.link_state
+                      )
+                    )}
+                  </span>
+                </article>
+              `;
+            })
+            .join("")
+        : athleteDetailEmpty(
+            "No event-link history",
+            "Event links will appear here after this athlete is linked to a persisted event."
           );
 
   elements.athleteDetailSessionHistory

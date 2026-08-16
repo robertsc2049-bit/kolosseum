@@ -143,6 +143,12 @@ const targets = [
     "id": "athlete_event_history",
     "evidence": [
       [
+        "public/app/index.html",
+        [
+          "id=\"athleteDetailEventHistory\""
+        ]
+      ],
+      [
         "src/api/beta19_coach_workspace_service.ts",
         [
           "event_link_history"
