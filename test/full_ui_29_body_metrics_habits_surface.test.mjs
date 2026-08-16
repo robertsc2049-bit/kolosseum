@@ -135,6 +135,44 @@ test("habit streak counts are rendered as plain integers with factual copy, neve
   assert.doesNotMatch(appJs, /current_streak_length\}%|longest_streak_length\}%|adherence|readiness_/iu);
 });
 
+test("every real METRIC_TYPES key has a display label - a device-synced body_weight_kg reading never renders as a raw field name", () => {
+  const sourceOfTruth = lifecycle.match(/const METRIC_TYPES =\s*\n?\s*new Map\(\[([\s\S]*?)\]\);/u);
+  assert.ok(sourceOfTruth, "expected METRIC_TYPES Map in bodyMetricsAndHabitsLifecycle.mjs");
+  const metricTypes = [...sourceOfTruth[1].matchAll(/\[\s*"([a-z_]+)"/gu)].map((match) => match[1]);
+  assert.ok(metricTypes.length > 0, "expected to parse at least one metric type");
+
+  const labelsBlock = appJs.match(/const BODY_METRIC_TYPE_LABELS = \{([\s\S]*?)\};/u);
+  assert.ok(labelsBlock, "expected BODY_METRIC_TYPE_LABELS object in app.js");
+
+  for (const metricType of metricTypes) {
+    assert.ok(
+      labelsBlock[1].includes(`${metricType}:`),
+      `expected BODY_METRIC_TYPE_LABELS to declare a label for ${metricType}`
+    );
+  }
+});
+
+test("every real METRIC_SOURCES value resolves to its own badge - device_synced never falls through to the athlete/coach badge", () => {
+  const sourceOfTruth = lifecycle.match(/const METRIC_SOURCES =\s*\n?\s*new Set\(\[([\s\S]*?)\]\);/u);
+  assert.ok(sourceOfTruth, "expected METRIC_SOURCES Set in bodyMetricsAndHabitsLifecycle.mjs");
+  const metricSources = [...sourceOfTruth[1].matchAll(/"([a-z_]+)"/gu)].map((match) => match[1]);
+  assert.ok(metricSources.length > 0, "expected to parse at least one metric source");
+
+  const badgeFn = appJs.match(/function bodyMetricSourceBadge\(entry, options = \{\}\) \{([\s\S]*?)\n\}/u);
+  assert.ok(badgeFn, "expected a bodyMetricSourceBadge helper in app.js");
+
+  for (const source of metricSources) {
+    if (source === "athlete_entered") continue;
+    assert.ok(
+      badgeFn[1].includes(`"${source}"`),
+      `expected bodyMetricSourceBadge to branch explicitly on ${source}`
+    );
+  }
+
+  assert.match(appJs, /entry\.source === "device_synced"\) return "Device"/u);
+  assert.match(appJs, /const sourceBadge = bodyMetricSourceBadge\(entry, options\)/u);
+});
+
 test("the FULL-UI-29 manifest area declares all seven functions as implemented with real tests", () => {
   const area = manifest.product_areas.find((entry) => entry.area_id === "body_metrics_habits");
   assert.ok(area, "expected a body_metrics_habits product area");

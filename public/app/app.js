@@ -5723,15 +5723,20 @@ const BODY_METRIC_TYPE_LABELS = {
   arm_circumference_cm: "Arm",
   thigh_circumference_cm: "Thigh",
   hip_circumference_cm: "Hip",
-  body_fat_percentage: "Body fat"
+  body_fat_percentage: "Body fat",
+  body_weight_kg: "Body weight"
 };
+
+function bodyMetricSourceBadge(entry, options = {}) {
+  if (entry.source === "coach_entered") return "Coach";
+  if (entry.source === "device_synced") return "Device";
+  return options.viewerIsCoach ? "Athlete" : "You";
+}
 
 function renderBodyMetricEntry(entry, options = {}) {
   const label = BODY_METRIC_TYPE_LABELS[entry.metric_type] || entry.metric_type;
   const unitSuffix = entry.unit === "percent" ? "%" : ` ${escapeHtml(entry.unit)}`;
-  const sourceBadge = entry.source === "coach_entered"
-    ? "Coach"
-    : (options.viewerIsCoach ? "Athlete" : "You");
+  const sourceBadge = bodyMetricSourceBadge(entry, options);
   const note = entry.note ? `<p>${escapeHtml(entry.note)}</p>` : "";
 
   return `
