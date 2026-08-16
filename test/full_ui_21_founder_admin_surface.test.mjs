@@ -212,6 +212,21 @@ test("browser and failure context captured on a support report is read back and 
   assert.match(js, /listItems\(failureLines\)/u);
 });
 
+test("email verification status is read and rendered on the account-detail panel, not silently discarded", () => {
+  // getAdminAccountDetail has always computed email_verified from
+  // email_verified_at, but nothing in admin.js ever read
+  // account.email_verified off the response, and index.html had no element
+  // for it - an admin reviewing an account had no way to see whether the
+  // user had verified their email at all. Same bug class as the
+  // test_account_reason and browser_context/failure_context fixes above.
+  assert.match(reviewService, /email_verified: row\.email_verified_at !== null/u);
+
+  assert.match(html, /id="accountDetailEmail"/u);
+  assert.match(html, /id="accountDetailEmailVerified"/u);
+  assert.match(js, /accountDetailEmail.*\.textContent = account\.email/u);
+  assert.match(js, /accountDetailEmailVerified.*\.textContent = account\.email_verified/u);
+});
+
 test("every route resolves the admin's own identity from the session, never a client-supplied admin id", () => {
   assert.doesNotMatch(routes, /request\.body\.admin_user_id|request\.query\.admin_user_id/u);
   assert.match(routes, /admin\.user_id/u);

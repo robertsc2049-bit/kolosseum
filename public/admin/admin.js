@@ -134,6 +134,8 @@ async function openAccountDetail(userId) {
   el("accountDetailTestFlag").textContent = account.is_test_account ? "Yes" : "No";
   el("accountDetailTestReasonWrap").hidden = !account.test_account_reason;
   el("accountDetailTestReason").textContent = account.test_account_reason ?? "";
+  el("accountDetailEmail").textContent = account.email ?? "";
+  el("accountDetailEmailVerified").textContent = account.email_verified ? "Yes" : "No";
   el("accountActionResult").hidden = true;
 
   el("accountToggleStateConfirmButton").hidden = true;
