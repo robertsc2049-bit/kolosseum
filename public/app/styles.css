@@ -3285,6 +3285,11 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   font-weight: 600;
 }
 
+.notification-item-subject {
+  font-size: 0.85rem;
+  color: var(--stone-dim);
+}
+
 .notification-item-time {
   font-size: 0.78rem;
   color: var(--stone-dim);

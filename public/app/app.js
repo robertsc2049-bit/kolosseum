@@ -14576,6 +14576,33 @@ const NOTIFICATION_TYPE_LABELS = Object.freeze({
   billing_action_required: "Billing action required"
 });
 
+function notificationCoachName(coachUserId) {
+  if (!coachUserId) return null;
+  const accepted = (state.athleteRelationships ?? []).find((relationship) => relationship.coach_user_id === coachUserId);
+  if (accepted?.coach_display_name) return accepted.coach_display_name;
+  const pending = (state.pendingRelationshipInvitations ?? []).find((invitation) => invitation.coach_user_id === coachUserId);
+  return pending?.coach_display_name || coachUserId;
+}
+
+function notificationAthleteName(athleteUserId) {
+  if (!athleteUserId) return null;
+  const athlete = (state.coachAthletes ?? []).find((entry) => entry.userId === athleteUserId);
+  return athlete?.displayName || athleteUserId;
+}
+
+// The declared, server-derived notification_payload (coach_user_id or
+// athlete_user_id, depending on the notification's direction) names which
+// coach or athlete triggered the event - stored and shipped on the wire
+// since FULL-UI-18, but never read anywhere until now, so every
+// notification of the same type looked identical regardless of source.
+function notificationSubject(notification) {
+  const payload = notification?.notification_payload;
+  if (!payload || typeof payload !== "object") return null;
+  if (payload.athlete_user_id) return notificationAthleteName(String(payload.athlete_user_id));
+  if (payload.coach_user_id) return notificationCoachName(String(payload.coach_user_id));
+  return null;
+}
+
 function renderNotificationUnreadBadge(count) {
   const value = Number(count) || 0;
   if (value > 0) {
@@ -14646,6 +14673,7 @@ function renderNotificationList(notifications) {
   for (const notification of notifications) {
     const isRead = notification.read_at_iso8601 !== null;
     const label = NOTIFICATION_TYPE_LABELS[notification.notification_type] ?? titleCase(notification.notification_type);
+    const subject = notificationSubject(notification);
     const href = notificationTargetHref(notification);
 
     const item = document.createElement("li");
@@ -14661,6 +14689,7 @@ function renderNotificationList(notifications) {
       <span class="notification-item-dot" ${isRead ? "hidden" : ""} aria-hidden="true"></span>
       <span class="notification-item-body">
         <span class="notification-item-type">${escapeHtml(label)}</span>
+        ${subject ? `<span class="notification-item-subject">${escapeHtml(subject)}</span>` : ""}
         <span class="notification-item-time">${escapeHtml(formatDate(notification.occurred_at_iso8601))}</span>
         ${notification.target_available === true ? "" : '<span class="notification-item-unavailable">This item is no longer available</span>'}
       </span>
