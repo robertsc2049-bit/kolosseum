@@ -127,6 +127,14 @@ function errorCode(error) {
   );
 }
 
+function missingConfigurationSuffix(error) {
+  const missing = error?.payload?.details?.missing_configuration;
+
+  return Array.isArray(missing) && missing.length > 0
+    ? ` Missing: ${missing.map(clean).join(", ")}.`
+    : "";
+}
+
 function errorMessage(error) {
   const code = errorCode(error);
 
@@ -136,7 +144,7 @@ function errorMessage(error) {
     account_session_invalid:
       "The sign-in session has expired.",
     commercial_configuration_missing:
-      "Controlled-launch checkout is not configured on this server.",
+      `Controlled-launch checkout is not configured on this server.${missingConfigurationSuffix(error)}`,
     commercial_coach_account_required:
       "Commercial controls are available to coach accounts only.",
     commercial_seat_limit_reached:

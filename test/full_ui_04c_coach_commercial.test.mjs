@@ -327,6 +327,39 @@ test(
 );
 
 test(
+  "FULL-UI-04C surfaces which specific settings are missing when checkout is misconfigured, not just a generic message",
+  () => {
+    // commercialConfig() has always computed and returned missing_configuration
+    // (the exact list of env vars absent) on the ProductCommercialError thrown
+    // for commercial_configuration_missing, and product_commercial.routes.ts
+    // has always serialized it into the JSON error response as `details`, but
+    // commercial_ui.js's errorMessage() only ever mapped the error code to a
+    // static, generic string - a coach hitting misconfigured checkout could
+    // never see which setting was actually missing. Same phantom-field bug
+    // class as PR #877-#881.
+    assert.match(
+      commercialService,
+      /missing_configuration:/u
+    );
+
+    assert.match(
+      commercialUi,
+      /error\?\.payload\?\.details\?\.missing_configuration/u
+    );
+
+    assert.match(
+      commercialUi,
+      /function missingConfigurationSuffix/u
+    );
+
+    assert.match(
+      commercialUi,
+      /commercial_configuration_missing:\s*\n?\s*`[^`]*\$\{missingConfigurationSuffix\(error\)\}/u
+    );
+  }
+);
+
+test(
   "FULL-UI-04C preserves commercial and engine separation",
   () => {
     assert.doesNotMatch(
