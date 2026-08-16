@@ -387,6 +387,26 @@ test("coach display names and emails rendered into the roster view are escaped b
   assert.match(orgDashboardJs, /escapeHtml\(membership\.coach_email \|\| ""\)/u);
 });
 
+test("membership invited/activated/removed dates are actually read and rendered on both the org owner's roster and the coach's own org-context panel, not just derived and stored", () => {
+  // org_roster_service.ts's mapMembershipRow has always computed
+  // invited_at_iso8601/activated_at_iso8601/removed_at_iso8601 from real
+  // DB timestamps and returned them on every roster read, but until now
+  // nothing in org.js or app.js ever read those fields - the org owner's
+  // roster cards and the coach's own org-context panel showed a status
+  // badge with no dates at all. Same phantom-field bug class as PR
+  // #877/#878/#879/#880.
+  assert.match(rosterService, /invited_at_iso8601: value\.invited_at instanceof Date/u);
+  assert.match(rosterService, /activated_at_iso8601: value\.activated_at instanceof Date/u);
+  assert.match(rosterService, /removed_at_iso8601: value\.removed_at instanceof Date/u);
+
+  assert.match(orgDashboardJs, /membership\.invited_at_iso8601/u);
+  assert.match(orgDashboardJs, /membership\.activated_at_iso8601/u);
+  assert.match(orgDashboardJs, /membership\.removed_at_iso8601/u);
+
+  assert.match(appJs, /entry\.membership\.activated_at_iso8601/u);
+  assert.match(appJs, /entry\.membership\.invited_at_iso8601/u);
+});
+
 test("org_roster_service.ts's coach_display_name/coach_email are display-only additions, populated solely by the roster-list join", () => {
   assert.match(rosterService, /coach_display_name: string \| null/u);
   assert.match(rosterService, /coach_email: string \| null/u);
