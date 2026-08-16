@@ -56,10 +56,11 @@ function anyCookie(result, cookieName, label) {
 }
 
 async function registerAccount(baseUrl, actorType, label, nonce) {
+  const email = `${label.toLowerCase().replaceAll(/[^a-z0-9]/gu, "_")}_${nonce}@example.com`;
   const registration = await request(baseUrl, "POST", "/account/register", {
     actor_type: actorType,
     display_name: label,
-    email: `${label.toLowerCase().replaceAll(/[^a-z0-9]/gu, "_")}_${nonce}@example.com`,
+    email,
     password: "Full21FounderAdmin!2026",
     activity_id: "powerlifting",
     accepted_terms: true,
@@ -75,7 +76,7 @@ async function registerAccount(baseUrl, actorType, label, nonce) {
   const csrf = registration.json?.csrf_token;
   assert.ok(csrf, `${label}: expected csrf token`);
 
-  return { userId, cookie, csrf };
+  return { userId, cookie, csrf, email };
 }
 
 async function createAdminAccountDirect(email, displayName, password) {
@@ -217,6 +218,8 @@ test(
       assertStatus(detail, 200, "account detail");
       assert.equal(detail.json.account.account_state, "active");
       assert.equal(detail.json.account.is_test_account, false);
+      assert.equal(detail.json.account.email, athlete.email);
+      assert.equal(detail.json.account.email_verified, false, "a freshly registered account has not verified its email yet");
 
       assertStatus(
         await request(baseUrl, "GET", "/admin/accounts/no-such-user", undefined, { cookie: admin.cookie }),
