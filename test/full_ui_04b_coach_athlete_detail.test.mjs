@@ -58,6 +58,7 @@ test(
       "athleteDetailAssignmentHistory",
       "athleteDetailStrengthHistory",
       "athleteDetailBodyweightHistory",
+      "athleteDetailEventHistory",
       "athleteDetailSessionHistory",
       "athleteDetailNoteHistory",
       "athleteDetailNoteForm"
@@ -130,6 +131,36 @@ test(
     assert.match(
       service,
       /calls_engine:\s*false/u
+    );
+  }
+);
+
+test(
+  "FULL-UI-04B event_link_history is actually read and rendered, not just derived and stored",
+  () => {
+    // Same phantom-field bug class as PR #877 (notification_payload): the
+    // service has derived, persisted and returned event_link_history since
+    // FULL-UI-09C, but until now nothing in the UI ever read it - every
+    // sibling history array (assignments, strength, bodyweight, sessions,
+    // notes) had a renderer and a container, and this one had neither.
+    assert.match(
+      application,
+      /detail\.event_link_history/u
+    );
+
+    assert.match(
+      application,
+      /elements\.athleteDetailEventHistory/u
+    );
+
+    assert.match(
+      application,
+      /elements\.athleteDetailEventCount/u
+    );
+
+    assert.match(
+      html,
+      /id="athleteDetailEventCount"/u
     );
   }
 );
