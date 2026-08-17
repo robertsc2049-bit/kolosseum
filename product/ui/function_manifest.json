@@ -908,6 +908,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "webhook_confirmation",
+          "label": "Record trusted Stripe webhook confirmation",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/webhooks/stripe"
+          ],
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_04c_coach_commercial_webhook.test.mjs",
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },

@@ -410,7 +410,7 @@ test(
 
     assert.equal(
       area.functions.length,
-      8
+      9
     );
 
     assert.equal(
