@@ -229,7 +229,7 @@ export async function archiveHabitDefinition(
   return persistBetaProductRecord(record);
 }
 
-async function queryHabitCompletions(athleteUserId: string, habitId: string): Promise<Readonly<JsonRecord>[]> {
+export async function queryHabitCompletions(athleteUserId: string, habitId: string): Promise<Readonly<JsonRecord>[]> {
   const result = await pool.query(
     `
     SELECT record_payload
