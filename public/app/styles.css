@@ -3007,6 +3007,11 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   margin-bottom: 0.5rem;
 }
 
+.message-attachment-size {
+  margin: -0.3rem 0 0.5rem;
+  font-size: 0.8rem;
+}
+
 .progress-photo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
