@@ -8710,6 +8710,9 @@ async function submitVideoFeedback(submissionId) {
       .filter((submission) => submission.submission_id !== submissionId);
     state.selectedVideoFeedbackSubmissionId = "";
     showNotice("Feedback sent.");
+    elements.videoFeedbackQueueStatus.textContent = state.coachVideoFeedbackQueue.length
+      ? `${state.coachVideoFeedbackQueue.length} video submission${state.coachVideoFeedbackQueue.length === 1 ? "" : "s"} awaiting review.`
+      : "No pending video submissions.";
     renderVideoFeedbackQueueWorkspace();
   }
   finally {
