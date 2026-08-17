@@ -32,6 +32,8 @@ import {
   Client
 } from "pg";
 
+import Stripe from "stripe";
+
 import {
   startStripeFixtureServer
 } from "./helpers/stripe_fixture_server.mjs";
@@ -1019,6 +1021,13 @@ test(
     environment.STRIPE_TEST_API_BASE_URL =
       stripeFixture.url;
 
+    // commercialEnvironment()'s auto-detection only scans
+    // product_commercial_service.ts - STRIPE_WEBHOOK_SECRET is read in the
+    // separate product_commercial_webhook.routes.ts, so it's never
+    // auto-populated and must be set explicitly.
+    environment.STRIPE_WEBHOOK_SECRET =
+      "whsec_test_full_ui_04c_persistent";
+
     const nonce =
       crypto.randomUUID()
         .replaceAll("-", "");
@@ -1535,6 +1544,122 @@ test(
       successReturn.json
         .trusted_provider_confirmation,
       false
+    );
+
+    // Real webhook proof: a genuinely-signed checkout.session.completed
+    // event is what actually confirms billing, distinct from both the
+    // browser-return above (never trusted) and seedTrustedProviderState()
+    // below (a DB-seed hack for the separate seat-limit-reached scenario).
+    const webhookEventId =
+      `evt_checkout_completed_${nonce}`;
+
+    const webhookPayload = JSON.stringify({
+      id: webhookEventId,
+      object: "event",
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          id: `cs_test_webhook_${nonce}`,
+          object: "checkout.session",
+          client_reference_id: userId,
+          customer:
+            `cus_test_webhook_${nonce}`,
+          subscription:
+            `sub_test_webhook_${nonce}`
+        }
+      }
+    });
+
+    const webhookSignature =
+      Stripe.webhooks.generateTestHeaderString({
+        payload: webhookPayload,
+        secret:
+          environment.STRIPE_WEBHOOK_SECRET
+      });
+
+    const webhookResponse = await fetch(
+      `${server.baseUrl}/webhooks/stripe`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "stripe-signature": webhookSignature
+        },
+        body: webhookPayload
+      }
+    );
+
+    assert.equal(
+      webhookResponse.status,
+      200,
+      "signed checkout.session.completed webhook"
+    );
+
+    const webhookJson =
+      await webhookResponse.json();
+
+    assert.equal(
+      webhookJson.action,
+      "webhook_recorded"
+    );
+
+    const afterWebhookCommercial =
+      await requestJson(
+        server.baseUrl,
+        "GET",
+        "/account/commercial/",
+        {
+          cookie
+        }
+      );
+
+    assert.equal(
+      afterWebhookCommercial.json
+        .commercial
+        .factual_state,
+      "active",
+      "a real signed webhook, not the untrusted browser return, is what confirms billing"
+    );
+
+    // Replay: Stripe redelivers the same event.id on retry - must dedupe
+    // to exactly one row, never a second.
+    const webhookReplayResponse = await fetch(
+      `${server.baseUrl}/webhooks/stripe`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "stripe-signature": webhookSignature
+        },
+        body: webhookPayload
+      }
+    );
+
+    assert.equal(
+      webhookReplayResponse.status,
+      200,
+      "replayed webhook delivery"
+    );
+
+    await withClient(
+      databaseUrl,
+      async (client) => {
+        const result =
+          await client.query(
+            `
+            SELECT count(*)::int AS row_count
+            FROM product_commercial_records
+            WHERE user_id = $1 AND request_id = $2
+            `,
+            [userId, webhookEventId]
+          );
+
+        assert.equal(
+          result.rows[0].row_count,
+          1,
+          "a replayed webhook event.id must never create a second row"
+        );
+      }
     );
 
     const planId =

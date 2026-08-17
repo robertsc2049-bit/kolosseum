@@ -1578,3 +1578,328 @@ export async function createProductCommercialPortalRequest(
     ...ENGINE_INERT_STATE
   });
 }
+
+// Stripe API objects frequently reference a related object either by its
+// bare id string or, when expanded, as the full nested object - this reads
+// the id either way. Deliberately loose-typed (any Stripe object with an
+// "id" string field) since it's reused for customer, subscription, and
+// other expandable references.
+function stripeIdFrom(
+  value: unknown
+): string | null {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (
+    value &&
+    typeof value === "object" &&
+    "id" in value &&
+    typeof (value as { id: unknown }).id ===
+      "string"
+  ) {
+    return (value as { id: string }).id;
+  }
+
+  return null;
+}
+
+async function userIdByProviderCustomerId(
+  providerCustomerId: string
+): Promise<string | null> {
+  const result = await pool.query(
+    `
+    SELECT user_id
+    FROM product_commercial_records
+    WHERE
+      record_payload
+      -> 'billing_access_record'
+      ->> 'provider_customer_id' = $1
+    ORDER BY effective_at DESC
+    LIMIT 1
+    `,
+    [providerCustomerId]
+  );
+
+  const row = result.rows?.[0];
+
+  return row
+    ? cleanString(row.user_id) || null
+    : null;
+}
+
+// The webhook route (src/api/product_commercial_webhook.routes.ts) verifies
+// the Stripe signature before this is ever called - this function only
+// records what a validly-signed event says. It never throws on a valid
+// signature carrying an event this slice doesn't act on, or on an event
+// whose subject account can't be resolved - Stripe retries a webhook
+// endpoint that returns a non-2xx, and an unresolvable/unhandled event is
+// not a delivery failure.
+export async function recordProductCommercialWebhookEvent(
+  event: Stripe.Event
+): Promise<Readonly<JsonRecord>> {
+  const now = new Date().toISOString();
+
+  if (event.type === "checkout.session.completed") {
+    const session =
+      event.data.object as Stripe.Checkout.Session;
+    const userId = cleanString(
+      session.client_reference_id
+    );
+
+    if (!userId) {
+      return Object.freeze({
+        ok: true,
+        action: "webhook_ignored",
+        reason_code:
+          "commercial_webhook_actor_unresolved",
+        ...ENGINE_INERT_STATE
+      });
+    }
+
+    const records =
+      await commercialRecords(userId);
+    const currentBillingRecord =
+      billingAccessRecord(records);
+
+    if (!currentBillingRecord) {
+      return Object.freeze({
+        ok: true,
+        action: "webhook_ignored",
+        reason_code:
+          "commercial_webhook_actor_unresolved",
+        ...ENGINE_INERT_STATE
+      });
+    }
+
+    const updatedBillingRecord = withRecordHash({
+      ...currentBillingRecord,
+      provider_session_id: session.id,
+      provider_customer_id:
+        stripeIdFrom(session.customer) ||
+        cleanString(
+          currentBillingRecord.provider_customer_id
+        ) ||
+        null,
+      provider_subscription_id:
+        stripeIdFrom(session.subscription),
+      billing_access_state: "access_active",
+      billing_status: "payment_confirmed",
+      updated_at: now,
+      engine_legality: "not_mutated",
+      compile_output: "not_mutated",
+      substitution_selection: "not_mutated",
+      replay_record: "not_mutated",
+      proof_record: "not_mutated",
+      factual_history_record: "not_mutated"
+    });
+
+    const stored = await appendCommercialRecord(
+      userId,
+      event.id,
+      "commercial_billing_access_updated",
+      now,
+      {
+        contract_version: "FULL-UI-08",
+        status:
+          "controlled_launch_webhook_checkout_completed",
+        trusted_provider_confirmation: true,
+        billing_access_record:
+          updatedBillingRecord,
+        occupied_seat_count:
+          occupiedSeatCount(records),
+        provider_call_performed: false,
+        ...ENGINE_INERT_STATE
+      }
+    );
+
+    return Object.freeze({
+      ok: true,
+      action: "webhook_recorded",
+      record: historyRecord(stored),
+      ...ENGINE_INERT_STATE
+    });
+  }
+
+  if (
+    event.type ===
+      "customer.subscription.updated" ||
+    event.type ===
+      "customer.subscription.deleted"
+  ) {
+    const subscription =
+      event.data.object as Stripe.Subscription;
+    const customerId = stripeIdFrom(
+      subscription.customer
+    );
+
+    const userId = customerId
+      ? await userIdByProviderCustomerId(
+          customerId
+        )
+      : null;
+
+    if (!userId) {
+      return Object.freeze({
+        ok: true,
+        action: "webhook_ignored",
+        reason_code:
+          "commercial_webhook_actor_unresolved",
+        ...ENGINE_INERT_STATE
+      });
+    }
+
+    const records =
+      await commercialRecords(userId);
+    const currentBillingRecord =
+      billingAccessRecord(records);
+
+    if (!currentBillingRecord) {
+      return Object.freeze({
+        ok: true,
+        action: "webhook_ignored",
+        reason_code:
+          "commercial_webhook_actor_unresolved",
+        ...ENGINE_INERT_STATE
+      });
+    }
+
+    let billingAccessState: string;
+    let billingStatus: string;
+
+    if (
+      event.type ===
+      "customer.subscription.deleted"
+    ) {
+      billingAccessState = "access_cancelled";
+      billingStatus = "subscription_cancelled";
+    }
+    else if (
+      subscription.status === "active" ||
+      subscription.status === "trialing"
+    ) {
+      billingAccessState = "access_active";
+      billingStatus = "payment_confirmed";
+    }
+    else if (
+      subscription.status === "past_due" ||
+      subscription.status === "unpaid"
+    ) {
+      billingAccessState = "access_suspended";
+      billingStatus = "payment_failed";
+    }
+    else {
+      billingAccessState = "access_required";
+      billingStatus = subscription.status;
+    }
+
+    const updatedBillingRecord = withRecordHash({
+      ...currentBillingRecord,
+      provider_subscription_id: subscription.id,
+      billing_access_state:
+        billingAccessState,
+      billing_status: billingStatus,
+      updated_at: now,
+      engine_legality: "not_mutated",
+      compile_output: "not_mutated",
+      substitution_selection: "not_mutated",
+      replay_record: "not_mutated",
+      proof_record: "not_mutated",
+      factual_history_record: "not_mutated"
+    });
+
+    const stored = await appendCommercialRecord(
+      userId,
+      event.id,
+      "commercial_billing_access_updated",
+      now,
+      {
+        contract_version: "FULL-UI-08",
+        status:
+          "controlled_launch_webhook_subscription_updated",
+        trusted_provider_confirmation: true,
+        billing_access_record:
+          updatedBillingRecord,
+        occupied_seat_count:
+          occupiedSeatCount(records),
+        provider_call_performed: false,
+        ...ENGINE_INERT_STATE
+      }
+    );
+
+    return Object.freeze({
+      ok: true,
+      action: "webhook_recorded",
+      record: historyRecord(stored),
+      ...ENGINE_INERT_STATE
+    });
+  }
+
+  if (event.type === "invoice.payment_failed") {
+    const invoice =
+      event.data.object as Stripe.Invoice;
+    const customerId = stripeIdFrom(
+      invoice.customer
+    );
+
+    const userId = customerId
+      ? await userIdByProviderCustomerId(
+          customerId
+        )
+      : null;
+
+    if (!userId) {
+      return Object.freeze({
+        ok: true,
+        action: "webhook_ignored",
+        reason_code:
+          "commercial_webhook_actor_unresolved",
+        ...ENGINE_INERT_STATE
+      });
+    }
+
+    const records =
+      await commercialRecords(userId);
+    const currentBillingRecord =
+      billingAccessRecord(records);
+
+    // Audit-only - customer.subscription.updated remains the single source
+    // of truth for the actual access-state transition, avoiding a race
+    // against Stripe's own retry/dunning state machine.
+    const stored = await appendCommercialRecord(
+      userId,
+      event.id,
+      "commercial_billing_access_updated",
+      now,
+      {
+        contract_version: "FULL-UI-08",
+        status:
+          "controlled_launch_payment_failed_notice",
+        trusted_provider_confirmation: true,
+        billing_access_record:
+          currentBillingRecord ?? null,
+        occupied_seat_count:
+          occupiedSeatCount(records),
+        provider_call_performed: false,
+        ...ENGINE_INERT_STATE
+      }
+    );
+
+    return Object.freeze({
+      ok: true,
+      action: "webhook_recorded",
+      record: historyRecord(stored),
+      ...ENGINE_INERT_STATE
+    });
+  }
+
+  // Any other validly-signed event type is acknowledged, not rejected -
+  // rejecting a valid-signature event this slice doesn't act on would
+  // cause Stripe to retry it indefinitely.
+  return Object.freeze({
+    ok: true,
+    action: "webhook_ignored",
+    reason_code: "unhandled_event_type",
+    ...ENGINE_INERT_STATE
+  });
+}
