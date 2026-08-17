@@ -32,6 +32,10 @@ import {
   Client
 } from "pg";
 
+import {
+  startStripeFixtureServer
+} from "./helpers/stripe_fixture_server.mjs";
+
 function repoRoot() {
   return path.resolve(
     path.dirname(
@@ -819,6 +823,8 @@ async function seedTrustedProviderState(
       "payment_confirmed",
     provider_session_id:
       "provider_session_confirmed",
+    provider_customer_id:
+      "provider_customer_confirmed",
     trusted_provider_confirmation:
       true,
     product_access_only:
@@ -987,6 +993,12 @@ test(
     const baseUrl =
       `http://127.0.0.1:${port}`;
 
+    // Real network calls to api.stripe.com are neither available nor
+    // desirable in this test - point the SDK at an in-process fixture that
+    // implements just the two endpoints stripeClient() actually calls.
+    const stripeFixture =
+      await startStripeFixtureServer();
+
     const environment =
       await commercialEnvironment(
         root,
@@ -1000,6 +1012,12 @@ test(
       );
 
     delete environment.SMOKE_NO_DB;
+
+    // commercialEnvironment()'s generic URL-detection would otherwise point
+    // this at the app's own base URL (it matches the "BASE" + "URL"
+    // pattern) - override with the real fixture origin.
+    environment.STRIPE_TEST_API_BASE_URL =
+      stripeFixture.url;
 
     const nonce =
       crypto.randomUUID()
@@ -1028,6 +1046,8 @@ test(
         await stopServer(
           server
         );
+
+        await stripeFixture.close();
 
         await cleanup(
           databaseUrl,
@@ -1351,7 +1371,68 @@ test(
     assert.equal(
       checkout.json
         .provider_call_performed,
-      false
+      true
+    );
+
+    assert.ok(
+      typeof checkout.json.checkout_url ===
+        "string" &&
+      checkout.json.checkout_url.startsWith(
+        stripeFixture.url
+      ),
+      "checkout_url must be a fresh session URL from the real Stripe call, not a static config value"
+    );
+
+    assert.equal(
+      stripeFixture.requestLog.filter(
+        (entry) =>
+          entry.url === "/v1/checkout/sessions"
+      ).length,
+      1,
+      "exactly one real checkout.sessions.create call so far"
+    );
+
+    const replayedCheckout =
+      await requestJson(
+        server.baseUrl,
+        "POST",
+        "/account/commercial/checkout",
+        {
+          cookie,
+          csrf,
+          body: {
+            request_id:
+              `checkout_${nonce}`
+          }
+        }
+      );
+
+    assertStatus(
+      replayedCheckout,
+      201,
+      "replayed checkout request"
+    );
+
+    assert.equal(
+      replayedCheckout.json
+        .idempotent_replay,
+      true
+    );
+
+    assert.equal(
+      replayedCheckout.json
+        .checkout_url,
+      checkout.json.checkout_url,
+      "a replayed request_id must return the identical stored session URL"
+    );
+
+    assert.equal(
+      stripeFixture.requestLog.filter(
+        (entry) =>
+          entry.url === "/v1/checkout/sessions"
+      ).length,
+      1,
+      "a replayed request_id must never call Stripe a second time"
     );
 
     const pendingCommercial =
@@ -1557,7 +1638,26 @@ test(
     assert.equal(
       portal.json
         .provider_call_performed,
-      false
+      true
+    );
+
+    assert.ok(
+      typeof portal.json.portal_url ===
+        "string" &&
+      portal.json.portal_url.startsWith(
+        stripeFixture.url
+      ),
+      "portal_url must be a real session URL from the real Stripe call"
+    );
+
+    assert.equal(
+      stripeFixture.requestLog.filter(
+        (entry) =>
+          entry.url ===
+          "/v1/billing_portal/sessions"
+      ).length,
+      1,
+      "exactly one real billingPortal.sessions.create call"
     );
 
     const compileAfter =

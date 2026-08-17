@@ -5,6 +5,8 @@
 
 import { createHash, randomUUID } from "node:crypto";
 
+import Stripe from "stripe";
+
 import { pool } from "../db/pool.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -191,6 +193,47 @@ function configuredUrl(
   }
 }
 
+// Lazily constructed and cached for the lifetime of the process - never
+// logged, never persisted. The optional STRIPE_TEST_API_BASE_URL override
+// exists solely so the persistent integration test can point the SDK at an
+// in-process fixture server instead of the real Stripe network; it is not a
+// documented production configuration surface.
+let cachedStripeClient: Stripe | null = null;
+
+function stripeClient(): Stripe {
+  if (cachedStripeClient) {
+    return cachedStripeClient;
+  }
+
+  const secretKey = cleanString(
+    process.env.STRIPE_SECRET_KEY
+  );
+
+  const testApiBaseUrl = cleanString(
+    process.env.STRIPE_TEST_API_BASE_URL
+  );
+
+  const overrides: Stripe.StripeConfig = testApiBaseUrl
+    ? (() => {
+        const parsed = new URL(testApiBaseUrl);
+        return {
+          host: parsed.hostname,
+          port: parsed.port
+            ? Number(parsed.port)
+            : undefined,
+          protocol:
+            parsed.protocol === "https:"
+              ? "https"
+              : "http"
+        };
+      })()
+    : {};
+
+  cachedStripeClient = new Stripe(secretKey, overrides);
+
+  return cachedStripeClient;
+}
+
 function commercialConfig(
   accountActorType: ActorType
 ): CommercialConfig {
@@ -277,6 +320,10 @@ function commercialConfig(
 
   if (!applicationUrl) {
     missing.push("KOLOSSEUM_PUBLIC_APP_URL");
+  }
+
+  if (!cleanString(process.env.STRIPE_SECRET_KEY)) {
+    missing.push("STRIPE_SECRET_KEY");
   }
 
   return Object.freeze({
@@ -766,7 +813,9 @@ function historyRecord(
       cleanString(
         record.record_payload.return_outcome
       ) || null,
-    provider_call_performed: false,
+    provider_call_performed:
+      record.record_payload
+        .provider_call_performed === true,
     ...ENGINE_INERT_STATE
   });
 }
@@ -816,12 +865,15 @@ function publicCommercialOverview(
     cleanString(
       accessRecord?.provider_session_id
     ) || null;
+  const providerCustomerId =
+    cleanString(
+      accessRecord?.provider_customer_id
+    ) || null;
   const accessActive =
     state === "active";
   const portalReady =
     accessActive &&
-    Boolean(providerSessionId) &&
-    Boolean(config.portal_url);
+    Boolean(providerCustomerId);
 
   return Object.freeze({
     ok: true,
@@ -863,8 +915,7 @@ function publicCommercialOverview(
       checkout_available:
         config.configuration_state === "ready",
       checkout_redirect_available:
-        config.configuration_state === "ready" &&
-        Boolean(config.checkout_url),
+        config.configuration_state === "ready",
       billing_surface_visible:
         config.actor_type === "coach",
       portal_available: portalReady,
@@ -878,7 +929,7 @@ function publicCommercialOverview(
         ),
       provider_call_performed: false,
       provider_call_boundary:
-        "not_performed_in_product_slice",
+        "performed_only_by_checkout_and_webhook_handlers",
       ...ENGINE_INERT_STATE
     }),
     history:
@@ -978,7 +1029,10 @@ export async function createProductCommercialCheckout(
           userId,
           accountActorType
         ),
-      checkout_url: config.checkout_url,
+      checkout_url:
+        cleanString(
+          existing.record_payload.checkout_url
+        ) || null,
       provider_call_performed: false,
       ...ENGINE_INERT_STATE
     });
@@ -1076,10 +1130,51 @@ export async function createProductCommercialCheckout(
       actor_id: userId,
       subject_id: userId,
       billing_access_record_hash:
-        billingRecord.record_hash
+        cleanString(billingRecord.record_hash)
     }),
-    live_provider_call:
-      "not_performed_in_product_slice"
+    live_provider_call: "performed"
+  });
+
+  let session: Stripe.Checkout.Session;
+
+  try {
+    session = await stripeClient().checkout.sessions.create(
+      {
+        mode: "subscription",
+        line_items: [
+          {
+            price: config.provider_price_id,
+            quantity: config.seat_limit
+          }
+        ],
+        success_url: providerRequest.success_url,
+        cancel_url: providerRequest.cancel_url,
+        client_reference_id: userId,
+        metadata: providerRequest.metadata
+      },
+      { idempotencyKey: requestedId }
+    );
+  }
+  catch (error) {
+    throw new ProductCommercialError(
+      "commercial_checkout_provider_call_failed",
+      502,
+      {
+        provider_error_type:
+          error instanceof Stripe.errors.StripeError
+            ? error.type
+            : "unknown_error"
+      }
+    );
+  }
+
+  const finalBillingRecord = withRecordHash({
+    ...billingRecord,
+    provider_session_id: session.id,
+    provider_customer_id:
+      typeof session.customer === "string"
+        ? session.customer
+        : null
   });
 
   const stored = await appendCommercialRecord(
@@ -1095,12 +1190,12 @@ export async function createProductCommercialCheckout(
         "controlled_launch_checkout_allowed",
       provider_session_request:
         providerRequest,
-      billing_access_record: billingRecord,
+      billing_access_record: finalBillingRecord,
       payment_boundary_record:
         boundaryRecord,
       occupied_seat_count: 0,
-      checkout_url: config.checkout_url,
-      provider_call_performed: false,
+      checkout_url: session.url,
+      provider_call_performed: true,
       ...ENGINE_INERT_STATE
     }
   );
@@ -1115,10 +1210,10 @@ export async function createProductCommercialCheckout(
         userId,
         accountActorType
       ),
-    checkout_url: config.checkout_url,
+    checkout_url: session.url,
     provider_session_request:
       providerRequest,
-    provider_call_performed: false,
+    provider_call_performed: true,
     ...ENGINE_INERT_STATE
   });
 }
@@ -1338,7 +1433,10 @@ export async function createProductCommercialPortalRequest(
           userId,
           accountActorType
         ),
-      portal_url: config.portal_url,
+      portal_url:
+        cleanString(
+          existing.record_payload.portal_url
+        ) || null,
       provider_call_performed: false,
       ...ENGINE_INERT_STATE
     });
@@ -1363,12 +1461,12 @@ export async function createProductCommercialPortalRequest(
       currentBillingRecord.billing_status
     ) === "payment_confirmed";
 
-  const providerSessionId =
+  const providerCustomerId =
     cleanString(
-      currentBillingRecord.provider_session_id
+      currentBillingRecord.provider_customer_id
     );
 
-  if (!accessActive || !providerSessionId) {
+  if (!accessActive || !providerCustomerId) {
     throw new ProductCommercialError(
       "commercial_portal_unavailable",
       409,
@@ -1379,16 +1477,13 @@ export async function createProductCommercialPortalRequest(
         billing_status:
           currentBillingRecord
             .billing_status ?? null,
-        provider_session_present:
-          Boolean(providerSessionId)
+        provider_customer_present:
+          Boolean(providerCustomerId)
       }
     );
   }
 
-  if (
-    !config.portal_url ||
-    !config.application_url
-  ) {
+  if (!config.application_url) {
     throw new ProductCommercialError(
       "commercial_portal_configuration_missing",
       409
@@ -1401,7 +1496,7 @@ export async function createProductCommercialPortalRequest(
     provider: config.portal_provider,
     provider_portal: "customer_portal",
     provider_customer_reference: userId,
-    provider_session_id: providerSessionId,
+    provider_customer_id: providerCustomerId,
     return_url:
       config.application_url,
     idempotency_key: requestedId,
@@ -1418,9 +1513,32 @@ export async function createProductCommercialPortalRequest(
           currentBillingRecord.record_hash
         )
     }),
-    live_provider_call:
-      "not_performed_in_product_slice"
+    live_provider_call: "performed"
   });
+
+  let portalSession: Stripe.BillingPortal.Session;
+
+  try {
+    portalSession =
+      await stripeClient().billingPortal.sessions.create(
+        {
+          customer: providerCustomerId,
+          return_url: config.application_url
+        }
+      );
+  }
+  catch (error) {
+    throw new ProductCommercialError(
+      "commercial_checkout_provider_call_failed",
+      502,
+      {
+        provider_error_type:
+          error instanceof Stripe.errors.StripeError
+            ? error.type
+            : "unknown_error"
+      }
+    );
+  }
 
   const stored = await appendCommercialRecord(
     userId,
@@ -1437,7 +1555,8 @@ export async function createProductCommercialPortalRequest(
         portalRequest,
       occupied_seat_count:
         occupiedSeatCount(records),
-      provider_call_performed: false,
+      portal_url: portalSession.url,
+      provider_call_performed: true,
       ...ENGINE_INERT_STATE
     }
   );
@@ -1452,10 +1571,10 @@ export async function createProductCommercialPortalRequest(
         userId,
         accountActorType
       ),
-    portal_url: config.portal_url,
+    portal_url: portalSession.url,
     provider_portal_session_request:
       portalRequest,
-    provider_call_performed: false,
+    provider_call_performed: true,
     ...ENGINE_INERT_STATE
   });
 }
