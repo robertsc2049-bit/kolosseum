@@ -647,6 +647,11 @@ test(
     assert.equal(imageSend.json?.message?.attachment?.media_type, "image");
     assert.equal(imageSend.json?.message?.attachment?.mime_type, "image/jpeg");
     assert.equal(imageSend.json?.message?.attachment?.thumbnail_url, null, "images never get a poster/thumbnail");
+    assert.ok(
+      typeof imageSend.json?.message?.attachment?.byte_size === "number" &&
+        imageSend.json.message.attachment.byte_size > 0,
+      "the attachment's real on-disk byte_size is returned, not a placeholder"
+    );
     assert.equal(imageSend.json?.message?.body_text, "Check your form on this rep.");
     const imageUrl = imageSend.json?.message?.attachment?.url;
     assert.ok(imageUrl?.startsWith("/messages/coach/attachments/"), "the sender's own URL uses the coach-side prefix");

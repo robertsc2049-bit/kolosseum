@@ -654,3 +654,8 @@ test("O.5 sends no attachment upload from the org-owner UI - text-only, matching
   assert.doesNotMatch(orgDashboardJs, /FormData/u);
   assert.doesNotMatch(orgDashboardJs, /attachmentUpload|\.single\("attachment"\)/u);
 });
+
+test("an attachment's byte_size, already returned by org_coach_messaging_service.ts and org_athlete_messaging_service.ts, is shown to the user as a human-readable file size, matching the same fix in public/app/app.js", () => {
+  assert.match(orgDashboardJs, /function formatAttachmentSize/u);
+  assert.match(orgDashboardJs, /formatAttachmentSize\(attachment\.byte_size\)/u);
+});

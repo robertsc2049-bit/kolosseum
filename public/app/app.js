@@ -5568,16 +5568,26 @@ async function sendMessageRequest(path, bodyText, attachmentFile) {
   return payload;
 }
 
+function formatAttachmentSize(bytes) {
+  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes <= 0) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function renderMessageAttachment(attachment) {
   if (!attachment) return "";
+  const sizeLabel = formatAttachmentSize(attachment.byte_size);
+  const sizeCaption = sizeLabel ? `<p class="message-attachment-size muted">${escapeHtml(sizeLabel)}</p>` : "";
   if (attachment.media_type === "image") {
-    return `<img class="message-attachment-image" src="${escapeHtml(attachment.url)}" alt="Attached photo" loading="lazy">`;
+    return `<img class="message-attachment-image" src="${escapeHtml(attachment.url)}" alt="Attached photo" loading="lazy">${sizeCaption}`;
   }
   return `
     <video class="message-attachment-video" controls preload="metadata"
       ${attachment.thumbnail_url ? `poster="${escapeHtml(attachment.thumbnail_url)}"` : ""}>
       <source src="${escapeHtml(attachment.url)}">
     </video>
+    ${sizeCaption}
   `;
 }
 

@@ -79,6 +79,17 @@ test("no messaging file imports any engine-truth service", () => {
   }
 });
 
+test("an attachment's byte_size, which message_attachment_storage.ts and every messaging service already compute and return, is actually shown to the user as a human-readable file size", () => {
+  // message_attachment_storage.ts stat()s the uploaded file and every
+  // messaging service (coach_athlete_messaging_service.ts,
+  // org_coach_messaging_service.ts, org_athlete_messaging_service.ts) already
+  // returns attachment.byte_size on send/list - but renderMessageAttachment
+  // never read it, so a user could never see how large a photo/video was.
+  // Same phantom-field bug class as PRs #877-#883.
+  assert.match(appJs, /function formatAttachmentSize/u);
+  assert.match(appJs, /formatAttachmentSize\(attachment\.byte_size\)/u);
+});
+
 test("both the coach and athlete UIs exist as real focusable controls, and message bodies are escaped before rendering (never innerHTML'd raw)", () => {
   assert.match(indexHtml, /id="athleteDetailMessageButton"/u);
   assert.match(indexHtml, /id="athleteDetailMessageForm"/u);
