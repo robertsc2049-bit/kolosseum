@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 282
+- implemented: 284
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -615,6 +615,19 @@ Implemented: 5 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `video_feedback_detail` — Display a single video submission for coach review
 - `video_feedback_reply` — Reply to a video submission with text feedback, marking it reviewed
 
+### Progress insights
+
+Slice: FULL-UI-36
+
+Area state: implemented
+
+Implemented: 2 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `progress_insights_athlete_summary` — Display computed session adherence, strength trends, habit consistency and body-metric trends over a rolling window
+- `progress_insights_coach_summary` — Display the same computed progress summary for an accepted athlete, read-only
+
 ## Functions without persistent integration proof
 
 - None
@@ -654,6 +667,7 @@ Implemented: 5 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-31: implemented
 - FULL-UI-32: implemented
 - FULL-UI-35: implemented
+- FULL-UI-36: implemented
 
 ## Prohibited capabilities
 
