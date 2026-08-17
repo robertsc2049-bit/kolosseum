@@ -294,24 +294,24 @@ function workItems() {
   }));
 }
 
-function blockWithSessions() {
+function blockWithSessions(sessionCount) {
   return {
     block_id: "",
     order_index: 1,
     name: "Full-UI-36 Block",
     description: "",
     block_type: "strength",
-    week_count: 1,
-    weeks: [{
+    week_count: sessionCount,
+    weeks: Array.from({ length: sessionCount }, (_, index) => index + 1).map((week) => ({
       week_id: "",
-      order_index: 1,
+      order_index: week,
       sessions: [{
         session_id: "",
         order_index: 1,
-        title: "Session 1",
+        title: `Session ${week}`,
         work_items: workItems()
       }]
-    }]
+    }))
   };
 }
 
@@ -323,7 +323,7 @@ async function createActivatedTemplate(baseUrl, coachUserId, name) {
     description: "FULL-UI-36 progress insights proof.",
     activity_id: "powerlifting",
     event_plan: null,
-    blocks: [blockWithSessions()],
+    blocks: [blockWithSessions(2)],
     updated_at_iso8601: new Date().toISOString()
   });
   assertStatus(saved, 201, `${name}: draft save`);
@@ -453,6 +453,20 @@ test(
       replaces_reference_id: null
     };
 
+    // bench_press also needs a benchmark - the session's work items use
+    // percent_1rm load_mode for both exercises - but only one version, so
+    // its strength trend has no prior value to compare against.
+    const benchPressBenchmark = {
+      benchmark_id: `bench_press_v1_${nonce}`,
+      exercise_id: "bench_press",
+      value: 100,
+      unit: "kg",
+      basis: "tested_1rm",
+      effective_date: daysAgoDateOnly(40),
+      source_note: "FULL-UI-36 bench",
+      replaces_reference_id: null
+    };
+
     const firstProfile = await request(baseUrl, "POST", "/coach-workspace/athlete-strength-profile", {
       coach_user_id: coach.userId,
       athlete_user_id: athlete.userId,
@@ -460,7 +474,7 @@ test(
       load_rounding_increment: 2.5,
       bodyweight: 90,
       bodyweight_unit: "kg",
-      benchmarks: [v1Benchmark],
+      benchmarks: [v1Benchmark, benchPressBenchmark],
       expected_current_record_sha256: null
     }, { cookie: coach.cookie, csrf: coach.csrf });
     assertStatus(firstProfile, 201, "strength profile v1");
@@ -483,7 +497,7 @@ test(
       load_rounding_increment: 2.5,
       bodyweight: 90,
       bodyweight_unit: "kg",
-      benchmarks: [v1Benchmark, v2Benchmark],
+      benchmarks: [v1Benchmark, benchPressBenchmark, v2Benchmark],
       expected_current_record_sha256: firstProfile.json?.profile?.record_sha256 ?? null
     }, { cookie: coach.cookie, csrf: coach.csrf });
     assertStatus(secondProfile, 201, "strength profile v2");
@@ -493,7 +507,23 @@ test(
     // partial session (one exercise skipped, one completed).
     // ============================================================
     const template = await createActivatedTemplate(baseUrl, coach.userId, `Full36 Programme ${nonce}`);
-    void template;
+
+    const assignment = await request(
+      baseUrl,
+      "POST",
+      "/coach-workspace/athlete-assignment",
+      {
+        request_id: `full_ui_36_request_${nonce}`,
+        requested_at_iso8601: new Date().toISOString(),
+        coach_user_id: coach.userId,
+        athlete_user_id: athlete.userId,
+        template_id: template.template_id,
+        activity_id: "powerlifting",
+        event_id: ""
+      },
+      { cookie: coach.cookie, csrf: coach.csrf }
+    );
+    assertStatus(assignment, 201, "athlete assignment");
 
     const completedSessionId = await compileSession(baseUrl, coach, athlete.userId);
     sessionIds.push(completedSessionId);
@@ -596,15 +626,22 @@ test(
     assert.equal(insights.session_adherence.adherence_percentage, 50, "adherence: adherence_percentage");
     assert.equal(insights.session_adherence.has_sufficient_data, true, "adherence: has_sufficient_data");
 
-    assert.equal(insights.strength_trends.length, 1, "expected exactly one exercise's strength trend");
-    const squatTrend = insights.strength_trends[0];
-    assert.equal(squatTrend.exercise_id, "back_squat");
+    assert.equal(insights.strength_trends.length, 2, "expected two exercises' strength trends");
+    const strengthByExercise = Object.fromEntries(insights.strength_trends.map((entry) => [entry.exercise_id, entry]));
+
+    const squatTrend = strengthByExercise.back_squat;
     assert.equal(squatTrend.current_value, 160);
     assert.equal(squatTrend.current_unit, "kg");
     assert.equal(squatTrend.has_prior_value, true);
     assert.equal(squatTrend.prior_value, 150);
     assert.equal(squatTrend.delta, 10);
     assert.ok(Math.abs(squatTrend.delta_percentage - 6.67) < 0.01, `expected ~6.67%, got ${squatTrend.delta_percentage}`);
+
+    const benchTrend = strengthByExercise.bench_press;
+    assert.equal(benchTrend.current_value, 100);
+    assert.equal(benchTrend.has_prior_value, false, "bench_press has only one benchmark version - no prior to compare");
+    assert.equal(benchTrend.prior_value, null);
+    assert.equal(benchTrend.delta, null, "must not fabricate a delta with no prior value");
 
     assert.equal(insights.habit_consistency.length, 1, "expected exactly one habit");
     const habitInsight = insights.habit_consistency[0];
@@ -640,7 +677,9 @@ test(
       baseUrl, "GET", `/progress-insights/coach/${encodeURIComponent(athlete.userId)}`, undefined, { cookie: coach.cookie }
     );
     assertStatus(coachInsights, 200, "coach reads athlete's progress insights");
-    assert.deepEqual(coachInsights.json?.insights, insights, "coach view must match the athlete's own computed view");
+    const { generated_at_iso8601: _athleteGeneratedAt, ...athleteInsightsStable } = insights;
+    const { generated_at_iso8601: _coachGeneratedAt, ...coachInsightsStable } = coachInsights.json?.insights ?? {};
+    assert.deepEqual(coachInsightsStable, athleteInsightsStable, "coach view must match the athlete's own computed view");
 
     // ============================================================
     // An unrelated coach is rejected outright.
