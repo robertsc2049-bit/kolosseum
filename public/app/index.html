@@ -429,6 +429,18 @@
                   </div>
                 </div>
 
+                <div id="videoFeedbackPanel" class="pain-report-panel" hidden>
+                  <h3>Record a form-check video</h3>
+                  <p>Upload a short video of this exercise for your coach to review and reply to.</p>
+                  <label><span>Video (MP4/MOV, up to 50MB)</span><input id="videoFeedbackFileInput" type="file" accept="video/mp4,video/quicktime" capture="environment" /></label>
+                  <label><span>Note for your coach (optional)</span><textarea id="videoFeedbackCaptionInput" rows="2" maxlength="4000"></textarea></label>
+                  <p id="videoFeedbackStatus" class="muted" hidden></p>
+                  <div class="button-row">
+                    <button id="uploadVideoFeedbackButton" class="button primary" type="button">Upload video</button>
+                    <button id="cancelVideoFeedbackButton" class="button secondary" type="button">Cancel</button>
+                  </div>
+                </div>
+
                 <div id="substitutionPanel" class="substitution-panel" hidden>
                   <h3>Request a substitution</h3>
                   <p>Select any equipment that is unavailable right now.</p>
@@ -459,6 +471,7 @@
                   <button id="reportPainButton" class="button secondary wide" type="button" hidden>Report pain</button>
                   <button id="reportRpeButton" class="button secondary wide" type="button" hidden>Report RPE</button>
                   <button id="requestSubstitutionButton" class="button secondary wide" type="button" hidden>Request substitution</button>
+                  <button id="recordVideoFeedbackButton" class="button secondary wide" type="button" hidden>Record form-check video</button>
                   <button id="splitSessionButton" class="button secondary wide" type="button" hidden>Stop and return later</button>
                 </div>
               </article>
@@ -2062,6 +2075,25 @@
             <p class="muted small">This note is non-binding, stored separately from the session artefact and cannot alter engine output or session facts.</p>
             <button class="button primary" type="submit">Record note</button>
           </form>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Video review</p>
+                <h3>Video submissions awaiting feedback</h3>
+              </div>
+              <button id="refreshVideoFeedbackQueueButton" class="button secondary" type="button">Refresh queue</button>
+            </div>
+            <p id="videoFeedbackQueueStatus" class="dashboard-status muted" aria-live="polite">Refresh to load pending video submissions.</p>
+            <div class="review-layout">
+              <div>
+                <div id="videoFeedbackQueueList" class="record-list"></div>
+              </div>
+              <aside id="videoFeedbackDetail" class="panel review-detail" hidden>
+                <div id="videoFeedbackDetailContent"></div>
+              </aside>
+            </div>
+          </article>
         </section>
 
         <section id="view-account" class="view" hidden>

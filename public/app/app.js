@@ -74,6 +74,8 @@ const DEFAULT_STATE = Object.freeze({
   coachReviewFilter: "awaiting",
   coachReviewUpdatedAt: "",
   selectedCoachReviewSessionId: "",
+  coachVideoFeedbackQueue: [],
+  selectedVideoFeedbackSubmissionId: "",
   athleteDetails: {},
   coachCode: "",
   pendingRelationshipInvitations: [],
@@ -236,6 +238,13 @@ const elements = {
   reportPainButton: document.getElementById("reportPainButton"),
   reportRpeButton: document.getElementById("reportRpeButton"),
   requestSubstitutionButton: document.getElementById("requestSubstitutionButton"),
+  recordVideoFeedbackButton: document.getElementById("recordVideoFeedbackButton"),
+  videoFeedbackPanel: document.getElementById("videoFeedbackPanel"),
+  videoFeedbackFileInput: document.getElementById("videoFeedbackFileInput"),
+  videoFeedbackCaptionInput: document.getElementById("videoFeedbackCaptionInput"),
+  videoFeedbackStatus: document.getElementById("videoFeedbackStatus"),
+  uploadVideoFeedbackButton: document.getElementById("uploadVideoFeedbackButton"),
+  cancelVideoFeedbackButton: document.getElementById("cancelVideoFeedbackButton"),
   splitSessionButton: document.getElementById("splitSessionButton"),
   returnContinueButton: document.getElementById("returnContinueButton"),
   returnSkipButton: document.getElementById("returnSkipButton"),
@@ -495,6 +504,11 @@ const elements = {
   reviewList: document.getElementById("reviewList"),
   reviewDetail: document.getElementById("reviewDetail"),
   reviewDetailContent: document.getElementById("reviewDetailContent"),
+  refreshVideoFeedbackQueueButton: document.getElementById("refreshVideoFeedbackQueueButton"),
+  videoFeedbackQueueStatus: document.getElementById("videoFeedbackQueueStatus"),
+  videoFeedbackQueueList: document.getElementById("videoFeedbackQueueList"),
+  videoFeedbackDetail: document.getElementById("videoFeedbackDetail"),
+  videoFeedbackDetailContent: document.getElementById("videoFeedbackDetailContent"),
   coachNoteForm: document.getElementById("coachNoteForm"),
   coachNoteHeading: document.getElementById("coachNoteHeading"),
   coachNoteSessionId: document.getElementById("coachNoteSessionId"),
@@ -1480,6 +1494,7 @@ function setView(view) {
 
   if (view === "review" && state.role === "coach") {
     renderCoachSelectors();
+    refreshVideoFeedbackQueue({ quiet: true }).catch(handleError);
   }
 
   if (view === "account") {
@@ -2074,6 +2089,7 @@ async function loadSessionState() {
 }
 
 let currentFocusExerciseId = null;
+let currentFocusExerciseLabel = null;
 let restTimerIntervalId = null;
 const exerciseContentCache = new Map();
 const exerciseReferenceMediaCache = new Map();
@@ -2169,6 +2185,11 @@ function hideAllActionPanels() {
   for (const box of document.querySelectorAll(".substitution-equipment-option")) {
     box.checked = false;
   }
+  elements.videoFeedbackPanel.hidden = true;
+  elements.videoFeedbackFileInput.value = "";
+  elements.videoFeedbackCaptionInput.value = "";
+  elements.videoFeedbackStatus.hidden = true;
+  elements.videoFeedbackStatus.textContent = "";
 }
 
 function formatRestClock(totalSeconds) {
@@ -2385,6 +2406,79 @@ async function applySubstitution(eventType) {
   });
 }
 
+function openVideoFeedbackPanel() {
+  if (!currentFocusExerciseId) return;
+  hideAllActionPanels();
+  elements.videoFeedbackPanel.hidden = false;
+}
+
+// Fast feedback only - never the actual security boundary, which is the
+// server's own content-sniffed validation (video_submission_storage.ts).
+// Reuses the exact video type/size limits already defined for messaging
+// attachments (ATTACHMENT_VIDEO_TYPES/ATTACHMENT_MAX_VIDEO_BYTES, below)
+// since the server-side ceiling is the same 50MB.
+function validateVideoFeedbackClientSide(file) {
+  if (!file) return "Choose a video to upload.";
+  if (!ATTACHMENT_VIDEO_TYPES.includes(file.type)) {
+    return "That file type isn't supported. Use an MP4/MOV video.";
+  }
+  if (file.size > ATTACHMENT_MAX_VIDEO_BYTES) {
+    return "Videos must be 50MB or smaller.";
+  }
+  return null;
+}
+
+async function uploadExerciseVideo() {
+  const exerciseId = currentFocusExerciseId;
+  const sessionId = state.activeSessionId;
+  if (!exerciseId || !sessionId) return;
+
+  const file = elements.videoFeedbackFileInput?.files?.[0];
+  const validationError = validateVideoFeedbackClientSide(file);
+  if (validationError) {
+    elements.videoFeedbackStatus.hidden = false;
+    elements.videoFeedbackStatus.textContent = validationError;
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("video", file);
+  formData.append("session_id", sessionId);
+  formData.append("work_item_id", exerciseId);
+  formData.append("exercise_label", currentFocusExerciseLabel || "Exercise");
+  formData.append("client_request_id", newClientRequestId());
+  if (elements.videoFeedbackCaptionInput?.value) {
+    formData.append("caption", elements.videoFeedbackCaptionInput.value);
+  }
+
+  showBusy("Uploading video…");
+  try {
+    const response = await fetch("/video-feedback", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "x-kolosseum-csrf": String(state.csrfToken ?? "") },
+      body: formData
+    });
+    const payload = await readJson(response);
+    if (!response.ok) {
+      const error = new Error(friendlyError(payload, response.status));
+      error.payload = payload;
+      error.status = response.status;
+      throw error;
+    }
+
+    hideAllActionPanels();
+    showNotice("Video uploaded. Your coach will be able to review it.");
+  }
+  catch (error) {
+    elements.videoFeedbackStatus.hidden = false;
+    elements.videoFeedbackStatus.textContent = friendlyError(error.payload, error.status) || "Video could not be uploaded.";
+  }
+  finally {
+    hideBusy();
+  }
+}
+
 function renderExerciseFocus(step, classification) {
   elements.returnDecision.hidden = true;
   elements.sessionActions.hidden = false;
@@ -2394,9 +2488,11 @@ function renderExerciseFocus(step, classification) {
   elements.reportPainButton.hidden = true;
   elements.reportRpeButton.hidden = true;
   elements.requestSubstitutionButton.hidden = true;
+  elements.recordVideoFeedbackButton.hidden = true;
   elements.splitSessionButton.hidden = true;
   hideAllActionPanels();
   currentFocusExerciseId = null;
+  currentFocusExerciseLabel = null;
 
   if (!step) {
     elements.currentExercise.innerHTML = `
@@ -2419,6 +2515,7 @@ function renderExerciseFocus(step, classification) {
   const exercise = step.exercise ?? {};
   const details = exerciseDetails(exercise);
   currentFocusExerciseId = String(exercise?.exercise_id ?? exercise?.item_id ?? "") || null;
+  currentFocusExerciseLabel = exerciseName(exercise) || null;
 
   const segment = String(exercise?.segment ?? "working");
   const groupType = String(exercise?.group_type ?? "");
@@ -2447,6 +2544,7 @@ function renderExerciseFocus(step, classification) {
     elements.reportPainButton.hidden = false;
     elements.reportRpeButton.hidden = false;
     elements.requestSubstitutionButton.hidden = false;
+    elements.recordVideoFeedbackButton.hidden = false;
     elements.splitSessionButton.hidden = false;
   }
   else {
@@ -2708,11 +2806,15 @@ async function openHistoryDetail(sessionId) {
   `;
 
   try {
-    const detail = await api("POST", "/sessions/beta-athlete-history-detail", {
-      athlete_user_id: state.profile.userId,
-      session_id: sessionId
-    });
-    renderHistoryDetail(detail);
+    const [detail, videoFeedbackResponse] = await Promise.all([
+      api("POST", "/sessions/beta-athlete-history-detail", {
+        athlete_user_id: state.profile.userId,
+        session_id: sessionId
+      }),
+      api("GET", `/video-feedback/submissions?session_id=${encodeURIComponent(sessionId)}`)
+        .catch(() => ({ submissions: [] }))
+    ]);
+    renderHistoryDetail(detail, Array.isArray(videoFeedbackResponse.submissions) ? videoFeedbackResponse.submissions : []);
     syncHistoryDetailRoute(sessionId);
   }
   catch (error) {
@@ -2735,7 +2837,28 @@ function closeHistoryDetail() {
   }
 }
 
-function renderHistoryDetail(detail) {
+function renderVideoSubmissionCard(submission) {
+  const feedback = Array.isArray(submission.feedback) ? submission.feedback : [];
+  const statusClass = submission.review_status === "reviewed" ? "complete" : "neutral";
+  return `
+    <div class="history-exercise-row video-feedback-submission">
+      <div>
+        <strong>${escapeHtml(submission.exercise_label || "Exercise")}</strong>
+        <span class="badge ${statusClass}">${submission.review_status === "reviewed" ? "Reviewed" : "Awaiting review"}</span>
+      </div>
+      <video class="message-attachment-video" controls preload="metadata"
+        ${submission.thumbnail_url ? `poster="${escapeHtml(submission.thumbnail_url)}"` : ""}>
+        <source src="${escapeHtml(submission.url)}">
+      </video>
+      ${submission.caption ? `<p class="muted">${escapeHtml(submission.caption)}</p>` : ""}
+      ${feedback.map((entry) => `
+        <p class="muted exercise-coaching-note">Coach: ${escapeHtml(entry.feedback_text)}</p>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderHistoryDetail(detail, videoSubmissions = []) {
   const programme = detail.provenance?.programme;
   const assignment = detail.provenance?.assignment;
   const event = detail.provenance?.event;
@@ -2776,6 +2899,13 @@ function renderHistoryDetail(detail) {
         </div>
       `).join("")}
     </div>
+
+    ${videoSubmissions.length ? `
+      <div class="panel-header"><div><p class="eyebrow">Form-check videos</p><h4>Video feedback</h4></div></div>
+      <div id="historyDetailVideoFeedback">
+        ${videoSubmissions.map(renderVideoSubmissionCard).join("")}
+      </div>
+    ` : ""}
 
     ${Array.isArray(detail.split_return_events) && detail.split_return_events.length ? `
       <div class="panel-header"><div><p class="eyebrow">Split and return record</p><h4>Events</h4></div></div>
@@ -8456,6 +8586,137 @@ function bindCoachReviewActions() {
         }
       );
     }
+  }
+}
+
+// FULL-UI-32 coach video review queue. Deliberately a small, self-
+// contained subsystem rather than folded into the coachReviewRecords/
+// filteredCoachReviewRecords machinery above - a different grain
+// (per-exercise video submission, not per-session), with its own list +
+// detail + delegated-action shape mirroring reviewRecordCard/
+// renderCoachReviewDetail/bindCoachReviewActions.
+function videoFeedbackQueueCard(submission) {
+  const selected = state.selectedVideoFeedbackSubmissionId === submission.submission_id;
+  return `
+    <article class="record-card review-record-card interactive ${selected ? "selected" : ""}" data-video-feedback-queue-id="${escapeHtml(submission.submission_id)}">
+      <div>
+        <h3>${escapeHtml(submission.exercise_label || "Exercise")}</h3>
+        <p>${escapeHtml(formatDate(submission.created_at))}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge neutral">Awaiting review</span>
+      </div>
+    </article>
+  `;
+}
+
+function renderVideoFeedbackDetail(submission) {
+  if (!submission) {
+    elements.videoFeedbackDetail.hidden = true;
+    elements.videoFeedbackDetailContent.innerHTML = "";
+    return;
+  }
+
+  elements.videoFeedbackDetail.hidden = false;
+  elements.videoFeedbackDetailContent.innerHTML = `
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">${escapeHtml(formatDate(submission.created_at))}</p>
+        <h3>${escapeHtml(submission.exercise_label || "Exercise")}</h3>
+      </div>
+    </div>
+    <video class="message-attachment-video" controls preload="metadata"
+      ${submission.thumbnail_url ? `poster="${escapeHtml(submission.thumbnail_url)}"` : ""}>
+      <source src="${escapeHtml(submission.url)}">
+    </video>
+    ${submission.caption ? `<p class="muted">${escapeHtml(submission.caption)}</p>` : ""}
+    <label class="field">
+      <span>Feedback for the athlete</span>
+      <textarea id="videoFeedbackReplyText" required maxlength="4000"></textarea>
+    </label>
+    <button id="submitVideoFeedbackButton" class="button primary" type="button">Send feedback</button>
+  `;
+
+  document.getElementById("submitVideoFeedbackButton")?.addEventListener("click", () => {
+    submitVideoFeedback(submission.submission_id).catch(handleError);
+  });
+}
+
+function bindVideoFeedbackQueueActions() {
+  for (const card of elements.videoFeedbackQueueList.querySelectorAll("[data-video-feedback-queue-id]")) {
+    card.addEventListener("click", () => {
+      state.selectedVideoFeedbackSubmissionId = card.dataset.videoFeedbackQueueId;
+      renderVideoFeedbackQueueWorkspace();
+    });
+  }
+}
+
+function renderVideoFeedbackQueueWorkspace() {
+  if (!elements.videoFeedbackQueueList) return;
+
+  const submissions = Array.isArray(state.coachVideoFeedbackQueue) ? state.coachVideoFeedbackQueue : [];
+
+  elements.videoFeedbackQueueList.innerHTML = submissions.length
+    ? submissions.map(videoFeedbackQueueCard).join("")
+    : `
+      <div class="panel empty-state">
+        <div class="empty-icon">V</div>
+        <h3>No pending video submissions</h3>
+        <p>Athlete form-check videos awaiting your feedback will appear here.</p>
+      </div>
+    `;
+
+  let selected = submissions.find(
+    (submission) => submission.submission_id === state.selectedVideoFeedbackSubmissionId
+  ) ?? null;
+
+  if (!selected && submissions.length > 0) {
+    selected = submissions[0];
+    state.selectedVideoFeedbackSubmissionId = selected.submission_id;
+  }
+
+  renderVideoFeedbackDetail(selected);
+  bindVideoFeedbackQueueActions();
+  saveState();
+}
+
+async function refreshVideoFeedbackQueue(options = {}) {
+  try {
+    const response = await api("GET", "/coach-workspace/video-feedback/queue");
+    state.coachVideoFeedbackQueue = Array.isArray(response.submissions) ? response.submissions : [];
+    elements.videoFeedbackQueueStatus.textContent = state.coachVideoFeedbackQueue.length
+      ? `${state.coachVideoFeedbackQueue.length} video submission${state.coachVideoFeedbackQueue.length === 1 ? "" : "s"} awaiting review.`
+      : "No pending video submissions.";
+    renderVideoFeedbackQueueWorkspace();
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+    elements.videoFeedbackQueueStatus.textContent = "Video feedback queue could not be loaded.";
+  }
+}
+
+async function submitVideoFeedback(submissionId) {
+  const text = document.getElementById("videoFeedbackReplyText")?.value?.trim();
+  if (!text) return;
+
+  showBusy("Sending feedback…");
+  try {
+    await api(
+      "POST",
+      `/coach-workspace/video-feedback/submissions/${encodeURIComponent(submissionId)}/feedback`,
+      { feedback_text: text }
+    );
+    state.coachVideoFeedbackQueue = (state.coachVideoFeedbackQueue ?? [])
+      .filter((submission) => submission.submission_id !== submissionId);
+    state.selectedVideoFeedbackSubmissionId = "";
+    showNotice("Feedback sent.");
+    elements.videoFeedbackQueueStatus.textContent = state.coachVideoFeedbackQueue.length
+      ? `${state.coachVideoFeedbackQueue.length} video submission${state.coachVideoFeedbackQueue.length === 1 ? "" : "s"} awaiting review.`
+      : "No pending video submissions.";
+    renderVideoFeedbackQueueWorkspace();
+  }
+  finally {
+    hideBusy();
   }
 }
 
@@ -15077,6 +15338,14 @@ elements.requestSubstitutionButton.addEventListener("click", openSubstitutionPan
 elements.cancelSubstitutionButton.addEventListener("click", hideAllActionPanels);
 elements.checkSubstitutionButton.addEventListener("click", () => {
   checkSubstitution().catch(handleError);
+});
+elements.recordVideoFeedbackButton.addEventListener("click", openVideoFeedbackPanel);
+elements.cancelVideoFeedbackButton.addEventListener("click", hideAllActionPanels);
+elements.uploadVideoFeedbackButton.addEventListener("click", () => {
+  uploadExerciseVideo().catch(handleError);
+});
+elements.refreshVideoFeedbackQueueButton.addEventListener("click", () => {
+  refreshVideoFeedbackQueue().catch(handleError);
 });
 elements.splitSessionButton.addEventListener("click", () => {
   postSessionEvent({ type: "SPLIT_SESSION" }).catch(handleError);
