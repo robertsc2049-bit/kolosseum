@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 276
+- implemented: 277
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -64,7 +64,7 @@ Slice: FULL-UI-04
 
 Area state: implemented
 
-Implemented: 8 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -76,6 +76,7 @@ Implemented: 8 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `payment_return` — Handle payment success and cancellation
 - `billing_portal` — Open billing portal
 - `entitlement_error` — Display factual entitlement failure
+- `webhook_confirmation` — Record trusted Stripe webhook confirmation
 
 ### Coach–athlete relationships
 

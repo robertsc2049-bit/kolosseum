@@ -20,7 +20,8 @@
                       "checkout_entry",
                       "payment_return",
                       "billing_portal",
-                      "entitlement_error"
+                      "entitlement_error",
+                      "webhook_confirmation"
                   ],
     "factual_states":  [
                            "active",

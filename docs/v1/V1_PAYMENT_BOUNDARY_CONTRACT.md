@@ -2,7 +2,7 @@
 
 Status: active v1 controlled-launch boundary document.
 Slice: S-V1-P-01.
-Version: 1.0.0.
+Version: 1.1.0.
 
 ## Purpose
 
@@ -13,6 +13,17 @@ Payment state is commercial-access state only.
 The deterministic engine boundary remains outside this contract.
 
 Compile output, substitution selection, replay records, proof records, and factual history records remain outside this contract.
+
+## Live implementation note (2026-08-17)
+
+Real Stripe Checkout and real payment-provider webhooks are now live for individual-coach
+billing, under FULL-UI-08 authority, in `src/api/product_commercial_service.ts` and its routes
+- outside this contract module's own scope. The top-level release boundary already permits
+this ("Stripe self-serve purchase and seat management" as a controlled-launch exception). This
+contract module continues to bound what commercial/billing state is ever allowed to control -
+product access state, plan visibility, seat limit, and billing surface visibility only - and
+the invariant that commercial access state never becomes deterministic, compile, substitution,
+replay, proof, or factual-history input remains unchanged and applies equally to the live path.
 
 ## Allowed controls
 

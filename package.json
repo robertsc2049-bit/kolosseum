@@ -205,6 +205,7 @@
     "express": "^5.2.1",
     "multer": "^2.2.0",
     "pg": "^8.17.1",
+    "stripe": "^22.5.0",
     "ws": "^8.21.2"
   },
   "devDependencies": {

@@ -121,3 +121,27 @@ resolution from this addition.
 This change does not alter Kolosseum engine law, deterministic output,
 registry content, sealed artefact bytes, access-policy decisions, or any
 existing user-facing behaviour - it is purely additive.
+
+## Stripe checkout live: add stripe dependency
+
+Commit subject: feat(commercial): real Stripe Checkout + Billing Portal for coach subscriptions
+
+package-lock.json changed because a new direct dependency was added:
+
+- `stripe` (`^22.5.0`) added to `dependencies`.
+
+`stripe` is the official Node SDK, used to wire real Stripe Checkout
+Sessions, Billing Portal Sessions, and webhook signature verification
+into the existing (previously fully mocked) coach commercial/billing
+surface at `src/api/product_commercial_service.ts`. This is a single,
+purpose-specific dependency for the one live-payment-provider
+integration point in the product, matching the repo's existing posture
+of small, purpose-specific additions (`ws` for live messaging, `multer`
+for attachments, `express`/`pg`/`ajv`/`dotenv` otherwise). No other
+dependency versions were intentionally changed; any other lockfile
+movement is transitive resolution from this addition.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or any
+existing user-facing behaviour outside the coach billing surface it
+directly wires - it is purely additive.

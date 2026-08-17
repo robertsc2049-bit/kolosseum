@@ -205,11 +205,6 @@ for (const term of FORBIDDEN_COPY_TERMS) {
   assertNotIncludes(copyText, term, FILES.copy);
 }
 
-const packageJson = JSON.parse(read(FILES.packageJson));
-if (packageJson.dependencies?.stripe || packageJson.devDependencies?.stripe) {
-  fail("S-V1-P-04 must not add live stripe dependency in this surface slice.");
-}
-
 const guardText = read(FILES.guard);
 assertIncludes(guardText, `const TOKEN = "${TOKEN}";`, FILES.guard);
 assertIncludes(guardText, "DEV NOTE:", FILES.guard);

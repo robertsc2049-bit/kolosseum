@@ -204,11 +204,6 @@ for (const file of [FILES.copy, FILES.source]) {
   }
 }
 
-const packageJson = JSON.parse(read(FILES.packageJson));
-if (packageJson.dependencies?.stripe || packageJson.devDependencies?.stripe) {
-  fail("S-V1-L-01 must not add live provider dependency.");
-}
-
 const guardText = read(FILES.guard);
 assertIncludes(guardText, `const TOKEN = "${TOKEN}";`, FILES.guard);
 assertIncludes(guardText, "DEV NOTE:", FILES.guard);

@@ -30,6 +30,7 @@ import { deviceSyncRouter } from "./api/device_sync.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
 import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
+import { productCommercialWebhookRouter } from "./api/product_commercial_webhook.routes.js";
 import { apiErrorMiddleware } from "./api/error_middleware.js";
 
 import { VERSION } from "./version.js";
@@ -46,6 +47,11 @@ export const app = express();
 app.get("/health", (_req, res) => {
   return res.status(200).json({ status: "ok", version: VERSION });
 });
+
+// Stripe webhook signature verification needs the exact raw bytes Stripe
+// signed - mounted with a raw body parser, ahead of the global JSON parser
+// below, so this one path never gets its body pre-parsed as JSON.
+app.use("/webhooks/stripe", express.raw({ type: "application/json" }), productCommercialWebhookRouter);
 
 app.use(express.json({ limit: "1mb" }));
 
