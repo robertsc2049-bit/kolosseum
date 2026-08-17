@@ -207,7 +207,7 @@ async function loadProvenanceCached(
   return cache.get(assignmentId)!;
 }
 
-type EnrichedHistorySession = {
+export type EnrichedHistorySession = {
   session_id: string;
   block_id: string;
   status: string;
@@ -260,7 +260,7 @@ function matchesFilters(session: EnrichedHistorySession, filters: AthleteHistory
   return true;
 }
 
-async function loadEnrichedAthleteSessions(athleteUserId: string): Promise<EnrichedHistorySession[]> {
+export async function loadEnrichedAthleteSessions(athleteUserId: string): Promise<EnrichedHistorySession[]> {
   const result = await pool.query(
     `
     SELECT
@@ -503,7 +503,6 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
 }
 
 export {
-  loadEnrichedAthleteSessions,
   loadProvenanceForAssignment,
   loadOrderedRuntimeEvents,
   loadFullSessionRow,

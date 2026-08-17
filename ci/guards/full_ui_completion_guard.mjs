@@ -318,7 +318,8 @@ function discoverApiRoutes() {
     ["src/api/exercise_content.routes.ts", "/exercises"],
     ["src/api/device_sync.routes.ts", "/device-sync"],
     ["src/api/video_feedback.routes.ts", "/video-feedback"],
-    ["src/api/video_feedback_coach.routes.ts", "/coach-workspace"]
+    ["src/api/video_feedback_coach.routes.ts", "/coach-workspace"],
+    ["src/api/progress_insights.routes.ts", "/progress-insights"]
   ];
   const routes = [];
   const pattern = /(?:router|[A-Za-z][A-Za-z0-9]*Router)\.(get|post|put|patch|delete)\(\s*["'`]([^"'`]+)["'`]/gu;
