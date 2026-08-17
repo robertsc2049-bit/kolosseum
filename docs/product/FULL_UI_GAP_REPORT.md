@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 277
+- implemented: 282
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -599,6 +599,22 @@ Implemented: 6 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `device_metric_history_athlete` — Display own synced metric history
 - `device_metric_history_coach` — Display athlete connected devices and synced metric history (read-only)
 
+### Exercise video feedback
+
+Slice: FULL-UI-32
+
+Area state: implemented
+
+Implemented: 5 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `video_submission_capture` — Record or upload a form-check video for a specific exercise in a session
+- `video_submission_history` — Display own video submissions and coach feedback for a session
+- `video_feedback_queue` — Display pending video submissions awaiting coach review, across all athletes
+- `video_feedback_detail` — Display a single video submission for coach review
+- `video_feedback_reply` — Reply to a video submission with text feedback, marking it reviewed
+
 ## Functions without persistent integration proof
 
 - None
@@ -636,6 +652,7 @@ Implemented: 6 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-29: implemented
 - FULL-UI-30: implemented
 - FULL-UI-31: implemented
+- FULL-UI-32: implemented
 - FULL-UI-35: implemented
 
 ## Prohibited capabilities

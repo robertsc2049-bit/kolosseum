@@ -6482,6 +6482,129 @@
           }
         }
       ]
+    },
+    {
+      "area_id": "video_feedback",
+      "title": "Exercise video feedback",
+      "slice_id": "FULL-UI-32",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "video_submission_capture",
+          "label": "Record or upload a form-check video for a specific exercise in a session",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [
+            "/video-feedback"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_32_video_feedback_surface.test.mjs",
+          "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "video_submission_history",
+          "label": "Display own video submissions and coach feedback for a session",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/video-feedback/submissions",
+            "/video-feedback/submissions/:submission_id",
+            "/video-feedback/submissions/:submission_id/media",
+            "/video-feedback/submissions/:submission_id/thumbnail"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_32_video_feedback_surface.test.mjs",
+          "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "video_feedback_queue",
+          "label": "Display pending video submissions awaiting coach review, across all athletes",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [
+            "/coach-workspace/video-feedback/queue"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_32_video_feedback_surface.test.mjs",
+          "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "video_feedback_detail",
+          "label": "Display a single video submission for coach review",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [
+            "/coach-workspace/video-feedback/submissions/:submission_id",
+            "/coach-workspace/video-feedback/submissions/:submission_id/media",
+            "/coach-workspace/video-feedback/submissions/:submission_id/thumbnail"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_32_video_feedback_surface.test.mjs",
+          "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "video_feedback_reply",
+          "label": "Reply to a video submission with text feedback, marking it reviewed",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [
+            "/coach-workspace/video-feedback/submissions/:submission_id/feedback"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_32_video_feedback_surface.test.mjs",
+          "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
     }
   ],
   "delivery_slices": [
@@ -6607,6 +6730,10 @@
     },
     {
       "slice_id": "FULL-UI-31",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-32",
       "state": "implemented"
     },
     {
@@ -7363,6 +7490,66 @@
       "path": "/device-sync/metrics/coach/:athlete_user_id",
       "source": "src/api/device_sync.routes.ts",
       "tracked_by_area": "device_sync"
+    },
+    {
+      "method": "POST",
+      "path": "/video-feedback",
+      "source": "src/api/video_feedback.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/video-feedback/submissions",
+      "source": "src/api/video_feedback.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/video-feedback/submissions/:submission_id",
+      "source": "src/api/video_feedback.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/video-feedback/submissions/:submission_id/media",
+      "source": "src/api/video_feedback.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/video-feedback/submissions/:submission_id/thumbnail",
+      "source": "src/api/video_feedback.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/video-feedback/queue",
+      "source": "src/api/video_feedback_coach.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/video-feedback/submissions/:submission_id",
+      "source": "src/api/video_feedback_coach.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/video-feedback/submissions/:submission_id/feedback",
+      "source": "src/api/video_feedback_coach.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/video-feedback/submissions/:submission_id/media",
+      "source": "src/api/video_feedback_coach.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/video-feedback/submissions/:submission_id/thumbnail",
+      "source": "src/api/video_feedback_coach.routes.ts",
+      "tracked_by_area": "video_feedback"
     }
   ],
   "completion_rules": [

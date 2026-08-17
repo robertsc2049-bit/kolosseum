@@ -1421,3 +1421,95 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- FULL-UI-32 VIDEO FEEDBACK
+-- Athlete-recorded, per-exercise form-check videos and the coach's text
+-- reply. A genuinely new grain from product_coach_notes/session review:
+-- those are keyed by session_id + a synthetic per-session artefact_id
+-- only, with nothing finer-grained than "this session" - work_item_id
+-- here is the specific exercise within the session the video is for
+-- (same id the athlete-side "today" plan and session-execution client
+-- already use, see beta18_programme_template_service.ts and app.js
+-- currentFocusExerciseId). Video-only (no photo variant), so unlike
+-- product_messages there is no attachment_media_type discriminator
+-- column. exercise_label is an immutable snapshot captured at upload
+-- time so the coach queue never has to re-derive it from programme
+-- state later.
+CREATE TABLE IF NOT EXISTS product_video_submissions (
+  submission_id                     TEXT PRIMARY KEY,
+  athlete_user_id                   TEXT NOT NULL,
+  coach_user_id                     TEXT NOT NULL,
+  relationship_id                   TEXT NOT NULL,
+  session_id                        TEXT NOT NULL,
+  work_item_id                      TEXT NOT NULL,
+  exercise_label                    TEXT NOT NULL
+    CHECK (
+      char_length(btrim(exercise_label)) BETWEEN 1 AND 200
+    ),
+  caption                           TEXT
+    CHECK (
+      caption IS NULL OR char_length(btrim(caption)) BETWEEN 1 AND 4000
+    ),
+  attachment_mime_type               TEXT NOT NULL,
+  attachment_byte_size               INTEGER NOT NULL
+    CHECK (
+      attachment_byte_size > 0
+    ),
+  attachment_storage_key             TEXT NOT NULL,
+  attachment_thumbnail_storage_key   TEXT,
+  review_status                     TEXT NOT NULL DEFAULT 'pending'
+    CHECK (
+      review_status IN ('pending', 'reviewed')
+    ),
+  reviewed_at                       TIMESTAMPTZ,
+  client_request_id                 TEXT NOT NULL,
+  created_at                        TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  UNIQUE (athlete_user_id, client_request_id),
+
+  CHECK (
+    (review_status = 'pending' AND reviewed_at IS NULL)
+    OR
+    (review_status = 'reviewed' AND reviewed_at IS NOT NULL)
+  )
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_video_submissions_coach_queue
+ON product_video_submissions (
+  coach_user_id,
+  review_status,
+  created_at ASC
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_video_submissions_athlete_session
+ON product_video_submissions (
+  athlete_user_id,
+  session_id,
+  created_at ASC
+);
+
+-- Append-only, immutable coach feedback - mirrors product_coach_notes.
+-- Writing the first feedback row for a submission is what flips that
+-- submission's review_status to 'reviewed' (video_feedback_service.ts),
+-- never a second write path against product_video_submissions itself.
+CREATE TABLE IF NOT EXISTS product_video_submission_feedback (
+  feedback_id      TEXT PRIMARY KEY,
+  submission_id    TEXT NOT NULL
+    REFERENCES product_video_submissions(submission_id)
+    ON DELETE CASCADE,
+  coach_user_id    TEXT NOT NULL,
+  feedback_text    TEXT NOT NULL
+    CHECK (
+      char_length(btrim(feedback_text)) BETWEEN 1 AND 4000
+    ),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_video_submission_feedback_submission
+ON product_video_submission_feedback (
+  submission_id,
+  created_at ASC
+);

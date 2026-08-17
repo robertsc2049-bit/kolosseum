@@ -12,7 +12,7 @@ const manifest = JSON.parse(
 test("FULL-UI-01 manifest carries the complete product-area inventory", () => {
   assert.equal(manifest.schema_version, "FULL-UI-01.0.0");
   assert.equal(manifest.source_issue, 798);
-  assert.equal(manifest.product_areas.length, 28);
+  assert.equal(manifest.product_areas.length, 29);
 
   const areaIds = new Set(manifest.product_areas.map((area) => area.area_id));
   for (const required of [
@@ -43,14 +43,15 @@ test("FULL-UI-01 manifest carries the complete product-area inventory", () => {
     "body_metrics_habits",
     "exercise_reference_media",
     "device_sync",
-    "exercise_content"
+    "exercise_content",
+    "video_feedback"
   ]) {
     assert.ok(areaIds.has(required), required);
   }
 });
 
 test("FULL-UI-01 manifest retains every delivery slice", () => {
-  assert.equal(manifest.delivery_slices.length, 32);
+  assert.equal(manifest.delivery_slices.length, 33);
   const sliceIds = manifest.delivery_slices.map((slice) => slice.slice_id);
   assert.deepEqual(
     sliceIds.slice(0, 31),
@@ -58,7 +59,8 @@ test("FULL-UI-01 manifest retains every delivery slice", () => {
       "FULL-UI-" + String(index + 1).padStart(2, "0")
     )
   );
-  assert.equal(sliceIds[31], "FULL-UI-35");
+  assert.equal(sliceIds[31], "FULL-UI-32");
+  assert.equal(sliceIds[32], "FULL-UI-35");
   assert.ok(manifest.delivery_slices.every((slice) => slice.state === "implemented"));
 });
 
