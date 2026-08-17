@@ -234,7 +234,8 @@ export async function createVideoSubmission(
         pending.mimeType,
         pending.byteSize,
         finalized.storageKey,
-        finalized.thumbnailStorageKey
+        finalized.thumbnailStorageKey,
+        clientRequestId
       ]
     );
 
