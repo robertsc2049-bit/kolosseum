@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 284
+- implemented: 288
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -628,6 +628,21 @@ Implemented: 2 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `progress_insights_athlete_summary` — Display computed session adherence, strength trends, habit consistency and body-metric trends over a rolling window
 - `progress_insights_coach_summary` — Display the same computed progress summary for an accepted athlete, read-only
 
+### Athlete goal-setting
+
+Slice: FULL-UI-37
+
+Area state: implemented
+
+Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `athlete_goal_create` — Declare a goal, optionally linked to an existing body-metric type with a target value and date
+- `athlete_goal_resolve` — Manually mark one of the athlete's own goals as achieved or abandoned
+- `athlete_goal_list_athlete` — Display own goal list, each enriched with current value and progress toward target
+- `athlete_goal_list_coach` — Display an accepted athlete's goal list with the same enrichment, read-only
+
 ## Functions without persistent integration proof
 
 - None
@@ -668,6 +683,7 @@ Implemented: 2 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-32: implemented
 - FULL-UI-35: implemented
 - FULL-UI-36: implemented
+- FULL-UI-37: implemented
 
 ## Prohibited capabilities
 

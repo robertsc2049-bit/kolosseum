@@ -296,6 +296,15 @@ const elements = {
   habitCadenceSelect: document.getElementById("habitCadenceSelect"),
   habitStatus: document.getElementById("habitStatus"),
   habitList: document.getElementById("habitList"),
+  athleteGoalCreateForm: document.getElementById("athleteGoalCreateForm"),
+  athleteGoalLabelInput: document.getElementById("athleteGoalLabelInput"),
+  athleteGoalMetricSelect: document.getElementById("athleteGoalMetricSelect"),
+  athleteGoalTargetValueField: document.getElementById("athleteGoalTargetValueField"),
+  athleteGoalTargetValueInput: document.getElementById("athleteGoalTargetValueInput"),
+  athleteGoalTargetDateInput: document.getElementById("athleteGoalTargetDateInput"),
+  athleteGoalStatus: document.getElementById("athleteGoalStatus"),
+  athleteGoalList: document.getElementById("athleteGoalList"),
+  athleteDetailGoalList: document.getElementById("athleteDetailGoalList"),
   deviceConnectForm: document.getElementById("deviceConnectForm"),
   deviceProviderSelect: document.getElementById("deviceProviderSelect"),
   deviceSyncStatus: document.getElementById("deviceSyncStatus"),
@@ -2691,6 +2700,7 @@ async function refreshHistory(options = {}) {
   refreshProgressPhotos({ quiet: true }).catch(() => {});
   refreshBodyMetrics({ quiet: true }).catch(() => {});
   refreshHabits({ quiet: true }).catch(() => {});
+  refreshAthleteGoals({ quiet: true }).catch(() => {});
   refreshDeviceSync({ quiet: true }).catch(() => {});
   refreshProgressInsights({ quiet: true }).catch(() => {});
 
@@ -6094,6 +6104,166 @@ async function refreshCoachAthleteHabits(athleteUserId, options = {}) {
   }
 }
 
+// A goal's current_value/progress_percentage/is_goal_met are computed
+// server-side on every request from the athlete's own body-metric entries
+// - nothing here is stored. status changes only via an explicit resolve
+// call from the athlete; it is never inferred from computed progress.
+const ATHLETE_GOAL_STATUS_BADGE_CLASS = {
+  active: "active",
+  achieved: "complete",
+  abandoned: "partial"
+};
+
+function renderAthleteGoalMetricLine(goal) {
+  const label = BODY_METRIC_TYPE_LABELS[goal.metric_type] || titleCase(goal.metric_type);
+  const unitSuffix = goal.target_unit === "percent" ? "%" : ` ${escapeHtml(goal.target_unit)}`;
+
+  if (!goal.has_current_value) {
+    return `<p class="muted small">${escapeHtml(label)}: target ${escapeHtml(String(goal.target_value))}${unitSuffix} - no measurement logged yet.</p>`;
+  }
+
+  const progressText = goal.progress_percentage !== null
+    ? ` (${goal.progress_percentage}% of the way there)`
+    : "";
+  const metText = goal.is_goal_met ? " - target met" : "";
+
+  return `<p class="muted small">${escapeHtml(label)}: ${escapeHtml(String(goal.current_value))}${unitSuffix} now, target ${escapeHtml(String(goal.target_value))}${unitSuffix}${progressText}${metText}.</p>`;
+}
+
+function renderAthleteGoalCard(goal, options = {}) {
+  const statusBadgeClass = ATHLETE_GOAL_STATUS_BADGE_CLASS[goal.status] || "neutral";
+  const metricLine = goal.metric_type ? renderAthleteGoalMetricLine(goal) : "";
+  const targetDateLine = goal.target_date
+    ? `<p class="muted small">Target date ${escapeHtml(formatDate(goal.target_date))}</p>`
+    : "";
+
+  const actions = options.readOnly || goal.status !== "active"
+    ? ""
+    : `
+      <div class="inline-controls">
+        <button class="button secondary" type="button" data-goal-action="achieved" data-goal-id="${escapeHtml(goal.goal_id)}">Mark achieved</button>
+        <button class="button secondary" type="button" data-goal-action="abandoned" data-goal-id="${escapeHtml(goal.goal_id)}">Abandon</button>
+      </div>
+    `;
+
+  return `
+    <article class="record-card">
+      <div class="record-meta">
+        <span class="badge ${statusBadgeClass}">${escapeHtml(titleCase(goal.status))}</span>
+      </div>
+      <strong>${escapeHtml(goal.goal_label)}</strong>
+      ${metricLine}
+      ${targetDateLine}
+      ${actions}
+    </article>
+  `;
+}
+
+function renderAthleteGoalList(container, goals, options = {}) {
+  if (!container) return;
+
+  if (goals.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No goals yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = goals.map((goal) => renderAthleteGoalCard(goal, options)).join("");
+}
+
+async function refreshAthleteGoals(options = {}) {
+  if (state.role !== "athlete") return;
+
+  try {
+    const response = await api("GET", "/athlete-goals");
+    state.athleteGoals = Array.isArray(response.goals) ? response.goals : [];
+    renderAthleteGoalList(elements.athleteGoalList, state.athleteGoals);
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
+function updateAthleteGoalTargetValueVisibility() {
+  const metricType = elements.athleteGoalMetricSelect?.value ?? "";
+  if (elements.athleteGoalTargetValueField) {
+    elements.athleteGoalTargetValueField.hidden = !metricType;
+  }
+}
+
+async function createAthleteGoal() {
+  const goalLabel = elements.athleteGoalLabelInput?.value?.trim();
+  const metricType = elements.athleteGoalMetricSelect?.value || "";
+  const targetValue = elements.athleteGoalTargetValueInput?.value ?? "";
+  const targetDate = elements.athleteGoalTargetDateInput?.value || null;
+
+  if (!goalLabel) {
+    elements.athleteGoalStatus.hidden = false;
+    elements.athleteGoalStatus.textContent = "Enter a goal.";
+    return;
+  }
+
+  if (metricType && targetValue === "") {
+    elements.athleteGoalStatus.hidden = false;
+    elements.athleteGoalStatus.textContent = "Enter a target value for the linked measurement.";
+    return;
+  }
+
+  const payload = { goal_label: goalLabel, target_date: targetDate };
+  if (metricType) {
+    payload.metric_type = metricType;
+    payload.target_value = Number(targetValue);
+  }
+
+  showBusy("Setting goal…");
+  try {
+    await api("POST", "/athlete-goals", payload);
+    elements.athleteGoalCreateForm.reset();
+    updateAthleteGoalTargetValueVisibility();
+    elements.athleteGoalStatus.hidden = true;
+    await refreshAthleteGoals({ quiet: true });
+    showNotice("Goal set.");
+  }
+  catch (error) {
+    elements.athleteGoalStatus.hidden = false;
+    elements.athleteGoalStatus.textContent = friendlyError(error.payload, error.status) || "Goal could not be set.";
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function resolveAthleteGoal(goalId, resolution) {
+  showBusy(resolution === "achieved" ? "Marking goal achieved…" : "Abandoning goal…");
+  try {
+    await api("POST", `/athlete-goals/${encodeURIComponent(goalId)}/resolve`, { resolution });
+    await refreshAthleteGoals({ quiet: true });
+    showNotice(resolution === "achieved" ? "Goal marked achieved." : "Goal abandoned.");
+  }
+  catch (error) {
+    showNotice(friendlyError(error.payload, error.status) || "Could not update goal.");
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function refreshCoachAthleteGoals(athleteUserId, options = {}) {
+  if (!athleteUserId || !elements.athleteDetailGoalList) return;
+
+  try {
+    const response = await api("GET", `/athlete-goals/coach/${encodeURIComponent(athleteUserId)}`);
+    state.coachAthleteGoals = Array.isArray(response.goals) ? response.goals : [];
+    renderAthleteGoalList(elements.athleteDetailGoalList, state.coachAthleteGoals, { readOnly: true });
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
 // Progress insights are computed server-side, on every request, from
 // already-persisted session/strength/habit/body-metric facts - nothing
 // here is stored. Every number rendered below is plain text, matching
@@ -6603,6 +6773,12 @@ async function openAthleteProfile(athleteUserId) {
       }
     ),
     refreshCoachAthleteHabits(
+      athleteUserId,
+      {
+        quiet: true
+      }
+    ),
+    refreshCoachAthleteGoals(
       athleteUserId,
       {
         quiet: true
@@ -15664,6 +15840,21 @@ elements.habitList?.addEventListener("click", (event) => {
   else if (button.dataset.habitAction === "archive") {
     archiveHabit(habitId).catch(handleError);
   }
+});
+
+elements.athleteGoalMetricSelect?.addEventListener("change", () => {
+  updateAthleteGoalTargetValueVisibility();
+});
+
+elements.athleteGoalCreateForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  createAthleteGoal().catch(handleError);
+});
+
+elements.athleteGoalList?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-goal-action]");
+  if (!button) return;
+  resolveAthleteGoal(button.dataset.goalId, button.dataset.goalAction).catch(handleError);
 });
 
 elements.deviceConnectForm?.addEventListener("submit", (event) => {
