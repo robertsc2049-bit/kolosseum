@@ -4,7 +4,7 @@
 // athlete's then-latest body_metric_entry and never backfilled - the
 // comparison direction (increase/decrease/maintain) is derived mechanically
 // from target vs baseline, not asked of the athlete. Progress toward the
-// target is pure arithmetic over already-declared facts, computed fresh on
+// target is pure arithmetic over previously-declared facts, computed fresh on
 // every read and never persisted, mirroring
 // shared/body-metrics/bodyMetricsAndHabitsLifecycle.mjs's own boundary.
 
@@ -250,10 +250,10 @@ export function normaliseAthleteGoalCreation(
  * FUNCTION NOTE:
  * Purpose: Derives a goal's baseline value/date and comparison direction
  * from the athlete's then-latest body-metric entry at creation time.
- * Boundary: Pure arithmetic over already-declared facts - never queries
+ * Boundary: Pure arithmetic over previously-declared facts - never queries
  * anything itself, never re-derives later. Callers pass the single latest
- * entry (or null) already looked up at creation time.
- * Determinism: Returns the same three fields for the same inputs every time.
+ * entry (or null) that was looked up at creation time.
+ * Determinism: Yields the same three fields for the same inputs every time.
  * Failure: Never throws - an unlinked goal or missing prior entry simply
  * yields null baseline fields, which is a valid, expected state.
  */
@@ -346,14 +346,14 @@ export function normaliseAthleteGoalResolution(
  * athlete's current body-metric state - never persisted.
  * Boundary: Pure arithmetic over a goal record and (at most) one current
  * metric entry - no comparison beyond what the athlete's own declared
- * target and baseline already establish. progress_percentage is
- * deliberately clamped to [0,100] as an honest "how far along the bar"
- * fact for display; the raw current/baseline/target values are always
- * returned alongside it unclamped, so nothing is hidden.
- * Determinism: Returns the same enrichment object for the same goal record
+ * target and baseline establish. progress_percentage is deliberately
+ * clamped to [0,100] as an honest "how far along the bar" fact for
+ * display; the raw current/baseline/target values are always returned
+ * alongside it unclamped, so nothing is hidden.
+ * Determinism: Yields the same enrichment object for the same goal record
  * and current-entry pair every time.
  * Failure: Never throws - insufficient data (no baseline, no current
- * entry, or an already-equal target/baseline) simply yields null derived
+ * entry, or a target equal to the baseline) simply yields null derived
  * fields rather than a fabricated number.
  */
 export function enrichAthleteGoalForRead(
