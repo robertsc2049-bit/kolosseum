@@ -349,6 +349,45 @@ ALTER TABLE beta_product_records
       )
     );
 
+-- beta_product_records_full_ui_37_type_migration
+-- Additive FULL-UI-37 athlete goal-setting record. A goal is a low-frequency
+-- self-declared fact, mirroring habit_definition's own shape and archival
+-- pattern exactly: one row per goal_id, superseded (never UPDATEd/DELETEd)
+-- by a new row when the athlete manually resolves it as achieved or
+-- abandoned - the newest row for a goal_id always wins on read. A goal
+-- optionally links to an existing body-metric type; when it does, its
+-- baseline value is captured once at creation time from the athlete's
+-- then-latest body_metric_entry and never backfilled. Progress toward the
+-- target is always computed fresh at read time from the athlete's current
+-- body_metric_entry rows - never stored, never engine-visible, never
+-- inferred.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.

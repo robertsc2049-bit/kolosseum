@@ -6657,6 +6657,102 @@
           }
         }
       ]
+    },
+    {
+      "area_id": "athlete_goals",
+      "title": "Athlete goal-setting",
+      "slice_id": "FULL-UI-37",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "athlete_goal_create",
+          "label": "Declare a goal, optionally linked to an existing body-metric type with a target value and date",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/athlete-goals"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_37_athlete_goals_surface.test.mjs",
+          "integration_test": "test/full_ui_37_athlete_goals_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "athlete_goal_resolve",
+          "label": "Manually mark one of the athlete's own goals as achieved or abandoned",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/athlete-goals/:goal_id/resolve"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_37_athlete_goals_surface.test.mjs",
+          "integration_test": "test/full_ui_37_athlete_goals_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "athlete_goal_list_athlete",
+          "label": "Display own goal list, each enriched with current value and progress toward target",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/athlete-goals"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_37_athlete_goals_surface.test.mjs",
+          "integration_test": "test/full_ui_37_athlete_goals_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "athlete_goal_list_coach",
+          "label": "Display an accepted athlete's goal list with the same enrichment, read-only",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/athlete-goals/coach/:athlete_user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_37_athlete_goals_surface.test.mjs",
+          "integration_test": "test/full_ui_37_athlete_goals_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
     }
   ],
   "delivery_slices": [
@@ -6794,6 +6890,10 @@
     },
     {
       "slice_id": "FULL-UI-36",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-37",
       "state": "implemented"
     }
   ],
@@ -7618,6 +7718,30 @@
       "path": "/progress-insights/coach/:athlete_user_id",
       "source": "src/api/progress_insights.routes.ts",
       "tracked_by_area": "progress_insights"
+    },
+    {
+      "method": "POST",
+      "path": "/athlete-goals",
+      "source": "src/api/athlete_goals.routes.ts",
+      "tracked_by_area": "athlete_goals"
+    },
+    {
+      "method": "GET",
+      "path": "/athlete-goals",
+      "source": "src/api/athlete_goals.routes.ts",
+      "tracked_by_area": "athlete_goals"
+    },
+    {
+      "method": "POST",
+      "path": "/athlete-goals/:goal_id/resolve",
+      "source": "src/api/athlete_goals.routes.ts",
+      "tracked_by_area": "athlete_goals"
+    },
+    {
+      "method": "GET",
+      "path": "/athlete-goals/coach/:athlete_user_id",
+      "source": "src/api/athlete_goals.routes.ts",
+      "tracked_by_area": "athlete_goals"
     }
   ],
   "completion_rules": [

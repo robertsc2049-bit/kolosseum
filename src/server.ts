@@ -28,6 +28,7 @@ import { exerciseReferenceMediaRouter } from "./api/exercise_reference_media.rou
 import { exerciseContentRouter } from "./api/exercise_content.routes.js";
 import { bodyMetricsRouter } from "./api/body_metrics.routes.js";
 import { habitTrackingRouter } from "./api/habit_tracking.routes.js";
+import { athleteGoalsRouter } from "./api/athlete_goals.routes.js";
 import { deviceSyncRouter } from "./api/device_sync.routes.js";
 import { progressInsightsRouter } from "./api/progress_insights.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
@@ -143,6 +144,7 @@ app.use("/exercises", exerciseReferenceMediaRouter);
 app.use("/exercises", exerciseContentRouter);
 app.use("/body-metrics", bodyMetricsRouter);
 app.use("/habits", habitTrackingRouter);
+app.use("/athlete-goals", athleteGoalsRouter);
 app.use("/device-sync", deviceSyncRouter);
 app.use("/progress-insights", progressInsightsRouter);
 app.use("/templates", templatesRouter);

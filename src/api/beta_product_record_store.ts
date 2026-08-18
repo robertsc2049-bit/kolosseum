@@ -27,7 +27,8 @@ type SupportedRecordType =
   | "habit_definition"
   | "habit_completion"
   | "device_connection_record"
-  | "device_metric_entry";
+  | "device_metric_entry"
+  | "athlete_goal";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -56,7 +57,8 @@ const supportedRecordTypes =
     "habit_definition",
     "habit_completion",
     "device_connection_record",
-    "device_metric_entry"
+    "device_metric_entry",
+    "athlete_goal"
   ]);
 
 function isRecord(
@@ -608,6 +610,34 @@ function recordMetadata(
             record,
             "ingested_at_iso8601",
             "device_metric_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "athlete_goal": {
+      const athleteUserId =
+        requiredString(
+          record,
+          "athlete_user_id",
+          "athlete_goal_athlete_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "goal_id",
+            "athlete_goal_id_required"
+          ),
+        subject_user_id: athleteUserId,
+        actor_user_id: athleteUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "created_at_iso8601",
+            "athlete_goal_effective_at_required"
           ),
         record_sha256: recordSha256
       };
