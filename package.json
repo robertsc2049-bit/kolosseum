@@ -59,7 +59,7 @@
     "smoke": "npm run lint && npm run engine:hello",
     "smoke:fresh": "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1 -- -Mode fresh",
     "smoke:idem": "node scripts/ps-runner.mjs --file scripts/smoke-api.ps1 -- -Mode idempotent",
-    "start": "node dist/src/main.js",
+    "start": "node --env-file-if-exists=.env dist/src/main.js",
     "test": "node ci/guards/clean_tree_guard.mjs && node scripts/check-local-test-db.mjs && npm run build && node --test --test-concurrency=1",
     "test:ci": "node ci/scripts/run_test_ci_from_index.mjs",
     "test:ci:integration": "node ci/scripts/run_test_ci_integration_from_index.mjs",
