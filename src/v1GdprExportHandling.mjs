@@ -38,7 +38,14 @@ export const GDPR_EXPORT_ALLOWED_DATA_CATEGORIES = Object.freeze([
   "runtime_events",
   "coach_notes_authored",
   "legal_document_acknowledgements",
-  "billing_records"
+  "billing_records",
+  "progress_photos",
+  "body_metrics",
+  "habit_definitions",
+  "habit_completions",
+  "device_connections",
+  "device_metric_entries",
+  "athlete_goals"
 ]);
 
 export const GDPR_EXPORT_COPY_IDS = Object.freeze([
