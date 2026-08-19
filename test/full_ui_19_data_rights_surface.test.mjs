@@ -63,9 +63,17 @@ test("export covers the complete personal-data category surface, not just sessio
     "runtime_events",
     "coach_notes_authored",
     "legal_document_acknowledgements",
-    "billing_records"
+    "billing_records",
+    "progress_photos",
+    "body_metrics",
+    "habit_definitions",
+    "habit_completions",
+    "device_connections",
+    "device_metric_entries",
+    "athlete_goals"
   ]) {
     assert.match(service, new RegExp(`\\b${category}\\b`, "u"), `Expected export category ${category}`);
+    assert.match(gdprExportContract, new RegExp(`\\b${category}\\b`, "u"), `Expected export contract to allow ${category}`);
   }
 });
 

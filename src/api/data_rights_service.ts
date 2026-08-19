@@ -168,7 +168,14 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     sessions,
     runtimeEvents,
     coachNotes,
-    commercialRecords
+    commercialRecords,
+    progressPhotos,
+    bodyMetrics,
+    habitDefinitions,
+    habitCompletions,
+    deviceConnections,
+    deviceMetricEntries,
+    athleteGoals
   ] = await Promise.all([
     loadBetaProductRecordsByType(userId, "beta16_phase1_declaration"),
     loadBetaProductRecordsByType(userId, "beta16_acknowledgement"),
@@ -177,7 +184,14 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     loadEnrichedAthleteSessions(userId),
     loadRuntimeEventRecords(userId),
     loadCoachNotesAuthored(userId),
-    loadCommercialRecords(userId)
+    loadCommercialRecords(userId),
+    loadBetaProductRecordsByType(userId, "beta_progress_photo"),
+    loadBetaProductRecordsByType(userId, "body_metric_entry"),
+    loadBetaProductRecordsByType(userId, "habit_definition"),
+    loadBetaProductRecordsByType(userId, "habit_completion"),
+    loadBetaProductRecordsByType(userId, "device_connection_record"),
+    loadBetaProductRecordsByType(userId, "device_metric_entry"),
+    loadBetaProductRecordsByType(userId, "athlete_goal")
   ]);
 
   const account = [tagOwnedRecord({
@@ -201,7 +215,14 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     runtime_events: runtimeEvents.map((r) => tagOwnedRecord(r, userId)),
     coach_notes_authored: coachNotes.map((r) => tagOwnedRecord(r, userId)),
     legal_document_acknowledgements: acknowledgements.map((r) => tagOwnedRecord(r, userId)),
-    billing_records: commercialRecords.map((r) => tagOwnedRecord(r, userId))
+    billing_records: commercialRecords.map((r) => tagOwnedRecord(r, userId)),
+    progress_photos: progressPhotos.map((r) => tagOwnedRecord(r, userId)),
+    body_metrics: bodyMetrics.map((r) => tagOwnedRecord(r, userId)),
+    habit_definitions: habitDefinitions.map((r) => tagOwnedRecord(r, userId)),
+    habit_completions: habitCompletions.map((r) => tagOwnedRecord(r, userId)),
+    device_connections: deviceConnections.map((r) => tagOwnedRecord(r, userId)),
+    device_metric_entries: deviceMetricEntries.map((r) => tagOwnedRecord(r, userId)),
+    athlete_goals: athleteGoals.map((r) => tagOwnedRecord(r, userId))
   };
 
   const categoryPreviewCounts = Object.fromEntries(

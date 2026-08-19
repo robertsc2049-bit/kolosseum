@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
 
 import { app } from "../dist/src/server.js";
 import { pool } from "../dist/src/db/pool.js";
+import { STORAGE_ROOT } from "../dist/src/api/progress_photo_storage.js";
 
 async function listen() {
   return await new Promise((resolve, reject) => {
@@ -34,6 +37,34 @@ async function request(baseUrl, method, route, body, options = {}) {
   let json = null;
   try { json = text ? JSON.parse(text) : null; } catch {}
   return { response, text, json };
+}
+
+async function requestMultipart(baseUrl, route, fields, filePart, options = {}) {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(fields)) {
+    if (value !== undefined) formData.append(key, value);
+  }
+  if (filePart) {
+    formData.append(
+      "photo",
+      new Blob([filePart.buffer], { type: filePart.mimeType ?? "application/octet-stream" }),
+      filePart.filename ?? "upload.bin"
+    );
+  }
+
+  const headers = {};
+  if (options.cookie) headers.cookie = options.cookie;
+  if (options.csrf) headers["x-kolosseum-csrf"] = options.csrf;
+
+  const response = await fetch(`${baseUrl}${route}`, { method: "POST", headers, body: formData });
+  const text = await response.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch {}
+  return { response, text, json };
+}
+
+function tinyJpegBuffer() {
+  return Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01]);
 }
 
 function assertStatus(result, status, label) {
@@ -95,6 +126,7 @@ test(
         await pool.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [userId]).catch(() => {});
         await pool.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [userId]).catch(() => {});
         await pool.query("DELETE FROM product_accounts WHERE user_id = $1", [userId]).catch(() => {});
+        await fs.rm(path.join(STORAGE_ROOT, userId), { recursive: true, force: true }).catch(() => {});
       }
     };
 
@@ -115,6 +147,60 @@ test(
       assert.ok(terms.json.current_terms_version);
       assert.ok(terms.json.current_consent_version);
 
+      // --- Seed one record of each of the 7 self-tracking categories added
+      //     after this export feature originally shipped, so the export
+      //     below can prove they are actually included, not merely allowed. ---
+      const photoUpload = await requestMultipart(
+        baseUrl, "/progress-photos",
+        { taken_at_iso8601: new Date().toISOString(), caption: "F17 export coverage" },
+        { buffer: tinyJpegBuffer(), mimeType: "image/jpeg", filename: "f17.jpg" },
+        { cookie: athlete.cookie, csrf: athlete.csrf }
+      );
+      assertStatus(photoUpload, 201, "seed progress photo");
+
+      const bodyMetric = await request(baseUrl, "POST", "/body-metrics",
+        { metric_type: "waist_circumference_cm", value: 80, effective_date: "2026-01-01" },
+        { cookie: athlete.cookie, csrf: athlete.csrf }
+      );
+      assertStatus(bodyMetric, 201, "seed body-metric entry");
+
+      const habit = await request(baseUrl, "POST", "/habits",
+        { habit_label: "Log a training session", cadence: "daily" },
+        { cookie: athlete.cookie, csrf: athlete.csrf }
+      );
+      assertStatus(habit, 201, "seed habit definition");
+      const habitId = habit.json?.habit?.habit_id;
+      assert.ok(habitId, "expected a habit_id");
+
+      const habitCompletion = await request(baseUrl, "POST", `/habits/${encodeURIComponent(habitId)}/completions`,
+        { completion_date: new Date().toISOString().slice(0, 10) },
+        { cookie: athlete.cookie, csrf: athlete.csrf }
+      );
+      assertStatus(habitCompletion, 201, "seed habit completion");
+
+      const deviceConnect = await request(baseUrl, "POST", "/device-sync/connect",
+        { provider: "garmin", provider_account_id: `f17_${nonce}` },
+        { cookie: athlete.cookie, csrf: athlete.csrf }
+      );
+      assertStatus(deviceConnect, 201, "seed device connection");
+      const connectionId = deviceConnect.json?.connection?.connection_id;
+      assert.ok(connectionId, "expected a connection_id");
+
+      // resting_heart_rate_bpm (not body_weight_kg) so this produces a
+      // genuine device_metric_entry record rather than being routed into
+      // body_metric_entry by the device-synced weight special case.
+      const deviceIngest = await request(baseUrl, "POST", "/device-sync/ingest",
+        { connection_id: connectionId, metric_type: "resting_heart_rate_bpm", value: 54, unit: "bpm", reported_at: new Date().toISOString() },
+        { cookie: athlete.cookie, csrf: athlete.csrf }
+      );
+      assertStatus(deviceIngest, 201, "seed device metric entry");
+
+      const athleteGoal = await request(baseUrl, "POST", "/athlete-goals",
+        { goal_label: "Run a 5k without stopping" },
+        { cookie: athlete.cookie, csrf: athlete.csrf }
+      );
+      assertStatus(athleteGoal, 201, "seed athlete goal");
+
       // --- Export request: creates a ready artefact with a lawful expiry. ---
       const exportReq = await request(baseUrl, "POST", "/account/data-rights/export", {}, { cookie: athlete.cookie, csrf: athlete.csrf });
       assertStatus(exportReq, 202, "export request");
@@ -130,7 +216,9 @@ test(
       for (const category of [
         "account", "phase1_declarations", "relationships", "programme_assignments",
         "session_records", "runtime_events", "coach_notes_authored",
-        "legal_document_acknowledgements", "billing_records"
+        "legal_document_acknowledgements", "billing_records",
+        "progress_photos", "body_metrics", "habit_definitions", "habit_completions",
+        "device_connections", "device_metric_entries", "athlete_goals"
       ]) {
         assert.ok(
           Object.hasOwn(exportReq.json.included_category_counts, category),
@@ -138,6 +226,18 @@ test(
         );
       }
       assert.equal(exportReq.json.included_category_counts.account, 1);
+
+      // The 7 categories added by this slice must not just be present as
+      // keys - each must actually carry the record seeded above.
+      for (const category of [
+        "progress_photos", "body_metrics", "habit_definitions", "habit_completions",
+        "device_connections", "device_metric_entries", "athlete_goals"
+      ]) {
+        assert.equal(
+          exportReq.json.included_category_counts[category], 1,
+          `expected 1 seeded record in export category ${category}`
+        );
+      }
 
       // --- Export status: lists the request. ---
       const statusResult = await request(baseUrl, "GET", "/account/data-rights/export", undefined, { cookie: athlete.cookie });
@@ -154,6 +254,16 @@ test(
       assert.equal(download.json.ok, true);
       assert.equal(download.json.permission.permission_scope, "own_user_data_only");
       assert.equal(download.json.included_category_counts.account, 1);
+
+      // Downloaded content, not just the preview count, must carry the
+      // actual seeded record for each of the 7 new categories.
+      assert.equal(download.json.subject_data.progress_photos[0].caption, "F17 export coverage");
+      assert.equal(download.json.subject_data.body_metrics[0].metric_type, "waist_circumference_cm");
+      assert.equal(download.json.subject_data.habit_definitions[0].habit_label, "Log a training session");
+      assert.equal(download.json.subject_data.habit_completions[0].habit_id, habitId);
+      assert.equal(download.json.subject_data.device_connections[0].provider, "garmin");
+      assert.equal(download.json.subject_data.device_metric_entries[0].metric_type, "resting_heart_rate_bpm");
+      assert.equal(download.json.subject_data.athlete_goals[0].goal_label, "Run a 5k without stopping");
 
       const statusAfterDownload = await request(baseUrl, "GET", "/account/data-rights/export", undefined, { cookie: athlete.cookie });
       assert.ok(statusAfterDownload.json.exports[0].downloaded_at_iso8601, "expected downloaded_at to be recorded");
