@@ -1161,6 +1161,28 @@
             </button>
           </form>
 
+          <form id="coachBroadcastForm" class="panel form-panel">
+            <div>
+              <p class="eyebrow">Broadcast</p>
+              <h3>Message all athletes</h3>
+              <p class="muted small">
+                Sends the same message into every accepted athlete's thread
+                right now - the same as sending it to each one individually.
+              </p>
+            </div>
+
+            <label class="field">
+              <span>Message</span>
+              <textarea id="coachBroadcastBodyText" maxlength="4000" required></textarea>
+            </label>
+
+            <button class="button primary" type="submit">
+              Send to all athletes
+            </button>
+
+            <p id="coachBroadcastStatus" class="muted small" role="status" aria-live="polite" hidden></p>
+          </form>
+
           <div class="two-column athlete-directory-layout">
             <form id="connectAthleteForm" class="panel form-panel">
               <div>
