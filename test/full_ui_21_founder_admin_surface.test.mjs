@@ -246,6 +246,21 @@ test("email verification status is read and rendered on the account-detail panel
   assert.match(js, /accountDetailEmailVerified.*\.textContent = account\.email_verified/u);
 });
 
+test("a deletion request's reason_code, which listAdminDataDeletionRequests already selects and returns, is actually shown to the admin in the deletion-request review table", () => {
+  // listAdminDataDeletionRequests has always selected reason_code off
+  // data_deletion_requests and returned it on every row, but
+  // refreshDataRightsReview only read deletion_request_id, user_id,
+  // queue_status and requested_at_iso8601 - reason_code was silently
+  // dropped, and the deletion-request table had no column for it, even
+  // though the athlete-facing twin of this same data (dataDeletionRecordCard
+  // in app.js) already renders it. Same phantom-field bug class as the
+  // email_verified fix above.
+  assert.match(reviewService, /reason_code: cleanString\(row\.reason_code\)/u);
+
+  assert.match(html, /<th>Reason<\/th>/u);
+  assert.match(js, /request\.reason_code/u);
+});
+
 test("every route resolves the admin's own identity from the session, never a client-supplied admin id", () => {
   assert.doesNotMatch(routes, /request\.body\.admin_user_id|request\.query\.admin_user_id/u);
   assert.match(routes, /admin\.user_id/u);
