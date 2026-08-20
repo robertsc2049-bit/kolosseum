@@ -40,6 +40,22 @@ test("athlete profile owns programme and event assignment", () => {
   assert.match(app, /\/coach-workspace\/athlete-assignment/u);
 });
 
+test("the coach event library offers a real .ics calendar export link, mounted before the /events/:event_id param route", () => {
+  assert.match(index, /id="exportEventsCalendarLink"/u);
+  assert.match(index, /href="\/coach-workspace\/events\/calendar\.ics"/u);
+
+  assert.match(routes, /"\/events\/calendar\.ics"/u);
+  assert.match(handlers, /export async function getCoachEventsCalendar/u);
+  assert.match(eventService, /export function buildCoachEventsCalendar/u);
+
+  // If /events/calendar.ics were registered after /events/:event_id,
+  // Express would route "calendar.ics" as an event_id instead.
+  const calendarRouteIndex = routes.indexOf('"/events/calendar.ics"');
+  const paramRouteIndex = routes.indexOf('"/events/:event_id"');
+  assert.ok(calendarRouteIndex >= 0 && paramRouteIndex >= 0, "expected both routes to be present");
+  assert.ok(calendarRouteIndex < paramRouteIndex, "calendar.ics must be registered before the /:event_id param route");
+});
+
 test("event_lifecycle_ui.js's fetch base path actually matches a mounted route - no unreachable /api prefix", () => {
   // Regression: event_lifecycle_ui.js previously built every request as
   // `/api/coach-workspace${path}`, but coach_workspace.routes.ts is

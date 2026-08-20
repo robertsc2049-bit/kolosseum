@@ -15,6 +15,7 @@ import {
   getCoachAssignments,
   getCoachAthleteRelationships,
   getCoachEvents,
+  getCoachEventsCalendar,
   getAthleteOrgContextHandler,
   getConnectedCoachAthletes,
   listAthleteOwnRelationshipsHandler,
@@ -65,6 +66,13 @@ coachWorkspaceRouter.get(
 coachWorkspaceRouter.post(
   "/events",
   asyncHandler(createCoachEventHandler)
+);
+
+// Calendar export must be registered before the /events/:event_id param
+// route below, or "calendar.ics" would be swallowed as an event_id.
+coachWorkspaceRouter.get(
+  "/events/calendar.ics",
+  asyncHandler(getCoachEventsCalendar)
 );
 
 // FULL-UI-09C authenticated standalone event lifecycle.

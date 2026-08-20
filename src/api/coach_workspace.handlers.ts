@@ -32,6 +32,7 @@ import {
 import {
   Beta19CoachEventError,
   assignAthleteProgrammeFromProfile,
+  buildCoachEventsCalendar,
   createCoachEvent as createCoachEventRecord,
   listAthleteEventLinks,
   listCoachEvents
@@ -333,6 +334,27 @@ export async function getCoachEvents(
       coach_user_id: coachUserId,
       events
     });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function getCoachEventsCalendar(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, false);
+    const events = await listCoachEvents(coachUserId);
+    const calendar = buildCoachEventsCalendar(events);
+
+    res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="kolosseum-events.ics"'
+    );
+    return res.status(200).send(calendar);
   }
   catch (error) {
     rethrowWorkspaceError(error);

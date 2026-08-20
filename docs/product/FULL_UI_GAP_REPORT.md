@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 294
+- implemented: 295
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -169,7 +169,7 @@ Slice: FULL-UI-09
 
 Area state: implemented
 
-Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 14 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -186,6 +186,7 @@ Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `event_link_unlink` — Link and unlink athlete
 - `event_history_preserved` — Preserve assignment and session history after unlink
 - `event_validation` — Validate conflicts and past dates
+- `event_calendar_export` — Export the coach's active events as a downloadable RFC 5545 (.ics) calendar
 
 ### Programme library
 
