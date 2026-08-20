@@ -60,8 +60,8 @@
     ]
   },
   "sha256": {
-    "schema.sql": "fd420b38ae238d8588fc661ba544c58a03e310e2a3aab98c28eba40b8e3772f5",
-    "src/api/beta_product_record_store.ts": "8ff857244797b691f8f3e885787b8ce4e0e0bad4e908c37848506f3b3f50fede",
+    "schema.sql": "d7c14471ab2eda6f4472457974d8fe522830038348d91e57bd002568bae742b3",
+    "src/api/beta_product_record_store.ts": "52126846c4d49c415e376fe2796254b21c4532c5fe255366eaf16f850e22fe0f",
     "src/api/beta_product_journey_service.ts": "ea2a7e05c7468212705f5bb0c2972237fd8f030d46c3ce21d381a9b523e0565e",
     "src/api/block_compile_write_service.ts": "45db532638eb42b45da0cd93669422d3985ec35556afae05a592c4196f24f642",
     "src/api/blocks.handlers.ts": "0a6bdf33b117de1340b470730799f506ea03c8c6ccbd1b38da3b258731d7100c",
