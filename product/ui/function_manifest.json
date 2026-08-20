@@ -6753,6 +6753,80 @@
           }
         }
       ]
+    },
+    {
+      "area_id": "weekly_checkins",
+      "title": "Athlete weekly check-in",
+      "slice_id": "FULL-UI-64",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "weekly_checkin_submit",
+          "label": "Submit a self-reported weekly check-in (energy, motivation, sleep quality, optional note) for a given week",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/weekly-checkins"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_64_weekly_checkins_surface.test.mjs",
+          "integration_test": "test/full_ui_64c_weekly_checkins_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "weekly_checkin_list_athlete",
+          "label": "Display own weekly check-in history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/weekly-checkins"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_64_weekly_checkins_surface.test.mjs",
+          "integration_test": "test/full_ui_64c_weekly_checkins_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "weekly_checkin_list_coach",
+          "label": "Display an accepted athlete's weekly check-in history, read-only",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/weekly-checkins/coach/:athlete_user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_64_weekly_checkins_surface.test.mjs",
+          "integration_test": "test/full_ui_64c_weekly_checkins_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
     }
   ],
   "delivery_slices": [
@@ -6894,6 +6968,10 @@
     },
     {
       "slice_id": "FULL-UI-37",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-64",
       "state": "implemented"
     }
   ],
@@ -7742,6 +7820,24 @@
       "path": "/athlete-goals/coach/:athlete_user_id",
       "source": "src/api/athlete_goals.routes.ts",
       "tracked_by_area": "athlete_goals"
+    },
+    {
+      "method": "POST",
+      "path": "/weekly-checkins",
+      "source": "src/api/weekly_checkins.routes.ts",
+      "tracked_by_area": "weekly_checkins"
+    },
+    {
+      "method": "GET",
+      "path": "/weekly-checkins",
+      "source": "src/api/weekly_checkins.routes.ts",
+      "tracked_by_area": "weekly_checkins"
+    },
+    {
+      "method": "GET",
+      "path": "/weekly-checkins/coach/:athlete_user_id",
+      "source": "src/api/weekly_checkins.routes.ts",
+      "tracked_by_area": "weekly_checkins"
     }
   ],
   "completion_rules": [

@@ -305,6 +305,15 @@ const elements = {
   athleteGoalStatus: document.getElementById("athleteGoalStatus"),
   athleteGoalList: document.getElementById("athleteGoalList"),
   athleteDetailGoalList: document.getElementById("athleteDetailGoalList"),
+  weeklyCheckinForm: document.getElementById("weeklyCheckinForm"),
+  weeklyCheckinWeekStartInput: document.getElementById("weeklyCheckinWeekStartInput"),
+  weeklyCheckinEnergyInput: document.getElementById("weeklyCheckinEnergyInput"),
+  weeklyCheckinMotivationInput: document.getElementById("weeklyCheckinMotivationInput"),
+  weeklyCheckinSleepInput: document.getElementById("weeklyCheckinSleepInput"),
+  weeklyCheckinNoteInput: document.getElementById("weeklyCheckinNoteInput"),
+  weeklyCheckinStatus: document.getElementById("weeklyCheckinStatus"),
+  weeklyCheckinList: document.getElementById("weeklyCheckinList"),
+  athleteDetailWeeklyCheckinList: document.getElementById("athleteDetailWeeklyCheckinList"),
   deviceConnectForm: document.getElementById("deviceConnectForm"),
   deviceProviderSelect: document.getElementById("deviceProviderSelect"),
   deviceSyncStatus: document.getElementById("deviceSyncStatus"),
@@ -2701,6 +2710,7 @@ async function refreshHistory(options = {}) {
   refreshBodyMetrics({ quiet: true }).catch(() => {});
   refreshHabits({ quiet: true }).catch(() => {});
   refreshAthleteGoals({ quiet: true }).catch(() => {});
+  refreshWeeklyCheckins({ quiet: true }).catch(() => {});
   refreshDeviceSync({ quiet: true }).catch(() => {});
   refreshProgressInsights({ quiet: true }).catch(() => {});
 
@@ -6267,6 +6277,108 @@ async function refreshCoachAthleteGoals(athleteUserId, options = {}) {
   }
 }
 
+function defaultWeeklyCheckinWeekStartDate() {
+  const now = new Date();
+  const isoDayOfWeek = (now.getUTCDay() + 6) % 7;
+  const monday = new Date(now.getTime() - isoDayOfWeek * 86400000);
+  return monday.toISOString().slice(0, 10);
+}
+
+function renderWeeklyCheckinCard(checkin) {
+  const noteLine = checkin.note ? `<p>${escapeHtml(checkin.note)}</p>` : "";
+  return `
+    <article class="record-card">
+      <div class="record-meta">
+        <span class="muted small">Week of ${escapeHtml(formatDate(checkin.week_start_date))}</span>
+      </div>
+      <p class="muted small">Energy ${escapeHtml(String(checkin.energy_level))}/5 · Motivation ${escapeHtml(String(checkin.motivation_level))}/5 · Sleep ${escapeHtml(String(checkin.sleep_quality))}/5</p>
+      ${noteLine}
+    </article>
+  `;
+}
+
+function renderWeeklyCheckinList(container, checkins) {
+  if (!container) return;
+
+  if (checkins.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No weekly check-ins yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = checkins.map(renderWeeklyCheckinCard).join("");
+}
+
+async function refreshWeeklyCheckins(options = {}) {
+  if (state.role !== "athlete") return;
+
+  try {
+    const response = await api("GET", "/weekly-checkins");
+    state.weeklyCheckins = Array.isArray(response.checkins) ? response.checkins : [];
+    renderWeeklyCheckinList(elements.weeklyCheckinList, state.weeklyCheckins);
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
+async function submitWeeklyCheckin() {
+  const weekStartDate = elements.weeklyCheckinWeekStartInput?.value || "";
+  const energyLevel = elements.weeklyCheckinEnergyInput?.value ?? "";
+  const motivationLevel = elements.weeklyCheckinMotivationInput?.value ?? "";
+  const sleepQuality = elements.weeklyCheckinSleepInput?.value ?? "";
+  const note = elements.weeklyCheckinNoteInput?.value?.trim() || undefined;
+
+  if (!weekStartDate || energyLevel === "" || motivationLevel === "" || sleepQuality === "") {
+    elements.weeklyCheckinStatus.hidden = false;
+    elements.weeklyCheckinStatus.textContent = "Enter a week and all three ratings.";
+    return;
+  }
+
+  const payload = {
+    week_start_date: weekStartDate,
+    energy_level: Number(energyLevel),
+    motivation_level: Number(motivationLevel),
+    sleep_quality: Number(sleepQuality),
+    note
+  };
+
+  showBusy("Submitting check-in…");
+  try {
+    await api("POST", "/weekly-checkins", payload);
+    elements.weeklyCheckinForm.reset();
+    if (elements.weeklyCheckinWeekStartInput) {
+      elements.weeklyCheckinWeekStartInput.value = defaultWeeklyCheckinWeekStartDate();
+    }
+    elements.weeklyCheckinStatus.hidden = true;
+    await refreshWeeklyCheckins({ quiet: true });
+    showNotice("Check-in submitted.");
+  }
+  catch (error) {
+    elements.weeklyCheckinStatus.hidden = false;
+    elements.weeklyCheckinStatus.textContent = friendlyError(error.payload, error.status) || "Check-in could not be submitted.";
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function refreshCoachAthleteWeeklyCheckins(athleteUserId, options = {}) {
+  if (!athleteUserId || !elements.athleteDetailWeeklyCheckinList) return;
+
+  try {
+    const response = await api("GET", `/weekly-checkins/coach/${encodeURIComponent(athleteUserId)}`);
+    state.coachAthleteWeeklyCheckins = Array.isArray(response.checkins) ? response.checkins : [];
+    renderWeeklyCheckinList(elements.athleteDetailWeeklyCheckinList, state.coachAthleteWeeklyCheckins);
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
 // Progress insights are computed server-side, on every request, from
 // already-persisted session/strength/habit/body-metric facts - nothing
 // here is stored. Every number rendered below is plain text, matching
@@ -6782,6 +6894,12 @@ async function openAthleteProfile(athleteUserId) {
       }
     ),
     refreshCoachAthleteGoals(
+      athleteUserId,
+      {
+        quiet: true
+      }
+    ),
+    refreshCoachAthleteWeeklyCheckins(
       athleteUserId,
       {
         quiet: true
@@ -15858,6 +15976,15 @@ elements.athleteGoalList?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-goal-action]");
   if (!button) return;
   resolveAthleteGoal(button.dataset.goalId, button.dataset.goalAction).catch(handleError);
+});
+
+if (elements.weeklyCheckinWeekStartInput) {
+  elements.weeklyCheckinWeekStartInput.value = defaultWeeklyCheckinWeekStartDate();
+}
+
+elements.weeklyCheckinForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  submitWeeklyCheckin().catch(handleError);
 });
 
 elements.deviceConnectForm?.addEventListener("submit", (event) => {

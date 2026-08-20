@@ -28,7 +28,8 @@ type SupportedRecordType =
   | "habit_completion"
   | "device_connection_record"
   | "device_metric_entry"
-  | "athlete_goal";
+  | "athlete_goal"
+  | "weekly_checkin_entry";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -58,7 +59,8 @@ const supportedRecordTypes =
     "habit_completion",
     "device_connection_record",
     "device_metric_entry",
-    "athlete_goal"
+    "athlete_goal",
+    "weekly_checkin_entry"
   ]);
 
 function isRecord(
@@ -638,6 +640,34 @@ function recordMetadata(
             record,
             "created_at_iso8601",
             "athlete_goal_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "weekly_checkin_entry": {
+      const athleteUserId =
+        requiredString(
+          record,
+          "athlete_user_id",
+          "weekly_checkin_athlete_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "checkin_id",
+            "weekly_checkin_id_required"
+          ),
+        subject_user_id: athleteUserId,
+        actor_user_id: athleteUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "submitted_at_iso8601",
+            "weekly_checkin_effective_at_required"
           ),
         record_sha256: recordSha256
       };
