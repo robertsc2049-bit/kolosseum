@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 296
+- implemented: 299
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -662,6 +662,20 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `weekly_checkin_list_athlete` — Display own weekly check-in history
 - `weekly_checkin_list_coach` — Display an accepted athlete's weekly check-in history, read-only
 
+### Coach branding preference
+
+Slice: FULL-UI-65
+
+Area state: implemented
+
+Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `coach_branding_save` — Save an accent colour and optional tagline shown on the coach's own athletes' view of them
+- `coach_branding_load_own` — Display own saved branding preference for editing
+- `coach_branding_athlete_view` — Display the accepted coach's accent colour and tagline on the athlete's own "My coach" card
+
 ## Functions without persistent integration proof
 
 - None
@@ -704,6 +718,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-36: implemented
 - FULL-UI-37: implemented
 - FULL-UI-64: implemented
+- FULL-UI-65: implemented
 - FULL-UI-66: implemented
 
 ## Prohibited capabilities

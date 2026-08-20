@@ -354,3 +354,22 @@ export function completeCoachOnboarding(
     csrfToken
   );
 }
+
+export function loadCoachBrandPreference() {
+  return request(
+    "GET",
+    "/coach-branding"
+  );
+}
+
+export function saveCoachBrandPreference(
+  input,
+  csrfToken
+) {
+  return request(
+    "POST",
+    "/coach-branding",
+    input,
+    csrfToken
+  );
+}

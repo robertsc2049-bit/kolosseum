@@ -426,6 +426,44 @@ ALTER TABLE beta_product_records
       )
     );
 
+-- beta_product_records_full_ui_65_type_migration
+-- Additive FULL-UI-65 coach branding preference record. A brand
+-- preference (accent colour, optional tagline) is a coach's own declared
+-- presentation choice, additive to and separate from beta17_coach_profile
+-- - it never touches that record's fixed field shape, which the wider
+-- test suite creates directly via a strict exact-key contract. One
+-- preference exists per coach_user_id, superseded (never UPDATEd/
+-- DELETEd) by a new row on save, mirroring athlete_goal's own archival
+-- pattern.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.

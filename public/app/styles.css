@@ -3008,6 +3008,11 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
     var(--ink-2);
 }
 
+.coach-brand-preview {
+  border-left: 3px solid var(--coach-brand-color, #d2a952);
+  padding-left: 0.75rem;
+}
+
 .message-attachment-image,
 .message-attachment-video {
   max-width: 280px;

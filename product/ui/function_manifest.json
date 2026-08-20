@@ -6937,6 +6937,80 @@
           }
         }
       ]
+    },
+    {
+      "area_id": "coach_branding",
+      "title": "Coach branding preference",
+      "slice_id": "FULL-UI-65",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "coach_branding_save",
+          "label": "Save an accent colour and optional tagline shown on the coach's own athletes' view of them",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/coach-branding"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_65_coach_branding_surface.test.mjs",
+          "integration_test": "test/full_ui_65c_coach_branding_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "coach_branding_load_own",
+          "label": "Display own saved branding preference for editing",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/coach-branding"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_65_coach_branding_surface.test.mjs",
+          "integration_test": "test/full_ui_65c_coach_branding_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "coach_branding_athlete_view",
+          "label": "Display the accepted coach's accent colour and tagline on the athlete's own \"My coach\" card",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/coach-workspace/relationships/mine"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_65_coach_branding_surface.test.mjs",
+          "integration_test": "test/full_ui_65c_coach_branding_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
     }
   ],
   "delivery_slices": [
@@ -7082,6 +7156,10 @@
     },
     {
       "slice_id": "FULL-UI-64",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-65",
       "state": "implemented"
     },
     {
@@ -7958,6 +8036,18 @@
       "path": "/coach-workspace/events/calendar.ics",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "events"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-branding",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-branding",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
     }
   ],
   "completion_rules": [
