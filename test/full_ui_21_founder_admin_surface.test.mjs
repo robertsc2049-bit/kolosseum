@@ -261,6 +261,21 @@ test("a deletion request's reason_code, which listAdminDataDeletionRequests alre
   assert.match(js, /request\.reason_code/u);
 });
 
+test("an audit record's correlation_id, which listAdminAuditRecords already selects and returns, is actually shown in the operational audit table", () => {
+  // listAdminAuditRecords has always selected correlation_id off
+  // product_admin_audit_records and returned it on every row - it's the
+  // idempotency key every admin mutation sends - but refreshAuditRecords
+  // only read actor_user_id, action_type, target_record_type/_id,
+  // before_state, after_state and created_at_iso8601. An admin auditing a
+  // mutation had no way to correlate the audit row back to the client
+  // request that produced it. Same phantom-field bug class as the two
+  // fixes above.
+  assert.match(reviewService, /correlation_id: cleanString\(row\.correlation_id\)/u);
+
+  assert.match(html, /<th>Correlation<\/th>/u);
+  assert.match(js, /record\.correlation_id/u);
+});
+
 test("every route resolves the admin's own identity from the session, never a client-supplied admin id", () => {
   assert.doesNotMatch(routes, /request\.body\.admin_user_id|request\.query\.admin_user_id/u);
   assert.match(routes, /admin\.user_id/u);
