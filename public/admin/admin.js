@@ -329,6 +329,7 @@ async function refreshAuditRecords() {
       <td>${record.target_record_type}:${record.target_record_id}</td>
       <td>${JSON.stringify(record.before_state)}</td>
       <td>${JSON.stringify(record.after_state)}</td>
+      <td>${record.correlation_id}</td>
       <td>${record.created_at_iso8601 ?? ""}</td>
     `;
     tbody.appendChild(row);
