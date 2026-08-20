@@ -1874,7 +1874,10 @@
             <article class="panel">
               <div class="panel-header">
                 <div><p class="eyebrow">Event library</p><h3>Coach events</h3></div>
-                <button id="refreshEventsButton" class="button secondary" type="button">Refresh</button>
+                <div class="inline-controls">
+                  <a id="exportEventsCalendarLink" class="button secondary" href="/coach-workspace/events/calendar.ics">Export calendar (.ics)</a>
+                  <button id="refreshEventsButton" class="button secondary" type="button">Refresh</button>
+                </div>
               </div>
               <div id="eventList" class="record-list"></div>
             </article>

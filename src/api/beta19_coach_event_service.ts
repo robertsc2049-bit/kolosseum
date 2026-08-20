@@ -752,6 +752,78 @@ export async function assignAthleteProgrammeFromProfile(
   });
 }
 
+function icsEscapeText(value: string): string {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/,/g, "\\,")
+    .replace(/;/g, "\\;");
+}
+
+function icsDateOnly(dateOnly: string): string {
+  return dateOnly.replace(/-/g, "");
+}
+
+// ICS all-day events use an exclusive DTEND per RFC 5545 - a one-day event
+// spans DTSTART through DTSTART+1, not DTSTART itself.
+function icsDateOnlyPlusOneDay(dateOnly: string): string {
+  const date = new Date(`${dateOnly}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0, 10).replace(/-/g, "");
+}
+
+function icsTimestamp(iso8601Value: string): string {
+  return iso8601Value.replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Renders a coach's active events as an RFC 5545 calendar for external subscription.
+ * Boundary: Pure text formatting over already-persisted event facts; no query, no engine input.
+ * Determinism: The same event list always renders the same VEVENT bodies (DTSTAMP aside).
+ * Failure: An event missing event_date is silently skipped, never a partially-formed VEVENT.
+ */
+export function buildCoachEventsCalendar(
+  events: readonly Readonly<JsonRecord>[]
+): string {
+  const lines: string[] = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Kolosseum//Coach Events//EN",
+    "CALSCALE:GREGORIAN"
+  ];
+
+  const dtstamp = icsTimestamp(new Date().toISOString());
+
+  for (const event of events) {
+    if (event.event_status !== "active") continue;
+
+    const plan = isRecord(event.event_plan) ? event.event_plan : {};
+    const eventDate = cleanString(plan.event_date);
+    if (!eventDate) continue;
+
+    lines.push(
+      "BEGIN:VEVENT",
+      `UID:${cleanString(event.event_id)}@kolosseum.app`,
+      `DTSTAMP:${dtstamp}`,
+      `DTSTART;VALUE=DATE:${icsDateOnly(eventDate)}`,
+      `DTEND;VALUE=DATE:${icsDateOnlyPlusOneDay(eventDate)}`,
+      `SUMMARY:${icsEscapeText(cleanString(plan.event_name) || "Event")}`
+    );
+
+    const location = cleanString(plan.location);
+    if (location) lines.push(`LOCATION:${icsEscapeText(location)}`);
+
+    const notes = cleanString(plan.notes);
+    if (notes) lines.push(`DESCRIPTION:${icsEscapeText(notes)}`);
+
+    lines.push("END:VEVENT");
+  }
+
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n") + "\r\n";
+}
+
 export async function loadEventBindingForAssignment(
   assignmentIdInput: string,
   coachUserIdInput: string,
