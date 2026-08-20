@@ -66,7 +66,7 @@ async function api(method, path, body) {
     headers["x-kolosseum-csrf"] = String(state.csrfToken ?? "");
   }
 
-  const response = await fetch(`/api/coach-workspace${path}`, {
+  const response = await fetch(`/coach-workspace${path}`, {
     method,
     headers,
     credentials: "same-origin",
