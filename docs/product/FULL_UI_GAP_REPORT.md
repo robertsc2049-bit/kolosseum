@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 299
+- implemented: 301
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -676,6 +676,19 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `coach_branding_load_own` — Display own saved branding preference for editing
 - `coach_branding_athlete_view` — Display the accepted coach's accent colour and tagline on the athlete's own "My coach" card
 
+### Programme template marketplace visibility
+
+Slice: FULL-UI-67
+
+Area state: implemented
+
+Implemented: 2 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `programme_marketplace_share` — Declare one of the coach's own complete or active templates publicly browsable by other coaches
+- `programme_marketplace_browse` — Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity and branding
+
 ## Functions without persistent integration proof
 
 - None
@@ -720,6 +733,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-64: implemented
 - FULL-UI-65: implemented
 - FULL-UI-66: implemented
+- FULL-UI-67: implemented
 
 ## Prohibited capabilities
 

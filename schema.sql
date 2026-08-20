@@ -464,6 +464,44 @@ ALTER TABLE beta_product_records
       )
     );
 
+-- beta_product_records_full_ui_67_type_migration
+-- Additive FULL-UI-67 programme template marketplace visibility record.
+-- Sharing a template is the owning coach's own declared visibility
+-- choice, additive to and separate from beta18_programme_template - it
+-- never touches that record's own field contract. One sharing
+-- preference exists per template_id, superseded (never UPDATEd/
+-- DELETEd) by a new row on save, mirroring coach_brand_preference's own
+-- archival pattern.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference',
+        'programme_template_sharing_preference'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.
