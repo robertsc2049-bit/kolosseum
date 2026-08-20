@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 291
+- implemented: 294
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -546,7 +546,7 @@ Slice: FULL-UI-29
 
 Area state: implemented
 
-Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -557,6 +557,9 @@ Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `habit_log_completion` — Log a habit completion for a cadence unit
 - `habit_streak_display` — Display current/longest streak and total completions
 - `habit_history_list` — Display an athlete's habits list (read-only for coach)
+- `nutrition_log` — Log daily calories, protein, carbs and fat as body_metric_entry facts under the same open metric-type registry
+- `nutrition_history_athlete` — Display own nutrition history grouped by day, separate from the general body-measurements list
+- `nutrition_history_coach` — Display an accepted athlete's nutrition history grouped by day, read-only
 
 ### Exercise reference media
 

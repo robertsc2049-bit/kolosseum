@@ -132,7 +132,41 @@ test("the athlete forms and coach read-only panels exist as real controls, and s
 
 test("habit streak counts are rendered as plain integers with factual copy, never a percentage or graded label", () => {
   assert.match(appJs, /\$\{habit\.current_streak_length\} day\$\{habit\.current_streak_length === 1/u);
-  assert.doesNotMatch(appJs, /current_streak_length\}%|longest_streak_length\}%|adherence|readiness_/iu);
+
+  const habitCardMatch = appJs.match(/function renderHabitCard\(habit, options = \{\}\) \{([\s\S]*?)\n\}/u);
+  assert.ok(habitCardMatch, "expected renderHabitCard function body");
+  // Scoped to the habit-card renderer itself, not the whole file - the
+  // separate progress_insights feature (FULL-UI-36) legitimately renders
+  // "adherence" text elsewhere in app.js for session completion rates,
+  // an unrelated, already-accepted surface.
+  assert.doesNotMatch(habitCardMatch[1], /current_streak_length\}%|longest_streak_length\}%|adherence|readiness_/iu);
+});
+
+test("nutrition reuses the body-metric type registry rather than a parallel record type or route", () => {
+  assert.match(lifecycle, /calories_kcal/u);
+  assert.match(lifecycle, /protein_g/u);
+  assert.match(lifecycle, /carbs_g/u);
+  assert.match(lifecycle, /fat_g/u);
+  // No new record_type, schema migration or route file for nutrition -
+  // it is exactly a body_metric_entry with a different metric_type.
+  assert.doesNotMatch(recordStore, /nutrition_entry|"nutrition_log"/u);
+});
+
+test("nutrition entries are excluded from the general body-measurements list and shown in their own dedicated panel", () => {
+  assert.match(appJs, /NUTRITION_METRIC_TYPES = \[/u);
+  assert.match(appJs, /filter\(\(entry\) => !NUTRITION_METRIC_TYPES\.includes\(entry\.metric_type\)\)/u);
+  assert.match(appJs, /function groupNutritionEntriesByDate/u);
+  assert.match(appJs, /function renderNutritionSummary/u);
+  assert.match(appJs, /async function logNutritionEntry/u);
+
+  assert.match(indexHtml, /id="nutritionForm"/u);
+  assert.match(indexHtml, /id="nutritionDateInput"/u);
+  assert.match(indexHtml, /id="nutritionCaloriesInput"/u);
+  assert.match(indexHtml, /id="nutritionProteinInput"/u);
+  assert.match(indexHtml, /id="nutritionCarbsInput"/u);
+  assert.match(indexHtml, /id="nutritionFatInput"/u);
+  assert.match(indexHtml, /id="nutritionSummary"/u);
+  assert.match(indexHtml, /id="athleteDetailNutritionSummary"/u);
 });
 
 test("every real METRIC_TYPES key has a display label - a device-synced body_weight_kg reading never renders as a raw field name", () => {
@@ -173,7 +207,7 @@ test("every real METRIC_SOURCES value resolves to its own badge - device_synced 
   assert.match(appJs, /const sourceBadge = bodyMetricSourceBadge\(entry, options\)/u);
 });
 
-test("the FULL-UI-29 manifest area declares all seven functions as implemented with real tests", () => {
+test("the FULL-UI-29 manifest area declares all ten functions as implemented with real tests", () => {
   const area = manifest.product_areas.find((entry) => entry.area_id === "body_metrics_habits");
   assert.ok(area, "expected a body_metrics_habits product area");
   assert.equal(area.slice_id, "FULL-UI-29");
@@ -189,7 +223,10 @@ test("the FULL-UI-29 manifest area declares all seven functions as implemented w
       "habit_create",
       "habit_history_list",
       "habit_log_completion",
-      "habit_streak_display"
+      "habit_streak_display",
+      "nutrition_history_athlete",
+      "nutrition_history_coach",
+      "nutrition_log"
     ]
   );
 

@@ -6277,6 +6277,72 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "nutrition_log",
+          "label": "Log daily calories, protein, carbs and fat as body_metric_entry facts under the same open metric-type registry",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/body-metrics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_29_body_metrics_habits_surface.test.mjs",
+          "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "nutrition_history_athlete",
+          "label": "Display own nutrition history grouped by day, separate from the general body-measurements list",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/body-metrics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_29_body_metrics_habits_surface.test.mjs",
+          "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "nutrition_history_coach",
+          "label": "Display an accepted athlete's nutrition history grouped by day, read-only",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/body-metrics/coach/:athlete_user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_29_body_metrics_habits_surface.test.mjs",
+          "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },

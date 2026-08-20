@@ -334,6 +334,36 @@ test(
     assertStatus(athleteHistory, 200, "athlete lists merged body-metric history");
     assert.equal(athleteHistory.json?.entries?.length, 2);
 
+    // ============================================================
+    // Nutrition reuses the same body_metric_entry record type and
+    // /body-metrics routes under new metric_type values (calories_kcal,
+    // protein_g, carbs_g, fat_g) - no new record type, schema migration
+    // or route exists for it. A day's macros are logged as four separate
+    // entries sharing one effective_date, and a later log for the same
+    // date+metric_type is a correction (most-recent-logged wins), same
+    // semantics as every other metric_type.
+    // ============================================================
+    for (const [metricType, value] of [["calories_kcal", 2400], ["protein_g", 180], ["carbs_g", 220], ["fat_g", 70]]) {
+      const nutritionEntry = await request(
+        baseUrl, "POST", "/body-metrics",
+        { metric_type: metricType, value, effective_date: "2026-01-05" },
+        { cookie: athlete.cookie, csrf: athlete.csrf }
+      );
+      assertStatus(nutritionEntry, 201, `athlete logs ${metricType}`);
+      assert.equal(nutritionEntry.json?.entry?.unit, metricType === "calories_kcal" ? "kcal" : "g");
+    }
+
+    const outOfRangeCalories = await request(
+      baseUrl, "POST", "/body-metrics",
+      { metric_type: "calories_kcal", value: -5, effective_date: "2026-01-05" },
+      { cookie: athlete.cookie, csrf: athlete.csrf }
+    );
+    assertStatus(outOfRangeCalories, 400, "a negative calorie value is rejected");
+
+    const historyWithNutrition = await request(baseUrl, "GET", "/body-metrics", undefined, { cookie: athlete.cookie });
+    assertStatus(historyWithNutrition, 200, "athlete lists history including nutrition entries");
+    assert.equal(historyWithNutrition.json?.entries?.length, 6, "2 body metrics + 4 nutrition entries");
+
     const outOfRange = await request(
       baseUrl, "POST", "/body-metrics",
       { metric_type: "waist_circumference_cm", value: 5000, effective_date: "2026-01-09" },
@@ -359,12 +389,12 @@ test(
 
     const athleteHistoryAfterRevoke = await request(baseUrl, "GET", "/body-metrics", undefined, { cookie: athlete.cookie });
     assertStatus(athleteHistoryAfterRevoke, 200, "athlete's own view is unaffected by the coach relationship being revoked");
-    assert.equal(athleteHistoryAfterRevoke.json?.entries?.length, 2, "no rejected entry was ever persisted");
+    assert.equal(athleteHistoryAfterRevoke.json?.entries?.length, 6, "no rejected entry was ever persisted");
 
     restarted = await startFreshServerProcess(root, process.env);
     const restartedHistory = await request(restarted.baseUrl, "GET", "/body-metrics", undefined, { cookie: athlete.cookie });
     assertStatus(restartedHistory, 200, "body-metric history after fresh-process restart");
-    assert.equal(restartedHistory.json?.entries?.length, 2);
+    assert.equal(restartedHistory.json?.entries?.length, 6);
   }
 );
 
