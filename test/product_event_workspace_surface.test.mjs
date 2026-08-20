@@ -9,6 +9,8 @@ const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), "u
 
 const index = read("public/app/index.html");
 const app = read("public/app/app.js");
+const eventLifecycleUi = read("public/app/event_lifecycle_ui.js");
+const routeBootstrap = read("public/app/route_bootstrap.js");
 const routes = read("src/api/coach_workspace.routes.ts");
 const handlers = read("src/api/coach_workspace.handlers.ts");
 const eventService = read("src/api/beta19_coach_event_service.ts");
@@ -36,6 +38,20 @@ test("athlete profile owns programme and event assignment", () => {
   assert.match(index, /id="athleteEventLinks"/u);
   assert.match(app, /recordAthleteProfileAssignment/u);
   assert.match(app, /\/coach-workspace\/athlete-assignment/u);
+});
+
+test("event_lifecycle_ui.js's fetch base path actually matches a mounted route - no unreachable /api prefix", () => {
+  // Regression: event_lifecycle_ui.js previously built every request as
+  // `/api/coach-workspace${path}`, but coach_workspace.routes.ts is
+  // mounted at plain "/coach-workspace" (server.ts has no "/api" prefix
+  // anywhere) - every call this module made (library load, event detail,
+  // create, version, link/unlink, cancel/archive) 404'd silently, caught
+  // and shown to the coach as "Event Action Failed". This module has no
+  // other test coverage, so the drift went unnoticed.
+  assert.match(routeBootstrap, /import\s+"\.\/event_lifecycle_ui\.js"/u);
+  assert.match(eventLifecycleUi, /fetch\(`\/coach-workspace\$\{path\}`/u);
+  assert.doesNotMatch(eventLifecycleUi, /\/api\/coach-workspace/u);
+  assert.doesNotMatch(app, /\/api\/coach-workspace/u);
 });
 
 test("coach event routes persist separate event and link records", () => {
