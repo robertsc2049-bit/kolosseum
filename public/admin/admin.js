@@ -312,7 +312,7 @@ async function refreshDataRightsReview() {
   deletionsBody.innerHTML = "";
   for (const request of deletionsResult.requests ?? []) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td>${request.deletion_request_id}</td><td>${request.user_id}</td><td>${request.queue_status}</td><td>${request.requested_at_iso8601 ?? ""}</td>`;
+    row.innerHTML = `<td>${request.deletion_request_id}</td><td>${request.user_id}</td><td>${request.reason_code}</td><td>${request.queue_status}</td><td>${request.requested_at_iso8601 ?? ""}</td>`;
     deletionsBody.appendChild(row);
   }
 }
