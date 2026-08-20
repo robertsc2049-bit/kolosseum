@@ -5712,6 +5712,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "coach_broadcast_message",
+          "label": "Coach sends the same message into every currently-accepted athlete's thread at once",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/messages/coach/broadcast"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_66_coach_broadcast_messaging_surface.test.mjs",
+          "integration_test": "test/full_ui_66c_coach_broadcast_messaging_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -7138,6 +7160,10 @@
     },
     {
       "slice_id": "FULL-UI-65",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-66",
       "state": "implemented"
     }
   ],
