@@ -14332,10 +14332,11 @@ function renderAthleteRelationships() {
     <div class="record-list">
       ${current.length > 0
         ? current.map((entry) => `
-          <article class="record-row" data-relationship-id="${escapeHtml(entry.relationship_id)}">
+          <article class="record-row" data-relationship-id="${escapeHtml(entry.relationship_id)}"${entry.coach_brand_color ? ` style="border-left: 3px solid ${escapeHtml(entry.coach_brand_color)}"` : ""}>
             <div>
               <strong>${escapeHtml(entry.coach_display_name)}</strong>
               <p class="muted small">${escapeHtml(entry.coach_email ?? "")}</p>
+              ${entry.coach_brand_tagline ? `<p class="muted small">${escapeHtml(entry.coach_brand_tagline)}</p>` : ""}
             </div>
             <button type="button" class="button secondary end-relationship-button">End relationship</button>
           </article>

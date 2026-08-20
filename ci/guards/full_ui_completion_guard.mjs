@@ -321,7 +321,8 @@ function discoverApiRoutes() {
     ["src/api/video_feedback_coach.routes.ts", "/coach-workspace"],
     ["src/api/progress_insights.routes.ts", "/progress-insights"],
     ["src/api/athlete_goals.routes.ts", "/athlete-goals"],
-    ["src/api/weekly_checkins.routes.ts", "/weekly-checkins"]
+    ["src/api/weekly_checkins.routes.ts", "/weekly-checkins"],
+    ["src/api/coach_branding.routes.ts", "/coach-branding"]
   ];
   const routes = [];
   const pattern = /(?:router|[A-Za-z][A-Za-z0-9]*Router)\.(get|post|put|patch|delete)\(\s*["'`]([^"'`]+)["'`]/gu;

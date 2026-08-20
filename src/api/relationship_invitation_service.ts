@@ -255,17 +255,26 @@ async function withCoachDisplay(
   relationship: Readonly<JsonRecord>
 ): Promise<Readonly<JsonRecord>> {
   const coachUserId = cleanString(relationship.coach_user_id);
-  const coachProfile = await loadLatestBetaProductRecord(
-    "beta17_coach_profile",
-    coachUserId,
-    coachUserId
-  );
+  const [coachProfile, brandPreference] = await Promise.all([
+    loadLatestBetaProductRecord(
+      "beta17_coach_profile",
+      coachUserId,
+      coachUserId
+    ),
+    loadLatestBetaProductRecord(
+      "coach_brand_preference",
+      coachUserId,
+      coachUserId
+    )
+  ]);
 
   return Object.freeze({
     relationship_id: cleanString(relationship.relationship_id),
     coach_user_id: coachUserId,
     coach_display_name: cleanString(coachProfile?.display_name) || coachUserId,
     coach_email: cleanString(coachProfile?.email) || null,
+    coach_brand_color: cleanString(brandPreference?.brand_color) || null,
+    coach_brand_tagline: cleanString(brandPreference?.brand_tagline) || null,
     relationship_state: relationshipExpired(relationship) ? "expired" : relationship.relationship_state,
     created_at_iso8601: cleanString(relationship.created_at_iso8601),
     accepted_at_iso8601: cleanString(relationship.accepted_at_iso8601) || null,
