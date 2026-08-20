@@ -356,6 +356,9 @@ const elements = {
   athleteDirectoryStatus: document.getElementById("athleteDirectoryStatus"),
   inviteAthleteByEmailForm: document.getElementById("inviteAthleteByEmailForm"),
   inviteAthleteEmail: document.getElementById("inviteAthleteEmail"),
+  coachBroadcastForm: document.getElementById("coachBroadcastForm"),
+  coachBroadcastBodyText: document.getElementById("coachBroadcastBodyText"),
+  coachBroadcastStatus: document.getElementById("coachBroadcastStatus"),
   eventsStatus: document.getElementById("eventsStatus"),
   athleteDirectorySearch: document.getElementById("athleteDirectorySearch"),
   athleteRelationshipFilter: document.getElementById("athleteRelationshipFilter"),
@@ -4122,6 +4125,34 @@ async function inviteAthleteByEmail(event) {
 
     elements.inviteAthleteByEmailForm.reset();
     showNotice(`Invitation sent to ${athleteEmail}.`);
+  }
+  finally {
+    hideBusy();
+  }
+}
+
+async function confirmSendCoachBroadcast(event) {
+  event.preventDefault();
+
+  const bodyText = elements.coachBroadcastBodyText.value.trim();
+  if (!bodyText) return;
+
+  showBusy("Sending broadcast…");
+
+  try {
+    const result = await api("POST", "/messages/coach/broadcast", { body_text: bodyText });
+
+    elements.coachBroadcastForm.reset();
+    elements.coachBroadcastStatus.hidden = false;
+    elements.coachBroadcastStatus.textContent =
+      result.sent_count > 0
+        ? `Sent to ${result.sent_count} athlete${result.sent_count === 1 ? "" : "s"}.`
+        : "No accepted athletes to send to yet.";
+    showNotice(
+      result.sent_count > 0
+        ? `Broadcast sent to ${result.sent_count} athlete${result.sent_count === 1 ? "" : "s"}.`
+        : "No accepted athletes to send to yet."
+    );
   }
   finally {
     hideBusy();
@@ -15921,6 +15952,9 @@ elements.connectAthleteForm.addEventListener("submit", (event) => {
 });
 elements.inviteAthleteByEmailForm.addEventListener("submit", (event) => {
   guardedAction(submitButtonOf, inviteAthleteByEmail)(event).catch(handleError);
+});
+elements.coachBroadcastForm.addEventListener("submit", (event) => {
+  guardedAction(submitButtonOf, confirmSendCoachBroadcast)(event).catch(handleError);
 });
 
 // FULL-UI-05B builder interaction bindings.

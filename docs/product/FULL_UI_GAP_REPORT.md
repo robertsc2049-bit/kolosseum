@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 295
+- implemented: 296
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -494,11 +494,12 @@ Slice: FULL-UI-27
 
 Area state: implemented
 
-Implemented: 1 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 2 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `coach_athlete_messaging` — Coach and athlete exchange threaded messages with live delivery and photo/video attachments while their relationship is accepted
+- `coach_broadcast_message` — Coach sends the same message into every currently-accepted athlete's thread at once
 
 ### Cross-product quality
 
@@ -703,6 +704,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-36: implemented
 - FULL-UI-37: implemented
 - FULL-UI-64: implemented
+- FULL-UI-66: implemented
 
 ## Prohibited capabilities
 
