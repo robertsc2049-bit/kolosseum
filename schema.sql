@@ -388,6 +388,44 @@ ALTER TABLE beta_product_records
       )
     );
 
+-- beta_product_records_full_ui_64_type_migration
+-- Additive FULL-UI-64 athlete weekly check-in record. A check-in is a
+-- self-declared factual wellness snapshot - energy, motivation and
+-- sleep-quality ratings plus an optional note - mirroring
+-- habit_completion's own append-only, one-row-per-submission shape.
+-- Exactly one check-in is accepted per athlete per week_start_date; a
+-- second submission for an already-submitted week is rejected at the
+-- application layer rather than stored as a second row, so unlike
+-- athlete_goal/habit_definition there is never more than one row per
+-- checkin_id to disambiguate on read.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.

@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 288
+- implemented: 291
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -643,6 +643,20 @@ Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `athlete_goal_list_athlete` — Display own goal list, each enriched with current value and progress toward target
 - `athlete_goal_list_coach` — Display an accepted athlete's goal list with the same enrichment, read-only
 
+### Athlete weekly check-in
+
+Slice: FULL-UI-64
+
+Area state: implemented
+
+Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `weekly_checkin_submit` — Submit a self-reported weekly check-in (energy, motivation, sleep quality, optional note) for a given week
+- `weekly_checkin_list_athlete` — Display own weekly check-in history
+- `weekly_checkin_list_coach` — Display an accepted athlete's weekly check-in history, read-only
+
 ## Functions without persistent integration proof
 
 - None
@@ -684,6 +698,7 @@ Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-35: implemented
 - FULL-UI-36: implemented
 - FULL-UI-37: implemented
+- FULL-UI-64: implemented
 
 ## Prohibited capabilities
 
