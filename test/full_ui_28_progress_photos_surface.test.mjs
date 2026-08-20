@@ -99,6 +99,16 @@ test("the athlete upload widget and coach read-only grid exist as real controls,
   assert.match(appJs, /async function refreshCoachAthleteProgressPhotos/u);
 });
 
+test("a photo's byte_size, which progress_photo_service.ts already computes and returns to both the athlete and coach surfaces, is actually shown to the user as a human-readable file size", () => {
+  // uploadProgressPhoto persists byte_size on every record and
+  // serializePhotoForAthlete/serializePhotoForCoach pass it straight
+  // through - but renderProgressPhotoCard never read it, so neither the
+  // athlete's own grid nor the coach's read-only view ever showed how
+  // large a progress photo was. Same phantom-field bug class as #884.
+  assert.match(appJs, /function formatAttachmentSize/u);
+  assert.match(appJs, /formatAttachmentSize\(photo\.byte_size\)/u);
+});
+
 test("the FULL-UI-28 manifest area declares all three functions as implemented with real routes and tests", () => {
   const area = manifest.product_areas.find((entry) => entry.area_id === "progress_photos");
   assert.ok(area, "expected a progress_photos product area");

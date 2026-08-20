@@ -5753,10 +5753,13 @@ function validateProgressPhotoClientSide(file) {
 
 function renderProgressPhotoCard(photo) {
   const caption = photo.caption ? `<p>${escapeHtml(photo.caption)}</p>` : "";
+  const sizeLabel = formatAttachmentSize(photo.byte_size);
+  const sizeCaption = sizeLabel ? `<span class="muted small">${escapeHtml(sizeLabel)}</span>` : "";
   return `
     <article class="progress-photo-card">
       <img src="${escapeHtml(photo.url)}" alt="Progress photo" loading="lazy">
       <span class="muted small">${escapeHtml(formatDate(photo.taken_at_iso8601))}</span>
+      ${sizeCaption}
       ${caption}
     </article>
   `;
