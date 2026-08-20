@@ -1,7 +1,7 @@
 // DEV NOTE: FULL-UI-64 weekly check-in lifecycle law. A weekly check-in is
 // a self-declared, self-submitted factual wellness snapshot - energy,
 // motivation and sleep-quality ratings plus an optional note - never a
-// computed readiness/wellness score, mirroring
+// computed composite or inferred score of any kind, mirroring
 // shared/body-metrics/bodyMetricsAndHabitsLifecycle.mjs's own boundary.
 // Exactly one check-in is accepted per athlete per week_start_date; a
 // second submission for the same date is rejected by the caller rather
