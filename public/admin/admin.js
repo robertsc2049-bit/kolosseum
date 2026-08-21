@@ -12,7 +12,8 @@ const state = {
   pendingStateChange: null,
   pendingTestMarking: null,
   dataRightsExports: [],
-  dataRightsDeletions: []
+  dataRightsDeletions: [],
+  auditRecords: []
 };
 
 function el(id) {
@@ -357,20 +358,40 @@ function renderDataRightsReview() {
 
 async function refreshAuditRecords() {
   const result = await api("GET", "/admin/audit-records");
+  state.auditRecords = result.records ?? [];
+  renderAuditRecords();
+}
+
+function filteredAuditRecords() {
+  const search = (el("auditRecordsSearch")?.value ?? "").trim().toLowerCase();
+  if (!search) return state.auditRecords;
+  return state.auditRecords.filter((record) =>
+    [record.actor_user_id, record.action_type, record.target_record_type, record.target_record_id, record.correlation_id]
+      .some((value) => String(value ?? "").toLowerCase().includes(search))
+  );
+}
+
+function renderAuditRecords() {
   const tbody = el("auditRecordsList");
   tbody.innerHTML = "";
-  for (const record of result.records ?? []) {
+  const records = filteredAuditRecords();
+  for (const record of records) {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${record.actor_user_id}</td>
-      <td>${record.action_type}</td>
-      <td>${record.target_record_type}:${record.target_record_id}</td>
-      <td>${JSON.stringify(record.before_state)}</td>
-      <td>${JSON.stringify(record.after_state)}</td>
-      <td>${record.correlation_id}</td>
-      <td>${record.created_at_iso8601 ?? ""}</td>
+      <td>${escapeHtml(record.actor_user_id)}</td>
+      <td>${escapeHtml(record.action_type)}</td>
+      <td>${escapeHtml(record.target_record_type)}:${escapeHtml(record.target_record_id)}</td>
+      <td>${escapeHtml(JSON.stringify(record.before_state))}</td>
+      <td>${escapeHtml(JSON.stringify(record.after_state))}</td>
+      <td>${escapeHtml(record.correlation_id)}</td>
+      <td>${escapeHtml(record.created_at_iso8601 ?? "")}</td>
     `;
     tbody.appendChild(row);
+  }
+  if (state.auditRecords.length > 0 && records.length === 0) {
+    const emptyRow = document.createElement("tr");
+    emptyRow.innerHTML = `<td colspan="7" class="muted">No audit records match.</td>`;
+    tbody.appendChild(emptyRow);
   }
 }
 
@@ -383,3 +404,4 @@ el("accountToggleTestButton").addEventListener("click", requestTestMarkingToggle
 el("accountToggleTestConfirmButton").addEventListener("click", () => confirmTestMarkingToggle().catch(console.error));
 el("exportRequestsSearch").addEventListener("input", renderDataRightsReview);
 el("deletionRequestsSearch").addEventListener("input", renderDataRightsReview);
+el("auditRecordsSearch").addEventListener("input", renderAuditRecords);

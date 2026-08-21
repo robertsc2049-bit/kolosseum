@@ -5457,7 +5457,7 @@
         },
         {
           "function_id": "admin_audit_action",
-          "label": "Record operational action audit",
+          "label": "Record operational action audit, searchable by actor, action type, target or correlation id",
           "actors": [
             "founder_admin"
           ],
