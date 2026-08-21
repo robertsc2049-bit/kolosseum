@@ -1611,6 +1611,19 @@ BEGIN
 END;
 $$;
 
+-- Coach-athlete unread tracking. Each side's own last-read marker is
+-- null until that side has ever opened the thread; unread count for a
+-- viewer is a live COUNT of the peer's messages with created_at after
+-- their own marker, never a stored/cached number - re-derived on every
+-- read, the same "never a stale cache" posture used throughout this
+-- codebase. Scoped to coach_athlete threads only for now; org_owner_*
+-- threads leave these columns unused/null.
+ALTER TABLE product_message_threads
+  ADD COLUMN IF NOT EXISTS coach_last_read_at TIMESTAMPTZ;
+
+ALTER TABLE product_message_threads
+  ADD COLUMN IF NOT EXISTS athlete_last_read_at TIMESTAMPTZ;
+
 -- No length bound exists on product_coach_notes.note_text (this
 -- codebase's only prior free-text precedent) - messages are much
 -- higher-frequency, so a deliberate cap is added here rather than

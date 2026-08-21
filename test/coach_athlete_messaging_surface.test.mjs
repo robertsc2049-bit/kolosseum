@@ -90,6 +90,29 @@ test("an attachment's byte_size, which message_attachment_storage.ts and every m
   assert.match(appJs, /formatAttachmentSize\(attachment\.byte_size\)/u);
 });
 
+test("each side has its own last-read marker, added as an explicit migration since CREATE TABLE IF NOT EXISTS never re-runs against an existing table", () => {
+  assert.match(schema, /ADD COLUMN IF NOT EXISTS coach_last_read_at TIMESTAMPTZ/u);
+  assert.match(schema, /ADD COLUMN IF NOT EXISTS athlete_last_read_at TIMESTAMPTZ/u);
+});
+
+test("unread count is a live derived COUNT of the peer's messages since the viewer's own last-read marker, never a stored/cached number", () => {
+  assert.match(service, /SELECT COUNT\(\*\) FROM product_messages m/u);
+  assert.match(service, /m\.sender_role = \$2/u);
+  assert.match(service, /COALESCE\(t\.\$\{lastReadColumn\}, '-infinity'::timestamptz\)/u);
+});
+
+test("opening a thread's messages marks it read for that viewer only, updating only their own last-read column", () => {
+  assert.match(service, /UPDATE product_message_threads SET \$\{lastReadColumn\} = now\(\) WHERE thread_id = \$1/u);
+  assert.match(service, /const lastReadColumn = role === "coach" \? "coach_last_read_at" : "athlete_last_read_at";/u);
+});
+
+test("the coach directory shows a live unread-messages badge per athlete, fetched separately from the mark-read thread-detail call", () => {
+  assert.match(appJs, /function coachMessageUnreadCountFor/u);
+  assert.match(appJs, /async function refreshCoachMessageUnreadCounts/u);
+  assert.match(appJs, /coachMessageUnreadCountFor\(record\.userId\) > 0/u);
+  assert.match(appJs, /refreshCoachMessageUnreadCounts\(\{ quiet: true \}\)/u);
+});
+
 test("both the coach and athlete UIs exist as real focusable controls, and message bodies are escaped before rendering (never innerHTML'd raw)", () => {
   assert.match(indexHtml, /id="athleteDetailMessageButton"/u);
   assert.match(indexHtml, /id="athleteDetailMessageForm"/u);

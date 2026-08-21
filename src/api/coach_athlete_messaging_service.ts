@@ -93,6 +93,7 @@ export type CoachAthleteThreadRow = Readonly<{
   athlete_user_id: string;
   created_at_iso8601: string;
   updated_at_iso8601: string;
+  unread_count?: number;
 }>;
 
 function mapThreadRow(value: unknown): CoachAthleteThreadRow | null {
@@ -100,13 +101,17 @@ function mapThreadRow(value: unknown): CoachAthleteThreadRow | null {
   const athleteUserId = cleanString(value.athlete_user_id);
   if (!athleteUserId) return null;
 
-  return Object.freeze({
+  const row: Record<string, unknown> = {
     thread_id: cleanString(value.thread_id),
     coach_user_id: cleanString(value.coach_user_id),
     athlete_user_id: athleteUserId,
     created_at_iso8601: value.created_at instanceof Date ? value.created_at.toISOString() : "",
     updated_at_iso8601: value.updated_at instanceof Date ? value.updated_at.toISOString() : ""
-  });
+  };
+  if (value.unread_count !== undefined) {
+    row.unread_count = Number(value.unread_count) || 0;
+  }
+  return Object.freeze(row) as CoachAthleteThreadRow;
 }
 
 export type CoachAthleteMessageAttachment = Readonly<{
@@ -329,13 +334,23 @@ export async function listCoachAthleteThreads(
   role: "coach" | "athlete"
 ): Promise<readonly CoachAthleteThreadRow[]> {
   const column = role === "coach" ? "coach_user_id" : "athlete_user_id";
+  const peerRole = role === "coach" ? "athlete" : "coach";
+  const lastReadColumn = role === "coach" ? "coach_last_read_at" : "athlete_last_read_at";
+
   const result = await pool.query(
     `
-    SELECT * FROM product_message_threads
+    SELECT t.*,
+      (
+        SELECT COUNT(*) FROM product_messages m
+        WHERE m.thread_id = t.thread_id
+          AND m.sender_role = $2
+          AND m.created_at > COALESCE(t.${lastReadColumn}, '-infinity'::timestamptz)
+      ) AS unread_count
+    FROM product_message_threads t
     WHERE thread_type = 'coach_athlete' AND ${column} = $1
     ORDER BY updated_at DESC
     `,
-    [userId]
+    [userId, peerRole]
   );
   return result.rows.map(mapThreadRow).filter((row): row is CoachAthleteThreadRow => row !== null);
 }
@@ -347,10 +362,21 @@ export async function listCoachAthleteThreadMessages(
 ): Promise<readonly CoachAthleteMessageRow[]> {
   await requireThreadAccessibleBy(threadId, userId, role);
 
+  const lastReadColumn = role === "coach" ? "coach_last_read_at" : "athlete_last_read_at";
+
   const result = await pool.query(
     `SELECT * FROM product_messages WHERE thread_id = $1 ORDER BY created_at ASC`,
     [threadId]
   );
+
+  // Opening a thread's messages marks it read for this viewer only -
+  // the peer's own last_read_at column is untouched, and this is a
+  // best-effort UI convenience, never gated behind a separate endpoint.
+  await pool.query(
+    `UPDATE product_message_threads SET ${lastReadColumn} = now() WHERE thread_id = $1`,
+    [threadId]
+  );
+
   return result.rows
     .map((row) => mapMessageRow(row, role))
     .filter((row): row is CoachAthleteMessageRow => row !== null);
