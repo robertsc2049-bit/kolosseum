@@ -15673,7 +15673,8 @@ const NOTIFICATION_TYPE_LABELS = Object.freeze({
   session_completed: "Session completed",
   coach_note_visible: "Coach note visible",
   billing_action_required: "Billing action required",
-  marketplace_template_released: "Template released"
+  marketplace_template_released: "Template released",
+  weekly_checkin_submitted: "Weekly check-in submitted"
 });
 
 function notificationCoachName(coachUserId) {

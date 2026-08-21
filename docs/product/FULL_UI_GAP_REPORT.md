@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 305
+- implemented: 306
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -393,7 +393,7 @@ Slice: FULL-UI-18
 
 Area state: implemented
 
-Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 11 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -407,6 +407,7 @@ Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `notification_read_state` — Mark notifications read or unread
 - `notification_deep_link` — Open notification target
 - `notification_marketplace_release` — Notify a coach when another coach releases a marketplace template to their account, deep-linking straight to the new clone
+- `notification_weekly_checkin` — Notify a coach when one of their accepted athletes submits a weekly check-in, deep-linking straight to that athlete's profile
 
 ### Data rights and consent
 
@@ -741,6 +742,7 @@ Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-68: implemented
 - FULL-UI-69: implemented
 - FULL-UI-70: implemented
+- FULL-UI-71: implemented
 
 ## Prohibited capabilities
 
