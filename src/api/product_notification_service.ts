@@ -46,7 +46,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "billing_action_required",
   "marketplace_template_released",
   "weekly_checkin_submitted",
-  "video_feedback_received"
+  "video_feedback_received",
+  "athlete_goal_achieved"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -557,6 +558,60 @@ async function deriveVideoFeedbackNotifications(
   }
 }
 
+// --- Athlete goal achieved (notify the athlete's coach) ---------------------
+
+async function deriveAthleteGoalAchievedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    WITH latest_relationship AS (
+      SELECT DISTINCT ON (subject_user_id)
+        subject_user_id AS athlete_user_id,
+        record_payload->>'relationship_state' AS relationship_state
+      FROM beta_product_records
+      WHERE record_type = 'beta17_coach_relationship'
+        AND actor_user_id = $1
+      ORDER BY subject_user_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    ),
+    latest_goal AS (
+      SELECT DISTINCT ON (record_id)
+        record_id, subject_user_id AS athlete_user_id, record_payload, effective_at
+      FROM beta_product_records
+      WHERE record_type = 'athlete_goal'
+      ORDER BY record_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    )
+    SELECT latest_goal.record_id, latest_goal.athlete_user_id, latest_goal.record_payload, latest_goal.effective_at
+    FROM latest_goal
+    JOIN latest_relationship ON latest_relationship.athlete_user_id = latest_goal.athlete_user_id
+    WHERE latest_relationship.relationship_state = 'accepted'
+      AND latest_goal.record_payload->>'status' = 'achieved'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const athleteUserId = cleanString(row.athlete_user_id);
+    const recordId = cleanString(row.record_id);
+    if (!athleteUserId || !recordId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "athlete_goal_achieved",
+      sourceRecordType: "athlete_goal",
+      sourceRecordId: recordId,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteUserId },
+      notificationPayload: {
+        athlete_user_id: athleteUserId,
+        goal_label: cleanString(row.record_payload?.goal_label)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -571,6 +626,7 @@ async function deriveNotificationsForRecipient(
   await deriveMarketplaceReleaseNotifications(client, recipientUserId);
   await deriveWeeklyCheckinNotifications(client, recipientUserId);
   await deriveVideoFeedbackNotifications(client, recipientUserId);
+  await deriveAthleteGoalAchievedNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------
