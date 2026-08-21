@@ -102,12 +102,14 @@
 
   <section id="dataRightsReviewSection" hidden>
     <h2>Export-request review</h2>
+    <label>Search export requests<br /><input id="exportRequestsSearch" type="search" placeholder="Request ID, user ID or status" /></label>
     <table>
       <thead><tr><th>Export request</th><th>User</th><th>Status</th><th>Requested</th><th>Ready</th><th>Expires</th><th>Downloaded</th></tr></thead>
       <tbody id="exportRequestsList"></tbody>
     </table>
 
     <h2>Deletion-request review</h2>
+    <label>Search deletion requests<br /><input id="deletionRequestsSearch" type="search" placeholder="Request ID, user ID, reason or status" /></label>
     <table>
       <thead><tr><th>Deletion request</th><th>User</th><th>Reason</th><th>Queue status</th><th>Requested</th></tr></thead>
       <tbody id="deletionRequestsList"></tbody>

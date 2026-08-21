@@ -467,7 +467,7 @@ Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `admin_payment` — Review payment state
 - `admin_support` — Review support and error records
 - `admin_test_users` — Manage test users
-- `admin_data_requests` — Review export and deletion requests
+- `admin_data_requests` — Review export and deletion requests, searchable by request ID, user ID, status or reason
 - `admin_audit_action` — Record operational action audit
 - `admin_no_engine_override` — Prevent admin engine override
 
