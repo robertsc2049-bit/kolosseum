@@ -82,6 +82,8 @@ const DEFAULT_STATE = Object.freeze({
   coachVideoFeedbackQueue: [],
   videoFeedbackQueueSearch: "",
   selectedVideoFeedbackSubmissionId: "",
+  progressPhotoCompareIds: [],
+  coachAthleteProgressPhotoCompareIds: [],
   athleteDetails: {},
   coachCode: "",
   pendingRelationshipInvitations: [],
@@ -286,6 +288,7 @@ const elements = {
   progressPhotoCaption: document.getElementById("progressPhotoCaption"),
   progressPhotoStatus: document.getElementById("progressPhotoStatus"),
   progressPhotoGrid: document.getElementById("progressPhotoGrid"),
+  progressPhotoComparison: document.getElementById("progressPhotoComparison"),
   bodyMetricLogForm: document.getElementById("bodyMetricLogForm"),
   bodyMetricTypeSelect: document.getElementById("bodyMetricTypeSelect"),
   bodyMetricValueInput: document.getElementById("bodyMetricValueInput"),
@@ -447,6 +450,7 @@ const elements = {
   athleteDetailMessageCancelButton: document.getElementById("athleteDetailMessageCancelButton"),
   athleteDetailOrgMessageHistory: document.getElementById("athleteDetailOrgMessageHistory"),
   athleteDetailProgressPhotos: document.getElementById("athleteDetailProgressPhotos"),
+  athleteDetailProgressPhotoComparison: document.getElementById("athleteDetailProgressPhotoComparison"),
   athleteDetailBodyMetricHistory: document.getElementById("athleteDetailBodyMetricHistory"),
   athleteDetailHabitList: document.getElementById("athleteDetailHabitList"),
   athleteDetailProgressInsights: document.getElementById("athleteDetailProgressInsights"),
@@ -767,6 +771,10 @@ function loadState() {
         ? parsed.coachMessageUnreadByAthlete
         : {},
       videoFeedbackQueueSearch: String(parsed.videoFeedbackQueueSearch ?? ""),
+      progressPhotoCompareIds: Array.isArray(parsed.progressPhotoCompareIds) ? parsed.progressPhotoCompareIds.slice(0, 2) : [],
+      coachAthleteProgressPhotoCompareIds: Array.isArray(parsed.coachAthleteProgressPhotoCompareIds)
+        ? parsed.coachAthleteProgressPhotoCompareIds.slice(0, 2)
+        : [],
       coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
       marketplaceSearch: String(parsed.marketplaceSearch ?? ""),
       marketplaceActivityFilter: ["all", "powerlifting", "general_strength", "rugby_union"].includes(parsed.marketplaceActivityFilter)
@@ -5886,17 +5894,99 @@ function validateProgressPhotoClientSide(file) {
   return null;
 }
 
-function renderProgressPhotoCard(photo) {
+function renderProgressPhotoCard(photo, selectedIds = []) {
   const caption = photo.caption ? `<p>${escapeHtml(photo.caption)}</p>` : "";
   const sizeLabel = formatAttachmentSize(photo.byte_size);
   const sizeCaption = sizeLabel ? `<span class="muted small">${escapeHtml(sizeLabel)}</span>` : "";
+  const selected = selectedIds.includes(photo.photo_id);
   return `
-    <article class="progress-photo-card">
+    <article class="progress-photo-card ${selected ? "selected" : ""}">
       <img src="${escapeHtml(photo.url)}" alt="Progress photo" loading="lazy">
       <span class="muted small">${escapeHtml(formatDate(photo.taken_at_iso8601))}</span>
       ${sizeCaption}
       ${caption}
+      <button
+        type="button"
+        class="button secondary small-button progress-photo-compare-toggle"
+        data-progress-photo-compare="${escapeHtml(photo.photo_id)}"
+        aria-pressed="${selected}"
+      >${selected ? "Selected for comparison" : "Compare"}</button>
     </article>
+  `;
+}
+
+// Toggles one photo_id in/out of a compare-selection array, keyed off
+// state[stateKey] - shared between the athlete's own grid and the coach's
+// read-only view of an athlete's grid, since both render the exact same
+// card markup. Selecting a third photo drops the oldest selection rather
+// than refusing the click, so the control never needs a disabled state.
+function toggleProgressPhotoCompareSelection(stateKey, photoId) {
+  const current = Array.isArray(state[stateKey]) ? [...state[stateKey]] : [];
+  const index = current.indexOf(photoId);
+  if (index >= 0) {
+    current.splice(index, 1);
+  }
+  else {
+    current.push(photoId);
+    if (current.length > 2) current.shift();
+  }
+  state[stateKey] = current;
+  saveState();
+}
+
+function bindProgressPhotoCompareToggles(container, stateKey, onChange) {
+  if (!container) return;
+  for (const button of container.querySelectorAll("[data-progress-photo-compare]")) {
+    button.addEventListener("click", () => {
+      toggleProgressPhotoCompareSelection(stateKey, button.dataset.progressPhotoCompare);
+      onChange();
+    });
+  }
+}
+
+function progressPhotoComparisonSide(photo) {
+  const caption = photo.caption ? `<p>${escapeHtml(photo.caption)}</p>` : "";
+  return `
+    <figure class="progress-photo-comparison-side">
+      <img src="${escapeHtml(photo.url)}" alt="Progress photo">
+      <figcaption>
+        <span class="muted small">${escapeHtml(formatDate(photo.taken_at_iso8601))}</span>
+        ${caption}
+      </figcaption>
+    </figure>
+  `;
+}
+
+function renderProgressPhotoComparisonPanel(container, photos, selectedIds) {
+  if (!container) return;
+
+  if (selectedIds.length !== 2) {
+    container.hidden = true;
+    container.innerHTML = "";
+    return;
+  }
+
+  const first = photos.find((photo) => photo.photo_id === selectedIds[0]);
+  const second = photos.find((photo) => photo.photo_id === selectedIds[1]);
+  if (!first || !second) {
+    container.hidden = true;
+    container.innerHTML = "";
+    return;
+  }
+
+  // Always shown oldest-taken first, regardless of click order, so the
+  // comparison always reads as a "before -> after" progression.
+  const [earlier, later] = [first, second].sort(
+    (left, right) => new Date(left.taken_at_iso8601) - new Date(right.taken_at_iso8601)
+  );
+
+  container.hidden = false;
+  container.innerHTML = `
+    <h4>Comparing two photos</h4>
+    <div class="progress-photo-comparison-grid">
+      ${progressPhotoComparisonSide(earlier)}
+      ${progressPhotoComparisonSide(later)}
+    </div>
   `;
 }
 
@@ -5904,6 +5994,7 @@ function renderProgressPhotos() {
   if (!elements.progressPhotoGrid) return;
 
   const photos = Array.isArray(state.progressPhotos) ? state.progressPhotos : [];
+  const selectedIds = Array.isArray(state.progressPhotoCompareIds) ? state.progressPhotoCompareIds : [];
 
   if (photos.length === 0) {
     elements.progressPhotoGrid.innerHTML = `
@@ -5911,10 +6002,13 @@ function renderProgressPhotos() {
         <p>No progress photos yet.</p>
       </div>
     `;
-    return;
+  }
+  else {
+    elements.progressPhotoGrid.innerHTML = photos.map((photo) => renderProgressPhotoCard(photo, selectedIds)).join("");
   }
 
-  elements.progressPhotoGrid.innerHTML = photos.map(renderProgressPhotoCard).join("");
+  bindProgressPhotoCompareToggles(elements.progressPhotoGrid, "progressPhotoCompareIds", renderProgressPhotos);
+  renderProgressPhotoComparisonPanel(elements.progressPhotoComparison, photos, selectedIds);
 }
 
 async function refreshProgressPhotos(options = {}) {
@@ -5998,6 +6092,7 @@ function renderCoachAthleteProgressPhotos() {
   if (!elements.athleteDetailProgressPhotos) return;
 
   const photos = Array.isArray(state.coachAthleteProgressPhotos) ? state.coachAthleteProgressPhotos : [];
+  const selectedIds = Array.isArray(state.coachAthleteProgressPhotoCompareIds) ? state.coachAthleteProgressPhotoCompareIds : [];
 
   if (photos.length === 0) {
     elements.athleteDetailProgressPhotos.innerHTML = `
@@ -6005,10 +6100,13 @@ function renderCoachAthleteProgressPhotos() {
         <p>No progress photos yet.</p>
       </div>
     `;
-    return;
+  }
+  else {
+    elements.athleteDetailProgressPhotos.innerHTML = photos.map((photo) => renderProgressPhotoCard(photo, selectedIds)).join("");
   }
 
-  elements.athleteDetailProgressPhotos.innerHTML = photos.map(renderProgressPhotoCard).join("");
+  bindProgressPhotoCompareToggles(elements.athleteDetailProgressPhotos, "coachAthleteProgressPhotoCompareIds", renderCoachAthleteProgressPhotos);
+  renderProgressPhotoComparisonPanel(elements.athleteDetailProgressPhotoComparison, photos, selectedIds);
 }
 
 const BODY_METRIC_TYPE_LABELS = {

@@ -544,8 +544,8 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 #### implemented
 
 - `progress_photo_upload` — Upload dated progress photo
-- `progress_photo_athlete_history` — Display own progress photo history
-- `progress_photo_coach_view` — Display athlete progress photo history (read-only)
+- `progress_photo_athlete_history` — Display own progress photo history, with a side-by-side before/after comparison of any two selected photos
+- `progress_photo_coach_view` — Display athlete progress photo history (read-only), with the same side-by-side before/after comparison of any two selected photos
 
 ### Body metrics and habits
 

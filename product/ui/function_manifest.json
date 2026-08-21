@@ -6221,7 +6221,7 @@
         },
         {
           "function_id": "progress_photo_athlete_history",
-          "label": "Display own progress photo history",
+          "label": "Display own progress photo history, with a side-by-side before/after comparison of any two selected photos",
           "actors": [
             "athlete"
           ],
@@ -6243,7 +6243,7 @@
         },
         {
           "function_id": "progress_photo_coach_view",
-          "label": "Display athlete progress photo history (read-only)",
+          "label": "Display athlete progress photo history (read-only), with the same side-by-side before/after comparison of any two selected photos",
           "actors": [
             "coach"
           ],

@@ -3050,6 +3050,44 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   margin-bottom: 0.4rem;
 }
 
+.progress-photo-card.selected {
+  outline: 2px solid var(--bronze-light);
+  outline-offset: 2px;
+}
+
+.progress-photo-compare-toggle {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.progress-photo-comparison {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+.progress-photo-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.progress-photo-comparison-side img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+@media (max-width: 640px) {
+  .progress-photo-comparison-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 980px) {
   .review-toolbar,
   .review-summary-grid {
