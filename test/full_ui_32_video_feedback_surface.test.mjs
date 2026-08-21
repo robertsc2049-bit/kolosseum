@@ -133,6 +133,23 @@ test("the athlete capture control, history section and coach queue exist as real
   assert.match(appJs, /escapeHtml\(submission\.exercise_label/u);
 });
 
+test("the video feedback queue has a real search control filtering by athlete name or exercise, resolved from the already-loaded coach athlete directory - never a new query", () => {
+  assert.match(indexHtml, /id="videoFeedbackQueueSearch"/u);
+  assert.match(appJs, /function filteredVideoFeedbackQueue/u);
+  assert.match(appJs, /function videoFeedbackQueueAthleteName/u);
+  assert.match(appJs, /state\.coachAthletes\.find\(\(entry\) => entry\.userId === submission\.athlete_user_id\)/u);
+  assert.match(appJs, /elements\.videoFeedbackQueueSearch\?\.addEventListener\("input"/u);
+});
+
+test("the queue distinguishes zero pending submissions at all from zero matches for the current search", () => {
+  assert.match(appJs, /No pending video submissions/u);
+  assert.match(appJs, /No submissions match/u);
+});
+
+test("the queue card now renders the submitting athlete's name, not just the exercise label - a previously phantom field", () => {
+  assert.match(appJs, /escapeHtml\(videoFeedbackQueueAthleteName\(submission\)\)/u);
+});
+
 test("the FULL-UI-32 manifest area declares all five functions as implemented with real routes and tests", () => {
   const area = manifest.product_areas.find((entry) => entry.area_id === "video_feedback");
   assert.ok(area, "expected a video_feedback product area");

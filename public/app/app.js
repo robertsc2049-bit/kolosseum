@@ -80,6 +80,7 @@ const DEFAULT_STATE = Object.freeze({
   coachReviewUpdatedAt: "",
   selectedCoachReviewSessionId: "",
   coachVideoFeedbackQueue: [],
+  videoFeedbackQueueSearch: "",
   selectedVideoFeedbackSubmissionId: "",
   athleteDetails: {},
   coachCode: "",
@@ -561,6 +562,7 @@ const elements = {
   reviewDetailContent: document.getElementById("reviewDetailContent"),
   refreshVideoFeedbackQueueButton: document.getElementById("refreshVideoFeedbackQueueButton"),
   videoFeedbackQueueStatus: document.getElementById("videoFeedbackQueueStatus"),
+  videoFeedbackQueueSearch: document.getElementById("videoFeedbackQueueSearch"),
   videoFeedbackQueueList: document.getElementById("videoFeedbackQueueList"),
   videoFeedbackDetail: document.getElementById("videoFeedbackDetail"),
   videoFeedbackDetailContent: document.getElementById("videoFeedbackDetailContent"),
@@ -764,6 +766,7 @@ function loadState() {
       coachMessageUnreadByAthlete: parsed.coachMessageUnreadByAthlete && typeof parsed.coachMessageUnreadByAthlete === "object"
         ? parsed.coachMessageUnreadByAthlete
         : {},
+      videoFeedbackQueueSearch: String(parsed.videoFeedbackQueueSearch ?? ""),
       coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
       marketplaceSearch: String(parsed.marketplaceSearch ?? ""),
       marketplaceActivityFilter: ["all", "powerlifting", "general_strength", "rugby_union"].includes(parsed.marketplaceActivityFilter)
@@ -9266,19 +9269,36 @@ function bindCoachReviewActions() {
 // (per-exercise video submission, not per-session), with its own list +
 // detail + delegated-action shape mirroring reviewRecordCard/
 // renderCoachReviewDetail/bindCoachReviewActions.
+function videoFeedbackQueueAthleteName(submission) {
+  const athlete = state.coachAthletes.find((entry) => entry.userId === submission.athlete_user_id);
+  return athlete?.displayName || submission.athlete_user_id || "Athlete";
+}
+
 function videoFeedbackQueueCard(submission) {
   const selected = state.selectedVideoFeedbackSubmissionId === submission.submission_id;
   return `
     <article class="record-card review-record-card interactive ${selected ? "selected" : ""}" data-video-feedback-queue-id="${escapeHtml(submission.submission_id)}">
       <div>
         <h3>${escapeHtml(submission.exercise_label || "Exercise")}</h3>
-        <p>${escapeHtml(formatDate(submission.created_at))}</p>
+        <p>${escapeHtml(videoFeedbackQueueAthleteName(submission))}</p>
+        <p class="muted small">${escapeHtml(formatDate(submission.created_at))}</p>
       </div>
       <div class="record-meta">
         <span class="badge neutral">Awaiting review</span>
       </div>
     </article>
   `;
+}
+
+function filteredVideoFeedbackQueue() {
+  const submissions = Array.isArray(state.coachVideoFeedbackQueue) ? state.coachVideoFeedbackQueue : [];
+  const search = String(state.videoFeedbackQueueSearch ?? "").trim().toLowerCase();
+  if (!search) return submissions;
+
+  return submissions.filter((submission) =>
+    [submission.exercise_label, videoFeedbackQueueAthleteName(submission)]
+      .some((value) => String(value ?? "").toLowerCase().includes(search))
+  );
 }
 
 function renderVideoFeedbackDetail(submission) {
@@ -9325,17 +9345,33 @@ function bindVideoFeedbackQueueActions() {
 function renderVideoFeedbackQueueWorkspace() {
   if (!elements.videoFeedbackQueueList) return;
 
-  const submissions = Array.isArray(state.coachVideoFeedbackQueue) ? state.coachVideoFeedbackQueue : [];
+  if (elements.videoFeedbackQueueSearch) {
+    elements.videoFeedbackQueueSearch.value = String(state.videoFeedbackQueueSearch ?? "");
+  }
 
-  elements.videoFeedbackQueueList.innerHTML = submissions.length
-    ? submissions.map(videoFeedbackQueueCard).join("")
-    : `
+  const allSubmissions = Array.isArray(state.coachVideoFeedbackQueue) ? state.coachVideoFeedbackQueue : [];
+  const submissions = filteredVideoFeedbackQueue();
+
+  if (allSubmissions.length === 0) {
+    elements.videoFeedbackQueueList.innerHTML = `
       <div class="panel empty-state">
         <div class="empty-icon">V</div>
         <h3>No pending video submissions</h3>
         <p>Athlete form-check videos awaiting your feedback will appear here.</p>
       </div>
     `;
+  }
+  else if (submissions.length === 0) {
+    elements.videoFeedbackQueueList.innerHTML = `
+      <div class="panel empty-state">
+        <h3>No submissions match</h3>
+        <p>Try a different athlete or exercise search term.</p>
+      </div>
+    `;
+  }
+  else {
+    elements.videoFeedbackQueueList.innerHTML = submissions.map(videoFeedbackQueueCard).join("");
+  }
 
   let selected = submissions.find(
     (submission) => submission.submission_id === state.selectedVideoFeedbackSubmissionId
@@ -16233,6 +16269,11 @@ elements.uploadVideoFeedbackButton.addEventListener("click", () => {
 });
 elements.refreshVideoFeedbackQueueButton.addEventListener("click", () => {
   refreshVideoFeedbackQueue().catch(handleError);
+});
+elements.videoFeedbackQueueSearch?.addEventListener("input", () => {
+  state.videoFeedbackQueueSearch = elements.videoFeedbackQueueSearch.value;
+  saveState();
+  renderVideoFeedbackQueueWorkspace();
 });
 elements.splitSessionButton.addEventListener("click", () => {
   postSessionEvent({ type: "SPLIT_SESSION" }).catch(handleError);
