@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 303
+- implemented: 304
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -392,7 +392,7 @@ Slice: FULL-UI-18
 
 Area state: implemented
 
-Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -405,6 +405,7 @@ Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `notification_billing` — Notify billing or entitlement action
 - `notification_read_state` — Mark notifications read or unread
 - `notification_deep_link` — Open notification target
+- `notification_marketplace_release` — Notify a coach when another coach releases a marketplace template to their account, deep-linking straight to the new clone
 
 ### Data rights and consent
 
@@ -737,6 +738,7 @@ Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-66: implemented
 - FULL-UI-67: implemented
 - FULL-UI-68: implemented
+- FULL-UI-69: implemented
 
 ## Prohibited capabilities
 

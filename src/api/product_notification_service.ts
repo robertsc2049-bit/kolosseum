@@ -43,7 +43,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "event_cancelled",
   "programme_available",
   "session_completed",
-  "billing_action_required"
+  "billing_action_required",
+  "marketplace_template_released"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -56,6 +57,7 @@ const DEEP_LINK_ROUTE_IDS = Object.freeze({
   coachAthleteDetail: "coach_athlete_detail",
   coachAthletes: "coach_athletes",
   coachReviewAthlete: "coach_review_athlete",
+  coachProgrammeDetail: "coach_programme_detail",
   sharedAccount: "shared_account"
 });
 
@@ -430,6 +432,42 @@ async function deriveBillingNotifications(
   }
 }
 
+// --- Marketplace template released to this coach ----------------------------
+
+async function deriveMarketplaceReleaseNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT record_id, actor_user_id AS seller_coach_user_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'programme_template_release'
+      AND subject_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const clonedTemplateId = cleanString(row.record_payload?.cloned_template_id);
+    if (!clonedTemplateId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "marketplace_template_released",
+      sourceRecordType: "programme_template_release",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachProgrammeDetail,
+      deepLinkParams: { template_id: clonedTemplateId },
+      notificationPayload: {
+        seller_coach_user_id: cleanString(row.seller_coach_user_id),
+        source_template_id: cleanString(row.record_payload?.template_id)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -441,6 +479,7 @@ async function deriveNotificationsForRecipient(
   await deriveSessionCompletedNotifications(client, recipientUserId);
   await deriveAthleteVisibleNoteNotifications(client, recipientUserId, DEEP_LINK_ROUTE_IDS.athleteToday);
   await deriveBillingNotifications(client, recipientUserId);
+  await deriveMarketplaceReleaseNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

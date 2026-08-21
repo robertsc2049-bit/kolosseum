@@ -902,7 +902,8 @@ CREATE TABLE IF NOT EXISTS product_notifications (
         'programme_available',
         'session_completed',
         'coach_note_visible',
-        'billing_action_required'
+        'billing_action_required',
+        'marketplace_template_released'
       )
     ),
   source_record_type    TEXT NOT NULL,
@@ -923,6 +924,38 @@ ON product_notifications (
   read_at,
   occurred_at DESC
 );
+
+-- product_notifications_full_ui_68_type_migration
+-- Additive FULL-UI-68 marketplace_template_released notification type. The
+-- CREATE TABLE IF NOT EXISTS above never re-runs against an
+-- already-existing table, so widening its inline notification_type CHECK
+-- needs this explicit migration too - the same DROP/ADD pattern already
+-- used for beta_product_records_type_check, targeting Postgres's default
+-- column-check name for this table.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released'
+      )
+    );
 
 -- FULL-UI-20 factual status, support and error-reporting.
 -- Every row stores only an explicit, narrow allowlist of caller-supplied
