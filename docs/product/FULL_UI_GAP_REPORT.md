@@ -621,7 +621,7 @@ Implemented: 5 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 - `video_submission_capture` — Record or upload a form-check video for a specific exercise in a session
 - `video_submission_history` — Display own video submissions and coach feedback for a session
-- `video_feedback_queue` — Display pending video submissions awaiting coach review, across all athletes
+- `video_feedback_queue` — Display pending video submissions awaiting coach review, across all athletes - searchable by athlete name or exercise
 - `video_feedback_detail` — Display a single video submission for coach review
 - `video_feedback_reply` — Reply to a video submission with text feedback, marking it reviewed
 

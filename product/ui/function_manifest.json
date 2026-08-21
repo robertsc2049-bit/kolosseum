@@ -6758,7 +6758,7 @@
         },
         {
           "function_id": "video_feedback_queue",
-          "label": "Display pending video submissions awaiting coach review, across all athletes",
+          "label": "Display pending video submissions awaiting coach review, across all athletes - searchable by athlete name or exercise",
           "actors": [
             "coach"
           ],
