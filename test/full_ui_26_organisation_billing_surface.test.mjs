@@ -659,3 +659,41 @@ test("an attachment's byte_size, already returned by org_coach_messaging_service
   assert.match(orgDashboardJs, /function formatAttachmentSize/u);
   assert.match(orgDashboardJs, /formatAttachmentSize\(attachment\.byte_size\)/u);
 });
+
+test("the org owner's own last-read marker is shared across both org_owner_coach and org_owner_athlete threads, reusing coach_last_read_at/athlete_last_read_at for the coach/athlete side of each - the same column-reuse-across-thread-type convention this table already uses", () => {
+  assert.match(schema, /ADD COLUMN IF NOT EXISTS owner_last_read_at TIMESTAMPTZ/u);
+});
+
+test("org-coach unread count is a live derived COUNT of the peer's messages since the viewer's own last-read marker, never a stored/cached number, for both the owner and coach side", () => {
+  assert.match(orgCoachMessagingService, /m\.sender_role = 'coach'/u);
+  assert.match(orgCoachMessagingService, /COALESCE\(t\.owner_last_read_at, '-infinity'::timestamptz\)/u);
+  assert.match(orgCoachMessagingService, /m\.sender_role = 'org_owner'/u);
+  assert.match(orgCoachMessagingService, /COALESCE\(t\.coach_last_read_at, '-infinity'::timestamptz\)/u);
+});
+
+test("opening an org-coach thread's messages marks it read for that viewer only, on both the owner and coach side", () => {
+  assert.match(orgCoachMessagingService, /UPDATE product_message_threads SET owner_last_read_at = now\(\) WHERE thread_id = \$1/u);
+  assert.match(orgCoachMessagingService, /UPDATE product_message_threads SET coach_last_read_at = now\(\) WHERE thread_id = \$1/u);
+});
+
+test("org-athlete unread count is a live derived COUNT of the peer's messages since the viewer's own last-read marker, never a stored/cached number, for both the owner and athlete side", () => {
+  assert.match(orgAthleteMessagingService, /m\.sender_role = 'athlete'/u);
+  assert.match(orgAthleteMessagingService, /COALESCE\(t\.owner_last_read_at, '-infinity'::timestamptz\)/u);
+  assert.match(orgAthleteMessagingService, /m\.sender_role = 'org_owner'/u);
+  assert.match(orgAthleteMessagingService, /COALESCE\(t\.athlete_last_read_at, '-infinity'::timestamptz\)/u);
+});
+
+test("opening an org-athlete thread's messages marks it read for that viewer only, on both the owner and athlete side", () => {
+  assert.match(orgAthleteMessagingService, /UPDATE product_message_threads SET owner_last_read_at = now\(\) WHERE thread_id = \$1/u);
+  assert.match(orgAthleteMessagingService, /UPDATE product_message_threads SET athlete_last_read_at = now\(\) WHERE thread_id = \$1/u);
+});
+
+test("the org owner dashboard shows a live unread badge per thread, and refreshes the list when returning from a thread so the badge clears", () => {
+  assert.match(orgDashboardJs, /Number\(entry\.thread\?\.unread_count\) > 0/u);
+  assert.match(orgDashboardJs, /function hideThreadDetailSection/u);
+  const fn = orgDashboardJs.slice(
+    orgDashboardJs.indexOf("function hideThreadDetailSection"),
+    orgDashboardJs.indexOf("function hideThreadDetailSection") + 500
+  );
+  assert.match(fn, /refreshMessages\(\)/u);
+});

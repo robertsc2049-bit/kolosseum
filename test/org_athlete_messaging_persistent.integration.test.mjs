@@ -459,6 +459,18 @@ test(
     assertStatus(athleteThreads, 200, "athlete1 reads own org-message threads");
     assert.equal(athleteThreads.json?.threads?.length, 1);
     assert.equal(athleteThreads.json?.threads?.[0]?.thread_id, threadId);
+    assert.equal(athleteThreads.json?.threads?.[0]?.unread_count, 1, "the owner's unread first message should count as 1 for athlete1");
+
+    const athleteMessagesFirstOpen = await request(
+      baseUrl, "GET", `/messages/athlete/org-messages/threads/${encodeURIComponent(threadId)}`, undefined,
+      { cookie: athlete1.cookie }
+    );
+    assertStatus(athleteMessagesFirstOpen, 200, "athlete1 opens the thread, marking it read");
+
+    const athleteThreadsAfterOpen = await request(baseUrl, "GET", "/messages/athlete/org-messages/threads", undefined, {
+      cookie: athlete1.cookie
+    });
+    assert.equal(athleteThreadsAfterOpen.json?.threads?.[0]?.unread_count, 0, "unread count drops to zero once athlete1 has opened the thread");
 
     const athleteReply = await request(
       baseUrl, "POST", `/messages/athlete/org-messages/organisations/${encodeURIComponent(orgId)}/send`,
@@ -467,6 +479,13 @@ test(
     );
     assertStatus(athleteReply, 201, "athlete1 replies");
     assert.equal(athleteReply.json?.thread?.thread_id, threadId, "the reply must reuse the same lazily-created thread");
+
+    const ownerThreadsAfterReply = await request(
+      baseUrl, "GET", `/org/organisations/${encodeURIComponent(orgId)}/athlete-messages/threads`, undefined,
+      { cookie: owner.cookie }
+    );
+    assertStatus(ownerThreadsAfterReply, 200, "owner's athlete-message threads after the reply");
+    assert.equal(ownerThreadsAfterReply.json?.threads?.[0]?.unread_count, 1, "the athlete's unread reply should count as 1 for the owner");
 
     const ownerMessagesAfterReply = await request(
       baseUrl, "GET", `/org/organisations/${encodeURIComponent(orgId)}/athlete-messages/threads/${encodeURIComponent(threadId)}`, undefined,
@@ -478,6 +497,12 @@ test(
       ownerMessagesAfterReply.json?.messages?.map((m) => m.sender_role),
       ["org_owner", "athlete"]
     );
+
+    const ownerThreadsAfterRead = await request(
+      baseUrl, "GET", `/org/organisations/${encodeURIComponent(orgId)}/athlete-messages/threads`, undefined,
+      { cookie: owner.cookie }
+    );
+    assert.equal(ownerThreadsAfterRead.json?.threads?.[0]?.unread_count, 0, "unread count drops to zero once the owner has opened the thread");
 
     // ============================================================
     // Idempotent replay: the same client_request_id must not duplicate.

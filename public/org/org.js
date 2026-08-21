@@ -488,6 +488,7 @@ function renderThreadList(container, entries, kind) {
         <p>${entry.thread ? `Updated ${escapeHtml(formatDate(entry.thread.updated_at_iso8601))}` : "No messages yet"}</p>
       </div>
       <div class="record-meta">
+        ${Number(entry.thread?.unread_count) > 0 ? `<span class="badge active">${Number(entry.thread.unread_count)} unread</span>` : ""}
         <button class="button secondary" type="button" data-open-counterpart="${index}">${entry.thread ? "Open" : "Message"}</button>
       </div>
     </article>
@@ -646,6 +647,10 @@ function hideThreadDetailSection() {
   state.selectedCounterpartName = "";
   el("orgThreadDetailSection").hidden = true;
   el("orgMessagesSection").hidden = false;
+
+  // Opening the thread we just left may have marked it read server-side -
+  // refresh the list so its unread badge reflects that immediately.
+  refreshMessages().catch(console.error);
 }
 
 async function sendThreadReply(event) {
