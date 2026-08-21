@@ -7020,7 +7020,7 @@
       "functions": [
         {
           "function_id": "programme_marketplace_share",
-          "label": "Declare one of the coach's own complete or active templates publicly browsable by other coaches",
+          "label": "Declare one of the coach's own complete or active templates publicly browsable by other coaches, with an optional display-only price label and payment-methods note",
           "actors": [
             "coach"
           ],
@@ -7042,7 +7042,7 @@
         },
         {
           "function_id": "programme_marketplace_browse",
-          "label": "Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity and branding",
+          "label": "Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity, branding, price label and payment-methods note",
           "actors": [
             "coach"
           ],
@@ -7055,6 +7055,50 @@
           "governing_boundary": null,
           "direct_test": "test/full_ui_67_programme_marketplace_surface.test.mjs",
           "integration_test": "test/full_ui_67c_programme_marketplace_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_marketplace_release",
+          "label": "Release a full copy of a shared template to a specific buying coach's account code once paid off-platform, cloning it into the buyer's own independent library",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/programme-marketplace/templates/:template_id/release"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_68_programme_marketplace_release_surface.test.mjs",
+          "integration_test": "test/full_ui_68c_programme_marketplace_release_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_marketplace_release_history",
+          "label": "Display the coach's own history of who a shared template has been released to",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/programme-marketplace/templates/:template_id/releases"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_68_programme_marketplace_release_surface.test.mjs",
+          "integration_test": "test/full_ui_68c_programme_marketplace_release_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -7220,6 +7264,10 @@
     },
     {
       "slice_id": "FULL-UI-67",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-68",
       "state": "implemented"
     }
   ],
@@ -8120,6 +8168,18 @@
     {
       "method": "POST",
       "path": "/programme-marketplace/templates/:template_id/sharing",
+      "source": "src/api/programme_template_sharing.routes.ts",
+      "tracked_by_area": "programme_marketplace"
+    },
+    {
+      "method": "POST",
+      "path": "/programme-marketplace/templates/:template_id/release",
+      "source": "src/api/programme_template_sharing.routes.ts",
+      "tracked_by_area": "programme_marketplace"
+    },
+    {
+      "method": "GET",
+      "path": "/programme-marketplace/templates/:template_id/releases",
       "source": "src/api/programme_template_sharing.routes.ts",
       "tracked_by_area": "programme_marketplace"
     }

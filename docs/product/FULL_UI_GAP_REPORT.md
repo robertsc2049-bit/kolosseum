@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 301
+- implemented: 303
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -682,12 +682,14 @@ Slice: FULL-UI-67
 
 Area state: implemented
 
-Implemented: 2 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
-- `programme_marketplace_share` — Declare one of the coach's own complete or active templates publicly browsable by other coaches
-- `programme_marketplace_browse` — Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity and branding
+- `programme_marketplace_share` — Declare one of the coach's own complete or active templates publicly browsable by other coaches, with an optional display-only price label and payment-methods note
+- `programme_marketplace_browse` — Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity, branding, price label and payment-methods note
+- `programme_marketplace_release` — Release a full copy of a shared template to a specific buying coach's account code once paid off-platform, cloning it into the buyer's own independent library
+- `programme_marketplace_release_history` — Display the coach's own history of who a shared template has been released to
 
 ## Functions without persistent integration proof
 
@@ -734,6 +736,7 @@ Implemented: 2 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-65: implemented
 - FULL-UI-66: implemented
 - FULL-UI-67: implemented
+- FULL-UI-68: implemented
 
 ## Prohibited capabilities
 

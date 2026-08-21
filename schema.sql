@@ -502,6 +502,45 @@ ALTER TABLE beta_product_records
       )
     );
 
+-- beta_product_records_full_ui_68_type_migration
+-- Additive FULL-UI-68 programme template release record. A release is a
+-- factual, immutable event: the owning coach released a copy of their
+-- own shared template to a specific buying coach, after being paid
+-- through whatever means the two coaches arranged off-platform - this
+-- application never processes, holds, or transmits any payment. Many
+-- release rows can exist per template (one per buyer); each is its own
+-- append-only record, never UPDATEd or DELETEd.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference',
+        'programme_template_sharing_preference',
+        'programme_template_release'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.
