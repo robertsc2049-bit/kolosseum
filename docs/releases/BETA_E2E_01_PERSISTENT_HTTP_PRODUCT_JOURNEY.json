@@ -60,7 +60,7 @@
     ]
   },
   "sha256": {
-    "schema.sql": "ca538ad12f10d0972eb64124ecf953912f9583b9e931c5e86a0bbd05234302a1",
+    "schema.sql": "cf82dad414beb67604b7a0ed3402ec2d137f6afbf16fc5fb0ed2d24c568283ac",
     "src/api/beta_product_record_store.ts": "6987936708b0d8cbaafbc34a02a19a54e0638abaa9fa7c11fcf4d43ef00e087b",
     "src/api/beta_product_journey_service.ts": "ea2a7e05c7468212705f5bb0c2972237fd8f030d46c3ce21d381a9b523e0565e",
     "src/api/block_compile_write_service.ts": "45db532638eb42b45da0cd93669422d3985ec35556afae05a592c4196f24f642",
