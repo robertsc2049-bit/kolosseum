@@ -1616,13 +1616,23 @@ $$;
 -- viewer is a live COUNT of the peer's messages with created_at after
 -- their own marker, never a stored/cached number - re-derived on every
 -- read, the same "never a stale cache" posture used throughout this
--- codebase. Scoped to coach_athlete threads only for now; org_owner_*
--- threads leave these columns unused/null.
+-- codebase. Originally scoped to coach_athlete threads only;
+-- owner_last_read_at (below) extends the same pattern to org_owner_coach
+-- and org_owner_athlete threads, reusing these same coach_last_read_at/
+-- athlete_last_read_at columns for the coach/athlete side of each -
+-- exactly the same column-reuse-across-thread-type convention this
+-- table's own coach_user_id/athlete_user_id columns already use.
 ALTER TABLE product_message_threads
   ADD COLUMN IF NOT EXISTS coach_last_read_at TIMESTAMPTZ;
 
 ALTER TABLE product_message_threads
   ADD COLUMN IF NOT EXISTS athlete_last_read_at TIMESTAMPTZ;
+
+-- The org owner's own last-read marker - shared across both
+-- org_owner_coach and org_owner_athlete threads (the owner is always the
+-- opposite party in each), mirroring the two columns above.
+ALTER TABLE product_message_threads
+  ADD COLUMN IF NOT EXISTS owner_last_read_at TIMESTAMPTZ;
 
 -- No length bound exists on product_coach_notes.note_text (this
 -- codebase's only prior free-text precedent) - messages are much
