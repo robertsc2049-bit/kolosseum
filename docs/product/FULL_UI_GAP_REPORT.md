@@ -503,7 +503,7 @@ Implemented: 2 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
-- `coach_athlete_messaging` — Coach and athlete exchange threaded messages with live delivery and photo/video attachments while their relationship is accepted
+- `coach_athlete_messaging` — Coach and athlete exchange threaded messages with live delivery and photo/video attachments while their relationship is accepted - each thread carries a live unread count for its viewer, cleared when that viewer opens it
 - `coach_broadcast_message` — Coach sends the same message into every currently-accepted athlete's thread at once
 
 ### Cross-product quality

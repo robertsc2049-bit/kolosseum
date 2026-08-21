@@ -41,6 +41,7 @@ const DEFAULT_STATE = Object.freeze({
   view: "today",
   coachAthletes: [],
   coachRelationships: [],
+  coachMessageUnreadByAthlete: {},
   coachAthleteSearch: "",
   coachAthleteRelationshipFilter: "all",
   coachAssignments: [],
@@ -759,6 +760,9 @@ function loadState() {
       coachEvents: Array.isArray(parsed.coachEvents) ? parsed.coachEvents : [],
       athleteEventLinks: parsed.athleteEventLinks && typeof parsed.athleteEventLinks === "object"
         ? parsed.athleteEventLinks
+        : {},
+      coachMessageUnreadByAthlete: parsed.coachMessageUnreadByAthlete && typeof parsed.coachMessageUnreadByAthlete === "object"
+        ? parsed.coachMessageUnreadByAthlete
         : {},
       coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
       marketplaceSearch: String(parsed.marketplaceSearch ?? ""),
@@ -3752,6 +3756,12 @@ function renderCoachAthleteDirectory() {
                     )}
                   </span>
 
+                  ${coachMessageUnreadCountFor(record.userId) > 0 ? `
+                    <span class="badge active" title="Unread messages from this athlete">
+                      ${coachMessageUnreadCountFor(record.userId)} unread
+                    </span>
+                  ` : ""}
+
                   <button
                     class="button secondary small-button"
                     type="button"
@@ -4007,6 +4017,39 @@ async function transitionCoachRelationship(
 }
 
 
+function coachMessageUnreadCountFor(athleteUserId) {
+  const byAthlete = state.coachMessageUnreadByAthlete;
+  if (!athleteUserId || !byAthlete || typeof byAthlete !== "object") return 0;
+  return Number(byAthlete[athleteUserId]) || 0;
+}
+
+// A lightweight threads-list-only fetch - deliberately never drills into
+// a specific thread's messages (that happens in
+// refreshCoachAthleteMessages, on the athlete's own profile page, and IS
+// what marks a thread read server-side). Keeping this call separate
+// means the directory's unread badges stay accurate until the coach
+// actually opens that athlete's profile.
+async function refreshCoachMessageUnreadCounts(options = {}) {
+  if (state.role !== "coach") return {};
+
+  try {
+    const response = await api("GET", "/messages/coach/threads");
+    const threads = Array.isArray(response.threads) ? response.threads : [];
+    const byAthlete = {};
+    for (const thread of threads) {
+      if (thread.athlete_user_id) {
+        byAthlete[thread.athlete_user_id] = Number(thread.unread_count) || 0;
+      }
+    }
+    state.coachMessageUnreadByAthlete = byAthlete;
+    return byAthlete;
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+    return state.coachMessageUnreadByAthlete ?? {};
+  }
+}
+
 async function refreshCoachAthletes(options = {}) {
   if (state.role !== "coach") return [];
 
@@ -4025,7 +4068,8 @@ async function refreshCoachAthletes(options = {}) {
         ),
         refreshCoachRelationships({
           quiet: true
-        })
+        }),
+        refreshCoachMessageUnreadCounts({ quiet: true })
       ]);
 
     const existingById =
@@ -6866,6 +6910,14 @@ async function refreshCoachAthleteMessages(athleteUserId, options = {}) {
     );
     state.coachAthleteMessages = Array.isArray(messagesResponse.messages) ? messagesResponse.messages : [];
     renderCoachAthleteMessages();
+
+    // Opening this thread just marked it read server-side - reflect that
+    // in the directory's unread badge immediately, without waiting for
+    // the coach to navigate back and reload the whole directory.
+    if (coachMessageUnreadCountFor(athleteUserId) > 0) {
+      await refreshCoachMessageUnreadCounts({ quiet: true });
+      renderCoachAthleteDirectory();
+    }
   }
   catch (error) {
     if (!options.quiet) throw error;
