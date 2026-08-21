@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 304
+- implemented: 305
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -123,7 +123,7 @@ Slice: FULL-UI-07
 
 Area state: implemented
 
-Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 14 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -140,6 +140,7 @@ Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `athlete_session_history` — Display athlete session history
 - `athlete_relationship_revoke` — Revoke relationship from profile
 - `athlete_archive_inactive` — Archive inactive relationship without deleting history
+- `athlete_roster_csv_export` — Download a CSV of the coach's own athlete roster - name, email, activity, relationship state and connected-since date
 
 ### Strength-reference management
 
@@ -739,6 +740,7 @@ Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-67: implemented
 - FULL-UI-68: implemented
 - FULL-UI-69: implemented
+- FULL-UI-70: implemented
 
 ## Prohibited capabilities
 

@@ -1133,13 +1133,24 @@
               </p>
             </div>
 
-            <button
-              id="refreshAthleteDirectoryButton"
-              class="button secondary"
-              type="button"
-            >
-              Refresh directory
-            </button>
+            <div class="inline-controls">
+              <a
+                id="exportAthleteRosterButton"
+                class="button secondary"
+                href="/coach-workspace/relationships/export.csv"
+                download="athlete-roster.csv"
+              >
+                Export roster (CSV)
+              </a>
+
+              <button
+                id="refreshAthleteDirectoryButton"
+                class="button secondary"
+                type="button"
+              >
+                Refresh directory
+              </button>
+            </div>
           </div>
 
           <p id="athleteDirectoryStatus" class="muted small" role="status" aria-live="polite"></p>

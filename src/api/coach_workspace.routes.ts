@@ -10,6 +10,7 @@ import {
   createCoachRelationshipInvitationHandler,
   declineAthleteRelationshipInvitationHandler,
   endAthleteRelationshipHandler,
+  exportCoachAthleteRosterCsv,
   getAthleteEventLinks,
   getAthleteStrengthProfile,
   getCoachAssignments,
@@ -46,6 +47,11 @@ export const coachWorkspaceRouter = Router();
 coachWorkspaceRouter.get(
   "/relationships",
   asyncHandler(getCoachAthleteRelationships)
+);
+
+coachWorkspaceRouter.get(
+  "/relationships/export.csv",
+  asyncHandler(exportCoachAthleteRosterCsv)
 );
 
 coachWorkspaceRouter.get(
