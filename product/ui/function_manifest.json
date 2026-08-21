@@ -4793,6 +4793,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "notification_weekly_checkin",
+          "label": "Notify a coach when one of their accepted athletes submits a weekly check-in, deep-linking straight to that athlete's profile",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_71_weekly_checkin_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_71c_weekly_checkin_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -7320,6 +7342,10 @@
     },
     {
       "slice_id": "FULL-UI-70",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-71",
       "state": "implemented"
     }
   ],

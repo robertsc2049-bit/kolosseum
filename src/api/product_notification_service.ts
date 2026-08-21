@@ -44,7 +44,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "programme_available",
   "session_completed",
   "billing_action_required",
-  "marketplace_template_released"
+  "marketplace_template_released",
+  "weekly_checkin_submitted"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -468,6 +469,53 @@ async function deriveMarketplaceReleaseNotifications(
   }
 }
 
+// --- Weekly check-in submitted (notify the athlete's coach) -----------------
+
+async function deriveWeeklyCheckinNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    WITH latest_relationship AS (
+      SELECT DISTINCT ON (subject_user_id)
+        subject_user_id AS athlete_user_id,
+        record_payload->>'relationship_state' AS relationship_state
+      FROM beta_product_records
+      WHERE record_type = 'beta17_coach_relationship'
+        AND actor_user_id = $1
+      ORDER BY subject_user_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    )
+    SELECT checkin.record_id, checkin.subject_user_id AS athlete_user_id, checkin.effective_at, checkin.record_payload
+    FROM beta_product_records checkin
+    JOIN latest_relationship ON latest_relationship.athlete_user_id = checkin.subject_user_id
+    WHERE checkin.record_type = 'weekly_checkin_entry'
+      AND latest_relationship.relationship_state = 'accepted'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const athleteUserId = cleanString(row.athlete_user_id);
+    const recordId = cleanString(row.record_id);
+    if (!athleteUserId || !recordId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "weekly_checkin_submitted",
+      sourceRecordType: "weekly_checkin_entry",
+      sourceRecordId: recordId,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteUserId },
+      notificationPayload: {
+        athlete_user_id: athleteUserId,
+        week_start_date: cleanString(row.record_payload?.week_start_date)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -480,6 +528,7 @@ async function deriveNotificationsForRecipient(
   await deriveAthleteVisibleNoteNotifications(client, recipientUserId, DEEP_LINK_ROUTE_IDS.athleteToday);
   await deriveBillingNotifications(client, recipientUserId);
   await deriveMarketplaceReleaseNotifications(client, recipientUserId);
+  await deriveWeeklyCheckinNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------
