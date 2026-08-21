@@ -2036,11 +2036,44 @@
 
               <div id="templateDetailSharingSection" class="programme-detail-section" hidden>
                 <p class="eyebrow">Marketplace</p>
-                <label class="check-line">
-                  <input type="checkbox" id="templateDetailSharedCheckbox" />
-                  <span>Share this programme publicly with other coaches</span>
-                </label>
-                <p id="templateDetailSharingStatus" class="muted small" role="status" aria-live="polite"></p>
+
+                <form id="templateSharingForm" class="athlete-detail-note-form">
+                  <label class="check-line">
+                    <input type="checkbox" id="templateDetailSharedCheckbox" />
+                    <span>Share this programme publicly with other coaches</span>
+                  </label>
+
+                  <label class="field">
+                    <span>Price (optional - shown to other coaches only, never charged by Kolosseum)</span>
+                    <input type="text" id="templateDetailPriceLabelInput" maxlength="40" placeholder="e.g. £49" autocomplete="off" />
+                  </label>
+
+                  <label class="field">
+                    <span>Accepted payment methods (optional)</span>
+                    <input type="text" id="templateDetailPaymentMethodsInput" maxlength="200" placeholder="e.g. Venmo @handle, PayPal" autocomplete="off" />
+                  </label>
+
+                  <button class="button secondary" type="submit">Save marketplace details</button>
+                  <p id="templateDetailSharingStatus" class="muted small" role="status" aria-live="polite"></p>
+                </form>
+
+                <div class="programme-detail-section">
+                  <p class="eyebrow">Release</p>
+                  <p class="muted small">
+                    Once a buying coach has paid you however you've arranged, release a full copy of this programme to their account.
+                  </p>
+
+                  <form id="templateReleaseForm" class="athlete-detail-note-form">
+                    <label class="field">
+                      <span>Buyer's account code</span>
+                      <input type="text" id="templateReleaseAccountCodeInput" autocomplete="off" placeholder="coach_..." required />
+                    </label>
+                    <button class="button primary" type="submit">Release to this coach</button>
+                    <p id="templateReleaseStatus" class="muted small" role="status" aria-live="polite"></p>
+                  </form>
+
+                  <div id="templateReleaseHistoryList" class="record-list"></div>
+                </div>
               </div>
 
               <div class="programme-detail-grid">

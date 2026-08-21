@@ -1,10 +1,13 @@
-// DEV NOTE: FULL-UI-67 - programme template marketplace visibility
-// routes, mounted at /programme-marketplace. Coach identity is resolved
-// via the shared authenticatedCoach helper (coach_session_auth.js) -
-// never a client-supplied user_id. The browse route is coach-only (this
-// is coach-to-coach template design sharing, not an athlete-facing
-// surface) and returns only summary fields - no full template_structure,
-// no cloning or cross-coach assignment in this slice.
+// DEV NOTE: FULL-UI-67/68 - programme template marketplace visibility
+// and release routes, mounted at /programme-marketplace. Coach identity
+// is resolved via the shared authenticatedCoach helper
+// (coach_session_auth.js) - never a client-supplied user_id. The browse
+// route is coach-only (this is coach-to-coach template design sharing,
+// not an athlete-facing surface) and returns only summary fields - no
+// full template_structure. The release route is the one place the full
+// template content crosses to another coach, and only after the owning
+// coach deliberately releases it to a specific buyer's account code -
+// no payment of any kind is processed, held, or transmitted here.
 
 import {
   Router,
@@ -16,8 +19,10 @@ import {
 import { authenticatedCoach } from "./coach_session_auth.js";
 import {
   ProgrammeTemplateSharingError,
-  loadProgrammeTemplateSharingPreference,
   listMarketplaceSharedTemplates,
+  listProgrammeTemplateReleases,
+  loadProgrammeTemplateSharingPreference,
+  releaseProgrammeTemplateToCoach,
   saveProgrammeTemplateSharingPreference
 } from "./programme_template_sharing_service.js";
 
@@ -66,6 +71,28 @@ programmeTemplateSharingRouter.post(
       request.body ?? {}
     );
     return response.status(201).json({ ok: true, sharing_preference: record });
+  })
+);
+
+programmeTemplateSharingRouter.post(
+  "/templates/:template_id/release",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    const result = await releaseProgrammeTemplateToCoach(
+      coachUserId,
+      String(request.params.template_id),
+      request.body?.buyer_account_code
+    );
+    return response.status(201).json({ ok: true, ...result });
+  })
+);
+
+programmeTemplateSharingRouter.get(
+  "/templates/:template_id/releases",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const releases = await listProgrammeTemplateReleases(coachUserId, String(request.params.template_id));
+    return response.status(200).json({ ok: true, releases });
   })
 );
 

@@ -455,8 +455,15 @@ const elements = {
   marketplaceStatus: document.getElementById("marketplaceStatus"),
   marketplaceList: document.getElementById("marketplaceList"),
   templateDetailSharingSection: document.getElementById("templateDetailSharingSection"),
+  templateSharingForm: document.getElementById("templateSharingForm"),
   templateDetailSharedCheckbox: document.getElementById("templateDetailSharedCheckbox"),
+  templateDetailPriceLabelInput: document.getElementById("templateDetailPriceLabelInput"),
+  templateDetailPaymentMethodsInput: document.getElementById("templateDetailPaymentMethodsInput"),
   templateDetailSharingStatus: document.getElementById("templateDetailSharingStatus"),
+  templateReleaseForm: document.getElementById("templateReleaseForm"),
+  templateReleaseAccountCodeInput: document.getElementById("templateReleaseAccountCodeInput"),
+  templateReleaseStatus: document.getElementById("templateReleaseStatus"),
+  templateReleaseHistoryList: document.getElementById("templateReleaseHistoryList"),
   templateLibrarySearch: document.getElementById("templateLibrarySearch"),
   templateLibraryStatusFilter: document.getElementById("templateLibraryStatusFilter"),
   templateLibraryActivityFilter: document.getElementById("templateLibraryActivityFilter"),
@@ -10937,6 +10944,7 @@ function renderProgrammeDetail() {
   elements.templateDetailSharingSection.hidden = !shareable;
   if (shareable) {
     refreshTemplateSharingPreference(template.template_id).catch(handleError);
+    refreshTemplateReleaseHistory(template.template_id).catch(handleError);
   }
 
   elements.templateDetailVersionFamily.innerHTML =
@@ -11033,32 +11041,82 @@ async function refreshTemplateSharingPreference(templateId) {
 
   if (state.selectedTemplateId !== templateId) return;
 
-  elements.templateDetailSharedCheckbox.checked =
-    response.sharing_preference?.shared_publicly === true;
+  const preference = response.sharing_preference;
+  elements.templateDetailSharedCheckbox.checked = preference?.shared_publicly === true;
+  elements.templateDetailPriceLabelInput.value = preference?.price_label ?? "";
+  elements.templateDetailPaymentMethodsInput.value = preference?.payment_methods_note ?? "";
   elements.templateDetailSharingStatus.textContent = "";
 }
 
-async function confirmToggleTemplateSharing() {
+async function confirmSaveTemplateSharing(event) {
+  event.preventDefault();
+
   const templateId = state.selectedTemplateId;
   if (!templateId) return;
 
   const sharedPublicly = elements.templateDetailSharedCheckbox.checked;
+  const priceLabel = elements.templateDetailPriceLabelInput.value.trim();
+  const paymentMethodsNote = elements.templateDetailPaymentMethodsInput.value.trim();
   elements.templateDetailSharingStatus.textContent = "Saving…";
 
-  try {
-    await api(
-      "POST",
-      `/programme-marketplace/templates/${encodeURIComponent(templateId)}/sharing`,
-      { shared_publicly: sharedPublicly }
-    );
-    elements.templateDetailSharingStatus.textContent = sharedPublicly
-      ? "Shared with other coaches."
-      : "No longer shared.";
+  await api(
+    "POST",
+    `/programme-marketplace/templates/${encodeURIComponent(templateId)}/sharing`,
+    {
+      shared_publicly: sharedPublicly,
+      price_label: priceLabel || null,
+      payment_methods_note: paymentMethodsNote || null
+    }
+  );
+  elements.templateDetailSharingStatus.textContent = sharedPublicly
+    ? "Shared with other coaches."
+    : "No longer shared.";
+}
+
+async function refreshTemplateReleaseHistory(templateId) {
+  const response = await api(
+    "GET",
+    `/programme-marketplace/templates/${encodeURIComponent(templateId)}/releases`
+  );
+
+  if (state.selectedTemplateId !== templateId) return;
+
+  const releases = Array.isArray(response.releases) ? response.releases : [];
+  if (releases.length === 0) {
+    elements.templateReleaseHistoryList.innerHTML = `<p class="muted small">Not released to any coach yet.</p>`;
+    return;
   }
-  catch (error) {
-    elements.templateDetailSharedCheckbox.checked = !sharedPublicly;
-    throw error;
-  }
+
+  elements.templateReleaseHistoryList.innerHTML = releases.map((release) => `
+    <article class="record-row">
+      <div>
+        <strong>Released to ${escapeHtml(release.buyer_coach_user_id)}</strong>
+        <p class="muted small">${escapeHtml(formatDate(release.released_at_iso8601))}</p>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function confirmReleaseTemplate(event) {
+  event.preventDefault();
+
+  const templateId = state.selectedTemplateId;
+  if (!templateId) return;
+
+  const buyerAccountCode = elements.templateReleaseAccountCodeInput.value.trim();
+  if (!buyerAccountCode) return;
+
+  elements.templateReleaseStatus.textContent = "Releasing…";
+
+  await api(
+    "POST",
+    `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`,
+    { buyer_account_code: buyerAccountCode }
+  );
+
+  elements.templateReleaseForm.reset();
+  elements.templateReleaseStatus.textContent = `Released to ${buyerAccountCode}.`;
+  await refreshTemplateReleaseHistory(templateId);
 }
 
 function openProgrammeDetail(templateId, options = {}) {
@@ -13708,6 +13766,8 @@ function renderMarketplace() {
         <strong>${escapeHtml(template.template_name)}</strong>
         <p class="muted small">${escapeHtml(titleCase(template.activity_id))} · ${escapeHtml(template.template_status)}</p>
         ${template.description ? `<p class="muted small">${escapeHtml(template.description)}</p>` : ""}
+        ${template.price_label ? `<p class="muted small"><strong>${escapeHtml(template.price_label)}</strong></p>` : ""}
+        ${template.payment_methods_note ? `<p class="muted small">Accepted payment: ${escapeHtml(template.payment_methods_note)}</p>` : ""}
         <p class="muted small">Shared by ${escapeHtml(template.coach_display_name)}${template.coach_brand_tagline ? ` — ${escapeHtml(template.coach_brand_tagline)}` : ""}</p>
       </div>
     </article>
@@ -16059,8 +16119,11 @@ elements.inviteAthleteByEmailForm.addEventListener("submit", (event) => {
 elements.coachBroadcastForm.addEventListener("submit", (event) => {
   guardedAction(submitButtonOf, confirmSendCoachBroadcast)(event).catch(handleError);
 });
-elements.templateDetailSharedCheckbox.addEventListener("change", () => {
-  confirmToggleTemplateSharing().catch(handleError);
+elements.templateSharingForm.addEventListener("submit", (event) => {
+  guardedAction(submitButtonOf, confirmSaveTemplateSharing)(event).catch(handleError);
+});
+elements.templateReleaseForm.addEventListener("submit", (event) => {
+  guardedAction(submitButtonOf, confirmReleaseTemplate)(event).catch(handleError);
 });
 
 // FULL-UI-05B builder interaction bindings.

@@ -1109,7 +1109,7 @@ function loadExerciseRegistry(): Readonly<{
   });
 }
 
-async function requireActiveCoach(
+export async function requireActiveCoach(
   coachUserId: string
 ): Promise<Readonly<JsonRecord>> {
   const coachProfile =
@@ -2075,7 +2075,7 @@ function normaliseTemplateStructure(
   });
 }
 
-function templateRecordInput(
+export function templateRecordInput(
   record: JsonRecord
 ): JsonRecord {
   const structure =

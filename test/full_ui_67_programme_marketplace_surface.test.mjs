@@ -99,9 +99,9 @@ test("the coach workspace has a real share toggle and a real marketplace browse 
   assert.match(indexHtml, /data-view="marketplace"/u);
 
   assert.match(appJs, /async function refreshMarketplace/u);
-  assert.match(appJs, /async function confirmToggleTemplateSharing/u);
+  assert.match(appJs, /async function confirmSaveTemplateSharing/u);
   assert.match(appJs, /"\/programme-marketplace\/templates"/u);
-  assert.match(appJs, /elements\.templateDetailSharedCheckbox\.addEventListener\("change"/u);
+  assert.match(appJs, /elements\.templateSharingForm\.addEventListener\("submit"/u);
 });
 
 test("the marketplace card escapes coach-supplied template name, description and tagline before rendering", () => {
@@ -115,19 +115,19 @@ test("the sharing toggle is hidden for draft and archived templates, shown only 
   assert.match(appJs, /templateDetailSharingSection\.hidden = !shareable/u);
 });
 
-test("the FULL-UI-67 manifest area declares both functions as implemented with real tests", () => {
+test("the FULL-UI-67 manifest area declares the original visibility and browse functions as implemented with real tests", () => {
   const area = manifest.product_areas.find((entry) => entry.area_id === "programme_marketplace");
   assert.ok(area, "expected a programme_marketplace product area");
   assert.equal(area.slice_id, "FULL-UI-67");
   assert.equal(area.state, "implemented");
 
   const functionIds = area.functions.map((fn) => fn.function_id);
-  assert.deepEqual(
-    functionIds.sort(),
-    ["programme_marketplace_browse", "programme_marketplace_share"]
-  );
+  for (const expectedId of ["programme_marketplace_browse", "programme_marketplace_share"]) {
+    assert.ok(functionIds.includes(expectedId), `expected ${expectedId} in the programme_marketplace area`);
+  }
 
-  for (const fn of area.functions) {
+  for (const functionId of ["programme_marketplace_browse", "programme_marketplace_share"]) {
+    const fn = area.functions.find((entry) => entry.function_id === functionId);
     assert.equal(fn.state, "implemented");
     assert.equal(fn.integration_test, "test/full_ui_67c_programme_marketplace_persistent.integration.test.mjs");
     assert.equal(fn.direct_test, "test/full_ui_67_programme_marketplace_surface.test.mjs");
