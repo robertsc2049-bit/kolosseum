@@ -109,6 +109,25 @@ test("a photo's byte_size, which progress_photo_service.ts already computes and 
   assert.match(appJs, /formatAttachmentSize\(photo\.byte_size\)/u);
 });
 
+test("both the athlete's own grid and the coach's read-only grid support selecting exactly two photos for a side-by-side comparison", () => {
+  assert.match(indexHtml, /id="progressPhotoComparison"/u);
+  assert.match(indexHtml, /id="athleteDetailProgressPhotoComparison"/u);
+
+  assert.match(appJs, /function toggleProgressPhotoCompareSelection/u);
+  assert.match(appJs, /function bindProgressPhotoCompareToggles/u);
+  assert.match(appJs, /function renderProgressPhotoComparisonPanel/u);
+  assert.match(appJs, /data-progress-photo-compare="\$\{escapeHtml\(photo\.photo_id\)\}"/u);
+
+  assert.match(appJs, /bindProgressPhotoCompareToggles\(elements\.progressPhotoGrid, "progressPhotoCompareIds", renderProgressPhotos\)/u);
+  assert.match(appJs, /bindProgressPhotoCompareToggles\(elements\.athleteDetailProgressPhotos, "coachAthleteProgressPhotoCompareIds", renderCoachAthleteProgressPhotos\)/u);
+});
+
+test("selecting a third photo drops the oldest selection rather than refusing the click, and the comparison panel only ever renders exactly two photos, oldest first", () => {
+  assert.match(appJs, /if \(current\.length > 2\) current\.shift\(\);/u);
+  assert.match(appJs, /if \(selectedIds\.length !== 2\)/u);
+  assert.match(appJs, /\.sort\(\s*\n?\s*\(left, right\) => new Date\(left\.taken_at_iso8601\) - new Date\(right\.taken_at_iso8601\)\s*\n?\s*\)/u);
+});
+
 test("the FULL-UI-28 manifest area declares all three functions as implemented with real routes and tests", () => {
   const area = manifest.product_areas.find((entry) => entry.area_id === "progress_photos");
   assert.ok(area, "expected a progress_photos product area");
