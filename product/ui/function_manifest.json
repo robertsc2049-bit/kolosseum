@@ -5434,7 +5434,7 @@
         },
         {
           "function_id": "admin_data_requests",
-          "label": "Review export and deletion requests",
+          "label": "Review export and deletion requests, searchable by request ID, user ID, status or reason",
           "actors": [
             "founder_admin"
           ],

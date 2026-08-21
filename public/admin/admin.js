@@ -10,7 +10,9 @@ const state = {
   csrfToken: "",
   selectedUserId: null,
   pendingStateChange: null,
-  pendingTestMarking: null
+  pendingTestMarking: null,
+  dataRightsExports: [],
+  dataRightsDeletions: []
 };
 
 function el(id) {
@@ -300,20 +302,56 @@ async function refreshDataRightsReview() {
     api("GET", "/admin/data-rights/deletions")
   ]);
 
+  state.dataRightsExports = exportsResult.requests ?? [];
+  state.dataRightsDeletions = deletionsResult.requests ?? [];
+  renderDataRightsReview();
+}
+
+function filteredExportRequests() {
+  const search = (el("exportRequestsSearch")?.value ?? "").trim().toLowerCase();
+  if (!search) return state.dataRightsExports;
+  return state.dataRightsExports.filter((request) =>
+    [request.export_request_id, request.user_id, request.status]
+      .some((value) => String(value ?? "").toLowerCase().includes(search))
+  );
+}
+
+function filteredDeletionRequests() {
+  const search = (el("deletionRequestsSearch")?.value ?? "").trim().toLowerCase();
+  if (!search) return state.dataRightsDeletions;
+  return state.dataRightsDeletions.filter((request) =>
+    [request.deletion_request_id, request.user_id, request.reason_code, request.queue_status]
+      .some((value) => String(value ?? "").toLowerCase().includes(search))
+  );
+}
+
+function renderDataRightsReview() {
   const exportsBody = el("exportRequestsList");
   exportsBody.innerHTML = "";
-  for (const request of exportsResult.requests ?? []) {
+  const exportRequests = filteredExportRequests();
+  for (const request of exportRequests) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td>${request.export_request_id}</td><td>${request.user_id}</td><td>${request.status}</td><td>${request.requested_at_iso8601 ?? ""}</td><td>${request.ready_at_iso8601 ?? ""}</td><td>${request.expires_at_iso8601 ?? ""}</td><td>${request.downloaded_at_iso8601 ?? "Not downloaded"}</td>`;
+    row.innerHTML = `<td>${escapeHtml(request.export_request_id)}</td><td>${escapeHtml(request.user_id)}</td><td>${escapeHtml(request.status)}</td><td>${escapeHtml(request.requested_at_iso8601 ?? "")}</td><td>${escapeHtml(request.ready_at_iso8601 ?? "")}</td><td>${escapeHtml(request.expires_at_iso8601 ?? "")}</td><td>${escapeHtml(request.downloaded_at_iso8601 ?? "Not downloaded")}</td>`;
     exportsBody.appendChild(row);
+  }
+  if (state.dataRightsExports.length > 0 && exportRequests.length === 0) {
+    const emptyRow = document.createElement("tr");
+    emptyRow.innerHTML = `<td colspan="7" class="muted">No export requests match.</td>`;
+    exportsBody.appendChild(emptyRow);
   }
 
   const deletionsBody = el("deletionRequestsList");
   deletionsBody.innerHTML = "";
-  for (const request of deletionsResult.requests ?? []) {
+  const deletionRequests = filteredDeletionRequests();
+  for (const request of deletionRequests) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td>${request.deletion_request_id}</td><td>${request.user_id}</td><td>${request.reason_code}</td><td>${request.queue_status}</td><td>${request.requested_at_iso8601 ?? ""}</td>`;
+    row.innerHTML = `<td>${escapeHtml(request.deletion_request_id)}</td><td>${escapeHtml(request.user_id)}</td><td>${escapeHtml(request.reason_code)}</td><td>${escapeHtml(request.queue_status)}</td><td>${escapeHtml(request.requested_at_iso8601 ?? "")}</td>`;
     deletionsBody.appendChild(row);
+  }
+  if (state.dataRightsDeletions.length > 0 && deletionRequests.length === 0) {
+    const emptyRow = document.createElement("tr");
+    emptyRow.innerHTML = `<td colspan="5" class="muted">No deletion requests match.</td>`;
+    deletionsBody.appendChild(emptyRow);
   }
 }
 
@@ -343,3 +381,5 @@ el("accountToggleStateButton").addEventListener("click", requestAccountStateTogg
 el("accountToggleStateConfirmButton").addEventListener("click", () => confirmAccountStateToggle().catch(console.error));
 el("accountToggleTestButton").addEventListener("click", requestTestMarkingToggle);
 el("accountToggleTestConfirmButton").addEventListener("click", () => confirmTestMarkingToggle().catch(console.error));
+el("exportRequestsSearch").addEventListener("input", renderDataRightsReview);
+el("deletionRequestsSearch").addEventListener("input", renderDataRightsReview);

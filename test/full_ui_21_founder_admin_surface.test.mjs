@@ -276,6 +276,31 @@ test("an audit record's correlation_id, which listAdminAuditRecords already sele
   assert.match(js, /record\.correlation_id/u);
 });
 
+test("the export and deletion request tables have real search controls, filtering the already-fetched lists client-side rather than issuing a new request per keystroke", () => {
+  assert.match(html, /id="exportRequestsSearch"/u);
+  assert.match(html, /id="deletionRequestsSearch"/u);
+
+  assert.match(js, /function filteredExportRequests/u);
+  assert.match(js, /function filteredDeletionRequests/u);
+  assert.match(js, /function renderDataRightsReview/u);
+  assert.match(js, /state\.dataRightsExports\s*=\s*exportsResult\.requests/u);
+  assert.match(js, /state\.dataRightsDeletions\s*=\s*deletionsResult\.requests/u);
+  assert.match(js, /el\("exportRequestsSearch"\)\.addEventListener\("input", renderDataRightsReview\)/u);
+  assert.match(js, /el\("deletionRequestsSearch"\)\.addEventListener\("input", renderDataRightsReview\)/u);
+});
+
+test("the data-rights tables distinguish zero requests at all from zero matches for the current search", () => {
+  assert.match(js, /No export requests match/u);
+  assert.match(js, /No deletion requests match/u);
+});
+
+test("data-rights request fields are escaped before being inserted into the table rows - not raw string interpolation", () => {
+  assert.match(js, /escapeHtml\(request\.export_request_id\)/u);
+  assert.match(js, /escapeHtml\(request\.user_id\)/u);
+  assert.match(js, /escapeHtml\(request\.deletion_request_id\)/u);
+  assert.match(js, /escapeHtml\(request\.reason_code\)/u);
+});
+
 test("every route resolves the admin's own identity from the session, never a client-supplied admin id", () => {
   assert.doesNotMatch(routes, /request\.body\.admin_user_id|request\.query\.admin_user_id/u);
   assert.match(routes, /admin\.user_id/u);
