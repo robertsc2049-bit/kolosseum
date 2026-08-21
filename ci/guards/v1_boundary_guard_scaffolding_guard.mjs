@@ -70,6 +70,7 @@ const explicitLaterSliceAllowedChangedPaths =
     "product/ui/full_ui_04c_coach_commercial_closure.json",
     "product/ui/full_ui_08c_strength_reference_lifecycle_closure.json",
     "product/ui/function_manifest.json",
+    "shared/programme-marketplace/programmeTemplateSharingLifecycle.mjs",
     "public/app/account_ui.js",
     "public/app/app.js",
     "public/app/athlete_onboarding_ui.js",

@@ -50,6 +50,7 @@ const DEFAULT_STATE = Object.freeze({
   templateEventBindingStatus: null,
   athleteToday: null,
   coachTemplates: [],
+  marketplaceTemplates: [],
   templateLibrarySearch: "",
   templateLibraryStatusFilter: "all",
   templateLibraryActivityFilter: "all",
@@ -451,6 +452,11 @@ const elements = {
   newTemplateButton: document.getElementById("newTemplateButton"),
   refreshTemplatesButton: document.getElementById("refreshTemplatesButton"),
   templateLibraryList: document.getElementById("templateLibraryList"),
+  marketplaceStatus: document.getElementById("marketplaceStatus"),
+  marketplaceList: document.getElementById("marketplaceList"),
+  templateDetailSharingSection: document.getElementById("templateDetailSharingSection"),
+  templateDetailSharedCheckbox: document.getElementById("templateDetailSharedCheckbox"),
+  templateDetailSharingStatus: document.getElementById("templateDetailSharingStatus"),
   templateLibrarySearch: document.getElementById("templateLibrarySearch"),
   templateLibraryStatusFilter: document.getElementById("templateLibraryStatusFilter"),
   templateLibraryActivityFilter: document.getElementById("templateLibraryActivityFilter"),
@@ -1436,6 +1442,7 @@ function viewTitle(view) {
     athletes: "Athletes",
     events: "Events",
     templates: "Programmes",
+    marketplace: "Marketplace",
     assign: "Assign",
     review: "Review",
     account: "Account"
@@ -1509,6 +1516,17 @@ function setView(view) {
         elements.templateLibraryStatus,
         () => refreshProgrammeLibrary({ quiet: true }),
         "Programme library could not be loaded."
+      )
+    );
+  }
+
+  if (view === "marketplace" && state.role === "coach") {
+    renderMarketplace();
+    refreshMarketplace({ quiet: true }).catch(
+      catchWithViewRetry(
+        elements.marketplaceStatus,
+        () => refreshMarketplace({ quiet: true }),
+        "Marketplace could not be loaded."
       )
     );
   }
@@ -10914,6 +10932,13 @@ function renderProgrammeDetail() {
   ];
 
   elements.templateDetailActions.innerHTML = actions.join("");
+
+  const shareable = storedStatus === "complete" || storedStatus === "active";
+  elements.templateDetailSharingSection.hidden = !shareable;
+  if (shareable) {
+    refreshTemplateSharingPreference(template.template_id).catch(handleError);
+  }
+
   elements.templateDetailVersionFamily.innerHTML =
     programmeVersionFamilyHtml(template);
   elements.templateDetailUsage.innerHTML =
@@ -10997,6 +11022,42 @@ function renderProgrammeDetail() {
     button.addEventListener("click", () => {
       archiveTemplate(button.dataset.templateId).catch(handleError);
     });
+  }
+}
+
+async function refreshTemplateSharingPreference(templateId) {
+  const response = await api(
+    "GET",
+    `/programme-marketplace/templates/${encodeURIComponent(templateId)}/sharing`
+  );
+
+  if (state.selectedTemplateId !== templateId) return;
+
+  elements.templateDetailSharedCheckbox.checked =
+    response.sharing_preference?.shared_publicly === true;
+  elements.templateDetailSharingStatus.textContent = "";
+}
+
+async function confirmToggleTemplateSharing() {
+  const templateId = state.selectedTemplateId;
+  if (!templateId) return;
+
+  const sharedPublicly = elements.templateDetailSharedCheckbox.checked;
+  elements.templateDetailSharingStatus.textContent = "Saving…";
+
+  try {
+    await api(
+      "POST",
+      `/programme-marketplace/templates/${encodeURIComponent(templateId)}/sharing`,
+      { shared_publicly: sharedPublicly }
+    );
+    elements.templateDetailSharingStatus.textContent = sharedPublicly
+      ? "Shared with other coaches."
+      : "No longer shared.";
+  }
+  catch (error) {
+    elements.templateDetailSharedCheckbox.checked = !sharedPublicly;
+    throw error;
   }
 }
 
@@ -13612,6 +13673,47 @@ function renderCoachEventPreview() {
     : "—";
 }
 
+async function refreshMarketplace(options = {}) {
+  if (state.role !== "coach") return [];
+  if (!options.quiet) showBusy("Loading marketplace…");
+
+  try {
+    const response = await api("GET", "/programme-marketplace/templates");
+    state.marketplaceTemplates = Array.isArray(response.templates) ? response.templates : [];
+    saveState();
+    renderMarketplace();
+    return state.marketplaceTemplates;
+  }
+  finally {
+    if (!options.quiet) hideBusy();
+  }
+}
+
+function renderMarketplace() {
+  const templates = Array.isArray(state.marketplaceTemplates) ? state.marketplaceTemplates : [];
+
+  if (templates.length === 0) {
+    elements.marketplaceList.innerHTML = `
+      <div class="empty-state">
+        <h3>No shared programmes yet</h3>
+        <p>Complete or active programmes another coach shares publicly will appear here.</p>
+      </div>
+    `;
+    return;
+  }
+
+  elements.marketplaceList.innerHTML = templates.map((template) => `
+    <article class="record-row marketplace-template-row"${template.coach_brand_color ? ` style="border-left: 3px solid ${escapeHtml(template.coach_brand_color)}"` : ""}>
+      <div>
+        <strong>${escapeHtml(template.template_name)}</strong>
+        <p class="muted small">${escapeHtml(titleCase(template.activity_id))} · ${escapeHtml(template.template_status)}</p>
+        ${template.description ? `<p class="muted small">${escapeHtml(template.description)}</p>` : ""}
+        <p class="muted small">Shared by ${escapeHtml(template.coach_display_name)}${template.coach_brand_tagline ? ` — ${escapeHtml(template.coach_brand_tagline)}` : ""}</p>
+      </div>
+    </article>
+  `).join("");
+}
+
 async function refreshCoachEvents(options = {}) {
   if (state.role !== "coach" || !state.profile?.coachUserId) return [];
   if (!options.quiet) showBusy("Loading events…");
@@ -15956,6 +16058,9 @@ elements.inviteAthleteByEmailForm.addEventListener("submit", (event) => {
 });
 elements.coachBroadcastForm.addEventListener("submit", (event) => {
   guardedAction(submitButtonOf, confirmSendCoachBroadcast)(event).catch(handleError);
+});
+elements.templateDetailSharedCheckbox.addEventListener("change", () => {
+  confirmToggleTemplateSharing().catch(handleError);
 });
 
 // FULL-UI-05B builder interaction bindings.

@@ -203,6 +203,9 @@
         <button class="nav-item coach-nav" data-view="templates">
           <span class="nav-icon">P</span><span>Programmes</span>
         </button>
+        <button class="nav-item coach-nav" data-view="marketplace">
+          <span class="nav-icon">M</span><span>Marketplace</span>
+        </button>
         <button class="nav-item coach-nav" data-view="review">
           <span class="nav-icon">R</span><span>Review</span>
         </button>
@@ -2031,6 +2034,15 @@
               <p id="templateDetailDescription" class="programme-detail-description muted"></p>
               <div id="templateDetailActions" class="button-row programme-detail-actions"></div>
 
+              <div id="templateDetailSharingSection" class="programme-detail-section" hidden>
+                <p class="eyebrow">Marketplace</p>
+                <label class="check-line">
+                  <input type="checkbox" id="templateDetailSharedCheckbox" />
+                  <span>Share this programme publicly with other coaches</span>
+                </label>
+                <p id="templateDetailSharingStatus" class="muted small" role="status" aria-live="polite"></p>
+              </div>
+
               <div class="programme-detail-grid">
                 <article class="programme-detail-section">
                   <div class="panel-header">
@@ -2255,6 +2267,20 @@
             </div>
             <div id="assignmentHistoryList" class="assignment-history-list"></div>
           </article>
+        </section>
+
+        <section id="view-marketplace" class="view" hidden>
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">Coach workspace</p>
+              <h2>Marketplace</h2>
+              <p class="muted">Browse complete or active programmes other coaches have shared publicly. Read-only - not cloned or assigned from here.</p>
+            </div>
+          </div>
+
+          <p id="marketplaceStatus" class="muted small" role="status" aria-live="polite"></p>
+
+          <div id="marketplaceList" class="record-list"></div>
         </section>
 
         <section id="view-review" class="view" hidden>

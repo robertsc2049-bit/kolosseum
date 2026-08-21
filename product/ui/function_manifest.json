@@ -7011,6 +7011,58 @@
           }
         }
       ]
+    },
+    {
+      "area_id": "programme_marketplace",
+      "title": "Programme template marketplace visibility",
+      "slice_id": "FULL-UI-67",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "programme_marketplace_share",
+          "label": "Declare one of the coach's own complete or active templates publicly browsable by other coaches",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/programme-marketplace/templates/:template_id/sharing"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_67_programme_marketplace_surface.test.mjs",
+          "integration_test": "test/full_ui_67c_programme_marketplace_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_marketplace_browse",
+          "label": "Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity and branding",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/programme-marketplace/templates"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_67_programme_marketplace_surface.test.mjs",
+          "integration_test": "test/full_ui_67c_programme_marketplace_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
     }
   ],
   "delivery_slices": [
@@ -7164,6 +7216,10 @@
     },
     {
       "slice_id": "FULL-UI-66",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-67",
       "state": "implemented"
     }
   ],
@@ -8048,6 +8104,24 @@
       "path": "/coach-branding",
       "source": "src/api/coach_branding.routes.ts",
       "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "GET",
+      "path": "/programme-marketplace/templates",
+      "source": "src/api/programme_template_sharing.routes.ts",
+      "tracked_by_area": "programme_marketplace"
+    },
+    {
+      "method": "GET",
+      "path": "/programme-marketplace/templates/:template_id/sharing",
+      "source": "src/api/programme_template_sharing.routes.ts",
+      "tracked_by_area": "programme_marketplace"
+    },
+    {
+      "method": "POST",
+      "path": "/programme-marketplace/templates/:template_id/sharing",
+      "source": "src/api/programme_template_sharing.routes.ts",
+      "tracked_by_area": "programme_marketplace"
     }
   ],
   "completion_rules": [
