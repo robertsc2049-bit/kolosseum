@@ -15675,7 +15675,8 @@ const NOTIFICATION_TYPE_LABELS = Object.freeze({
   billing_action_required: "Billing action required",
   marketplace_template_released: "Template released",
   weekly_checkin_submitted: "Weekly check-in submitted",
-  video_feedback_received: "Coach feedback on your video"
+  video_feedback_received: "Coach feedback on your video",
+  athlete_goal_achieved: "Goal achieved"
 });
 
 function notificationCoachName(coachUserId) {

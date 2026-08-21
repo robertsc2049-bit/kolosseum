@@ -905,7 +905,8 @@ CREATE TABLE IF NOT EXISTS product_notifications (
         'billing_action_required',
         'marketplace_template_released',
         'weekly_checkin_submitted',
-        'video_feedback_received'
+        'video_feedback_received',
+        'athlete_goal_achieved'
       )
     ),
   source_record_type    TEXT NOT NULL,
@@ -1015,6 +1016,37 @@ ALTER TABLE product_notifications
         'marketplace_template_released',
         'weekly_checkin_submitted',
         'video_feedback_received'
+      )
+    );
+
+-- product_notifications_full_ui_73_type_migration
+-- Additive FULL-UI-73 athlete_goal_achieved notification type - same
+-- reason and same DROP/ADD pattern as the FULL-UI-68 migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved'
       )
     );
 
