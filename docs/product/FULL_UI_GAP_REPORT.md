@@ -468,7 +468,7 @@ Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `admin_support` — Review support and error records
 - `admin_test_users` — Manage test users
 - `admin_data_requests` — Review export and deletion requests, searchable by request ID, user ID, status or reason
-- `admin_audit_action` — Record operational action audit
+- `admin_audit_action` — Record operational action audit, searchable by actor, action type, target or correlation id
 - `admin_no_engine_override` — Prevent admin engine override
 
 ### Organisation owner billing and roster (v1 shell)

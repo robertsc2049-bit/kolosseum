@@ -301,6 +301,27 @@ test("data-rights request fields are escaped before being inserted into the tabl
   assert.match(js, /escapeHtml\(request\.reason_code\)/u);
 });
 
+test("the audit records table has a real search control, filtering the already-fetched list client-side by actor, action, target or correlation id", () => {
+  assert.match(html, /id="auditRecordsSearch"/u);
+
+  assert.match(js, /function filteredAuditRecords/u);
+  assert.match(js, /function renderAuditRecords/u);
+  assert.match(js, /state\.auditRecords\s*=\s*result\.records/u);
+  assert.match(js, /el\("auditRecordsSearch"\)\.addEventListener\("input", renderAuditRecords\)/u);
+
+  const fn = js.slice(js.indexOf("function filteredAuditRecords"), js.indexOf("function renderAuditRecords"));
+  for (const field of ["record.actor_user_id", "record.action_type", "record.target_record_type", "record.target_record_id", "record.correlation_id"]) {
+    assert.ok(fn.includes(field), `expected the audit search to match on ${field}`);
+  }
+});
+
+test("the audit records table distinguishes zero records at all from zero matches for the current search, and escapes every field before inserting it into the row", () => {
+  assert.match(js, /No audit records match/u);
+  assert.match(js, /escapeHtml\(record\.actor_user_id\)/u);
+  assert.match(js, /escapeHtml\(record\.action_type\)/u);
+  assert.match(js, /escapeHtml\(record\.correlation_id\)/u);
+});
+
 test("every route resolves the admin's own identity from the session, never a client-supplied admin id", () => {
   assert.doesNotMatch(routes, /request\.body\.admin_user_id|request\.query\.admin_user_id/u);
   assert.match(routes, /admin\.user_id/u);
