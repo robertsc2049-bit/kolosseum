@@ -692,7 +692,7 @@ Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 #### implemented
 
 - `programme_marketplace_share` — Declare one of the coach's own complete or active templates publicly browsable by other coaches, with an optional display-only price label and payment-methods note
-- `programme_marketplace_browse` — Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity, branding, price label and payment-methods note
+- `programme_marketplace_browse` — Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity, branding, price label and payment-methods note - searchable, filterable by activity and sortable
 - `programme_marketplace_release` — Release a full copy of a shared template to a specific buying coach's account code once paid off-platform, cloning it into the buyer's own independent library
 - `programme_marketplace_release_history` — Display the coach's own history of who a shared template has been released to
 
