@@ -45,7 +45,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "session_completed",
   "billing_action_required",
   "marketplace_template_released",
-  "weekly_checkin_submitted"
+  "weekly_checkin_submitted",
+  "video_feedback_received"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -55,6 +56,7 @@ export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 // invents a target route.
 const DEEP_LINK_ROUTE_IDS = Object.freeze({
   athleteToday: "athlete_today",
+  athleteHistoryDetail: "athlete_history_detail",
   coachAthleteDetail: "coach_athlete_detail",
   coachAthletes: "coach_athletes",
   coachReviewAthlete: "coach_review_athlete",
@@ -516,6 +518,45 @@ async function deriveWeeklyCheckinNotifications(
   }
 }
 
+// --- Video feedback received (notify the submitting athlete) ---------------
+
+async function deriveVideoFeedbackNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT feedback.feedback_id, feedback.coach_user_id, feedback.created_at,
+      submission.submission_id, submission.session_id
+    FROM product_video_submission_feedback feedback
+    JOIN product_video_submissions submission
+      ON submission.submission_id = feedback.submission_id
+    WHERE submission.athlete_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const feedbackId = cleanString(row.feedback_id);
+    const sessionId = cleanString(row.session_id);
+    if (!feedbackId || !sessionId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "video_feedback_received",
+      sourceRecordType: "product_video_submission_feedback",
+      sourceRecordId: feedbackId,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteHistoryDetail,
+      deepLinkParams: { session_id: sessionId },
+      notificationPayload: {
+        coach_user_id: cleanString(row.coach_user_id),
+        submission_id: cleanString(row.submission_id)
+      },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -529,6 +570,7 @@ async function deriveNotificationsForRecipient(
   await deriveBillingNotifications(client, recipientUserId);
   await deriveMarketplaceReleaseNotifications(client, recipientUserId);
   await deriveWeeklyCheckinNotifications(client, recipientUserId);
+  await deriveVideoFeedbackNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

@@ -4815,6 +4815,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "notification_video_feedback",
+          "label": "Notify an athlete when their coach adds feedback on one of their video submissions, deep-linking straight to that session's history detail",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_72_video_feedback_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_72c_video_feedback_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -7346,6 +7368,10 @@
     },
     {
       "slice_id": "FULL-UI-71",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-72",
       "state": "implemented"
     }
   ],
