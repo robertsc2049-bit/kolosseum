@@ -1616,6 +1616,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "athlete_roster_csv_export",
+          "label": "Download a CSV of the coach's own athlete roster - name, email, activity, relationship state and connected-since date",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/coach-workspace/relationships/export.csv"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_70_athlete_roster_csv_export_surface.test.mjs",
+          "integration_test": "test/full_ui_70c_athlete_roster_csv_export_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -7295,6 +7317,10 @@
     {
       "slice_id": "FULL-UI-69",
       "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-70",
+      "state": "implemented"
     }
   ],
   "prohibited_capabilities": [
@@ -8166,6 +8192,12 @@
       "path": "/coach-workspace/events/calendar.ics",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "events"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/relationships/export.csv",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "athlete_directory"
     },
     {
       "method": "POST",

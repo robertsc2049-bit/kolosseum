@@ -138,6 +138,56 @@ export async function getCoachAthleteRelationships(
   }
 }
 
+// DEV NOTE: FULL-UI-70 coach roster CSV export. A read-only reformatting
+// of the same factual relationship records the Athletes directory
+// already displays - no new record type, no engine involvement, and the
+// same session-derived coach identity every other handler in this file
+// uses. Distinct in purpose from data_rights' GDPR personal-data export:
+// this is the coach's own operational roster of their athletes, not an
+// account's export of its own personal data.
+function csvEscapeField(value: string): string {
+  if (/[",\r\n]/u.test(value)) {
+    return `"${value.replace(/"/gu, '""')}"`;
+  }
+  return value;
+}
+
+export async function exportCoachAthleteRosterCsv(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, false);
+    const relationships = await listCoachAthleteRelationships(coachUserId);
+
+    const header = ["display_name", "email", "activity_id", "relationship_state", "connected_since"];
+    const rows = relationships.map((entry) => [
+      String(entry.display_name ?? ""),
+      String(entry.email ?? ""),
+      String(entry.activity_id ?? ""),
+      String(entry.relationship_state ?? ""),
+      String(
+        (entry.relationship as { accepted_at_iso8601?: string; created_at_iso8601?: string } | undefined)
+          ?.accepted_at_iso8601 ??
+        (entry.relationship as { created_at_iso8601?: string } | undefined)?.created_at_iso8601 ??
+        ""
+      )
+    ]);
+
+    const csv = [header, ...rows]
+      .map((row) => row.map(csvEscapeField).join(","))
+      .join("\r\n");
+
+    res.status(200);
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="athlete-roster-${coachUserId}.csv"`);
+    return res.send(csv);
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
 export async function getConnectedCoachAthletes(
   req: Request,
   res: Response
