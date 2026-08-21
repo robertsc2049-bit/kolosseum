@@ -7152,7 +7152,7 @@
         },
         {
           "function_id": "programme_marketplace_browse",
-          "label": "Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity, branding, price label and payment-methods note",
+          "label": "Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity, branding, price label and payment-methods note - searchable, filterable by activity and sortable",
           "actors": [
             "coach"
           ],

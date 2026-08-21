@@ -115,6 +115,34 @@ test("the sharing toggle is hidden for draft and archived templates, shown only 
   assert.match(appJs, /templateDetailSharingSection\.hidden = !shareable/u);
 });
 
+test("the marketplace browse view has real search, activity-filter and sort controls, wired to a client-side filter", () => {
+  assert.match(indexHtml, /id="marketplaceSearch"/u);
+  assert.match(indexHtml, /id="marketplaceActivityFilter"/u);
+  assert.match(indexHtml, /id="marketplaceSort"/u);
+
+  assert.match(appJs, /function filteredMarketplaceTemplates/u);
+  assert.match(appJs, /function marketplaceSearchText/u);
+  assert.match(appJs, /elements\.marketplaceSearch\?\.addEventListener\("input"/u);
+  assert.match(appJs, /elements\.marketplaceActivityFilter\?\.addEventListener\("change"/u);
+  assert.match(appJs, /elements\.marketplaceSort\?\.addEventListener\("change"/u);
+});
+
+test("the marketplace filter matches on name, description, activity and coach identity - never a server round-trip per keystroke", () => {
+  const fn = appJs.slice(
+    appJs.indexOf("function marketplaceSearchText"),
+    appJs.indexOf("function filteredMarketplaceTemplates") + 900
+  );
+  assert.match(fn, /template\?\.template_name/u);
+  assert.match(fn, /template\?\.description/u);
+  assert.match(fn, /template\?\.activity_id/u);
+  assert.match(fn, /template\?\.coach_display_name/u);
+});
+
+test("the marketplace has a distinct empty state for zero matches versus zero shared templates at all", () => {
+  assert.match(appJs, /No shared programmes yet/u);
+  assert.match(appJs, /No programmes match/u);
+});
+
 test("the FULL-UI-67 manifest area declares the original visibility and browse functions as implemented with real tests", () => {
   const area = manifest.product_areas.find((entry) => entry.area_id === "programme_marketplace");
   assert.ok(area, "expected a programme_marketplace product area");

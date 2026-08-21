@@ -2324,6 +2324,37 @@
 
           <p id="marketplaceStatus" class="muted small" role="status" aria-live="polite"></p>
 
+          <div class="programme-library-controls" aria-label="Marketplace filters">
+            <label class="field programme-search-field">
+              <span>Search marketplace</span>
+              <input
+                id="marketplaceSearch"
+                type="search"
+                autocomplete="off"
+                placeholder="Name, activity or coach"
+              />
+            </label>
+
+            <label class="field">
+              <span>Activity</span>
+              <select id="marketplaceActivityFilter">
+                <option value="all">All activities</option>
+                <option value="powerlifting">Powerlifting</option>
+                <option value="general_strength">General strength</option>
+                <option value="rugby_union">Rugby union</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Sort</span>
+              <select id="marketplaceSort">
+                <option value="updated_desc">Recently updated</option>
+                <option value="name_asc">Name A–Z</option>
+                <option value="coach_asc">Coach A–Z</option>
+              </select>
+            </label>
+          </div>
+
           <div id="marketplaceList" class="record-list"></div>
         </section>
 
