@@ -6951,10 +6951,13 @@ const DEVICE_METRIC_TYPE_LABELS = {
   sleep_duration_minutes: "Sleep duration"
 };
 
-function renderDeviceConnectionCard(connection) {
+function renderDeviceConnectionCard(connection, options = {}) {
   const providerLabel = DEVICE_PROVIDER_LABELS[connection.provider] || connection.provider;
   const statusBadge = connection.connection_status === "active" ? "Connected" : "Disconnected";
-  const disconnectButton = connection.connection_status === "active"
+  // Connect/disconnect are athlete-self only (device_sync.routes.ts) - a
+  // coach viewing this same card in an athlete's read-only detail panel
+  // must never see a control for an action they have no route to take.
+  const disconnectButton = connection.connection_status === "active" && !options.viewerIsCoach
     ? `<button class="button ghost small" type="button" data-device-disconnect="${escapeHtml(connection.connection_id)}">Disconnect</button>`
     : "";
 
@@ -6970,7 +6973,7 @@ function renderDeviceConnectionCard(connection) {
   `;
 }
 
-function renderDeviceConnectionList(container, connections) {
+function renderDeviceConnectionList(container, connections, options = {}) {
   if (!container) return;
 
   if (connections.length === 0) {
@@ -6982,7 +6985,7 @@ function renderDeviceConnectionList(container, connections) {
     return;
   }
 
-  container.innerHTML = connections.map(renderDeviceConnectionCard).join("");
+  container.innerHTML = connections.map((connection) => renderDeviceConnectionCard(connection, options)).join("");
 }
 
 function renderDeviceMetricEntry(entry) {
@@ -7085,7 +7088,11 @@ async function refreshCoachAthleteDeviceSync(athleteUserId, options = {}) {
     ]);
     state.coachAthleteDeviceConnections = Array.isArray(connectionsResponse.connections) ? connectionsResponse.connections : [];
     state.coachAthleteDeviceMetricEntries = Array.isArray(metricsResponse.entries) ? metricsResponse.entries : [];
-    renderDeviceConnectionList(elements.athleteDetailDeviceConnectionList, state.coachAthleteDeviceConnections);
+    renderDeviceConnectionList(
+      elements.athleteDetailDeviceConnectionList,
+      state.coachAthleteDeviceConnections,
+      { viewerIsCoach: true }
+    );
     renderDeviceMetricList(elements.athleteDetailDeviceMetricHistory, state.coachAthleteDeviceMetricEntries);
   }
   catch (error) {
