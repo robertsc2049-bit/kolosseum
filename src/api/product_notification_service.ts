@@ -47,7 +47,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "marketplace_template_released",
   "weekly_checkin_submitted",
   "video_feedback_received",
-  "athlete_goal_achieved"
+  "athlete_goal_achieved",
+  "video_submitted"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -612,6 +613,42 @@ async function deriveAthleteGoalAchievedNotifications(
   }
 }
 
+// --- Video submitted (notify the reviewing coach) ---------------------------
+
+async function deriveVideoSubmittedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT submission_id, athlete_user_id, session_id, created_at
+    FROM product_video_submissions
+    WHERE coach_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const submissionId = cleanString(row.submission_id);
+    const athleteUserId = cleanString(row.athlete_user_id);
+    if (!submissionId || !athleteUserId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "video_submitted",
+      sourceRecordType: "product_video_submissions",
+      sourceRecordId: submissionId,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachReviewAthlete,
+      deepLinkParams: { athlete_id: athleteUserId },
+      notificationPayload: {
+        athlete_user_id: athleteUserId,
+        submission_id: submissionId
+      },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -627,6 +664,7 @@ async function deriveNotificationsForRecipient(
   await deriveWeeklyCheckinNotifications(client, recipientUserId);
   await deriveVideoFeedbackNotifications(client, recipientUserId);
   await deriveAthleteGoalAchievedNotifications(client, recipientUserId);
+  await deriveVideoSubmittedNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------
