@@ -84,6 +84,8 @@ const DEFAULT_STATE = Object.freeze({
   selectedVideoFeedbackSubmissionId: "",
   progressPhotoCompareIds: [],
   coachAthleteProgressPhotoCompareIds: [],
+  lastBroadcastId: "",
+  broadcastReadStatus: null,
   athleteDetails: {},
   coachCode: "",
   pendingRelationshipInvitations: [],
@@ -368,6 +370,10 @@ const elements = {
   coachBroadcastForm: document.getElementById("coachBroadcastForm"),
   coachBroadcastBodyText: document.getElementById("coachBroadcastBodyText"),
   coachBroadcastStatus: document.getElementById("coachBroadcastStatus"),
+  coachBroadcastReadStatus: document.getElementById("coachBroadcastReadStatus"),
+  coachBroadcastReadSummary: document.getElementById("coachBroadcastReadSummary"),
+  coachBroadcastReadList: document.getElementById("coachBroadcastReadList"),
+  refreshBroadcastReadStatusButton: document.getElementById("refreshBroadcastReadStatusButton"),
   eventsStatus: document.getElementById("eventsStatus"),
   athleteDirectorySearch: document.getElementById("athleteDirectorySearch"),
   athleteRelationshipFilter: document.getElementById("athleteRelationshipFilter"),
@@ -4246,10 +4252,66 @@ async function confirmSendCoachBroadcast(event) {
         ? `Broadcast sent to ${result.sent_count} athlete${result.sent_count === 1 ? "" : "s"}.`
         : "No accepted athletes to send to yet."
     );
+
+    state.lastBroadcastId = result.sent_count > 0 ? result.broadcast_id : "";
+    state.broadcastReadStatus = null;
+    if (state.lastBroadcastId) {
+      await refreshBroadcastReadStatus({ quiet: true });
+    }
+    else {
+      renderBroadcastReadStatus();
+    }
   }
   finally {
     hideBusy();
   }
+}
+
+function broadcastAthleteName(athleteUserId) {
+  const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
+  return athlete?.displayName || athleteUserId;
+}
+
+async function refreshBroadcastReadStatus(options = {}) {
+  if (!state.lastBroadcastId) return;
+
+  try {
+    const response = await api(
+      "GET",
+      `/messages/coach/broadcasts/${encodeURIComponent(state.lastBroadcastId)}/read-status`
+    );
+    state.broadcastReadStatus = {
+      sent_count: response.sent_count,
+      read_count: response.read_count,
+      athletes: Array.isArray(response.athletes) ? response.athletes : []
+    };
+    renderBroadcastReadStatus();
+  }
+  catch (error) {
+    if (!options.quiet) throw error;
+  }
+}
+
+function renderBroadcastReadStatus() {
+  if (!elements.coachBroadcastReadStatus) return;
+
+  const status = state.broadcastReadStatus;
+  if (!status) {
+    elements.coachBroadcastReadStatus.hidden = true;
+    elements.coachBroadcastReadList.innerHTML = "";
+    return;
+  }
+
+  elements.coachBroadcastReadStatus.hidden = false;
+  elements.coachBroadcastReadSummary.textContent =
+    `Read by ${status.read_count} of ${status.sent_count} athlete${status.sent_count === 1 ? "" : "s"}.`;
+
+  elements.coachBroadcastReadList.innerHTML = status.athletes.map((entry) => `
+    <li>
+      <span class="badge ${entry.read ? "complete" : "neutral"}">${entry.read ? "Read" : "Unread"}</span>
+      ${escapeHtml(broadcastAthleteName(entry.athlete_user_id))}
+    </li>
+  `).join("");
 }
 
 async function connectAthlete(event) {
@@ -16400,6 +16462,9 @@ elements.inviteAthleteByEmailForm.addEventListener("submit", (event) => {
 });
 elements.coachBroadcastForm.addEventListener("submit", (event) => {
   guardedAction(submitButtonOf, confirmSendCoachBroadcast)(event).catch(handleError);
+});
+elements.refreshBroadcastReadStatusButton?.addEventListener("click", () => {
+  refreshBroadcastReadStatus().catch(handleError);
 });
 elements.templateSharingForm.addEventListener("submit", (event) => {
   guardedAction(submitButtonOf, confirmSaveTemplateSharing)(event).catch(handleError);

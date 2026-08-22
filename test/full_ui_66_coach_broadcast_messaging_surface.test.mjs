@@ -28,7 +28,10 @@ test("the broadcast error type is registered in the router's own error handler",
 test("broadcast has no separate record type or delivery path - it fans out over the existing per-athlete send", () => {
   assert.match(service, /listConnectedCoachAthletes/u);
   assert.match(service, /sendCoachAthleteMessage/u);
-  assert.doesNotMatch(service, /INSERT INTO|pool\.query/u);
+  // getBroadcastReadStatus's own read-only SELECT (below) is the one
+  // deliberate exception - it never INSERTs, and delivery still goes
+  // exclusively through sendCoachAthleteMessage.
+  assert.doesNotMatch(service, /INSERT INTO/u);
 });
 
 test("the athlete list is always resolved fresh from the coach's own accepted relationships, never client-supplied", () => {
@@ -55,6 +58,38 @@ test("the coach workspace has a real broadcast control wired to the route", () =
   assert.match(appJs, /async function confirmSendCoachBroadcast/u);
   assert.match(appJs, /"\/messages\/coach\/broadcast"/u);
   assert.match(appJs, /elements\.coachBroadcastForm\.addEventListener\("submit"/u);
+});
+
+test("every fan-out send in one broadcast shares the same server-generated client_request_id, turning it into a free broadcast_id - never client-supplied, never a new column", () => {
+  assert.match(service, /function randomId/u);
+  assert.match(service, /const broadcastId = randomId\("broadcast"\);/u);
+  assert.match(service, /sendCoachAthleteMessage\("coach", coachUserId, athleteUserId, bodyText, broadcastId, null\)/u);
+  assert.match(service, /broadcast_id: broadcastId/u);
+});
+
+test("read status is re-derived live from each athlete's own thread's athlete_last_read_at marker, never a stored/cached read flag", () => {
+  assert.match(service, /export async function getBroadcastReadStatus/u);
+  assert.match(service, /FROM product_messages m/u);
+  assert.match(service, /JOIN product_message_threads t ON t\.thread_id = m\.thread_id/u);
+  assert.match(service, /m\.client_request_id = \$2/u);
+  assert.match(service, /readAt\.getTime\(\) >= createdAt\.getTime\(\)/u);
+});
+
+test("the read-status route is mounted read-only under the coach broadcast prefix, coach-only", () => {
+  assert.match(routes, /messagingRouter\.get\(\s*\n?\s*"\/coach\/broadcasts\/:broadcast_id\/read-status"/u);
+  assert.match(routes, /const coachUserId = await authenticatedCoach\(request, false\);\s*\n\s*const status = await getBroadcastReadStatus/u);
+});
+
+test("the coach workspace shows a live read-by-N-of-M receipt after sending a broadcast, with a manual refresh control", () => {
+  assert.match(indexHtml, /id="coachBroadcastReadStatus"/u);
+  assert.match(indexHtml, /id="coachBroadcastReadSummary"/u);
+  assert.match(indexHtml, /id="refreshBroadcastReadStatusButton"/u);
+
+  assert.match(appJs, /async function refreshBroadcastReadStatus/u);
+  assert.match(appJs, /function renderBroadcastReadStatus/u);
+  assert.match(appJs, /\/messages\/coach\/broadcasts\/\$\{encodeURIComponent\(state\.lastBroadcastId\)\}\/read-status/u);
+  assert.match(appJs, /elements\.refreshBroadcastReadStatusButton\?\.addEventListener\("click"/u);
+  assert.match(appJs, /escapeHtml\(broadcastAthleteName\(entry\.athlete_user_id\)\)/u);
 });
 
 test("the FULL-UI-66 manifest function is declared as implemented with real tests inside the existing messaging area", () => {
