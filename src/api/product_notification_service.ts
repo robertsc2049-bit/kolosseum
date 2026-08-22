@@ -48,7 +48,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "weekly_checkin_submitted",
   "video_feedback_received",
   "athlete_goal_achieved",
-  "video_submitted"
+  "video_submitted",
+  "marketplace_template_sold"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -649,6 +650,43 @@ async function deriveVideoSubmittedNotifications(
   }
 }
 
+// --- Marketplace template sold (notify the selling coach) -------------------
+
+async function deriveMarketplaceTemplateSoldNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT record_id, subject_user_id AS buyer_coach_user_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'programme_template_release'
+      AND actor_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const templateId = cleanString(row.record_payload?.template_id);
+    const recordId = cleanString(row.record_id);
+    if (!templateId || !recordId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "marketplace_template_sold",
+      sourceRecordType: "programme_template_release",
+      sourceRecordId: recordId,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachProgrammeDetail,
+      deepLinkParams: { template_id: templateId },
+      notificationPayload: {
+        buyer_coach_user_id: cleanString(row.buyer_coach_user_id),
+        source_template_id: templateId
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -665,6 +703,7 @@ async function deriveNotificationsForRecipient(
   await deriveVideoFeedbackNotifications(client, recipientUserId);
   await deriveAthleteGoalAchievedNotifications(client, recipientUserId);
   await deriveVideoSubmittedNotifications(client, recipientUserId);
+  await deriveMarketplaceTemplateSoldNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------
