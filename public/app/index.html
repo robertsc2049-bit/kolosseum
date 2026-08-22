@@ -1197,6 +1197,14 @@
             </button>
 
             <p id="coachBroadcastStatus" class="muted small" role="status" aria-live="polite" hidden></p>
+
+            <div id="coachBroadcastReadStatus" class="broadcast-read-status" hidden>
+              <div class="inline-controls">
+                <span id="coachBroadcastReadSummary" class="muted small"></span>
+                <button type="button" id="refreshBroadcastReadStatusButton" class="button secondary small-button">Refresh</button>
+              </div>
+              <ul id="coachBroadcastReadList" class="broadcast-read-list"></ul>
+            </div>
           </form>
 
           <div class="two-column athlete-directory-layout">

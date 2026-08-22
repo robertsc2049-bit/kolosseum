@@ -31,6 +31,7 @@ import {
 } from "./coach_athlete_messaging_service.js";
 import {
   CoachBroadcastMessagingError,
+  getBroadcastReadStatus,
   sendCoachBroadcastMessage
 } from "./coach_broadcast_messaging_service.js";
 import {
@@ -135,6 +136,15 @@ messagingRouter.post(
     const coachUserId = await authenticatedCoach(request, true);
     const result = await sendCoachBroadcastMessage(coachUserId, request.body?.body_text);
     return response.status(201).json({ ok: true, ...result });
+  })
+);
+
+messagingRouter.get(
+  "/coach/broadcasts/:broadcast_id/read-status",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const status = await getBroadcastReadStatus(coachUserId, String(request.params.broadcast_id));
+    return response.status(200).json({ ok: true, ...status });
   })
 );
 

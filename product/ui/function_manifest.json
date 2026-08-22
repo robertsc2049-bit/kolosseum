@@ -5825,13 +5825,14 @@
         },
         {
           "function_id": "coach_broadcast_message",
-          "label": "Coach sends the same message into every currently-accepted athlete's thread at once",
+          "label": "Coach sends the same message into every currently-accepted athlete's thread at once, with a live read-by-N-of-M receipt for that broadcast",
           "actors": [
             "coach"
           ],
           "route_id": null,
           "api_routes": [
-            "/messages/coach/broadcast"
+            "/messages/coach/broadcast",
+            "/messages/coach/broadcasts/:broadcast_id/read-status"
           ],
           "persistence": "server_product_records",
           "state": "implemented",

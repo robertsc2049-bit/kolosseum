@@ -388,10 +388,34 @@ test(
     const resultFor = (athleteUserId) =>
       broadcast.json?.results?.find((entry) => entry.athlete_user_id === athleteUserId);
 
+    const broadcastId = broadcast.json?.broadcast_id;
+    assert.ok(broadcastId, "expected a broadcast_id");
+
+    // ============================================================
+    // Read status starts at zero - neither accepted athlete has
+    // opened their thread yet.
+    // ============================================================
+    const readStatusBeforeRead = await request(
+      baseUrl, "GET", `/messages/coach/broadcasts/${encodeURIComponent(broadcastId)}/read-status`, undefined,
+      { cookie: coach.cookie }
+    );
+    assertStatus(readStatusBeforeRead, 200, "coach reads broadcast read-status before either athlete has opened it");
+    assert.equal(readStatusBeforeRead.json?.sent_count, 2);
+    assert.equal(readStatusBeforeRead.json?.read_count, 0, "neither athlete has opened their thread yet");
+    assert.deepEqual(
+      [...readStatusBeforeRead.json?.athletes ?? []].map((entry) => entry.athlete_user_id).sort(),
+      [acceptedAthlete1.userId, acceptedAthlete2.userId].sort(),
+      "read-status only ever lists the athletes this broadcast actually reached"
+    );
+    assert.ok(
+      readStatusBeforeRead.json?.athletes?.every((entry) => entry.read === false && entry.read_at_iso8601 === null),
+      "every athlete should start unread"
+    );
+
     // ============================================================
     // Each accepted athlete reads the broadcast message back through
     // their own normal thread route - the exact same read path a
-    // 1:1 message would use.
+    // 1:1 message would use. Opening the thread is what marks it read.
     // ============================================================
     for (const athlete of [acceptedAthlete1, acceptedAthlete2]) {
       const threadId = resultFor(athlete.userId)?.thread_id;
@@ -406,6 +430,34 @@ test(
         `expected the broadcast text in ${athlete.userId}'s thread`
       );
     }
+
+    // ============================================================
+    // Now that both accepted athletes have opened their thread, the
+    // same broadcast_id shows both as read - re-derived live, not a
+    // stored counter that could drift.
+    // ============================================================
+    const readStatusAfterRead = await request(
+      baseUrl, "GET", `/messages/coach/broadcasts/${encodeURIComponent(broadcastId)}/read-status`, undefined,
+      { cookie: coach.cookie }
+    );
+    assertStatus(readStatusAfterRead, 200, "coach reads broadcast read-status after both athletes opened it");
+    assert.equal(readStatusAfterRead.json?.read_count, 2, "both athletes should now show as read");
+    assert.ok(
+      readStatusAfterRead.json?.athletes?.every((entry) => entry.read === true && typeof entry.read_at_iso8601 === "string"),
+      "every athlete should now be read, with a real read_at_iso8601"
+    );
+
+    // ============================================================
+    // A coach who never sent this broadcast (or a stranger id) gets a
+    // quiet empty result, never an error - the same "structural
+    // non-match" posture used throughout this codebase.
+    // ============================================================
+    const strangerReadStatus = await request(
+      baseUrl, "GET", `/messages/coach/broadcasts/${encodeURIComponent(broadcastId)}/read-status`, undefined,
+      { cookie: emptyCoach.cookie }
+    );
+    assertStatus(strangerReadStatus, 200, "an unrelated coach's read-status call for this broadcast still succeeds");
+    assert.equal(strangerReadStatus.json?.sent_count, 0, "an unrelated coach sees zero rows for a broadcast that isn't theirs");
 
     // ============================================================
     // The pending (not yet accepted) athlete and a completely
@@ -444,5 +496,12 @@ test(
     );
     assertStatus(restartedMessages, 200, "broadcast thread after fresh-process restart");
     assert.ok(restartedMessages.json?.messages?.some((message) => message.body_text === broadcastText));
+
+    const restartedReadStatus = await request(
+      restarted.baseUrl, "GET", `/messages/coach/broadcasts/${encodeURIComponent(broadcastId)}/read-status`, undefined,
+      { cookie: coach.cookie }
+    );
+    assertStatus(restartedReadStatus, 200, "broadcast read-status after fresh-process restart");
+    assert.equal(restartedReadStatus.json?.read_count, 2, "the already-read state survives a fresh-process restart, reconstructed from Postgres");
   }
 );
