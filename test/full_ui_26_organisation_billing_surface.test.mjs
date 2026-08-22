@@ -577,10 +577,10 @@ test("the coach fellow-roster route is authorized by active membership, never by
   assert.match(scopedBody, /visibility_mode !== "shared"/u);
 });
 
-test("the coach org-context panel calls both the org-memberships and fellow-roster routes, and only fetches the roster for shared-mode orgs", () => {
+test("the coach org-context panel calls both the org-memberships and fellow-roster routes, and only fetches the roster for shared-mode, currently-active memberships - never for a merely-invited one, which the roster route itself would 403 on", () => {
   assert.match(appJs, /api\("GET", "\/coach-workspace\/org-memberships"\)/u);
   assert.match(appJs, /api\(\s*"GET",\s*`\/coach-workspace\/organisations\/\$\{encodeURIComponent\(membership\.org_id\)\}\/roster`/u);
-  assert.match(appJs, /if \(membership\.visibility_mode !== "shared"\)/u);
+  assert.match(appJs, /if \(membership\.visibility_mode !== "shared" \|\| membership\.membership_status !== "active"\)/u);
 });
 
 test("the coach org-context panel is gated to state.role === \"coach\" and mirrors the athlete panel's insertion pattern", () => {
@@ -594,6 +594,31 @@ test("org names and fellow-coach names/emails rendered into the coach org-contex
   assert.match(appJs, /escapeHtml\(entry\.membership\.org_name\)/u);
   assert.match(appJs, /escapeHtml\(fellow\.coach_display_name \|\| fellow\.coach_user_id\)/u);
   assert.match(appJs, /escapeHtml\(fellow\.coach_email\)/u);
+});
+
+// The manifest's coach_org_membership function has claimed "accepts and
+// leaves org memberships" as implemented since Part B.2, backed by real,
+// already-tested routes - but until now nothing in the coach workspace
+// ever called them. A coach invited to an org had no way to ever move
+// past "invited", and an active member had no way to ever leave.
+test("the coach org-context panel actually renders Accept/Leave controls wired to the coach's own already-implemented accept/leave routes", () => {
+  assert.match(appJs, /entry\.membership\.membership_status === "invited"/u);
+  assert.match(appJs, /data-org-membership-action="accept"/u);
+  assert.match(appJs, /entry\.membership\.membership_status === "active"/u);
+  assert.match(appJs, /data-org-membership-action="leave"/u);
+  assert.match(appJs, /data-membership-id="\$\{escapeHtml\(entry\.membership\.membership_id\)\}"/u);
+
+  assert.match(appJs, /async function resolveOrgMembershipAction\(membershipId, action\)/u);
+  assert.match(
+    appJs,
+    /api\(\s*"POST",\s*`\/coach-workspace\/org-memberships\/\$\{encodeURIComponent\(membershipId\)\}\/\$\{action\}`/u
+  );
+  assert.match(appJs, /await refreshCoachOrgContext\(\);/u);
+
+  assert.match(
+    appJs,
+    /const button = event\.target\.closest\("\[data-org-membership-action\]"\);\s*\n\s*if \(!button\) return;\s*\n\s*resolveOrgMembershipAction\(\s*\n\s*button\.dataset\.membershipId,\s*\n\s*button\.dataset\.orgMembershipAction\s*\n\s*\)/u
+  );
 });
 
 // Part O.5 - the org<->coach and org<->athlete messaging inboxes, built

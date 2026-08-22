@@ -14941,7 +14941,12 @@ async function refreshCoachOrgContext() {
 
   state.coachOrgContexts = await Promise.all(
     activeMemberships.map(async (membership) => {
-      if (membership.visibility_mode !== "shared") {
+      // The fellow-roster route requires an active membership - an
+      // invited-but-not-yet-accepted membership in a shared org would
+      // otherwise 403 here and (being inside this Promise.all) take the
+      // whole panel down with it, before the coach ever sees the
+      // invitation they're supposed to accept.
+      if (membership.visibility_mode !== "shared" || membership.membership_status !== "active") {
         return { membership, roster: [] };
       }
       const rosterResponse = await api(
@@ -14981,6 +14986,15 @@ function renderCoachOrgContext() {
     document
       .querySelector("#view-account .two-column")
       .insertAdjacentElement("afterend", panel);
+
+    panel.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-org-membership-action]");
+      if (!button) return;
+      resolveOrgMembershipAction(
+        button.dataset.membershipId,
+        button.dataset.orgMembershipAction
+      ).catch(handleError);
+    });
   }
 
   panel.hidden = false;
@@ -14996,6 +15010,32 @@ function renderCoachOrgContext() {
             ? `Joined ${escapeHtml(formatDate(entry.membership.activated_at_iso8601))}`
             : `Invited ${escapeHtml(formatDate(entry.membership.invited_at_iso8601))}`}
         </p>
+        ${entry.membership.membership_status === "invited"
+          ? `
+            <button
+              type="button"
+              class="button primary small-button"
+              data-org-membership-action="accept"
+              data-membership-id="${escapeHtml(entry.membership.membership_id)}"
+            >
+              Accept invitation
+            </button>
+          `
+          : ""
+        }
+        ${entry.membership.membership_status === "active"
+          ? `
+            <button
+              type="button"
+              class="button secondary small-button"
+              data-org-membership-action="leave"
+              data-membership-id="${escapeHtml(entry.membership.membership_id)}"
+            >
+              Leave organisation
+            </button>
+          `
+          : ""
+        }
         ${entry.membership.visibility_mode === "shared"
           ? `
             <div class="record-list">
@@ -15011,6 +15051,26 @@ function renderCoachOrgContext() {
       </div>
     `).join("")}
   `;
+}
+
+async function resolveOrgMembershipAction(membershipId, action) {
+  if (!membershipId || (action !== "accept" && action !== "leave")) return;
+
+  showBusy(action === "accept" ? "Accepting invitation…" : "Leaving organisation…");
+  try {
+    await api("POST", `/coach-workspace/org-memberships/${encodeURIComponent(membershipId)}/${action}`, {});
+    await refreshCoachOrgContext();
+    showNotice(action === "accept" ? "Organisation invitation accepted." : "You have left the organisation.");
+  }
+  catch (error) {
+    showNotice(
+      friendlyError(error.payload, error.status) ||
+      (action === "accept" ? "Could not accept the invitation." : "Could not leave the organisation.")
+    );
+  }
+  finally {
+    hideBusy();
+  }
 }
 
 async function refreshAthleteRelationships() {
