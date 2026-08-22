@@ -14941,7 +14941,12 @@ async function refreshCoachOrgContext() {
 
   state.coachOrgContexts = await Promise.all(
     activeMemberships.map(async (membership) => {
-      if (membership.visibility_mode !== "shared") {
+      // The fellow-roster route requires an active membership - an
+      // invited-but-not-yet-accepted membership in a shared org would
+      // otherwise 403 here and (being inside this Promise.all) take the
+      // whole panel down with it, before the coach ever sees the
+      // invitation they're supposed to accept.
+      if (membership.visibility_mode !== "shared" || membership.membership_status !== "active") {
         return { membership, roster: [] };
       }
       const rosterResponse = await api(

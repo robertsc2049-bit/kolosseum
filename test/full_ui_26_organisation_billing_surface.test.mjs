@@ -577,10 +577,10 @@ test("the coach fellow-roster route is authorized by active membership, never by
   assert.match(scopedBody, /visibility_mode !== "shared"/u);
 });
 
-test("the coach org-context panel calls both the org-memberships and fellow-roster routes, and only fetches the roster for shared-mode orgs", () => {
+test("the coach org-context panel calls both the org-memberships and fellow-roster routes, and only fetches the roster for shared-mode, currently-active memberships - never for a merely-invited one, which the roster route itself would 403 on", () => {
   assert.match(appJs, /api\("GET", "\/coach-workspace\/org-memberships"\)/u);
   assert.match(appJs, /api\(\s*"GET",\s*`\/coach-workspace\/organisations\/\$\{encodeURIComponent\(membership\.org_id\)\}\/roster`/u);
-  assert.match(appJs, /if \(membership\.visibility_mode !== "shared"\)/u);
+  assert.match(appJs, /if \(membership\.visibility_mode !== "shared" \|\| membership\.membership_status !== "active"\)/u);
 });
 
 test("the coach org-context panel is gated to state.role === \"coach\" and mirrors the athlete panel's insertion pattern", () => {
