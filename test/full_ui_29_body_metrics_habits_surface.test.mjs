@@ -130,6 +130,36 @@ test("the athlete forms and coach read-only panels exist as real controls, and s
   assert.match(appJs, /async function refreshCoachAthleteHabits/u);
 });
 
+// The manifest's body_metric_log function has declared actors ["athlete",
+// "coach"] and the /body-metrics/coach/:athlete_user_id route as
+// implemented since this slice first shipped - the coach-side route,
+// service function (logBodyMetricEntryAsCoach) and access check all
+// already existed - but until now the coach's athlete-detail panel only
+// ever rendered a read-only history list, with no form anywhere calling
+// that route. A coach had no way to actually log a measurement for an
+// athlete despite the backend fully supporting it.
+test("the coach's athlete-detail panel actually renders a body-metric log form wired to the coach's own already-implemented write route", () => {
+  assert.match(indexHtml, /id="coachBodyMetricLogForm"/u);
+  assert.match(indexHtml, /id="coachBodyMetricTypeSelect"/u);
+  assert.match(indexHtml, /id="coachBodyMetricValueInput"/u);
+  assert.match(indexHtml, /id="coachBodyMetricDateInput"/u);
+  assert.match(indexHtml, /id="coachBodyMetricNoteInput"/u);
+  assert.match(indexHtml, /id="coachBodyMetricStatus"/u);
+
+  assert.match(appJs, /async function logCoachBodyMetricEntry/u);
+  assert.match(
+    appJs,
+    /api\(\s*"POST",\s*`\/body-metrics\/coach\/\$\{encodeURIComponent\(athleteUserId\)\}`/u
+  );
+  assert.match(appJs, /const athleteUserId = state\.selectedCoachAthleteId;/u);
+  assert.match(appJs, /await refreshCoachAthleteBodyMetrics\(athleteUserId, \{ quiet: true \}\);/u);
+
+  assert.match(
+    appJs,
+    /elements\.coachBodyMetricLogForm\?\.addEventListener\("submit", \(event\) => \{\s*\n\s*event\.preventDefault\(\);\s*\n\s*logCoachBodyMetricEntry\(\)\.catch\(handleError\);/u
+  );
+});
+
 test("habit streak counts are rendered as plain integers with factual copy, never a percentage or graded label", () => {
   assert.match(appJs, /\$\{habit\.current_streak_length\} day\$\{habit\.current_streak_length === 1/u);
 

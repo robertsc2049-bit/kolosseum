@@ -458,6 +458,12 @@ const elements = {
   athleteDetailProgressPhotos: document.getElementById("athleteDetailProgressPhotos"),
   athleteDetailProgressPhotoComparison: document.getElementById("athleteDetailProgressPhotoComparison"),
   athleteDetailBodyMetricHistory: document.getElementById("athleteDetailBodyMetricHistory"),
+  coachBodyMetricLogForm: document.getElementById("coachBodyMetricLogForm"),
+  coachBodyMetricTypeSelect: document.getElementById("coachBodyMetricTypeSelect"),
+  coachBodyMetricValueInput: document.getElementById("coachBodyMetricValueInput"),
+  coachBodyMetricDateInput: document.getElementById("coachBodyMetricDateInput"),
+  coachBodyMetricNoteInput: document.getElementById("coachBodyMetricNoteInput"),
+  coachBodyMetricStatus: document.getElementById("coachBodyMetricStatus"),
   athleteDetailHabitList: document.getElementById("athleteDetailHabitList"),
   athleteDetailProgressInsights: document.getElementById("athleteDetailProgressInsights"),
   athleteDetailDeviceConnectionList: document.getElementById("athleteDetailDeviceConnectionList"),
@@ -6382,6 +6388,42 @@ async function refreshCoachAthleteBodyMetrics(athleteUserId, options = {}) {
   }
   catch (error) {
     if (!options.quiet) throw error;
+  }
+}
+
+async function logCoachBodyMetricEntry() {
+  const athleteUserId = state.selectedCoachAthleteId;
+  if (!athleteUserId) return;
+
+  const metricType = elements.coachBodyMetricTypeSelect?.value;
+  const value = Number(elements.coachBodyMetricValueInput?.value);
+  const effectiveDate = elements.coachBodyMetricDateInput?.value;
+  const note = elements.coachBodyMetricNoteInput?.value || undefined;
+
+  if (!metricType || !Number.isFinite(value) || !effectiveDate) {
+    elements.coachBodyMetricStatus.hidden = false;
+    elements.coachBodyMetricStatus.textContent = "Choose a measurement, value and date.";
+    return;
+  }
+
+  showBusy("Logging measurement…");
+  try {
+    await api(
+      "POST",
+      `/body-metrics/coach/${encodeURIComponent(athleteUserId)}`,
+      { metric_type: metricType, value, effective_date: effectiveDate, note }
+    );
+    elements.coachBodyMetricLogForm.reset();
+    elements.coachBodyMetricStatus.hidden = true;
+    await refreshCoachAthleteBodyMetrics(athleteUserId, { quiet: true });
+    showNotice("Body-metric entry logged.");
+  }
+  catch (error) {
+    elements.coachBodyMetricStatus.hidden = false;
+    elements.coachBodyMetricStatus.textContent = friendlyError(error.payload, error.status) || "Measurement could not be logged.";
+  }
+  finally {
+    hideBusy();
   }
 }
 
@@ -16675,6 +16717,11 @@ elements.progressPhotoUploadForm?.addEventListener("submit", (event) => {
 elements.bodyMetricLogForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   logBodyMetricEntry().catch(handleError);
+});
+
+elements.coachBodyMetricLogForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  logCoachBodyMetricEntry().catch(handleError);
 });
 
 elements.nutritionForm?.addEventListener("submit", (event) => {
