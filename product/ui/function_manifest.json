@@ -5345,7 +5345,7 @@
         },
         {
           "function_id": "admin_entitlement",
-          "label": "Review coach entitlement and seats",
+          "label": "Review coach entitlement and seats, searchable by user ID, record type or billing access state",
           "actors": [
             "founder_admin"
           ],
@@ -5389,7 +5389,7 @@
         },
         {
           "function_id": "admin_support",
-          "label": "Review support and error records",
+          "label": "Review support and error records, searchable by correlation id, user ID, description or status",
           "actors": [
             "founder_admin"
           ],
