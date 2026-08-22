@@ -322,6 +322,40 @@ test("the audit records table distinguishes zero records at all from zero matche
   assert.match(js, /escapeHtml\(record\.correlation_id\)/u);
 });
 
+test("the entitlement/commercial-records table has a real search control, filtering the already-fetched list client-side by user ID, record type or billing access state", () => {
+  assert.match(html, /id="commercialRecordsSearch"/u);
+
+  assert.match(js, /function filteredCommercialRecords/u);
+  assert.match(js, /function renderCommercialRecords/u);
+  assert.match(js, /state\.commercialRecords\s*=\s*result\.records/u);
+  assert.match(js, /el\("commercialRecordsSearch"\)\.addEventListener\("input", renderCommercialRecords\)/u);
+  assert.match(js, /No entitlement records match/u);
+  assert.match(js, /escapeHtml\(record\.user_id\)/u);
+});
+
+test("the support-requests table has a real search control, filtering the already-fetched list client-side by correlation id, user ID, description or status - and every field, including the reporter's own free-text description, is escaped before rendering", () => {
+  assert.match(html, /id="supportRequestsSearch"/u);
+
+  assert.match(js, /function filteredSupportRequests/u);
+  assert.match(js, /function renderSupportRequests/u);
+  assert.match(js, /state\.supportRequests\s*=\s*result\.reports/u);
+  assert.match(js, /el\("supportRequestsSearch"\)\.addEventListener\("input", renderSupportRequests\)/u);
+  assert.match(js, /No support requests match/u);
+
+  const fn = js.slice(js.indexOf("function renderSupportRequests"), js.indexOf("function renderSupportRequests") + 1200);
+  for (const field of ["escapeHtml(report.correlation_id)", "escapeHtml(report.user_id)", "escapeHtml(report.description)", "escapeHtml(report.status)"]) {
+    assert.ok(fn.includes(field), `expected the support row to render ${field}`);
+  }
+
+  // The details-toggle/acknowledge/close button wiring - and the
+  // detail-row pairing each report row relies on - must still work after
+  // the render function was split out of the fetch, exactly as before.
+  assert.match(js, /\.details-support/u);
+  assert.match(js, /\.ack-support/u);
+  assert.match(js, /\.close-support/u);
+  assert.match(js, /support-detail-row/u);
+});
+
 test("every route resolves the admin's own identity from the session, never a client-supplied admin id", () => {
   assert.doesNotMatch(routes, /request\.body\.admin_user_id|request\.query\.admin_user_id/u);
   assert.match(routes, /admin\.user_id/u);

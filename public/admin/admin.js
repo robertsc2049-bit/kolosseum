@@ -13,7 +13,9 @@ const state = {
   pendingTestMarking: null,
   dataRightsExports: [],
   dataRightsDeletions: [],
-  auditRecords: []
+  auditRecords: [],
+  commercialRecords: [],
+  supportRequests: []
 };
 
 function el(id) {
@@ -206,12 +208,32 @@ async function confirmTestMarkingToggle() {
 
 async function refreshCommercialRecords() {
   const result = await api("GET", "/admin/commercial");
+  state.commercialRecords = result.records ?? [];
+  renderCommercialRecords();
+}
+
+function filteredCommercialRecords() {
+  const search = (el("commercialRecordsSearch")?.value ?? "").trim().toLowerCase();
+  if (!search) return state.commercialRecords;
+  return state.commercialRecords.filter((record) =>
+    [record.user_id, record.record_type, record.billing_access_state]
+      .some((value) => String(value ?? "").toLowerCase().includes(search))
+  );
+}
+
+function renderCommercialRecords() {
   const tbody = el("commercialRecordsList");
   tbody.innerHTML = "";
-  for (const record of result.records ?? []) {
+  const records = filteredCommercialRecords();
+  for (const record of records) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td>${record.user_id}</td><td>${record.record_type}</td><td>${record.billing_access_state ?? "-"}</td><td>${record.effective_at_iso8601 ?? ""}</td>`;
+    row.innerHTML = `<td>${escapeHtml(record.user_id)}</td><td>${escapeHtml(record.record_type)}</td><td>${escapeHtml(record.billing_access_state ?? "-")}</td><td>${escapeHtml(record.effective_at_iso8601 ?? "")}</td>`;
     tbody.appendChild(row);
+  }
+  if (state.commercialRecords.length > 0 && records.length === 0) {
+    const emptyRow = document.createElement("tr");
+    emptyRow.innerHTML = `<td colspan="4" class="muted">No entitlement records match.</td>`;
+    tbody.appendChild(emptyRow);
   }
 }
 
@@ -249,19 +271,34 @@ function supportContextDetailMarkup(report) {
 
 async function refreshSupportRequests() {
   const result = await api("GET", "/admin/support-requests");
+  state.supportRequests = result.reports ?? [];
+  renderSupportRequests();
+}
+
+function filteredSupportRequests() {
+  const search = (el("supportRequestsSearch")?.value ?? "").trim().toLowerCase();
+  if (!search) return state.supportRequests;
+  return state.supportRequests.filter((report) =>
+    [report.correlation_id, report.user_id, report.description, report.status]
+      .some((value) => String(value ?? "").toLowerCase().includes(search))
+  );
+}
+
+function renderSupportRequests() {
   const tbody = el("supportRequestsList");
   tbody.innerHTML = "";
-  for (const report of result.reports ?? []) {
+  const reports = filteredSupportRequests();
+  for (const report of reports) {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${report.correlation_id}</td>
-      <td>${report.user_id}</td>
-      <td>${report.description}</td>
-      <td>${report.status}</td>
+      <td>${escapeHtml(report.correlation_id)}</td>
+      <td>${escapeHtml(report.user_id)}</td>
+      <td>${escapeHtml(report.description)}</td>
+      <td>${escapeHtml(report.status)}</td>
       <td>
-        <button type="button" class="details-support" data-correlation-id="${report.correlation_id}">Details</button>
-        <button type="button" class="ack-support" data-correlation-id="${report.correlation_id}" data-current-status="${report.status}">Acknowledge</button>
-        <button type="button" class="close-support" data-correlation-id="${report.correlation_id}" data-current-status="${report.status}">Close</button>
+        <button type="button" class="details-support" data-correlation-id="${escapeHtml(report.correlation_id)}">Details</button>
+        <button type="button" class="ack-support" data-correlation-id="${escapeHtml(report.correlation_id)}" data-current-status="${escapeHtml(report.status)}">Acknowledge</button>
+        <button type="button" class="close-support" data-correlation-id="${escapeHtml(report.correlation_id)}" data-current-status="${escapeHtml(report.status)}">Close</button>
       </td>
     `;
     tbody.appendChild(row);
@@ -271,6 +308,11 @@ async function refreshSupportRequests() {
     detailRow.hidden = true;
     detailRow.innerHTML = `<td colspan="5">${supportContextDetailMarkup(report)}</td>`;
     tbody.appendChild(detailRow);
+  }
+  if (state.supportRequests.length > 0 && reports.length === 0) {
+    const emptyRow = document.createElement("tr");
+    emptyRow.innerHTML = `<td colspan="5" class="muted">No support requests match.</td>`;
+    tbody.appendChild(emptyRow);
   }
 
   tbody.querySelectorAll(".details-support").forEach((button) => {
@@ -405,3 +447,5 @@ el("accountToggleTestConfirmButton").addEventListener("click", () => confirmTest
 el("exportRequestsSearch").addEventListener("input", renderDataRightsReview);
 el("deletionRequestsSearch").addEventListener("input", renderDataRightsReview);
 el("auditRecordsSearch").addEventListener("input", renderAuditRecords);
+el("commercialRecordsSearch").addEventListener("input", renderCommercialRecords);
+el("supportRequestsSearch").addEventListener("input", renderSupportRequests);

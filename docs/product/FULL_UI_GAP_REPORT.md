@@ -463,9 +463,9 @@ Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `admin_auth` — Guard founder and admin sign-in
 - `admin_account_search` — Search accounts
 - `admin_account_state` — Review account state
-- `admin_entitlement` — Review coach entitlement and seats
+- `admin_entitlement` — Review coach entitlement and seats, searchable by user ID, record type or billing access state
 - `admin_payment` — Review payment state
-- `admin_support` — Review support and error records
+- `admin_support` — Review support and error records, searchable by correlation id, user ID, description or status
 - `admin_test_users` — Manage test users
 - `admin_data_requests` — Review export and deletion requests, searchable by request ID, user ID, status or reason
 - `admin_audit_action` — Record operational action audit, searchable by actor, action type, target or correlation id
