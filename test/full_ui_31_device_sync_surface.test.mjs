@@ -49,6 +49,26 @@ test("connect, disconnect and ingest are athlete-self only - the coach surface i
   assert.doesNotMatch(routes, /authenticatedCoach\(request, true\)/u, "no coach write path anywhere in this file");
 });
 
+// renderDeviceConnectionCard is the one function that renders both the
+// athlete's own connection list (with a working disconnect control) and
+// the coach's read-only copy of the same card - previously it rendered
+// an identical "Disconnect" button in both, but only the athlete-owned
+// list had a click listener wired to it (elements.deviceConnectionList),
+// so a coach clicking it silently did nothing. Since disconnect has no
+// coach route at all (asserted above), the fix is to never render the
+// button for a coach viewer, not to give it a working handler.
+test("the coach's read-only device-connection card never renders the athlete-only Disconnect control", () => {
+  assert.match(appJs, /!options\.viewerIsCoach/u);
+  assert.match(
+    appJs,
+    /connection\.connection_status === "active" && !options\.viewerIsCoach/u
+  );
+  assert.match(
+    appJs,
+    /renderDeviceConnectionList\(\s*\n\s*elements\.athleteDetailDeviceConnectionList,\s*\n\s*state\.coachAthleteDeviceConnections,\s*\n\s*\{ viewerIsCoach: true \}\s*\n\s*\);/u
+  );
+});
+
 test("no live provider SDK is imported anywhere in the contract, service or routes", () => {
   for (const source of [contract, service, routes]) {
     assert.doesNotMatch(source, forbiddenEngineImports);
