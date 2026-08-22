@@ -4881,6 +4881,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "notification_marketplace_template_sold",
+          "label": "Notify the selling coach when another coach buys their released marketplace template, deep-linking straight to their own original template",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_75_marketplace_template_sold_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_75c_marketplace_template_sold_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -7425,6 +7447,10 @@
     },
     {
       "slice_id": "FULL-UI-74",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-75",
       "state": "implemented"
     }
   ],

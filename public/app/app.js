@@ -16012,7 +16012,8 @@ const NOTIFICATION_TYPE_LABELS = Object.freeze({
   weekly_checkin_submitted: "Weekly check-in submitted",
   video_feedback_received: "Coach feedback on your video",
   athlete_goal_achieved: "Goal achieved",
-  video_submitted: "New video submitted for review"
+  video_submitted: "New video submitted for review",
+  marketplace_template_sold: "Template sold"
 });
 
 function notificationCoachName(coachUserId) {
