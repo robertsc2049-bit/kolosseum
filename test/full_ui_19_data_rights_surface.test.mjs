@@ -102,6 +102,25 @@ test("an athlete's own export card shows whether they have actually downloaded i
   assert.match(js, /entry\.downloaded_at_iso8601/u);
 });
 
+// Export status and deletion status are two independent reads (separate
+// tables, separate routes) that used to load via Promise.all - one
+// failing rejected the whole call and hid BOTH panels behind a blanket
+// "service unavailable" message, even when the other had already
+// succeeded and had real data to show. Same Promise.all-vs-allSettled
+// resilience class as the marketplace browse fix.
+test("a failure loading export status or deletion status never hides the other's already-successfully-loaded data", () => {
+  const fn = js.slice(
+    js.indexOf("async function loadDataRightsState"),
+    js.indexOf("async function loadDataRightsState") + 1500
+  );
+
+  assert.doesNotMatch(fn, /await Promise\.all\(/u);
+  assert.match(fn, /const \[exportResult, deletionResult\] = await Promise\.allSettled\(/u);
+  assert.match(fn, /if \(exportResult\.status === "fulfilled"\) \{/u);
+  assert.match(fn, /if \(deletionResult\.status === "fulfilled"\) \{/u);
+  assert.match(fn, /if \(exportResult\.status === "rejected" && deletionResult\.status === "rejected"\) \{/u);
+});
+
 test("deletion review, request and status all route through the sealed S-V1-L-03 delete queue contract, never performing a hard delete", () => {
   assert.match(routes, /"\/data-rights\/deletion\/preview"/u);
   assert.match(routes, /"\/data-rights\/deletion"/u);

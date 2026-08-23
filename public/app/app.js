@@ -15684,24 +15684,33 @@ async function loadDataRightsState(options = {}) {
   elements.dataRightsServiceUnavailable.hidden = true;
   elements.dataRightsLoading.hidden = false;
 
-  let exportStatus;
-  let deletionStatus;
-  try {
-    [exportStatus, deletionStatus] = await Promise.all([
-      loadDataExportStatus(),
-      loadDataDeletionStatus()
-    ]);
-  }
-  catch (error) {
-    elements.dataRightsLoading.hidden = true;
-    elements.dataRightsServiceUnavailable.hidden = false;
-    if (options.quiet) return;
-    throw error;
-  }
+  // Promise.allSettled, not Promise.all: export status and deletion
+  // status are two independent reads (separate tables, separate
+  // routes) - one failing must never hide the other's real,
+  // successfully-loaded data behind a blanket "service unavailable".
+  const [exportResult, deletionResult] = await Promise.allSettled([
+    loadDataExportStatus(),
+    loadDataDeletionStatus()
+  ]);
 
   elements.dataRightsLoading.hidden = true;
-  renderDataExportList(Array.isArray(exportStatus.exports) ? exportStatus.exports : []);
-  renderDataDeletionList(Array.isArray(deletionStatus.deletion_requests) ? deletionStatus.deletion_requests : []);
+
+  if (exportResult.status === "fulfilled") {
+    renderDataExportList(Array.isArray(exportResult.value.exports) ? exportResult.value.exports : []);
+  }
+  if (deletionResult.status === "fulfilled") {
+    renderDataDeletionList(Array.isArray(deletionResult.value.deletion_requests) ? deletionResult.value.deletion_requests : []);
+  }
+
+  if (exportResult.status === "rejected" && deletionResult.status === "rejected") {
+    elements.dataRightsServiceUnavailable.hidden = false;
+    if (options.quiet) return;
+    throw exportResult.reason;
+  }
+
+  if (options.quiet) return;
+  if (exportResult.status === "rejected") throw exportResult.reason;
+  if (deletionResult.status === "rejected") throw deletionResult.reason;
 }
 
 async function requestDataExportAction() {
