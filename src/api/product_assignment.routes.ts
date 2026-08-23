@@ -18,6 +18,11 @@ import {
   forbidden,
   notFound
 } from "./http_errors.js";
+import {
+  FullUi09cEventLifecycleError,
+  assertNoDateConflict,
+  latestOwnedEvent
+} from "./full_ui_09c_event_lifecycle_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -464,6 +469,24 @@ async function linkReplacementEvent(
   assignmentId: string
 ): Promise<JsonRecord | null> {
   if (!input.event_id) return null;
+
+  // This is the same beta19_event_athlete_link write that
+  // linkAthleteToStandaloneEvent makes, and must never be allowed to
+  // create the exact same-date double-booking that guard exists to
+  // prevent, just because it arrived through assignment replacement
+  // instead of the direct link route.
+  const targetEvent = await latestOwnedEvent(client, input.coach_user_id, input.event_id);
+  if (targetEvent) {
+    try {
+      await assertNoDateConflict(client, input.coach_user_id, input.athlete_user_id, targetEvent);
+    }
+    catch (error) {
+      if (error instanceof FullUi09cEventLifecycleError && error.reason === "event_link_date_conflict") {
+        throw conflict("This athlete is already linked to another event on the same date.");
+      }
+      throw error;
+    }
+  }
 
   const linkId =
     `event_link_${sha256({

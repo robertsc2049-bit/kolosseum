@@ -327,7 +327,7 @@ async function serverDate(client: QueryClient): Promise<string> {
   return dateOnly(result.rows?.[0]?.server_date, "event_server_date_invalid");
 }
 
-async function latestOwnedEvent(
+export async function latestOwnedEvent(
   client: QueryClient,
   coachUserId: string,
   eventId: string,
@@ -857,6 +857,18 @@ export async function createStandaloneEventVersion(
       ...eventInput(inputValue),
       event_id: eventId
     });
+
+    // Re-versioning an event can move its event_date - the same
+    // no-same-date-double-booking rule linkAthleteToStandaloneEvent
+    // already enforces at link time must hold here too, for every
+    // athlete currently linked to this event, or a version could quietly
+    // create the exact double-booking linking was built to prevent.
+    const versionedEventForConflictCheck: JsonRecord = { event_id: eventId, event_plan: compiled.event_plan };
+    for (const link of await currentLinksForEvent(client, coachUserId, eventId)) {
+      const linkedAthleteUserId = cleanString(link.athlete_user_id);
+      if (!linkedAthleteUserId) continue;
+      await assertNoDateConflict(client, coachUserId, linkedAthleteUserId, versionedEventForConflictCheck);
+    }
     const occurredAt = await serverClock(
       client,
       cleanString(current.updated_at_iso8601)
@@ -1025,7 +1037,7 @@ async function assertRelationship(
   return context;
 }
 
-async function assertNoDateConflict(
+export async function assertNoDateConflict(
   client: QueryClient,
   coachUserId: string,
   athleteUserId: string,
