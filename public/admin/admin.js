@@ -297,8 +297,14 @@ function renderSupportRequests() {
       <td>${escapeHtml(report.status)}</td>
       <td>
         <button type="button" class="details-support" data-correlation-id="${escapeHtml(report.correlation_id)}">Details</button>
-        <button type="button" class="ack-support" data-correlation-id="${escapeHtml(report.correlation_id)}" data-current-status="${escapeHtml(report.status)}">Acknowledge</button>
-        <button type="button" class="close-support" data-correlation-id="${escapeHtml(report.correlation_id)}" data-current-status="${escapeHtml(report.status)}">Close</button>
+        ${report.status === "submitted"
+          ? `<button type="button" class="ack-support" data-correlation-id="${escapeHtml(report.correlation_id)}">Acknowledge</button>`
+          : ""
+        }
+        ${report.status !== "closed"
+          ? `<button type="button" class="close-support" data-correlation-id="${escapeHtml(report.correlation_id)}">Close</button>`
+          : ""
+        }
       </td>
     `;
     tbody.appendChild(row);

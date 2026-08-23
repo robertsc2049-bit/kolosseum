@@ -110,6 +110,28 @@ test("support/error-record review and data-rights review are read-only, and supp
   assert.match(actionService, /SUPPORT_REQUEST_STATES = new Set\(\["submitted", "acknowledged", "closed"\]\)/u);
 });
 
+// The Acknowledge/Close buttons used to render unconditionally for every
+// report regardless of its current status (with a data-current-status
+// attribute that was set but never actually read anywhere), so an admin
+// could "Acknowledge" an already-closed ticket or "Close" one twice. The
+// backend accepted any of the three states as a target with no ordering
+// check at all. Both sides now enforce the same forward-only lifecycle:
+// submitted -> acknowledged -> closed, closed being terminal.
+test("the admin support-request lifecycle is forward-only in both the UI and the server, not just cosmetically hidden", () => {
+  assert.match(js, /report\.status === "submitted"/u);
+  assert.match(js, /report\.status !== "closed"/u);
+  assert.doesNotMatch(js, /data-current-status/u);
+
+  assert.match(actionService, /SUPPORT_REQUEST_ALLOWED_TRANSITIONS/u);
+  assert.match(actionService, /submitted:\s*new Set\(\["acknowledged", "closed"\]\)/u);
+  assert.match(actionService, /acknowledged:\s*new Set\(\["closed"\]\)/u);
+  assert.match(actionService, /closed:\s*new Set\(\)/u);
+  assert.match(
+    actionService,
+    /if \(!SUPPORT_REQUEST_ALLOWED_TRANSITIONS\[currentStatus\]\?\.has\(cleanStatus\)\) \{\s*\n\s*throw new AdminActionError\("admin_support_status_transition_invalid", 409\);/u
+  );
+});
+
 test("the export-requests review table shows ready/expiry/download facts, not just status - an admin can tell whether a user ever retrieved an export they requested", () => {
   // listAdminDataExportRequests has always computed ready_at_iso8601,
   // expires_at_iso8601 and downloaded_at_iso8601 from the real DB columns,
