@@ -278,6 +278,15 @@ export async function setTestAccountMarking(
 
 const SUPPORT_REQUEST_STATES = new Set(["submitted", "acknowledged", "closed"]);
 
+// Forward-only lifecycle - a closed ticket is terminal (matches the admin
+// UI, which stops offering Acknowledge/Close once they no longer apply),
+// and acknowledging never regresses status backward to submitted.
+const SUPPORT_REQUEST_ALLOWED_TRANSITIONS: Readonly<Record<string, ReadonlySet<string>>> = {
+  submitted: new Set(["acknowledged", "closed"]),
+  acknowledged: new Set(["closed"]),
+  closed: new Set()
+};
+
 export async function changeSupportRequestStatus(
   adminUserId: string,
   correlationId: string,
@@ -307,7 +316,12 @@ export async function changeSupportRequestStatus(
       throw new AdminActionError("admin_support_request_not_found", 404);
     }
 
-    const beforeState = { status: cleanString(current.rows[0].status) };
+    const currentStatus = cleanString(current.rows[0].status);
+    if (!SUPPORT_REQUEST_ALLOWED_TRANSITIONS[currentStatus]?.has(cleanStatus)) {
+      throw new AdminActionError("admin_support_status_transition_invalid", 409);
+    }
+
+    const beforeState = { status: currentStatus };
 
     await client.query(
       `UPDATE product_support_requests SET status = $2 WHERE correlation_id = $1`,

@@ -376,6 +376,32 @@ test(
       );
 
       // ============================================================
+      // The support-request lifecycle is forward-only: acknowledged
+      // can never regress back to submitted, closed is terminal, and
+      // a rejected transition never writes an audit record at all.
+      // ============================================================
+      const regressCorrelationId = crypto.randomUUID();
+      const regress = await request(baseUrl, "POST", `/admin/support-requests/${encodeURIComponent(supportCorrelationId)}/status`,
+        { correlation_id: regressCorrelationId, status: "submitted" },
+        { cookie: admin.cookie, csrf: admin.csrf });
+      assertStatus(regress, 409, "acknowledged cannot regress back to submitted");
+
+      const closeCorrelationId = crypto.randomUUID();
+      correlationIds.push(closeCorrelationId);
+      const close = await request(baseUrl, "POST", `/admin/support-requests/${encodeURIComponent(supportCorrelationId)}/status`,
+        { correlation_id: closeCorrelationId, status: "closed" },
+        { cookie: admin.cookie, csrf: admin.csrf });
+      assertStatus(close, 200, "acknowledged can transition to closed");
+      assert.equal(close.json.audit.before_state.status, "acknowledged");
+      assert.equal(close.json.audit.after_state.status, "closed");
+
+      const reopenCorrelationId = crypto.randomUUID();
+      const reopen = await request(baseUrl, "POST", `/admin/support-requests/${encodeURIComponent(supportCorrelationId)}/status`,
+        { correlation_id: reopenCorrelationId, status: "acknowledged" },
+        { cookie: admin.cookie, csrf: admin.csrf });
+      assertStatus(reopen, 409, "closed is terminal - it can never transition anywhere");
+
+      // ============================================================
       // Export/deletion request review (read-only).
       // ============================================================
       const exportsReview = await request(baseUrl, "GET", "/admin/data-rights/exports", undefined, { cookie: admin.cookie });
