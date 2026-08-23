@@ -158,3 +158,25 @@ test("FULL-UI-09C exposes authenticated detail and lifecycle actions", () => {
   assert.match(service, /creates_roster_runtime: false/u);
   assert.match(service, /creates_organisation_runtime: false/u);
 });
+
+// assertNoDateConflict previously had exactly one caller
+// (linkAthleteToStandaloneEvent) - re-versioning an event to a new date
+// never re-checked it against athletes already linked to that same
+// event, so a version could quietly create the exact same-date
+// double-booking linking itself refuses to create.
+test("FULL-UI-09C re-checks the same-date conflict rule when an event is re-versioned, for every athlete currently linked to it", () => {
+  const service = fs.readFileSync(
+    "src/api/full_ui_09c_event_lifecycle_service.ts",
+    "utf8"
+  );
+
+  assert.match(service, /export async function assertNoDateConflict/u);
+  assert.match(service, /export async function latestOwnedEvent/u);
+
+  const versionFunctionBody = service.slice(
+    service.indexOf("export async function createStandaloneEventVersion"),
+    service.indexOf("export async function cancelStandaloneEvent")
+  );
+  assert.match(versionFunctionBody, /for \(const link of await currentLinksForEvent\(client, coachUserId, eventId\)\) \{/u);
+  assert.match(versionFunctionBody, /await assertNoDateConflict\(client, coachUserId, linkedAthleteUserId, versionedEventForConflictCheck\);/u);
+});

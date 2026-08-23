@@ -75,6 +75,22 @@ test("FULL-UI-06 fails closed against stale assignment actions", () => {
   assert.match(lifecycle, /event_programme_week_count_mismatch|week counts do not match/u);
 });
 
+// linkReplacementEvent writes the exact same beta19_event_athlete_link
+// record linkAthleteToStandaloneEvent does, but built its own record
+// inline rather than calling through that already-guarded function - so
+// replacing an assignment with a new event link was the one write path
+// that could create a same-date double-booking the direct link route
+// already refuses.
+test("FULL-UI-06 replacing an assignment with a new event link is guarded by the same same-date conflict check as the direct link route", () => {
+  assert.match(lifecycle, /import \{\s*\n\s*FullUi09cEventLifecycleError,\s*\n\s*assertNoDateConflict,\s*\n\s*latestOwnedEvent\s*\n\s*\} from "\.\/full_ui_09c_event_lifecycle_service\.js";/u);
+  assert.match(lifecycle, /const targetEvent = await latestOwnedEvent\(client, input\.coach_user_id, input\.event_id\);/u);
+  assert.match(lifecycle, /await assertNoDateConflict\(client, input\.coach_user_id, input\.athlete_user_id, targetEvent\);/u);
+  assert.match(
+    lifecycle,
+    /if \(error instanceof FullUi09cEventLifecycleError && error\.reason === "event_link_date_conflict"\) \{\s*\n\s*throw conflict\(/u
+  );
+});
+
 test("FULL-UI-06 projects lifecycle state into assignment reads", () => {
   assert.match(service, /lifecycle_status/u);
   assert.match(service, /is_current/u);
