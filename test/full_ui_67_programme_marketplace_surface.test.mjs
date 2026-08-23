@@ -46,6 +46,22 @@ test("the marketplace browse list re-verifies template ownership and shareable s
   assert.match(service, /SHAREABLE_TEMPLATE_STATUSES\.has\(String\(template\.template_status\)\)/u);
 });
 
+// listCoachProgrammeTemplates rejects (via requireActiveCoach) the moment
+// a sharing coach's own account is no longer active - a normal account
+// lifecycle event (suspended/closed), not a marketplace error. Promise.all
+// would let one such rejection take the whole browse listing down for
+// every other coach; Promise.allSettled lets that one seller's templates
+// be quietly left out instead, matching this file's own established
+// "re-verify live, never trust a stale flag" posture from the test above.
+test("one sharing coach going inactive never breaks the marketplace browse listing for everyone else", () => {
+  assert.match(service, /Promise\.allSettled\(\s*\n\s*coachUserIds\.map\(\(coachUserId\) => listCoachProgrammeTemplates\(coachUserId\)\)/u);
+  assert.doesNotMatch(
+    service.slice(service.indexOf("export async function listMarketplaceSharedTemplates"), service.indexOf("export async function listMarketplaceSharedTemplates") + 1500),
+    /await Promise\.all\(/u
+  );
+  assert.match(service, /if \(result\.status === "fulfilled"\) \{/u);
+});
+
 test("the browse listing ties in the sharing coach's identity and branding, the same pattern already used for relationships", () => {
   assert.match(service, /loadLatestBetaProductRecord\("beta17_coach_profile"/u);
   assert.match(service, /loadLatestBetaProductRecord\("coach_brand_preference"/u);

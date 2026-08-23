@@ -195,11 +195,22 @@ export async function listMarketplaceSharedTemplates(): Promise<readonly Readonl
 
   const coachUserIds = [...new Set(sharedPrefs.map((preference) => cleanString(preference.coach_user_id)))];
   const templatesByCoach = new Map<string, readonly Readonly<JsonRecord>[]>();
-  await Promise.all(
-    coachUserIds.map(async (coachUserId) => {
-      templatesByCoach.set(coachUserId, await listCoachProgrammeTemplates(coachUserId));
-    })
+  // Promise.allSettled, not Promise.all: listCoachProgrammeTemplates rejects
+  // via requireActiveCoach the moment a sharing coach's own account is no
+  // longer active (suspended/closed) - a normal account lifecycle event,
+  // not a marketplace-browse error. One inactive seller among many must
+  // never take the whole browse listing down for every other coach; their
+  // templates are simply left out of templatesByCoach, so the ?? [] below
+  // quietly excludes that seller's entries instead of throwing.
+  const templateResults = await Promise.allSettled(
+    coachUserIds.map((coachUserId) => listCoachProgrammeTemplates(coachUserId))
   );
+  coachUserIds.forEach((coachUserId, index) => {
+    const result = templateResults[index];
+    if (result.status === "fulfilled") {
+      templatesByCoach.set(coachUserId, result.value);
+    }
+  });
 
   const entries: JsonRecord[] = [];
   for (const preference of sharedPrefs) {
