@@ -1256,11 +1256,27 @@ export async function loadStandaloneEventDetail(
     const linkedAthletes = await Promise.all(
       currentLinks.map(async (link) => {
         const athleteUserId = cleanString(link.athlete_user_id);
-        const auth = await loadLatestBetaProductRecord(
-          "beta16_auth",
-          athleteUserId,
-          athleteUserId
-        );
+
+        // A failure loading one linked athlete's auth record (a malformed
+        // link row, or just a transient read failure) must never take down
+        // the ENTIRE event detail page - a group/class event can have many
+        // athletes linked to it, and one bad lookup would otherwise hide
+        // every other athlete's link/programme data too. Falling back to
+        // null degrades this one athlete to the same "record doesn't exist
+        // yet" default used below.
+        let auth = null;
+        try {
+          auth = await loadLatestBetaProductRecord(
+            "beta16_auth",
+            athleteUserId,
+            athleteUserId
+          );
+        }
+        catch {
+          // auth stays null - handled identically to a legitimately
+          // absent record by the fallback below.
+        }
+
         const programme = await templateById(
           client,
           coachUserId,
