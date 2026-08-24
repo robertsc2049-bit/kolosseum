@@ -236,6 +236,27 @@ test("org_visibility_service.ts and org_athlete_messaging_service.ts are the onl
   assert.match(rosterFn, /display_name/u);
 });
 
+// fullRosterForOrg's per-athlete auth lookup used to run inside an inner
+// Promise.all nested within an outer Promise.all across every coach in the
+// org - loadLatestBetaProductRecord throws on an empty subject_user_id, so
+// one bad or transiently-failing athlete lookup for a single coach could
+// reject the inner Promise.all, cascade through the outer one, and take
+// down the entire org's shared-visibility roster for every coach and every
+// athlete, not just the one coach whose athlete lookup failed.
+test("fullRosterForOrg never lets one athlete's auth lookup failure take down the entire org's roster", () => {
+  const rosterFn = extractFunctionSource(visibilityService, "fullRosterForOrg");
+
+  assert.match(
+    rosterFn,
+    /let auth = null;\s*\n\s*try \{/u
+  );
+
+  assert.match(
+    rosterFn,
+    /catch \{/u
+  );
+});
+
 test("visibility_mode is declared once at org creation and immutable afterward - no route or function changes it", () => {
   assert.match(rosterService, /cleanVisibilityMode/u);
   assert.doesNotMatch(ownerRoutes, /visibility-mode|visibilityMode/u);
