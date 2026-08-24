@@ -69,3 +69,26 @@ test("authenticatedAthlete gates both new mutating routes with CSRF and derives 
   assert.match(declineHandler[0], /authenticatedAthlete\(req, true\)/u);
   assert.match(endHandler[0], /authenticatedAthlete\(req, true\)/u);
 });
+
+// withCoachDisplay previously fetched a coach's profile/brand records
+// inside one outer Promise.all across every relationship the athlete has -
+// loadLatestBetaProductRecord throws on an empty subject_user_id, so one
+// bad or transiently-failing coach lookup could take the athlete's ENTIRE
+// pending-invitations or relationship-history list down instead of
+// degrading just that one entry.
+test("withCoachDisplay never lets one coach's profile/brand lookup failure take down the athlete's entire invitations/relationships list", () => {
+  const fn = invitationService.slice(
+    invitationService.indexOf("async function withCoachDisplay"),
+    invitationService.indexOf("export async function listPendingRelationshipInvitationsForAthlete")
+  );
+
+  assert.match(
+    fn,
+    /let coachProfile = null;\s*\n\s*let brandPreference = null;\s*\n\s*try \{/u
+  );
+
+  assert.match(
+    fn,
+    /catch \{/u
+  );
+});

@@ -255,18 +255,34 @@ async function withCoachDisplay(
   relationship: Readonly<JsonRecord>
 ): Promise<Readonly<JsonRecord>> {
   const coachUserId = cleanString(relationship.coach_user_id);
-  const [coachProfile, brandPreference] = await Promise.all([
-    loadLatestBetaProductRecord(
-      "beta17_coach_profile",
-      coachUserId,
-      coachUserId
-    ),
-    loadLatestBetaProductRecord(
-      "coach_brand_preference",
-      coachUserId,
-      coachUserId
-    )
-  ]);
+
+  // A failure loading one coach's profile/brand records (a malformed
+  // relationship row, or just a transient read failure) must never take
+  // down the athlete's ENTIRE invitations/relationships list - this runs
+  // inside an outer Promise.all across every relationship the athlete has,
+  // so an unhandled rejection here would hide every other coach's entry
+  // too. Falling back to null degrades this one coach to the same "record
+  // doesn't exist yet" defaults used below.
+  let coachProfile = null;
+  let brandPreference = null;
+  try {
+    [coachProfile, brandPreference] = await Promise.all([
+      loadLatestBetaProductRecord(
+        "beta17_coach_profile",
+        coachUserId,
+        coachUserId
+      ),
+      loadLatestBetaProductRecord(
+        "coach_brand_preference",
+        coachUserId,
+        coachUserId
+      )
+    ]);
+  }
+  catch {
+    // coachProfile/brandPreference stay null - handled identically to a
+    // legitimately absent record by every read below.
+  }
 
   return Object.freeze({
     relationship_id: cleanString(relationship.relationship_id),
