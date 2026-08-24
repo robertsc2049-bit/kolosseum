@@ -481,19 +481,36 @@ export async function listCoachAthleteRelationships(
           relationship.athlete_user_id
         );
 
-      const [auth, declaration] =
-        await Promise.all([
-          loadLatestBetaProductRecord(
-            "beta16_auth",
-            athleteUserId,
-            athleteUserId
-          ),
-          loadLatestBetaProductRecord(
-            "beta16_phase1_declaration",
-            athleteUserId,
-            athleteUserId
-          )
-        ]);
+      // A failure enriching one athlete's auth/declaration record (a
+      // malformed relationship row, or just a transient read failure -
+      // more likely than it sounds once a coach's roster is large
+      // enough for many of these to run in parallel) must never take
+      // down the coach's ENTIRE roster. Falling back to null here
+      // degrades this one athlete to the exact same "record doesn't
+      // exist yet" defaults already used below, rather than rejecting
+      // the outer Promise.all and losing every other athlete's entry
+      // along with it.
+      let auth = null;
+      let declaration = null;
+      try {
+        [auth, declaration] =
+          await Promise.all([
+            loadLatestBetaProductRecord(
+              "beta16_auth",
+              athleteUserId,
+              athleteUserId
+            ),
+            loadLatestBetaProductRecord(
+              "beta16_phase1_declaration",
+              athleteUserId,
+              athleteUserId
+            )
+          ]);
+      }
+      catch {
+        // auth/declaration stay null - handled identically to a
+        // legitimately-absent record by every read below.
+      }
 
       const phase1Input =
         declaration &&
