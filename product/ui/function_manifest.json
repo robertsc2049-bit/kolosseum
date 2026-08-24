@@ -1853,9 +1853,7 @@
             "coach"
           ],
           "route_id": "coach_athlete_detail",
-          "api_routes": [
-            "/coach-workspace/athlete-strength-preflight"
-          ],
+          "api_routes": [],
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
@@ -1877,13 +1875,13 @@
           ],
           "route_id": "athlete_session",
           "api_routes": [
-            "/coach-workspace/athlete-strength-resolve"
+            "/sessions/beta-athlete-today"
           ],
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
-          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -7799,18 +7797,6 @@
     {
       "method": "POST",
       "path": "/coach-workspace/athlete-strength-profile",
-      "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "strength_references"
-    },
-    {
-      "method": "POST",
-      "path": "/coach-workspace/athlete-strength-preflight",
-      "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "strength_references"
-    },
-    {
-      "method": "POST",
-      "path": "/coach-workspace/athlete-strength-resolve",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "strength_references"
     },

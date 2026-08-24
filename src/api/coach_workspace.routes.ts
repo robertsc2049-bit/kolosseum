@@ -21,9 +21,7 @@ import {
   getConnectedCoachAthletes,
   listAthleteOwnRelationshipsHandler,
   listAthleteRelationshipInvitationsHandler,
-  preflightAthleteStrengthProfile,
   previewEventProgrammeCalendar,
-  resolveAthleteStrengthLoad,
   saveAthleteStrengthProfileHandler
 } from "./coach_workspace.handlers.js";
 import {
@@ -133,16 +131,6 @@ coachWorkspaceRouter.get(
 coachWorkspaceRouter.post(
   "/athlete-strength-profile",
   asyncHandler(saveAthleteStrengthProfileHandler)
-);
-
-coachWorkspaceRouter.post(
-  "/athlete-strength-preflight",
-  asyncHandler(preflightAthleteStrengthProfile)
-);
-
-coachWorkspaceRouter.post(
-  "/athlete-strength-resolve",
-  asyncHandler(resolveAthleteStrengthLoad)
 );
 
 coachWorkspaceRouter.post(

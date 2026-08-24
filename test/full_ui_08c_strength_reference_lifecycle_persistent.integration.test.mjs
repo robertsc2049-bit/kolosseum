@@ -19,8 +19,6 @@ import {
 
 import {
   loadAthleteStrengthProfile,
-  loadPersistedProgrammeStrengthPreflight,
-  reconstructResolvedStrengthLoadSource,
   saveAthleteStrengthProfile
 } from "../dist/src/api/beta19_coach_workspace_service.js";
 
@@ -99,9 +97,6 @@ test(
     const relationshipId =
       `relationship_full_ui_08c_${suffix}`;
 
-    const templateId =
-      `template_full_ui_08c_${suffix}`;
-
     const initialReferenceId =
       `reference_initial_${suffix}`;
 
@@ -110,9 +105,6 @@ test(
 
     const exerciseId =
       firstExerciseId();
-
-    const missingExerciseId =
-      `${exerciseId}_missing_reference`;
 
     const trainingMaxExerciseId =
       secondExerciseId();
@@ -155,69 +147,6 @@ test(
           athleteUserId,
         relationship_state:
           "accepted",
-        updated_at_iso8601:
-          initialTimestamp
-      })
-    );
-
-    await persistBetaProductRecord(
-      recordWithHash({
-        record_type:
-          "beta18_programme_template",
-        template_id:
-          templateId,
-        version_family_id:
-          `family_${suffix}`,
-        template_version:
-          1,
-        template_name:
-          "FULL-UI-08C Programme",
-        template_state:
-          "active",
-        activity_id:
-          "general_strength",
-        coach_user_id:
-          coachUserId,
-        template_structure: {
-          blocks: [
-            {
-              weeks: [
-                {
-                  days: [
-                    {
-                      sessions: [
-                        {
-                          work_items: [
-                            {
-                              exercise_id:
-                                exerciseId,
-                              loading_reference: {
-                                type:
-                                  "percent_1rm",
-                                value:
-                                  80
-                              }
-                            },
-                            {
-                              exercise_id:
-                                missingExerciseId,
-                              loading_reference: {
-                                type:
-                                  "percent_1rm",
-                                value:
-                                  75
-                              }
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
         updated_at_iso8601:
           initialTimestamp
       })
@@ -482,99 +411,9 @@ test(
       2
     );
 
-    const preflightBeforeRestart =
-      await loadPersistedProgrammeStrengthPreflight(
-        coachUserId,
-        athleteUserId,
-        templateId,
-        "2026-07-20"
-      );
-
-    assert.deepEqual(
-      preflightBeforeRestart.missing,
-      [
-        missingExerciseId
-      ]
-    );
-
-    assert.equal(
-      preflightBeforeRestart
-        .effective_sources[0]
-        .reference_id,
-      replacementReferenceId
-    );
-
-    const resolvedBeforeRestart =
-      await reconstructResolvedStrengthLoadSource(
-        coachUserId,
-        athleteUserId,
-        exerciseId,
-        80,
-        {
-          target_unit:
-            "lb",
-          rounding_increment:
-            5,
-          as_of_date:
-            "2026-07-20"
-        }
-      );
-
-    assert.equal(
-      resolvedBeforeRestart
-        .source
-        .reference_id,
-      replacementReferenceId
-    );
-
-    assert.equal(
-      resolvedBeforeRestart
-        .source
-        .source_type,
-      "estimated_1rm"
-    );
-
-    const resolvedTrainingMaxBeforeRestart =
-      await reconstructResolvedStrengthLoadSource(
-        coachUserId,
-        athleteUserId,
-        trainingMaxExerciseId,
-        80,
-        {
-          target_unit:
-            "kg",
-          rounding_increment:
-            2.5,
-          as_of_date:
-            "2026-07-20"
-        }
-      );
-
-    assert.equal(
-      resolvedTrainingMaxBeforeRestart
-        .source
-        .reference_id,
-      trainingMaxReferenceId
-    );
-
-    assert.equal(
-      resolvedTrainingMaxBeforeRestart
-        .source
-        .source_type,
-      "training_max"
-    );
-
-    assert.equal(
-      resolvedTrainingMaxBeforeRestart
-        .value,
-      112.5
-    );
-
     const childScript = `
       import {
-        loadAthleteStrengthProfile,
-        loadPersistedProgrammeStrengthPreflight,
-        reconstructResolvedStrengthLoadSource
+        loadAthleteStrengthProfile
       } from "./dist/src/api/beta19_coach_workspace_service.js";
 
       import {
@@ -587,46 +426,9 @@ test(
           ${JSON.stringify(athleteUserId)}
         );
 
-      const preflight =
-        await loadPersistedProgrammeStrengthPreflight(
-          ${JSON.stringify(coachUserId)},
-          ${JSON.stringify(athleteUserId)},
-          ${JSON.stringify(templateId)},
-          "2026-07-20"
-        );
-
-      const resolved =
-        await reconstructResolvedStrengthLoadSource(
-          ${JSON.stringify(coachUserId)},
-          ${JSON.stringify(athleteUserId)},
-          ${JSON.stringify(exerciseId)},
-          80,
-          {
-            target_unit: "lb",
-            rounding_increment: 5,
-            as_of_date: "2026-07-20"
-          }
-        );
-
-      const resolvedTrainingMax =
-        await reconstructResolvedStrengthLoadSource(
-          ${JSON.stringify(coachUserId)},
-          ${JSON.stringify(athleteUserId)},
-          ${JSON.stringify(trainingMaxExerciseId)},
-          80,
-          {
-            target_unit: "kg",
-            rounding_increment: 2.5,
-            as_of_date: "2026-07-20"
-          }
-        );
-
       console.log(
         JSON.stringify({
-          profile,
-          preflight,
-          resolved,
-          resolvedTrainingMax
+          profile
         })
       );
 
@@ -676,28 +478,13 @@ test(
         .strength_reference_lifecycle
         .current[0];
 
-    const athleteSource =
-      afterRestart
-        .resolved
-        .source;
-
     assert.equal(
       coachSource.reference_id,
       replacementReferenceId
     );
 
     assert.equal(
-      athleteSource.reference_id,
-      replacementReferenceId
-    );
-
-    assert.equal(
       coachSource.source_type,
-      "estimated_1rm"
-    );
-
-    assert.equal(
-      athleteSource.source_type,
       "estimated_1rm"
     );
 
@@ -720,37 +507,6 @@ test(
     assert.equal(
       trainingMaxProfileAfterRestart.source_type,
       "training_max"
-    );
-
-    const trainingMaxSourceAfterRestart =
-      afterRestart
-        .resolvedTrainingMax
-        .source;
-
-    assert.equal(
-      trainingMaxSourceAfterRestart.reference_id,
-      trainingMaxReferenceId
-    );
-
-    assert.equal(
-      trainingMaxSourceAfterRestart.source_type,
-      "training_max"
-    );
-
-    assert.equal(
-      afterRestart
-        .resolvedTrainingMax
-        .value,
-      112.5
-    );
-
-    assert.deepEqual(
-      afterRestart
-        .preflight
-        .missing,
-      [
-        missingExerciseId
-      ]
     );
 
     assert.equal(

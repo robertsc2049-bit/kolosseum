@@ -14,8 +14,6 @@ import {
   listCoachAthleteRelationships,
   listConnectedCoachAthletes,
   loadAthleteStrengthProfile,
-  loadPersistedProgrammeStrengthPreflight,
-  reconstructResolvedStrengthLoadSource,
   saveAthleteStrengthProfile
 } from "./beta19_coach_workspace_service.js";
 import {
@@ -275,83 +273,6 @@ export async function saveAthleteStrengthProfileHandler(
     rethrowWorkspaceError(error);
   }
 }
-
-export async function preflightAthleteStrengthProfile(
-  req: Request,
-  res: Response
-) {
-  try {
-    const coachUserId = await authenticatedCoach(req, true);
-    const preflight =
-      await loadPersistedProgrammeStrengthPreflight(
-        coachUserId,
-        cleanString(
-          req.body?.athlete_user_id
-        ),
-        cleanString(
-          req.body?.template_id
-        ),
-        cleanString(
-          req.body?.as_of_date
-        ) ||
-        new Date()
-          .toISOString()
-          .slice(0, 10)
-      );
-
-    return res.status(200).json({
-      ok: true,
-      preflight
-    });
-  }
-  catch (error) {
-    rethrowWorkspaceError(error);
-  }
-}
-
-export async function resolveAthleteStrengthLoad(
-  req: Request,
-  res: Response
-) {
-  try {
-    const coachUserId = await authenticatedCoach(req, true);
-    const resolved =
-      await reconstructResolvedStrengthLoadSource(
-        coachUserId,
-        cleanString(
-          req.body?.athlete_user_id
-        ),
-        cleanString(
-          req.body?.exercise_id
-        ),
-        Number(
-          req.body?.percentage
-        ),
-        {
-          target_unit:
-            cleanString(
-              req.body?.target_unit
-            ),
-          rounding_increment:
-            req.body
-              ?.rounding_increment,
-          as_of_date:
-            cleanString(
-              req.body?.as_of_date
-            )
-        }
-      );
-
-    return res.status(200).json({
-      ok: true,
-      resolved
-    });
-  }
-  catch (error) {
-    rethrowWorkspaceError(error);
-  }
-}
-
 
 export async function previewEventProgrammeCalendar(
   req: Request,
