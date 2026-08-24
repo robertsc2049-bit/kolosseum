@@ -180,3 +180,31 @@ test("FULL-UI-09C re-checks the same-date conflict rule when an event is re-vers
   assert.match(versionFunctionBody, /for \(const link of await currentLinksForEvent\(client, coachUserId, eventId\)\) \{/u);
   assert.match(versionFunctionBody, /await assertNoDateConflict\(client, coachUserId, linkedAthleteUserId, versionedEventForConflictCheck\);/u);
 });
+
+// loadStandaloneEventDetail previously fetched every linked athlete's
+// auth record inside one outer Promise.all - loadLatestBetaProductRecord
+// throws on an empty subject_user_id, and a group/class event can have
+// many athletes linked to it, so one bad or unlucky athlete lookup could
+// take the entire event detail page down instead of degrading just that
+// one entry.
+test("FULL-UI-09C never lets one linked athlete's auth lookup failure take down the entire event detail page", () => {
+  const service = fs.readFileSync(
+    "src/api/full_ui_09c_event_lifecycle_service.ts",
+    "utf8"
+  );
+
+  const detailFunctionBody = service.slice(
+    service.indexOf("export async function loadStandaloneEventDetail"),
+    service.indexOf("export async function loadStandaloneEventDetail") + 2000
+  );
+
+  assert.match(
+    detailFunctionBody,
+    /let auth = null;\s*\n\s*try \{/u
+  );
+
+  assert.match(
+    detailFunctionBody,
+    /catch \{/u
+  );
+});
