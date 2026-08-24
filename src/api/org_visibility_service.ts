@@ -241,11 +241,26 @@ async function fullRosterForOrg(
 
       const athletes = await Promise.all(
         forCoach.map(async (relationship) => {
-          const auth = await loadLatestBetaProductRecord(
-            "beta16_auth",
-            relationship.athlete_user_id,
-            relationship.athlete_user_id
-          );
+          // A failure loading one athlete's auth record (a malformed
+          // relationship row, or just a transient read failure) must never
+          // take down the ENTIRE org roster - this inner Promise.all sits
+          // inside an outer Promise.all across every coach in the org, so
+          // an unhandled rejection here would cascade and hide every other
+          // coach's athletes too. Falling back to null degrades this one
+          // athlete to the same "record doesn't exist yet" defaults used
+          // below for a legitimately-absent record.
+          let auth = null;
+          try {
+            auth = await loadLatestBetaProductRecord(
+              "beta16_auth",
+              relationship.athlete_user_id,
+              relationship.athlete_user_id
+            );
+          }
+          catch {
+            // auth stays null - handled identically to a legitimately
+            // absent record by the fallbacks below.
+          }
 
           return Object.freeze({
             athlete_user_id: relationship.athlete_user_id,
