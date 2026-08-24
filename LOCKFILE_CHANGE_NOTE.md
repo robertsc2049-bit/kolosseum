@@ -145,3 +145,35 @@ This change does not alter Kolosseum engine law, deterministic output,
 registry content, sealed artefact bytes, access-policy decisions, or any
 existing user-facing behaviour outside the coach billing surface it
 directly wires - it is purely additive.
+
+## React migration foundation: add React, Vite and component-test dependencies
+
+Commit subject: feat(app): React migration foundation + Account identity pilot
+
+package-lock.json changed because new dependencies were added:
+
+- `react` (`^18.3.1`), `react-dom` (`^18.3.1`) added to `dependencies`.
+- `vite` (`^6.0.7`), `@vitejs/plugin-react` (`^4.3.4`), `@types/react`
+  (`^18.3.18`), `@types/react-dom` (`^18.3.5`) added to `devDependencies`
+  - the build toolchain for the new `public/app-src/` React source, which
+    compiles to static output served from the existing
+    `public/app/react-dist/` directory via the already-in-place
+    `express.static("public/app")` mount. No server code changes.
+- `jsdom` (`^25.0.1`), `@testing-library/react` (`^16.1.0`), `tsx`
+  (`^4.19.2`) added to `devDependencies` - the component-test toolchain
+  for the migrated screens, run through the repo's existing `node --test`
+  runner (via a `tsx/esm` loader for TSX transformation, not a new test
+  framework) in place of the legacy pattern of regex-matching frontend
+  source text.
+
+This is the first slice of an explicit, incremental frontend migration
+from the existing ~21,000-line hand-written vanilla-JS app to React,
+scoped to foundational tooling plus one pilot screen (the Account
+identity/profile/security sub-panel). No other dependency versions were
+intentionally changed; any other lockfile movement is transitive
+resolution from these additions.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or any
+backend behaviour - the backend REST API surface is unchanged; React is
+purely a new consumer of the same existing routes.

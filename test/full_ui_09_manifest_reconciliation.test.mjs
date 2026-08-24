@@ -643,9 +643,8 @@ const targets = [
     "id": "consent_history",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/account/useAccountDetail.ts",
         "all": [
-          "accountConsentHistory",
           "consent_history"
         ]
       }
@@ -672,7 +671,7 @@ const targets = [
         ]
       },
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/account/ProfileForm.tsx",
         "all": [
           "Profile updated."
         ]

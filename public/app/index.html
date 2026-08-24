@@ -2555,98 +2555,14 @@
           </div>
 
           <div class="account-settings-grid">
-            <form id="accountProfileForm" class="panel form-panel">
-              <div>
-                <p class="eyebrow">Profile</p>
-                <h3>Identity details</h3>
-              </div>
-
-              <label class="field">
-                <span>Display name</span>
-                <input id="accountProfileName" required maxlength="80" autocomplete="name" />
-              </label>
-
-              <label class="field">
-                <span>Email</span>
-                <input id="accountProfileEmail" required maxlength="254" type="email" autocomplete="email" />
-              </label>
-
-              <button class="button primary" type="submit">Save profile</button>
-              <p id="accountProfileResult" class="inline-result" hidden></p>
-            </form>
-
-            <article class="panel form-panel">
-              <div>
-                <p class="eyebrow">Email verification</p>
-                <h3>Verify email address</h3>
-                <p class="muted">Request and enter the six-digit verification code.</p>
-              </div>
-
-              <button id="requestVerificationButton" class="button secondary" type="button">Request code</button>
-
-              <label class="field">
-                <span>Verification code</span>
-                <input id="verificationCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" />
-              </label>
-
-              <button id="completeVerificationButton" class="button primary" type="button">Verify email</button>
-              <p id="verificationResult" class="inline-result" hidden></p>
-            </article>
-
-            <form id="accountPasswordForm" class="panel form-panel">
-              <div>
-                <p class="eyebrow">Credentials</p>
-                <h3>Change password</h3>
-                <p class="muted">Changing the password revokes other active sessions.</p>
-              </div>
-
-              <label class="field">
-                <span>Current password</span>
-                <input id="currentPassword" type="password" autocomplete="current-password" required minlength="12" maxlength="200" />
-              </label>
-
-              <label class="field">
-                <span>New password</span>
-                <input id="newPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="200" />
-              </label>
-
-              <button class="button primary" type="submit">Change password</button>
-              <p id="passwordChangeResult" class="inline-result" hidden></p>
-            </form>
-
-            <article class="panel">
-              <div>
-                <p class="eyebrow">Terms and consent</p>
-                <h3>Current and accepted versions</h3>
-              </div>
-
-              <div class="commercial-fact-grid account-version-grid">
-                <div class="commercial-fact">
-                  <span>Current terms</span>
-                  <strong id="accountCurrentTermsVersion">Loading</strong>
-                </div>
-                <div class="commercial-fact">
-                  <span>Accepted terms</span>
-                  <strong id="accountAcceptedTermsVersion">Not recorded</strong>
-                </div>
-                <div class="commercial-fact">
-                  <span>Current consent</span>
-                  <strong id="accountCurrentConsentVersion">Loading</strong>
-                </div>
-                <div class="commercial-fact">
-                  <span>Accepted consent</span>
-                  <strong id="accountAcceptedConsentVersion">Not recorded</strong>
-                </div>
-              </div>
-
-              <div>
-                <p class="eyebrow">Versioned history</p>
-                <h4>Account history</h4>
-              </div>
-              <div id="accountConsentHistory" class="record-list compact-record-list">
-                <div class="empty-state compact-empty"><p>Loading account history…</p></div>
-              </div>
-            </article>
+            <!-- DEV NOTE: FULL-UI-02 profile_update/email_verification/
+                 password_change/consent_history now render via the React
+                 island mounted here (public/app-src/main.tsx), replacing
+                 the four legacy panels this div previously held. See
+                 app.js's kolosseum:account-identity-updated listener for
+                 how the legacy identity card (still rendered below, in
+                 .two-column) stays in sync with React-driven updates. -->
+            <div id="account-identity-root"></div>
 
             <article id="dataRightsPanel" class="panel">
               <div>
@@ -2917,5 +2833,6 @@
   <script type="module" src="/app/commercial_ui.js"></script>
   <script type="module" src="/app/coach_branding_ui.js"></script>
   <script type="module" src="/app/route_bootstrap.js"></script>
+  <script type="module" src="/app/react-dist/kolosseum-react.js"></script>
 </body>
 </html>

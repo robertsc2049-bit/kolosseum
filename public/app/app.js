@@ -1,6 +1,4 @@
 import {
-  changeAccountPassword,
-  completeEmailVerification,
   completePasswordReset,
   confirmDataDeletion as submitDataDeletionConfirmationRequest,
   downloadDataExport as fetchDataExportDownload,
@@ -12,12 +10,10 @@ import {
   registerAccount,
   requestAccountClosure,
   requestDataExport as submitDataExportRequest,
-  requestEmailVerification,
   requestPasswordReset,
   restoreAccountSession,
   signInAccount,
-  signOutAccount,
-  updateAccountProfile
+  signOutAccount
 } from "./account_ui.js";
 
 // FULL-UI-18 factual in-product notifications.
@@ -596,25 +592,8 @@ const elements = {
   accountStateBadge: document.getElementById("accountStateBadge"),
   accountVerificationBadge: document.getElementById("accountVerificationBadge"),
   refreshAccountButton: document.getElementById("refreshAccountButton"),
-  accountProfileForm: document.getElementById("accountProfileForm"),
-  accountProfileName: document.getElementById("accountProfileName"),
-  accountProfileEmail: document.getElementById("accountProfileEmail"),
-  accountProfileResult: document.getElementById("accountProfileResult"),
-  requestVerificationButton: document.getElementById("requestVerificationButton"),
-  completeVerificationButton: document.getElementById("completeVerificationButton"),
-  verificationCode: document.getElementById("verificationCode"),
-  verificationResult: document.getElementById("verificationResult"),
-  accountPasswordForm: document.getElementById("accountPasswordForm"),
-  currentPassword: document.getElementById("currentPassword"),
-  newPassword: document.getElementById("newPassword"),
-  passwordChangeResult: document.getElementById("passwordChangeResult"),
-  accountConsentHistory: document.getElementById("accountConsentHistory"),
   entryTermsVersion: document.getElementById("entryTermsVersion"),
   entryConsentVersion: document.getElementById("entryConsentVersion"),
-  accountCurrentTermsVersion: document.getElementById("accountCurrentTermsVersion"),
-  accountAcceptedTermsVersion: document.getElementById("accountAcceptedTermsVersion"),
-  accountCurrentConsentVersion: document.getElementById("accountCurrentConsentVersion"),
-  accountAcceptedConsentVersion: document.getElementById("accountAcceptedConsentVersion"),
   accountClosureForm: document.getElementById("accountClosureForm"),
   accountClosureConfirmation: document.getElementById("accountClosureConfirmation"),
   accountClosureResult: document.getElementById("accountClosureResult"),
@@ -14527,33 +14506,11 @@ function renderTermsState() {
     ""
   );
 
-  const acceptedTerms = String(
-    account.accepted_terms_version ??
-    ""
-  );
-
-  const acceptedConsent = String(
-    account.accepted_consent_version ??
-    ""
-  );
-
   elements.entryTermsVersion.textContent =
     currentTerms || "unavailable";
 
   elements.entryConsentVersion.textContent =
     currentConsent || "unavailable";
-
-  elements.accountCurrentTermsVersion.textContent =
-    currentTerms || "Unavailable";
-
-  elements.accountCurrentConsentVersion.textContent =
-    currentConsent || "Unavailable";
-
-  elements.accountAcceptedTermsVersion.textContent =
-    acceptedTerms || "Not recorded";
-
-  elements.accountAcceptedConsentVersion.textContent =
-    acceptedConsent || "Not recorded";
 
   if (elements.entrySubmit) {
     elements.entrySubmit.disabled =
@@ -14570,46 +14527,6 @@ async function loadServerTerms() {
   renderTermsState();
 
   return terms;
-}
-
-function renderAccountHistory() {
-  const history = Array.isArray(
-    state.accountDetail?.consent_history
-  )
-    ? state.accountDetail.consent_history
-    : [];
-
-  elements.accountConsentHistory.innerHTML =
-    history.length
-      ? history.map((event) => {
-          const payload =
-            event.event_payload &&
-            typeof event.event_payload === "object"
-              ? event.event_payload
-              : {};
-
-          const versions = [
-            payload.terms_version
-              ? `Terms ${payload.terms_version}`
-              : "",
-            payload.consent_version
-              ? `Consent ${payload.consent_version}`
-              : ""
-          ].filter(Boolean);
-
-          return `
-            <article class="record-card">
-              <div>
-                <strong>${escapeHtml(titleCase(event.event_type))}</strong>
-                <p>${escapeHtml(formatDate(event.occurred_at_iso8601))}</p>
-                ${versions.length > 0
-                  ? `<p class="muted small">${escapeHtml(versions.join(" · "))}</p>`
-                  : ""}
-              </div>
-            </article>
-          `;
-        }).join("")
-      : '<div class="empty-state compact-empty"><p>No consent or verification events recorded.</p></div>';
 }
 
 function renderAccount() {
@@ -14659,24 +14576,7 @@ function renderAccount() {
   elements.accountCode.textContent =
     id || "—";
 
-  elements.accountProfileName.value =
-    account.display_name ??
-    state.profile?.displayName ??
-    "";
-
-  elements.accountProfileEmail.value =
-    account.email ??
-    state.profile?.email ??
-    "";
-
-  elements.requestVerificationButton.disabled =
-    account.email_verified === true;
-
-  elements.completeVerificationButton.disabled =
-    account.email_verified === true;
-
   renderTermsState();
-  renderAccountHistory();
 
   let coachLinkPanel =
     document.getElementById(
@@ -15474,130 +15374,10 @@ async function loadPersistentAccountDetail(
   return detail;
 }
 
-async function saveAccountProfile(
-  event
-) {
-  event.preventDefault();
-
-  const response =
-    await updateAccountProfile(
-      {
-        display_name:
-          elements.accountProfileName.value
-            .trim(),
-        email:
-          elements.accountProfileEmail.value
-            .trim()
-            .toLowerCase()
-      },
-      state.csrfToken
-    );
-
-  applyAccountIdentity(
-    response.account
-  );
-
-  state.accountDetail = null;
-  saveState();
-  renderIdentity();
-  renderAccount();
-
-  const developmentCode =
-    response.verification
-      ?.development_code;
-
-  elements.accountProfileResult.hidden =
-    false;
-
-  elements.accountProfileResult.textContent =
-    developmentCode
-      ? `Profile updated. Development verification code: ${developmentCode}`
-      : "Profile updated.";
-
-  if (developmentCode) {
-    elements.verificationCode.value =
-      developmentCode;
-  }
-}
-
-async function requestAccountVerificationCode() {
-  const response =
-    await requestEmailVerification(
-      state.csrfToken
-    );
-
-  const developmentCode =
-    String(
-      response?.development_code ??
-      ""
-    );
-
-  if (developmentCode) {
-    elements.verificationCode.value =
-      developmentCode;
-  }
-
-  elements.verificationResult.hidden =
-    false;
-
-  elements.verificationResult.textContent =
-    response?.already_verified
-      ? "Email is already verified."
-      : developmentCode
-        ? `Development code: ${developmentCode}`
-        : "Verification code requested.";
-}
-
-async function verifyAccountEmail() {
-  const response =
-    await completeEmailVerification(
-      {
-        code:
-          elements.verificationCode.value
-            .trim()
-      },
-      state.csrfToken
-    );
-
-  applyAccountIdentity(
-    response.account
-  );
-
-  state.accountDetail = null;
-  saveState();
-  renderIdentity();
-  renderAccount();
-
-  elements.verificationResult.hidden =
-    false;
-
-  elements.verificationResult.textContent =
-    "Email verified.";
-}
-
-async function saveAccountPassword(
-  event
-) {
-  event.preventDefault();
-
-  await changeAccountPassword(
-    {
-      current_password:
-        elements.currentPassword.value,
-      new_password:
-        elements.newPassword.value
-    },
-    state.csrfToken
-  );
-
-  elements.accountPasswordForm.reset();
-
-  elements.passwordChangeResult.hidden =
-    false;
-
-  elements.passwordChangeResult.textContent =
-    "Password changed. Other sessions were revoked.";
-}
+// DEV NOTE: FULL-UI-02 profile_update/email_verification/password_change
+// migrated to React (public/app-src/screens/account/) - see the
+// kolosseum:account-identity-updated listener below for how this legacy
+// module stays in sync with React-driven identity updates.
 
 async function closePersistentAccount(
   event
@@ -17122,35 +16902,19 @@ elements.refreshAccountButton.addEventListener(
   }
 );
 
-elements.accountProfileForm.addEventListener(
-  "submit",
+// DEV NOTE: React drives accountProfileForm/requestVerificationButton/
+// completeVerificationButton/accountPasswordForm submits directly now (see
+// public/app-src/screens/account/) - this legacy listener block is retired.
+// applyAccountIdentity/renderIdentity/renderAccount for a React-driven
+// update instead run from the bridge listener below.
+document.addEventListener(
+  "kolosseum:account-identity-updated",
   (event) => {
-    guardedAction(submitButtonOf, saveAccountProfile)(event)
-      .catch(handleError);
-  }
-);
-
-elements.requestVerificationButton.addEventListener(
-  "click",
-  () => {
-    guardedAction(elements.requestVerificationButton, requestAccountVerificationCode)()
-      .catch(handleError);
-  }
-);
-
-elements.completeVerificationButton.addEventListener(
-  "click",
-  () => {
-    guardedAction(elements.completeVerificationButton, verifyAccountEmail)()
-      .catch(handleError);
-  }
-);
-
-elements.accountPasswordForm.addEventListener(
-  "submit",
-  (event) => {
-    guardedAction(submitButtonOf, saveAccountPassword)(event)
-      .catch(handleError);
+    applyAccountIdentity(event.detail);
+    state.accountDetail = null;
+    saveState();
+    renderIdentity();
+    renderAccount();
   }
 );
 

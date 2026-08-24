@@ -18,18 +18,21 @@ const gdprDeleteContract = read("src/v1GdprDeleteQueue.mjs");
 const athleteHistoryExportService = read("src/api/athlete_history_export_service.ts");
 
 test("current terms and consent version, and consent history, are displayed (reusing the existing real identity_account surface)", () => {
-  for (const id of [
-    "accountCurrentTermsVersion",
-    "accountAcceptedTermsVersion",
-    "accountCurrentConsentVersion",
-    "accountAcceptedConsentVersion",
-    "accountConsentHistory"
-  ]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
-  }
-
+  // consent_history (accountCurrentTermsVersion/accountAcceptedTermsVersion/
+  // accountCurrentConsentVersion/accountAcceptedConsentVersion/
+  // accountConsentHistory/renderAccountHistory) migrated to React - proven
+  // behaviorally in public/app-src/__tests__/AccountIdentityPanel.test.tsx.
+  // entryTermsVersion/entryConsentVersion (the entry/sign-up screen's own
+  // display, unrelated to this migration) still render via app.js's
+  // renderTermsState, which stays legacy.
+  assert.ok(html.includes(`id="account-identity-root"`), "Expected account-identity-root");
   assert.match(js, /function renderTermsState/u);
-  assert.match(js, /function renderAccountHistory/u);
+
+  const consentHistoryPanel = read("public/app-src/screens/account/ConsentHistoryPanel.tsx");
+  assert.match(consentHistoryPanel, /Current terms/u);
+  assert.match(consentHistoryPanel, /Accepted terms/u);
+  assert.match(consentHistoryPanel, /Current consent/u);
+  assert.match(consentHistoryPanel, /Accepted consent/u);
 });
 
 test("export routes are session-authenticated and delegate to data_rights_service, distinct from Athlete History export", () => {
