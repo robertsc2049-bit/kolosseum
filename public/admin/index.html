@@ -4,23 +4,45 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#0A0C0A" />
   <title>Kolosseum Founder/Admin Operations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" />
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; color: #111; }
-    section { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
-    h1 { font-size: 1.4rem; }
-    h2 { font-size: 1.1rem; }
+    :root {
+      color-scheme: dark;
+      --k-canvas: #0A0C0A;
+      --k-surface-1: #121614;
+      --k-surface-2: #191F1C;
+      --k-border: #303A34;
+      --k-text: #E8EEE6;
+      --k-text-secondary: #A0A8A0;
+      --k-accent: #7EB800;
+      --k-accent-bright: #9AD600;
+      --k-danger: #D85B4A;
+      --k-danger-deep: #7D332B;
+      --k-font-body: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --k-font-display: Rajdhani, "Roboto Condensed", "Arial Narrow", sans-serif;
+    }
+    body { font-family: var(--k-font-body); max-width: 960px; margin: 2rem auto; padding: 0 1rem; background: var(--k-canvas); color: var(--k-text); }
+    section { border: 1px solid var(--k-border); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; background: var(--k-surface-1); }
+    h1, h2 { font-family: var(--k-font-display); font-weight: 600; }
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.2rem; }
     table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
-    th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-    input, select, textarea { padding: 0.4rem; margin: 0.2rem 0; }
-    button { padding: 0.4rem 0.8rem; cursor: pointer; }
-    button.danger { background: #b4442e; color: #fff; border: none; border-radius: 4px; }
-    button.confirm { background: #7f2f20; color: #fff; border: none; border-radius: 4px; }
-    .muted { color: #666; font-size: 0.85rem; }
-    .error-text { color: #b4442e; }
+    th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--k-border); font-size: 0.9rem; }
+    th { color: var(--k-text-secondary); }
+    input, select, textarea { padding: 0.4rem; margin: 0.2rem 0; border: 1px solid var(--k-border); border-radius: 8px; background: var(--k-surface-2); color: var(--k-text); min-height: 44px; }
+    button { padding: 0.4rem 0.8rem; min-height: 44px; cursor: pointer; border: 1px solid var(--k-border); border-radius: 12px; background: var(--k-surface-2); color: var(--k-text); font: inherit; }
+    button:focus-visible { outline: 3px solid var(--k-accent-bright); outline-offset: 2px; }
+    button.danger { background: var(--k-danger); color: var(--k-canvas); border: none; }
+    button.confirm { background: var(--k-danger-deep); color: var(--k-text); border: none; }
+    .muted { color: var(--k-text-secondary); font-size: 0.85rem; }
+    .error-text { color: var(--k-danger); }
     [hidden] { display: none !important; }
     .row-actions { display: flex; gap: 0.4rem; align-items: center; }
-    .support-detail-row td { background: #f7f5f2; font-size: 0.85rem; }
+    .support-detail-row td { background: var(--k-surface-2); font-size: 0.85rem; }
     .support-detail-row dl { margin: 0 0 0.5rem; }
     .support-detail-row dt { font-weight: 600; float: left; clear: left; margin-right: 0.4rem; }
     .support-detail-row dd { margin: 0 0 0.2rem; }
