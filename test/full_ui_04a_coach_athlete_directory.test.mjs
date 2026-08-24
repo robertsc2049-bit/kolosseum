@@ -75,6 +75,33 @@ test(
   }
 );
 
+// listCoachAthleteRelationships previously fetched every athlete's
+// auth/declaration records inside one outer Promise.all -
+// loadLatestBetaProductRecord throws on an empty subject_user_id, and a
+// transient failure on any single one of many parallel per-athlete
+// reads becomes increasingly likely as a coach's roster grows, so one
+// bad or unlucky athlete lookup could take the coach's ENTIRE roster
+// down instead of degrading just that one entry.
+test(
+  "FULL-UI-04A never lets one athlete's auth/declaration lookup failure take down the coach's entire roster",
+  () => {
+    const fn = service.slice(
+      service.indexOf("export async function listCoachAthleteRelationships"),
+      service.indexOf("export async function listConnectedCoachAthletes")
+    );
+
+    assert.match(
+      fn,
+      /let auth = null;\s*\n\s*let declaration = null;\s*\n\s*try \{/u
+    );
+
+    assert.match(
+      fn,
+      /catch \{/u
+    );
+  }
+);
+
 test(
   "FULL-UI-04A mounts a relationship directory endpoint",
   () => {
