@@ -8,7 +8,10 @@
     "npm": ">=10"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && npm run engine:shim:check",
+    "build": "tsc -p tsconfig.json && npm run engine:shim:check && npm run build:react",
+    "build:react": "vite build -c public/app-src/vite.config.ts",
+    "build:react:watch": "vite build -c public/app-src/vite.config.ts --watch",
+    "test:react": "node --import ./public/app-src/__tests__/setup.mjs --import tsx/esm --test public/app-src/__tests__/*.test.tsx",
     "build:fast": "node ci/guards/green_entrypoint_guard.mjs && node ci/guards/clean_tree_guard.mjs && tsc -p tsconfig.json && npm run engine:shim:check && node ci/guards/run_pipeline_contract_version_guard.mjs",
     "build:watch": "tsc -p tsconfig.json -w",
     "ci": "npm run green:ci",
@@ -205,20 +208,29 @@
     "express": "^5.2.1",
     "multer": "^2.2.0",
     "pg": "^8.17.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "stripe": "^22.5.0",
     "ws": "^8.21.2"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.1.0",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.2.0",
     "@types/node": "^22.10.5",
     "@types/pg": "^8.16.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
     "@types/ws": "^8.18.1",
+    "@vitejs/plugin-react": "^4.3.4",
     "ajv-formats": "^3.0.1",
     "is-number": "7.0.0",
     "is-odd": "3.0.1",
     "js-yaml": "^4.1.1",
-    "typescript": "^5.7.3"
+    "jsdom": "^25.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7"
   },
   "files": [
     "dist/",

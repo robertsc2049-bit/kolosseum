@@ -270,7 +270,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -388,7 +388,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -411,7 +411,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -434,7 +434,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",

@@ -5,6 +5,7 @@ server.log# local env
 # build + deps
 dist/
 node_modules/
+public/app/react-dist/
 
 # local scratch outputs
 _tmp_pipeline_out.json
@@ -15,6 +16,7 @@ tmp_planned_session.json
 # build + deps
 dist/
 node_modules/
+public/app/react-dist/
 
 # local scratch outputs
 _tmp_pipeline_out.json

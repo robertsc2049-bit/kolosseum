@@ -64,17 +64,8 @@ test(
       "forgotPasswordButton",
       "passwordResetRequestForm",
       "passwordResetCompleteForm",
-      "accountProfileForm",
-      "requestVerificationButton",
-      "completeVerificationButton",
-      "accountPasswordForm",
-      "accountConsentHistory",
       "entryTermsVersion",
       "entryConsentVersion",
-      "accountCurrentTermsVersion",
-      "accountAcceptedTermsVersion",
-      "accountCurrentConsentVersion",
-      "accountAcceptedConsentVersion",
       "signOutButton",
       "accountClosureForm"
     ];
@@ -89,6 +80,16 @@ test(
         `missing UI control ${id}`
       );
     }
+
+    // profile_update/email_verification/password_change/consent_history
+    // (accountProfileForm/requestVerificationButton/
+    // completeVerificationButton/accountPasswordForm/accountConsentHistory/
+    // accountCurrentTermsVersion/accountAcceptedTermsVersion/
+    // accountCurrentConsentVersion/accountAcceptedConsentVersion) migrated
+    // to the React island mounted here - their controls are proven
+    // behaviorally in public/app-src/__tests__/AccountIdentityPanel.test.tsx
+    // rather than as static HTML control IDs.
+    assert.match(html, /id="account-identity-root"/u);
   }
 );
 
@@ -137,6 +138,16 @@ test(
 test(
   "FULL-UI-02 restores server identity into the existing product workspace",
   () => {
+    // saveAccountProfile/requestAccountVerificationCode/verifyAccountEmail/
+    // saveAccountPassword migrated to React - see
+    // public/app-src/screens/account/ and the
+    // kolosseum:account-identity-updated bridge listener app.js keeps to
+    // stay in sync with React-driven identity updates.
+    assert.match(
+      app,
+      /kolosseum:account-identity-updated/u
+    );
+
     for (const token of [
       "applyAccountSession",
       "actorHomeView",
@@ -147,10 +158,6 @@ test(
       "restoreAccountSession",
       "handleEntrySubmit",
       "loadPersistentAccountDetail",
-      "saveAccountProfile",
-      "requestAccountVerificationCode",
-      "verifyAccountEmail",
-      "saveAccountPassword",
       "closePersistentAccount"
     ]) {
       assert.match(
@@ -244,6 +251,18 @@ test(
       expectedFunctions
     );
 
+    // profile_update/password_change/email_verification/consent_history
+    // migrated to React - their direct_test now points at the component
+    // test file that replaced this file's former source-text checks for
+    // exactly those four functions. Every other function in this area is
+    // still legacy-rendered and keeps pointing here.
+    const migratedToReact = new Set([
+      "profile_update",
+      "password_change",
+      "email_verification",
+      "consent_history"
+    ]);
+
     for (const entry of area.functions) {
       assert.equal(
         entry.state,
@@ -259,7 +278,9 @@ test(
 
       assert.equal(
         entry.direct_test,
-        "test/full_ui_02_account_ui.test.mjs",
+        migratedToReact.has(entry.function_id)
+          ? "public/app-src/__tests__/AccountIdentityPanel.test.tsx"
+          : "test/full_ui_02_account_ui.test.mjs",
         entry.function_id
       );
 

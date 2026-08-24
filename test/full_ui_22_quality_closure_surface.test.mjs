@@ -70,9 +70,12 @@ test("a form submit or button click cannot be repeated while its own async actio
   const guardedCallCount = [...js.matchAll(/guardedAction\(/gu)].length - 1; // -1 for the function definition itself
   assert.ok(guardedCallCount >= 10, `expected at least 10 guardedAction call sites, found ${guardedCallCount}`);
 
+  // saveAccountProfile/requestAccountVerificationCode/verifyAccountEmail/
+  // saveAccountPassword migrated to React, which handles its own
+  // in-flight/disabled submit state per component - see
+  // public/app-src/screens/account/.
   for (const fn of [
-    "handleResetRequest", "handleResetComplete", "submitSupportReport", "saveAccountProfile",
-    "requestAccountVerificationCode", "verifyAccountEmail", "saveAccountPassword",
+    "handleResetRequest", "handleResetComplete", "submitSupportReport",
     "closePersistentAccount", "requestDataExportAction", "confirmDataDeletionAction"
   ]) {
     const re = new RegExp(`guardedAction\\((?:submitButtonOf|elements\\.\\w+), ${fn}\\)`, "u");
