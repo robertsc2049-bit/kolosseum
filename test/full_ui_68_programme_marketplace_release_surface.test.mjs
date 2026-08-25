@@ -17,6 +17,7 @@ const templateService = read("src/api/beta18_programme_template_service.ts");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
+const marketplacePanel = read("public/app-src/screens/coach/CoachMarketplacePanel.tsx");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 const forbiddenPaymentProcessing = /stripe|Stripe|payment_intent|checkout\.sessions|charge\.create/u;
@@ -109,9 +110,10 @@ test("the coach workspace has real price/payment-methods inputs and a real relea
   assert.match(appJs, /elements\.templateReleaseForm\.addEventListener\("submit"/u);
 });
 
-test("the marketplace browse card escapes the coach-supplied price label and payment-methods note before rendering", () => {
-  assert.match(appJs, /escapeHtml\(template\.price_label\)/u);
-  assert.match(appJs, /escapeHtml\(template\.payment_methods_note\)/u);
+test("the marketplace browse card renders the coach-supplied price label and payment-methods note as React text, never raw HTML", () => {
+  assert.doesNotMatch(marketplacePanel, /dangerouslySetInnerHTML/u);
+  assert.match(marketplacePanel, /template\.price_label/u);
+  assert.match(marketplacePanel, /template\.payment_methods_note/u);
 });
 
 test("the release history escapes the buyer account code before rendering", () => {

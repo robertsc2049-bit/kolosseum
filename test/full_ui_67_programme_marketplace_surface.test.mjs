@@ -18,6 +18,9 @@ const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const guard = read("ci/guards/full_ui_completion_guard.mjs");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
+const marketplaceClient = read("public/app-src/api/marketplaceClient.ts");
+const marketplaceHook = read("public/app-src/screens/coach/useCoachMarketplace.ts");
+const marketplacePanel = read("public/app-src/screens/coach/CoachMarketplacePanel.tsx");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -107,23 +110,25 @@ test("the marketplace route file is tracked by the FULL-UI completion guard's ro
   assert.match(guard, /\["src\/api\/programme_template_sharing\.routes\.ts", "\/programme-marketplace"\]/u);
 });
 
-test("the coach workspace has a real share toggle and a real marketplace browse view, wired to the routes", () => {
+test("the coach workspace has a real share toggle (legacy) and a real marketplace browse view (React), wired to the routes", () => {
   assert.match(indexHtml, /id="view-marketplace"/u);
-  assert.match(indexHtml, /id="marketplaceList"/u);
+  assert.match(indexHtml, /id="coach-marketplace-root"/u);
   assert.match(indexHtml, /id="templateDetailSharedCheckbox"/u);
   assert.match(indexHtml, /id="templateDetailSharingSection"/u);
   assert.match(indexHtml, /data-view="marketplace"/u);
 
-  assert.match(appJs, /async function refreshMarketplace/u);
   assert.match(appJs, /async function confirmSaveTemplateSharing/u);
-  assert.match(appJs, /"\/programme-marketplace\/templates"/u);
   assert.match(appJs, /elements\.templateSharingForm\.addEventListener\("submit"/u);
+
+  assert.match(marketplaceClient, /loadMarketplaceTemplates/u);
+  assert.match(marketplaceClient, /"\/programme-marketplace\/templates"/u);
 });
 
-test("the marketplace card escapes coach-supplied template name, description and tagline before rendering", () => {
-  assert.match(appJs, /escapeHtml\(template\.template_name\)/u);
-  assert.match(appJs, /escapeHtml\(template\.description\)/u);
-  assert.match(appJs, /escapeHtml\(template\.coach_brand_tagline\)/u);
+test("the marketplace card renders coach-supplied template name, description and tagline as React text, never raw HTML", () => {
+  assert.doesNotMatch(marketplacePanel, /dangerouslySetInnerHTML/u);
+  assert.match(marketplacePanel, /\{String\(template\.template_name \?\? ""\)\}/u);
+  assert.match(marketplacePanel, /\{String\(template\.description\)\}/u);
+  assert.match(marketplacePanel, /template\.coach_brand_tagline/u);
 });
 
 test("the sharing toggle is hidden for draft and archived templates, shown only for complete or active", () => {
@@ -132,31 +137,35 @@ test("the sharing toggle is hidden for draft and archived templates, shown only 
 });
 
 test("the marketplace browse view has real search, activity-filter and sort controls, wired to a client-side filter", () => {
-  assert.match(indexHtml, /id="marketplaceSearch"/u);
-  assert.match(indexHtml, /id="marketplaceActivityFilter"/u);
-  assert.match(indexHtml, /id="marketplaceSort"/u);
+  assert.match(indexHtml, /id="coach-marketplace-root"/u);
 
-  assert.match(appJs, /function filteredMarketplaceTemplates/u);
-  assert.match(appJs, /function marketplaceSearchText/u);
-  assert.match(appJs, /elements\.marketplaceSearch\?\.addEventListener\("input"/u);
-  assert.match(appJs, /elements\.marketplaceActivityFilter\?\.addEventListener\("change"/u);
-  assert.match(appJs, /elements\.marketplaceSort\?\.addEventListener\("change"/u);
+  assert.match(marketplacePanel, /function marketplaceSearchText/u);
+  assert.match(marketplacePanel, /function sortTemplates/u);
+  assert.match(marketplacePanel, /type="search"/u);
+  assert.match(marketplacePanel, /onChange=\{\(event\) => setSearch\(event\.target\.value\)\}/u);
+  assert.match(marketplacePanel, /onChange=\{\(event\) => setActivityFilter\(event\.target\.value\)\}/u);
+  assert.match(marketplacePanel, /onChange=\{\(event\) => setSortMode\(event\.target\.value as SortMode\)\}/u);
 });
 
 test("the marketplace filter matches on name, description, activity and coach identity - never a server round-trip per keystroke", () => {
-  const fn = appJs.slice(
-    appJs.indexOf("function marketplaceSearchText"),
-    appJs.indexOf("function filteredMarketplaceTemplates") + 900
+  const fn = marketplacePanel.slice(
+    marketplacePanel.indexOf("function marketplaceSearchText"),
+    marketplacePanel.indexOf("type SortMode")
   );
-  assert.match(fn, /template\?\.template_name/u);
-  assert.match(fn, /template\?\.description/u);
-  assert.match(fn, /template\?\.activity_id/u);
-  assert.match(fn, /template\?\.coach_display_name/u);
+  assert.match(fn, /template\.template_name/u);
+  assert.match(fn, /template\.description/u);
+  assert.match(fn, /template\.activity_id/u);
+  assert.match(fn, /template\.coach_display_name/u);
+
+  // the fetch hook has no knowledge of search/filter/sort state at all, so a
+  // keystroke structurally cannot trigger a request - it only ever re-runs
+  // the client-side useMemo filter in the panel component.
+  assert.doesNotMatch(marketplaceHook, /search|activityFilter|sortMode/iu);
 });
 
 test("the marketplace has a distinct empty state for zero matches versus zero shared templates at all", () => {
-  assert.match(appJs, /No shared programmes yet/u);
-  assert.match(appJs, /No programmes match/u);
+  assert.match(marketplacePanel, /No shared programmes yet/u);
+  assert.match(marketplacePanel, /No programmes match/u);
 });
 
 test("the FULL-UI-67 manifest area declares the original visibility and browse functions as implemented with real tests", () => {
@@ -170,11 +179,16 @@ test("the FULL-UI-67 manifest area declares the original visibility and browse f
     assert.ok(functionIds.includes(expectedId), `expected ${expectedId} in the programme_marketplace area`);
   }
 
+  const directTestByFunction = {
+    programme_marketplace_share: "test/full_ui_67_programme_marketplace_surface.test.mjs",
+    programme_marketplace_browse: "public/app-src/__tests__/CoachMarketplacePanel.test.tsx"
+  };
+
   for (const functionId of ["programme_marketplace_browse", "programme_marketplace_share"]) {
     const fn = area.functions.find((entry) => entry.function_id === functionId);
     assert.equal(fn.state, "implemented");
     assert.equal(fn.integration_test, "test/full_ui_67c_programme_marketplace_persistent.integration.test.mjs");
-    assert.equal(fn.direct_test, "test/full_ui_67_programme_marketplace_surface.test.mjs");
+    assert.equal(fn.direct_test, directTestByFunction[functionId]);
     assert.notEqual(fn.persistence, "localStorage_only");
     assert.deepEqual(fn.actors, ["coach"]);
   }

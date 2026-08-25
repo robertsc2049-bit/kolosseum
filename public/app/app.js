@@ -45,10 +45,6 @@ const DEFAULT_STATE = Object.freeze({
   templateEventBindingStatus: null,
   athleteToday: null,
   coachTemplates: [],
-  marketplaceTemplates: [],
-  marketplaceSearch: "",
-  marketplaceActivityFilter: "all",
-  marketplaceSort: "updated_desc",
   templateLibrarySearch: "",
   templateLibraryStatusFilter: "all",
   templateLibraryActivityFilter: "all",
@@ -425,11 +421,6 @@ const elements = {
   newTemplateButton: document.getElementById("newTemplateButton"),
   refreshTemplatesButton: document.getElementById("refreshTemplatesButton"),
   templateLibraryList: document.getElementById("templateLibraryList"),
-  marketplaceStatus: document.getElementById("marketplaceStatus"),
-  marketplaceSearch: document.getElementById("marketplaceSearch"),
-  marketplaceActivityFilter: document.getElementById("marketplaceActivityFilter"),
-  marketplaceSort: document.getElementById("marketplaceSort"),
-  marketplaceList: document.getElementById("marketplaceList"),
   templateDetailSharingSection: document.getElementById("templateDetailSharingSection"),
   templateSharingForm: document.getElementById("templateSharingForm"),
   templateDetailSharedCheckbox: document.getElementById("templateDetailSharedCheckbox"),
@@ -723,13 +714,6 @@ function loadState() {
         ? parsed.coachAthleteProgressPhotoCompareIds.slice(0, 2)
         : [],
       coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
-      marketplaceSearch: String(parsed.marketplaceSearch ?? ""),
-      marketplaceActivityFilter: ["all", "powerlifting", "general_strength", "rugby_union"].includes(parsed.marketplaceActivityFilter)
-        ? parsed.marketplaceActivityFilter
-        : "all",
-      marketplaceSort: ["updated_desc", "name_asc", "coach_asc"].includes(parsed.marketplaceSort)
-        ? parsed.marketplaceSort
-        : "updated_desc",
       templateLibrarySearch: String(parsed.templateLibrarySearch ?? ""),
       templateLibraryStatusFilter: ["all", "draft", "complete", "active", "archived", "superseded"].includes(parsed.templateLibraryStatusFilter)
         ? parsed.templateLibraryStatusFilter
@@ -1498,17 +1482,6 @@ function setView(view) {
         elements.templateLibraryStatus,
         () => refreshProgrammeLibrary({ quiet: true }),
         "Programme library could not be loaded."
-      )
-    );
-  }
-
-  if (view === "marketplace" && state.role === "coach") {
-    renderMarketplace();
-    refreshMarketplace({ quiet: true }).catch(
-      catchWithViewRetry(
-        elements.marketplaceStatus,
-        () => refreshMarketplace({ quiet: true }),
-        "Marketplace could not be loaded."
       )
     );
   }
@@ -12450,123 +12423,6 @@ function renderCoachEventPreview() {
     : "—";
 }
 
-async function refreshMarketplace(options = {}) {
-  if (state.role !== "coach") return [];
-  if (!options.quiet) showBusy("Loading marketplace…");
-
-  try {
-    const response = await api("GET", "/programme-marketplace/templates");
-    state.marketplaceTemplates = Array.isArray(response.templates) ? response.templates : [];
-    saveState();
-    renderMarketplace();
-    return state.marketplaceTemplates;
-  }
-  finally {
-    if (!options.quiet) hideBusy();
-  }
-}
-
-function marketplaceSearchText(template) {
-  return [
-    template?.template_name,
-    template?.description,
-    template?.activity_id,
-    template?.coach_display_name,
-    template?.coach_brand_tagline
-  ]
-    .map((value) => String(value ?? "").toLowerCase())
-    .join(" ");
-}
-
-function filteredMarketplaceTemplates() {
-  const templates = Array.isArray(state.marketplaceTemplates) ? state.marketplaceTemplates : [];
-
-  const search = String(state.marketplaceSearch ?? "")
-    .trim()
-    .toLowerCase();
-
-  const activityFilter = String(state.marketplaceActivityFilter ?? "all");
-
-  const visible = templates.filter((template) => {
-    if (
-      activityFilter !== "all" &&
-      String(template.activity_id ?? "") !== activityFilter
-    ) {
-      return false;
-    }
-
-    return !search || marketplaceSearchText(template).includes(search);
-  });
-
-  const sortMode = String(state.marketplaceSort ?? "updated_desc");
-
-  visible.sort((left, right) => {
-    if (sortMode === "name_asc") {
-      return String(left.template_name ?? "").localeCompare(String(right.template_name ?? ""));
-    }
-
-    if (sortMode === "coach_asc") {
-      return (
-        String(left.coach_display_name ?? "").localeCompare(String(right.coach_display_name ?? "")) ||
-        String(left.template_name ?? "").localeCompare(String(right.template_name ?? ""))
-      );
-    }
-
-    return String(right.updated_at_iso8601 ?? "").localeCompare(String(left.updated_at_iso8601 ?? ""));
-  });
-
-  return visible;
-}
-
-function renderMarketplace() {
-  const templates = Array.isArray(state.marketplaceTemplates) ? state.marketplaceTemplates : [];
-
-  if (elements.marketplaceSearch) {
-    elements.marketplaceSearch.value = String(state.marketplaceSearch ?? "");
-  }
-  if (elements.marketplaceActivityFilter) {
-    elements.marketplaceActivityFilter.value = String(state.marketplaceActivityFilter ?? "all");
-  }
-  if (elements.marketplaceSort) {
-    elements.marketplaceSort.value = String(state.marketplaceSort ?? "updated_desc");
-  }
-
-  if (templates.length === 0) {
-    elements.marketplaceList.innerHTML = `
-      <div class="empty-state">
-        <h3>No shared programmes yet</h3>
-        <p>Complete or active programmes another coach shares publicly will appear here.</p>
-      </div>
-    `;
-    return;
-  }
-
-  const visible = filteredMarketplaceTemplates();
-
-  if (visible.length === 0) {
-    elements.marketplaceList.innerHTML = `
-      <div class="empty-state">
-        <h3>No programmes match</h3>
-        <p>Try a different search term or activity filter.</p>
-      </div>
-    `;
-    return;
-  }
-
-  elements.marketplaceList.innerHTML = visible.map((template) => `
-    <article class="record-row marketplace-template-row"${template.coach_brand_color ? ` style="border-left: 3px solid ${escapeHtml(template.coach_brand_color)}"` : ""}>
-      <div>
-        <strong>${escapeHtml(template.template_name)}</strong>
-        <p class="muted small">${escapeHtml(titleCase(template.activity_id))} · ${escapeHtml(template.template_status)}</p>
-        ${template.description ? `<p class="muted small">${escapeHtml(template.description)}</p>` : ""}
-        ${template.price_label ? `<p class="muted small"><strong>${escapeHtml(template.price_label)}</strong></p>` : ""}
-        ${template.payment_methods_note ? `<p class="muted small">Accepted payment: ${escapeHtml(template.payment_methods_note)}</p>` : ""}
-        <p class="muted small">Shared by ${escapeHtml(template.coach_display_name)}${template.coach_brand_tagline ? ` — ${escapeHtml(template.coach_brand_tagline)}` : ""}</p>
-      </div>
-    </article>
-  `).join("");
-}
-
 async function refreshCoachEvents(options = {}) {
   if (state.role !== "coach" || !state.profile?.coachUserId) return [];
   if (!options.quiet) showBusy("Loading events…");
@@ -15004,24 +14860,6 @@ elements.templateLibraryClearFilters.addEventListener("click", () => {
   state.templateLibrarySort = "updated_desc";
   saveState();
   renderTemplateLibrary();
-});
-
-elements.marketplaceSearch?.addEventListener("input", () => {
-  state.marketplaceSearch = elements.marketplaceSearch.value;
-  saveState();
-  renderMarketplace();
-});
-
-elements.marketplaceActivityFilter?.addEventListener("change", () => {
-  state.marketplaceActivityFilter = elements.marketplaceActivityFilter.value;
-  saveState();
-  renderMarketplace();
-});
-
-elements.marketplaceSort?.addEventListener("change", () => {
-  state.marketplaceSort = elements.marketplaceSort.value;
-  saveState();
-  renderMarketplace();
 });
 
 elements.templateDetailCloseButton.addEventListener(

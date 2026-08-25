@@ -7206,7 +7206,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_67_programme_marketplace_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/CoachMarketplacePanel.test.tsx",
           "integration_test": "test/full_ui_67c_programme_marketplace_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
