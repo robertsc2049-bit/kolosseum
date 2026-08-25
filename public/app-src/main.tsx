@@ -23,6 +23,7 @@ import { AthleteProgressPhotosPanel } from "./screens/coach/AthleteProgressPhoto
 import { AthleteStrengthProfilePanel } from "./screens/coach/AthleteStrengthProfilePanel";
 import { AthleteWeeklyCheckinsPanel } from "./screens/coach/AthleteWeeklyCheckinsPanel";
 import { CoachEventsListPanel, CoachEventsMetricCards } from "./screens/coach/CoachEventsLibraryPanel";
+import { CoachMarketplacePanel } from "./screens/coach/CoachMarketplacePanel";
 import { CoachOverviewEventsPanel } from "./screens/coach/CoachOverviewEventsPanel";
 
 // DEV NOTE: mounts once at script load into divs that always exist in
@@ -58,3 +59,4 @@ mount("athlete-directory-root", <AthleteDirectoryPanel />);
 mount("coach-overview-events-root", <CoachOverviewEventsPanel />);
 mount("coach-events-metrics-root", <CoachEventsMetricCards />);
 mount("coach-events-list-root", <CoachEventsListPanel />);
+mount("coach-marketplace-root", <CoachMarketplacePanel />);
