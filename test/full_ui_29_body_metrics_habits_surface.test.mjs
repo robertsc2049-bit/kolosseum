@@ -18,6 +18,13 @@ const recordStore = read("src/api/beta_product_record_store.ts");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
+// DEV NOTE: the coach-side body-metric history + log form and nutrition
+// summary both moved to React - see
+// public/app-src/screens/coach/AthleteBodyMetricsPanel.tsx and
+// AthleteNutritionPanel.tsx and their __tests__ files for their behavioral
+// coverage. The athlete's own log/history views stay legacy.
+const athleteBodyMetricsPanel = read("public/app-src/screens/coach/AthleteBodyMetricsPanel.tsx");
+const athleteNutritionPanel = read("public/app-src/screens/coach/AthleteNutritionPanel.tsx");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -117,46 +124,40 @@ test("the athlete forms and coach read-only panels exist as real controls, and s
   assert.match(indexHtml, /id="bodyMetricHistory"/u);
   assert.match(indexHtml, /id="habitCreateForm"/u);
   assert.match(indexHtml, /id="habitList"/u);
-  assert.match(indexHtml, /id="athleteDetailBodyMetricHistory"/u);
+  assert.match(indexHtml, /id="athlete-body-metrics-root"/u);
   assert.match(indexHtml, /id="athleteDetailHabitList"/u);
 
   assert.match(appJs, /escapeHtml\(habit\.habit_label\)/u);
   assert.match(appJs, /escapeHtml\(entry\.note\)|escapeHtml\(label\)/u);
   assert.match(appJs, /async function refreshBodyMetrics/u);
   assert.match(appJs, /async function logBodyMetricEntry/u);
-  assert.match(appJs, /async function refreshCoachAthleteBodyMetrics/u);
   assert.match(appJs, /async function createHabit/u);
   assert.match(appJs, /async function logHabitCompletionToday/u);
   assert.match(appJs, /async function refreshCoachAthleteHabits/u);
+  assert.match(athleteBodyMetricsPanel, /useAthleteBodyMetrics/u);
 });
 
 // The manifest's body_metric_log function has declared actors ["athlete",
 // "coach"] and the /body-metrics/coach/:athlete_user_id route as
 // implemented since this slice first shipped - the coach-side route,
 // service function (logBodyMetricEntryAsCoach) and access check all
-// already existed - but until now the coach's athlete-detail panel only
-// ever rendered a read-only history list, with no form anywhere calling
-// that route. A coach had no way to actually log a measurement for an
-// athlete despite the backend fully supporting it.
+// already existed, and until FULL-UI-29's original fix the coach's
+// athlete-detail panel only ever rendered a read-only history list, with
+// no form anywhere calling that route. That regression guard now checks
+// the React component (see the DEV NOTE above) which replaced the app.js
+// form this test used to check directly.
 test("the coach's athlete-detail panel actually renders a body-metric log form wired to the coach's own already-implemented write route", () => {
-  assert.match(indexHtml, /id="coachBodyMetricLogForm"/u);
-  assert.match(indexHtml, /id="coachBodyMetricTypeSelect"/u);
-  assert.match(indexHtml, /id="coachBodyMetricValueInput"/u);
-  assert.match(indexHtml, /id="coachBodyMetricDateInput"/u);
-  assert.match(indexHtml, /id="coachBodyMetricNoteInput"/u);
-  assert.match(indexHtml, /id="coachBodyMetricStatus"/u);
+  assert.match(athleteBodyMetricsPanel, /useAthleteBodyMetrics/u);
+  assert.match(athleteBodyMetricsPanel, /type="submit"/u);
+  assert.match(athleteBodyMetricsPanel, /Log measurement/u);
 
-  assert.match(appJs, /async function logCoachBodyMetricEntry/u);
   assert.match(
-    appJs,
-    /api\(\s*"POST",\s*`\/body-metrics\/coach\/\$\{encodeURIComponent\(athleteUserId\)\}`/u
+    read("public/app-src/screens/coach/useAthleteBodyMetrics.ts"),
+    /saveAthleteBodyMetric/u
   );
-  assert.match(appJs, /const athleteUserId = state\.selectedCoachAthleteId;/u);
-  assert.match(appJs, /await refreshCoachAthleteBodyMetrics\(athleteUserId, \{ quiet: true \}\);/u);
-
   assert.match(
-    appJs,
-    /elements\.coachBodyMetricLogForm\?\.addEventListener\("submit", \(event\) => \{\s*\n\s*event\.preventDefault\(\);\s*\n\s*logCoachBodyMetricEntry\(\)\.catch\(handleError\);/u
+    read("public/app-src/api/coachWorkspaceClient.ts"),
+    /`\/body-metrics\/coach\/\$\{encodeURIComponent\(athleteUserId\)\}`/u
   );
 });
 
@@ -196,7 +197,8 @@ test("nutrition entries are excluded from the general body-measurements list and
   assert.match(indexHtml, /id="nutritionCarbsInput"/u);
   assert.match(indexHtml, /id="nutritionFatInput"/u);
   assert.match(indexHtml, /id="nutritionSummary"/u);
-  assert.match(indexHtml, /id="athleteDetailNutritionSummary"/u);
+  assert.match(indexHtml, /id="athlete-nutrition-root"/u);
+  assert.match(athleteNutritionPanel, /useAthleteNutrition/u);
 });
 
 test("every real METRIC_TYPES key has a display label - a device-synced body_weight_kg reading never renders as a raw field name", () => {

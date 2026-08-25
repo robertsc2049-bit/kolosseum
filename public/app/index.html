@@ -1747,51 +1747,7 @@
                     </div>
                   </div>
 
-                  <form id="coachBodyMetricLogForm" class="athlete-detail-note-form">
-                    <label class="field">
-                      <span>Measurement</span>
-                      <select id="coachBodyMetricTypeSelect">
-                        <option value="waist_circumference_cm">Waist (cm)</option>
-                        <option value="chest_circumference_cm">Chest (cm)</option>
-                        <option value="arm_circumference_cm">Arm (cm)</option>
-                        <option value="thigh_circumference_cm">Thigh (cm)</option>
-                        <option value="hip_circumference_cm">Hip (cm)</option>
-                        <option value="body_fat_percentage">Body fat (%)</option>
-                      </select>
-                    </label>
-
-                    <label class="field">
-                      <span>Value</span>
-                      <input type="number" id="coachBodyMetricValueInput" step="0.1" required>
-                    </label>
-
-                    <label class="field">
-                      <span>Date</span>
-                      <input type="date" id="coachBodyMetricDateInput" required>
-                    </label>
-
-                    <label class="field">
-                      <span>Note (optional)</span>
-                      <input type="text" id="coachBodyMetricNoteInput" maxlength="280">
-                    </label>
-
-                    <div class="inline-controls">
-                      <button class="button primary" type="submit">Log measurement</button>
-                    </div>
-                  </form>
-
-                  <p
-                    id="coachBodyMetricStatus"
-                    class="dashboard-status"
-                    role="status"
-                    aria-live="polite"
-                    hidden
-                  ></p>
-
-                  <div
-                    id="athleteDetailBodyMetricHistory"
-                    class="record-list athlete-detail-list"
-                  ></div>
+                  <div id="athlete-body-metrics-root"></div>
                 </article>
 
                 <article class="panel athlete-detail-nutrition-panel">
@@ -1803,7 +1759,7 @@
                   </div>
 
                   <div
-                    id="athleteDetailNutritionSummary"
+                    id="athlete-nutrition-root"
                     class="record-list athlete-detail-list"
                   ></div>
                 </article>
