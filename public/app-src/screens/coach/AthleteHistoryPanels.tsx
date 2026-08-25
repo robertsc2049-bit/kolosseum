@@ -5,17 +5,22 @@ import { formatDate } from "../../utils/format";
 import { useAthleteHistory } from "./useAthleteHistory";
 
 // DEV NOTE: current programme, current event, and the assignment/
-// strength/bodyweight/event-link history lists from
-// public/app.js's renderAthleteDetail() (part of FULL-UI-04B). Session
-// history stays legacy for now - it carries its own bespoke pain/skip/
-// substitution/RPE/split-return rendering (see
-// test/full_ui_04b_coach_athlete_detail.test.mjs), disproportionately
-// more complex than these five uniform list renders and better scoped as
-// its own future slice. Note history is already React (see
-// AthleteCoachNotesPanel.tsx); the metric-card counts
-// (athleteDetailAssignmentCount etc.) and the overall panel hide/show and
-// status line stay legacy-owned since they're shared with session/note
-// counts that remain legacy data.
+// strength/bodyweight/event-link/session history lists from
+// public/app.js's renderAthleteDetail() (part of FULL-UI-04B). Note
+// history is already React (see AthleteCoachNotesPanel.tsx); the
+// metric-card counts (athleteDetailAssignmentCount etc.), the overall
+// panel hide/show and the status line stay legacy-owned since they're
+// shared with note data that isn't moving. Session history's "Review"
+// and "Add note" buttons used to be bound by legacy's
+// bindAthleteDetailActions() via data-athlete-detail-action delegation -
+// now retired since nothing in a legacy-rendered DOM carries that
+// attribute any more - and are replaced by two reverse-bridge custom
+// events (kolosseum:open-session-review,
+// kolosseum:open-session-note-form) that app.js listens for and handles
+// exactly as bindAthleteDetailActions() used to, since both actions
+// (switching to the Review view with an athlete pre-selected; revealing
+// the legacy note-creation form) reach into legacy-only state/DOM
+// (elements.reviewAthlete, loadCoachReview(), elements.athleteDetailNoteForm).
 
 function EmptyState({ heading, detail }: { heading: string; detail: string }) {
   return (
@@ -341,6 +346,90 @@ export function AthleteEventLinkHistoryList() {
               </p>
             </div>
             <span className="badge neutral">{titleCase(link.link_state)}</span>
+          </article>
+        );
+      })}
+    </>
+  );
+}
+
+function openSessionReview(athleteUserId: string) {
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:open-session-review", { detail: { athlete_user_id: athleteUserId } })
+  );
+}
+
+function openSessionNoteForm(sessionId: string, artefactId: string) {
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:open-session-note-form", { detail: { session_id: sessionId, artefact_id: artefactId } })
+  );
+}
+
+export function AthleteSessionHistoryList() {
+  const { athleteUserId, loading, error, detail } = useAthleteHistory();
+  const records = historyArray(detail, "session_history");
+  if (!athleteUserId) return null;
+  if (error) return <p role="status" className="muted small error">{error}</p>;
+  if (loading && !detail) return null;
+
+  if (records.length === 0) {
+    return <EmptyState heading="No session history" detail="Coach-managed session records will appear here after execution begins." />;
+  }
+
+  return (
+    <>
+      {records.map((session, index) => {
+        const skipReasons = Array.isArray(session.skip_reasons) ? (session.skip_reasons as unknown[]) : [];
+        const substitutions = Array.isArray(session.substitutions) ? (session.substitutions as JsonRecord[]) : [];
+        const rpeReports = Array.isArray(session.rpe_reports) ? (session.rpe_reports as JsonRecord[]) : [];
+
+        return (
+          <article className="record-card" key={String(session.session_id ?? index)}>
+            <div>
+              <h4>Training session</h4>
+              <p>
+                {formatDate(session.updated_at as string | undefined)} · {Number(session.runtime_event_count ?? 0)} recorded events
+              </p>
+              {skipReasons.length > 0 ? (
+                <p className="muted small">Skipped: {skipReasons.map((reason) => titleCase(reason)).join(", ")}</p>
+              ) : null}
+              {substitutions.length > 0 ? (
+                <p className="muted small">
+                  Substituted:{" "}
+                  {substitutions
+                    .map((entry) => `${titleCase(entry.exercise_id)} → ${titleCase(entry.substituted_exercise_id)}`)
+                    .join(", ")}
+                </p>
+              ) : null}
+              {rpeReports.length > 0 ? (
+                <p className="muted small">
+                  RPE: {rpeReports.map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.rpe_value)}`).join(", ")}
+                </p>
+              ) : null}
+              {session.split_return_decision ? (
+                <p className="muted small">Return decision: {titleCase(session.split_return_decision)}</p>
+              ) : null}
+            </div>
+
+            <div className="record-meta">
+              <span className="badge neutral">{titleCase(session.session_status ?? "recorded")}</span>
+              {session.pain_reported ? <span className="badge partial">Pain reported</span> : null}
+              {session.split_entered ? <span className="badge partial">Split session</span> : null}
+              <button
+                className="button secondary small-button"
+                type="button"
+                onClick={() => openSessionReview(athleteUserId)}
+              >
+                Review
+              </button>
+              <button
+                className="button secondary small-button"
+                type="button"
+                onClick={() => openSessionNoteForm(String(session.session_id ?? ""), String(session.artefact_id ?? ""))}
+              >
+                Add note
+              </button>
+            </div>
           </article>
         );
       })}

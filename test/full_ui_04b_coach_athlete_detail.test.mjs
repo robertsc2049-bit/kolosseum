@@ -55,12 +55,13 @@ const athleteCoachNotesPanel =
   read("public/app-src/screens/coach/AthleteCoachNotesPanel.tsx");
 
 // DEV NOTE: current-programme, current-event, and the assignment/
-// strength/bodyweight/event-link history lists also moved to React - see
-// public/app-src/screens/coach/AthleteHistoryPanels.tsx,
-// useAthleteHistory.ts and their __tests__ file. Session history (with its
-// bespoke pain/skip/substitution/RPE/split-return rendering, covered
-// below) stays legacy, as does the metric-card counts, status line and
-// overall panel hide/show.
+// strength/bodyweight/event-link/session history lists also moved to
+// React - see public/app-src/screens/coach/AthleteHistoryPanels.tsx,
+// useAthleteHistory.ts and their __tests__ file. Session history's own
+// bespoke pain/skip/substitution/RPE/split-return facts are covered
+// below, now checked against AthleteHistoryPanels.tsx instead of app.js.
+// The metric-card counts, status line and overall panel hide/show stay
+// legacy-owned.
 const athleteHistoryPanels =
   read("public/app-src/screens/coach/AthleteHistoryPanels.tsx");
 
@@ -71,7 +72,6 @@ test(
       "athleteDetailHistoryPanel",
       "athleteDetailRefreshButton",
       "athleteDetailStatus",
-      "athleteDetailSessionHistory",
       "athleteDetailNoteForm"
     ]) {
       assert.match(
@@ -90,7 +90,8 @@ test(
       "athlete-history-assignment-root",
       "athlete-history-strength-root",
       "athlete-history-bodyweight-root",
-      "athlete-history-event-link-root"
+      "athlete-history-event-link-root",
+      "athlete-history-session-root"
     ]) {
       assert.match(
         html,
@@ -104,9 +105,11 @@ test(
     assert.doesNotMatch(html, /id="athleteDetailStrengthHistory"/u);
     assert.doesNotMatch(html, /id="athleteDetailBodyweightHistory"/u);
     assert.doesNotMatch(html, /id="athleteDetailEventHistory"/u);
+    assert.doesNotMatch(html, /id="athleteDetailSessionHistory"/u);
 
     assert.match(athleteCoachNotesPanel, /useAthleteCoachNotes/u);
     assert.match(athleteHistoryPanels, /useAthleteHistory/u);
+    assert.match(athleteHistoryPanels, /AthleteSessionHistoryList/u);
   }
 );
 
@@ -228,11 +231,11 @@ test(
     );
 
     assert.match(
-      application,
+      athleteHistoryPanels,
       /session\.pain_reported/u
     );
     assert.match(
-      application,
+      athleteHistoryPanels,
       /session\.skip_reasons/u
     );
 
@@ -249,7 +252,7 @@ test(
       /substitutions:/u
     );
     assert.match(
-      application,
+      athleteHistoryPanels,
       /session\.substitutions/u
     );
 
@@ -265,7 +268,7 @@ test(
       /rpe_reports:/u
     );
     assert.match(
-      application,
+      athleteHistoryPanels,
       /session\.rpe_reports/u
     );
 
@@ -286,11 +289,11 @@ test(
       /split_return_decision:/u
     );
     assert.match(
-      application,
+      athleteHistoryPanels,
       /session\.split_entered/u
     );
     assert.match(
-      application,
+      athleteHistoryPanels,
       /session\.split_return_decision/u
     );
   }
@@ -332,9 +335,7 @@ test(
     for (const token of [
       "refreshAthleteDetail",
       "renderAthleteDetail",
-      "recordAthleteDetailNote",
-      'data-athlete-detail-action="review"',
-      'data-athlete-detail-action="note"'
+      "recordAthleteDetailNote"
     ]) {
       assert.match(
         application,
@@ -375,6 +376,41 @@ test(
     assert.match(
       athleteHistoryPanels,
       /data-view="events"/u
+    );
+
+    // "Review"/"Add note" (session history) also moved to React and no
+    // longer exist as data-athlete-detail-action-carrying legacy DOM -
+    // bindAthleteDetailActions() itself is retired, replaced by two
+    // reverse-bridge custom events app.js listens for, since both actions
+    // reach into legacy-only state/DOM (the Review view's athlete
+    // selector, the note-creation form).
+    assert.doesNotMatch(
+      application,
+      /data-athlete-detail-action="review"|data-athlete-detail-action="note"|function bindAthleteDetailActions/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /kolosseum:open-session-review/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /kolosseum:open-session-note-form/u
+    );
+    assert.match(
+      application,
+      /kolosseum:open-session-review/u
+    );
+    assert.match(
+      application,
+      /kolosseum:open-session-note-form/u
+    );
+    assert.match(
+      application,
+      /elements\.reviewAthlete\.value = athleteUserId/u
+    );
+    assert.match(
+      application,
+      /elements\.athleteDetailNoteForm\.hidden = false/u
     );
 
     assert.match(
