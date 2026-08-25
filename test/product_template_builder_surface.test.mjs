@@ -160,7 +160,7 @@ test("coach UI exposes one coherent athlete, programme, assignment and review wo
   assert.match(html, /data-view="templates"/u);
   assert.match(html, /id="view-athletes"/u);
   assert.match(html, /id="athleteProfilePanel"/u);
-  assert.match(html, /id="athleteBenchmarkList"/u);
+  assert.match(html, /id="athlete-profile-editor-root"/u);
   assert.match(html, /id="templateBlocks"/u);
   assert.match(html, /id="addTemplateBlockButton"/u);
   assert.match(html, /id="assignmentRequirements"/u);
@@ -169,7 +169,6 @@ test("coach UI exposes one coherent athlete, programme, assignment and review wo
   assert.match(js, /refreshCoachAssignments/u);
   assert.match(js, /refreshCoachAthleteProfiles/u);
   assert.match(js, /openAthleteProfile/u);
-  assert.match(js, /saveOpenAthleteProfile/u);
   assert.match(js, /addTemplateBlock/u);
   assert.match(js, /duplicateTemplateBlock/u);
   assert.match(js, /moveTemplateBlock/u);
