@@ -31,3 +31,8 @@ export async function loadAthleteWeeklyCheckins(athleteUserId: string): Promise<
   const response = await request("GET", `/weekly-checkins/coach/${encodeURIComponent(athleteUserId)}`);
   return Array.isArray(response.checkins) ? (response.checkins as JsonRecord[]) : [];
 }
+
+export async function loadAthleteGoals(athleteUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/athlete-goals/coach/${encodeURIComponent(athleteUserId)}`);
+  return Array.isArray(response.goals) ? (response.goals as JsonRecord[]) : [];
+}
