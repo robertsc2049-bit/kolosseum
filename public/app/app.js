@@ -329,7 +329,6 @@ const elements = {
   weeklyCheckinNoteInput: document.getElementById("weeklyCheckinNoteInput"),
   weeklyCheckinStatus: document.getElementById("weeklyCheckinStatus"),
   weeklyCheckinList: document.getElementById("weeklyCheckinList"),
-  athleteDetailWeeklyCheckinList: document.getElementById("athleteDetailWeeklyCheckinList"),
   deviceConnectForm: document.getElementById("deviceConnectForm"),
   deviceProviderSelect: document.getElementById("deviceProviderSelect"),
   deviceSyncStatus: document.getElementById("deviceSyncStatus"),
@@ -6611,18 +6610,11 @@ async function submitWeeklyCheckin() {
   }
 }
 
-async function refreshCoachAthleteWeeklyCheckins(athleteUserId, options = {}) {
-  if (!athleteUserId || !elements.athleteDetailWeeklyCheckinList) return;
-
-  try {
-    const response = await api("GET", `/weekly-checkins/coach/${encodeURIComponent(athleteUserId)}`);
-    state.coachAthleteWeeklyCheckins = Array.isArray(response.checkins) ? response.checkins : [];
-    renderWeeklyCheckinList(elements.athleteDetailWeeklyCheckinList, state.coachAthleteWeeklyCheckins);
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
+// NOTE: the coach-side weekly-checkins mirror moved to React
+// (AthleteWeeklyCheckinsPanel.tsx, mounted into
+// #athlete-weekly-checkins-root) - it independently fetches
+// GET /weekly-checkins/coach/:athlete_user_id. Read-only, like the
+// progress-insights mirror, so no event bridge back into legacy state.
 
 // Progress insights are computed server-side, on every request, from
 // already-persisted session/strength/habit/body-metric facts - nothing
@@ -7145,12 +7137,6 @@ async function openAthleteProfile(athleteUserId) {
       }
     ),
     refreshCoachAthleteGoals(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    ),
-    refreshCoachAthleteWeeklyCheckins(
       athleteUserId,
       {
         quiet: true

@@ -17,6 +17,14 @@ const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const guard = read("ci/guards/full_ui_completion_guard.mjs");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
+// DEV NOTE: the coach-side mirror moved to React - see
+// public/app-src/screens/coach/AthleteWeeklyCheckinsPanel.tsx and its
+// __tests__ file for its behavioral coverage. The athlete's own
+// submit/history view stays legacy.
+const athleteWeeklyCheckinsPanel = read(
+  "public/app-src/screens/coach/AthleteWeeklyCheckinsPanel.tsx"
+);
+const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -101,17 +109,18 @@ test("the athlete and coach weekly check-in panels exist as real controls, and f
   assert.match(indexHtml, /id="weeklyCheckinSleepInput"/u);
   assert.match(indexHtml, /id="weeklyCheckinNoteInput"/u);
   assert.match(indexHtml, /id="weeklyCheckinList"/u);
-  assert.match(indexHtml, /id="athleteDetailWeeklyCheckinList"/u);
+  assert.match(indexHtml, /id="athlete-weekly-checkins-root"/u);
 
   assert.match(appJs, /escapeHtml\(checkin\.note\)/u);
   assert.match(appJs, /async function refreshWeeklyCheckins/u);
   assert.match(appJs, /async function submitWeeklyCheckin/u);
-  assert.match(appJs, /async function refreshCoachAthleteWeeklyCheckins/u);
+  assert.match(athleteWeeklyCheckinsPanel, /useAthleteWeeklyCheckins/u);
+  assert.match(athleteWeeklyCheckinsPanel, /checkin\.note/u);
 });
 
 test("weekly check-ins are refreshed alongside the other history and athlete-detail panels", () => {
   assert.match(appJs, /refreshWeeklyCheckins\(\{ quiet: true \}\)\.catch\(\(\) => \{\}\)/u);
-  assert.match(appJs, /refreshCoachAthleteWeeklyCheckins\(/u);
+  assert.match(coachWorkspaceClient, /weekly-checkins\/coach\//u);
 });
 
 test("the FULL-UI-64 manifest area declares all three functions as implemented with real routes and tests", () => {
@@ -126,10 +135,19 @@ test("the FULL-UI-64 manifest area declares all three functions as implemented w
     ["weekly_checkin_list_athlete", "weekly_checkin_list_coach", "weekly_checkin_submit"]
   );
 
+  // NOTE: the coach function's direct_test points at its React component
+  // test now (see the DEV NOTE above) - the athlete functions stay on this
+  // file since refreshWeeklyCheckins/submitWeeklyCheckin stay legacy.
+  const expectedDirectTest = {
+    weekly_checkin_submit: "test/full_ui_64_weekly_checkins_surface.test.mjs",
+    weekly_checkin_list_athlete: "test/full_ui_64_weekly_checkins_surface.test.mjs",
+    weekly_checkin_list_coach: "public/app-src/__tests__/AthleteWeeklyCheckinsPanel.test.tsx"
+  };
+
   for (const fn of area.functions) {
     assert.equal(fn.state, "implemented");
     assert.equal(fn.integration_test, "test/full_ui_64c_weekly_checkins_persistent.integration.test.mjs");
-    assert.equal(fn.direct_test, "test/full_ui_64_weekly_checkins_surface.test.mjs");
+    assert.equal(fn.direct_test, expectedDirectTest[fn.function_id]);
     assert.notEqual(fn.persistence, "localStorage_only");
   }
 
