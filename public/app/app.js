@@ -237,14 +237,6 @@ const elements = {
   progressPhotoStatus: document.getElementById("progressPhotoStatus"),
   progressPhotoGrid: document.getElementById("progressPhotoGrid"),
   progressPhotoComparison: document.getElementById("progressPhotoComparison"),
-  nutritionForm: document.getElementById("nutritionForm"),
-  nutritionDateInput: document.getElementById("nutritionDateInput"),
-  nutritionCaloriesInput: document.getElementById("nutritionCaloriesInput"),
-  nutritionProteinInput: document.getElementById("nutritionProteinInput"),
-  nutritionCarbsInput: document.getElementById("nutritionCarbsInput"),
-  nutritionFatInput: document.getElementById("nutritionFatInput"),
-  nutritionStatus: document.getElementById("nutritionStatus"),
-  nutritionSummary: document.getElementById("nutritionSummary"),
   habitCreateForm: document.getElementById("habitCreateForm"),
   habitLabelInput: document.getElementById("habitLabelInput"),
   habitCadenceSelect: document.getElementById("habitCadenceSelect"),
@@ -2609,7 +2601,6 @@ async function refreshHistory(options = {}) {
   notifyTodayChanged();
   document.dispatchEvent(new CustomEvent("kolosseum:history-changed"));
   refreshProgressPhotos({ quiet: true }).catch(() => {});
-  refreshBodyMetrics({ quiet: true }).catch(() => {});
   refreshHabits({ quiet: true }).catch(() => {});
 
   if (!options.quiet) showNotice("Training history refreshed.");
@@ -4406,136 +4397,16 @@ async function uploadProgressPhoto() {
 // selection as local component state, rather than a shared state[stateKey]
 // array. No coach-facing upload/delete route exists anywhere in this file.
 
-const BODY_METRIC_TYPE_LABELS = {
-  waist_circumference_cm: "Waist",
-  chest_circumference_cm: "Chest",
-  arm_circumference_cm: "Arm",
-  thigh_circumference_cm: "Thigh",
-  hip_circumference_cm: "Hip",
-  body_fat_percentage: "Body fat",
-  body_weight_kg: "Body weight",
-  calories_kcal: "Calories",
-  protein_g: "Protein",
-  carbs_g: "Carbs",
-  fat_g: "Fat"
-};
-
-// Nutrition entries are body_metric_entry records under the same open
-// metric-type registry (see bodyMetricsAndHabitsLifecycle.mjs) - kept out
-// of the generic "Body measurements" panel/list and given their own
-// dedicated Nutrition panel instead, since a macro figure isn't a
-// physical measurement.
-const NUTRITION_METRIC_TYPES = ["calories_kcal", "protein_g", "carbs_g", "fat_g"];
-const METRIC_UNIT_SUFFIX = {
-  calories_kcal: " kcal",
-  protein_g: "g",
-  carbs_g: "g",
-  fat_g: "g"
-};
-
-function groupNutritionEntriesByDate(entries) {
-  const byDate = new Map();
-  for (const entry of entries) {
-    if (!NUTRITION_METRIC_TYPES.includes(entry.metric_type)) continue;
-    if (!byDate.has(entry.effective_date)) byDate.set(entry.effective_date, {});
-    const day = byDate.get(entry.effective_date);
-    // Entries arrive newest-logged-first; the first one seen per
-    // metric_type for a given date is therefore the most recently logged
-    // value for that day, matching how every other metric_type already
-    // treats "log again" as a correction, not an addend.
-    if (!(entry.metric_type in day)) day[entry.metric_type] = entry.value;
-  }
-  return [...byDate.entries()].sort((a, b) => (a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0));
-}
-
-function renderNutritionDayCard([date, macros]) {
-  const parts = NUTRITION_METRIC_TYPES
-    .filter((metricType) => metricType in macros)
-    .map((metricType) => `${BODY_METRIC_TYPE_LABELS[metricType]} ${escapeHtml(String(macros[metricType]))}${METRIC_UNIT_SUFFIX[metricType]}`)
-    .join(" · ");
-
-  return `
-    <article class="record-card">
-      <div class="record-meta">
-        <span class="muted small">${escapeHtml(formatDate(date))}</span>
-      </div>
-      <p>${parts}</p>
-    </article>
-  `;
-}
-
-function renderNutritionSummary(container, entries) {
-  if (!container) return;
-
-  const days = groupNutritionEntriesByDate(entries);
-
-  if (days.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state compact-empty">
-        <p>No nutrition entries yet.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = days.map(renderNutritionDayCard).join("");
-}
-
-// DEV NOTE: the athlete's own body-measurement log form and history list
-// moved to React (AthleteSelfBodyMetricsPanel.tsx into
-// #athlete-self-body-metrics-root - see useAthleteBodyMetricsSelf.ts, which
-// independently fetches GET /body-metrics). This function still runs
-// GET /body-metrics itself, purely to keep feeding the not-yet-migrated
-// Nutrition panel below, which reads the same response's nutrition-flavored
-// entries out of state.bodyMetricEntries.
-async function refreshBodyMetrics(options = {}) {
-  if (state.role !== "athlete") return;
-
-  try {
-    const response = await api("GET", "/body-metrics");
-    state.bodyMetricEntries = Array.isArray(response.entries) ? response.entries : [];
-    renderNutritionSummary(elements.nutritionSummary, state.bodyMetricEntries);
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
-
-async function logNutritionEntry() {
-  const effectiveDate = elements.nutritionDateInput?.value;
-  const fields = [
-    ["calories_kcal", elements.nutritionCaloriesInput],
-    ["protein_g", elements.nutritionProteinInput],
-    ["carbs_g", elements.nutritionCarbsInput],
-    ["fat_g", elements.nutritionFatInput]
-  ]
-    .map(([metricType, inputElement]) => [metricType, inputElement?.value ?? ""])
-    .filter(([, rawValue]) => rawValue !== "");
-
-  if (!effectiveDate || fields.length === 0) {
-    elements.nutritionStatus.hidden = false;
-    elements.nutritionStatus.textContent = "Enter a date and at least one macro.";
-    return;
-  }
-
-  showBusy("Logging nutrition…");
-  try {
-    for (const [metricType, rawValue] of fields) {
-      await api("POST", "/body-metrics", { metric_type: metricType, value: Number(rawValue), effective_date: effectiveDate });
-    }
-    elements.nutritionForm.reset();
-    elements.nutritionStatus.hidden = true;
-    await refreshBodyMetrics({ quiet: true });
-    showNotice("Nutrition logged.");
-  }
-  catch (error) {
-    elements.nutritionStatus.hidden = false;
-    elements.nutritionStatus.textContent = friendlyError(error.payload, error.status) || "Nutrition could not be logged.";
-  }
-  finally {
-    hideBusy();
-  }
-}
+// DEV NOTE: the athlete's own body-measurement log form/history
+// (AthleteSelfBodyMetricsPanel.tsx) and nutrition log form/summary
+// (AthleteSelfNutritionPanel.tsx) both moved to React, each independently
+// fetching its own GET /body-metrics rather than sharing the old
+// refreshBodyMetrics()/state.bodyMetricEntries plumbing - see
+// useAthleteBodyMetricsSelf.ts and useAthleteNutritionSelf.ts.
+// BODY_METRIC_TYPE_LABELS/NUTRITION_METRIC_TYPES/METRIC_UNIT_SUFFIX moved
+// to public/app-src/utils/format.ts (already shared with the coach mirrors
+// below), since nutrition was the last app.js consumer of the app.js
+// copies.
 
 // NOTE: the coach-side body-metric history + log form and the nutrition
 // summary both moved to React (AthleteBodyMetricsPanel.tsx into
@@ -13704,11 +13575,6 @@ elements.eventForm.addEventListener("submit", (event) => {
 elements.progressPhotoUploadForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   uploadProgressPhoto().catch(handleError);
-});
-
-elements.nutritionForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  logNutritionEntry().catch(handleError);
 });
 
 elements.habitCreateForm?.addEventListener("submit", (event) => {
