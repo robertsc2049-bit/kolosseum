@@ -252,10 +252,6 @@ const elements = {
   nutritionFatInput: document.getElementById("nutritionFatInput"),
   nutritionStatus: document.getElementById("nutritionStatus"),
   nutritionSummary: document.getElementById("nutritionSummary"),
-  progressInsightsAdherenceSummary: document.getElementById("progressInsightsAdherenceSummary"),
-  progressInsightsStrengthList: document.getElementById("progressInsightsStrengthList"),
-  progressInsightsHabitList: document.getElementById("progressInsightsHabitList"),
-  progressInsightsBodyMetricList: document.getElementById("progressInsightsBodyMetricList"),
   habitCreateForm: document.getElementById("habitCreateForm"),
   habitLabelInput: document.getElementById("habitLabelInput"),
   habitCadenceSelect: document.getElementById("habitCadenceSelect"),
@@ -2637,7 +2633,6 @@ async function refreshHistory(options = {}) {
   refreshHabits({ quiet: true }).catch(() => {});
   refreshAthleteGoals({ quiet: true }).catch(() => {});
   refreshDeviceSync({ quiet: true }).catch(() => {});
-  refreshProgressInsights({ quiet: true }).catch(() => {});
 
   if (!options.quiet) showNotice("Training history refreshed.");
   return state.history;
@@ -4928,109 +4923,17 @@ async function resolveAthleteGoal(goalId, resolution) {
 // GET /weekly-checkins/coach/:athlete_user_id. Read-only, like the
 // progress-insights mirror, so no event bridge back into legacy state.
 
-// Progress insights are computed server-side, on every request, from
-// already-persisted session/strength/habit/body-metric facts - nothing
-// here is stored. Every number rendered below is plain text, matching
-// the codebase-wide convention (no charting library anywhere in this
-// app) - the habit streak display is the closest existing precedent.
-function progressInsightsAdherenceText(adherence) {
-  if (!adherence.has_sufficient_data) {
-    return "No sessions recorded in the last 30 days.";
-  }
-  return `${adherence.adherence_percentage}% adherence — ${adherence.completed_sessions} of ${adherence.total_sessions} sessions completed in the last 30 days.`;
-}
-
-function renderStrengthTrendCard(trend) {
-  const changeText = trend.has_prior_value
-    ? `${trend.delta > 0 ? "+" : ""}${trend.delta} ${escapeHtml(trend.current_unit)} (${trend.delta_percentage > 0 ? "+" : ""}${trend.delta_percentage}%) since ${escapeHtml(formatDate(trend.prior_effective_date))}`
-    : "No prior benchmark to compare yet.";
-
-  return `
-    <article class="record-card">
-      <div class="record-meta">
-        <span class="badge neutral">${escapeHtml(exerciseDisplayName(trend.exercise_id))}</span>
-        <span class="muted small">${escapeHtml(formatDate(trend.current_effective_date))}</span>
-      </div>
-      <strong>${escapeHtml(String(trend.current_value))} ${escapeHtml(trend.current_unit)}</strong>
-      <p class="muted small">${changeText}</p>
-    </article>
-  `;
-}
-
-function renderHabitConsistencyCard(habit) {
-  return `
-    <article class="record-card">
-      <div class="record-meta">
-        <span class="badge neutral">${escapeHtml(titleCase(habit.cadence))}</span>
-      </div>
-      <strong>${escapeHtml(habit.habit_label)}</strong>
-      <p class="muted small">${habit.completion_rate_percentage}% of expected completions in the last 30 days (${habit.window_completions}/${habit.window_expected_units})</p>
-      <p class="muted small">Current streak ${habit.current_streak_length} · Longest streak ${habit.longest_streak_length}</p>
-    </article>
-  `;
-}
-
-function renderBodyMetricTrendCard(trend) {
-  const label = BODY_METRIC_TYPE_LABELS[trend.metric_type] || titleCase(trend.metric_type);
-  const unitSuffix = trend.unit === "percent" ? "%" : ` ${escapeHtml(trend.unit)}`;
-  const changeText = trend.has_prior_value
-    ? `${trend.delta > 0 ? "+" : ""}${trend.delta}${unitSuffix} (${trend.delta_percentage > 0 ? "+" : ""}${trend.delta_percentage}%) since ${escapeHtml(formatDate(trend.prior_effective_date))}`
-    : "No entry from 30+ days ago to compare yet.";
-
-  return `
-    <article class="record-card">
-      <div class="record-meta">
-        <span class="badge neutral">${escapeHtml(label)}</span>
-        <span class="muted small">${escapeHtml(formatDate(trend.latest_effective_date))}</span>
-      </div>
-      <strong>${escapeHtml(String(trend.latest_value))}${unitSuffix}</strong>
-      <p class="muted small">${changeText}</p>
-    </article>
-  `;
-}
-
-function renderProgressInsightsSummary(insights) {
-  if (elements.progressInsightsAdherenceSummary) {
-    elements.progressInsightsAdherenceSummary.textContent = progressInsightsAdherenceText(insights.session_adherence);
-  }
-
-  if (elements.progressInsightsStrengthList) {
-    elements.progressInsightsStrengthList.innerHTML = insights.strength_trends.length
-      ? insights.strength_trends.map(renderStrengthTrendCard).join("")
-      : '<div class="empty-state compact-empty"><p>No strength benchmarks recorded yet.</p></div>';
-  }
-
-  if (elements.progressInsightsHabitList) {
-    elements.progressInsightsHabitList.innerHTML = insights.habit_consistency.length
-      ? insights.habit_consistency.map(renderHabitConsistencyCard).join("")
-      : '<div class="empty-state compact-empty"><p>No habits tracked yet.</p></div>';
-  }
-
-  if (elements.progressInsightsBodyMetricList) {
-    elements.progressInsightsBodyMetricList.innerHTML = insights.body_metric_trends.length
-      ? insights.body_metric_trends.map(renderBodyMetricTrendCard).join("")
-      : '<div class="empty-state compact-empty"><p>No body-metric entries recorded yet.</p></div>';
-  }
-}
-
+// NOTE: FULL-UI-36 the athlete's own progress insights panel is React-owned
+// now (see public/app-src/screens/athlete/AthleteSelfProgressInsightsPanel
+// .tsx, mounted into athlete-self-progress-insights-root) - it
+// independently fetches GET /progress-insights and listens for
+// kolosseum:history-changed, so it needs no reverse bridge.
 // NOTE: the coach-side progress-insights mirror moved to React
 // (AthleteProgressInsightsPanel.tsx, mounted into
 // #athlete-progress-insights-root) - it independently fetches
 // GET /progress-insights/coach/:athlete_user_id. This panel is read-only
 // (no coach write path), so unlike the strength-profile editor it needs no
 // event bridge back into legacy state.
-
-async function refreshProgressInsights(options = {}) {
-  if (state.role !== "athlete") return;
-
-  try {
-    const response = await api("GET", "/progress-insights");
-    renderProgressInsightsSummary(response.insights);
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
 
 const DEVICE_PROVIDER_LABELS = {
   apple_health: "Apple Health",
