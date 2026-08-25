@@ -63,3 +63,31 @@ export function formatAttachmentSize(bytes: unknown): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
+
+// DEV NOTE: ported verbatim from public/app/app.js's countdownLabel() -
+// extracted here once a third migrated panel needed the identical
+// function (AthleteHistoryPanels.tsx and CoachOverviewEventsPanel.tsx
+// each carried their own copy first; this is the "Rule of Three" moment
+// to stop duplicating it).
+function todayDateOnly(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function dateOnlyEpochDay(value: unknown): number | null {
+  const text = String(value ?? "");
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(text)) return null;
+  const parsed = Date.parse(`${text}T00:00:00.000Z`);
+  return Number.isFinite(parsed) ? Math.floor(parsed / 86400000) : null;
+}
+
+export function countdownLabel(eventDate: unknown, fromDate: string = todayDateOnly()): string {
+  const from = dateOnlyEpochDay(fromDate);
+  const to = dateOnlyEpochDay(eventDate);
+  if (from === null || to === null) return "Set dates";
+  const days = to - from;
+  if (days < 0) return `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} ago`;
+  if (days === 0) return "Today";
+  const weeks = Math.floor(days / 7);
+  const remainder = days % 7;
+  return weeks > 0 ? `${weeks}w ${remainder}d` : `${days} day${days === 1 ? "" : "s"}`;
+}

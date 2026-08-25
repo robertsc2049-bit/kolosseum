@@ -19,11 +19,18 @@ const journey = read("src/api/beta_product_journey_service.ts");
 const blocks = read("src/api/blocks.handlers.ts");
 const templates = read("src/api/beta18_programme_template_service.ts");
 
+// DEV NOTE: the event library (metric counts + event card list) moved to
+// React - see public/app-src/screens/coach/CoachEventsLibraryPanel.tsx.
+// The create-event form and its live countdown/weeks preview stay legacy.
+const coachEventsLibraryPanel = read("public/app-src/screens/coach/CoachEventsLibraryPanel.tsx");
+
 test("events are a separate coach workspace section", () => {
   assert.match(index, /data-view="events"/u);
   assert.match(index, /id="view-events"/u);
   assert.match(index, /id="eventForm"/u);
-  assert.match(index, /id="eventList"/u);
+  assert.match(index, /id="coach-events-list-root"/u);
+  assert.match(index, /id="coach-events-metrics-root"/u);
+  assert.doesNotMatch(index, /id="eventList"/u);
   assert.doesNotMatch(index, /class="nav-item coach-nav" data-view="assign"/u);
   // FULL-UI-12C: this section must actually render (not be permanently
   // display:none) - it hosts both the typed event_plan compiler and the
@@ -103,6 +110,8 @@ test("an event's timezone and notes are read back and rendered, not silently dis
   // service.ts) and returned unmodified through GET /coach-workspace/events,
   // but never appeared anywhere in the coach's own event list. Same bug
   // class as the test-account-reason and support-context fixes before it.
-  assert.match(app, /plan\.timezone \? ` · \$\{escapeHtml\(plan\.timezone\)\}` : ""/u);
-  assert.match(app, /plan\.notes \? `<p class="coach-event-notes">\$\{escapeHtml\(plan\.notes\)\}<\/p>` : ""/u);
+  // The renderer moved to React (CoachEventsLibraryPanel.tsx) - checked
+  // there now instead of the removed app.js block.
+  assert.match(coachEventsLibraryPanel, /plan\.timezone \? ` · \$\{String\(plan\.timezone\)\}` : ""/u);
+  assert.match(coachEventsLibraryPanel, /plan\.notes \? <p className="coach-event-notes">\{String\(plan\.notes\)\}<\/p> : null/u);
 });
