@@ -6373,7 +6373,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_29_body_metrics_habits_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteBodyMetricsPanel.test.tsx",
           "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6532,7 +6532,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_29_body_metrics_habits_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteNutritionPanel.test.tsx",
           "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",

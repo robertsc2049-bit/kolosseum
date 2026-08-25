@@ -46,3 +46,16 @@ export async function loadAthleteDeviceMetrics(athleteUserId: string): Promise<J
   const response = await request("GET", `/device-sync/metrics/coach/${encodeURIComponent(athleteUserId)}`);
   return Array.isArray(response.entries) ? (response.entries as JsonRecord[]) : [];
 }
+
+export async function loadAthleteBodyMetrics(athleteUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/body-metrics/coach/${encodeURIComponent(athleteUserId)}`);
+  return Array.isArray(response.entries) ? (response.entries as JsonRecord[]) : [];
+}
+
+export function saveAthleteBodyMetric(
+  athleteUserId: string,
+  input: JsonRecord,
+  csrfToken: string
+): Promise<JsonRecord> {
+  return request("POST", `/body-metrics/coach/${encodeURIComponent(athleteUserId)}`, input, csrfToken);
+}

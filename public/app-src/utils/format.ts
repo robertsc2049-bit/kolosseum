@@ -41,3 +41,15 @@ export const BODY_METRIC_TYPE_LABELS: Record<string, string> = {
   carbs_g: "Carbs",
   fat_g: "Fat"
 };
+
+// DEV NOTE: nutrition entries are body_metric_entry records with one of
+// these metric_type values - there is no separate nutrition record type or
+// route (see app.js's identically-named NUTRITION_METRIC_TYPES constant).
+export const NUTRITION_METRIC_TYPES = ["calories_kcal", "protein_g", "carbs_g", "fat_g"];
+
+export const METRIC_UNIT_SUFFIX: Record<string, string> = {
+  calories_kcal: " kcal",
+  protein_g: "g",
+  carbs_g: "g",
+  fat_g: "g"
+};

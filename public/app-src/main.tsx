@@ -2,8 +2,10 @@ import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
+import { AthleteBodyMetricsPanel } from "./screens/coach/AthleteBodyMetricsPanel";
 import { AthleteDeviceSyncPanel } from "./screens/coach/AthleteDeviceSyncPanel";
 import { AthleteGoalsPanel } from "./screens/coach/AthleteGoalsPanel";
+import { AthleteNutritionPanel } from "./screens/coach/AthleteNutritionPanel";
 import { AthleteProgressInsightsPanel } from "./screens/coach/AthleteProgressInsightsPanel";
 import { AthleteStrengthProfilePanel } from "./screens/coach/AthleteStrengthProfilePanel";
 import { AthleteWeeklyCheckinsPanel } from "./screens/coach/AthleteWeeklyCheckinsPanel";
@@ -25,3 +27,5 @@ mount("athlete-progress-insights-root", <AthleteProgressInsightsPanel />);
 mount("athlete-weekly-checkins-root", <AthleteWeeklyCheckinsPanel />);
 mount("athlete-goals-root", <AthleteGoalsPanel />);
 mount("athlete-device-sync-root", <AthleteDeviceSyncPanel />);
+mount("athlete-body-metrics-root", <AthleteBodyMetricsPanel />);
+mount("athlete-nutrition-root", <AthleteNutritionPanel />);

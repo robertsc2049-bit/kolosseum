@@ -302,7 +302,6 @@ const elements = {
   nutritionFatInput: document.getElementById("nutritionFatInput"),
   nutritionStatus: document.getElementById("nutritionStatus"),
   nutritionSummary: document.getElementById("nutritionSummary"),
-  athleteDetailNutritionSummary: document.getElementById("athleteDetailNutritionSummary"),
   progressInsightsAdherenceSummary: document.getElementById("progressInsightsAdherenceSummary"),
   progressInsightsStrengthList: document.getElementById("progressInsightsStrengthList"),
   progressInsightsHabitList: document.getElementById("progressInsightsHabitList"),
@@ -443,13 +442,6 @@ const elements = {
   athleteDetailOrgMessageHistory: document.getElementById("athleteDetailOrgMessageHistory"),
   athleteDetailProgressPhotos: document.getElementById("athleteDetailProgressPhotos"),
   athleteDetailProgressPhotoComparison: document.getElementById("athleteDetailProgressPhotoComparison"),
-  athleteDetailBodyMetricHistory: document.getElementById("athleteDetailBodyMetricHistory"),
-  coachBodyMetricLogForm: document.getElementById("coachBodyMetricLogForm"),
-  coachBodyMetricTypeSelect: document.getElementById("coachBodyMetricTypeSelect"),
-  coachBodyMetricValueInput: document.getElementById("coachBodyMetricValueInput"),
-  coachBodyMetricDateInput: document.getElementById("coachBodyMetricDateInput"),
-  coachBodyMetricNoteInput: document.getElementById("coachBodyMetricNoteInput"),
-  coachBodyMetricStatus: document.getElementById("coachBodyMetricStatus"),
   athleteDetailHabitList: document.getElementById("athleteDetailHabitList"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
@@ -6177,59 +6169,14 @@ async function logNutritionEntry() {
   }
 }
 
-async function refreshCoachAthleteBodyMetrics(athleteUserId, options = {}) {
-  if (!athleteUserId || !elements.athleteDetailBodyMetricHistory) return;
-
-  try {
-    const response = await api("GET", `/body-metrics/coach/${encodeURIComponent(athleteUserId)}`);
-    state.coachAthleteBodyMetricEntries = Array.isArray(response.entries) ? response.entries : [];
-    renderBodyMetricList(
-      elements.athleteDetailBodyMetricHistory,
-      state.coachAthleteBodyMetricEntries.filter((entry) => !NUTRITION_METRIC_TYPES.includes(entry.metric_type)),
-      { viewerIsCoach: true }
-    );
-    renderNutritionSummary(elements.athleteDetailNutritionSummary, state.coachAthleteBodyMetricEntries);
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
-
-async function logCoachBodyMetricEntry() {
-  const athleteUserId = state.selectedCoachAthleteId;
-  if (!athleteUserId) return;
-
-  const metricType = elements.coachBodyMetricTypeSelect?.value;
-  const value = Number(elements.coachBodyMetricValueInput?.value);
-  const effectiveDate = elements.coachBodyMetricDateInput?.value;
-  const note = elements.coachBodyMetricNoteInput?.value || undefined;
-
-  if (!metricType || !Number.isFinite(value) || !effectiveDate) {
-    elements.coachBodyMetricStatus.hidden = false;
-    elements.coachBodyMetricStatus.textContent = "Choose a measurement, value and date.";
-    return;
-  }
-
-  showBusy("Logging measurement…");
-  try {
-    await api(
-      "POST",
-      `/body-metrics/coach/${encodeURIComponent(athleteUserId)}`,
-      { metric_type: metricType, value, effective_date: effectiveDate, note }
-    );
-    elements.coachBodyMetricLogForm.reset();
-    elements.coachBodyMetricStatus.hidden = true;
-    await refreshCoachAthleteBodyMetrics(athleteUserId, { quiet: true });
-    showNotice("Body-metric entry logged.");
-  }
-  catch (error) {
-    elements.coachBodyMetricStatus.hidden = false;
-    elements.coachBodyMetricStatus.textContent = friendlyError(error.payload, error.status) || "Measurement could not be logged.";
-  }
-  finally {
-    hideBusy();
-  }
-}
+// NOTE: the coach-side body-metric history + log form and the nutrition
+// summary both moved to React (AthleteBodyMetricsPanel.tsx into
+// #athlete-body-metrics-root, AthleteNutritionPanel.tsx into
+// #athlete-nutrition-root) - they independently fetch
+// GET /body-metrics/coach/:athlete_user_id, and the body-metrics panel
+// POSTs new entries to the same route. No reverse-bridge event is needed:
+// nothing else in legacy read state.coachAthleteBodyMetricEntries besides
+// the rendering this replaced.
 
 // Habit streak counts are plain arithmetic over the athlete's own
 // self-declared completion dates - rendered as bare integers with no
@@ -7091,12 +7038,6 @@ async function openAthleteProfile(athleteUserId) {
       }
     ),
     refreshCoachAthleteProgressPhotos(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    ),
-    refreshCoachAthleteBodyMetrics(
       athleteUserId,
       {
         quiet: true
@@ -16183,11 +16124,6 @@ elements.progressPhotoUploadForm?.addEventListener("submit", (event) => {
 elements.bodyMetricLogForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   logBodyMetricEntry().catch(handleError);
-});
-
-elements.coachBodyMetricLogForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  logCoachBodyMetricEntry().catch(handleError);
 });
 
 elements.nutritionForm?.addEventListener("submit", (event) => {
