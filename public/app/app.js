@@ -343,7 +343,6 @@ const elements = {
   coachOverviewAssignments: document.getElementById("coachOverviewAssignments"),
   coachOverviewOpenSessions: document.getElementById("coachOverviewOpenSessions"),
   coachOverviewReviewQueue: document.getElementById("coachOverviewReviewQueue"),
-  coachOverviewEvents: document.getElementById("coachOverviewEvents"),
   connectAthleteForm: document.getElementById("connectAthleteForm"),
   connectAthleteName: document.getElementById("connectAthleteName"),
   connectAthleteId: document.getElementById("connectAthleteId"),
@@ -6354,40 +6353,6 @@ function dashboardEventDate(eventRecord) {
   );
 }
 
-function dashboardEventName(eventRecord) {
-  const plan =
-    typeof coachEventPlan === "function"
-      ? coachEventPlan(eventRecord)
-      : null;
-
-  return String(
-    plan?.event_name ??
-    eventRecord?.event_name ??
-    "Event"
-  );
-}
-
-function dashboardEventType(eventRecord) {
-  const plan =
-    typeof coachEventPlan === "function"
-      ? coachEventPlan(eventRecord)
-      : null;
-
-  return String(
-    plan?.event_type ??
-    eventRecord?.event_type ??
-    "event"
-  );
-}
-
-function dashboardEventId(eventRecord) {
-  return String(
-    eventRecord?.event_id ??
-    eventRecord?.id ??
-    ""
-  );
-}
-
 function dashboardProgrammeName(assignment) {
   const templateId =
     dashboardAssignmentTemplateId(
@@ -6468,9 +6433,6 @@ function bindCoachDashboardActions() {
         const athleteUserId =
           button.dataset.athleteId ?? "";
 
-        const eventId =
-          button.dataset.eventId ?? "";
-
         if (action === "open-athlete") {
           setView("athletes");
 
@@ -6509,16 +6471,6 @@ function bindCoachDashboardActions() {
           return;
         }
 
-        if (action === "open-event") {
-          if (eventId) {
-            location.hash =
-              `#/coach/events/${encodeURIComponent(eventId)}`;
-          }
-
-          setView("events");
-          return;
-        }
-
         if (action === "open-programmes") {
           setView("templates");
         }
@@ -6531,8 +6483,7 @@ function renderCoachDashboard() {
   if (
     !elements.coachOverviewAssignments ||
     !elements.coachOverviewOpenSessions ||
-    !elements.coachOverviewReviewQueue ||
-    !elements.coachOverviewEvents
+    !elements.coachOverviewReviewQueue
   ) {
     return;
   }
@@ -6864,74 +6815,15 @@ function renderCoachDashboard() {
           "Completed athlete sessions will appear here when factual artefacts are available."
         );
 
-  elements.coachOverviewEvents.innerHTML =
-    upcomingEvents.length
-      ? upcomingEvents
-          .slice(0, 8)
-          .map((eventRecord) => {
-            const eventDate =
-              dashboardEventDate(
-                eventRecord
-              );
-
-            return `
-              <article class="record-card dashboard-record-card">
-                <div>
-                  <h4>
-                    ${escapeHtml(
-                      dashboardEventName(
-                        eventRecord
-                      )
-                    )}
-                  </h4>
-
-                  <p>
-                    ${escapeHtml(
-                      titleCase(
-                        dashboardEventType(
-                          eventRecord
-                        )
-                      )
-                    )}
-                    ·
-                    ${escapeHtml(
-                      formatDate(eventDate)
-                    )}
-                    ·
-                    ${escapeHtml(
-                      countdownLabel(eventDate)
-                    )}
-                  </p>
-                </div>
-
-                <div class="record-meta">
-                  <span class="badge neutral">
-                    ${Number(
-                      eventRecord.linked_athlete_count ??
-                      0
-                    )}
-                    athlete links
-                  </span>
-
-                  ${dashboardActionButton(
-                    "Open event",
-                    "open-event",
-                    {
-                      "event-id":
-                        dashboardEventId(
-                          eventRecord
-                        )
-                    }
-                  )}
-                </div>
-              </article>
-            `;
-          })
-          .join("")
-      : dashboardEmptyState(
-          "No upcoming events",
-          "Create an event date anchor to display it on the coach dashboard."
-        );
+  // NOTE: the "Upcoming events" panel moved to React (see
+  // public/app-src/screens/coach/CoachOverviewEventsPanel.tsx, mounted
+  // into #coach-overview-events-root) - it independently fetches
+  // GET /coach-workspace/events and refetches on the
+  // kolosseum:coach-overview-changed dispatch just below. `upcomingEvents`
+  // above is still used for the coachUpcomingEventCount metric.
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:coach-overview-changed")
+  );
 
   if (
     typeof bindCoachAthleteActions ===

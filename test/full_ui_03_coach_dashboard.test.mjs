@@ -29,6 +29,17 @@ const manifest = JSON.parse(
   )
 );
 
+// DEV NOTE: the "Upcoming events" panel moved to React - see
+// public/app-src/screens/coach/CoachOverviewEventsPanel.tsx and
+// useCoachOverviewEvents.ts. The metric counts, "Connected athletes"/
+// "Action queue"/"Open sessions"/"Completed since review" panels and the
+// dashboard status line all stay legacy - see that component's own DEV
+// NOTE for why.
+const coachOverviewEventsPanel = fs.readFileSync(
+  new URL("../public/app-src/screens/coach/CoachOverviewEventsPanel.tsx", import.meta.url),
+  "utf8"
+);
+
 test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
   const ids = [
     "coachDashboardRefreshButton",
@@ -42,8 +53,7 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
     "coachOverviewAthletes",
     "coachOverviewAssignments",
     "coachOverviewOpenSessions",
-    "coachOverviewReviewQueue",
-    "coachOverviewEvents"
+    "coachOverviewReviewQueue"
   ];
 
   for (const id of ids) {
@@ -52,6 +62,9 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
       `missing dashboard control ${id}`
     );
   }
+
+  assert.ok(html.includes('id="coach-overview-events-root"'), "missing coach-overview-events-root");
+  assert.ok(!html.includes('id="coachOverviewEvents"'), "legacy coachOverviewEvents mount point should be fully retired");
 });
 
 test("FULL-UI-03 loads server-authoritative coach records", () => {
@@ -81,11 +94,9 @@ test("FULL-UI-03 provides direct coach actions", () => {
     "open-athlete",
     "open-assignment",
     "open-review",
-    "open-event",
     "open-programmes",
     "openAthleteProfile",
-    "loadCoachReview",
-    "#/coach/events/"
+    "loadCoachReview"
   ];
 
   for (const action of actions) {
@@ -94,6 +105,15 @@ test("FULL-UI-03 provides direct coach actions", () => {
       `missing dashboard action ${action}`
     );
   }
+
+  // "open-event" moved to React (CoachOverviewEventsPanel.tsx) - it
+  // navigates the same way legacy's bindCoachDashboardActions() used to
+  // (click the legacy nav button for the Events view, then set
+  // location.hash to the specific event), just without the
+  // data-dashboard-action delegation legacy used.
+  assert.ok(!application.includes('"open-event"'), "the open-event action branch should be fully retired from app.js");
+  assert.ok(coachOverviewEventsPanel.includes("#/coach/events/"));
+  assert.ok(coachOverviewEventsPanel.includes('data-view="events"'));
 });
 
 test("FULL-UI-03 remains factual and read-only", () => {
