@@ -1660,7 +1660,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1682,7 +1682,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1704,7 +1704,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1726,7 +1726,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1748,7 +1748,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1771,7 +1771,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1793,7 +1793,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1815,7 +1815,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1837,7 +1837,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",

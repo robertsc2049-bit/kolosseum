@@ -385,15 +385,7 @@ const elements = {
   athleteProfilePanel: document.getElementById("athleteProfilePanel"),
   athleteProfileHeading: document.getElementById("athleteProfileHeading"),
   athleteProfileActivity: document.getElementById("athleteProfileActivity"),
-  athleteProfileForm: document.getElementById("athleteProfileForm"),
-  athletePreferredUnit: document.getElementById("athletePreferredUnit"),
-  athleteRoundingIncrement: document.getElementById("athleteRoundingIncrement"),
-  athleteBodyweight: document.getElementById("athleteBodyweight"),
-  athleteBodyweightUnit: document.getElementById("athleteBodyweightUnit"),
-  athleteBenchmarkList: document.getElementById("athleteBenchmarkList"),
-  addAthleteBenchmarkButton: document.getElementById("addAthleteBenchmarkButton"),
   closeAthleteProfileButton: document.getElementById("closeAthleteProfileButton"),
-  athleteProfileStatus: document.getElementById("athleteProfileStatus"),
   eventForm: document.getElementById("eventForm"),
   eventName: document.getElementById("eventName"),
   eventActivity: document.getElementById("eventActivity"),
@@ -4668,50 +4660,6 @@ function strengthSourceLabel(
   return "Tested 1RM";
 }
 
-function strengthReferenceStatus(
-  benchmark,
-  benchmarks,
-  asOfDate =
-    new Date()
-      .toISOString()
-      .slice(0, 10)
-) {
-  if (
-    String(
-      benchmark
-        ?.effective_date ??
-      ""
-    ) > asOfDate
-  ) {
-    return "Scheduled";
-  }
-
-  const current =
-    currentProfileBenchmarks({
-      benchmarks
-    }, asOfDate);
-
-  return String(
-    current
-      .get(
-        String(
-          benchmark
-            ?.exercise_id ??
-          ""
-        )
-      )
-      ?.benchmark_id ??
-    ""
-  ) ===
-  String(
-    benchmark
-      ?.benchmark_id ??
-    ""
-  )
-    ? "Current"
-    : "Superseded";
-}
-
 function formatStrengthReferenceSummary(
   benchmark,
   displayUnit
@@ -4770,33 +4718,6 @@ function formatStrengthReferenceSummary(
     .join(" · ");
 }
 
-function benchmarkExerciseOptions(selectedExerciseId = "") {
-  return state.templateExercises
-    .map((exercise) => `
-      <option value="${escapeHtml(exercise.exercise_id)}" ${exercise.exercise_id === selectedExerciseId ? "selected" : ""}>
-        ${escapeHtml(exercise.display_name)}
-      </option>
-    `)
-    .join("");
-}
-
-function newAthleteBenchmark() {
-  const exercise = state.templateExercises[0] ?? null;
-  const preferredUnit = state.athleteProfileDraft?.preferred_weight_unit === "lb" ? "lb" : "kg";
-
-  return {
-    benchmark_id: "",
-    exercise_id: exercise?.exercise_id ?? "",
-    value: preferredUnit === "lb" ? 225 : 100,
-    unit: preferredUnit,
-    basis: "tested_1rm",
-    effective_date: new Date().toISOString().slice(0, 10),
-    source_note: "",
-    replaces_reference_id: "",
-    persisted: false
-  };
-}
-
 function renderAthleteProfileEditor() {
   const athlete = state.coachAthletes.find(
     (entry) => entry.userId === state.selectedCoachAthleteId
@@ -4811,106 +4732,15 @@ function renderAthleteProfileEditor() {
   elements.athleteProfilePanel.hidden = false;
   elements.athleteProfileHeading.textContent = athlete.displayName;
   elements.athleteProfileActivity.textContent = `${titleCase(athlete.activityId)} · ${athlete.userId}`;
-  elements.athletePreferredUnit.value = draft.preferred_weight_unit;
-  elements.athleteRoundingIncrement.value = String(draft.load_rounding_increment);
-  elements.athleteBodyweight.value = draft.bodyweight === "" ? "" : String(draft.bodyweight);
-  elements.athleteBodyweightUnit.value = draft.bodyweight_unit;
-
-  elements.athleteBenchmarkList.innerHTML = draft.benchmarks.length
-    ? draft.benchmarks.map((benchmark, index) => `
-        <article class="benchmark-row" data-benchmark-index="${index}">
-          <label class="field benchmark-exercise-field">
-            <span>Exercise</span>
-            <select data-profile-field="exercise_id" ${benchmark.persisted ? "disabled" : ""}>${benchmarkExerciseOptions(benchmark.exercise_id)}</select>
-          </label>
-          <label class="field benchmark-value-field">
-            <span>Reference load</span>
-            <input data-profile-field="value" type="number" min="0.25" max="1500" step="0.25" value="${Number(benchmark.value)}" ${benchmark.persisted ? "disabled" : ""} />
-          </label>
-          <label class="field benchmark-unit-field">
-            <span>Unit</span>
-            <select data-profile-field="unit" ${benchmark.persisted ? "disabled" : ""}>
-              <option value="kg" ${benchmark.unit === "lb" ? "" : "selected"}>kg</option>
-              <option value="lb" ${benchmark.unit === "lb" ? "selected" : ""}>lb</option>
-            </select>
-          </label>
-          <label class="field benchmark-basis-field">
-            <span>Record type</span>
-            <select data-profile-field="basis" ${benchmark.persisted ? "disabled" : ""}>
-              <option value="tested_1rm" ${benchmark.basis === "tested_1rm" ? "selected" : ""}>Tested 1RM</option>
-              <option value="estimated_1rm" ${benchmark.basis === "estimated_1rm" ? "selected" : ""}>Estimated 1RM</option>
-              <option value="training_max" ${benchmark.basis === "training_max" ? "selected" : ""}>Training max</option>
-            </select>
-          </label>
-          <label class="field benchmark-date-field">
-            <span>Effective date</span>
-            <input data-profile-field="effective_date" type="date" value="${escapeHtml(benchmark.effective_date)}" ${benchmark.persisted ? "disabled" : ""} />
-          </label>
-          <label class="field benchmark-note-field">
-            <span>Source note</span>
-            <input data-profile-field="source_note" maxlength="240" value="${escapeHtml(benchmark.source_note)}" placeholder="Optional factual source" ${benchmark.persisted ? "disabled" : ""} />
-          </label>
-          <p class="muted small">
-            ${escapeHtml(
-              formatStrengthReferenceSummary(
-                benchmark,
-                draft.preferred_weight_unit
-              )
-            )}
-          </p>
-          <span class="badge neutral">
-            ${escapeHtml(
-              strengthReferenceStatus(
-                benchmark,
-                draft.benchmarks
-              )
-            )}
-          </span>
-          <button
-            class="button danger small-button remove-athlete-benchmark"
-            type="button"
-            data-benchmark-index="${index}"
-            ${benchmark.persisted ? "disabled" : ""}
-          >
-            ${benchmark.persisted ? "Immutable record" : "Remove"}
-          </button>
-        </article>
-      `).join("")
-    : `
-      <div class="empty-state compact-empty">
-        <h3>No strength references recorded</h3>
-        <p>Add a tested 1RM, estimated 1RM, or training max for percentage-based exercises.</p>
-      </div>
-    `;
-
-  const currentCount = currentProfileBenchmarks(draft).size;
-  elements.athleteProfileStatus.textContent = `${draft.benchmarks.length} record${draft.benchmarks.length === 1 ? "" : "s"} · ${currentCount} current exercise reference${currentCount === 1 ? "" : "s"}`;
+  // NOTE: the preferred-unit/rounding/bodyweight/benchmark editor below this
+  // header is React-owned (public/app-src/screens/coach/AthleteStrengthProfilePanel.tsx,
+  // mounted into #athlete-profile-editor-root) - it independently fetches
+  // and saves this athlete's strength profile. See openAthleteProfile's
+  // kolosseum:coach-athlete-profile-opened dispatch and this file's
+  // kolosseum:coach-athlete-profile-updated listener for the two-way bridge.
   renderAthleteProfileAssignment();
   renderAthleteDetail();
   elements.athleteProfilePanel.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function syncAthleteProfileHeader() {
-  if (!state.athleteProfileDraft) return;
-
-  state.athleteProfileDraft.preferred_weight_unit = elements.athletePreferredUnit.value;
-  state.athleteProfileDraft.load_rounding_increment = Number(elements.athleteRoundingIncrement.value);
-  state.athleteProfileDraft.bodyweight = elements.athleteBodyweight.value === ""
-    ? ""
-    : Number(elements.athleteBodyweight.value);
-  state.athleteProfileDraft.bodyweight_unit = elements.athleteBodyweightUnit.value;
-  saveState();
-}
-
-function updateAthleteBenchmarkControl(control) {
-  const row = control.closest("[data-benchmark-index]");
-  const index = Number(row?.dataset.benchmarkIndex);
-  const field = control.dataset.profileField;
-  const benchmark = state.athleteProfileDraft?.benchmarks?.[index];
-  if (!benchmark || !field || benchmark.persisted) return;
-
-  benchmark[field] = control.type === "number" ? Number(control.value) : control.value;
-  saveState();
 }
 
 async function loadAthleteProfile(athleteUserId, options = {}) {
@@ -7281,6 +7111,15 @@ async function openAthleteProfile(athleteUserId) {
       athlete
     );
 
+  // NOTE: React's strength-profile editor (AthleteStrengthProfilePanel.tsx)
+  // fetches independently of the legacy refreshes below - dispatch this as
+  // early as possible so both fetches run in parallel.
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:coach-athlete-profile-opened", {
+      detail: { athlete_user_id: athleteUserId }
+    })
+  );
+
   await Promise.all([
     refreshAthleteEventLinks(
       athleteUserId,
@@ -7355,6 +7194,7 @@ async function openAthleteProfile(athleteUserId) {
 }
 
 function closeAthleteProfile() {
+  document.dispatchEvent(new CustomEvent("kolosseum:coach-athlete-profile-closed"));
   state.selectedCoachAthleteId = "";
   state.athleteProfileDraft = null;
   state.liveMessageThreadId = null;
@@ -7388,101 +7228,10 @@ function closeAthleteProfile() {
   }
 }
 
-function addAthleteBenchmark() {
-  if (!state.athleteProfileDraft) return;
-  state.athleteProfileDraft.benchmarks.push(newAthleteBenchmark());
-  saveState();
-  renderAthleteProfileEditor();
-}
-
-function removeAthleteBenchmark(index) {
-  if (!state.athleteProfileDraft) return;
-
-  const benchmark =
-    state
-      .athleteProfileDraft
-      .benchmarks[index];
-
-  if (
-    !benchmark ||
-    benchmark.persisted
-  ) {
-    return;
-  }
-
-  state
-    .athleteProfileDraft
-    .benchmarks
-    .splice(index, 1);
-
-  saveState();
-  renderAthleteProfileEditor();
-}
-
-async function saveOpenAthleteProfile(event) {
-  event.preventDefault();
-  const athlete = state.coachAthletes.find(
-    (entry) => entry.userId === state.selectedCoachAthleteId
-  );
-  if (!athlete || !state.athleteProfileDraft) {
-    throw new Error("Open an athlete profile first.");
-  }
-
-  syncAthleteProfileHeader();
-  showBusy("Saving athlete profile…");
-
-  try {
-    const draft = state.athleteProfileDraft;
-    const response = await api("POST", "/coach-workspace/athlete-strength-profile", {
-      coach_user_id: state.profile.coachUserId,
-      athlete_user_id: athlete.userId,
-      preferred_weight_unit: draft.preferred_weight_unit,
-      load_rounding_increment: Number(draft.load_rounding_increment),
-      bodyweight: draft.bodyweight === "" ? null : Number(draft.bodyweight),
-      bodyweight_unit: draft.bodyweight_unit,
-      benchmarks: draft.benchmarks.map((benchmark) => ({
-        benchmark_id: benchmark.benchmark_id,
-        exercise_id: benchmark.exercise_id,
-        value: Number(benchmark.value),
-        unit: benchmark.unit,
-        basis: benchmark.basis,
-        effective_date: benchmark.effective_date,
-        source_note: benchmark.source_note.trim(),
-        replaces_reference_id:
-          benchmark.replaces_reference_id ||
-          null
-      })),
-      expected_current_record_sha256:
-        typeof draft.expected_current_record_sha256 === "string"
-          ? draft.expected_current_record_sha256
-          : typeof state
-              .athleteProfiles
-              ?.[athlete.userId]
-              ?.record_sha256 === "string"
-            ? state
-                .athleteProfiles[
-                  athlete.userId
-                ]
-                .record_sha256
-            : null
-    });
-
-    state.athleteProfiles[athlete.userId] = response.profile;
-    state.athleteProfileDraft = profileRecordToDraft(response.profile, athlete);
-    await refreshAthleteDetail(
-      athlete.userId,
-      { quiet: true }
-    );
-    saveState();
-    renderAthleteProfileEditor();
-    renderCoachWorkspace();
-    renderAssignmentRequirements();
-    showNotice(`${athlete.displayName}'s training profile was saved.`);
-  }
-  finally {
-    hideBusy();
-  }
-}
+// NOTE: benchmark add/remove/save moved to React
+// (AthleteStrengthProfilePanel.tsx) - see the
+// kolosseum:coach-athlete-profile-updated listener below for how this
+// legacy module learns about a React-driven save.
 
 function requiredOneRmExerciseIds(template) {
   const ids = new Set();
@@ -16817,35 +16566,6 @@ elements.currentExercise.addEventListener("toggle", (event) => {
 }, { capture: true });
 
 elements.closeAthleteProfileButton.addEventListener("click", closeAthleteProfile);
-elements.addAthleteBenchmarkButton.addEventListener("click", addAthleteBenchmark);
-elements.athleteProfileForm.addEventListener("submit", (event) => {
-  saveOpenAthleteProfile(event).catch(handleError);
-});
-
-for (const control of [
-  elements.athletePreferredUnit,
-  elements.athleteRoundingIncrement,
-  elements.athleteBodyweight,
-  elements.athleteBodyweightUnit
-]) {
-  control.addEventListener("input", syncAthleteProfileHeader);
-  control.addEventListener("change", syncAthleteProfileHeader);
-}
-
-elements.athleteBenchmarkList.addEventListener("input", (event) => {
-  const control = event.target.closest("[data-profile-field]");
-  if (control) updateAthleteBenchmarkControl(control);
-});
-
-elements.athleteBenchmarkList.addEventListener("change", (event) => {
-  const control = event.target.closest("[data-profile-field]");
-  if (control) updateAthleteBenchmarkControl(control);
-});
-
-elements.athleteBenchmarkList.addEventListener("click", (event) => {
-  const button = event.target.closest(".remove-athlete-benchmark");
-  if (button) removeAthleteBenchmark(Number(button.dataset.benchmarkIndex));
-});
 
 elements.athleteAssignmentEvent.addEventListener("change", renderAthleteProfileAssignmentRequirements);
   elements.athleteAssignmentTemplate.addEventListener("change", renderAthleteProfileAssignmentRequirements);
@@ -16915,6 +16635,32 @@ document.addEventListener(
     saveState();
     renderIdentity();
     renderAccount();
+  }
+);
+
+// DEV NOTE: React owns the strength-profile editor now (see
+// public/app-src/screens/coach/AthleteStrengthProfilePanel.tsx) - this
+// bridge keeps the still-legacy assignment-eligibility and athlete-detail
+// sub-panels (siblings within #athleteProfilePanel) in sync after a
+// React-driven save, mirroring the old saveOpenAthleteProfile's post-save
+// side effects.
+document.addEventListener(
+  "kolosseum:coach-athlete-profile-updated",
+  (event) => {
+    const athleteUserId = event.detail?.athlete_user_id;
+    const profile = event.detail?.profile;
+    const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
+    if (!athlete || !profile) return;
+
+    state.athleteProfiles[athleteUserId] = profile;
+    state.athleteProfileDraft = profileRecordToDraft(profile, athlete);
+    saveState();
+
+    refreshAthleteDetail(athleteUserId, { quiet: true }).then(() => {
+      renderAthleteProfileEditor();
+      renderCoachWorkspace();
+      renderAssignmentRequirements();
+    }).catch(handleError);
   }
 );
 
