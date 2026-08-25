@@ -2,6 +2,7 @@ import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
+import { AthleteTodayCreateSessionButton, AthleteTodayEventCard, AthleteTodaySessionCard } from "./screens/athlete/AthleteTodayPanel";
 import { AthleteDirectoryPanel } from "./screens/coach/AthleteDirectoryPanel";
 import {
   AthleteAssignmentHistoryList,
@@ -60,3 +61,6 @@ mount("coach-overview-events-root", <CoachOverviewEventsPanel />);
 mount("coach-events-metrics-root", <CoachEventsMetricCards />);
 mount("coach-events-list-root", <CoachEventsListPanel />);
 mount("coach-marketplace-root", <CoachMarketplacePanel />);
+mount("athlete-today-create-session-root", <AthleteTodayCreateSessionButton />);
+mount("athlete-today-session-root", <AthleteTodaySessionCard />);
+mount("athlete-today-event-root", <AthleteTodayEventCard />);

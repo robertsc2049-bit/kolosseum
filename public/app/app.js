@@ -167,38 +167,8 @@ const elements = {
   busyText: document.getElementById("busyText"),
 
   todayGreeting: document.getElementById("todayGreeting"),
-  createSessionButton: document.getElementById("createSessionButton"),
-  todayServiceUnavailable: document.getElementById("todayServiceUnavailable"),
-  todayRetryButton: document.getElementById("todayRetryButton"),
-  todayProgrammeSummary: document.getElementById("todayProgrammeSummary"),
-  todayProgrammeName: document.getElementById("todayProgrammeName"),
-  todayProgrammeVersion: document.getElementById("todayProgrammeVersion"),
-  todayBlockWeek: document.getElementById("todayBlockWeek"),
-  todaySessionEmpty: document.getElementById("todaySessionEmpty"),
-  todaySessionEmptyIcon: document.getElementById("todaySessionEmptyIcon"),
-  todaySessionEmptyHeading: document.getElementById("todaySessionEmptyHeading"),
-  todaySessionEmptyBody: document.getElementById("todaySessionEmptyBody"),
-  todaySessionContent: document.getElementById("todaySessionContent"),
-  todayStatusBadge: document.getElementById("todayStatusBadge"),
-  todayActivity: document.getElementById("todayActivity"),
-  todaySessionTitle: document.getElementById("todaySessionTitle"),
-  todaySessionNotes: document.getElementById("todaySessionNotes"),
-  todayCompleted: document.getElementById("todayCompleted"),
-  todayRemaining: document.getElementById("todayRemaining"),
-  todayDropped: document.getElementById("todayDropped"),
-  todayResolvedLoad: document.getElementById("todayResolvedLoad"),
-  todayResolvedLoadValue: document.getElementById("todayResolvedLoadValue"),
-  todayResolvedLoadSource: document.getElementById("todayResolvedLoadSource"),
-  continueSessionButton: document.getElementById("continueSessionButton"),
-  todayNotes: document.getElementById("todayNotes"),
-  todayNotesList: document.getElementById("todayNotesList"),
   todayHistoryCount: document.getElementById("todayHistoryCount"),
   todayRecentList: document.getElementById("todayRecentList"),
-  todayEventCard: document.getElementById("todayEventCard"),
-  todayEventType: document.getElementById("todayEventType"),
-  todayEventCountdown: document.getElementById("todayEventCountdown"),
-  todayEventName: document.getElementById("todayEventName"),
-  todayEventDate: document.getElementById("todayEventDate"),
 
   sessionActivity: document.getElementById("sessionActivity"),
   sessionTitle: document.getElementById("sessionTitle"),
@@ -2092,7 +2062,7 @@ async function loadSessionState() {
 
   saveState();
   renderAthleteSession();
-  renderToday();
+  notifyTodayChanged();
   return sessionState;
 }
 
@@ -2690,7 +2660,7 @@ async function refreshHistory(options = {}) {
   saveState();
   populateHistoryFilterOptions(serverSessions);
   renderHistoryList(serverSessions);
-  renderToday();
+  notifyTodayChanged();
   refreshProgressPhotos({ quiet: true }).catch(() => {});
   refreshBodyMetrics({ quiet: true }).catch(() => {});
   refreshHabits({ quiet: true }).catch(() => {});
@@ -3033,117 +3003,17 @@ function bindSessionCards(container) {
   }
 }
 
-// FULL-UI-14C: server-authoritative copy for every declared Today state.
-// Coach notes are rendered separately (renderTodayNotes) and never feed into
-// any of this - they cannot change which state, session, exercise, load, or
-// order is shown.
-const TODAY_STATE_COPY = Object.freeze({
-  no_current_assignment: Object.freeze({
-    icon: "•",
-    heading: "No active programme",
-    body: "You don't have a coach-assigned programme right now. Ask your coach to assign one, or start a self-directed session below.",
-    badge: { label: "No programme", className: "neutral" }
-  }),
-  relationship_ended: Object.freeze({
-    icon: "•",
-    heading: "Coaching relationship ended",
-    body: "Your coaching relationship for this programme is no longer active. Contact your coach to reconnect.",
-    badge: { label: "Relationship ended", className: "partial" }
-  }),
-  missing_strength_reference: Object.freeze({
-    icon: "•",
-    heading: "Waiting on a strength reference",
-    body: "This programme needs a working-max reference your coach hasn't recorded yet. Ask your coach to add it to your profile before you can continue.",
-    badge: { label: "Reference needed", className: "partial" }
-  }),
-  programme_complete: Object.freeze({
-    icon: "✓",
-    heading: "Programme complete",
-    body: "You've completed every session in this programme. Your coach will assign what's next.",
-    badge: { label: "Complete", className: "complete" }
-  }),
-  no_session: Object.freeze({
-    icon: "+",
-    heading: "No session is open",
-    body: "Start your next session from this programme when you're ready to train.",
-    badge: { label: "No session", className: "neutral" }
-  }),
-  session_already_complete: Object.freeze({
-    icon: "✓",
-    heading: "Session complete",
-    body: "You already completed this session. Start the next one from this programme when you're ready.",
-    badge: { label: "Session complete", className: "complete" }
-  })
-});
-
-function todaySessionLabel(session) {
-  const parts = [];
-  if (session?.template_block_name) parts.push(`Block: ${session.template_block_name}`);
-  if (Number.isInteger(session?.template_week_index_global)) {
-    parts.push(`Week ${session.template_week_index_global}`);
-  }
-  if (Number.isInteger(session?.template_session_index) && session?.total_session_count) {
-    parts.push(`Session ${session.template_session_index + 1} of ${session.total_session_count}`);
-  }
-  return parts.join(" · ");
-}
-
-function renderTodayProgramme(today) {
-  const assignment = today?.assignment ?? null;
-  elements.todayProgrammeSummary.hidden = !assignment;
-  if (!assignment) return;
-
-  elements.todayProgrammeName.textContent = assignment.template_name || "Assigned programme";
-  elements.todayProgrammeVersion.textContent = assignment.template_version
-    ? `Version ${assignment.template_version}`
-    : "";
-  elements.todayBlockWeek.textContent = todaySessionLabel(today.session);
-}
-
-function renderTodayResolvedLoad(session) {
-  const firstItem = Array.isArray(session?.planned_items) ? session.planned_items[0] : null;
-  const resolved = firstItem?.resolved_load;
-
-  elements.todayResolvedLoad.hidden = !resolved;
-  if (!resolved) return;
-
-  elements.todayResolvedLoadValue.textContent = `${resolved.value} ${resolved.unit}`;
-  const source = resolved.source;
-  elements.todayResolvedLoadSource.textContent = source
-    ? `${strengthSourceLabel(source.source_type)} · effective ${formatDate(source.effective_date)}`
-    : "";
-}
-
-function renderTodayNotes(notes) {
-  const list = Array.isArray(notes) ? notes : [];
-  elements.todayNotes.hidden = list.length === 0;
-  elements.todayNotesList.innerHTML = list
-    .map((note) => `<li>${escapeHtml(note.note_text)}<br /><small class="muted">${formatDate(note.created_at_iso8601)}</small></li>`)
-    .join("");
-}
-
-function renderTodayEvent(event) {
-  if (!event) {
-    elements.todayEventCard.hidden = true;
-    return;
-  }
-
-  if (event.status === "unavailable") {
-    elements.todayEventCard.hidden = false;
-    elements.todayEventType.textContent = "Unavailable";
-    elements.todayEventCountdown.textContent = "—";
-    elements.todayEventName.textContent = "This event is no longer available";
-    elements.todayEventDate.textContent = titleCase(event.reason ?? "event_unavailable");
-    return;
-  }
-
-  elements.todayEventCard.hidden = false;
-  elements.todayEventType.textContent = titleCase(event.event_type ?? "event");
-  elements.todayEventCountdown.textContent = countdownLabel(event.event_date);
-  elements.todayEventName.textContent = event.event_name || "Event";
-  elements.todayEventDate.textContent = `${formatDate(event.event_date)}${event.location ? ` · ${event.location}` : ""}`;
-}
-
+// DEV NOTE: FULL-UI-14C Today screen is React-owned now (see
+// public/app-src/screens/athlete/AthleteTodayPanel.tsx, mounted into
+// athlete-today-session-root/athlete-today-event-root/
+// athlete-today-create-session-root) - it independently fetches
+// beta-athlete-today and this session's /state, so it needs no reverse
+// bridge for reads. loadAthleteToday()/loadSessionState() below still run
+// unchanged (they own state.activeSessionId, which the still-legacy
+// Session screen needs) and now dispatch kolosseum:today-changed so the
+// React panel knows when to refetch. Only "Recent activity" stays legacy
+// here - it's a preview of the not-yet-migrated History screen's own card
+// rendering.
 function renderTodayRecent() {
   elements.todayHistoryCount.textContent = String(state.history.length);
   const latest = [...state.history].reverse().slice(0, 4);
@@ -3153,91 +3023,9 @@ function renderTodayRecent() {
   bindSessionCards(elements.todayRecentList);
 }
 
-function renderToday() {
-  const today = state.athleteToday;
-
-  elements.todayServiceUnavailable.hidden = true;
-  elements.todayProgrammeSummary.hidden = true;
-  elements.todaySessionEmpty.hidden = true;
-  elements.todaySessionContent.hidden = true;
-
+function notifyTodayChanged() {
   renderTodayRecent();
-
-  if (!today || today.state === "service_unavailable") {
-    elements.todayServiceUnavailable.hidden = false;
-    elements.todayEventCard.hidden = true;
-    elements.todayNotes.hidden = true;
-    setBadge(elements.todayStatusBadge, { label: "Unavailable", className: "partial" });
-    elements.createSessionButton.textContent = "Create session";
-    return;
-  }
-
-  renderTodayNotes(today.notes);
-  renderTodayEvent(today.event);
-  renderTodayProgramme(today);
-
-  const messageStates = [
-    "no_current_assignment",
-    "relationship_ended",
-    "missing_strength_reference",
-    "programme_complete",
-    "no_session",
-    "session_already_complete"
-  ];
-
-  if (messageStates.includes(today.state)) {
-    const copy = TODAY_STATE_COPY[today.state];
-    elements.todaySessionEmpty.hidden = false;
-    elements.todaySessionEmptyIcon.textContent = copy.icon;
-    elements.todaySessionEmptyHeading.textContent = copy.heading;
-    elements.todaySessionEmptyBody.textContent = copy.body;
-    setBadge(elements.todayStatusBadge, copy.badge);
-
-    if (today.state === "session_already_complete") {
-      elements.createSessionButton.textContent = "Start next session";
-    }
-    else if (today.state === "no_session") {
-      elements.createSessionButton.textContent = "Start session";
-    }
-    else {
-      elements.createSessionButton.textContent = "Create session";
-    }
-    return;
-  }
-
-  // today.state === "ok": a real, server-selected session exists to continue.
-  const sessionState = state.activeSessionId === today.session?.session_id
-    ? state.activeSessionState
-    : null;
-
-  elements.todaySessionContent.hidden = false;
-  elements.createSessionButton.textContent = "Create another session";
-
-  if (sessionState) {
-    const counts = countsFromSession(sessionState);
-    const classification = sessionClassification(sessionState);
-    setBadge(elements.todayStatusBadge, classification);
-    elements.todayCompleted.textContent = String(counts.completed.length);
-    elements.todayRemaining.textContent = String(counts.remaining.length);
-    elements.todayDropped.textContent = String(counts.dropped.length);
-  }
-  else {
-    setBadge(elements.todayStatusBadge, { label: "In progress", className: "active" });
-    elements.todayCompleted.textContent = "0";
-    elements.todayRemaining.textContent = "4";
-    elements.todayDropped.textContent = "0";
-  }
-
-  elements.todayActivity.textContent = titleCase(state.profile?.activityId ?? "training");
-  elements.todaySessionTitle.textContent = today.session?.template_session_title
-    ? String(today.session.template_session_title)
-    : `${titleCase(state.profile?.activityId ?? "training")} session`;
-
-  const sessionNotes = today.session?.template_session_coaching_notes;
-  elements.todaySessionNotes.hidden = !sessionNotes;
-  elements.todaySessionNotes.textContent = sessionNotes ? String(sessionNotes) : "";
-
-  renderTodayResolvedLoad(today.session);
+  document.dispatchEvent(new CustomEvent("kolosseum:today-changed"));
 }
 
 // Fetches the athlete's single, server-authoritative Today state. This is
@@ -3284,7 +3072,7 @@ async function loadAthleteToday() {
     saveState();
   }
 
-  renderToday();
+  notifyTodayChanged();
   return state.athleteToday;
 }
 
@@ -14021,7 +13809,7 @@ async function enterApplication() {
     // state is never visible, even briefly, as if it were current.
     showBusy("Loading your training data...");
     renderAthleteSession();
-    renderToday();
+    renderTodayRecent();
     renderHistory();
 
     try {
@@ -14543,9 +14331,7 @@ elements.menuButton.addEventListener("click", () => {
 });
 
 elements.topbarAccount.addEventListener("click", () => setView("account"));
-elements.createSessionButton.addEventListener("click", () => createSession().catch(handleError));
-elements.continueSessionButton.addEventListener("click", () => setView("session"));
-elements.todayRetryButton.addEventListener("click", () => loadAthleteToday().catch(handleError));
+document.addEventListener("kolosseum:create-session", () => createSession().catch(handleError));
 elements.sessionRetryButton.addEventListener("click", () => loadSessionState().catch(handleError));
 elements.startSessionButton.addEventListener("click", () => startSession().catch(handleError));
 elements.completeExerciseButton.addEventListener("click", () => {

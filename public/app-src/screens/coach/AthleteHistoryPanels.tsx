@@ -1,7 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { countdownLabel, formatDate } from "../../utils/format";
+import { countdownLabel, formatDate, strengthSourceLabel } from "../../utils/format";
 import { useAthleteHistory } from "./useAthleteHistory";
 
 // DEV NOTE: current programme, current event, and the assignment/
@@ -91,12 +91,6 @@ function convertedStrengthValue(value: unknown, sourceUnit: string, displayUnit:
   if (sourceUnit === displayUnit) return Number(numeric.toFixed(3));
   const converted = sourceUnit === "kg" ? numeric * 2.2046226218487757 : numeric / 2.2046226218487757;
   return Number(converted.toFixed(3));
-}
-
-function strengthSourceLabel(sourceType: unknown): string {
-  if (sourceType === "estimated_1rm") return "Estimated 1RM";
-  if (sourceType === "training_max") return "Training max";
-  return "Tested 1RM";
 }
 
 function formatStrengthReferenceSummary(benchmark: JsonRecord, displayUnit: unknown): string {

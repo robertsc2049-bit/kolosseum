@@ -91,3 +91,13 @@ export function countdownLabel(eventDate: unknown, fromDate: string = todayDateO
   const remainder = days % 7;
   return weeks > 0 ? `${weeks}w ${remainder}d` : `${days} day${days === 1 ? "" : "s"}`;
 }
+
+// DEV NOTE: ported verbatim from public/app/app.js's strengthSourceLabel() -
+// extracted here once a third migrated panel (AthleteTodayPanel) needed the
+// identical lookup; AthleteHistoryPanels.tsx carried its own private copy
+// first (Rule of Three, same as countdownLabel above).
+export function strengthSourceLabel(sourceType: unknown): string {
+  if (sourceType === "estimated_1rm") return "Estimated 1RM";
+  if (sourceType === "training_max") return "Training max";
+  return "Tested 1RM";
+}
