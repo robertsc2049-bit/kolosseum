@@ -95,9 +95,9 @@ const targets = [
     "id": "athlete_current_event",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         [
-          "id=\"athleteDetailCurrentEvent\""
+          "AthleteCurrentEventCard"
         ]
       ],
       [
@@ -119,9 +119,9 @@ const targets = [
     "id": "athlete_current_programme",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         [
-          "id=\"athleteDetailCurrentProgramme\""
+          "AthleteCurrentProgrammeCard"
         ]
       ],
       [
@@ -143,9 +143,9 @@ const targets = [
     "id": "athlete_event_history",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         [
-          "id=\"athleteDetailEventHistory\""
+          "AthleteEventLinkHistoryList"
         ]
       ],
       [
@@ -173,9 +173,9 @@ const targets = [
         ]
       ],
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         [
-          "id=\"athleteDetailSessionHistory\""
+          "AthleteSessionHistoryList"
         ]
       ],
       [
@@ -197,9 +197,9 @@ const targets = [
         ]
       ],
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         [
-          "id=\"athleteDetailStrengthHistory\""
+          "AthleteStrengthHistoryList"
         ]
       ],
       [

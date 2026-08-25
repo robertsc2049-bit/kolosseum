@@ -45,6 +45,17 @@ const styles =
     "public/app/styles.css"
   );
 
+// DEV NOTE: the relationship counts, search/filter controls and roster
+// list moved to React - see
+// public/app-src/screens/coach/AthleteDirectoryPanel.tsx and
+// useAthleteDirectory.ts. The invite-by-email, broadcast and
+// connect-athlete forms, plus the relationship-audit detail panel and its
+// accept/revoke/extend transitions, all stay legacy siblings.
+const athleteDirectoryPanel =
+  read(
+    "public/app-src/screens/coach/AthleteDirectoryPanel.tsx"
+  );
+
 test(
   "FULL-UI-04A exposes latest factual relationship rows",
   () => {
@@ -127,10 +138,6 @@ test(
   () => {
     for (const id of [
       "refreshAthleteDirectoryButton",
-      "athleteDirectorySearch",
-      "athleteRelationshipFilter",
-      "athleteRelationshipCounts",
-      "athleteRoster",
       "athleteRelationshipDetailPanel",
       "athleteRelationshipAuditFacts",
       "athleteRelationshipProfileButton",
@@ -146,6 +153,17 @@ test(
         )
       );
     }
+
+    assert.match(html, /id="athlete-directory-root"/u);
+    assert.doesNotMatch(html, /id="athleteDirectorySearch"/u);
+    assert.doesNotMatch(html, /id="athleteRelationshipFilter"/u);
+    assert.doesNotMatch(html, /id="athleteRelationshipCounts"/u);
+    assert.doesNotMatch(html, /id="athleteRoster"/u);
+
+    assert.match(athleteDirectoryPanel, /useAthleteDirectory/u);
+    assert.match(athleteDirectoryPanel, /Search athletes/u);
+    assert.match(athleteDirectoryPanel, /Relationship state/u);
+    assert.match(athleteDirectoryPanel, /data-relationship-action="audit"/u);
   }
 );
 
