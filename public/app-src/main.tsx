@@ -2,6 +2,7 @@ import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
+import { AthleteGoalsPanel } from "./screens/coach/AthleteGoalsPanel";
 import { AthleteProgressInsightsPanel } from "./screens/coach/AthleteProgressInsightsPanel";
 import { AthleteStrengthProfilePanel } from "./screens/coach/AthleteStrengthProfilePanel";
 import { AthleteWeeklyCheckinsPanel } from "./screens/coach/AthleteWeeklyCheckinsPanel";
@@ -21,3 +22,4 @@ mount("account-identity-root", <AccountIdentityPanel />);
 mount("athlete-profile-editor-root", <AthleteStrengthProfilePanel />);
 mount("athlete-progress-insights-root", <AthleteProgressInsightsPanel />);
 mount("athlete-weekly-checkins-root", <AthleteWeeklyCheckinsPanel />);
+mount("athlete-goals-root", <AthleteGoalsPanel />);

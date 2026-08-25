@@ -23,3 +23,21 @@ export function formatDate(value: unknown): string {
       : { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }
   ).format(parsed);
 }
+
+// DEV NOTE: ported verbatim from public/app/app.js's BODY_METRIC_TYPE_LABELS
+// - shared here once it was needed by a second migrated panel
+// (AthleteProgressInsightsPanel, then AthleteGoalsPanel) to avoid two copies
+// of this lookup table drifting apart.
+export const BODY_METRIC_TYPE_LABELS: Record<string, string> = {
+  waist_circumference_cm: "Waist",
+  chest_circumference_cm: "Chest",
+  arm_circumference_cm: "Arm",
+  thigh_circumference_cm: "Thigh",
+  hip_circumference_cm: "Hip",
+  body_fat_percentage: "Body fat",
+  body_weight_kg: "Body weight",
+  calories_kcal: "Calories",
+  protein_g: "Protein",
+  carbs_g: "Carbs",
+  fat_g: "Fat"
+};

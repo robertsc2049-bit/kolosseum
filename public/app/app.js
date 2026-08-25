@@ -320,7 +320,6 @@ const elements = {
   athleteGoalTargetDateInput: document.getElementById("athleteGoalTargetDateInput"),
   athleteGoalStatus: document.getElementById("athleteGoalStatus"),
   athleteGoalList: document.getElementById("athleteGoalList"),
-  athleteDetailGoalList: document.getElementById("athleteDetailGoalList"),
   weeklyCheckinForm: document.getElementById("weeklyCheckinForm"),
   weeklyCheckinWeekStartInput: document.getElementById("weeklyCheckinWeekStartInput"),
   weeklyCheckinEnergyInput: document.getElementById("weeklyCheckinEnergyInput"),
@@ -6508,18 +6507,10 @@ async function resolveAthleteGoal(goalId, resolution) {
   }
 }
 
-async function refreshCoachAthleteGoals(athleteUserId, options = {}) {
-  if (!athleteUserId || !elements.athleteDetailGoalList) return;
-
-  try {
-    const response = await api("GET", `/athlete-goals/coach/${encodeURIComponent(athleteUserId)}`);
-    state.coachAthleteGoals = Array.isArray(response.goals) ? response.goals : [];
-    renderAthleteGoalList(elements.athleteDetailGoalList, state.coachAthleteGoals, { readOnly: true });
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
+// NOTE: the coach-side goals mirror moved to React (AthleteGoalsPanel.tsx,
+// mounted into #athlete-goals-root) - it independently fetches
+// GET /athlete-goals/coach/:athlete_user_id. Read-only, so no event bridge
+// back into legacy state.
 
 function defaultWeeklyCheckinWeekStartDate() {
   const now = new Date();
@@ -7131,12 +7122,6 @@ async function openAthleteProfile(athleteUserId) {
       }
     ),
     refreshCoachAthleteHabits(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    ),
-    refreshCoachAthleteGoals(
       athleteUserId,
       {
         quiet: true

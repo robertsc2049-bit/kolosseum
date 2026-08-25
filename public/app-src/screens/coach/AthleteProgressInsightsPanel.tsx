@@ -1,22 +1,8 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { formatDate, titleCase } from "../../utils/format";
+import { BODY_METRIC_TYPE_LABELS, formatDate, titleCase } from "../../utils/format";
 import { useAthleteProgressInsights } from "./useAthleteProgressInsights";
-
-const BODY_METRIC_TYPE_LABELS: Record<string, string> = {
-  waist_circumference_cm: "Waist",
-  chest_circumference_cm: "Chest",
-  arm_circumference_cm: "Arm",
-  thigh_circumference_cm: "Thigh",
-  hip_circumference_cm: "Hip",
-  body_fat_percentage: "Body fat",
-  body_weight_kg: "Body weight",
-  calories_kcal: "Calories",
-  protein_g: "Protein",
-  carbs_g: "Carbs",
-  fat_g: "Fat"
-};
 
 function adherenceText(adherence: JsonRecord): string {
   if (adherence.has_sufficient_data !== true) {
