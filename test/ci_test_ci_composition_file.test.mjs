@@ -10,7 +10,14 @@ import path from "node:path";
 
 const NODE_TEST_CMD_RE = /^node test\/[A-Za-z0-9._/-]+\.test\.mjs$/;
 
-test("test:ci composition file is well-formed and expands to unique node-test-only commands", () => {
+// Deliberately exhaustive - see compose_test_ci_from_index.mjs's own
+// ALLOWED_NPM_COMMANDS DEV NOTE for why this isn't a bare "npm run
+// <anything>" allowance.
+const ALLOWED_NPM_COMMANDS = new Set([
+  "test:react"
+]);
+
+test("test:ci composition file is well-formed and expands to unique node-test-only or allow-listed npm commands", () => {
   const repo = process.cwd();
   const indexPath = path.join(repo, "ci", "contracts", "test_ci_composition.json");
   const raw = fs.readFileSync(indexPath, "utf8");
@@ -29,7 +36,10 @@ test("test:ci composition file is well-formed and expands to unique node-test-on
 
   for (const item of index.items) {
     assert.ok(item && typeof item === "object" && !Array.isArray(item), "expected item object");
-    assert.ok(item.kind === "command" || item.kind === "manifest", `unexpected item.kind: ${String(item.kind)}`);
+    assert.ok(
+      item.kind === "command" || item.kind === "manifest" || item.kind === "npm_command",
+      `unexpected item.kind: ${String(item.kind)}`
+    );
 
     if (item.kind === "command") {
       assert.equal(typeof item.value, "string", "expected command item value string");
@@ -37,6 +47,16 @@ test("test:ci composition file is well-formed and expands to unique node-test-on
       assert.equal(item.value, item.value.trim(), "expected trimmed command item value");
       assert.match(item.value, NODE_TEST_CMD_RE, "expected command item value to be node test/... .test.mjs");
       expanded.push(item.value);
+      continue;
+    }
+
+    if (item.kind === "npm_command") {
+      assert.equal(typeof item.value, "string", "expected npm_command item value string");
+      assert.ok(
+        ALLOWED_NPM_COMMANDS.has(item.value),
+        `expected npm_command item value to be allow-listed: ${String(item.value)}`
+      );
+      expanded.push(`npm run ${item.value}`);
       continue;
     }
 
