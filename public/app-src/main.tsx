@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
 import { AthleteHistoryPanel } from "./screens/athlete/AthleteHistoryPanel";
+import { AthleteSelfBodyMetricsPanel } from "./screens/athlete/AthleteSelfBodyMetricsPanel";
 import { AthleteSelfDeviceSyncPanel } from "./screens/athlete/AthleteSelfDeviceSyncPanel";
 import { AthleteSelfGoalsPanel } from "./screens/athlete/AthleteSelfGoalsPanel";
 import { AthleteSelfProgressInsightsPanel } from "./screens/athlete/AthleteSelfProgressInsightsPanel";
@@ -74,3 +75,4 @@ mount("athlete-self-weekly-checkins-root", <AthleteSelfWeeklyCheckinsPanel />);
 mount("athlete-self-progress-insights-root", <AthleteSelfProgressInsightsPanel />);
 mount("athlete-self-device-sync-root", <AthleteSelfDeviceSyncPanel />);
 mount("athlete-self-goals-root", <AthleteSelfGoalsPanel />);
+mount("athlete-self-body-metrics-root", <AthleteSelfBodyMetricsPanel />);

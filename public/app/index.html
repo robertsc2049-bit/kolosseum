@@ -534,57 +534,7 @@
             <div id="progressPhotoComparison" class="progress-photo-comparison" hidden></div>
           </div>
 
-          <div class="panel body-metrics-panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">Body metrics</p>
-                <h3>Body measurements</h3>
-              </div>
-            </div>
-
-            <form id="bodyMetricLogForm" class="athlete-detail-note-form">
-              <label class="field">
-                <span>Measurement</span>
-                <select id="bodyMetricTypeSelect">
-                  <option value="waist_circumference_cm">Waist (cm)</option>
-                  <option value="chest_circumference_cm">Chest (cm)</option>
-                  <option value="arm_circumference_cm">Arm (cm)</option>
-                  <option value="thigh_circumference_cm">Thigh (cm)</option>
-                  <option value="hip_circumference_cm">Hip (cm)</option>
-                  <option value="body_fat_percentage">Body fat (%)</option>
-                </select>
-              </label>
-
-              <label class="field">
-                <span>Value</span>
-                <input type="number" id="bodyMetricValueInput" step="0.1" required>
-              </label>
-
-              <label class="field">
-                <span>Date</span>
-                <input type="date" id="bodyMetricDateInput" required>
-              </label>
-
-              <label class="field">
-                <span>Note (optional)</span>
-                <input type="text" id="bodyMetricNoteInput" maxlength="280">
-              </label>
-
-              <div class="inline-controls">
-                <button class="button primary" type="submit">Log measurement</button>
-              </div>
-            </form>
-
-            <p
-              id="bodyMetricStatus"
-              class="dashboard-status"
-              role="status"
-              aria-live="polite"
-              hidden
-            ></p>
-
-            <div id="bodyMetricHistory" class="record-list"></div>
-          </div>
+          <div id="athlete-self-body-metrics-root"></div>
 
           <div class="panel nutrition-panel">
             <div class="panel-header">
