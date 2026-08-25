@@ -80,3 +80,29 @@ export async function loadAthleteCoachNotes(athleteUserId: string): Promise<Json
   const detail = response.detail && typeof response.detail === "object" ? (response.detail as JsonRecord) : {};
   return Array.isArray(detail.note_history) ? (detail.note_history as JsonRecord[]) : [];
 }
+
+export type OrgMessageThreadEntry = { thread: JsonRecord; messages: JsonRecord[] };
+
+// DEV NOTE: read-only mirror of an org-owner<->athlete thread - see
+// org_athlete_messaging_coach_visibility_surface.test.mjs. A coach can in
+// principle see threads across more than one shared org, so this reads a
+// thread list then fetches each thread's messages, same two-step shape as
+// legacy's refreshCoachAthleteOrgMessages.
+export async function loadAthleteOrgMessageThreads(athleteUserId: string): Promise<OrgMessageThreadEntry[]> {
+  const threadsResponse = await request(
+    "GET",
+    `/messages/coach/athletes/${encodeURIComponent(athleteUserId)}/org-messages/threads`
+  );
+  const threads = Array.isArray(threadsResponse.threads) ? (threadsResponse.threads as JsonRecord[]) : [];
+
+  return Promise.all(
+    threads.map(async (thread) => {
+      const messagesResponse = await request(
+        "GET",
+        `/messages/coach/org-messages/threads/${encodeURIComponent(String(thread.thread_id))}`
+      );
+      const messages = Array.isArray(messagesResponse.messages) ? (messagesResponse.messages as JsonRecord[]) : [];
+      return { thread, messages };
+    })
+  );
+}

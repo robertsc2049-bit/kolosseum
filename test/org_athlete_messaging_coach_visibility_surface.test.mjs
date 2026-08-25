@@ -10,8 +10,16 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const service = read("src/api/org_athlete_messaging_service.ts");
 const routes = read("src/api/messaging.routes.ts");
-const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
+
+// DEV NOTE: the coach's read-only mirror of this thread moved to React -
+// see public/app-src/screens/coach/AthleteOrgMessagesPanel.tsx,
+// useAthleteOrgMessages.ts and coachWorkspaceClient.ts's
+// loadAthleteOrgMessageThreads, plus AthleteOrgMessagesPanel.test.tsx for
+// its behavioral coverage.
+const orgMessagesPanel = read("public/app-src/screens/coach/AthleteOrgMessagesPanel.tsx");
+const orgMessagesHook = read("public/app-src/screens/coach/useAthleteOrgMessages.ts");
+const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
 
 test("the four coach-facing org-message routes exist on the messaging router", () => {
   for (const path_ of [
@@ -80,20 +88,22 @@ test("the coach viewer's attachment route base is /messages/coach/org-messages/a
   assert.match(service, /resolveOrgAthleteMessageAttachmentThumbnailForCoach/u);
 });
 
-test("the coach org-messages panel exists as a real, read-only DOM section - no send form, message bodies escaped before rendering", () => {
-  assert.match(indexHtml, /id="athleteDetailOrgMessageHistory"/u);
+test("the coach org-messages panel exists as a real, read-only React root - no send form, message bodies rendered as inert text", () => {
+  assert.match(indexHtml, /id="athlete-org-messages-root"/u);
   assert.doesNotMatch(indexHtml, /athleteDetailOrgMessage(?:Form|Text|SendButton)/u, "no send control should exist for this read-only panel");
+  assert.doesNotMatch(indexHtml, /id="athleteDetailOrgMessageHistory"/u, "the legacy mount point should be fully retired, not left as dead markup");
 
-  assert.match(appJs, /async function refreshCoachAthleteOrgMessages/u);
-  assert.match(appJs, /function renderCoachAthleteOrgMessages/u);
-  assert.match(appJs, /api\(\s*"GET",\s*`\/messages\/coach\/athletes\/\$\{encodeURIComponent\(athleteUserId\)\}\/org-messages\/threads`/u);
-  assert.match(appJs, /api\(\s*"GET",\s*`\/messages\/coach\/org-messages\/threads\/\$\{encodeURIComponent\(thread\.thread_id\)\}`/u);
-  assert.match(appJs, /escapeHtml\(entry\.thread\.org_name\)/u);
-  assert.match(appJs, /escapeHtml\(message\.body_text\)/u);
-  assert.doesNotMatch(appJs, /confirmSendCoachAthleteOrgMessage|sendCoachAthleteOrgMessage/u, "no send handler should exist for this read-only panel");
+  assert.match(coachWorkspaceClient, /export async function loadAthleteOrgMessageThreads/u);
+  assert.match(coachWorkspaceClient, /\/messages\/coach\/athletes\/\$\{encodeURIComponent\(athleteUserId\)\}\/org-messages\/threads/u);
+  assert.match(coachWorkspaceClient, /\/messages\/coach\/org-messages\/threads\/\$\{encodeURIComponent\(String\(thread\.thread_id\)\)\}/u);
+
+  assert.match(orgMessagesHook, /useAthleteOrgMessages/u);
+  assert.match(orgMessagesPanel, /AthleteOrgMessagesPanel/u);
+  assert.doesNotMatch(orgMessagesPanel, /<form|<input|<button/u, "no send control should exist for this read-only panel");
+  assert.doesNotMatch(orgMessagesPanel, /dangerouslySetInnerHTML/u, "message bodies must render as JSX text, not raw HTML");
 });
 
-test("the coach org-messages refresh is wired into openAthleteProfile and reset in closeAthleteProfile", () => {
-  assert.match(appJs, /refreshCoachAthleteOrgMessages\(\s*athleteUserId/u);
-  assert.match(appJs, /state\.coachAthleteOrgMessageThreads = \[\];/u);
+test("the coach org-messages panel is wired into the shared coach_athlete_detail open/close bridge", () => {
+  assert.match(orgMessagesHook, /kolosseum:coach-athlete-profile-opened/u);
+  assert.match(orgMessagesHook, /kolosseum:coach-athlete-profile-closed/u);
 });
