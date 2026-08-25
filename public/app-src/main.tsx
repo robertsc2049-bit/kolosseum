@@ -22,6 +22,7 @@ import { AthleteProgressInsightsPanel } from "./screens/coach/AthleteProgressIns
 import { AthleteProgressPhotosPanel } from "./screens/coach/AthleteProgressPhotosPanel";
 import { AthleteStrengthProfilePanel } from "./screens/coach/AthleteStrengthProfilePanel";
 import { AthleteWeeklyCheckinsPanel } from "./screens/coach/AthleteWeeklyCheckinsPanel";
+import { CoachOverviewEventsPanel } from "./screens/coach/CoachOverviewEventsPanel";
 
 // DEV NOTE: mounts once at script load into divs that always exist in
 // public/app/index.html (which the legacy router shows/hides unchanged -
@@ -53,3 +54,4 @@ mount("athlete-history-bodyweight-root", <AthleteBodyweightHistoryList />);
 mount("athlete-history-event-link-root", <AthleteEventLinkHistoryList />);
 mount("athlete-history-session-root", <AthleteSessionHistoryList />);
 mount("athlete-directory-root", <AthleteDirectoryPanel />);
+mount("coach-overview-events-root", <CoachOverviewEventsPanel />);
