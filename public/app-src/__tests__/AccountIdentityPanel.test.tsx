@@ -90,8 +90,13 @@ test("profile form loads prefilled with the account's current name and email, an
   });
 
   const nameInput = screen.getByLabelText("Display name") as HTMLInputElement;
-  assert.equal(nameInput.value, "Jordan Test");
-  assert.equal((screen.getByLabelText("Email") as HTMLInputElement).value, "jordan@example.com");
+  // ProfileForm prefills its controlled inputs from an effect that fires
+  // after the "Display name" label itself is already in the DOM, so waiting
+  // for the label alone can race the effect - wait for the value too.
+  await waitFor(() => {
+    assert.equal(nameInput.value, "Jordan Test");
+    assert.equal((screen.getByLabelText("Email") as HTMLInputElement).value, "jordan@example.com");
+  });
 
   await act(async () => {
     fireEvent.change(nameInput, { target: { value: "Jordan Updated" } });
@@ -225,7 +230,7 @@ test("a display name containing markup is rendered as inert text, never as HTML 
   });
 
   const nameInput = screen.getByLabelText("Display name") as HTMLInputElement;
-  assert.equal(nameInput.value, '<img src=x onerror="window.pwned=true">');
+  await waitFor(() => assert.equal(nameInput.value, '<img src=x onerror="window.pwned=true">'));
   assert.equal((globalThis as Record<string, unknown>).pwned, undefined);
   assert.equal(document.querySelectorAll("img").length, 0);
 

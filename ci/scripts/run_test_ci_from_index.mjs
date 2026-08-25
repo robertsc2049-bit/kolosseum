@@ -15,11 +15,12 @@ const npmCommand = isWindows ? "npm.cmd" : "npm";
 
 applyDefaultNodeTestReporterEnv();
 
-function runCommand(executable, args) {
+function runCommand(executable, args, options = {}) {
   const child = spawnSync(executable, args, {
     cwd: process.cwd(),
     stdio: "inherit",
-    env: process.env
+    env: process.env,
+    ...options
   });
 
   if (child.error) {
@@ -52,7 +53,11 @@ function run() {
 
     const npmRunMatch = NPM_RUN_CMD_RE.exec(command);
     if (npmRunMatch) {
-      if (!runCommand(npmCommand, ["run", npmRunMatch[1]])) return;
+      // Windows can't spawnSync a .cmd file directly without a shell
+      // (throws EINVAL) - shell:true is safe here since the only argument
+      // is npmRunMatch[1], already constrained to [A-Za-z0-9:_-]+ by the
+      // regex above.
+      if (!runCommand(npmCommand, ["run", npmRunMatch[1]], { shell: isWindows })) return;
       continue;
     }
 
