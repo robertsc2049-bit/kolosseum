@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
 import { AthleteHistoryPanel } from "./screens/athlete/AthleteHistoryPanel";
+import { AthleteSelfWeeklyCheckinsPanel } from "./screens/athlete/AthleteSelfWeeklyCheckinsPanel";
 import { AthleteTodayCreateSessionButton, AthleteTodayEventCard, AthleteTodaySessionCard } from "./screens/athlete/AthleteTodayPanel";
 import { AthleteDirectoryPanel } from "./screens/coach/AthleteDirectoryPanel";
 import {
@@ -66,3 +67,4 @@ mount("athlete-today-create-session-root", <AthleteTodayCreateSessionButton />);
 mount("athlete-today-session-root", <AthleteTodaySessionCard />);
 mount("athlete-today-event-root", <AthleteTodayEventCard />);
 mount("athlete-history-root", <AthleteHistoryPanel />);
+mount("athlete-self-weekly-checkins-root", <AthleteSelfWeeklyCheckinsPanel />);
