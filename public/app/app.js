@@ -418,7 +418,6 @@ const elements = {
   athleteDetailEventCount: document.getElementById("athleteDetailEventCount"),
   athleteDetailSessionCount: document.getElementById("athleteDetailSessionCount"),
   athleteDetailNoteCount: document.getElementById("athleteDetailNoteCount"),
-  athleteDetailSessionHistory: document.getElementById("athleteDetailSessionHistory"),
   athleteDetailNoteForm: document.getElementById("athleteDetailNoteForm"),
   athleteDetailNoteSessionId: document.getElementById("athleteDetailNoteSessionId"),
   athleteDetailNoteArtefactId: document.getElementById("athleteDetailNoteArtefactId"),
@@ -4674,74 +4673,6 @@ function athleteDetailFor(
     : null;
 }
 
-function athleteDetailEmpty(
-  heading,
-  detail
-) {
-  return `
-    <div class="empty-state compact-empty">
-      <h4>${escapeHtml(heading)}</h4>
-      <p>${escapeHtml(detail)}</p>
-    </div>
-  `;
-}
-
-function bindAthleteDetailActions() {
-  for (
-    const button of
-    elements.athleteDetailHistoryPanel
-      ?.querySelectorAll(
-        "[data-athlete-detail-action]"
-      ) ?? []
-  ) {
-    button.addEventListener(
-      "click",
-      async () => {
-        const action =
-          button.dataset
-            .athleteDetailAction;
-
-        if (action === "review") {
-          const athleteUserId =
-            state.selectedCoachAthleteId;
-
-          setView("review");
-          renderCoachSelectors();
-
-          elements.reviewAthlete.value =
-            athleteUserId;
-
-          await loadCoachReview();
-          return;
-        }
-
-        if (action === "note") {
-          elements
-            .athleteDetailNoteSessionId
-            .value =
-              button.dataset.sessionId ??
-              "";
-
-          elements
-            .athleteDetailNoteArtefactId
-            .value =
-              button.dataset.artefactId ??
-              "";
-
-          elements.athleteDetailNoteText
-            .value = "";
-
-          elements.athleteDetailNoteForm
-            .hidden = false;
-
-          elements.athleteDetailNoteText
-            .focus();
-        }
-      }
-    );
-  }
-}
-
 function renderAthleteDetail() {
   const athleteUserId =
     state.selectedCoachAthleteId;
@@ -4843,106 +4774,21 @@ function renderAthleteDetail() {
       String(notes.length);
 
   // NOTE: current-programme, current-event, and the assignment/strength/
-  // bodyweight/event-link history lists moved to React (see
+  // bodyweight/event-link/session history lists moved to React (see
   // public/app-src/screens/coach/AthleteHistoryPanels.tsx, mounted into
   // #athlete-history-current-programme-root,
   // #athlete-history-current-event-root, #athlete-history-assignment-root,
-  // #athlete-history-strength-root, #athlete-history-bodyweight-root and
-  // #athlete-history-event-link-root) - each independently fetches GET
-  // /coach-workspace/athlete-detail and reads out only its own field.
-  // `assignments`/`strengthProfiles`/`bodyweights`/`eventLinks` above are
-  // still used for the metric-card counts just above. Session history
-  // stays legacy - see AthleteHistoryPanels.tsx's DEV NOTE for why.
-
-  elements.athleteDetailSessionHistory
-    .innerHTML =
-      sessions.length
-        ? sessions
-            .map(
-              (session) => `
-                <article class="record-card">
-                  <div>
-                    <h4>Training session</h4>
-                    <p>
-                      ${escapeHtml(
-                        formatDate(
-                          session.updated_at
-                        )
-                      )}
-                      ·
-                      ${Number(
-                        session.runtime_event_count ??
-                        0
-                      )}
-                      recorded events
-                    </p>
-                    ${
-                      Array.isArray(session.skip_reasons) && session.skip_reasons.length
-                        ? `<p class="muted small">Skipped: ${session.skip_reasons.map((reason) => escapeHtml(titleCase(reason))).join(", ")}</p>`
-                        : ""
-                    }
-                    ${
-                      Array.isArray(session.substitutions) && session.substitutions.length
-                        ? `<p class="muted small">Substituted: ${session.substitutions.map((entry) => `${escapeHtml(titleCase(entry.exercise_id))} → ${escapeHtml(titleCase(entry.substituted_exercise_id))}`).join(", ")}</p>`
-                        : ""
-                    }
-                    ${
-                      Array.isArray(session.rpe_reports) && session.rpe_reports.length
-                        ? `<p class="muted small">RPE: ${session.rpe_reports.map((entry) => `${escapeHtml(titleCase(entry.exercise_id))} ${Number(entry.rpe_value)}`).join(", ")}</p>`
-                        : ""
-                    }
-                    ${
-                      session.split_return_decision
-                        ? `<p class="muted small">Return decision: ${escapeHtml(titleCase(session.split_return_decision))}</p>`
-                        : ""
-                    }
-                  </div>
-
-                  <div class="record-meta">
-                    <span class="badge neutral">
-                      ${escapeHtml(
-                        titleCase(
-                          session.session_status ??
-                          "recorded"
-                        )
-                      )}
-                    </span>
-
-                    ${session.pain_reported ? `<span class="badge partial">Pain reported</span>` : ""}
-                    ${session.split_entered ? `<span class="badge partial">Split session</span>` : ""}
-
-                    <button
-                      class="button secondary small-button"
-                      type="button"
-                      data-athlete-detail-action="review"
-                    >
-                      Review
-                    </button>
-
-                    <button
-                      class="button secondary small-button"
-                      type="button"
-                      data-athlete-detail-action="note"
-                      data-session-id="${escapeHtml(
-                        session.session_id ??
-                        ""
-                      )}"
-                      data-artefact-id="${escapeHtml(
-                        session.artefact_id ??
-                        ""
-                      )}"
-                    >
-                      Add note
-                    </button>
-                  </div>
-                </article>
-              `
-            )
-            .join("")
-        : athleteDetailEmpty(
-            "No session history",
-            "Coach-managed session records will appear here after execution begins."
-          );
+  // #athlete-history-strength-root, #athlete-history-bodyweight-root,
+  // #athlete-history-event-link-root and #athlete-history-session-root) -
+  // each independently fetches GET /coach-workspace/athlete-detail and
+  // reads out only its own field(s). `assignments`/`strengthProfiles`/
+  // `bodyweights`/`eventLinks`/`sessions`/`notes` above are still used for
+  // the metric-card counts and the status line just below. Session
+  // history's "Review"/"Add note" actions now dispatch
+  // kolosseum:open-session-review/kolosseum:open-session-note-form - see
+  // this file's listeners for those events for how they replicate the
+  // legacy bindAthleteDetailActions() behaviour those buttons used to
+  // trigger.
 
   // NOTE: the coach-notes history list moved to React
   // (AthleteCoachNotesPanel.tsx, mounted into #athlete-coach-notes-root) -
@@ -4954,8 +4800,6 @@ function renderAthleteDetail() {
   elements.athleteDetailStatus
     .textContent =
       `Loaded ${assignments.length} assignment, ${sessions.length} session and ${notes.length} note record${notes.length === 1 ? "" : "s"} for ${athlete.displayName}.`;
-
-  bindAthleteDetailActions();
 }
 
 async function refreshAthleteDetail(
@@ -15849,6 +15693,38 @@ document.addEventListener(
       renderCoachWorkspace();
       renderAssignmentRequirements();
     }).catch(handleError);
+  }
+);
+
+// DEV NOTE: React owns the session-history list now (see
+// public/app-src/screens/coach/AthleteHistoryPanels.tsx's
+// AthleteSessionHistoryList) - its "Review"/"Add note" buttons reach into
+// legacy-only state/DOM (the Review view's athlete selector,
+// elements.athleteDetailNoteForm), so they dispatch these two events
+// instead of the data-athlete-detail-action delegation
+// bindAthleteDetailActions() used to provide. Behaviour is otherwise
+// unchanged from what that removed function did.
+document.addEventListener(
+  "kolosseum:open-session-review",
+  (event) => {
+    const athleteUserId = event.detail?.athlete_user_id;
+    if (!athleteUserId) return;
+
+    setView("review");
+    renderCoachSelectors();
+    elements.reviewAthlete.value = athleteUserId;
+    loadCoachReview().catch(handleError);
+  }
+);
+
+document.addEventListener(
+  "kolosseum:open-session-note-form",
+  (event) => {
+    elements.athleteDetailNoteSessionId.value = event.detail?.session_id ?? "";
+    elements.athleteDetailNoteArtefactId.value = event.detail?.artefact_id ?? "";
+    elements.athleteDetailNoteText.value = "";
+    elements.athleteDetailNoteForm.hidden = false;
+    elements.athleteDetailNoteText.focus();
   }
 );
 

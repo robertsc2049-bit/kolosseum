@@ -8,6 +8,7 @@ import {
   AthleteCurrentEventCard,
   AthleteCurrentProgrammeCard,
   AthleteEventLinkHistoryList,
+  AthleteSessionHistoryList,
   AthleteStrengthHistoryList
 } from "./screens/coach/AthleteHistoryPanels";
 import { AthleteBodyMetricsPanel } from "./screens/coach/AthleteBodyMetricsPanel";
@@ -49,3 +50,4 @@ mount("athlete-history-assignment-root", <AthleteAssignmentHistoryList />);
 mount("athlete-history-strength-root", <AthleteStrengthHistoryList />);
 mount("athlete-history-bodyweight-root", <AthleteBodyweightHistoryList />);
 mount("athlete-history-event-link-root", <AthleteEventLinkHistoryList />);
+mount("athlete-history-session-root", <AthleteSessionHistoryList />);

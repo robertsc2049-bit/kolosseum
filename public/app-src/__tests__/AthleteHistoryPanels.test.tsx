@@ -1,11 +1,9 @@
 // DEV NOTE: coach_athlete_detail current-programme/current-event and
-// assignment/strength/bodyweight/event-link history behavioral proof -
-// replaces the source-text regex checks
+// assignment/strength/bodyweight/event-link/session history behavioral
+// proof - replaces the source-text regex checks
 // test/full_ui_04b_coach_athlete_detail.test.mjs previously ran against
 // the now-removed app.js rendering blocks (inside renderAthleteDetail) for
-// these six capabilities. Session history stays legacy - see
-// AthleteHistoryPanels.tsx's DEV NOTE for why - and is still covered by
-// that same test file's other assertions.
+// these seven capabilities.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -18,6 +16,7 @@ import {
   AthleteCurrentEventCard,
   AthleteCurrentProgrammeCard,
   AthleteEventLinkHistoryList,
+  AthleteSessionHistoryList,
   AthleteStrengthHistoryList
 } from "../screens/coach/AthleteHistoryPanels";
 
@@ -244,6 +243,109 @@ test("an activity id and template id containing markup are rendered as inert tex
   openProfile();
 
   await waitFor(() => screen.getByText(/img src=x/u));
+
+  assert.equal((globalThis as Record<string, unknown>).pwned, undefined);
+  assert.equal(document.querySelectorAll("img").length, 0);
+});
+
+test("shows a factual empty state when the athlete has no session history", async () => {
+  installStandardMocks({ session_history: [] });
+  render(<AthleteSessionHistoryList />);
+  openProfile();
+  await waitFor(() => screen.getByText("No session history"));
+});
+
+test("displays a session with its recorded event count and every bespoke fact - skip reasons, substitutions, RPE reports and split/return decision", async () => {
+  installStandardMocks({
+    session_history: [
+      {
+        session_id: "session_1",
+        artefact_id: "artefact_1",
+        updated_at: "2026-08-01T00:00:00.000Z",
+        runtime_event_count: 12,
+        session_status: "completed",
+        pain_reported: true,
+        split_entered: true,
+        skip_reasons: ["equipment_unavailable"],
+        substitutions: [{ exercise_id: "back_squat", substituted_exercise_id: "leg_press" }],
+        rpe_reports: [{ exercise_id: "bench_press", rpe_value: 8 }],
+        split_return_decision: "continue_remaining_work"
+      }
+    ]
+  });
+  render(<AthleteSessionHistoryList />);
+  openProfile();
+
+  await waitFor(() => screen.getByText("Training session"));
+
+  assert.match(document.body.textContent ?? "", /12\s*recorded events/u);
+  assert.ok(screen.getByText("Completed"));
+  assert.ok(screen.getByText("Pain reported"));
+  assert.ok(screen.getByText("Split session"));
+  assert.match(document.body.textContent ?? "", /Skipped: Equipment Unavailable/u);
+  assert.match(document.body.textContent ?? "", /Substituted: Back Squat → Leg Press/u);
+  assert.match(document.body.textContent ?? "", /RPE: Bench Press 8/u);
+  assert.match(document.body.textContent ?? "", /Return decision: Continue Remaining Work/u);
+  assert.ok(screen.getByText("Review"));
+  assert.ok(screen.getByText("Add note"));
+});
+
+test("the Review button dispatches kolosseum:open-session-review with the open athlete's id", async () => {
+  installStandardMocks({
+    session_history: [{ session_id: "session_1", artefact_id: "artefact_1", updated_at: "2026-08-01T00:00:00.000Z", runtime_event_count: 1 }]
+  });
+  render(<AthleteSessionHistoryList />);
+  openProfile();
+  await waitFor(() => screen.getByText("Review"));
+
+  let received: unknown;
+  document.addEventListener("kolosseum:open-session-review", (event) => {
+    received = (event as CustomEvent).detail;
+  });
+
+  act(() => {
+    screen.getByText("Review").click();
+  });
+
+  assert.deepEqual(received, { athlete_user_id: "athlete_test123" });
+});
+
+test("the Add note button dispatches kolosseum:open-session-note-form with the session and artefact id", async () => {
+  installStandardMocks({
+    session_history: [{ session_id: "session_1", artefact_id: "artefact_1", updated_at: "2026-08-01T00:00:00.000Z", runtime_event_count: 1 }]
+  });
+  render(<AthleteSessionHistoryList />);
+  openProfile();
+  await waitFor(() => screen.getByText("Add note"));
+
+  let received: unknown;
+  document.addEventListener("kolosseum:open-session-note-form", (event) => {
+    received = (event as CustomEvent).detail;
+  });
+
+  act(() => {
+    screen.getByText("Add note").click();
+  });
+
+  assert.deepEqual(received, { session_id: "session_1", artefact_id: "artefact_1" });
+});
+
+test("a skip reason containing markup is rendered as inert text, never as HTML", async () => {
+  installStandardMocks({
+    session_history: [
+      {
+        session_id: "session_1",
+        artefact_id: "artefact_1",
+        updated_at: "2026-08-01T00:00:00.000Z",
+        runtime_event_count: 1,
+        skip_reasons: ['<img src=x onerror="window.pwned=true">']
+      }
+    ]
+  });
+  render(<AthleteSessionHistoryList />);
+  openProfile();
+
+  await waitFor(() => screen.getByText(/img src=x/iu));
 
   assert.equal((globalThis as Record<string, unknown>).pwned, undefined);
   assert.equal(document.querySelectorAll("img").length, 0);
