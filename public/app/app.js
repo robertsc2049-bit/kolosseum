@@ -237,13 +237,6 @@ const elements = {
   progressPhotoStatus: document.getElementById("progressPhotoStatus"),
   progressPhotoGrid: document.getElementById("progressPhotoGrid"),
   progressPhotoComparison: document.getElementById("progressPhotoComparison"),
-  bodyMetricLogForm: document.getElementById("bodyMetricLogForm"),
-  bodyMetricTypeSelect: document.getElementById("bodyMetricTypeSelect"),
-  bodyMetricValueInput: document.getElementById("bodyMetricValueInput"),
-  bodyMetricDateInput: document.getElementById("bodyMetricDateInput"),
-  bodyMetricNoteInput: document.getElementById("bodyMetricNoteInput"),
-  bodyMetricStatus: document.getElementById("bodyMetricStatus"),
-  bodyMetricHistory: document.getElementById("bodyMetricHistory"),
   nutritionForm: document.getElementById("nutritionForm"),
   nutritionDateInput: document.getElementById("nutritionDateInput"),
   nutritionCaloriesInput: document.getElementById("nutritionCaloriesInput"),
@@ -4440,45 +4433,6 @@ const METRIC_UNIT_SUFFIX = {
   fat_g: "g"
 };
 
-function bodyMetricSourceBadge(entry, options = {}) {
-  if (entry.source === "coach_entered") return "Coach";
-  if (entry.source === "device_synced") return "Device";
-  return options.viewerIsCoach ? "Athlete" : "You";
-}
-
-function renderBodyMetricEntry(entry, options = {}) {
-  const label = BODY_METRIC_TYPE_LABELS[entry.metric_type] || entry.metric_type;
-  const unitSuffix = entry.unit === "percent" ? "%" : ` ${escapeHtml(entry.unit)}`;
-  const sourceBadge = bodyMetricSourceBadge(entry, options);
-  const note = entry.note ? `<p>${escapeHtml(entry.note)}</p>` : "";
-
-  return `
-    <article class="record-card">
-      <div class="record-meta">
-        <span class="badge neutral">${escapeHtml(sourceBadge)}</span>
-        <span class="muted small">${escapeHtml(formatDate(entry.effective_date))}</span>
-      </div>
-      <strong>${escapeHtml(label)}: ${escapeHtml(String(entry.value))}${unitSuffix}</strong>
-      ${note}
-    </article>
-  `;
-}
-
-function renderBodyMetricList(container, entries, options = {}) {
-  if (!container) return;
-
-  if (entries.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state compact-empty">
-        <p>No body-metric entries yet.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = entries.map((entry) => renderBodyMetricEntry(entry, options)).join("");
-}
-
 function groupNutritionEntriesByDate(entries) {
   const byDate = new Map();
   for (const entry of entries) {
@@ -4527,49 +4481,23 @@ function renderNutritionSummary(container, entries) {
   container.innerHTML = days.map(renderNutritionDayCard).join("");
 }
 
+// DEV NOTE: the athlete's own body-measurement log form and history list
+// moved to React (AthleteSelfBodyMetricsPanel.tsx into
+// #athlete-self-body-metrics-root - see useAthleteBodyMetricsSelf.ts, which
+// independently fetches GET /body-metrics). This function still runs
+// GET /body-metrics itself, purely to keep feeding the not-yet-migrated
+// Nutrition panel below, which reads the same response's nutrition-flavored
+// entries out of state.bodyMetricEntries.
 async function refreshBodyMetrics(options = {}) {
   if (state.role !== "athlete") return;
 
   try {
     const response = await api("GET", "/body-metrics");
     state.bodyMetricEntries = Array.isArray(response.entries) ? response.entries : [];
-    renderBodyMetricList(
-      elements.bodyMetricHistory,
-      state.bodyMetricEntries.filter((entry) => !NUTRITION_METRIC_TYPES.includes(entry.metric_type))
-    );
     renderNutritionSummary(elements.nutritionSummary, state.bodyMetricEntries);
   }
   catch (error) {
     if (!options.quiet) throw error;
-  }
-}
-
-async function logBodyMetricEntry() {
-  const metricType = elements.bodyMetricTypeSelect?.value;
-  const value = Number(elements.bodyMetricValueInput?.value);
-  const effectiveDate = elements.bodyMetricDateInput?.value;
-  const note = elements.bodyMetricNoteInput?.value || undefined;
-
-  if (!metricType || !Number.isFinite(value) || !effectiveDate) {
-    elements.bodyMetricStatus.hidden = false;
-    elements.bodyMetricStatus.textContent = "Choose a measurement, value and date.";
-    return;
-  }
-
-  showBusy("Logging measurement…");
-  try {
-    await api("POST", "/body-metrics", { metric_type: metricType, value, effective_date: effectiveDate, note });
-    elements.bodyMetricLogForm.reset();
-    elements.bodyMetricStatus.hidden = true;
-    await refreshBodyMetrics({ quiet: true });
-    showNotice("Body-metric entry logged.");
-  }
-  catch (error) {
-    elements.bodyMetricStatus.hidden = false;
-    elements.bodyMetricStatus.textContent = friendlyError(error.payload, error.status) || "Entry could not be logged.";
-  }
-  finally {
-    hideBusy();
   }
 }
 
@@ -13776,11 +13704,6 @@ elements.eventForm.addEventListener("submit", (event) => {
 elements.progressPhotoUploadForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   uploadProgressPhoto().catch(handleError);
-});
-
-elements.bodyMetricLogForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  logBodyMetricEntry().catch(handleError);
 });
 
 elements.nutritionForm?.addEventListener("submit", (event) => {
