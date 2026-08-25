@@ -83,14 +83,19 @@ function countdownLabel(eventDate: unknown, fromDate: string = todayDateOnly()):
   return weeks > 0 ? `${weeks}w ${remainder}d` : `${days} day${days === 1 ? "" : "s"}`;
 }
 
+// DEV NOTE: click the legacy nav button before setting the hash, not
+// after - clicking it also runs legacy's reverse-sync
+// (syncRouteFromElement), which serializes the *entityless* route for
+// the view being switched to and would otherwise clobber a
+// template_id/event_id-bearing hash set beforehand.
 function openProgramme(templateId: string) {
-  if (templateId) location.hash = `#/coach/programmes/${encodeURIComponent(templateId)}`;
   (document.querySelector('[data-view="templates"]') as HTMLElement | null)?.click();
+  if (templateId) location.hash = `#/coach/programmes/${encodeURIComponent(templateId)}`;
 }
 
 function openEvent(eventId: string) {
-  if (eventId) location.hash = `#/coach/events/${encodeURIComponent(eventId)}`;
   (document.querySelector('[data-view="events"]') as HTMLElement | null)?.click();
+  if (eventId) location.hash = `#/coach/events/${encodeURIComponent(eventId)}`;
 }
 
 function exerciseDisplayName(exerciseId: unknown, exercises: JsonRecord[]): string {
