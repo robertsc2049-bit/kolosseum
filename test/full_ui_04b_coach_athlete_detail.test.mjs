@@ -54,6 +54,16 @@ const schema =
 const athleteCoachNotesPanel =
   read("public/app-src/screens/coach/AthleteCoachNotesPanel.tsx");
 
+// DEV NOTE: current-programme, current-event, and the assignment/
+// strength/bodyweight/event-link history lists also moved to React - see
+// public/app-src/screens/coach/AthleteHistoryPanels.tsx,
+// useAthleteHistory.ts and their __tests__ file. Session history (with its
+// bespoke pain/skip/substitution/RPE/split-return rendering, covered
+// below) stays legacy, as does the metric-card counts, status line and
+// overall panel hide/show.
+const athleteHistoryPanels =
+  read("public/app-src/screens/coach/AthleteHistoryPanels.tsx");
+
 test(
   "FULL-UI-04B exposes the complete athlete-detail surface",
   () => {
@@ -61,12 +71,6 @@ test(
       "athleteDetailHistoryPanel",
       "athleteDetailRefreshButton",
       "athleteDetailStatus",
-      "athleteDetailCurrentProgramme",
-      "athleteDetailCurrentEvent",
-      "athleteDetailAssignmentHistory",
-      "athleteDetailStrengthHistory",
-      "athleteDetailBodyweightHistory",
-      "athleteDetailEventHistory",
       "athleteDetailSessionHistory",
       "athleteDetailNoteForm"
     ]) {
@@ -79,8 +83,30 @@ test(
       );
     }
 
-    assert.match(html, /id="athlete-coach-notes-root"/u);
+    for (const id of [
+      "athlete-coach-notes-root",
+      "athlete-history-current-programme-root",
+      "athlete-history-current-event-root",
+      "athlete-history-assignment-root",
+      "athlete-history-strength-root",
+      "athlete-history-bodyweight-root",
+      "athlete-history-event-link-root"
+    ]) {
+      assert.match(
+        html,
+        new RegExp(`id="${id}"`, "u")
+      );
+    }
+
+    assert.doesNotMatch(html, /id="athleteDetailCurrentProgramme"/u);
+    assert.doesNotMatch(html, /id="athleteDetailCurrentEvent"/u);
+    assert.doesNotMatch(html, /id="athleteDetailAssignmentHistory"/u);
+    assert.doesNotMatch(html, /id="athleteDetailStrengthHistory"/u);
+    assert.doesNotMatch(html, /id="athleteDetailBodyweightHistory"/u);
+    assert.doesNotMatch(html, /id="athleteDetailEventHistory"/u);
+
     assert.match(athleteCoachNotesPanel, /useAthleteCoachNotes/u);
+    assert.match(athleteHistoryPanels, /useAthleteHistory/u);
   }
 );
 
@@ -152,15 +178,17 @@ test(
     // service has derived, persisted and returned event_link_history since
     // FULL-UI-09C, but until now nothing in the UI ever read it - every
     // sibling history array (assignments, strength, bodyweight, sessions,
-    // notes) had a renderer and a container, and this one had neither.
+    // notes) had a renderer and a container, and this one had neither. The
+    // renderer/container now live in AthleteHistoryPanels.tsx (see that
+    // file's DEV NOTE); the count badge stays legacy.
     assert.match(
-      application,
-      /detail\.event_link_history/u
+      athleteHistoryPanels,
+      /event_link_history/u
     );
 
     assert.match(
-      application,
-      /elements\.athleteDetailEventHistory/u
+      athleteHistoryPanels,
+      /AthleteEventLinkHistoryList/u
     );
 
     assert.match(
@@ -305,8 +333,6 @@ test(
       "refreshAthleteDetail",
       "renderAthleteDetail",
       "recordAthleteDetailNote",
-      'data-athlete-detail-action="programme"',
-      'data-athlete-detail-action="event"',
       'data-athlete-detail-action="review"',
       'data-athlete-detail-action="note"'
     ]) {
@@ -321,6 +347,35 @@ test(
         )
       );
     }
+
+    // "Open programme"/"Open event" moved to React (current-programme/
+    // current-event cards and the assignment-history list's "Open"
+    // button) - they navigate the same way legacy's
+    // bindAthleteDetailActions() used to (set location.hash, then click
+    // the legacy nav button for that view), just without the
+    // data-athlete-detail-action delegation legacy used, since these
+    // buttons now live in a React-owned root bindAthleteDetailActions()
+    // no longer needs to reach into.
+    assert.doesNotMatch(
+      application,
+      /data-athlete-detail-action="programme"|data-athlete-detail-action="event"/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /#\/coach\/programmes\//u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /#\/coach\/events\//u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /data-view="templates"/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /data-view="events"/u
+    );
 
     assert.match(
       application,
