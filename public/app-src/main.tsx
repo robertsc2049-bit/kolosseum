@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
 import { AthleteBodyMetricsPanel } from "./screens/coach/AthleteBodyMetricsPanel";
+import { AthleteCoachNotesPanel } from "./screens/coach/AthleteCoachNotesPanel";
 import { AthleteDeviceSyncPanel } from "./screens/coach/AthleteDeviceSyncPanel";
 import { AthleteGoalsPanel } from "./screens/coach/AthleteGoalsPanel";
 import { AthleteNutritionPanel } from "./screens/coach/AthleteNutritionPanel";
@@ -31,3 +32,4 @@ mount("athlete-device-sync-root", <AthleteDeviceSyncPanel />);
 mount("athlete-body-metrics-root", <AthleteBodyMetricsPanel />);
 mount("athlete-nutrition-root", <AthleteNutritionPanel />);
 mount("athlete-progress-photos-root", <AthleteProgressPhotosPanel />);
+mount("athlete-coach-notes-root", <AthleteCoachNotesPanel />);

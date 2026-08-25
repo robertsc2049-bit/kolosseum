@@ -426,7 +426,6 @@ const elements = {
   athleteDetailBodyweightHistory: document.getElementById("athleteDetailBodyweightHistory"),
   athleteDetailEventHistory: document.getElementById("athleteDetailEventHistory"),
   athleteDetailSessionHistory: document.getElementById("athleteDetailSessionHistory"),
-  athleteDetailNoteHistory: document.getElementById("athleteDetailNoteHistory"),
   athleteDetailNoteForm: document.getElementById("athleteDetailNoteForm"),
   athleteDetailNoteSessionId: document.getElementById("athleteDetailNoteSessionId"),
   athleteDetailNoteArtefactId: document.getElementById("athleteDetailNoteArtefactId"),
@@ -5464,52 +5463,12 @@ function renderAthleteDetail() {
             "Coach-managed session records will appear here after execution begins."
           );
 
-  elements.athleteDetailNoteHistory
-    .innerHTML =
-      notes.length
-        ? notes
-            .map(
-              (note) => `
-                <article class="record-card">
-                  <div>
-                    <h4>
-                      ${escapeHtml(
-                        note.visibility ===
-                          "athlete_visible"
-                          ? "Athlete-visible note"
-                          : "Coach-only note"
-                      )}
-                    </h4>
-
-                    <p>${escapeHtml(
-                      note.note_text ??
-                      ""
-                    )}</p>
-
-                    <p class="muted small">
-                      Session:
-                      ${escapeHtml(
-                        note.session_id ??
-                        ""
-                      )}
-                    </p>
-                  </div>
-
-                  <span class="badge neutral">
-                    ${escapeHtml(
-                      formatDate(
-                        note.created_at
-                      )
-                    )}
-                  </span>
-                </article>
-              `
-            )
-            .join("")
-        : athleteDetailEmpty(
-            "No coach notes",
-            "Non-binding notes recorded against sessions will appear here."
-          );
+  // NOTE: the coach-notes history list moved to React
+  // (AthleteCoachNotesPanel.tsx, mounted into #athlete-coach-notes-root) -
+  // it independently fetches GET /coach-workspace/athlete-detail and reads
+  // out only note_history. `notes` (from detail.note_history above) is
+  // still used for the status line's count just below. Note *creation*
+  // stays legacy - see AthleteCoachNotesPanel.tsx's DEV NOTE for why.
 
   elements.athleteDetailStatus
     .textContent =

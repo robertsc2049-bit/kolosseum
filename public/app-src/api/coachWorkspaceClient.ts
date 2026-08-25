@@ -64,3 +64,19 @@ export async function loadAthleteProgressPhotos(athleteUserId: string): Promise<
   const response = await request("GET", `/progress-photos/coach/${encodeURIComponent(athleteUserId)}`);
   return Array.isArray(response.photos) ? (response.photos as JsonRecord[]) : [];
 }
+
+// DEV NOTE: note_history is one field of the same composite
+// /coach-workspace/athlete-detail response that also carries assignment/
+// strength/bodyweight/event/session history - those stay legacy (rendered
+// by app.js's renderAthleteDetail), so this fetches the same endpoint
+// independently and reads out only note_history. See
+// AthleteCoachNotesPanel.tsx's DEV NOTE for why note *creation* stays
+// legacy too.
+export async function loadAthleteCoachNotes(athleteUserId: string): Promise<JsonRecord[]> {
+  const response = await request(
+    "GET",
+    `/coach-workspace/athlete-detail?athlete_user_id=${encodeURIComponent(athleteUserId)}`
+  );
+  const detail = response.detail && typeof response.detail === "object" ? (response.detail as JsonRecord) : {};
+  return Array.isArray(detail.note_history) ? (detail.note_history as JsonRecord[]) : [];
+}

@@ -46,6 +46,14 @@ const coachNoteWriteRoute =
 const schema =
   read("schema.sql");
 
+// DEV NOTE: the coach-notes history list moved to React - see
+// public/app-src/screens/coach/AthleteCoachNotesPanel.tsx and its
+// __tests__ file for its behavioral coverage. Note *creation*
+// (recordAthleteDetailNote, #athleteDetailNoteForm) stays legacy - see
+// that component's own DEV NOTE for why.
+const athleteCoachNotesPanel =
+  read("public/app-src/screens/coach/AthleteCoachNotesPanel.tsx");
+
 test(
   "FULL-UI-04B exposes the complete athlete-detail surface",
   () => {
@@ -60,7 +68,6 @@ test(
       "athleteDetailBodyweightHistory",
       "athleteDetailEventHistory",
       "athleteDetailSessionHistory",
-      "athleteDetailNoteHistory",
       "athleteDetailNoteForm"
     ]) {
       assert.match(
@@ -71,6 +78,9 @@ test(
         )
       );
     }
+
+    assert.match(html, /id="athlete-coach-notes-root"/u);
+    assert.match(athleteCoachNotesPanel, /useAthleteCoachNotes/u);
   }
 );
 
