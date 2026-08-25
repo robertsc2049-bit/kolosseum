@@ -98,7 +98,16 @@ async function openPanel(profile: Record<string, unknown>, extraHandlers: Record
     );
   });
 
-  await waitFor(() => screen.getByText("Save athlete profile"));
+  // NOTE: "Save athlete profile" renders as soon as `profile` is set, but
+  // AthleteStrengthProfilePanel's settings/benchmarks are populated by a
+  // useEffect keyed on `profile` that hasn't necessarily flushed yet (same
+  // race as ProfileForm.tsx's prefill effect) - wait for a profile-derived
+  // field's actual value, not just the button's existence, so callers can
+  // rely on benchmark rows already being rendered.
+  await waitFor(() => {
+    screen.getByText("Save athlete profile");
+    assert.equal((screen.getByLabelText("Bodyweight") as HTMLInputElement).value, "82");
+  });
 
   return mock;
 }
