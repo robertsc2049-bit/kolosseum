@@ -70,6 +70,20 @@ test("displays relationship counts and a roster card for an accepted athlete", a
   assert.deepEqual(values, ["1", "0", "0", "0"]);
 });
 
+test("falls back to Powerlifting when the relationship record's activity_id is null, matching the real /coach-workspace/relationships response shape", async () => {
+  installMocks({
+    relationships: [
+      { athlete_user_id: "athlete_1", display_name: "Jordan Lee", email: "jordan@example.com", activity_id: null, relationship_state: "accepted" }
+    ]
+  });
+
+  render(<AthleteDirectoryPanel />);
+
+  await waitFor(() => screen.getByText("Jordan Lee"));
+  const card = within(screen.getByText("Jordan Lee").closest("article") as HTMLElement);
+  assert.ok(card.getByText("Powerlifting"));
+});
+
 test("resolves the programme label from the athlete's current assignment and templates", async () => {
   installMocks({
     relationships: [
