@@ -107,15 +107,14 @@ const targets = [
       {
         "path": "public/app/index.html",
         "all": [
-          "athleteDirectorySearch",
-          "athleteRelationshipFilter"
+          "athlete-directory-root"
         ]
       },
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/AthleteDirectoryPanel.tsx",
         "all": [
-          "athleteDirectorySearch",
-          "athleteRelationshipFilter"
+          "Search athletes",
+          "Relationship state"
         ]
       }
     ],
@@ -133,9 +132,9 @@ const targets = [
     "id": "athlete_assignment_history",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         "all": [
-          "athleteDetailAssignmentHistory"
+          "AthleteAssignmentHistoryList"
         ]
       },
       {
@@ -159,9 +158,9 @@ const targets = [
     "id": "athlete_bodyweight_history",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         "all": [
-          "athleteDetailBodyweightHistory"
+          "AthleteBodyweightHistoryList"
         ]
       },
       {

@@ -2,6 +2,7 @@ import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
+import { AthleteDirectoryPanel } from "./screens/coach/AthleteDirectoryPanel";
 import {
   AthleteAssignmentHistoryList,
   AthleteBodyweightHistoryList,
@@ -51,3 +52,4 @@ mount("athlete-history-strength-root", <AthleteStrengthHistoryList />);
 mount("athlete-history-bodyweight-root", <AthleteBodyweightHistoryList />);
 mount("athlete-history-event-link-root", <AthleteEventLinkHistoryList />);
 mount("athlete-history-session-root", <AthleteSessionHistoryList />);
+mount("athlete-directory-root", <AthleteDirectoryPanel />);

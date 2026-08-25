@@ -111,6 +111,31 @@ export async function loadCoachEventsList(coachUserId: string): Promise<JsonReco
   return Array.isArray(response.events) ? (response.events as JsonRecord[]) : [];
 }
 
+// DEV NOTE: the coach's athlete directory (roster) - see
+// useAthleteDirectory.ts and AthleteDirectoryPanel.tsx. Unlike the
+// athlete-detail sub-panels above, this is a whole-workspace read, not
+// scoped to one athlete.
+export async function loadCoachRelationships(coachUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/coach-workspace/relationships?coach_user_id=${encodeURIComponent(coachUserId)}`);
+  return Array.isArray(response.relationships) ? (response.relationships as JsonRecord[]) : [];
+}
+
+export async function loadCoachAssignments(coachUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/coach-workspace/assignments?coach_user_id=${encodeURIComponent(coachUserId)}`);
+  return Array.isArray(response.assignments) ? (response.assignments as JsonRecord[]) : [];
+}
+
+export async function loadCoachMessageUnreadCounts(): Promise<Record<string, number>> {
+  const response = await request("GET", "/messages/coach/threads");
+  const threads = Array.isArray(response.threads) ? (response.threads as JsonRecord[]) : [];
+  const byAthlete: Record<string, number> = {};
+  for (const thread of threads) {
+    const athleteUserId = String(thread.athlete_user_id ?? "");
+    if (athleteUserId) byAthlete[athleteUserId] = Number(thread.unread_count) || 0;
+  }
+  return byAthlete;
+}
+
 export type OrgMessageThreadEntry = { thread: JsonRecord; messages: JsonRecord[] };
 
 // DEV NOTE: read-only mirror of an org-owner<->athlete thread - see

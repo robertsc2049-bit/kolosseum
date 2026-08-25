@@ -38,8 +38,6 @@ const DEFAULT_STATE = Object.freeze({
   coachAthletes: [],
   coachRelationships: [],
   coachMessageUnreadByAthlete: {},
-  coachAthleteSearch: "",
-  coachAthleteRelationshipFilter: "all",
   coachAssignments: [],
   coachEvents: [],
   athleteEventLinks: {},
@@ -367,10 +365,6 @@ const elements = {
   coachBroadcastReadList: document.getElementById("coachBroadcastReadList"),
   refreshBroadcastReadStatusButton: document.getElementById("refreshBroadcastReadStatusButton"),
   eventsStatus: document.getElementById("eventsStatus"),
-  athleteDirectorySearch: document.getElementById("athleteDirectorySearch"),
-  athleteRelationshipFilter: document.getElementById("athleteRelationshipFilter"),
-  athleteRelationshipCounts: document.getElementById("athleteRelationshipCounts"),
-  athleteRoster: document.getElementById("athleteRoster"),
   athleteRelationshipDetailPanel: document.getElementById("athleteRelationshipDetailPanel"),
   athleteRelationshipDetailHeading: document.getElementById("athleteRelationshipDetailHeading"),
   athleteRelationshipDetailState: document.getElementById("athleteRelationshipDetailState"),
@@ -3398,12 +3392,6 @@ function relationshipEffectiveState(entry) {
   return stored;
 }
 
-function relationshipBadgeClass(value) {
-  if (value === "accepted") return "complete";
-  if (value === "invited") return "active";
-  return "neutral";
-}
-
 function relationshipEntryByAthleteId(athleteUserId) {
   const relationships =
     Array.isArray(state.coachRelationships)
@@ -3414,50 +3402,6 @@ function relationshipEntryByAthleteId(athleteUserId) {
     (entry) =>
       entry.userId === athleteUserId
   ) ?? null;
-}
-
-function relationshipAssignmentForAthlete(athleteUserId) {
-  return state.coachAssignments.find(
-    (assignment) =>
-      assignment.athleteUserId ===
-      athleteUserId
-  ) ?? null;
-}
-
-function relationshipProgrammeLabel(athleteUserId) {
-  const assignment =
-    relationshipAssignmentForAthlete(
-      athleteUserId
-    );
-
-  if (!assignment) {
-    return "No programme assigned";
-  }
-
-  const template =
-    state.coachTemplates.find(
-      (entry) =>
-        String(entry.template_id ?? "") ===
-        assignment.templateId
-    );
-
-  const name = String(
-    template?.template_name ??
-    assignment.record?.template_name ??
-    assignment.templateId ??
-    "Programme"
-  );
-
-  const version =
-    Number(
-      assignment.templateVersion ??
-      assignment.record?.template_version ??
-      0
-    );
-
-  return version > 0
-    ? `${name} · v${version}`
-    : name;
 }
 
 function relationshipDateValue(value) {
@@ -3567,206 +3511,18 @@ async function refreshCoachRelationships(
   }
 }
 
+// NOTE: the athlete directory (relationship counts, search/filter,
+// roster list) moved to React - see
+// public/app-src/screens/coach/AthleteDirectoryPanel.tsx, mounted into
+// #athlete-directory-root. It independently fetches its own data and
+// refetches whenever this event fires - every call site below that used
+// to call this function to re-render the directory after a relationship/
+// assignment/unread-count change still does, just to notify the React
+// panel instead of writing innerHTML directly.
 function renderCoachAthleteDirectory() {
-  if (
-    !elements.athleteRoster ||
-    !elements.athleteRelationshipCounts
-  ) {
-    return;
-  }
-
-  const relationships =
-    Array.isArray(state.coachRelationships)
-      ? state.coachRelationships
-      : [];
-
-  const records =
-    relationships.length > 0
-      ? relationships
-      : state.coachAthletes.map(
-          (entry) => ({
-            ...entry,
-            relationshipState:
-              entry.relationship
-                ?.relationship_state ??
-              "accepted",
-            relationshipExpired: false
-          })
-        );
-
-  const counts = {
-    accepted: 0,
-    invited: 0,
-    expired: 0,
-    revoked: 0
-  };
-
-  for (const record of records) {
-    const effectiveState =
-      relationshipEffectiveState(record);
-
-    if (
-      Object.prototype.hasOwnProperty.call(
-        counts,
-        effectiveState
-      )
-    ) {
-      counts[effectiveState] += 1;
-    }
-  }
-
-  elements.athleteRelationshipCounts.innerHTML =
-    [
-      ["Accepted", counts.accepted],
-      ["Pending", counts.invited],
-      ["Expired", counts.expired],
-      ["Revoked", counts.revoked]
-    ]
-      .map(
-        ([label, value]) => `
-          <article class="metric-card relationship-metric-card">
-            <span>${escapeHtml(label)}</span>
-            <strong>${Number(value)}</strong>
-          </article>
-        `
-      )
-      .join("");
-
-  const query =
-    String(
-      state.coachAthleteSearch ?? ""
-    )
-      .trim()
-      .toLowerCase();
-
-  const filter =
-    String(
-      state.coachAthleteRelationshipFilter ??
-      "all"
-    );
-
-  const visible =
-    records.filter((record) => {
-      const effectiveState =
-        relationshipEffectiveState(record);
-
-      if (
-        filter !== "all" &&
-        effectiveState !== filter
-      ) {
-        return false;
-      }
-
-      if (!query) {
-        return true;
-      }
-
-      return [
-        record.displayName,
-        record.email,
-        record.userId,
-        record.activityId
-      ].some(
-        (value) =>
-          String(value ?? "")
-            .toLowerCase()
-            .includes(query)
-      );
-    });
-
-  elements.athleteRoster.innerHTML =
-    visible.length
-      ? visible
-          .map((record) => {
-            const effectiveState =
-              relationshipEffectiveState(
-                record
-              );
-
-            const accepted =
-              effectiveState === "accepted";
-
-            const programme =
-              relationshipProgrammeLabel(
-                record.userId
-              );
-
-            return `
-              <article
-                class="record-card athlete-record-card relationship-directory-card"
-              >
-                <div>
-                  <p class="eyebrow">
-                    ${escapeHtml(
-                      titleCase(record.activityId)
-                    )}
-                  </p>
-
-                  <h3>
-                    ${escapeHtml(record.displayName)}
-                  </h3>
-
-                  <p>
-                    ${escapeHtml(
-                      record.email ||
-                      record.userId
-                    )}
-                  </p>
-
-                  <p class="muted small">
-                    ${escapeHtml(programme)}
-                  </p>
-                </div>
-
-                <div class="record-meta athlete-record-meta">
-                  <span class="badge ${relationshipBadgeClass(effectiveState)}">
-                    ${escapeHtml(
-                      titleCase(effectiveState)
-                    )}
-                  </span>
-
-                  ${coachMessageUnreadCountFor(record.userId) > 0 ? `
-                    <span class="badge active" title="Unread messages from this athlete">
-                      ${coachMessageUnreadCountFor(record.userId)} unread
-                    </span>
-                  ` : ""}
-
-                  <button
-                    class="button secondary small-button"
-                    type="button"
-                    data-relationship-action="audit"
-                    data-relationship-athlete-id="${escapeHtml(record.userId)}"
-                  >
-                    View audit
-                  </button>
-
-                  ${
-                    accepted
-                      ? `
-                        <button
-                          class="button secondary small-button open-athlete-profile"
-                          type="button"
-                          data-athlete-id="${escapeHtml(record.userId)}"
-                        >
-                          Open profile
-                        </button>
-                      `
-                      : ""
-                  }
-                </div>
-              </article>
-            `;
-          })
-          .join("")
-      : `
-        <div class="empty-state">
-          <div class="empty-icon">A</div>
-          <h3>No matching relationships</h3>
-          <p>Change the search or relationship-state filter.</p>
-        </div>
-      `;
-
-  bindCoachAthleteActions();
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:athlete-directory-changed")
+  );
 }
 
 function closeAthleteRelationshipDetail() {
@@ -15728,6 +15484,24 @@ document.addEventListener(
   }
 );
 
+// DEV NOTE: React owns the athlete directory now (see
+// public/app-src/screens/coach/AthleteDirectoryPanel.tsx) - its "Open
+// profile" button can't reuse bindCoachAthleteActions() (that function
+// binds listeners imperatively after each legacy render and never
+// re-runs against React output), so it dispatches this event instead.
+// Behaviour is otherwise identical to what that binder's click handler
+// used to do.
+document.addEventListener(
+  "kolosseum:open-athlete-profile-request",
+  (event) => {
+    const athleteUserId = event.detail?.athlete_user_id;
+    if (!athleteUserId) return;
+
+    setView("athletes");
+    openAthleteProfile(athleteUserId).catch(handleError);
+  }
+);
+
 elements.accountClosureForm.addEventListener(
   "submit",
   (event) => {
@@ -15845,30 +15619,6 @@ elements.refreshAthleteDirectoryButton
     }
   );
 
-elements.athleteDirectorySearch
-  ?.addEventListener(
-    "input",
-    () => {
-      state.coachAthleteSearch =
-        elements.athleteDirectorySearch.value;
-
-      saveState();
-      renderCoachAthleteDirectory();
-    }
-  );
-
-elements.athleteRelationshipFilter
-  ?.addEventListener(
-    "change",
-    () => {
-      state.coachAthleteRelationshipFilter =
-        elements.athleteRelationshipFilter.value;
-
-      saveState();
-      renderCoachAthleteDirectory();
-    }
-  );
-
 elements.closeAthleteRelationshipDetailButton
   ?.addEventListener(
     "click",
@@ -15918,17 +15668,6 @@ document.addEventListener(
     );
   }
 );
-
-if (elements.athleteDirectorySearch) {
-  elements.athleteDirectorySearch.value =
-    state.coachAthleteSearch ?? "";
-}
-
-if (elements.athleteRelationshipFilter) {
-  elements.athleteRelationshipFilter.value =
-    state.coachAthleteRelationshipFilter ??
-    "all";
-}
 
 syncConnectAthleteRelationshipForm();
 
