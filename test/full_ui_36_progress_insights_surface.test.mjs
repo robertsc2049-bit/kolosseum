@@ -18,12 +18,19 @@ const guard = read("ci/guards/full_ui_completion_guard.mjs");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 // DEV NOTE: the coach-side mirror moved to React - see
 // public/app-src/screens/coach/AthleteProgressInsightsPanel.tsx and its
-// __tests__ file for its behavioral coverage. The athlete's own view
-// (renderProgressInsightsSummary) stays legacy.
+// __tests__ file for its behavioral coverage.
 const athleteProgressInsightsPanel = read(
   "public/app-src/screens/coach/AthleteProgressInsightsPanel.tsx"
 );
 const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
+// DEV NOTE: the athlete's own view also moved to React - see
+// public/app-src/screens/athlete/AthleteSelfProgressInsightsPanel.tsx
+// (named "Self" to avoid colliding with the coach-mirror component above)
+// and its __tests__ file for its behavioral coverage.
+const athleteSelfProgressInsightsPanel = read(
+  "public/app-src/screens/athlete/AthleteSelfProgressInsightsPanel.tsx"
+);
+const useProgressInsightsHook = read("public/app-src/screens/athlete/useProgressInsights.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -87,20 +94,18 @@ test("the progress-insights route file is tracked by the FULL-UI completion guar
 });
 
 test("the athlete and coach progress-insights panels exist as real controls", () => {
-  assert.match(indexHtml, /id="progressInsightsAdherenceSummary"/u);
-  assert.match(indexHtml, /id="progressInsightsStrengthList"/u);
-  assert.match(indexHtml, /id="progressInsightsHabitList"/u);
-  assert.match(indexHtml, /id="progressInsightsBodyMetricList"/u);
+  assert.match(indexHtml, /id="athlete-self-progress-insights-root"/u);
   assert.match(indexHtml, /id="athlete-progress-insights-root"/u);
 
-  assert.match(appJs, /async function refreshProgressInsights/u);
-  assert.match(appJs, /function renderProgressInsightsSummary/u);
+  assert.match(athleteSelfProgressInsightsPanel, /useProgressInsights/u);
+  assert.match(athleteSelfProgressInsightsPanel, /session_adherence/u);
+  assert.match(useProgressInsightsHook, /loadProgressInsights/u);
   assert.match(athleteProgressInsightsPanel, /useAthleteProgressInsights/u);
   assert.match(athleteProgressInsightsPanel, /session_adherence/u);
 });
 
 test("progress insights are refreshed alongside the other history and athlete-detail panels", () => {
-  assert.match(appJs, /refreshProgressInsights\(\{ quiet: true \}\)\.catch\(\(\) => \{\}\)/u);
+  assert.match(useProgressInsightsHook, /kolosseum:history-changed/u);
   assert.match(coachWorkspaceClient, /progress-insights\/coach\//u);
 });
 
@@ -116,11 +121,11 @@ test("the FULL-UI-36 manifest area declares both functions as implemented with r
     ["progress_insights_athlete_summary", "progress_insights_coach_summary"]
   );
 
-  // NOTE: the coach function's direct_test points at its React component
-  // test now (see the DEV NOTE above) - the athlete function stays on this
-  // file since renderProgressInsightsSummary stays legacy.
+  // NOTE: both functions' direct_test now point at their respective React
+  // component tests (see the DEV NOTEs above) - renderProgressInsightsSummary
+  // is gone from app.js.
   const expectedDirectTest = {
-    progress_insights_athlete_summary: "test/full_ui_36_progress_insights_surface.test.mjs",
+    progress_insights_athlete_summary: "public/app-src/__tests__/AthleteSelfProgressInsightsPanel.test.tsx",
     progress_insights_coach_summary: "public/app-src/__tests__/AthleteProgressInsightsPanel.test.tsx"
   };
 
