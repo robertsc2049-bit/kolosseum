@@ -53,3 +53,13 @@ export const METRIC_UNIT_SUFFIX: Record<string, string> = {
   carbs_g: "g",
   fat_g: "g"
 };
+
+// DEV NOTE: ported verbatim from public/app/app.js's formatAttachmentSize()
+// - fixes the same "phantom field" bug class as #884: byte_size was always
+// computed and returned by the backend but never actually shown to the user.
+export function formatAttachmentSize(bytes: unknown): string {
+  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes <= 0) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}

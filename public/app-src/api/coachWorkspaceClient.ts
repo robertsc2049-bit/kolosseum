@@ -59,3 +59,8 @@ export function saveAthleteBodyMetric(
 ): Promise<JsonRecord> {
   return request("POST", `/body-metrics/coach/${encodeURIComponent(athleteUserId)}`, input, csrfToken);
 }
+
+export async function loadAthleteProgressPhotos(athleteUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/progress-photos/coach/${encodeURIComponent(athleteUserId)}`);
+  return Array.isArray(response.photos) ? (response.photos as JsonRecord[]) : [];
+}
