@@ -15,6 +15,7 @@ const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
+const historyPanel = read("public/app-src/screens/athlete/AthleteHistoryPanel.tsx");
 const guard = read("ci/guards/full_ui_completion_guard.mjs");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 
@@ -129,8 +130,13 @@ test("the athlete capture control, history section and coach queue exist as real
   assert.match(appJs, /async function refreshVideoFeedbackQueue/u);
   assert.match(appJs, /async function submitVideoFeedback/u);
   assert.match(appJs, /function renderVideoFeedbackQueueWorkspace/u);
-  assert.match(appJs, /function renderVideoSubmissionCard/u);
   assert.match(appJs, /escapeHtml\(submission\.exercise_label/u);
+});
+
+test("the athlete's own history-detail video feedback card is React-owned and renders inert text, never raw HTML", () => {
+  assert.doesNotMatch(historyPanel, /dangerouslySetInnerHTML/u);
+  assert.match(historyPanel, /function renderVideoSubmissionCard/u);
+  assert.match(historyPanel, /submission\.exercise_label/u);
 });
 
 test("the video feedback queue has a real search control filtering by athlete name or exercise, resolved from the already-loaded coach athlete directory - never a new query", () => {

@@ -4118,7 +4118,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4140,7 +4140,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4162,7 +4162,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4184,7 +4184,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4206,7 +4206,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4228,7 +4228,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4250,7 +4250,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4294,7 +4294,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
