@@ -2,6 +2,14 @@ import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
+import {
+  AthleteAssignmentHistoryList,
+  AthleteBodyweightHistoryList,
+  AthleteCurrentEventCard,
+  AthleteCurrentProgrammeCard,
+  AthleteEventLinkHistoryList,
+  AthleteStrengthHistoryList
+} from "./screens/coach/AthleteHistoryPanels";
 import { AthleteBodyMetricsPanel } from "./screens/coach/AthleteBodyMetricsPanel";
 import { AthleteCoachNotesPanel } from "./screens/coach/AthleteCoachNotesPanel";
 import { AthleteDeviceSyncPanel } from "./screens/coach/AthleteDeviceSyncPanel";
@@ -35,3 +43,9 @@ mount("athlete-nutrition-root", <AthleteNutritionPanel />);
 mount("athlete-progress-photos-root", <AthleteProgressPhotosPanel />);
 mount("athlete-coach-notes-root", <AthleteCoachNotesPanel />);
 mount("athlete-org-messages-root", <AthleteOrgMessagesPanel />);
+mount("athlete-history-current-programme-root", <AthleteCurrentProgrammeCard />);
+mount("athlete-history-current-event-root", <AthleteCurrentEventCard />);
+mount("athlete-history-assignment-root", <AthleteAssignmentHistoryList />);
+mount("athlete-history-strength-root", <AthleteStrengthHistoryList />);
+mount("athlete-history-bodyweight-root", <AthleteBodyweightHistoryList />);
+mount("athlete-history-event-link-root", <AthleteEventLinkHistoryList />);

@@ -81,6 +81,36 @@ export async function loadAthleteCoachNotes(athleteUserId: string): Promise<Json
   return Array.isArray(detail.note_history) ? (detail.note_history as JsonRecord[]) : [];
 }
 
+// DEV NOTE: current-programme/current-event summary cards and the
+// assignment/strength/bodyweight/event-link history lists (see
+// useAthleteHistory.ts) read the same composite response as
+// loadAthleteCoachNotes above, just different fields. templates/events are
+// fetched separately purely to resolve a friendly name for
+// current_assignment.template_id / current_event_link.event_id - both
+// legacy routes (unlike everything else in this file) resolve
+// coach_user_id from a client-supplied query param rather than the
+// session, since they predate the authenticatedCoach(request, ...)
+// convention (see src/api/templates.handlers.ts's getCoachTemplates). The
+// coach's own user_id is read from /account/detail (session-authenticated)
+// rather than reaching into legacy state.profile.coachUserId.
+export async function loadAthleteHistoryDetail(athleteUserId: string): Promise<JsonRecord> {
+  const response = await request(
+    "GET",
+    `/coach-workspace/athlete-detail?athlete_user_id=${encodeURIComponent(athleteUserId)}`
+  );
+  return response.detail && typeof response.detail === "object" ? (response.detail as JsonRecord) : {};
+}
+
+export async function loadCoachTemplates(coachUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/templates?coach_user_id=${encodeURIComponent(coachUserId)}`);
+  return Array.isArray(response.templates) ? (response.templates as JsonRecord[]) : [];
+}
+
+export async function loadCoachEventsList(coachUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/coach-workspace/events?coach_user_id=${encodeURIComponent(coachUserId)}`);
+  return Array.isArray(response.events) ? (response.events as JsonRecord[]) : [];
+}
+
 export type OrgMessageThreadEntry = { thread: JsonRecord; messages: JsonRecord[] };
 
 // DEV NOTE: read-only mirror of an org-owner<->athlete thread - see
