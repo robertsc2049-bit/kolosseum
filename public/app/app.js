@@ -451,8 +451,6 @@ const elements = {
   coachBodyMetricNoteInput: document.getElementById("coachBodyMetricNoteInput"),
   coachBodyMetricStatus: document.getElementById("coachBodyMetricStatus"),
   athleteDetailHabitList: document.getElementById("athleteDetailHabitList"),
-  athleteDetailDeviceConnectionList: document.getElementById("athleteDetailDeviceConnectionList"),
-  athleteDetailDeviceMetricHistory: document.getElementById("athleteDetailDeviceMetricHistory"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -6724,13 +6722,10 @@ const DEVICE_METRIC_TYPE_LABELS = {
   sleep_duration_minutes: "Sleep duration"
 };
 
-function renderDeviceConnectionCard(connection, options = {}) {
+function renderDeviceConnectionCard(connection) {
   const providerLabel = DEVICE_PROVIDER_LABELS[connection.provider] || connection.provider;
   const statusBadge = connection.connection_status === "active" ? "Connected" : "Disconnected";
-  // Connect/disconnect are athlete-self only (device_sync.routes.ts) - a
-  // coach viewing this same card in an athlete's read-only detail panel
-  // must never see a control for an action they have no route to take.
-  const disconnectButton = connection.connection_status === "active" && !options.viewerIsCoach
+  const disconnectButton = connection.connection_status === "active"
     ? `<button class="button ghost small" type="button" data-device-disconnect="${escapeHtml(connection.connection_id)}">Disconnect</button>`
     : "";
 
@@ -6746,7 +6741,7 @@ function renderDeviceConnectionCard(connection, options = {}) {
   `;
 }
 
-function renderDeviceConnectionList(container, connections, options = {}) {
+function renderDeviceConnectionList(container, connections) {
   if (!container) return;
 
   if (connections.length === 0) {
@@ -6758,7 +6753,7 @@ function renderDeviceConnectionList(container, connections, options = {}) {
     return;
   }
 
-  container.innerHTML = connections.map((connection) => renderDeviceConnectionCard(connection, options)).join("");
+  container.innerHTML = connections.map(renderDeviceConnectionCard).join("");
 }
 
 function renderDeviceMetricEntry(entry) {
@@ -6851,27 +6846,13 @@ async function disconnectDeviceSync(connectionId) {
   }
 }
 
-async function refreshCoachAthleteDeviceSync(athleteUserId, options = {}) {
-  if (!athleteUserId || !elements.athleteDetailDeviceConnectionList) return;
-
-  try {
-    const [connectionsResponse, metricsResponse] = await Promise.all([
-      api("GET", `/device-sync/connections/coach/${encodeURIComponent(athleteUserId)}`),
-      api("GET", `/device-sync/metrics/coach/${encodeURIComponent(athleteUserId)}`)
-    ]);
-    state.coachAthleteDeviceConnections = Array.isArray(connectionsResponse.connections) ? connectionsResponse.connections : [];
-    state.coachAthleteDeviceMetricEntries = Array.isArray(metricsResponse.entries) ? metricsResponse.entries : [];
-    renderDeviceConnectionList(
-      elements.athleteDetailDeviceConnectionList,
-      state.coachAthleteDeviceConnections,
-      { viewerIsCoach: true }
-    );
-    renderDeviceMetricList(elements.athleteDetailDeviceMetricHistory, state.coachAthleteDeviceMetricEntries);
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
+// NOTE: the coach-side device-sync mirror moved to React
+// (AthleteDeviceSyncPanel.tsx, mounted into #athlete-device-sync-root) - it
+// independently fetches GET /device-sync/connections/coach/:athlete_user_id
+// and GET /device-sync/metrics/coach/:athlete_user_id. Read-only (device
+// connect/disconnect are athlete-self only), so no event bridge back into
+// legacy state, and its card never renders a Disconnect control since a
+// coach has no route to take that action.
 
 async function refreshCoachAthleteMessages(athleteUserId, options = {}) {
   if (!athleteUserId || !elements.athleteDetailMessageHistory) return;
@@ -7122,12 +7103,6 @@ async function openAthleteProfile(athleteUserId) {
       }
     ),
     refreshCoachAthleteHabits(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    ),
-    refreshCoachAthleteDeviceSync(
       athleteUserId,
       {
         quiet: true

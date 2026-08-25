@@ -36,3 +36,13 @@ export async function loadAthleteGoals(athleteUserId: string): Promise<JsonRecor
   const response = await request("GET", `/athlete-goals/coach/${encodeURIComponent(athleteUserId)}`);
   return Array.isArray(response.goals) ? (response.goals as JsonRecord[]) : [];
 }
+
+export async function loadAthleteDeviceConnections(athleteUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/device-sync/connections/coach/${encodeURIComponent(athleteUserId)}`);
+  return Array.isArray(response.connections) ? (response.connections as JsonRecord[]) : [];
+}
+
+export async function loadAthleteDeviceMetrics(athleteUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/device-sync/metrics/coach/${encodeURIComponent(athleteUserId)}`);
+  return Array.isArray(response.entries) ? (response.entries as JsonRecord[]) : [];
+}

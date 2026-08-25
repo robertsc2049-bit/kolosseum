@@ -16,6 +16,13 @@ const recordStore = read("src/api/beta_product_record_store.ts");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
+// DEV NOTE: the coach-side mirror moved to React - see
+// public/app-src/screens/coach/AthleteDeviceSyncPanel.tsx and its
+// __tests__ file for its behavioral coverage, including the
+// never-renders-Disconnect-for-a-coach regression guard this file used to
+// carry as a source-text check on the now-removed
+// refreshCoachAthleteDeviceSync/viewerIsCoach app.js code.
+const athleteDeviceSyncPanel = read("public/app-src/screens/coach/AthleteDeviceSyncPanel.tsx");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -49,24 +56,14 @@ test("connect, disconnect and ingest are athlete-self only - the coach surface i
   assert.doesNotMatch(routes, /authenticatedCoach\(request, true\)/u, "no coach write path anywhere in this file");
 });
 
-// renderDeviceConnectionCard is the one function that renders both the
-// athlete's own connection list (with a working disconnect control) and
-// the coach's read-only copy of the same card - previously it rendered
-// an identical "Disconnect" button in both, but only the athlete-owned
-// list had a click listener wired to it (elements.deviceConnectionList),
-// so a coach clicking it silently did nothing. Since disconnect has no
-// coach route at all (asserted above), the fix is to never render the
-// button for a coach viewer, not to give it a working handler.
-test("the coach's read-only device-connection card never renders the athlete-only Disconnect control", () => {
-  assert.match(appJs, /!options\.viewerIsCoach/u);
-  assert.match(
-    appJs,
-    /connection\.connection_status === "active" && !options\.viewerIsCoach/u
-  );
-  assert.match(
-    appJs,
-    /renderDeviceConnectionList\(\s*\n\s*elements\.athleteDetailDeviceConnectionList,\s*\n\s*state\.coachAthleteDeviceConnections,\s*\n\s*\{ viewerIsCoach: true \}\s*\n\s*\);/u
-  );
+// The coach's read-only device-connection card (React, see DEV NOTE above)
+// never renders the athlete-only Disconnect control at all - it has no
+// viewerIsCoach flag to forget to check, unlike the legacy shared renderer
+// this replaced, which once rendered a Disconnect button with no working
+// handler in the coach's read-only view before that bug was fixed.
+test("the coach's read-only device-connection card never renders a Disconnect control", () => {
+  assert.doesNotMatch(athleteDeviceSyncPanel, /data-device-disconnect/u);
+  assert.doesNotMatch(athleteDeviceSyncPanel, /<button/u);
 });
 
 test("no live provider SDK is imported anywhere in the contract, service or routes", () => {
@@ -125,14 +122,13 @@ test("the athlete connect form and coach read-only panels exist as real controls
   assert.match(indexHtml, /id="deviceConnectForm"/u);
   assert.match(indexHtml, /id="deviceConnectionList"/u);
   assert.match(indexHtml, /id="deviceMetricHistory"/u);
-  assert.match(indexHtml, /id="athleteDetailDeviceConnectionList"/u);
-  assert.match(indexHtml, /id="athleteDetailDeviceMetricHistory"/u);
+  assert.match(indexHtml, /id="athlete-device-sync-root"/u);
 
   assert.match(appJs, /async function refreshDeviceSync/u);
   assert.match(appJs, /async function connectDeviceSync/u);
   assert.match(appJs, /async function disconnectDeviceSync/u);
-  assert.match(appJs, /async function refreshCoachAthleteDeviceSync/u);
   assert.match(appJs, /escapeHtml\(providerLabel\)/u);
+  assert.match(athleteDeviceSyncPanel, /useAthleteDeviceSync/u);
 });
 
 test("device metric history renders a 'Synced from <provider>' source badge, never a bare provider score", () => {
