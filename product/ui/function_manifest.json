@@ -6735,7 +6735,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteDeviceSyncPanel.test.tsx",
           "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
