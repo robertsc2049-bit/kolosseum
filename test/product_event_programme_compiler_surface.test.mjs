@@ -68,7 +68,7 @@ test("event calendar is persisted with the immutable programme and enforced at a
 });
 
 test("athlete and assignment surfaces receive factual event countdown data", () => {
-  assert.match(html, /id="todayEventCard"/u);
+  assert.match(html, /id="athlete-today-event-root"/u);
   assert.match(html, /id="assignmentEventSummary"/u);
   assert.match(js, /countdownLabel/u);
   assert.match(js, /response\.beta_path\?\.event_plan/u);
