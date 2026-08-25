@@ -7,6 +7,7 @@ import { AthleteDeviceSyncPanel } from "./screens/coach/AthleteDeviceSyncPanel";
 import { AthleteGoalsPanel } from "./screens/coach/AthleteGoalsPanel";
 import { AthleteNutritionPanel } from "./screens/coach/AthleteNutritionPanel";
 import { AthleteProgressInsightsPanel } from "./screens/coach/AthleteProgressInsightsPanel";
+import { AthleteProgressPhotosPanel } from "./screens/coach/AthleteProgressPhotosPanel";
 import { AthleteStrengthProfilePanel } from "./screens/coach/AthleteStrengthProfilePanel";
 import { AthleteWeeklyCheckinsPanel } from "./screens/coach/AthleteWeeklyCheckinsPanel";
 
@@ -29,3 +30,4 @@ mount("athlete-goals-root", <AthleteGoalsPanel />);
 mount("athlete-device-sync-root", <AthleteDeviceSyncPanel />);
 mount("athlete-body-metrics-root", <AthleteBodyMetricsPanel />);
 mount("athlete-nutrition-root", <AthleteNutritionPanel />);
+mount("athlete-progress-photos-root", <AthleteProgressPhotosPanel />);

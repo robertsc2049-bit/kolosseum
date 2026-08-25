@@ -440,8 +440,6 @@ const elements = {
   athleteDetailMessageAttachment: document.getElementById("athleteDetailMessageAttachment"),
   athleteDetailMessageCancelButton: document.getElementById("athleteDetailMessageCancelButton"),
   athleteDetailOrgMessageHistory: document.getElementById("athleteDetailOrgMessageHistory"),
-  athleteDetailProgressPhotos: document.getElementById("athleteDetailProgressPhotos"),
-  athleteDetailProgressPhotoComparison: document.getElementById("athleteDetailProgressPhotoComparison"),
   athleteDetailHabitList: document.getElementById("athleteDetailHabitList"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
@@ -5936,42 +5934,12 @@ async function uploadProgressPhoto() {
   }
 }
 
-// Read-only coach view of an athlete's own progress photos - mirrors
-// refreshCoachAthleteOrgMessages's shape. No coach-facing upload/delete
-// route exists anywhere in this file.
-async function refreshCoachAthleteProgressPhotos(athleteUserId, options = {}) {
-  if (!athleteUserId || !elements.athleteDetailProgressPhotos) return;
-
-  try {
-    const response = await api("GET", `/progress-photos/coach/${encodeURIComponent(athleteUserId)}`);
-    state.coachAthleteProgressPhotos = Array.isArray(response.photos) ? response.photos : [];
-    renderCoachAthleteProgressPhotos();
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
-
-function renderCoachAthleteProgressPhotos() {
-  if (!elements.athleteDetailProgressPhotos) return;
-
-  const photos = Array.isArray(state.coachAthleteProgressPhotos) ? state.coachAthleteProgressPhotos : [];
-  const selectedIds = Array.isArray(state.coachAthleteProgressPhotoCompareIds) ? state.coachAthleteProgressPhotoCompareIds : [];
-
-  if (photos.length === 0) {
-    elements.athleteDetailProgressPhotos.innerHTML = `
-      <div class="empty-state compact-empty">
-        <p>No progress photos yet.</p>
-      </div>
-    `;
-  }
-  else {
-    elements.athleteDetailProgressPhotos.innerHTML = photos.map((photo) => renderProgressPhotoCard(photo, selectedIds)).join("");
-  }
-
-  bindProgressPhotoCompareToggles(elements.athleteDetailProgressPhotos, "coachAthleteProgressPhotoCompareIds", renderCoachAthleteProgressPhotos);
-  renderProgressPhotoComparisonPanel(elements.athleteDetailProgressPhotoComparison, photos, selectedIds);
-}
+// NOTE: the coach-side progress-photos mirror (read-only grid + two-photo
+// compare) moved to React (AthleteProgressPhotosPanel.tsx, mounted into
+// #athlete-progress-photos-root) - it independently fetches
+// GET /progress-photos/coach/:athlete_user_id and owns its own compare
+// selection as local component state, rather than a shared state[stateKey]
+// array. No coach-facing upload/delete route exists anywhere in this file.
 
 const BODY_METRIC_TYPE_LABELS = {
   waist_circumference_cm: "Waist",
@@ -7032,12 +7000,6 @@ async function openAthleteProfile(athleteUserId) {
       }
     ),
     refreshCoachAthleteOrgMessages(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    ),
-    refreshCoachAthleteProgressPhotos(
       athleteUserId,
       {
         quiet: true

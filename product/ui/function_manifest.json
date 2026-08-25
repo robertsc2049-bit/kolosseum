@@ -6297,7 +6297,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_28_progress_photos_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteProgressPhotosPanel.test.tsx",
           "integration_test": "test/full_ui_28c_progress_photos_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
