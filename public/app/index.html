@@ -753,55 +753,7 @@
             <div id="athleteGoalList" class="record-list"></div>
           </div>
 
-          <div class="panel weekly-checkin-panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">Weekly check-in</p>
-                <h3>Weekly check-in</h3>
-              </div>
-            </div>
-
-            <form id="weeklyCheckinForm" class="athlete-detail-note-form">
-              <label class="field">
-                <span>Week starting</span>
-                <input type="date" id="weeklyCheckinWeekStartInput" required>
-              </label>
-
-              <label class="field">
-                <span>Energy (1-5)</span>
-                <input type="number" id="weeklyCheckinEnergyInput" min="1" max="5" step="1" required>
-              </label>
-
-              <label class="field">
-                <span>Motivation (1-5)</span>
-                <input type="number" id="weeklyCheckinMotivationInput" min="1" max="5" step="1" required>
-              </label>
-
-              <label class="field">
-                <span>Sleep quality (1-5)</span>
-                <input type="number" id="weeklyCheckinSleepInput" min="1" max="5" step="1" required>
-              </label>
-
-              <label class="field">
-                <span>Note (optional)</span>
-                <input type="text" id="weeklyCheckinNoteInput" maxlength="280">
-              </label>
-
-              <div class="inline-controls">
-                <button class="button primary" type="submit">Submit check-in</button>
-              </div>
-            </form>
-
-            <p
-              id="weeklyCheckinStatus"
-              class="dashboard-status"
-              role="status"
-              aria-live="polite"
-              hidden
-            ></p>
-
-            <div id="weeklyCheckinList" class="record-list"></div>
-          </div>
+          <div id="athlete-self-weekly-checkins-root"></div>
 
           <div class="panel device-sync-panel">
             <div class="panel-header">

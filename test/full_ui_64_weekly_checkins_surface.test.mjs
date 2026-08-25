@@ -25,6 +25,14 @@ const athleteWeeklyCheckinsPanel = read(
   "public/app-src/screens/coach/AthleteWeeklyCheckinsPanel.tsx"
 );
 const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
+// DEV NOTE: the athlete's own submit/history view also moved to React - see
+// public/app-src/screens/athlete/AthleteSelfWeeklyCheckinsPanel.tsx (named
+// "Self" to avoid colliding with the coach-mirror component above) and its
+// __tests__ file for its behavioral coverage.
+const athleteSelfWeeklyCheckinsPanel = read(
+  "public/app-src/screens/athlete/AthleteSelfWeeklyCheckinsPanel.tsx"
+);
+const useWeeklyCheckinsHook = read("public/app-src/screens/athlete/useWeeklyCheckins.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -101,25 +109,24 @@ test("the weekly-checkins route file is tracked by the FULL-UI completion guard'
   assert.match(guard, /\["src\/api\/weekly_checkins\.routes\.ts", "\/weekly-checkins"\]/u);
 });
 
-test("the athlete and coach weekly check-in panels exist as real controls, and free-text is escaped before rendering", () => {
-  assert.match(indexHtml, /id="weeklyCheckinForm"/u);
-  assert.match(indexHtml, /id="weeklyCheckinWeekStartInput"/u);
-  assert.match(indexHtml, /id="weeklyCheckinEnergyInput"/u);
-  assert.match(indexHtml, /id="weeklyCheckinMotivationInput"/u);
-  assert.match(indexHtml, /id="weeklyCheckinSleepInput"/u);
-  assert.match(indexHtml, /id="weeklyCheckinNoteInput"/u);
-  assert.match(indexHtml, /id="weeklyCheckinList"/u);
+test("the athlete and coach weekly check-in panels exist as real controls, and free-text is rendered as inert React text", () => {
+  assert.match(indexHtml, /id="athlete-self-weekly-checkins-root"/u);
   assert.match(indexHtml, /id="athlete-weekly-checkins-root"/u);
 
-  assert.match(appJs, /escapeHtml\(checkin\.note\)/u);
-  assert.match(appJs, /async function refreshWeeklyCheckins/u);
-  assert.match(appJs, /async function submitWeeklyCheckin/u);
+  assert.doesNotMatch(athleteSelfWeeklyCheckinsPanel, /dangerouslySetInnerHTML/u);
+  assert.match(athleteSelfWeeklyCheckinsPanel, /checkin\.note/u);
+  assert.match(athleteSelfWeeklyCheckinsPanel, /useWeeklyCheckins/u);
+  assert.match(athleteSelfWeeklyCheckinsPanel, /type="date"/u);
+  assert.match(athleteSelfWeeklyCheckinsPanel, /type="number"/u);
+  assert.match(useWeeklyCheckinsHook, /loadWeeklyCheckins/u);
+  assert.match(useWeeklyCheckinsHook, /submitWeeklyCheckin/u);
+
   assert.match(athleteWeeklyCheckinsPanel, /useAthleteWeeklyCheckins/u);
   assert.match(athleteWeeklyCheckinsPanel, /checkin\.note/u);
 });
 
 test("weekly check-ins are refreshed alongside the other history and athlete-detail panels", () => {
-  assert.match(appJs, /refreshWeeklyCheckins\(\{ quiet: true \}\)\.catch\(\(\) => \{\}\)/u);
+  assert.match(useWeeklyCheckinsHook, /kolosseum:history-changed/u);
   assert.match(coachWorkspaceClient, /weekly-checkins\/coach\//u);
 });
 
@@ -135,12 +142,12 @@ test("the FULL-UI-64 manifest area declares all three functions as implemented w
     ["weekly_checkin_list_athlete", "weekly_checkin_list_coach", "weekly_checkin_submit"]
   );
 
-  // NOTE: the coach function's direct_test points at its React component
-  // test now (see the DEV NOTE above) - the athlete functions stay on this
-  // file since refreshWeeklyCheckins/submitWeeklyCheckin stay legacy.
+  // NOTE: both the coach function's and the athlete functions' direct_test
+  // now point at their respective React component tests (see the DEV NOTEs
+  // above) - refreshWeeklyCheckins/submitWeeklyCheckin are gone from app.js.
   const expectedDirectTest = {
-    weekly_checkin_submit: "test/full_ui_64_weekly_checkins_surface.test.mjs",
-    weekly_checkin_list_athlete: "test/full_ui_64_weekly_checkins_surface.test.mjs",
+    weekly_checkin_submit: "public/app-src/__tests__/AthleteSelfWeeklyCheckinsPanel.test.tsx",
+    weekly_checkin_list_athlete: "public/app-src/__tests__/AthleteSelfWeeklyCheckinsPanel.test.tsx",
     weekly_checkin_list_coach: "public/app-src/__tests__/AthleteWeeklyCheckinsPanel.test.tsx"
   };
 
