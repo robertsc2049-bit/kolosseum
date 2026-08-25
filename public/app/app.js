@@ -265,11 +265,6 @@ const elements = {
   athleteGoalTargetDateInput: document.getElementById("athleteGoalTargetDateInput"),
   athleteGoalStatus: document.getElementById("athleteGoalStatus"),
   athleteGoalList: document.getElementById("athleteGoalList"),
-  deviceConnectForm: document.getElementById("deviceConnectForm"),
-  deviceProviderSelect: document.getElementById("deviceProviderSelect"),
-  deviceSyncStatus: document.getElementById("deviceSyncStatus"),
-  deviceConnectionList: document.getElementById("deviceConnectionList"),
-  deviceMetricHistory: document.getElementById("deviceMetricHistory"),
 
   coachGreeting: document.getElementById("coachGreeting"),
   coachAthleteCount: document.getElementById("coachAthleteCount"),
@@ -2632,7 +2627,6 @@ async function refreshHistory(options = {}) {
   refreshBodyMetrics({ quiet: true }).catch(() => {});
   refreshHabits({ quiet: true }).catch(() => {});
   refreshAthleteGoals({ quiet: true }).catch(() => {});
-  refreshDeviceSync({ quiet: true }).catch(() => {});
 
   if (!options.quiet) showNotice("Training history refreshed.");
   return state.history;
@@ -4935,143 +4929,12 @@ async function resolveAthleteGoal(goalId, resolution) {
 // (no coach write path), so unlike the strength-profile editor it needs no
 // event bridge back into legacy state.
 
-const DEVICE_PROVIDER_LABELS = {
-  apple_health: "Apple Health",
-  garmin: "Garmin",
-  whoop: "Whoop",
-  manual_import: "Manual import"
-};
-
-const DEVICE_METRIC_TYPE_LABELS = {
-  resting_heart_rate_bpm: "Resting heart rate",
-  steps_count: "Steps",
-  sleep_duration_minutes: "Sleep duration"
-};
-
-function renderDeviceConnectionCard(connection) {
-  const providerLabel = DEVICE_PROVIDER_LABELS[connection.provider] || connection.provider;
-  const statusBadge = connection.connection_status === "active" ? "Connected" : "Disconnected";
-  const disconnectButton = connection.connection_status === "active"
-    ? `<button class="button ghost small" type="button" data-device-disconnect="${escapeHtml(connection.connection_id)}">Disconnect</button>`
-    : "";
-
-  return `
-    <article class="record-card">
-      <div class="record-meta">
-        <span class="badge neutral">${escapeHtml(statusBadge)}</span>
-        <span class="muted small">${escapeHtml(formatDate(connection.updated_at_iso8601))}</span>
-      </div>
-      <strong>${escapeHtml(providerLabel)}</strong>
-      ${disconnectButton}
-    </article>
-  `;
-}
-
-function renderDeviceConnectionList(container, connections) {
-  if (!container) return;
-
-  if (connections.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state compact-empty">
-        <p>No connected devices yet.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = connections.map(renderDeviceConnectionCard).join("");
-}
-
-function renderDeviceMetricEntry(entry) {
-  const label = DEVICE_METRIC_TYPE_LABELS[entry.metric_type] || entry.metric_type;
-  const providerLabel = DEVICE_PROVIDER_LABELS[entry.provider] || entry.provider;
-
-  return `
-    <article class="record-card">
-      <div class="record-meta">
-        <span class="badge neutral">Synced from ${escapeHtml(providerLabel)}</span>
-        <span class="muted small">${escapeHtml(formatDate(entry.reported_at_iso8601))}</span>
-      </div>
-      <strong>${escapeHtml(label)}: ${escapeHtml(String(entry.value))} ${escapeHtml(String(entry.unit ?? ""))}</strong>
-    </article>
-  `;
-}
-
-function renderDeviceMetricList(container, entries) {
-  if (!container) return;
-
-  if (entries.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state compact-empty">
-        <p>No synced metrics yet.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = entries.map(renderDeviceMetricEntry).join("");
-}
-
-async function refreshDeviceSync(options = {}) {
-  if (state.role !== "athlete") return;
-
-  try {
-    const [connectionsResponse, metricsResponse] = await Promise.all([
-      api("GET", "/device-sync/connections"),
-      api("GET", "/device-sync/metrics")
-    ]);
-    state.deviceConnections = Array.isArray(connectionsResponse.connections) ? connectionsResponse.connections : [];
-    state.deviceMetricEntries = Array.isArray(metricsResponse.entries) ? metricsResponse.entries : [];
-    renderDeviceConnectionList(elements.deviceConnectionList, state.deviceConnections);
-    renderDeviceMetricList(elements.deviceMetricHistory, state.deviceMetricEntries);
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
-
-async function connectDeviceSync() {
-  const provider = elements.deviceProviderSelect?.value;
-  if (!provider) {
-    elements.deviceSyncStatus.hidden = false;
-    elements.deviceSyncStatus.textContent = "Choose a device provider.";
-    return;
-  }
-
-  showBusy("Connecting device…");
-  try {
-    await api("POST", "/device-sync/connect", {
-      provider,
-      provider_account_id: `${provider}_${Date.now()}_${Math.random().toString(36).slice(2)}`
-    });
-    elements.deviceSyncStatus.hidden = true;
-    await refreshDeviceSync({ quiet: true });
-    showNotice("Device connected.");
-  }
-  catch (error) {
-    elements.deviceSyncStatus.hidden = false;
-    elements.deviceSyncStatus.textContent = friendlyError(error.payload, error.status) || "Device could not be connected.";
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-async function disconnectDeviceSync(connectionId) {
-  showBusy("Disconnecting device…");
-  try {
-    await api("POST", "/device-sync/disconnect", { connection_id: connectionId });
-    await refreshDeviceSync({ quiet: true });
-    showNotice("Device disconnected.");
-  }
-  catch (error) {
-    showNotice(friendlyError(error.payload, error.status) || "Could not disconnect device.");
-  }
-  finally {
-    hideBusy();
-  }
-}
-
+// NOTE: FULL-UI-31 the athlete's own device sync panel is React-owned now
+// (see public/app-src/screens/athlete/AthleteSelfDeviceSyncPanel.tsx,
+// mounted into athlete-self-device-sync-root) - it independently fetches
+// GET /device-sync/connections and /device-sync/metrics, and calls
+// POST /device-sync/connect|disconnect itself with its own CSRF token, so
+// it needs no reverse bridge.
 // NOTE: the coach-side device-sync mirror moved to React
 // (AthleteDeviceSyncPanel.tsx, mounted into #athlete-device-sync-root) - it
 // independently fetches GET /device-sync/connections/coach/:athlete_user_id
@@ -14102,17 +13965,6 @@ elements.athleteGoalList?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-goal-action]");
   if (!button) return;
   resolveAthleteGoal(button.dataset.goalId, button.dataset.goalAction).catch(handleError);
-});
-
-elements.deviceConnectForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  connectDeviceSync().catch(handleError);
-});
-
-elements.deviceConnectionList?.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-device-disconnect]");
-  if (!button) return;
-  disconnectDeviceSync(button.dataset.deviceDisconnect).catch(handleError);
 });
 
 elements.refreshTemplatesButton.addEventListener("click", () => {

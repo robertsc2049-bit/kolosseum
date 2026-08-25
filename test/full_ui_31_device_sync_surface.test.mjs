@@ -23,6 +23,13 @@ const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 // carry as a source-text check on the now-removed
 // refreshCoachAthleteDeviceSync/viewerIsCoach app.js code.
 const athleteDeviceSyncPanel = read("public/app-src/screens/coach/AthleteDeviceSyncPanel.tsx");
+// DEV NOTE: the athlete's own connect/disconnect form and device/metric
+// lists also moved to React - see public/app-src/screens/athlete/
+// AthleteSelfDeviceSyncPanel.tsx (named "Self" to avoid colliding with the
+// coach-mirror component above) and its __tests__ file for its behavioral
+// coverage.
+const athleteSelfDeviceSyncPanel = read("public/app-src/screens/athlete/AthleteSelfDeviceSyncPanel.tsx");
+const useDeviceSyncHook = read("public/app-src/screens/athlete/useDeviceSync.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -118,21 +125,21 @@ test("disconnect reads the prior fact and appends a new status fact - it never i
   assert.match(service, /disconnectDeviceConnection/u);
 });
 
-test("the athlete connect form and coach read-only panels exist as real controls, and rendered text is escaped", () => {
-  assert.match(indexHtml, /id="deviceConnectForm"/u);
-  assert.match(indexHtml, /id="deviceConnectionList"/u);
-  assert.match(indexHtml, /id="deviceMetricHistory"/u);
+test("the athlete connect form and coach read-only panels exist as real controls, rendered as inert React text", () => {
+  assert.match(indexHtml, /id="athlete-self-device-sync-root"/u);
   assert.match(indexHtml, /id="athlete-device-sync-root"/u);
 
-  assert.match(appJs, /async function refreshDeviceSync/u);
-  assert.match(appJs, /async function connectDeviceSync/u);
-  assert.match(appJs, /async function disconnectDeviceSync/u);
-  assert.match(appJs, /escapeHtml\(providerLabel\)/u);
+  assert.doesNotMatch(athleteSelfDeviceSyncPanel, /dangerouslySetInnerHTML/u);
+  assert.match(athleteSelfDeviceSyncPanel, /useDeviceSync/u);
+  assert.match(athleteSelfDeviceSyncPanel, /onClick=\{\(\) => onDisconnect/u);
+  assert.match(useDeviceSyncHook, /loadDeviceConnections/u);
+  assert.match(useDeviceSyncHook, /connectDevice/u);
+  assert.match(useDeviceSyncHook, /disconnectDevice/u);
   assert.match(athleteDeviceSyncPanel, /useAthleteDeviceSync/u);
 });
 
 test("device metric history renders a 'Synced from <provider>' source badge, never a bare provider score", () => {
-  assert.match(appJs, /Synced from \$\{escapeHtml\(providerLabel\)\}/u);
+  assert.match(athleteSelfDeviceSyncPanel, /Synced from \{providerLabel\(entry\.provider\)\}/u);
 });
 
 test("the FULL-UI-31 manifest area declares all six functions as implemented with real tests", () => {
