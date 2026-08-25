@@ -1,7 +1,8 @@
-// DEV NOTE: coach_athlete_detail React pilot (athlete strength-profile
-// editor). coach_user_id is derived server-side from the session on every
-// route below (see src/api/coach_workspace.handlers.ts's authenticatedCoach
-// calls) - the client only ever needs to send athlete_user_id.
+// DEV NOTE: coach_athlete_detail React sub-panels (athlete strength-profile
+// editor, progress insights). coach_user_id is derived server-side from the
+// session on every route below (see src/api/coach_workspace.handlers.ts's
+// and src/api/progress_insights.routes.ts's authenticatedCoach calls) - the
+// client only ever needs to send athlete_user_id.
 
 import { type JsonRecord, request } from "./transport";
 
@@ -19,4 +20,9 @@ export function saveAthleteStrengthProfile(input: JsonRecord, csrfToken: string)
 export async function loadTemplateExercises(): Promise<JsonRecord[]> {
   const response = await request("GET", "/templates/exercises");
   return Array.isArray(response.exercises) ? (response.exercises as JsonRecord[]) : [];
+}
+
+export async function loadAthleteProgressInsights(athleteUserId: string): Promise<JsonRecord | null> {
+  const response = await request("GET", `/progress-insights/coach/${encodeURIComponent(athleteUserId)}`);
+  return response.insights && typeof response.insights === "object" ? (response.insights as JsonRecord) : null;
 }
