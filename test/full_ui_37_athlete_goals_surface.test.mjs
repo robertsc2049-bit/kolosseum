@@ -17,11 +17,15 @@ const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const guard = read("ci/guards/full_ui_completion_guard.mjs");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
-// DEV NOTE: the coach-side mirror moved to React - see
-// public/app-src/screens/coach/AthleteGoalsPanel.tsx and its __tests__ file
-// for its behavioral coverage. The athlete's own create/resolve/history
-// view stays legacy.
+// DEV NOTE: both the coach-side read-only mirror and the athlete's own
+// create/resolve view moved to React - see
+// public/app-src/screens/coach/AthleteGoalsPanel.tsx and
+// public/app-src/screens/athlete/AthleteSelfGoalsPanel.tsx (plus their
+// __tests__ files) for behavioral coverage.
 const athleteGoalsPanel = read("public/app-src/screens/coach/AthleteGoalsPanel.tsx");
+const athleteSelfGoalsPanel = read("public/app-src/screens/athlete/AthleteSelfGoalsPanel.tsx");
+const useAthleteGoalsSelf = read("public/app-src/screens/athlete/useAthleteGoalsSelf.ts");
+const athleteGoalsClient = read("public/app-src/api/athleteGoalsClient.ts");
 const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
@@ -93,22 +97,20 @@ test("the athlete-goals route file is tracked by the FULL-UI completion guard's 
 });
 
 test("the athlete and coach goal panels exist as real controls", () => {
-  assert.match(indexHtml, /id="athleteGoalCreateForm"/u);
-  assert.match(indexHtml, /id="athleteGoalLabelInput"/u);
-  assert.match(indexHtml, /id="athleteGoalMetricSelect"/u);
-  assert.match(indexHtml, /id="athleteGoalTargetValueInput"/u);
-  assert.match(indexHtml, /id="athleteGoalList"/u);
+  assert.match(indexHtml, /id="athlete-self-goals-root"/u);
   assert.match(indexHtml, /id="athlete-goals-root"/u);
 
-  assert.match(appJs, /async function refreshAthleteGoals/u);
-  assert.match(appJs, /async function createAthleteGoal/u);
-  assert.match(appJs, /async function resolveAthleteGoal/u);
+  assert.match(athleteSelfGoalsPanel, /export function AthleteSelfGoalsPanel/u);
+  assert.match(athleteSelfGoalsPanel, /goal_label/u);
+  assert.match(useAthleteGoalsSelf, /createAthleteGoalSelf/u);
+  assert.match(useAthleteGoalsSelf, /resolveAthleteGoalSelf/u);
+  assert.match(athleteGoalsClient, /\/athlete-goals/u);
   assert.match(athleteGoalsPanel, /useAthleteGoals/u);
   assert.match(athleteGoalsPanel, /goal_label/u);
 });
 
 test("goals are refreshed alongside the other history and athlete-detail panels", () => {
-  assert.match(appJs, /refreshAthleteGoals\(\{ quiet: true \}\)\.catch\(\(\) => \{\}\)/u);
+  assert.match(useAthleteGoalsSelf, /kolosseum:history-changed/u);
   assert.match(coachWorkspaceClient, /athlete-goals\/coach\//u);
 });
 
@@ -124,14 +126,13 @@ test("the FULL-UI-37 manifest area declares all four functions as implemented wi
     ["athlete_goal_create", "athlete_goal_list_athlete", "athlete_goal_list_coach", "athlete_goal_resolve"]
   );
 
-  // NOTE: the coach function's direct_test points at its React component
-  // test now (see the DEV NOTE above) - the athlete functions stay on this
-  // file since refreshAthleteGoals/createAthleteGoal/resolveAthleteGoal
-  // stay legacy.
+  // NOTE: both the coach and athlete functions' direct_test now point at
+  // their React component tests (see the DEV NOTE above) - the backend
+  // route/lifecycle/schema contracts above stay covered by this file.
   const expectedDirectTest = {
-    athlete_goal_create: "test/full_ui_37_athlete_goals_surface.test.mjs",
-    athlete_goal_resolve: "test/full_ui_37_athlete_goals_surface.test.mjs",
-    athlete_goal_list_athlete: "test/full_ui_37_athlete_goals_surface.test.mjs",
+    athlete_goal_create: "public/app-src/__tests__/AthleteSelfGoalsPanel.test.tsx",
+    athlete_goal_resolve: "public/app-src/__tests__/AthleteSelfGoalsPanel.test.tsx",
+    athlete_goal_list_athlete: "public/app-src/__tests__/AthleteSelfGoalsPanel.test.tsx",
     athlete_goal_list_coach: "public/app-src/__tests__/AthleteGoalsPanel.test.tsx"
   };
 

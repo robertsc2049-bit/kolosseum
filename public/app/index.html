@@ -674,59 +674,7 @@
             <div id="habitList" class="record-list"></div>
           </div>
 
-          <div class="panel athlete-goals-panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">Goals</p>
-                <h3>Goals</h3>
-              </div>
-            </div>
-
-            <form id="athleteGoalCreateForm" class="athlete-detail-note-form">
-              <label class="field">
-                <span>Goal</span>
-                <input type="text" id="athleteGoalLabelInput" maxlength="120" required>
-              </label>
-
-              <label class="field">
-                <span>Linked measurement (optional)</span>
-                <select id="athleteGoalMetricSelect">
-                  <option value="">No linked metric</option>
-                  <option value="waist_circumference_cm">Waist (cm)</option>
-                  <option value="chest_circumference_cm">Chest (cm)</option>
-                  <option value="arm_circumference_cm">Arm (cm)</option>
-                  <option value="thigh_circumference_cm">Thigh (cm)</option>
-                  <option value="hip_circumference_cm">Hip (cm)</option>
-                  <option value="body_fat_percentage">Body fat (%)</option>
-                  <option value="body_weight_kg">Body weight (kg)</option>
-                </select>
-              </label>
-
-              <label class="field" id="athleteGoalTargetValueField" hidden>
-                <span>Target value</span>
-                <input type="number" id="athleteGoalTargetValueInput" step="0.1">
-              </label>
-
-              <label class="field">
-                <span>Target date (optional)</span>
-                <input type="date" id="athleteGoalTargetDateInput">
-              </label>
-
-              <div class="inline-controls">
-                <button class="button primary" type="submit">Set goal</button>
-              </div>
-            </form>
-
-            <p
-              id="athleteGoalStatus"
-              class="dashboard-status"
-              role="status"
-              aria-live="polite"
-              hidden
-            ></p>
-
-            <div id="athleteGoalList" class="record-list"></div>
-          </div>
+          <div id="athlete-self-goals-root"></div>
 
           <div id="athlete-self-weekly-checkins-root"></div>
 
