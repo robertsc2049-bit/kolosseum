@@ -453,7 +453,6 @@ const elements = {
   coachBodyMetricNoteInput: document.getElementById("coachBodyMetricNoteInput"),
   coachBodyMetricStatus: document.getElementById("coachBodyMetricStatus"),
   athleteDetailHabitList: document.getElementById("athleteDetailHabitList"),
-  athleteDetailProgressInsights: document.getElementById("athleteDetailProgressInsights"),
   athleteDetailDeviceConnectionList: document.getElementById("athleteDetailDeviceConnectionList"),
   athleteDetailDeviceMetricHistory: document.getElementById("athleteDetailDeviceMetricHistory"),
   templateLibraryView: document.getElementById("templateLibraryView"),
@@ -6710,18 +6709,12 @@ function renderProgressInsightsSummary(insights) {
   }
 }
 
-function renderProgressInsightsCompactList(container, insights) {
-  if (!container) return;
-
-  const sections = [
-    `<p class="muted small">${escapeHtml(progressInsightsAdherenceText(insights.session_adherence))}</p>`,
-    insights.strength_trends.map(renderStrengthTrendCard).join(""),
-    insights.habit_consistency.map(renderHabitConsistencyCard).join(""),
-    insights.body_metric_trends.map(renderBodyMetricTrendCard).join("")
-  ].join("");
-
-  container.innerHTML = sections;
-}
+// NOTE: the coach-side progress-insights mirror moved to React
+// (AthleteProgressInsightsPanel.tsx, mounted into
+// #athlete-progress-insights-root) - it independently fetches
+// GET /progress-insights/coach/:athlete_user_id. This panel is read-only
+// (no coach write path), so unlike the strength-profile editor it needs no
+// event bridge back into legacy state.
 
 async function refreshProgressInsights(options = {}) {
   if (state.role !== "athlete") return;
@@ -6729,18 +6722,6 @@ async function refreshProgressInsights(options = {}) {
   try {
     const response = await api("GET", "/progress-insights");
     renderProgressInsightsSummary(response.insights);
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
-
-async function refreshCoachAthleteProgressInsights(athleteUserId, options = {}) {
-  if (!athleteUserId || !elements.athleteDetailProgressInsights) return;
-
-  try {
-    const response = await api("GET", `/progress-insights/coach/${encodeURIComponent(athleteUserId)}`);
-    renderProgressInsightsCompactList(elements.athleteDetailProgressInsights, response.insights);
   }
   catch (error) {
     if (!options.quiet) throw error;
@@ -7176,12 +7157,6 @@ async function openAthleteProfile(athleteUserId) {
       }
     ),
     refreshCoachAthleteDeviceSync(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    ),
-    refreshCoachAthleteProgressInsights(
       athleteUserId,
       {
         quiet: true
