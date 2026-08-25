@@ -7080,7 +7080,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_64_weekly_checkins_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteWeeklyCheckinsPanel.test.tsx",
           "integration_test": "test/full_ui_64c_weekly_checkins_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
