@@ -18,19 +18,21 @@ const recordStore = read("src/api/beta_product_record_store.ts");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
-// DEV NOTE: the coach-side body-metric history + log form, the athlete's
-// own body-measurement log form and history list, and the nutrition
-// summary have all moved to React - see
+// DEV NOTE: the coach-side body-metric history + log form and nutrition
+// summary, and the athlete's own body-measurement log form/history and
+// nutrition log form/summary, have all moved to React - see
 // public/app-src/screens/coach/AthleteBodyMetricsPanel.tsx,
-// public/app-src/screens/athlete/AthleteSelfBodyMetricsPanel.tsx, and
-// AthleteNutritionPanel.tsx (and their __tests__ files) for behavioral
-// coverage. The athlete's own nutrition log/summary stays legacy until its
-// own migration slice - refreshBodyMetrics() in app.js still runs
-// GET /body-metrics purely to keep feeding it.
+// AthleteNutritionPanel.tsx, public/app-src/screens/athlete/
+// AthleteSelfBodyMetricsPanel.tsx and AthleteSelfNutritionPanel.tsx (and
+// their __tests__ files) for behavioral coverage. Only habits remain
+// legacy in this area.
 const athleteBodyMetricsPanel = read("public/app-src/screens/coach/AthleteBodyMetricsPanel.tsx");
 const athleteNutritionPanel = read("public/app-src/screens/coach/AthleteNutritionPanel.tsx");
 const athleteSelfBodyMetricsPanel = read("public/app-src/screens/athlete/AthleteSelfBodyMetricsPanel.tsx");
 const useAthleteBodyMetricsSelf = read("public/app-src/screens/athlete/useAthleteBodyMetricsSelf.ts");
+const athleteSelfNutritionPanel = read("public/app-src/screens/athlete/AthleteSelfNutritionPanel.tsx");
+const useAthleteNutritionSelf = read("public/app-src/screens/athlete/useAthleteNutritionSelf.ts");
+const formatUtils = read("public/app-src/utils/format.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -133,7 +135,6 @@ test("the athlete forms and coach read-only panels exist as real controls, and s
   assert.match(indexHtml, /id="athleteDetailHabitList"/u);
 
   assert.match(appJs, /escapeHtml\(habit\.habit_label\)/u);
-  assert.match(appJs, /async function refreshBodyMetrics/u);
   assert.match(appJs, /async function createHabit/u);
   assert.match(appJs, /async function logHabitCompletionToday/u);
   assert.match(appJs, /async function refreshCoachAthleteHabits/u);
@@ -191,22 +192,16 @@ test("nutrition reuses the body-metric type registry rather than a parallel reco
 });
 
 test("nutrition entries are excluded from the general body-measurements list and shown in their own dedicated panel", () => {
-  assert.match(appJs, /NUTRITION_METRIC_TYPES = \[/u);
+  assert.match(formatUtils, /NUTRITION_METRIC_TYPES = \[/u);
   assert.match(
     athleteSelfBodyMetricsPanel,
     /filter\(\(entry\) => !NUTRITION_METRIC_TYPES\.includes\(String\(entry\.metric_type\)\)\)/u
   );
-  assert.match(appJs, /function groupNutritionEntriesByDate/u);
-  assert.match(appJs, /function renderNutritionSummary/u);
-  assert.match(appJs, /async function logNutritionEntry/u);
+  assert.match(athleteSelfNutritionPanel, /function groupByDate/u);
+  assert.match(athleteSelfNutritionPanel, /export function AthleteSelfNutritionPanel/u);
+  assert.match(useAthleteNutritionSelf, /logAthleteNutritionSelf/u);
 
-  assert.match(indexHtml, /id="nutritionForm"/u);
-  assert.match(indexHtml, /id="nutritionDateInput"/u);
-  assert.match(indexHtml, /id="nutritionCaloriesInput"/u);
-  assert.match(indexHtml, /id="nutritionProteinInput"/u);
-  assert.match(indexHtml, /id="nutritionCarbsInput"/u);
-  assert.match(indexHtml, /id="nutritionFatInput"/u);
-  assert.match(indexHtml, /id="nutritionSummary"/u);
+  assert.match(indexHtml, /id="athlete-self-nutrition-root"/u);
   assert.match(indexHtml, /id="athlete-nutrition-root"/u);
   assert.match(athleteNutritionPanel, /useAthleteNutrition/u);
 });
@@ -217,8 +212,8 @@ test("every real METRIC_TYPES key has a display label - a device-synced body_wei
   const metricTypes = [...sourceOfTruth[1].matchAll(/\[\s*"([a-z_]+)"/gu)].map((match) => match[1]);
   assert.ok(metricTypes.length > 0, "expected to parse at least one metric type");
 
-  const labelsBlock = appJs.match(/const BODY_METRIC_TYPE_LABELS = \{([\s\S]*?)\};/u);
-  assert.ok(labelsBlock, "expected BODY_METRIC_TYPE_LABELS object in app.js");
+  const labelsBlock = formatUtils.match(/const BODY_METRIC_TYPE_LABELS: Record<string, string> = \{([\s\S]*?)\};/u);
+  assert.ok(labelsBlock, "expected BODY_METRIC_TYPE_LABELS object in public/app-src/utils/format.ts");
 
   for (const metricType of metricTypes) {
     assert.ok(
