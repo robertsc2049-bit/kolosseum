@@ -1,7 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { formatDate } from "../../utils/format";
+import { countdownLabel, formatDate } from "../../utils/format";
 import { useAthleteHistory } from "./useAthleteHistory";
 
 // DEV NOTE: current programme, current event, and the assignment/
@@ -63,29 +63,6 @@ function eventPlanOf(eventRecord: JsonRecord | null): JsonRecord | null {
   return eventRecord?.event_plan && typeof eventRecord.event_plan === "object"
     ? (eventRecord.event_plan as JsonRecord)
     : null;
-}
-
-function todayDateOnly(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function dateOnlyEpochDay(value: unknown): number | null {
-  const text = String(value ?? "");
-  if (!/^\d{4}-\d{2}-\d{2}$/u.test(text)) return null;
-  const parsed = Date.parse(`${text}T00:00:00.000Z`);
-  return Number.isFinite(parsed) ? Math.floor(parsed / 86400000) : null;
-}
-
-function countdownLabel(eventDate: unknown, fromDate: string = todayDateOnly()): string {
-  const from = dateOnlyEpochDay(fromDate);
-  const to = dateOnlyEpochDay(eventDate);
-  if (from === null || to === null) return "Set dates";
-  const days = to - from;
-  if (days < 0) return `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} ago`;
-  if (days === 0) return "Today";
-  const weeks = Math.floor(days / 7);
-  const remainder = days % 7;
-  return weeks > 0 ? `${weeks}w ${remainder}d` : `${days} day${days === 1 ? "" : "s"}`;
 }
 
 // DEV NOTE: click the legacy nav button before setting the hash, not

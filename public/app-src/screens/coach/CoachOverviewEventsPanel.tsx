@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { formatDate } from "../../utils/format";
+import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { useCoachOverviewEvents } from "./useCoachOverviewEvents";
 
 // DEV NOTE: part of FULL-UI-03's Coach Overview dashboard - ported from
@@ -13,9 +13,11 @@ import { useCoachOverviewEvents } from "./useCoachOverviewEvents";
 // disproportionately more than this one self-contained list. Read-only:
 // "Open event" reaches only into the still-legacy Events view via hash
 // navigation, the same mechanism AthleteHistoryPanels.tsx's
-// current-event/event-link cards use (not shared into a common utility -
-// see this file's own copy below - to avoid touching that already-shipped
-// and tested file for a three-line helper).
+// current-event/event-link cards use (not sharing openEventDetail itself
+// into a common utility, to avoid touching that already-shipped and
+// tested file for a three-line helper - but countdownLabel/titleCase/
+// formatDate now live in utils/format.ts, shared since this is their
+// third consumer).
 
 function eventPlanOf(eventRecord: JsonRecord): JsonRecord | null {
   return eventRecord.event_plan && typeof eventRecord.event_plan === "object"
@@ -42,33 +44,8 @@ function eventIdOf(eventRecord: JsonRecord): string {
   return String(eventRecord.event_id ?? eventRecord.id ?? "");
 }
 
-function titleCase(value: unknown): string {
-  return String(value ?? "")
-    .replaceAll("_", " ")
-    .replace(/\b\w/gu, (letter) => letter.toUpperCase());
-}
-
 function todayDateOnly(): string {
   return new Date().toISOString().slice(0, 10);
-}
-
-function dateOnlyEpochDay(value: unknown): number | null {
-  const text = String(value ?? "");
-  if (!/^\d{4}-\d{2}-\d{2}$/u.test(text)) return null;
-  const parsed = Date.parse(`${text}T00:00:00.000Z`);
-  return Number.isFinite(parsed) ? Math.floor(parsed / 86400000) : null;
-}
-
-function countdownLabel(eventDate: unknown, fromDate: string = todayDateOnly()): string {
-  const from = dateOnlyEpochDay(fromDate);
-  const to = dateOnlyEpochDay(eventDate);
-  if (from === null || to === null) return "Set dates";
-  const days = to - from;
-  if (days < 0) return `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} ago`;
-  if (days === 0) return "Today";
-  const weeks = Math.floor(days / 7);
-  const remainder = days % 7;
-  return weeks > 0 ? `${weeks}w ${remainder}d` : `${days} day${days === 1 ? "" : "s"}`;
 }
 
 // DEV NOTE: click the legacy nav button before setting the hash, not

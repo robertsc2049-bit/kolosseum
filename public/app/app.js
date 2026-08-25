@@ -386,11 +386,7 @@ const elements = {
   eventNotes: document.getElementById("eventNotes"),
   eventPreviewCountdown: document.getElementById("eventPreviewCountdown"),
   eventPreviewWeeks: document.getElementById("eventPreviewWeeks"),
-  eventCount: document.getElementById("eventCount"),
-  eventUpcomingCount: document.getElementById("eventUpcomingCount"),
-  eventLinkedCount: document.getElementById("eventLinkedCount"),
   refreshEventsButton: document.getElementById("refreshEventsButton"),
-  eventList: document.getElementById("eventList"),
   athleteAssignmentPanel: document.getElementById("athleteAssignmentPanel"),
   athleteAssignmentForm: document.getElementById("athleteAssignmentForm"),
   athleteAssignmentEvent: document.getElementById("athleteAssignmentEvent"),
@@ -12617,52 +12613,17 @@ async function refreshAthleteEventLinks(athleteUserId, options = {}) {
   }
 }
 
+// NOTE: the event library (metric counts + event card list) moved to
+// React - see public/app-src/screens/coach/CoachEventsLibraryPanel.tsx,
+// mounted into #coach-events-metrics-root and #coach-events-list-root.
+// It independently fetches GET /coach-workspace/events and refetches on
+// the kolosseum:coach-events-changed dispatch just below. The
+// create-event form's own live countdown/weeks preview
+// (renderCoachEventPreview()) stays legacy.
 function renderCoachEvents() {
-  if (!elements.eventList) return;
-
-  const today = todayDateOnly();
-  const events = Array.isArray(state.coachEvents) ? state.coachEvents : [];
-  const upcoming = events.filter((eventRecord) => {
-    const plan = coachEventPlan(eventRecord);
-    return plan?.event_date && plan.event_date >= today;
-  });
-  const linkedCount = events.reduce(
-    (total, eventRecord) => total + Number(eventRecord.linked_athlete_count ?? 0),
-    0
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:coach-events-changed")
   );
-
-  elements.eventCount.textContent = String(events.length);
-  elements.eventUpcomingCount.textContent = String(upcoming.length);
-  elements.eventLinkedCount.textContent = String(linkedCount);
-
-  elements.eventList.innerHTML = events.length
-    ? events.map((eventRecord) => {
-        const plan = coachEventPlan(eventRecord) ?? {};
-        const compile = coachEventCompile(eventRecord) ?? {};
-        const linkedAthletes = Number(eventRecord.linked_athlete_count ?? 0);
-        return `
-          <article class="record-card coach-event-card" data-event-id="${escapeHtml(eventRecord.event_id ?? "")}">
-            <div>
-              <p class="eyebrow">${escapeHtml(titleCase(eventRecord.activity_id ?? "event"))}</p>
-              <h3>${escapeHtml(plan.event_name ?? "Event")}</h3>
-              <p>${escapeHtml(titleCase(plan.event_type ?? "event"))} · ${escapeHtml(formatDate(plan.event_date))}${plan.location ? ` · ${escapeHtml(plan.location)}` : ""}${plan.timezone ? ` · ${escapeHtml(plan.timezone)}` : ""}</p>
-              ${plan.notes ? `<p class="coach-event-notes">${escapeHtml(plan.notes)}</p>` : ""}
-            </div>
-            <div class="record-meta coach-event-meta">
-              <strong>${escapeHtml(countdownLabel(plan.event_date))}</strong>
-              <span class="badge neutral">${Number(compile.required_week_count ?? 0)} weeks</span>
-              <span class="badge ${linkedAthletes > 0 ? "active" : "neutral"}">${linkedAthletes} athlete${linkedAthletes === 1 ? "" : "s"}</span>
-            </div>
-          </article>
-        `;
-      }).join("")
-    : `
-      <div class="empty-state">
-        <div class="empty-icon">E</div>
-        <h3>No events compiled</h3>
-        <p>Create an event date anchor, then link athletes and programmes from each athlete profile.</p>
-      </div>
-    `;
 
   renderCoachEventPreview();
 }

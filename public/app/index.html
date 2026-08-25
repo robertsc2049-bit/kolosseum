@@ -1804,11 +1804,7 @@
 
           <p id="eventsStatus" class="muted small" role="status" aria-live="polite"></p>
 
-          <div class="metric-cards">
-            <article class="panel metric-card"><span>Events</span><strong id="eventCount">0</strong></article>
-            <article class="panel metric-card"><span>Upcoming</span><strong id="eventUpcomingCount">0</strong></article>
-            <article class="panel metric-card"><span>Athlete links</span><strong id="eventLinkedCount">0</strong></article>
-          </div>
+          <div id="coach-events-metrics-root" class="metric-cards"></div>
 
           <div class="two-column events-layout">
             <form id="eventForm" class="panel form-panel">
@@ -1847,7 +1843,7 @@
                   <button id="refreshEventsButton" class="button secondary" type="button">Refresh</button>
                 </div>
               </div>
-              <div id="eventList" class="record-list"></div>
+              <div id="coach-events-list-root" class="record-list"></div>
             </article>
           </div>
         </section>
