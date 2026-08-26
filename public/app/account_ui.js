@@ -355,21 +355,7 @@ export function completeCoachOnboarding(
   );
 }
 
-export function loadCoachBrandPreference() {
-  return request(
-    "GET",
-    "/coach-branding"
-  );
-}
-
-export function saveCoachBrandPreference(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/coach-branding",
-    input,
-    csrfToken
-  );
-}
+// DEV NOTE: FULL-UI-65 coach branding transport moved to React
+// (coachBrandingClient.ts) - loadCoachBrandPreference()/
+// saveCoachBrandPreference() were only ever consumed by the now-retired
+// coach_branding_ui.js.
