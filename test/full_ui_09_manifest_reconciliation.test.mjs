@@ -213,9 +213,9 @@ const targets = [
     "id": "subscription_state",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/account/CommercialPanel.tsx",
         "all": [
-          "commercialSubscriptionState"
+          "commercial.subscription_state"
         ]
       },
       {
@@ -227,9 +227,9 @@ const targets = [
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 displays factual subscription and seat state"
+          "loads and displays factual subscription, access, billing and seat state"
         ]
       }
     ]
@@ -239,18 +239,18 @@ const targets = [
     "id": "seat_allowance",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/account/CommercialPanel.tsx",
         "all": [
-          "commercialSeatAllowance",
-          "commercialSeatUsage"
+          "commercial.seat_limit",
+          "commercial.occupied_seat_count"
         ]
       }
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 displays factual subscription and seat state"
+          "loads and displays factual subscription, access, billing and seat state"
         ]
       }
     ]
@@ -260,9 +260,9 @@ const targets = [
     "id": "checkout_entry",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/account/CommercialPanel.tsx",
         "all": [
-          "commercialCheckoutButton"
+          "openCheckout"
         ]
       },
       {
@@ -274,9 +274,9 @@ const targets = [
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 checkout remains controlled-launch and provider-inert"
+          "requesting checkout with no checkout_url shows the provider-inert result message"
         ]
       }
     ]
@@ -286,7 +286,7 @@ const targets = [
     "id": "payment_return",
     "source": [
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/commercialClient.ts",
         "all": [
           "recordCommercialPaymentReturn",
           "/account/commercial/payment-return"
@@ -301,10 +301,9 @@ const targets = [
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 mounts authenticated commercial account routes",
-          "FULL-UI-08 persists immutable commercial records"
+          "a payment return in the URL records the outcome, shows the confirmation-pending notice, and strips the query params"
         ]
       }
     ]
@@ -314,23 +313,23 @@ const targets = [
     "id": "billing_portal",
     "source": [
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/commercialClient.ts",
         "all": [
           "requestCommercialBillingPortal"
         ]
       },
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/account/CommercialPanel.tsx",
         "all": [
-          "commercialPortalButton"
+          "openBillingPortal"
         ]
       }
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 exposes factual entitlement failure and portal gating"
+          "the billing portal button is disabled until the server marks the portal as available"
         ]
       }
     ]
@@ -340,13 +339,13 @@ const targets = [
     "id": "entitlement_error",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/account/CommercialPanel.tsx",
         "all": [
-          "commercialEntitlementError"
+          "commercial-entitlement-error"
         ]
       },
       {
-        "path": "public/app/commercial_ui.js",
+        "path": "public/app-src/screens/account/useCommercialAccount.ts",
         "all": [
           "entitlement_error"
         ]
@@ -354,9 +353,9 @@ const targets = [
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 exposes factual entitlement failure and portal gating"
+          "an entitlement error is shown as a factual notice, distinct from the general result message"
         ]
       }
     ]
@@ -951,8 +950,13 @@ test(
       // (test/full_ui_02_account_ui.test.mjs, enforced by that area's own
       // "FULL-UI-02C identity manifest is implemented and persistently
       // proven" test) - this generic cross-area reconciliation pass defers
-      // to it rather than re-stamping a competing pointer.
-      if (target.area === "identity_account") {
+      // to it rather than re-stamping a competing pointer. coach_commercial's
+      // billing functions (subscription_state/seat_allowance/checkout_entry/
+      // payment_return/billing_portal/entitlement_error) migrated to React
+      // and now point at CommercialPanel.test.tsx instead - coach_terms/
+      // coach_profile_setup/webhook_confirmation in the same area are
+      // unaffected and keep pointing at their own dedicated test files.
+      if (target.area === "identity_account" || target.area === "coach_commercial") {
         assert.ok(item.entry.direct_test, target.id);
       }
       else {

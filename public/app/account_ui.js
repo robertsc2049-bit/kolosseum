@@ -181,48 +181,11 @@ export function completeEmailVerification(
 // (client.ts's requestAccountClosure()) - was only ever consumed by
 // app.js's now-removed closePersistentAccount().
 
-export function loadCommercialAccount() {
-  return request(
-    "GET",
-    "/account/commercial"
-  );
-}
-
-export function requestCommercialCheckout(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/commercial/checkout",
-    input,
-    csrfToken
-  );
-}
-
-export function recordCommercialPaymentReturn(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/commercial/payment-return",
-    input,
-    csrfToken
-  );
-}
-
-export function requestCommercialBillingPortal(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/commercial/portal",
-    input,
-    csrfToken
-  );
-}
+// DEV NOTE: FULL-UI-08 commercial/billing transport moved to React
+// (commercialClient.ts) - loadCommercialAccount()/
+// requestCommercialCheckout()/recordCommercialPaymentReturn()/
+// requestCommercialBillingPortal() were only ever consumed by the now-
+// retired commercial_ui.js.
 
 // DEV NOTE: FULL-UI-19 data rights transport moved to React
 // (dataRightsClient.ts) - requestDataExport()/loadDataExportStatus()/

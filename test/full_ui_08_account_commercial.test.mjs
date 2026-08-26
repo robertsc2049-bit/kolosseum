@@ -1,3 +1,9 @@
+// DEV NOTE: the commercial/billing panel moved to React (CommercialPanel.tsx
+// + useCommercialAccount.ts, mounted at #account-commercial-root;
+// commercial_ui.js is retired) - see
+// public/app-src/__tests__/CommercialPanel.test.tsx for its behavioral
+// proof. Backend routes, service and schema are untouched and still
+// asserted directly below.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -9,14 +15,15 @@ const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
 const accountUi =
   read("public/app/account_ui.js");
-const commercialUi =
-  read("public/app/commercial_ui.js");
 const service =
   read("src/api/product_commercial_service.ts");
 const routes =
   read("src/api/product_commercial.routes.ts");
 const server = read("src/server.ts");
 const schema = read("schema.sql");
+const client = read("public/app-src/api/commercialClient.ts");
+const hook = read("public/app-src/screens/account/useCommercialAccount.ts");
+const panel = read("public/app-src/screens/account/CommercialPanel.tsx");
 
 test("FULL-UI-08 mounts authenticated commercial account routes", () => {
   assert.match(
@@ -84,42 +91,25 @@ test("FULL-UI-08 persists immutable commercial records", () => {
 });
 
 test("FULL-UI-08 displays factual subscription and seat state", () => {
-  for (const id of [
-    "accountCommercialPanel",
-    "commercialSubscriptionState",
-    "commercialAccessState",
-    "commercialBillingStatus",
-    "commercialPlan",
-    "commercialSeatAllowance",
-    "commercialSeatUsage",
-    "commercialSeatAvailable",
-    "commercialCheckoutButton",
-    "commercialPortalButton",
-    "commercialEntitlementError",
-    "commercialHistory"
+  assert.match(html, /id="account-commercial-root"/u);
+  assert.doesNotMatch(html, /commercial_ui\.js/u);
+
+  for (const needle of [
+    "commercial.subscription_state",
+    "commercial.product_access_state",
+    "commercial.billing_status",
+    "commercial.plan_id",
+    "commercial.seat_limit",
+    "commercial.occupied_seat_count",
+    "commercial.available_seat_count"
   ]) {
-    assert.match(
-      html,
-      new RegExp(`id="${id}"`, "u")
-    );
+    assert.ok(panel.includes(needle), `Expected panel to render ${needle}`);
   }
 
-  assert.match(
-    html,
-    /No live provider SDK call is performed/u
-  );
-  assert.match(
-    html,
-    /commercial_ui\.js/u
-  );
-  assert.match(
-    css,
-    /\.commercial-fact-grid/u
-  );
-  assert.match(
-    css,
-    /min-height: 44px/u
-  );
+  assert.match(panel, /id="accountCommercialPanel"/u);
+  assert.match(panel, /No live provider SDK call is performed by this product slice/u);
+  assert.match(css, /\.commercial-fact-grid/u);
+  assert.match(css, /min-height: 44px/u);
 });
 
 test("FULL-UI-08 uses persisted account APIs rather than browser-only state", () => {
@@ -130,30 +120,30 @@ test("FULL-UI-08 uses persisted account APIs rather than browser-only state", ()
     "/account/commercial/portal"
   ]) {
     assert.ok(
-      accountUi.includes(path),
+      client.includes(path),
       `Missing account API ${path}`
     );
   }
 
   assert.doesNotMatch(
-    commercialUi,
+    hook,
     /localStorage|sessionStorage/u
   );
   assert.match(
-    commercialUi,
-    /loadCommercialAccount/u
+    client,
+    /export function loadCommercialAccount/u
   );
   assert.match(
-    commercialUi,
-    /requestCommercialCheckout/u
+    client,
+    /export function requestCommercialCheckout/u
   );
   assert.match(
-    commercialUi,
-    /recordCommercialPaymentReturn/u
+    client,
+    /export function recordCommercialPaymentReturn/u
   );
   assert.match(
-    commercialUi,
-    /requestCommercialBillingPortal/u
+    client,
+    /export function requestCommercialBillingPortal/u
   );
 });
 
@@ -162,6 +152,11 @@ test("FULL-UI-08 checkout remains controlled-launch and provider-inert", () => {
     service,
     /controlled_launch_checkout_requested/u
   );
+  // NOTE: this specific service-side assertion is currently failing on
+  // main independent of this migration (the service now performs a real
+  // Stripe checkout.sessions.create() call, contradicting this string) -
+  // flagged separately, left as-is here since it is a backend-only concern
+  // this frontend migration does not touch.
   assert.match(
     service,
     /live_provider_call:\s*"not_performed_in_product_slice"/u
@@ -175,7 +170,7 @@ test("FULL-UI-08 checkout remains controlled-launch and provider-inert", () => {
     /trusted_provider_confirmation:\s*false/u
   );
   assert.match(
-    commercialUi,
+    hook,
     /No live provider call was performed/u
   );
 });
@@ -188,7 +183,7 @@ test("FULL-UI-08 exposes factual entitlement failure and portal gating", () => {
     "commercial_portal_unavailable"
   ]) {
     assert.ok(
-      `${service}\n${commercialUi}`.includes(code),
+      `${service}\n${hook}`.includes(code),
       `Missing factual state ${code}`
     );
   }
@@ -247,7 +242,7 @@ test("FULL-UI-08 keeps commercial scope individual and controlled", () => {
     /commercial_coach_account_required/u
   );
   assert.doesNotMatch(
-    commercialUi,
+    `${hook}\n${panel}`,
     /organisation|organization|team|gym|unit|federation|enterprise/iu
   );
 });
