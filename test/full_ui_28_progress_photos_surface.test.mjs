@@ -16,11 +16,15 @@ const recordStore = read("src/api/beta_product_record_store.ts");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
-// DEV NOTE: the coach-side mirror moved to React - see
-// public/app-src/screens/coach/AthleteProgressPhotosPanel.tsx and its
-// __tests__ file for its behavioral coverage. The athlete's own upload/
-// history/compare view stays legacy.
+// DEV NOTE: both the coach-side mirror and the athlete's own upload/
+// history/compare view have moved to React - see
+// public/app-src/screens/coach/AthleteProgressPhotosPanel.tsx,
+// public/app-src/screens/athlete/AthleteSelfProgressPhotosPanel.tsx (and
+// their __tests__ files) for behavioral coverage.
 const athleteProgressPhotosPanel = read("public/app-src/screens/coach/AthleteProgressPhotosPanel.tsx");
+const athleteSelfProgressPhotosPanel = read("public/app-src/screens/athlete/AthleteSelfProgressPhotosPanel.tsx");
+const useAthleteProgressPhotosSelf = read("public/app-src/screens/athlete/useAthleteProgressPhotosSelf.ts");
+const athleteProgressPhotosClient = read("public/app-src/api/athleteProgressPhotosClient.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -93,14 +97,12 @@ test("uploaded photos are never served through express.static, and storage keys 
 });
 
 test("the athlete upload widget and coach read-only grid exist as real controls, and captions are escaped before rendering", () => {
-  assert.match(indexHtml, /id="progressPhotoUploadForm"/u);
-  assert.match(indexHtml, /id="progressPhotoFileInput"/u);
-  assert.match(indexHtml, /id="progressPhotoGrid"/u);
+  assert.match(indexHtml, /id="athlete-self-progress-photos-root"/u);
   assert.match(indexHtml, /id="athlete-progress-photos-root"/u);
 
-  assert.match(appJs, /escapeHtml\(photo\.caption\)/u);
-  assert.match(appJs, /async function refreshProgressPhotos/u);
-  assert.match(appJs, /async function uploadProgressPhoto/u);
+  assert.match(athleteSelfProgressPhotosPanel, /export function AthleteSelfProgressPhotosPanel/u);
+  assert.match(athleteSelfProgressPhotosPanel, /photo\.caption \? <p>\{String\(photo\.caption\)\}<\/p> : null/u);
+  assert.match(useAthleteProgressPhotosSelf, /uploadProgressPhotoSelf/u);
   assert.match(athleteProgressPhotosPanel, /useAthleteProgressPhotos/u);
 });
 
@@ -111,36 +113,34 @@ test("a photo's byte_size, which progress_photo_service.ts already computes and 
   // athlete's own grid nor the coach's read-only view ever showed how
   // large a progress photo was. Same phantom-field bug class as #884.
   assert.match(appJs, /function formatAttachmentSize/u);
-  assert.match(appJs, /formatAttachmentSize\(photo\.byte_size\)/u);
+  assert.match(athleteSelfProgressPhotosPanel, /formatAttachmentSize\(photo\.byte_size\)/u);
 });
 
+// DEV NOTE: both the athlete's own compare-selection and the coach's now
+// live as local React state (useState<string[]>) rather than the removed
+// shared state.progressPhotoCompareIds/bindProgressPhotoCompareToggles -
+// the athlete side deliberately dropped the localStorage-persisted
+// "survives a page reload" behavior to match the simplification the coach
+// mirror already made, since a two-photo scratch selection isn't worth
+// this migration's only localStorage-backed hook.
 test("both the athlete's own grid and the coach's read-only grid support selecting exactly two photos for a side-by-side comparison", () => {
-  assert.match(indexHtml, /id="progressPhotoComparison"/u);
+  assert.match(indexHtml, /id="athlete-self-progress-photos-root"/u);
   assert.match(indexHtml, /id="athlete-progress-photos-root"/u);
 
-  assert.match(appJs, /function toggleProgressPhotoCompareSelection/u);
-  assert.match(appJs, /function bindProgressPhotoCompareToggles/u);
-  assert.match(appJs, /function renderProgressPhotoComparisonPanel/u);
-  assert.match(appJs, /data-progress-photo-compare="\$\{escapeHtml\(photo\.photo_id\)\}"/u);
-
-  assert.match(appJs, /bindProgressPhotoCompareToggles\(elements\.progressPhotoGrid, "progressPhotoCompareIds", renderProgressPhotos\)/u);
-  // The coach's version now owns its compare selection as local React
-  // state (see the DEV NOTE above) rather than a shared state[stateKey]
-  // array bound through bindProgressPhotoCompareToggles.
+  assert.match(athleteSelfProgressPhotosPanel, /useState<string\[\]>/u);
+  assert.match(athleteSelfProgressPhotosPanel, /aria-pressed=\{selected\}/u);
   assert.match(athleteProgressPhotosPanel, /useState<string\[\]>/u);
   assert.match(athleteProgressPhotosPanel, /aria-pressed=\{selected\}/u);
 });
 
 test("selecting a third photo drops the oldest selection rather than refusing the click, and the comparison panel only ever renders exactly two photos, oldest first", () => {
-  assert.match(appJs, /if \(current\.length > 2\) current\.shift\(\);/u);
-  assert.match(appJs, /if \(selectedIds\.length !== 2\)/u);
-  assert.match(appJs, /\.sort\(\s*\n?\s*\(left, right\) => new Date\(left\.taken_at_iso8601\) - new Date\(right\.taken_at_iso8601\)\s*\n?\s*\)/u);
-
-  assert.match(athleteProgressPhotosPanel, /next\.length > 2 \? next\.slice\(1\) : next/u);
-  assert.match(
-    athleteProgressPhotosPanel,
-    /new Date\(String\(left\.taken_at_iso8601\)\)\.getTime\(\) - new Date\(String\(right\.taken_at_iso8601\)\)\.getTime\(\)/u
-  );
+  for (const source of [athleteSelfProgressPhotosPanel, athleteProgressPhotosPanel]) {
+    assert.match(source, /next\.length > 2 \? next\.slice\(1\) : next/u);
+    assert.match(
+      source,
+      /new Date\(String\(left\.taken_at_iso8601\)\)\.getTime\(\) - new Date\(String\(right\.taken_at_iso8601\)\)\.getTime\(\)/u
+    );
+  }
 });
 
 test("the FULL-UI-28 manifest area declares all three functions as implemented with real routes and tests", () => {
