@@ -11,6 +11,10 @@ const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
 const js = read("public/app/app.js");
 const routeBootstrap = read("public/app/route_bootstrap.js");
+const dataRightsPanel = read("public/app-src/screens/account/AccountDataRightsPanel.tsx");
+const dataRightsHook = read("public/app-src/screens/account/useAccountDataRights.ts");
+const supportPanel = read("public/app-src/screens/account/AccountSupportPanel.tsx");
+const supportHook = read("public/app-src/screens/account/useAccountSupport.ts");
 
 test("every focusable control gets a visible keyboard-only focus ring, distinct from mouse-hover styling", () => {
   assert.match(
@@ -71,16 +75,27 @@ test("a form submit or button click cannot be repeated while its own async actio
   assert.ok(guardedCallCount >= 10, `expected at least 10 guardedAction call sites, found ${guardedCallCount}`);
 
   // saveAccountProfile/requestAccountVerificationCode/verifyAccountEmail/
-  // saveAccountPassword migrated to React, which handles its own
+  // saveAccountPassword/submitSupportReport/requestDataExportAction/
+  // confirmDataDeletionAction migrated to React, which handles its own
   // in-flight/disabled submit state per component - see
   // public/app-src/screens/account/.
   for (const fn of [
-    "handleResetRequest", "handleResetComplete", "submitSupportReport",
-    "closePersistentAccount", "requestDataExportAction", "confirmDataDeletionAction"
+    "handleResetRequest", "handleResetComplete", "closePersistentAccount"
   ]) {
     const re = new RegExp(`guardedAction\\((?:submitButtonOf|elements\\.\\w+), ${fn}\\)`, "u");
     assert.match(js, re, `expected a guardedAction wrapping ${fn}`);
   }
+
+  // React's own equivalent of the same guarantee: the support report, the
+  // export request and the deletion confirm each disable their own button
+  // while their state's own submitting/requestingExport flag is true,
+  // instead of a shared elements.*-keyed helper.
+  assert.match(supportPanel, /type="submit" disabled=\{submitting\}/u);
+  assert.match(supportHook, /submitting: true/u);
+  assert.match(dataRightsPanel, /disabled=\{requestingExport\}/u);
+  assert.match(dataRightsPanel, /type="submit" disabled=\{submitting\}/u);
+  assert.match(dataRightsHook, /requestingExport: true/u);
+  assert.match(dataRightsHook, /submitting: true/u);
 });
 
 test("leaving a form with unsaved changes - a coach note or a programme draft - requires explicit confirmation, including on browser refresh/close", () => {
@@ -105,7 +120,7 @@ test("destructive or state-changing actions require an explicit confirmation bef
   // rather than a dismissable browser confirm() dialog.
   assert.match(js, /account_closure_confirmation_required: "Type CLOSE exactly to request closure\."/u);
   assert.match(html, /id="accountClosureConfirmation"/u);
-  assert.match(html, /id="dataDeletionConfirmation"/u);
+  assert.match(dataRightsPanel, /placeholder="Type DELETE"/u);
 });
 
 test("an unmapped internal error token never reaches the user as raw text - it always falls back to a status-appropriate plain-English message", () => {

@@ -238,79 +238,11 @@ export function requestCommercialBillingPortal(
   );
 }
 
-export function requestDataExport(csrfToken) {
-  return request(
-    "POST",
-    "/account/data-rights/export",
-    {},
-    csrfToken
-  );
-}
-
-export function loadDataExportStatus() {
-  return request(
-    "GET",
-    "/account/data-rights/export"
-  );
-}
-
-export async function downloadDataExport(
-  exportRequestId
-) {
-  const response = await fetch(
-    `/account/data-rights/export/${encodeURIComponent(exportRequestId)}/download`,
-    { method: "GET", credentials: "same-origin" }
-  );
-
-  const payload = await readJson(response);
-
-  if (!response.ok) {
-    const error = new Error(
-      String(
-        payload?.error ??
-        payload?.details?.failure_token ??
-        `account_request_${response.status}`
-      )
-    );
-
-    error.payload = payload;
-    error.status = response.status;
-
-    throw error;
-  }
-
-  return payload;
-}
-
-export function loadDataDeletionPreview(
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/data-rights/deletion/preview",
-    {},
-    csrfToken
-  );
-}
-
-export function confirmDataDeletion(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/data-rights/deletion",
-    input,
-    csrfToken
-  );
-}
-
-export function loadDataDeletionStatus() {
-  return request(
-    "GET",
-    "/account/data-rights/deletion"
-  );
-}
+// DEV NOTE: FULL-UI-19 data rights transport moved to React
+// (dataRightsClient.ts) - requestDataExport()/loadDataExportStatus()/
+// downloadDataExport()/loadDataDeletionPreview()/confirmDataDeletion()/
+// loadDataDeletionStatus() were only ever consumed by app.js's now-removed
+// data rights panel rendering.
 
 export function loadCoachOnboardingState() {
   return request(
