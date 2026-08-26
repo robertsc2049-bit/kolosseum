@@ -237,11 +237,6 @@ const elements = {
   progressPhotoStatus: document.getElementById("progressPhotoStatus"),
   progressPhotoGrid: document.getElementById("progressPhotoGrid"),
   progressPhotoComparison: document.getElementById("progressPhotoComparison"),
-  habitCreateForm: document.getElementById("habitCreateForm"),
-  habitLabelInput: document.getElementById("habitLabelInput"),
-  habitCadenceSelect: document.getElementById("habitCadenceSelect"),
-  habitStatus: document.getElementById("habitStatus"),
-  habitList: document.getElementById("habitList"),
 
   coachGreeting: document.getElementById("coachGreeting"),
   coachAthleteCount: document.getElementById("coachAthleteCount"),
@@ -332,7 +327,6 @@ const elements = {
   athleteDetailMessageText: document.getElementById("athleteDetailMessageText"),
   athleteDetailMessageAttachment: document.getElementById("athleteDetailMessageAttachment"),
   athleteDetailMessageCancelButton: document.getElementById("athleteDetailMessageCancelButton"),
-  athleteDetailHabitList: document.getElementById("athleteDetailHabitList"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -2601,7 +2595,6 @@ async function refreshHistory(options = {}) {
   notifyTodayChanged();
   document.dispatchEvent(new CustomEvent("kolosseum:history-changed"));
   refreshProgressPhotos({ quiet: true }).catch(() => {});
-  refreshHabits({ quiet: true }).catch(() => {});
 
   if (!options.quiet) showNotice("Training history refreshed.");
   return state.history;
@@ -4417,132 +4410,16 @@ async function uploadProgressPhoto() {
 // nothing else in legacy read state.coachAthleteBodyMetricEntries besides
 // the rendering this replaced.
 
-// Habit streak counts are plain arithmetic over the athlete's own
-// self-declared completion dates - rendered as bare integers with no
-// color grading, percentage framing or comparison to a target the
-// athlete didn't set themselves.
-function renderHabitCard(habit, options = {}) {
-  const archived = Boolean(habit.archived_at_iso8601);
-  const actions = options.readOnly || archived
-    ? ""
-    : `
-      <div class="inline-controls">
-        <button class="button secondary" type="button" data-habit-action="complete" data-habit-id="${escapeHtml(habit.habit_id)}">Mark done today</button>
-        <button class="button secondary" type="button" data-habit-action="archive" data-habit-id="${escapeHtml(habit.habit_id)}">Archive</button>
-      </div>
-    `;
-
-  return `
-    <article class="record-card">
-      <div class="record-meta">
-        <span class="badge neutral">${escapeHtml(titleCase(habit.cadence))}</span>
-        ${archived ? '<span class="muted small">Archived</span>' : ""}
-      </div>
-      <strong>${escapeHtml(habit.habit_label)}</strong>
-      <p>${habit.current_streak_length} day${habit.current_streak_length === 1 ? "" : "s"} logged in a row - longest ${habit.longest_streak_length}, ${habit.total_completions} total.</p>
-      ${actions}
-    </article>
-  `;
-}
-
-function renderHabitList(container, habits, options = {}) {
-  if (!container) return;
-
-  if (habits.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state compact-empty">
-        <p>No habits yet.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = habits.map((habit) => renderHabitCard(habit, options)).join("");
-}
-
-async function refreshHabits(options = {}) {
-  if (state.role !== "athlete") return;
-
-  try {
-    const response = await api("GET", "/habits");
-    state.habits = Array.isArray(response.habits) ? response.habits : [];
-    renderHabitList(elements.habitList, state.habits);
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
-
-async function createHabit() {
-  const habitLabel = elements.habitLabelInput?.value?.trim();
-  const cadence = elements.habitCadenceSelect?.value;
-
-  if (!habitLabel || !cadence) {
-    elements.habitStatus.hidden = false;
-    elements.habitStatus.textContent = "Enter a habit and choose a cadence.";
-    return;
-  }
-
-  showBusy("Creating habit…");
-  try {
-    await api("POST", "/habits", { habit_label: habitLabel, cadence });
-    elements.habitCreateForm.reset();
-    elements.habitStatus.hidden = true;
-    await refreshHabits({ quiet: true });
-    showNotice("Habit created.");
-  }
-  catch (error) {
-    elements.habitStatus.hidden = false;
-    elements.habitStatus.textContent = friendlyError(error.payload, error.status) || "Habit could not be created.";
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-async function logHabitCompletionToday(habitId) {
-  showBusy("Marking habit done…");
-  try {
-    const today = new Date().toISOString().slice(0, 10);
-    await api("POST", `/habits/${encodeURIComponent(habitId)}/completions`, { completion_date: today });
-    await refreshHabits({ quiet: true });
-    showNotice("Habit marked done for today.");
-  }
-  catch (error) {
-    showNotice(friendlyError(error.payload, error.status) || "Could not mark habit done.");
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-async function archiveHabit(habitId) {
-  showBusy("Archiving habit…");
-  try {
-    await api("POST", `/habits/${encodeURIComponent(habitId)}/archive`);
-    await refreshHabits({ quiet: true });
-    showNotice("Habit archived.");
-  }
-  catch (error) {
-    showNotice(friendlyError(error.payload, error.status) || "Could not archive habit.");
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-async function refreshCoachAthleteHabits(athleteUserId, options = {}) {
-  if (!athleteUserId || !elements.athleteDetailHabitList) return;
-
-  try {
-    const response = await api("GET", `/habits/coach/${encodeURIComponent(athleteUserId)}`);
-    state.coachAthleteHabits = Array.isArray(response.habits) ? response.habits : [];
-    renderHabitList(elements.athleteDetailHabitList, state.coachAthleteHabits, { readOnly: true });
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
+// DEV NOTE: both the athlete's own habit create/complete/archive panel
+// (AthleteSelfHabitsPanel.tsx into #athlete-self-habits-root, see
+// useAthleteHabitsSelf.ts) and the coach's read-only mirror
+// (AthleteHabitsPanel.tsx into #athlete-habits-root, see
+// useAthleteHabits.ts) moved to React. Habit streak counts
+// (current_streak_length/longest_streak_length/total_completions) arrive
+// pre-computed on every habit record from GET /habits -
+// computeHabitStreak() runs server-side only (see
+// bodyMetricsAndHabitsLifecycle.mjs) and was never ported; both panels
+// just render the integers verbatim, same as this file used to.
 
 // A goal's current_value/progress_percentage/is_goal_met are computed
 // server-side on every request from the athlete's own body-metric entries
@@ -4760,12 +4637,6 @@ async function openAthleteProfile(athleteUserId) {
       {
         quiet: true
       }
-    ),
-    refreshCoachAthleteHabits(
-      athleteUserId,
-      {
-        quiet: true
-      }
     )
   ]);
 
@@ -4780,7 +4651,6 @@ function closeAthleteProfile() {
   state.liveMessageThreadId = null;
   state.coachAthleteProgressPhotos = [];
   state.coachAthleteBodyMetricEntries = [];
-  state.coachAthleteHabits = [];
   saveState();
   elements.athleteProfilePanel.hidden = true;
   elements.athleteAssignmentPanel.hidden = true;
@@ -13575,23 +13445,6 @@ elements.eventForm.addEventListener("submit", (event) => {
 elements.progressPhotoUploadForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   uploadProgressPhoto().catch(handleError);
-});
-
-elements.habitCreateForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  createHabit().catch(handleError);
-});
-
-elements.habitList?.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-habit-action]");
-  if (!button) return;
-  const habitId = button.dataset.habitId;
-  if (button.dataset.habitAction === "complete") {
-    logHabitCompletionToday(habitId).catch(handleError);
-  }
-  else if (button.dataset.habitAction === "archive") {
-    archiveHabit(habitId).catch(handleError);
-  }
 });
 
 elements.refreshTemplatesButton.addEventListener("click", () => {
