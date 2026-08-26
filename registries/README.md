@@ -25,7 +25,7 @@ Use `npm run registry:bundle` or `node scripts/bundle_writer.cjs` only in slices
 
 `registries/final_registry_surface_manifest.json` is the sole machine-readable final registry architecture authority. Every discovered registry concept is classified exactly once as `required_active`, `derived_generated`, `retained_legacy`, `dormant`, or `prohibited`.
 
-Later REG-FULL slices must consume the manifest rather than infer architecture from the current index, bundle, README, historical activation counts, or file presence.
+Later REG-FULL slices must consume the manifest rather than infer architecture from the current index, bundle, README, historical activation counts, or file presence. REG-FULL-01 must fail closed if that manifest is absent, non-authoritative, unclassified, or reports an unresolved architecture conflict.
 
 ## Schema validity and FK closure
 
