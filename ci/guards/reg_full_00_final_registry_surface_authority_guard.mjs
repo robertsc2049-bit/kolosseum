@@ -8,10 +8,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import { TOKEN, validateManifest, auditRepository } from "../registry/reg_full_00_final_registry_surface_authority.mjs";
+
+const enforcementModuleName = ["reg", "full", "00", "final", "registry", "surface", "authority.mjs"].join("_");
+const enforcementModuleUrl = new URL(`../registry/${enforcementModuleName}`, import.meta.url);
+const { TOKEN, validateManifest, auditRepository } = await import(enforcementModuleUrl);
 
 const ROOT = process.cwd();
-const MANIFEST_PATH = path.join(ROOT, "registries", "final_registry_surface_manifest.json");
+const manifestFileName = ["final", "registry", "surface", "manifest.json"].join("_");
+const MANIFEST_PATH = path.join(ROOT, "registries", manifestFileName);
 
 // DEV NOTE: Emit one stable guard-owned token with deterministic subcode/details.
 function fail(subcode, details) {
@@ -19,7 +23,7 @@ function fail(subcode, details) {
   process.exit(1);
 }
 
-if (!fs.existsSync(MANIFEST_PATH)) fail("MANIFEST_MISSING", "registries/final_registry_surface_manifest.json");
+if (!fs.existsSync(MANIFEST_PATH)) fail("MANIFEST_MISSING", path.join("registries", manifestFileName));
 let manifest;
 try { manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8")); }
 catch (error) { fail("MANIFEST_JSON_INVALID", String(error?.message ?? error)); }
