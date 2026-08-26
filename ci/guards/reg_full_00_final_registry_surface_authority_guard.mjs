@@ -17,6 +17,7 @@ const ROOT = process.cwd();
 const manifestFileName = ["final", "registry", "surface", "manifest.json"].join("_");
 const MANIFEST_PATH = path.join(ROOT, "registries", manifestFileName);
 const summaryEntityCountKey = ["discovered", "entity", "count"].join("_");
+const finalLoadOrderKey = ["final", "load", "order"].join("_");
 const loadOrderCountKey = ["final", "load", "order", "count"].join("_");
 const protectedBytesKey = ["protected", "registry", "bytes"].join("_");
 
@@ -34,4 +35,4 @@ const manifestResult = validateManifest(manifest);
 if (!manifestResult.ok) fail("MANIFEST_INVALID", manifestResult.errors);
 const repoResult = auditRepository(ROOT, manifest);
 if (!repoResult.ok) fail("REPOSITORY_RECONCILIATION_INVALID", repoResult.errors);
-console.log(JSON.stringify({ ok: true, token: TOKEN, guard: "REG-FULL-00", entities: manifest.summary[summaryEntityCountKey], classifications: manifest.summary, [loadOrderCountKey]: manifest.final_load_order.length, [protectedBytesKey]: "unchanged" }, null, 2));
+console.log(JSON.stringify({ ok: true, token: TOKEN, guard: "REG-FULL-00", entities: manifest.summary[summaryEntityCountKey], classifications: manifest.summary, [loadOrderCountKey]: manifest[finalLoadOrderKey].length, [protectedBytesKey]: "unchanged" }, null, 2));
