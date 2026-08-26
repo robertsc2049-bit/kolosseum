@@ -65,9 +65,7 @@ test(
       "passwordResetRequestForm",
       "passwordResetCompleteForm",
       "entryTermsVersion",
-      "entryConsentVersion",
-      "signOutButton",
-      "accountClosureForm"
+      "entryConsentVersion"
     ];
 
     for (const id of controlIds) {
@@ -81,15 +79,19 @@ test(
       );
     }
 
-    // profile_update/email_verification/password_change/consent_history
-    // (accountProfileForm/requestVerificationButton/
-    // completeVerificationButton/accountPasswordForm/accountConsentHistory/
+    // profile_update/email_verification/password_change/consent_history/
+    // sign_out/account_close_request (accountProfileForm/
+    // requestVerificationButton/completeVerificationButton/
+    // accountPasswordForm/accountConsentHistory/
     // accountCurrentTermsVersion/accountAcceptedTermsVersion/
-    // accountCurrentConsentVersion/accountAcceptedConsentVersion) migrated
-    // to the React island mounted here - their controls are proven
-    // behaviorally in public/app-src/__tests__/AccountIdentityPanel.test.tsx
-    // rather than as static HTML control IDs.
+    // accountCurrentConsentVersion/accountAcceptedConsentVersion/
+    // signOutButton/accountClosureForm) migrated to the React island
+    // mounted here - their controls are proven behaviorally in
+    // public/app-src/__tests__/AccountIdentityPanel.test.tsx rather than
+    // as static HTML control IDs.
     assert.match(html, /id="account-identity-root"/u);
+    assert.doesNotMatch(html, /id="signOutButton"/u);
+    assert.doesNotMatch(html, /id="accountClosureForm"/u);
   }
 );
 
@@ -101,15 +103,13 @@ test(
       "registerAccount",
       "signInAccount",
       "restoreAccountSession",
-      "signOutAccount",
       "loadAccountDetail",
       "updateAccountProfile",
       "changeAccountPassword",
       "requestPasswordReset",
       "completePasswordReset",
       "requestEmailVerification",
-      "completeEmailVerification",
-      "requestAccountClosure"
+      "completeEmailVerification"
     ];
 
     for (const functionName of functions) {
@@ -122,6 +122,18 @@ test(
         `missing account client function ${functionName}`
       );
     }
+
+    // signOutAccount/requestAccountClosure moved to the React client
+    // (public/app-src/api/client.ts) alongside sign_out/
+    // account_close_request's migrated controls.
+    const reactClient = fs.readFileSync(
+      new URL("../public/app-src/api/client.ts", import.meta.url),
+      "utf8"
+    );
+    assert.match(reactClient, /export function signOutAccount/u);
+    assert.match(reactClient, /export function requestAccountClosure/u);
+    assert.doesNotMatch(accountUi, /export function signOutAccount/u);
+    assert.doesNotMatch(accountUi, /export function requestAccountClosure/u);
 
     assert.match(
       accountUi,
@@ -139,13 +151,29 @@ test(
   "FULL-UI-02 restores server identity into the existing product workspace",
   () => {
     // saveAccountProfile/requestAccountVerificationCode/verifyAccountEmail/
-    // saveAccountPassword migrated to React - see
-    // public/app-src/screens/account/ and the
-    // kolosseum:account-identity-updated bridge listener app.js keeps to
-    // stay in sync with React-driven identity updates.
+    // saveAccountPassword/closePersistentAccount/clearLocalSession migrated
+    // to React - see public/app-src/screens/account/ and the
+    // kolosseum:account-identity-updated/kolosseum:account-session-ended
+    // bridge listeners app.js keeps to stay in sync with React-driven
+    // identity updates and session endings.
     assert.match(
       app,
       /kolosseum:account-identity-updated/u
+    );
+
+    assert.match(
+      app,
+      /kolosseum:account-session-ended/u
+    );
+
+    assert.doesNotMatch(
+      app,
+      /\bclosePersistentAccount\b/u
+    );
+
+    assert.doesNotMatch(
+      app,
+      /\bclearLocalSession\b/u
     );
 
     for (const token of [
@@ -157,8 +185,7 @@ test(
       "renderTermsState",
       "restoreAccountSession",
       "handleEntrySubmit",
-      "loadPersistentAccountDetail",
-      "closePersistentAccount"
+      "loadPersistentAccountDetail"
     ]) {
       assert.match(
         app,
@@ -251,16 +278,19 @@ test(
       expectedFunctions
     );
 
-    // profile_update/password_change/email_verification/consent_history
-    // migrated to React - their direct_test now points at the component
-    // test file that replaced this file's former source-text checks for
-    // exactly those four functions. Every other function in this area is
-    // still legacy-rendered and keeps pointing here.
+    // profile_update/password_change/email_verification/consent_history/
+    // sign_out/account_close_request migrated to React - their direct_test
+    // now points at the component test file that replaced this file's
+    // former source-text checks for exactly those six functions. Every
+    // other function in this area is still legacy-rendered and keeps
+    // pointing here.
     const migratedToReact = new Set([
       "profile_update",
       "password_change",
       "email_verification",
-      "consent_history"
+      "consent_history",
+      "sign_out",
+      "account_close_request"
     ]);
 
     for (const entry of area.functions) {

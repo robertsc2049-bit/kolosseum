@@ -71,31 +71,38 @@ test("a form submit or button click cannot be repeated while its own async actio
   assert.match(js, /if \(button\) button\.disabled = true;/u);
   assert.match(js, /function submitButtonOf\(event\)/u);
 
+  // The count of remaining app.js call sites shrinks by one each time a
+  // guardedAction-wrapped function migrates to React (it gains its own
+  // disabled-while-submitting state instead) - see the migrated list below.
   const guardedCallCount = [...js.matchAll(/guardedAction\(/gu)].length - 1; // -1 for the function definition itself
-  assert.ok(guardedCallCount >= 10, `expected at least 10 guardedAction call sites, found ${guardedCallCount}`);
+  assert.ok(guardedCallCount >= 9, `expected at least 9 guardedAction call sites, found ${guardedCallCount}`);
 
   // saveAccountProfile/requestAccountVerificationCode/verifyAccountEmail/
   // saveAccountPassword/submitSupportReport/requestDataExportAction/
-  // confirmDataDeletionAction migrated to React, which handles its own
-  // in-flight/disabled submit state per component - see
-  // public/app-src/screens/account/.
+  // confirmDataDeletionAction/closePersistentAccount migrated to React,
+  // which handles its own in-flight/disabled submit state per component -
+  // see public/app-src/screens/account/.
   for (const fn of [
-    "handleResetRequest", "handleResetComplete", "closePersistentAccount"
+    "handleResetRequest", "handleResetComplete"
   ]) {
     const re = new RegExp(`guardedAction\\((?:submitButtonOf|elements\\.\\w+), ${fn}\\)`, "u");
     assert.match(js, re, `expected a guardedAction wrapping ${fn}`);
   }
 
   // React's own equivalent of the same guarantee: the support report, the
-  // export request and the deletion confirm each disable their own button
-  // while their state's own submitting/requestingExport flag is true,
-  // instead of a shared elements.*-keyed helper.
+  // export request, the deletion confirm and the account closure request
+  // each disable their own button while their state's own submitting/
+  // requestingExport flag is true, instead of a shared elements.*-keyed
+  // helper.
   assert.match(supportPanel, /type="submit" disabled=\{submitting\}/u);
   assert.match(supportHook, /submitting: true/u);
   assert.match(dataRightsPanel, /disabled=\{requestingExport\}/u);
   assert.match(dataRightsPanel, /type="submit" disabled=\{submitting\}/u);
   assert.match(dataRightsHook, /requestingExport: true/u);
   assert.match(dataRightsHook, /submitting: true/u);
+
+  const accountClosurePanel = read("public/app-src/screens/account/AccountClosurePanel.tsx");
+  assert.match(accountClosurePanel, /type="submit" disabled=\{submitting\}/u);
 });
 
 test("leaving a form with unsaved changes - a coach note or a programme draft - requires explicit confirmation, including on browser refresh/close", () => {
@@ -118,8 +125,8 @@ test("destructive or state-changing actions require an explicit confirmation bef
 
   // Account closure and data-deletion use a stronger typed-word confirmation
   // rather than a dismissable browser confirm() dialog.
-  assert.match(js, /account_closure_confirmation_required: "Type CLOSE exactly to request closure\."/u);
-  assert.match(html, /id="accountClosureConfirmation"/u);
+  const accountClosurePanel = read("public/app-src/screens/account/AccountClosurePanel.tsx");
+  assert.match(accountClosurePanel, /placeholder="Type CLOSE"/u);
   assert.match(dataRightsPanel, /placeholder="Type DELETE"/u);
 });
 

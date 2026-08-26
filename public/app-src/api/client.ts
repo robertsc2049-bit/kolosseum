@@ -29,3 +29,11 @@ export function requestEmailVerification(csrfToken: string): Promise<JsonRecord>
 export function completeEmailVerification(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/account/email-verification/complete", input, csrfToken);
 }
+
+export function signOutAccount(csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/sign-out", {}, csrfToken);
+}
+
+export function requestAccountClosure(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/closure", input, csrfToken);
+}

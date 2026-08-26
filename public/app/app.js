@@ -3,11 +3,9 @@ import {
   loadAccountDetail as fetchAccountDetail,
   loadCurrentTerms,
   registerAccount,
-  requestAccountClosure,
   requestPasswordReset,
   restoreAccountSession,
-  signInAccount,
-  signOutAccount
+  signInAccount
 } from "./account_ui.js";
 
 // FULL-UI-18 factual in-product notifications.
@@ -412,12 +410,8 @@ const elements = {
   refreshAccountButton: document.getElementById("refreshAccountButton"),
   entryTermsVersion: document.getElementById("entryTermsVersion"),
   entryConsentVersion: document.getElementById("entryConsentVersion"),
-  accountClosureForm: document.getElementById("accountClosureForm"),
-  accountClosureConfirmation: document.getElementById("accountClosureConfirmation"),
-  accountClosureResult: document.getElementById("accountClosureResult"),
   accountCode: document.getElementById("accountCode"),
-  copyAccountCodeButton: document.getElementById("copyAccountCodeButton"),
-  signOutButton: document.getElementById("signOutButton")
+  copyAccountCodeButton: document.getElementById("copyAccountCodeButton")
 };
 
 function cloneDefaultState() {
@@ -11918,36 +11912,12 @@ async function loadPersistentAccountDetail(
   return detail;
 }
 
-// DEV NOTE: FULL-UI-02 profile_update/email_verification/password_change
-// migrated to React (public/app-src/screens/account/) - see the
-// kolosseum:account-identity-updated listener below for how this legacy
-// module stays in sync with React-driven identity updates.
-
-async function closePersistentAccount(
-  event
-) {
-  event.preventDefault();
-
-  const confirmation =
-    elements.accountClosureConfirmation.value
-      .trim();
-
-  const response =
-    await requestAccountClosure(
-      { confirmation },
-      state.csrfToken
-    );
-
-  elements.accountClosureResult.hidden =
-    false;
-
-  elements.accountClosureResult.textContent =
-    `Closure request recorded: ${response.closure_request_id}`;
-
-  resetAccountState();
-
-  location.assign("/app/");
-}
+// DEV NOTE: FULL-UI-02 profile_update/email_verification/password_change/
+// sign_out/account_close_request migrated to React (public/app-src/
+// screens/account/) - see the kolosseum:account-identity-updated and
+// kolosseum:account-session-ended listeners below for how this legacy
+// module stays in sync with React-driven identity updates and session
+// endings.
 
 // DEV NOTE: FULL-UI-19 data rights export/deletion moved to React
 // (AccountDataRightsPanel.tsx into #account-data-rights-root, see
@@ -12091,20 +12061,6 @@ function handleMessagingSocketPayload(envelope) {
     }
     state.athleteOrgMessageThreads = entries;
     renderAthleteOrgMessages();
-  }
-}
-
-async function clearLocalSession() {
-  try {
-    if (state.csrfToken) {
-      await signOutAccount(
-        state.csrfToken
-      );
-    }
-  }
-  finally {
-    resetAccountState();
-    location.assign("/app/");
   }
 }
 
@@ -13018,6 +12974,20 @@ document.addEventListener(
   }
 );
 
+// DEV NOTE: React's SignOutPanel.tsx/AccountClosurePanel.tsx dispatch this
+// once the session has ended (sign-out always; closure only on a
+// successfully recorded request) - resetAccountState()/redirect stay here
+// since bootstrapApplication's own failure path also calls
+// resetAccountState() directly and must keep doing so independent of this
+// bridge.
+document.addEventListener(
+  "kolosseum:account-session-ended",
+  () => {
+    resetAccountState();
+    location.assign("/app/");
+  }
+);
+
 // DEV NOTE: React owns the strength-profile editor now (see
 // public/app-src/screens/coach/AthleteStrengthProfilePanel.tsx) - this
 // bridge keeps the still-legacy assignment-eligibility and athlete-detail
@@ -13091,22 +13061,6 @@ document.addEventListener(
 
     setView("athletes");
     openAthleteProfile(athleteUserId).catch(handleError);
-  }
-);
-
-elements.accountClosureForm.addEventListener(
-  "submit",
-  (event) => {
-    guardedAction(submitButtonOf, closePersistentAccount)(event)
-      .catch(handleError);
-  }
-);
-
-elements.signOutButton.addEventListener(
-  "click",
-  () => {
-    clearLocalSession()
-      .catch(handleError);
   }
 );
 
