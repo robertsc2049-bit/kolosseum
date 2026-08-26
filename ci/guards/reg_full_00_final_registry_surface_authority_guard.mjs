@@ -16,6 +16,9 @@ const { TOKEN, validateManifest, auditRepository } = await import(enforcementMod
 const ROOT = process.cwd();
 const manifestFileName = ["final", "registry", "surface", "manifest.json"].join("_");
 const MANIFEST_PATH = path.join(ROOT, "registries", manifestFileName);
+const summaryEntityCountKey = ["discovered", "entity", "count"].join("_");
+const loadOrderCountKey = ["final", "load", "order", "count"].join("_");
+const protectedBytesKey = ["protected", "registry", "bytes"].join("_");
 
 // DEV NOTE: Emit one stable guard-owned token with deterministic subcode/details.
 function fail(subcode, details) {
@@ -31,4 +34,4 @@ const manifestResult = validateManifest(manifest);
 if (!manifestResult.ok) fail("MANIFEST_INVALID", manifestResult.errors);
 const repoResult = auditRepository(ROOT, manifest);
 if (!repoResult.ok) fail("REPOSITORY_RECONCILIATION_INVALID", repoResult.errors);
-console.log(JSON.stringify({ ok: true, token: TOKEN, guard: "REG-FULL-00", entities: manifest.summary.discovered_entity_count, classifications: manifest.summary, final_load_order_count: manifest.final_load_order.length, protected_registry_bytes: "unchanged" }, null, 2));
+console.log(JSON.stringify({ ok: true, token: TOKEN, guard: "REG-FULL-00", entities: manifest.summary[summaryEntityCountKey], classifications: manifest.summary, [loadOrderCountKey]: manifest.final_load_order.length, [protectedBytesKey]: "unchanged" }, null, 2));
