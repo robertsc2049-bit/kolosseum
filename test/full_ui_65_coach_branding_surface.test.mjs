@@ -1,4 +1,11 @@
 // DEV NOTE: FULL-UI-65 coach branding preference static surface contract.
+// The coach's own settings panel (save/load own preference) moved to React
+// (AccountBrandingPanel.tsx + useAccountBranding.ts, mounted at
+// #account-branding-root; coach_branding_ui.js is retired) - see
+// public/app-src/__tests__/AccountBrandingPanel.test.tsx for its behavioral
+// proof. The athlete-facing "My coach" card (coach_branding_athlete_view)
+// is a separate, still-legacy feature fed via the relationship endpoint -
+// its app.js rendering is still asserted directly below.
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -15,11 +22,12 @@ const recordStore = read("src/api/beta_product_record_store.ts");
 const schemaSql = read("schema.sql");
 const relationshipService = read("src/api/relationship_invitation_service.ts");
 const appJs = read("public/app/app.js");
-const accountUi = read("public/app/account_ui.js");
-const brandingUi = read("public/app/coach_branding_ui.js");
 const indexHtml = read("public/app/index.html");
 const guard = read("ci/guards/full_ui_completion_guard.mjs");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
+const client = read("public/app-src/api/coachBrandingClient.ts");
+const hook = read("public/app-src/screens/account/useAccountBranding.ts");
+const panel = read("public/app-src/screens/account/AccountBrandingPanel.tsx");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -94,26 +102,26 @@ test("an athlete reads their coach's brand preference through the existing relat
   assert.match(relationshipService, /coach_brand_tagline:/u);
 });
 
-test("the coach settings panel and athlete-facing card exist as real controls, and the tagline is escaped before rendering", () => {
-  assert.match(indexHtml, /id="accountBrandingPanel"/u);
-  assert.match(indexHtml, /id="coachBrandingForm"/u);
-  assert.match(indexHtml, /id="coachBrandColorInput"/u);
-  assert.match(indexHtml, /id="coachBrandTaglineInput"/u);
-  assert.match(indexHtml, /coach_branding_ui\.js/u);
+test("the coach settings panel is a real control mounted in the account view, and the athlete-facing card escapes its tagline before rendering", () => {
+  assert.match(indexHtml, /id="account-branding-root"/u);
+  assert.doesNotMatch(indexHtml, /coach_branding_ui\.js/u);
 
-  assert.match(accountUi, /export function loadCoachBrandPreference/u);
-  assert.match(accountUi, /export function saveCoachBrandPreference/u);
-  assert.match(brandingUi, /async function refreshBranding/u);
-  assert.match(brandingUi, /async function saveBranding/u);
+  assert.match(client, /export function loadCoachBrandPreference/u);
+  assert.match(client, /export function saveCoachBrandPreference/u);
+  assert.match(hook, /const refreshBranding = useCallback/u);
+  assert.match(hook, /const saveBranding = useCallback/u);
+  assert.match(panel, /<input type="color"/u);
+  assert.match(panel, /maxLength=\{120\}/u);
 
+  // The athlete-facing "My coach" card is a separate, still-legacy feature.
   assert.match(appJs, /entry\.coach_brand_tagline \? `<p class="muted small">\$\{escapeHtml\(entry\.coach_brand_tagline\)\}/u);
   assert.match(appJs, /escapeHtml\(entry\.coach_brand_color\)/u);
 });
 
-test("the athlete-facing panel is gated to coach accounts only, never shown unconditionally", () => {
-  assert.match(indexHtml, /id="accountBrandingPanel" class="panel" aria-labelledby="brandingHeading" hidden/u);
-  assert.match(brandingUi, /const isCoach = readRole\(\) === "coach";/u);
-  assert.match(brandingUi, /elements\.panel\.hidden = !isCoach;/u);
+test("the coach settings panel is gated to coach accounts only, never shown unconditionally", () => {
+  assert.match(panel, /if \(!isCoach\) return null;/u);
+  assert.match(panel, /function readRole\(\)/u);
+  assert.match(panel, /window\.localStorage\.getItem\(STORAGE_KEY\)/u);
 });
 
 test("the FULL-UI-65 manifest area declares all three functions as implemented with real tests", () => {
@@ -128,10 +136,16 @@ test("the FULL-UI-65 manifest area declares all three functions as implemented w
     ["coach_branding_athlete_view", "coach_branding_load_own", "coach_branding_save"]
   );
 
+  const expectedDirectTest = {
+    coach_branding_save: "public/app-src/__tests__/AccountBrandingPanel.test.tsx",
+    coach_branding_load_own: "public/app-src/__tests__/AccountBrandingPanel.test.tsx",
+    coach_branding_athlete_view: "test/full_ui_65_coach_branding_surface.test.mjs"
+  };
+
   for (const fn of area.functions) {
     assert.equal(fn.state, "implemented");
     assert.equal(fn.integration_test, "test/full_ui_65c_coach_branding_persistent.integration.test.mjs");
-    assert.equal(fn.direct_test, "test/full_ui_65_coach_branding_surface.test.mjs");
+    assert.equal(fn.direct_test, expectedDirectTest[fn.function_id]);
     assert.notEqual(fn.persistence, "localStorage_only");
   }
 

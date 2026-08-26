@@ -1978,48 +1978,7 @@
 
           <div id="account-support-root"></div>
 
-          <section id="accountBrandingPanel" class="panel" aria-labelledby="brandingHeading" hidden>
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">Branding</p>
-                <h3 id="brandingHeading">Your athletes' view of you</h3>
-                <p class="muted">An accent colour and optional tagline shown on your athletes' "My coach" card. Not a claim about qualifications or results.</p>
-              </div>
-            </div>
-
-            <form id="coachBrandingForm" class="athlete-detail-note-form">
-              <label class="field">
-                <span>Accent colour</span>
-                <input type="color" id="coachBrandColorInput" value="#d2a952">
-              </label>
-
-              <label class="field">
-                <span>Tagline (optional)</span>
-                <input type="text" id="coachBrandTaglineInput" maxlength="120" placeholder="Strength coaching, factual and simple.">
-              </label>
-
-              <div class="inline-controls">
-                <button class="button primary" type="submit">Save branding</button>
-              </div>
-            </form>
-
-            <p
-              id="coachBrandingStatus"
-              class="dashboard-status"
-              role="status"
-              aria-live="polite"
-              hidden
-            ></p>
-
-            <div class="record-card">
-              <div class="record-meta">
-                <span class="muted small">Preview</span>
-              </div>
-              <div id="coachBrandingPreview" class="coach-brand-preview">
-                <strong>Your athletes will see this next to your name</strong>
-              </div>
-            </div>
-          </section>
+          <div id="account-branding-root"></div>
 
           <section id="accountCommercialPanel" class="panel commercial-panel" aria-labelledby="commercialHeading">
             <div class="commercial-heading">
@@ -2111,7 +2070,6 @@
 
   <script type="module" src="/app/app.js"></script>
   <script type="module" src="/app/commercial_ui.js"></script>
-  <script type="module" src="/app/coach_branding_ui.js"></script>
   <script type="module" src="/app/route_bootstrap.js"></script>
   <script type="module" src="/app/react-dist/kolosseum-react.js"></script>
 </body>
