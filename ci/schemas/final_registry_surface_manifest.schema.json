@@ -1,0 +1,480 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kolosseum.local/schemas/final_registry_surface_manifest.schema.json",
+  "title": "Kolosseum REG-FULL-00 Final Registry Surface Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_id",
+    "manifest_version",
+    "slice_id",
+    "status",
+    "scope",
+    "base_commit",
+    "baseline",
+    "supported_activity_scope",
+    "classification_enum",
+    "authority_precedence",
+    "final_load_order",
+    "entities",
+    "governed_artifacts",
+    "architecture_conflicts",
+    "deferred_content_conflicts",
+    "summary"
+  ],
+  "properties": {
+    "manifest_id": {
+      "const": "kolosseum_final_registry_surface_authority"
+    },
+    "manifest_version": {
+      "const": "1.0.0"
+    },
+    "slice_id": {
+      "const": "REG-FULL-00"
+    },
+    "status": {
+      "const": "authoritative"
+    },
+    "scope": {
+      "const": "registry_architecture_only"
+    },
+    "base_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registry_index_order",
+        "registry_bundle_blob_sha",
+        "registry_surface_classification_blob_sha",
+        "registry_seal_state",
+        "registry_seal_manifest_blob_sha",
+        "active_registry_file_set"
+      ],
+      "properties": {
+        "registry_index_order": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "registry_bundle_blob_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "registry_surface_classification_blob_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "registry_seal_state": {
+          "const": "sealed"
+        },
+        "registry_seal_manifest_blob_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "active_registry_file_set": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "supported_activity_scope": {
+      "const": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ]
+    },
+    "classification_enum": {
+      "const": [
+        "required_active",
+        "derived_generated",
+        "retained_legacy",
+        "dormant",
+        "prohibited"
+      ]
+    },
+    "authority_precedence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "final_load_order": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "entities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entity_id",
+          "canonical_registry_id",
+          "canonical_name",
+          "entity_kind",
+          "spine_slot",
+          "classification",
+          "current_state",
+          "final_state",
+          "authority_sources",
+          "aliases_or_predecessors",
+          "successor_registry_id",
+          "dependency_ids",
+          "migration_action",
+          "target_slice",
+          "rationale"
+        ],
+        "properties": {
+          "entity_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "canonical_registry_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "canonical_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "entity_kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "spine_slot": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "classification": {
+            "enum": [
+              "required_active",
+              "derived_generated",
+              "retained_legacy",
+              "dormant",
+              "prohibited"
+            ]
+          },
+          "current_state": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "repo_registry_ids",
+              "repo_paths",
+              "registry_index_member",
+              "registry_index_position",
+              "surface_classification",
+              "sealed_surface_member",
+              "runtime_consumption"
+            ],
+            "properties": {
+              "repo_registry_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "repo_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "registry_index_member": {
+                "type": "boolean"
+              },
+              "registry_index_position": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              },
+              "surface_classification": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "sealed_surface_member": {
+                "type": "boolean"
+              },
+              "runtime_consumption": {
+                "enum": [
+                  "runtime",
+                  "non_runtime",
+                  "generated",
+                  "legacy",
+                  "none",
+                  "unknown"
+                ]
+              }
+            }
+          },
+          "final_state": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "authoritative",
+              "final_runtime_load",
+              "final_load_position",
+              "new_content_allowed"
+            ],
+            "properties": {
+              "authoritative": {
+                "type": "boolean"
+              },
+              "final_runtime_load": {
+                "type": "boolean"
+              },
+              "final_load_position": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              },
+              "new_content_allowed": {
+                "type": "boolean"
+              }
+            }
+          },
+          "authority_sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source_id",
+                "source_type",
+                "authority_status",
+                "decision"
+              ],
+              "properties": {
+                "source_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_type": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "authority_status": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "decision": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "aliases_or_predecessors": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "successor_registry_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dependency_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "migration_action": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_slice": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "governing_boundary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authoritative_input_registry_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "governed_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact_id",
+          "path",
+          "role",
+          "rationale"
+        ],
+        "properties": {
+          "artifact_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "architecture_conflicts": {
+      "type": "array",
+      "maxItems": 0,
+      "items": {
+        "type": "object"
+      }
+    },
+    "deferred_content_conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "conflict_id",
+          "affected_registry_id",
+          "description",
+          "source_authority",
+          "current_implementation",
+          "required_follow_up_slice"
+        ],
+        "properties": {
+          "conflict_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "affected_registry_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_authority": {
+            "type": "string",
+            "minLength": 1
+          },
+          "current_implementation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "required_follow_up_slice": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "discovered_entity_count",
+        "required_active_count",
+        "derived_generated_count",
+        "retained_legacy_count",
+        "dormant_count",
+        "prohibited_count",
+        "unclassified_count",
+        "unresolved_architecture_conflict_count"
+      ],
+      "properties": {
+        "discovered_entity_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "required_active_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "derived_generated_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retained_legacy_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dormant_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "prohibited_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unclassified_count": {
+          "const": 0
+        },
+        "unresolved_architecture_conflict_count": {
+          "const": 0
+        }
+      }
+    }
+  }
+}

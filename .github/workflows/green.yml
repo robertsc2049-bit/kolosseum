@@ -72,6 +72,14 @@ jobs:
         # Do not change to npm install; that would weaken dependency parity.
         run: npm ci
 
+      - name: REG-FULL-00 Registry Authority
+        # DEV NOTE: REG-FULL-00 is architecture-only proof. It validates the
+        # final registry surface manifest and proves protected registry bytes
+        # remain unchanged from the recorded base commit.
+        run: |
+          node --test test/reg_full_00_final_registry_surface_authority.test.mjs
+          node ci/guards/reg_full_00_final_registry_surface_authority_guard.mjs
+
       - name: Green (CI)
         # DEV NOTE: This is the fast deterministic green gate.
         # Keep the actual check set inside package scripts so local and CI
