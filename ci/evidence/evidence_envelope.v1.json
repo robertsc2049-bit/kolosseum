@@ -74,6 +74,10 @@
         "sha256": "13FAC52F37A52D38A8BCB0CCF6762ED17656A5E04F154B5B5928546FA6448B29"
       },
       {
+        "path": "ci/schemas/final_registry_surface_manifest.schema.json",
+        "sha256": "33938D26257063AFFA47561B10F67BB8561DB3B8EDF9C8A2639D48A4DA1F3455"
+      },
+      {
         "path": "ci/schemas/metric_exercise_link.registry.schema.json",
         "sha256": "7FC037A47D0C9FE7C76F64D604F4E8AE61219B6F3E3FB64167EA3BBF15D62858"
       },
