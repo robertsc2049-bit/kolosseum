@@ -95,8 +95,7 @@ test("FULL-UI-03 provides direct coach actions", () => {
     "open-assignment",
     "open-review",
     "open-programmes",
-    "openAthleteProfile",
-    "loadCoachReview"
+    "openAthleteProfile"
   ];
 
   for (const action of actions) {
@@ -114,6 +113,15 @@ test("FULL-UI-03 provides direct coach actions", () => {
   assert.ok(!application.includes('"open-event"'), "the open-event action branch should be fully retired from app.js");
   assert.ok(coachOverviewEventsPanel.includes("#/coach/events/"));
   assert.ok(coachOverviewEventsPanel.includes('data-view="events"'));
+
+  // "open-review" also moved most of its work to React (CoachReviewPanel.tsx/
+  // useCoachReview.ts) - loadCoachReview() is retired, and the dashboard
+  // action now dispatches the same kolosseum:open-session-review bridge
+  // event the other two entry points into the review view already use.
+  assert.ok(!application.includes("loadCoachReview"), "loadCoachReview() should be fully retired from app.js");
+  const openReviewAction = application.match(/if \(action === "open-review"\) \{[\s\S]*?\n {8}\}/u);
+  assert.ok(openReviewAction, "expected the open-review action branch");
+  assert.match(openReviewAction[0], /kolosseum:open-session-review/u);
 });
 
 test("FULL-UI-03 remains factual and read-only", () => {

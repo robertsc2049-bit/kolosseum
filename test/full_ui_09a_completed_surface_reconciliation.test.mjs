@@ -272,24 +272,21 @@ const targets = [
     "id": "review_athlete_search",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
-          "id=\"reviewSearch\"",
           "placeholder=\"Athlete, session or programme\""
         ]
       ],
       [
-        "public/app/app.js",
+        "public/app-src/screens/coach/useCoachReview.ts",
         [
-          "function filteredCoachReviewRecords()",
-          "elements.reviewSearch.addEventListener(\"input\""
+          "setSelectedAthleteId"
         ]
       ],
       [
         "test/full_ui_07_review_queue.test.mjs",
         [
-          "FULL-UI-07 exposes searchable review queue controls and factual detail",
-          "\"reviewSearch\""
+          "FULL-UI-07 exposes searchable review queue controls and factual detail"
         ]
       ]
     ]
@@ -318,15 +315,15 @@ const targets = [
     "id": "review_factual_detail",
     "evidence": [
       [
-        "public/app/app.js",
+        "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
-          "function renderCoachReviewDetail(record)"
+          "function ReviewDetail("
         ]
       ],
       [
         "public/app/index.html",
         [
-          "id=\"reviewDetailContent\""
+          "id=\"coach-review-root\""
         ]
       ],
       [
@@ -342,10 +339,9 @@ const targets = [
     "id": "review_live_status",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
-          "id=\"reviewStatusFilter\"",
-          "id=\"reviewStatus\"",
+          "Open · read only",
           "live read-only status"
         ]
       ],
@@ -362,9 +358,10 @@ const targets = [
     "id": "review_note_visibility",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
-          "id=\"coachNoteVisibility\""
+          "value=\"coach_private\"",
+          "value=\"athlete_visible\""
         ]
       ],
       [
@@ -380,7 +377,7 @@ const targets = [
     "id": "review_provenance",
     "evidence": [
       [
-        "public/app/app.js",
+        "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
           "assignment_provenance",
           "event_provenance"

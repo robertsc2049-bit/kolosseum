@@ -15,6 +15,7 @@ const dataRightsPanel = read("public/app-src/screens/account/AccountDataRightsPa
 const dataRightsHook = read("public/app-src/screens/account/useAccountDataRights.ts");
 const supportPanel = read("public/app-src/screens/account/AccountSupportPanel.tsx");
 const supportHook = read("public/app-src/screens/account/useAccountSupport.ts");
+const reviewHook = read("public/app-src/screens/coach/useCoachReview.ts");
 
 test("every focusable control gets a visible keyboard-only focus ring, distinct from mouse-hover styling", () => {
   assert.match(
@@ -48,12 +49,16 @@ test("a route-level service-unavailable state reuses the view's own status line 
   // The global error notice/report-a-problem path still fires too.
   assert.match(js, /statusElement\.classList\.add\("error"\);[\s\S]{0,600}handleError\(error\)/u);
 
+  // The review queue moved to React (CoachReviewPanel.tsx) - like the
+  // earlier-migrated video-feedback queue, its error state is a plain
+  // message rather than this catchWithViewRetry control (no other
+  // migrated coach panel added one either), so its site is no longer
+  // listed here.
   const wiredSites = [
     /catchWithViewRetry\(\s*elements\.eventsStatus,\s*\(\) => refreshCoachEvents/u,
     /catchWithViewRetry\(\s*elements\.templateLibraryStatus,\s*\(\) => refreshProgrammeLibrary/u,
     /catchWithViewRetry\(\s*elements\.coachDashboardStatus,\s*\(\) => refreshCoachDashboard/u,
-    /catchWithViewRetry\(\s*elements\.athleteDirectoryStatus,/u,
-    /catchWithViewRetry\(elements\.reviewStatus, \(\) => loadCoachReview\(\)/u
+    /catchWithViewRetry\(\s*elements\.athleteDirectoryStatus,/u
   ];
   for (const re of wiredSites) {
     assert.match(js, re);
@@ -108,9 +113,15 @@ test("a form submit or button click cannot be repeated while its own async actio
 test("leaving a form with unsaved changes - a coach note or a programme draft - requires explicit confirmation, including on browser refresh/close", () => {
   assert.match(js, /let coachNoteDirty = false;/u);
   assert.match(js, /function confirmCoachNoteDeparture\(\) \{/u);
-  assert.match(js, /if \(!coachNoteDirty \|\| elements\.coachNoteForm\.hidden\) return true;/u);
+  assert.match(js, /if \(!coachNoteDirty\) return true;/u);
   assert.match(js, /if \(!confirmCoachNoteDeparture\(\)\) \{\s*\n\s*return false;/u);
-  assert.match(js, /elements\.coachNoteText\.addEventListener\("input", \(\) => \{\s*\n\s*coachNoteDirty = true;/u);
+
+  // The coach note form itself moved to React (CoachReviewPanel.tsx) - it
+  // dispatches kolosseum:coach-note-dirty-changed on every keystroke
+  // instead of setting a shared elements.coachNoteText input listener,
+  // and this legacy listener keeps coachNoteDirty in sync from it.
+  assert.match(js, /document\.addEventListener\("kolosseum:coach-note-dirty-changed", \(event\) => \{\s*\n\s*coachNoteDirty = Boolean\(event\.detail\?\.dirty\);/u);
+  assert.match(reviewHook, /dispatchNoteDirty\(dirty: boolean\)/u);
 
   const beforeunload = js.match(/globalThis\.addEventListener\("beforeunload", \(event\) => \{[\s\S]*?\n\}\);/u);
   assert.ok(beforeunload, "expected a beforeunload guard");
@@ -158,10 +169,23 @@ test("a coach deep link to a specific event or review athlete never reports succ
   // card was not found, rather than closing over an early return.
   assert.doesNotMatch(eventDetail[0].replace(/if \(card\) \{[\s\S]*?\}/u, ""), /return true;/u);
 
-  const reviewAthlete = routeBootstrap.match(/if \(route\.route_id === "coach_review_athlete"\) \{[\s\S]*?\n {2}\}\n/u);
+  // The review queue's athlete filter moved to React (CoachReviewPanel.tsx/
+  // useCoachReview.ts) - its athlete list now loads asynchronously, so
+  // route_bootstrap.js can no longer validate a deep-linked athlete_id
+  // synchronously against a <select>'s options. The hook itself validates
+  // once its own fetch resolves and dispatches
+  // kolosseum:coach-review-athlete-not-found for a stale/invalid id,
+  // which route_bootstrap.js's showRouteNotice() reports exactly as
+  // before - never silently reporting success for a bad id.
+  const reviewAthlete = routeBootstrap.match(/if \(route\.route_id === "coach_review_athlete"[\s\S]*?\n {2}\}\n/u);
   assert.ok(reviewAthlete, "expected the coach_review_athlete branch");
-  assert.match(reviewAthlete[0], /const hasOption = select\s*\n\s*\? \[\.\.\.select\.options\]\.some\(\(option\) => option\.value === params\.athlete_id\)/u);
-  assert.match(reviewAthlete[0], /if \(select && hasOption\) \{/u);
+  assert.match(reviewAthlete[0], /kolosseum:open-session-review/u);
+
+  assert.match(routeBootstrap, /kolosseum:coach-review-athlete-not-found/u);
+  assert.match(routeBootstrap, /showRouteNotice\("The requested record is not available in this workspace\."\)/u);
+
+  assert.match(reviewHook, /if \(state\.athleteNamesById\[pendingAthleteId\]\) \{/u);
+  assert.match(reviewHook, /document\.dispatchEvent\(new CustomEvent\(ATHLETE_NOT_FOUND_EVENT\)\);/u);
 });
 
 test("a coach programme-detail deep link that finds no matching template also falls through to the generic not-available notice", () => {
@@ -174,7 +198,17 @@ test("a coach programme-detail deep link that finds no matching template also fa
 test("deep-linkable entity-detail routes are wired for real elements in the DOM, not a dead custom event with no listener", () => {
   assert.doesNotMatch(routeBootstrap, /kolosseum:event-detail-route/u);
   assert.match(routeBootstrap, /\[data-event-id="\$\{escapeSelector\(params\.event_id\)\}"\]/u);
-  assert.match(routeBootstrap, /document\.getElementById\("loadReviewButton"\)\?\.click\(\);/u);
+
+  // The review route now dispatches kolosseum:open-session-review instead
+  // of clicking a (now-removed) #loadReviewButton - confirm it has real
+  // listeners rather than being a dead event with nothing subscribed:
+  // route_bootstrap.js's own (navigation) and useCoachReview.ts's (athlete
+  // filter + data fetch).
+  const openSessionReviewDispatchCount = [...routeBootstrap.matchAll(/kolosseum:open-session-review/gu)].length;
+  assert.ok(openSessionReviewDispatchCount >= 2, "expected both a dispatch and a listener for kolosseum:open-session-review");
+  assert.match(js, /"kolosseum:open-session-review"/u);
+  assert.match(reviewHook, /OPEN_SESSION_REVIEW_EVENT = "kolosseum:open-session-review"/u);
+  assert.match(reviewHook, /document\.addEventListener\(OPEN_SESSION_REVIEW_EVENT, handleOpenReview\)/u);
 });
 
 test("newly touched status/retry surfaces stay visible on narrow (mobile) viewports", () => {

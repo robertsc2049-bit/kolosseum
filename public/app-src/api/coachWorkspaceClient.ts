@@ -130,6 +130,27 @@ export async function loadCoachAssignments(coachUserId: string): Promise<JsonRec
   return Array.isArray(response.assignments) ? (response.assignments as JsonRecord[]) : [];
 }
 
+// DEV NOTE: FULL-UI-17 review queue - see useCoachReview.ts. Fetches every
+// review record for the coach unfiltered (matching legacy's
+// refreshCoachReviewQueue()), never passing the route's optional
+// athlete_user_id filter - athlete/search/status filtering all happen
+// client-side, same as legacy.
+export async function loadCoachReviews(coachUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/coach-workspace/reviews?coach_user_id=${encodeURIComponent(coachUserId)}`);
+  return Array.isArray(response.records) ? (response.records as JsonRecord[]) : [];
+}
+
+export function submitCoachSessionReview(sessionId: string, input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/coach-workspace/session-review/${encodeURIComponent(sessionId)}`, input, csrfToken);
+}
+
+// DEV NOTE: an older "beta" route (predates the /coach-workspace family)
+// mounted at /sessions - kept as-is, ported verbatim from legacy's
+// recordCoachNote().
+export function submitCoachNote(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/sessions/beta-coach-notes", input, csrfToken);
+}
+
 export async function loadCoachMessageUnreadCounts(): Promise<Record<string, number>> {
   const response = await request("GET", "/messages/coach/threads");
   const threads = Array.isArray(response.threads) ? (response.threads as JsonRecord[]) : [];
