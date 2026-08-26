@@ -1881,33 +1881,7 @@
             <button class="button primary" type="submit">Record note</button>
           </form>
 
-          <article class="panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">Video review</p>
-                <h3>Video submissions awaiting feedback</h3>
-              </div>
-              <button id="refreshVideoFeedbackQueueButton" class="button secondary" type="button">Refresh queue</button>
-            </div>
-            <p id="videoFeedbackQueueStatus" class="dashboard-status muted" aria-live="polite">Refresh to load pending video submissions.</p>
-            <label class="field">
-              <span>Search queue</span>
-              <input
-                id="videoFeedbackQueueSearch"
-                type="search"
-                autocomplete="off"
-                placeholder="Athlete or exercise"
-              />
-            </label>
-            <div class="review-layout">
-              <div>
-                <div id="videoFeedbackQueueList" class="record-list"></div>
-              </div>
-              <aside id="videoFeedbackDetail" class="panel review-detail" hidden>
-                <div id="videoFeedbackDetailContent"></div>
-              </aside>
-            </div>
-          </article>
+          <div id="coach-video-feedback-queue-root"></div>
         </section>
 
         <section id="view-account" class="view" hidden>
