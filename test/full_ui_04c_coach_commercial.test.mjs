@@ -31,10 +31,22 @@ const onboardingUi =
     "utf8"
   );
 
-const commercialUi =
+// DEV NOTE: FULL-UI-08 commercial/billing rendering moved to React
+// (CommercialPanel.tsx + useCommercialAccount.ts) - commercial_ui.js is
+// retired.
+const commercialPanel =
   fs.readFileSync(
     new URL(
-      "../public/app/commercial_ui.js",
+      "../public/app-src/screens/account/CommercialPanel.tsx",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
+const commercialHook =
+  fs.readFileSync(
+    new URL(
+      "../public/app-src/screens/account/useCommercialAccount.ts",
       import.meta.url
     ),
     "utf8"
@@ -315,8 +327,8 @@ test(
     }
 
     assert.match(
-      commercialUi,
-      /commercialFactualState/u
+      commercialPanel,
+      /commercial\.factual_state/u
     );
 
     assert.match(
@@ -333,28 +345,28 @@ test(
     // (the exact list of env vars absent) on the ProductCommercialError thrown
     // for commercial_configuration_missing, and product_commercial.routes.ts
     // has always serialized it into the JSON error response as `details`, but
-    // commercial_ui.js's errorMessage() only ever mapped the error code to a
-    // static, generic string - a coach hitting misconfigured checkout could
-    // never see which setting was actually missing. Same phantom-field bug
-    // class as PR #877-#881.
+    // commercial_ui.js's (now useCommercialAccount.ts's) errorMessage() only
+    // ever mapped the error code to a static, generic string - a coach
+    // hitting misconfigured checkout could never see which setting was
+    // actually missing. Same phantom-field bug class as PR #877-#881.
     assert.match(
       commercialService,
       /missing_configuration:/u
     );
 
     assert.match(
-      commercialUi,
-      /error\?\.payload\?\.details\?\.missing_configuration/u
+      commercialHook,
+      /record\?\.details as JsonRecord \| undefined\)\?\.missing_configuration/u
     );
 
     assert.match(
-      commercialUi,
-      /function missingConfigurationSuffix/u
+      commercialHook,
+      /const missingSuffix = Array\.isArray\(missing\) && missing\.length > 0/u
     );
 
     assert.match(
-      commercialUi,
-      /commercial_configuration_missing:\s*\n?\s*`[^`]*\$\{missingConfigurationSuffix\(error\)\}/u
+      commercialHook,
+      /commercial_configuration_missing:\s*`[^`]*\$\{missingSuffix\}`/u
     );
   }
 );

@@ -790,7 +790,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -812,7 +812,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -834,7 +834,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -856,7 +856,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -878,7 +878,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -900,7 +900,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",

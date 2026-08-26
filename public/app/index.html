@@ -1933,62 +1933,7 @@
 
           <div id="account-branding-root"></div>
 
-          <section id="accountCommercialPanel" class="panel commercial-panel" aria-labelledby="commercialHeading">
-            <div class="commercial-heading">
-              <div>
-                <p class="eyebrow">Controlled-launch commercial access</p>
-                <h3 id="commercialHeading">Subscription and billing</h3>
-                <p class="muted">Factual product-access and billing records only. Commercial state cannot alter engine truth.</p>
-              </div>
-              <div class="badge-row">
-                <span id="commercialSubscriptionState" class="badge neutral">Loading</span>
-                <span id="commercialAccessState" class="badge neutral">Loading</span>
-              </div>
-            </div>
-
-            <div class="commercial-fact-grid">
-              <div class="commercial-fact">
-                <span>Factual state</span>
-                <strong id="commercialFactualState">—</strong>
-              </div>
-              <div class="commercial-fact">
-                <span>Billing status</span>
-                <strong id="commercialBillingStatus">—</strong>
-              </div>
-              <div class="commercial-fact">
-                <span>Plan</span>
-                <strong id="commercialPlan">—</strong>
-              </div>
-              <div class="commercial-fact">
-                <span>Seat allowance</span>
-                <strong id="commercialSeatAllowance">—</strong>
-              </div>
-              <div class="commercial-fact">
-                <span>Seat usage</span>
-                <strong id="commercialSeatUsage">—</strong>
-              </div>
-              <div class="commercial-fact">
-                <span>Seats available</span>
-                <strong id="commercialSeatAvailable">—</strong>
-              </div>
-            </div>
-
-            <div class="commercial-actions">
-              <button id="commercialCheckoutButton" class="button primary" type="button" disabled>Prepare checkout</button>
-              <button id="commercialPortalButton" class="button secondary" type="button" disabled>Open billing portal</button>
-            </div>
-
-            <p class="muted commercial-boundary-copy">Checkout and portal actions create controlled-launch provider requests. No live provider SDK call is performed by this product slice.</p>
-            <p id="commercialEntitlementError" class="inline-result commercial-entitlement-error" hidden></p>
-            <p id="commercialResult" class="inline-result" hidden></p>
-
-            <div>
-              <p class="eyebrow">Commercial record history</p>
-              <div id="commercialHistory" class="record-list compact-record-list">
-                <div class="empty-state compact-empty"><p>Loading commercial account history…</p></div>
-              </div>
-            </div>
-          </section>
+          <div id="account-commercial-root"></div>
 
         </section>
       </main>
@@ -2001,7 +1946,6 @@
   </div>
 
   <script type="module" src="/app/app.js"></script>
-  <script type="module" src="/app/commercial_ui.js"></script>
   <script type="module" src="/app/route_bootstrap.js"></script>
   <script type="module" src="/app/react-dist/kolosseum-react.js"></script>
 </body>
