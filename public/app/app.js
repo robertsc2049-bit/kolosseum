@@ -69,9 +69,6 @@ const DEFAULT_STATE = Object.freeze({
   coachReviewFilter: "awaiting",
   coachReviewUpdatedAt: "",
   selectedCoachReviewSessionId: "",
-  coachVideoFeedbackQueue: [],
-  videoFeedbackQueueSearch: "",
-  selectedVideoFeedbackSubmissionId: "",
   coachAthleteProgressPhotoCompareIds: [],
   lastBroadcastId: "",
   broadcastReadStatus: null,
@@ -422,12 +419,6 @@ const elements = {
   reviewList: document.getElementById("reviewList"),
   reviewDetail: document.getElementById("reviewDetail"),
   reviewDetailContent: document.getElementById("reviewDetailContent"),
-  refreshVideoFeedbackQueueButton: document.getElementById("refreshVideoFeedbackQueueButton"),
-  videoFeedbackQueueStatus: document.getElementById("videoFeedbackQueueStatus"),
-  videoFeedbackQueueSearch: document.getElementById("videoFeedbackQueueSearch"),
-  videoFeedbackQueueList: document.getElementById("videoFeedbackQueueList"),
-  videoFeedbackDetail: document.getElementById("videoFeedbackDetail"),
-  videoFeedbackDetailContent: document.getElementById("videoFeedbackDetailContent"),
   coachNoteForm: document.getElementById("coachNoteForm"),
   coachNoteHeading: document.getElementById("coachNoteHeading"),
   coachNoteSessionId: document.getElementById("coachNoteSessionId"),
@@ -611,7 +602,6 @@ function loadState() {
       coachMessageUnreadByAthlete: parsed.coachMessageUnreadByAthlete && typeof parsed.coachMessageUnreadByAthlete === "object"
         ? parsed.coachMessageUnreadByAthlete
         : {},
-      videoFeedbackQueueSearch: String(parsed.videoFeedbackQueueSearch ?? ""),
       coachAthleteProgressPhotoCompareIds: Array.isArray(parsed.coachAthleteProgressPhotoCompareIds)
         ? parsed.coachAthleteProgressPhotoCompareIds.slice(0, 2)
         : [],
@@ -1404,7 +1394,6 @@ function setView(view) {
 
   if (view === "review" && state.role === "coach") {
     renderCoachSelectors();
-    refreshVideoFeedbackQueue({ quiet: true }).catch(handleError);
   }
 
   if (view === "account") {
@@ -6350,169 +6339,13 @@ function bindCoachReviewActions() {
   }
 }
 
-// FULL-UI-32 coach video review queue. Deliberately a small, self-
-// contained subsystem rather than folded into the coachReviewRecords/
-// filteredCoachReviewRecords machinery above - a different grain
-// (per-exercise video submission, not per-session), with its own list +
-// detail + delegated-action shape mirroring reviewRecordCard/
-// renderCoachReviewDetail/bindCoachReviewActions.
-function videoFeedbackQueueAthleteName(submission) {
-  const athlete = state.coachAthletes.find((entry) => entry.userId === submission.athlete_user_id);
-  return athlete?.displayName || submission.athlete_user_id || "Athlete";
-}
-
-function videoFeedbackQueueCard(submission) {
-  const selected = state.selectedVideoFeedbackSubmissionId === submission.submission_id;
-  return `
-    <article class="record-card review-record-card interactive ${selected ? "selected" : ""}" data-video-feedback-queue-id="${escapeHtml(submission.submission_id)}">
-      <div>
-        <h3>${escapeHtml(submission.exercise_label || "Exercise")}</h3>
-        <p>${escapeHtml(videoFeedbackQueueAthleteName(submission))}</p>
-        <p class="muted small">${escapeHtml(formatDate(submission.created_at))}</p>
-      </div>
-      <div class="record-meta">
-        <span class="badge neutral">Awaiting review</span>
-      </div>
-    </article>
-  `;
-}
-
-function filteredVideoFeedbackQueue() {
-  const submissions = Array.isArray(state.coachVideoFeedbackQueue) ? state.coachVideoFeedbackQueue : [];
-  const search = String(state.videoFeedbackQueueSearch ?? "").trim().toLowerCase();
-  if (!search) return submissions;
-
-  return submissions.filter((submission) =>
-    [submission.exercise_label, videoFeedbackQueueAthleteName(submission)]
-      .some((value) => String(value ?? "").toLowerCase().includes(search))
-  );
-}
-
-function renderVideoFeedbackDetail(submission) {
-  if (!submission) {
-    elements.videoFeedbackDetail.hidden = true;
-    elements.videoFeedbackDetailContent.innerHTML = "";
-    return;
-  }
-
-  elements.videoFeedbackDetail.hidden = false;
-  elements.videoFeedbackDetailContent.innerHTML = `
-    <div class="panel-header">
-      <div>
-        <p class="eyebrow">${escapeHtml(formatDate(submission.created_at))}</p>
-        <h3>${escapeHtml(submission.exercise_label || "Exercise")}</h3>
-      </div>
-    </div>
-    <video class="message-attachment-video" controls preload="metadata"
-      ${submission.thumbnail_url ? `poster="${escapeHtml(submission.thumbnail_url)}"` : ""}>
-      <source src="${escapeHtml(submission.url)}">
-    </video>
-    ${submission.caption ? `<p class="muted">${escapeHtml(submission.caption)}</p>` : ""}
-    <label class="field">
-      <span>Feedback for the athlete</span>
-      <textarea id="videoFeedbackReplyText" required maxlength="4000"></textarea>
-    </label>
-    <button id="submitVideoFeedbackButton" class="button primary" type="button">Send feedback</button>
-  `;
-
-  document.getElementById("submitVideoFeedbackButton")?.addEventListener("click", () => {
-    submitVideoFeedback(submission.submission_id).catch(handleError);
-  });
-}
-
-function bindVideoFeedbackQueueActions() {
-  for (const card of elements.videoFeedbackQueueList.querySelectorAll("[data-video-feedback-queue-id]")) {
-    card.addEventListener("click", () => {
-      state.selectedVideoFeedbackSubmissionId = card.dataset.videoFeedbackQueueId;
-      renderVideoFeedbackQueueWorkspace();
-    });
-  }
-}
-
-function renderVideoFeedbackQueueWorkspace() {
-  if (!elements.videoFeedbackQueueList) return;
-
-  if (elements.videoFeedbackQueueSearch) {
-    elements.videoFeedbackQueueSearch.value = String(state.videoFeedbackQueueSearch ?? "");
-  }
-
-  const allSubmissions = Array.isArray(state.coachVideoFeedbackQueue) ? state.coachVideoFeedbackQueue : [];
-  const submissions = filteredVideoFeedbackQueue();
-
-  if (allSubmissions.length === 0) {
-    elements.videoFeedbackQueueList.innerHTML = `
-      <div class="panel empty-state">
-        <div class="empty-icon">V</div>
-        <h3>No pending video submissions</h3>
-        <p>Athlete form-check videos awaiting your feedback will appear here.</p>
-      </div>
-    `;
-  }
-  else if (submissions.length === 0) {
-    elements.videoFeedbackQueueList.innerHTML = `
-      <div class="panel empty-state">
-        <h3>No submissions match</h3>
-        <p>Try a different athlete or exercise search term.</p>
-      </div>
-    `;
-  }
-  else {
-    elements.videoFeedbackQueueList.innerHTML = submissions.map(videoFeedbackQueueCard).join("");
-  }
-
-  let selected = submissions.find(
-    (submission) => submission.submission_id === state.selectedVideoFeedbackSubmissionId
-  ) ?? null;
-
-  if (!selected && submissions.length > 0) {
-    selected = submissions[0];
-    state.selectedVideoFeedbackSubmissionId = selected.submission_id;
-  }
-
-  renderVideoFeedbackDetail(selected);
-  bindVideoFeedbackQueueActions();
-  saveState();
-}
-
-async function refreshVideoFeedbackQueue(options = {}) {
-  try {
-    const response = await api("GET", "/coach-workspace/video-feedback/queue");
-    state.coachVideoFeedbackQueue = Array.isArray(response.submissions) ? response.submissions : [];
-    elements.videoFeedbackQueueStatus.textContent = state.coachVideoFeedbackQueue.length
-      ? `${state.coachVideoFeedbackQueue.length} video submission${state.coachVideoFeedbackQueue.length === 1 ? "" : "s"} awaiting review.`
-      : "No pending video submissions.";
-    renderVideoFeedbackQueueWorkspace();
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-    elements.videoFeedbackQueueStatus.textContent = "Video feedback queue could not be loaded.";
-  }
-}
-
-async function submitVideoFeedback(submissionId) {
-  const text = document.getElementById("videoFeedbackReplyText")?.value?.trim();
-  if (!text) return;
-
-  showBusy("Sending feedback…");
-  try {
-    await api(
-      "POST",
-      `/coach-workspace/video-feedback/submissions/${encodeURIComponent(submissionId)}/feedback`,
-      { feedback_text: text }
-    );
-    state.coachVideoFeedbackQueue = (state.coachVideoFeedbackQueue ?? [])
-      .filter((submission) => submission.submission_id !== submissionId);
-    state.selectedVideoFeedbackSubmissionId = "";
-    showNotice("Feedback sent.");
-    elements.videoFeedbackQueueStatus.textContent = state.coachVideoFeedbackQueue.length
-      ? `${state.coachVideoFeedbackQueue.length} video submission${state.coachVideoFeedbackQueue.length === 1 ? "" : "s"} awaiting review.`
-      : "No pending video submissions.";
-    renderVideoFeedbackQueueWorkspace();
-  }
-  finally {
-    hideBusy();
-  }
-}
+// DEV NOTE: FULL-UI-32 coach video-feedback queue moved to React
+// (CoachVideoFeedbackQueuePanel.tsx into #coach-video-feedback-queue-root,
+// see useCoachVideoFeedbackQueue.ts) - it independently fetches
+// GET /coach-workspace/video-feedback/queue on mount and POSTs replies to
+// /coach-workspace/video-feedback/submissions/:id/feedback. The rest of
+// the Review view (reviewList/coachNoteForm - a different per-session
+// grain, not per-exercise-submission) stays legacy.
 
 function renderCoachReviewWorkspace() {
   if (
@@ -13070,14 +12903,6 @@ elements.recordVideoFeedbackButton.addEventListener("click", openVideoFeedbackPa
 elements.cancelVideoFeedbackButton.addEventListener("click", hideAllActionPanels);
 elements.uploadVideoFeedbackButton.addEventListener("click", () => {
   uploadExerciseVideo().catch(handleError);
-});
-elements.refreshVideoFeedbackQueueButton.addEventListener("click", () => {
-  refreshVideoFeedbackQueue().catch(handleError);
-});
-elements.videoFeedbackQueueSearch?.addEventListener("input", () => {
-  state.videoFeedbackQueueSearch = elements.videoFeedbackQueueSearch.value;
-  saveState();
-  renderVideoFeedbackQueueWorkspace();
 });
 elements.splitSessionButton.addEventListener("click", () => {
   postSessionEvent({ type: "SPLIT_SESSION" }).catch(handleError);
