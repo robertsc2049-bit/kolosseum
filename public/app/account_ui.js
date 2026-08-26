@@ -99,16 +99,9 @@ export function restoreAccountSession() {
   );
 }
 
-export function signOutAccount(
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/sign-out",
-    {},
-    csrfToken
-  );
-}
+// DEV NOTE: FULL-UI-02 sign_out transport moved to React (client.ts's
+// signOutAccount()) - was only ever consumed by app.js's now-removed
+// clearLocalSession().
 
 export function loadAccountDetail() {
   return request(
@@ -184,17 +177,10 @@ export function completeEmailVerification(
   );
 }
 
-export function requestAccountClosure(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/closure",
-    input,
-    csrfToken
-  );
-}
+// DEV NOTE: FULL-UI-02 account_close_request transport moved to React
+// (client.ts's requestAccountClosure()) - was only ever consumed by
+// app.js's now-removed closePersistentAccount().
+
 export function loadCommercialAccount() {
   return request(
     "GET",

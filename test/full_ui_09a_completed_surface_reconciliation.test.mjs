@@ -431,16 +431,16 @@ const targets = [
     "id": "sign_out",
     "evidence": [
       [
-        "public/app/account_ui.js",
+        "public/app-src/api/client.ts",
         [
           "signOutAccount",
           "\"/account/sign-out\""
         ]
       ],
       [
-        "public/app/index.html",
+        "public/app-src/screens/account/SignOutPanel.tsx",
         [
-          "id=\"signOutButton\""
+          "Sign out"
         ]
       ],
       [
@@ -454,7 +454,7 @@ const targets = [
         "test/full_ui_02_account_ui.test.mjs",
         [
           "\"signOutButton\"",
-          "\"signOutAccount\""
+          "signOutAccount"
         ]
       ]
     ]

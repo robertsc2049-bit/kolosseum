@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 
+import { AccountClosurePanel } from "./AccountClosurePanel";
 import { ConsentHistoryPanel } from "./ConsentHistoryPanel";
 import { EmailVerificationPanel } from "./EmailVerificationPanel";
 import { PasswordForm } from "./PasswordForm";
 import { ProfileForm } from "./ProfileForm";
+import { SignOutPanel } from "./SignOutPanel";
 import { useAccountDetail } from "./useAccountDetail";
 
 // DEV NOTE: legacy route_bootstrap.js already dispatches this event on every
@@ -30,22 +32,35 @@ export function AccountIdentityPanel() {
     return () => document.removeEventListener(ROUTE_CHANGE_EVENT, handleRouteChange);
   }, []);
 
+  // DEV NOTE: sign-out/closure render unconditionally, even while loading or
+  // errored - unlike the rest of this panel's identity data, being able to
+  // leave the account never depended on this fetch succeeding (legacy's
+  // static buttons worked the same way, independent of any account-detail
+  // fetch status).
   if (loading && !account) {
     return (
-      <div className="panel form-panel">
-        <p className="muted">Loading account settings…</p>
-      </div>
+      <>
+        <div className="panel form-panel">
+          <p className="muted">Loading account settings…</p>
+        </div>
+        <SignOutPanel csrfToken={csrfToken} />
+        <AccountClosurePanel csrfToken={csrfToken} />
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="panel form-panel">
-        <p role="status" className="muted small error">{error}</p>
-        <button className="button secondary" type="button" onClick={() => refresh()}>
-          Retry
-        </button>
-      </div>
+      <>
+        <div className="panel form-panel">
+          <p role="status" className="muted small error">{error}</p>
+          <button className="button secondary" type="button" onClick={() => refresh()}>
+            Retry
+          </button>
+        </div>
+        <SignOutPanel csrfToken={csrfToken} />
+        <AccountClosurePanel csrfToken={csrfToken} />
+      </>
     );
   }
 
@@ -59,6 +74,8 @@ export function AccountIdentityPanel() {
       />
       <PasswordForm csrfToken={csrfToken} />
       <ConsentHistoryPanel account={account} terms={terms} consentHistory={consentHistory} />
+      <SignOutPanel csrfToken={csrfToken} />
+      <AccountClosurePanel csrfToken={csrfToken} />
     </>
   );
 }

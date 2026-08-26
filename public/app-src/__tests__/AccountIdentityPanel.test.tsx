@@ -1,9 +1,10 @@
 // DEV NOTE: FULL-UI-02 profile_update/email_verification/password_change/
-// consent_history behavioral proof - replaces the source-text regex checks
-// full_ui_02_account_ui.test.mjs previously ran against the now-removed
-// app.js functions for exactly these four capabilities. See the migration
-// plan (docs/plans, "Testing: behavioral component tests") for why this
-// approach was chosen over continuing to pattern-match source text.
+// consent_history/sign_out/account_close_request behavioral proof -
+// replaces the source-text regex checks full_ui_02_account_ui.test.mjs
+// previously ran against the now-removed app.js functions for exactly
+// these capabilities. See the migration plan (docs/plans, "Testing:
+// behavioral component tests") for why this approach was chosen over
+// continuing to pattern-match source text.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -244,6 +245,103 @@ test("a display name containing markup is rendered as inert text, never as HTML 
   ]) {
     assert.doesNotMatch(panelText, forbidden);
   }
+
+  mock.restore();
+});
+
+test("signing out calls POST /account/sign-out with the CSRF header, then dispatches the session-ended bridge event", async () => {
+  const mock = await renderPanel(
+    { account: baseAccount(), terms: {}, consent_history: [], csrf_token: "csrf-signout" },
+    { "POST /account/sign-out": () => jsonResponse({ ok: true }) }
+  );
+
+  let bridgeFired = false;
+  document.addEventListener("kolosseum:account-session-ended", () => {
+    bridgeFired = true;
+  });
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
+  });
+
+  await waitFor(() => assert.ok(bridgeFired));
+
+  const signOutCall = mock.calls.find((call) => String(call.input) === "/account/sign-out");
+  assert.ok(signOutCall, "expected a POST /account/sign-out request");
+  assert.equal(signOutCall!.init?.method, "POST");
+  assert.equal((signOutCall!.init?.headers as Record<string, string>)["x-kolosseum-csrf"], "csrf-signout");
+
+  mock.restore();
+});
+
+test("signing out still ends the session locally even when the server-side revoke call fails", async () => {
+  const mock = await renderPanel(
+    { account: baseAccount(), terms: {}, consent_history: [], csrf_token: "csrf-signout-fail" },
+    { "POST /account/sign-out": () => jsonResponse({ error: "server_error" }, false, 500) }
+  );
+
+  let bridgeFired = false;
+  document.addEventListener("kolosseum:account-session-ended", () => {
+    bridgeFired = true;
+  });
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
+  });
+
+  await waitFor(() => assert.ok(bridgeFired));
+
+  mock.restore();
+});
+
+test("closing the account submits the typed confirmation via POST with the CSRF header, shows the recorded request, and dispatches the session-ended bridge", async () => {
+  const mock = await renderPanel(
+    { account: baseAccount(), terms: {}, consent_history: [], csrf_token: "csrf-closure" },
+    { "POST /account/closure": () => jsonResponse({ closure_request_id: "closure_req_1" }, true, 202) }
+  );
+
+  let bridgeFired = false;
+  document.addEventListener("kolosseum:account-session-ended", () => {
+    bridgeFired = true;
+  });
+
+  const confirmationInput = screen.getByPlaceholderText("Type CLOSE") as HTMLInputElement;
+  await act(async () => {
+    fireEvent.change(confirmationInput, { target: { value: "CLOSE" } });
+    fireEvent.click(screen.getByRole("button", { name: "Request closure" }));
+  });
+
+  await waitFor(() => screen.getByText("Closure request recorded: closure_req_1"));
+  assert.ok(bridgeFired);
+
+  const closureCall = mock.calls.find((call) => String(call.input) === "/account/closure");
+  assert.ok(closureCall, "expected a POST /account/closure request");
+  assert.equal((closureCall!.init?.headers as Record<string, string>)["x-kolosseum-csrf"], "csrf-closure");
+  const body = JSON.parse(String(closureCall!.init?.body));
+  assert.equal(body.confirmation, "CLOSE");
+
+  mock.restore();
+});
+
+test("a rejected closure request shows an inline error and does not end the session", async () => {
+  const mock = await renderPanel(
+    { account: baseAccount(), terms: {}, consent_history: [], csrf_token: "csrf-closure-fail" },
+    { "POST /account/closure": () => jsonResponse({ error: "account_closure_confirmation_required" }, false, 400) }
+  );
+
+  let bridgeFired = false;
+  document.addEventListener("kolosseum:account-session-ended", () => {
+    bridgeFired = true;
+  });
+
+  const confirmationInput = screen.getByPlaceholderText("Type CLOSE") as HTMLInputElement;
+  await act(async () => {
+    fireEvent.change(confirmationInput, { target: { value: "not close" } });
+    fireEvent.click(screen.getByRole("button", { name: "Request closure" }));
+  });
+
+  await waitFor(() => screen.getByText("Closure request could not be recorded. Check the confirmation text and try again."));
+  assert.equal(bridgeFired, false);
 
   mock.restore();
 });
