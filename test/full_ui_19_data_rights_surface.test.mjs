@@ -1,4 +1,9 @@
 // DEV NOTE: FULL-UI-19 data rights and consent static surface contract.
+// The export/deletion panel moved to React (AccountDataRightsPanel.tsx +
+// useAccountDataRights.ts, mounted at #account-data-rights-root; see
+// public/app-src/__tests__/AccountDataRightsPanel.test.tsx for its
+// behavioral proof). Backend routes, service and schema are untouched and
+// still asserted directly below.
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -10,12 +15,14 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
 const js = read("public/app/app.js");
-const accountUi = read("public/app/account_ui.js");
 const routes = read("src/api/product_account.routes.ts");
 const service = read("src/api/data_rights_service.ts");
 const gdprExportContract = read("src/v1GdprExportHandling.mjs");
 const gdprDeleteContract = read("src/v1GdprDeleteQueue.mjs");
 const athleteHistoryExportService = read("src/api/athlete_history_export_service.ts");
+const client = read("public/app-src/api/dataRightsClient.ts");
+const hook = read("public/app-src/screens/account/useAccountDataRights.ts");
+const panel = read("public/app-src/screens/account/AccountDataRightsPanel.tsx");
 
 test("current terms and consent version, and consent history, are displayed (reusing the existing real identity_account surface)", () => {
   // consent_history (accountCurrentTermsVersion/accountAcceptedTermsVersion/
@@ -91,8 +98,8 @@ test("export status and download are lawfully bounded: status, ready_at, expires
   assert.match(service, /row\.status !== "ready"/u);
   assert.match(service, /expires_at.*Date\.now\(\)/su);
 
-  assert.match(js, /async function triggerDataExportDownload/u);
-  assert.match(js, /downloadDataExport/u);
+  assert.match(hook, /const downloadExport = useCallback/u);
+  assert.match(client, /export function downloadDataExport/u);
 });
 
 test("an athlete's own export card shows whether they have actually downloaded it, not just its ready/expiry status", () => {
@@ -102,7 +109,7 @@ test("an athlete's own export card shows whether they have actually downloaded i
   // of their export requests they had already retrieved. Same phantom-field
   // bug class as PR #877-#882.
   assert.match(service, /downloaded_at_iso8601: isoString\(row\.downloaded_at\)/u);
-  assert.match(js, /entry\.downloaded_at_iso8601/u);
+  assert.match(panel, /entry\.downloaded_at_iso8601/u);
 });
 
 // Export status and deletion status are two independent reads (separate
@@ -112,16 +119,16 @@ test("an athlete's own export card shows whether they have actually downloaded i
 // succeeded and had real data to show. Same Promise.all-vs-allSettled
 // resilience class as the marketplace browse fix.
 test("a failure loading export status or deletion status never hides the other's already-successfully-loaded data", () => {
-  const fn = js.slice(
-    js.indexOf("async function loadDataRightsState"),
-    js.indexOf("async function loadDataRightsState") + 1500
+  const fn = hook.slice(
+    hook.indexOf("const refresh = useCallback"),
+    hook.indexOf("const refresh = useCallback") + 1200
   );
 
   assert.doesNotMatch(fn, /await Promise\.all\(/u);
   assert.match(fn, /const \[exportResult, deletionResult\] = await Promise\.allSettled\(/u);
-  assert.match(fn, /if \(exportResult\.status === "fulfilled"\) \{/u);
-  assert.match(fn, /if \(deletionResult\.status === "fulfilled"\) \{/u);
-  assert.match(fn, /if \(exportResult\.status === "rejected" && deletionResult\.status === "rejected"\) \{/u);
+  assert.match(fn, /exportResult\.status === "fulfilled" \? exportResult\.value : current\.exports/u);
+  assert.match(fn, /deletionResult\.status === "fulfilled" \? deletionResult\.value : current\.deletionRequests/u);
+  assert.match(fn, /serviceUnavailable: exportResult\.status === "rejected" && deletionResult\.status === "rejected"/u);
 });
 
 test("deletion review, request and status all route through the sealed S-V1-L-03 delete queue contract, never performing a hard delete", () => {
@@ -150,13 +157,13 @@ test("deletion consequence review shows factual retention copy without inventing
   // guarantee, promise of immediate deletion, or invented policy claim.
   assert.doesNotMatch(service, /guarantee|we promise|immediately delete|permanently erased on request/iu);
 
-  assert.match(js, /function renderDataDeletionRetentionPreview/u);
-  assert.match(html, /id="dataDeletionRetentionNotice"/u);
-  assert.match(html, /id="dataDeletionRetentionList"/u);
+  assert.match(hook, /const reviewDeletion = useCallback/u);
+  assert.match(panel, /deletionRetentionPreview\.factual_notice/u);
+  assert.match(panel, /deletionRetentionPreview\.retention_notices/u);
 });
 
 test("deletion confirmation is explicit and resistant to duplicate submission", () => {
-  assert.match(html, /placeholder="Type DELETE"/u);
+  assert.match(panel, /placeholder="Type DELETE"/u);
   assert.match(service, /cleanString\(confirmation\) !== "DELETE"/u);
 
   // Server-side: a repeated client_request_id for the same user replays the
@@ -165,10 +172,12 @@ test("deletion confirmation is explicit and resistant to duplicate submission", 
   assert.match(service, /replayed: true/u);
   assert.match(routes, /client_request_id/u);
 
-  // Client-side: the idempotency key persists across a failed submission so
-  // a retry replays rather than duplicates.
-  assert.match(js, /state\.dataDeletionClientRequestId/u);
-  assert.match(js, /newClientRequestId/u);
+  // Client-side: the idempotency key persists (in its own localStorage key,
+  // since this panel is the sole remaining reader/writer of it) across a
+  // failed submission so a retry replays rather than duplicates.
+  assert.match(hook, /CLIENT_REQUEST_ID_KEY = "kolosseum\.data_rights\.deletion_client_request_id"/u);
+  assert.match(hook, /window\.localStorage\.getItem\(CLIENT_REQUEST_ID_KEY\) \|\| newClientRequestId\(\)/u);
+  assert.match(hook, /window\.localStorage\.removeItem\(CLIENT_REQUEST_ID_KEY\)/u);
 });
 
 test("data rights schema tables never record a performed hard delete", () => {
@@ -186,15 +195,15 @@ test("actor access: data rights functions are scoped to the caller's own account
 });
 
 test("every new interactive data-rights control is a real focusable button/form, not a div handler (keyboard reachability)", () => {
-  for (const id of [
-    "requestDataExportButton", "reviewDataDeletionButton", "dataRightsRetryButton"
-  ]) {
-    const re = new RegExp(`<button[^>]*id="${id}"[^>]*type="button"`, "u");
-    assert.match(html, re, `${id} must be a real <button type="button">`);
+  assert.match(html, /id="account-data-rights-root"/u);
+
+  for (const label of ["Request data export", "Review deletion consequences", "Retry"]) {
+    const re = new RegExp(`<button[\\s\\S]*?type="button"[\\s\\S]*?>${label}</button>`, "u");
+    assert.match(panel, re, `${label} must be a real <button type="button">`);
   }
 
-  assert.match(html, /<form id="dataDeletionConfirmForm"/u);
-  assert.match(html, /<input id="dataDeletionConfirmation"/u);
+  assert.match(panel, /<form className="closure-controls" onSubmit=\{handleConfirmSubmit\}>/u);
+  assert.match(panel, /<input[\s\S]{0,120}placeholder="Type DELETE"[\s\S]{0,60}required/u);
 });
 
 test("data rights markup does not get hidden on narrow (mobile) viewports", () => {
@@ -221,6 +230,6 @@ test("standard path requires no operator/API/database intervention: every functi
     "requestDataExport", "loadDataExportStatus", "downloadDataExport",
     "loadDataDeletionPreview", "confirmDataDeletion", "loadDataDeletionStatus"
   ]) {
-    assert.match(accountUi, new RegExp(`export (?:function|async function) ${fn}`, "u"), `Expected account_ui.js export ${fn}`);
+    assert.match(client, new RegExp(`export (?:function|async function) ${fn}`, "u"), `Expected dataRightsClient.ts export ${fn}`);
   }
 });
