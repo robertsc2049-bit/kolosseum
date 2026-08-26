@@ -538,43 +538,7 @@
 
           <div id="athlete-self-nutrition-root"></div>
 
-          <div class="panel habits-panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">Habits</p>
-                <h3>Habits</h3>
-              </div>
-            </div>
-
-            <form id="habitCreateForm" class="athlete-detail-note-form">
-              <label class="field">
-                <span>Habit</span>
-                <input type="text" id="habitLabelInput" maxlength="120" required>
-              </label>
-
-              <label class="field">
-                <span>Cadence</span>
-                <select id="habitCadenceSelect">
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                </select>
-              </label>
-
-              <div class="inline-controls">
-                <button class="button primary" type="submit">Create habit</button>
-              </div>
-            </form>
-
-            <p
-              id="habitStatus"
-              class="dashboard-status"
-              role="status"
-              aria-live="polite"
-              hidden
-            ></p>
-
-            <div id="habitList" class="record-list"></div>
-          </div>
+          <div id="athlete-self-habits-root"></div>
 
           <div id="athlete-self-goals-root"></div>
 
@@ -1367,7 +1331,7 @@
                   </div>
 
                   <div
-                    id="athleteDetailHabitList"
+                    id="athlete-habits-root"
                     class="record-list athlete-detail-list"
                   ></div>
                 </article>

@@ -65,6 +65,11 @@ export async function loadAthleteProgressPhotos(athleteUserId: string): Promise<
   return Array.isArray(response.photos) ? (response.photos as JsonRecord[]) : [];
 }
 
+export async function loadAthleteHabits(athleteUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/habits/coach/${encodeURIComponent(athleteUserId)}`);
+  return Array.isArray(response.habits) ? (response.habits as JsonRecord[]) : [];
+}
+
 // DEV NOTE: note_history is one field of the same composite
 // /coach-workspace/athlete-detail response that also carries assignment/
 // strength/bodyweight/event/session history - those stay legacy (rendered

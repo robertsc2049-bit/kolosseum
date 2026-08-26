@@ -18,20 +18,27 @@ const recordStore = read("src/api/beta_product_record_store.ts");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
-// DEV NOTE: the coach-side body-metric history + log form and nutrition
-// summary, and the athlete's own body-measurement log form/history and
-// nutrition log form/summary, have all moved to React - see
+// DEV NOTE: every rendering surface in this area - coach-side body-metric
+// history/log form, nutrition summary and habits mirror, plus the
+// athlete's own body-measurement log/history, nutrition log/summary and
+// habit create/complete/archive panel - has moved to React. See
 // public/app-src/screens/coach/AthleteBodyMetricsPanel.tsx,
-// AthleteNutritionPanel.tsx, public/app-src/screens/athlete/
-// AthleteSelfBodyMetricsPanel.tsx and AthleteSelfNutritionPanel.tsx (and
-// their __tests__ files) for behavioral coverage. Only habits remain
-// legacy in this area.
+// AthleteNutritionPanel.tsx, AthleteHabitsPanel.tsx,
+// public/app-src/screens/athlete/AthleteSelfBodyMetricsPanel.tsx,
+// AthleteSelfNutritionPanel.tsx and AthleteSelfHabitsPanel.tsx (and their
+// __tests__ files) for behavioral coverage. Only the habit-streak
+// arithmetic itself (computeHabitStreak) stays server-side, as it always
+// was - see the DEV NOTE further down this file.
 const athleteBodyMetricsPanel = read("public/app-src/screens/coach/AthleteBodyMetricsPanel.tsx");
 const athleteNutritionPanel = read("public/app-src/screens/coach/AthleteNutritionPanel.tsx");
+const athleteHabitsPanel = read("public/app-src/screens/coach/AthleteHabitsPanel.tsx");
+const useAthleteHabits = read("public/app-src/screens/coach/useAthleteHabits.ts");
 const athleteSelfBodyMetricsPanel = read("public/app-src/screens/athlete/AthleteSelfBodyMetricsPanel.tsx");
 const useAthleteBodyMetricsSelf = read("public/app-src/screens/athlete/useAthleteBodyMetricsSelf.ts");
 const athleteSelfNutritionPanel = read("public/app-src/screens/athlete/AthleteSelfNutritionPanel.tsx");
 const useAthleteNutritionSelf = read("public/app-src/screens/athlete/useAthleteNutritionSelf.ts");
+const athleteSelfHabitsPanel = read("public/app-src/screens/athlete/AthleteSelfHabitsPanel.tsx");
+const useAthleteHabitsSelf = read("public/app-src/screens/athlete/useAthleteHabitsSelf.ts");
 const formatUtils = read("public/app-src/utils/format.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
@@ -129,20 +136,23 @@ test("no body-metric or habit file imports any engine-truth service", () => {
 
 test("the athlete forms and coach read-only panels exist as real controls, and streak/caption text is escaped before rendering", () => {
   assert.match(indexHtml, /id="athlete-self-body-metrics-root"/u);
-  assert.match(indexHtml, /id="habitCreateForm"/u);
-  assert.match(indexHtml, /id="habitList"/u);
+  assert.match(indexHtml, /id="athlete-self-habits-root"/u);
   assert.match(indexHtml, /id="athlete-body-metrics-root"/u);
-  assert.match(indexHtml, /id="athleteDetailHabitList"/u);
+  assert.match(indexHtml, /id="athlete-habits-root"/u);
 
-  assert.match(appJs, /escapeHtml\(habit\.habit_label\)/u);
-  assert.match(appJs, /async function createHabit/u);
-  assert.match(appJs, /async function logHabitCompletionToday/u);
-  assert.match(appJs, /async function refreshCoachAthleteHabits/u);
   assert.match(athleteBodyMetricsPanel, /useAthleteBodyMetrics/u);
 
   assert.match(athleteSelfBodyMetricsPanel, /export function AthleteSelfBodyMetricsPanel/u);
   assert.match(athleteSelfBodyMetricsPanel, /type="submit"/u);
   assert.match(useAthleteBodyMetricsSelf, /logAthleteBodyMetricSelf/u);
+
+  assert.match(athleteSelfHabitsPanel, /export function AthleteSelfHabitsPanel/u);
+  assert.match(athleteSelfHabitsPanel, /String\(habit\.habit_label\)/u);
+  assert.match(useAthleteHabitsSelf, /createHabitSelf/u);
+  assert.match(useAthleteHabitsSelf, /logHabitCompletionTodaySelf/u);
+  assert.match(useAthleteHabitsSelf, /archiveHabitSelf/u);
+  assert.match(athleteHabitsPanel, /useAthleteHabits/u);
+  assert.match(useAthleteHabits, /loadAthleteHabits/u);
 });
 
 // The manifest's body_metric_log function has declared actors ["athlete",
@@ -169,16 +179,23 @@ test("the coach's athlete-detail panel actually renders a body-metric log form w
   );
 });
 
+// DEV NOTE: renderHabitCard() moved to AthleteSelfHabitsPanel.tsx's and
+// AthleteHabitsPanel.tsx's own HabitCard() - computeHabitStreak() itself
+// never moved (see the DEV NOTE at the top of this file); both components
+// just render the server-computed integers verbatim, same as this file
+// used to.
 test("habit streak counts are rendered as plain integers with factual copy, never a percentage or graded label", () => {
-  assert.match(appJs, /\$\{habit\.current_streak_length\} day\$\{habit\.current_streak_length === 1/u);
+  for (const source of [athleteSelfHabitsPanel, athleteHabitsPanel]) {
+    assert.match(source, /currentStreak\} day\{currentStreak === 1/u);
 
-  const habitCardMatch = appJs.match(/function renderHabitCard\(habit, options = \{\}\) \{([\s\S]*?)\n\}/u);
-  assert.ok(habitCardMatch, "expected renderHabitCard function body");
-  // Scoped to the habit-card renderer itself, not the whole file - the
-  // separate progress_insights feature (FULL-UI-36) legitimately renders
-  // "adherence" text elsewhere in app.js for session completion rates,
-  // an unrelated, already-accepted surface.
-  assert.doesNotMatch(habitCardMatch[1], /current_streak_length\}%|longest_streak_length\}%|adherence|readiness_/iu);
+    const habitCardMatch = source.match(/function HabitCard\(([\s\S]*?)\n\}\n/u);
+    assert.ok(habitCardMatch, "expected a HabitCard component body");
+    // Scoped to the habit-card renderer itself, not the whole file - the
+    // separate progress_insights feature (FULL-UI-36) legitimately renders
+    // "adherence" text elsewhere for session completion rates, an
+    // unrelated, already-accepted surface.
+    assert.doesNotMatch(habitCardMatch[1], /currentStreak\}%|longest_streak_length[^,]*%|adherence|readiness_/iu);
+  }
 });
 
 test("nutrition reuses the body-metric type registry rather than a parallel record type or route", () => {
