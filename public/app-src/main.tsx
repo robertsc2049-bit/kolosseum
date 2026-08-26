@@ -2,6 +2,7 @@ import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
+import { AccountSupportPanel } from "./screens/account/AccountSupportPanel";
 import { AthleteHistoryPanel } from "./screens/athlete/AthleteHistoryPanel";
 import { AthleteSelfBodyMetricsPanel } from "./screens/athlete/AthleteSelfBodyMetricsPanel";
 import { AthleteSelfDeviceSyncPanel } from "./screens/athlete/AthleteSelfDeviceSyncPanel";
@@ -50,6 +51,7 @@ function mount(containerId: string, node: React.ReactNode) {
 }
 
 mount("account-identity-root", <AccountIdentityPanel />);
+mount("account-support-root", <AccountSupportPanel />);
 mount("athlete-profile-editor-root", <AthleteStrengthProfilePanel />);
 mount("athlete-progress-insights-root", <AthleteProgressInsightsPanel />);
 mount("athlete-weekly-checkins-root", <AthleteWeeklyCheckinsPanel />);
