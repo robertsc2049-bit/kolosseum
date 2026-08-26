@@ -245,20 +245,21 @@ async function applyEntityRoute(route) {
     }
   }
 
-  if (route.route_id === "coach_review_athlete") {
-    const select = await waitForSelector("#reviewAthlete");
-    const hasOption = select
-      ? [...select.options].some((option) => option.value === params.athlete_id)
-      : false;
-    if (select && hasOption) {
-      select.value = params.athlete_id;
-      select.dispatchEvent(new Event("change", { bubbles: true }));
-      document.getElementById("loadReviewButton")?.click();
-      return true;
-    }
-    // No matching athlete option - fall through to the generic
-    // "record not available" notice rather than silently leaving the
-    // select unchanged and reporting success for a stale athlete_id.
+  // DEV NOTE: React owns the review queue now (CoachReviewPanel.tsx/
+  // useCoachReview.ts, mounted at #coach-review-root) - its athlete filter
+  // listens for the same kolosseum:open-session-review event this file's
+  // other coach-review entry points already dispatch, so this deep link
+  // does the same rather than reaching into a now-removed #reviewAthlete
+  // select. The hook's own athlete list loads asynchronously (unlike the
+  // old select's synchronous options), so it validates athlete_id itself
+  // once loaded and dispatches kolosseum:coach-review-athlete-not-found
+  // (handled below) for a stale/invalid id, rather than this function
+  // validating synchronously before returning.
+  if (route.route_id === "coach_review_athlete" && params.athlete_id) {
+    document.dispatchEvent(
+      new CustomEvent("kolosseum:open-session-review", { detail: { athlete_user_id: params.athlete_id } })
+    );
+    return true;
   }
 
   return route.entity_key === null;
@@ -400,6 +401,16 @@ function scheduleRouteApplication() {
 }
 
 function installProductRouting() {
+  // DEV NOTE: see the coach_review_athlete branch in applyEntityRoute()
+  // above - CoachReviewPanel's useCoachReview.ts dispatches this once it
+  // has loaded its own athlete list and found the requested athlete_id is
+  // not a real connected athlete, so the deep link reports the same
+  // "record is not available" notice the removed #reviewAthlete
+  // hasOption check used to report synchronously.
+  document.addEventListener("kolosseum:coach-review-athlete-not-found", () => {
+    showRouteNotice("The requested record is not available in this workspace.");
+  });
+
   document.addEventListener(
     "click",
     (event) => {

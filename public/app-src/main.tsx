@@ -39,6 +39,7 @@ import { AthleteStrengthProfilePanel } from "./screens/coach/AthleteStrengthProf
 import { AthleteWeeklyCheckinsPanel } from "./screens/coach/AthleteWeeklyCheckinsPanel";
 import { CoachEventsListPanel, CoachEventsMetricCards } from "./screens/coach/CoachEventsLibraryPanel";
 import { CoachMarketplacePanel } from "./screens/coach/CoachMarketplacePanel";
+import { CoachReviewPanel } from "./screens/coach/CoachReviewPanel";
 import { CoachVideoFeedbackQueuePanel } from "./screens/coach/CoachVideoFeedbackQueuePanel";
 import { CoachOverviewEventsPanel } from "./screens/coach/CoachOverviewEventsPanel";
 
@@ -81,6 +82,7 @@ mount("coach-overview-events-root", <CoachOverviewEventsPanel />);
 mount("coach-events-metrics-root", <CoachEventsMetricCards />);
 mount("coach-events-list-root", <CoachEventsListPanel />);
 mount("coach-marketplace-root", <CoachMarketplacePanel />);
+mount("coach-review-root", <CoachReviewPanel />);
 mount("coach-video-feedback-queue-root", <CoachVideoFeedbackQueuePanel />);
 mount("athlete-today-create-session-root", <AthleteTodayCreateSessionButton />);
 mount("athlete-today-session-root", <AthleteTodaySessionCard />);

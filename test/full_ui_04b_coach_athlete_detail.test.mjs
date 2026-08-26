@@ -64,6 +64,8 @@ const athleteCoachNotesPanel =
 // legacy-owned.
 const athleteHistoryPanels =
   read("public/app-src/screens/coach/AthleteHistoryPanels.tsx");
+const reviewHook =
+  read("public/app-src/screens/coach/useCoachReview.ts");
 
 test(
   "FULL-UI-04B exposes the complete athlete-detail surface",
@@ -404,9 +406,17 @@ test(
       application,
       /kolosseum:open-session-note-form/u
     );
+    // The review view's own athlete-filter/data-loading half moved to
+    // React too (CoachReviewPanel.tsx/useCoachReview.ts, which listens for
+    // this same kolosseum:open-session-review event independently) - this
+    // app.js listener now only owns navigation.
     assert.match(
       application,
-      /elements\.reviewAthlete\.value = athleteUserId/u
+      /"kolosseum:open-session-review",\s*\n\s*\(event\) => \{\s*\n\s*const athleteUserId = event\.detail\?\.athlete_user_id;\s*\n\s*if \(!athleteUserId\) return;\s*\n\s*\n\s*setView\("review"\);/u
+    );
+    assert.match(
+      reviewHook,
+      /document\.addEventListener\(OPEN_SESSION_REVIEW_EVENT, handleOpenReview\)/u
     );
     assert.match(
       application,

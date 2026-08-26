@@ -435,10 +435,20 @@ const targets = [
     "id": "review_open_sessions",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/CoachReviewPanel.tsx",
         "any": [
-          "open read-only sessions",
-          "Open sessions cannot be marked reviewed",
+          "open read-only sessions"
+        ]
+      },
+      {
+        "path": "src/api/product_review.routes.ts",
+        "all": [
+          "Open sessions cannot be marked reviewed"
+        ]
+      },
+      {
+        "path": "public/app/app.js",
+        "all": [
           "coachOverviewOpenSessions"
         ]
       }
@@ -458,9 +468,8 @@ const targets = [
     "id": "review_note_list",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/CoachReviewPanel.tsx",
         "all": [
-          "function reviewNoteList(",
           "review-note-list"
         ]
       }
@@ -469,8 +478,7 @@ const targets = [
       {
         "path": "test/full_ui_07_review_queue.test.mjs",
         "all": [
-          "FULL-UI-07 displays provenance live status and note visibility",
-          "reviewNoteList"
+          "FULL-UI-07 displays provenance live status and note visibility"
         ]
       }
     ]

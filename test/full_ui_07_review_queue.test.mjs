@@ -1,4 +1,9 @@
-// DEV NOTE: FULL-UI-07 durable review queue product proof.
+// DEV NOTE: FULL-UI-07 durable review queue product proof. The queue's
+// rendering (reviewList/coachNoteForm) moved to React - CoachReviewPanel.tsx
+// + useCoachReview.ts, mounted at #coach-review-root - see
+// public/app-src/__tests__/CoachReviewPanel.test.tsx for its behavioral
+// proof. Backend routes, schema and CSS are untouched and still asserted
+// directly below.
 
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -31,41 +36,32 @@ const routes =
     "src/api/product_review.routes.ts"
   );
 
+const panel =
+  read("public/app-src/screens/coach/CoachReviewPanel.tsx");
+
+const hook =
+  read("public/app-src/screens/coach/useCoachReview.ts");
+
 test(
   "FULL-UI-07 exposes searchable review queue controls and factual detail",
   () => {
-    for (const id of [
-      "reviewAthlete",
-      "reviewSearch",
-      "reviewStatusFilter",
-      "reviewAllCount",
-      "reviewAwaitingCount",
-      "reviewReviewedCount",
-      "reviewOpenCount",
-      "reviewList",
-      "reviewDetail",
-      "reviewDetailContent"
-    ]) {
-      assert.match(
-        html,
-        new RegExp(
-          `id="${id}"`,
-          "u"
-        )
-      );
-    }
+    assert.match(html, /id="coach-review-root"/u);
+    assert.doesNotMatch(html, /id="reviewAthlete"/u);
 
     for (const token of [
-      "renderCoachReviewWorkspace",
-      "filteredCoachReviewRecords",
-      "renderCoachReviewDetail",
-      "reviewRecordMatches"
+      "reviewRecordMatches",
+      "ReviewDetail",
+      "reviewRecordStatus",
+      "reviewRecordDate"
     ]) {
       assert.match(
-        application,
+        panel,
         new RegExp(token, "u")
       );
     }
+
+    assert.match(hook, /const refresh = useCallback/u);
+    assert.match(hook, /const markReview = useCallback/u);
   }
 );
 
@@ -165,20 +161,27 @@ test(
     for (const token of [
       "assignment_provenance",
       "event_provenance",
-      "live_status_read_only",
-      "reviewNoteList",
+      "live_status_read_only"
+    ]) {
+      assert.match(
+        routes,
+        new RegExp(token, "u")
+      );
+    }
+
+    for (const token of [
       "Athlete visible",
       "Coach only",
       "Non-binding product note"
     ]) {
       assert.match(
-        `${routes}\n${application}`,
+        panel,
         new RegExp(token, "u")
       );
     }
 
     assert.match(
-      html,
+      panel,
       /cannot alter engine output or session facts/u
     );
   }

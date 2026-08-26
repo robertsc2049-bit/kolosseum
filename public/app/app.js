@@ -382,25 +382,6 @@ const elements = {
   assignmentCurrentState: document.getElementById("assignmentCurrentState"),
   assignmentHistoryList: document.getElementById("assignmentHistoryList"),
   assignmentCancelButton: document.getElementById("assignmentCancelButton"),
-  reviewAthlete: document.getElementById("reviewAthlete"),
-  reviewSearch: document.getElementById("reviewSearch"),
-  reviewStatusFilter: document.getElementById("reviewStatusFilter"),
-  loadReviewButton: document.getElementById("loadReviewButton"),
-  reviewStatus: document.getElementById("reviewStatus"),
-  reviewAllCount: document.getElementById("reviewAllCount"),
-  reviewAwaitingCount: document.getElementById("reviewAwaitingCount"),
-  reviewReviewedCount: document.getElementById("reviewReviewedCount"),
-  reviewOpenCount: document.getElementById("reviewOpenCount"),
-  reviewList: document.getElementById("reviewList"),
-  reviewDetail: document.getElementById("reviewDetail"),
-  reviewDetailContent: document.getElementById("reviewDetailContent"),
-  coachNoteForm: document.getElementById("coachNoteForm"),
-  coachNoteHeading: document.getElementById("coachNoteHeading"),
-  coachNoteSessionId: document.getElementById("coachNoteSessionId"),
-  coachNoteArtefactId: document.getElementById("coachNoteArtefactId"),
-  coachNoteText: document.getElementById("coachNoteText"),
-  coachNoteVisibility: document.getElementById("coachNoteVisibility"),
-
   accountAvatar: document.getElementById("accountAvatar"),
   accountName: document.getElementById("accountName"),
   accountEmail: document.getElementById("accountEmail"),
@@ -758,11 +739,19 @@ let noticeTimer = null;
 // tracking is unchanged) to the coach note form. A simple, non-persisted
 // dirty flag is enough here - unlike a programme draft, a half-written
 // note isn't meant to survive a reload, only to warn against an
-// accidental departure that would silently discard it.
+// accidental departure that would silently discard it. The coach note
+// form itself moved to React (CoachReviewPanel.tsx) - it dispatches
+// kolosseum:coach-note-dirty-changed to keep this flag in sync, since
+// setView()'s navigation guard below and the beforeunload guard both stay
+// legacy concerns.
 let coachNoteDirty = false;
 
+document.addEventListener("kolosseum:coach-note-dirty-changed", (event) => {
+  coachNoteDirty = Boolean(event.detail?.dirty);
+});
+
 function confirmCoachNoteDeparture() {
-  if (!coachNoteDirty || elements.coachNoteForm.hidden) return true;
+  if (!coachNoteDirty) return true;
   return globalThis.confirm(
     "This note has unsaved changes. Leave without saving?"
   );
@@ -4587,10 +4576,8 @@ function renderCoachSelectors() {
     : '<option value="">No connected athletes</option>';
 
   const assignmentValue = elements.assignmentAthlete.value;
-  const reviewValue = elements.reviewAthlete.value;
 
   elements.assignmentAthlete.innerHTML = options;
-  elements.reviewAthlete.innerHTML = options;
 
   if (
     assignmentValue &&
@@ -4599,16 +4586,7 @@ function renderCoachSelectors() {
     elements.assignmentAthlete.value = assignmentValue;
   }
 
-  if (
-    reviewValue &&
-    state.coachAthletes.some((athlete) => athlete.userId === reviewValue)
-  ) {
-    elements.reviewAthlete.value = reviewValue;
-  }
-
   elements.assignmentAthlete.disabled = state.coachAthletes.length === 0;
-  elements.reviewAthlete.disabled = state.coachAthletes.length === 0;
-  elements.loadReviewButton.disabled = state.coachAthletes.length === 0;
 
   renderAssignmentTemplateOptions();
 }
@@ -4873,12 +4851,10 @@ function bindCoachDashboardActions() {
 
         if (action === "open-review") {
           setView("review");
-          renderCoachSelectors();
 
-          elements.reviewAthlete.value =
-            athleteUserId;
-
-          await loadCoachReview();
+          document.dispatchEvent(
+            new CustomEvent("kolosseum:open-session-review", { detail: { athlete_user_id: athleteUserId } })
+          );
 
           return;
         }
@@ -5784,645 +5760,23 @@ function reviewAthleteName(record) {
   );
 }
 
-function reviewRecordStatus(record) {
-  const status =
-    String(
-      record?.review_status ??
-      "unreviewed"
-    ).toLowerCase();
-
-  return [
-    "reviewed",
-    "unreviewed",
-    "open"
-  ].includes(status)
-    ? status
-    : "unreviewed";
-}
-
-function reviewStatusBadge(record) {
-  const status =
-    reviewRecordStatus(record);
-
-  if (status === "reviewed") {
-    return '<span class="badge complete">Reviewed</span>';
-  }
-
-  if (status === "open") {
-    return '<span class="badge neutral">Open · read only</span>';
-  }
-
-  return '<span class="badge warning">Awaiting review</span>';
-}
-
-function reviewRecordDate(record) {
-  return String(
-    record?.updated_at ??
-    record?.created_at ??
-    ""
-  );
-}
-
-function reviewRecordMatches(
-  record,
-  query
-) {
-  const assignment =
-    record?.assignment_provenance &&
-    typeof record.assignment_provenance ===
-      "object"
-      ? record.assignment_provenance
-      : {};
-
-  const eventLink =
-    record?.event_provenance &&
-    typeof record.event_provenance ===
-      "object"
-      ? record.event_provenance
-      : {};
-
-  return [
-    reviewAthleteName(record),
-    record?.session_id,
-    record?.session_title,
-    record?.block_id,
-    record?.assignment_id,
-    assignment?.template_id,
-    assignment?.template_name,
-    assignment?.activity_id,
-    eventLink?.event_id
-  ]
-    .map((value) =>
-      String(value ?? "")
-        .toLowerCase()
-    )
-    .join(" ")
-    .includes(
-      String(query ?? "")
-        .trim()
-        .toLowerCase()
-    );
-}
-
-function filteredCoachReviewRecords() {
-  const selectedAthleteId =
-    String(
-      elements.reviewAthlete?.value ??
-      ""
-    );
-
-  const search =
-    String(
-      elements.reviewSearch?.value ??
-      state.coachReviewSearch ??
-      ""
-    );
-
-  const filter =
-    String(
-      elements.reviewStatusFilter?.value ??
-      state.coachReviewFilter ??
-      "awaiting"
-    );
-
-  return (
-    Array.isArray(
-      state.coachReviewRecords
-    )
-      ? state.coachReviewRecords
-      : []
-  )
-    .filter((record) =>
-      !selectedAthleteId ||
-      String(
-        record.athlete_user_id ??
-        ""
-      ) === selectedAthleteId
-    )
-    .filter((record) =>
-      reviewRecordMatches(
-        record,
-        search
-      )
-    )
-    .filter((record) => {
-      const status =
-        reviewRecordStatus(record);
-
-      if (filter === "all") {
-        return true;
-      }
-
-      if (filter === "awaiting") {
-        return status ===
-          "unreviewed";
-      }
-
-      return status === filter;
-    })
-    .sort((left, right) =>
-      reviewRecordDate(right)
-        .localeCompare(
-          reviewRecordDate(left)
-        )
-    );
-}
-
-function reviewRecordCard(record) {
-  const status =
-    reviewRecordStatus(record);
-
-  const notes =
-    Number(record.note_count ?? 0);
-
-  return `
-    <article
-      class="record-card review-record-card ${state.selectedCoachReviewSessionId === record.session_id ? "selected" : ""}"
-      data-review-session-id="${escapeHtml(record.session_id)}"
-    >
-      <div>
-        <p class="eyebrow">${escapeHtml(reviewAthleteName(record))}</p>
-        <h3>${escapeHtml(record.session_title ?? "Training session")}</h3>
-        <p>${escapeHtml(formatDate(reviewRecordDate(record)))} · ${Number(record.runtime_event_count ?? 0)} recorded events</p>
-        <p class="muted small">Session ${escapeHtml(record.session_id)}</p>
-      </div>
-      <div class="record-meta review-record-actions">
-        ${reviewStatusBadge(record)}
-        <span class="badge neutral">${notes} note${notes === 1 ? "" : "s"}</span>
-        <button
-          class="button secondary small-button"
-          type="button"
-          data-review-action="detail"
-          data-session-id="${escapeHtml(record.session_id)}"
-        >View details</button>
-        ${
-          status === "unreviewed"
-            ? `
-              <button
-                class="button primary small-button"
-                type="button"
-                data-review-action="reviewed"
-                data-session-id="${escapeHtml(record.session_id)}"
-              >Mark reviewed</button>
-            `
-            : status === "reviewed"
-              ? `
-                <button
-                  class="button secondary small-button"
-                  type="button"
-                  data-review-action="unreviewed"
-                  data-session-id="${escapeHtml(record.session_id)}"
-                >Mark unreviewed</button>
-              `
-              : ""
-        }
-        <button
-          class="button secondary small-button"
-          type="button"
-          data-review-action="note"
-          data-session-id="${escapeHtml(record.session_id)}"
-        >Add note</button>
-      </div>
-    </article>
-  `;
-}
-
-function reviewNoteList(record) {
-  const notes =
-    Array.isArray(record?.notes)
-      ? record.notes
-      : [];
-
-  if (notes.length === 0) {
-    return `
-      <div class="empty-state compact-empty">
-        <p>No coach notes are recorded for this session.</p>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="review-note-list">
-      ${notes.map((note) => `
-        <article class="review-note-card">
-          <div class="record-meta">
-            <span class="badge neutral">${
-              note.visibility === "athlete_visible"
-                ? "Athlete visible"
-                : "Coach only"
-            }</span>
-            <span class="muted small">${escapeHtml(formatDate(note.created_at))}</span>
-          </div>
-          <p>${escapeHtml(note.note_text ?? "")}</p>
-          <p class="muted small">Non-binding product note · not included in engine input</p>
-        </article>
-      `).join("")}
-    </div>
-  `;
-}
-
-function renderCoachReviewDetail(record) {
-  if (
-    !elements.reviewDetail ||
-    !elements.reviewDetailContent
-  ) {
-    return;
-  }
-
-  if (!record) {
-    elements.reviewDetail.hidden =
-      true;
-
-    elements.reviewDetailContent.innerHTML =
-      "";
-
-    return;
-  }
-
-  const assignment =
-    record.assignment_provenance &&
-    typeof record.assignment_provenance ===
-      "object"
-      ? record.assignment_provenance
-      : {};
-
-  const eventLink =
-    record.event_provenance &&
-    typeof record.event_provenance ===
-      "object"
-      ? record.event_provenance
-      : {};
-
-  const status =
-    reviewRecordStatus(record);
-
-  elements.reviewDetail.hidden =
-    false;
-
-  elements.reviewDetailContent.innerHTML = `
-    <div class="review-detail-heading">
-      <div>
-        <p class="eyebrow">Factual session detail</p>
-        <h3>${escapeHtml(reviewAthleteName(record))}</h3>
-        <p>${escapeHtml(record.session_title ?? "Training session")}</p>
-      </div>
-      ${reviewStatusBadge(record)}
-    </div>
-
-    <dl class="review-fact-grid">
-      <div><dt>Session</dt><dd>${escapeHtml(record.session_id)}</dd></div>
-      <div><dt>Status</dt><dd>${escapeHtml(titleCase(record.session_status ?? "recorded"))}</dd></div>
-      <div><dt>Recorded events</dt><dd>${Number(record.runtime_event_count ?? 0)}</dd></div>
-      <div><dt>Planned work items</dt><dd>${Number(record.planned_work_item_count ?? 0)}</dd></div>
-      <div><dt>Block</dt><dd>${escapeHtml(record.block_id || "Not recorded")}</dd></div>
-      <div><dt>Updated</dt><dd>${escapeHtml(formatDate(reviewRecordDate(record)))}</dd></div>
-    </dl>
-
-    <section class="review-provenance">
-      <h4>Provenance</h4>
-      <dl class="review-fact-grid">
-        <div><dt>Assignment</dt><dd>${escapeHtml(record.assignment_id || "Not recorded")}</dd></div>
-        <div><dt>Programme</dt><dd>${escapeHtml(assignment.template_name ?? assignment.template_id ?? "Not recorded")}</dd></div>
-        <div><dt>Programme version</dt><dd>${Number(assignment.template_version ?? 0) || "Not recorded"}</dd></div>
-        <div><dt>Activity</dt><dd>${escapeHtml(titleCase(assignment.activity_id ?? "not recorded"))}</dd></div>
-        <div><dt>Event</dt><dd>${escapeHtml(eventLink.event_id ?? "No event link")}</dd></div>
-        <div><dt>Artefact</dt><dd>${escapeHtml(record.artefact_id)}</dd></div>
-      </dl>
-    </section>
-
-    <p class="review-boundary-copy ${
-      status === "open"
-        ? "live"
-        : ""
-    }">
-      ${
-        status === "open"
-          ? "Live status is read-only. This surface displays recorded session facts and cannot control or override the active session."
-          : "Review state is product metadata only. Marking a record reviewed or unreviewed does not change the session artefact, programme, assignment or engine truth."
-      }
-    </p>
-
-    <div class="assignment-action-row">
-      ${
-        status === "unreviewed"
-          ? `
-            <button
-              class="button primary"
-              type="button"
-              data-review-action="reviewed"
-              data-session-id="${escapeHtml(record.session_id)}"
-            >Mark reviewed</button>
-          `
-          : status === "reviewed"
-            ? `
-              <button
-                class="button secondary"
-                type="button"
-                data-review-action="unreviewed"
-                data-session-id="${escapeHtml(record.session_id)}"
-              >Mark unreviewed</button>
-            `
-            : ""
-      }
-      <button
-        class="button secondary"
-        type="button"
-        data-review-action="note"
-        data-session-id="${escapeHtml(record.session_id)}"
-      >Add non-binding note</button>
-    </div>
-
-    <section>
-      <h4>Coach notes</h4>
-      ${reviewNoteList(record)}
-    </section>
-  `;
-}
-
-function openReviewNote(record) {
-  const athlete =
-    reviewAthleteForRecord(record);
-
-  if (!athlete?.relationship) {
-    throw new Error(
-      "An accepted athlete relationship is required to record a note."
-    );
-  }
-
-  elements.coachNoteSessionId.value =
-    record.session_id;
-
-  elements.coachNoteArtefactId.value =
-    record.artefact_id;
-
-  elements.coachNoteForm.dataset.athleteId =
-    record.athlete_user_id;
-
-  elements.coachNoteHeading.textContent =
-    `Add note for ${athlete.displayName}`;
-
-  elements.coachNoteText.value = "";
-  coachNoteDirty = false;
-  elements.coachNoteForm.hidden = false;
-  elements.coachNoteText.focus();
-}
-
-async function setCoachSessionReview(
-  record,
-  reviewStatus
-) {
-  if (
-    !record ||
-    reviewRecordStatus(record) ===
-      "open"
-  ) {
-    throw new Error(
-      "Open sessions cannot be marked reviewed."
-    );
-  }
-
-  const actionCopy =
-    reviewStatus === "reviewed"
-      ? "Mark this completed session as reviewed?"
-      : "Return this completed session to the awaiting-review queue?";
-
-  if (!globalThis.confirm(actionCopy)) {
-    return null;
-  }
-
-  showBusy(
-    reviewStatus === "reviewed"
-      ? "Recording reviewed state…"
-      : "Returning session to review queue…"
-  );
-
-  try {
-    const response = await api(
-      "POST",
-      `/coach-workspace/session-review/${encodeURIComponent(record.session_id)}`,
-      {
-        request_id:
-          createId("session_review"),
-        requested_at_iso8601:
-          nowIso(),
-        coach_user_id:
-          state.profile.coachUserId,
-        athlete_user_id:
-          record.athlete_user_id,
-        artefact_id:
-          record.artefact_id,
-        review_status:
-          reviewStatus
-      }
-    );
-
-    state.selectedCoachReviewSessionId =
-      record.session_id;
-
-    await refreshCoachReviewQueue({
-      quiet: true,
-      render: true
-    });
-
-    renderCoachDashboard();
-
-    showNotice(
-      reviewStatus === "reviewed"
-        ? "Session marked reviewed."
-        : "Session returned to the review queue."
-    );
-
-    return response.review ?? null;
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-function bindCoachReviewActions() {
-  for (
-    const container of [
-      elements.reviewList,
-      elements.reviewDetailContent
-    ]
-  ) {
-    if (!container) continue;
-
-    for (
-      const button of container.querySelectorAll(
-        "[data-review-action]"
-      )
-    ) {
-      button.addEventListener(
-        "click",
-        () => {
-          const record =
-            state.coachReviewRecords.find(
-              (entry) =>
-                entry.session_id ===
-                button.dataset.sessionId
-            );
-
-          if (!record) return;
-
-          const action =
-            button.dataset.reviewAction;
-
-          if (action === "detail") {
-            state.selectedCoachReviewSessionId =
-              record.session_id;
-
-            saveState();
-            renderCoachReviewWorkspace();
-            return;
-          }
-
-          if (action === "note") {
-            openReviewNote(record);
-            return;
-          }
-
-          if (
-            action === "reviewed" ||
-            action === "unreviewed"
-          ) {
-            setCoachSessionReview(
-              record,
-              action
-            ).catch(handleError);
-          }
-        }
-      );
-    }
-  }
-}
-
-// DEV NOTE: FULL-UI-32 coach video-feedback queue moved to React
-// (CoachVideoFeedbackQueuePanel.tsx into #coach-video-feedback-queue-root,
-// see useCoachVideoFeedbackQueue.ts) - it independently fetches
-// GET /coach-workspace/video-feedback/queue on mount and POSTs replies to
-// /coach-workspace/video-feedback/submissions/:id/feedback. The rest of
-// the Review view (reviewList/coachNoteForm - a different per-session
-// grain, not per-exercise-submission) stays legacy.
-
-function renderCoachReviewWorkspace() {
-  if (
-    !elements.reviewList ||
-    !elements.reviewStatus
-  ) {
-    return;
-  }
-
-  state.coachReviewSearch =
-    String(
-      elements.reviewSearch?.value ??
-      state.coachReviewSearch ??
-      ""
-    );
-
-  state.coachReviewFilter =
-    String(
-      elements.reviewStatusFilter?.value ??
-      state.coachReviewFilter ??
-      "awaiting"
-    );
-
-  const records =
-    Array.isArray(
-      state.coachReviewRecords
-    )
-      ? state.coachReviewRecords
-      : [];
-
-  const counts = {
-    all: records.length,
-    awaiting:
-      records.filter(
-        (record) =>
-          reviewRecordStatus(record) ===
-          "unreviewed"
-      ).length,
-    reviewed:
-      records.filter(
-        (record) =>
-          reviewRecordStatus(record) ===
-          "reviewed"
-      ).length,
-    open:
-      records.filter(
-        (record) =>
-          reviewRecordStatus(record) ===
-          "open"
-      ).length
-  };
-
-  elements.reviewAllCount.textContent =
-    String(counts.all);
-
-  elements.reviewAwaitingCount.textContent =
-    String(counts.awaiting);
-
-  elements.reviewReviewedCount.textContent =
-    String(counts.reviewed);
-
-  elements.reviewOpenCount.textContent =
-    String(counts.open);
-
-  const filtered =
-    filteredCoachReviewRecords();
-
-  elements.reviewList.innerHTML =
-    filtered.length
-      ? filtered
-          .map(reviewRecordCard)
-          .join("")
-      : `
-        <div class="panel empty-state">
-          <div class="empty-icon">R</div>
-          <h3>No matching review records</h3>
-          <p>Completed sessions awaiting review, reviewed records and open read-only sessions will appear here.</p>
-        </div>
-      `;
-
-  let selected =
-    records.find(
-      (record) =>
-        record.session_id ===
-        state.selectedCoachReviewSessionId
-    ) ?? null;
-
-  if (
-    !selected &&
-    filtered.length > 0
-  ) {
-    selected = filtered[0];
-    state.selectedCoachReviewSessionId =
-      selected.session_id;
-  }
-
-  renderCoachReviewDetail(selected);
-  bindCoachReviewActions();
-
-  elements.reviewStatus.textContent =
-    state.coachReviewUpdatedAt
-      ? `Review records refreshed ${formatDate(state.coachReviewUpdatedAt)}. ${counts.awaiting} completed session${counts.awaiting === 1 ? "" : "s"} awaiting review.`
-      : "Refresh to load factual review records.";
-
-  saveState();
-}
-
-async function refreshCoachReviewQueue(
-  options = {}
-) {
-  const coachUserId =
-    String(
-      state.profile?.coachUserId ??
-      ""
-    );
+// DEV NOTE: FULL-UI-17 review queue (reviewList/coachNoteForm) and
+// FULL-UI-32 coach video-feedback queue both moved to React
+// (CoachReviewPanel.tsx/useCoachReview.ts into #coach-review-root,
+// CoachVideoFeedbackQueuePanel.tsx into #coach-video-feedback-queue-root -
+// see useCoachVideoFeedbackQueue.ts) - both independently fetch their own
+// data on mount. reviewAthleteForRecord()/reviewAthleteName() above stay,
+// since renderCoachDashboard() below still uses them for its own
+// review-derived stat card. The trimmed refreshCoachReviewQueue() below
+// survives only because refreshCoachDashboard() also calls it, quietly
+// and without rendering, to populate state.coachReviewRecords for that
+// same dashboard read - the same independent-fetch duplication already
+// accepted for other migrated panels' dashboard-visible counts.
+async function refreshCoachReviewQueue() {
+  const coachUserId = String(state.profile?.coachUserId ?? "");
 
   if (!coachUserId) {
     state.coachReviewRecords = [];
-    renderCoachReviewWorkspace();
     return [];
   }
 
@@ -6431,157 +5785,10 @@ async function refreshCoachReviewQueue(
     `/coach-workspace/reviews?coach_user_id=${encodeURIComponent(coachUserId)}`
   );
 
-  state.coachReviewRecords =
-    Array.isArray(response.records)
-      ? response.records
-      : [];
-
-  state.coachReviewUpdatedAt =
-    nowIso();
-
-  state.coachArtefactCount =
-    state.coachReviewRecords.length;
-
+  state.coachReviewRecords = Array.isArray(response.records) ? response.records : [];
   saveState();
 
-  if (options.render !== false) {
-    renderCoachReviewWorkspace();
-  }
-
-  if (!options.quiet) {
-    showNotice(
-      "Review records refreshed."
-    );
-  }
-
   return state.coachReviewRecords;
-}
-
-
-async function loadCoachReview() {
-  showBusy(
-    "Loading factual review records…"
-  );
-
-  try {
-    await refreshCoachReviewQueue({
-      quiet: true,
-      render: true
-    });
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-function renderCoachArtefacts(
-  athlete,
-  artefacts
-) {
-  state.coachReviewRecords =
-    (
-      Array.isArray(artefacts)
-        ? artefacts
-        : []
-    ).map((artefact) => ({
-      ...artefact,
-      athlete_user_id:
-        athlete.userId,
-      athlete_display_name:
-        athlete.displayName,
-      review_status:
-        dashboardSessionIsOpen(
-          artefact
-        )
-          ? "open"
-          : "unreviewed",
-      notes: [],
-      note_count: 0,
-      read_only: true,
-      calls_engine: false,
-      engine_visible: false
-    }));
-
-  renderCoachReviewWorkspace();
-}
-
-async function recordCoachNote(event) {
-  event.preventDefault();
-
-  const athleteUserId =
-    elements.coachNoteForm.dataset
-      .athleteId;
-
-  const athlete =
-    state.coachAthletes.find(
-      (entry) =>
-        entry.userId === athleteUserId
-    );
-
-  if (!athlete?.relationship) {
-    return;
-  }
-
-  showBusy("Recording note…");
-
-  try {
-    await api(
-      "POST",
-      "/sessions/beta-coach-notes",
-      {
-        coach_profile:
-          state.coachProfile,
-        relationship:
-          athlete.relationship,
-        athlete_user_id:
-          athleteUserId,
-        session_id:
-          elements.coachNoteSessionId
-            .value,
-        artefact_id:
-          elements.coachNoteArtefactId
-            .value,
-        note_text:
-          elements.coachNoteText
-            .value.trim(),
-        visibility:
-          elements.coachNoteVisibility
-            .value
-      }
-    );
-
-    elements.coachNoteForm.hidden =
-      true;
-    coachNoteDirty = false;
-
-    if (
-      athleteDetailFor(
-        athleteUserId
-      )
-    ) {
-      await refreshAthleteDetail(
-        athleteUserId,
-        {
-          quiet: true
-        }
-      );
-    }
-
-    state.selectedCoachReviewSessionId =
-      elements.coachNoteSessionId.value;
-
-    await refreshCoachReviewQueue({
-      quiet: true,
-      render: true
-    });
-
-    showNotice(
-      "Non-binding coach note recorded."
-    );
-  }
-  finally {
-    hideBusy();
-  }
 }
 
 
@@ -12638,15 +11845,10 @@ document.addEventListener("keydown", (event) => {
 });
 
 globalThis.addEventListener("beforeunload", (event) => {
-  const coachNoteFormOpenAndDirty = coachNoteDirty && !elements.coachNoteForm.hidden;
-  if (!templateDraftIsDirty() && !coachNoteFormOpenAndDirty) return;
+  if (!templateDraftIsDirty() && !coachNoteDirty) return;
 
   event.preventDefault();
   event.returnValue = "";
-});
-
-elements.coachNoteText.addEventListener("input", () => {
-  coachNoteDirty = true;
 });
 
 elements.newTemplateButton.addEventListener("click", () => {
@@ -12924,23 +12126,6 @@ elements.assignmentForm.addEventListener("submit", (event) => {
 elements.assignmentCancelButton.addEventListener("click", () => {
   cancelAssignmentForAthlete(elements.assignmentAthlete.value, "workspace").catch(handleError);
 });
-elements.loadReviewButton.addEventListener("click", () => loadCoachReview().catch(
-  catchWithViewRetry(elements.reviewStatus, () => loadCoachReview(), "Review queue could not be loaded.")
-));
-elements.reviewSearch.addEventListener("input", () => {
-  state.coachReviewSearch = elements.reviewSearch.value;
-  renderCoachReviewWorkspace();
-});
-elements.reviewStatusFilter.addEventListener("change", () => {
-  state.coachReviewFilter = elements.reviewStatusFilter.value;
-  renderCoachReviewWorkspace();
-});
-elements.reviewAthlete.addEventListener("change", () => {
-  renderCoachReviewWorkspace();
-});
-elements.coachNoteForm.addEventListener("submit", (event) => {
-  recordCoachNote(event).catch(handleError);
-});
 elements.copyAccountCodeButton.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(currentAccountId());
@@ -13017,11 +12202,15 @@ document.addEventListener(
 // DEV NOTE: React owns the session-history list now (see
 // public/app-src/screens/coach/AthleteHistoryPanels.tsx's
 // AthleteSessionHistoryList) - its "Review"/"Add note" buttons reach into
-// legacy-only state/DOM (the Review view's athlete selector,
-// elements.athleteDetailNoteForm), so they dispatch these two events
-// instead of the data-athlete-detail-action delegation
+// legacy-only state/DOM (elements.athleteDetailNoteForm), so they dispatch
+// these two events instead of the data-athlete-detail-action delegation
 // bindAthleteDetailActions() used to provide. Behaviour is otherwise
 // unchanged from what that removed function did.
+//
+// kolosseum:open-session-review's own athlete-filter/data-loading half
+// moved to React too (CoachReviewPanel.tsx/useCoachReview.ts, which
+// listens for this same event independently) - this listener now only
+// owns navigation, which stays legacy.
 document.addEventListener(
   "kolosseum:open-session-review",
   (event) => {
@@ -13029,9 +12218,6 @@ document.addEventListener(
     if (!athleteUserId) return;
 
     setView("review");
-    renderCoachSelectors();
-    elements.reviewAthlete.value = athleteUserId;
-    loadCoachReview().catch(handleError);
   }
 );
 
