@@ -28,14 +28,13 @@ import { PROFILE_UPDATED_EVENT } from "./useAthleteStrengthProfile";
 // DEV NOTE: ported from app.js's (removed) selectedAthleteProfileTemplate()/
 // selectedAthleteProfileEvent()/renderAthleteProfileAssignmentRequirements()/
 // renderAthleteProfileAssignment()/recordAthleteProfileAssignment() - the
-// "Assign from athlete profile" panel. A standalone, unreachable twin of
-// this same form (#view-assign) still lives in app.js as dead code - left
-// for its own separate cleanup, out of scope here. The shared helpers both
-// twins use (assignmentRecordsForAthlete/currentAssignmentForAthlete/
-// assignmentTemplateName etc.) stay in app.js untouched, since the dead
-// twin's own render calls (harmlessly null-guarded once this slice's DOM
-// is gone) still reach them, and Coach Dashboard reads the same
-// state.coachAssignments they populate.
+// "Assign from athlete profile" panel. The standalone, unreachable twin of
+// this same form (#view-assign) and the shared render helpers only it and
+// this panel's now-removed legacy predecessor used (assignmentHistoryCards/
+// renderAssignmentCurrent/renderAssignmentLifecycleSurfaces and friends)
+// are gone from app.js too - refreshCoachAssignments() still populates
+// state.coachAssignments, which this hook (via loadCoachAssignments) and
+// the Coach Dashboard both read directly.
 const OPENED_EVENT = "kolosseum:coach-athlete-profile-opened";
 const CLOSED_EVENT = "kolosseum:coach-athlete-profile-closed";
 

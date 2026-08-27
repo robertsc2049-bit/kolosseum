@@ -17,25 +17,28 @@ const lifecycle = read("src/api/product_assignment.routes.ts");
 // DEV NOTE: the profile-embedded "Assign from athlete profile" panel moved
 // to React - see AthleteProfileAssignmentPanel.tsx/
 // useAthleteProfileAssignment.ts. The standalone, unreachable #view-assign
-// twin (assignmentCurrentState/assignmentHistoryList/assignmentCancelButton)
-// stays legacy dead code, out of scope for this migration.
+// twin (assignmentCurrentState/assignmentHistoryList/assignmentCancelButton/
+// recordAssignment()/cancelAssignmentForAthlete()) is deleted outright -
+// it was never reachable (no nav button, no route, no data-view="assign"
+// trigger). assignmentHistoryCards/renderAssignmentCurrent/
+// renderAssignmentLifecycleSurfaces (and the plain-data helpers only they
+// used - assignmentRecordsForAthlete/currentAssignmentForAthlete/
+// assignmentTemplateRecord/Name/Version/assignmentStateBadge) are gone too:
+// refreshCoachAssignments()'s render call was their only remaining live
+// caller once both DOM twins it targeted were deleted, so the whole cluster
+// had zero observable effect - see app.js's own DEV NOTE at the former
+// #view-assign site.
 const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
 const assignmentHook = read("public/app-src/screens/coach/useAthleteProfileAssignment.ts");
 
 test("FULL-UI-06 exposes current assignment and immutable history controls", () => {
-  for (const id of [
-    "assignmentCurrentState",
-    "assignmentHistoryList",
-    "assignmentCancelButton"
-  ]) {
-    assert.match(html, new RegExp(`id="${id}"`, "u"));
-  }
   assert.match(html, /id="athlete-profile-assignment-root"/u);
   assert.doesNotMatch(html, /id="athleteAssignmentCurrent"/u);
+  assert.doesNotMatch(html, /id="view-assign"/u);
+  assert.doesNotMatch(html, /id="assignmentCurrentState"/u);
 
-  assert.match(application, /function renderAssignmentLifecycleSurfaces\(/u);
-  assert.match(application, /function assignmentHistoryCards\(/u);
-  assert.match(application, /assignmentStateBadge/u);
+  assert.doesNotMatch(application, /function renderAssignmentLifecycleSurfaces\(/u);
+  assert.doesNotMatch(application, /function assignmentHistoryCards\(/u);
 
   assert.match(assignmentPanel, /Current assignment/u);
   assert.match(assignmentPanel, /Assignment history/u);
@@ -76,8 +79,8 @@ test("FULL-UI-06 preserves existing sessions and only blocks future creation", (
   assert.doesNotMatch(lifecycle, /DELETE\s+FROM\s+sessions/iu);
   assert.doesNotMatch(lifecycle, /UPDATE\s+sessions/iu);
   assert.match(lifecycle, /cancelled_before_future_session_creation/u);
-  assert.match(application, /Existing compiled sessions remain/u);
-  assert.match(application, /existing session[\s\S]*remain preserved/u);
+  assert.match(assignmentHook, /existing session\$\{preservedCount === 1 \? "" : "s"\} remain attached to the earlier assignment/u);
+  assert.match(assignmentHook, /existing session\$\{preserved === 1 \? "" : "s"\} remain preserved/u);
 });
 
 test("FULL-UI-06 fails closed against stale assignment actions", () => {
@@ -115,11 +118,11 @@ test("FULL-UI-06 projects lifecycle state into assignment reads", () => {
 });
 
 test("FULL-UI-06 confirms exact version and separates optional event state", () => {
-  assert.match(application, /version \$\{assignmentTemplateVersion\(current\)\}/u);
-  assert.match(application, /event_id/u);
-  assert.match(application, /No event link/u);
-  assert.match(application, /globalThis\.confirm\(confirmation\)/u);
-  assert.match(application, /preserved_session_count/u);
+  assert.match(assignmentHook, /version \$\{templateVersion\}/u);
+  assert.match(assignmentHook, /event_id/u);
+  assert.match(assignmentPanel, /No event link/u);
+  assert.match(assignmentPanel, /window\.confirm\(confirmation\)/u);
+  assert.match(assignmentHook, /preserved_session_count/u);
 });
 
 test("FULL-UI-06 is responsive and engine inert", () => {

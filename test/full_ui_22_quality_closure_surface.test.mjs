@@ -158,13 +158,14 @@ test("leaving a form with unsaved changes - a coach note or a programme draft - 
 });
 
 test("destructive or state-changing actions require an explicit confirmation before the request is sent", () => {
-  // transitionCoachRelationship's and recordAthleteProfileAssignment's
-  // window.confirm()/globalThis.confirm() calls moved to React with them -
-  // see AthleteRelationshipDetailPanel.tsx/AthleteProfileAssignmentPanel.tsx
-  // below. cancelAssignmentForAthlete's own confirm() stays in app.js - it's
-  // shared with the still-legacy standalone #view-assign twin.
+  // transitionCoachRelationship's, recordAssignment's and
+  // cancelAssignmentForAthlete's window.confirm()/globalThis.confirm() calls
+  // moved to React with them - see AthleteRelationshipDetailPanel.tsx/
+  // AthleteProfileAssignmentPanel.tsx below. The standalone #view-assign
+  // twin those last two were shared with is gone outright (unreachable dead
+  // code), not just migrated.
   const confirmCallCount = [...js.matchAll(/globalThis\.confirm\(|window\.confirm\(/gu)].length;
-  assert.ok(confirmCallCount >= 7, `expected at least 7 confirm() gates, found ${confirmCallCount}`);
+  assert.ok(confirmCallCount >= 5, `expected at least 5 confirm() gates, found ${confirmCallCount}`);
 
   assert.match(athleteRelationshipDetailPanel, /window\.confirm\(/u);
   assert.match(athleteRelationshipDetailPanel, /Historical records will be preserved/u);

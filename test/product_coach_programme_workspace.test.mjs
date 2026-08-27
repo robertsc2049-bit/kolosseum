@@ -20,6 +20,11 @@ const phase6 = read("engine/src/phases/phase6.ts");
 const athleteStrengthProfilePanel = read(
   "public/app-src/screens/coach/AthleteStrengthProfilePanel.tsx"
 );
+// DEV NOTE: the profile-embedded assignment panel moved to React - see
+// AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts. The
+// standalone #view-assign twin is gone outright (unreachable dead code).
+const assignmentHook = read("public/app-src/screens/coach/useAthleteProfileAssignment.ts");
+const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
 
 test("athlete management includes durable strength-reference editing", () => {
   for (const id of ["athleteProfilePanel", "athlete-profile-editor-root"]) {
@@ -52,11 +57,11 @@ test("programme management supports nested block, week and session authoring", (
 });
 
 test("programme assignment checks all percentage reference requirements", () => {
-  assert.match(html, /id="assignmentRequirements"/u);
-  assert.match(js, /requiredOneRmExerciseIds/u);
-  assert.match(js, /Missing current strength references/u);
-  assert.match(js, /assignmentSubmitButton\.disabled = true/u);
-  assert.match(js, /Assignment requirements complete/u);
+  assert.match(html, /id="athlete-profile-assignment-root"/u);
+  assert.match(assignmentHook, /compareProgrammeStrengthRequirements/u);
+  assert.match(assignmentHook, /Missing current strength references/u);
+  assert.match(assignmentPanel, /disabled=\{submitting \|\| !requirements\.canSubmit\}/u);
+  assert.match(assignmentHook, /Ready to assign/u);
 });
 
 test("athlete execution receives a resolved working load without hiding the source prescription", () => {
