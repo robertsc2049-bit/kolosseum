@@ -267,16 +267,6 @@ const elements = {
   templateSessionCount: document.getElementById("templateSessionCount"),
   templateBlocks: document.getElementById("templateBlocks"),
   addTemplateBlockButton: document.getElementById("addTemplateBlockButton"),
-  assignmentForm: document.getElementById("assignmentForm"),
-  assignmentAthlete: document.getElementById("assignmentAthlete"),
-  assignmentTemplate: document.getElementById("assignmentTemplate"),
-  assignmentEventSummary: document.getElementById("assignmentEventSummary"),
-  assignmentRequirements: document.getElementById("assignmentRequirements"),
-  assignmentSubmitButton: document.getElementById("assignmentSubmitButton"),
-  assignmentResult: document.getElementById("assignmentResult"),
-  assignmentCurrentState: document.getElementById("assignmentCurrentState"),
-  assignmentHistoryList: document.getElementById("assignmentHistoryList"),
-  assignmentCancelButton: document.getElementById("assignmentCancelButton"),
   accountAvatar: document.getElementById("accountAvatar"),
   accountName: document.getElementById("accountName"),
   accountEmail: document.getElementById("accountEmail"),
@@ -1140,7 +1130,6 @@ function viewTitle(view) {
     events: "Events",
     templates: "Programmes",
     marketplace: "Marketplace",
-    assign: "Assign",
     review: "Review",
     account: "Account"
   };
@@ -1229,10 +1218,6 @@ function setView(view) {
         "Coach dashboard could not be loaded."
       )
     );
-  }
-
-  if (view === "review" && state.role === "coach") {
-    renderCoachSelectors();
   }
 
   if (view === "account") {
@@ -3135,170 +3120,29 @@ function closeAthleteProfile() {
 // kolosseum:coach-athlete-profile-updated listener below for how this
 // legacy module learns about a React-driven save.
 
-function requiredOneRmExerciseIds(template) {
-  const ids = new Set();
-  const blocks = Array.isArray(template?.template_structure?.blocks)
-    ? template.template_structure.blocks
-    : [];
-
-  for (const block of blocks) {
-    for (const week of Array.isArray(block?.weeks) ? block.weeks : []) {
-      for (const day of Array.isArray(week?.days) ? week.days : []) {
-        for (const session of Array.isArray(day?.sessions) ? day.sessions : []) {
-          for (const item of Array.isArray(session?.work_items) ? session.work_items : []) {
-            if (item?.loading_reference?.type === "percent_1rm") {
-              ids.add(String(item.exercise_id ?? ""));
-            }
-          }
-        }
-      }
-    }
-  }
-
-  ids.delete("");
-  return [...ids];
-}
-
 function exerciseDisplayName(exerciseId) {
   return state.templateExercises.find((exercise) => exercise.exercise_id === exerciseId)?.display_name
     ?? titleCase(exerciseId);
 }
 
-function renderAssignmentEventSummary(template) {
-  const eventPlan = template?.event_plan && typeof template.event_plan === "object"
-    ? template.event_plan
-    : null;
-
-  elements.assignmentEventSummary.hidden = !eventPlan;
-  if (!eventPlan) {
-    elements.assignmentEventSummary.innerHTML = "";
-    return;
-  }
-
-  elements.assignmentEventSummary.innerHTML = `
-    <div>
-      <span class="eyebrow">Assigned event</span>
-      <strong>${escapeHtml(eventPlan.event_name)}</strong>
-      <span>${escapeHtml(titleCase(eventPlan.event_type))} · ${escapeHtml(formatDate(eventPlan.event_date))}</span>
-    </div>
-    <strong>${escapeHtml(countdownLabel(eventPlan.event_date))}</strong>
-  `;
-}
-
-function renderAssignmentRequirements() {
-  const athlete = state.coachAthletes.find(
-    (entry) => entry.userId === elements.assignmentAthlete.value
-  );
-  const template = state.coachTemplates.find(
-    (entry) => entry.template_id === elements.assignmentTemplate.value
-  );
-
-  renderAssignmentEventSummary(template);
-
-  if (!athlete || !template) {
-    elements.assignmentRequirements.className = "assignment-requirements neutral";
-    elements.assignmentRequirements.textContent = "Select an athlete and programme to check percentage-load references.";
-    elements.assignmentSubmitButton.disabled = true;
-    return false;
-  }
-
-  const required = requiredOneRmExerciseIds(template);
-  if (required.length === 0) {
-    elements.assignmentRequirements.className = "assignment-requirements complete";
-    elements.assignmentRequirements.textContent = "Assignment requirements complete. This programme has no percentage-based exercises.";
-    elements.assignmentSubmitButton.disabled = false;
-    return true;
-  }
-
-  const profile = profileForAthlete(athlete.userId);
-  if (!profile) {
-    elements.assignmentRequirements.className = "assignment-requirements warning";
-    elements.assignmentRequirements.innerHTML = `Athlete profile required. Add 1RM references for: <strong>${required.map((exerciseId) => escapeHtml(exerciseDisplayName(exerciseId))).join(", ")}</strong>.`;
-    elements.assignmentSubmitButton.disabled = true;
-    return false;
-  }
-
-  const current = currentProfileBenchmarks(profile);
-  const missing = required.filter((exerciseId) => !current.has(exerciseId));
-
-  if (missing.length > 0) {
-    elements.assignmentRequirements.className = "assignment-requirements warning";
-    elements.assignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map((exerciseId) => escapeHtml(exerciseDisplayName(exerciseId))).join(", ")}</strong>.`;
-    elements.assignmentSubmitButton.disabled = true;
-    return false;
-  }
-
-  elements.assignmentRequirements.className = "assignment-requirements complete";
-  elements.assignmentRequirements.textContent = `Assignment requirements complete. ${required.length} percentage-based exercise reference${required.length === 1 ? "" : "s"} available.`;
-  elements.assignmentSubmitButton.disabled = false;
-  return true;
-}
-
-async function refreshAssignmentAthleteProfile() {
-  const athleteUserId = elements.assignmentAthlete.value;
-  if (!athleteUserId) {
-    renderAssignmentRequirements();
-    return;
-  }
-
-  try {
-    await loadAthleteProfile(athleteUserId, { quiet: true });
-  }
-  catch (error) {
-    console.error(error);
-  }
-
-  renderAssignmentRequirements();
-}
-
-function renderAssignmentTemplateOptions() {
-  const athlete = state.coachAthletes.find(
-    (entry) => entry.userId === elements.assignmentAthlete.value
-  );
-
-  const templates = activeCoachTemplates(athlete?.activityId ?? null);
-  const previousValue = elements.assignmentTemplate.value;
-
-  elements.assignmentTemplate.innerHTML = templates.length
-    ? templates
-        .map((template) => `
-          <option value="${escapeHtml(template.template_id)}">
-            ${escapeHtml(template.template_name)} · v${Number(template.template_version)} · ${Number(template.block_count ?? 1)} block${Number(template.block_count ?? 1) === 1 ? "" : "s"}
-          </option>
-        `)
-        .join("")
-    : '<option value="">No active programmes for this activity</option>';
-
-  if (templates.some((template) => template.template_id === previousValue)) {
-    elements.assignmentTemplate.value = previousValue;
-  }
-
-  elements.assignmentTemplate.disabled = templates.length === 0;
-  renderAssignmentRequirements();
-}
-
-function renderCoachSelectors() {
-  const options = state.coachAthletes.length
-    ? state.coachAthletes
-        .map((athlete) => `<option value="${escapeHtml(athlete.userId)}">${escapeHtml(athlete.displayName)}</option>`)
-        .join("")
-    : '<option value="">No connected athletes</option>';
-
-  const assignmentValue = elements.assignmentAthlete.value;
-
-  elements.assignmentAthlete.innerHTML = options;
-
-  if (
-    assignmentValue &&
-    state.coachAthletes.some((athlete) => athlete.userId === assignmentValue)
-  ) {
-    elements.assignmentAthlete.value = assignmentValue;
-  }
-
-  elements.assignmentAthlete.disabled = state.coachAthletes.length === 0;
-
-  renderAssignmentTemplateOptions();
-}
+// DEV NOTE: the standalone, unreachable #view-assign view (no nav button,
+// no route, no data-view="assign" trigger anywhere) and everything that
+// exclusively rendered into it - requiredOneRmExerciseIds/
+// renderAssignmentEventSummary/renderAssignmentRequirements/
+// refreshAssignmentAthleteProfile/renderAssignmentTemplateOptions/
+// renderCoachSelectors/recordAssignment/cancelAssignmentForAthlete - are
+// gone. The live profile-embedded assignment form (React,
+// AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts) already
+// covers the same feature; it reuses the shared
+// compareProgrammeStrengthRequirements from strengthReferenceLifecycle.mjs
+// rather than requiredOneRmExerciseIds. exerciseDisplayName above stays -
+// the still-legacy programme-builder preview (below) also calls it.
+// assignmentRecordsForAthlete/currentAssignmentForAthlete/
+// assignmentTemplateName/Version/assignmentStateBadge/
+// assignmentHistoryCards/renderAssignmentCurrent/
+// renderAssignmentLifecycleSurfaces stay too - refreshCoachAssignments()
+// (still live) calls the last one, and Coach Dashboard reads
+// state.coachAssignments directly.
 
 function coachAthleteCard(athlete) {
   const assignments = state.coachAssignments.filter(
@@ -4153,95 +3997,12 @@ function renderCoachWorkspace() {
 
   renderCoachAthleteDirectory();
   bindCoachAthleteActions();
-  renderCoachSelectors();
 
   if (
     state.selectedCoachAthleteId &&
     state.athleteProfileDraft
   ) {
     renderAthleteProfileEditor();
-    renderAthleteProfileAssignment();
-  }
-}
-
-async function recordAssignment(event) {
-  event.preventDefault();
-
-  const athleteUserId = elements.assignmentAthlete.value;
-  const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
-  const template = state.coachTemplates.find(
-    (entry) => entry.template_id === elements.assignmentTemplate.value
-  );
-
-  if (!athlete) {
-    throw new Error("Select a connected athlete.");
-  }
-
-  if (!template || template.template_status !== "active") {
-    throw new Error("Select an active template.");
-  }
-
-  if (template.activity_id !== athlete.activityId) {
-    throw new Error("The programme activity does not match the athlete activity.");
-  }
-
-  if (!renderAssignmentRequirements()) {
-    throw new Error("Complete the athlete strength references required by this programme before assigning it.");
-  }
-
-  const current = currentAssignmentForAthlete(athleteUserId);
-  const lifecycleAction = current ? "replace" : "create";
-  const confirmation = current
-    ? `Replace ${assignmentTemplateName(current)} version ${assignmentTemplateVersion(current)} with ${template.template_name} version ${Number(template.template_version)} for ${athlete.displayName}? Existing compiled sessions remain attached to the earlier assignment.`
-    : `Assign ${template.template_name} version ${Number(template.template_version)} to ${athlete.displayName}?`;
-
-  if (!globalThis.confirm(confirmation)) return;
-
-  elements.assignmentSubmitButton.disabled = true;
-  showBusy(current ? "Replacing assignment…" : "Recording assignment…");
-
-  try {
-    const timestamp = nowIso();
-    const response = current
-      ? await api(
-          "POST",
-          `/coach-workspace/athlete-assignment/${encodeURIComponent(current.assignmentId)}/replace`,
-          {
-            request_id: createId("assignment_replace"),
-            requested_at_iso8601: timestamp,
-            coach_user_id: state.profile.coachUserId,
-            athlete_user_id: athleteUserId,
-            template_id: template.template_id,
-            activity_id: athlete.activityId,
-            event_id: ""
-          }
-        )
-      : await api("POST", "/sessions/beta-coach-assignment", {
-          request_id: createId("assignment_request"),
-          requested_at_iso8601: timestamp,
-          coach_user_id: state.profile.coachUserId,
-          athlete_user_id: athleteUserId,
-          template_id: template.template_id,
-          activity_id: athlete.activityId
-        });
-
-    await Promise.all([
-      refreshCoachAssignments({ quiet: true }),
-      refreshAthleteDetail(athleteUserId, { quiet: true }).catch(() => null)
-    ]);
-
-    saveState();
-    elements.assignmentResult.textContent = current
-      ? `${template.template_name} version ${Number(template.template_version)} replaced the current assignment. ${Number(response.preserved_session_count ?? 0)} existing session${Number(response.preserved_session_count ?? 0) === 1 ? "" : "s"} remain attached to the earlier assignment.`
-      : `${template.template_name} version ${Number(template.template_version)} assigned to ${athlete.displayName}. Percentage-based loads will resolve from the athlete profile when each session is created.`;
-    elements.assignmentResult.hidden = false;
-    renderCoachWorkspace();
-    renderAssignmentLifecycleSurfaces();
-    showNotice(lifecycleAction === "replace" ? "Assignment replaced." : "Assignment recorded.");
-  }
-  finally {
-    elements.assignmentSubmitButton.disabled = false;
-    hideBusy();
   }
 }
 
@@ -4391,65 +4152,6 @@ function renderAssignmentLifecycleSurfaces() {
   if (elements.assignmentCancelButton) {
     elements.assignmentCancelButton.hidden = !workspaceCurrent;
     elements.assignmentCancelButton.disabled = !workspaceCurrent;
-  }
-}
-
-async function cancelAssignmentForAthlete(athleteUserId, source = "profile") {
-  const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
-  const current = currentAssignmentForAthlete(athleteUserId);
-
-  if (!athlete || !current) {
-    throw new Error("No current assignment is available to cancel.");
-  }
-
-  const confirmation = `Cancel ${assignmentTemplateName(current)} version ${assignmentTemplateVersion(current)} for ${athlete.displayName}? Future sessions cannot be created from it. Existing compiled sessions and history remain unchanged.`;
-  if (!globalThis.confirm(confirmation)) return null;
-
-  const button = source === "workspace"
-    ? elements.assignmentCancelButton
-    : elements.athleteAssignmentCancelButton;
-
-  if (button) button.disabled = true;
-  showBusy("Cancelling future assignment…");
-
-  try {
-    const response = await api(
-      "POST",
-      `/coach-workspace/athlete-assignment/${encodeURIComponent(current.assignmentId)}/cancel`,
-      {
-        request_id: createId("assignment_cancel"),
-        requested_at_iso8601: nowIso(),
-        coach_user_id: state.profile.coachUserId,
-        athlete_user_id: athleteUserId
-      }
-    );
-
-    await Promise.all([
-      refreshCoachAssignments({ quiet: true }),
-      refreshAthleteDetail(athleteUserId, { quiet: true }).catch(() => null)
-    ]);
-
-    const preserved = Number(response.preserved_session_count ?? 0);
-    const message = `Assignment cancelled for future session creation. ${preserved} existing session${preserved === 1 ? "" : "s"} remain preserved.`;
-
-    if (source === "workspace") {
-      elements.assignmentResult.textContent = message;
-      elements.assignmentResult.hidden = false;
-    }
-    else {
-      elements.athleteAssignmentResult.textContent = message;
-      elements.athleteAssignmentResult.hidden = false;
-    }
-
-    renderCoachWorkspace();
-    renderAthleteProfileAssignment();
-    renderAssignmentLifecycleSurfaces();
-    showNotice("Assignment cancelled. Existing sessions were preserved.");
-    return response.assignment ?? null;
-  }
-  finally {
-    if (button) button.disabled = false;
-    hideBusy();
   }
 }
 
@@ -4798,7 +4500,6 @@ async function refreshTemplates(options = {}) {
   state.coachTemplates = Array.isArray(response.templates) ? response.templates : [];
   saveState();
   renderTemplateLibrary();
-  renderCoachSelectors();
 
   if (!options.quiet) showNotice("Programme library refreshed.");
   return state.coachTemplates;
@@ -8642,10 +8343,6 @@ async function refreshCoachEvents(options = {}) {
     saveState();
     renderCoachEvents();
 
-    if (state.selectedCoachAthleteId) {
-      renderAthleteProfileAssignment();
-    }
-
     return state.coachEvents;
   }
   finally {
@@ -9826,18 +9523,6 @@ elements.templateBlocks.addEventListener("click", (event) => {
 
 elements.closeAthleteProfileButton.addEventListener("click", closeAthleteProfile);
 
-elements.assignmentAthlete.addEventListener("change", () => {
-  renderAssignmentTemplateOptions();
-  renderAssignmentLifecycleSurfaces();
-  refreshAssignmentAthleteProfile().catch(handleError);
-});
-elements.assignmentTemplate.addEventListener("change", renderAssignmentRequirements);
-elements.assignmentForm.addEventListener("submit", (event) => {
-  recordAssignment(event).catch(handleError);
-});
-elements.assignmentCancelButton.addEventListener("click", () => {
-  cancelAssignmentForAthlete(elements.assignmentAthlete.value, "workspace").catch(handleError);
-});
 elements.copyAccountCodeButton.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(currentAccountId());
@@ -9906,7 +9591,6 @@ document.addEventListener(
     refreshAthleteDetail(athleteUserId, { quiet: true }).then(() => {
       renderAthleteProfileEditor();
       renderCoachWorkspace();
-      renderAssignmentRequirements();
     }).catch(handleError);
   }
 );

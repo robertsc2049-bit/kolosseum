@@ -1366,44 +1366,6 @@
           </div>
         </section>
 
-        <section id="view-assign" class="view" hidden>
-          <div class="page-heading">
-            <div>
-              <p class="eyebrow">Coach workspace</p>
-              <h2>Assign training</h2>
-              <p class="muted">Assign an active programme after checking athlete strength references. The assignment does not alter the athlete declaration.</p>
-            </div>
-          </div>
-          <form id="assignmentForm" class="panel form-panel narrow">
-            <label class="field"><span>Athlete</span><select id="assignmentAthlete" required></select></label>
-            <label class="field"><span>Programme</span>
-              <select id="assignmentTemplate" required>
-                <option value="">No active programmes</option>
-              </select>
-            </label>
-            <div id="assignmentEventSummary" class="event-assignment-summary" hidden></div>
-            <div id="assignmentCurrentState" class="assignment-current-state"></div>
-            <div id="assignmentRequirements" class="assignment-requirements neutral">
-              Select an athlete and programme to check percentage-load references.
-            </div>
-            <div class="assignment-action-row">
-              <button id="assignmentSubmitButton" class="button primary" type="submit">Record assignment</button>
-              <button id="assignmentCancelButton" class="button danger" type="button" hidden>Cancel future assignment</button>
-            </div>
-            <p id="assignmentResult" class="inline-result" hidden></p>
-          </form>
-          <article class="panel assignment-history-panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">Immutable history</p>
-                <h3>Assignment lifecycle</h3>
-                <p class="muted">Created, replaced and cancelled assignment records remain visible. Event links are shown separately.</p>
-              </div>
-            </div>
-            <div id="assignmentHistoryList" class="assignment-history-list"></div>
-          </article>
-        </section>
-
         <section id="view-marketplace" class="view" hidden>
           <div class="page-heading">
             <div>
