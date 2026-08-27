@@ -176,117 +176,36 @@ function validateUniqueNonEmptyStringArray(value) {
   return { ok: true, why: "" };
 }
 
-/**
- * Canonicalization/normalization:
- * - Equipment: force singular tokens (dumbbells->dumbbell), collapse bench variants.
- * - Joint tags: choose ONE scheme in canonical output:
- *   - we canonicalize graded variants down to their base (shoulder_high -> shoulder).
- *
- * NOTE on spine:
- * - 'lumbar_*' is L-spine only. Thoracic/cervical are distinct.
- * - If your exercises contain 'upper_back_*' / 'mid_back_*' / 'lower_back_*' we translate those
- *   to thoracic_* / thoracic_* / lumbar_* respectively.
- * - Legacy 'back_*' tokens are ambiguous. We treat them as TEMP legacy aliases to lumbar_* to keep
- *   the repo green, but you should migrate them to explicit regions ASAP.
- */
-const TOKEN_ALIASES = {
-  equipment: {
-    dumbbells: "dumbbell",
-    plates: "plate",
-    weight_plates: "plate",
-    weight_plate: "plate",
-    kettlebells: "kettlebell",
-    incline_bench: "bench",
-    flat_bench: "bench",
-    decline_bench: "bench"
-  },
-  joint: {
-    // graded -> base (canonical scheme)
-    shoulder_low: "shoulder",
-    shoulder_medium: "shoulder",
-    shoulder_high: "shoulder",
-    elbow_low: "elbow",
-    elbow_medium: "elbow",
-    elbow_high: "elbow",
-    wrist_low: "wrist",
-    wrist_medium: "wrist",
-    wrist_high: "wrist",
-    hip_low: "hip",
-    hip_medium: "hip",
-    hip_high: "hip",
-    knee_low: "knee",
-    knee_medium: "knee",
-    knee_high: "knee",
-    ankle_low: "ankle",
-    ankle_medium: "ankle",
-    ankle_high: "ankle",
-
-    // human-friendly back regions -> anatomical regions
-    neck_low: "cervical_low",
-    neck_medium: "cervical_medium",
-    neck_high: "cervical_high",
-
-    upper_back_low: "thoracic_low",
-    upper_back_medium: "thoracic_medium",
-    upper_back_high: "thoracic_high",
-
-    mid_back_low: "thoracic_low",
-    mid_back_medium: "thoracic_medium",
-    mid_back_high: "thoracic_high",
-
-    lower_back_low: "lumbar_low",
-    lower_back_medium: "lumbar_medium",
-    lower_back_high: "lumbar_high",
-
-    // SI is a joint family
-    si_low: "sacroiliac_low",
-    si_medium: "sacroiliac_medium",
-    si_high: "sacroiliac_high",
-
-    // TEMP legacy: ambiguous back_* -> lumbar_* (compat shim)
-    back_low: "lumbar_low",
-    back_medium: "lumbar_medium",
-    back_high: "lumbar_high"
-  }
-};
-
-function normalizeTokenArray(raw, { label, ctxPath, aliasMap, canonicalSet }) {
+// REG-FULL-01: final active registries use one canonical token vocabulary.
+// Tokens are validated exactly as stored. Legacy aliases are not normalized or accepted.
+function validateCanonicalTokenArray(raw, { label, ctxPath, canonicalSet }) {
   if (!Array.isArray(raw)) {
-    return { ok: false, tokens: raw, changed: false, errors: [`${ctxPath}: ${label} must be an array`] };
+    return { ok: false, errors: [`${ctxPath}: ${label} must be an array`] };
   }
 
-  const out = [];
   const seen = new Set();
   const errors = [];
-  let changed = false;
 
-  for (const t of raw) {
-    if (typeof t !== "string" || !t) {
+  for (const token of raw) {
+    if (typeof token !== "string" || !token) {
       errors.push(`${ctxPath}: ${label} must contain only non-empty strings`);
       continue;
     }
 
-    let canon = t;
-    if (aliasMap && Object.prototype.hasOwnProperty.call(aliasMap, t)) {
-      canon = aliasMap[t];
-      changed = true;
-    }
-
-    if (canonicalSet && !canonicalSet.has(canon)) {
-      errors.push(`${ctxPath}: ${label} token '${t}' canonicalizes to '${canon}' which is not in vocab`);
+    if (canonicalSet && !canonicalSet.has(token)) {
+      errors.push(`${ctxPath}: ${label} token '${token}' is not in canonical vocab`);
       continue;
     }
 
-    if (seen.has(canon)) {
-      changed = true;
+    if (seen.has(token)) {
+      errors.push(`${ctxPath}: ${label} token '${token}' is duplicated`);
       continue;
     }
 
-    seen.add(canon);
-    out.push(canon);
+    seen.add(token);
   }
 
-  return { ok: errors.length === 0, tokens: out, changed, errors };
+  return { ok: errors.length === 0, errors };
 }
 
 function buildStimulusSetFromActivity(regs, errors) {
@@ -494,7 +413,7 @@ function main() {
     }
   }
 
-  // Movement minimal contract + scoped vocab enforcement + normalization
+  // Movement minimal contract + exact scoped canonical-vocab enforcement.
   const movementVocab = buildMovementVocabById(regs, errors);
 
   if (exEntries) {
@@ -521,30 +440,24 @@ function main() {
 
       const vocab = movementVocab.get(movementPatternId);
 
-      // Normalize + scoped FK: equipment tokens
+      // Exact scoped FK: equipment tokens.
       if (Array.isArray(e.equipment_requirements)) {
-        const n = normalizeTokenArray(e.equipment_requirements, {
+        const n = validateCanonicalTokenArray(e.equipment_requirements, {
           label: "equipment_requirements",
           ctxPath: ctx,
-          aliasMap: null,
           canonicalSet: vocab.equipment
         });
         if (!n.ok) errors.push(...n.errors);
-
-        // NOTE: we validate against canonicalSet inside normalizeTokenArray.
       }
 
-      // Normalize + scoped FK: joint stress tokens
+      // Exact scoped FK: joint stress tokens. Legacy aliases are deliberately rejected.
       if (Array.isArray(e.joint_stress_tags)) {
-        const n = normalizeTokenArray(e.joint_stress_tags, {
+        const n = validateCanonicalTokenArray(e.joint_stress_tags, {
           label: "joint_stress_tags",
           ctxPath: ctx,
-          aliasMap: TOKEN_ALIASES.joint,
           canonicalSet: vocab.joint
         });
         if (!n.ok) errors.push(...n.errors);
-
-        // NOTE: we validate against canonicalSet inside normalizeTokenArray.
       }
     }
   }
