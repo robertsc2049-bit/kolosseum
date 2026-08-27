@@ -38,15 +38,15 @@ test("the service reads the exercise registry file directly and never imports an
   }
 });
 
-test("coaching_cues and common_faults are declared optional (not required) in the exercise registry schema", () => {
+test("coaching_cues and common_faults are explicit required compatibility fields in the closed exercise schema", () => {
   assert.ok(schema.includes('"coaching_cues"'), "expected a coaching_cues property in the exercise schema");
   assert.ok(schema.includes('"common_faults"'), "expected a common_faults property in the exercise schema");
 
   const requiredBlockMatch = schema.match(/"required":\s*\[[^\]]*\]/gu) ?? [];
   const entryRequiredBlock = requiredBlockMatch.find((block) => block.includes("exercise_id"));
   assert.ok(entryRequiredBlock, "expected to find the exercise entry's required array");
-  assert.doesNotMatch(entryRequiredBlock, /"coaching_cues"/u);
-  assert.doesNotMatch(entryRequiredBlock, /"common_faults"/u);
+  assert.match(entryRequiredBlock, /"coaching_cues"/u);
+  assert.match(entryRequiredBlock, /"common_faults"/u);
 });
 
 test("every live exercise entry has real, non-empty written instructions, coaching cues and common faults", () => {
@@ -56,8 +56,8 @@ test("every live exercise entry has real, non-empty written instructions, coachi
 
   for (const exercise of entries) {
     assert.ok(
-      Array.isArray(exercise.instruction?.detailed) && exercise.instruction.detailed.length > 0,
-      `${exercise.exercise_id}: expected non-empty instruction.detailed`
+      Array.isArray(exercise.instruction_detail_text) && exercise.instruction_detail_text.length > 0,
+      `${exercise.exercise_id}: expected non-empty instruction_detail_text`
     );
     assert.ok(
       Array.isArray(exercise.coaching_cues) && exercise.coaching_cues.length > 0,

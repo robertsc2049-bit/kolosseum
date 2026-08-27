@@ -25,21 +25,41 @@
   },
   "contract": "kolosseum:evidence_envelope@1",
   "engine": {
-    "node": "25.9.0",
+    "node": "22.16.0",
     "version": "0.1.24"
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "registry_bundle_sha256": "F0325F53047705E1B99E04D77C9A52CA7E8817BA0FFD796192A3084CED3D4E33",
+    "registry_bundle_sha256": "0B5EF14ADFB271D7BE7557B01F7B468DAAFB4868A1993CA73A163412DDCCFB62",
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
     "schema_sha256s": [
       {
+        "path": "ci/schemas/activity_registry_1.registry.schema.json",
+        "sha256": "C7F851EB48C9D7A771841896A74603C94DDCAF2FA2898F52A7495DC30610DF77"
+      },
+      {
         "path": "ci/schemas/activity.registry.schema.json",
-        "sha256": "0BB4D745CA655437F099E0E7D20FBFC4300A5489B23CA104A3F164231F3A577C"
+        "sha256": "B7E6F52BA19AEB329A4934CBEC225E941C293E8D0616D3CFEDE3DA0714BFA4C1"
+      },
+      {
+        "path": "ci/schemas/biomechanics_registry_4.registry.schema.json",
+        "sha256": "9A7E33149DDA6ACEB275DF14F1D3B8D02EDEB9D607EF847FF4E88A34363392FD"
+      },
+      {
+        "path": "ci/schemas/copy_registry.registry.schema.json",
+        "sha256": "771564B912CCBDCC581CC99F8FBF73DA27D788DCFA4F7DEECE12951E1219497C"
+      },
+      {
+        "path": "ci/schemas/equipment_environment_registry_3e.registry.schema.json",
+        "sha256": "AAE4D745A4B39070B50D33EB2058C4D00CDEDA4B9AFFCE63293C9345C0DE3CD6"
       },
       {
         "path": "ci/schemas/equipment.registry.schema.json",
-        "sha256": "BD0CC2378BCF7E9EC1A7B795C37DCFD32BAF2CB865275FD34FC654DF69DC4AA6"
+        "sha256": "297DEFFC75243B7F294A02AB7FDD2AF05EC67ECF47160C222535AD0B74D2DD4A"
+      },
+      {
+        "path": "ci/schemas/event_metric_registry_1d.registry.schema.json",
+        "sha256": "39C956F3ED6D1432AF94895AAB906B122860C84FB421AA8290AD58A49AC809EA"
       },
       {
         "path": "ci/schemas/evidence_envelope.schema.v1.0.0.json",
@@ -51,15 +71,39 @@
       },
       {
         "path": "ci/schemas/exercise_activity_applicability.registry.schema.json",
-        "sha256": "FD154211C212697D2991D3CD96E359AB5AA7E4671679E9D9F4A6FAE29102E77F"
+        "sha256": "9CADA41480D5FCF2870E7D42DDCBD454963FA667877704FB63ADB15C37A20423"
+      },
+      {
+        "path": "ci/schemas/exercise_alias_registry_3c.registry.schema.json",
+        "sha256": "B3B759F31F2089608BE8FC7C208B69A33F4B15EC2CFCC79C78F3B6B3D846A613"
+      },
+      {
+        "path": "ci/schemas/exercise_equipment_compatibility_registry.registry.schema.json",
+        "sha256": "477802EDEB730079055500E9B37FD23935404B372A9B5039233ACEE7605BD3EF"
+      },
+      {
+        "path": "ci/schemas/exercise_registry_3a.registry.schema.json",
+        "sha256": "D46D4292F8347A7CD11DB2664569F50FCE1A978582A1131F846652A6AE266BDA"
       },
       {
         "path": "ci/schemas/exercise_registry.schema.json",
-        "sha256": "13FAC52F37A52D38A8BCB0CCF6762ED17656A5E04F154B5B5928546FA6448B29"
+        "sha256": "8C4D6617EF9E8C7F8AF1992D96627A3EC77F5728BFBE44B0D2F7441D542FB45B"
+      },
+      {
+        "path": "ci/schemas/exercise_sport_applicability_registry_6x.registry.schema.json",
+        "sha256": "425D917813938313968E166918E7ED23C9FF3C3D3FDEF93529EADEA3356EFE3E"
+      },
+      {
+        "path": "ci/schemas/exercise_token_registry_3b.registry.schema.json",
+        "sha256": "54CEAA768A3FE2DF1CF3662C393FEE20ED7E0FE5AB4488431C71C679AFC7D7C6"
       },
       {
         "path": "ci/schemas/exercise_token.registry.schema.json",
-        "sha256": "766994EEC986B314446BC5FA08BA3723EB7B11A54CF023FBF720F3C4ACB5E0CB"
+        "sha256": "626C6E43C6051AA1EDAAFB6343BFD83C2317EF7BA655A575980963426DE06522"
+      },
+      {
+        "path": "ci/schemas/exercise_variant_applicability_registry_3d.registry.schema.json",
+        "sha256": "599BD06F4A5CD7DDB80BF193A2549690F7DC84949A9DCE28C94AF1105394545F"
       },
       {
         "path": "ci/schemas/exercise_warmup_mapping.registry.schema.json",
@@ -67,23 +111,39 @@
       },
       {
         "path": "ci/schemas/exercise.registry.schema.json",
-        "sha256": "13FAC52F37A52D38A8BCB0CCF6762ED17656A5E04F154B5B5928546FA6448B29"
+        "sha256": "62583CC5ABAF9D92419958D4A0216796386B020A0857482CA3F17336D2FFBC89"
       },
       {
         "path": "ci/schemas/exercise.registry.schema.v1.0.0.json",
-        "sha256": "13FAC52F37A52D38A8BCB0CCF6762ED17656A5E04F154B5B5928546FA6448B29"
+        "sha256": "14783A4F042BFB14897D972CD08C036316B9E20987D3CDD31D349E0DD057A5B9"
+      },
+      {
+        "path": "ci/schemas/explicit_override_accountability_registry_5c.registry.schema.json",
+        "sha256": "F6F67A3C1A0AD877F36B9E9C6E2494FC2AF6E9CCAAE64FE8FD534FCA66A55F2F"
+      },
+      {
+        "path": "ci/schemas/final_registry_schema_manifest.schema.json",
+        "sha256": "96EAB41AE92226F9E794DE675897E99CCFDC1D0F898D7C024A87FDA9DAC17BCD"
       },
       {
         "path": "ci/schemas/final_registry_surface_manifest.schema.json",
         "sha256": "33938D26257063AFFA47561B10F67BB8561DB3B8EDF9C8A2639D48A4DA1F3455"
       },
       {
+        "path": "ci/schemas/metric_exercise_link_registry_1c_a.registry.schema.json",
+        "sha256": "C018BFB000DA03CDE75B66D71E02CD71AB2B492B9104EFFC697CAA3B7CDBEE86"
+      },
+      {
         "path": "ci/schemas/metric_exercise_link.registry.schema.json",
-        "sha256": "7FC037A47D0C9FE7C76F64D604F4E8AE61219B6F3E3FB64167EA3BBF15D62858"
+        "sha256": "205B897D71DA3562985783335AFEE97300ACB5B91CC2EB4145613C3BB23011AF"
+      },
+      {
+        "path": "ci/schemas/movement_registry_3.registry.schema.json",
+        "sha256": "0AD191D9BBB5D5FD3E510AD2F4E133C2343092DD823968E62BDD6DCF7A88E0FA"
       },
       {
         "path": "ci/schemas/movement.registry.schema.json",
-        "sha256": "D7D2E3DBEFE2F8F65C809AFC3361010291DA6505285EACA07599D588236F6AB7"
+        "sha256": "99574E43F2679D1279C40189CA75636BDFBE62A57F0CF7CC6753A1E5AA94F2BE"
       },
       {
         "path": "ci/schemas/phase1.input.schema.v1.0.0.json",
@@ -98,12 +158,16 @@
         "sha256": "31C6329F68D37FA720D76A5678F93D1EEE42927A4886EDE14D7AD4AE6B5919AC"
       },
       {
+        "path": "ci/schemas/physical_requirements_registry_1b.registry.schema.json",
+        "sha256": "05397B3AE2A50EBAF9CDA51727F757758A66936AA3CBA39181862B9DD9010EF4"
+      },
+      {
         "path": "ci/schemas/program.registry.schema.json",
-        "sha256": "31E37A7CB633FFAB7404B729A0D01364E80119B75487F90481D3C0B470C2BD5D"
+        "sha256": "9892A5BA65C9ED03402A706BFA0B81FE6986B6DEA14B085368A4E6B1CEFF1EA3"
       },
       {
         "path": "ci/schemas/registry_entry.schema.json",
-        "sha256": "C686F8A96C8333FE7BC6D70C8B34CF8FF121893C78198BEBA687D7F9002B25BD"
+        "sha256": "F8BA23F38D0E06552BAEF25BFFBAF65601ECF031E5F97A38EFBE453706BECD95"
       },
       {
         "path": "ci/schemas/registry_seal_ledger.v1.schema.json",
@@ -130,20 +194,60 @@
         "sha256": "82E3DFA3130E3E35215944CC747078919E9BDC7D13CB000F8154949FADBFAFD5"
       },
       {
+        "path": "ci/schemas/sport_domain_structure_profiles_5b.registry.schema.json",
+        "sha256": "4AB2FB9EA444BF8929ED61222C5BCE83E16127FBB4AD5674BF5FA02EC51D161F"
+      },
+      {
+        "path": "ci/schemas/sport_event_model_registry_5e.registry.schema.json",
+        "sha256": "F6BA815BB34F6ABC62AC8DDC21552F6EC53700879E7280FB6C075F791AC1DE30"
+      },
+      {
+        "path": "ci/schemas/sport_metric_registry_1c.registry.schema.json",
+        "sha256": "4094C7F82DF1F5EF94324679A25FF9F1F70AC498BA0238F267C09E39F4AF55DD"
+      },
+      {
         "path": "ci/schemas/sport_metric.registry.schema.json",
-        "sha256": "5B62252634EB891C9437AB9EFD6195A09A3BF4369DD04463D83E9DECD84D0099"
+        "sha256": "73355F783BB48EBC686F3EDB82529B749CE41C47DC93F3734E39AA6EA3C6C9B6"
+      },
+      {
+        "path": "ci/schemas/sport_program_profile_registry_5d.registry.schema.json",
+        "sha256": "AD9C8F329639A82B8E8E10F9CC6C31FFA4DBBB4B76D7649B334955A738BEC041"
+      },
+      {
+        "path": "ci/schemas/sport_program_template_registry_5f.registry.schema.json",
+        "sha256": "F552D41963B61FA20A227D3EFD8D6C0BFEB528F5F3C7D66F400D235051A51DE3"
+      },
+      {
+        "path": "ci/schemas/sport_role_registry_2.registry.schema.json",
+        "sha256": "D2BEBA4D49E473F1A591870BA04CDFCC7C77FAE666C9CB828291CA8D54DC2891"
       },
       {
         "path": "ci/schemas/sport_role.registry.schema.json",
-        "sha256": "23E45F0424B1E4BC4CA46E39542394D1E1708E1B5876078DBFA506263746B7D2"
+        "sha256": "E228247BCF6CD39AFB9C458CE3EC09B0E8D25459615701ECCA1B0ECC5F9AA8CA"
+      },
+      {
+        "path": "ci/schemas/sport_subdivision_registry_1a.registry.schema.json",
+        "sha256": "0A299E547C9FDF58335C1F71C13B0C35837A6EEE4CE50E8D30C47D21A2D8165B"
       },
       {
         "path": "ci/schemas/sport_subdivision.registry.schema.json",
-        "sha256": "4B0A3C6435609E4E9466F0B226F628121EF870823FBE2783ACEA63DDE49736F1"
+        "sha256": "827744468342632A66BB14221D565268040944CF064B31CFC27E553844DBCA4A"
+      },
+      {
+        "path": "ci/schemas/structure_governance_registry_5a.registry.schema.json",
+        "sha256": "8E6743A8BF4FB0B0B9DD8888C14078C8499872B959A3BAA4A91AB165E3564D1C"
+      },
+      {
+        "path": "ci/schemas/substitution_registry.registry.schema.json",
+        "sha256": "C3A03D0814E4043286CF28372C5B867752155DB1D11FF4D0B685371CEC12510C"
       },
       {
         "path": "ci/schemas/threshold_marker.registry.schema.json",
-        "sha256": "50240A9BD81B0FCE38F5C68F5198FCF93BFBCC0B9E2EFC498A22B88CE4D6C658"
+        "sha256": "99E2481938856B005DD42781A19BA07A31D4190184F8070F5E3034D0DB84947A"
+      },
+      {
+        "path": "ci/schemas/training_structure_registry_5.registry.schema.json",
+        "sha256": "EC5D2FACE4CF55BC313DE6E57453AEA6FC18E85440D680178A4F53BF5D4A44FC"
       }
     ]
   },

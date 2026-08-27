@@ -1,29 +1,53 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "kolosseum://registries/activity.registry.schema.json",
-  "title": "Activity Registry Schema",
+  "title": "activity",
   "type": "object",
   "additionalProperties": false,
-  "required": ["registry_id", "version", "entries"],
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
   "properties": {
-    "registry_id": { "type": "string", "const": "activity" },
-    "version": { "type": "string", "minLength": 1 },
+    "registry_id": {
+      "type": "string",
+      "const": "activity"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
     "entries": {
       "type": "object",
-      "minProperties": 1,
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["activity_id", "stimulus_intents"],
+        "required": [
+          "activity_id",
+          "stimulus_intents"
+        ],
         "properties": {
-          "activity_id": { "type": "string", "minLength": 1 },
+          "activity_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
           "stimulus_intents": {
             "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
             "minItems": 1,
-            "items": { "type": "string", "minLength": 1 }
+            "uniqueItems": true
           }
         }
-      }
+      },
+      "minProperties": 1
     }
-  }
+  },
+  "x-kolosseum-authority": "compatibility_only",
+  "x-kolosseum-canonical-authority": "registries/final_registry_schema_manifest.json"
 }

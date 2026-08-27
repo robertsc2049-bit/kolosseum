@@ -113,10 +113,10 @@ export function beta08ValidateRegistryFkEnumGuard(input = {}) {
     "BETA-08 phase1_declaration must be an object."
   );
 
-  const activityIds = collectUniqueEntries(runtimeStore.registries.activity, ["activity_id", "id"], "activity");
-  const movementIds = collectUniqueEntries(runtimeStore.registries.movement, ["movement_id", "id"], "movement");
-  const exerciseRecords = collectUniqueRecords(runtimeStore.registries.exercise, ["exercise_id", "id"], "exercise");
-  const programIds = collectUniqueEntries(runtimeStore.registries.program, ["program_id", "id"], "program");
+  const activityIds = collectUniqueEntries(runtimeStore.registries.activity, ["activity_id"], "activity");
+  const movementIds = collectUniqueEntries(runtimeStore.registries.movement, ["movement_pattern_id"], "movement");
+  const exerciseRecords = collectUniqueRecords(runtimeStore.registries.exercise, ["exercise_id"], "exercise");
+  const programIds = collectUniqueEntries(runtimeStore.registries.program, ["template_id"], "program");
 
   assertCrossDomainClean("activity", recordsOf(runtimeStore.registries.activity));
   assertCrossDomainClean("movement", recordsOf(runtimeStore.registries.movement));
@@ -154,17 +154,17 @@ export function beta08ValidateRegistryFkEnumGuard(input = {}) {
 
   const subdivisionRecords = collectUniqueRecords(
     metricRegistries.sport_subdivision,
-    ["sport_subdivision_id", "id"],
+    ["sport_subdivision_id"],
     "sport_subdivision"
   );
   const metricRecords = collectUniqueRecords(
     metricRegistries.sport_metric,
-    ["sport_metric_id", "id"],
+    ["sport_metric_id"],
     "sport_metric"
   );
   const linkRecords = collectUniqueRecords(
     metricRegistries.metric_exercise_link,
-    ["metric_exercise_link_id", "id"],
+    ["metric_exercise_link_id"],
     "metric_exercise_link"
   );
 
@@ -450,7 +450,7 @@ function assertCrossDomainClean(registryDomain, records) {
       if (Object.prototype.hasOwnProperty.call(record, field)) {
         fail(BETA_08_FAILURE_TOKENS.CROSS_DOMAIN_CONTAMINATION, "registry_cross_domain_contamination", "BETA-08 registry record contains a field from another registry domain.", {
           registry_domain: registryDomain,
-          entry_id: record.__beta08_entry_id ?? firstString(record, ["id", "activity_id", "movement_id", "exercise_id", "program_id", "sport_subdivision_id", "sport_metric_id", "metric_exercise_link_id"]),
+          entry_id: record.__beta08_entry_id ?? firstString(record, ["activity_id", "movement_pattern_id", "exercise_id", "template_id", "sport_subdivision_id", "sport_metric_id", "metric_exercise_link_id"]),
           field
         });
       }
@@ -477,10 +477,7 @@ function declaredPhase1MetricIds(phase1Declaration) {
 }
 
 function activityIdsForExercise(exercise) {
-  if (Array.isArray(exercise.activity_ids)) return exercise.activity_ids;
-  if (Array.isArray(exercise.activity_applicability)) return exercise.activity_applicability;
   const out = [];
-  if (typeof exercise.activity_id === "string") out.push(exercise.activity_id);
   if (typeof exercise.primary_activity_applicability === "string") out.push(exercise.primary_activity_applicability);
   if (Array.isArray(exercise.secondary_activity_applicability)) out.push(...exercise.secondary_activity_applicability);
   return out;

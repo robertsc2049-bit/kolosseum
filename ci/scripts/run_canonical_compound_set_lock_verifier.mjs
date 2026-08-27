@@ -94,12 +94,12 @@ export function verifyCanonicalCompoundSetLock({
       }
 
       const actualPattern =
-        typeof entry.pattern === "string" && entry.pattern.trim() !== ""
-          ? entry.pattern
+        typeof entry.movement_pattern_id === "string" && entry.movement_pattern_id.trim() !== ""
+          ? entry.movement_pattern_id
           : null;
 
       if (!actualPattern) {
-        fail(`Locked core lift '${requiredExerciseId}' is missing required field 'pattern'.`);
+        fail(`Locked core lift '${requiredExerciseId}' is missing required field 'movement_pattern_id'.`);
       }
 
       if (actualPattern !== pattern) {
@@ -109,7 +109,7 @@ export function verifyCanonicalCompoundSetLock({
       }
 
       verified.push({
-        pattern,
+        movement_pattern_id: pattern,
         exercise_id: requiredExerciseId,
       });
     }

@@ -89,7 +89,7 @@ function escapeRegExp(value) {
 }
 
 function programEntryActivityTokens(registryDoc) {
-  const ids = registryEntryIds(registryDoc, ["program_id", "id"]);
+  const ids = registryEntryIds(registryDoc, ["template_id"]);
 
   return ids
     .map((id) => {
@@ -202,10 +202,10 @@ test("S-V0-10 registry law hard-fails when an exercise pattern target is removed
     const exercise = readJson(exercisePath);
     const movement = readJson(movementPath);
 
-    const exerciseEntry = Object.values(exercise.entries || {}).find((entry) => entry && typeof entry.pattern === "string");
+    const exerciseEntry = Object.values(exercise.entries || {}).find((entry) => entry && typeof entry.movement_pattern_id === "string");
     assert.ok(exerciseEntry, "expected at least one exercise with pattern target");
 
-    const targetPattern = exerciseEntry.pattern;
+    const targetPattern = exerciseEntry.movement_pattern_id;
     assert.equal(typeof movement.entries?.[targetPattern], "object", "expected movement FK target to exist before mutation");
 
     delete movement.entries[targetPattern];
@@ -216,7 +216,7 @@ test("S-V0-10 registry law hard-fails when an exercise pattern target is removed
 
     const output = combined(result);
     assert.match(output, /registry_law_guard:\s*FAIL/i);
-    assert.match(output, /FK fail pattern/i);
+    assert.match(output, /FK fail movement_pattern_id/i);
     assert.match(output, new RegExp(escapeRegExp(targetPattern)));
   } finally {
     cleanupTempRepoRoot(tempRoot);

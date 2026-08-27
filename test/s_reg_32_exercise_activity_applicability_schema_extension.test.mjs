@@ -60,8 +60,8 @@ test("S-REG-32 gives every one of the 19 live exercises a genuinely-applicable p
 
     assert.ok(primary in S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS, `${exercise.exercise_id}: unknown primary activity ${primary}`);
     assert.ok(
-      S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[primary].includes(exercise.pattern),
-      `${exercise.exercise_id}: pattern ${exercise.pattern} not genuinely allowed for primary activity ${primary}`
+      S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[primary].includes(exercise.movement_pattern_id),
+      `${exercise.exercise_id}: movement_pattern_id ${exercise.movement_pattern_id} not genuinely allowed for primary activity ${primary}`
     );
 
     assert.ok(Array.isArray(secondary));
@@ -70,8 +70,8 @@ test("S-REG-32 gives every one of the 19 live exercises a genuinely-applicable p
     for (const activityId of secondary) {
       assert.ok(activityId in S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS, `${exercise.exercise_id}: unknown secondary activity ${activityId}`);
       assert.ok(
-        S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[activityId].includes(exercise.pattern),
-        `${exercise.exercise_id}: pattern ${exercise.pattern} not genuinely allowed for secondary activity ${activityId}`
+        S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[activityId].includes(exercise.movement_pattern_id),
+        `${exercise.exercise_id}: movement_pattern_id ${exercise.movement_pattern_id} not genuinely allowed for secondary activity ${activityId}`
       );
     }
   }
@@ -93,7 +93,7 @@ test("S-REG-32 excludes powerlifting from the 4 vertical_push exercises' applica
 
   for (const id of verticalPushIds) {
     const exercise = exerciseRegistry.entries[id];
-    assert.equal(exercise.pattern, "vertical_push");
+    assert.equal(exercise.movement_pattern_id, "vertical_push");
     assert.equal(exercise.primary_activity_applicability, "general_strength");
     assert.deepEqual(exercise.secondary_activity_applicability, ["rugby_union"]);
   }

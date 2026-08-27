@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/canonical/substitution_registry.registry.schema.json",
+  "title": "substitution_registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "const": "substitution_registry"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "substitution_edge_id",
+          "source_exercise_id",
+          "target_exercise_id",
+          "movement_pattern_preservation",
+          "stimulus_intent_preservation",
+          "equipment_change_type",
+          "excluded_equipment_handling",
+          "joint_stress_handling",
+          "activity_applicability",
+          "difficulty_tier_compatibility",
+          "deterministic_ordering_key",
+          "copy_legal_boundary_notes"
+        ],
+        "properties": {
+          "substitution_edge_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "source_exercise_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "target_exercise_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "movement_pattern_preservation": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "stimulus_intent_preservation": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "equipment_change_type": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "excluded_equipment_handling": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "joint_stress_handling": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "activity_applicability": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "powerlifting",
+                "general_strength",
+                "rugby_union"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "difficulty_tier_compatibility": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "deterministic_ordering_key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "copy_legal_boundary_notes": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

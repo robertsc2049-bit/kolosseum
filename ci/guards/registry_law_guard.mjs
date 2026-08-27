@@ -89,10 +89,19 @@ function buildIdSet(registryName, absPath, coll) {
   const ids = new Set();
 
   const candidates = {
-    activity: ["activity_id", "id", "activity"],
-    movement: ["movement_id", "pattern", "id", "movement"],
-    exercise: ["exercise_id", "id", "exercise"]
-  }[registryName] || ["id"];
+    activity: ["activity_id"],
+    movement: ["movement_pattern_id"],
+    exercise: ["exercise_id"],
+    program: ["template_id"],
+    equipment: ["equipment_id"],
+    sport_subdivision: ["sport_subdivision_id"],
+    sport_metric: ["sport_metric_id"],
+    sport_role: ["sport_role_id"],
+    metric_exercise_link: ["metric_exercise_link_id"],
+    threshold_marker: ["threshold_marker_id"],
+    exercise_token: ["exercise_token_id"],
+    exercise_activity_applicability: ["applicability_id"]
+  }[registryName] || [];
 
   if (coll.kind === "map" && coll.map) {
     const keys = Object.keys(coll.map);
@@ -330,7 +339,7 @@ function buildMovementVocabById(regs, errors) {
   const movPath = mov?.path || "registries/movement/movement.registry.json";
   const doc = mov?.doc;
 
-  const map = new Map(); // movement_id -> { equipment:Set, joint:Set }
+  const map = new Map(); // movement_pattern_id -> { equipment:Set, joint:Set }
 
   if (!isPlainObject(doc) || !isPlainObject(doc.entries)) {
     errors.push(`${movPath}: entries map missing/invalid (expected object map)`);
@@ -350,12 +359,12 @@ function buildMovementVocabById(regs, errors) {
       continue;
     }
 
-    if (typeof v.movement_id !== "string" || !v.movement_id) {
-      errors.push(`${movPath} entries.${k}: missing/invalid movement_id`);
+    if (typeof v.movement_pattern_id !== "string" || !v.movement_pattern_id) {
+      errors.push(`${movPath} entries.${k}: missing/invalid movement_pattern_id`);
       continue;
     }
-    if (v.movement_id !== k) {
-      errors.push(`${movPath} entries.${k}: key must equal movement_id (got '${v.movement_id}')`);
+    if (v.movement_pattern_id !== k) {
+      errors.push(`${movPath} entries.${k}: key must equal movement_pattern_id (got '${v.movement_pattern_id}')`);
     }
 
     const eqChk = validateUniqueNonEmptyStringArray(v.equipment_vocab);
@@ -425,7 +434,7 @@ function main() {
   const exEntries = isPlainObject(exerciseDoc?.entries) ? exerciseDoc.entries : null;
   if (!exEntries) errors.push(`${exercisePath}: entries map missing/invalid (expected object map)`);
 
-  // FK: exercise.pattern -> movement ids
+  // FK: exercise.movement_pattern_id -> movement ids
   const movementIds = regs.get("movement")?.ids ?? new Set();
   if (exEntries) {
     if (movementIds.size < 1) {
@@ -433,12 +442,12 @@ function main() {
     } else {
       for (const [key, e] of Object.entries(exEntries)) {
         if (!isPlainObject(e)) continue;
-        if (typeof e.pattern !== "string" || !e.pattern) {
-          errors.push(`${exercisePath} entries.${key}: missing/invalid pattern`);
+        if (typeof e.movement_pattern_id !== "string" || !e.movement_pattern_id) {
+          errors.push(`${exercisePath} entries.${key}: missing/invalid movement_pattern_id`);
           continue;
         }
-        if (!movementIds.has(e.pattern)) {
-          errors.push(`${exercisePath} entries.${key}: FK fail pattern='${e.pattern}' (not in movement registry ids)`);
+        if (!movementIds.has(e.movement_pattern_id)) {
+          errors.push(`${exercisePath} entries.${key}: FK fail movement_pattern_id='${e.movement_pattern_id}' (not in movement registry ids)`);
         }
       }
     }
@@ -470,32 +479,32 @@ function main() {
     for (const [key, e] of Object.entries(exEntries)) {
       if (!isPlainObject(e)) continue;
 
-      const pattern = typeof e.pattern === "string" ? e.pattern : "";
+      const movementPatternId = typeof e.movement_pattern_id === "string" ? e.movement_pattern_id : "";
       const ctx = `${exercisePath} entries.${key}`;
 
       // REQUIRE: equipment[] non-empty
-      const eqChk = validateNonEmptyStringArray(e.equipment);
-      if (!eqChk.ok) errors.push(`${ctx}: missing/invalid equipment (${eqChk.why})`);
+      const eqChk = validateNonEmptyStringArray(e.equipment_requirements);
+      if (!eqChk.ok) errors.push(`${ctx}: missing/invalid equipment_requirements (${eqChk.why})`);
 
       // REQUIRE: joint_stress_tags[] non-empty
       const jtChk = validateNonEmptyStringArray(e.joint_stress_tags);
       if (!jtChk.ok) errors.push(`${ctx}: missing/invalid joint_stress_tags (${jtChk.why})`);
 
-      if (!pattern) continue;
+      if (!movementPatternId) continue;
 
-      if (!movementVocab.has(pattern)) {
-        errors.push(`${ctx}: movement vocab missing for pattern='${pattern}' (cannot validate scoped equipment/joint tags)`);
+      if (!movementVocab.has(movementPatternId)) {
+        errors.push(`${ctx}: movement vocab missing for movement_pattern_id='${movementPatternId}' (cannot validate scoped equipment/joint tags)`);
         continue;
       }
 
-      const vocab = movementVocab.get(pattern);
+      const vocab = movementVocab.get(movementPatternId);
 
       // Normalize + scoped FK: equipment tokens
-      if (Array.isArray(e.equipment)) {
-        const n = normalizeTokenArray(e.equipment, {
-          label: "equipment",
+      if (Array.isArray(e.equipment_requirements)) {
+        const n = normalizeTokenArray(e.equipment_requirements, {
+          label: "equipment_requirements",
           ctxPath: ctx,
-          aliasMap: TOKEN_ALIASES.equipment,
+          aliasMap: null,
           canonicalSet: vocab.equipment
         });
         if (!n.ok) errors.push(...n.errors);

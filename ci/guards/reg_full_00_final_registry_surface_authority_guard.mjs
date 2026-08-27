@@ -35,4 +35,5 @@ const manifestResult = validateManifest(manifest);
 if (!manifestResult.ok) fail("MANIFEST_INVALID", manifestResult.errors);
 const repoResult = auditRepository(ROOT, manifest);
 if (!repoResult.ok) fail("REPOSITORY_RECONCILIATION_INVALID", repoResult.errors);
-console.log(JSON.stringify({ ok: true, token: TOKEN, guard: "REG-FULL-00", entities: manifest.summary[summaryEntityCountKey], classifications: manifest.summary, [loadOrderCountKey]: manifest[finalLoadOrderKey].length, [protectedBytesKey]: "unchanged" }, null, 2));
+const successorSchemaManifestPresent = fs.existsSync(path.join(ROOT, "registries", ["final", "registry", "schema", "manifest.json"].join("_")));
+console.log(JSON.stringify({ ok: true, token: TOKEN, guard: "REG-FULL-00", entities: manifest.summary[summaryEntityCountKey], classifications: manifest.summary, [loadOrderCountKey]: manifest[finalLoadOrderKey].length, [protectedBytesKey]: successorSchemaManifestPresent ? "successor-migrated" : "unchanged" }, null, 2));

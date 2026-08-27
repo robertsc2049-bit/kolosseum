@@ -62,7 +62,8 @@ function validateFixture(schemaName, fixtureRel, failureToken) {
 // Phase 1 schema
 addSchemaFile("ci/schemas/phase1.input.schema.v1.0.0.json");
 
-// Exercise registry schema
+// Exercise registry schema: one compatibility body plus historical ref wrapper.
+addSchemaFile("ci/schemas/exercise.registry.schema.json");
 addSchemaFile("ci/schemas/exercise.registry.schema.v1.0.0.json");
 
 // Phase 4 output schema (program)

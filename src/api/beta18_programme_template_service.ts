@@ -1691,7 +1691,7 @@ function normaliseTemplateStructure(
 
                           const equipment =
                             Array.isArray(
-                              exercise.equipment
+                              exercise.equipment_requirements
                             )
                               ? exercise
                                   .equipment
@@ -2632,11 +2632,11 @@ export function listActiveExerciseOptions(): Readonly<{
               ),
             pattern:
               cleanString(
-                entry.pattern
+                entry.movement_pattern_id
               ),
             equipment:
               Array.isArray(
-                entry.equipment
+                entry.equipment_requirements
               )
                 ? entry
                     .equipment

@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/canonical/sport_program_profile_registry_5d.registry.schema.json",
+  "title": "sport_program_profile_registry_5d",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "const": "sport_program_profile_registry_5d"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sport_program_profile_id",
+          "activity_id",
+          "sport_subdivision_id",
+          "ownership_scope",
+          "primary_intents",
+          "secondary_intents",
+          "allowed_structure_levels",
+          "allowed_session_types",
+          "competition_presence",
+          "periodisation_expectation",
+          "notes"
+        ],
+        "properties": {
+          "sport_program_profile_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "activity_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "sport_subdivision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ownership_scope": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "individual",
+              "team",
+              "unit",
+              "organisation"
+            ]
+          },
+          "primary_intents": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "secondary_intents": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "allowed_structure_levels": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "program",
+              "season",
+              "phase",
+              "block",
+              "week",
+              "session",
+              "segment"
+            ],
+            "properties": {
+              "program": {
+                "type": "boolean"
+              },
+              "season": {
+                "type": "boolean"
+              },
+              "phase": {
+                "type": "boolean"
+              },
+              "block": {
+                "type": "boolean"
+              },
+              "week": {
+                "type": "boolean"
+              },
+              "session": {
+                "type": "boolean"
+              },
+              "segment": {
+                "type": "boolean"
+              }
+            }
+          },
+          "allowed_session_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "training",
+                "testing",
+                "competition"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "competition_presence": {
+            "type": "boolean"
+          },
+          "periodisation_expectation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "required",
+              "rigid"
+            ],
+            "properties": {
+              "required": {
+                "type": "boolean"
+              },
+              "rigid": {
+                "type": "boolean"
+              }
+            }
+          },
+          "notes": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  }
+}

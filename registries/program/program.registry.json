@@ -1,11 +1,11 @@
 {
   "registry_id": "program",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "entries": [
     {
-      "id": "powerlifting",
-      "program_id": "PROGRAM_POWERLIFTING_V1",
-      "intent": [
+      "activity_id": "powerlifting",
+      "template_id": "PROGRAM_POWERLIFTING_V1",
+      "exercise_eligibility": [
         "bench_press",
         "back_squat",
         "deadlift",
@@ -15,9 +15,9 @@
       ]
     },
     {
-      "id": "rugby_union",
-      "program_id": "PROGRAM_RUGBY_UNION_V1",
-      "intent": [
+      "activity_id": "rugby_union",
+      "template_id": "PROGRAM_RUGBY_UNION_V1",
+      "exercise_eligibility": [
         "back_squat",
         "bench_press",
         "deadlift",
@@ -27,9 +27,9 @@
       ]
     },
     {
-      "id": "general_strength",
-      "program_id": "PROGRAM_GENERAL_STRENGTH_V1",
-      "intent": [
+      "activity_id": "general_strength",
+      "template_id": "PROGRAM_GENERAL_STRENGTH_V1",
+      "exercise_eligibility": [
         "deadlift",
         "bench_press",
         "back_squat",

@@ -1,22 +1,30 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "kolosseum://registries/threshold_marker.registry.schema.json",
-  "title": "Threshold Marker Registry Schema",
+  "title": "threshold_marker",
   "type": "object",
   "additionalProperties": false,
-  "required": ["registry_id", "version", "entries"],
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
   "properties": {
-    "registry_id": { "type": "string", "const": "threshold_marker" },
-    "version": { "type": "string", "minLength": 1 },
+    "registry_id": {
+      "type": "string",
+      "const": "threshold_marker"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
     "entries": {
       "type": "object",
-      "minProperties": 1,
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,
         "required": [
           "threshold_marker_id",
-          "id",
           "sport_metric_id",
           "activity_id",
           "threshold_operator",
@@ -27,22 +35,61 @@
           "copy_boundary_notes"
         ],
         "properties": {
-          "threshold_marker_id": { "type": "string", "minLength": 1 },
-          "id": { "type": "string", "minLength": 1 },
-          "sport_metric_id": { "type": "string", "minLength": 1 },
-          "activity_id": { "type": "string", "minLength": 1 },
-          "threshold_operator": { "type": "string", "minLength": 1 },
-          "threshold_value": { "type": "number" },
-          "threshold_unit": { "type": "string", "minLength": 1 },
-          "threshold_source": { "type": "string", "minLength": 1 },
+          "threshold_marker_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "sport_metric_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "activity_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "threshold_operator": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "threshold_value": {
+            "type": [
+              "integer",
+              "number"
+            ]
+          },
+          "threshold_unit": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "threshold_source": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
           "marker_status_allowed_values": {
             "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
             "minItems": 1,
-            "items": { "type": "string", "minLength": 1 }
+            "uniqueItems": true
           },
-          "copy_boundary_notes": { "type": "string", "minLength": 1 }
+          "copy_boundary_notes": {
+            "type": "string",
+            "minLength": 1
+          }
         }
-      }
+      },
+      "minProperties": 1
     }
-  }
+  },
+  "x-kolosseum-authority": "compatibility_only",
+  "x-kolosseum-canonical-authority": "registries/final_registry_schema_manifest.json"
 }

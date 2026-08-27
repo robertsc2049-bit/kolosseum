@@ -69,8 +69,8 @@ export function loadExerciseRegistry(registryPath = DEFAULT_EXERCISE_REGISTRY_PA
 }
 
 function getPattern(exercise) {
-  return typeof exercise?.pattern === "string"
-    ? exercise.pattern.trim().toLowerCase()
+  return typeof exercise?.movement_pattern_id === "string"
+    ? exercise.movement_pattern_id.trim().toLowerCase()
     : "";
 }
 

@@ -38,27 +38,27 @@ function makePassingEntries() {
   return {
     bench_press: {
       exercise_id: "bench_press",
-      pattern: "horizontal_push",
+      movement_pattern_id: "horizontal_push",
     },
     overhead_press: {
       exercise_id: "overhead_press",
-      pattern: "vertical_push",
+      movement_pattern_id: "vertical_push",
     },
     back_squat: {
       exercise_id: "back_squat",
-      pattern: "squat",
+      movement_pattern_id: "squat",
     },
     deadlift: {
       exercise_id: "deadlift",
-      pattern: "hinge",
+      movement_pattern_id: "hinge",
     },
     push_up: {
       exercise_id: "push_up",
-      pattern: "horizontal_push",
+      movement_pattern_id: "horizontal_push",
     },
     goblet_squat: {
       exercise_id: "goblet_squat",
-      pattern: "squat",
+      movement_pattern_id: "squat",
     },
   };
 }
@@ -75,7 +75,7 @@ test("P62: verifier passes when locked canonical compound lifts are present", ()
   assert.equal(result.locked_exercise_count, 4);
   assert.deepEqual(result.locked_core_compound_set, LOCKED_CORE_COMPOUND_SET);
   assert.deepEqual(
-    result.verified.map((x) => `${x.pattern}:${x.exercise_id}`),
+    result.verified.map((x) => `${x.movement_pattern_id}:${x.exercise_id}`),
     [
       "squat:back_squat",
       "hinge:deadlift",
@@ -104,7 +104,7 @@ test("P62: verifier fails when a locked hinge lift changes pattern", () => {
   const entries = makePassingEntries();
   entries.deadlift = {
     exercise_id: "deadlift",
-    pattern: "squat",
+    movement_pattern_id: "squat",
   };
 
   const registryPath = makeTempRegistry(entries);
@@ -122,7 +122,7 @@ test("P62: verifier fails when a locked push lift is renamed", () => {
   const entries = makePassingEntries();
   entries.bench_press = {
     exercise_id: "barbell_bench_press",
-    pattern: "horizontal_push",
+    movement_pattern_id: "horizontal_push",
   };
 
   const registryPath = makeTempRegistry(entries);

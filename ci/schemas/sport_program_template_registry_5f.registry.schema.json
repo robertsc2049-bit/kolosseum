@@ -1,0 +1,430 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/canonical/sport_program_template_registry_5f.registry.schema.json",
+  "title": "sport_program_template_registry_5f",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "const": "sport_program_template_registry_5f"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "template_id",
+          "template_version",
+          "contract_version",
+          "template_status",
+          "activity_id",
+          "assignment_scope",
+          "source_record_id",
+          "source_control_status",
+          "template_structure",
+          "registry_bindings",
+          "visibility_boundary",
+          "deterministic_boundary",
+          "execution_surface",
+          "copy_boundary_flags"
+        ],
+        "properties": {
+          "template_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "template_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contract_version": {
+            "type": "string",
+            "const": "S-V1-26"
+          },
+          "template_status": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "activity_id": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "powerlifting",
+              "general_strength",
+              "rugby_union"
+            ]
+          },
+          "assignment_scope": {
+            "type": "string",
+            "const": "coach_athlete_assigned_execution"
+          },
+          "source_record_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "source_control_status": {
+            "type": "string",
+            "const": "approved"
+          },
+          "template_structure": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "blocks"
+            ],
+            "properties": {
+              "blocks": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "block_id",
+                    "order_index",
+                    "weeks"
+                  ],
+                  "properties": {
+                    "block_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                    },
+                    "order_index": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "weeks": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "week_id",
+                          "order_index",
+                          "days"
+                        ],
+                        "properties": {
+                          "week_id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                          },
+                          "order_index": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "days": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "day_id",
+                                "order_index",
+                                "sessions"
+                              ],
+                              "properties": {
+                                "day_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                                },
+                                "order_index": {
+                                  "type": "integer",
+                                  "minimum": 1
+                                },
+                                "sessions": {
+                                  "type": "array",
+                                  "minItems": 1,
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": [
+                                      "session_id",
+                                      "order_index",
+                                      "work_items"
+                                    ],
+                                    "properties": {
+                                      "session_id": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                                      },
+                                      "order_index": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                      },
+                                      "work_items": {
+                                        "type": "array",
+                                        "minItems": 1,
+                                        "items": {
+                                          "type": "object",
+                                          "additionalProperties": false,
+                                          "required": [
+                                            "work_item_id",
+                                            "order_index",
+                                            "exercise_id",
+                                            "planned_sets",
+                                            "planned_reps",
+                                            "loading_reference",
+                                            "equipment_requirement_ids",
+                                            "substitution_policy_id"
+                                          ],
+                                          "properties": {
+                                            "work_item_id": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                                            },
+                                            "order_index": {
+                                              "type": "integer",
+                                              "minimum": 1
+                                            },
+                                            "exercise_id": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                                            },
+                                            "planned_sets": {
+                                              "type": "integer",
+                                              "minimum": 1
+                                            },
+                                            "planned_reps": {
+                                              "type": "integer",
+                                              "minimum": 1
+                                            },
+                                            "loading_reference": {
+                                              "type": "string",
+                                              "minLength": 1
+                                            },
+                                            "equipment_requirement_ids": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                                              },
+                                              "minItems": 1,
+                                              "uniqueItems": true
+                                            },
+                                            "substitution_policy_id": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "registry_bindings": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "activity_id",
+              "exercise_ids",
+              "equipment_ids",
+              "substitution_edge_ids",
+              "applicability_ids"
+            ],
+            "properties": {
+              "activity_id": {
+                "type": "string",
+                "minLength": 1,
+                "enum": [
+                  "powerlifting",
+                  "general_strength",
+                  "rugby_union"
+                ]
+              },
+              "exercise_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "equipment_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "substitution_edge_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "applicability_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          },
+          "visibility_boundary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "formula_payload_status",
+              "progression_internals_status",
+              "protected_logic_reference_status"
+            ],
+            "properties": {
+              "formula_payload_status": {
+                "type": "string",
+                "const": "not_present"
+              },
+              "progression_internals_status": {
+                "type": "string",
+                "const": "not_present"
+              },
+              "protected_logic_reference_status": {
+                "type": "string",
+                "const": "opaque_reference_only"
+              }
+            }
+          },
+          "deterministic_boundary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "template_hash_inputs",
+              "order_policy",
+              "unknown_field_policy",
+              "registry_reference_policy"
+            ],
+            "properties": {
+              "template_hash_inputs": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "const": "template_id"
+                  },
+                  {
+                    "const": "template_version"
+                  },
+                  {
+                    "const": "activity_id"
+                  },
+                  {
+                    "const": "assignment_scope"
+                  },
+                  {
+                    "const": "registry_bindings"
+                  },
+                  {
+                    "const": "template_structure"
+                  }
+                ],
+                "items": false,
+                "minItems": 6,
+                "maxItems": 6
+              },
+              "order_policy": {
+                "type": "string",
+                "const": "explicit_order_index_only"
+              },
+              "unknown_field_policy": {
+                "type": "string",
+                "const": "fail_closed"
+              },
+              "registry_reference_policy": {
+                "type": "string",
+                "const": "declared_registry_ids_only"
+              }
+            }
+          },
+          "execution_surface": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "coach_can_assign",
+              "athlete_can_execute_assigned",
+              "coach_can_edit_after_assignment",
+              "assignment_mutates_template",
+              "template_mutates_relationship",
+              "template_mutates_engine"
+            ],
+            "properties": {
+              "coach_can_assign": {
+                "const": true
+              },
+              "athlete_can_execute_assigned": {
+                "const": true
+              },
+              "coach_can_edit_after_assignment": {
+                "const": false
+              },
+              "assignment_mutates_template": {
+                "const": false
+              },
+              "template_mutates_relationship": {
+                "const": false
+              },
+              "template_mutates_engine": {
+                "const": false
+              }
+            }
+          },
+          "copy_boundary_flags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        }
+      }
+    }
+  }
+}

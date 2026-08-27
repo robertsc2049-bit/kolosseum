@@ -27,23 +27,23 @@ function buildExerciseFixture() {
     entries: {
       push_up: {
         exercise_id: "push_up",
-        pattern: "horizontal_push"
+        movement_pattern_id: "horizontal_push"
       },
       bench_press: {
         exercise_id: "bench_press",
-        pattern: "horizontal_push"
+        movement_pattern_id: "horizontal_push"
       },
       pike_push_up: {
         exercise_id: "pike_push_up",
-        pattern: "vertical_push"
+        movement_pattern_id: "vertical_push"
       },
       goblet_squat: {
         exercise_id: "goblet_squat",
-        pattern: "squat"
+        movement_pattern_id: "squat"
       },
       kettlebell_deadlift: {
         exercise_id: "kettlebell_deadlift",
-        pattern: "hinge"
+        movement_pattern_id: "hinge"
       }
     }
   };

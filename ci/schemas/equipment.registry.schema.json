@@ -1,22 +1,30 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "kolosseum://registries/equipment.registry.schema.json",
-  "title": "Equipment Registry Schema",
+  "title": "equipment",
   "type": "object",
   "additionalProperties": false,
-  "required": ["registry_id", "version", "entries"],
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
   "properties": {
-    "registry_id": { "type": "string", "const": "equipment" },
-    "version": { "type": "string", "minLength": 1 },
+    "registry_id": {
+      "type": "string",
+      "const": "equipment"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
     "entries": {
       "type": "object",
-      "minProperties": 1,
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,
         "required": [
           "equipment_id",
-          "id",
           "display_label",
           "equipment_class",
           "activity_applicability",
@@ -27,26 +35,68 @@
           "copy_legal_boundary_notes"
         ],
         "properties": {
-          "equipment_id": { "type": "string", "minLength": 1 },
-          "id": { "type": "string", "minLength": 1 },
-          "display_label": { "type": "string", "minLength": 1 },
-          "equipment_class": { "type": "string", "minLength": 1 },
+          "equipment_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "display_label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "equipment_class": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
           "activity_applicability": {
             "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "powerlifting",
+                "general_strength",
+                "rugby_union"
+              ]
+            },
             "minItems": 1,
-            "items": { "type": "string", "minLength": 1 }
+            "uniqueItems": true
           },
           "movement_pattern_applicability": {
             "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
             "minItems": 1,
-            "items": { "type": "string", "minLength": 1 }
+            "uniqueItems": true
           },
-          "substitution_relevance": { "type": "string", "minLength": 1 },
-          "template_relevance": { "type": "string", "minLength": 1 },
-          "low_equipment_alternative_relevance": { "type": "string", "minLength": 1 },
-          "copy_legal_boundary_notes": { "type": "string", "minLength": 1 }
+          "substitution_relevance": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "template_relevance": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "low_equipment_alternative_relevance": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "copy_legal_boundary_notes": {
+            "type": "string",
+            "minLength": 1
+          }
         }
-      }
+      },
+      "minProperties": 1
     }
-  }
+  },
+  "x-kolosseum-authority": "compatibility_only",
+  "x-kolosseum-canonical-authority": "registries/final_registry_schema_manifest.json"
 }

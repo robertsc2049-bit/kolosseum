@@ -32,7 +32,7 @@
         "version": "beta-07-fixture",
         "entries": {
           "squat": {
-            "movement_id": "squat"
+            "movement_pattern_id": "squat"
           }
         }
       },
@@ -42,9 +42,9 @@
         "entries": {
           "fixture_back_squat": {
             "exercise_id": "fixture_back_squat",
-            "pattern": "squat",
             "primary_activity_applicability": "powerlifting",
-            "secondary_activity_applicability": []
+            "secondary_activity_applicability": [],
+            "movement_pattern_id": "squat"
           }
         }
       },
@@ -53,9 +53,9 @@
         "version": "beta-07-fixture",
         "entries": [
           {
-            "id": "powerlifting",
-            "program_id": "fixture_powerlifting_program",
-            "intent": [
+            "activity_id": "powerlifting",
+            "template_id": "fixture_powerlifting_program",
+            "exercise_eligibility": [
               "fixture_back_squat"
             ]
           }

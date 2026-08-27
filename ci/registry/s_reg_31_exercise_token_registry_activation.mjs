@@ -310,8 +310,8 @@ function assertNoDanglingCrossRegistryReferences() {
       fail("s_reg_31_excluded_record_present", { id });
     }
 
-    if (!(record.movement_id in movementRegistry.entries)) {
-      fail("s_reg_31_dangling_movement_reference", { id, movement_id: record.movement_id });
+    if (!(record.movement_pattern_id in movementRegistry.entries)) {
+      fail("s_reg_31_dangling_movement_reference", { id, movement_pattern_id: record.movement_pattern_id });
     }
 
     for (const activityId of record.activity_ids) {

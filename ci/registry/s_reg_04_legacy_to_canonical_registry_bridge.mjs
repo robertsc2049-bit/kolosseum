@@ -222,41 +222,25 @@ const BETA_07_FAILURE_TOKENS = Object.freeze({
 });
 
 const BETA_07_ID_FIELDS = Object.freeze({
-  activity: Object.freeze(["activity_id", "id"]),
-  movement: Object.freeze(["movement_id", "movement_pattern_id", "movement_family_id", "id"]),
-  exercise: Object.freeze(["exercise_id", "id"]),
-  program: Object.freeze(["program_id", "id"])
+  activity: Object.freeze(["activity_id"]),
+  movement: Object.freeze(["movement_pattern_id"]),
+  exercise: Object.freeze(["exercise_id"]),
+  program: Object.freeze(["template_id"])
 });
 
 const BETA_07_REFERENCE_FIELDS = Object.freeze({
   activity: Object.freeze([
-    Object.freeze(["exercise_id", "exercise"]),
-    Object.freeze(["exercise_ids", "exercise"]),
-    Object.freeze(["intent", "exercise"]),
-    Object.freeze(["exercise_eligibility", "exercise"])
-  ]),
-  movement: Object.freeze([
-    Object.freeze(["activity_id", "activity"]),
-    Object.freeze(["exercise_id", "exercise"]),
     Object.freeze(["exercise_ids", "exercise"])
   ]),
+  movement: Object.freeze([]),
   exercise: Object.freeze([
-    Object.freeze(["pattern", "movement"]),
-    Object.freeze(["movement_id", "movement"]),
     Object.freeze(["movement_pattern_id", "movement"]),
-    Object.freeze(["movement_family_id", "movement"]),
-    Object.freeze(["activity_id", "activity"]),
     Object.freeze(["primary_activity_applicability", "activity"]),
-    Object.freeze(["secondary_activity_applicability", "activity"]),
-    Object.freeze(["activity_applicability", "activity"])
+    Object.freeze(["secondary_activity_applicability", "activity"])
   ]),
   program: Object.freeze([
-    Object.freeze(["id", "activity"]),
     Object.freeze(["activity_id", "activity"]),
-    Object.freeze(["exercise_id", "exercise"]),
-    Object.freeze(["exercise_ids", "exercise"]),
-    Object.freeze(["exercise_eligibility", "exercise"]),
-    Object.freeze(["intent", "exercise"])
+    Object.freeze(["exercise_eligibility", "exercise"])
   ])
 });
 
@@ -338,7 +322,7 @@ function beta07AssertCanonicalOrder(order) {
 
 function beta07CollectIds(registryId, registryDocument) {
   const ids = new Set();
-  const fields = BETA_07_ID_FIELDS[registryId] || ["id"];
+  const fields = BETA_07_ID_FIELDS[registryId] || [];
 
   for (const record of beta07Collection(registryDocument)) {
     if (!isPlainRecord(record)) continue;
@@ -355,7 +339,7 @@ function beta07ValidateReferences(registries, idsByRegistry) {
   for (const registryId of BETA_07_CANONICAL_REGISTRY_ORDER) {
     for (const record of beta07Collection(registries[registryId])) {
       if (!isPlainRecord(record)) continue;
-      const recordId = beta07FirstString(record, BETA_07_ID_FIELDS[registryId] || ["id"]) || "unknown_record";
+      const recordId = beta07FirstString(record, BETA_07_ID_FIELDS[registryId] || []) || "unknown_record";
 
       for (const [field, targetRegistryId] of BETA_07_REFERENCE_FIELDS[registryId] || []) {
         if (!Object.prototype.hasOwnProperty.call(record, field)) continue;

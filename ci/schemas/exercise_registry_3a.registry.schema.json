@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/canonical/exercise_registry_3a.registry.schema.json",
+  "title": "exercise_registry_3a",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "const": "exercise_registry_3a"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "exercise_id",
+          "display_label",
+          "movement_pattern_id",
+          "primary_activity_applicability",
+          "secondary_activity_applicability",
+          "equipment_requirements",
+          "equipment_alternatives",
+          "difficulty_tier",
+          "joint_stress_tags",
+          "stimulus_intent",
+          "instruction_short_text",
+          "instruction_detail_text",
+          "contraindication_or_exclusion_tags",
+          "substitution_eligibility",
+          "template_eligibility",
+          "copy_legal_boundary_flags"
+        ],
+        "properties": {
+          "exercise_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "display_label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "movement_pattern_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "primary_activity_applicability": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "powerlifting",
+              "general_strength",
+              "rugby_union"
+            ]
+          },
+          "secondary_activity_applicability": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "powerlifting",
+                "general_strength",
+                "rugby_union"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "equipment_requirements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "uniqueItems": true
+          },
+          "equipment_alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "uniqueItems": true
+          },
+          "difficulty_tier": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "joint_stress_tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "uniqueItems": true
+          },
+          "stimulus_intent": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "instruction_short_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "instruction_detail_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contraindication_or_exclusion_tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "uniqueItems": true
+          },
+          "substitution_eligibility": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "template_eligibility": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "copy_legal_boundary_flags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    }
+  }
+}
