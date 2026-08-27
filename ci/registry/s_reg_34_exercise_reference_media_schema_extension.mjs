@@ -34,9 +34,27 @@ export const S_REG_34_EXTENDED_REGISTRY_ID = "exercise";
 export const S_REG_34_EXPECTED_EXERCISE_COUNT = 19;
 export const S_REG_34_EXTENDED_FIELD_NAMES = Object.freeze(["reference_media"]);
 
-export const S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS = Object.freeze(["video_url", "source"]);
-export const S_REG_34_REFERENCE_MEDIA_OPTIONAL_KEYS = Object.freeze(["thumbnail_url"]);
-export const S_REG_34_REFERENCE_MEDIA_SOURCES = Object.freeze(["coach_entered", "admin_entered"]);
+// S-REG-34 originally introduced `reference_media` as an optional, content-free
+// field. S-V1-25 later hardened the nested media object with source/licence,
+// commercial-use, review and copy-boundary controls. Keep the historical
+// optional/content-free boundary, but validate the current lawful nested shape.
+export const S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS = Object.freeze([
+  "video_url",
+  "thumbnail_url",
+  "source",
+  "source_reference",
+  "license_status",
+  "commercial_use_status",
+  "manual_review_status",
+  "legal_review_status",
+  "copy_boundary_flags"
+]);
+export const S_REG_34_REFERENCE_MEDIA_OPTIONAL_KEYS = Object.freeze([]);
+export const S_REG_34_REFERENCE_MEDIA_SOURCES = Object.freeze([
+  "founder_original",
+  "licensed_source",
+  "canonical_project_document"
+]);
 
 export const S_REG_34_SCHEMA_FILES = Object.freeze([
   "ci/schemas/exercise.registry.schema.json",
@@ -139,35 +157,45 @@ function assertExactArray(actual, expected, reason) {
 }
 
 function assertSchemaFilesDeclareReferenceMedia() {
-  for (const schemaPath of S_REG_34_SCHEMA_FILES) {
-    const schema = readJson(schemaPath);
-    const entrySchema = schema?.properties?.entries?.additionalProperties;
+  const canonicalSchemaPath = S_REG_34_SCHEMA_FILES[0];
+  const canonicalSchema = readJson(canonicalSchemaPath);
+  const entrySchema = canonicalSchema?.properties?.entries?.additionalProperties;
 
-    assertPlainObject(entrySchema, "s_reg_34_schema_entry_shape_invalid");
+  assertPlainObject(entrySchema, "s_reg_34_schema_entry_shape_invalid");
 
-    const referenceMedia = entrySchema?.properties?.reference_media;
-    assertPlainObject(referenceMedia, "s_reg_34_schema_reference_media_missing");
+  const referenceMedia = entrySchema?.properties?.reference_media;
+  assertPlainObject(referenceMedia, "s_reg_34_schema_reference_media_missing");
 
-    if (referenceMedia.additionalProperties !== false) {
-      fail("s_reg_34_schema_reference_media_additional_properties_invalid", { schemaPath });
+  if (referenceMedia.additionalProperties !== false) {
+    fail("s_reg_34_schema_reference_media_additional_properties_invalid", { schemaPath: canonicalSchemaPath });
+  }
+
+  assertExactArray(referenceMedia.required, [...S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS], "s_reg_34_schema_reference_media_required_invalid");
+
+  if (Array.isArray(entrySchema.required) && entrySchema.required.includes("reference_media")) {
+    fail("s_reg_34_schema_reference_media_must_stay_optional", { schemaPath: canonicalSchemaPath });
+  }
+
+  const properties = referenceMedia.properties ?? {};
+  if (properties.video_url?.type !== "string" || properties.video_url?.minLength !== 1) {
+    fail("s_reg_34_schema_video_url_invalid", { schemaPath: canonicalSchemaPath, actual: properties.video_url });
+  }
+
+  if (properties.thumbnail_url?.type !== "string" || properties.thumbnail_url?.minLength !== 1) {
+    fail("s_reg_34_schema_thumbnail_url_invalid", { schemaPath: canonicalSchemaPath, actual: properties.thumbnail_url });
+  }
+
+  assertExactArray(properties.source?.enum, [...S_REG_34_REFERENCE_MEDIA_SOURCES], "s_reg_34_schema_source_enum_invalid");
+
+  for (const schemaPath of S_REG_34_SCHEMA_FILES.slice(1)) {
+    const compatibilitySchema = readJson(schemaPath);
+    if (
+      compatibilitySchema?.$ref !== canonicalSchema.$id ||
+      compatibilitySchema?.["x-kolosseum-authority"] !== "compatibility_reference" ||
+      compatibilitySchema?.["x-kolosseum-canonical-authority"] !== "registries/final_registry_schema_manifest.json"
+    ) {
+      fail("s_reg_34_schema_entry_shape_invalid", { schemaPath, actual: compatibilitySchema });
     }
-
-    assertExactArray(referenceMedia.required, [...S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS], "s_reg_34_schema_reference_media_required_invalid");
-
-    if (Array.isArray(entrySchema.required) && entrySchema.required.includes("reference_media")) {
-      fail("s_reg_34_schema_reference_media_must_stay_optional", { schemaPath });
-    }
-
-    const properties = referenceMedia.properties ?? {};
-    if (properties.video_url?.type !== "string" || properties.video_url?.minLength !== 1) {
-      fail("s_reg_34_schema_video_url_invalid", { schemaPath, actual: properties.video_url });
-    }
-
-    if (properties.thumbnail_url?.type !== "string" || properties.thumbnail_url?.minLength !== 1) {
-      fail("s_reg_34_schema_thumbnail_url_invalid", { schemaPath, actual: properties.thumbnail_url });
-    }
-
-    assertExactArray(properties.source?.enum, [...S_REG_34_REFERENCE_MEDIA_SOURCES], "s_reg_34_schema_source_enum_invalid");
   }
 }
 
