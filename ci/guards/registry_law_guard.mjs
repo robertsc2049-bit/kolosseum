@@ -417,6 +417,26 @@ function main() {
   const wrapperSchema = loadSchemaOrDie("ci/schemas/exercise_registry.schema.json");
 
   const ajv = new Ajv({ allErrors: true, strict: true, validateSchema: false });
+  // REG-FULL-01 compatibility schemas use two closed annotations. These are metadata
+  // only; strict validation knows their exact lawful values without weakening unknown-keyword checks.
+  ajv.addKeyword({
+    keyword: "x-kolosseum-authority",
+    schemaType: "string",
+    metaSchema: {
+      type: "string",
+      enum: ["compatibility_only", "compatibility_reference"]
+    },
+    valid: true
+  });
+  ajv.addKeyword({
+    keyword: "x-kolosseum-canonical-authority",
+    schemaType: "string",
+    metaSchema: {
+      type: "string",
+      const: "registries/final_registry_schema_manifest.json"
+    },
+    valid: true
+  });
   ajv.addSchema(entrySchema, entrySchema.$id);
   ajv.addSchema(wrapperSchema, wrapperSchema.$id);
 
