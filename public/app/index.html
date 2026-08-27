@@ -544,106 +544,17 @@
 
           <p id="athleteDirectoryStatus" class="muted small" role="status" aria-live="polite"></p>
 
-          <form id="inviteAthleteByEmailForm" class="panel form-panel">
-            <div>
-              <p class="eyebrow">Lawful invitation</p>
-              <h3>Invite athlete by email</h3>
-              <p class="muted small">
-                The athlete receives this invitation in their own account and
-                accepts it themselves - no account code is exchanged.
-              </p>
-            </div>
+          <!-- DEV NOTE: invite-by-email, broadcast, manual "Add athlete"
+               connect form and the relationship-audit detail panel are now
+               React - see public/app-src/screens/coach/
+               InviteAthleteByEmailPanel.tsx/CoachBroadcastPanel.tsx/
+               ConnectAthletePanel.tsx/AthleteRelationshipDetailPanel.tsx. -->
+          <div id="invite-athlete-root"></div>
 
-            <label class="field">
-              <span>Athlete email</span>
-              <input id="inviteAthleteEmail" type="email" required autocomplete="off" />
-            </label>
-
-            <button class="button primary" type="submit">
-              Send invitation
-            </button>
-          </form>
-
-          <form id="coachBroadcastForm" class="panel form-panel">
-            <div>
-              <p class="eyebrow">Broadcast</p>
-              <h3>Message all athletes</h3>
-              <p class="muted small">
-                Sends the same message into every accepted athlete's thread
-                right now - the same as sending it to each one individually.
-              </p>
-            </div>
-
-            <label class="field">
-              <span>Message</span>
-              <textarea id="coachBroadcastBodyText" maxlength="4000" required></textarea>
-            </label>
-
-            <button class="button primary" type="submit">
-              Send to all athletes
-            </button>
-
-            <p id="coachBroadcastStatus" class="muted small" role="status" aria-live="polite" hidden></p>
-
-            <div id="coachBroadcastReadStatus" class="broadcast-read-status" hidden>
-              <div class="inline-controls">
-                <span id="coachBroadcastReadSummary" class="muted small"></span>
-                <button type="button" id="refreshBroadcastReadStatusButton" class="button secondary small-button">Refresh</button>
-              </div>
-              <ul id="coachBroadcastReadList" class="broadcast-read-list"></ul>
-            </div>
-          </form>
+          <div id="coach-broadcast-root"></div>
 
           <div class="two-column athlete-directory-layout">
-            <form id="connectAthleteForm" class="panel form-panel">
-              <div>
-                <p class="eyebrow">Relationship record</p>
-                <h3>Add athlete</h3>
-              </div>
-
-              <label class="field">
-                <span>Athlete name</span>
-                <input id="connectAthleteName" required maxlength="80" />
-              </label>
-
-              <label class="field">
-                <span>Athlete account code</span>
-                <input id="connectAthleteId" required autocomplete="off" />
-              </label>
-
-              <label class="field">
-                <span>Activity</span>
-                <select id="connectAthleteActivity">
-                  <option value="powerlifting">Powerlifting</option>
-                  <option value="general_strength">General strength</option>
-                  <option value="rugby_union">Rugby union</option>
-                </select>
-              </label>
-
-              <label class="field">
-                <span>Relationship state</span>
-                <select id="connectAthleteRelationshipState">
-                  <option value="accepted">Accepted connection</option>
-                  <option value="invited">Pending invitation</option>
-                </select>
-              </label>
-
-              <label id="connectAthleteExpiryField" class="field" hidden>
-                <span>Invitation expiry</span>
-                <input id="connectAthleteExpiry" type="date" />
-              </label>
-
-              <label class="check-line">
-                <input id="connectAthleteConsent" type="checkbox" required />
-                <span id="connectAthleteConsentText">
-                  The athlete supplied this code and accepted this connection.
-                </span>
-              </label>
-
-              <button class="button primary" type="submit">
-                Record relationship
-              </button>
-            </form>
+            <div id="connect-athlete-root"></div>
 
             <article class="panel athlete-directory-panel">
               <div class="panel-header">
@@ -657,50 +568,7 @@
             </article>
           </div>
 
-          <article
-            id="athleteRelationshipDetailPanel"
-            class="panel athlete-relationship-detail-panel"
-            hidden
-          >
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">Relationship audit</p>
-                <h3 id="athleteRelationshipDetailHeading">Relationship</h3>
-                <p id="athleteRelationshipDetailState" class="muted"></p>
-              </div>
-
-              <button
-                id="closeAthleteRelationshipDetailButton"
-                class="button secondary"
-                type="button"
-              >
-                Close audit
-              </button>
-            </div>
-
-            <dl
-              id="athleteRelationshipAuditFacts"
-              class="relationship-audit-grid"
-            ></dl>
-
-            <div class="relationship-detail-actions">
-              <button
-                id="athleteRelationshipProfileButton"
-                class="button secondary"
-                type="button"
-                hidden
-              >
-                Open training profile
-              </button>
-
-              <button
-                id="athleteRelationshipTransitionButton"
-                class="button danger"
-                type="button"
-                hidden
-              ></button>
-            </div>
-          </article>
+          <div id="athlete-relationship-detail-root"></div>
 
           <article id="athleteProfilePanel" class="panel athlete-profile-panel" hidden>
             <div class="panel-header athlete-profile-header">

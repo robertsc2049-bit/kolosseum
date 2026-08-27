@@ -18,6 +18,10 @@ const supportHook = read("public/app-src/screens/account/useAccountSupport.ts");
 const reviewHook = read("public/app-src/screens/coach/useCoachReview.ts");
 const invitationsPanel = read("public/app-src/screens/account/AccountCoachInvitationsPanel.tsx");
 const relationshipPanel = read("public/app-src/screens/account/AccountCoachRelationshipPanel.tsx");
+const inviteByEmailPanel = read("public/app-src/screens/coach/InviteAthleteByEmailPanel.tsx");
+const broadcastPanel = read("public/app-src/screens/coach/CoachBroadcastPanel.tsx");
+const connectAthletePanel = read("public/app-src/screens/coach/ConnectAthletePanel.tsx");
+const athleteRelationshipDetailPanel = read("public/app-src/screens/coach/AthleteRelationshipDetailPanel.tsx");
 
 test("every focusable control gets a visible keyboard-only focus ring, distinct from mouse-hover styling", () => {
   assert.match(
@@ -84,9 +88,12 @@ test("a form submit or button click cannot be repeated while its own async actio
   // acceptRelationshipInvitation/declineRelationshipInvitation/
   // endAthleteRelationship's button listeners each dropped one when those
   // panels moved to React (AccountCoachInvitationsPanel.tsx/
-  // AccountCoachRelationshipPanel.tsx).
+  // AccountCoachRelationshipPanel.tsx), and inviteAthleteByEmail/
+  // confirmSendCoachBroadcast dropped two more moving to
+  // InviteAthleteByEmailPanel.tsx/CoachBroadcastPanel.tsx (connectAthlete's
+  // own submit binding was never guardedAction-wrapped to begin with).
   const guardedCallCount = [...js.matchAll(/guardedAction\(/gu)].length - 1; // -1 for the function definition itself
-  assert.ok(guardedCallCount >= 6, `expected at least 6 guardedAction call sites, found ${guardedCallCount}`);
+  assert.ok(guardedCallCount >= 4, `expected at least 4 guardedAction call sites, found ${guardedCallCount}`);
 
   // saveAccountProfile/requestAccountVerificationCode/verifyAccountEmail/
   // saveAccountPassword/submitSupportReport/requestDataExportAction/
@@ -120,6 +127,13 @@ test("a form submit or button click cannot be repeated while its own async actio
   // endingId busy-flag matches the specific record being acted on.
   assert.match(invitationsPanel, /disabled=\{busy\}/u);
   assert.match(relationshipPanel, /disabled=\{endingId === relationshipId\}/u);
+
+  // Same guarantee for the coach's invite-by-email, broadcast and
+  // relationship-audit revoke/cancel forms, now React too.
+  assert.match(inviteByEmailPanel, /type="submit" disabled=\{submitting\}/u);
+  assert.match(broadcastPanel, /type="submit" disabled=\{submitting\}/u);
+  assert.match(connectAthletePanel, /type="submit" disabled=\{submitting\}/u);
+  assert.match(athleteRelationshipDetailPanel, /disabled=\{transitioning\}/u);
 });
 
 test("leaving a form with unsaved changes - a coach note or a programme draft - requires explicit confirmation, including on browser refresh/close", () => {
@@ -143,8 +157,13 @@ test("leaving a form with unsaved changes - a coach note or a programme draft - 
 });
 
 test("destructive or state-changing actions require an explicit confirmation before the request is sent", () => {
+  // transitionCoachRelationship's window.confirm() moved to React with it -
+  // see AthleteRelationshipDetailPanel.tsx below.
   const confirmCallCount = [...js.matchAll(/globalThis\.confirm\(|window\.confirm\(/gu)].length;
-  assert.ok(confirmCallCount >= 9, `expected at least 9 confirm() gates, found ${confirmCallCount}`);
+  assert.ok(confirmCallCount >= 8, `expected at least 8 confirm() gates, found ${confirmCallCount}`);
+
+  assert.match(athleteRelationshipDetailPanel, /window\.confirm\(/u);
+  assert.match(athleteRelationshipDetailPanel, /Historical records will be preserved/u);
 
   // Account closure and data-deletion use a stronger typed-word confirmation
   // rather than a dismissable browser confirm() dialog.

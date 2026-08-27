@@ -12,6 +12,12 @@ const routes = read("src/api/messaging.routes.ts");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
+// DEV NOTE: the broadcast form and its live read-by-N-of-M receipt moved to
+// React - see CoachBroadcastPanel.tsx/useCoachBroadcast.ts/
+// coachWorkspaceClient.ts's sendCoachBroadcast/loadBroadcastReadStatus.
+const broadcastPanel = read("public/app-src/screens/coach/CoachBroadcastPanel.tsx");
+const useCoachBroadcast = read("public/app-src/screens/coach/useCoachBroadcast.ts");
+const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -51,13 +57,14 @@ test("no coach-broadcast file imports any engine-truth service", () => {
 });
 
 test("the coach workspace has a real broadcast control wired to the route", () => {
-  assert.match(indexHtml, /id="coachBroadcastForm"/u);
-  assert.match(indexHtml, /id="coachBroadcastBodyText"/u);
+  assert.match(indexHtml, /id="coach-broadcast-root"/u);
+  assert.doesNotMatch(indexHtml, /id="coachBroadcastForm"/u);
 
-  assert.match(appJs, /coachBroadcastForm: document\.getElementById\("coachBroadcastForm"\)/u);
-  assert.match(appJs, /async function confirmSendCoachBroadcast/u);
-  assert.match(appJs, /"\/messages\/coach\/broadcast"/u);
-  assert.match(appJs, /elements\.coachBroadcastForm\.addEventListener\("submit"/u);
+  assert.match(broadcastPanel, /export function CoachBroadcastPanel/u);
+  assert.match(broadcastPanel, /useCoachBroadcast/u);
+  assert.match(coachWorkspaceClient, /export function sendCoachBroadcast/u);
+  assert.match(coachWorkspaceClient, /"\/messages\/coach\/broadcast"/u);
+  assert.match(useCoachBroadcast, /sendCoachBroadcast\(trimmed, csrfToken\)/u);
 });
 
 test("every fan-out send in one broadcast shares the same server-generated client_request_id, turning it into a free broadcast_id - never client-supplied, never a new column", () => {
@@ -81,15 +88,17 @@ test("the read-status route is mounted read-only under the coach broadcast prefi
 });
 
 test("the coach workspace shows a live read-by-N-of-M receipt after sending a broadcast, with a manual refresh control", () => {
-  assert.match(indexHtml, /id="coachBroadcastReadStatus"/u);
-  assert.match(indexHtml, /id="coachBroadcastReadSummary"/u);
-  assert.match(indexHtml, /id="refreshBroadcastReadStatusButton"/u);
+  assert.match(broadcastPanel, /Read by \{readStatus\.readCount\} of \{readStatus\.sentCount\}/u);
+  assert.match(broadcastPanel, />\s*Refresh\s*<\/button>/u);
 
-  assert.match(appJs, /async function refreshBroadcastReadStatus/u);
-  assert.match(appJs, /function renderBroadcastReadStatus/u);
-  assert.match(appJs, /\/messages\/coach\/broadcasts\/\$\{encodeURIComponent\(state\.lastBroadcastId\)\}\/read-status/u);
-  assert.match(appJs, /elements\.refreshBroadcastReadStatusButton\?\.addEventListener\("click"/u);
-  assert.match(appJs, /escapeHtml\(broadcastAthleteName\(entry\.athlete_user_id\)\)/u);
+  assert.match(coachWorkspaceClient, /export function loadBroadcastReadStatus/u);
+  assert.match(coachWorkspaceClient, /\/messages\/coach\/broadcasts\/\$\{encodeURIComponent\(broadcastId\)\}\/read-status/u);
+  assert.match(useCoachBroadcast, /refreshReadStatus/u);
+  // Athlete display names for the read list are resolved via an
+  // independent relationships fetch (React never reads legacy's
+  // state.coachAthletes) - JSX escapes rendered text by default, so there's
+  // no equivalent escapeHtml call to assert on here.
+  assert.match(useCoachBroadcast, /loadCoachRelationships/u);
 });
 
 test("the FULL-UI-66 manifest function is declared as implemented with real tests inside the existing messaging area", () => {

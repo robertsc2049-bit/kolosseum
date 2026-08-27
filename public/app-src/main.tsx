@@ -23,6 +23,7 @@ import { AthleteSelfWeeklyCheckinsPanel } from "./screens/athlete/AthleteSelfWee
 import { AthleteSessionExecutionPanel } from "./screens/athlete/AthleteSessionExecutionPanel";
 import { AthleteTodayCreateSessionButton, AthleteTodayEventCard, AthleteTodaySessionCard } from "./screens/athlete/AthleteTodayPanel";
 import { AthleteDirectoryPanel } from "./screens/coach/AthleteDirectoryPanel";
+import { AthleteRelationshipDetailPanel } from "./screens/coach/AthleteRelationshipDetailPanel";
 import {
   AthleteAssignmentHistoryList,
   AthleteBodyweightHistoryList,
@@ -47,7 +48,10 @@ import { CoachEventsListPanel, CoachEventsMetricCards } from "./screens/coach/Co
 import { CoachMarketplacePanel } from "./screens/coach/CoachMarketplacePanel";
 import { CoachReviewPanel } from "./screens/coach/CoachReviewPanel";
 import { CoachVideoFeedbackQueuePanel } from "./screens/coach/CoachVideoFeedbackQueuePanel";
+import { CoachBroadcastPanel } from "./screens/coach/CoachBroadcastPanel";
 import { CoachOverviewEventsPanel } from "./screens/coach/CoachOverviewEventsPanel";
+import { ConnectAthletePanel } from "./screens/coach/ConnectAthletePanel";
+import { InviteAthleteByEmailPanel } from "./screens/coach/InviteAthleteByEmailPanel";
 
 // DEV NOTE: mounts once at script load into divs that always exist in
 // public/app/index.html (which the legacy router shows/hides unchanged -
@@ -89,6 +93,10 @@ mount("athlete-history-bodyweight-root", <AthleteBodyweightHistoryList />);
 mount("athlete-history-event-link-root", <AthleteEventLinkHistoryList />);
 mount("athlete-history-session-root", <AthleteSessionHistoryList />);
 mount("athlete-directory-root", <AthleteDirectoryPanel />);
+mount("invite-athlete-root", <InviteAthleteByEmailPanel />);
+mount("coach-broadcast-root", <CoachBroadcastPanel />);
+mount("connect-athlete-root", <ConnectAthletePanel />);
+mount("athlete-relationship-detail-root", <AthleteRelationshipDetailPanel />);
 mount("coach-overview-events-root", <CoachOverviewEventsPanel />);
 mount("coach-events-metrics-root", <CoachEventsMetricCards />);
 mount("coach-events-list-root", <CoachEventsListPanel />);

@@ -162,6 +162,33 @@ export async function loadCoachMessageUnreadCounts(): Promise<Record<string, num
   return byAthlete;
 }
 
+// DEV NOTE: FULL-UI-24 lawful, non-opaque-ID invitation - the coach's side
+// of the invite/accept flow whose athlete-side half
+// (accountRelationshipsClient.ts's loadPendingRelationshipInvitations/
+// accept/decline) shipped in the previous slice. Ported from app.js's
+// (removed) inviteAthleteByEmail().
+export function inviteAthleteByEmail(athleteEmail: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/coach-workspace/relationship-invitations", { athlete_email: athleteEmail }, csrfToken);
+}
+
+export function sendCoachBroadcast(bodyText: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/messages/coach/broadcast", { body_text: bodyText }, csrfToken);
+}
+
+export function loadBroadcastReadStatus(broadcastId: string): Promise<JsonRecord> {
+  return request("GET", `/messages/coach/broadcasts/${encodeURIComponent(broadcastId)}/read-status`);
+}
+
+// DEV NOTE: an older "beta" route (predates the /coach-workspace family) -
+// a single upsert-shaped record covering relationship creation (manual
+// "Add athlete" connect form) AND the audit panel's revoke/cancel
+// transition, matching legacy's connectAthlete()/
+// transitionCoachRelationship(), both of which built this same payload
+// shape by hand and posted it here.
+export function upsertCoachRelationship(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/sessions/beta-coach-relationship", input, csrfToken);
+}
+
 export type OrgMessageThreadEntry = { thread: JsonRecord; messages: JsonRecord[] };
 
 // DEV NOTE: read-only mirror of an org-owner<->athlete thread - see
