@@ -1,4 +1,4 @@
-name: REG-FULL-01 generated failure-token artifact
+name: REG-FULL-01 generated proof outputs
 
 on:
   push:
@@ -23,22 +23,33 @@ jobs:
         run: npm ci
       - name: Generate failure-token index
         run: node ci/scripts/run_failure_token_index_guard.mjs --write
-      - name: Verify generated failure-token index
+      - name: Verify failure-token index
         run: node ci/scripts/run_failure_token_index_guard.mjs
-      - name: Commit generated failure-token index
+      - name: Generate guard index
+        run: npm run guard:index
+      - name: Verify guard index
+        run: node ci/guards/guards_index_guard.mjs
+      - name: Generate checksums
+        run: node ci/scripts/write_checksums.mjs --write
+      - name: Verify checksums
+        run: node ci/scripts/write_checksums.mjs --check
+      - name: Commit generated proof outputs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- docs/dev/FAILURE_TOKEN_INDEX.md
+          git add -- docs/dev/FAILURE_TOKEN_INDEX.md docs/GUARDS_INDEX.md docs/checksums.sha256 spine/BETA_ARTEFACT_MANIFEST.json
           if git diff --cached --quiet; then
-            echo "Failure-token index already current."
+            echo "Generated proof outputs already current."
             exit 0
           fi
-          git commit -m "chore(ci): regenerate failure-token index"
+          git commit -m "chore(ci): regenerate REG-FULL-01 proof outputs"
           git push origin HEAD:automation/reg-full-01-registry-schema-closure
-      - name: Upload generated failure-token index
+      - name: Upload generated proof outputs
         uses: actions/upload-artifact@v4
         with:
-          name: reg-full-01-failure-token-index
-          path: docs/dev/FAILURE_TOKEN_INDEX.md
+          name: reg-full-01-generated-proof
+          path: |
+            docs/dev/FAILURE_TOKEN_INDEX.md
+            docs/GUARDS_INDEX.md
+            docs/checksums.sha256
           if-no-files-found: error
