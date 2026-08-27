@@ -20,11 +20,14 @@ const lifecycle = read("src/api/product_assignment.routes.ts");
 // twin (assignmentCurrentState/assignmentHistoryList/assignmentCancelButton/
 // recordAssignment()/cancelAssignmentForAthlete()) is deleted outright -
 // it was never reachable (no nav button, no route, no data-view="assign"
-// trigger). The shared assignmentHistoryCards/renderAssignmentCurrent/
-// renderAssignmentLifecycleSurfaces stay in app.js, since
-// refreshCoachAssignments() (live) still calls the last one and Coach
-// Dashboard reads state.coachAssignments directly - see app.js's own
-// DEV NOTE where the dead view used to be.
+// trigger). assignmentHistoryCards/renderAssignmentCurrent/
+// renderAssignmentLifecycleSurfaces (and the plain-data helpers only they
+// used - assignmentRecordsForAthlete/currentAssignmentForAthlete/
+// assignmentTemplateRecord/Name/Version/assignmentStateBadge) are gone too:
+// refreshCoachAssignments()'s render call was their only remaining live
+// caller once both DOM twins it targeted were deleted, so the whole cluster
+// had zero observable effect - see app.js's own DEV NOTE at the former
+// #view-assign site.
 const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
 const assignmentHook = read("public/app-src/screens/coach/useAthleteProfileAssignment.ts");
 
@@ -34,9 +37,8 @@ test("FULL-UI-06 exposes current assignment and immutable history controls", () 
   assert.doesNotMatch(html, /id="view-assign"/u);
   assert.doesNotMatch(html, /id="assignmentCurrentState"/u);
 
-  assert.match(application, /function renderAssignmentLifecycleSurfaces\(/u);
-  assert.match(application, /function assignmentHistoryCards\(/u);
-  assert.match(application, /assignmentStateBadge/u);
+  assert.doesNotMatch(application, /function renderAssignmentLifecycleSurfaces\(/u);
+  assert.doesNotMatch(application, /function assignmentHistoryCards\(/u);
 
   assert.match(assignmentPanel, /Current assignment/u);
   assert.match(assignmentPanel, /Assignment history/u);

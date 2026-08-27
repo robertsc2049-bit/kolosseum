@@ -7,8 +7,8 @@ import { type AssignmentEntry, useAthleteProfileAssignment } from "./useAthleteP
 // DEV NOTE: ported from index.html's #athleteAssignmentPanel ("Programme
 // assignment / Assign from athlete profile"). See
 // useAthleteProfileAssignment.ts for the eligibility-check and mutation
-// logic, and its DEV NOTE for the still-dead standalone #view-assign twin
-// this deliberately leaves untouched.
+// logic. The standalone #view-assign twin this superseded, and the legacy
+// render helpers it shared with it, are gone from app.js entirely now.
 
 function assignmentStateBadgeClass(status: string): string {
   if (status === "cancelled") return "warning";

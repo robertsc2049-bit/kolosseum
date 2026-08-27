@@ -2338,7 +2338,6 @@ async function refreshCoachAssignments(options = {}) {
       .filter((assignment) => assignment.assignmentId);
 
     saveState();
-    renderAssignmentLifecycleSurfaces();
     return state.coachAssignments;
   }
   finally {
@@ -3138,11 +3137,12 @@ function exerciseDisplayName(exerciseId) {
 // rather than requiredOneRmExerciseIds. exerciseDisplayName above stays -
 // the still-legacy programme-builder preview (below) also calls it.
 // assignmentRecordsForAthlete/currentAssignmentForAthlete/
-// assignmentTemplateName/Version/assignmentStateBadge/
-// assignmentHistoryCards/renderAssignmentCurrent/
-// renderAssignmentLifecycleSurfaces stay too - refreshCoachAssignments()
-// (still live) calls the last one, and Coach Dashboard reads
-// state.coachAssignments directly.
+// assignmentTemplateRecord/assignmentTemplateName/Version/
+// assignmentStateBadge/assignmentHistoryCards/renderAssignmentCurrent/
+// renderAssignmentLifecycleSurfaces are gone too - refreshCoachAssignments()
+// was their only remaining live caller and no longer calls them;
+// state.coachAssignments (which it still populates) is read directly by
+// the React AthleteProfileAssignmentPanel and by the Coach Dashboard.
 
 function coachAthleteCard(athlete) {
   const assignments = state.coachAssignments.filter(
@@ -4003,155 +4003,6 @@ function renderCoachWorkspace() {
     state.athleteProfileDraft
   ) {
     renderAthleteProfileEditor();
-  }
-}
-
-// FULL-UI-06 immutable assignment lifecycle presentation.
-// This surface displays persisted assignment actions and never changes engine truth.
-function assignmentRecordsForAthlete(athleteUserId) {
-  return state.coachAssignments
-    .filter((assignment) => assignment.athleteUserId === String(athleteUserId ?? ""))
-    .sort((left, right) => String(right.recordedAt ?? "").localeCompare(String(left.recordedAt ?? "")));
-}
-
-function currentAssignmentForAthlete(athleteUserId) {
-  const records = assignmentRecordsForAthlete(athleteUserId);
-  return records.find((assignment) => assignment.isCurrent === true) ??
-    (records[0]?.assignmentStatus === "assigned" ? records[0] : null);
-}
-
-function assignmentTemplateRecord(assignment) {
-  return state.coachTemplates.find(
-    (template) => String(template.template_id ?? "") === String(assignment?.templateId ?? assignment?.record?.template_id ?? "")
-  ) ?? null;
-}
-
-function assignmentTemplateName(assignment) {
-  return String(
-    assignment?.templateName ??
-    assignment?.record?.template_name ??
-    assignmentTemplateRecord(assignment)?.template_name ??
-    assignment?.templateId ??
-    "Programme"
-  );
-}
-
-function assignmentTemplateVersion(assignment) {
-  return Number(
-    assignment?.templateVersion ??
-    assignment?.record?.template_version ??
-    assignmentTemplateRecord(assignment)?.template_version ??
-    0
-  );
-}
-
-function assignmentStateBadge(status) {
-  const stateValue = String(status ?? "assigned");
-  if (stateValue === "cancelled") return '<span class="badge warning">Cancelled</span>';
-  if (stateValue === "replaced") return '<span class="badge neutral">Replaced</span>';
-  return '<span class="badge complete">Current</span>';
-}
-
-function assignmentHistoryCards(athleteUserId) {
-  const records = assignmentRecordsForAthlete(athleteUserId);
-
-  if (records.length === 0) {
-    return `
-      <div class="empty-state compact-empty">
-        <h4>No assignment history</h4>
-        <p>Programme assignments will appear here after they are recorded.</p>
-      </div>
-    `;
-  }
-
-  return records.map((assignment) => {
-    const eventId = String(assignment.eventId ?? assignment.record?.event_id ?? "");
-    const eventRecord = state.coachEvents.find((candidate) => String(candidate.event_id ?? "") === eventId);
-    const eventPlan = coachEventPlan(eventRecord);
-    const preserved = Number(assignment.preservedSessionCount ?? assignment.record?.preserved_session_count ?? 0);
-
-    return `
-      <article class="record-card assignment-history-card" data-assignment-id="${escapeHtml(assignment.assignmentId)}">
-        <div>
-          <h4>${escapeHtml(assignmentTemplateName(assignment))}</h4>
-          <p>${escapeHtml(titleCase(assignment.activityId || assignment.record?.activity_id || "training"))} · ${escapeHtml(formatDate(assignment.recordedAt))}</p>
-          <p class="muted small">Assignment ${escapeHtml(assignment.assignmentId)}</p>
-          ${eventPlan?.event_name
-            ? `<p class="assignment-event-fact"><strong>Event:</strong> ${escapeHtml(eventPlan.event_name)} · ${escapeHtml(formatDate(eventPlan.event_date))}</p>`
-            : '<p class="assignment-event-fact muted"><strong>Event:</strong> No event link</p>'}
-          ${preserved > 0
-            ? `<p class="muted small">${preserved} prior session${preserved === 1 ? "" : "s"} preserved.</p>`
-            : ""}
-        </div>
-        <div class="record-meta">
-          ${assignmentStateBadge(assignment.assignmentStatus)}
-          <span class="badge neutral">Version ${assignmentTemplateVersion(assignment)}</span>
-        </div>
-      </article>
-    `;
-  }).join("");
-}
-
-function renderAssignmentCurrent(container, athleteUserId) {
-  if (!container) return;
-  const current = currentAssignmentForAthlete(athleteUserId);
-
-  container.innerHTML = current
-    ? `
-      <article class="record-card assignment-current-card">
-        <div>
-          <p class="eyebrow">Current assignment</p>
-          <h4>${escapeHtml(assignmentTemplateName(current))}</h4>
-          <p>${escapeHtml(titleCase(current.activityId || "training"))} · Version ${assignmentTemplateVersion(current)}</p>
-          <p class="muted small">Assigned ${escapeHtml(formatDate(current.recordedAt))}</p>
-        </div>
-        <span class="badge complete">Assigned</span>
-      </article>
-    `
-    : `
-      <div class="empty-state compact-empty">
-        <p>No current programme assignment.</p>
-      </div>
-    `;
-}
-
-function renderAssignmentLifecycleSurfaces() {
-  const profileAthleteId = state.selectedCoachAthleteId;
-  const workspaceAthleteId = elements.assignmentAthlete?.value ?? "";
-  const profileCurrent = currentAssignmentForAthlete(profileAthleteId);
-  const workspaceCurrent = currentAssignmentForAthlete(workspaceAthleteId);
-
-  renderAssignmentCurrent(elements.athleteAssignmentCurrent, profileAthleteId);
-  renderAssignmentCurrent(elements.assignmentCurrentState, workspaceAthleteId);
-
-  if (elements.athleteAssignmentHistory) {
-    elements.athleteAssignmentHistory.innerHTML = assignmentHistoryCards(profileAthleteId);
-  }
-
-  if (elements.assignmentHistoryList) {
-    elements.assignmentHistoryList.innerHTML = assignmentHistoryCards(workspaceAthleteId);
-  }
-
-  if (elements.athleteAssignmentButton) {
-    elements.athleteAssignmentButton.textContent = profileCurrent
-      ? "Replace assignment"
-      : "Assign programme";
-  }
-
-  if (elements.assignmentSubmitButton) {
-    elements.assignmentSubmitButton.textContent = workspaceCurrent
-      ? "Replace assignment"
-      : "Record assignment";
-  }
-
-  if (elements.athleteAssignmentCancelButton) {
-    elements.athleteAssignmentCancelButton.hidden = !profileCurrent;
-    elements.athleteAssignmentCancelButton.disabled = !profileCurrent;
-  }
-
-  if (elements.assignmentCancelButton) {
-    elements.assignmentCancelButton.hidden = !workspaceCurrent;
-    elements.assignmentCancelButton.disabled = !workspaceCurrent;
   }
 }
 
@@ -8404,13 +8255,7 @@ async function createCoachEvent(event) {
 // renderAthleteProfileAssignment, recordAthleteProfileAssignment) moved to
 // React - see public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx
 // and useAthleteProfileAssignment.ts, mounted into
-// #athlete-profile-assignment-root. The shared helpers below
-// (assignmentRecordsForAthlete/currentAssignmentForAthlete/
-// assignmentTemplateName etc., renderAssignmentLifecycleSurfaces,
-// cancelAssignmentForAthlete) stay here untouched - the standalone,
-// unreachable #view-assign twin still calls them (harmlessly, since its own
-// elements.assignment* targets are real but never-shown DOM), and Coach
-// Dashboard reads the same state.coachAssignments they populate.
+// #athlete-profile-assignment-root.
 
 function currentTermsAvailable() {
   return Boolean(
