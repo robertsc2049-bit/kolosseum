@@ -6,7 +6,7 @@ on:
       - automation/reg-full-01-registry-schema-closure
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate:
@@ -25,6 +25,17 @@ jobs:
         run: node ci/scripts/run_failure_token_index_guard.mjs --write
       - name: Verify generated failure-token index
         run: node ci/scripts/run_failure_token_index_guard.mjs
+      - name: Commit generated failure-token index
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- docs/dev/FAILURE_TOKEN_INDEX.md
+          if git diff --cached --quiet; then
+            echo "Failure-token index already current."
+            exit 0
+          fi
+          git commit -m "chore(ci): regenerate failure-token index"
+          git push origin HEAD:automation/reg-full-01-registry-schema-closure
       - name: Upload generated failure-token index
         uses: actions/upload-artifact@v4
         with:
