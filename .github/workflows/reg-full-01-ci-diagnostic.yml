@@ -43,7 +43,6 @@ jobs:
 
           path = Path('engine/src/registries/loadExerciseEntries.ts')
           text = path.read_text(encoding='utf-8')
-
           anchor = '''function isRecord(v: unknown): v is Record<string, unknown> {\n  return !!v && typeof v === "object" && !Array.isArray(v);\n}\n'''
           helper = '''function isRecord(v: unknown): v is Record<string, unknown> {\n  return !!v && typeof v === "object" && !Array.isArray(v);\n}\n\nfunction canonicalStringArray(v: unknown): string[] | undefined {\n  if (!Array.isArray(v) || !v.every((item) => typeof item === "string")) return undefined;\n  return [...v];\n}\n\nfunction projectCanonicalExerciseSignature(value: unknown, fallbackId?: string): ExerciseSignature | null {\n  if (!isRecord(value)) return null;\n\n  const exerciseId = typeof value.exercise_id === "string" && value.exercise_id.trim()\n    ? value.exercise_id.trim()\n    : String(fallbackId ?? "").trim();\n  if (!exerciseId) return null;\n\n  const movementPatternId = typeof value.movement_pattern_id === "string" && value.movement_pattern_id.trim()\n    ? value.movement_pattern_id.trim()\n    : undefined;\n  const stimulusIntent = typeof value.stimulus_intent === "string" && value.stimulus_intent.trim()\n    ? value.stimulus_intent.trim()\n    : undefined;\n  const equipmentRequirements = canonicalStringArray(value.equipment_requirements);\n  const jointStressTags = canonicalStringArray(value.joint_stress_tags);\n\n  // Registry vocabulary remains canonical. Phase 4/5 consumes an internal\n  // ExerciseSignature projection, so translate once at the loader boundary\n  // rather than reintroducing legacy registry fields or dual-reading them.\n  return {\n    ...value,\n    exercise_id: exerciseId,\n    ...(movementPatternId ? { pattern: movementPatternId } : {}),\n    ...(stimulusIntent ? { stimulus: stimulusIntent } : {}),\n    ...(equipmentRequirements ? { equipment_ids: equipmentRequirements } : {}),\n    ...(jointStressTags ? { joint_stress_tags: jointStressTags } : {})\n  } as ExerciseSignature;\n}\n'''
           if 'function projectCanonicalExerciseSignature' not in text:
@@ -57,7 +56,6 @@ jobs:
               text = text.replace(old_object, new_object, 1)
           elif new_object not in text:
               raise SystemExit('Preferred exercise-registry loader block not found.')
-
           path.write_text(text, encoding='utf-8')
 
           test_path = Path('test/registry_exercise_entries.test.mjs')
@@ -70,6 +68,13 @@ jobs:
               raise SystemExit('Exercise registry loader test anchor not found.')
           test_path.write_text(test_text, encoding='utf-8')
           PY
+      - name: Create local candidate commit
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- engine/src/registries/loadExerciseEntries.ts test/registry_exercise_entries.test.mjs
+          git commit -m "fix(engine): project canonical exercise fields for substitution"
       - name: Prove registry-to-engine projection repair
         shell: bash
         run: |
@@ -77,15 +82,5 @@ jobs:
           node --test test/registry_exercise_entries.test.mjs
           node --test --test-name-pattern="banned_equipment" test/e2e_ticket011_actionable_constraints_substitution.test.mjs
           npm run e2e:golden
-      - name: Commit proven projection repair
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- engine/src/registries/loadExerciseEntries.ts test/registry_exercise_entries.test.mjs
-          if git diff --cached --quiet; then
-            echo "Projection repair already committed."
-            exit 0
-          fi
-          git commit -m "fix(engine): project canonical exercise fields for substitution"
-          git push origin HEAD:automation/reg-full-01-registry-schema-closure
+      - name: Push proven projection repair
+        run: git push origin HEAD:automation/reg-full-01-registry-schema-closure
