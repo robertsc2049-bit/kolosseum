@@ -1,0 +1,33 @@
+name: REG-FULL-01 generated failure-token artifact
+
+on:
+  push:
+    branches:
+      - automation/reg-full-01-registry-schema-closure
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 25.9.0
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Generate failure-token index
+        run: node ci/scripts/run_failure_token_index_guard.mjs --write
+      - name: Verify generated failure-token index
+        run: node ci/scripts/run_failure_token_index_guard.mjs
+      - name: Upload generated failure-token index
+        uses: actions/upload-artifact@v4
+        with:
+          name: reg-full-01-failure-token-index
+          path: docs/dev/FAILURE_TOKEN_INDEX.md
+          if-no-files-found: error
