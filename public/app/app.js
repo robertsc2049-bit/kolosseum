@@ -3951,7 +3951,7 @@ function renderAssignmentRequirements() {
   const profile = profileForAthlete(athlete.userId);
   if (!profile) {
     elements.assignmentRequirements.className = "assignment-requirements warning";
-    elements.assignmentRequirements.innerHTML = `Athlete profile required. Add 1RM references for: <strong>${required.map(exerciseDisplayName).map(escapeHtml).join(", ")}</strong>.`;
+    elements.assignmentRequirements.innerHTML = `Athlete profile required. Add 1RM references for: <strong>${required.map((exerciseId) => escapeHtml(exerciseDisplayName(exerciseId))).join(", ")}</strong>.`;
     elements.assignmentSubmitButton.disabled = true;
     return false;
   }
@@ -3961,7 +3961,7 @@ function renderAssignmentRequirements() {
 
   if (missing.length > 0) {
     elements.assignmentRequirements.className = "assignment-requirements warning";
-    elements.assignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map(exerciseDisplayName).map(escapeHtml).join(", ")}</strong>.`;
+    elements.assignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map((exerciseId) => escapeHtml(exerciseDisplayName(exerciseId))).join(", ")}</strong>.`;
     elements.assignmentSubmitButton.disabled = true;
     return false;
   }
@@ -9516,7 +9516,7 @@ function renderAthleteProfileAssignmentRequirements() {
 
   if (missing.length > 0) {
     elements.athleteAssignmentRequirements.className = "assignment-requirements warning";
-    elements.athleteAssignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map(exerciseDisplayName).map(escapeHtml).join(", ")}</strong>.`;
+    elements.athleteAssignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map((exerciseId) => escapeHtml(exerciseDisplayName(exerciseId))).join(", ")}</strong>.`;
     elements.athleteAssignmentButton.disabled = true;
     return false;
   }
