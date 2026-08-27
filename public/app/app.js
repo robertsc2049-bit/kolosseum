@@ -29,7 +29,6 @@ const DEFAULT_STATE = Object.freeze({
   view: "today",
   coachAthletes: [],
   coachRelationships: [],
-  coachMessageUnreadByAthlete: {},
   coachAssignments: [],
   coachEvents: [],
   standaloneEventLibrary: [],
@@ -69,7 +68,6 @@ const DEFAULT_STATE = Object.freeze({
   serverAccount: null,
   accountDetail: null,
   currentTerms: null,
-  liveMessageThreadId: null,
   athleteOrgMessageThreads: [],
   athleteOrgContexts: [],
   coachOrgContexts: []
@@ -188,12 +186,6 @@ const elements = {
   athleteDetailNoteText: document.getElementById("athleteDetailNoteText"),
   athleteDetailNoteVisibility: document.getElementById("athleteDetailNoteVisibility"),
   athleteDetailNoteCancelButton: document.getElementById("athleteDetailNoteCancelButton"),
-  athleteDetailMessageHistory: document.getElementById("athleteDetailMessageHistory"),
-  athleteDetailMessageButton: document.getElementById("athleteDetailMessageButton"),
-  athleteDetailMessageForm: document.getElementById("athleteDetailMessageForm"),
-  athleteDetailMessageText: document.getElementById("athleteDetailMessageText"),
-  athleteDetailMessageAttachment: document.getElementById("athleteDetailMessageAttachment"),
-  athleteDetailMessageCancelButton: document.getElementById("athleteDetailMessageCancelButton"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -437,9 +429,6 @@ function loadState() {
       coachAthletes: Array.isArray(parsed.coachAthletes) ? parsed.coachAthletes : [],
       coachAssignments: Array.isArray(parsed.coachAssignments) ? parsed.coachAssignments : [],
       coachEvents: Array.isArray(parsed.coachEvents) ? parsed.coachEvents : [],
-      coachMessageUnreadByAthlete: parsed.coachMessageUnreadByAthlete && typeof parsed.coachMessageUnreadByAthlete === "object"
-        ? parsed.coachMessageUnreadByAthlete
-        : {},
       coachAthleteProgressPhotoCompareIds: Array.isArray(parsed.coachAthleteProgressPhotoCompareIds)
         ? parsed.coachAthleteProgressPhotoCompareIds.slice(0, 2)
         : [],
@@ -1744,13 +1733,6 @@ async function createSession() {
   }
 }
 
-function newClientRequestId() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return `crid_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-}
-
 // DEV NOTE: FULL-UI-15C session execution moved to React (see
 // public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx/
 // useAthleteSessionExecution.ts) - it independently fetches this same
@@ -2250,39 +2232,11 @@ function openAthleteRelationshipDetail(athleteUserId) {
 }
 
 
-function coachMessageUnreadCountFor(athleteUserId) {
-  const byAthlete = state.coachMessageUnreadByAthlete;
-  if (!athleteUserId || !byAthlete || typeof byAthlete !== "object") return 0;
-  return Number(byAthlete[athleteUserId]) || 0;
-}
-
-// A lightweight threads-list-only fetch - deliberately never drills into
-// a specific thread's messages (that happens in
-// refreshCoachAthleteMessages, on the athlete's own profile page, and IS
-// what marks a thread read server-side). Keeping this call separate
-// means the directory's unread badges stay accurate until the coach
-// actually opens that athlete's profile.
-async function refreshCoachMessageUnreadCounts(options = {}) {
-  if (state.role !== "coach") return {};
-
-  try {
-    const response = await api("GET", "/messages/coach/threads");
-    const threads = Array.isArray(response.threads) ? response.threads : [];
-    const byAthlete = {};
-    for (const thread of threads) {
-      if (thread.athlete_user_id) {
-        byAthlete[thread.athlete_user_id] = Number(thread.unread_count) || 0;
-      }
-    }
-    state.coachMessageUnreadByAthlete = byAthlete;
-    return byAthlete;
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-    return state.coachMessageUnreadByAthlete ?? {};
-  }
-}
-
+// DEV NOTE: the coach directory's unread-message badge (coachMessageUnreadCountFor/
+// refreshCoachMessageUnreadCounts) moved to React with the directory itself
+// - see useAthleteDirectory.ts, which independently fetches
+// loadCoachMessageUnreadCounts() from the same GET /messages/coach/threads
+// route via public/app-src/api/coachWorkspaceClient.ts.
 async function refreshCoachAthletes(options = {}) {
   if (state.role !== "coach") return [];
 
@@ -2301,8 +2255,7 @@ async function refreshCoachAthletes(options = {}) {
         ),
         refreshCoachRelationships({
           quiet: true
-        }),
-        refreshCoachMessageUnreadCounts({ quiet: true })
+        })
       ]);
 
     const existingById =
@@ -2995,82 +2948,6 @@ async function recordAthleteDetailNote(
   }
 }
 
-const ATTACHMENT_MAX_IMAGE_BYTES = 10 * 1024 * 1024;
-const ATTACHMENT_MAX_VIDEO_BYTES = 50 * 1024 * 1024;
-const ATTACHMENT_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const ATTACHMENT_VIDEO_TYPES = ["video/mp4", "video/quicktime"];
-
-// Fast feedback only - never the actual security boundary, which is the
-// server's own content-sniffed validation (message_attachment_storage.ts).
-function validateAttachmentClientSide(file) {
-  if (!file) return null;
-  const isImage = ATTACHMENT_IMAGE_TYPES.includes(file.type);
-  const isVideo = ATTACHMENT_VIDEO_TYPES.includes(file.type);
-  if (!isImage && !isVideo) {
-    return "That file type isn't supported. Use a JPEG/PNG/WEBP photo or an MP4/MOV video.";
-  }
-  const maxBytes = isImage ? ATTACHMENT_MAX_IMAGE_BYTES : ATTACHMENT_MAX_VIDEO_BYTES;
-  if (file.size > maxBytes) {
-    return isImage ? "Photos must be 10MB or smaller." : "Videos must be 50MB or smaller.";
-  }
-  return null;
-}
-
-// api() (above) always JSON.stringify's the body - it can't send
-// multipart/form-data. This is the one send path that needs a raw fetch
-// instead, mirroring api()'s own CSRF/credentials handling by hand.
-async function sendMessageRequest(path, bodyText, attachmentFile) {
-  if (!attachmentFile) {
-    return api("POST", path, { body_text: bodyText, client_request_id: newClientRequestId() });
-  }
-
-  const formData = new FormData();
-  formData.append("body_text", bodyText);
-  formData.append("client_request_id", newClientRequestId());
-  formData.append("attachment", attachmentFile);
-
-  const response = await fetch(path, {
-    method: "POST",
-    credentials: "same-origin",
-    headers: { "x-kolosseum-csrf": String(state.csrfToken ?? "") },
-    body: formData
-  });
-
-  const payload = await readJson(response);
-  if (!response.ok) {
-    const error = new Error(friendlyError(payload, response.status));
-    error.payload = payload;
-    error.status = response.status;
-    error.requestMethod = "POST";
-    error.requestPath = path;
-    throw error;
-  }
-  return payload;
-}
-
-function formatAttachmentSize(bytes) {
-  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes <= 0) return "";
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function renderMessageAttachment(attachment) {
-  if (!attachment) return "";
-  const sizeLabel = formatAttachmentSize(attachment.byte_size);
-  const sizeCaption = sizeLabel ? `<p class="message-attachment-size muted">${escapeHtml(sizeLabel)}</p>` : "";
-  if (attachment.media_type === "image") {
-    return `<img class="message-attachment-image" src="${escapeHtml(attachment.url)}" alt="Attached photo" loading="lazy">${sizeCaption}`;
-  }
-  return `
-    <video class="message-attachment-video" controls preload="metadata"
-      ${attachment.thumbnail_url ? `poster="${escapeHtml(attachment.thumbnail_url)}"` : ""}>
-      <source src="${escapeHtml(attachment.url)}">
-    </video>
-    ${sizeCaption}
-  `;
-}
-
 // DEV NOTE: the athlete's own progress-photo upload/history/compare panel
 // moved to React (AthleteSelfProgressPhotosPanel.tsx into
 // #athlete-self-progress-photos-root - see useAthleteProgressPhotosSelf.ts,
@@ -3170,112 +3047,13 @@ function renderMessageAttachment(attachment) {
 // legacy state, and its card never renders a Disconnect control since a
 // coach has no route to take that action.
 
-async function refreshCoachAthleteMessages(athleteUserId, options = {}) {
-  if (!athleteUserId || !elements.athleteDetailMessageHistory) return;
-
-  try {
-    const response = await api("GET", "/messages/coach/threads");
-    const threads = Array.isArray(response.threads) ? response.threads : [];
-    const thread = threads.find((entry) => entry.athlete_user_id === athleteUserId) ?? null;
-
-    if (!thread) {
-      state.liveMessageThreadId = null;
-      state.coachAthleteMessages = [];
-      renderCoachAthleteMessages();
-      return;
-    }
-
-    state.liveMessageThreadId = thread.thread_id;
-    const messagesResponse = await api(
-      "GET",
-      `/messages/coach/threads/${encodeURIComponent(thread.thread_id)}`
-    );
-    state.coachAthleteMessages = Array.isArray(messagesResponse.messages) ? messagesResponse.messages : [];
-    renderCoachAthleteMessages();
-
-    // Opening this thread just marked it read server-side - reflect that
-    // in the directory's unread badge immediately, without waiting for
-    // the coach to navigate back and reload the whole directory.
-    if (coachMessageUnreadCountFor(athleteUserId) > 0) {
-      await refreshCoachMessageUnreadCounts({ quiet: true });
-      renderCoachAthleteDirectory();
-    }
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
-
-function renderCoachAthleteMessages() {
-  if (!elements.athleteDetailMessageHistory) return;
-
-  const messages = Array.isArray(state.coachAthleteMessages) ? state.coachAthleteMessages : [];
-
-  if (messages.length === 0) {
-    elements.athleteDetailMessageHistory.innerHTML = `
-      <div class="empty-state compact-empty">
-        <p>No messages yet.</p>
-      </div>
-    `;
-    return;
-  }
-
-  elements.athleteDetailMessageHistory.innerHTML = messages.map((message) => `
-    <article class="review-note-card">
-      <div class="record-meta">
-        <span class="badge neutral">${message.sender_role === "coach" ? "You" : "Athlete"}</span>
-        <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
-      </div>
-      ${renderMessageAttachment(message.attachment)}
-      ${message.body_text ? `<p>${escapeHtml(message.body_text)}</p>` : ""}
-    </article>
-  `).join("");
-}
-
-function openComposeAthleteMessagePanel() {
-  if (!state.selectedCoachAthleteId) return;
-  elements.athleteDetailMessageText.value = "";
-  if (elements.athleteDetailMessageAttachment) elements.athleteDetailMessageAttachment.value = "";
-  elements.athleteDetailMessageForm.hidden = false;
-  elements.athleteDetailMessageText.focus();
-}
-
-function closeComposeAthleteMessagePanel() {
-  elements.athleteDetailMessageForm.hidden = true;
-}
-
-async function confirmSendAthleteMessage(event) {
-  event.preventDefault();
-
-  const athleteUserId = state.selectedCoachAthleteId;
-  if (!athleteUserId) return;
-
-  const bodyText = elements.athleteDetailMessageText.value.trim();
-  const attachmentFile = elements.athleteDetailMessageAttachment?.files?.[0] ?? null;
-  if (!bodyText && !attachmentFile) {
-    throw new Error("Enter a message or attach a photo/video before sending.");
-  }
-  const attachmentError = validateAttachmentClientSide(attachmentFile);
-  if (attachmentError) {
-    throw new Error(attachmentError);
-  }
-
-  showBusy("Sending message…");
-  try {
-    await sendMessageRequest(
-      `/messages/coach/athletes/${encodeURIComponent(athleteUserId)}/send`,
-      bodyText,
-      attachmentFile
-    );
-
-    closeComposeAthleteMessagePanel();
-    await refreshCoachAthleteMessages(athleteUserId, { quiet: true });
-    showNotice("Message sent.");
-  }
-  finally {
-    hideBusy();
-  }
-}
+// DEV NOTE: the "Message this athlete" 1:1 widget (refreshCoachAthleteMessages/
+// renderCoachAthleteMessages/openComposeAthleteMessagePanel/
+// closeComposeAthleteMessagePanel/confirmSendAthleteMessage) moved to React -
+// see CoachAthleteMessagePanel.tsx/useCoachAthleteMessages.ts, mounted into
+// #coach-athlete-message-root. handleMessagingSocketPayload()'s coach
+// branch above now dispatches kolosseum:coach-athlete-message-received
+// instead of calling the removed renderCoachAthleteMessages() directly.
 
 async function openAthleteProfile(athleteUserId) {
   await loadTemplateExercises();
@@ -3317,20 +3095,12 @@ async function openAthleteProfile(athleteUserId) {
     })
   );
 
-  await Promise.all([
-    refreshAthleteDetail(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    ),
-    refreshCoachAthleteMessages(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    )
-  ]);
+  await refreshAthleteDetail(
+    athleteUserId,
+    {
+      quiet: true
+    }
+  );
 
   saveState();
   renderAthleteProfileEditor();
@@ -3340,12 +3110,10 @@ function closeAthleteProfile() {
   document.dispatchEvent(new CustomEvent("kolosseum:coach-athlete-profile-closed"));
   state.selectedCoachAthleteId = "";
   state.athleteProfileDraft = null;
-  state.liveMessageThreadId = null;
   state.coachAthleteProgressPhotos = [];
   state.coachAthleteBodyMetricEntries = [];
   saveState();
   elements.athleteProfilePanel.hidden = true;
-  elements.athleteAssignmentPanel.hidden = true;
 
   if (
     elements.athleteDetailHistoryPanel
@@ -3358,13 +3126,6 @@ function closeAthleteProfile() {
     elements.athleteDetailNoteForm
   ) {
     elements.athleteDetailNoteForm
-      .hidden = true;
-  }
-
-  if (
-    elements.athleteDetailMessageForm
-  ) {
-    elements.athleteDetailMessageForm
       .hidden = true;
   }
 }
@@ -3788,7 +3549,10 @@ function bindCoachDashboardActions() {
             athleteUserId
           );
 
-          elements.athleteAssignmentPanel
+          // The assignment panel is React now (AthleteProfileAssignmentPanel.tsx)
+          // - its mount point stays at the same position, so this dashboard
+          // deep-link still scrolls to the right place.
+          document.getElementById("athlete-profile-assignment-root")
             ?.scrollIntoView({
               behavior: "smooth",
               block: "start"
@@ -9172,11 +8936,11 @@ async function checkConnection() {
 // socket never sends application data, it only reflects messages already
 // persisted and returned by the existing POST /messages/... routes, so a
 // dropped/never-established connection is never a correctness problem -
-// refreshCoachAthleteMessages() (coach side, still legacy) and React's own
-// useAccountCoachRelationship.ts/useAccountOrgMessages.ts (athlete side,
-// refresh-on-mount) remain the source of truth. Native WebSocket has no
-// built-in reconnect, unlike EventSource, so a capped exponential backoff
-// is handled here manually.
+// React's own useCoachAthleteMessages.ts (coach side) and
+// useAccountCoachRelationship.ts/useAccountOrgMessages.ts (athlete side)
+// all refresh on mount and remain the source of truth. Native WebSocket
+// has no built-in reconnect, unlike EventSource, so a capped exponential
+// backoff is handled here manually.
 let messagingSocket = null;
 let messagingReconnectTimer = null;
 let messagingReconnectDelayMs = 2000;
@@ -9235,8 +8999,11 @@ function scheduleMessagingReconnect() {
 }
 
 // coach<->athlete only live-updates the single thread the user currently
-// has open (state.liveMessageThreadId) - cross-thread notification is out
-// of scope there, same as the original D.1/D.2 plan. org_athlete_message
+// has open (React's own threadIdRef on the coach side, state.
+// liveMessageThreadId's React-hook equivalent - see
+// useCoachAthleteMessages.ts/useAccountCoachRelationship.ts) - cross-thread
+// notification is out of scope there, same as the original D.1/D.2 plan.
+// org_athlete_message
 // (part D.4) is the one exception with no "currently open" gate at all,
 // since its athlete-side UI renders every org thread simultaneously - see
 // the branch below. Org-owner<->coach pushes still have no client here:
@@ -9251,11 +9018,12 @@ function handleMessagingSocketPayload(envelope) {
     if (!thread || !message) return;
 
     if (state.role === "coach") {
-      if (thread.thread_id !== state.liveMessageThreadId) return;
-      const existing = Array.isArray(state.coachAthleteMessages) ? state.coachAthleteMessages : [];
-      if (existing.some((entry) => entry.message_id === message.message_id)) return;
-      state.coachAthleteMessages = [...existing, message];
-      renderCoachAthleteMessages();
+      // The coach-side 1:1 messaging panel is React now (see
+      // CoachAthleteMessagePanel.tsx/useCoachAthleteMessages.ts) - it owns
+      // its own currently-open-thread-id/message-list state and dedupes
+      // the same way this used to (by message_id), so this just forwards
+      // the push.
+      document.dispatchEvent(new CustomEvent("kolosseum:coach-athlete-message-received", { detail: { thread, message } }));
     }
     else if (state.role === "athlete") {
       // The athlete-side coach-messaging panel is React now (see
@@ -10312,24 +10080,5 @@ elements.athleteDetailNoteCancelButton
     }
   );
 
-elements.athleteDetailMessageButton
-  ?.addEventListener(
-    "click",
-    openComposeAthleteMessagePanel
-  );
-
-elements.athleteDetailMessageForm
-  ?.addEventListener(
-    "submit",
-    (event) => {
-      confirmSendAthleteMessage(
-        event
-      ).catch(handleError);
-    }
-  );
-
-elements.athleteDetailMessageCancelButton
-  ?.addEventListener(
-    "click",
-    closeComposeAthleteMessagePanel
-  );
+// DEV NOTE: the "Message this athlete" toggle/compose/cancel bindings
+// moved to React with the panel - see CoachAthleteMessagePanel.tsx.

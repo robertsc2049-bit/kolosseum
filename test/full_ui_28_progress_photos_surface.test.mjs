@@ -25,6 +25,11 @@ const athleteProgressPhotosPanel = read("public/app-src/screens/coach/AthletePro
 const athleteSelfProgressPhotosPanel = read("public/app-src/screens/athlete/AthleteSelfProgressPhotosPanel.tsx");
 const useAthleteProgressPhotosSelf = read("public/app-src/screens/athlete/useAthleteProgressPhotosSelf.ts");
 const athleteProgressPhotosClient = read("public/app-src/api/athleteProgressPhotosClient.ts");
+// DEV NOTE: formatAttachmentSize is a shared React utility now (extracted
+// once a third migrated panel - the coach's own 1:1 messaging widget,
+// CoachAthleteMessagePanel.tsx - needed the identical logic), no longer
+// duplicated in app.js at all.
+const sharedFormat = read("public/app-src/utils/format.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -112,7 +117,7 @@ test("a photo's byte_size, which progress_photo_service.ts already computes and 
   // through - but renderProgressPhotoCard never read it, so neither the
   // athlete's own grid nor the coach's read-only view ever showed how
   // large a progress photo was. Same phantom-field bug class as #884.
-  assert.match(appJs, /function formatAttachmentSize/u);
+  assert.match(sharedFormat, /export function formatAttachmentSize/u);
   assert.match(athleteSelfProgressPhotosPanel, /formatAttachmentSize\(photo\.byte_size\)/u);
 });
 

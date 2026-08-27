@@ -49,6 +49,7 @@ import { CoachEventsListPanel, CoachEventsMetricCards } from "./screens/coach/Co
 import { CoachMarketplacePanel } from "./screens/coach/CoachMarketplacePanel";
 import { CoachReviewPanel } from "./screens/coach/CoachReviewPanel";
 import { CoachVideoFeedbackQueuePanel } from "./screens/coach/CoachVideoFeedbackQueuePanel";
+import { CoachAthleteMessagePanel } from "./screens/coach/CoachAthleteMessagePanel";
 import { CoachBroadcastPanel } from "./screens/coach/CoachBroadcastPanel";
 import { CoachOverviewEventsPanel } from "./screens/coach/CoachOverviewEventsPanel";
 import { ConnectAthletePanel } from "./screens/coach/ConnectAthletePanel";
@@ -77,6 +78,7 @@ mount("account-org-messages-root", <AccountOrgMessagesPanel />);
 mount("account-org-context-root", <AccountOrgContextPanel />);
 mount("athlete-profile-editor-root", <AthleteStrengthProfilePanel />);
 mount("athlete-profile-assignment-root", <AthleteProfileAssignmentPanel />);
+mount("coach-athlete-message-root", <CoachAthleteMessagePanel />);
 mount("athlete-progress-insights-root", <AthleteProgressInsightsPanel />);
 mount("athlete-weekly-checkins-root", <AthleteWeeklyCheckinsPanel />);
 mount("athlete-goals-root", <AthleteGoalsPanel />);
