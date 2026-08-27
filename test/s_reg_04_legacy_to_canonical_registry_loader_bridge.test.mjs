@@ -37,9 +37,9 @@ const expectedAliasMap = Object.freeze({
     legacy_registry_id: "exercise",
     alias_scope: "legacy_compact_exercise_alias"
   },
-  sport_program_profile_registry_5d: {
+  sport_program_template_registry_5f: {
     legacy_registry_id: "program",
-    alias_scope: "legacy_compact_program_profile_alias_no_template_structure"
+    alias_scope: "legacy_compact_program_template_predecessor_alias"
   }
 });
 
@@ -47,7 +47,7 @@ const expectedEntryCounts = Object.freeze({
   activity_registry_1: 3,
   movement_registry_3: 4,
   exercise_registry_3a: 19,
-  sport_program_profile_registry_5d: 3
+  sport_program_template_registry_5f: 3
 });
 
 test("S-REG-04's 4 mapped legacy ids remain the leading, unreordered prefix of the active registry order and bundle - later authorised activations may append further domains after them", () => {
@@ -121,11 +121,17 @@ test("S-REG-04 does not mutate the compact registry bundle", () => {
   assert.equal(after, before);
 });
 
-test("S-REG-04 program alias does not invent template structure", () => {
-  const resolved = sReg04ResolveCanonicalRegistry(registryBundle, "sport_program_profile_registry_5d");
+test("S-REG-04 program alias resolves to the final 5F template authority without claiming completed template structure", () => {
+  const resolved = sReg04ResolveCanonicalRegistry(registryBundle, "sport_program_template_registry_5f");
 
   assert.equal(resolved.legacy_registry_id, "program");
-  assert.equal(resolved.alias_scope, "legacy_compact_program_profile_alias_no_template_structure");
+  assert.equal(resolved.alias_scope, "legacy_compact_program_template_predecessor_alias");
   assert.equal(resolved.template_structure_claim, false);
   assert.equal(resolved.registry_completion_claim, false);
+
+  for (const row of Object.values(resolved.registry_document.entries)) {
+    assert.equal(typeof row.activity_id, "string");
+    assert.equal(typeof row.template_id, "string");
+    assert.equal(Array.isArray(row.exercise_eligibility), true);
+  }
 });
