@@ -1,3 +1,15 @@
+# ==========================================================
+# KOLOSSEUM WORKFLOW POLICY
+# ----------------------------------------------------------
+# reg-full-01-ci-diagnostic.yml
+# - Temporary REG-FULL-01 diagnostic only.
+# - Runs only on the REG-FULL-01 feature branch.
+# - Captures canonical `npm run ci` output without mutating repo files.
+# - Must be deleted before final merge verification.
+# ==========================================================
+# DEV NOTE: Diagnostic orchestration only. This workflow does not redefine
+# engine, registry, release, CI, or product authority. It runs the canonical
+# repository CI command unchanged and uploads a reduced failure transcript.
 name: REG-FULL-01 CI diagnostic
 
 on:
