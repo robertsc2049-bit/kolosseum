@@ -38,6 +38,27 @@ const ajv = new Ajv2020({
 // Register draft-07 meta schema so Ajv2020 can compile/validate older schemas too.
 ajv.addMetaSchema(draft7Meta);
 
+// REG-FULL-01 compatibility schemas use two closed annotations. These are metadata
+// only; strict validation knows their exact lawful values without weakening unknown-keyword checks.
+ajv.addKeyword({
+  keyword: "x-kolosseum-authority",
+  schemaType: "string",
+  metaSchema: {
+    type: "string",
+    enum: ["compatibility_only", "compatibility_reference"]
+  },
+  valid: true
+});
+ajv.addKeyword({
+  keyword: "x-kolosseum-canonical-authority",
+  schemaType: "string",
+  metaSchema: {
+    type: "string",
+    const: "registries/final_registry_schema_manifest.json"
+  },
+  valid: true
+});
+
 function addSchemaFile(rel) {
   const schemaPath = path.join(repoRoot, rel);
   if (!fs.existsSync(schemaPath)) {
