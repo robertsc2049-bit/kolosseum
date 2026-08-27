@@ -1,0 +1,47 @@
+name: reg-full-01-fix-equipment-readers
+
+on:
+  push:
+    branches:
+      - automation/reg-full-01-registry-schema-closure
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: "${{ github.event.head_commit.message == 'fix(registry): correct canonical equipment readers' }}"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: automation/reg-full-01-registry-schema-closure
+      - name: Fix stale canonical equipment reads
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/api/beta18_programme_template_service.ts')
+          s = p.read_text()
+          old1 = """? exercise\n                                  .equipment\n                                  .map(cleanString)"""
+          new1 = """? exercise\n                                  .equipment_requirements\n                                  .map(cleanString)"""
+          old2 = """? entry\n                    .equipment\n                    .map(cleanString)"""
+          new2 = """? entry\n                    .equipment_requirements\n                    .map(cleanString)"""
+          assert s.count(old1) == 1, s.count(old1)
+          assert s.count(old2) == 1, s.count(old2)
+          s = s.replace(old1, new1).replace(old2, new2)
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff -- src/api/beta18_programme_template_service.ts
+      - name: Commit fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/api/beta18_programme_template_service.ts
+          git commit -m 'fix(registry): read canonical equipment requirements'
+          git push origin HEAD:automation/reg-full-01-registry-schema-closure
