@@ -62,8 +62,6 @@ const DEFAULT_STATE = Object.freeze({
   coachReviewUpdatedAt: "",
   selectedCoachReviewSessionId: "",
   coachAthleteProgressPhotoCompareIds: [],
-  lastBroadcastId: "",
-  broadcastReadStatus: null,
   athleteDetails: {},
   coachCode: "",
   pendingRelationshipInvitations: [],
@@ -157,34 +155,9 @@ const elements = {
   coachOverviewAssignments: document.getElementById("coachOverviewAssignments"),
   coachOverviewOpenSessions: document.getElementById("coachOverviewOpenSessions"),
   coachOverviewReviewQueue: document.getElementById("coachOverviewReviewQueue"),
-  connectAthleteForm: document.getElementById("connectAthleteForm"),
-  connectAthleteName: document.getElementById("connectAthleteName"),
-  connectAthleteId: document.getElementById("connectAthleteId"),
-  connectAthleteActivity: document.getElementById("connectAthleteActivity"),
-  connectAthleteRelationshipState: document.getElementById("connectAthleteRelationshipState"),
-  connectAthleteExpiryField: document.getElementById("connectAthleteExpiryField"),
-  connectAthleteExpiry: document.getElementById("connectAthleteExpiry"),
-  connectAthleteConsent: document.getElementById("connectAthleteConsent"),
-  connectAthleteConsentText: document.getElementById("connectAthleteConsentText"),
   refreshAthleteDirectoryButton: document.getElementById("refreshAthleteDirectoryButton"),
   athleteDirectoryStatus: document.getElementById("athleteDirectoryStatus"),
-  inviteAthleteByEmailForm: document.getElementById("inviteAthleteByEmailForm"),
-  inviteAthleteEmail: document.getElementById("inviteAthleteEmail"),
-  coachBroadcastForm: document.getElementById("coachBroadcastForm"),
-  coachBroadcastBodyText: document.getElementById("coachBroadcastBodyText"),
-  coachBroadcastStatus: document.getElementById("coachBroadcastStatus"),
-  coachBroadcastReadStatus: document.getElementById("coachBroadcastReadStatus"),
-  coachBroadcastReadSummary: document.getElementById("coachBroadcastReadSummary"),
-  coachBroadcastReadList: document.getElementById("coachBroadcastReadList"),
-  refreshBroadcastReadStatusButton: document.getElementById("refreshBroadcastReadStatusButton"),
   eventsStatus: document.getElementById("eventsStatus"),
-  athleteRelationshipDetailPanel: document.getElementById("athleteRelationshipDetailPanel"),
-  athleteRelationshipDetailHeading: document.getElementById("athleteRelationshipDetailHeading"),
-  athleteRelationshipDetailState: document.getElementById("athleteRelationshipDetailState"),
-  athleteRelationshipAuditFacts: document.getElementById("athleteRelationshipAuditFacts"),
-  closeAthleteRelationshipDetailButton: document.getElementById("closeAthleteRelationshipDetailButton"),
-  athleteRelationshipProfileButton: document.getElementById("athleteRelationshipProfileButton"),
-  athleteRelationshipTransitionButton: document.getElementById("athleteRelationshipTransitionButton"),
   athleteProfilePanel: document.getElementById("athleteProfilePanel"),
   athleteProfileHeading: document.getElementById("athleteProfileHeading"),
   athleteProfileActivity: document.getElementById("athleteProfileActivity"),
@@ -2174,52 +2147,6 @@ function relationshipEffectiveState(entry) {
   return stored;
 }
 
-function relationshipEntryByAthleteId(athleteUserId) {
-  const relationships =
-    Array.isArray(state.coachRelationships)
-      ? state.coachRelationships
-      : [];
-
-  return relationships.find(
-    (entry) =>
-      entry.userId === athleteUserId
-  ) ?? null;
-}
-
-function relationshipDateValue(value) {
-  const text = String(value ?? "");
-  return text
-    ? formatDate(text)
-    : "Not recorded";
-}
-
-function syncConnectAthleteRelationshipForm() {
-  const invited =
-    elements.connectAthleteRelationshipState
-      ?.value === "invited";
-
-  if (elements.connectAthleteExpiryField) {
-    elements.connectAthleteExpiryField.hidden =
-      !invited;
-  }
-
-  if (elements.connectAthleteExpiry) {
-    elements.connectAthleteExpiry.disabled =
-      !invited;
-
-    if (!invited) {
-      elements.connectAthleteExpiry.value = "";
-    }
-  }
-
-  if (elements.connectAthleteConsentText) {
-    elements.connectAthleteConsentText.textContent =
-      invited
-        ? "The athlete supplied this code or authorised this pending invitation."
-        : "The athlete supplied this code and accepted this connection.";
-  }
-}
-
 async function refreshCoachRelationships(
   options = {}
 ) {
@@ -2307,220 +2234,34 @@ function renderCoachAthleteDirectory() {
   );
 }
 
+// DEV NOTE: the "Relationship audit" panel (open/close/revoke/cancel) moved
+// to React - see public/app-src/screens/coach/AthleteRelationshipDetailPanel.
+// tsx and useAthleteRelationshipDetail.ts, mounted into
+// #athlete-relationship-detail-root. The global data-relationship-action=
+// 'audit' click delegation below still calls this trimmed function
+// unchanged (it isn't scoped to legacy-rendered DOM, so it works the same
+// against the already-React AthleteDirectoryPanel.tsx's "View audit"
+// button); it now just dispatches the open-request bridge event instead of
+// writing innerHTML, and still hides the still-legacy athlete
+// training-profile panel to preserve the original mutual-exclusion
+// behaviour (opening the audit panel hides the profile panel, and vice
+// versa - see openAthleteProfile()'s call to closeAthleteRelationshipDetail
+// below).
 function closeAthleteRelationshipDetail() {
-  if (
-    elements.athleteRelationshipDetailPanel
-  ) {
-    elements.athleteRelationshipDetailPanel.hidden =
-      true;
-  }
-}
-
-function openAthleteRelationshipDetail(
-  athleteUserId
-) {
-  const entry =
-    relationshipEntryByAthleteId(
-      athleteUserId
-    );
-
-  if (!entry) {
-    throw new Error(
-      "The relationship record could not be found."
-    );
-  }
-
-  const relationship =
-    entry.relationship &&
-    typeof entry.relationship === "object"
-      ? entry.relationship
-      : {};
-
-  const effectiveState =
-    relationshipEffectiveState(entry);
-
-  elements.athleteRelationshipDetailPanel.hidden =
-    false;
-
-  elements.athleteRelationshipDetailHeading.textContent =
-    entry.displayName;
-
-  elements.athleteRelationshipDetailState.textContent =
-    `${titleCase(effectiveState)} · ${titleCase(entry.activityId)} · ${entry.userId}`;
-
-  const facts = [
-    ["Relationship ID", relationship.relationship_id],
-    ["Stored state", relationship.relationship_state],
-    ["Effective state", effectiveState],
-    ["Scope", relationship.relationship_scope],
-    ["Created", relationship.created_at_iso8601],
-    ["Accepted", relationship.accepted_at_iso8601],
-    ["Updated", relationship.updated_at_iso8601],
-    ["Expires", relationship.expires_at_iso8601],
-    ["Revoked", relationship.revoked_at_iso8601]
-  ];
-
-  elements.athleteRelationshipAuditFacts.innerHTML =
-    facts
-      .map(
-        ([label, value]) => `
-          <div class="relationship-audit-fact">
-            <dt>${escapeHtml(label)}</dt>
-            <dd>${escapeHtml(
-              label.includes("ID") ||
-              label === "Scope" ||
-              label.includes("state")
-                ? String(value ?? "Not recorded")
-                : relationshipDateValue(value)
-            )}</dd>
-          </div>
-        `
-      )
-      .join("");
-
-  const accepted =
-    effectiveState === "accepted";
-
-  const invited =
-    effectiveState === "invited" ||
-    effectiveState === "expired";
-
-  elements.athleteRelationshipProfileButton.hidden =
-    !accepted;
-
-  elements.athleteRelationshipProfileButton.dataset.athleteId =
-    entry.userId;
-
-  elements.athleteRelationshipTransitionButton.hidden =
-    !(accepted || invited);
-
-  elements.athleteRelationshipTransitionButton.dataset.relationshipAthleteId =
-    entry.userId;
-
-  elements.athleteRelationshipTransitionButton.dataset.relationshipAction =
-    accepted
-      ? "revoke"
-      : "cancel";
-
-  elements.athleteRelationshipTransitionButton.textContent =
-    accepted
-      ? "Revoke relationship"
-      : "Cancel invitation";
-
-  elements.athleteProfilePanel.hidden =
-    true;
-
-  elements.athleteRelationshipDetailPanel.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-}
-
-async function transitionCoachRelationship(
-  athleteUserId,
-  action
-) {
-  const entry =
-    relationshipEntryByAthleteId(
-      athleteUserId
-    );
-
-  const relationship =
-    entry?.relationship &&
-    typeof entry.relationship === "object"
-      ? entry.relationship
-      : null;
-
-  if (!entry || !relationship) {
-    throw new Error(
-      "The relationship record could not be found."
-    );
-  }
-
-  const verb =
-    action === "revoke"
-      ? "revoke this accepted relationship"
-      : "cancel this invitation";
-
-  if (
-    !window.confirm(
-      `Confirm that you want to ${verb}. Historical records will be preserved.`
-    )
-  ) {
-    return;
-  }
-
-  showBusy(
-    action === "revoke"
-      ? "Revoking relationship…"
-      : "Cancelling invitation…"
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:close-relationship-audit")
   );
+}
 
-  try {
-    const timestamp = nowIso();
-
-    await api(
-      "POST",
-      "/sessions/beta-coach-relationship",
-      {
-        relationship_id:
-          String(
-            relationship.relationship_id ??
-            createId("relationship")
-          ),
-        coach_user_id:
-          state.profile.coachUserId,
-        athlete_user_id:
-          entry.userId,
-        relationship_state:
-          "revoked",
-        relationship_scope:
-          "individual_coach_athlete",
-        accepted_at_iso8601:
-          relationship.accepted_at_iso8601 ??
-          null,
-        created_at_iso8601:
-          relationship.created_at_iso8601 ??
-          timestamp,
-        updated_at_iso8601:
-          timestamp,
-        revoked_at_iso8601:
-          timestamp,
-        expires_at_iso8601:
-          relationship.expires_at_iso8601 ??
-          null
-      }
-    );
-
-    await Promise.all([
-      refreshCoachAthletes({
-        quiet: true
-      }),
-      refreshCoachAssignments({
-        quiet: true
-      })
-    ]);
-
-    if (
-      state.selectedCoachAthleteId ===
-      entry.userId
-    ) {
-      closeAthleteProfile();
-    }
-
-    closeAthleteRelationshipDetail();
-    renderCoachWorkspace();
-    renderCoachDashboard();
-
-    showNotice(
-      action === "revoke"
-        ? "Relationship revoked. Historical records remain stored."
-        : "Invitation cancelled. Historical records remain stored."
-    );
+function openAthleteRelationshipDetail(athleteUserId) {
+  if (elements.athleteProfilePanel) {
+    elements.athleteProfilePanel.hidden = true;
   }
-  finally {
-    hideBusy();
-  }
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:open-relationship-audit-request", {
+      detail: { athlete_user_id: athleteUserId }
+    })
+  );
 }
 
 
@@ -2696,250 +2437,30 @@ async function refreshCoachAthleteProfiles() {
   }
 }
 
-// FULL-UI-24: the coach names the athlete by email only - never the
-// athlete's internal account code - and the athlete accepts the invitation
-// themselves from their own account.
-async function inviteAthleteByEmail(event) {
-  event.preventDefault();
-
-  const athleteEmail = elements.inviteAthleteEmail.value.trim();
-  if (!athleteEmail) return;
-
-  showBusy("Sending invitation…");
-
-  try {
-    await api("POST", "/coach-workspace/relationship-invitations", {
-      athlete_email: athleteEmail
-    });
-
-    elements.inviteAthleteByEmailForm.reset();
-    showNotice(`Invitation sent to ${athleteEmail}.`);
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-async function confirmSendCoachBroadcast(event) {
-  event.preventDefault();
-
-  const bodyText = elements.coachBroadcastBodyText.value.trim();
-  if (!bodyText) return;
-
-  showBusy("Sending broadcast…");
-
-  try {
-    const result = await api("POST", "/messages/coach/broadcast", { body_text: bodyText });
-
-    elements.coachBroadcastForm.reset();
-    elements.coachBroadcastStatus.hidden = false;
-    elements.coachBroadcastStatus.textContent =
-      result.sent_count > 0
-        ? `Sent to ${result.sent_count} athlete${result.sent_count === 1 ? "" : "s"}.`
-        : "No accepted athletes to send to yet.";
-    showNotice(
-      result.sent_count > 0
-        ? `Broadcast sent to ${result.sent_count} athlete${result.sent_count === 1 ? "" : "s"}.`
-        : "No accepted athletes to send to yet."
-    );
-
-    state.lastBroadcastId = result.sent_count > 0 ? result.broadcast_id : "";
-    state.broadcastReadStatus = null;
-    if (state.lastBroadcastId) {
-      await refreshBroadcastReadStatus({ quiet: true });
-    }
-    else {
-      renderBroadcastReadStatus();
-    }
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-function broadcastAthleteName(athleteUserId) {
-  const athlete = state.coachAthletes.find((entry) => entry.userId === athleteUserId);
-  return athlete?.displayName || athleteUserId;
-}
-
-async function refreshBroadcastReadStatus(options = {}) {
-  if (!state.lastBroadcastId) return;
-
-  try {
-    const response = await api(
-      "GET",
-      `/messages/coach/broadcasts/${encodeURIComponent(state.lastBroadcastId)}/read-status`
-    );
-    state.broadcastReadStatus = {
-      sent_count: response.sent_count,
-      read_count: response.read_count,
-      athletes: Array.isArray(response.athletes) ? response.athletes : []
-    };
-    renderBroadcastReadStatus();
-  }
-  catch (error) {
-    if (!options.quiet) throw error;
-  }
-}
-
-function renderBroadcastReadStatus() {
-  if (!elements.coachBroadcastReadStatus) return;
-
-  const status = state.broadcastReadStatus;
-  if (!status) {
-    elements.coachBroadcastReadStatus.hidden = true;
-    elements.coachBroadcastReadList.innerHTML = "";
-    return;
-  }
-
-  elements.coachBroadcastReadStatus.hidden = false;
-  elements.coachBroadcastReadSummary.textContent =
-    `Read by ${status.read_count} of ${status.sent_count} athlete${status.sent_count === 1 ? "" : "s"}.`;
-
-  elements.coachBroadcastReadList.innerHTML = status.athletes.map((entry) => `
-    <li>
-      <span class="badge ${entry.read ? "complete" : "neutral"}">${entry.read ? "Read" : "Unread"}</span>
-      ${escapeHtml(broadcastAthleteName(entry.athlete_user_id))}
-    </li>
-  `).join("");
-}
-
-async function connectAthlete(event) {
-  event.preventDefault();
-
-  const athleteUserId =
-    elements.connectAthleteId.value.trim();
-
-  const displayName =
-    elements.connectAthleteName.value.trim();
-
-  const activityId =
-    elements.connectAthleteActivity.value;
-
-  const relationshipState =
-    elements.connectAthleteRelationshipState
-      ?.value === "invited"
-      ? "invited"
-      : "accepted";
-
-  const expiryDate =
-    elements.connectAthleteExpiry
-      ?.value ?? "";
-
-  showBusy(
-    relationshipState === "invited"
-      ? "Recording invitation…"
-      : "Connecting athlete…"
-  );
-
-  try {
-    const timestamp = nowIso();
-
-    const expiresAt =
-      relationshipState === "invited" &&
-      expiryDate
-        ? new Date(
-            `${expiryDate}T23:59:59.999Z`
-          ).toISOString()
-        : null;
-
-    await api(
-      "POST",
-      "/sessions/beta-coach-relationship",
-      {
-        relationship_id:
-          createId("relationship"),
-        coach_user_id:
-          state.profile.coachUserId,
-        athlete_user_id:
-          athleteUserId,
-        relationship_state:
-          relationshipState,
-        relationship_scope:
-          "individual_coach_athlete",
-        accepted_at_iso8601:
-          relationshipState === "accepted"
-            ? timestamp
-            : null,
-        created_at_iso8601:
-          timestamp,
-        updated_at_iso8601:
-          timestamp,
-        revoked_at_iso8601:
-          null,
-        expires_at_iso8601:
-          expiresAt
-      }
-    );
-
-    await refreshCoachAthletes({
-      quiet: true
-    });
-
-    const directoryEntry =
-      relationshipEntryByAthleteId(
-        athleteUserId
-      );
-
-    if (
-      directoryEntry &&
-      directoryEntry.displayName ===
-        athleteUserId &&
-      displayName
-    ) {
-      directoryEntry.displayName =
-        displayName;
-    }
-
-    if (
-      directoryEntry &&
-      !directoryEntry.activityId
-    ) {
-      directoryEntry.activityId =
-        activityId;
-    }
-
-    const acceptedEntry =
-      state.coachAthletes.find(
-        (entry) =>
-          entry.userId === athleteUserId
-      );
-
-    if (
-      acceptedEntry &&
-      acceptedEntry.displayName ===
-        athleteUserId &&
-      displayName
-    ) {
-      acceptedEntry.displayName =
-        displayName;
-    }
-
-    if (
-      acceptedEntry &&
-      !acceptedEntry.activityId
-    ) {
-      acceptedEntry.activityId =
-        activityId;
-    }
-
-    saveState();
-
-    elements.connectAthleteForm.reset();
-    syncConnectAthleteRelationshipForm();
-    renderCoachWorkspace();
-    renderCoachDashboard();
-
-    showNotice(
-      relationshipState === "invited"
-        ? `Invitation for ${displayName} recorded.`
-        : `${displayName} connected.`
-    );
-  }
-  finally {
-    hideBusy();
-  }
-}
+// DEV NOTE: the invite-by-email form (FULL-UI-24), broadcast form and
+// manual "Add athlete" connect form all moved to React - see
+// public/app-src/screens/coach/InviteAthleteByEmailPanel.tsx/
+// CoachBroadcastPanel.tsx/ConnectAthletePanel.tsx, mounted into
+// #invite-athlete-root/#coach-broadcast-root/#connect-athlete-root. Each
+// hook dispatches kolosseum:coach-relationship-mutated (invite/connect) or
+// posts directly with no relationship-state side effect (broadcast), so
+// this one listener replaces every refreshCoachAthletes()/
+// refreshCoachAssignments()/renderCoachWorkspace()/renderCoachDashboard()
+// call the three removed functions used to make themselves - state.
+// coachAthletes/state.coachRelationships stay populated for the still-
+// legacy athlete training-profile panel and Coach Dashboard, which read
+// them directly.
+document.addEventListener("kolosseum:coach-relationship-mutated", () => {
+  Promise.all([
+    refreshCoachAthletes({ quiet: true }),
+    refreshCoachAssignments({ quiet: true })
+  ])
+    .then(() => {
+      renderCoachWorkspace();
+      renderCoachDashboard();
+    })
+    .catch(handleError);
+});
 
 function activeCoachTemplates(activityId = null) {
   return state.coachTemplates.filter((template) => {
@@ -10426,18 +9947,6 @@ document.addEventListener("kolosseum:continue-history-session", (event) => {
   saveState();
   setView("session");
 });
-elements.connectAthleteForm.addEventListener("submit", (event) => {
-  connectAthlete(event).catch(handleError);
-});
-elements.inviteAthleteByEmailForm.addEventListener("submit", (event) => {
-  guardedAction(submitButtonOf, inviteAthleteByEmail)(event).catch(handleError);
-});
-elements.coachBroadcastForm.addEventListener("submit", (event) => {
-  guardedAction(submitButtonOf, confirmSendCoachBroadcast)(event).catch(handleError);
-});
-elements.refreshBroadcastReadStatusButton?.addEventListener("click", () => {
-  refreshBroadcastReadStatus().catch(handleError);
-});
 elements.templateSharingForm.addEventListener("submit", (event) => {
   guardedAction(submitButtonOf, confirmSaveTemplateSharing)(event).catch(handleError);
 });
@@ -10981,12 +10490,6 @@ bootstrapApplication()
 
 
 // FULL-UI-04A relationship directory event wiring.
-elements.connectAthleteRelationshipState
-  ?.addEventListener(
-    "change",
-    syncConnectAthleteRelationshipForm
-  );
-
 elements.refreshAthleteDirectoryButton
   ?.addEventListener(
     "click",
@@ -11002,40 +10505,12 @@ elements.refreshAthleteDirectoryButton
     }
   );
 
-elements.closeAthleteRelationshipDetailButton
-  ?.addEventListener(
-    "click",
-    closeAthleteRelationshipDetail
-  );
-
-elements.athleteRelationshipProfileButton
-  ?.addEventListener(
-    "click",
-    () => {
-      const athleteUserId =
-        elements.athleteRelationshipProfileButton
-          .dataset.athleteId;
-
-      openAthleteProfile(
-        athleteUserId
-      ).catch(handleError);
-    }
-  );
-
-elements.athleteRelationshipTransitionButton
-  ?.addEventListener(
-    "click",
-    () => {
-      const button =
-        elements.athleteRelationshipTransitionButton;
-
-      transitionCoachRelationship(
-        button.dataset.relationshipAthleteId,
-        button.dataset.relationshipAction
-      ).catch(handleError);
-    }
-  );
-
+// The "View audit" button lives in the already-React AthleteDirectoryPanel.
+// tsx and the "Open training profile"/revoke/cancel controls live in the
+// also-React AthleteRelationshipDetailPanel.tsx now - this global click
+// delegation (not scoped to legacy-rendered DOM) is what lets a
+// data-relationship-action='audit' button rendered by either stack open
+// the audit panel unchanged.
 document.addEventListener(
   "click",
   (event) => {
@@ -11051,8 +10526,6 @@ document.addEventListener(
     );
   }
 );
-
-syncConnectAthleteRelationshipForm();
 
 // FULL-UI-04B athlete-detail controls.
 elements.athleteDetailRefreshButton

@@ -50,10 +50,33 @@ const styles =
 // public/app-src/screens/coach/AthleteDirectoryPanel.tsx and
 // useAthleteDirectory.ts. The invite-by-email, broadcast and
 // connect-athlete forms, plus the relationship-audit detail panel and its
-// accept/revoke/extend transitions, all stay legacy siblings.
+// revoke/cancel transitions, moved to React too - see
+// InviteAthleteByEmailPanel.tsx/CoachBroadcastPanel.tsx/
+// ConnectAthletePanel.tsx/useConnectAthlete.ts/
+// AthleteRelationshipDetailPanel.tsx/useAthleteRelationshipDetail.ts.
 const athleteDirectoryPanel =
   read(
     "public/app-src/screens/coach/AthleteDirectoryPanel.tsx"
+  );
+
+const connectAthletePanel =
+  read(
+    "public/app-src/screens/coach/ConnectAthletePanel.tsx"
+  );
+
+const useConnectAthlete =
+  read(
+    "public/app-src/screens/coach/useConnectAthlete.ts"
+  );
+
+const athleteRelationshipDetailPanel =
+  read(
+    "public/app-src/screens/coach/AthleteRelationshipDetailPanel.tsx"
+  );
+
+const useAthleteRelationshipDetail =
+  read(
+    "public/app-src/screens/coach/useAthleteRelationshipDetail.ts"
   );
 
 test(
@@ -136,34 +159,26 @@ test(
 test(
   "FULL-UI-04A provides search filters counts and audit facts",
   () => {
-    for (const id of [
-      "refreshAthleteDirectoryButton",
-      "athleteRelationshipDetailPanel",
-      "athleteRelationshipAuditFacts",
-      "athleteRelationshipProfileButton",
-      "athleteRelationshipTransitionButton",
-      "connectAthleteRelationshipState",
-      "connectAthleteExpiry"
-    ]) {
-      assert.match(
-        html,
-        new RegExp(
-          `id="${id}"`,
-          "u"
-        )
-      );
-    }
+    assert.match(html, /id="refreshAthleteDirectoryButton"/u);
 
     assert.match(html, /id="athlete-directory-root"/u);
+    assert.match(html, /id="connect-athlete-root"/u);
+    assert.match(html, /id="athlete-relationship-detail-root"/u);
     assert.doesNotMatch(html, /id="athleteDirectorySearch"/u);
     assert.doesNotMatch(html, /id="athleteRelationshipFilter"/u);
     assert.doesNotMatch(html, /id="athleteRelationshipCounts"/u);
     assert.doesNotMatch(html, /id="athleteRoster"/u);
+    assert.doesNotMatch(html, /id="athleteRelationshipDetailPanel"/u);
+    assert.doesNotMatch(html, /id="connectAthleteRelationshipState"/u);
 
     assert.match(athleteDirectoryPanel, /useAthleteDirectory/u);
     assert.match(athleteDirectoryPanel, /Search athletes/u);
     assert.match(athleteDirectoryPanel, /Relationship state/u);
     assert.match(athleteDirectoryPanel, /data-relationship-action="audit"/u);
+
+    assert.match(connectAthletePanel, /Relationship state/u);
+    assert.match(athleteRelationshipDetailPanel, /relationship-audit-grid/u);
+    assert.match(athleteRelationshipDetailPanel, /Open training profile/u);
   }
 );
 
@@ -176,22 +191,22 @@ test(
     );
 
     assert.match(
-      application,
-      /relationshipState === "invited"/u
+      useConnectAthlete,
+      /input\.relationshipState === "invited"/u
     );
 
     assert.match(
-      application,
+      useAthleteRelationshipDetail,
       /relationship_state:\s*"revoked"/u
     );
 
     assert.match(
-      application,
+      athleteRelationshipDetailPanel,
       /Historical records will be preserved/u
     );
 
     assert.match(
-      application,
+      athleteRelationshipDetailPanel,
       /window\.confirm/u
     );
   }

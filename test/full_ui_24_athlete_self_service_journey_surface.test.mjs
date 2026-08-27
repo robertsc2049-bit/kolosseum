@@ -26,6 +26,10 @@ const invitationService = read("src/api/relationship_invitation_service.ts");
 const invitationsPanel = read("public/app-src/screens/account/AccountCoachInvitationsPanel.tsx");
 const invitationsHook = read("public/app-src/screens/account/useAccountCoachInvitations.ts");
 const invitationsClient = read("public/app-src/api/accountRelationshipsClient.ts");
+// DEV NOTE: the coach's own invite-by-email FORM moved to React too - see
+// InviteAthleteByEmailPanel.tsx/useInviteAthleteByEmail.ts.
+const inviteByEmailPanel = read("public/app-src/screens/coach/InviteAthleteByEmailPanel.tsx");
+const useInviteAthleteByEmail = read("public/app-src/screens/coach/useInviteAthleteByEmail.ts");
 
 test("the coach invites an athlete by email only - never the athlete's internal user_id", () => {
   assert.match(routes, /coachWorkspaceRouter\.post\(\s*"\/relationship-invitations",/u);
@@ -38,7 +42,9 @@ test("the coach invites an athlete by email only - never the athlete's internal 
   assert.match(invitationService, /function findActiveAthleteByEmail/u);
   assert.doesNotMatch(invitationService, /athlete_user_id:\s*athleteEmailInput/u);
 
-  assert.match(html, /<input id="inviteAthleteEmail" type="email" required autocomplete="off" \/>/u);
+  assert.match(inviteByEmailPanel, /type="email"/u);
+  assert.match(inviteByEmailPanel, /autoComplete="off"/u);
+  assert.match(useInviteAthleteByEmail, /inviteAthleteByEmailRequest\(trimmed, csrfToken\)/u);
   assert.doesNotMatch(html, /id="inviteAthlete(?:Id|UserId|Code)"/u);
 });
 
@@ -95,5 +101,9 @@ test("the pending-invitations panel is real, focusable markup rendered from the 
 
 test("visiting the account view refreshes the athlete's own pending invitations, and the coach invite form is duplicate-submit guarded", () => {
   assert.match(js, /refreshPendingRelationshipInvitations\(\)\.catch\(handleError\);/u);
-  assert.match(js, /elements\.inviteAthleteByEmailForm\.addEventListener\("submit", \(event\) => \{\s*\n\s*guardedAction\(submitButtonOf, inviteAthleteByEmail\)\(event\)\.catch\(handleError\);/u);
+  // The coach's invite-by-email form is React now - useInviteAthleteByEmail's
+  // own submitting flag (not app.js's guardedAction) disables the button for
+  // the duration of the in-flight request.
+  assert.match(useInviteAthleteByEmail, /setSubmitting\(true\)/u);
+  assert.match(inviteByEmailPanel, /disabled=\{submitting\}/u);
 });
