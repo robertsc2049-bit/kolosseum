@@ -1687,6 +1687,24 @@
             <div id="account-data-rights-root"></div>
           </div>
 
+          <!-- DEV NOTE: these five roots replace the five panels app.js
+               used to splice in dynamically via
+               insertAdjacentElement("afterend", ...) on .two-column
+               (pendingRelationshipInvitationsPanel/athleteRelationshipsPanel/
+               athleteCoachLinkPanel/athleteOrgMessagesPanel/
+               coachOrgContextPanel) - each component gates on role/data
+               internally and renders nothing otherwise, same as the legacy
+               panels' own hidden-until-relevant behavior. -->
+          <div id="account-coach-invitations-root"></div>
+
+          <div id="account-coach-relationship-root"></div>
+
+          <div id="account-coach-code-root"></div>
+
+          <div id="account-org-messages-root"></div>
+
+          <div id="account-org-context-root"></div>
+
           <div id="account-support-root"></div>
 
           <div id="account-branding-root"></div>

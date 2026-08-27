@@ -51,7 +51,13 @@ export function useAccountBranding() {
       setState((current) => ({
         ...current,
         brandColor: (preference && typeof preference.brand_color === "string" && preference.brand_color) || DEFAULT_BRAND_COLOR,
-        brandTagline: (preference && typeof preference.brand_tagline === "string" && preference.brand_tagline) || ""
+        brandTagline: (preference && typeof preference.brand_tagline === "string" && preference.brand_tagline) || "",
+        // A prior failed refresh (e.g. re-fetched too early during a
+        // same-tab sign-in, before the new role's session was fully
+        // current) must not leave a stale error message behind once a
+        // later refresh actually succeeds.
+        statusMessage: null,
+        statusTone: "neutral"
       }));
     }
     catch (error) {
@@ -88,6 +94,17 @@ export function useAccountBranding() {
 
   useEffect(() => {
     refreshBranding();
+    // A same-tab sign-in/register never fires the browser's own "storage"
+    // event, so the panel's isCoach role gate can flip from false to true
+    // without this hook ever re-fetching - it mounts once at app boot,
+    // regardless of which account (if any) happens to be signed in yet,
+    // and its very first fetch attempt (likely 401/403 under the wrong or
+    // no role) would otherwise be cached as a permanent error state.
+    // enterApplication() dispatches this after every sign-in/register and
+    // on every fresh boot with a restored session - see utils/role.ts's
+    // useRole().
+    document.addEventListener("kolosseum:account-role-known", refreshBranding);
+    return () => document.removeEventListener("kolosseum:account-role-known", refreshBranding);
   }, [refreshBranding]);
 
   return {

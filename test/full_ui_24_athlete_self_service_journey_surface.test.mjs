@@ -18,6 +18,14 @@ const js = read("public/app/app.js");
 const routes = read("src/api/coach_workspace.routes.ts");
 const handlers = read("src/api/coach_workspace.handlers.ts");
 const invitationService = read("src/api/relationship_invitation_service.ts");
+// DEV NOTE: the pending-invitations panel moved to React - see
+// AccountCoachInvitationsPanel.tsx/useAccountCoachInvitations.ts/
+// accountRelationshipsClient.ts. refreshPendingRelationshipInvitations()
+// stays in app.js, trimmed to fetch+cache only (no render), since
+// notificationCoachName() still reads state.pendingRelationshipInvitations.
+const invitationsPanel = read("public/app-src/screens/account/AccountCoachInvitationsPanel.tsx");
+const invitationsHook = read("public/app-src/screens/account/useAccountCoachInvitations.ts");
+const invitationsClient = read("public/app-src/api/accountRelationshipsClient.ts");
 
 test("the coach invites an athlete by email only - never the athlete's internal user_id", () => {
   assert.match(routes, /coachWorkspaceRouter\.post\(\s*"\/relationship-invitations",/u);
@@ -72,15 +80,17 @@ test("the coach's email lookup only ever resolves an active athlete account, nev
 });
 
 test("the pending-invitations panel is real, focusable markup rendered from the athlete's own server response - not a typed field", () => {
-  assert.match(js, /function renderPendingRelationshipInvitations\(\)/u);
+  assert.match(invitationsPanel, /export function AccountCoachInvitationsPanel/u);
   assert.match(js, /async function refreshPendingRelationshipInvitations\(\)/u);
-  assert.match(js, /async function acceptRelationshipInvitation\(relationshipId\)/u);
-  assert.match(js, /class="button primary accept-relationship-invitation-button">Accept<\/button>/u);
-  assert.match(js, /guardedAction\(button, async \(\) => \{/u);
+  assert.match(invitationsClient, /export async function acceptRelationshipInvitation/u);
+  assert.match(invitationsPanel, />Accept<\/button>/u);
+  // A busy in-flight action disables the button (React's own equivalent of
+  // guardedAction's double-submit guard).
+  assert.match(invitationsPanel, /disabled=\{busy\}/u);
 
   // The panel is populated only from the server-returned relationship_id -
   // never an editable input the athlete could mistype or forge.
-  assert.doesNotMatch(js, /pendingRelationshipInvitations[\s\S]{0,400}<input/u);
+  assert.doesNotMatch(invitationsPanel, /<input/u);
 });
 
 test("visiting the account view refreshes the athlete's own pending invitations, and the coach invite form is duplicate-submit guarded", () => {

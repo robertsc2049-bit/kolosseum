@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
+import { useRole } from "../../utils/role";
 import { useAccountBranding } from "./useAccountBranding";
 
 // DEV NOTE: FULL-UI-65 coach branding - ported from coach_branding_ui.js's
@@ -8,32 +9,10 @@ import { useAccountBranding } from "./useAccountBranding";
 // migrated so far) it reads role from the same localStorage key legacy's
 // readRole() reads and renders nothing for an athlete - matching legacy's
 // elements.panel.hidden = !isCoach gate.
-const STORAGE_KEY = "kolosseum.product.app.v1";
 const DEFAULT_BRAND_COLOR = "#d2a952";
 
-function readRole(): string {
-  try {
-    const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}") as { role?: unknown };
-    return typeof stored.role === "string" ? stored.role : "";
-  }
-  catch {
-    return "";
-  }
-}
-
 export function AccountBrandingPanel() {
-  const [isCoach, setIsCoach] = useState(() => readRole() === "coach");
-
-  useEffect(() => {
-    function handleStorage() {
-      setIsCoach(readRole() === "coach");
-    }
-    window.addEventListener("storage", handleStorage);
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-    };
-  }, []);
-
+  const isCoach = useRole() === "coach";
   const { brandColor, brandTagline, statusMessage, statusTone, saving, setBrandColor, setBrandTagline, saveBranding } = useAccountBranding();
 
   if (!isCoach) return null;

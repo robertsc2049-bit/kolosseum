@@ -1297,7 +1297,6 @@ function setView(view) {
 
     refreshPendingRelationshipInvitations().catch(handleError);
     refreshAthleteRelationships().catch(handleError);
-    refreshCoachOrgContext().catch(handleError);
   }
 }
 
@@ -3952,7 +3951,7 @@ function renderAssignmentRequirements() {
   const profile = profileForAthlete(athlete.userId);
   if (!profile) {
     elements.assignmentRequirements.className = "assignment-requirements warning";
-    elements.assignmentRequirements.innerHTML = `Athlete profile required. Add 1RM references for: <strong>${required.map(exerciseDisplayName).map(escapeHtml).join(", ")}</strong>.`;
+    elements.assignmentRequirements.innerHTML = `Athlete profile required. Add 1RM references for: <strong>${required.map((exerciseId) => escapeHtml(exerciseDisplayName(exerciseId))).join(", ")}</strong>.`;
     elements.assignmentSubmitButton.disabled = true;
     return false;
   }
@@ -3962,7 +3961,7 @@ function renderAssignmentRequirements() {
 
   if (missing.length > 0) {
     elements.assignmentRequirements.className = "assignment-requirements warning";
-    elements.assignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map(exerciseDisplayName).map(escapeHtml).join(", ")}</strong>.`;
+    elements.assignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map((exerciseId) => escapeHtml(exerciseDisplayName(exerciseId))).join(", ")}</strong>.`;
     elements.assignmentSubmitButton.disabled = true;
     return false;
   }
@@ -9517,7 +9516,7 @@ function renderAthleteProfileAssignmentRequirements() {
 
   if (missing.length > 0) {
     elements.athleteAssignmentRequirements.className = "assignment-requirements warning";
-    elements.athleteAssignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map(exerciseDisplayName).map(escapeHtml).join(", ")}</strong>.`;
+    elements.athleteAssignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map((exerciseId) => escapeHtml(exerciseDisplayName(exerciseId))).join(", ")}</strong>.`;
     elements.athleteAssignmentButton.disabled = true;
     return false;
   }
@@ -9771,157 +9770,27 @@ function renderAccount() {
 
   renderTermsState();
 
-  let coachLinkPanel =
-    document.getElementById(
-      "athleteCoachLinkPanel"
-    );
-
-  if (state.role === "athlete") {
-    if (!coachLinkPanel) {
-      coachLinkPanel =
-        document.createElement(
-          "article"
-        );
-
-      coachLinkPanel.id =
-        "athleteCoachLinkPanel";
-
-      coachLinkPanel.className =
-        "panel";
-
-      coachLinkPanel.innerHTML = `
-        <p class="eyebrow">Coach-managed training</p>
-        <h3>Coach account code</h3>
-        <p class="muted">Enter the coach account code only after the coach has connected this athlete account.</p>
-        <div class="inline-controls">
-          <input id="coachCodeInput" autocomplete="off" placeholder="Coach account code" />
-          <button id="saveCoachCodeButton" class="button secondary" type="button">Save code</button>
-        </div>
-      `;
-
-      document
-        .querySelector(
-          "#view-account .two-column"
-        )
-        .insertAdjacentElement(
-          "afterend",
-          coachLinkPanel
-        );
-
-      coachLinkPanel
-        .querySelector(
-          "#saveCoachCodeButton"
-        )
-        .addEventListener(
-          "click",
-          () => {
-            state.coachCode =
-              coachLinkPanel
-                .querySelector(
-                  "#coachCodeInput"
-                )
-                .value
-                .trim();
-
-            saveState();
-
-            showNotice(
-              state.coachCode
-                ? "Coach account code saved."
-                : "Coach account code cleared."
-            );
-          }
-        );
-    }
-
-    coachLinkPanel.hidden = false;
-
-    coachLinkPanel
-      .querySelector(
-        "#coachCodeInput"
-      )
-      .value =
-        state.coachCode ?? "";
-  }
-  else if (coachLinkPanel) {
-    coachLinkPanel.hidden = true;
-  }
-
-  renderPendingRelationshipInvitations();
-  renderAthleteRelationships();
 }
 
 // FULL-UI-24: a coach invites an athlete by email, never by the athlete's
 // internal user_id; the athlete accepts here by clicking a real button, never
 // by typing any id.
-function renderPendingRelationshipInvitations() {
-  let panel = document.getElementById("pendingRelationshipInvitationsPanel");
-
-  if (state.role !== "athlete") {
-    if (panel) panel.hidden = true;
-    return;
-  }
-
-  if (!panel) {
-    panel = document.createElement("article");
-    panel.id = "pendingRelationshipInvitationsPanel";
-    panel.className = "panel";
-
-    document
-      .querySelector("#view-account .two-column")
-      .insertAdjacentElement("afterend", panel);
-  }
-
-  const invitations = Array.isArray(state.pendingRelationshipInvitations)
-    ? state.pendingRelationshipInvitations
-    : [];
-
-  if (invitations.length === 0) {
-    panel.hidden = true;
-    return;
-  }
-
-  panel.hidden = false;
-  panel.innerHTML = `
-    <p class="eyebrow">Coach invitations</p>
-    <h3>Pending coach invitations</h3>
-    <div class="record-list">
-      ${invitations.map((invitation) => `
-        <article class="record-row" data-relationship-id="${escapeHtml(invitation.relationship_id)}">
-          <div>
-            <strong>${escapeHtml(invitation.coach_display_name)}</strong>
-            <p class="muted small">${escapeHtml(invitation.coach_email ?? "")}</p>
-          </div>
-          <div class="inline-controls">
-            <button type="button" class="button secondary decline-relationship-invitation-button">Decline</button>
-            <button type="button" class="button primary accept-relationship-invitation-button">Accept</button>
-          </div>
-        </article>
-      `).join("")}
-    </div>
-  `;
-
-  for (const button of panel.querySelectorAll(".accept-relationship-invitation-button")) {
-    button.addEventListener(
-      "click",
-      guardedAction(button, async () => {
-        const relationshipId = button.closest("[data-relationship-id]")?.dataset.relationshipId;
-        await acceptRelationshipInvitation(relationshipId);
-      })
-    );
-  }
-
-  for (const button of panel.querySelectorAll(".decline-relationship-invitation-button")) {
-    button.addEventListener(
-      "click",
-      guardedAction(button, async () => {
-        const relationshipId = button.closest("[data-relationship-id]")?.dataset.relationshipId;
-        await declineRelationshipInvitation(relationshipId);
-      })
-    );
-  }
-}
-
+// DEV NOTE: FULL-UI-24/25 pending coach invitations, the athlete's own
+// relationships + coach messaging, org membership context (coach side),
+// and the athlete's own org-owner messaging all moved to React - see
+// public/app-src/screens/account/AccountCoachInvitationsPanel.tsx,
+// AccountCoachRelationshipPanel.tsx, AccountOrgContextPanel.tsx and
+// AccountOrgMessagesPanel.tsx (mounted into #view-account, replacing the
+// five panels this file used to splice in dynamically via
+// insertAdjacentElement("afterend", ...) on .two-column). Each fetches
+// independently and performs its own mutations - the two refreshers below
+// are trimmed to fetch+cache only (no render) since
+// notificationCoachName() (the notification bell's coach-name resolver,
+// below) still reads state.pendingRelationshipInvitations/
+// state.athleteRelationships directly. React dispatches
+// kolosseum:athlete-relationship-changed after every mutation (accept/
+// decline/end) so these caches - and loadAthleteToday(), since gaining or
+// losing a coach can change Today's current assignment - stay in sync.
 async function refreshPendingRelationshipInvitations() {
   if (state.role !== "athlete") return [];
 
@@ -9930,289 +9799,7 @@ async function refreshPendingRelationshipInvitations() {
     ? response.invitations
     : [];
 
-  renderPendingRelationshipInvitations();
   return state.pendingRelationshipInvitations;
-}
-
-async function acceptRelationshipInvitation(relationshipId) {
-  if (!relationshipId) return;
-
-  await api(
-    "POST",
-    `/coach-workspace/relationship-invitations/${encodeURIComponent(relationshipId)}/accept`
-  );
-
-  showNotice("Coach invitation accepted.");
-  await refreshPendingRelationshipInvitations();
-  await refreshAthleteRelationships().catch(handleError);
-  await loadAthleteToday().catch(handleError);
-}
-
-async function declineRelationshipInvitation(relationshipId) {
-  if (!relationshipId) return;
-
-  await api(
-    "POST",
-    `/coach-workspace/relationship-invitations/${encodeURIComponent(relationshipId)}/decline`
-  );
-
-  showNotice("Coach invitation declined.");
-  await refreshPendingRelationshipInvitations();
-  await refreshAthleteRelationships().catch(handleError);
-}
-
-// FULL-UI-25: the athlete's own current and past coach relationships - a
-// closed relationship is never deleted, only ever appended to, so its
-// history remains visible here even after the athlete or coach ends it.
-function renderAthleteRelationships() {
-  let panel = document.getElementById("athleteRelationshipsPanel");
-
-  if (state.role !== "athlete") {
-    if (panel) panel.hidden = true;
-    return;
-  }
-
-  if (!panel) {
-    panel = document.createElement("article");
-    panel.id = "athleteRelationshipsPanel";
-    panel.className = "panel";
-
-    document
-      .querySelector("#view-account .two-column")
-      .insertAdjacentElement("afterend", panel);
-  }
-
-  const relationships = Array.isArray(state.athleteRelationships)
-    ? state.athleteRelationships
-    : [];
-
-  if (relationships.length === 0) {
-    panel.hidden = true;
-    return;
-  }
-
-  const current = relationships.filter((entry) => entry.relationship_state === "accepted");
-  const past = relationships.filter((entry) => entry.relationship_state !== "accepted");
-  const currentCoach = current[0] ?? null;
-
-  panel.hidden = false;
-  panel.innerHTML = `
-    <p class="eyebrow">Coach relationships</p>
-    <h3>My coach</h3>
-    <div class="record-list">
-      ${current.length > 0
-        ? current.map((entry) => `
-          <article class="record-row" data-relationship-id="${escapeHtml(entry.relationship_id)}"${entry.coach_brand_color ? ` style="border-left: 3px solid ${escapeHtml(entry.coach_brand_color)}"` : ""}>
-            <div>
-              <strong>${escapeHtml(entry.coach_display_name)}</strong>
-              <p class="muted small">${escapeHtml(entry.coach_email ?? "")}</p>
-              ${entry.coach_brand_tagline ? `<p class="muted small">${escapeHtml(entry.coach_brand_tagline)}</p>` : ""}
-            </div>
-            <button type="button" class="button secondary end-relationship-button">End relationship</button>
-          </article>
-        `).join("")
-        : `<p class="muted small">No current coach.</p>`
-      }
-    </div>
-    ${past.length > 0 ? `
-      <p class="eyebrow">Past relationships</p>
-      <div class="record-list">
-        ${past.map((entry) => `
-          <article class="record-row">
-            <div>
-              <strong>${escapeHtml(entry.coach_display_name)}</strong>
-              <p class="muted small">${escapeHtml(titleCase(entry.relationship_state))}</p>
-            </div>
-          </article>
-        `).join("")}
-      </div>
-    ` : ""}
-    ${currentCoach ? `
-      <p class="eyebrow">Messages</p>
-      <div id="athleteMessageHistory" class="record-list"></div>
-      <form id="athleteMessageForm" class="athlete-detail-note-form" data-coach-user-id="${escapeHtml(currentCoach.coach_user_id)}">
-        <label class="field">
-          <span>Message your coach</span>
-          <textarea id="athleteMessageText" maxlength="4000"></textarea>
-        </label>
-        <label class="field">
-          <span>Attach photo or video (optional)</span>
-          <input type="file" id="athleteMessageAttachment" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" capture="environment">
-        </label>
-        <div class="inline-controls">
-          <button class="button primary" type="submit">Send</button>
-        </div>
-      </form>
-    ` : ""}
-  `;
-
-  for (const button of panel.querySelectorAll(".end-relationship-button")) {
-    button.addEventListener(
-      "click",
-      guardedAction(button, async () => {
-        const relationshipId = button.closest("[data-relationship-id]")?.dataset.relationshipId;
-        await endAthleteRelationship(relationshipId);
-      })
-    );
-  }
-
-  const messageForm = panel.querySelector("#athleteMessageForm");
-  if (messageForm) {
-    messageForm.addEventListener(
-      "submit",
-      (event) => {
-        confirmSendAthleteOwnMessage(event, messageForm.dataset.coachUserId).catch(handleError);
-      }
-    );
-    renderAthleteOwnMessages();
-  }
-}
-
-// Part O.7 - coach-side org/team context, the mirror of O.6's athlete-side
-// panel. Read-only (no send action) - which org(s) a coach belongs to,
-// and, only for shared (team) orgs, who else coaches there. Individual
-// (gym) orgs render org name/badge only; listOrganisationRosterForCoach
-// itself is the authority on that boundary (it returns an empty roster for
-// individual mode), this is purely display.
-async function refreshCoachOrgContext() {
-  if (state.role !== "coach") return;
-
-  const response = await api("GET", "/coach-workspace/org-memberships");
-  const memberships = Array.isArray(response.memberships) ? response.memberships : [];
-  const activeMemberships = memberships.filter((membership) => membership.membership_status !== "removed");
-
-  state.coachOrgContexts = await Promise.all(
-    activeMemberships.map(async (membership) => {
-      // The fellow-roster route requires an active membership - an
-      // invited-but-not-yet-accepted membership in a shared org would
-      // otherwise 403 here and (being inside this Promise.all) take the
-      // whole panel down with it, before the coach ever sees the
-      // invitation they're supposed to accept.
-      if (membership.visibility_mode !== "shared" || membership.membership_status !== "active") {
-        return { membership, roster: [] };
-      }
-      const rosterResponse = await api(
-        "GET",
-        `/coach-workspace/organisations/${encodeURIComponent(membership.org_id)}/roster`
-      );
-      return { membership, roster: Array.isArray(rosterResponse.roster) ? rosterResponse.roster : [] };
-    })
-  );
-  renderCoachOrgContext();
-}
-
-function coachOrgVisibilityModeLabel(mode) {
-  return mode === "shared" ? "Team" : "Gym";
-}
-
-function renderCoachOrgContext() {
-  let panel = document.getElementById("coachOrgContextPanel");
-
-  if (state.role !== "coach") {
-    if (panel) panel.hidden = true;
-    return;
-  }
-
-  const entries = Array.isArray(state.coachOrgContexts) ? state.coachOrgContexts : [];
-
-  if (entries.length === 0) {
-    if (panel) panel.hidden = true;
-    return;
-  }
-
-  if (!panel) {
-    panel = document.createElement("article");
-    panel.id = "coachOrgContextPanel";
-    panel.className = "panel";
-
-    document
-      .querySelector("#view-account .two-column")
-      .insertAdjacentElement("afterend", panel);
-
-    panel.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-org-membership-action]");
-      if (!button) return;
-      resolveOrgMembershipAction(
-        button.dataset.membershipId,
-        button.dataset.orgMembershipAction
-      ).catch(handleError);
-    });
-  }
-
-  panel.hidden = false;
-  panel.innerHTML = `
-    <p class="eyebrow">Organisations</p>
-    <h3>Your organisations</h3>
-    ${entries.map((entry) => `
-      <div class="record-row coach-org-context-entry">
-        <strong>${escapeHtml(entry.membership.org_name)}</strong>
-        <span class="badge ${entry.membership.visibility_mode === "shared" ? "active" : "neutral"}">${coachOrgVisibilityModeLabel(entry.membership.visibility_mode)}</span>
-        <p class="muted small">
-          ${entry.membership.activated_at_iso8601
-            ? `Joined ${escapeHtml(formatDate(entry.membership.activated_at_iso8601))}`
-            : `Invited ${escapeHtml(formatDate(entry.membership.invited_at_iso8601))}`}
-        </p>
-        ${entry.membership.membership_status === "invited"
-          ? `
-            <button
-              type="button"
-              class="button primary small-button"
-              data-org-membership-action="accept"
-              data-membership-id="${escapeHtml(entry.membership.membership_id)}"
-            >
-              Accept invitation
-            </button>
-          `
-          : ""
-        }
-        ${entry.membership.membership_status === "active"
-          ? `
-            <button
-              type="button"
-              class="button secondary small-button"
-              data-org-membership-action="leave"
-              data-membership-id="${escapeHtml(entry.membership.membership_id)}"
-            >
-              Leave organisation
-            </button>
-          `
-          : ""
-        }
-        ${entry.membership.visibility_mode === "shared"
-          ? `
-            <div class="record-list">
-              ${entry.roster.map((fellow) => `
-                <p class="muted small">
-                  ${escapeHtml(fellow.coach_display_name || fellow.coach_user_id)}${fellow.coach_user_id === state.profile?.coachUserId ? " (You)" : ""}${fellow.coach_email ? ` - ${escapeHtml(fellow.coach_email)}` : ""}${fellow.activated_at_iso8601 ? ` &middot; Joined ${escapeHtml(formatDate(fellow.activated_at_iso8601))}` : ""}
-                </p>
-              `).join("")}
-            </div>
-          `
-          : ""
-        }
-      </div>
-    `).join("")}
-  `;
-}
-
-async function resolveOrgMembershipAction(membershipId, action) {
-  if (!membershipId || (action !== "accept" && action !== "leave")) return;
-
-  showBusy(action === "accept" ? "Accepting invitation…" : "Leaving organisation…");
-  try {
-    await api("POST", `/coach-workspace/org-memberships/${encodeURIComponent(membershipId)}/${action}`, {});
-    await refreshCoachOrgContext();
-    showNotice(action === "accept" ? "Organisation invitation accepted." : "You have left the organisation.");
-  }
-  catch (error) {
-    showNotice(
-      friendlyError(error.payload, error.status) ||
-      (action === "accept" ? "Could not accept the invitation." : "Could not leave the organisation.")
-    );
-  }
-  finally {
-    hideBusy();
-  }
 }
 
 async function refreshAthleteRelationships() {
@@ -10223,310 +9810,14 @@ async function refreshAthleteRelationships() {
     ? response.relationships
     : [];
 
-  await refreshAthleteOwnMessages().catch(() => {});
-  await refreshAthleteOrgMessages().catch(() => {});
-  renderAthleteRelationships();
   return state.athleteRelationships;
 }
 
-async function refreshAthleteOwnMessages() {
-  if (state.role !== "athlete") return;
-
-  const response = await api("GET", "/messages/athlete/threads");
-  const threads = Array.isArray(response.threads) ? response.threads : [];
-  const thread = threads[0] ?? null;
-
-  if (!thread) {
-    state.liveMessageThreadId = null;
-    state.athleteMessages = [];
-    renderAthleteOwnMessages();
-    return;
-  }
-
-  state.liveMessageThreadId = thread.thread_id;
-  const messagesResponse = await api(
-    "GET",
-    `/messages/athlete/threads/${encodeURIComponent(thread.thread_id)}`
-  );
-  state.athleteMessages = Array.isArray(messagesResponse.messages) ? messagesResponse.messages : [];
-  renderAthleteOwnMessages();
-}
-
-function renderAthleteOwnMessages() {
-  const container = document.getElementById("athleteMessageHistory");
-  if (!container) return;
-
-  const messages = Array.isArray(state.athleteMessages) ? state.athleteMessages : [];
-
-  if (messages.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state compact-empty">
-        <p>No messages yet.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = messages.map((message) => `
-    <article class="review-note-card">
-      <div class="record-meta">
-        <span class="badge neutral">${message.sender_role === "athlete" ? "You" : "Coach"}</span>
-        <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
-      </div>
-      ${renderMessageAttachment(message.attachment)}
-      ${message.body_text ? `<p>${escapeHtml(message.body_text)}</p>` : ""}
-    </article>
-  `).join("");
-}
-
-async function confirmSendAthleteOwnMessage(event, coachUserId) {
-  event.preventDefault();
-  if (!coachUserId) return;
-
-  const textarea = document.getElementById("athleteMessageText");
-  const bodyText = textarea?.value.trim() ?? "";
-  const attachmentFile = document.getElementById("athleteMessageAttachment")?.files?.[0] ?? null;
-  if (!bodyText && !attachmentFile) {
-    throw new Error("Enter a message or attach a photo/video before sending.");
-  }
-  const attachmentError = validateAttachmentClientSide(attachmentFile);
-  if (attachmentError) {
-    throw new Error(attachmentError);
-  }
-
-  showBusy("Sending message…");
-  try {
-    await sendMessageRequest(
-      `/messages/athlete/coaches/${encodeURIComponent(coachUserId)}/send`,
-      bodyText,
-      attachmentFile
-    );
-
-    if (textarea) textarea.value = "";
-    const attachmentInput = document.getElementById("athleteMessageAttachment");
-    if (attachmentInput) attachmentInput.value = "";
-
-    await refreshAthleteOwnMessages();
-    showNotice("Message sent.");
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-// Part D.4 - org-owner<->athlete messaging, athlete side. A separate
-// panel/concern from the coach-relationships code above (own function
-// group, own state field) - plural by construction, since an athlete
-// could in principle be reached by more than one team org, unlike the
-// "My coach" singular assumption elsewhere on this page. The org owner
-// side has no UI at all (API-only, same as every other org-owner
-// capability), so this is the only place these threads are ever rendered.
-//
-// Part O.6 - the panel used to be gated entirely on a thread already
-// existing, but threads are created lazily on first send
-// (findOrCreateThread server-side) and this was the only place the
-// frontend ever learned an org's org_id - so an athlete could never send
-// the FIRST message to their own team; only the org owner could initiate
-// (the same gap O.5 found and fixed on the owner's side). GET
-// /coach-workspace/org-context/mine now supplies every org the athlete's
-// accepted coach relationship(s) give team context for, independent of
-// message history, so the panel and its send form can appear before any
-// thread exists.
-async function refreshAthleteOrgMessages() {
-  if (state.role !== "athlete") return;
-
-  const [threadsResponse, contextResponse] = await Promise.all([
-    api("GET", "/messages/athlete/org-messages/threads"),
-    api("GET", "/coach-workspace/org-context/mine").catch(() => ({ contexts: [] }))
-  ]);
-  const threads = Array.isArray(threadsResponse.threads) ? threadsResponse.threads : [];
-
-  state.athleteOrgMessageThreads = await Promise.all(
-    threads.map(async (thread) => {
-      const messagesResponse = await api(
-        "GET",
-        `/messages/athlete/org-messages/threads/${encodeURIComponent(thread.thread_id)}`
-      );
-      return {
-        thread,
-        messages: Array.isArray(messagesResponse.messages) ? messagesResponse.messages : []
-      };
-    })
-  );
-  state.athleteOrgContexts = Array.isArray(contextResponse.contexts) ? contextResponse.contexts : [];
-  renderAthleteOrgMessages();
-}
-
-// Merges org-context entries (always available once an accepted
-// relationship + active org coach exists) with thread entries (only once
-// a message has actually been sent) by org_id, so every team the athlete
-// is genuinely part of appears - not just ones with prior messages.
-function combinedAthleteOrgEntries() {
-  const threadEntries = Array.isArray(state.athleteOrgMessageThreads) ? state.athleteOrgMessageThreads : [];
-  const contexts = Array.isArray(state.athleteOrgContexts) ? state.athleteOrgContexts : [];
-  const threadEntryByOrgId = new Map(threadEntries.map((entry) => [entry.thread.org_id, entry]));
-
-  const combined = [];
-  const seenOrgIds = new Set();
-
-  for (const context of contexts) {
-    const threadEntry = threadEntryByOrgId.get(context.org_id) || null;
-    combined.push({
-      org_id: context.org_id,
-      org_name: threadEntry ? threadEntry.thread.org_name : context.org_name,
-      visibility_mode: context.visibility_mode,
-      threadEntry
-    });
-    seenOrgIds.add(context.org_id);
-  }
-
-  // A thread can exist for an org no longer returned by org-context (e.g.
-  // the coach relationship later ended) - still show its history, but the
-  // route itself (not this client) remains the authority on whether a
-  // further send is allowed.
-  for (const entry of threadEntries) {
-    if (seenOrgIds.has(entry.thread.org_id)) continue;
-    combined.push({
-      org_id: entry.thread.org_id,
-      org_name: entry.thread.org_name,
-      visibility_mode: "shared",
-      threadEntry: entry
-    });
-  }
-
-  return combined;
-}
-
-function renderAthleteOrgMessages() {
-  let panel = document.getElementById("athleteOrgMessagesPanel");
-
-  if (state.role !== "athlete") {
-    if (panel) panel.hidden = true;
-    return;
-  }
-
-  const entries = combinedAthleteOrgEntries();
-
-  if (entries.length === 0) {
-    if (panel) panel.hidden = true;
-    return;
-  }
-
-  if (!panel) {
-    panel = document.createElement("article");
-    panel.id = "athleteOrgMessagesPanel";
-    panel.className = "panel";
-
-    document
-      .querySelector("#view-account .two-column")
-      .insertAdjacentElement("afterend", panel);
-  }
-
-  panel.hidden = false;
-  panel.innerHTML = `
-    <p class="eyebrow">Organisation messages</p>
-    <h3>Messages from your team</h3>
-    ${entries.map((entry) => `
-      <div class="record-row org-message-thread" data-thread-id="${escapeHtml(entry.threadEntry?.thread.thread_id ?? "")}">
-        <strong>${escapeHtml(entry.org_name)}</strong>
-        <div class="record-list">
-          ${entry.threadEntry && entry.threadEntry.messages.length > 0
-            ? entry.threadEntry.messages.map((message) => `
-              <article class="review-note-card">
-                <div class="record-meta">
-                  <span class="badge neutral">${message.sender_role === "athlete" ? "You" : escapeHtml(entry.org_name)}</span>
-                  <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
-                </div>
-                ${renderMessageAttachment(message.attachment)}
-                ${message.body_text ? `<p>${escapeHtml(message.body_text)}</p>` : ""}
-              </article>
-            `).join("")
-            : `<p class="muted small">No messages yet.</p>`
-          }
-        </div>
-        ${entry.visibility_mode === "shared"
-          ? `
-            <form class="athlete-detail-note-form org-message-form" data-org-id="${escapeHtml(entry.org_id)}">
-              <label class="field">
-                <span>Reply to ${escapeHtml(entry.org_name)}</span>
-                <textarea class="org-message-text" maxlength="4000"></textarea>
-              </label>
-              <label class="field">
-                <span>Attach photo or video (optional)</span>
-                <input type="file" class="org-message-attachment" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" capture="environment">
-              </label>
-              <div class="inline-controls">
-                <button class="button primary" type="submit">Send</button>
-              </div>
-            </form>
-          `
-          : `<p class="muted small">Your coach's independent gym - no team messaging.</p>`
-        }
-      </div>
-    `).join("")}
-  `;
-
-  for (const form of panel.querySelectorAll(".org-message-form")) {
-    form.addEventListener(
-      "submit",
-      (event) => {
-        confirmSendAthleteOrgMessage(event, form).catch(handleError);
-      }
-    );
-  }
-}
-
-async function confirmSendAthleteOrgMessage(event, form) {
-  event.preventDefault();
-  const orgId = form.dataset.orgId;
-  if (!orgId) return;
-
-  const textarea = form.querySelector(".org-message-text");
-  const bodyText = textarea?.value.trim() ?? "";
-  const attachmentInput = form.querySelector(".org-message-attachment");
-  const attachmentFile = attachmentInput?.files?.[0] ?? null;
-  if (!bodyText && !attachmentFile) {
-    throw new Error("Enter a message or attach a photo/video before sending.");
-  }
-  const attachmentError = validateAttachmentClientSide(attachmentFile);
-  if (attachmentError) {
-    throw new Error(attachmentError);
-  }
-
-  showBusy("Sending message…");
-  try {
-    await sendMessageRequest(
-      `/messages/athlete/org-messages/organisations/${encodeURIComponent(orgId)}/send`,
-      bodyText,
-      attachmentFile
-    );
-
-    if (attachmentInput) attachmentInput.value = "";
-
-    await refreshAthleteOrgMessages();
-    showNotice("Message sent.");
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-async function endAthleteRelationship(relationshipId) {
-  if (!relationshipId) return;
-
-  if (!globalThis.confirm("End this relationship with your coach? Historical records will be preserved.")) {
-    return;
-  }
-
-  await api(
-    "POST",
-    `/coach-workspace/relationships/${encodeURIComponent(relationshipId)}/end`
-  );
-
-  showNotice("Relationship ended.");
-  await refreshAthleteRelationships();
-  await loadAthleteToday().catch(handleError);
-}
+document.addEventListener("kolosseum:athlete-relationship-changed", () => {
+  refreshPendingRelationshipInvitations().catch(handleError);
+  refreshAthleteRelationships().catch(handleError);
+  loadAthleteToday().catch(handleError);
+});
 
 async function loadPersistentAccountDetail(
   options = {}
@@ -10596,10 +9887,11 @@ async function checkConnection() {
 // socket never sends application data, it only reflects messages already
 // persisted and returned by the existing POST /messages/... routes, so a
 // dropped/never-established connection is never a correctness problem -
-// refreshCoachAthleteMessages()/refreshAthleteOwnMessages() (refresh-on-
-// open) remain the source of truth. Native WebSocket has no built-in
-// reconnect, unlike EventSource, so a capped exponential backoff is
-// handled here manually.
+// refreshCoachAthleteMessages() (coach side, still legacy) and React's own
+// useAccountCoachRelationship.ts/useAccountOrgMessages.ts (athlete side,
+// refresh-on-mount) remain the source of truth. Native WebSocket has no
+// built-in reconnect, unlike EventSource, so a capped exponential backoff
+// is handled here manually.
 let messagingSocket = null;
 let messagingReconnectTimer = null;
 let messagingReconnectDelayMs = 2000;
@@ -10681,41 +9973,24 @@ function handleMessagingSocketPayload(envelope) {
       renderCoachAthleteMessages();
     }
     else if (state.role === "athlete") {
-      // An athlete has at most one current coach thread open at a time. A
-      // still-null liveMessageThreadId means the panel is open but no
-      // message has been sent yet - the thread doesn't exist server-side
-      // until the first send, so there's no prior id to match. Adopt the
-      // pushed thread's id in that case instead of discarding the push.
-      if (!document.getElementById("athleteMessageHistory")) return;
-      if (state.liveMessageThreadId && thread.thread_id !== state.liveMessageThreadId) return;
-      state.liveMessageThreadId = thread.thread_id;
-      const existing = Array.isArray(state.athleteMessages) ? state.athleteMessages : [];
-      if (existing.some((entry) => entry.message_id === message.message_id)) return;
-      state.athleteMessages = [...existing, message];
-      renderAthleteOwnMessages();
+      // The athlete-side coach-messaging panel is React now (see
+      // AccountCoachRelationshipPanel.tsx/useAccountCoachRelationship.ts) -
+      // it owns its own thread-id/message-list state and dedupes the same
+      // way this used to (by message_id), so this just forwards the push.
+      document.dispatchEvent(new CustomEvent("kolosseum:athlete-coach-message-received", { detail: { thread, message } }));
     }
   }
   // Part D.4 - unlike the single-thread coach<->athlete case above, an
   // athlete can have several simultaneously-rendered org threads (no
-  // "currently open" gate), so a push either appends to an existing entry
-  // or - for an org's very first message to this athlete - adds a brand
-  // new one using the thread row the push already carries.
+  // "currently open" gate). The athlete-side org-messaging panel is React
+  // now (AccountOrgMessagesPanel.tsx/useAccountOrgMessages.ts) - it owns
+  // merging a push into an existing thread entry or creating a brand new
+  // one, so this just forwards the push.
   else if (envelope.type === "org_athlete_message" && state.role === "athlete") {
     const thread = envelope.thread;
     const message = envelope.message;
     if (!thread || !message) return;
-
-    const entries = Array.isArray(state.athleteOrgMessageThreads) ? state.athleteOrgMessageThreads : [];
-    const existingEntry = entries.find((entry) => entry.thread.thread_id === thread.thread_id);
-    if (existingEntry) {
-      if (existingEntry.messages.some((entry) => entry.message_id === message.message_id)) return;
-      existingEntry.messages = [...existingEntry.messages, message];
-    }
-    else {
-      entries.push({ thread, messages: [message] });
-    }
-    state.athleteOrgMessageThreads = entries;
-    renderAthleteOrgMessages();
+    document.dispatchEvent(new CustomEvent("kolosseum:athlete-org-message-received", { detail: { thread, message } }));
   }
 }
 
@@ -10755,6 +10030,15 @@ async function enterApplication() {
   renderRoleNavigation();
   renderIdentity();
   renderAccount();
+
+  // React's own role-gated #view-account panels (AccountBrandingPanel.tsx
+  // and friends) read state.role from localStorage at mount time, which is
+  // stale after a same-tab sign-in/register (no page reload - "storage"
+  // events only fire cross-tab, never for the tab that made the change).
+  // enterApplication() runs after every sign-in/register AND on every
+  // fresh boot with a restored session, so this is the one place both
+  // cases are covered.
+  document.dispatchEvent(new CustomEvent("kolosseum:account-role-known"));
 
   if (state.role === "athlete") {
     // FULL-UI-22 cross-product quality: server authority over local cache.
