@@ -116,7 +116,7 @@ test("opening a thread's messages marks it read for that viewer only, updating o
 test("the coach directory shows a live unread-messages badge per athlete, fetched separately from the mark-read thread-detail call", () => {
   assert.match(appJs, /function coachMessageUnreadCountFor/u);
   assert.match(appJs, /async function refreshCoachMessageUnreadCounts/u);
-  assert.match(appJs, /coachMessageUnreadCountFor\(record\.userId\) > 0/u);
+  assert.match(appJs, /coachMessageUnreadCountFor\(athleteUserId\) > 0/u);
   assert.match(appJs, /refreshCoachMessageUnreadCounts\(\{ quiet: true \}\)/u);
 });
 
