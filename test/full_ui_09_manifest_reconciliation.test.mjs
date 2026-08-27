@@ -84,7 +84,6 @@ const targets = [
       {
         "path": "public/app/app.js",
         "all": [
-          "function assignmentHistoryCards(",
           "assignment_history"
         ]
       },

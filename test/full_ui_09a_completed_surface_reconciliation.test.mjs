@@ -22,9 +22,9 @@ const targets = [
     "id": "assignment_confirmation",
     "evidence": [
       [
-        "public/app/app.js",
+        "public/app-src/screens/coach/useAthleteProfileAssignment.ts",
         [
-          "assignmentTemplateVersion(current)"
+          "version ${templateVersion}"
         ]
       ],
       [
