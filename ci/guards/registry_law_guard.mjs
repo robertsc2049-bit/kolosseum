@@ -414,6 +414,7 @@ function main() {
   const exerciseDoc = regs.get("exercise")?.doc ?? readJson(exercisePath);
 
   const entrySchema = loadSchemaOrDie("ci/schemas/registry_entry.schema.json");
+  const canonicalExerciseSchema = loadSchemaOrDie("ci/schemas/exercise.registry.schema.json");
   const wrapperSchema = loadSchemaOrDie("ci/schemas/exercise_registry.schema.json");
 
   const ajv = new Ajv({ allErrors: true, strict: true, validateSchema: false });
@@ -438,6 +439,7 @@ function main() {
     valid: true
   });
   ajv.addSchema(entrySchema, entrySchema.$id);
+  ajv.addSchema(canonicalExerciseSchema, canonicalExerciseSchema.$id);
   ajv.addSchema(wrapperSchema, wrapperSchema.$id);
 
   const validateWrapper = ajv.getSchema(wrapperSchema.$id);
