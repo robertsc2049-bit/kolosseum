@@ -25,19 +25,21 @@ jobs:
         shell: bash
         run: |
           set +e
-          npm run ci > ci-output.log 2>&1
+          log="$RUNNER_TEMP/ci-output.log"
+          summary="$RUNNER_TEMP/ci-failure-summary.txt"
+          npm run ci > "$log" 2>&1
           status=$?
           {
             echo "exit_status=$status"
             echo "=== focused failure lines ==="
-            grep -En "::error|run_long_npm_script|test:ci command failed|AssertionError|ERR_|CI_[A-Z0-9_]+|not ok|FAILED|failure|Error:" ci-output.log | tail -n 160 || true
+            grep -En "::error|run_long_npm_script|test:ci command failed|AssertionError|ERR_|CI_[A-Z0-9_]+|not ok|FAILED|failure|Error:" "$log" | tail -n 160 || true
             echo "=== final output ==="
-            tail -n 240 ci-output.log
-          } > ci-failure-summary.txt
+            tail -n 240 "$log"
+          } > "$summary"
           exit 0
       - name: Upload diagnostic summary
         uses: actions/upload-artifact@v4
         with:
           name: reg-full-01-ci-failure-summary
-          path: ci-failure-summary.txt
+          path: ${{ runner.temp }}/ci-failure-summary.txt
           if-no-files-found: error
