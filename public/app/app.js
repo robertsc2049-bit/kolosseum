@@ -141,64 +141,6 @@ const elements = {
   todayHistoryCount: document.getElementById("todayHistoryCount"),
   todayRecentList: document.getElementById("todayRecentList"),
 
-  sessionActivity: document.getElementById("sessionActivity"),
-  sessionTitle: document.getElementById("sessionTitle"),
-  sessionSubtitle: document.getElementById("sessionSubtitle"),
-  sessionStatusBadge: document.getElementById("sessionStatusBadge"),
-  sessionLoading: document.getElementById("sessionLoading"),
-  sessionServiceUnavailable: document.getElementById("sessionServiceUnavailable"),
-  sessionRetryButton: document.getElementById("sessionRetryButton"),
-  sessionEmpty: document.getElementById("sessionEmpty"),
-  sessionWorkspace: document.getElementById("sessionWorkspace"),
-  sessionProgressText: document.getElementById("sessionProgressText"),
-  currentExercise: document.getElementById("currentExercise"),
-  returnDecision: document.getElementById("returnDecision"),
-  skipReasonPanel: document.getElementById("skipReasonPanel"),
-  skipReasonSelect: document.getElementById("skipReasonSelect"),
-  confirmSkipButton: document.getElementById("confirmSkipButton"),
-  cancelSkipButton: document.getElementById("cancelSkipButton"),
-  painReportPanel: document.getElementById("painReportPanel"),
-  confirmPainReportButton: document.getElementById("confirmPainReportButton"),
-  cancelPainReportButton: document.getElementById("cancelPainReportButton"),
-  rpeReportPanel: document.getElementById("rpeReportPanel"),
-  rpeReportValue: document.getElementById("rpeReportValue"),
-  confirmRpeReportButton: document.getElementById("confirmRpeReportButton"),
-  cancelRpeReportButton: document.getElementById("cancelRpeReportButton"),
-  substitutionPanel: document.getElementById("substitutionPanel"),
-  checkSubstitutionButton: document.getElementById("checkSubstitutionButton"),
-  cancelSubstitutionButton: document.getElementById("cancelSubstitutionButton"),
-  substitutionResult: document.getElementById("substitutionResult"),
-  restTimerPanel: document.getElementById("restTimerPanel"),
-  restTimerRemaining: document.getElementById("restTimerRemaining"),
-  skipRestButton: document.getElementById("skipRestButton"),
-  sessionActions: document.getElementById("sessionActions"),
-  startSessionButton: document.getElementById("startSessionButton"),
-  completeExerciseButton: document.getElementById("completeExerciseButton"),
-  skipExerciseButton: document.getElementById("skipExerciseButton"),
-  reportPainButton: document.getElementById("reportPainButton"),
-  reportRpeButton: document.getElementById("reportRpeButton"),
-  requestSubstitutionButton: document.getElementById("requestSubstitutionButton"),
-  recordVideoFeedbackButton: document.getElementById("recordVideoFeedbackButton"),
-  videoFeedbackPanel: document.getElementById("videoFeedbackPanel"),
-  videoFeedbackFileInput: document.getElementById("videoFeedbackFileInput"),
-  videoFeedbackCaptionInput: document.getElementById("videoFeedbackCaptionInput"),
-  videoFeedbackStatus: document.getElementById("videoFeedbackStatus"),
-  uploadVideoFeedbackButton: document.getElementById("uploadVideoFeedbackButton"),
-  cancelVideoFeedbackButton: document.getElementById("cancelVideoFeedbackButton"),
-  splitSessionButton: document.getElementById("splitSessionButton"),
-  returnContinueButton: document.getElementById("returnContinueButton"),
-  returnSkipButton: document.getElementById("returnSkipButton"),
-  sessionProgressBar: document.getElementById("sessionProgressBar"),
-  sessionCompletedCount: document.getElementById("sessionCompletedCount"),
-  sessionRemainingCount: document.getElementById("sessionRemainingCount"),
-  sessionDroppedCount: document.getElementById("sessionDroppedCount"),
-  sessionCompletionSummary: document.getElementById("sessionCompletionSummary"),
-  sessionCompletionHeading: document.getElementById("sessionCompletionHeading"),
-  sessionCompletionBody: document.getElementById("sessionCompletionBody"),
-  sessionCompletionCompletedCount: document.getElementById("sessionCompletionCompletedCount"),
-  sessionCompletionDroppedCount: document.getElementById("sessionCompletionDroppedCount"),
-  exerciseQueue: document.getElementById("exerciseQueue"),
-
   refreshHistoryButton: document.getElementById("refreshHistoryButton"),
   exportHistoryButton: document.getElementById("exportHistoryButton"),
 
@@ -1845,25 +1787,6 @@ async function createSession() {
   }
 }
 
-async function startSession() {
-  if (!state.activeSessionId) return;
-
-  showBusy("Starting session…");
-  try {
-    await api("POST", `/sessions/${encodeURIComponent(state.activeSessionId)}/start`, {});
-    const local = state.localSessions.find((session) => session.session_id === state.activeSessionId);
-    upsertLocalSession(state.activeSessionId, {
-      status: "in_progress",
-      runtime_event_count: Number(local?.runtime_event_count ?? 0) + 1
-    });
-    await loadSessionState();
-    showNotice("Session started.");
-  }
-  finally {
-    hideBusy();
-  }
-}
-
 function newClientRequestId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
@@ -1871,55 +1794,31 @@ function newClientRequestId() {
   return `crid_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
-async function postSessionEvent(event, clientRequestId = newClientRequestId()) {
-  if (!state.activeSessionId) return;
-
-  showBusy("Recording session…");
-  try {
-    await api("POST", `/sessions/${encodeURIComponent(state.activeSessionId)}/events`, {
-      ...event,
-      client_request_id: clientRequestId
-    });
-    const local = state.localSessions.find((session) => session.session_id === state.activeSessionId);
-    upsertLocalSession(state.activeSessionId, {
-      runtime_event_count: Number(local?.runtime_event_count ?? 0) + 1
-    });
-    await loadSessionState();
-    await refreshHistory({ quiet: true });
-  }
-  finally {
-    hideBusy();
-  }
-}
-
+// DEV NOTE: FULL-UI-15C session execution moved to React (see
+// public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx/
+// useAthleteSessionExecution.ts) - it independently fetches this same
+// /state endpoint and performs its own start/complete/skip/pain/RPE/
+// substitution/split/return/video mutations, so postSessionEvent() and
+// startSession() (the legacy mutation path) are fully retired. This
+// function is trimmed to just the fetch + local-cache/notify side effects
+// still needed elsewhere: loadAthleteToday() calls it directly to hydrate
+// state.activeSessionState for the Today "recent activity" preview, and
+// setView()'s session-view-entry branch still calls it (see below) so a
+// direct navigation/deep-link to Session always has fresh data cached
+// before React's own independent fetch resolves. The
+// kolosseum:athlete-session-mutated listener below calls this same
+// function after every React-side mutation to keep this cache in sync,
+// replacing the render() call this function used to make itself.
 async function loadSessionState() {
   if (!state.activeSessionId) {
     state.activeSessionState = null;
-    elements.sessionLoading.hidden = true;
-    elements.sessionServiceUnavailable.hidden = true;
-    renderAthleteSession();
     return null;
   }
 
-  elements.sessionServiceUnavailable.hidden = true;
-  elements.sessionLoading.hidden = false;
-  elements.sessionEmpty.hidden = true;
-  elements.sessionWorkspace.hidden = true;
-
-  let sessionState;
-  try {
-    sessionState = await api(
-      "GET",
-      `/sessions/${encodeURIComponent(state.activeSessionId)}/state`
-    );
-  }
-  catch (error) {
-    elements.sessionLoading.hidden = true;
-    elements.sessionServiceUnavailable.hidden = false;
-    throw error;
-  }
-
-  elements.sessionLoading.hidden = true;
+  const sessionState = await api(
+    "GET",
+    `/sessions/${encodeURIComponent(state.activeSessionId)}/state`
+  );
 
   state.activeSessionState = sessionState;
 
@@ -1929,14 +1828,32 @@ async function loadSessionState() {
   });
 
   saveState();
-  renderAthleteSession();
   notifyTodayChanged();
   return sessionState;
 }
 
-let currentFocusExerciseId = null;
-let currentFocusExerciseLabel = null;
-let restTimerIntervalId = null;
+document.addEventListener("kolosseum:athlete-session-mutated", (event) => {
+  const { session_id: sessionId, refreshHistory: shouldRefreshHistory } = event.detail ?? {};
+  if (sessionId && sessionId === state.activeSessionId) {
+    const local = state.localSessions.find((session) => session.session_id === sessionId);
+    upsertLocalSession(sessionId, {
+      runtime_event_count: Number(local?.runtime_event_count ?? 0) + 1
+    });
+  }
+  loadSessionState().catch(handleError);
+  if (shouldRefreshHistory) refreshHistory({ quiet: true }).catch(handleError);
+});
+
+// DEV NOTE: exerciseContentCache/exerciseReferenceMediaCache and
+// referenceMediaMarkup()/renderExerciseHowto()/loadExerciseHowto() below
+// stay legacy - the coach template builder's own exercise-preview panel
+// (search for "loadExerciseHowto(exerciseId, panel, false)") still calls
+// this trio with respectDensity=false to always show full instructional
+// content regardless of any athlete's accessibility preference. The
+// athlete Session view's own how-to display moved to React (see
+// AthleteSessionExecutionPanel.tsx's ExerciseHowto/ExerciseHowtoBody,
+// which fetch the same /exercises/:id/content and /reference-media routes
+// independently with their own cache).
 const exerciseContentCache = new Map();
 const exerciseReferenceMediaCache = new Map();
 
@@ -2021,485 +1938,16 @@ async function loadExerciseHowto(exerciseId, container, respectDensity = true) {
   }
 }
 
-function hideAllActionPanels() {
-  elements.skipReasonPanel.hidden = true;
-  elements.painReportPanel.hidden = true;
-  elements.rpeReportPanel.hidden = true;
-  elements.substitutionPanel.hidden = true;
-  elements.substitutionResult.hidden = true;
-  elements.substitutionResult.innerHTML = "";
-  for (const box of document.querySelectorAll(".substitution-equipment-option")) {
-    box.checked = false;
-  }
-  elements.videoFeedbackPanel.hidden = true;
-  elements.videoFeedbackFileInput.value = "";
-  elements.videoFeedbackCaptionInput.value = "";
-  elements.videoFeedbackStatus.hidden = true;
-  elements.videoFeedbackStatus.textContent = "";
-}
-
-function formatRestClock(totalSeconds) {
-  const safeSeconds = Math.max(0, Math.round(totalSeconds));
-  const minutes = Math.floor(safeSeconds / 60);
-  const seconds = safeSeconds % 60;
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
-}
-
-function playRestCompleteCue() {
-  try {
-    if (typeof navigator.vibrate === "function") {
-      navigator.vibrate([180, 80, 180]);
-    }
-  }
-  catch {
-    // Vibration is a best-effort cue; ignore if unsupported or blocked.
-  }
-
-  try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return;
-    const context = new AudioContextClass();
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.type = "sine";
-    oscillator.frequency.value = 880;
-    gain.gain.setValueAtTime(0.15, context.currentTime);
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.4);
-    oscillator.onended = () => context.close();
-  }
-  catch {
-    // AudioContext can be blocked pre-interaction in some browsers; the
-    // visual done-state is the primary cue, this is a best-effort extra.
-  }
-}
-
-function stopRestTimer() {
-  if (restTimerIntervalId !== null) {
-    clearInterval(restTimerIntervalId);
-    restTimerIntervalId = null;
-  }
-  elements.restTimerPanel.hidden = true;
-  elements.restTimerPanel.classList.remove("rest-timer-done");
-}
-
-function startRestTimer(totalSeconds) {
-  stopRestTimer();
-
-  let remaining = totalSeconds;
-  elements.restTimerPanel.hidden = false;
-  elements.restTimerRemaining.textContent = formatRestClock(remaining);
-
-  restTimerIntervalId = setInterval(() => {
-    remaining -= 1;
-
-    if (remaining <= 0) {
-      clearInterval(restTimerIntervalId);
-      restTimerIntervalId = null;
-      elements.restTimerRemaining.textContent = "Rest complete";
-      elements.restTimerPanel.classList.add("rest-timer-done");
-      playRestCompleteCue();
-      setTimeout(() => {
-        elements.restTimerPanel.hidden = true;
-        elements.restTimerPanel.classList.remove("rest-timer-done");
-      }, 2500);
-      return;
-    }
-
-    elements.restTimerRemaining.textContent = formatRestClock(remaining);
-  }, 1000);
-}
-
-function maybeStartRestTimer() {
-  const restSeconds = Number(state.activeSessionState?.current_step?.exercise?.rest_seconds);
-  if (Number.isInteger(restSeconds) && restSeconds > 0) {
-    startRestTimer(restSeconds);
-  }
-}
-
-function openSkipReasonPanel() {
-  if (!currentFocusExerciseId) return;
-  hideAllActionPanels();
-  elements.skipReasonPanel.hidden = false;
-}
-
-function openPainReportPanel() {
-  if (!currentFocusExerciseId) return;
-  hideAllActionPanels();
-  elements.painReportPanel.hidden = false;
-}
-
-function openRpeReportPanel() {
-  if (!currentFocusExerciseId) return;
-  hideAllActionPanels();
-  elements.rpeReportPanel.hidden = false;
-}
-
-function openSubstitutionPanel() {
-  if (!currentFocusExerciseId) return;
-  hideAllActionPanels();
-  elements.substitutionPanel.hidden = false;
-}
-
-async function confirmSkipWithReason() {
-  const exerciseId = currentFocusExerciseId;
-  if (!exerciseId) return;
-  const reasonCode = elements.skipReasonSelect.value;
-
-  hideAllActionPanels();
-  await postSessionEvent({
-    type: "SKIP_EXERCISE",
-    exercise_id: exerciseId,
-    reason_code: reasonCode
-  });
-}
-
-async function confirmPainReport() {
-  const exerciseId = currentFocusExerciseId;
-  if (!exerciseId) return;
-
-  hideAllActionPanels();
-  await postSessionEvent({
-    type: "PAIN_REPORT",
-    exercise_id: exerciseId,
-    pain_reported: true
-  });
-  showNotice("Pain reported for this exercise.");
-}
-
-async function confirmRpeReport() {
-  const exerciseId = currentFocusExerciseId;
-  if (!exerciseId) return;
-
-  const rpeValue = Number(elements.rpeReportValue.value);
-  hideAllActionPanels();
-  await postSessionEvent({
-    type: "RPE_REPORT",
-    exercise_id: exerciseId,
-    rpe_value: rpeValue
-  });
-  showNotice("RPE reported for this exercise.");
-}
-
-let lastSubstitutionResult = null;
-
-function renderSubstitutionResult(outcome) {
-  elements.substitutionResult.hidden = false;
-
-  if (outcome?.ok === true) {
-    const result = outcome.result;
-    if (result.substitution_status === "substitution_applied") {
-      elements.substitutionResult.innerHTML = `
-        <p><strong>Substitute available:</strong> ${escapeHtml(result.substitution_output.target_exercise_id)}</p>
-        <div class="button-row">
-          <button id="applySubstitutionCompleteButton" class="button primary" type="button">Complete with substitute</button>
-          <button id="applySubstitutionSkipButton" class="button secondary" type="button">Skip with substitute</button>
-        </div>
-      `;
-      document.getElementById("applySubstitutionCompleteButton").addEventListener("click", () => {
-        applySubstitution("COMPLETE_EXERCISE").catch(handleError);
-      });
-      document.getElementById("applySubstitutionSkipButton").addEventListener("click", () => {
-        applySubstitution("SKIP_EXERCISE").catch(handleError);
-      });
-    }
-    else {
-      elements.substitutionResult.innerHTML = `<p>No substitution is required for the selected equipment.</p>`;
-    }
-  }
-  else {
-    elements.substitutionResult.innerHTML = `<p>No lawful substitute is available for this exercise.</p>`;
-  }
-}
-
-async function checkSubstitution() {
-  const exerciseId = currentFocusExerciseId;
-  if (!exerciseId || !state.activeSessionId) return;
-
-  const unavailableEquipmentIds = [...document.querySelectorAll(".substitution-equipment-option:checked")]
-    .map((box) => box.value);
-
-  showBusy("Checking substitution…");
-  try {
-    const outcome = await api(
-      "POST",
-      `/sessions/${encodeURIComponent(state.activeSessionId)}/substitution-request`,
-      { exercise_id: exerciseId, unavailable_equipment_ids: unavailableEquipmentIds }
-    );
-    lastSubstitutionResult = { exerciseId, outcome };
-    renderSubstitutionResult(outcome);
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-async function applySubstitution(eventType) {
-  if (!lastSubstitutionResult || lastSubstitutionResult.exerciseId !== currentFocusExerciseId) return;
-  const outcome = lastSubstitutionResult.outcome;
-  if (outcome?.ok !== true || outcome.result?.substitution_status !== "substitution_applied") return;
-
-  const exerciseId = currentFocusExerciseId;
-  hideAllActionPanels();
-  if (eventType === "COMPLETE_EXERCISE") maybeStartRestTimer();
-  await postSessionEvent({
-    type: eventType,
-    exercise_id: exerciseId,
-    substituted_exercise_id: outcome.result.substitution_output.target_exercise_id,
-    substitution_edge_id: outcome.result.substitution_output.substitution_edge_id
-  });
-}
-
-function openVideoFeedbackPanel() {
-  if (!currentFocusExerciseId) return;
-  hideAllActionPanels();
-  elements.videoFeedbackPanel.hidden = false;
-}
-
-// Fast feedback only - never the actual security boundary, which is the
-// server's own content-sniffed validation (video_submission_storage.ts).
-// Reuses the exact video type/size limits already defined for messaging
-// attachments (ATTACHMENT_VIDEO_TYPES/ATTACHMENT_MAX_VIDEO_BYTES, below)
-// since the server-side ceiling is the same 50MB.
-function validateVideoFeedbackClientSide(file) {
-  if (!file) return "Choose a video to upload.";
-  if (!ATTACHMENT_VIDEO_TYPES.includes(file.type)) {
-    return "That file type isn't supported. Use an MP4/MOV video.";
-  }
-  if (file.size > ATTACHMENT_MAX_VIDEO_BYTES) {
-    return "Videos must be 50MB or smaller.";
-  }
-  return null;
-}
-
-async function uploadExerciseVideo() {
-  const exerciseId = currentFocusExerciseId;
-  const sessionId = state.activeSessionId;
-  if (!exerciseId || !sessionId) return;
-
-  const file = elements.videoFeedbackFileInput?.files?.[0];
-  const validationError = validateVideoFeedbackClientSide(file);
-  if (validationError) {
-    elements.videoFeedbackStatus.hidden = false;
-    elements.videoFeedbackStatus.textContent = validationError;
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("video", file);
-  formData.append("session_id", sessionId);
-  formData.append("work_item_id", exerciseId);
-  formData.append("exercise_label", currentFocusExerciseLabel || "Exercise");
-  formData.append("client_request_id", newClientRequestId());
-  if (elements.videoFeedbackCaptionInput?.value) {
-    formData.append("caption", elements.videoFeedbackCaptionInput.value);
-  }
-
-  showBusy("Uploading video…");
-  try {
-    const response = await fetch("/video-feedback", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "x-kolosseum-csrf": String(state.csrfToken ?? "") },
-      body: formData
-    });
-    const payload = await readJson(response);
-    if (!response.ok) {
-      const error = new Error(friendlyError(payload, response.status));
-      error.payload = payload;
-      error.status = response.status;
-      throw error;
-    }
-
-    hideAllActionPanels();
-    showNotice("Video uploaded. Your coach will be able to review it.");
-  }
-  catch (error) {
-    elements.videoFeedbackStatus.hidden = false;
-    elements.videoFeedbackStatus.textContent = friendlyError(error.payload, error.status) || "Video could not be uploaded.";
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-function renderExerciseFocus(step, classification) {
-  elements.returnDecision.hidden = true;
-  elements.sessionActions.hidden = false;
-  elements.startSessionButton.hidden = true;
-  elements.completeExerciseButton.hidden = true;
-  elements.skipExerciseButton.hidden = true;
-  elements.reportPainButton.hidden = true;
-  elements.reportRpeButton.hidden = true;
-  elements.requestSubstitutionButton.hidden = true;
-  elements.recordVideoFeedbackButton.hidden = true;
-  elements.splitSessionButton.hidden = true;
-  hideAllActionPanels();
-  currentFocusExerciseId = null;
-  currentFocusExerciseLabel = null;
-
-  if (!step) {
-    elements.currentExercise.innerHTML = `
-      <div class="exercise-focus">
-        <p class="eyebrow">${escapeHtml(classification.label)}</p>
-        <h3>Session record complete</h3>
-        <p class="muted">No further exercise is currently recorded.</p>
-      </div>
-    `;
-    return;
-  }
-
-  if (step.type === "RETURN_DECISION") {
-    elements.currentExercise.innerHTML = "";
-    elements.returnDecision.hidden = false;
-    elements.sessionActions.hidden = true;
-    return;
-  }
-
-  const exercise = step.exercise ?? {};
-  const details = exerciseDetails(exercise);
-  currentFocusExerciseId = String(exercise?.exercise_id ?? exercise?.item_id ?? "") || null;
-  currentFocusExerciseLabel = exerciseName(exercise) || null;
-
-  const segment = String(exercise?.segment ?? "working");
-  const groupType = String(exercise?.group_type ?? "");
-  const coachingNotes = String(exercise?.coaching_notes ?? "").trim();
-
-  elements.currentExercise.innerHTML = `
-    <div class="exercise-focus">
-      <p class="eyebrow">Current exercise</p>
-      <h3>${escapeHtml(exerciseName(exercise))}</h3>
-      <div class="exercise-detail-row">
-        ${segment !== "working" ? `<span class="badge neutral">${escapeHtml(titleCase(segment))}</span>` : ""}
-        ${exercise?.group_id ? `<span class="badge neutral">${escapeHtml(titleCase(groupType))}</span>` : ""}
-        ${details.map((detail) => `<span class="exercise-detail">${escapeHtml(detail)}</span>`).join("")}
-      </div>
-      ${coachingNotes ? `<p class="muted exercise-coaching-note">${escapeHtml(coachingNotes)}</p>` : ""}
-      <details class="exercise-howto" data-exercise-id="${escapeHtml(currentFocusExerciseId ?? "")}">
-        <summary>How to perform this exercise</summary>
-        <div class="exercise-howto-body"></div>
-      </details>
-    </div>
-  `;
-
-  if (state.activeSessionState?.started === true) {
-    elements.completeExerciseButton.hidden = false;
-    elements.skipExerciseButton.hidden = false;
-    elements.reportPainButton.hidden = false;
-    elements.reportRpeButton.hidden = false;
-    elements.requestSubstitutionButton.hidden = false;
-    elements.recordVideoFeedbackButton.hidden = false;
-    elements.splitSessionButton.hidden = false;
-  }
-  else {
-    elements.startSessionButton.hidden = false;
-  }
-}
-
-function renderExerciseQueue(sessionState) {
-  const counts = countsFromSession(sessionState);
-  const currentId = sessionState?.current_step?.exercise?.exercise_id ??
-    sessionState?.current_step?.exercise?.item_id ??
-    null;
-
-  const rows = [
-    ...counts.completed.map((exercise) => ({ exercise, status: "complete" })),
-    ...counts.remaining.map((exercise, index) => ({
-      exercise,
-      status: (exercise.exercise_id ?? exercise.item_id) === currentId || index === 0 ? "current" : "remaining"
-    })),
-    ...counts.dropped.map((exercise) => ({ exercise, status: "dropped" }))
-  ];
-
-  elements.exerciseQueue.innerHTML = rows.length
-    ? rows.map(({ exercise, status }, index) => {
-        const statusLabel = status === "complete"
-          ? "Completed"
-          : status === "dropped"
-            ? "Dropped"
-            : status === "current"
-              ? "Current"
-              : "Upcoming";
-
-        const segment = String(exercise?.segment ?? "working");
-        const groupType = String(exercise?.group_type ?? "");
-        const coachingNotes = String(exercise?.coaching_notes ?? "").trim();
-
-        return `
-          <div class="exercise-row ${status} ${exercise?.group_id ? "exercise-row-grouped" : ""}">
-            <span class="exercise-order">${index + 1}</span>
-            <div>
-              <strong>${escapeHtml(exerciseName(exercise))}</strong>
-              ${segment !== "working" ? `<span class="badge neutral">${escapeHtml(titleCase(segment))}</span>` : ""}
-              ${exercise?.group_id ? `<span class="badge neutral">${escapeHtml(titleCase(groupType))}</span>` : ""}
-              <small>${escapeHtml(exerciseDetails(exercise).join(" · ") || "Recorded exercise")}</small>
-              ${coachingNotes ? `<small class="exercise-coaching-note">${escapeHtml(coachingNotes)}</small>` : ""}
-            </div>
-            <span class="badge ${status === "complete" ? "complete" : status === "dropped" ? "partial" : status === "current" ? "active" : "neutral"}">${statusLabel}</span>
-          </div>
-        `;
-      }).join("")
-    : '<div class="empty-state"><p>No exercise records are available.</p></div>';
-}
-
-function renderAthleteSession() {
-  const sessionState = state.activeSessionState;
-
-  if (!state.activeSessionId || !sessionState) {
-    elements.sessionEmpty.hidden = false;
-    elements.sessionWorkspace.hidden = true;
-    elements.sessionTitle.textContent = "No session selected";
-    elements.sessionSubtitle.textContent = "Create or open a session to begin.";
-    setBadge(elements.sessionStatusBadge, { label: "No session", className: "neutral" });
-    return;
-  }
-
-  elements.sessionEmpty.hidden = true;
-  elements.sessionWorkspace.hidden = false;
-
-  const counts = countsFromSession(sessionState);
-  const total = counts.completed.length + counts.remaining.length + counts.dropped.length;
-  const classification = sessionClassification(sessionState);
-  const activity = state.profile?.activityId ?? state.phase1Input?.activity_id ?? "training";
-
-  elements.sessionActivity.textContent = titleCase(activity);
-  elements.sessionTitle.textContent = `${titleCase(activity)} session`;
-  elements.sessionSubtitle.textContent = total
-    ? `${total} exercises recorded in this session.`
-    : "Session record loaded.";
-  setBadge(elements.sessionStatusBadge, classification);
-
-  elements.sessionCompletedCount.textContent = String(counts.completed.length);
-  elements.sessionRemainingCount.textContent = String(counts.remaining.length);
-  elements.sessionDroppedCount.textContent = String(counts.dropped.length);
-  elements.sessionProgressText.textContent = `${counts.completed.length} of ${total} complete`;
-
-  const progress = total === 0 ? 0 : Math.round((counts.completed.length / total) * 100);
-  elements.sessionProgressBar.style.width = `${progress}%`;
-
-  renderExerciseFocus(sessionState.current_step, classification);
-  renderExerciseQueue(sessionState);
-  renderSessionCompletionSummary(sessionState, counts);
-}
-
-function renderSessionCompletionSummary(sessionState, counts) {
-  const executionStatus = sessionState?.execution_status;
-  const isEnded = executionStatus === "completed" || executionStatus === "partial";
-
-  elements.sessionCompletionSummary.hidden = !isEnded;
-  if (!isEnded) return;
-
-  elements.sessionCompletionHeading.textContent =
-    executionStatus === "completed" ? "Session complete" : "Session partially completed";
-  elements.sessionCompletionBody.textContent =
-    executionStatus === "completed"
-      ? "Every exercise in this session was completed."
-      : "This session ended with one or more exercises dropped.";
-  elements.sessionCompletionCompletedCount.textContent = String(counts.completed.length);
-  elements.sessionCompletionDroppedCount.textContent = String(counts.dropped.length);
-}
+// DEV NOTE: FULL-UI-15C session execution rendering/action-panel/rest-
+// timer logic (hideAllActionPanels/openSkipReasonPanel family/
+// confirmSkipWithReason family/renderSubstitutionResult/checkSubstitution/
+// applySubstitution/openVideoFeedbackPanel/validateVideoFeedbackClientSide/
+// uploadExerciseVideo/formatRestClock/playRestCompleteCue/stopRestTimer/
+// startRestTimer/maybeStartRestTimer/renderExerciseFocus/
+// renderExerciseQueue/renderAthleteSession/renderSessionCompletionSummary)
+// all moved to React - see
+// public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx and
+// useAthleteSessionExecution.ts.
 
 // DEV NOTE: FULL-UI-16C the plain session list/filters/detail is React-owned
 // now (see public/app-src/screens/athlete/AthleteHistoryPanel.tsx, mounted
@@ -11316,7 +10764,6 @@ async function enterApplication() {
     // superseded it, so a stale cached session/assignment/completion
     // state is never visible, even briefly, as if it were current.
     showBusy("Loading your training data...");
-    renderAthleteSession();
     renderTodayRecent();
 
     try {
@@ -11684,47 +11131,6 @@ elements.menuButton.addEventListener("click", () => {
 
 elements.topbarAccount.addEventListener("click", () => setView("account"));
 document.addEventListener("kolosseum:create-session", () => createSession().catch(handleError));
-elements.sessionRetryButton.addEventListener("click", () => loadSessionState().catch(handleError));
-elements.startSessionButton.addEventListener("click", () => startSession().catch(handleError));
-elements.completeExerciseButton.addEventListener("click", () => {
-  maybeStartRestTimer();
-  postSessionEvent({ type: "COMPLETE_STEP" }).catch(handleError);
-});
-elements.skipRestButton.addEventListener("click", stopRestTimer);
-elements.skipExerciseButton.addEventListener("click", openSkipReasonPanel);
-elements.cancelSkipButton.addEventListener("click", hideAllActionPanels);
-elements.confirmSkipButton.addEventListener("click", () => {
-  confirmSkipWithReason().catch(handleError);
-});
-elements.reportPainButton.addEventListener("click", openPainReportPanel);
-elements.cancelPainReportButton.addEventListener("click", hideAllActionPanels);
-elements.confirmPainReportButton.addEventListener("click", () => {
-  confirmPainReport().catch(handleError);
-});
-elements.reportRpeButton.addEventListener("click", openRpeReportPanel);
-elements.cancelRpeReportButton.addEventListener("click", hideAllActionPanels);
-elements.confirmRpeReportButton.addEventListener("click", () => {
-  confirmRpeReport().catch(handleError);
-});
-elements.requestSubstitutionButton.addEventListener("click", openSubstitutionPanel);
-elements.cancelSubstitutionButton.addEventListener("click", hideAllActionPanels);
-elements.checkSubstitutionButton.addEventListener("click", () => {
-  checkSubstitution().catch(handleError);
-});
-elements.recordVideoFeedbackButton.addEventListener("click", openVideoFeedbackPanel);
-elements.cancelVideoFeedbackButton.addEventListener("click", hideAllActionPanels);
-elements.uploadVideoFeedbackButton.addEventListener("click", () => {
-  uploadExerciseVideo().catch(handleError);
-});
-elements.splitSessionButton.addEventListener("click", () => {
-  postSessionEvent({ type: "SPLIT_SESSION" }).catch(handleError);
-});
-elements.returnContinueButton.addEventListener("click", () => {
-  postSessionEvent({ type: "RETURN_CONTINUE" }).catch(handleError);
-});
-elements.returnSkipButton.addEventListener("click", () => {
-  postSessionEvent({ type: "RETURN_SKIP" }).catch(handleError);
-});
 elements.refreshHistoryButton.addEventListener("click", () => refreshHistory().catch(handleError));
 elements.exportHistoryButton.addEventListener("click", () => exportHistory().catch(handleError));
 
@@ -12092,16 +11498,6 @@ elements.templateBlocks.addEventListener("click", (event) => {
     moveTemplateBlock(blockIndex, direction);
   }
 });
-
-// <details> `toggle` events do not bubble, but a capture-phase listener on a
-// stable ancestor still receives them, and keeps working across the
-// innerHTML replacement renderExerciseFocus performs on every re-render.
-elements.currentExercise.addEventListener("toggle", (event) => {
-  const details = event.target;
-  if (!(details instanceof HTMLElement) || !details.classList.contains("exercise-howto")) return;
-  if (!details.open) return;
-  loadExerciseHowto(details.dataset.exerciseId, details.querySelector(".exercise-howto-body"));
-}, { capture: true });
 
 elements.closeAthleteProfileButton.addEventListener("click", closeAthleteProfile);
 

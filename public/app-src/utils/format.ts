@@ -101,3 +101,87 @@ export function strengthSourceLabel(sourceType: unknown): string {
   if (sourceType === "training_max") return "Training max";
   return "Tested 1RM";
 }
+
+type JsonRecord = Record<string, unknown>;
+
+// DEV NOTE: ported verbatim from public/app/app.js's exerciseName()/
+// exerciseDetails() for FULL-UI-15C session execution
+// (AthleteSessionExecutionPanel.tsx) - the exact same prescription-display
+// rules the coach template builder and athlete session view have always
+// shared, so they live here rather than duplicated a third time.
+export function exerciseName(exercise: JsonRecord | null | undefined): string {
+  return String(exercise?.display_name ?? exercise?.exercise_name ?? exercise?.exercise_id ?? exercise?.item_id ?? "Exercise");
+}
+
+export function exerciseDetails(exercise: JsonRecord | null | undefined): string[] {
+  const details: string[] = [];
+
+  if (Number.isInteger(exercise?.sets)) {
+    details.push(`${exercise?.sets} sets`);
+  }
+
+  const repRange = exercise?.rep_range && typeof exercise.rep_range === "object" ? exercise.rep_range as JsonRecord : null;
+  const durationRange = exercise?.duration_range && typeof exercise.duration_range === "object" ? exercise.duration_range as JsonRecord : null;
+  const distanceRange = exercise?.distance_range && typeof exercise.distance_range === "object" ? exercise.distance_range as JsonRecord : null;
+
+  if (Number.isInteger(repRange?.minimum) && Number.isInteger(repRange?.maximum)) {
+    details.push(`${repRange?.minimum}–${repRange?.maximum} reps`);
+  }
+  else if (Number.isInteger(durationRange?.minimum) && Number.isInteger(durationRange?.maximum)) {
+    details.push(`Hold ${durationRange?.minimum}–${durationRange?.maximum}s`);
+  }
+  else if (Number.isInteger(exercise?.duration_seconds)) {
+    details.push(`Hold ${exercise?.duration_seconds}s`);
+  }
+  else if (Number.isFinite(distanceRange?.minimum) && Number.isFinite(distanceRange?.maximum)) {
+    const unit = exercise?.distance_unit === "feet" ? "ft" : "m";
+    details.push(`${distanceRange?.minimum}–${distanceRange?.maximum}${unit}`);
+  }
+  else if (Number.isFinite(exercise?.distance_value)) {
+    const unit = exercise?.distance_unit === "feet" ? "ft" : "m";
+    details.push(`${exercise?.distance_value}${unit}`);
+  }
+  else if (Number.isInteger(exercise?.reps)) {
+    details.push(`${exercise?.reps} reps`);
+  }
+
+  const tempo = String(exercise?.tempo ?? "");
+  if (tempo) details.push(`Tempo ${tempo}`);
+
+  const intensity = exercise?.intensity && typeof exercise.intensity === "object" ? exercise.intensity as JsonRecord : null;
+
+  if (intensity?.type === "percent_1rm" && Number.isFinite(Number(intensity.value))) {
+    const resolved = exercise?.resolved_load && typeof exercise.resolved_load === "object" ? exercise.resolved_load as JsonRecord : null;
+
+    if (resolved && Number.isFinite(Number(resolved.value))) {
+      const unit = resolved.unit === "lb" ? "lb" : "kg";
+      details.push(`${Number(intensity.value)}% 1RM · ${Number(resolved.value)} ${unit}`);
+
+      const source = resolved?.source && typeof resolved.source === "object" ? resolved.source as JsonRecord : null;
+      if (source) {
+        details.push(
+          `${strengthSourceLabel(source.source_type)} source · ${Number(source.source_value)} ${source.source_unit === "lb" ? "lb" : "kg"} · effective ${String(source.effective_date ?? "")}`
+        );
+      }
+    }
+    else {
+      details.push(`${Number(intensity.value)}% 1RM`);
+    }
+  }
+  else if (intensity?.type === "load" && Number.isFinite(Number(intensity.value))) {
+    const unit = intensity.unit === "lb" ? "lb" : "kg";
+    details.push(`${Number(intensity.value)} ${unit}`);
+  }
+  else if (intensity?.type === "bodyweight") {
+    details.push("Bodyweight");
+  }
+  else if (intensity?.type === "rpe" && Number.isFinite(Number(intensity.value))) {
+    details.push(`RPE ${Number(intensity.value)}`);
+  }
+
+  if (Number.isInteger(exercise?.rest_seconds)) {
+    details.push(`${exercise?.rest_seconds}s rest`);
+  }
+
+  return details;
+}

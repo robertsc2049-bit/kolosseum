@@ -6765,7 +6765,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_32_video_feedback_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteSessionExecutionPanel.test.tsx",
           "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",

@@ -1,4 +1,13 @@
-// DEV NOTE: FULL-UI-15C session execution static surface contract.
+// DEV NOTE: FULL-UI-15C session execution static surface contract. The
+// athlete Session view (create/start/complete/skip/pain/RPE/substitution/
+// split/return/video-feedback/rest timer) moved from app.js/index.html to
+// public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx and
+// useAthleteSessionExecution.ts - see AthleteSessionExecutionPanel.test.tsx
+// for the behavioral proof that replaces the source-text checks this file
+// used to run against the now-removed app.js rendering/action-panel
+// functions. Every backend-only assertion (schema/write-service/read-model/
+// substitution service+registry/routes/handlers) is unchanged - the
+// backend contract did not move.
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -7,7 +16,6 @@ import test from "node:test";
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
-const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
 const js = read("public/app/app.js");
 const writeService = read("src/api/session_state_write_service.ts");
@@ -19,35 +27,40 @@ const sessionsHandlers = read("src/api/sessions.handlers.ts");
 const schema = read("schema.sql");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 
-test("session view declares loading and error-recovery states", () => {
-  for (const id of ["sessionLoading", "sessionServiceUnavailable", "sessionRetryButton"]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
-  }
+const client = read("public/app-src/api/athleteSessionClient.ts");
+const hook = read("public/app-src/screens/athlete/useAthleteSessionExecution.ts");
+const panel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
 
-  assert.match(js, /async function loadSessionState\(/u);
-  assert.match(js, /elements\.sessionServiceUnavailable\.hidden = false/u);
-  assert.match(js, /elements\.sessionRetryButton\.addEventListener\("click", \(\) => loadSessionState\(\)/u);
+test("session view declares loading and error-recovery states", () => {
+  assert.match(panel, /session\.error/u);
+  assert.match(panel, /id="sessionRetryButton"[\s\S]{0,80}onClick=\{\(\) => session\.refresh\(\)\}/u);
+  assert.match(panel, /Session could not be loaded/u);
+  assert.match(hook, /catch \{\s*setState\(\(current\) => \(\{ \.\.\.current, loading: false, error: true \}\)\);/u);
 });
 
 test("skip exercise requires a factual reason from a closed enum", () => {
-  for (const id of ["skipExerciseButton", "skipReasonPanel", "skipReasonSelect", "confirmSkipButton", "cancelSkipButton"]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
+  for (const id of ["skipExerciseButton", "skipReasonSelect", "confirmSkipButton", "cancelSkipButton"]) {
+    assert.match(panel, new RegExp(`id="${id}"`, "u"), `Expected ${id}`);
   }
+  assert.match(panel, /className="skip-reason-panel"/u);
 
   for (const code of ["equipment_unavailable", "time_constraint", "pain_or_discomfort", "fatigue", "other"]) {
-    assert.ok(html.includes(`value="${code}"`), `Expected skip reason option ${code}`);
+    assert.ok(panel.includes(`value="${code}"`), `Expected skip reason option ${code}`);
   }
 
   assert.match(writeService, /SKIP_REASON_CODES = Object\.freeze/u);
   assert.match(writeService, /phase6_runtime_skip_reason_invalid/u);
-  assert.match(js, /async function confirmSkipWithReason/u);
-  assert.match(js, /type: "SKIP_EXERCISE"[\s\S]{0,80}reason_code: reasonCode/u);
+  assert.match(hook, /const confirmSkipWithReason = useCallback/u);
+  assert.match(hook, /type: "SKIP_EXERCISE", exercise_id: exerciseId, reason_code: reasonCode/u);
 });
 
 test("pain input records only the permitted factual flag, never free text or scoring", () => {
   for (const id of ["reportPainButton", "painReportPanel", "confirmPainReportButton", "cancelPainReportButton"]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
+    assert.ok(panel.includes(`id="${id}"`) || panel.includes('className="pain-report-panel"'), `Expected ${id}`);
   }
+  assert.match(panel, /id="reportPainButton"/u);
+  assert.match(panel, /id="confirmPainReportButton"/u);
+  assert.match(panel, /id="cancelPainReportButton"/u);
 
   assert.match(writeService, /PAIN_REPORT_ALLOWED_KEYS = new Set\(\["type", "exercise_id", "pain_reported", "client_request_id"\]\)/u);
   assert.match(writeService, /phase6_runtime_pain_report_invalid_shape/u);
@@ -56,8 +69,8 @@ test("pain input records only the permitted factual flag, never free text or sco
   // Guard against ever reintroducing a free-text or scoring field.
   assert.doesNotMatch(writeService, /pain_text|pain_severity|risk_score/u);
 
-  assert.match(js, /async function confirmPainReport/u);
-  assert.match(js, /type: "PAIN_REPORT"[\s\S]{0,80}pain_reported: true/u);
+  assert.match(hook, /const confirmPainReport = useCallback/u);
+  assert.match(hook, /type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true/u);
 });
 
 test("substitution uses the existing v1 substitution contract and a closed registry, never an improvised exercise", () => {
@@ -76,12 +89,13 @@ test("substitution uses the existing v1 substitution contract and a closed regis
   assert.match(writeService, /phase6_runtime_substitution_tag_unlawful/u);
 
   for (const id of ["requestSubstitutionButton", "substitutionPanel", "checkSubstitutionButton", "cancelSubstitutionButton", "substitutionResult"]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
+    assert.match(panel, new RegExp(`(?:id="${id}"|className="${id === "substitutionPanel" ? "substitution-panel" : id === "substitutionResult" ? "substitution-result" : id}")`, "u"), `Expected ${id}`);
   }
 
-  assert.match(js, /async function checkSubstitution/u);
-  assert.match(js, /async function applySubstitution/u);
-  assert.match(js, /substituted_exercise_id: outcome\.result\.substitution_output\.target_exercise_id/u);
+  assert.match(hook, /const checkSubstitution = useCallback/u);
+  assert.match(hook, /const applySubstitution = useCallback/u);
+  assert.match(hook, /substituted_exercise_id: output\.target_exercise_id/u);
+  assert.match(client, /export async function requestSessionSubstitution/u);
 });
 
 test("planned_items and exercise_id remain authoritative through substitution and skip annotations", () => {
@@ -101,8 +115,8 @@ test("idempotent retry: client_request_id dedupes without creating a duplicate r
   assert.match(writeService, /phase6_runtime_request_id_conflict/u);
   assert.match(writeService, /replayed: true/u);
 
-  assert.match(js, /function newClientRequestId/u);
-  assert.match(js, /client_request_id: clientRequestId/u);
+  assert.match(client, /export function newClientRequestId/u);
+  assert.match(client, /client_request_id: clientRequestId/u);
 });
 
 test("terminal sessions reject further events instead of being resurrected", () => {
@@ -112,48 +126,40 @@ test("terminal sessions reject further events instead of being resurrected", () 
 });
 
 test("completion summary is a genuine dedicated artefact beyond the badge and counts", () => {
-  assert.ok(html.includes('id="sessionCompletionSummary"'));
-  assert.ok(html.includes('id="sessionCompletionHeading"'));
-  assert.ok(html.includes('id="sessionCompletionBody"'));
-  assert.ok(html.includes('id="sessionCompletionCompletedCount"'));
-  assert.ok(html.includes('id="sessionCompletionDroppedCount"'));
-
-  assert.match(js, /function renderSessionCompletionSummary/u);
-  assert.match(js, /executionStatus === "completed" \|\| executionStatus === "partial"/u);
+  assert.match(panel, /id="sessionCompletionSummary"/u);
+  assert.match(panel, /Session ended/u);
+  assert.match(panel, /executionStatus === "completed" \? "Session complete" : "Session partially completed"/u);
+  assert.match(panel, /const isEnded = executionStatus === "completed" \|\| executionStatus === "partial";/u);
 
   assert.match(readModel, /execution_status/u);
 });
 
 test("rest timer counts down prescribed rest with a completion cue, entirely client-side", () => {
-  for (const id of ["restTimerPanel", "restTimerRemaining", "skipRestButton"]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
-  }
-
-  assert.match(html, /<button[^>]*id="skipRestButton"[^>]*type="button"/u);
+  assert.match(panel, /className=\{`rest-timer-panel/u);
+  assert.match(panel, /id="skipRestButton"/u);
+  assert.match(panel, /<button\s+id="skipRestButton"[^>]*type="button"/u);
 
   for (const fnName of ["formatRestClock", "playRestCompleteCue", "stopRestTimer", "startRestTimer", "maybeStartRestTimer"]) {
-    assert.match(js, new RegExp(`function ${fnName}\\(`, "u"), `Expected function ${fnName}`);
+    assert.match(`${hook}\n${panel}`, new RegExp(`(?:function ${fnName}|const ${fnName} = useCallback)`, "u"), `Expected ${fnName}`);
   }
 
-  assert.match(js, /state\.activeSessionState\?\.current_step\?\.exercise\?\.rest_seconds/u);
+  assert.match(hook, /const restSeconds = Number\(exercise\?\.rest_seconds\);/u);
 
   // Started before COMPLETE_STEP, and before the COMPLETE_EXERCISE branch of
   // applySubstitution - never on skip, and never gated on a backend event.
-  assert.match(js, /maybeStartRestTimer\(\);\s*\n\s*postSessionEvent\(\{ type: "COMPLETE_STEP" \}\)/u);
-  assert.match(js, /if \(eventType === "COMPLETE_EXERCISE"\) maybeStartRestTimer\(\);/u);
+  assert.match(hook, /maybeStartRestTimer\(state\.sessionState\);\s*\n\s*return runMutation\(async \(sessionId, csrfToken\) => \{\s*\n\s*await postAthleteSessionEvent\(sessionId, \{ type: "COMPLETE_STEP" \}/u);
+  assert.match(hook, /if \(eventType === "COMPLETE_EXERCISE"\) maybeStartRestTimer\(state\.sessionState\);/u);
 
-  assert.match(js, /elements\.skipRestButton\.addEventListener\("click", stopRestTimer\)/u);
+  assert.match(panel, /onClick=\{\(\) => session\.stopRestTimer\(\)\}/u);
 
-  // Never touched by the shared panel-reset paths - a timer started by the
-  // same click that triggers a re-render must survive it.
-  assert.doesNotMatch(
-    /function hideAllActionPanels\(\) \{[\s\S]*?\n\}/u.exec(js)?.[0] ?? "",
-    /restTimerPanel/u
-  );
-  assert.doesNotMatch(
-    /function renderExerciseFocus\(step, classification\) \{[\s\S]*?\n\n {2}if \(!step\)/u.exec(js)?.[0] ?? "",
-    /restTimer/u
-  );
+  // Never touched by the action-panel-close path or by a session refresh -
+  // a timer started by the same click that triggers a re-render must
+  // survive it (rest timer state is fully independent of sessionState/
+  // actionPanel in useAthleteSessionExecution.ts's state shape).
+  const closeActionPanelSource = /const closeActionPanel = useCallback\([\s\S]*?\n {2}\}, \[\]\);/u.exec(hook)?.[0] ?? "";
+  assert.doesNotMatch(closeActionPanelSource, /restRemainingSeconds|restDone|restIntervalRef/u);
+  const refreshSource = /const refresh = useCallback\([\s\S]*?\n {2}\}, \[\]\);/u.exec(hook)?.[0] ?? "";
+  assert.doesNotMatch(refreshSource, /restRemainingSeconds|restDone|restIntervalRef/u);
 });
 
 test("the session_rest_timer manifest function is client-only, with no backend route or integration test", () => {
@@ -173,11 +179,11 @@ test("every new interactive control is a real focusable button/select, not a div
     "requestSubstitutionButton", "checkSubstitutionButton", "cancelSubstitutionButton",
     "sessionRetryButton", "skipRestButton"
   ]) {
-    const re = new RegExp(`<button[^>]*id="${id}"[^>]*type="button"`, "u");
-    assert.match(html, re, `${id} must be a real <button type="button">`);
+    const re = new RegExp(`<button\\s+id="${id}"[^>]*type="button"`, "u");
+    assert.match(panel, re, `${id} must be a real <button type="button">`);
   }
 
-  assert.match(html, /<select id="skipReasonSelect">/u);
+  assert.match(panel, /<select id="skipReasonSelect"/u);
 });
 
 test("new session execution markup does not get hidden on narrow (mobile) viewports", () => {
@@ -206,4 +212,14 @@ test("new session execution markup does not get hidden on narrow (mobile) viewpo
   assert.match(css, /\.substitution-panel\b/u);
   assert.match(css, /\.session-completion-summary\b/u);
   assert.match(css, /\.rest-timer-panel\b/u);
+});
+
+test("the athlete-session-mutated bridge keeps legacy's local session cache and history in sync after every React-side mutation", () => {
+  assert.match(js, /document\.addEventListener\("kolosseum:athlete-session-mutated", \(event\) => \{/u);
+  assert.match(js, /upsertLocalSession\(sessionId, \{\s*\n\s*runtime_event_count: Number\(local\?\.runtime_event_count \?\? 0\) \+ 1/u);
+  assert.match(js, /loadSessionState\(\)\.catch\(handleError\);/u);
+  assert.match(js, /if \(shouldRefreshHistory\) refreshHistory\(\{ quiet: true \}\)\.catch\(handleError\);/u);
+
+  assert.match(hook, /const SESSION_MUTATED_EVENT = "kolosseum:athlete-session-mutated";/u);
+  assert.match(hook, /notifyMutated\(sessionId, refreshHistory\);/u);
 });
