@@ -4,7 +4,7 @@
 // and src/api/progress_insights.routes.ts's authenticatedCoach calls) - the
 // client only ever needs to send athlete_user_id.
 
-import { type JsonRecord, request } from "./transport";
+import { ApiRequestError, type JsonRecord, request } from "./transport";
 
 export function loadAthleteStrengthProfile(athleteUserId: string): Promise<JsonRecord> {
   return request(
@@ -182,6 +182,63 @@ export async function loadCoachMessageUnreadCounts(): Promise<Record<string, num
     if (athleteUserId) byAthlete[athleteUserId] = Number(thread.unread_count) || 0;
   }
   return byAthlete;
+}
+
+// DEV NOTE: the 1:1 coach-athlete messaging panel (embedded in the athlete
+// training-profile shell) - see useCoachAthleteMessages.ts/
+// CoachAthleteMessagePanel.tsx. GET .../threads/:thread_id marks the
+// thread read for this viewer as a server-side side effect of the fetch
+// itself (see listCoachAthleteThreadMessages) - there's no separate
+// mark-read call to make.
+export async function loadCoachMessageThreads(): Promise<JsonRecord[]> {
+  const response = await request("GET", "/messages/coach/threads");
+  return Array.isArray(response.threads) ? (response.threads as JsonRecord[]) : [];
+}
+
+export async function loadCoachMessagesForThread(threadId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/messages/coach/threads/${encodeURIComponent(threadId)}`);
+  return Array.isArray(response.messages) ? (response.messages as JsonRecord[]) : [];
+}
+
+function newClientRequestId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `crid_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
+// api()/request() always JSON.stringify's the body, so a message with an
+// attachment needs a raw fetch instead - mirrors app.js's (removed)
+// sendMessageRequest() and accountRelationshipsClient.ts's private twin.
+export async function sendCoachAthleteMessage(
+  athleteUserId: string,
+  bodyText: string,
+  attachmentFile: File | null,
+  csrfToken: string
+): Promise<JsonRecord> {
+  const path = `/messages/coach/athletes/${encodeURIComponent(athleteUserId)}/send`;
+
+  if (!attachmentFile) {
+    return request("POST", path, { body_text: bodyText, client_request_id: newClientRequestId() }, csrfToken);
+  }
+
+  const formData = new FormData();
+  formData.append("body_text", bodyText);
+  formData.append("client_request_id", newClientRequestId());
+  formData.append("attachment", attachmentFile);
+
+  const response = await fetch(path, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "x-kolosseum-csrf": csrfToken },
+    body: formData
+  });
+
+  const payload = (await response.json().catch(() => ({}))) as JsonRecord;
+  if (!response.ok) {
+    throw new ApiRequestError(String(payload.error ?? payload.reason ?? "message_send_failed"), response.status, payload);
+  }
+  return payload;
 }
 
 // DEV NOTE: FULL-UI-24 lawful, non-opaque-ID invitation - the coach's side

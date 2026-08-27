@@ -20,6 +20,13 @@ const indexHtml = read("public/app/index.html");
 const relationshipHook = read("public/app-src/screens/account/useAccountCoachRelationship.ts");
 const relationshipPanel = read("public/app-src/screens/account/AccountCoachRelationshipPanel.tsx");
 const relationshipsClient = read("public/app-src/api/accountRelationshipsClient.ts");
+// DEV NOTE: the coach's own 1:1 messaging widget moved to React too - see
+// CoachAthleteMessagePanel.tsx/useCoachAthleteMessages.ts/
+// coachWorkspaceClient.ts, and the directory's unread badge moved with it
+// (useAthleteDirectory.ts already fetched it independently).
+const coachMessagePanel = read("public/app-src/screens/coach/CoachAthleteMessagePanel.tsx");
+const coachMessageHook = read("public/app-src/screens/coach/useCoachAthleteMessages.ts");
+const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -90,11 +97,11 @@ test("an attachment's byte_size, which message_attachment_storage.ts and every m
   // message_attachment_storage.ts stat()s the uploaded file and every
   // messaging service (coach_athlete_messaging_service.ts,
   // org_coach_messaging_service.ts, org_athlete_messaging_service.ts) already
-  // returns attachment.byte_size on send/list - but renderMessageAttachment
-  // never read it, so a user could never see how large a photo/video was.
-  // Same phantom-field bug class as PRs #877-#883.
-  assert.match(appJs, /function formatAttachmentSize/u);
-  assert.match(appJs, /formatAttachmentSize\(attachment\.byte_size\)/u);
+  // returns attachment.byte_size on send/list - the coach-side render moved
+  // to React (CoachAthleteMessagePanel.tsx) along with the rest of the
+  // widget, and still reads it.
+  assert.match(coachMessagePanel, /function formatAttachmentSize/u);
+  assert.match(coachMessagePanel, /formatAttachmentSize\(attachment\.byte_size\)/u);
 });
 
 test("each side has its own last-read marker, added as an explicit migration since CREATE TABLE IF NOT EXISTS never re-runs against an existing table", () => {
@@ -114,23 +121,20 @@ test("opening a thread's messages marks it read for that viewer only, updating o
 });
 
 test("the coach directory shows a live unread-messages badge per athlete, fetched separately from the mark-read thread-detail call", () => {
-  assert.match(appJs, /function coachMessageUnreadCountFor/u);
-  assert.match(appJs, /async function refreshCoachMessageUnreadCounts/u);
-  assert.match(appJs, /coachMessageUnreadCountFor\(athleteUserId\) > 0/u);
-  assert.match(appJs, /refreshCoachMessageUnreadCounts\(\{ quiet: true \}\)/u);
+  assert.match(coachWorkspaceClient, /export async function loadCoachMessageUnreadCounts/u);
+  assert.match(coachWorkspaceClient, /"\/messages\/coach\/threads"/u);
+  assert.match(coachMessageHook, /loadCoachMessagesForThread/u);
 });
 
 test("both the coach and athlete UIs exist as real focusable controls, and message bodies are escaped before rendering (never innerHTML'd raw)", () => {
-  assert.match(indexHtml, /id="athleteDetailMessageButton"/u);
-  assert.match(indexHtml, /id="athleteDetailMessageForm"/u);
-  assert.match(indexHtml, /id="athleteDetailMessageText"/u);
-  assert.match(indexHtml, /<button[^>]*id="athleteDetailMessageButton"[^>]*type="button"/u);
+  assert.match(indexHtml, /id="coach-athlete-message-root"/u);
+  assert.doesNotMatch(indexHtml, /id="athleteDetailMessageButton"/u);
 
-  assert.match(appJs, /escapeHtml\(message\.body_text/u);
-  assert.match(appJs, /async function refreshCoachAthleteMessages/u);
-  assert.match(appJs, /async function confirmSendAthleteMessage/u);
+  assert.match(coachMessagePanel, /Send message/u);
+  assert.match(coachMessageHook, /export function useCoachAthleteMessages/u);
   assert.match(relationshipHook, /export function useAccountCoachRelationship/u);
   assert.match(relationshipsClient, /export async function sendAthleteOwnMessage/u);
   // React escapes all rendered text by default - never dangerouslySetInnerHTML.
   assert.doesNotMatch(relationshipPanel, /dangerouslySetInnerHTML/u);
+  assert.doesNotMatch(coachMessagePanel, /dangerouslySetInnerHTML/u);
 });
