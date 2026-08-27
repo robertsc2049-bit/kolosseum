@@ -399,6 +399,10 @@
     {
       "kind": "command",
       "value": "node test/reg_full_01_registry_schema_closure.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/reg_full_02_activity_movement_completion.test.mjs"
     }
   ]
 }

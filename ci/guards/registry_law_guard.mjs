@@ -10,6 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import Ajv from "ajv";
+import { auditRegFull02, TOKEN as REG_FULL_02_TOKEN } from "../registry/reg_full_02_activity_movement_completion.mjs";
 
 function die(msg) {
   console.error(msg);
@@ -462,6 +463,16 @@ function main() {
     }
   }
 
+  // REG-FULL-02 ? exact v0 activity/movement universe and reciprocal closure.
+  const regFull02 = auditRegFull02(process.cwd());
+  if (!regFull02.ok) {
+    for (const error of regFull02.errors) {
+      const detail = typeof error.detail === "string"
+        ? error.detail
+        : JSON.stringify(error.detail);
+      errors.push(`${REG_FULL_02_TOKEN}: ${error.code}: ${detail}`);
+    }
+  }
   if (errors.length) {
     console.error("registry_law_guard: FAIL");
     console.error(errors.join("\n"));
