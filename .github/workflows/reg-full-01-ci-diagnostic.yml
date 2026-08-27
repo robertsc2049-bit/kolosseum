@@ -2,14 +2,14 @@
 # KOLOSSEUM WORKFLOW POLICY
 # ----------------------------------------------------------
 # reg-full-01-ci-diagnostic.yml
-# - Temporary REG-FULL-01 diagnostic only.
+# - Temporary REG-FULL-01 repair helper only.
 # - Runs only on the REG-FULL-01 feature branch.
-# - Captures canonical `npm run ci` output without mutating repo files.
+# - Applies the proven S-REG-34 stale-proof correction and runs its direct test.
 # - Must be deleted before final merge verification.
 # ==========================================================
-# DEV NOTE: Diagnostic orchestration only. This workflow does not redefine
-# engine, registry, release, CI, or product authority. It runs the canonical
-# repository CI command unchanged and uploads a reduced failure transcript.
+# DEV NOTE: Temporary repair orchestration only. The source edit below is an
+# exact replacement derived from the current authoritative exercise schema and
+# S-V1-25 content-control law. This workflow does not weaken or redefine CI.
 name: REG-FULL-01 CI diagnostic
 
 on:
@@ -18,7 +18,7 @@ on:
       - automation/reg-full-01-registry-schema-closure
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   diagnose:
@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -33,25 +35,33 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Capture canonical CI failure
+      - name: Patch stale S-REG-34 nested media expectation
         shell: bash
         run: |
-          set +e
-          log="$RUNNER_TEMP/ci-output.log"
-          summary="$RUNNER_TEMP/ci-failure-summary.txt"
-          npm run ci > "$log" 2>&1
-          status=$?
-          {
-            echo "exit_status=$status"
-            echo "=== focused failure lines ==="
-            grep -En "::error|run_long_npm_script|test:ci command failed|AssertionError|ERR_|CI_[A-Z0-9_]+|not ok|FAILED|failure|Error:" "$log" | tail -n 160 || true
-            echo "=== final output ==="
-            tail -n 240 "$log"
-          } > "$summary"
-          exit 0
-      - name: Upload diagnostic summary
-        uses: actions/upload-artifact@v4
-        with:
-          name: reg-full-01-ci-failure-summary
-          path: ${{ runner.temp }}/ci-failure-summary.txt
-          if-no-files-found: error
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('ci/registry/s_reg_34_exercise_reference_media_schema_extension.mjs')
+          text = path.read_text(encoding='utf-8')
+          old = '''export const S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS = Object.freeze(["video_url", "source"]);\nexport const S_REG_34_REFERENCE_MEDIA_OPTIONAL_KEYS = Object.freeze(["thumbnail_url"]);\nexport const S_REG_34_REFERENCE_MEDIA_SOURCES = Object.freeze(["coach_entered", "admin_entered"]);'''
+          new = '''// S-REG-34 originally introduced `reference_media` as an optional, content-free\n// field. S-V1-25 later hardened the nested media object with source/licence,\n// commercial-use, review and copy-boundary controls. Keep the historical\n// optional/content-free boundary, but validate the current lawful nested shape.\nexport const S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS = Object.freeze([\n  "video_url",\n  "thumbnail_url",\n  "source",\n  "source_reference",\n  "license_status",\n  "commercial_use_status",\n  "manual_review_status",\n  "legal_review_status",\n  "copy_boundary_flags"\n]);\nexport const S_REG_34_REFERENCE_MEDIA_OPTIONAL_KEYS = Object.freeze([]);\nexport const S_REG_34_REFERENCE_MEDIA_SOURCES = Object.freeze([\n  "founder_original",\n  "licensed_source",\n  "canonical_project_document"\n]);'''
+          if old not in text:
+              if new in text:
+                  print('S-REG-34 nested media expectation already current.')
+                  raise SystemExit(0)
+              raise SystemExit('Expected S-REG-34 stale constants not found; refusing broad edit.')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Prove S-REG-34 repair
+        run: node --test test/s_reg_34_exercise_reference_media_schema_extension.test.mjs
+      - name: Commit proven S-REG-34 repair
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- ci/registry/s_reg_34_exercise_reference_media_schema_extension.mjs
+          if git diff --cached --quiet; then
+            echo "S-REG-34 repair already committed."
+            exit 0
+          fi
+          git commit -m "fix(registry): align S-REG-34 proof with current media contract"
+          git push origin HEAD:automation/reg-full-01-registry-schema-closure
