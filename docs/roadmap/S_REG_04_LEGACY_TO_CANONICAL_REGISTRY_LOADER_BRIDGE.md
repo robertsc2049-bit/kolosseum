@@ -49,26 +49,41 @@ below.
 S-REG-25 later extended the active registry index and bundle with a fifth
 domain, `equipment`, appended after this bridge's 4 mapped legacy ids. That
 extension was a separate, explicitly human-authorised activation decision and
-does not touch this bridge's mapping, alias scope, or claims in any way - the
-4 legacy ids this bridge maps remain the leading, unreordered prefix of the
-active order. This guard's live-file checks were relaxed from an exact-length
-match to a prefix match to reflect that later, separately-authorised
-extensions are expected and do not constitute drift in this bridge.
+does not touch this bridge's compact-source boundary - the 4 legacy ids this
+bridge maps remain the leading, unreordered prefix of the active order. This
+guard's live-file checks were relaxed from an exact-length match to a prefix
+match to reflect that later, separately-authorised extensions are expected and
+do not constitute drift in this bridge.
 
-- superseded_by_slice_ids: S-REG-25
+REG-FULL-00 later established the authoritative final registry surface and
+resolved the programme vocabulary that S-REG-04 could not yet settle. Under
+that later authority, `sport_program_profile_registry_5d` has no current
+compact runtime alias, while the compact `program` registry is the predecessor
+of `sport_program_template_registry_5f`. REG-FULL-01 therefore updates the
+executable bridge target for `program` to 5F without changing S-REG-04's
+historical bridge-only boundary or claiming that the compact rows constitute a
+fully migrated/completed 5F registry.
+
+- superseded_by_slice_ids: S-REG-25, REG-FULL-00, REG-FULL-01
 
 ## Bridge mapping
 
-The accepted S-REG-04 bridge mapping is:
+The current executable S-REG-04 bridge mapping, after the later authoritative
+programme-vocabulary supersession recorded above, is:
 
 - activity -> activity_registry_1
 - movement -> movement_registry_3
 - exercise -> exercise_registry_3a
-- program -> sport_program_profile_registry_5d
+- program -> sport_program_template_registry_5f
 
-The program alias is a read-only profile alias only.
+Historically S-REG-04 described `program` as a read-only 5D profile alias.
+REG-FULL-00 superseded that interpretation: the compact rows carry template
+selection semantics (`activity_id`, `template_id`, and
+`exercise_eligibility`) and are therefore a predecessor projection of 5F, not
+5D.
 
-The program alias must not invent programme template structure.
+The program alias remains read-only and must not claim completed programme
+template structure or canonical registry completion.
 
 ## Implementation boundary
 
@@ -87,7 +102,7 @@ The bridge returns:
 - source collection key
 - source entry count
 - cloned and frozen registry document
-- explicit false values for completion, content migration, and template structure claims
+- explicit false values for completion, content migration, and completed template structure claims
 
 Unknown canonical IDs fail closed with:
 
