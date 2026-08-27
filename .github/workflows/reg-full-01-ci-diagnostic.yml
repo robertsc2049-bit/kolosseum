@@ -4,11 +4,11 @@
 # reg-full-01-ci-diagnostic.yml
 # - Temporary REG-FULL-01 repair helper only.
 # - Runs only on the REG-FULL-01 feature branch.
-# - Applies the proven S-REG-34 stale-proof correction and runs its direct test.
+# - Applies the proven S-REG-34 stale-proof correction and runs direct proof.
 # - Must be deleted before final merge verification.
 # ==========================================================
-# DEV NOTE: Temporary repair orchestration only. The source edit below is an
-# exact replacement derived from the current authoritative exercise schema and
+# DEV NOTE: Temporary repair orchestration only. The source edits below are
+# exact stale-proof corrections derived from REG-FULL-01 schema authority and
 # S-V1-25 content-control law. This workflow does not weaken or redefine CI.
 name: REG-FULL-01 CI diagnostic
 
@@ -35,33 +35,54 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Patch stale S-REG-34 nested media expectation
+      - name: Patch stale S-REG-34 proof
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          path = Path('ci/registry/s_reg_34_exercise_reference_media_schema_extension.mjs')
-          text = path.read_text(encoding='utf-8')
-          old = '''export const S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS = Object.freeze(["video_url", "source"]);\nexport const S_REG_34_REFERENCE_MEDIA_OPTIONAL_KEYS = Object.freeze(["thumbnail_url"]);\nexport const S_REG_34_REFERENCE_MEDIA_SOURCES = Object.freeze(["coach_entered", "admin_entered"]);'''
-          new = '''// S-REG-34 originally introduced `reference_media` as an optional, content-free\n// field. S-V1-25 later hardened the nested media object with source/licence,\n// commercial-use, review and copy-boundary controls. Keep the historical\n// optional/content-free boundary, but validate the current lawful nested shape.\nexport const S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS = Object.freeze([\n  "video_url",\n  "thumbnail_url",\n  "source",\n  "source_reference",\n  "license_status",\n  "commercial_use_status",\n  "manual_review_status",\n  "legal_review_status",\n  "copy_boundary_flags"\n]);\nexport const S_REG_34_REFERENCE_MEDIA_OPTIONAL_KEYS = Object.freeze([]);\nexport const S_REG_34_REFERENCE_MEDIA_SOURCES = Object.freeze([\n  "founder_original",\n  "licensed_source",\n  "canonical_project_document"\n]);'''
-          if old not in text:
-              if new in text:
-                  print('S-REG-34 nested media expectation already current.')
-                  raise SystemExit(0)
+          import re
+
+          module_path = Path('ci/registry/s_reg_34_exercise_reference_media_schema_extension.mjs')
+          module = module_path.read_text(encoding='utf-8')
+
+          old_constants = '''export const S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS = Object.freeze(["video_url", "source"]);\nexport const S_REG_34_REFERENCE_MEDIA_OPTIONAL_KEYS = Object.freeze(["thumbnail_url"]);\nexport const S_REG_34_REFERENCE_MEDIA_SOURCES = Object.freeze(["coach_entered", "admin_entered"]);'''
+          new_constants = '''// S-REG-34 originally introduced `reference_media` as an optional, content-free\n// field. S-V1-25 later hardened the nested media object with source/licence,\n// commercial-use, review and copy-boundary controls. Keep the historical\n// optional/content-free boundary, but validate the current lawful nested shape.\nexport const S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS = Object.freeze([\n  "video_url",\n  "thumbnail_url",\n  "source",\n  "source_reference",\n  "license_status",\n  "commercial_use_status",\n  "manual_review_status",\n  "legal_review_status",\n  "copy_boundary_flags"\n]);\nexport const S_REG_34_REFERENCE_MEDIA_OPTIONAL_KEYS = Object.freeze([]);\nexport const S_REG_34_REFERENCE_MEDIA_SOURCES = Object.freeze([\n  "founder_original",\n  "licensed_source",\n  "canonical_project_document"\n]);'''
+          if old_constants in module:
+              module = module.replace(old_constants, new_constants, 1)
+          elif new_constants not in module:
               raise SystemExit('Expected S-REG-34 stale constants not found; refusing broad edit.')
-          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          new_validator = '''function assertSchemaFilesDeclareReferenceMedia() {\n  const canonicalSchemaPath = S_REG_34_SCHEMA_FILES[0];\n  const canonicalSchema = readJson(canonicalSchemaPath);\n  const entrySchema = canonicalSchema?.properties?.entries?.additionalProperties;\n\n  assertPlainObject(entrySchema, "s_reg_34_schema_entry_shape_invalid");\n\n  const referenceMedia = entrySchema?.properties?.reference_media;\n  assertPlainObject(referenceMedia, "s_reg_34_schema_reference_media_missing");\n\n  if (referenceMedia.additionalProperties !== false) {\n    fail("s_reg_34_schema_reference_media_additional_properties_invalid", { schemaPath: canonicalSchemaPath });\n  }\n\n  assertExactArray(referenceMedia.required, [...S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS], "s_reg_34_schema_reference_media_required_invalid");\n\n  if (Array.isArray(entrySchema.required) && entrySchema.required.includes("reference_media")) {\n    fail("s_reg_34_schema_reference_media_must_stay_optional", { schemaPath: canonicalSchemaPath });\n  }\n\n  const properties = referenceMedia.properties ?? {};\n  if (properties.video_url?.type !== "string" || properties.video_url?.minLength !== 1) {\n    fail("s_reg_34_schema_video_url_invalid", { schemaPath: canonicalSchemaPath, actual: properties.video_url });\n  }\n\n  if (properties.thumbnail_url?.type !== "string" || properties.thumbnail_url?.minLength !== 1) {\n    fail("s_reg_34_schema_thumbnail_url_invalid", { schemaPath: canonicalSchemaPath, actual: properties.thumbnail_url });\n  }\n\n  assertExactArray(properties.source?.enum, [...S_REG_34_REFERENCE_MEDIA_SOURCES], "s_reg_34_schema_source_enum_invalid");\n\n  for (const schemaPath of S_REG_34_SCHEMA_FILES.slice(1)) {\n    const compatibilitySchema = readJson(schemaPath);\n    if (\n      compatibilitySchema?.$ref !== canonicalSchema.$id ||\n      compatibilitySchema?.["x-kolosseum-authority"] !== "compatibility_reference" ||\n      compatibilitySchema?.["x-kolosseum-canonical-authority"] !== "registries/final_registry_schema_manifest.json"\n    ) {\n      fail("s_reg_34_schema_entry_shape_invalid", { schemaPath, actual: compatibilitySchema });\n    }\n  }\n}\n\nfunction assertContentFreeInvariant()'''
+
+          pattern = r'function assertSchemaFilesDeclareReferenceMedia\(\) \{.*?\n\}\n\nfunction assertContentFreeInvariant\(\)'
+          module, count = re.subn(pattern, new_validator, module, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit(f'Expected one S-REG-34 schema validator, found {count}.')
+          module_path.write_text(module, encoding='utf-8')
+
+          test_path = Path('test/s_reg_34_exercise_reference_media_schema_extension.test.mjs')
+          test_text = test_path.read_text(encoding='utf-8')
+          replacement = '''test("S-REG-34 preserves optional reference_media through the canonical schema and compatibility references", () => {\n  const [canonicalSchemaPath, ...compatibilitySchemaPaths] = S_REG_34_SCHEMA_FILES;\n  const canonicalSchema = readJson(canonicalSchemaPath);\n  const entrySchema = canonicalSchema.properties.entries.additionalProperties;\n  const referenceMedia = entrySchema.properties.reference_media;\n\n  assert.ok(referenceMedia, `${canonicalSchemaPath}: expected a reference_media property`);\n  assert.equal(referenceMedia.additionalProperties, false);\n  assert.deepEqual(referenceMedia.required, [...S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS]);\n  assert.equal(entrySchema.required.includes("reference_media"), false, `${canonicalSchemaPath}: reference_media must stay optional`);\n\n  assert.equal(referenceMedia.properties.video_url.type, "string");\n  assert.equal(referenceMedia.properties.video_url.minLength, 1);\n  assert.equal(referenceMedia.properties.thumbnail_url.type, "string");\n  assert.deepEqual(referenceMedia.properties.source.enum, [...S_REG_34_REFERENCE_MEDIA_SOURCES]);\n\n  for (const schemaPath of compatibilitySchemaPaths) {\n    const compatibilitySchema = readJson(schemaPath);\n    assert.equal(compatibilitySchema.$ref, canonicalSchema.$id, `${schemaPath}: expected canonical exercise schema reference`);\n    assert.equal(compatibilitySchema["x-kolosseum-authority"], "compatibility_reference");\n    assert.equal(compatibilitySchema["x-kolosseum-canonical-authority"], "registries/final_registry_schema_manifest.json");\n  }\n});'''
+          test_pattern = r'test\("S-REG-34 declares an identical, optional, well-formed reference_media property in all 3 exercise schema files", \(\) => \{.*?\n\}\);'
+          test_text, count = re.subn(test_pattern, replacement, test_text, count=1, flags=re.S)
+          if count != 1:
+              if replacement not in test_text:
+                  raise SystemExit(f'Expected one stale S-REG-34 schema test, found {count}.')
+          test_path.write_text(test_text, encoding='utf-8')
           PY
       - name: Prove S-REG-34 repair
-        run: node --test test/s_reg_34_exercise_reference_media_schema_extension.test.mjs
+        run: |
+          node --test test/s_reg_34_exercise_reference_media_schema_extension.test.mjs
+          node ci/guards/s_reg_34_exercise_reference_media_schema_extension_guard.mjs
       - name: Commit proven S-REG-34 repair
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- ci/registry/s_reg_34_exercise_reference_media_schema_extension.mjs
+          git add -- ci/registry/s_reg_34_exercise_reference_media_schema_extension.mjs test/s_reg_34_exercise_reference_media_schema_extension.test.mjs
           if git diff --cached --quiet; then
             echo "S-REG-34 repair already committed."
             exit 0
           fi
-          git commit -m "fix(registry): align S-REG-34 proof with current media contract"
+          git commit -m "fix(registry): align S-REG-34 proof with current schema authority"
           git push origin HEAD:automation/reg-full-01-registry-schema-closure
