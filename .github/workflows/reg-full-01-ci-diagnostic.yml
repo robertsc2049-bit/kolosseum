@@ -2,13 +2,14 @@
 # KOLOSSEUM WORKFLOW POLICY
 # ----------------------------------------------------------
 # reg-full-01-ci-diagnostic.yml
-# - Temporary REG-FULL-01 diagnostic only.
+# - Temporary REG-FULL-01 repair helper only.
 # - Runs only on the REG-FULL-01 feature branch.
-# - Runs canonical `npm run ci` unchanged and captures the failure tail.
+# - Repairs the canonical exercise-registry to Phase-5 signature boundary.
 # - Must be deleted before final merge verification.
 # ==========================================================
-# DEV NOTE: Diagnostic orchestration only. This workflow does not redefine
-# engine, registry, release, CI, or product authority.
+# DEV NOTE: Temporary repair orchestration only. The source edit restores
+# existing deterministic constraint behaviour after REG-FULL-01 canonical field
+# closure. It does not change registry authority, engine policy, or golden truth.
 name: REG-FULL-01 CI diagnostic
 
 on:
@@ -17,7 +18,7 @@ on:
       - automation/reg-full-01-registry-schema-closure
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   diagnose:
@@ -34,25 +35,57 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Capture canonical CI result
+      - name: Repair exercise registry signature projection
         shell: bash
         run: |
-          set +e
-          log="$RUNNER_TEMP/ci-output.log"
-          summary="$RUNNER_TEMP/ci-failure-summary.txt"
-          npm run ci > "$log" 2>&1
-          status=$?
-          {
-            echo "exit_status=$status"
-            echo "=== focused failure lines ==="
-            grep -En "::error|run_long_npm_script|test:ci command failed|AssertionError|ERR_|CI_[A-Z0-9_]+|not ok|FAILED|failure|Error:" "$log" | tail -n 180 || true
-            echo "=== final output ==="
-            tail -n 280 "$log"
-          } > "$summary"
-          exit 0
-      - name: Upload diagnostic summary
-        uses: actions/upload-artifact@v4
-        with:
-          name: reg-full-01-ci-failure-summary
-          path: ${{ runner.temp }}/ci-failure-summary.txt
-          if-no-files-found: error
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('engine/src/registries/loadExerciseEntries.ts')
+          text = path.read_text(encoding='utf-8')
+
+          anchor = '''function isRecord(v: unknown): v is Record<string, unknown> {\n  return !!v && typeof v === "object" && !Array.isArray(v);\n}\n'''
+          helper = '''function isRecord(v: unknown): v is Record<string, unknown> {\n  return !!v && typeof v === "object" && !Array.isArray(v);\n}\n\nfunction canonicalStringArray(v: unknown): string[] | undefined {\n  if (!Array.isArray(v) || !v.every((item) => typeof item === "string")) return undefined;\n  return [...v];\n}\n\nfunction projectCanonicalExerciseSignature(value: unknown, fallbackId?: string): ExerciseSignature | null {\n  if (!isRecord(value)) return null;\n\n  const exerciseId = typeof value.exercise_id === "string" && value.exercise_id.trim()\n    ? value.exercise_id.trim()\n    : String(fallbackId ?? "").trim();\n  if (!exerciseId) return null;\n\n  const movementPatternId = typeof value.movement_pattern_id === "string" && value.movement_pattern_id.trim()\n    ? value.movement_pattern_id.trim()\n    : undefined;\n  const stimulusIntent = typeof value.stimulus_intent === "string" && value.stimulus_intent.trim()\n    ? value.stimulus_intent.trim()\n    : undefined;\n  const equipmentRequirements = canonicalStringArray(value.equipment_requirements);\n  const jointStressTags = canonicalStringArray(value.joint_stress_tags);\n\n  // Registry vocabulary remains canonical. Phase 4/5 consumes an internal\n  // ExerciseSignature projection, so translate once at the loader boundary\n  // rather than reintroducing legacy registry fields or dual-reading them.\n  return {\n    ...value,\n    exercise_id: exerciseId,\n    ...(movementPatternId ? { pattern: movementPatternId } : {}),\n    ...(stimulusIntent ? { stimulus: stimulusIntent } : {}),\n    ...(equipmentRequirements ? { equipment_ids: equipmentRequirements } : {}),\n    ...(jointStressTags ? { joint_stress_tags: jointStressTags } : {})\n  } as ExerciseSignature;\n}\n'''
+          if 'function projectCanonicalExerciseSignature' not in text:
+              if anchor not in text:
+                  raise SystemExit('Exercise loader anchor not found; refusing broad edit.')
+              text = text.replace(anchor, helper, 1)
+
+          old_object = '''    for (const [k, v] of Object.entries((parsed as any).entries)) {\n      if (v && typeof v === "object") out[k] = v as ExerciseSignature;\n    }'''
+          new_object = '''    for (const [k, v] of Object.entries((parsed as any).entries)) {\n      const projected = projectCanonicalExerciseSignature(v, k);\n      if (projected) out[k] = projected;\n    }'''
+          if old_object in text:
+              text = text.replace(old_object, new_object, 1)
+          elif new_object not in text:
+              raise SystemExit('Preferred exercise-registry loader block not found.')
+
+          path.write_text(text, encoding='utf-8')
+
+          test_path = Path('test/registry_exercise_entries.test.mjs')
+          test_text = test_path.read_text(encoding='utf-8')
+          marker = '''  for (const id of required) {\n    assert.ok(entries[id], `missing exercise_id in registry: ${id}`);\n    assert.equal(entries[id].exercise_id, id, `entry.exercise_id mismatch for ${id}`);\n  }\n});'''
+          replacement = '''  for (const id of required) {\n    assert.ok(entries[id], `missing exercise_id in registry: ${id}`);\n    assert.equal(entries[id].exercise_id, id, `entry.exercise_id mismatch for ${id}`);\n  }\n\n  // REG-FULL-01 keeps registry rows canonical while the substitution engine\n  // consumes its established internal ExerciseSignature vocabulary. The loader\n  // must project canonical fields exactly once at this boundary.\n  assert.equal(entries.bench_press.pattern, "horizontal_push");\n  assert.equal(entries.bench_press.stimulus, "strength");\n  assert.deepEqual(entries.bench_press.equipment_ids, ["barbell", "bench", "rack"]);\n});'''
+          if marker in test_text:
+              test_text = test_text.replace(marker, replacement, 1)
+          elif replacement not in test_text:
+              raise SystemExit('Exercise registry loader test anchor not found.')
+          test_path.write_text(test_text, encoding='utf-8')
+          PY
+      - name: Prove registry-to-engine projection repair
+        shell: bash
+        run: |
+          npm run build:fast
+          node --test test/registry_exercise_entries.test.mjs
+          node --test --test-name-pattern="banned_equipment" test/e2e_ticket011_actionable_constraints_substitution.test.mjs
+          npm run e2e:golden
+      - name: Commit proven projection repair
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- engine/src/registries/loadExerciseEntries.ts test/registry_exercise_entries.test.mjs
+          if git diff --cached --quiet; then
+            echo "Projection repair already committed."
+            exit 0
+          fi
+          git commit -m "fix(engine): project canonical exercise fields for substitution"
+          git push origin HEAD:automation/reg-full-01-registry-schema-closure
