@@ -16,6 +16,8 @@ const dataRightsHook = read("public/app-src/screens/account/useAccountDataRights
 const supportPanel = read("public/app-src/screens/account/AccountSupportPanel.tsx");
 const supportHook = read("public/app-src/screens/account/useAccountSupport.ts");
 const reviewHook = read("public/app-src/screens/coach/useCoachReview.ts");
+const invitationsPanel = read("public/app-src/screens/account/AccountCoachInvitationsPanel.tsx");
+const relationshipPanel = read("public/app-src/screens/account/AccountCoachRelationshipPanel.tsx");
 
 test("every focusable control gets a visible keyboard-only focus ring, distinct from mouse-hover styling", () => {
   assert.match(
@@ -79,8 +81,12 @@ test("a form submit or button click cannot be repeated while its own async actio
   // The count of remaining app.js call sites shrinks by one each time a
   // guardedAction-wrapped function migrates to React (it gains its own
   // disabled-while-submitting state instead) - see the migrated list below.
+  // acceptRelationshipInvitation/declineRelationshipInvitation/
+  // endAthleteRelationship's button listeners each dropped one when those
+  // panels moved to React (AccountCoachInvitationsPanel.tsx/
+  // AccountCoachRelationshipPanel.tsx).
   const guardedCallCount = [...js.matchAll(/guardedAction\(/gu)].length - 1; // -1 for the function definition itself
-  assert.ok(guardedCallCount >= 9, `expected at least 9 guardedAction call sites, found ${guardedCallCount}`);
+  assert.ok(guardedCallCount >= 6, `expected at least 6 guardedAction call sites, found ${guardedCallCount}`);
 
   // saveAccountProfile/requestAccountVerificationCode/verifyAccountEmail/
   // saveAccountPassword/submitSupportReport/requestDataExportAction/
@@ -108,6 +114,12 @@ test("a form submit or button click cannot be repeated while its own async actio
 
   const accountClosurePanel = read("public/app-src/screens/account/AccountClosurePanel.tsx");
   assert.match(accountClosurePanel, /type="submit" disabled=\{submitting\}/u);
+
+  // Same guarantee for the pending-invitations accept/decline buttons and
+  // the end-relationship button - each disables while its own actingId/
+  // endingId busy-flag matches the specific record being acted on.
+  assert.match(invitationsPanel, /disabled=\{busy\}/u);
+  assert.match(relationshipPanel, /disabled=\{endingId === relationshipId\}/u);
 });
 
 test("leaving a form with unsaved changes - a coach note or a programme draft - requires explicit confirmation, including on browser refresh/close", () => {

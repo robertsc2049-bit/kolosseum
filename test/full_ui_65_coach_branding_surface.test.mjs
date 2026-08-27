@@ -28,6 +28,11 @@ const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 const client = read("public/app-src/api/coachBrandingClient.ts");
 const hook = read("public/app-src/screens/account/useAccountBranding.ts");
 const panel = read("public/app-src/screens/account/AccountBrandingPanel.tsx");
+// DEV NOTE: the athlete-facing "My coach" card also moved to React as part
+// of the FULL-UI-25 relationship-panels slice (AccountCoachRelationshipPanel.
+// tsx) - it's the same renderAthleteRelationships() this file's own DEV NOTE
+// above once described as "a separate, still-legacy feature".
+const relationshipPanel = read("public/app-src/screens/account/AccountCoachRelationshipPanel.tsx");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -113,15 +118,30 @@ test("the coach settings panel is a real control mounted in the account view, an
   assert.match(panel, /<input type="color"/u);
   assert.match(panel, /maxLength=\{120\}/u);
 
-  // The athlete-facing "My coach" card is a separate, still-legacy feature.
-  assert.match(appJs, /entry\.coach_brand_tagline \? `<p class="muted small">\$\{escapeHtml\(entry\.coach_brand_tagline\)\}/u);
-  assert.match(appJs, /escapeHtml\(entry\.coach_brand_color\)/u);
+  // The athlete-facing "My coach" card is React now too
+  // (AccountCoachRelationshipPanel.tsx) - it renders these as plain JSX
+  // expressions, which escape by default, rather than calling escapeHtml.
+  assert.match(relationshipPanel, /entry\.coach_brand_tagline \? <p className="muted small">\{String\(entry\.coach_brand_tagline\)\}<\/p> : null/u);
+  assert.match(relationshipPanel, /entry\.coach_brand_color/u);
 });
 
 test("the coach settings panel is gated to coach accounts only, never shown unconditionally", () => {
   assert.match(panel, /if \(!isCoach\) return null;/u);
-  assert.match(panel, /function readRole\(\)/u);
-  assert.match(panel, /window\.localStorage\.getItem\(STORAGE_KEY\)/u);
+  // readRole()/useRole() were extracted to a shared utility once a fourth
+  // #view-account panel needed the same role gate - see
+  // public/app-src/utils/role.ts. useRole() also re-reads on a same-tab
+  // sign-in/register (kolosseum:account-role-known, dispatched by
+  // enterApplication() in app.js) in addition to the cross-tab "storage"
+  // event, since a same-tab localStorage write never fires "storage" for
+  // the tab that made it.
+  const roleUtil = read("public/app-src/utils/role.ts");
+  const appJsSource = read("public/app/app.js");
+  assert.match(roleUtil, /export function readRole\(\)/u);
+  assert.match(roleUtil, /export function useRole\(\)/u);
+  assert.match(roleUtil, /window\.localStorage\.getItem\(STORAGE_KEY\)/u);
+  assert.match(roleUtil, /"kolosseum:account-role-known"/u);
+  assert.match(appJsSource, /document\.dispatchEvent\(new CustomEvent\("kolosseum:account-role-known"\)\);/u);
+  assert.match(panel, /import \{ useRole \} from "\.\.\/\.\.\/utils\/role"/u);
 });
 
 test("the FULL-UI-65 manifest area declares all three functions as implemented with real tests", () => {

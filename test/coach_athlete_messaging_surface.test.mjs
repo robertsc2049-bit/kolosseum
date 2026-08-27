@@ -13,6 +13,13 @@ const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
+// DEV NOTE: the athlete's own coach-messaging widget (embedded in "My
+// coach") moved to React - see AccountCoachRelationshipPanel.tsx/
+// useAccountCoachRelationship.ts/accountRelationshipsClient.ts. The
+// coach-side messaging UI (athleteDetailMessage*) stays legacy.
+const relationshipHook = read("public/app-src/screens/account/useAccountCoachRelationship.ts");
+const relationshipPanel = read("public/app-src/screens/account/AccountCoachRelationshipPanel.tsx");
+const relationshipsClient = read("public/app-src/api/accountRelationshipsClient.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -121,7 +128,9 @@ test("both the coach and athlete UIs exist as real focusable controls, and messa
 
   assert.match(appJs, /escapeHtml\(message\.body_text/u);
   assert.match(appJs, /async function refreshCoachAthleteMessages/u);
-  assert.match(appJs, /async function refreshAthleteOwnMessages/u);
   assert.match(appJs, /async function confirmSendAthleteMessage/u);
-  assert.match(appJs, /async function confirmSendAthleteOwnMessage/u);
+  assert.match(relationshipHook, /export function useAccountCoachRelationship/u);
+  assert.match(relationshipsClient, /export async function sendAthleteOwnMessage/u);
+  // React escapes all rendered text by default - never dangerouslySetInnerHTML.
+  assert.doesNotMatch(relationshipPanel, /dangerouslySetInnerHTML/u);
 });

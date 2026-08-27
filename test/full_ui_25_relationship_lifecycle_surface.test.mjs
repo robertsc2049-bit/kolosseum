@@ -17,6 +17,14 @@ const js = read("public/app/app.js");
 const routes = read("src/api/coach_workspace.routes.ts");
 const handlers = read("src/api/coach_workspace.handlers.ts");
 const invitationService = read("src/api/relationship_invitation_service.ts");
+// DEV NOTE: the athlete's own pending-invitations/relationships/messaging
+// panels moved to React - see AccountCoachInvitationsPanel.tsx and
+// AccountCoachRelationshipPanel.tsx (useAccountCoachRelationship.ts owns
+// endRelationship(), which calls the client's endAthleteRelationship()).
+const invitationsClient = read("public/app-src/api/accountRelationshipsClient.ts");
+const invitationsHook = read("public/app-src/screens/account/useAccountCoachInvitations.ts");
+const relationshipHook = read("public/app-src/screens/account/useAccountCoachRelationship.ts");
+const relationshipPanel = read("public/app-src/screens/account/AccountCoachRelationshipPanel.tsx");
 
 test("the athlete can decline a pending invitation - the symmetric counterpart to accept", () => {
   assert.match(routes, /coachWorkspaceRouter\.post\(\s*"\/relationship-invitations\/:relationship_id\/decline",/u);
@@ -27,8 +35,9 @@ test("the athlete can decline a pending invitation - the symmetric counterpart t
   assert.match(invitationService, /relationship_state: "declined"/u);
   assert.match(invitationService, /revoked_at_iso8601: timestamp/u);
 
-  assert.match(js, /async function declineRelationshipInvitation\(relationshipId\)/u);
-  assert.match(js, /class="button secondary decline-relationship-invitation-button">Decline<\/button>/u);
+  assert.match(invitationsClient, /export async function declineRelationshipInvitation/u);
+  assert.match(invitationsHook, /decline: \(id: string\) => respond\(id, "decline"\)/u);
+  assert.match(invitationsHook, /else await declineRelationshipInvitation\(relationshipId, csrfToken\);/u);
 });
 
 test("the athlete can end an accepted relationship from their own profile, and read their own current+past relationships", () => {
@@ -46,19 +55,19 @@ test("the athlete can end an accepted relationship from their own profile, and r
     /cleanString\(current\.athlete_user_id\) !== athleteUserId \|\|\s*\n\s*current\.relationship_state !== "accepted"/u
   );
 
-  assert.match(js, /async function endAthleteRelationship\(relationshipId\)/u);
-  assert.match(js, /globalThis\.confirm\("End this relationship with your coach\? Historical records will be preserved\."\)/u);
-  assert.match(js, /class="button secondary end-relationship-button">End relationship<\/button>/u);
+  assert.match(invitationsClient, /export async function endAthleteRelationship/u);
+  assert.match(relationshipPanel, /window\.confirm\("End this relationship with your coach\? Historical records will be preserved\."\)/u);
+  assert.match(relationshipPanel, />\s*End relationship\s*<\/button>/u);
 });
 
 test("closed relationships are shown as preserved past history, not deleted or hidden entirely", () => {
   assert.match(invitationService, /export async function listRelationshipsForAthlete/u);
   assert.match(invitationService, /relationship\.relationship_state !== "invited"/u);
 
-  assert.match(js, /function renderAthleteRelationships\(\)/u);
-  assert.match(js, /Past relationships/u);
-  assert.match(js, /const current = relationships\.filter\(\(entry\) => entry\.relationship_state === "accepted"\);/u);
-  assert.match(js, /const past = relationships\.filter\(\(entry\) => entry\.relationship_state !== "accepted"\);/u);
+  assert.match(relationshipHook, /export function useAccountCoachRelationship/u);
+  assert.match(relationshipPanel, /Past relationships/u);
+  assert.match(relationshipPanel, /const current = relationships\.filter\(\(entry\) => entry\.relationship_state === "accepted"\);/u);
+  assert.match(relationshipPanel, /const past = relationships\.filter\(\(entry\) => entry\.relationship_state !== "accepted"\);/u);
 });
 
 test("authenticatedAthlete gates both new mutating routes with CSRF and derives identity only from the session cookie", () => {
