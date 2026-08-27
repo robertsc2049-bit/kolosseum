@@ -42,7 +42,7 @@ const targets = [
       [
         "public/app/index.html",
         [
-          "id=\"assignmentCurrentState\""
+          "id=\"athlete-profile-assignment-root\""
         ]
       ],
       [
@@ -82,9 +82,9 @@ const targets = [
     "id": "assignment_separate_event",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx",
         [
-          "Event links are shown separately."
+          "<p className=\"eyebrow\">Event links</p>"
         ]
       ],
       [

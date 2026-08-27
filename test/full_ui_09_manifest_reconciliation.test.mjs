@@ -22,9 +22,9 @@ const targets = [
     "id": "assignment_replace",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/api/coachWorkspaceClient.ts",
         "all": [
-          "createId(\"assignment_replace\")"
+          "function replaceAthleteAssignment("
         ]
       },
       {
@@ -51,7 +51,7 @@ const targets = [
       {
         "path": "public/app/index.html",
         "all": [
-          "assignmentCancelButton"
+          "athlete-profile-assignment-root"
         ]
       },
       {
@@ -91,7 +91,7 @@ const targets = [
       {
         "path": "public/app/index.html",
         "all": [
-          "assignmentHistoryList"
+          "athlete-profile-assignment-root"
         ]
       },
       {

@@ -23,6 +23,10 @@ const blocks = read("src/api/blocks.handlers.ts");
 const journey = read("src/api/beta_product_journey_service.ts");
 const phase4Types = read("engine/src/phases/phase4/types.ts");
 const phase6 = read("engine/src/phases/phase6.ts");
+// DEV NOTE: the profile-embedded assignment panel moved to React - see
+// AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts. The
+// standalone #view-assign twin is gone outright (unreachable dead code).
+const assignmentHook = read("public/app-src/screens/coach/useAthleteProfileAssignment.ts");
 
 test("programme and athlete-reference routes are mounted", () => {
   assert.match(server, /import \{ templatesRouter \} from "\.\/api\/templates\.routes\.js";/u);
@@ -139,9 +143,9 @@ test("assignment requires an active owned programme and the required factual ref
   assert.match(journey, /loadActiveCoachTemplateById/u);
   assert.match(journey, /stored_template_not_active/u);
   assert.match(journey, /stored_template_activity_mismatch/u);
-  assert.match(js, /requiredOneRmExerciseIds/u);
-  assert.match(js, /renderAssignmentRequirements/u);
-  assert.match(js, /Complete the athlete strength references required by this programme/u);
+  assert.match(assignmentHook, /compareProgrammeStrengthRequirements/u);
+  assert.match(assignmentHook, /function computeRequirements\(/u);
+  assert.match(assignmentHook, /Missing current strength references/u);
 });
 
 test("assigned programme materialises the next deterministic session across blocks", () => {
@@ -163,7 +167,7 @@ test("coach UI exposes one coherent athlete, programme, assignment and review wo
   assert.match(html, /id="athlete-profile-editor-root"/u);
   assert.match(html, /id="templateBlocks"/u);
   assert.match(html, /id="addTemplateBlockButton"/u);
-  assert.match(html, /id="assignmentRequirements"/u);
+  assert.match(html, /id="athlete-profile-assignment-root"/u);
   assert.match(html, /id="view-review"/u);
   assert.match(js, /refreshCoachAthletes/u);
   assert.match(js, /refreshCoachAssignments/u);

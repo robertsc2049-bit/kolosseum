@@ -15,6 +15,10 @@ const templateService = read("src/api/beta18_programme_template_service.ts");
 const routes = read("src/api/coach_workspace.routes.ts");
 const handlers = read("src/api/coach_workspace.handlers.ts");
 const blocks = read("src/api/blocks.handlers.ts");
+// DEV NOTE: the profile-embedded assignment panel moved to React - see
+// AthleteProfileAssignmentPanel.tsx. The standalone #view-assign twin is
+// gone outright (unreachable dead code).
+const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
 
 test("programme builder exposes explicit weeks-per-block and a compact add-week action", () => {
   assert.match(html, /id="templateBlocks"/u);
@@ -69,10 +73,10 @@ test("event calendar is persisted with the immutable programme and enforced at a
 
 test("athlete and assignment surfaces receive factual event countdown data", () => {
   assert.match(html, /id="athlete-today-event-root"/u);
-  assert.match(html, /id="assignmentEventSummary"/u);
+  assert.match(html, /id="athlete-profile-assignment-root"/u);
   assert.match(js, /countdownLabel/u);
   assert.match(js, /response\.beta_path\?\.event_plan/u);
-  assert.match(js, /renderAssignmentEventSummary/u);
+  assert.match(assignmentPanel, /countdownLabel\(plan\.event_date/u);
   assert.match(blocks, /event_compile_summary/u);
   assert.match(blocks, /template_session_title/u);
 });
