@@ -80,6 +80,13 @@ jobs:
           node --test test/reg_full_00_final_registry_surface_authority.test.mjs
           node ci/guards/reg_full_00_final_registry_surface_authority_guard.mjs
 
+      - name: REG-FULL-01 Registry Schema Closure
+        # DEV NOTE: REG-FULL-01 consumes the final REG-FULL-00 architecture and
+        # proves one canonical closed-world schema/ID vocabulary per required-active registry.
+        run: |
+          node --test test/reg_full_01_registry_schema_closure.test.mjs
+          node ci/guards/reg_full_01_registry_schema_closure_guard.mjs
+
       - name: Green (CI)
         # DEV NOTE: This is the fast deterministic green gate.
         # Keep the actual check set inside package scripts so local and CI
