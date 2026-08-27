@@ -51,8 +51,13 @@ const targets = [
       {
         "path": "public/app/index.html",
         "all": [
-          "athleteAssignmentCancelButton",
           "assignmentCancelButton"
+        ]
+      },
+      {
+        "path": "public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx",
+        "all": [
+          "Cancel future assignment"
         ]
       },
       {
@@ -86,8 +91,13 @@ const targets = [
       {
         "path": "public/app/index.html",
         "all": [
-          "athleteAssignmentHistory",
           "assignmentHistoryList"
+        ]
+      },
+      {
+        "path": "public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx",
+        "all": [
+          "athlete-assignment-history"
         ]
       }
     ],

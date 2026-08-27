@@ -582,42 +582,9 @@
 
             <div id="athlete-profile-editor-root"></div>
 
-            <section id="athleteAssignmentPanel" class="athlete-assignment-panel" hidden>
-              <div class="panel-header">
-                <div>
-                  <p class="eyebrow">Programme assignment</p>
-                  <h3>Assign from athlete profile</h3>
-                  <p class="muted">Select an active programme and optionally link it to a compiled event.</p>
-                </div>
-              </div>
-
-              <form id="athleteAssignmentForm" class="athlete-assignment-form">
-                <label class="field">
-                  <span>Event</span>
-                  <select id="athleteAssignmentEvent"><option value="">No event link</option></select>
-                </label>
-                <label class="field">
-                  <span>Programme</span>
-                  <select id="athleteAssignmentTemplate"><option value="">No active programmes</option></select>
-                </label>
-                <div id="athleteAssignmentCurrent" class="assignment-current-state"></div>
-                <div id="athleteAssignmentRequirements" class="assignment-requirements neutral">Select an active programme.</div>
-                <div class="assignment-action-row">
-                  <button id="athleteAssignmentButton" class="button primary" type="submit">Assign programme</button>
-                  <button id="athleteAssignmentCancelButton" class="button danger" type="button" hidden>Cancel future assignment</button>
-                </div>
-                <p id="athleteAssignmentResult" class="inline-result" hidden></p>
-                <div>
-                  <p class="eyebrow">Assignment history</p>
-                  <div id="athleteAssignmentHistory" class="athlete-assignment-history"></div>
-                </div>
-              </form>
-
-              <div class="panel-header athlete-event-links-header">
-                <div><p class="eyebrow">Event links</p><h3>Linked assignments</h3></div>
-              </div>
-              <div id="athleteEventLinks" class="record-list"></div>
-            </section>
+            <!-- DEV NOTE: the assignment-from-profile form is now React -
+                 see public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx. -->
+            <div id="athlete-profile-assignment-root"></div>
 
             <section
               id="athleteDetailHistoryPanel"

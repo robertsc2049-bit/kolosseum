@@ -23,6 +23,7 @@ import { AthleteSelfWeeklyCheckinsPanel } from "./screens/athlete/AthleteSelfWee
 import { AthleteSessionExecutionPanel } from "./screens/athlete/AthleteSessionExecutionPanel";
 import { AthleteTodayCreateSessionButton, AthleteTodayEventCard, AthleteTodaySessionCard } from "./screens/athlete/AthleteTodayPanel";
 import { AthleteDirectoryPanel } from "./screens/coach/AthleteDirectoryPanel";
+import { AthleteProfileAssignmentPanel } from "./screens/coach/AthleteProfileAssignmentPanel";
 import { AthleteRelationshipDetailPanel } from "./screens/coach/AthleteRelationshipDetailPanel";
 import {
   AthleteAssignmentHistoryList,
@@ -75,6 +76,7 @@ mount("account-coach-code-root", <AccountCoachCodePanel />);
 mount("account-org-messages-root", <AccountOrgMessagesPanel />);
 mount("account-org-context-root", <AccountOrgContextPanel />);
 mount("athlete-profile-editor-root", <AthleteStrengthProfilePanel />);
+mount("athlete-profile-assignment-root", <AthleteProfileAssignmentPanel />);
 mount("athlete-progress-insights-root", <AthleteProgressInsightsPanel />);
 mount("athlete-weekly-checkins-root", <AthleteWeeklyCheckinsPanel />);
 mount("athlete-goals-root", <AthleteGoalsPanel />);

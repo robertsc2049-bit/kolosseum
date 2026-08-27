@@ -23,6 +23,10 @@ const templates = read("src/api/beta18_programme_template_service.ts");
 // React - see public/app-src/screens/coach/CoachEventsLibraryPanel.tsx.
 // The create-event form and its live countdown/weeks preview stay legacy.
 const coachEventsLibraryPanel = read("public/app-src/screens/coach/CoachEventsLibraryPanel.tsx");
+// DEV NOTE: the profile-embedded assignment form moved to React too - see
+// AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts.
+const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
+const assignmentClient = read("public/app-src/api/coachWorkspaceClient.ts");
 
 test("events are a separate coach workspace section", () => {
   assert.match(index, /data-view="events"/u);
@@ -39,12 +43,14 @@ test("events are a separate coach workspace section", () => {
 });
 
 test("athlete profile owns programme and event assignment", () => {
-  assert.match(index, /id="athleteAssignmentForm"/u);
-  assert.match(index, /id="athleteAssignmentEvent"/u);
-  assert.match(index, /id="athleteAssignmentTemplate"/u);
-  assert.match(index, /id="athleteEventLinks"/u);
-  assert.match(app, /recordAthleteProfileAssignment/u);
-  assert.match(app, /\/coach-workspace\/athlete-assignment/u);
+  assert.match(index, /id="athlete-profile-assignment-root"/u);
+  assert.doesNotMatch(index, /id="athleteAssignmentForm"/u);
+
+  assert.match(assignmentPanel, /Event<\/span>/u);
+  assert.match(assignmentPanel, /Programme<\/span>/u);
+  assert.match(assignmentPanel, /Linked assignments/u);
+  assert.match(assignmentClient, /export function createAthleteAssignment/u);
+  assert.match(assignmentClient, /\/coach-workspace\/athlete-assignment/u);
 });
 
 test("the coach event library offers a real .ics calendar export link, mounted before the /events/:event_id param route", () => {

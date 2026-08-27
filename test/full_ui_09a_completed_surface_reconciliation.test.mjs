@@ -42,8 +42,13 @@ const targets = [
       [
         "public/app/index.html",
         [
-          "id=\"athleteAssignmentCurrent\"",
           "id=\"assignmentCurrentState\""
+        ]
+      ],
+      [
+        "public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx",
+        [
+          "Current assignment"
         ]
       ],
       [

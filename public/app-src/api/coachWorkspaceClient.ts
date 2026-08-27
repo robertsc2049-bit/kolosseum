@@ -130,6 +130,28 @@ export async function loadCoachAssignments(coachUserId: string): Promise<JsonRec
   return Array.isArray(response.assignments) ? (response.assignments as JsonRecord[]) : [];
 }
 
+// DEV NOTE: the "Assign from athlete profile" panel - see
+// useAthleteProfileAssignment.ts/AthleteProfileAssignmentPanel.tsx. A
+// standalone, unreachable (no nav button, no route) twin of this same form
+// still lives in app.js as dead code (assignmentForm/recordAssignment()
+// etc.) - out of scope for this slice, left for its own cleanup.
+export async function loadAthleteEventLinks(athleteUserId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/coach-workspace/athlete-event-links?athlete_user_id=${encodeURIComponent(athleteUserId)}`);
+  return Array.isArray(response.links) ? (response.links as JsonRecord[]) : [];
+}
+
+export function createAthleteAssignment(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/coach-workspace/athlete-assignment", input, csrfToken);
+}
+
+export function replaceAthleteAssignment(assignmentId: string, input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/coach-workspace/athlete-assignment/${encodeURIComponent(assignmentId)}/replace`, input, csrfToken);
+}
+
+export function cancelAthleteAssignment(assignmentId: string, input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/coach-workspace/athlete-assignment/${encodeURIComponent(assignmentId)}/cancel`, input, csrfToken);
+}
+
 // DEV NOTE: FULL-UI-17 review queue - see useCoachReview.ts. Fetches every
 // review record for the coach unfiltered (matching legacy's
 // refreshCoachReviewQueue()), never passing the route's optional
