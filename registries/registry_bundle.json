@@ -28,19 +28,19 @@
     },
     "movement": {
       "registry_id": "movement",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": {
         "horizontal_push": {
-          "movement_id": "horizontal_push",
+          "movement_pattern_id": "horizontal_push",
           "equipment_vocab": [
             "bodyweight",
             "barbell",
             "dumbbell",
-            "machine",
+            "machine_general",
             "bench",
             "rack",
             "kettlebell",
-            "cable",
+            "cable_machine",
             "plate"
           ],
           "joint_stress_tags_vocab": [
@@ -63,16 +63,16 @@
           ]
         },
         "vertical_push": {
-          "movement_id": "vertical_push",
+          "movement_pattern_id": "vertical_push",
           "equipment_vocab": [
             "bodyweight",
             "barbell",
             "dumbbell",
-            "machine",
+            "machine_general",
             "kettlebell",
             "bench",
             "rack",
-            "cable",
+            "cable_machine",
             "plate"
           ],
           "joint_stress_tags_vocab": [
@@ -95,12 +95,12 @@
           ]
         },
         "squat": {
-          "movement_id": "squat",
+          "movement_pattern_id": "squat",
           "equipment_vocab": [
             "bodyweight",
             "barbell",
             "dumbbell",
-            "machine",
+            "machine_general",
             "rack",
             "kettlebell",
             "bench",
@@ -127,17 +127,17 @@
           ]
         },
         "hinge": {
-          "movement_id": "hinge",
+          "movement_pattern_id": "hinge",
           "equipment_vocab": [
             "bodyweight",
             "barbell",
             "dumbbell",
             "kettlebell",
-            "machine",
+            "machine_general",
             "bench",
             "rack",
             "trap_bar",
-            "cable",
+            "cable_machine",
             "plate"
           ],
           "joint_stress_tags_vocab": [
@@ -162,36 +162,26 @@
     },
     "exercise": {
       "registry_id": "exercise",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": {
         "bench_press": {
           "exercise_id": "bench_press",
-          "pattern": "horizontal_push",
+          "movement_pattern_id": "horizontal_push",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "stable",
-          "equipment": [
-            "barbell",
-            "bench",
-            "rack"
-          ],
-          "equipment_tags": [
-            "barbell"
-          ],
           "equipment_tier": "TIER_1",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "shoulder_high"
+            "shoulder"
           ],
           "tempo_capability": "paused_and_tempo",
-          "instruction": {
-            "short": "Lower bar to chest, then press to full extension",
-            "detailed": [
-              "Lie on the bench with eyes roughly under the bar, feet flat on the floor, and a slight arch through the upper back.",
-              "Unrack the bar over the shoulders, then lower it under control to the mid-chest while keeping the elbows tucked at roughly 45 degrees from the torso.",
-              "Press the bar back up in a straight line to full elbow extension, keeping the shoulder blades pinned to the bench throughout."
-            ]
-          },
+          "instruction_short_text": "Lower bar to chest, then press to full extension",
+          "instruction_detail_text": [
+            "Lie on the bench with eyes roughly under the bar, feet flat on the floor, and a slight arch through the upper back.",
+            "Unrack the bar over the shoulders, then lower it under control to the mid-chest while keeping the elbows tucked at roughly 45 degrees from the torso.",
+            "Press the bar back up in a straight line to full elbow extension, keeping the shoulder blades pinned to the bench throughout."
+          ],
           "coaching_cues": [
             "Squeeze the bar and pull it into your palms",
             "Drive your feet into the floor",
@@ -218,32 +208,22 @@
         },
         "incline_bench_press": {
           "exercise_id": "incline_bench_press",
-          "pattern": "horizontal_push",
+          "movement_pattern_id": "horizontal_push",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "stable",
-          "equipment": [
-            "barbell",
-            "incline_bench",
-            "rack"
-          ],
-          "equipment_tags": [
-            "barbell"
-          ],
           "equipment_tier": "TIER_1",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "shoulder_high"
+            "shoulder"
           ],
           "tempo_capability": "paused_and_tempo",
-          "instruction": {
-            "short": "Lower dumbbells or bar to upper chest, then press to full extension",
-            "detailed": [
-              "Set the bench to a 30-45 degree incline and lie back with the bar or dumbbells over the upper chest.",
-              "Lower the weight under control to the upper chest, keeping the elbows at roughly 45 degrees from the torso.",
-              "Press back up to full extension without letting the bar drift forward over the face."
-            ]
-          },
+          "instruction_short_text": "Lower dumbbells or bar to upper chest, then press to full extension",
+          "instruction_detail_text": [
+            "Set the bench to a 30-45 degree incline and lie back with the bar or dumbbells over the upper chest.",
+            "Lower the weight under control to the upper chest, keeping the elbows at roughly 45 degrees from the torso.",
+            "Press back up to full extension without letting the bar drift forward over the face."
+          ],
           "coaching_cues": [
             "Bar or dumbbells to the upper chest, not the neck",
             "Keep the incline moderate — steep angles turn this into a shoulder press",
@@ -269,31 +249,22 @@
         },
         "dumbbell_bench_press": {
           "exercise_id": "dumbbell_bench_press",
-          "pattern": "horizontal_push",
+          "movement_pattern_id": "horizontal_push",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "semi_stable",
-          "equipment": [
-            "dumbbells",
-            "bench"
-          ],
-          "equipment_tags": [
-            "dumbbell"
-          ],
           "equipment_tier": "TIER_2",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "shoulder_medium"
+            "shoulder"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Lower dumbbells to chest level, then press to full extension",
-            "detailed": [
-              "Lie on the bench with a dumbbell in each hand at chest level, elbows bent to roughly 45 degrees.",
-              "Press both dumbbells up and slightly inward until they nearly touch at the top.",
-              "Lower under control back to chest level, keeping the wrists stacked over the elbows throughout."
-            ]
-          },
+          "instruction_short_text": "Lower dumbbells to chest level, then press to full extension",
+          "instruction_detail_text": [
+            "Lie on the bench with a dumbbell in each hand at chest level, elbows bent to roughly 45 degrees.",
+            "Press both dumbbells up and slightly inward until they nearly touch at the top.",
+            "Lower under control back to chest level, keeping the wrists stacked over the elbows throughout."
+          ],
           "coaching_cues": [
             "Press the dumbbells up and slightly together",
             "Keep the wrists stacked directly over the elbows",
@@ -318,30 +289,22 @@
         },
         "push_up": {
           "exercise_id": "push_up",
-          "pattern": "horizontal_push",
+          "movement_pattern_id": "horizontal_push",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "unstable",
-          "equipment": [
-            "bodyweight"
-          ],
-          "equipment_tags": [
-            "bodyweight"
-          ],
           "equipment_tier": "TIER_4",
           "difficulty_tier": "beginner",
           "joint_stress_tags": [
-            "shoulder_low"
+            "shoulder"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Lower chest toward floor, then press back to the start position",
-            "detailed": [
-              "Set up in a straight plank with hands slightly wider than shoulder width, body in one straight line from head to heels.",
-              "Lower the chest toward the floor by bending the elbows, keeping them at roughly 45 degrees from the torso.",
-              "Press back up to full extension without letting the hips sag or pike."
-            ]
-          },
+          "instruction_short_text": "Lower chest toward floor, then press back to the start position",
+          "instruction_detail_text": [
+            "Set up in a straight plank with hands slightly wider than shoulder width, body in one straight line from head to heels.",
+            "Lower the chest toward the floor by bending the elbows, keeping them at roughly 45 degrees from the torso.",
+            "Press back up to full extension without letting the hips sag or pike."
+          ],
           "coaching_cues": [
             "Keep a straight line from head to heels",
             "Brace the core like you're about to be tapped in the stomach",
@@ -365,30 +328,22 @@
         },
         "machine_chest_press": {
           "exercise_id": "machine_chest_press",
-          "pattern": "horizontal_push",
+          "movement_pattern_id": "horizontal_push",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "stable",
-          "equipment": [
-            "machine"
-          ],
-          "equipment_tags": [
-            "machine"
-          ],
           "equipment_tier": "TIER_3",
           "difficulty_tier": "beginner",
           "joint_stress_tags": [
-            "shoulder_low"
+            "shoulder"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Lower handles under control, then press to full extension",
-            "detailed": [
-              "Adjust the seat so the handles sit at mid-chest height and sit back firmly against the pad.",
-              "Lower the handles under control to the starting position, keeping the shoulder blades pinned to the pad.",
-              "Press the handles forward to full extension without shrugging the shoulders up toward the ears."
-            ]
-          },
+          "instruction_short_text": "Lower handles under control, then press to full extension",
+          "instruction_detail_text": [
+            "Adjust the seat so the handles sit at mid-chest height and sit back firmly against the pad.",
+            "Lower the handles under control to the starting position, keeping the shoulder blades pinned to the pad.",
+            "Press the handles forward to full extension without shrugging the shoulders up toward the ears."
+          ],
           "coaching_cues": [
             "Set the seat height so the handles line up with mid-chest",
             "Keep the shoulder blades pinned against the pad",
@@ -412,31 +367,22 @@
         },
         "single_arm_dumbbell_press": {
           "exercise_id": "single_arm_dumbbell_press",
-          "pattern": "horizontal_push",
+          "movement_pattern_id": "horizontal_push",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "unstable",
-          "equipment": [
-            "dumbbells",
-            "bench"
-          ],
-          "equipment_tags": [
-            "dumbbell"
-          ],
           "equipment_tier": "TIER_3",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "shoulder_medium"
+            "shoulder"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Lower dumbbell to chest level, then press to full extension with one arm",
-            "detailed": [
-              "Lie on the bench with one dumbbell at chest level, keeping the non-working hand braced on the bench or hip for stability.",
-              "Press the dumbbell up to full extension while resisting rotation through the torso.",
-              "Lower under control back to chest level and repeat for the set before switching sides."
-            ]
-          },
+          "instruction_short_text": "Lower dumbbell to chest level, then press to full extension with one arm",
+          "instruction_detail_text": [
+            "Lie on the bench with one dumbbell at chest level, keeping the non-working hand braced on the bench or hip for stability.",
+            "Press the dumbbell up to full extension while resisting rotation through the torso.",
+            "Lower under control back to chest level and repeat for the set before switching sides."
+          ],
           "coaching_cues": [
             "Brace the core hard to resist rotating toward the working arm",
             "Press straight up, not across the body",
@@ -461,30 +407,22 @@
         },
         "overhead_press": {
           "exercise_id": "overhead_press",
-          "pattern": "vertical_push",
+          "movement_pattern_id": "vertical_push",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "stable",
-          "equipment": [
-            "barbell"
-          ],
-          "equipment_tags": [
-            "barbell"
-          ],
           "equipment_tier": "TIER_2",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "shoulder_high"
+            "shoulder"
           ],
           "tempo_capability": "paused_and_tempo",
-          "instruction": {
-            "short": "Press bar overhead to lockout, then lower under control",
-            "detailed": [
-              "Start with the bar at the front of the shoulders, hands just outside shoulder width, elbows slightly in front of the bar.",
-              "Press the bar straight up, moving the head back slightly to let the bar pass, then pushing the head through once it clears.",
-              "Lock out overhead with the bar over the midfoot, then lower back to the shoulders under control."
-            ]
-          },
+          "instruction_short_text": "Press bar overhead to lockout, then lower under control",
+          "instruction_detail_text": [
+            "Start with the bar at the front of the shoulders, hands just outside shoulder width, elbows slightly in front of the bar.",
+            "Press the bar straight up, moving the head back slightly to let the bar pass, then pushing the head through once it clears.",
+            "Lock out overhead with the bar over the midfoot, then lower back to the shoulders under control."
+          ],
           "coaching_cues": [
             "Squeeze your glutes and brace before every rep",
             "Move your head back then through as the bar passes your face",
@@ -507,30 +445,22 @@
         },
         "dumbbell_overhead_press": {
           "exercise_id": "dumbbell_overhead_press",
-          "pattern": "vertical_push",
+          "movement_pattern_id": "vertical_push",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "semi_stable",
-          "equipment": [
-            "dumbbells"
-          ],
-          "equipment_tags": [
-            "dumbbell"
-          ],
           "equipment_tier": "TIER_3",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "shoulder_medium"
+            "shoulder"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Press dumbbells overhead to lockout, then lower under control",
-            "detailed": [
-              "Start with a dumbbell in each hand at shoulder height, palms facing forward or slightly inward.",
-              "Press both dumbbells overhead to full extension without arching the lower back excessively.",
-              "Lower under control back to shoulder height and repeat."
-            ]
-          },
+          "instruction_short_text": "Press dumbbells overhead to lockout, then lower under control",
+          "instruction_detail_text": [
+            "Start with a dumbbell in each hand at shoulder height, palms facing forward or slightly inward.",
+            "Press both dumbbells overhead to full extension without arching the lower back excessively.",
+            "Lower under control back to shoulder height and repeat."
+          ],
           "coaching_cues": [
             "Brace the core before pressing",
             "Press the dumbbells up and slightly inward toward each other overhead",
@@ -553,30 +483,22 @@
         },
         "single_arm_overhead_press": {
           "exercise_id": "single_arm_overhead_press",
-          "pattern": "vertical_push",
+          "movement_pattern_id": "vertical_push",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "unstable",
-          "equipment": [
-            "dumbbells"
-          ],
-          "equipment_tags": [
-            "dumbbell"
-          ],
           "equipment_tier": "TIER_3",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "shoulder_medium"
+            "shoulder"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Press dumbbell overhead to lockout with one arm, then lower under control",
-            "detailed": [
-              "Start with one dumbbell at shoulder height, feet set shoulder width for a stable base.",
-              "Press the dumbbell straight overhead while resisting the urge to lean or lateral-flex away from the load.",
-              "Lower under control back to shoulder height and repeat for the set before switching sides."
-            ]
-          },
+          "instruction_short_text": "Press dumbbell overhead to lockout with one arm, then lower under control",
+          "instruction_detail_text": [
+            "Start with one dumbbell at shoulder height, feet set shoulder width for a stable base.",
+            "Press the dumbbell straight overhead while resisting the urge to lean or lateral-flex away from the load.",
+            "Lower under control back to shoulder height and repeat for the set before switching sides."
+          ],
           "coaching_cues": [
             "Brace hard through the core to stay upright",
             "Press straight up over the shoulder, not out to the side",
@@ -599,32 +521,23 @@
         },
         "back_squat": {
           "exercise_id": "back_squat",
-          "pattern": "squat",
+          "movement_pattern_id": "squat",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "stable",
-          "equipment": [
-            "barbell",
-            "rack"
-          ],
-          "equipment_tags": [
-            "barbell"
-          ],
           "equipment_tier": "TIER_1",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "knee_medium",
-            "hip_medium"
+            "knee",
+            "hip"
           ],
           "tempo_capability": "paused_and_tempo",
-          "instruction": {
-            "short": "Squat down to target depth, then stand back up to full extension",
-            "detailed": [
-              "Set the bar across the upper back, brace the core, and unrack with feet roughly shoulder width.",
-              "Descend by pushing the hips back and bending the knees until reaching target depth, keeping the chest up and the bar over the midfoot.",
-              "Drive back up to full extension, keeping the knees tracking in line with the toes throughout."
-            ]
-          },
+          "instruction_short_text": "Squat down to target depth, then stand back up to full extension",
+          "instruction_detail_text": [
+            "Set the bar across the upper back, brace the core, and unrack with feet roughly shoulder width.",
+            "Descend by pushing the hips back and bending the knees until reaching target depth, keeping the chest up and the bar over the midfoot.",
+            "Drive back up to full extension, keeping the knees tracking in line with the toes throughout."
+          ],
           "coaching_cues": [
             "Big breath and brace before every rep",
             "Knees track out in line with your toes",
@@ -649,31 +562,23 @@
         },
         "goblet_squat": {
           "exercise_id": "goblet_squat",
-          "pattern": "squat",
+          "movement_pattern_id": "squat",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "semi_stable",
-          "equipment": [
-            "dumbbells"
-          ],
-          "equipment_tags": [
-            "dumbbell"
-          ],
           "equipment_tier": "TIER_3",
           "difficulty_tier": "beginner",
           "joint_stress_tags": [
-            "knee_low",
-            "hip_low"
+            "knee",
+            "hip"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Squat down holding the weight at chest height, then stand to full extension",
-            "detailed": [
-              "Hold the dumbbell vertically against the chest with both hands cupping the top end.",
-              "Squat down between the knees to target depth, keeping the elbows inside the knees at the bottom.",
-              "Stand back up to full extension, keeping the weight held tight to the chest throughout."
-            ]
-          },
+          "instruction_short_text": "Squat down holding the weight at chest height, then stand to full extension",
+          "instruction_detail_text": [
+            "Hold the dumbbell vertically against the chest with both hands cupping the top end.",
+            "Squat down between the knees to target depth, keeping the elbows inside the knees at the bottom.",
+            "Stand back up to full extension, keeping the weight held tight to the chest throughout."
+          ],
           "coaching_cues": [
             "Keep the weight glued to your chest",
             "Sit down between your knees, not back onto your heels",
@@ -697,33 +602,23 @@
         },
         "split_squat": {
           "exercise_id": "split_squat",
-          "pattern": "squat",
+          "movement_pattern_id": "squat",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "unstable",
-          "equipment": [
-            "bodyweight",
-            "dumbbells"
-          ],
-          "equipment_tags": [
-            "bodyweight",
-            "dumbbell"
-          ],
           "equipment_tier": "TIER_3",
           "difficulty_tier": "beginner",
           "joint_stress_tags": [
-            "knee_low",
-            "hip_low"
+            "knee",
+            "hip"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Lower into the split stance, then drive back up to the start position",
-            "detailed": [
-              "Set up in a staggered stance with the rear foot elevated or flat, front foot far enough forward for the shin to stay near vertical at the bottom.",
-              "Lower straight down until the rear knee approaches the floor, keeping the torso upright.",
-              "Drive through the front foot back up to the start position without the front knee traveling far past the toes."
-            ]
-          },
+          "instruction_short_text": "Lower into the split stance, then drive back up to the start position",
+          "instruction_detail_text": [
+            "Set up in a staggered stance with the rear foot elevated or flat, front foot far enough forward for the shin to stay near vertical at the bottom.",
+            "Lower straight down until the rear knee approaches the floor, keeping the torso upright.",
+            "Drive through the front foot back up to the start position without the front knee traveling far past the toes."
+          ],
           "coaching_cues": [
             "Drop straight down, not forward",
             "Keep the torso tall through the whole rep",
@@ -748,31 +643,23 @@
         },
         "deadlift": {
           "exercise_id": "deadlift",
-          "pattern": "hinge",
+          "movement_pattern_id": "hinge",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "stable",
-          "equipment": [
-            "barbell"
-          ],
-          "equipment_tags": [
-            "barbell"
-          ],
           "equipment_tier": "TIER_1",
           "difficulty_tier": "advanced",
           "joint_stress_tags": [
-            "back_medium",
-            "hip_medium"
+            "lumbar_medium",
+            "hip"
           ],
           "tempo_capability": "paused",
-          "instruction": {
-            "short": "Pull bar from floor to lockout, then return it under control",
-            "detailed": [
-              "Set up with the bar over the midfoot, shins close to the bar, and grip just outside the knees.",
-              "Brace the core, flatten the back, and drive the floor away with the legs while keeping the bar close to the shins.",
-              "Finish with hips and knees fully extended, then lower the bar back to the floor under control by reversing the same path."
-            ]
-          },
+          "instruction_short_text": "Pull bar from floor to lockout, then return it under control",
+          "instruction_detail_text": [
+            "Set up with the bar over the midfoot, shins close to the bar, and grip just outside the knees.",
+            "Brace the core, flatten the back, and drive the floor away with the legs while keeping the bar close to the shins.",
+            "Finish with hips and knees fully extended, then lower the bar back to the floor under control by reversing the same path."
+          ],
           "coaching_cues": [
             "Bar stays close to the shins the whole way up",
             "Push the floor away rather than pulling the bar up",
@@ -796,31 +683,23 @@
         },
         "kettlebell_deadlift": {
           "exercise_id": "kettlebell_deadlift",
-          "pattern": "hinge",
+          "movement_pattern_id": "hinge",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "stable",
-          "equipment": [
-            "kettlebell"
-          ],
-          "equipment_tags": [
-            "kettlebell"
-          ],
           "equipment_tier": "TIER_3",
           "difficulty_tier": "beginner",
           "joint_stress_tags": [
-            "back_low",
-            "hip_low"
+            "lumbar_low",
+            "hip"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Pull kettlebell from floor to standing lockout, then lower under control",
-            "detailed": [
-              "Stand with the kettlebell on the floor between the feet, hips back and shins near vertical.",
-              "Grip the handle, brace the core, and drive through the floor to stand to full extension.",
-              "Lower the kettlebell back to the floor under control by pushing the hips back first."
-            ]
-          },
+          "instruction_short_text": "Pull kettlebell from floor to standing lockout, then lower under control",
+          "instruction_detail_text": [
+            "Stand with the kettlebell on the floor between the feet, hips back and shins near vertical.",
+            "Grip the handle, brace the core, and drive through the floor to stand to full extension.",
+            "Lower the kettlebell back to the floor under control by pushing the hips back first."
+          ],
           "coaching_cues": [
             "Push the hips back before bending the knees",
             "Keep the kettlebell close to the body throughout",
@@ -844,35 +723,23 @@
         },
         "single_leg_rdl": {
           "exercise_id": "single_leg_rdl",
-          "pattern": "hinge",
+          "movement_pattern_id": "hinge",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "unstable",
-          "equipment": [
-            "bodyweight",
-            "dumbbells",
-            "kettlebell"
-          ],
-          "equipment_tags": [
-            "bodyweight",
-            "dumbbell",
-            "kettlebell"
-          ],
           "equipment_tier": "TIER_3",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "back_low",
-            "hip_low"
+            "lumbar_low",
+            "hip"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Hinge on one leg until target range, then return to upright balance",
-            "detailed": [
-              "Stand on one leg with a slight bend in the knee, holding a light weight or bodyweight only.",
-              "Hinge forward at the hip while the free leg extends back, keeping the back flat until reaching the target range.",
-              "Return to standing by driving the hips forward, keeping balance on the standing leg throughout."
-            ]
-          },
+          "instruction_short_text": "Hinge on one leg until target range, then return to upright balance",
+          "instruction_detail_text": [
+            "Stand on one leg with a slight bend in the knee, holding a light weight or bodyweight only.",
+            "Hinge forward at the hip while the free leg extends back, keeping the back flat until reaching the target range.",
+            "Return to standing by driving the hips forward, keeping balance on the standing leg throughout."
+          ],
           "coaching_cues": [
             "Reach the free leg straight back as you hinge forward",
             "Keep the hips square, don't let them rotate open",
@@ -898,30 +765,22 @@
         },
         "pike_push_up": {
           "exercise_id": "pike_push_up",
-          "pattern": "vertical_push",
+          "movement_pattern_id": "vertical_push",
           "stimulus_intent": "strength",
           "rom": "full",
           "stability": "unstable",
-          "equipment": [
-            "bodyweight"
-          ],
-          "equipment_tags": [
-            "bodyweight"
-          ],
           "equipment_tier": "TIER_4",
           "difficulty_tier": "beginner",
           "joint_stress_tags": [
-            "shoulder_low"
+            "shoulder"
           ],
           "tempo_capability": "tempo",
-          "instruction": {
-            "short": "Lower head toward the floor, then press back to the start position",
-            "detailed": [
-              "Set up in a pike position with hips lifted high and hands roughly shoulder width, feet closer to the hands than in a standard push-up.",
-              "Lower the head toward the floor between the hands by bending the elbows, keeping the hips high throughout.",
-              "Press back up to the start position without losing the pike shape."
-            ]
-          },
+          "instruction_short_text": "Lower head toward the floor, then press back to the start position",
+          "instruction_detail_text": [
+            "Set up in a pike position with hips lifted high and hands roughly shoulder width, feet closer to the hands than in a standard push-up.",
+            "Lower the head toward the floor between the hands by bending the elbows, keeping the hips high throughout.",
+            "Press back up to the start position without losing the pike shape."
+          ],
           "coaching_cues": [
             "Keep the hips lifted high throughout the rep",
             "Lower the crown of the head toward the floor, not the chest",
@@ -944,32 +803,23 @@
         },
         "box_squat": {
           "exercise_id": "box_squat",
-          "pattern": "squat",
+          "movement_pattern_id": "squat",
           "stimulus_intent": "strength",
           "rom": "partial",
           "stability": "stable",
-          "equipment": [
-            "barbell",
-            "rack"
-          ],
-          "equipment_tags": [
-            "barbell"
-          ],
           "equipment_tier": "TIER_1",
           "difficulty_tier": "beginner",
           "joint_stress_tags": [
-            "knee_low",
-            "hip_low"
+            "knee",
+            "hip"
           ],
           "tempo_capability": "paused",
-          "instruction": {
-            "short": "Sit back to the box under control, then stand to full extension",
-            "detailed": [
-              "Set the box or bench to the target depth and unrack the bar as in a standard back squat.",
-              "Descend under control, sitting back onto the box while keeping the shins closer to vertical than in a free squat.",
-              "Pause briefly on the box without relaxing the brace, then drive back up to full extension."
-            ]
-          },
+          "instruction_short_text": "Sit back to the box under control, then stand to full extension",
+          "instruction_detail_text": [
+            "Set the box or bench to the target depth and unrack the bar as in a standard back squat.",
+            "Descend under control, sitting back onto the box while keeping the shins closer to vertical than in a free squat.",
+            "Pause briefly on the box without relaxing the brace, then drive back up to full extension."
+          ],
           "coaching_cues": [
             "Sit back onto the box, don't drop onto it",
             "Keep the brace on during the pause — don't relax at the bottom",
@@ -994,32 +844,22 @@
         },
         "pin_press": {
           "exercise_id": "pin_press",
-          "pattern": "horizontal_push",
+          "movement_pattern_id": "horizontal_push",
           "stimulus_intent": "strength",
           "rom": "partial",
           "stability": "stable",
-          "equipment": [
-            "barbell",
-            "bench",
-            "rack"
-          ],
-          "equipment_tags": [
-            "barbell"
-          ],
           "equipment_tier": "TIER_1",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "shoulder_medium"
+            "shoulder"
           ],
           "tempo_capability": "paused",
-          "instruction": {
-            "short": "Press bar from the pins to lockout, then return it to the pins under control",
-            "detailed": [
-              "Set the safety pins at the target height inside the rack and lie on the bench underneath.",
-              "Press the bar up from a dead stop on the pins to full extension, keeping the same bar path as a full bench press.",
-              "Lower the bar back down to rest fully on the pins under control before the next rep."
-            ]
-          },
+          "instruction_short_text": "Press bar from the pins to lockout, then return it to the pins under control",
+          "instruction_detail_text": [
+            "Set the safety pins at the target height inside the rack and lie on the bench underneath.",
+            "Press the bar up from a dead stop on the pins to full extension, keeping the same bar path as a full bench press.",
+            "Lower the bar back down to rest fully on the pins under control before the next rep."
+          ],
           "coaching_cues": [
             "Press hard from a true dead stop — no bounce off the pins",
             "Keep the same elbow angle you'd use in a full bench press",
@@ -1045,31 +885,23 @@
         },
         "partial_deadlift": {
           "exercise_id": "partial_deadlift",
-          "pattern": "hinge",
+          "movement_pattern_id": "hinge",
           "stimulus_intent": "strength",
           "rom": "partial",
           "stability": "stable",
-          "equipment": [
-            "barbell"
-          ],
-          "equipment_tags": [
-            "barbell"
-          ],
           "equipment_tier": "TIER_1",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "back_low",
-            "hip_low"
+            "lumbar_low",
+            "hip"
           ],
           "tempo_capability": "paused",
-          "instruction": {
-            "short": "Pull bar from the set height to lockout, then return under control",
-            "detailed": [
-              "Set the bar on blocks or pins at the target starting height, typically at or above knee level.",
-              "Set up with a flat back and braced core, then drive through the floor to lockout using the same technique as a full deadlift.",
-              "Lower the bar back to the blocks or pins under control before resetting for the next rep."
-            ]
-          },
+          "instruction_short_text": "Pull bar from the set height to lockout, then return under control",
+          "instruction_detail_text": [
+            "Set the bar on blocks or pins at the target starting height, typically at or above knee level.",
+            "Set up with a flat back and braced core, then drive through the floor to lockout using the same technique as a full deadlift.",
+            "Lower the bar back to the blocks or pins under control before resetting for the next rep."
+          ],
           "coaching_cues": [
             "Set the same flat back and brace as a full deadlift",
             "Drive the floor away from the very first inch",
@@ -1095,12 +927,12 @@
     },
     "program": {
       "registry_id": "program",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": [
         {
-          "id": "powerlifting",
-          "program_id": "PROGRAM_POWERLIFTING_V1",
-          "intent": [
+          "activity_id": "powerlifting",
+          "template_id": "PROGRAM_POWERLIFTING_V1",
+          "exercise_eligibility": [
             "bench_press",
             "back_squat",
             "deadlift",
@@ -1110,9 +942,9 @@
           ]
         },
         {
-          "id": "rugby_union",
-          "program_id": "PROGRAM_RUGBY_UNION_V1",
-          "intent": [
+          "activity_id": "rugby_union",
+          "template_id": "PROGRAM_RUGBY_UNION_V1",
+          "exercise_eligibility": [
             "back_squat",
             "bench_press",
             "deadlift",
@@ -1122,9 +954,9 @@
           ]
         },
         {
-          "id": "general_strength",
-          "program_id": "PROGRAM_GENERAL_STRENGTH_V1",
-          "intent": [
+          "activity_id": "general_strength",
+          "template_id": "PROGRAM_GENERAL_STRENGTH_V1",
+          "exercise_eligibility": [
             "deadlift",
             "bench_press",
             "back_squat",
@@ -1137,11 +969,10 @@
     },
     "equipment": {
       "registry_id": "equipment",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": {
         "barbell": {
           "equipment_id": "barbell",
-          "id": "barbell",
           "display_label": "Barbell",
           "equipment_class": "free_weight",
           "activity_applicability": [
@@ -1162,7 +993,6 @@
         },
         "rack": {
           "equipment_id": "rack",
-          "id": "rack",
           "display_label": "Rack",
           "equipment_class": "support",
           "activity_applicability": [
@@ -1182,7 +1012,6 @@
         },
         "bench": {
           "equipment_id": "bench",
-          "id": "bench",
           "display_label": "Bench",
           "equipment_class": "support",
           "activity_applicability": [
@@ -1201,7 +1030,6 @@
         },
         "plate": {
           "equipment_id": "plate",
-          "id": "plate",
           "display_label": "Plate",
           "equipment_class": "load",
           "activity_applicability": [
@@ -1223,7 +1051,6 @@
         },
         "dumbbell": {
           "equipment_id": "dumbbell",
-          "id": "dumbbell",
           "display_label": "Dumbbell",
           "equipment_class": "free_weight",
           "activity_applicability": [
@@ -1247,7 +1074,6 @@
         },
         "kettlebell": {
           "equipment_id": "kettlebell",
-          "id": "kettlebell",
           "display_label": "Kettlebell",
           "equipment_class": "free_weight",
           "activity_applicability": [
@@ -1268,7 +1094,6 @@
         },
         "cable_machine": {
           "equipment_id": "cable_machine",
-          "id": "cable_machine",
           "display_label": "Cable machine",
           "equipment_class": "machine",
           "activity_applicability": [
@@ -1288,7 +1113,6 @@
         },
         "resistance_band": {
           "equipment_id": "resistance_band",
-          "id": "resistance_band",
           "display_label": "Resistance band",
           "equipment_class": "portable_resistance",
           "activity_applicability": [
@@ -1308,7 +1132,6 @@
         },
         "bodyweight": {
           "equipment_id": "bodyweight",
-          "id": "bodyweight",
           "display_label": "Bodyweight",
           "equipment_class": "bodyweight",
           "activity_applicability": [
@@ -1331,7 +1154,6 @@
         },
         "pull_up_bar": {
           "equipment_id": "pull_up_bar",
-          "id": "pull_up_bar",
           "display_label": "Pull-up bar",
           "equipment_class": "fixed_support",
           "activity_applicability": [
@@ -1349,7 +1171,6 @@
         },
         "trap_bar": {
           "equipment_id": "trap_bar",
-          "id": "trap_bar",
           "display_label": "Trap bar",
           "equipment_class": "free_weight",
           "activity_applicability": [
@@ -1367,7 +1188,6 @@
         },
         "medicine_ball": {
           "equipment_id": "medicine_ball",
-          "id": "medicine_ball",
           "display_label": "Medicine ball",
           "equipment_class": "free_weight",
           "activity_applicability": [
@@ -1386,7 +1206,6 @@
         },
         "sled": {
           "equipment_id": "sled",
-          "id": "sled",
           "display_label": "Sled",
           "equipment_class": "conditioning_tool",
           "activity_applicability": [
@@ -1403,7 +1222,6 @@
         },
         "box": {
           "equipment_id": "box",
-          "id": "box",
           "display_label": "Box",
           "equipment_class": "support",
           "activity_applicability": [
@@ -1422,7 +1240,6 @@
         },
         "machine_general": {
           "equipment_id": "machine_general",
-          "id": "machine_general",
           "display_label": "General machine",
           "equipment_class": "machine",
           "activity_applicability": [
@@ -1443,7 +1260,6 @@
         },
         "cardio_machine_general": {
           "equipment_id": "cardio_machine_general",
-          "id": "cardio_machine_general",
           "display_label": "General cardio machine",
           "equipment_class": "conditioning_machine",
           "activity_applicability": [
@@ -1460,7 +1276,6 @@
         },
         "open_floor_space": {
           "equipment_id": "open_floor_space",
-          "id": "open_floor_space",
           "display_label": "Open floor space",
           "equipment_class": "space",
           "activity_applicability": [
@@ -1483,11 +1298,10 @@
     },
     "sport_subdivision": {
       "registry_id": "sport_subdivision",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": {
         "powerlifting__competition_lift": {
           "sport_subdivision_id": "powerlifting__competition_lift",
-          "id": "powerlifting__competition_lift",
           "activity_id": "powerlifting",
           "display_label": "Competition lift",
           "context_type": "declared_context",
@@ -1495,7 +1309,6 @@
         },
         "powerlifting__general_preparation": {
           "sport_subdivision_id": "powerlifting__general_preparation",
-          "id": "powerlifting__general_preparation",
           "activity_id": "powerlifting",
           "display_label": "General preparation",
           "context_type": "declared_context",
@@ -1503,7 +1316,6 @@
         },
         "general_strength__training": {
           "sport_subdivision_id": "general_strength__training",
-          "id": "general_strength__training",
           "activity_id": "general_strength",
           "display_label": "Training",
           "context_type": "declared_context",
@@ -1511,7 +1323,6 @@
         },
         "rugby_union__general_preparation": {
           "sport_subdivision_id": "rugby_union__general_preparation",
-          "id": "rugby_union__general_preparation",
           "activity_id": "rugby_union",
           "display_label": "General preparation",
           "context_type": "declared_context",
@@ -1521,11 +1332,10 @@
     },
     "sport_metric": {
       "registry_id": "sport_metric",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": {
         "powerlifting__load_kg": {
           "sport_metric_id": "powerlifting__load_kg",
-          "id": "powerlifting__load_kg",
           "activity_id": "powerlifting",
           "sport_subdivision_id": "powerlifting__competition_lift",
           "display_label": "Load",
@@ -1536,7 +1346,6 @@
         },
         "powerlifting__repetition_count": {
           "sport_metric_id": "powerlifting__repetition_count",
-          "id": "powerlifting__repetition_count",
           "activity_id": "powerlifting",
           "sport_subdivision_id": "powerlifting__competition_lift",
           "display_label": "Repetition count",
@@ -1547,7 +1356,6 @@
         },
         "general_strength__load_kg": {
           "sport_metric_id": "general_strength__load_kg",
-          "id": "general_strength__load_kg",
           "activity_id": "general_strength",
           "sport_subdivision_id": "general_strength__training",
           "display_label": "Load",
@@ -1558,7 +1366,6 @@
         },
         "general_strength__repetition_count": {
           "sport_metric_id": "general_strength__repetition_count",
-          "id": "general_strength__repetition_count",
           "activity_id": "general_strength",
           "sport_subdivision_id": "general_strength__training",
           "display_label": "Repetition count",
@@ -1569,7 +1376,6 @@
         },
         "rugby_union__body_mass_kg": {
           "sport_metric_id": "rugby_union__body_mass_kg",
-          "id": "rugby_union__body_mass_kg",
           "activity_id": "rugby_union",
           "sport_subdivision_id": "rugby_union__general_preparation",
           "display_label": "Body mass",
@@ -1580,7 +1386,6 @@
         },
         "rugby_union__sprint_time_seconds": {
           "sport_metric_id": "rugby_union__sprint_time_seconds",
-          "id": "rugby_union__sprint_time_seconds",
           "activity_id": "rugby_union",
           "sport_subdivision_id": "rugby_union__general_preparation",
           "display_label": "Sprint time",
@@ -1591,7 +1396,6 @@
         },
         "powerlifting__attempt_count": {
           "sport_metric_id": "powerlifting__attempt_count",
-          "id": "powerlifting__attempt_count",
           "activity_id": "powerlifting",
           "sport_subdivision_id": "powerlifting__competition_lift",
           "display_label": "Attempt count",
@@ -1602,7 +1406,6 @@
         },
         "general_strength__set_count": {
           "sport_metric_id": "general_strength__set_count",
-          "id": "general_strength__set_count",
           "activity_id": "general_strength",
           "sport_subdivision_id": "general_strength__training",
           "display_label": "Set count",
@@ -1613,7 +1416,6 @@
         },
         "general_strength__duration_seconds": {
           "sport_metric_id": "general_strength__duration_seconds",
-          "id": "general_strength__duration_seconds",
           "activity_id": "general_strength",
           "sport_subdivision_id": "general_strength__training",
           "display_label": "Duration",
@@ -1626,11 +1428,10 @@
     },
     "sport_role": {
       "registry_id": "sport_role",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": {
         "powerlifting__athlete": {
           "sport_role_id": "powerlifting__athlete",
-          "id": "powerlifting__athlete",
           "activity_id": "powerlifting",
           "sport_subdivision_id": "powerlifting__competition_lift",
           "display_label": "Athlete",
@@ -1639,7 +1440,6 @@
         },
         "general_strength__participant": {
           "sport_role_id": "general_strength__participant",
-          "id": "general_strength__participant",
           "activity_id": "general_strength",
           "sport_subdivision_id": "general_strength__training",
           "display_label": "Participant",
@@ -1648,7 +1448,6 @@
         },
         "rugby_union__field_player": {
           "sport_role_id": "rugby_union__field_player",
-          "id": "rugby_union__field_player",
           "activity_id": "rugby_union",
           "sport_subdivision_id": "rugby_union__general_preparation",
           "display_label": "Field player",
@@ -1659,11 +1458,10 @@
     },
     "metric_exercise_link": {
       "registry_id": "metric_exercise_link",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": {
         "powerlifting__load_kg__back_squat": {
           "metric_exercise_link_id": "powerlifting__load_kg__back_squat",
-          "id": "powerlifting__load_kg__back_squat",
           "sport_metric_id": "powerlifting__load_kg",
           "exercise_id": "back_squat",
           "activity_id": "powerlifting",
@@ -1673,7 +1471,6 @@
         },
         "powerlifting__load_kg__deadlift": {
           "metric_exercise_link_id": "powerlifting__load_kg__deadlift",
-          "id": "powerlifting__load_kg__deadlift",
           "sport_metric_id": "powerlifting__load_kg",
           "exercise_id": "deadlift",
           "activity_id": "powerlifting",
@@ -1683,7 +1480,6 @@
         },
         "powerlifting__load_kg__bench_press": {
           "metric_exercise_link_id": "powerlifting__load_kg__bench_press",
-          "id": "powerlifting__load_kg__bench_press",
           "sport_metric_id": "powerlifting__load_kg",
           "exercise_id": "bench_press",
           "activity_id": "powerlifting",
@@ -1693,7 +1489,6 @@
         },
         "powerlifting__repetition_count__back_squat": {
           "metric_exercise_link_id": "powerlifting__repetition_count__back_squat",
-          "id": "powerlifting__repetition_count__back_squat",
           "sport_metric_id": "powerlifting__repetition_count",
           "exercise_id": "back_squat",
           "activity_id": "powerlifting",
@@ -1703,7 +1498,6 @@
         },
         "powerlifting__repetition_count__deadlift": {
           "metric_exercise_link_id": "powerlifting__repetition_count__deadlift",
-          "id": "powerlifting__repetition_count__deadlift",
           "sport_metric_id": "powerlifting__repetition_count",
           "exercise_id": "deadlift",
           "activity_id": "powerlifting",
@@ -1713,7 +1507,6 @@
         },
         "powerlifting__repetition_count__bench_press": {
           "metric_exercise_link_id": "powerlifting__repetition_count__bench_press",
-          "id": "powerlifting__repetition_count__bench_press",
           "sport_metric_id": "powerlifting__repetition_count",
           "exercise_id": "bench_press",
           "activity_id": "powerlifting",
@@ -1723,7 +1516,6 @@
         },
         "general_strength__load_kg__back_squat": {
           "metric_exercise_link_id": "general_strength__load_kg__back_squat",
-          "id": "general_strength__load_kg__back_squat",
           "sport_metric_id": "general_strength__load_kg",
           "exercise_id": "back_squat",
           "activity_id": "general_strength",
@@ -1733,7 +1525,6 @@
         },
         "general_strength__load_kg__deadlift": {
           "metric_exercise_link_id": "general_strength__load_kg__deadlift",
-          "id": "general_strength__load_kg__deadlift",
           "sport_metric_id": "general_strength__load_kg",
           "exercise_id": "deadlift",
           "activity_id": "general_strength",
@@ -1743,7 +1534,6 @@
         },
         "general_strength__load_kg__bench_press": {
           "metric_exercise_link_id": "general_strength__load_kg__bench_press",
-          "id": "general_strength__load_kg__bench_press",
           "sport_metric_id": "general_strength__load_kg",
           "exercise_id": "bench_press",
           "activity_id": "general_strength",
@@ -1753,7 +1543,6 @@
         },
         "general_strength__repetition_count__back_squat": {
           "metric_exercise_link_id": "general_strength__repetition_count__back_squat",
-          "id": "general_strength__repetition_count__back_squat",
           "sport_metric_id": "general_strength__repetition_count",
           "exercise_id": "back_squat",
           "activity_id": "general_strength",
@@ -1763,7 +1552,6 @@
         },
         "general_strength__repetition_count__deadlift": {
           "metric_exercise_link_id": "general_strength__repetition_count__deadlift",
-          "id": "general_strength__repetition_count__deadlift",
           "sport_metric_id": "general_strength__repetition_count",
           "exercise_id": "deadlift",
           "activity_id": "general_strength",
@@ -1773,7 +1561,6 @@
         },
         "general_strength__repetition_count__bench_press": {
           "metric_exercise_link_id": "general_strength__repetition_count__bench_press",
-          "id": "general_strength__repetition_count__bench_press",
           "sport_metric_id": "general_strength__repetition_count",
           "exercise_id": "bench_press",
           "activity_id": "general_strength",
@@ -1785,11 +1572,10 @@
     },
     "threshold_marker": {
       "registry_id": "threshold_marker",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": {
         "threshold_marker__powerlifting__attempt_count__gte_1": {
           "threshold_marker_id": "threshold_marker__powerlifting__attempt_count__gte_1",
-          "id": "threshold_marker__powerlifting__attempt_count__gte_1",
           "sport_metric_id": "powerlifting__attempt_count",
           "activity_id": "powerlifting",
           "threshold_operator": "greater_than_or_equal",
@@ -1807,7 +1593,6 @@
         },
         "threshold_marker__powerlifting__attempt_count__lte_3": {
           "threshold_marker_id": "threshold_marker__powerlifting__attempt_count__lte_3",
-          "id": "threshold_marker__powerlifting__attempt_count__lte_3",
           "sport_metric_id": "powerlifting__attempt_count",
           "activity_id": "powerlifting",
           "threshold_operator": "less_than_or_equal",
@@ -1825,7 +1610,6 @@
         },
         "threshold_marker__general_strength__set_count__gte_1": {
           "threshold_marker_id": "threshold_marker__general_strength__set_count__gte_1",
-          "id": "threshold_marker__general_strength__set_count__gte_1",
           "sport_metric_id": "general_strength__set_count",
           "activity_id": "general_strength",
           "threshold_operator": "greater_than_or_equal",
@@ -1843,7 +1627,6 @@
         },
         "threshold_marker__general_strength__duration_seconds__gte_60": {
           "threshold_marker_id": "threshold_marker__general_strength__duration_seconds__gte_60",
-          "id": "threshold_marker__general_strength__duration_seconds__gte_60",
           "sport_metric_id": "general_strength__duration_seconds",
           "activity_id": "general_strength",
           "threshold_operator": "greater_than_or_equal",
@@ -1861,7 +1644,6 @@
         },
         "threshold_marker__general_strength__duration_seconds__lte_3600": {
           "threshold_marker_id": "threshold_marker__general_strength__duration_seconds__lte_3600",
-          "id": "threshold_marker__general_strength__duration_seconds__lte_3600",
           "sport_metric_id": "general_strength__duration_seconds",
           "activity_id": "general_strength",
           "threshold_operator": "less_than_or_equal",
@@ -1881,44 +1663,41 @@
     },
     "exercise_token": {
       "registry_id": "exercise_token",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": {
         "back_squat_token": {
           "exercise_token_id": "back_squat_token",
-          "id": "back_squat_token",
           "display_label": "Back squat token",
           "activity_ids": [
             "powerlifting",
             "general_strength",
             "rugby_union"
           ],
-          "movement_id": "squat",
+          "movement_pattern_id": "squat",
           "token_kind": "exercise_name_token",
           "copy_boundary_notes": "factual exercise token only"
         },
         "deadlift_token": {
           "exercise_token_id": "deadlift_token",
-          "id": "deadlift_token",
           "display_label": "Deadlift token",
           "activity_ids": [
             "powerlifting",
             "general_strength",
             "rugby_union"
           ],
-          "movement_id": "hinge",
+          "movement_pattern_id": "hinge",
           "token_kind": "exercise_name_token",
           "copy_boundary_notes": "factual exercise token only"
         },
         "bench_press_token": {
           "exercise_token_id": "bench_press_token",
-          "id": "bench_press_token",
           "display_label": "Bench press token",
           "activity_ids": [
             "powerlifting",
             "general_strength",
             "rugby_union"
           ],
-          "movement_id": "horizontal_push",
+          "movement_pattern_id": "horizontal_push",
           "token_kind": "exercise_name_token",
           "copy_boundary_notes": "factual exercise token only"
         }
@@ -1926,11 +1705,10 @@
     },
     "exercise_activity_applicability": {
       "registry_id": "exercise_activity_applicability",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "entries": {
         "bench_press__powerlifting__training": {
           "applicability_id": "bench_press__powerlifting__training",
-          "id": "bench_press__powerlifting__training",
           "exercise_id": "bench_press",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -1943,7 +1721,6 @@
         },
         "bench_press__powerlifting__testing": {
           "applicability_id": "bench_press__powerlifting__testing",
-          "id": "bench_press__powerlifting__testing",
           "exercise_id": "bench_press",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -1956,7 +1733,6 @@
         },
         "bench_press__powerlifting__competition": {
           "applicability_id": "bench_press__powerlifting__competition",
-          "id": "bench_press__powerlifting__competition",
           "exercise_id": "bench_press",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -1969,7 +1745,6 @@
         },
         "bench_press__general_strength__training": {
           "applicability_id": "bench_press__general_strength__training",
-          "id": "bench_press__general_strength__training",
           "exercise_id": "bench_press",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -1982,7 +1757,6 @@
         },
         "bench_press__general_strength__testing": {
           "applicability_id": "bench_press__general_strength__testing",
-          "id": "bench_press__general_strength__testing",
           "exercise_id": "bench_press",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -1995,7 +1769,6 @@
         },
         "bench_press__general_strength__competition": {
           "applicability_id": "bench_press__general_strength__competition",
-          "id": "bench_press__general_strength__competition",
           "exercise_id": "bench_press",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -2008,7 +1781,6 @@
         },
         "bench_press__rugby_union__training": {
           "applicability_id": "bench_press__rugby_union__training",
-          "id": "bench_press__rugby_union__training",
           "exercise_id": "bench_press",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -2021,7 +1793,6 @@
         },
         "bench_press__rugby_union__testing": {
           "applicability_id": "bench_press__rugby_union__testing",
-          "id": "bench_press__rugby_union__testing",
           "exercise_id": "bench_press",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -2034,7 +1805,6 @@
         },
         "bench_press__rugby_union__competition": {
           "applicability_id": "bench_press__rugby_union__competition",
-          "id": "bench_press__rugby_union__competition",
           "exercise_id": "bench_press",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -2047,7 +1817,6 @@
         },
         "incline_bench_press__general_strength__training": {
           "applicability_id": "incline_bench_press__general_strength__training",
-          "id": "incline_bench_press__general_strength__training",
           "exercise_id": "incline_bench_press",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -2060,7 +1829,6 @@
         },
         "incline_bench_press__general_strength__testing": {
           "applicability_id": "incline_bench_press__general_strength__testing",
-          "id": "incline_bench_press__general_strength__testing",
           "exercise_id": "incline_bench_press",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -2073,7 +1841,6 @@
         },
         "incline_bench_press__general_strength__competition": {
           "applicability_id": "incline_bench_press__general_strength__competition",
-          "id": "incline_bench_press__general_strength__competition",
           "exercise_id": "incline_bench_press",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -2086,7 +1853,6 @@
         },
         "incline_bench_press__powerlifting__training": {
           "applicability_id": "incline_bench_press__powerlifting__training",
-          "id": "incline_bench_press__powerlifting__training",
           "exercise_id": "incline_bench_press",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -2099,7 +1865,6 @@
         },
         "incline_bench_press__powerlifting__testing": {
           "applicability_id": "incline_bench_press__powerlifting__testing",
-          "id": "incline_bench_press__powerlifting__testing",
           "exercise_id": "incline_bench_press",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -2112,7 +1877,6 @@
         },
         "incline_bench_press__powerlifting__competition": {
           "applicability_id": "incline_bench_press__powerlifting__competition",
-          "id": "incline_bench_press__powerlifting__competition",
           "exercise_id": "incline_bench_press",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -2125,7 +1889,6 @@
         },
         "incline_bench_press__rugby_union__training": {
           "applicability_id": "incline_bench_press__rugby_union__training",
-          "id": "incline_bench_press__rugby_union__training",
           "exercise_id": "incline_bench_press",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -2138,7 +1901,6 @@
         },
         "incline_bench_press__rugby_union__testing": {
           "applicability_id": "incline_bench_press__rugby_union__testing",
-          "id": "incline_bench_press__rugby_union__testing",
           "exercise_id": "incline_bench_press",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -2151,7 +1913,6 @@
         },
         "incline_bench_press__rugby_union__competition": {
           "applicability_id": "incline_bench_press__rugby_union__competition",
-          "id": "incline_bench_press__rugby_union__competition",
           "exercise_id": "incline_bench_press",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -2164,7 +1925,6 @@
         },
         "dumbbell_bench_press__general_strength__training": {
           "applicability_id": "dumbbell_bench_press__general_strength__training",
-          "id": "dumbbell_bench_press__general_strength__training",
           "exercise_id": "dumbbell_bench_press",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -2177,7 +1937,6 @@
         },
         "dumbbell_bench_press__general_strength__testing": {
           "applicability_id": "dumbbell_bench_press__general_strength__testing",
-          "id": "dumbbell_bench_press__general_strength__testing",
           "exercise_id": "dumbbell_bench_press",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -2190,7 +1949,6 @@
         },
         "dumbbell_bench_press__general_strength__competition": {
           "applicability_id": "dumbbell_bench_press__general_strength__competition",
-          "id": "dumbbell_bench_press__general_strength__competition",
           "exercise_id": "dumbbell_bench_press",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -2203,7 +1961,6 @@
         },
         "dumbbell_bench_press__powerlifting__training": {
           "applicability_id": "dumbbell_bench_press__powerlifting__training",
-          "id": "dumbbell_bench_press__powerlifting__training",
           "exercise_id": "dumbbell_bench_press",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -2216,7 +1973,6 @@
         },
         "dumbbell_bench_press__powerlifting__testing": {
           "applicability_id": "dumbbell_bench_press__powerlifting__testing",
-          "id": "dumbbell_bench_press__powerlifting__testing",
           "exercise_id": "dumbbell_bench_press",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -2229,7 +1985,6 @@
         },
         "dumbbell_bench_press__powerlifting__competition": {
           "applicability_id": "dumbbell_bench_press__powerlifting__competition",
-          "id": "dumbbell_bench_press__powerlifting__competition",
           "exercise_id": "dumbbell_bench_press",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -2242,7 +1997,6 @@
         },
         "dumbbell_bench_press__rugby_union__training": {
           "applicability_id": "dumbbell_bench_press__rugby_union__training",
-          "id": "dumbbell_bench_press__rugby_union__training",
           "exercise_id": "dumbbell_bench_press",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -2255,7 +2009,6 @@
         },
         "dumbbell_bench_press__rugby_union__testing": {
           "applicability_id": "dumbbell_bench_press__rugby_union__testing",
-          "id": "dumbbell_bench_press__rugby_union__testing",
           "exercise_id": "dumbbell_bench_press",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -2268,7 +2021,6 @@
         },
         "dumbbell_bench_press__rugby_union__competition": {
           "applicability_id": "dumbbell_bench_press__rugby_union__competition",
-          "id": "dumbbell_bench_press__rugby_union__competition",
           "exercise_id": "dumbbell_bench_press",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -2281,7 +2033,6 @@
         },
         "push_up__general_strength__training": {
           "applicability_id": "push_up__general_strength__training",
-          "id": "push_up__general_strength__training",
           "exercise_id": "push_up",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -2294,7 +2045,6 @@
         },
         "push_up__general_strength__testing": {
           "applicability_id": "push_up__general_strength__testing",
-          "id": "push_up__general_strength__testing",
           "exercise_id": "push_up",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -2307,7 +2057,6 @@
         },
         "push_up__general_strength__competition": {
           "applicability_id": "push_up__general_strength__competition",
-          "id": "push_up__general_strength__competition",
           "exercise_id": "push_up",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -2320,7 +2069,6 @@
         },
         "push_up__powerlifting__training": {
           "applicability_id": "push_up__powerlifting__training",
-          "id": "push_up__powerlifting__training",
           "exercise_id": "push_up",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -2333,7 +2081,6 @@
         },
         "push_up__powerlifting__testing": {
           "applicability_id": "push_up__powerlifting__testing",
-          "id": "push_up__powerlifting__testing",
           "exercise_id": "push_up",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -2346,7 +2093,6 @@
         },
         "push_up__powerlifting__competition": {
           "applicability_id": "push_up__powerlifting__competition",
-          "id": "push_up__powerlifting__competition",
           "exercise_id": "push_up",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -2359,7 +2105,6 @@
         },
         "push_up__rugby_union__training": {
           "applicability_id": "push_up__rugby_union__training",
-          "id": "push_up__rugby_union__training",
           "exercise_id": "push_up",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -2372,7 +2117,6 @@
         },
         "push_up__rugby_union__testing": {
           "applicability_id": "push_up__rugby_union__testing",
-          "id": "push_up__rugby_union__testing",
           "exercise_id": "push_up",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -2385,7 +2129,6 @@
         },
         "push_up__rugby_union__competition": {
           "applicability_id": "push_up__rugby_union__competition",
-          "id": "push_up__rugby_union__competition",
           "exercise_id": "push_up",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -2398,7 +2141,6 @@
         },
         "machine_chest_press__general_strength__training": {
           "applicability_id": "machine_chest_press__general_strength__training",
-          "id": "machine_chest_press__general_strength__training",
           "exercise_id": "machine_chest_press",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -2411,7 +2153,6 @@
         },
         "machine_chest_press__general_strength__testing": {
           "applicability_id": "machine_chest_press__general_strength__testing",
-          "id": "machine_chest_press__general_strength__testing",
           "exercise_id": "machine_chest_press",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -2424,7 +2165,6 @@
         },
         "machine_chest_press__general_strength__competition": {
           "applicability_id": "machine_chest_press__general_strength__competition",
-          "id": "machine_chest_press__general_strength__competition",
           "exercise_id": "machine_chest_press",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -2437,7 +2177,6 @@
         },
         "machine_chest_press__powerlifting__training": {
           "applicability_id": "machine_chest_press__powerlifting__training",
-          "id": "machine_chest_press__powerlifting__training",
           "exercise_id": "machine_chest_press",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -2450,7 +2189,6 @@
         },
         "machine_chest_press__powerlifting__testing": {
           "applicability_id": "machine_chest_press__powerlifting__testing",
-          "id": "machine_chest_press__powerlifting__testing",
           "exercise_id": "machine_chest_press",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -2463,7 +2201,6 @@
         },
         "machine_chest_press__powerlifting__competition": {
           "applicability_id": "machine_chest_press__powerlifting__competition",
-          "id": "machine_chest_press__powerlifting__competition",
           "exercise_id": "machine_chest_press",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -2476,7 +2213,6 @@
         },
         "machine_chest_press__rugby_union__training": {
           "applicability_id": "machine_chest_press__rugby_union__training",
-          "id": "machine_chest_press__rugby_union__training",
           "exercise_id": "machine_chest_press",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -2489,7 +2225,6 @@
         },
         "machine_chest_press__rugby_union__testing": {
           "applicability_id": "machine_chest_press__rugby_union__testing",
-          "id": "machine_chest_press__rugby_union__testing",
           "exercise_id": "machine_chest_press",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -2502,7 +2237,6 @@
         },
         "machine_chest_press__rugby_union__competition": {
           "applicability_id": "machine_chest_press__rugby_union__competition",
-          "id": "machine_chest_press__rugby_union__competition",
           "exercise_id": "machine_chest_press",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -2515,7 +2249,6 @@
         },
         "single_arm_dumbbell_press__general_strength__training": {
           "applicability_id": "single_arm_dumbbell_press__general_strength__training",
-          "id": "single_arm_dumbbell_press__general_strength__training",
           "exercise_id": "single_arm_dumbbell_press",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -2528,7 +2261,6 @@
         },
         "single_arm_dumbbell_press__general_strength__testing": {
           "applicability_id": "single_arm_dumbbell_press__general_strength__testing",
-          "id": "single_arm_dumbbell_press__general_strength__testing",
           "exercise_id": "single_arm_dumbbell_press",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -2541,7 +2273,6 @@
         },
         "single_arm_dumbbell_press__general_strength__competition": {
           "applicability_id": "single_arm_dumbbell_press__general_strength__competition",
-          "id": "single_arm_dumbbell_press__general_strength__competition",
           "exercise_id": "single_arm_dumbbell_press",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -2554,7 +2285,6 @@
         },
         "single_arm_dumbbell_press__powerlifting__training": {
           "applicability_id": "single_arm_dumbbell_press__powerlifting__training",
-          "id": "single_arm_dumbbell_press__powerlifting__training",
           "exercise_id": "single_arm_dumbbell_press",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -2567,7 +2297,6 @@
         },
         "single_arm_dumbbell_press__powerlifting__testing": {
           "applicability_id": "single_arm_dumbbell_press__powerlifting__testing",
-          "id": "single_arm_dumbbell_press__powerlifting__testing",
           "exercise_id": "single_arm_dumbbell_press",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -2580,7 +2309,6 @@
         },
         "single_arm_dumbbell_press__powerlifting__competition": {
           "applicability_id": "single_arm_dumbbell_press__powerlifting__competition",
-          "id": "single_arm_dumbbell_press__powerlifting__competition",
           "exercise_id": "single_arm_dumbbell_press",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -2593,7 +2321,6 @@
         },
         "single_arm_dumbbell_press__rugby_union__training": {
           "applicability_id": "single_arm_dumbbell_press__rugby_union__training",
-          "id": "single_arm_dumbbell_press__rugby_union__training",
           "exercise_id": "single_arm_dumbbell_press",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -2606,7 +2333,6 @@
         },
         "single_arm_dumbbell_press__rugby_union__testing": {
           "applicability_id": "single_arm_dumbbell_press__rugby_union__testing",
-          "id": "single_arm_dumbbell_press__rugby_union__testing",
           "exercise_id": "single_arm_dumbbell_press",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -2619,7 +2345,6 @@
         },
         "single_arm_dumbbell_press__rugby_union__competition": {
           "applicability_id": "single_arm_dumbbell_press__rugby_union__competition",
-          "id": "single_arm_dumbbell_press__rugby_union__competition",
           "exercise_id": "single_arm_dumbbell_press",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -2632,7 +2357,6 @@
         },
         "overhead_press__general_strength__training": {
           "applicability_id": "overhead_press__general_strength__training",
-          "id": "overhead_press__general_strength__training",
           "exercise_id": "overhead_press",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -2645,7 +2369,6 @@
         },
         "overhead_press__general_strength__testing": {
           "applicability_id": "overhead_press__general_strength__testing",
-          "id": "overhead_press__general_strength__testing",
           "exercise_id": "overhead_press",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -2658,7 +2381,6 @@
         },
         "overhead_press__general_strength__competition": {
           "applicability_id": "overhead_press__general_strength__competition",
-          "id": "overhead_press__general_strength__competition",
           "exercise_id": "overhead_press",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -2671,7 +2393,6 @@
         },
         "overhead_press__rugby_union__training": {
           "applicability_id": "overhead_press__rugby_union__training",
-          "id": "overhead_press__rugby_union__training",
           "exercise_id": "overhead_press",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -2684,7 +2405,6 @@
         },
         "overhead_press__rugby_union__testing": {
           "applicability_id": "overhead_press__rugby_union__testing",
-          "id": "overhead_press__rugby_union__testing",
           "exercise_id": "overhead_press",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -2697,7 +2417,6 @@
         },
         "overhead_press__rugby_union__competition": {
           "applicability_id": "overhead_press__rugby_union__competition",
-          "id": "overhead_press__rugby_union__competition",
           "exercise_id": "overhead_press",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -2710,7 +2429,6 @@
         },
         "dumbbell_overhead_press__general_strength__training": {
           "applicability_id": "dumbbell_overhead_press__general_strength__training",
-          "id": "dumbbell_overhead_press__general_strength__training",
           "exercise_id": "dumbbell_overhead_press",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -2723,7 +2441,6 @@
         },
         "dumbbell_overhead_press__general_strength__testing": {
           "applicability_id": "dumbbell_overhead_press__general_strength__testing",
-          "id": "dumbbell_overhead_press__general_strength__testing",
           "exercise_id": "dumbbell_overhead_press",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -2736,7 +2453,6 @@
         },
         "dumbbell_overhead_press__general_strength__competition": {
           "applicability_id": "dumbbell_overhead_press__general_strength__competition",
-          "id": "dumbbell_overhead_press__general_strength__competition",
           "exercise_id": "dumbbell_overhead_press",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -2749,7 +2465,6 @@
         },
         "dumbbell_overhead_press__rugby_union__training": {
           "applicability_id": "dumbbell_overhead_press__rugby_union__training",
-          "id": "dumbbell_overhead_press__rugby_union__training",
           "exercise_id": "dumbbell_overhead_press",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -2762,7 +2477,6 @@
         },
         "dumbbell_overhead_press__rugby_union__testing": {
           "applicability_id": "dumbbell_overhead_press__rugby_union__testing",
-          "id": "dumbbell_overhead_press__rugby_union__testing",
           "exercise_id": "dumbbell_overhead_press",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -2775,7 +2489,6 @@
         },
         "dumbbell_overhead_press__rugby_union__competition": {
           "applicability_id": "dumbbell_overhead_press__rugby_union__competition",
-          "id": "dumbbell_overhead_press__rugby_union__competition",
           "exercise_id": "dumbbell_overhead_press",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -2788,7 +2501,6 @@
         },
         "single_arm_overhead_press__general_strength__training": {
           "applicability_id": "single_arm_overhead_press__general_strength__training",
-          "id": "single_arm_overhead_press__general_strength__training",
           "exercise_id": "single_arm_overhead_press",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -2801,7 +2513,6 @@
         },
         "single_arm_overhead_press__general_strength__testing": {
           "applicability_id": "single_arm_overhead_press__general_strength__testing",
-          "id": "single_arm_overhead_press__general_strength__testing",
           "exercise_id": "single_arm_overhead_press",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -2814,7 +2525,6 @@
         },
         "single_arm_overhead_press__general_strength__competition": {
           "applicability_id": "single_arm_overhead_press__general_strength__competition",
-          "id": "single_arm_overhead_press__general_strength__competition",
           "exercise_id": "single_arm_overhead_press",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -2827,7 +2537,6 @@
         },
         "single_arm_overhead_press__rugby_union__training": {
           "applicability_id": "single_arm_overhead_press__rugby_union__training",
-          "id": "single_arm_overhead_press__rugby_union__training",
           "exercise_id": "single_arm_overhead_press",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -2840,7 +2549,6 @@
         },
         "single_arm_overhead_press__rugby_union__testing": {
           "applicability_id": "single_arm_overhead_press__rugby_union__testing",
-          "id": "single_arm_overhead_press__rugby_union__testing",
           "exercise_id": "single_arm_overhead_press",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -2853,7 +2561,6 @@
         },
         "single_arm_overhead_press__rugby_union__competition": {
           "applicability_id": "single_arm_overhead_press__rugby_union__competition",
-          "id": "single_arm_overhead_press__rugby_union__competition",
           "exercise_id": "single_arm_overhead_press",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -2866,7 +2573,6 @@
         },
         "back_squat__powerlifting__training": {
           "applicability_id": "back_squat__powerlifting__training",
-          "id": "back_squat__powerlifting__training",
           "exercise_id": "back_squat",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -2879,7 +2585,6 @@
         },
         "back_squat__powerlifting__testing": {
           "applicability_id": "back_squat__powerlifting__testing",
-          "id": "back_squat__powerlifting__testing",
           "exercise_id": "back_squat",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -2892,7 +2597,6 @@
         },
         "back_squat__powerlifting__competition": {
           "applicability_id": "back_squat__powerlifting__competition",
-          "id": "back_squat__powerlifting__competition",
           "exercise_id": "back_squat",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -2905,7 +2609,6 @@
         },
         "back_squat__general_strength__training": {
           "applicability_id": "back_squat__general_strength__training",
-          "id": "back_squat__general_strength__training",
           "exercise_id": "back_squat",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -2918,7 +2621,6 @@
         },
         "back_squat__general_strength__testing": {
           "applicability_id": "back_squat__general_strength__testing",
-          "id": "back_squat__general_strength__testing",
           "exercise_id": "back_squat",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -2931,7 +2633,6 @@
         },
         "back_squat__general_strength__competition": {
           "applicability_id": "back_squat__general_strength__competition",
-          "id": "back_squat__general_strength__competition",
           "exercise_id": "back_squat",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -2944,7 +2645,6 @@
         },
         "back_squat__rugby_union__training": {
           "applicability_id": "back_squat__rugby_union__training",
-          "id": "back_squat__rugby_union__training",
           "exercise_id": "back_squat",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -2957,7 +2657,6 @@
         },
         "back_squat__rugby_union__testing": {
           "applicability_id": "back_squat__rugby_union__testing",
-          "id": "back_squat__rugby_union__testing",
           "exercise_id": "back_squat",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -2970,7 +2669,6 @@
         },
         "back_squat__rugby_union__competition": {
           "applicability_id": "back_squat__rugby_union__competition",
-          "id": "back_squat__rugby_union__competition",
           "exercise_id": "back_squat",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -2983,7 +2681,6 @@
         },
         "goblet_squat__general_strength__training": {
           "applicability_id": "goblet_squat__general_strength__training",
-          "id": "goblet_squat__general_strength__training",
           "exercise_id": "goblet_squat",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -2996,7 +2693,6 @@
         },
         "goblet_squat__general_strength__testing": {
           "applicability_id": "goblet_squat__general_strength__testing",
-          "id": "goblet_squat__general_strength__testing",
           "exercise_id": "goblet_squat",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -3009,7 +2705,6 @@
         },
         "goblet_squat__general_strength__competition": {
           "applicability_id": "goblet_squat__general_strength__competition",
-          "id": "goblet_squat__general_strength__competition",
           "exercise_id": "goblet_squat",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -3022,7 +2717,6 @@
         },
         "goblet_squat__powerlifting__training": {
           "applicability_id": "goblet_squat__powerlifting__training",
-          "id": "goblet_squat__powerlifting__training",
           "exercise_id": "goblet_squat",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -3035,7 +2729,6 @@
         },
         "goblet_squat__powerlifting__testing": {
           "applicability_id": "goblet_squat__powerlifting__testing",
-          "id": "goblet_squat__powerlifting__testing",
           "exercise_id": "goblet_squat",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -3048,7 +2741,6 @@
         },
         "goblet_squat__powerlifting__competition": {
           "applicability_id": "goblet_squat__powerlifting__competition",
-          "id": "goblet_squat__powerlifting__competition",
           "exercise_id": "goblet_squat",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -3061,7 +2753,6 @@
         },
         "goblet_squat__rugby_union__training": {
           "applicability_id": "goblet_squat__rugby_union__training",
-          "id": "goblet_squat__rugby_union__training",
           "exercise_id": "goblet_squat",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -3074,7 +2765,6 @@
         },
         "goblet_squat__rugby_union__testing": {
           "applicability_id": "goblet_squat__rugby_union__testing",
-          "id": "goblet_squat__rugby_union__testing",
           "exercise_id": "goblet_squat",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -3087,7 +2777,6 @@
         },
         "goblet_squat__rugby_union__competition": {
           "applicability_id": "goblet_squat__rugby_union__competition",
-          "id": "goblet_squat__rugby_union__competition",
           "exercise_id": "goblet_squat",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -3100,7 +2789,6 @@
         },
         "split_squat__general_strength__training": {
           "applicability_id": "split_squat__general_strength__training",
-          "id": "split_squat__general_strength__training",
           "exercise_id": "split_squat",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -3113,7 +2801,6 @@
         },
         "split_squat__general_strength__testing": {
           "applicability_id": "split_squat__general_strength__testing",
-          "id": "split_squat__general_strength__testing",
           "exercise_id": "split_squat",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -3126,7 +2813,6 @@
         },
         "split_squat__general_strength__competition": {
           "applicability_id": "split_squat__general_strength__competition",
-          "id": "split_squat__general_strength__competition",
           "exercise_id": "split_squat",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -3139,7 +2825,6 @@
         },
         "split_squat__powerlifting__training": {
           "applicability_id": "split_squat__powerlifting__training",
-          "id": "split_squat__powerlifting__training",
           "exercise_id": "split_squat",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -3152,7 +2837,6 @@
         },
         "split_squat__powerlifting__testing": {
           "applicability_id": "split_squat__powerlifting__testing",
-          "id": "split_squat__powerlifting__testing",
           "exercise_id": "split_squat",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -3165,7 +2849,6 @@
         },
         "split_squat__powerlifting__competition": {
           "applicability_id": "split_squat__powerlifting__competition",
-          "id": "split_squat__powerlifting__competition",
           "exercise_id": "split_squat",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -3178,7 +2861,6 @@
         },
         "split_squat__rugby_union__training": {
           "applicability_id": "split_squat__rugby_union__training",
-          "id": "split_squat__rugby_union__training",
           "exercise_id": "split_squat",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -3191,7 +2873,6 @@
         },
         "split_squat__rugby_union__testing": {
           "applicability_id": "split_squat__rugby_union__testing",
-          "id": "split_squat__rugby_union__testing",
           "exercise_id": "split_squat",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -3204,7 +2885,6 @@
         },
         "split_squat__rugby_union__competition": {
           "applicability_id": "split_squat__rugby_union__competition",
-          "id": "split_squat__rugby_union__competition",
           "exercise_id": "split_squat",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -3217,7 +2897,6 @@
         },
         "deadlift__powerlifting__training": {
           "applicability_id": "deadlift__powerlifting__training",
-          "id": "deadlift__powerlifting__training",
           "exercise_id": "deadlift",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -3230,7 +2909,6 @@
         },
         "deadlift__powerlifting__testing": {
           "applicability_id": "deadlift__powerlifting__testing",
-          "id": "deadlift__powerlifting__testing",
           "exercise_id": "deadlift",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -3243,7 +2921,6 @@
         },
         "deadlift__powerlifting__competition": {
           "applicability_id": "deadlift__powerlifting__competition",
-          "id": "deadlift__powerlifting__competition",
           "exercise_id": "deadlift",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -3256,7 +2933,6 @@
         },
         "deadlift__general_strength__training": {
           "applicability_id": "deadlift__general_strength__training",
-          "id": "deadlift__general_strength__training",
           "exercise_id": "deadlift",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -3269,7 +2945,6 @@
         },
         "deadlift__general_strength__testing": {
           "applicability_id": "deadlift__general_strength__testing",
-          "id": "deadlift__general_strength__testing",
           "exercise_id": "deadlift",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -3282,7 +2957,6 @@
         },
         "deadlift__general_strength__competition": {
           "applicability_id": "deadlift__general_strength__competition",
-          "id": "deadlift__general_strength__competition",
           "exercise_id": "deadlift",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -3295,7 +2969,6 @@
         },
         "deadlift__rugby_union__training": {
           "applicability_id": "deadlift__rugby_union__training",
-          "id": "deadlift__rugby_union__training",
           "exercise_id": "deadlift",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -3308,7 +2981,6 @@
         },
         "deadlift__rugby_union__testing": {
           "applicability_id": "deadlift__rugby_union__testing",
-          "id": "deadlift__rugby_union__testing",
           "exercise_id": "deadlift",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -3321,7 +2993,6 @@
         },
         "deadlift__rugby_union__competition": {
           "applicability_id": "deadlift__rugby_union__competition",
-          "id": "deadlift__rugby_union__competition",
           "exercise_id": "deadlift",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -3334,7 +3005,6 @@
         },
         "kettlebell_deadlift__general_strength__training": {
           "applicability_id": "kettlebell_deadlift__general_strength__training",
-          "id": "kettlebell_deadlift__general_strength__training",
           "exercise_id": "kettlebell_deadlift",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -3347,7 +3017,6 @@
         },
         "kettlebell_deadlift__general_strength__testing": {
           "applicability_id": "kettlebell_deadlift__general_strength__testing",
-          "id": "kettlebell_deadlift__general_strength__testing",
           "exercise_id": "kettlebell_deadlift",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -3360,7 +3029,6 @@
         },
         "kettlebell_deadlift__general_strength__competition": {
           "applicability_id": "kettlebell_deadlift__general_strength__competition",
-          "id": "kettlebell_deadlift__general_strength__competition",
           "exercise_id": "kettlebell_deadlift",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -3373,7 +3041,6 @@
         },
         "kettlebell_deadlift__powerlifting__training": {
           "applicability_id": "kettlebell_deadlift__powerlifting__training",
-          "id": "kettlebell_deadlift__powerlifting__training",
           "exercise_id": "kettlebell_deadlift",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -3386,7 +3053,6 @@
         },
         "kettlebell_deadlift__powerlifting__testing": {
           "applicability_id": "kettlebell_deadlift__powerlifting__testing",
-          "id": "kettlebell_deadlift__powerlifting__testing",
           "exercise_id": "kettlebell_deadlift",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -3399,7 +3065,6 @@
         },
         "kettlebell_deadlift__powerlifting__competition": {
           "applicability_id": "kettlebell_deadlift__powerlifting__competition",
-          "id": "kettlebell_deadlift__powerlifting__competition",
           "exercise_id": "kettlebell_deadlift",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -3412,7 +3077,6 @@
         },
         "kettlebell_deadlift__rugby_union__training": {
           "applicability_id": "kettlebell_deadlift__rugby_union__training",
-          "id": "kettlebell_deadlift__rugby_union__training",
           "exercise_id": "kettlebell_deadlift",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -3425,7 +3089,6 @@
         },
         "kettlebell_deadlift__rugby_union__testing": {
           "applicability_id": "kettlebell_deadlift__rugby_union__testing",
-          "id": "kettlebell_deadlift__rugby_union__testing",
           "exercise_id": "kettlebell_deadlift",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -3438,7 +3101,6 @@
         },
         "kettlebell_deadlift__rugby_union__competition": {
           "applicability_id": "kettlebell_deadlift__rugby_union__competition",
-          "id": "kettlebell_deadlift__rugby_union__competition",
           "exercise_id": "kettlebell_deadlift",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -3451,7 +3113,6 @@
         },
         "single_leg_rdl__general_strength__training": {
           "applicability_id": "single_leg_rdl__general_strength__training",
-          "id": "single_leg_rdl__general_strength__training",
           "exercise_id": "single_leg_rdl",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -3464,7 +3125,6 @@
         },
         "single_leg_rdl__general_strength__testing": {
           "applicability_id": "single_leg_rdl__general_strength__testing",
-          "id": "single_leg_rdl__general_strength__testing",
           "exercise_id": "single_leg_rdl",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -3477,7 +3137,6 @@
         },
         "single_leg_rdl__general_strength__competition": {
           "applicability_id": "single_leg_rdl__general_strength__competition",
-          "id": "single_leg_rdl__general_strength__competition",
           "exercise_id": "single_leg_rdl",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -3490,7 +3149,6 @@
         },
         "single_leg_rdl__powerlifting__training": {
           "applicability_id": "single_leg_rdl__powerlifting__training",
-          "id": "single_leg_rdl__powerlifting__training",
           "exercise_id": "single_leg_rdl",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -3503,7 +3161,6 @@
         },
         "single_leg_rdl__powerlifting__testing": {
           "applicability_id": "single_leg_rdl__powerlifting__testing",
-          "id": "single_leg_rdl__powerlifting__testing",
           "exercise_id": "single_leg_rdl",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -3516,7 +3173,6 @@
         },
         "single_leg_rdl__powerlifting__competition": {
           "applicability_id": "single_leg_rdl__powerlifting__competition",
-          "id": "single_leg_rdl__powerlifting__competition",
           "exercise_id": "single_leg_rdl",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -3529,7 +3185,6 @@
         },
         "single_leg_rdl__rugby_union__training": {
           "applicability_id": "single_leg_rdl__rugby_union__training",
-          "id": "single_leg_rdl__rugby_union__training",
           "exercise_id": "single_leg_rdl",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -3542,7 +3197,6 @@
         },
         "single_leg_rdl__rugby_union__testing": {
           "applicability_id": "single_leg_rdl__rugby_union__testing",
-          "id": "single_leg_rdl__rugby_union__testing",
           "exercise_id": "single_leg_rdl",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -3555,7 +3209,6 @@
         },
         "single_leg_rdl__rugby_union__competition": {
           "applicability_id": "single_leg_rdl__rugby_union__competition",
-          "id": "single_leg_rdl__rugby_union__competition",
           "exercise_id": "single_leg_rdl",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -3568,7 +3221,6 @@
         },
         "pike_push_up__general_strength__training": {
           "applicability_id": "pike_push_up__general_strength__training",
-          "id": "pike_push_up__general_strength__training",
           "exercise_id": "pike_push_up",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -3581,7 +3233,6 @@
         },
         "pike_push_up__general_strength__testing": {
           "applicability_id": "pike_push_up__general_strength__testing",
-          "id": "pike_push_up__general_strength__testing",
           "exercise_id": "pike_push_up",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -3594,7 +3245,6 @@
         },
         "pike_push_up__general_strength__competition": {
           "applicability_id": "pike_push_up__general_strength__competition",
-          "id": "pike_push_up__general_strength__competition",
           "exercise_id": "pike_push_up",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -3607,7 +3257,6 @@
         },
         "pike_push_up__rugby_union__training": {
           "applicability_id": "pike_push_up__rugby_union__training",
-          "id": "pike_push_up__rugby_union__training",
           "exercise_id": "pike_push_up",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -3620,7 +3269,6 @@
         },
         "pike_push_up__rugby_union__testing": {
           "applicability_id": "pike_push_up__rugby_union__testing",
-          "id": "pike_push_up__rugby_union__testing",
           "exercise_id": "pike_push_up",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -3633,7 +3281,6 @@
         },
         "pike_push_up__rugby_union__competition": {
           "applicability_id": "pike_push_up__rugby_union__competition",
-          "id": "pike_push_up__rugby_union__competition",
           "exercise_id": "pike_push_up",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -3646,7 +3293,6 @@
         },
         "box_squat__general_strength__training": {
           "applicability_id": "box_squat__general_strength__training",
-          "id": "box_squat__general_strength__training",
           "exercise_id": "box_squat",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -3659,7 +3305,6 @@
         },
         "box_squat__general_strength__testing": {
           "applicability_id": "box_squat__general_strength__testing",
-          "id": "box_squat__general_strength__testing",
           "exercise_id": "box_squat",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -3672,7 +3317,6 @@
         },
         "box_squat__general_strength__competition": {
           "applicability_id": "box_squat__general_strength__competition",
-          "id": "box_squat__general_strength__competition",
           "exercise_id": "box_squat",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -3685,7 +3329,6 @@
         },
         "box_squat__powerlifting__training": {
           "applicability_id": "box_squat__powerlifting__training",
-          "id": "box_squat__powerlifting__training",
           "exercise_id": "box_squat",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -3698,7 +3341,6 @@
         },
         "box_squat__powerlifting__testing": {
           "applicability_id": "box_squat__powerlifting__testing",
-          "id": "box_squat__powerlifting__testing",
           "exercise_id": "box_squat",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -3711,7 +3353,6 @@
         },
         "box_squat__powerlifting__competition": {
           "applicability_id": "box_squat__powerlifting__competition",
-          "id": "box_squat__powerlifting__competition",
           "exercise_id": "box_squat",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -3724,7 +3365,6 @@
         },
         "box_squat__rugby_union__training": {
           "applicability_id": "box_squat__rugby_union__training",
-          "id": "box_squat__rugby_union__training",
           "exercise_id": "box_squat",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -3737,7 +3377,6 @@
         },
         "box_squat__rugby_union__testing": {
           "applicability_id": "box_squat__rugby_union__testing",
-          "id": "box_squat__rugby_union__testing",
           "exercise_id": "box_squat",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -3750,7 +3389,6 @@
         },
         "box_squat__rugby_union__competition": {
           "applicability_id": "box_squat__rugby_union__competition",
-          "id": "box_squat__rugby_union__competition",
           "exercise_id": "box_squat",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -3763,7 +3401,6 @@
         },
         "pin_press__general_strength__training": {
           "applicability_id": "pin_press__general_strength__training",
-          "id": "pin_press__general_strength__training",
           "exercise_id": "pin_press",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -3776,7 +3413,6 @@
         },
         "pin_press__general_strength__testing": {
           "applicability_id": "pin_press__general_strength__testing",
-          "id": "pin_press__general_strength__testing",
           "exercise_id": "pin_press",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -3789,7 +3425,6 @@
         },
         "pin_press__general_strength__competition": {
           "applicability_id": "pin_press__general_strength__competition",
-          "id": "pin_press__general_strength__competition",
           "exercise_id": "pin_press",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -3802,7 +3437,6 @@
         },
         "pin_press__powerlifting__training": {
           "applicability_id": "pin_press__powerlifting__training",
-          "id": "pin_press__powerlifting__training",
           "exercise_id": "pin_press",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -3815,7 +3449,6 @@
         },
         "pin_press__powerlifting__testing": {
           "applicability_id": "pin_press__powerlifting__testing",
-          "id": "pin_press__powerlifting__testing",
           "exercise_id": "pin_press",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -3828,7 +3461,6 @@
         },
         "pin_press__powerlifting__competition": {
           "applicability_id": "pin_press__powerlifting__competition",
-          "id": "pin_press__powerlifting__competition",
           "exercise_id": "pin_press",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -3841,7 +3473,6 @@
         },
         "pin_press__rugby_union__training": {
           "applicability_id": "pin_press__rugby_union__training",
-          "id": "pin_press__rugby_union__training",
           "exercise_id": "pin_press",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -3854,7 +3485,6 @@
         },
         "pin_press__rugby_union__testing": {
           "applicability_id": "pin_press__rugby_union__testing",
-          "id": "pin_press__rugby_union__testing",
           "exercise_id": "pin_press",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -3867,7 +3497,6 @@
         },
         "pin_press__rugby_union__competition": {
           "applicability_id": "pin_press__rugby_union__competition",
-          "id": "pin_press__rugby_union__competition",
           "exercise_id": "pin_press",
           "activity_id": "rugby_union",
           "activity_context": "competition",
@@ -3880,7 +3509,6 @@
         },
         "partial_deadlift__general_strength__training": {
           "applicability_id": "partial_deadlift__general_strength__training",
-          "id": "partial_deadlift__general_strength__training",
           "exercise_id": "partial_deadlift",
           "activity_id": "general_strength",
           "activity_context": "training",
@@ -3893,7 +3521,6 @@
         },
         "partial_deadlift__general_strength__testing": {
           "applicability_id": "partial_deadlift__general_strength__testing",
-          "id": "partial_deadlift__general_strength__testing",
           "exercise_id": "partial_deadlift",
           "activity_id": "general_strength",
           "activity_context": "testing",
@@ -3906,7 +3533,6 @@
         },
         "partial_deadlift__general_strength__competition": {
           "applicability_id": "partial_deadlift__general_strength__competition",
-          "id": "partial_deadlift__general_strength__competition",
           "exercise_id": "partial_deadlift",
           "activity_id": "general_strength",
           "activity_context": "competition",
@@ -3919,7 +3545,6 @@
         },
         "partial_deadlift__powerlifting__training": {
           "applicability_id": "partial_deadlift__powerlifting__training",
-          "id": "partial_deadlift__powerlifting__training",
           "exercise_id": "partial_deadlift",
           "activity_id": "powerlifting",
           "activity_context": "training",
@@ -3932,7 +3557,6 @@
         },
         "partial_deadlift__powerlifting__testing": {
           "applicability_id": "partial_deadlift__powerlifting__testing",
-          "id": "partial_deadlift__powerlifting__testing",
           "exercise_id": "partial_deadlift",
           "activity_id": "powerlifting",
           "activity_context": "testing",
@@ -3945,7 +3569,6 @@
         },
         "partial_deadlift__powerlifting__competition": {
           "applicability_id": "partial_deadlift__powerlifting__competition",
-          "id": "partial_deadlift__powerlifting__competition",
           "exercise_id": "partial_deadlift",
           "activity_id": "powerlifting",
           "activity_context": "competition",
@@ -3958,7 +3581,6 @@
         },
         "partial_deadlift__rugby_union__training": {
           "applicability_id": "partial_deadlift__rugby_union__training",
-          "id": "partial_deadlift__rugby_union__training",
           "exercise_id": "partial_deadlift",
           "activity_id": "rugby_union",
           "activity_context": "training",
@@ -3971,7 +3593,6 @@
         },
         "partial_deadlift__rugby_union__testing": {
           "applicability_id": "partial_deadlift__rugby_union__testing",
-          "id": "partial_deadlift__rugby_union__testing",
           "exercise_id": "partial_deadlift",
           "activity_id": "rugby_union",
           "activity_context": "testing",
@@ -3984,7 +3605,6 @@
         },
         "partial_deadlift__rugby_union__competition": {
           "applicability_id": "partial_deadlift__rugby_union__competition",
-          "id": "partial_deadlift__rugby_union__competition",
           "exercise_id": "partial_deadlift",
           "activity_id": "rugby_union",
           "activity_context": "competition",

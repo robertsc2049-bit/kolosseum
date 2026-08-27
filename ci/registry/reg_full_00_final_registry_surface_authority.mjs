@@ -23,7 +23,7 @@ export const EXPECTED_INDEX = Object.freeze([
 ]);
 export const INDEX_TO_ENTITY = Object.freeze({
   activity: "activity_registry_1", movement: "movement_registry_3", exercise: "exercise_registry_3a",
-  program: "sport_program_profile_registry_5d", equipment: "equipment_environment_registry_3e",
+  program: "sport_program_template_registry_5f", equipment: "equipment_environment_registry_3e",
   sport_subdivision: "sport_subdivision_registry_1a", sport_metric: "sport_metric_registry_1c",
   sport_role: "sport_role_registry_2", metric_exercise_link: "metric_exercise_link_registry_1c_a",
   threshold_marker: "threshold_marker_registry", exercise_token: "exercise_token_registry_3b",
@@ -125,11 +125,29 @@ export function auditRepository(root, manifest) {
   for (const p of manifest.baseline.active_registry_file_set) if (!sealPaths.has(p)) fail("SEAL_ACTIVE_PATH_MISSING",p);
   for (const p of ["registries/exercise/exercise_substitution_graph.json","registries/exercise/exercise_warmup_mapping.registry.json"]) if (!sealPaths.has(p)) fail("SEAL_LEGACY_PATH_MISSING",p);
   for (const p of manifest.baseline.active_registry_file_set) if (!fs.existsSync(path.join(root,...p.split('/')))) fail("ACTIVE_FILE_MISSING",p);
-  const base=manifest.base_commit;
-  const protectedPaths=[...PROTECTED_PATHS,...manifest.baseline.active_registry_file_set];
-  const diff=spawnSync("git",["diff","--name-only",base,"--",...protectedPaths],{cwd:root,encoding:"utf8"});
-  if (diff.status!==0) fail("GIT_DIFF_FAILED",String(diff.stderr||""));
-  else if (String(diff.stdout||"").trim()) fail("PROTECTED_BYTES_CHANGED",String(diff.stdout).trim());
+  // REG-FULL-00 originally proved the architecture-only slice left all governed
+  // registry bytes untouched. Once REG-FULL-01 is present, those bytes are
+  // lawfully migrated under the successor schema authority; continuing to pin
+  // them to the REG-FULL-00 base commit would make downstream closure
+  // impossible. In successor mode, prove the successor is authoritative and
+  // explicitly bound to this surface manifest while retaining the unchanged
+  // compact loader/index architecture proof above.
+  const schemaManifestPath=path.join(root,"registries","final_registry_schema_manifest.json");
+  if (fs.existsSync(schemaManifestPath)) {
+    const schemaManifest=readJson(root,"registries/final_registry_schema_manifest.json");
+    if (schemaManifest.manifest_id!=="kolosseum_final_registry_schema_authority" || schemaManifest.slice_id!=="REG-FULL-01" || schemaManifest.status!=="authoritative") {
+      fail("SUCCESSOR_SCHEMA_AUTHORITY_INVALID",schemaManifest.manifest_id||"missing");
+    }
+    if (schemaManifest.parent_surface_manifest_id!==manifest.manifest_id || schemaManifest.parent_surface_manifest_version!==manifest.manifest_version) {
+      fail("SUCCESSOR_SCHEMA_PARENT_MISMATCH",`${schemaManifest.parent_surface_manifest_id||"missing"}@${schemaManifest.parent_surface_manifest_version||"missing"}`);
+    }
+  } else {
+    const base=manifest.base_commit;
+    const protectedPaths=[...PROTECTED_PATHS,...manifest.baseline.active_registry_file_set];
+    const diff=spawnSync("git",["diff","--name-only",base,"--",...protectedPaths],{cwd:root,encoding:"utf8"});
+    if (diff.status!==0) fail("GIT_DIFF_FAILED",String(diff.stderr||""));
+    else if (String(diff.stdout||"").trim()) fail("PROTECTED_BYTES_CHANGED",String(diff.stdout).trim());
+  }
   const activationFiles=["ci/registry/s_reg_25_equipment_registry_activation.mjs","ci/registry/s_reg_26_sport_subdivision_registry_activation.mjs","ci/registry/s_reg_27_sport_metric_registry_activation.mjs","ci/registry/s_reg_28_sport_role_registry_activation.mjs","ci/registry/s_reg_29_metric_exercise_link_registry_activation.mjs","ci/registry/s_reg_30_sport_metric_extension_threshold_marker_activation.mjs","ci/registry/s_reg_31_exercise_token_registry_activation.mjs","ci/registry/s_reg_33_exercise_activity_applicability_registry_activation.mjs"];
   for (const p of activationFiles) if (!fs.existsSync(path.join(root,...p.split('/')))) fail("ACTIVATION_EVIDENCE_MISSING",p);
   return {ok:errors.length===0,errors};

@@ -15,23 +15,25 @@ When documentation conflicts, use explicit current canonical/release law and sup
 
 ## Current loaded registry files
 
-Do not hard-code a domain list in this README. Read `registries/registry_index.json` for the current loaded implementation surface. REG-FULL-00 deliberately leaves that file byte-identical while defining the final target architecture separately.
+Do not hard-code a domain list in this README. Read `registries/registry_index.json` for the current loaded implementation surface. REG-FULL-00 defined the final target architecture separately from the compact loader index. REG-FULL-01 preserves that compact index as a compatibility loading surface while closing canonical schema and ID authority.
 
 The generated bundle must be produced from the current registry index and active registry files and must not be hand-edited.
 
-Use `npm run registry:bundle` or `node scripts/bundle_writer.cjs` only in slices authorised to mutate registry truth. REG-FULL-00 is not such a slice.
+Use `npm run registry:bundle` or `node scripts/bundle_writer.cjs` only in slices authorised to mutate registry representation or truth. REG-FULL-01 lawfully regenerates the bundle after schema/ID normalization without adding registry facts.
 
 ## Final registry architecture
 
 `registries/final_registry_surface_manifest.json` is the sole machine-readable final registry architecture authority. Every discovered registry concept is classified exactly once as `required_active`, `derived_generated`, `retained_legacy`, `dormant`, or `prohibited`.
 
-Later REG-FULL slices must consume the manifest rather than infer architecture from the current index, bundle, README, historical activation counts, or file presence. REG-FULL-01 must fail closed if that manifest is absent, non-authoritative, unclassified, or reports an unresolved architecture conflict.
+Later REG-FULL slices must consume the manifest rather than infer architecture from the current index, bundle, README, historical activation counts, or file presence. REG-FULL-01 consumes that authority through `registries/final_registry_schema_manifest.json`, which is the sole machine-readable final schema/ID authority.
 
 ## Schema validity and FK closure
 
-Every currently loaded domain remains subject to its existing schema and closed-world FK guards. REG-FULL-01 will close one authoritative schema and canonical ID vocabulary for every final `required_active` registry. Until then, REG-FULL-00 changes no row shape or registry fact.
+Every final `required_active` registry has exactly one authoritative Draft 2020-12 schema named by `registries/final_registry_schema_manifest.json`. Every canonical row uses one domain-specific primary-key vocabulary and closed-world properties; alternate aliases and undocumented fields are prohibited.
 
-Existing proof includes `ci/guards/registry_schema_presence_guard.mjs`, `ci/guards/registry_bundle_guard.mjs`, `ci/guards/registry_law_guard.mjs`, and `ci/guards/reg_full_00_final_registry_surface_authority_guard.mjs`.
+The compact files named by `registries/registry_index.json` are compatibility loading projections, not parallel canonical schema authorities. Do not add a new field or alias to a compact projection without first changing the final schema authority deliberately.
+
+Existing proof includes `ci/guards/registry_schema_presence_guard.mjs`, `ci/guards/registry_bundle_guard.mjs`, `ci/guards/registry_law_guard.mjs`, `ci/guards/reg_full_00_final_registry_surface_authority_guard.mjs`, and `ci/guards/reg_full_01_registry_schema_closure_guard.mjs`.
 
 ## No fallback
 

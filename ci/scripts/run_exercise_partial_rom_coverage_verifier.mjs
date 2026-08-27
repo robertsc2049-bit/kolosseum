@@ -56,7 +56,7 @@ function normalizeString(value) {
 }
 
 function getPattern(exercise) {
-  return normalizeString(exercise?.pattern);
+  return normalizeString(exercise?.movement_pattern_id);
 }
 
 function getRom(exercise) {
@@ -80,7 +80,7 @@ export function evaluatePartialRomCoverage(exerciseRegistry) {
 
   for (const requiredPattern of REQUIRED_PATTERNS) {
     coverage.set(requiredPattern, {
-      pattern: requiredPattern,
+      movement_pattern_id: requiredPattern,
       exercise_ids: [],
       partial_rom_exercise_ids: [],
     });
@@ -91,7 +91,7 @@ export function evaluatePartialRomCoverage(exerciseRegistry) {
 
     if (!pattern) {
       problems.push({
-        type: "missing_pattern",
+        type: "missing_movement_pattern_id",
         exercise_id: exerciseId,
       });
       continue;
@@ -115,7 +115,7 @@ export function evaluatePartialRomCoverage(exerciseRegistry) {
     if (lane.exercise_ids.length === 0) {
       problems.push({
         type: "missing_required_pattern",
-        pattern: requiredPattern,
+        movement_pattern_id: requiredPattern,
       });
       continue;
     }
@@ -123,14 +123,14 @@ export function evaluatePartialRomCoverage(exerciseRegistry) {
     if (lane.partial_rom_exercise_ids.length === 0) {
       problems.push({
         type: "missing_partial_rom_variant",
-        pattern: requiredPattern,
+        movement_pattern_id: requiredPattern,
         exercise_ids: lane.exercise_ids.slice().sort(),
       });
     }
   }
 
   const validated_patterns = Array.from(coverage.values()).map((lane) => ({
-    pattern: lane.pattern,
+    movement_pattern_id: lane.movement_pattern_id,
     exercise_count: lane.exercise_ids.length,
     partial_rom_exercise_count: lane.partial_rom_exercise_ids.length,
     partial_rom_exercise_ids: lane.partial_rom_exercise_ids.slice().sort(),
@@ -154,12 +154,12 @@ export function verifyPartialRomCoverage(
     const summary = result.problems
       .map((problem) => {
         switch (problem.type) {
-          case "missing_pattern":
-            return `missing_pattern:${problem.exercise_id}`;
+          case "missing_movement_pattern_id":
+            return `missing_movement_pattern_id:${problem.exercise_id}`;
           case "missing_required_pattern":
-            return `missing_required_pattern:${problem.pattern}`;
+            return `missing_required_pattern:${problem.movement_pattern_id}`;
           case "missing_partial_rom_variant":
-            return `missing_partial_rom_variant:${problem.pattern}`;
+            return `missing_partial_rom_variant:${problem.movement_pattern_id}`;
           default:
             return `unknown_problem:${JSON.stringify(problem)}`;
         }

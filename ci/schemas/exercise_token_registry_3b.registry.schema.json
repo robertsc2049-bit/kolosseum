@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/canonical/exercise_token_registry_3b.registry.schema.json",
+  "title": "exercise_token_registry_3b",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "const": "exercise_token_registry_3b"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "exercise_token_id",
+          "canonical_name",
+          "activity_id",
+          "movement_pattern_id",
+          "pattern",
+          "equipment",
+          "loading",
+          "execution",
+          "rom_profile",
+          "fatigue_profile",
+          "notes"
+        ],
+        "properties": {
+          "exercise_token_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "canonical_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "activity_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "movement_pattern_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "pattern": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "primary",
+              "secondary"
+            ],
+            "properties": {
+              "primary": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+              },
+              "secondary": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          },
+          "equipment": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "required",
+              "optional"
+            ],
+            "properties": {
+              "required": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                },
+                "uniqueItems": true
+              },
+              "optional": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                },
+                "uniqueItems": true
+              }
+            }
+          },
+          "loading": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "external_load",
+              "bodyweight",
+              "accommodating"
+            ],
+            "properties": {
+              "external_load": {
+                "type": "boolean"
+              },
+              "bodyweight": {
+                "type": "boolean"
+              },
+              "accommodating": {
+                "type": "boolean"
+              }
+            }
+          },
+          "execution": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "bilateral",
+              "unilateral",
+              "fixed_path",
+              "free_path"
+            ],
+            "properties": {
+              "bilateral": {
+                "type": "boolean"
+              },
+              "unilateral": {
+                "type": "boolean"
+              },
+              "fixed_path": {
+                "type": "boolean"
+              },
+              "free_path": {
+                "type": "boolean"
+              }
+            }
+          },
+          "rom_profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "partial_allowed",
+              "standardised"
+            ],
+            "properties": {
+              "partial_allowed": {
+                "type": "boolean"
+              },
+              "standardised": {
+                "type": "boolean"
+              }
+            }
+          },
+          "fatigue_profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "local",
+              "systemic"
+            ],
+            "properties": {
+              "local": {
+                "type": "boolean"
+              },
+              "systemic": {
+                "type": "boolean"
+              }
+            }
+          },
+          "notes": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  }
+}

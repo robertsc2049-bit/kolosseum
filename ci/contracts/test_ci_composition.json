@@ -395,6 +395,10 @@
     {
       "kind": "npm_command",
       "value": "test:react"
+    },
+    {
+      "kind": "command",
+      "value": "node test/reg_full_01_registry_schema_closure.test.mjs"
     }
   ]
 }

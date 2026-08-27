@@ -23,37 +23,37 @@ test("P78: passes when every lane has at least one fast option", () => {
     entries: {
       bench_press: {
         exercise_id: "bench_press",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
         fast_execution: false
       },
       push_up: {
         exercise_id: "push_up",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
         fast_execution: true
       },
       overhead_press: {
         exercise_id: "overhead_press",
-        pattern: "vertical_push",
+        movement_pattern_id: "vertical_push",
         fast_execution: true
       },
       back_squat: {
         exercise_id: "back_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
         fast_execution: false
       },
       goblet_squat: {
         exercise_id: "goblet_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
         fast_execution: true
       },
       deadlift: {
         exercise_id: "deadlift",
-        pattern: "hinge",
+        movement_pattern_id: "hinge",
         fast_execution: false
       },
       kettlebell_deadlift: {
         exercise_id: "kettlebell_deadlift",
-        pattern: "hinge",
+        movement_pattern_id: "hinge",
         fast_execution: true
       }
     }
@@ -72,7 +72,7 @@ test("P78: fails when fast_execution is missing", () => {
     entries: {
       bench_press: {
         exercise_id: "bench_press",
-        pattern: "horizontal_push"
+        movement_pattern_id: "horizontal_push"
       }
     }
   });
@@ -89,17 +89,17 @@ test("P78: fails when lane has no fast option", () => {
     entries: {
       back_squat: {
         exercise_id: "back_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
         fast_execution: false
       },
       box_squat: {
         exercise_id: "box_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
         fast_execution: false
       },
       push_up: {
         exercise_id: "push_up",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
         fast_execution: true
       }
     }
@@ -135,12 +135,12 @@ test("P78: reports lane coverage summary", () => {
     entries: {
       push_up: {
         exercise_id: "push_up",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
         fast_execution: true
       },
       bench_press: {
         exercise_id: "bench_press",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
         fast_execution: false
       }
     }

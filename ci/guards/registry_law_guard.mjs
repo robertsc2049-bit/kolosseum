@@ -89,10 +89,19 @@ function buildIdSet(registryName, absPath, coll) {
   const ids = new Set();
 
   const candidates = {
-    activity: ["activity_id", "id", "activity"],
-    movement: ["movement_id", "pattern", "id", "movement"],
-    exercise: ["exercise_id", "id", "exercise"]
-  }[registryName] || ["id"];
+    activity: ["activity_id"],
+    movement: ["movement_pattern_id"],
+    exercise: ["exercise_id"],
+    program: ["template_id"],
+    equipment: ["equipment_id"],
+    sport_subdivision: ["sport_subdivision_id"],
+    sport_metric: ["sport_metric_id"],
+    sport_role: ["sport_role_id"],
+    metric_exercise_link: ["metric_exercise_link_id"],
+    threshold_marker: ["threshold_marker_id"],
+    exercise_token: ["exercise_token_id"],
+    exercise_activity_applicability: ["applicability_id"]
+  }[registryName] || [];
 
   if (coll.kind === "map" && coll.map) {
     const keys = Object.keys(coll.map);
@@ -167,117 +176,36 @@ function validateUniqueNonEmptyStringArray(value) {
   return { ok: true, why: "" };
 }
 
-/**
- * Canonicalization/normalization:
- * - Equipment: force singular tokens (dumbbells->dumbbell), collapse bench variants.
- * - Joint tags: choose ONE scheme in canonical output:
- *   - we canonicalize graded variants down to their base (shoulder_high -> shoulder).
- *
- * NOTE on spine:
- * - 'lumbar_*' is L-spine only. Thoracic/cervical are distinct.
- * - If your exercises contain 'upper_back_*' / 'mid_back_*' / 'lower_back_*' we translate those
- *   to thoracic_* / thoracic_* / lumbar_* respectively.
- * - Legacy 'back_*' tokens are ambiguous. We treat them as TEMP legacy aliases to lumbar_* to keep
- *   the repo green, but you should migrate them to explicit regions ASAP.
- */
-const TOKEN_ALIASES = {
-  equipment: {
-    dumbbells: "dumbbell",
-    plates: "plate",
-    weight_plates: "plate",
-    weight_plate: "plate",
-    kettlebells: "kettlebell",
-    incline_bench: "bench",
-    flat_bench: "bench",
-    decline_bench: "bench"
-  },
-  joint: {
-    // graded -> base (canonical scheme)
-    shoulder_low: "shoulder",
-    shoulder_medium: "shoulder",
-    shoulder_high: "shoulder",
-    elbow_low: "elbow",
-    elbow_medium: "elbow",
-    elbow_high: "elbow",
-    wrist_low: "wrist",
-    wrist_medium: "wrist",
-    wrist_high: "wrist",
-    hip_low: "hip",
-    hip_medium: "hip",
-    hip_high: "hip",
-    knee_low: "knee",
-    knee_medium: "knee",
-    knee_high: "knee",
-    ankle_low: "ankle",
-    ankle_medium: "ankle",
-    ankle_high: "ankle",
-
-    // human-friendly back regions -> anatomical regions
-    neck_low: "cervical_low",
-    neck_medium: "cervical_medium",
-    neck_high: "cervical_high",
-
-    upper_back_low: "thoracic_low",
-    upper_back_medium: "thoracic_medium",
-    upper_back_high: "thoracic_high",
-
-    mid_back_low: "thoracic_low",
-    mid_back_medium: "thoracic_medium",
-    mid_back_high: "thoracic_high",
-
-    lower_back_low: "lumbar_low",
-    lower_back_medium: "lumbar_medium",
-    lower_back_high: "lumbar_high",
-
-    // SI is a joint family
-    si_low: "sacroiliac_low",
-    si_medium: "sacroiliac_medium",
-    si_high: "sacroiliac_high",
-
-    // TEMP legacy: ambiguous back_* -> lumbar_* (compat shim)
-    back_low: "lumbar_low",
-    back_medium: "lumbar_medium",
-    back_high: "lumbar_high"
-  }
-};
-
-function normalizeTokenArray(raw, { label, ctxPath, aliasMap, canonicalSet }) {
+// REG-FULL-01: final active registries use one canonical token vocabulary.
+// Tokens are validated exactly as stored. Legacy aliases are not normalized or accepted.
+function validateCanonicalTokenArray(raw, { label, ctxPath, canonicalSet }) {
   if (!Array.isArray(raw)) {
-    return { ok: false, tokens: raw, changed: false, errors: [`${ctxPath}: ${label} must be an array`] };
+    return { ok: false, errors: [`${ctxPath}: ${label} must be an array`] };
   }
 
-  const out = [];
   const seen = new Set();
   const errors = [];
-  let changed = false;
 
-  for (const t of raw) {
-    if (typeof t !== "string" || !t) {
+  for (const token of raw) {
+    if (typeof token !== "string" || !token) {
       errors.push(`${ctxPath}: ${label} must contain only non-empty strings`);
       continue;
     }
 
-    let canon = t;
-    if (aliasMap && Object.prototype.hasOwnProperty.call(aliasMap, t)) {
-      canon = aliasMap[t];
-      changed = true;
-    }
-
-    if (canonicalSet && !canonicalSet.has(canon)) {
-      errors.push(`${ctxPath}: ${label} token '${t}' canonicalizes to '${canon}' which is not in vocab`);
+    if (canonicalSet && !canonicalSet.has(token)) {
+      errors.push(`${ctxPath}: ${label} token '${token}' is not in canonical vocab`);
       continue;
     }
 
-    if (seen.has(canon)) {
-      changed = true;
+    if (seen.has(token)) {
+      errors.push(`${ctxPath}: ${label} token '${token}' is duplicated`);
       continue;
     }
 
-    seen.add(canon);
-    out.push(canon);
+    seen.add(token);
   }
 
-  return { ok: errors.length === 0, tokens: out, changed, errors };
+  return { ok: errors.length === 0, errors };
 }
 
 function buildStimulusSetFromActivity(regs, errors) {
@@ -330,7 +258,7 @@ function buildMovementVocabById(regs, errors) {
   const movPath = mov?.path || "registries/movement/movement.registry.json";
   const doc = mov?.doc;
 
-  const map = new Map(); // movement_id -> { equipment:Set, joint:Set }
+  const map = new Map(); // movement_pattern_id -> { equipment:Set, joint:Set }
 
   if (!isPlainObject(doc) || !isPlainObject(doc.entries)) {
     errors.push(`${movPath}: entries map missing/invalid (expected object map)`);
@@ -350,12 +278,12 @@ function buildMovementVocabById(regs, errors) {
       continue;
     }
 
-    if (typeof v.movement_id !== "string" || !v.movement_id) {
-      errors.push(`${movPath} entries.${k}: missing/invalid movement_id`);
+    if (typeof v.movement_pattern_id !== "string" || !v.movement_pattern_id) {
+      errors.push(`${movPath} entries.${k}: missing/invalid movement_pattern_id`);
       continue;
     }
-    if (v.movement_id !== k) {
-      errors.push(`${movPath} entries.${k}: key must equal movement_id (got '${v.movement_id}')`);
+    if (v.movement_pattern_id !== k) {
+      errors.push(`${movPath} entries.${k}: key must equal movement_pattern_id (got '${v.movement_pattern_id}')`);
     }
 
     const eqChk = validateUniqueNonEmptyStringArray(v.equipment_vocab);
@@ -405,10 +333,32 @@ function main() {
   const exerciseDoc = regs.get("exercise")?.doc ?? readJson(exercisePath);
 
   const entrySchema = loadSchemaOrDie("ci/schemas/registry_entry.schema.json");
+  const canonicalExerciseSchema = loadSchemaOrDie("ci/schemas/exercise.registry.schema.json");
   const wrapperSchema = loadSchemaOrDie("ci/schemas/exercise_registry.schema.json");
 
   const ajv = new Ajv({ allErrors: true, strict: true, validateSchema: false });
+  // REG-FULL-01 compatibility schemas use two closed annotations. These are metadata
+  // only; strict validation knows their exact lawful values without weakening unknown-keyword checks.
+  ajv.addKeyword({
+    keyword: "x-kolosseum-authority",
+    schemaType: "string",
+    metaSchema: {
+      type: "string",
+      enum: ["compatibility_only", "compatibility_reference"]
+    },
+    valid: true
+  });
+  ajv.addKeyword({
+    keyword: "x-kolosseum-canonical-authority",
+    schemaType: "string",
+    metaSchema: {
+      type: "string",
+      const: "registries/final_registry_schema_manifest.json"
+    },
+    valid: true
+  });
   ajv.addSchema(entrySchema, entrySchema.$id);
+  ajv.addSchema(canonicalExerciseSchema, canonicalExerciseSchema.$id);
   ajv.addSchema(wrapperSchema, wrapperSchema.$id);
 
   const validateWrapper = ajv.getSchema(wrapperSchema.$id);
@@ -425,7 +375,7 @@ function main() {
   const exEntries = isPlainObject(exerciseDoc?.entries) ? exerciseDoc.entries : null;
   if (!exEntries) errors.push(`${exercisePath}: entries map missing/invalid (expected object map)`);
 
-  // FK: exercise.pattern -> movement ids
+  // FK: exercise.movement_pattern_id -> movement ids
   const movementIds = regs.get("movement")?.ids ?? new Set();
   if (exEntries) {
     if (movementIds.size < 1) {
@@ -433,12 +383,12 @@ function main() {
     } else {
       for (const [key, e] of Object.entries(exEntries)) {
         if (!isPlainObject(e)) continue;
-        if (typeof e.pattern !== "string" || !e.pattern) {
-          errors.push(`${exercisePath} entries.${key}: missing/invalid pattern`);
+        if (typeof e.movement_pattern_id !== "string" || !e.movement_pattern_id) {
+          errors.push(`${exercisePath} entries.${key}: missing/invalid movement_pattern_id`);
           continue;
         }
-        if (!movementIds.has(e.pattern)) {
-          errors.push(`${exercisePath} entries.${key}: FK fail pattern='${e.pattern}' (not in movement registry ids)`);
+        if (!movementIds.has(e.movement_pattern_id)) {
+          errors.push(`${exercisePath} entries.${key}: FK fail movement_pattern_id='${e.movement_pattern_id}' (not in movement registry ids)`);
         }
       }
     }
@@ -463,57 +413,51 @@ function main() {
     }
   }
 
-  // Movement minimal contract + scoped vocab enforcement + normalization
+  // Movement minimal contract + exact scoped canonical-vocab enforcement.
   const movementVocab = buildMovementVocabById(regs, errors);
 
   if (exEntries) {
     for (const [key, e] of Object.entries(exEntries)) {
       if (!isPlainObject(e)) continue;
 
-      const pattern = typeof e.pattern === "string" ? e.pattern : "";
+      const movementPatternId = typeof e.movement_pattern_id === "string" ? e.movement_pattern_id : "";
       const ctx = `${exercisePath} entries.${key}`;
 
       // REQUIRE: equipment[] non-empty
-      const eqChk = validateNonEmptyStringArray(e.equipment);
-      if (!eqChk.ok) errors.push(`${ctx}: missing/invalid equipment (${eqChk.why})`);
+      const eqChk = validateNonEmptyStringArray(e.equipment_requirements);
+      if (!eqChk.ok) errors.push(`${ctx}: missing/invalid equipment_requirements (${eqChk.why})`);
 
       // REQUIRE: joint_stress_tags[] non-empty
       const jtChk = validateNonEmptyStringArray(e.joint_stress_tags);
       if (!jtChk.ok) errors.push(`${ctx}: missing/invalid joint_stress_tags (${jtChk.why})`);
 
-      if (!pattern) continue;
+      if (!movementPatternId) continue;
 
-      if (!movementVocab.has(pattern)) {
-        errors.push(`${ctx}: movement vocab missing for pattern='${pattern}' (cannot validate scoped equipment/joint tags)`);
+      if (!movementVocab.has(movementPatternId)) {
+        errors.push(`${ctx}: movement vocab missing for movement_pattern_id='${movementPatternId}' (cannot validate scoped equipment/joint tags)`);
         continue;
       }
 
-      const vocab = movementVocab.get(pattern);
+      const vocab = movementVocab.get(movementPatternId);
 
-      // Normalize + scoped FK: equipment tokens
-      if (Array.isArray(e.equipment)) {
-        const n = normalizeTokenArray(e.equipment, {
-          label: "equipment",
+      // Exact scoped FK: equipment tokens.
+      if (Array.isArray(e.equipment_requirements)) {
+        const n = validateCanonicalTokenArray(e.equipment_requirements, {
+          label: "equipment_requirements",
           ctxPath: ctx,
-          aliasMap: TOKEN_ALIASES.equipment,
           canonicalSet: vocab.equipment
         });
         if (!n.ok) errors.push(...n.errors);
-
-        // NOTE: we validate against canonicalSet inside normalizeTokenArray.
       }
 
-      // Normalize + scoped FK: joint stress tokens
+      // Exact scoped FK: joint stress tokens. Legacy aliases are deliberately rejected.
       if (Array.isArray(e.joint_stress_tags)) {
-        const n = normalizeTokenArray(e.joint_stress_tags, {
+        const n = validateCanonicalTokenArray(e.joint_stress_tags, {
           label: "joint_stress_tags",
           ctxPath: ctx,
-          aliasMap: TOKEN_ALIASES.joint,
           canonicalSet: vocab.joint
         });
         if (!n.ok) errors.push(...n.errors);
-
-        // NOTE: we validate against canonicalSet inside normalizeTokenArray.
       }
     }
   }

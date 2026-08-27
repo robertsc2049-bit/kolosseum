@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/canonical/movement_registry_3.registry.schema.json",
+  "title": "movement_registry_3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "const": "movement_registry_3"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "movement_pattern_id",
+          "display_label",
+          "activity_applicability",
+          "exercise_family",
+          "substitution_scope",
+          "copy_legal_boundary_notes"
+        ],
+        "properties": {
+          "movement_pattern_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "display_label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "activity_applicability": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "powerlifting",
+                "general_strength",
+                "rugby_union"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "exercise_family": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "substitution_scope": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "copy_legal_boundary_notes": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

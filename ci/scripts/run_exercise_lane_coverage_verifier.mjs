@@ -81,8 +81,8 @@ export function verifyExerciseLaneCoverage({
     }
 
     const movementId =
-      typeof entry.movement_id === "string" && entry.movement_id.trim() !== ""
-        ? entry.movement_id
+      typeof entry.movement_pattern_id === "string" && entry.movement_pattern_id.trim() !== ""
+        ? entry.movement_pattern_id
         : null;
 
     if (!movementId) {
@@ -90,7 +90,7 @@ export function verifyExerciseLaneCoverage({
     }
 
     if (seenMovementIds.has(movementId)) {
-      fail(`Duplicate movement_id detected: ${movementId}`);
+      fail(`Duplicate movement_pattern_id detected: ${movementId}`);
     }
 
     seenMovementIds.add(movementId);
@@ -122,12 +122,12 @@ export function verifyExerciseLaneCoverage({
     seenExerciseIds.add(exerciseId);
 
     const pattern =
-      typeof entry.pattern === "string" && entry.pattern.trim() !== ""
-        ? entry.pattern
+      typeof entry.movement_pattern_id === "string" && entry.movement_pattern_id.trim() !== ""
+        ? entry.movement_pattern_id
         : null;
 
     if (!pattern) {
-      fail(`Exercise '${exerciseId}' is missing required field 'pattern'.`);
+      fail(`Exercise '${exerciseId}' is missing required field 'movement_pattern_id'.`);
     }
 
     if (!seenMovementIds.has(pattern)) {

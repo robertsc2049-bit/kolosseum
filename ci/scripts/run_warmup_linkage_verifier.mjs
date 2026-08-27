@@ -87,8 +87,8 @@ export function verifyWarmupLinkage(exerciseRegistryPath, warmupRegistryPath) {
     }
 
     const lane =
-      typeof exercise.pattern === "string" && exercise.pattern.trim().length > 0
-        ? exercise.pattern.trim()
+      typeof exercise.movement_pattern_id === "string" && exercise.movement_pattern_id.trim().length > 0
+        ? exercise.movement_pattern_id.trim()
         : null;
 
     if (!lane) {

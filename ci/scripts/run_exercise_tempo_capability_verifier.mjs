@@ -63,7 +63,7 @@ function normalizeString(value) {
 }
 
 function getPattern(exercise) {
-  return normalizeString(exercise?.pattern);
+  return normalizeString(exercise?.movement_pattern_id);
 }
 
 function getTempoCapability(exercise) {

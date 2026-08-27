@@ -1,10 +1,9 @@
 {
   "registry_id": "threshold_marker",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "entries": {
     "threshold_marker__powerlifting__attempt_count__gte_1": {
       "threshold_marker_id": "threshold_marker__powerlifting__attempt_count__gte_1",
-      "id": "threshold_marker__powerlifting__attempt_count__gte_1",
       "sport_metric_id": "powerlifting__attempt_count",
       "activity_id": "powerlifting",
       "threshold_operator": "greater_than_or_equal",
@@ -22,7 +21,6 @@
     },
     "threshold_marker__powerlifting__attempt_count__lte_3": {
       "threshold_marker_id": "threshold_marker__powerlifting__attempt_count__lte_3",
-      "id": "threshold_marker__powerlifting__attempt_count__lte_3",
       "sport_metric_id": "powerlifting__attempt_count",
       "activity_id": "powerlifting",
       "threshold_operator": "less_than_or_equal",
@@ -40,7 +38,6 @@
     },
     "threshold_marker__general_strength__set_count__gte_1": {
       "threshold_marker_id": "threshold_marker__general_strength__set_count__gte_1",
-      "id": "threshold_marker__general_strength__set_count__gte_1",
       "sport_metric_id": "general_strength__set_count",
       "activity_id": "general_strength",
       "threshold_operator": "greater_than_or_equal",
@@ -58,7 +55,6 @@
     },
     "threshold_marker__general_strength__duration_seconds__gte_60": {
       "threshold_marker_id": "threshold_marker__general_strength__duration_seconds__gte_60",
-      "id": "threshold_marker__general_strength__duration_seconds__gte_60",
       "sport_metric_id": "general_strength__duration_seconds",
       "activity_id": "general_strength",
       "threshold_operator": "greater_than_or_equal",
@@ -76,7 +72,6 @@
     },
     "threshold_marker__general_strength__duration_seconds__lte_3600": {
       "threshold_marker_id": "threshold_marker__general_strength__duration_seconds__lte_3600",
-      "id": "threshold_marker__general_strength__duration_seconds__lte_3600",
       "sport_metric_id": "general_strength__duration_seconds",
       "activity_id": "general_strength",
       "threshold_operator": "less_than_or_equal",

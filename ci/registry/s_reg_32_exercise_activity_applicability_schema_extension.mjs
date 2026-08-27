@@ -158,14 +158,14 @@ function assertExerciseApplicabilityFieldsCorrect() {
   }
 
   for (const exercise of entries) {
-    const { exercise_id: exerciseId, pattern, primary_activity_applicability: primary, secondary_activity_applicability: secondary } = exercise;
+    const { exercise_id: exerciseId, movement_pattern_id: movementPatternId, primary_activity_applicability: primary, secondary_activity_applicability: secondary } = exercise;
 
     if (typeof primary !== "string" || !(primary in S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS)) {
       fail("s_reg_32_primary_activity_invalid", { exercise_id: exerciseId, primary });
     }
 
-    if (!S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[primary].includes(pattern)) {
-      fail("s_reg_32_primary_activity_not_genuinely_applicable", { exercise_id: exerciseId, pattern, primary });
+    if (!S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[primary].includes(movementPatternId)) {
+      fail("s_reg_32_primary_activity_not_genuinely_applicable", { exercise_id: exerciseId, movement_pattern_id: movementPatternId, primary });
     }
 
     if (!Array.isArray(secondary)) {
@@ -182,8 +182,8 @@ function assertExerciseApplicabilityFieldsCorrect() {
         fail("s_reg_32_secondary_activity_unknown", { exercise_id: exerciseId, activity_id: activityId });
       }
 
-      if (!S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[activityId].includes(pattern)) {
-        fail("s_reg_32_secondary_activity_not_genuinely_applicable", { exercise_id: exerciseId, pattern, activity_id: activityId });
+      if (!S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[activityId].includes(movementPatternId)) {
+        fail("s_reg_32_secondary_activity_not_genuinely_applicable", { exercise_id: exerciseId, movement_pattern_id: movementPatternId, activity_id: activityId });
       }
 
       if (seen.has(activityId)) {

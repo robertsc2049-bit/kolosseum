@@ -65,9 +65,10 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/postv1_packaging_surface_registry_guard.mjs` | Release Packaging Integrity | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/readme_validation_contract_guard.mjs` | Contracts | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/reg_full_00_final_registry_surface_authority_guard.mjs` | Registry Law | high | registry | DEV NOTE: REG-FULL-00 final registry surface authority guard. |
+| `ci/guards/reg_full_01_registry_schema_closure_guard.mjs` | Registry Law | high | registry | DEV NOTE: REG-FULL-01 final registry schema and canonical ID closure guard. |
 | `ci/guards/registry_bundle_guard.mjs` | Registry Law | high | registry | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/registry_law_guard.mjs` | Registry Law | high | registry | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
-| `ci/guards/registry_schema_presence_guard.mjs` | Registry Law | high | registry | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
+| `ci/guards/registry_schema_presence_guard.mjs` | Registry Law | high | registry | DEV NOTE: CI guard surface. This file enforces both the current loaded schema |
 | `ci/guards/repo_contract.mjs` | Contracts | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/run_pipeline_contract_version_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/run_v0_boundary_claim_consistency_guard.mjs` | V0 Boundary Pack | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |

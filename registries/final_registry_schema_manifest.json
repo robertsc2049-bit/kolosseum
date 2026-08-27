@@ -1,0 +1,651 @@
+{
+  "manifest_id": "kolosseum_final_registry_schema_authority",
+  "manifest_version": "1.0.0",
+  "slice_id": "REG-FULL-01",
+  "status": "authoritative",
+  "schema_scope": "required_active_registries",
+  "parent_surface_manifest_id": "kolosseum_final_registry_surface_authority",
+  "parent_surface_manifest_version": "1.0.0",
+  "parent_surface_manifest_sha256": "e236341a4b5ecb7ad4ca36088b6433bffad51cc0e1da9a9b3f0e22cb88d26489",
+  "canonical_id_law": {
+    "one_registry_id_per_authority": true,
+    "one_primary_key_per_row": true,
+    "generic_id_aliases_forbidden": true,
+    "foreign_keys_use_target_primary_key_vocabulary": true,
+    "display_labels_are_not_ids": true,
+    "permanent_dual_read_forbidden": true,
+    "forbidden_legacy_field_names": [
+      "pattern",
+      "movement_id",
+      "program_id",
+      "id"
+    ]
+  },
+  "registries": [
+    {
+      "canonical_registry_id": "activity_registry_1",
+      "load_position": 1,
+      "schema_path": "ci/schemas/activity_registry_1.registry.schema.json",
+      "primary_key_field": "activity_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "activity",
+        "schema_path": "ci/schemas/activity.registry.schema.json",
+        "data_path": "registries/activity/activity.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "sport_subdivision_registry_1a",
+      "load_position": 2,
+      "schema_path": "ci/schemas/sport_subdivision_registry_1a.registry.schema.json",
+      "primary_key_field": "sport_subdivision_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "sport_subdivision",
+        "schema_path": "ci/schemas/sport_subdivision.registry.schema.json",
+        "data_path": "registries/sport_subdivision/sport_subdivision.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [
+        {
+          "field": "activity_id",
+          "target_registry_id": "activity_registry_1",
+          "target_primary_key_field": "activity_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "physical_requirements_registry_1b",
+      "load_position": 3,
+      "schema_path": "ci/schemas/physical_requirements_registry_1b.registry.schema.json",
+      "primary_key_field": null,
+      "row_contract_status": "deferred_no_rows",
+      "legacy_runtime_projection": null,
+      "fk_fields": [],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "sport_metric_registry_1c",
+      "load_position": 4,
+      "schema_path": "ci/schemas/sport_metric_registry_1c.registry.schema.json",
+      "primary_key_field": "sport_metric_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "sport_metric",
+        "schema_path": "ci/schemas/sport_metric.registry.schema.json",
+        "data_path": "registries/sport_metric/sport_metric.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [
+        {
+          "field": "activity_id",
+          "target_registry_id": "activity_registry_1",
+          "target_primary_key_field": "activity_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "sport_subdivision_id",
+          "target_registry_id": "sport_subdivision_registry_1a",
+          "target_primary_key_field": "sport_subdivision_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "event_metric_registry_1d",
+      "load_position": 5,
+      "schema_path": "ci/schemas/event_metric_registry_1d.registry.schema.json",
+      "primary_key_field": "event_metric_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": null,
+      "fk_fields": [
+        {
+          "field": "activity_id",
+          "target_registry_id": "activity_registry_1",
+          "target_primary_key_field": "activity_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "sport_subdivision_id",
+          "target_registry_id": "sport_subdivision_registry_1a",
+          "target_primary_key_field": "sport_subdivision_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "sport_role_registry_2",
+      "load_position": 6,
+      "schema_path": "ci/schemas/sport_role_registry_2.registry.schema.json",
+      "primary_key_field": "sport_role_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "sport_role",
+        "schema_path": "ci/schemas/sport_role.registry.schema.json",
+        "data_path": "registries/sport_role/sport_role.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [
+        {
+          "field": "activity_id",
+          "target_registry_id": "activity_registry_1",
+          "target_primary_key_field": "activity_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "sport_subdivision_id",
+          "target_registry_id": "sport_subdivision_registry_1a",
+          "target_primary_key_field": "sport_subdivision_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "movement_registry_3",
+      "load_position": 7,
+      "schema_path": "ci/schemas/movement_registry_3.registry.schema.json",
+      "primary_key_field": "movement_pattern_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "movement",
+        "schema_path": "ci/schemas/movement.registry.schema.json",
+        "data_path": "registries/movement/movement.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "exercise_registry_3a",
+      "load_position": 8,
+      "schema_path": "ci/schemas/exercise_registry_3a.registry.schema.json",
+      "primary_key_field": "exercise_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "exercise",
+        "schema_path": "ci/schemas/exercise.registry.schema.json",
+        "data_path": "registries/exercise/exercise.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [
+        {
+          "field": "movement_pattern_id",
+          "target_registry_id": "movement_registry_3",
+          "target_primary_key_field": "movement_pattern_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "exercise_token_registry_3b",
+      "load_position": 9,
+      "schema_path": "ci/schemas/exercise_token_registry_3b.registry.schema.json",
+      "primary_key_field": "exercise_token_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "exercise_token",
+        "schema_path": "ci/schemas/exercise_token.registry.schema.json",
+        "data_path": "registries/exercise_token/exercise_token.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [
+        {
+          "field": "activity_id",
+          "target_registry_id": "activity_registry_1",
+          "target_primary_key_field": "activity_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "movement_pattern_id",
+          "target_registry_id": "movement_registry_3",
+          "target_primary_key_field": "movement_pattern_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "exercise_alias_registry_3c",
+      "load_position": 10,
+      "schema_path": "ci/schemas/exercise_alias_registry_3c.registry.schema.json",
+      "primary_key_field": "alias_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": null,
+      "fk_fields": [
+        {
+          "field": "canonical_exercise_token_id",
+          "target_registry_id": "exercise_token_registry_3b",
+          "target_primary_key_field": "exercise_token_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "exercise_variant_applicability_registry_3d",
+      "load_position": 11,
+      "schema_path": "ci/schemas/exercise_variant_applicability_registry_3d.registry.schema.json",
+      "primary_key_field": "variant_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": null,
+      "fk_fields": [
+        {
+          "field": "base_exercise_token_id",
+          "target_registry_id": "exercise_token_registry_3b",
+          "target_primary_key_field": "exercise_token_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "variant_exercise_token_id",
+          "target_registry_id": "exercise_token_registry_3b",
+          "target_primary_key_field": "exercise_token_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "equipment_environment_registry_3e",
+      "load_position": 12,
+      "schema_path": "ci/schemas/equipment_environment_registry_3e.registry.schema.json",
+      "primary_key_field": "equipment_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "equipment",
+        "schema_path": "ci/schemas/equipment.registry.schema.json",
+        "data_path": "registries/equipment/equipment.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "biomechanics_registry_4",
+      "load_position": 13,
+      "schema_path": "ci/schemas/biomechanics_registry_4.registry.schema.json",
+      "primary_key_field": "biomechanics_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": null,
+      "fk_fields": [],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "metric_exercise_link_registry_1c_a",
+      "load_position": 14,
+      "schema_path": "ci/schemas/metric_exercise_link_registry_1c_a.registry.schema.json",
+      "primary_key_field": "metric_exercise_link_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "metric_exercise_link",
+        "schema_path": "ci/schemas/metric_exercise_link.registry.schema.json",
+        "data_path": "registries/metric_exercise_link/metric_exercise_link.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [
+        {
+          "field": "sport_metric_id",
+          "target_registry_id": "sport_metric_registry_1c",
+          "target_primary_key_field": "sport_metric_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "exercise_id",
+          "target_registry_id": "exercise_registry_3a",
+          "target_primary_key_field": "exercise_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "activity_id",
+          "target_registry_id": "activity_registry_1",
+          "target_primary_key_field": "activity_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "training_structure_registry_5",
+      "load_position": 15,
+      "schema_path": "ci/schemas/training_structure_registry_5.registry.schema.json",
+      "primary_key_field": null,
+      "row_contract_status": "deferred_no_rows",
+      "legacy_runtime_projection": null,
+      "fk_fields": [],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "structure_governance_registry_5a",
+      "load_position": 16,
+      "schema_path": "ci/schemas/structure_governance_registry_5a.registry.schema.json",
+      "primary_key_field": null,
+      "row_contract_status": "deferred_no_rows",
+      "legacy_runtime_projection": null,
+      "fk_fields": [],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "sport_domain_structure_profiles_5b",
+      "load_position": 17,
+      "schema_path": "ci/schemas/sport_domain_structure_profiles_5b.registry.schema.json",
+      "primary_key_field": null,
+      "row_contract_status": "deferred_no_rows",
+      "legacy_runtime_projection": null,
+      "fk_fields": [],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "explicit_override_accountability_registry_5c",
+      "load_position": 18,
+      "schema_path": "ci/schemas/explicit_override_accountability_registry_5c.registry.schema.json",
+      "primary_key_field": null,
+      "row_contract_status": "deferred_no_rows",
+      "legacy_runtime_projection": null,
+      "fk_fields": [],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "sport_program_profile_registry_5d",
+      "load_position": 19,
+      "schema_path": "ci/schemas/sport_program_profile_registry_5d.registry.schema.json",
+      "primary_key_field": "sport_program_profile_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": null,
+      "fk_fields": [
+        {
+          "field": "activity_id",
+          "target_registry_id": "activity_registry_1",
+          "target_primary_key_field": "activity_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "sport_subdivision_id",
+          "target_registry_id": "sport_subdivision_registry_1a",
+          "target_primary_key_field": "sport_subdivision_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "sport_event_model_registry_5e",
+      "load_position": 20,
+      "schema_path": "ci/schemas/sport_event_model_registry_5e.registry.schema.json",
+      "primary_key_field": null,
+      "row_contract_status": "deferred_no_rows",
+      "legacy_runtime_projection": null,
+      "fk_fields": [],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "exercise_equipment_compatibility_registry",
+      "load_position": 21,
+      "schema_path": "ci/schemas/exercise_equipment_compatibility_registry.registry.schema.json",
+      "primary_key_field": "compatibility_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": null,
+      "fk_fields": [
+        {
+          "field": "exercise_id",
+          "target_registry_id": "exercise_registry_3a",
+          "target_primary_key_field": "exercise_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "equipment_id",
+          "target_registry_id": "equipment_environment_registry_3e",
+          "target_primary_key_field": "equipment_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "exercise_sport_applicability_registry_6x",
+      "load_position": 22,
+      "schema_path": "ci/schemas/exercise_sport_applicability_registry_6x.registry.schema.json",
+      "primary_key_field": "applicability_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "exercise_activity_applicability",
+        "schema_path": "ci/schemas/exercise_activity_applicability.registry.schema.json",
+        "data_path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [
+        {
+          "field": "exercise_id",
+          "target_registry_id": "exercise_registry_3a",
+          "target_primary_key_field": "exercise_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "activity_id",
+          "target_registry_id": "activity_registry_1",
+          "target_primary_key_field": "activity_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "sport_program_template_registry_5f",
+      "load_position": 23,
+      "schema_path": "ci/schemas/sport_program_template_registry_5f.registry.schema.json",
+      "primary_key_field": "template_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": {
+        "registry_id": "program",
+        "schema_path": "ci/schemas/program.registry.schema.json",
+        "data_path": "registries/program/program.registry.json",
+        "authority": "compatibility_only"
+      },
+      "fk_fields": [
+        {
+          "field": "activity_id",
+          "target_registry_id": "activity_registry_1",
+          "target_primary_key_field": "activity_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "substitution_registry",
+      "load_position": 24,
+      "schema_path": "ci/schemas/substitution_registry.registry.schema.json",
+      "primary_key_field": "substitution_edge_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": null,
+      "fk_fields": [
+        {
+          "field": "source_exercise_id",
+          "target_registry_id": "exercise_registry_3a",
+          "target_primary_key_field": "exercise_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        },
+        {
+          "field": "target_exercise_id",
+          "target_registry_id": "exercise_registry_3a",
+          "target_primary_key_field": "exercise_id",
+          "cardinality": "one",
+          "nullable": false,
+          "required": true
+        }
+      ],
+      "optional_fields": []
+    },
+    {
+      "canonical_registry_id": "copy_registry",
+      "load_position": 25,
+      "schema_path": "ci/schemas/copy_registry.registry.schema.json",
+      "primary_key_field": "copy_id",
+      "row_contract_status": "closed",
+      "legacy_runtime_projection": null,
+      "fk_fields": [],
+      "optional_fields": []
+    }
+  ],
+  "legacy_field_mappings": [
+    {
+      "scope": "movement",
+      "legacy_field": "movement_id",
+      "canonical_field": "movement_pattern_id",
+      "action": "rename"
+    },
+    {
+      "scope": "exercise",
+      "legacy_field": "pattern",
+      "canonical_field": "movement_pattern_id",
+      "action": "rename"
+    },
+    {
+      "scope": "exercise",
+      "legacy_field": "equipment",
+      "canonical_field": "equipment_requirements",
+      "action": "collapse_after_normalized_set_equality"
+    },
+    {
+      "scope": "exercise",
+      "legacy_field": "equipment_tags",
+      "canonical_field": "equipment_requirements",
+      "action": "collapse_after_subset_proof"
+    },
+    {
+      "scope": "exercise",
+      "legacy_field": "instruction.short",
+      "canonical_field": "instruction_short_text",
+      "action": "flatten"
+    },
+    {
+      "scope": "exercise",
+      "legacy_field": "instruction.detailed",
+      "canonical_field": "instruction_detail_text",
+      "action": "flatten_preserving_order"
+    },
+    {
+      "scope": "program",
+      "legacy_field": "id",
+      "canonical_field": "activity_id",
+      "action": "rename"
+    },
+    {
+      "scope": "program",
+      "legacy_field": "program_id",
+      "canonical_field": "template_id",
+      "action": "rename"
+    },
+    {
+      "scope": "program",
+      "legacy_field": "intent",
+      "canonical_field": "exercise_eligibility",
+      "action": "rename"
+    },
+    {
+      "scope": "exercise_token",
+      "legacy_field": "movement_id",
+      "canonical_field": "movement_pattern_id",
+      "action": "rename"
+    },
+    {
+      "scope": "multiple_live_registries",
+      "legacy_field": "id",
+      "canonical_field": "domain_specific_primary_key",
+      "action": "remove_after_key_equality_proof"
+    }
+  ],
+  "legacy_registry_id_mappings": [
+    {
+      "legacy_registry_id": "program",
+      "canonical_registry_id": "sport_program_template_registry_5f",
+      "status": "runtime_compatibility_projection"
+    },
+    {
+      "legacy_registry_id": "activity",
+      "canonical_registry_id": "activity_registry_1",
+      "status": "runtime_compatibility_projection"
+    },
+    {
+      "legacy_registry_id": "movement",
+      "canonical_registry_id": "movement_registry_3",
+      "status": "runtime_compatibility_projection"
+    },
+    {
+      "legacy_registry_id": "exercise",
+      "canonical_registry_id": "exercise_registry_3a",
+      "status": "runtime_compatibility_projection"
+    }
+  ],
+  "schema_conflicts": [],
+  "optional_field_justifications": [
+    {
+      "schema_path": "ci/schemas/exercise.registry.schema.json",
+      "field": "reference_media",
+      "reason": "S-REG-34 explicitly authorises a content-free optional reference-media projection; absent means no reference media is recorded and null is not permitted.",
+      "null_permitted": false
+    }
+  ],
+  "summary": {
+    "required_active_registry_count": 25,
+    "authoritative_schema_count": 25,
+    "deferred_no_row_schema_count": 6,
+    "schema_conflict_count": 0,
+    "legacy_dual_read_allowed": false
+  }
+}

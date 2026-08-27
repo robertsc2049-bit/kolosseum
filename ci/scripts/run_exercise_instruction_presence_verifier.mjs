@@ -141,109 +141,74 @@ export function verifyExerciseInstructionPresence(registryPath) {
       continue;
     }
 
-    if (!Object.prototype.hasOwnProperty.call(exercise, "instruction")) {
+    if (!Object.prototype.hasOwnProperty.call(exercise, "instruction_short_text")) {
       failures.push(
         normalizeFailure(
           exerciseId,
-          `${exerciseId}.instruction`,
-          "instruction_missing",
-          "Exercise is missing required instruction object."
-        )
-      );
-      continue;
-    }
-
-    const instruction = exercise.instruction;
-    if (!isPlainObject(instruction)) {
-      failures.push(
-        normalizeFailure(
-          exerciseId,
-          `${exerciseId}.instruction`,
-          "instruction_not_object",
-          "instruction must be an object."
-        )
-      );
-      continue;
-    }
-
-    const allowedInstructionKeys = new Set(["short", "detailed"]);
-    for (const key of Object.keys(instruction)) {
-      if (!allowedInstructionKeys.has(key)) {
-        failures.push(
-          normalizeFailure(
-            exerciseId,
-            `${exerciseId}.instruction.${key}`,
-            "instruction_extra_key",
-            `instruction contains forbidden key '${key}'.`
-          )
-        );
-      }
-    }
-
-    if (!Object.prototype.hasOwnProperty.call(instruction, "short")) {
-      failures.push(
-        normalizeFailure(
-          exerciseId,
-          `${exerciseId}.instruction.short`,
+          `${exerciseId}.instruction_short_text`,
           "instruction_short_missing",
-          "instruction.short is required."
+          "Exercise is missing required instruction_short_text."
         )
       );
-    } else if (typeof instruction.short !== "string") {
+    } else if (typeof exercise.instruction_short_text !== "string") {
       failures.push(
         normalizeFailure(
           exerciseId,
-          `${exerciseId}.instruction.short`,
+          `${exerciseId}.instruction_short_text`,
           "instruction_short_not_string",
-          "instruction.short must be a string."
+          "instruction_short_text must be a string."
         )
       );
-    } else if (instruction.short.trim().length === 0) {
+    } else if (exercise.instruction_short_text.trim().length === 0) {
       failures.push(
         normalizeFailure(
           exerciseId,
-          `${exerciseId}.instruction.short`,
+          `${exerciseId}.instruction_short_text`,
           "instruction_short_empty",
-          "instruction.short must be non-empty."
+          "instruction_short_text must be non-empty."
         )
       );
     }
 
-    if (Object.prototype.hasOwnProperty.call(instruction, "detailed")) {
-      if (!Array.isArray(instruction.detailed)) {
-        failures.push(
-          normalizeFailure(
-            exerciseId,
-            `${exerciseId}.instruction.detailed`,
-            "instruction_detailed_not_array",
-            "instruction.detailed must be an array when present."
-          )
-        );
-      } else {
-        for (let index = 0; index < instruction.detailed.length; index += 1) {
-          const cue = instruction.detailed[index];
-          if (typeof cue !== "string") {
-            failures.push(
-              normalizeFailure(
-                exerciseId,
-                `${exerciseId}.instruction.detailed[${index}]`,
-                "instruction_detailed_item_not_string",
-                "Detailed instruction cue must be a string."
-              )
-            );
-            continue;
-          }
-
-          if (cue.trim().length === 0) {
-            failures.push(
-              normalizeFailure(
-                exerciseId,
-                `${exerciseId}.instruction.detailed[${index}]`,
-                "instruction_detailed_item_empty",
-                "Detailed instruction cue must be non-empty."
-              )
-            );
-          }
+    if (!Object.prototype.hasOwnProperty.call(exercise, "instruction_detail_text")) {
+      failures.push(
+        normalizeFailure(
+          exerciseId,
+          `${exerciseId}.instruction_detail_text`,
+          "instruction_detail_missing",
+          "Exercise is missing required instruction_detail_text."
+        )
+      );
+    } else if (!Array.isArray(exercise.instruction_detail_text)) {
+      failures.push(
+        normalizeFailure(
+          exerciseId,
+          `${exerciseId}.instruction_detail_text`,
+          "instruction_detail_not_array",
+          "instruction_detail_text must be an array."
+        )
+      );
+    } else if (exercise.instruction_detail_text.length === 0) {
+      failures.push(
+        normalizeFailure(
+          exerciseId,
+          `${exerciseId}.instruction_detail_text`,
+          "instruction_detail_empty",
+          "instruction_detail_text must be non-empty."
+        )
+      );
+    } else {
+      for (let index = 0; index < exercise.instruction_detail_text.length; index += 1) {
+        const cue = exercise.instruction_detail_text[index];
+        if (typeof cue !== "string" || cue.trim().length === 0) {
+          failures.push(
+            normalizeFailure(
+              exerciseId,
+              `${exerciseId}.instruction_detail_text[${index}]`,
+              "instruction_detail_item_invalid",
+              "Detailed instruction cue must be a non-empty string."
+            )
+          );
         }
       }
     }

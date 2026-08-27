@@ -93,7 +93,7 @@ test("S-REG-31 excludes the dangling front_plank_token reference and every remai
   assert.equal("front_plank_token" in exerciseTokenRegistry.entries, false);
 
   for (const [id, record] of Object.entries(exerciseTokenRegistry.entries)) {
-    assert.ok(record.movement_id in movementRegistry.entries, `${id}: movement_id ${record.movement_id} must exist`);
+    assert.ok(record.movement_pattern_id in movementRegistry.entries, `${id}: movement_pattern_id ${record.movement_pattern_id} must exist`);
     for (const activityId of record.activity_ids) {
       assert.ok(activityId in activityRegistry.entries, `${id}: activity_id ${activityId} must exist`);
     }

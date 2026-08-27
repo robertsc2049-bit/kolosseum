@@ -7,9 +7,9 @@ import type { Phase4Template } from "./types.js";
 import { loadRegistryBundle } from "../../registries/loadRegistryBundle.js";
 
 type ProgramTemplateEntry = {
-  id: string; // activity key
-  program_id: string;
-  intent: string[];
+  activity_id: string;
+  template_id: string;
+  exercise_eligibility: string[];
 };
 
 type ProgramTemplateRegistry = {
@@ -42,22 +42,22 @@ function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
     const row = entries[i];
     if (!isPlainObject(row)) die(`program.entries[${i}] not an object`);
 
-    const id = row["id"];
-    const program_id = row["program_id"];
-    const intent = row["intent"];
+    const activity_id = row["activity_id"];
+    const template_id = row["template_id"];
+    const exercise_eligibility = row["exercise_eligibility"];
 
-    if (typeof id !== "string" || id.trim() === "") die(`program.entries[${i}].id invalid`);
-    if (typeof program_id !== "string" || program_id.trim() === "") die(`program.entries[${i}].program_id invalid`);
-    if (!Array.isArray(intent)) die(`program.entries[${i}].intent must be array`);
+    if (typeof activity_id !== "string" || activity_id.trim() === "") die(`program.entries[${i}].activity_id invalid`);
+    if (typeof template_id !== "string" || template_id.trim() === "") die(`program.entries[${i}].template_id invalid`);
+    if (!Array.isArray(exercise_eligibility)) die(`program.entries[${i}].exercise_eligibility must be array`);
 
-    const intentOut: string[] = [];
-    for (let j = 0; j < intent.length; j++) {
-      const ex = intent[j];
-      if (typeof ex !== "string" || ex.trim() === "") die(`program.entries[${i}].intent[${j}] invalid`);
-      intentOut.push(ex);
+    const exerciseEligibilityOut: string[] = [];
+    for (let j = 0; j < exercise_eligibility.length; j++) {
+      const ex = exercise_eligibility[j];
+      if (typeof ex !== "string" || ex.trim() === "") die(`program.entries[${i}].exercise_eligibility[${j}] invalid`);
+      exerciseEligibilityOut.push(ex);
     }
 
-    out.push({ id: id.trim(), program_id: program_id.trim(), intent: intentOut });
+    out.push({ activity_id: activity_id.trim(), template_id: template_id.trim(), exercise_eligibility: exerciseEligibilityOut });
   }
 
   return { registry_id: "program", version, entries: out };
@@ -84,8 +84,8 @@ export function selectTemplate(activity: string): Phase4Template | null {
   if (!act) return null;
 
   const reg = loadProgramRegistry();
-  const hit = reg.entries.find((t) => t.id === act);
+  const hit = reg.entries.find((t) => t.activity_id === act);
   if (!hit) return null;
 
-  return { program_id: hit.program_id, intent: hit.intent };
+  return { program_id: hit.template_id, intent: hit.exercise_eligibility };
 }

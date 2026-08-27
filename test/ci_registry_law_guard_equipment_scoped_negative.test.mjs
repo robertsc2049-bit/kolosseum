@@ -17,7 +17,7 @@ import {
 
 import { ensureMovementEquipmentArray } from "../test_support/registry_mutators.mjs";
 
-test("CI: registry_law_guard hard-fails when token is valid in some movement but invalid for this exercise.pattern", () => {
+test("CI: registry_law_guard hard-fails when token is valid in some movement but invalid for this exercise.movement_pattern_id", () => {
   const tempRoot = stageTempRepoRoot();
 
   try {
@@ -63,8 +63,8 @@ test("CI: registry_law_guard hard-fails when token is valid in some movement but
     // - token exists in movement 'good'
     // - exercise claims movement 'bad'
     // - exercise equipment includes token => should fail
-    e0.pattern = badMovementId;
-    e0.equipment = [token];
+    e0.movement_pattern_id = badMovementId;
+    e0.equipment_requirements = [token];
 
     writeJsonUtf8Lf(exPath, ex);
 

@@ -60,26 +60,27 @@ test("S-REG-34 leaves every one of the 19 live exercise entries without a refere
   }
 });
 
-test("S-REG-34 declares an identical, optional, well-formed reference_media property in all 3 exercise schema files", () => {
-  for (const schemaPath of S_REG_34_SCHEMA_FILES) {
-    const schema = readJson(schemaPath);
-    const entrySchema = schema.properties.entries.additionalProperties;
-    const referenceMedia = entrySchema.properties.reference_media;
+test("S-REG-34 preserves optional reference_media through the canonical schema and compatibility references", () => {
+  const [canonicalSchemaPath, ...compatibilitySchemaPaths] = S_REG_34_SCHEMA_FILES;
+  const canonicalSchema = readJson(canonicalSchemaPath);
+  const entrySchema = canonicalSchema.properties.entries.additionalProperties;
+  const referenceMedia = entrySchema.properties.reference_media;
 
-    assert.ok(referenceMedia, `${schemaPath}: expected a reference_media property`);
-    assert.equal(referenceMedia.additionalProperties, false);
-    assert.deepEqual(referenceMedia.required, [...S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS]);
-    assert.equal(entrySchema.required.includes("reference_media"), false, `${schemaPath}: reference_media must stay optional`);
+  assert.ok(referenceMedia, `${canonicalSchemaPath}: expected a reference_media property`);
+  assert.equal(referenceMedia.additionalProperties, false);
+  assert.deepEqual(referenceMedia.required, [...S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS]);
+  assert.equal(entrySchema.required.includes("reference_media"), false, `${canonicalSchemaPath}: reference_media must stay optional`);
 
-    assert.equal(referenceMedia.properties.video_url.type, "string");
-    assert.equal(referenceMedia.properties.video_url.minLength, 1);
-    assert.equal(referenceMedia.properties.thumbnail_url.type, "string");
-    assert.deepEqual(referenceMedia.properties.source.enum, [...S_REG_34_REFERENCE_MEDIA_SOURCES]);
-  }
+  assert.equal(referenceMedia.properties.video_url.type, "string");
+  assert.equal(referenceMedia.properties.video_url.minLength, 1);
+  assert.equal(referenceMedia.properties.thumbnail_url.type, "string");
+  assert.deepEqual(referenceMedia.properties.source.enum, [...S_REG_34_REFERENCE_MEDIA_SOURCES]);
 
-  const [first, ...rest] = S_REG_34_SCHEMA_FILES.map((p) => JSON.stringify(readJson(p)));
-  for (const other of rest) {
-    assert.equal(other, first, "expected all 3 exercise schema files to remain byte-for-byte identical");
+  for (const schemaPath of compatibilitySchemaPaths) {
+    const compatibilitySchema = readJson(schemaPath);
+    assert.equal(compatibilitySchema.$ref, canonicalSchema.$id, `${schemaPath}: expected canonical exercise schema reference`);
+    assert.equal(compatibilitySchema["x-kolosseum-authority"], "compatibility_reference");
+    assert.equal(compatibilitySchema["x-kolosseum-canonical-authority"], "registries/final_registry_schema_manifest.json");
   }
 });
 

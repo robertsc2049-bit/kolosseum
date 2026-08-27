@@ -17,32 +17,32 @@ function buildRegistry() {
     entries: {
       back_squat: {
         exercise_id: "back_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
         rom: "full",
       },
       box_squat: {
         exercise_id: "box_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
         rom: "partial",
       },
       bench_press: {
         exercise_id: "bench_press",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
         rom: "full",
       },
       pin_press: {
         exercise_id: "pin_press",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
         rom: "partial",
       },
       deadlift: {
         exercise_id: "deadlift",
-        pattern: "hinge",
+        movement_pattern_id: "hinge",
         rom: "full",
       },
       partial_deadlift: {
         exercise_id: "partial_deadlift",
-        pattern: "hinge",
+        movement_pattern_id: "hinge",
         rom: "partial",
       },
     },
@@ -68,7 +68,7 @@ test("P74: fails when squat has no partial ROM variant", () => {
     result.problems.some(
       (problem) =>
         problem.type === "missing_partial_rom_variant" &&
-        problem.pattern === "squat",
+        problem.movement_pattern_id === "squat",
     ),
     true,
   );
@@ -85,7 +85,7 @@ test("P74: fails when horizontal_push has no partial ROM variant", () => {
     result.problems.some(
       (problem) =>
         problem.type === "missing_partial_rom_variant" &&
-        problem.pattern === "horizontal_push",
+        problem.movement_pattern_id === "horizontal_push",
     ),
     true,
   );
@@ -102,18 +102,18 @@ test("P74: fails when hinge has no partial ROM variant", () => {
     result.problems.some(
       (problem) =>
         problem.type === "missing_partial_rom_variant" &&
-        problem.pattern === "hinge",
+        problem.movement_pattern_id === "hinge",
     ),
     true,
   );
 });
 
-test("P74: fails when an exercise is missing pattern", () => {
+test("P74: fails when an exercise is missing movement_pattern_id", () => {
   const registry = buildRegistry();
-  delete registry.entries.back_squat.pattern;
+  delete registry.entries.back_squat.movement_pattern_id;
 
   const result = evaluatePartialRomCoverage(registry);
 
   assert.equal(result.ok, false);
-  assert.equal(result.problems[0].type, "missing_pattern");
+  assert.equal(result.problems[0].type, "missing_movement_pattern_id");
 });
