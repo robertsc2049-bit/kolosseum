@@ -101,15 +101,28 @@ test("the builder and session-execution areas declare exercise-info lookup funct
   assert.deepEqual(sessionFn.api_routes, ["/exercises/:exercise_id/content"]);
 });
 
-test("app.js wires an exercise-content cache, a shared render helper and both surfaces' toggle handlers", () => {
+test("app.js wires an exercise-content cache and shared render helper for the coach builder, and React wires its own toggle handler for the athlete session view", () => {
+  // DEV NOTE: the athlete session view's own exercise-howto toggle (the
+  // capture-phase elements.currentExercise listener this test used to
+  // check) moved to React with FULL-UI-15C session execution - see
+  // AthleteSessionExecutionPanel.tsx's <details onToggle={...}>, which
+  // needs no capture-phase workaround since React doesn't replace the DOM
+  // node on every re-render the way app.js's innerHTML-based rendering
+  // did. app.js's own cache/render helper (loadExerciseHowto/
+  // renderExerciseHowto) stay - the coach's template-builder info panel
+  // still calls them directly (see its own toggleTemplateWorkItemInfo
+  // mechanism below).
   const appJs = read("public/app/app.js");
+  const sessionPanel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
   assert.match(appJs, /const exerciseContentCache = new Map\(\)/u);
   assert.match(appJs, /function renderExerciseHowto\(/u);
   assert.match(appJs, /function loadExerciseHowto\(/u);
-  assert.match(appJs, /class="exercise-howto"/u);
-  assert.match(appJs, /elements\.currentExercise\.addEventListener\("toggle"/u);
   assert.match(appJs, /class="template-work-item-info"/u);
   assert.match(appJs, /function toggleTemplateWorkItemInfo\(/u);
+
+  assert.match(sessionPanel, /className="exercise-howto"/u);
+  assert.match(sessionPanel, /onToggle=\{\(event\) => \{/u);
+  assert.match(sessionPanel, /onOpen\(exerciseId\)/u);
 });
 
 test("renderExerciseHowto gates coaching cues and common faults on the athlete's declared instruction-density preference, but never for the coach's builder call site", () => {
@@ -127,6 +140,12 @@ test("renderExerciseHowto gates coaching cues and common faults on the athlete's
 
   // The coach's template-builder call site always sees full content.
   assert.match(appJs, /loadExerciseHowto\(exerciseId, panel, false\)/u);
-  // The athlete's session focus call site is unmodified, defaulting to true.
-  assert.match(appJs, /loadExerciseHowto\(details\.dataset\.exerciseId, details\.querySelector\(".exercise-howto-body"\)\)/u);
+  // The athlete's session focus panel is React now (see the previous test)
+  // and reads document.documentElement.dataset.instructionDensity directly
+  // in ExerciseHowtoBody, defaulting to "standard" the same way - it no
+  // longer calls into app.js's loadExerciseHowto() at all.
+  const sessionPanel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
+  assert.match(sessionPanel, /document\.documentElement\.dataset\.instructionDensity \|\| "standard"/u);
+  assert.match(sessionPanel, /density !== "minimal" && Array\.isArray\(content\?\.coaching_cues\)/u);
+  assert.match(sessionPanel, /density === "detailed" && Array\.isArray\(content\?\.common_faults\)/u);
 });

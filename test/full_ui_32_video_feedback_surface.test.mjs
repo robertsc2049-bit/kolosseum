@@ -13,17 +13,21 @@ const athleteRoutes = read("src/api/video_feedback.routes.ts");
 const coachRoutes = read("src/api/video_feedback_coach.routes.ts");
 const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
-const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const historyPanel = read("public/app-src/screens/athlete/AthleteHistoryPanel.tsx");
 const guard = read("ci/guards/full_ui_completion_guard.mjs");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 // DEV NOTE: the coach's video-feedback queue (list + detail + reply) moved
 // to React - see public/app-src/screens/coach/CoachVideoFeedbackQueuePanel.tsx
-// and its __tests__ file for behavioral coverage. The athlete's own
-// capture control (recordVideoFeedbackButton/uploadExerciseVideo) stays
-// legacy - it's a different surface (session-in-progress video capture,
-// not the coach's review queue).
+// and its __tests__ file for behavioral coverage. The athlete's own capture
+// control (recordVideoFeedbackButton/uploadExerciseVideo) also moved to
+// React as part of FULL-UI-15C session execution - see
+// public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx (markup)
+// and public/app-src/api/athleteSessionClient.ts (uploadSessionVideoFeedback,
+// the upload transport) - it's a different surface from the coach's review
+// queue (session-in-progress video capture), but both are React now.
+const sessionPanel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
+const sessionClient = read("public/app-src/api/athleteSessionClient.ts");
 const coachVideoFeedbackQueuePanel = read("public/app-src/screens/coach/CoachVideoFeedbackQueuePanel.tsx");
 const useCoachVideoFeedbackQueue = read("public/app-src/screens/coach/useCoachVideoFeedbackQueue.ts");
 
@@ -126,13 +130,13 @@ test("both video feedback route files are tracked by the FULL-UI completion guar
 });
 
 test("the athlete capture control, history section and coach queue exist as real controls", () => {
-  assert.match(indexHtml, /id="recordVideoFeedbackButton"/u);
-  assert.match(indexHtml, /id="videoFeedbackPanel"/u);
-  assert.match(indexHtml, /id="videoFeedbackFileInput"/u);
-  assert.match(indexHtml, /id="uploadVideoFeedbackButton"/u);
+  assert.match(sessionPanel, /id="recordVideoFeedbackButton"/u);
+  assert.match(sessionPanel, /session\.actionPanel === "video"/u);
+  assert.match(sessionPanel, /type="file"[\s\S]{0,40}accept="video\/mp4,video\/quicktime"/u);
+  assert.match(sessionPanel, /id="uploadVideoFeedbackButton"/u);
   assert.match(indexHtml, /id="coach-video-feedback-queue-root"/u);
 
-  assert.match(appJs, /async function uploadExerciseVideo/u);
+  assert.match(sessionClient, /export async function uploadSessionVideoFeedback/u);
   assert.match(coachVideoFeedbackQueuePanel, /export function CoachVideoFeedbackQueuePanel/u);
   assert.match(coachVideoFeedbackQueuePanel, /submission\.exercise_label/u);
   assert.match(useCoachVideoFeedbackQueue, /loadCoachVideoFeedbackQueue/u);
@@ -178,14 +182,17 @@ test("the FULL-UI-32 manifest area declares all five functions as implemented wi
     ]
   );
 
-  // NOTE: the coach-side queue/detail/reply functions' direct_test now
-  // points at their React component test (see the DEV NOTE above) - the
-  // athlete-side capture/history functions stay on this surface file.
+  // NOTE: the coach-side queue/detail/reply functions' direct_test points at
+  // their React component test (see the DEV NOTE above); video_submission_
+  // capture's direct_test now points at AthleteSessionExecutionPanel's own
+  // React component test (FULL-UI-15C session execution) since the capture
+  // control itself moved there - video_submission_history (the History
+  // screen's own video-submission card) stays on this surface file.
   const expectedDirectTest = {
     video_feedback_queue: "public/app-src/__tests__/CoachVideoFeedbackQueuePanel.test.tsx",
     video_feedback_detail: "public/app-src/__tests__/CoachVideoFeedbackQueuePanel.test.tsx",
     video_feedback_reply: "public/app-src/__tests__/CoachVideoFeedbackQueuePanel.test.tsx",
-    video_submission_capture: "test/full_ui_32_video_feedback_surface.test.mjs",
+    video_submission_capture: "public/app-src/__tests__/AthleteSessionExecutionPanel.test.tsx",
     video_submission_history: "test/full_ui_32_video_feedback_surface.test.mjs"
   };
 

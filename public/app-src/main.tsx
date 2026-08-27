@@ -15,6 +15,7 @@ import { AthleteSelfNutritionPanel } from "./screens/athlete/AthleteSelfNutritio
 import { AthleteSelfProgressPhotosPanel } from "./screens/athlete/AthleteSelfProgressPhotosPanel";
 import { AthleteSelfProgressInsightsPanel } from "./screens/athlete/AthleteSelfProgressInsightsPanel";
 import { AthleteSelfWeeklyCheckinsPanel } from "./screens/athlete/AthleteSelfWeeklyCheckinsPanel";
+import { AthleteSessionExecutionPanel } from "./screens/athlete/AthleteSessionExecutionPanel";
 import { AthleteTodayCreateSessionButton, AthleteTodayEventCard, AthleteTodaySessionCard } from "./screens/athlete/AthleteTodayPanel";
 import { AthleteDirectoryPanel } from "./screens/coach/AthleteDirectoryPanel";
 import {
@@ -96,3 +97,4 @@ mount("athlete-self-body-metrics-root", <AthleteSelfBodyMetricsPanel />);
 mount("athlete-self-nutrition-root", <AthleteSelfNutritionPanel />);
 mount("athlete-self-habits-root", <AthleteSelfHabitsPanel />);
 mount("athlete-self-progress-photos-root", <AthleteSelfProgressPhotosPanel />);
+mount("athlete-session-root", <AthleteSessionExecutionPanel />);

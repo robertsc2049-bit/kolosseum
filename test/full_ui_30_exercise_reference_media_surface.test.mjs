@@ -74,11 +74,21 @@ test("loadExerciseHowto fetches the reference-media route alongside exercise con
   assert.match(appJs, /referenceMedia(?:Result)?\?\.reference_media/u);
   assert.match(appJs, /referenceMedia\?\.video_url/u);
 
-  // Both existing call sites already route through loadExerciseHowto, so no
-  // additional call site needs to be added for this fix to reach the
-  // athlete's session focus panel and the coach's builder info panel.
+  // The coach's builder info panel still routes through app.js's
+  // loadExerciseHowto(). The athlete's session focus panel moved to React
+  // with FULL-UI-15C session execution - see
+  // AthleteSessionExecutionPanel.tsx, which fetches both routes itself via
+  // useAthleteSessionExecution.ts's loadHowto() and
+  // athleteSessionClient.ts's loadExerciseContent()/
+  // loadExerciseReferenceMedia() rather than calling into app.js.
   assert.match(appJs, /loadExerciseHowto\(exerciseId, panel, false\)/u);
-  assert.match(appJs, /loadExerciseHowto\(details\.dataset\.exerciseId, details\.querySelector\(".exercise-howto-body"\)\)/u);
+
+  const sessionPanel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
+  const sessionClient = read("public/app-src/api/athleteSessionClient.ts");
+  assert.match(sessionClient, /export async function loadExerciseContent/u);
+  assert.match(sessionClient, /export async function loadExerciseReferenceMedia/u);
+  assert.match(sessionPanel, /referenceMedia\?\.video_url/u);
+  assert.match(sessionPanel, /referenceMedia\?\.thumbnail_url/u);
 });
 
 test("the reference-video link and thumbnail are escaped before being inserted into innerHTML, and have their own styling", () => {
