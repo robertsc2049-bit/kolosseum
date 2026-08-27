@@ -1,0 +1,43 @@
+name: REG-FULL-01 CI diagnostic
+
+on:
+  push:
+    branches:
+      - automation/reg-full-01-registry-schema-closure
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 25.9.0
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Capture canonical CI failure
+        shell: bash
+        run: |
+          set +e
+          npm run ci > ci-output.log 2>&1
+          status=$?
+          {
+            echo "exit_status=$status"
+            echo "=== focused failure lines ==="
+            grep -En "::error|run_long_npm_script|test:ci command failed|AssertionError|ERR_|CI_[A-Z0-9_]+|not ok|FAILED|failure|Error:" ci-output.log | tail -n 160 || true
+            echo "=== final output ==="
+            tail -n 240 ci-output.log
+          } > ci-failure-summary.txt
+          exit 0
+      - name: Upload diagnostic summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: reg-full-01-ci-failure-summary
+          path: ci-failure-summary.txt
+          if-no-files-found: error
