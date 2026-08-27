@@ -15,6 +15,13 @@ const npmCommand = isWindows ? "npm.cmd" : "npm";
 
 applyDefaultNodeTestReporterEnv();
 
+function escapeWorkflowMessage(value) {
+  return String(value)
+    .replace(/%/gu, "%25")
+    .replace(/\r/gu, "%0D")
+    .replace(/\n/gu, "%0A");
+}
+
 function runCommand(executable, args, options = {}) {
   const child = spawnSync(executable, args, {
     cwd: process.cwd(),
@@ -23,11 +30,15 @@ function runCommand(executable, args, options = {}) {
     ...options
   });
 
+  const commandText = [executable, ...args].join(" ");
+
   if (child.error) {
+    console.error(`::error title=test:ci command error::${escapeWorkflowMessage(commandText)}: ${escapeWorkflowMessage(child.error.message)}`);
     throw child.error;
   }
 
   if (typeof child.status === "number" && child.status !== 0) {
+    console.error(`::error title=test:ci command failed::${escapeWorkflowMessage(commandText)} exited with code ${child.status}`);
     process.exit(child.status);
   }
 
