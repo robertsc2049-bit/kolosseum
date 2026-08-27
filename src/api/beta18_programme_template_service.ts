@@ -1694,7 +1694,7 @@ function normaliseTemplateStructure(
                               exercise.equipment_requirements
                             )
                               ? exercise
-                                  .equipment
+                                  .equipment_requirements
                                   .map(cleanString)
                                   .filter(Boolean)
                               : [];
@@ -2639,7 +2639,7 @@ export function listActiveExerciseOptions(): Readonly<{
                 entry.equipment_requirements
               )
                 ? entry
-                    .equipment
+                    .equipment_requirements
                     .map(cleanString)
                     .filter(Boolean)
                 : []
