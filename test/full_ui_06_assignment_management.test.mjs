@@ -14,22 +14,35 @@ const styles = read("public/app/styles.css");
 const service = read("src/api/beta19_coach_workspace_service.ts");
 const server = read("src/server.ts");
 const lifecycle = read("src/api/product_assignment.routes.ts");
+// DEV NOTE: the profile-embedded "Assign from athlete profile" panel moved
+// to React - see AthleteProfileAssignmentPanel.tsx/
+// useAthleteProfileAssignment.ts. The standalone, unreachable #view-assign
+// twin (assignmentCurrentState/assignmentHistoryList/assignmentCancelButton)
+// stays legacy dead code, out of scope for this migration.
+const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
+const assignmentHook = read("public/app-src/screens/coach/useAthleteProfileAssignment.ts");
 
 test("FULL-UI-06 exposes current assignment and immutable history controls", () => {
   for (const id of [
-    "athleteAssignmentCurrent",
-    "athleteAssignmentHistory",
-    "athleteAssignmentCancelButton",
     "assignmentCurrentState",
     "assignmentHistoryList",
     "assignmentCancelButton"
   ]) {
     assert.match(html, new RegExp(`id="${id}"`, "u"));
   }
+  assert.match(html, /id="athlete-profile-assignment-root"/u);
+  assert.doesNotMatch(html, /id="athleteAssignmentCurrent"/u);
 
   assert.match(application, /function renderAssignmentLifecycleSurfaces\(/u);
   assert.match(application, /function assignmentHistoryCards\(/u);
   assert.match(application, /assignmentStateBadge/u);
+
+  assert.match(assignmentPanel, /Current assignment/u);
+  assert.match(assignmentPanel, /Assignment history/u);
+  assert.match(assignmentPanel, /Cancel future assignment/u);
+  assert.match(assignmentHook, /function currentAssignmentOf\(/u);
+  assert.match(assignmentHook, /replaceAthleteAssignment\(/u);
+  assert.match(assignmentHook, /cancelAthleteAssignment\(/u);
 });
 
 test("FULL-UI-06 creates replace and cancel routes", () => {

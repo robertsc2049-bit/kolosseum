@@ -22,6 +22,7 @@ const inviteByEmailPanel = read("public/app-src/screens/coach/InviteAthleteByEma
 const broadcastPanel = read("public/app-src/screens/coach/CoachBroadcastPanel.tsx");
 const connectAthletePanel = read("public/app-src/screens/coach/ConnectAthletePanel.tsx");
 const athleteRelationshipDetailPanel = read("public/app-src/screens/coach/AthleteRelationshipDetailPanel.tsx");
+const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
 
 test("every focusable control gets a visible keyboard-only focus ring, distinct from mouse-hover styling", () => {
   assert.match(
@@ -157,13 +158,20 @@ test("leaving a form with unsaved changes - a coach note or a programme draft - 
 });
 
 test("destructive or state-changing actions require an explicit confirmation before the request is sent", () => {
-  // transitionCoachRelationship's window.confirm() moved to React with it -
-  // see AthleteRelationshipDetailPanel.tsx below.
+  // transitionCoachRelationship's and recordAthleteProfileAssignment's
+  // window.confirm()/globalThis.confirm() calls moved to React with them -
+  // see AthleteRelationshipDetailPanel.tsx/AthleteProfileAssignmentPanel.tsx
+  // below. cancelAssignmentForAthlete's own confirm() stays in app.js - it's
+  // shared with the still-legacy standalone #view-assign twin.
   const confirmCallCount = [...js.matchAll(/globalThis\.confirm\(|window\.confirm\(/gu)].length;
-  assert.ok(confirmCallCount >= 8, `expected at least 8 confirm() gates, found ${confirmCallCount}`);
+  assert.ok(confirmCallCount >= 7, `expected at least 7 confirm() gates, found ${confirmCallCount}`);
 
   assert.match(athleteRelationshipDetailPanel, /window\.confirm\(/u);
   assert.match(athleteRelationshipDetailPanel, /Historical records will be preserved/u);
+
+  // Both the assign/replace submit and the cancel action confirm first.
+  const assignmentPanelConfirmCount = [...assignmentPanel.matchAll(/window\.confirm\(confirmation\)/gu)].length;
+  assert.equal(assignmentPanelConfirmCount, 2);
 
   // Account closure and data-deletion use a stronger typed-word confirmation
   // rather than a dismissable browser confirm() dialog.

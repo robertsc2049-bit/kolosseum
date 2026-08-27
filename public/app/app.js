@@ -32,7 +32,6 @@ const DEFAULT_STATE = Object.freeze({
   coachMessageUnreadByAthlete: {},
   coachAssignments: [],
   coachEvents: [],
-  athleteEventLinks: {},
   standaloneEventLibrary: [],
   templateEventBindingStatus: null,
   athleteToday: null,
@@ -174,17 +173,6 @@ const elements = {
   eventPreviewCountdown: document.getElementById("eventPreviewCountdown"),
   eventPreviewWeeks: document.getElementById("eventPreviewWeeks"),
   refreshEventsButton: document.getElementById("refreshEventsButton"),
-  athleteAssignmentPanel: document.getElementById("athleteAssignmentPanel"),
-  athleteAssignmentForm: document.getElementById("athleteAssignmentForm"),
-  athleteAssignmentEvent: document.getElementById("athleteAssignmentEvent"),
-  athleteAssignmentTemplate: document.getElementById("athleteAssignmentTemplate"),
-  athleteAssignmentRequirements: document.getElementById("athleteAssignmentRequirements"),
-  athleteAssignmentButton: document.getElementById("athleteAssignmentButton"),
-  athleteAssignmentResult: document.getElementById("athleteAssignmentResult"),
-  athleteAssignmentCurrent: document.getElementById("athleteAssignmentCurrent"),
-  athleteAssignmentHistory: document.getElementById("athleteAssignmentHistory"),
-  athleteAssignmentCancelButton: document.getElementById("athleteAssignmentCancelButton"),
-  athleteEventLinks: document.getElementById("athleteEventLinks"),
   athleteDetailHistoryPanel: document.getElementById("athleteDetailHistoryPanel"),
   athleteDetailRefreshButton: document.getElementById("athleteDetailRefreshButton"),
   athleteDetailStatus: document.getElementById("athleteDetailStatus"),
@@ -449,9 +437,6 @@ function loadState() {
       coachAthletes: Array.isArray(parsed.coachAthletes) ? parsed.coachAthletes : [],
       coachAssignments: Array.isArray(parsed.coachAssignments) ? parsed.coachAssignments : [],
       coachEvents: Array.isArray(parsed.coachEvents) ? parsed.coachEvents : [],
-      athleteEventLinks: parsed.athleteEventLinks && typeof parsed.athleteEventLinks === "object"
-        ? parsed.athleteEventLinks
-        : {},
       coachMessageUnreadByAthlete: parsed.coachMessageUnreadByAthlete && typeof parsed.coachMessageUnreadByAthlete === "object"
         ? parsed.coachMessageUnreadByAthlete
         : {},
@@ -2674,13 +2659,14 @@ function renderAthleteProfileEditor() {
   elements.athleteProfilePanel.hidden = false;
   elements.athleteProfileHeading.textContent = athlete.displayName;
   elements.athleteProfileActivity.textContent = `${titleCase(athlete.activityId)} · ${athlete.userId}`;
-  // NOTE: the preferred-unit/rounding/bodyweight/benchmark editor below this
-  // header is React-owned (public/app-src/screens/coach/AthleteStrengthProfilePanel.tsx,
-  // mounted into #athlete-profile-editor-root) - it independently fetches
-  // and saves this athlete's strength profile. See openAthleteProfile's
+  // NOTE: the preferred-unit/rounding/bodyweight/benchmark editor and the
+  // assignment-from-profile form below this header are both React-owned
+  // now (public/app-src/screens/coach/AthleteStrengthProfilePanel.tsx/
+  // AthleteProfileAssignmentPanel.tsx, mounted into
+  // #athlete-profile-editor-root/#athlete-profile-assignment-root) - each
+  // independently fetches and saves its own data. See openAthleteProfile's
   // kolosseum:coach-athlete-profile-opened dispatch and this file's
   // kolosseum:coach-athlete-profile-updated listener for the two-way bridge.
-  renderAthleteProfileAssignment();
   renderAthleteDetail();
   elements.athleteProfilePanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -3332,12 +3318,6 @@ async function openAthleteProfile(athleteUserId) {
   );
 
   await Promise.all([
-    refreshAthleteEventLinks(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    ),
     refreshAthleteDetail(
       athleteUserId,
       {
@@ -4682,7 +4662,6 @@ async function cancelAssignmentForAthlete(athleteUserId, source = "profile") {
 
     await Promise.all([
       refreshCoachAssignments({ quiet: true }),
-      refreshAthleteEventLinks(athleteUserId, { quiet: true }).catch(() => []),
       refreshAthleteDetail(athleteUserId, { quiet: true }).catch(() => null)
     ]);
 
@@ -8910,27 +8889,6 @@ async function refreshCoachEvents(options = {}) {
   }
 }
 
-async function refreshAthleteEventLinks(athleteUserId, options = {}) {
-  if (!athleteUserId || !state.profile?.coachUserId) return [];
-  if (!options.quiet) showBusy("Loading athlete event links…");
-
-  try {
-    const response = await api(
-      "GET",
-      `/coach-workspace/athlete-event-links?coach_user_id=${encodeURIComponent(state.profile.coachUserId)}&athlete_user_id=${encodeURIComponent(athleteUserId)}`
-    );
-
-    state.athleteEventLinks[athleteUserId] = Array.isArray(response.links)
-      ? response.links
-      : [];
-    saveState();
-    return state.athleteEventLinks[athleteUserId];
-  }
-  finally {
-    if (!options.quiet) hideBusy();
-  }
-}
-
 // NOTE: the event library (metric counts + event card list) moved to
 // React - see public/app-src/screens/coach/CoachEventsLibraryPanel.tsx,
 // mounted into #coach-events-metrics-root and #coach-events-list-root.
@@ -8980,212 +8938,18 @@ async function createCoachEvent(event) {
   }
 }
 
-function selectedAthleteProfileTemplate() {
-  return state.coachTemplates.find(
-    (template) => template.template_id === elements.athleteAssignmentTemplate.value
-  ) ?? null;
-}
-
-function selectedAthleteProfileEvent() {
-  return state.coachEvents.find(
-    (eventRecord) => eventRecord.event_id === elements.athleteAssignmentEvent.value
-  ) ?? null;
-}
-
-function renderAthleteProfileAssignmentRequirements() {
-  const athlete = state.coachAthletes.find(
-    (entry) => entry.userId === state.selectedCoachAthleteId
-  );
-  const template = selectedAthleteProfileTemplate();
-  const eventRecord = selectedAthleteProfileEvent();
-
-  if (!athlete || !template) {
-    elements.athleteAssignmentRequirements.className = "assignment-requirements neutral";
-    elements.athleteAssignmentRequirements.textContent = "Select an active programme.";
-    elements.athleteAssignmentButton.disabled = true;
-    return false;
-  }
-
-  if (template.activity_id !== athlete.activityId) {
-    elements.athleteAssignmentRequirements.className = "assignment-requirements warning";
-    elements.athleteAssignmentRequirements.textContent = "The programme activity does not match this athlete.";
-    elements.athleteAssignmentButton.disabled = true;
-    return false;
-  }
-
-  if (eventRecord && eventRecord.activity_id !== athlete.activityId) {
-    elements.athleteAssignmentRequirements.className = "assignment-requirements warning";
-    elements.athleteAssignmentRequirements.textContent = "The event activity does not match this athlete.";
-    elements.athleteAssignmentButton.disabled = true;
-    return false;
-  }
-
-  if (eventRecord) {
-    const compile = coachEventCompile(eventRecord) ?? {};
-    if (Number(template.week_count) !== Number(compile.required_week_count)) {
-      elements.athleteAssignmentRequirements.className = "assignment-requirements warning";
-      elements.athleteAssignmentRequirements.textContent = `Programme has ${Number(template.week_count ?? 0)} weeks; this event calendar requires ${Number(compile.required_week_count ?? 0)} weeks.`;
-      elements.athleteAssignmentButton.disabled = true;
-      return false;
-    }
-  }
-
-  const required = requiredOneRmExerciseIds(template);
-  const profile = profileForAthlete(athlete.userId);
-  const current = currentProfileBenchmarks(profile);
-  const missing = required.filter((exerciseId) => !current.has(exerciseId));
-
-  if (missing.length > 0) {
-    elements.athleteAssignmentRequirements.className = "assignment-requirements warning";
-    elements.athleteAssignmentRequirements.innerHTML = `Missing current strength references: <strong>${missing.map((exerciseId) => escapeHtml(exerciseDisplayName(exerciseId))).join(", ")}</strong>.`;
-    elements.athleteAssignmentButton.disabled = true;
-    return false;
-  }
-
-  elements.athleteAssignmentRequirements.className = "assignment-requirements complete";
-  elements.athleteAssignmentRequirements.textContent = eventRecord
-    ? `Ready to assign ${template.template_name} and link ${coachEventPlan(eventRecord)?.event_name ?? "the event"}.`
-    : `Ready to assign ${template.template_name} without an event link.`;
-  elements.athleteAssignmentButton.disabled = false;
-  return true;
-}
-
-function renderAthleteProfileAssignment() {
-  const athlete = state.coachAthletes.find(
-    (entry) => entry.userId === state.selectedCoachAthleteId
-  );
-
-  if (!athlete) {
-    elements.athleteAssignmentPanel.hidden = true;
-    return;
-  }
-
-  elements.athleteAssignmentPanel.hidden = false;
-
-  const eventValue = elements.athleteAssignmentEvent.value;
-  const templateValue = elements.athleteAssignmentTemplate.value;
-  const events = state.coachEvents.filter(
-    (eventRecord) => eventRecord.event_status === "active" && eventRecord.activity_id === athlete.activityId
-  );
-  const templates = activeCoachTemplates(athlete.activityId);
-
-  elements.athleteAssignmentEvent.innerHTML = [
-    '<option value="">No event link</option>',
-    ...events.map((eventRecord) => {
-      const plan = coachEventPlan(eventRecord) ?? {};
-      return `<option value="${escapeHtml(eventRecord.event_id)}">${escapeHtml(plan.event_name ?? "Event")} · ${escapeHtml(formatDate(plan.event_date))}</option>`;
-    })
-  ].join("");
-
-  elements.athleteAssignmentTemplate.innerHTML = templates.length
-    ? templates.map((template) => `<option value="${escapeHtml(template.template_id)}">${escapeHtml(template.template_name)} · v${Number(template.template_version)}</option>`).join("")
-    : '<option value="">No active programmes for this activity</option>';
-
-  if (events.some((eventRecord) => eventRecord.event_id === eventValue)) {
-    elements.athleteAssignmentEvent.value = eventValue;
-  }
-  if (templates.some((template) => template.template_id === templateValue)) {
-    elements.athleteAssignmentTemplate.value = templateValue;
-  }
-
-  elements.athleteAssignmentTemplate.disabled = templates.length === 0;
-
-  const links = Array.isArray(state.athleteEventLinks[athlete.userId])
-    ? state.athleteEventLinks[athlete.userId]
-    : [];
-
-  elements.athleteEventLinks.innerHTML = links.length
-    ? links.map((link) => {
-        const eventRecord = link.event && typeof link.event === "object" ? link.event : {};
-        const plan = coachEventPlan(eventRecord) ?? {};
-        const template = state.coachTemplates.find((entry) => entry.template_id === link.template_id);
-        return `
-          <article class="record-card athlete-event-link-card">
-            <div>
-              <p class="eyebrow">Current event link</p>
-              <h3>${escapeHtml(plan.event_name ?? "Event")}</h3>
-              <p>${escapeHtml(formatDate(plan.event_date))}${plan.location ? ` · ${escapeHtml(plan.location)}` : ""}</p>
-            </div>
-            <div class="record-meta">
-              <strong>${escapeHtml(countdownLabel(plan.event_date))}</strong>
-              <span class="badge active">${escapeHtml(template?.template_name ?? titleCase(link.template_id ?? "programme"))}</span>
-            </div>
-          </article>
-        `;
-      }).join("")
-    : '<div class="empty-state compact-empty"><p>The current assignment has no event link.</p></div>';
-
-  renderAthleteProfileAssignmentRequirements();
-  renderAssignmentLifecycleSurfaces();
-}
-
-async function recordAthleteProfileAssignment(event) {
-  event.preventDefault();
-  const athlete = state.coachAthletes.find(
-    (entry) => entry.userId === state.selectedCoachAthleteId
-  );
-  const template = selectedAthleteProfileTemplate();
-  const eventRecord = selectedAthleteProfileEvent();
-
-  if (!athlete || !template || !renderAthleteProfileAssignmentRequirements()) {
-    throw new Error("Complete the athlete assignment requirements first.");
-  }
-
-  const current = currentAssignmentForAthlete(athlete.userId);
-  const eventPlan = coachEventPlan(eventRecord);
-  const confirmation = current
-    ? `Replace ${assignmentTemplateName(current)} version ${assignmentTemplateVersion(current)} with ${template.template_name} version ${Number(template.template_version)}${eventPlan?.event_name ? ` linked to ${eventPlan.event_name}` : " without an event link"}? Existing compiled sessions remain unchanged.`
-    : `Assign ${template.template_name} version ${Number(template.template_version)}${eventPlan?.event_name ? ` and link ${eventPlan.event_name}` : " without an event link"}?`;
-
-  if (!globalThis.confirm(confirmation)) return;
-
-  elements.athleteAssignmentButton.disabled = true;
-  showBusy(current ? "Replacing programme assignment…" : "Assigning programme…");
-
-  try {
-    const payload = {
-      request_id: createId(current ? "assignment_replace" : "assignment_request"),
-      requested_at_iso8601: nowIso(),
-      coach_user_id: state.profile.coachUserId,
-      athlete_user_id: athlete.userId,
-      template_id: template.template_id,
-      activity_id: athlete.activityId,
-      event_id: eventRecord?.event_id ?? ""
-    };
-
-    const response = current
-      ? await api(
-          "POST",
-          `/coach-workspace/athlete-assignment/${encodeURIComponent(current.assignmentId)}/replace`,
-          payload
-        )
-      : await api("POST", "/coach-workspace/athlete-assignment", payload);
-
-    await Promise.all([
-      refreshCoachAssignments({ quiet: true }),
-      refreshCoachEvents({ quiet: true }),
-      refreshAthleteEventLinks(athlete.userId, { quiet: true }),
-      refreshAthleteDetail(athlete.userId, { quiet: true }).catch(() => null)
-    ]);
-
-    const preservedCount = Number(response.preserved_session_count ?? 0);
-    elements.athleteAssignmentResult.hidden = false;
-    elements.athleteAssignmentResult.textContent = current
-      ? `${template.template_name} version ${Number(template.template_version)} replaced the current assignment. ${preservedCount} existing session${preservedCount === 1 ? "" : "s"} remain attached to the earlier assignment.`
-      : response.event_link
-        ? `${template.template_name} version ${Number(template.template_version)} assigned and linked to ${eventPlan?.event_name ?? "the event"}.`
-        : `${template.template_name} version ${Number(template.template_version)} assigned without an event link.`;
-
-    renderCoachWorkspace();
-    renderAthleteProfileAssignment();
-    showNotice(current ? "Athlete assignment replaced." : "Athlete assignment recorded.");
-  }
-  finally {
-    elements.athleteAssignmentButton.disabled = false;
-    hideBusy();
-  }
-}
-
+// DEV NOTE: the assignment-from-profile form (selectedAthleteProfileTemplate/
+// Event, renderAthleteProfileAssignmentRequirements,
+// renderAthleteProfileAssignment, recordAthleteProfileAssignment) moved to
+// React - see public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx
+// and useAthleteProfileAssignment.ts, mounted into
+// #athlete-profile-assignment-root. The shared helpers below
+// (assignmentRecordsForAthlete/currentAssignmentForAthlete/
+// assignmentTemplateName etc., renderAssignmentLifecycleSurfaces,
+// cancelAssignmentForAthlete) stay here untouched - the standalone,
+// unreachable #view-assign twin still calls them (harmlessly, since its own
+// elements.assignment* targets are real but never-shown DOM), and Coach
+// Dashboard reads the same state.coachAssignments they populate.
 
 function currentTermsAvailable() {
   return Boolean(
@@ -10293,15 +10057,6 @@ elements.templateBlocks.addEventListener("click", (event) => {
 });
 
 elements.closeAthleteProfileButton.addEventListener("click", closeAthleteProfile);
-
-elements.athleteAssignmentEvent.addEventListener("change", renderAthleteProfileAssignmentRequirements);
-  elements.athleteAssignmentTemplate.addEventListener("change", renderAthleteProfileAssignmentRequirements);
-  elements.athleteAssignmentForm.addEventListener("submit", (event) => {
-    recordAthleteProfileAssignment(event).catch(handleError);
-  });
-  elements.athleteAssignmentCancelButton.addEventListener("click", () => {
-    cancelAssignmentForAthlete(state.selectedCoachAthleteId, "profile").catch(handleError);
-  });
 
 elements.assignmentAthlete.addEventListener("change", () => {
   renderAssignmentTemplateOptions();
