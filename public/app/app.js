@@ -143,7 +143,6 @@ const elements = {
   coachAthleteCount: document.getElementById("coachAthleteCount"),
   coachAssignmentCount: document.getElementById("coachAssignmentCount"),
   coachArtefactCount: document.getElementById("coachArtefactCount"),
-  coachOverviewAthletes: document.getElementById("coachOverviewAthletes"),
   coachOpenSessionCount: document.getElementById("coachOpenSessionCount"),
   coachCompletedSessionCount: document.getElementById("coachCompletedSessionCount"),
   coachUpcomingEventCount: document.getElementById("coachUpcomingEventCount"),
@@ -2051,34 +2050,6 @@ function mapCoachAthleteDirectoryRow(raw, existing = null) {
   };
 }
 
-function relationshipEffectiveState(entry) {
-  if (entry?.relationshipExpired === true) {
-    return "expired";
-  }
-
-  const stored = String(
-    entry?.relationshipState ??
-    entry?.relationship?.relationship_state ??
-    "unknown"
-  ).toLowerCase();
-
-  const expiresAt = String(
-    entry?.relationship?.expires_at_iso8601 ??
-    ""
-  );
-
-  if (
-    stored === "invited" &&
-    expiresAt &&
-    Number.isFinite(Date.parse(expiresAt)) &&
-    Date.parse(expiresAt) <= Date.now()
-  ) {
-    return "expired";
-  }
-
-  return stored;
-}
-
 async function refreshCoachRelationships(
   options = {}
 ) {
@@ -2325,20 +2296,6 @@ async function refreshCoachAssignments(options = {}) {
   }
 }
 
-async function refreshCoachAthleteProfiles() {
-  const outcomes = await Promise.allSettled(
-    state.coachAthletes.map((athlete) =>
-      loadAthleteProfile(athlete.userId, { quiet: true })
-    )
-  );
-
-  for (const outcome of outcomes) {
-    if (outcome.status === "rejected") {
-      console.error(outcome.reason);
-    }
-  }
-}
-
 // DEV NOTE: the invite-by-email form (FULL-UI-24), broadcast form and
 // manual "Add athlete" connect form all moved to React - see
 // public/app-src/screens/coach/InviteAthleteByEmailPanel.tsx/
@@ -2411,135 +2368,6 @@ function profileRecordToDraft(profile, athlete) {
         }))
       : []
   };
-}
-
-function profileForAthlete(athleteUserId) {
-  const profile = state.athleteProfiles?.[athleteUserId];
-  return profile && typeof profile === "object" ? profile : null;
-}
-
-function currentProfileBenchmarks(
-  profile,
-  asOfDate =
-    new Date()
-      .toISOString()
-      .slice(0, 10)
-) {
-  const authoritativeCurrent =
-    Array.isArray(
-      profile
-        ?.strength_reference_lifecycle
-        ?.current
-    )
-      ? profile
-          .strength_reference_lifecycle
-          .current
-      : null;
-
-  if (authoritativeCurrent) {
-    return new Map(
-      authoritativeCurrent.map(
-        (reference) => [
-          String(
-            reference.exercise_id ??
-            ""
-          ),
-          {
-            benchmark_id:
-              reference.reference_id,
-            exercise_id:
-              reference.exercise_id,
-            value:
-              reference.source_value,
-            unit:
-              reference.source_unit,
-            basis:
-              reference.source_type,
-            effective_date:
-              reference.effective_date,
-            source_note:
-              reference.source_note ??
-              "",
-            replaces_reference_id:
-              reference
-                .replaces_reference_id ??
-              ""
-          }
-        ]
-      )
-    );
-  }
-
-  const current =
-    new Map();
-
-  const benchmarks =
-    Array.isArray(
-      profile?.benchmarks
-    )
-      ? profile.benchmarks
-      : [];
-
-  for (
-    const benchmark of benchmarks
-  ) {
-    const exerciseId =
-      String(
-        benchmark
-          ?.exercise_id ??
-        ""
-      );
-
-    const effectiveDate =
-      String(
-        benchmark
-          ?.effective_date ??
-        ""
-      );
-
-    if (
-      !exerciseId ||
-      !effectiveDate ||
-      effectiveDate > asOfDate
-    ) {
-      continue;
-    }
-
-    const existing =
-      current.get(
-        exerciseId
-      );
-
-    const candidateKey =
-      `${effectiveDate}::${String(
-        benchmark
-          ?.benchmark_id ??
-        ""
-      )}`;
-
-    const existingKey =
-      existing
-        ? `${String(
-            existing.effective_date ??
-            ""
-          )}::${String(
-            existing.benchmark_id ??
-            ""
-          )}`
-        : "";
-
-    if (
-      !existing ||
-      candidateKey > existingKey
-    ) {
-      current.set(
-        exerciseId,
-        benchmark
-      );
-    }
-  }
-
-  return current;
 }
 
 function strengthSourceLabel(
@@ -3040,69 +2868,6 @@ function exerciseDisplayName(exerciseId) {
 // state.coachAssignments (which it still populates) is read directly by
 // the React AthleteProfileAssignmentPanel and by the Coach Dashboard.
 
-function coachAthleteCard(athlete) {
-  const assignments = state.coachAssignments.filter(
-    (assignment) => assignment.athleteUserId === athlete.userId
-  ).length;
-  const profile = profileForAthlete(athlete.userId);
-  const referenceCount = currentProfileBenchmarks(profile).size;
-
-  return `
-    <article class="record-card athlete-record-card" data-athlete-id="${escapeHtml(athlete.userId)}">
-      <div>
-        <h3>${escapeHtml(athlete.displayName)}</h3>
-        <p>${escapeHtml(titleCase(athlete.activityId))}</p>
-      </div>
-      <div class="record-meta athlete-record-meta">
-        <span class="badge complete">Connected</span>
-        <span class="badge ${profile ? "active" : "neutral"}">${profile ? `${referenceCount} strength reference${referenceCount === 1 ? "" : "s"}` : "Profile not recorded"}</span>
-        <span class="badge neutral">${assignments} assignment${assignments === 1 ? "" : "s"}</span>
-        <button class="button secondary small-button open-athlete-profile" type="button" data-athlete-id="${escapeHtml(athlete.userId)}">Open profile</button>
-      </div>
-    </article>
-  `;
-}
-
-function bindCoachAthleteActions() {
-  for (
-    const container of [
-      elements.coachOverviewAthletes,
-      elements.athleteRoster
-    ]
-  ) {
-    if (!container) continue;
-
-    for (
-      const button of
-      container.querySelectorAll(
-        ".open-athlete-profile"
-      )
-    ) {
-      if (
-        button.dataset.profileActionBound ===
-        "true"
-      ) {
-        continue;
-      }
-
-      button.dataset.profileActionBound =
-        "true";
-
-      button.addEventListener(
-        "click",
-        () => {
-          setView("athletes");
-
-          openAthleteProfile(
-            button.dataset.athleteId
-          ).catch(handleError);
-        }
-      );
-    }
-  }
-}
-
-
 // FULL-UI-03 factual coach dashboard.
 // Dashboard records are derived from server-authoritative coach,
 // assignment, event and artefact responses. No readiness,
@@ -3196,18 +2961,6 @@ function dashboardProgrammeName(assignment) {
     templateId ??
     "Programme"
   );
-}
-
-function dashboardEmptyState(
-  heading,
-  detail
-) {
-  return `
-    <div class="empty-state dashboard-empty-state">
-      <h4>${escapeHtml(heading)}</h4>
-      <p>${escapeHtml(detail)}</p>
-    </div>
-  `;
 }
 
 function bindCoachDashboardActions() {
@@ -3373,37 +3126,14 @@ function renderCoachDashboard() {
       upcomingEvents.length
     );
 
-  const pendingRelationshipInvitations =
-    (
-      Array.isArray(state.coachRelationships)
-        ? state.coachRelationships
-        : []
-    ).filter(
-      (entry) =>
-        relationshipEffectiveState(entry) === "invited"
-    );
-
-  const pendingRelationshipsSummary = `
-    <p class="dashboard-pending-summary">
-      ${
-        pendingRelationshipInvitations.length
-          ? `${pendingRelationshipInvitations.length} pending athlete invitation${pendingRelationshipInvitations.length === 1 ? "" : "s"} awaiting acceptance.`
-          : "No pending athlete invitations."
-      }
-    </p>
-  `;
-
-  elements.coachOverviewAthletes.innerHTML =
-    pendingRelationshipsSummary +
-    (state.coachAthletes.length
-      ? state.coachAthletes
-          .slice(0, 6)
-          .map(coachAthleteCard)
-          .join("")
-      : dashboardEmptyState(
-          "No connected athletes",
-          "Connect an athlete to begin programme assignment and session review."
-        ));
+  // NOTE: the "Connected athletes" panel moved to React (see
+  // public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx, mounted
+  // into #coach-overview-athletes-root) - it independently fetches
+  // GET /coach-workspace/relationships and one
+  // GET /coach-workspace/athlete-strength-profile per displayed athlete,
+  // and refetches on the kolosseum:coach-overview-changed dispatch just
+  // below. `state.coachAthletes.length` above is still used for the
+  // coachAthleteCount metric.
 
   // NOTE: the "Open sessions"/"Completed since review" panels moved to
   // React (see public/app-src/screens/coach/
@@ -3426,13 +3156,6 @@ function renderCoachDashboard() {
   document.dispatchEvent(
     new CustomEvent("kolosseum:coach-overview-changed")
   );
-
-  if (
-    typeof bindCoachAthleteActions ===
-    "function"
-  ) {
-    bindCoachAthleteActions();
-  }
 
   bindCoachDashboardActions();
 
@@ -3628,13 +3351,6 @@ async function refreshCoachDashboard(
 }
 
 function renderCoachWorkspace() {
-  const cards =
-    state.coachAthletes.length
-      ? state.coachAthletes
-          .map(coachAthleteCard)
-          .join("")
-      : '<div class="empty-state"><p>No accepted athletes are connected yet.</p></div>';
-
   elements.coachAthleteCount.textContent =
     String(
       state.coachAthletes.length
@@ -3650,11 +3366,17 @@ function renderCoachWorkspace() {
       state.coachArtefactCount
     );
 
-  elements.coachOverviewAthletes.innerHTML =
-    cards;
-
   renderCoachAthleteDirectory();
-  bindCoachAthleteActions();
+
+  // NOTE: the "Connected athletes" dashboard panel is React now (see
+  // public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx) - notify
+  // it the same way renderCoachDashboard() does, since this function is
+  // also called after a relationship mutation and after an athlete
+  // strength-profile save (kolosseum:coach-athlete-profile-updated), both
+  // of which can change what that panel shows.
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:coach-overview-changed")
+  );
 
   if (
     state.selectedCoachAthleteId &&
@@ -8248,8 +7970,6 @@ async function enterApplication() {
         refreshCoachAthletes({ quiet: true }),
         refreshCoachAssignments({ quiet: true })
       ]);
-
-      await refreshCoachAthleteProfiles();
     }
     catch (error) {
       showNotice(error.message, "error");
@@ -9028,11 +8748,13 @@ document.addEventListener(
 
 // DEV NOTE: React owns the athlete directory now (see
 // public/app-src/screens/coach/AthleteDirectoryPanel.tsx) - its "Open
-// profile" button can't reuse bindCoachAthleteActions() (that function
-// binds listeners imperatively after each legacy render and never
-// re-runs against React output), so it dispatches this event instead.
-// Behaviour is otherwise identical to what that binder's click handler
-// used to do. CoachOverviewAssignmentsPanel.tsx's "Open profile" button
+// profile" button can't reuse the old bindCoachAthleteActions() (a
+// function that bound listeners imperatively after each legacy render and
+// never re-ran against React output, since fully removed once the
+// dashboard's "Connected athletes" card - its last remaining consumer -
+// also moved to React), so it dispatches this event instead. Behaviour is
+// otherwise identical to what that binder's click handler used to do.
+// CoachOverviewAssignmentsPanel.tsx's "Open profile" button
 // (the dashboard's action-queue card) dispatches this same event with an
 // extra focus_assignment flag, preserving the scroll-to-assignment-panel
 // nicety bindCoachDashboardActions()'s removed "open-assignment" branch

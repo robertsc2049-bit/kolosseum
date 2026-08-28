@@ -225,8 +225,12 @@ test(
       /Select an accepted connected athlete/u
     );
 
+    // relationshipEffectiveState() itself moved to React with the
+    // dashboard's "Connected athletes" card, the app.js copy's last
+    // remaining consumer - AthleteDirectoryPanel.tsx already has its own
+    // independent copy (predating this migration).
     assert.match(
-      application,
+      athleteDirectoryPanel,
       /relationshipEffectiveState/u
     );
   }

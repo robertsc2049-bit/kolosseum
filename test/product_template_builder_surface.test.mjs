@@ -171,7 +171,6 @@ test("coach UI exposes one coherent athlete, programme, assignment and review wo
   assert.match(html, /id="view-review"/u);
   assert.match(js, /refreshCoachAthletes/u);
   assert.match(js, /refreshCoachAssignments/u);
-  assert.match(js, /refreshCoachAthleteProfiles/u);
   assert.match(js, /openAthleteProfile/u);
   assert.match(js, /addTemplateBlock/u);
   assert.match(js, /duplicateTemplateBlock/u);
