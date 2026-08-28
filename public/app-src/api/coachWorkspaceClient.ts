@@ -116,6 +116,15 @@ export async function loadCoachEventsList(coachUserId: string): Promise<JsonReco
   return Array.isArray(response.events) ? (response.events as JsonRecord[]) : [];
 }
 
+// DEV NOTE: the "Compile event" form - see useCoachEventCreate.ts/
+// CoachEventCreatePanel.tsx. Session-authenticated like every other write
+// in this file (coach_user_id in the payload is overridden server-side,
+// same as createAthleteAssignment above - sent anyway for parity with the
+// legacy payload shape createCoachEvent()'s exactKeys check expects).
+export function createCoachEvent(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/coach-workspace/events", input, csrfToken);
+}
+
 // DEV NOTE: the coach's athlete directory (roster) - see
 // useAthleteDirectory.ts and AthleteDirectoryPanel.tsx. Unlike the
 // athlete-detail sub-panels above, this is a whole-workspace read, not
