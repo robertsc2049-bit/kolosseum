@@ -763,64 +763,6 @@
                     id="athlete-coach-notes-root"
                     class="record-list athlete-detail-list"
                   ></div>
-
-                  <form
-                    id="athleteDetailNoteForm"
-                    class="athlete-detail-note-form"
-                    hidden
-                  >
-                    <input
-                      id="athleteDetailNoteSessionId"
-                      type="hidden"
-                    />
-
-                    <input
-                      id="athleteDetailNoteArtefactId"
-                      type="hidden"
-                    />
-
-                    <label class="field">
-                      <span>Non-binding note</span>
-                      <textarea
-                        id="athleteDetailNoteText"
-                        required
-                        maxlength="2000"
-                      ></textarea>
-                    </label>
-
-                    <label class="field">
-                      <span>Visibility</span>
-                      <select id="athleteDetailNoteVisibility">
-                        <option value="coach_private">
-                          Coach only
-                        </option>
-                        <option value="athlete_visible">
-                          Visible to athlete
-                        </option>
-                      </select>
-                    </label>
-
-                    <div class="inline-controls">
-                      <button
-                        id="athleteDetailNoteCancelButton"
-                        class="button secondary"
-                        type="button"
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        class="button primary"
-                        type="submit"
-                      >
-                        Record note
-                      </button>
-                    </div>
-
-                    <p class="muted small">
-                      Notes are stored separately and do not alter session facts or engine output.
-                    </p>
-                  </form>
                 </article>
 
                 <!-- DEV NOTE: "Message this athlete" is now React - see
