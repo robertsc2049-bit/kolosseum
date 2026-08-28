@@ -24,7 +24,6 @@ const DEFAULT_STATE = Object.freeze({
   phase1Input: null,
   activeSessionId: null,
   activeSessionState: null,
-  history: [],
   localSessions: [],
   view: "today",
   coachAthletes: [],
@@ -133,8 +132,6 @@ const elements = {
   busyText: document.getElementById("busyText"),
 
   todayGreeting: document.getElementById("todayGreeting"),
-  todayHistoryCount: document.getElementById("todayHistoryCount"),
-  todayRecentList: document.getElementById("todayRecentList"),
 
   refreshHistoryButton: document.getElementById("refreshHistoryButton"),
   exportHistoryButton: document.getElementById("exportHistoryButton"),
@@ -422,7 +419,6 @@ function loadState() {
         ? parsed.athleteProfileDraft
         : null,
       selectedCoachAthleteId: String(parsed.selectedCoachAthleteId ?? ""),
-      history: Array.isArray(parsed.history) ? parsed.history : [],
       localSessions: Array.isArray(parsed.localSessions) ? parsed.localSessions : [],
       currentTerms: null
     };
@@ -919,27 +915,6 @@ function upsertLocalSession(sessionId, patch = {}) {
 
   saveState();
   return next;
-}
-
-function mergeHistory(serverSessions) {
-  const merged = new Map();
-
-  for (const session of state.localSessions) {
-    merged.set(session.session_id, session);
-  }
-
-  for (const session of serverSessions) {
-    merged.set(session.session_id, {
-      ...(merged.get(session.session_id) ?? {}),
-      ...session
-    });
-  }
-
-  return [...merged.values()].sort((left, right) => {
-    const leftTime = Date.parse(left.created_at ?? left.updated_at ?? "") || 0;
-    const rightTime = Date.parse(right.created_at ?? right.updated_at ?? "") || 0;
-    return leftTime - rightTime || String(left.session_id).localeCompare(String(right.session_id));
-  });
 }
 
 function sessionClassification(sessionState) {
@@ -1852,29 +1827,21 @@ async function loadExerciseHowto(exerciseId, container, respectDensity = true) {
 // public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx and
 // useAthleteSessionExecution.ts.
 
-// DEV NOTE: FULL-UI-16C the plain session list/filters/detail is React-owned
-// now (see public/app-src/screens/athlete/AthleteHistoryPanel.tsx, mounted
-// into athlete-history-root) - it independently fetches
-// beta-athlete-history/-detail and applies filters server-side itself, so
-// it needs no reverse bridge for reads. This function keeps its other jobs
-// (state.history for Today's recent-list preview, refreshing the other
-// still-legacy athlete self-service panels) and now dispatches
-// kolosseum:history-changed so the React panel knows when to refetch.
+// DEV NOTE: FULL-UI-16C/FULL-UI-14C both the full session list/filters/
+// detail (AthleteHistoryPanel.tsx, athlete-history-root) and the Today
+// screen's "Recent activity" preview
+// (AthleteTodayRecentActivityPanel.tsx/useAthleteTodayRecentActivity.ts,
+// today-history-count-root/today-recent-activity-root) are React-owned now -
+// both independently fetch beta-athlete-history themselves, so this
+// function no longer needs to fetch or cache anything itself. It's kept
+// only to dispatch kolosseum:history-changed, the shared signal both of
+// those hooks refetch on, and to show the manual-refresh-button notice.
 async function refreshHistory(options = {}) {
-  if (state.role !== "athlete") return [];
+  if (state.role !== "athlete") return;
 
-  const history = await api("POST", "/sessions/beta-athlete-history", {
-    athlete_user_id: state.profile.userId
-  });
-
-  const serverSessions = Array.isArray(history.sessions) ? history.sessions : [];
-  state.history = mergeHistory(serverSessions);
-  saveState();
-  notifyTodayChanged();
   document.dispatchEvent(new CustomEvent("kolosseum:history-changed"));
 
   if (!options.quiet) showNotice("Training history refreshed.");
-  return state.history;
 }
 
 async function exportHistory() {
@@ -1904,57 +1871,18 @@ async function exportHistory() {
 }
 
 
-function recordCard(session, interactive = true) {
-  const date = formatDate(session.updated_at ?? session.created_at);
-  const status = titleCase(session.status ?? "recorded");
-
-  return `
-    <article class="record-card ${interactive ? "interactive" : ""}" ${interactive ? `data-session-id="${escapeHtml(session.session_id)}"` : ""}>
-      <div>
-        <h3>Training session</h3>
-        <p>${escapeHtml(date)}</p>
-      </div>
-      <div class="record-meta">
-        <span class="badge neutral">${escapeHtml(status)}</span>
-        <span class="badge neutral">${Number(session.runtime_event_count ?? 0)} events</span>
-      </div>
-    </article>
-  `;
-}
-
-function bindSessionCards(container) {
-  for (const card of container.querySelectorAll("[data-session-id]")) {
-    card.addEventListener("click", () => {
-      state.activeSessionId = card.dataset.sessionId;
-      state.activeSessionState = null;
-      saveState();
-      setView("session");
-    });
-  }
-}
-
-// DEV NOTE: FULL-UI-14C Today screen is React-owned now (see
-// public/app-src/screens/athlete/AthleteTodayPanel.tsx, mounted into
+// DEV NOTE: FULL-UI-14C Today screen is fully React-owned now (see
+// public/app-src/screens/athlete/AthleteTodayPanel.tsx/
+// AthleteTodayRecentActivityPanel.tsx, mounted into
 // athlete-today-session-root/athlete-today-event-root/
-// athlete-today-create-session-root) - it independently fetches
-// beta-athlete-today and this session's /state, so it needs no reverse
+// athlete-today-create-session-root/today-history-count-root/
+// today-recent-activity-root) - it independently fetches beta-athlete-today,
+// this session's /state and beta-athlete-history, so it needs no reverse
 // bridge for reads. loadAthleteToday()/loadSessionState() below still run
-// unchanged (they own state.activeSessionId, which the still-legacy
-// Session screen needs) and now dispatch kolosseum:today-changed so the
-// React panel knows when to refetch. Only "Recent activity" stays legacy
-// here - it's a preview of the not-yet-migrated History screen's own card
-// rendering.
-function renderTodayRecent() {
-  elements.todayHistoryCount.textContent = String(state.history.length);
-  const latest = [...state.history].reverse().slice(0, 4);
-  elements.todayRecentList.innerHTML = latest.length
-    ? latest.map((session) => recordCard(session)).join("")
-    : '<div class="empty-state"><p>No recent sessions are recorded.</p></div>';
-  bindSessionCards(elements.todayRecentList);
-}
-
+// unchanged (they own state.activeSessionId, which the still-legacy Session
+// screen needs) - this function is trimmed to just the dispatch those React
+// panels refetch on.
 function notifyTodayChanged() {
-  renderTodayRecent();
   document.dispatchEvent(new CustomEvent("kolosseum:today-changed"));
 }
 
@@ -7943,7 +7871,6 @@ async function enterApplication() {
     // superseded it, so a stale cached session/assignment/completion
     // state is never visible, even briefly, as if it were current.
     showBusy("Loading your training data...");
-    renderTodayRecent();
 
     try {
       // Server state after refresh decides which session is current - a

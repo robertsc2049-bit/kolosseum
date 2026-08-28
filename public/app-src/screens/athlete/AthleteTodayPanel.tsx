@@ -10,9 +10,9 @@ import { useAthleteToday } from "./useAthleteToday";
 // Session view itself) stays fully legacy - see the "Create session" and
 // "Continue session" handlers below, both of which trigger the existing
 // legacy flow rather than reimplementing it. "Recent activity"
-// (todayHistoryCount/todayRecentList) also stays legacy for now since it's
-// really a preview of the not-yet-migrated History screen's own card
-// rendering - migrating it here would mean redoing that work twice.
+// (today-history-count-root/today-recent-activity-root) is its own React
+// island now too - see AthleteTodayRecentActivityPanel.tsx/
+// useAthleteTodayRecentActivity.ts.
 
 const MESSAGE_STATE_COPY: Record<string, { icon: string; heading: string; body: string; badgeLabel: string; badgeClass: string }> = {
   no_current_assignment: {

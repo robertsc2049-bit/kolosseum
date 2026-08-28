@@ -10,11 +10,11 @@ import {
 import { type JsonRecord } from "../../api/transport";
 
 // DEV NOTE: FULL-UI-16C athlete training history (list, server-side filters,
-// detail). Independently fetched - mirrors app.js's (now trimmed)
-// refreshHistory(), which still runs unchanged for its other jobs
-// (state.history for Today's recent-list preview, and refreshing the other
-// still-legacy athlete self-service panels) and now dispatches
-// kolosseum:history-changed so this hook knows to refetch too.
+// detail). Independently fetched - app.js's refreshHistory() no longer
+// fetches or caches anything itself (Today's "Recent activity" preview is
+// its own independent React fetch too now, see
+// useAthleteTodayRecentActivity.ts); it's kept only to dispatch
+// kolosseum:history-changed, which this hook refetches on.
 // kolosseum:history-detail-route is dispatched by route_bootstrap.js when
 // the URL matches #/athlete/history/:session_id - this hook owns that
 // listener now (legacy's openHistoryDetail() is gone). Opening a session
