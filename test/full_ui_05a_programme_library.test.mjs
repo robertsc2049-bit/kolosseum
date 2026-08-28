@@ -35,6 +35,19 @@ const detailPanel = fs.readFileSync(
   "utf8"
 );
 
+// DEV NOTE: FULL-UI-05A programme activation validation summary
+// (read-only) also moved to React - see
+// CoachProgrammeValidationPanel.tsx/programmeDraft.ts. Its rules engine,
+// programmeActivationIssues(), stays in app.js too (completeTemplateById()/
+// currentTemplateBuilderIssues() call it directly) - checks against `app`
+// for it and its issue codes, including the event-plan-bound
+// event_week_allocation_unbalanced (out of scope for the React port - see
+// programmeDraft.ts's own DEV NOTE), are untouched below.
+const validationPanel = fs.readFileSync(
+  "public/app-src/screens/coach/CoachProgrammeValidationPanel.tsx",
+  "utf8"
+);
+
 test("FULL-UI-05A exposes programme search filter sort and factual state counts", () => {
   for (const id of ["templates-metrics-root", "templates-library-root"]) {
     assert.match(html, new RegExp(`id="${id}"`, "u"));
@@ -52,7 +65,7 @@ test("FULL-UI-05A exposes programme search filter sort and factual state counts"
 test("FULL-UI-05A opens a complete programme detail and preview surface", () => {
   for (const id of [
     "templateDetailPanel",
-    "templateDetailValidation",
+    "programme-validation-root",
     "templateDetailPreview"
   ]) {
     assert.match(html, new RegExp(`id="${id}"`, "u"));
@@ -92,7 +105,7 @@ test("FULL-UI-05A provides a full visible activation validation summary", () => 
   assert.match(app, /percent_1rm_invalid/u);
   assert.match(app, /rest_seconds_invalid/u);
   assert.match(app, /event_week_allocation_unbalanced/u);
-  assert.match(app, /programme-validation-list/u);
+  assert.match(validationPanel, /programme-validation-list/u);
 });
 
 test("FULL-UI-05A direct programme routes open programme detail", () => {
