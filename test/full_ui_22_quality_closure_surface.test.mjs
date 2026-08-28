@@ -16,6 +16,7 @@ const dataRightsHook = read("public/app-src/screens/account/useAccountDataRights
 const supportPanel = read("public/app-src/screens/account/AccountSupportPanel.tsx");
 const supportHook = read("public/app-src/screens/account/useAccountSupport.ts");
 const reviewHook = read("public/app-src/screens/coach/useCoachReview.ts");
+const eventDetailHook = read("public/app-src/screens/coach/useCoachEventDetail.ts");
 const invitationsPanel = read("public/app-src/screens/account/AccountCoachInvitationsPanel.tsx");
 const relationshipPanel = read("public/app-src/screens/account/AccountCoachRelationshipPanel.tsx");
 const inviteByEmailPanel = read("public/app-src/screens/coach/InviteAthleteByEmailPanel.tsx");
@@ -201,13 +202,19 @@ test("an athlete's stale cached today/history state is never left on screen whil
 });
 
 test("a coach deep link to a specific event or review athlete never reports success for a stale/invalid id - it falls through to the generic not-available notice", () => {
-  const eventDetail = routeBootstrap.match(/if \(route\.route_id === "coach_event_detail"\) \{[\s\S]*?\n {2}\}\n/u);
+  // React owns the event detail/lifecycle view now
+  // (CoachEventDetailPanel.tsx/useCoachEventDetail.ts) - like the review-
+  // athlete deep link below, route_bootstrap.js can no longer validate a
+  // deep-linked event_id synchronously (no DOM card lookup), so it
+  // dispatches kolosseum:open-event-detail unconditionally and the hook's
+  // own GET /coach-workspace/events/:event_id fetch validates it once
+  // resolved, dispatching kolosseum:coach-event-detail-not-found for a
+  // stale/invalid id - never silently reporting success for a bad one.
+  const eventDetail = routeBootstrap.match(/if \(route\.route_id === "coach_event_detail"[\s\S]*?\n {2}\}\n/u);
   assert.ok(eventDetail, "expected the coach_event_detail branch");
-  assert.match(eventDetail[0], /markRouteTarget\(card\);/u);
-  assert.match(eventDetail[0], /return true;/u);
-  // No dead-end unconditional true - the branch must fall through when the
-  // card was not found, rather than closing over an early return.
-  assert.doesNotMatch(eventDetail[0].replace(/if \(card\) \{[\s\S]*?\}/u, ""), /return true;/u);
+  assert.match(eventDetail[0], /kolosseum:open-event-detail/u);
+
+  assert.match(routeBootstrap, /kolosseum:coach-event-detail-not-found/u);
 
   // The review queue's athlete filter moved to React (CoachReviewPanel.tsx/
   // useCoachReview.ts) - its athlete list now loads asynchronously, so
@@ -237,7 +244,6 @@ test("a coach programme-detail deep link that finds no matching template also fa
 
 test("deep-linkable entity-detail routes are wired for real elements in the DOM, not a dead custom event with no listener", () => {
   assert.doesNotMatch(routeBootstrap, /kolosseum:event-detail-route/u);
-  assert.match(routeBootstrap, /\[data-event-id="\$\{escapeSelector\(params\.event_id\)\}"\]/u);
 
   // The review route now dispatches kolosseum:open-session-review instead
   // of clicking a (now-removed) #loadReviewButton - confirm it has real
@@ -249,6 +255,16 @@ test("deep-linkable entity-detail routes are wired for real elements in the DOM,
   assert.match(js, /"kolosseum:open-session-review"/u);
   assert.match(reviewHook, /OPEN_SESSION_REVIEW_EVENT = "kolosseum:open-session-review"/u);
   assert.match(reviewHook, /document\.addEventListener\(OPEN_SESSION_REVIEW_EVENT, handleOpenReview\)/u);
+
+  // Same proof for the event-detail route: the old [data-event-id] card
+  // lookup (which only ever highlighted a row - nothing "opened") is gone,
+  // replaced by kolosseum:open-event-detail with a real listener in
+  // useCoachEventDetail.ts, not a dead event with nothing subscribed.
+  assert.doesNotMatch(routeBootstrap, /\[data-event-id="\$\{escapeSelector\(params\.event_id\)\}"\]/u);
+  const openEventDetailDispatchCount = [...routeBootstrap.matchAll(/kolosseum:open-event-detail/gu)].length;
+  assert.ok(openEventDetailDispatchCount >= 2, "expected both a dispatch and a listener for kolosseum:open-event-detail");
+  assert.match(eventDetailHook, /OPEN_EVENT_DETAIL_EVENT = "kolosseum:open-event-detail"/u);
+  assert.match(eventDetailHook, /document\.addEventListener\(OPEN_EVENT_DETAIL_EVENT, handleOpen\)/u);
 });
 
 test("newly touched status/retry surfaces stay visible on narrow (mobile) viewports", () => {
