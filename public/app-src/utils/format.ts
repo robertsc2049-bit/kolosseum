@@ -9,6 +9,11 @@ export function titleCase(value: unknown): string {
     .replace(/\b\w/gu, (letter) => letter.toUpperCase());
 }
 
+export function initials(name: unknown): string {
+  const words = String(name ?? "").trim().split(/\s+/u).filter(Boolean);
+  return (words.slice(0, 2).map((word) => word[0]).join("") || "K").toUpperCase();
+}
+
 export function formatDate(value: unknown): string {
   if (!value) return "Date not recorded";
 
