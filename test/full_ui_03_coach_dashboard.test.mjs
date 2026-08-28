@@ -29,14 +29,19 @@ const manifest = JSON.parse(
   )
 );
 
-// DEV NOTE: the "Upcoming events" panel moved to React - see
-// public/app-src/screens/coach/CoachOverviewEventsPanel.tsx and
-// useCoachOverviewEvents.ts. The metric counts, "Connected athletes"/
-// "Action queue"/"Open sessions"/"Completed since review" panels and the
-// dashboard status line all stay legacy - see that component's own DEV
-// NOTE for why.
+// DEV NOTE: the "Upcoming events" and "Action queue" panels moved to
+// React - see public/app-src/screens/coach/CoachOverviewEventsPanel.tsx/
+// useCoachOverviewEvents.ts and CoachOverviewAssignmentsPanel.tsx/
+// useCoachOverviewAssignments.ts. The metric counts, "Connected
+// athletes"/"Open sessions"/"Completed since review" panels and the
+// dashboard status line all stay legacy - see those components' own DEV
+// NOTEs for why.
 const coachOverviewEventsPanel = fs.readFileSync(
   new URL("../public/app-src/screens/coach/CoachOverviewEventsPanel.tsx", import.meta.url),
+  "utf8"
+);
+const coachOverviewAssignmentsPanel = fs.readFileSync(
+  new URL("../public/app-src/screens/coach/CoachOverviewAssignmentsPanel.tsx", import.meta.url),
   "utf8"
 );
 
@@ -51,7 +56,6 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
     "coachCompletedSessionCount",
     "coachUpcomingEventCount",
     "coachOverviewAthletes",
-    "coachOverviewAssignments",
     "coachOverviewOpenSessions",
     "coachOverviewReviewQueue"
   ];
@@ -65,6 +69,8 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
 
   assert.ok(html.includes('id="coach-overview-events-root"'), "missing coach-overview-events-root");
   assert.ok(!html.includes('id="coachOverviewEvents"'), "legacy coachOverviewEvents mount point should be fully retired");
+  assert.ok(html.includes('id="coach-overview-assignments-root"'), "missing coach-overview-assignments-root");
+  assert.ok(!html.includes('id="coachOverviewAssignments"'), "legacy coachOverviewAssignments mount point should be fully retired");
 });
 
 test("FULL-UI-03 loads server-authoritative coach records", () => {
@@ -92,7 +98,6 @@ test("FULL-UI-03 loads server-authoritative coach records", () => {
 test("FULL-UI-03 provides direct coach actions", () => {
   const actions = [
     "open-athlete",
-    "open-assignment",
     "open-review",
     "open-programmes",
     "openAthleteProfile"
@@ -104,6 +109,17 @@ test("FULL-UI-03 provides direct coach actions", () => {
       `missing dashboard action ${action}`
     );
   }
+
+  // "open-assignment" moved to React (CoachOverviewAssignmentsPanel.tsx) -
+  // it dispatches the same kolosseum:open-athlete-profile-request bridge
+  // event AthleteDirectoryPanel.tsx already uses, with an extra
+  // focus_assignment flag app.js's shared listener uses to preserve the
+  // scroll-to-assignment-panel nicety the removed dashboard-action branch
+  // provided.
+  assert.ok(!application.includes('if (action === "open-assignment")'), "the open-assignment action branch should be fully retired from app.js");
+  assert.ok(coachOverviewAssignmentsPanel.includes("kolosseum:open-athlete-profile-request"));
+  assert.ok(coachOverviewAssignmentsPanel.includes("focus_assignment"));
+  assert.ok(application.includes("event.detail?.focus_assignment"));
 
   // "open-event" moved to React (CoachOverviewEventsPanel.tsx) - it
   // navigates the same way legacy's bindCoachDashboardActions() used to

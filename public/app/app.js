@@ -149,7 +149,6 @@ const elements = {
   coachUpcomingEventCount: document.getElementById("coachUpcomingEventCount"),
   coachDashboardStatus: document.getElementById("coachDashboardStatus"),
   coachDashboardRefreshButton: document.getElementById("coachDashboardRefreshButton"),
-  coachOverviewAssignments: document.getElementById("coachOverviewAssignments"),
   coachOverviewOpenSessions: document.getElementById("coachOverviewOpenSessions"),
   coachOverviewReviewQueue: document.getElementById("coachOverviewReviewQueue"),
   refreshAthleteDirectoryButton: document.getElementById("refreshAthleteDirectoryButton"),
@@ -3123,30 +3122,11 @@ function dashboardAthleteName(athleteUserId) {
     "Athlete";
 }
 
-function dashboardAssignmentAthleteId(assignment) {
-  return String(
-    assignment?.athleteUserId ??
-    assignment?.athlete_user_id ??
-    assignment?.assigned_athlete_id ??
-    ""
-  );
-}
-
 function dashboardAssignmentTemplateId(assignment) {
   return String(
     assignment?.templateId ??
     assignment?.template_id ??
     assignment?.programme_id ??
-    ""
-  );
-}
-
-function dashboardAssignmentRecordedAt(assignment) {
-  return String(
-    assignment?.recordedAt ??
-    assignment?.recorded_at ??
-    assignment?.requested_at_iso8601 ??
-    assignment?.created_at ??
     ""
   );
 }
@@ -3285,25 +3265,6 @@ function bindCoachDashboardActions() {
           return;
         }
 
-        if (action === "open-assignment") {
-          setView("athletes");
-
-          await openAthleteProfile(
-            athleteUserId
-          );
-
-          // The assignment panel is React now (AthleteProfileAssignmentPanel.tsx)
-          // - its mount point stays at the same position, so this dashboard
-          // deep-link still scrolls to the right place.
-          document.getElementById("athlete-profile-assignment-root")
-            ?.scrollIntoView({
-              behavior: "smooth",
-              block: "start"
-            });
-
-          return;
-        }
-
         if (action === "open-review") {
           setView("review");
 
@@ -3324,7 +3285,6 @@ function bindCoachDashboardActions() {
 
 function renderCoachDashboard() {
   if (
-    !elements.coachOverviewAssignments ||
     !elements.coachOverviewOpenSessions ||
     !elements.coachOverviewReviewQueue
   ) {
@@ -3403,23 +3363,6 @@ function renderCoachDashboard() {
           )
         )
       );
-
-  const assignedAthleteIds =
-    new Set(
-      state.coachAssignments
-        .map(
-          dashboardAssignmentAthleteId
-        )
-        .filter(Boolean)
-    );
-
-  const assignmentActions =
-    state.coachAthletes.filter(
-      (athlete) =>
-        !assignedAthleteIds.has(
-          athlete.userId
-        )
-    );
 
   const today =
     typeof todayDateOnly === "function"
@@ -3507,40 +3450,6 @@ function renderCoachDashboard() {
           "No connected athletes",
           "Connect an athlete to begin programme assignment and session review."
         ));
-
-  elements.coachOverviewAssignments.innerHTML =
-    assignmentActions.length
-      ? assignmentActions
-          .slice(0, 8)
-          .map((athlete) => `
-            <article class="record-card dashboard-record-card">
-              <div>
-                <h4>${escapeHtml(athlete.displayName)}</h4>
-                <p>No programme assignment is currently recorded.</p>
-              </div>
-
-              <div class="record-meta">
-                <span class="badge neutral">
-                  Action required
-                </span>
-
-                ${dashboardActionButton(
-                  "Open profile",
-                  "open-assignment",
-                  {
-                    "athlete-id": athlete.userId
-                  }
-                )}
-              </div>
-            </article>
-          `)
-          .join("")
-      : dashboardEmptyState(
-          "No assignment actions",
-          state.coachAthletes.length
-            ? "Every connected athlete has at least one recorded assignment."
-            : "Connect an athlete before creating an assignment."
-        );
 
   elements.coachOverviewOpenSessions.innerHTML =
     openSessions.length
@@ -9273,7 +9182,12 @@ document.addEventListener(
 // binds listeners imperatively after each legacy render and never
 // re-runs against React output), so it dispatches this event instead.
 // Behaviour is otherwise identical to what that binder's click handler
-// used to do.
+// used to do. CoachOverviewAssignmentsPanel.tsx's "Open profile" button
+// (the dashboard's action-queue card) dispatches this same event with an
+// extra focus_assignment flag, preserving the scroll-to-assignment-panel
+// nicety bindCoachDashboardActions()'s removed "open-assignment" branch
+// used to provide - default behaviour (no scroll) is unchanged for every
+// other dispatcher.
 document.addEventListener(
   "kolosseum:open-athlete-profile-request",
   (event) => {
@@ -9281,7 +9195,14 @@ document.addEventListener(
     if (!athleteUserId) return;
 
     setView("athletes");
-    openAthleteProfile(athleteUserId).catch(handleError);
+    openAthleteProfile(athleteUserId)
+      .then(() => {
+        if (!event.detail?.focus_assignment) return;
+
+        document.getElementById("athlete-profile-assignment-root")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      })
+      .catch(handleError);
   }
 );
 
