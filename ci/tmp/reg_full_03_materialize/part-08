@@ -1,0 +1,143 @@
+bel: { type: "string", minLength: 1 },
+    contraindication_or_exclusion_tags: { type: "array", items: { type: "string", minLength: 1, pattern: "^[a-z0-9][a-z0-9_.-]*$" }, uniqueItems: true },
+    substitution_eligibility: { type: "string", minLength: 1, enum: ["eligible", "restricted"] },
+    template_eligibility: { type: "string", minLength: 1, enum: ["eligible", "not_eligible"] },
+    copy_legal_boundary_flags: { type: "array", items: { type: "string", minLength: 1, pattern: "^[a-z0-9][a-z0-9_.-]*$" }, minItems: 1, uniqueItems: true }
+  };
+  for (const [key, value] of Object.entries(props)) { row.properties[key] = value; if (!row.required.includes(key)) row.required.push(key); }
+  writeJson(rel, schema);
+}
+
+// Canonical exercise_registry_3a originally typed detail text as one string, while the runtime registry
+// has long used an instruction-step array. REG-FULL-03 closes that representational mismatch.
+{
+  const rel = "ci/schemas/exercise_registry_3a.registry.schema.json";
+  const schema = readJson(rel); const row = schema.properties.entries.additionalProperties;
+  row.properties.instruction_detail_text = { type: "array", items: { type: "string", minLength: 1 }, minItems: 3, uniqueItems: true };
+  row.properties.equipment_requirements.minItems = 1;
+  row.properties.joint_stress_tags.minItems = 1;
+  row.properties.copy_legal_boundary_flags.minItems = 1;
+  row.properties.substitution_eligibility.enum = ["eligible", "restricted"];
+  row.properties.template_eligibility.enum = ["eligible", "not_eligible"];
+  writeJson(rel, schema);
+}
+
+// S-REG-31 is a historical activation proof. Preserve its 3-row activation baseline but permit later
+// authorised exercise-token expansion and the REG-FULL-03 front_plank_token closure.
+{
+  const rel = "ci/registry/s_reg_31_exercise_token_registry_activation.mjs";
+  let text = readText(rel);
+  text = replaceOnce(text,
+`    if (S_REG_31_EXCLUDED_CANDIDATE_RECORD_IDS.includes(id)) {
+      fail("s_reg_31_excluded_record_present", { id });
+    }
+
+`,
+`    // REG-FULL-03: S-REG-31's excluded IDs are a historical activation snapshot, not a perpetual ban.
+`,
+"S-REG-31 historical exclusion");
+  text = replaceOnce(text,
+`  return Object.keys(exerciseTokenRegistry.entries).length;`,
+`  const historicalActivationIds = ["back_squat_token", "deadlift_token", "bench_press_token"];
+  for (const id of historicalActivationIds) {
+    if (!(id in exerciseTokenRegistry.entries)) {
+      fail("s_reg_31_historical_activation_record_missing", { id });
+    }
+  }
+  return historicalActivationIds.length;`,
+"S-REG-31 historical activated count");
+  writeText(rel, text);
+}
+{
+  const rel = "test/s_reg_31_exercise_token_registry_activation.test.mjs";
+  let text = readText(rel);
+  text = replaceOnce(text,
+`  assert.equal(Object.keys(exerciseTokenRegistry.entries).length, 3);`,
+`  assert.ok(Object.keys(exerciseTokenRegistry.entries).length >= 3);
+  for (const id of ["back_squat_token", "deadlift_token", "bench_press_token"]) assert.ok(id in exerciseTokenRegistry.entries);`,
+"S-REG-31 live token count test");
+  text = text.replace(
+`test("S-REG-31 excludes the dangling front_plank_token reference and every remaining record's cross-registry references are real", () => {`,
+`test("S-REG-31 preserves its historical front_plank_token exclusion record while later authorised live tokens remain FK-closed", () => {`);
+  text = replaceOnce(text,
+`  assert.equal("front_plank_token" in exerciseTokenRegistry.entries, false);`,
+`  assert.equal("front_plank_token" in exerciseTokenRegistry.entries, true, "REG-FULL-03 lawfully closes the historical token omission");`,
+"S-REG-31 front plank live test");
+  writeText(rel, text);
+}
+
+// S-REG-33 is likewise a historical 159-row activation proof. Current live closure may grow, but may
+// never shrink below that baseline and must still pass the dynamic S-V1-23 full applicability guard.
+{
+  const rel = "ci/registry/s_reg_33_exercise_activity_applicability_registry_activation.mjs";
+  let text = readText(rel);
+  text = replaceOnce(text,
+`  if (activatedRecordCount !== S_REG_33_EXPECTED_RECORD_COUNT) {
+    fail("s_reg_33_record_count_mismatch", { actual: activatedRecordCount, expected: S_REG_33_EXPECTED_RECORD_COUNT });
+  }`,
+`  if (activatedRecordCount < S_REG_33_EXPECTED_RECORD_COUNT) {
+    fail("s_reg_33_record_count_below_historical_activation", { actual: activatedRecordCount, historical_minimum: S_REG_33_EXPECTED_RECORD_COUNT });
+  }`,
+"S-REG-33 historical minimum");
+  text = replaceOnce(text,
+`  if (activationDocument.activated_record_count !== activatedRecordCount) {
+    fail("s_reg_33_activated_record_count_invalid", {
+      declared: activationDocument.activated_record_count,
+      actual: activatedRecordCount
+    });
+  }`,
+`  if (activationDocument.activated_record_count !== S_REG_33_EXPECTED_RECORD_COUNT) {
+    fail("s_reg_33_activated_record_count_invalid", {
+      declared: activationDocument.activated_record_count,
+      historical_expected: S_REG_33_EXPECTED_RECORD_COUNT
+    });
+  }`,
+"S-REG-33 activation document count");
+  text = replaceOnce(text,
+`    activated_record_count: activatedRecordCount,`,
+`    activated_record_count: S_REG_33_EXPECTED_RECORD_COUNT,`,
+"S-REG-33 historical result count");
+  writeText(rel, text);
+}
+{
+  const rel = "test/s_reg_33_exercise_activity_applicability_registry_activation.test.mjs";
+  let text = readText(rel);
+  text = replaceOnce(text,
+`  assert.equal(Object.keys(applicabilityRegistry.entries).length, S_REG_33_EXPECTED_RECORD_COUNT);`,
+`  assert.ok(Object.keys(applicabilityRegistry.entries).length >= S_REG_33_EXPECTED_RECORD_COUNT);`,
+"S-REG-33 live applicability count test");
+  text = text.replace(
+`test("S-REG-33 has a genuinely complete closure - every exercise/applicable-activity pair, all 3 contexts, no front_plank", () => {`,
+`test("S-REG-33 historical baseline remains present while the current registry has complete later exercise/activity/context closure", () => {`);
+  text = replaceOnce(text,
+`  assert.equal("front_plank" in exerciseRegistry.entries, false, "front_plank is not a live exercise");`,
+`  assert.equal("front_plank" in exerciseRegistry.entries, true, "REG-FULL-03 activates front_plank as production exercise content");`,
+"S-REG-33 front plank exercise test");
+  text = replaceOnce(text,
+`  assert.equal(expectedKeys.size, S_REG_33_EXPECTED_RECORD_COUNT);`,
+`  assert.ok(expectedKeys.size >= S_REG_33_EXPECTED_RECORD_COUNT);`,
+"S-REG-33 dynamic expected closure size");
+  writeText(rel, text);
+}
+
+// Wire the REG-FULL-03 negative/closure suite into shared test:ci composition.
+{
+  const rel = "ci/contracts/test_ci_composition.json";
+  const doc = readJson(rel); const value = "node test/reg_full_03_exercise_registry_production.test.mjs";
+  if (!doc.items.some(item => item?.kind === "command" && item?.value === value)) doc.items.push({ kind: "command", value });
+  writeJson(rel, doc);
+}
+
+// Refresh the governed current registry-law count mirror; historical launch decision semantics are unchanged.
+{
+  const rel = "docs/releases/CONTROLLED_LAUNCH_REGISTRY_WORKABILITY_HOLD.json";
+  const doc = readJson(rel); if (!doc.registry_law_counts) fail(`${rel} missing registry_law_counts`); doc.registry_law_counts.exercise = 215; writeJson(rel, doc);
+  const mdRel = "docs/releases/CONTROLLED_LAUNCH_REGISTRY_WORKABILITY_HOLD.md"; let md = readText(mdRel);
+  if (!/\|\s*exercise\s*\|\s*\d+\s*\|/.test(md)) fail(`${mdRel} exercise count row missing`);
+  md = md.replace(/\|\s*exercise\s*\|\s*\d+\s*\|/, "| exercise | 215 |"); writeText(mdRel, md);
+  const testRel = "test/s_v1_g_02_registry_workability_audit_launch_hold.test.mjs"; let testText = readText(testRel);
+  if (!/assert\.equal\(record\.registry_law_counts\.exercise,\s*\d+\);/.test(testText)) fail(`${testRel} exercise assertion missing`);
+  testText = testText.replace(/assert\.equal\(record\.registry_law_counts\.exercise,\s*\d+\);/, "assert.equal(record.registry_law_counts.exercise, 215);"); writeText(testRel, testText);
+}
+
+// Regen
