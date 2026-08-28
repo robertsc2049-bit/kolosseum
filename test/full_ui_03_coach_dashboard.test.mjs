@@ -30,13 +30,15 @@ const manifest = JSON.parse(
 );
 
 // DEV NOTE: every dashboard panel (Connected athletes, Action queue, Open
-// sessions, Completed since review, Upcoming events) has moved to React -
-// see public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx/
-// useCoachOverviewAthletes.ts, CoachOverviewAssignmentsPanel.tsx/
-// useCoachOverviewAssignments.ts, CoachOverviewSessionReviewPanel.tsx/
-// useCoachOverviewSessionReview.ts and CoachOverviewEventsPanel.tsx/
-// useCoachOverviewEvents.ts. Only the metric counts and the dashboard
-// status line stay legacy - see those components' own DEV NOTEs for why.
+// sessions, Completed since review, Upcoming events) AND the metric-count
+// strip above them have moved to React - see public/app-src/screens/coach/
+// CoachOverviewAthletesPanel.tsx/useCoachOverviewAthletes.ts,
+// CoachOverviewAssignmentsPanel.tsx/useCoachOverviewAssignments.ts,
+// CoachOverviewSessionReviewPanel.tsx/useCoachOverviewSessionReview.ts,
+// CoachOverviewEventsPanel.tsx/useCoachOverviewEvents.ts and
+// CoachOverviewMetricsPanel.tsx/useCoachOverviewMetrics.ts. Only the
+// dashboard status line stays legacy - see that component's own DEV NOTE
+// for why.
 const coachOverviewEventsPanel = fs.readFileSync(
   new URL("../public/app-src/screens/coach/CoachOverviewEventsPanel.tsx", import.meta.url),
   "utf8"
@@ -53,17 +55,15 @@ const coachOverviewAthletesPanel = fs.readFileSync(
   new URL("../public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx", import.meta.url),
   "utf8"
 );
+const coachOverviewMetricsPanel = fs.readFileSync(
+  new URL("../public/app-src/screens/coach/CoachOverviewMetricsPanel.tsx", import.meta.url),
+  "utf8"
+);
 
 test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
   const ids = [
     "coachDashboardRefreshButton",
-    "coachDashboardStatus",
-    "coachAthleteCount",
-    "coachAssignmentCount",
-    "coachArtefactCount",
-    "coachOpenSessionCount",
-    "coachCompletedSessionCount",
-    "coachUpcomingEventCount"
+    "coachDashboardStatus"
   ];
 
   for (const id of ids) {
@@ -72,6 +72,25 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
       `missing dashboard control ${id}`
     );
   }
+
+  for (const id of [
+    "coachAthleteCount",
+    "coachAssignmentCount",
+    "coachArtefactCount",
+    "coachOpenSessionCount",
+    "coachCompletedSessionCount",
+    "coachUpcomingEventCount"
+  ]) {
+    assert.ok(!html.includes(`id="${id}"`), `legacy metric control ${id} should be fully retired`);
+  }
+
+  assert.ok(html.includes('id="coach-overview-metrics-root"'), "missing coach-overview-metrics-root");
+  assert.ok(coachOverviewMetricsPanel.includes("Connected athletes"));
+  assert.ok(coachOverviewMetricsPanel.includes("Assignments recorded"));
+  assert.ok(coachOverviewMetricsPanel.includes("Session records"));
+  assert.ok(coachOverviewMetricsPanel.includes("Open sessions"));
+  assert.ok(coachOverviewMetricsPanel.includes("Awaiting review"));
+  assert.ok(coachOverviewMetricsPanel.includes("Upcoming events"));
 
   assert.ok(html.includes('id="coach-overview-events-root"'), "missing coach-overview-events-root");
   assert.ok(!html.includes('id="coachOverviewEvents"'), "legacy coachOverviewEvents mount point should be fully retired");
@@ -95,7 +114,6 @@ test("FULL-UI-03 loads server-authoritative coach records", () => {
     "refreshTemplates",
     "/sessions/beta-coach-artefacts",
     "Promise.all(refreshers)",
-    "state.coachDashboardArtefacts",
     "state.coachDashboardFailures"
   ];
 
@@ -105,6 +123,19 @@ test("FULL-UI-03 loads server-authoritative coach records", () => {
       `missing dashboard implementation token ${token}`
     );
   }
+
+  // state.coachDashboardArtefacts/state.coachReviewRecords and
+  // refreshCoachReviewQueue() are fully retired - their only remaining
+  // reader was renderCoachDashboard()'s own metric-card computation,
+  // itself removed now that the metric strip is React (see
+  // CoachOverviewMetricsPanel.tsx/useCoachOverviewMetrics.ts, which
+  // fetches GET /coach-workspace/reviews directly for the same counts).
+  // The artefact fan-out above is kept - its per-athlete failure tracking
+  // still feeds the still-legacy dashboard status line
+  // (state.coachDashboardFailures).
+  assert.ok(!application.includes("state.coachDashboardArtefacts"), "state.coachDashboardArtefacts should be fully retired from app.js");
+  assert.ok(!application.includes("state.coachReviewRecords"), "state.coachReviewRecords should be fully retired from app.js");
+  assert.ok(!application.includes("function refreshCoachReviewQueue"), "refreshCoachReviewQueue() should be fully retired from app.js");
 });
 
 test("FULL-UI-03 provides direct coach actions", () => {

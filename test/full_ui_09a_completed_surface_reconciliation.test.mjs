@@ -260,7 +260,7 @@ const targets = [
       [
         "public/app/index.html",
         [
-          "id=\"coachUpcomingEventCount\"",
+          "id=\"coach-overview-metrics-root\"",
           "Upcoming events"
         ]
       ],
@@ -304,7 +304,7 @@ const targets = [
         "public/app/index.html",
         [
           "id=\"coach-overview-review-queue-root\"",
-          "Awaiting review"
+          "Completed since review"
         ]
       ],
       [

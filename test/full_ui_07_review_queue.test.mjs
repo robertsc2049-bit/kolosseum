@@ -39,6 +39,15 @@ const routes =
 const panel =
   read("public/app-src/screens/coach/CoachReviewPanel.tsx");
 
+// DEV NOTE: the dashboard's "Awaiting review"/"Session records" metric
+// counts also moved to React - see CoachOverviewMetricsPanel.tsx/
+// useCoachOverviewMetrics.ts, mounted at #coach-overview-metrics-root.
+// app.js's state.coachReviewRecords/refreshCoachReviewQueue() are fully
+// retired - their only remaining reader was renderCoachDashboard()'s own
+// metric-card computation.
+const overviewMetricsHook =
+  read("public/app-src/screens/coach/useCoachOverviewMetrics.ts");
+
 const hook =
   read("public/app-src/screens/coach/useCoachReview.ts");
 
@@ -191,24 +200,17 @@ test(
   "FULL-UI-07 drives dashboard completed-since-review from durable state",
   () => {
     assert.match(
-      application,
-      /state\.coachReviewRecords/u
+      overviewMetricsHook,
+      /loadCoachReviews/u
     );
 
     assert.match(
-      application,
-      /review_status[\s\S]*"unreviewed"/u
+      overviewMetricsHook,
+      /awaiting_review === true/u
     );
 
-    assert.match(
-      application,
-      /refreshCoachReviewQueue/u
-    );
-
-    assert.match(
-      application,
-      /completedSessions/u
-    );
+    assert.ok(!application.includes("state.coachReviewRecords"), "state.coachReviewRecords should be fully retired from app.js");
+    assert.ok(!application.includes("function refreshCoachReviewQueue"), "refreshCoachReviewQueue() should be fully retired from app.js");
   }
 );
 

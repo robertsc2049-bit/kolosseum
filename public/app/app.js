@@ -49,11 +49,8 @@ const DEFAULT_STATE = Object.freeze({
   athleteProfiles: {},
   athleteProfileDraft: null,
   selectedCoachAthleteId: "",
-  coachArtefactCount: 0,
-  coachDashboardArtefacts: [],
   coachDashboardFailures: [],
   coachDashboardUpdatedAt: "",
-  coachReviewRecords: [],
   coachReviewSearch: "",
   coachReviewFilter: "awaiting",
   coachReviewUpdatedAt: "",
@@ -137,12 +134,6 @@ const elements = {
   exportHistoryButton: document.getElementById("exportHistoryButton"),
 
   coachGreeting: document.getElementById("coachGreeting"),
-  coachAthleteCount: document.getElementById("coachAthleteCount"),
-  coachAssignmentCount: document.getElementById("coachAssignmentCount"),
-  coachArtefactCount: document.getElementById("coachArtefactCount"),
-  coachOpenSessionCount: document.getElementById("coachOpenSessionCount"),
-  coachCompletedSessionCount: document.getElementById("coachCompletedSessionCount"),
-  coachUpcomingEventCount: document.getElementById("coachUpcomingEventCount"),
   coachDashboardStatus: document.getElementById("coachDashboardStatus"),
   coachDashboardRefreshButton: document.getElementById("coachDashboardRefreshButton"),
   refreshAthleteDirectoryButton: document.getElementById("refreshAthleteDirectoryButton"),
@@ -2807,50 +2798,6 @@ function dashboardAssignmentTemplateId(assignment) {
   );
 }
 
-function dashboardSessionStatus(artefact) {
-  return String(
-    artefact?.session_status ??
-    artefact?.status ??
-    "recorded"
-  ).toLowerCase();
-}
-
-function dashboardSessionDate(artefact) {
-  return String(
-    artefact?.recorded_at ??
-    artefact?.updated_at ??
-    artefact?.created_at ??
-    ""
-  );
-}
-
-function dashboardSessionIsOpen(artefact) {
-  return new Set([
-    "not_started",
-    "in_progress",
-    "split",
-    "stopped",
-    "returned",
-    "returnable",
-    "paused"
-  ]).has(
-    dashboardSessionStatus(artefact)
-  );
-}
-
-function dashboardEventDate(eventRecord) {
-  const plan =
-    typeof coachEventPlan === "function"
-      ? coachEventPlan(eventRecord)
-      : null;
-
-  return String(
-    plan?.event_date ??
-    eventRecord?.event_date ??
-    ""
-  );
-}
-
 function dashboardProgrammeName(assignment) {
   const templateId =
     dashboardAssignmentTemplateId(
@@ -2910,162 +2857,21 @@ function bindCoachDashboardActions() {
   }
 }
 
+// DEV NOTE: FULL-UI-03 Coach Overview dashboard - all five record-list
+// panels (Connected athletes, Action queue, Open sessions, Completed since
+// review, Upcoming events) AND the metric-count strip above them are React
+// now - see CoachOverviewAthletesPanel.tsx/CoachOverviewAssignmentsPanel.tsx/
+// CoachOverviewSessionReviewPanel.tsx/CoachOverviewEventsPanel.tsx/
+// CoachOverviewMetricsPanel.tsx (mounted into #coach-overview-athletes-root/
+// #coach-overview-assignments-root/#coach-overview-open-sessions-root/
+// #coach-overview-review-queue-root/#coach-overview-events-root/
+// #coach-overview-metrics-root). Each independently fetches its own data
+// and refetches on the kolosseum:coach-overview-changed dispatch below.
+// Only the dashboard status line (elements.coachDashboardStatus, driven by
+// state.coachDashboardFailures/coachDashboardUpdatedAt) stays legacy - see
+// refreshCoachDashboard()'s own artefact-fan-out failure tracking below,
+// which this function's status-line branch still reads.
 function renderCoachDashboard() {
-  const artefacts =
-    Array.isArray(
-      state.coachDashboardArtefacts
-    )
-      ? state.coachDashboardArtefacts
-      : [];
-
-  const reviewRecords =
-    Array.isArray(
-      state.coachReviewRecords
-    )
-      ? state.coachReviewRecords
-      : [];
-
-  const reviewArtefacts =
-    reviewRecords.map((record) => ({
-      athlete:
-        reviewAthleteForRecord(record) ?? {
-          userId:
-            String(
-              record.athlete_user_id ??
-              ""
-            ),
-          displayName:
-            reviewAthleteName(record)
-        },
-      artefact: record
-    }));
-
-  const dashboardArtefacts =
-    reviewArtefacts.length > 0
-      ? reviewArtefacts
-      : artefacts;
-
-  const openSessions =
-    dashboardArtefacts
-      .filter((entry) =>
-        dashboardSessionIsOpen(
-          entry.artefact
-        )
-      )
-      .sort((left, right) =>
-        dashboardSessionDate(
-          right.artefact
-        ).localeCompare(
-          dashboardSessionDate(
-            left.artefact
-          )
-        )
-      );
-
-  const completedSessions =
-    dashboardArtefacts
-      .filter((entry) =>
-        !dashboardSessionIsOpen(
-          entry.artefact
-        ) &&
-        String(
-          entry.artefact
-            .review_status ??
-          "unreviewed"
-        ) === "unreviewed"
-      )
-      .sort((left, right) =>
-        dashboardSessionDate(
-          right.artefact
-        ).localeCompare(
-          dashboardSessionDate(
-            left.artefact
-          )
-        )
-      );
-
-  const today =
-    typeof todayDateOnly === "function"
-      ? todayDateOnly()
-      : new Date()
-          .toISOString()
-          .slice(0, 10);
-
-  const upcomingEvents =
-    state.coachEvents
-      .filter((eventRecord) => {
-        const eventDate =
-          dashboardEventDate(eventRecord);
-
-        return (
-          eventDate &&
-          eventDate >= today
-        );
-      })
-      .sort((left, right) =>
-        dashboardEventDate(left)
-          .localeCompare(
-            dashboardEventDate(right)
-          )
-      );
-
-  elements.coachAthleteCount.textContent =
-    String(
-      state.coachAthletes.length
-    );
-
-  elements.coachAssignmentCount.textContent =
-    String(
-      state.coachAssignments.length
-    );
-
-  elements.coachArtefactCount.textContent =
-    String(
-      artefacts.length
-    );
-
-  elements.coachOpenSessionCount.textContent =
-    String(
-      openSessions.length
-    );
-
-  elements.coachCompletedSessionCount.textContent =
-    String(
-      completedSessions.length
-    );
-
-  elements.coachUpcomingEventCount.textContent =
-    String(
-      upcomingEvents.length
-    );
-
-  // NOTE: the "Connected athletes" panel moved to React (see
-  // public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx, mounted
-  // into #coach-overview-athletes-root) - it independently fetches
-  // GET /coach-workspace/relationships and one
-  // GET /coach-workspace/athlete-strength-profile per displayed athlete,
-  // and refetches on the kolosseum:coach-overview-changed dispatch just
-  // below. `state.coachAthletes.length` above is still used for the
-  // coachAthleteCount metric.
-
-  // NOTE: the "Open sessions"/"Completed since review" panels moved to
-  // React (see public/app-src/screens/coach/
-  // CoachOverviewSessionReviewPanel.tsx, mounted into
-  // #coach-overview-open-sessions-root and
-  // #coach-overview-review-queue-root) - both independently fetch
-  // GET /coach-workspace/reviews (the same richer, single-query endpoint
-  // useCoachReview.ts's full Review view already relies on exclusively,
-  // superseding the artefact fan-out's narrower fallback role) and refetch
-  // on the kolosseum:coach-overview-changed dispatch just below.
-  // `openSessions`/`completedSessions` above are still used for the
-  // coachOpenSessionCount/coachCompletedSessionCount metrics.
-
-  // NOTE: the "Upcoming events" panel moved to React (see
-  // public/app-src/screens/coach/CoachOverviewEventsPanel.tsx, mounted
-  // into #coach-overview-events-root) - it independently fetches
-  // GET /coach-workspace/events and refetches on the
-  // kolosseum:coach-overview-changed dispatch just below. `upcomingEvents`
-  // above is still used for the coachUpcomingEventCount metric.
   document.dispatchEvent(
     new CustomEvent("kolosseum:coach-overview-changed")
   );
@@ -3209,17 +3015,6 @@ async function refreshCoachDashboard(
         )
       );
 
-    state.coachDashboardArtefacts =
-      results.flatMap(
-        ({ athlete, artefacts }) =>
-          artefacts.map(
-            (artefact) => ({
-              athlete,
-              artefact
-            })
-          )
-      );
-
     state.coachDashboardFailures =
       results
         .map((result) =>
@@ -3227,25 +3022,8 @@ async function refreshCoachDashboard(
         )
         .filter(Boolean);
 
-    try {
-      await refreshCoachReviewQueue({
-        quiet: true,
-        render: false
-      });
-    }
-    catch {
-      state.coachReviewRecords = [];
-      state.coachDashboardFailures = [
-        ...state.coachDashboardFailures,
-        "__review_state__"
-      ];
-    }
-
     state.coachDashboardUpdatedAt =
       nowIso();
-
-    state.coachArtefactCount =
-      state.coachDashboardArtefacts.length;
 
     saveState();
     renderCoachDashboard();
@@ -3263,22 +3041,12 @@ async function refreshCoachDashboard(
   }
 }
 
+// DEV NOTE: the dashboard metric strip this function used to write
+// (coachAthleteCount/coachAssignmentCount/coachArtefactCount) is React now
+// too - see CoachOverviewMetricsPanel.tsx, which refetches on the
+// kolosseum:coach-overview-changed dispatch below like everything else in
+// this function's caller chain.
 function renderCoachWorkspace() {
-  elements.coachAthleteCount.textContent =
-    String(
-      state.coachAthletes.length
-    );
-
-  elements.coachAssignmentCount.textContent =
-    String(
-      state.coachAssignments.length
-    );
-
-  elements.coachArtefactCount.textContent =
-    String(
-      state.coachArtefactCount
-    );
-
   renderCoachAthleteDirectory();
 
   // NOTE: the "Connected athletes" dashboard panel is React now (see
@@ -3299,54 +3067,17 @@ function renderCoachWorkspace() {
   }
 }
 
-// FULL-UI-07 durable factual review queue.
-// Review state is server-authoritative product state and never changes engine truth.
-function reviewAthleteForRecord(record) {
-  return state.coachAthletes.find(
-    (athlete) =>
-      athlete.userId ===
-      String(record?.athlete_user_id ?? "")
-  ) ?? null;
-}
-
-function reviewAthleteName(record) {
-  return String(
-    reviewAthleteForRecord(record)?.displayName ??
-    record?.athlete_display_name ??
-    "Connected athlete"
-  );
-}
-
 // DEV NOTE: FULL-UI-17 review queue (reviewList/coachNoteForm) and
 // FULL-UI-32 coach video-feedback queue both moved to React
 // (CoachReviewPanel.tsx/useCoachReview.ts into #coach-review-root,
 // CoachVideoFeedbackQueuePanel.tsx into #coach-video-feedback-queue-root -
 // see useCoachVideoFeedbackQueue.ts) - both independently fetch their own
-// data on mount. reviewAthleteForRecord()/reviewAthleteName() above stay,
-// since renderCoachDashboard() below still uses them for its own
-// review-derived stat card. The trimmed refreshCoachReviewQueue() below
-// survives only because refreshCoachDashboard() also calls it, quietly
-// and without rendering, to populate state.coachReviewRecords for that
-// same dashboard read - the same independent-fetch duplication already
-// accepted for other migrated panels' dashboard-visible counts.
-async function refreshCoachReviewQueue() {
-  const coachUserId = String(state.profile?.coachUserId ?? "");
-
-  if (!coachUserId) {
-    state.coachReviewRecords = [];
-    return [];
-  }
-
-  const response = await api(
-    "GET",
-    `/coach-workspace/reviews?coach_user_id=${encodeURIComponent(coachUserId)}`
-  );
-
-  state.coachReviewRecords = Array.isArray(response.records) ? response.records : [];
-  saveState();
-
-  return state.coachReviewRecords;
-}
+// data on mount. reviewAthleteForRecord()/reviewAthleteName() and the
+// trimmed refreshCoachReviewQueue() (FULL-UI-07) are gone too - their only
+// remaining caller was renderCoachDashboard()'s own review-derived stat
+// card, itself removed now that the dashboard metric strip is React (see
+// CoachOverviewMetricsPanel.tsx/useCoachOverviewMetrics.ts, which fetches
+// GET /coach-workspace/reviews directly for the same counts).
 
 
 function templateExerciseOptions(selectedExerciseId = "") {
@@ -7414,15 +7145,10 @@ async function archiveTemplate(templateId) {
 }
 // DEV NOTE: the create-event form's own COACH_EVENT_TYPES/
 // syncCoachEventTypeOptions()/renderCoachEventPreview() moved to React -
-// see CoachEventCreatePanel.tsx/useCoachEventCreate.ts. coachEventPlan/
-// coachEventCompile below stay - dashboardEventDate() and other still-
-// legacy dashboard rendering call them directly.
-function coachEventPlan(eventRecord) {
-  return eventRecord?.event_plan && typeof eventRecord.event_plan === "object"
-    ? eventRecord.event_plan
-    : null;
-}
-
+// see CoachEventCreatePanel.tsx/useCoachEventCreate.ts. coachEventPlan()
+// (dashboardEventDate()'s only caller, itself now removed along with the
+// rest of renderCoachDashboard()'s metric computation - see
+// CoachOverviewMetricsPanel.tsx/useCoachOverviewMetrics.ts) is gone too.
 function coachEventCompile(eventRecord) {
   return eventRecord?.event_compile_summary && typeof eventRecord.event_compile_summary === "object"
     ? eventRecord.event_compile_summary
