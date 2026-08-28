@@ -159,17 +159,6 @@ const elements = {
   athleteProfileHeading: document.getElementById("athleteProfileHeading"),
   athleteProfileActivity: document.getElementById("athleteProfileActivity"),
   closeAthleteProfileButton: document.getElementById("closeAthleteProfileButton"),
-  eventForm: document.getElementById("eventForm"),
-  eventName: document.getElementById("eventName"),
-  eventActivity: document.getElementById("eventActivity"),
-  eventType: document.getElementById("eventType"),
-  eventProgrammeStartDate: document.getElementById("eventProgrammeStartDate"),
-  eventDate: document.getElementById("eventDate"),
-  eventLocation: document.getElementById("eventLocation"),
-  eventTimezone: document.getElementById("eventTimezone"),
-  eventNotes: document.getElementById("eventNotes"),
-  eventPreviewCountdown: document.getElementById("eventPreviewCountdown"),
-  eventPreviewWeeks: document.getElementById("eventPreviewWeeks"),
   refreshEventsButton: document.getElementById("refreshEventsButton"),
   athleteDetailHistoryPanel: document.getElementById("athleteDetailHistoryPanel"),
   athleteDetailRefreshButton: document.getElementById("athleteDetailRefreshButton"),
@@ -8029,26 +8018,11 @@ async function archiveTemplate(templateId) {
     hideBusy();
   }
 }
-const COACH_EVENT_TYPES = Object.freeze({
-  powerlifting: [
-    ["powerlifting_meet", "Powerlifting meet"],
-    ["strength_event", "Strength event"],
-    ["test_day", "Test day"],
-    ["other", "Other"]
-  ],
-  general_strength: [
-    ["strength_event", "Strength event"],
-    ["test_day", "Test day"],
-    ["other", "Other"]
-  ],
-  rugby_union: [
-    ["rugby_match", "Rugby match"],
-    ["rugby_tournament", "Rugby tournament"],
-    ["test_day", "Test day"],
-    ["other", "Other"]
-  ]
-});
-
+// DEV NOTE: the create-event form's own COACH_EVENT_TYPES/
+// syncCoachEventTypeOptions()/renderCoachEventPreview() moved to React -
+// see CoachEventCreatePanel.tsx/useCoachEventCreate.ts. coachEventPlan/
+// coachEventCompile below stay - dashboardEventDate() and other still-
+// legacy dashboard rendering call them directly.
 function coachEventPlan(eventRecord) {
   return eventRecord?.event_plan && typeof eventRecord.event_plan === "object"
     ? eventRecord.event_plan
@@ -8059,35 +8033,6 @@ function coachEventCompile(eventRecord) {
   return eventRecord?.event_compile_summary && typeof eventRecord.event_compile_summary === "object"
     ? eventRecord.event_compile_summary
     : null;
-}
-
-function syncCoachEventTypeOptions() {
-  const activityId = elements.eventActivity.value || "powerlifting";
-  const previous = elements.eventType.value;
-  const options = COACH_EVENT_TYPES[activityId] ?? COACH_EVENT_TYPES.powerlifting;
-
-  elements.eventType.innerHTML = options
-    .map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`)
-    .join("");
-
-  if (options.some(([value]) => value === previous)) {
-    elements.eventType.value = previous;
-  }
-}
-
-function renderCoachEventPreview() {
-  syncCoachEventTypeOptions();
-  const startDate = elements.eventProgrammeStartDate.value;
-  const eventDate = elements.eventDate.value;
-  const days = dateOnlyDifference(startDate, eventDate);
-
-  elements.eventPreviewCountdown.textContent = eventDate
-    ? countdownLabel(eventDate)
-    : "Set event date";
-
-  elements.eventPreviewWeeks.textContent = Number.isInteger(days) && days > 0
-    ? String(Math.ceil(days / 7))
-    : "—";
 }
 
 async function refreshCoachEvents(options = {}) {
@@ -8111,53 +8056,17 @@ async function refreshCoachEvents(options = {}) {
   }
 }
 
-// NOTE: the event library (metric counts + event card list) moved to
-// React - see public/app-src/screens/coach/CoachEventsLibraryPanel.tsx,
-// mounted into #coach-events-metrics-root and #coach-events-list-root.
-// It independently fetches GET /coach-workspace/events and refetches on
-// the kolosseum:coach-events-changed dispatch just below. The
-// create-event form's own live countdown/weeks preview
-// (renderCoachEventPreview()) stays legacy.
+// NOTE: the event library (metric counts + event card list) AND the
+// create-event form moved to React - see
+// public/app-src/screens/coach/CoachEventsLibraryPanel.tsx/
+// CoachEventCreatePanel.tsx, mounted into #coach-events-metrics-root,
+// #coach-events-list-root and #coach-event-create-root. All three
+// independently fetch GET /coach-workspace/events and refetch on the
+// kolosseum:coach-events-changed dispatch just below.
 function renderCoachEvents() {
   document.dispatchEvent(
     new CustomEvent("kolosseum:coach-events-changed")
   );
-
-  renderCoachEventPreview();
-}
-
-async function createCoachEvent(event) {
-  event.preventDefault();
-  showBusy("Compiling event…");
-
-  try {
-    const timestamp = nowIso();
-    const response = await api("POST", "/coach-workspace/events", {
-      coach_user_id: state.profile.coachUserId,
-      event_id: "",
-      event_name: elements.eventName.value.trim(),
-      activity_id: elements.eventActivity.value,
-      event_type: elements.eventType.value,
-      programme_start_date: elements.eventProgrammeStartDate.value,
-      event_date: elements.eventDate.value,
-      location: elements.eventLocation.value.trim(),
-      timezone: elements.eventTimezone.value.trim() || "Europe/London",
-      notes: elements.eventNotes.value.trim(),
-      created_at_iso8601: timestamp,
-      updated_at_iso8601: timestamp
-    });
-
-    await refreshCoachEvents({ quiet: true });
-    elements.eventForm.reset();
-    elements.eventActivity.value = response.event?.activity_id ?? "powerlifting";
-    elements.eventTimezone.value = "Europe/London";
-    syncCoachEventTypeOptions();
-    renderCoachEventPreview();
-    showNotice(`${coachEventPlan(response.event)?.event_name ?? "Event"} compiled.`);
-  }
-  finally {
-    hideBusy();
-  }
 }
 
 // DEV NOTE: the assignment-from-profile form (selectedAthleteProfileTemplate/
@@ -9046,23 +8955,6 @@ elements.coachDashboardRefreshButton.addEventListener("click", () => {
 
 elements.refreshEventsButton.addEventListener("click", () => {
   refreshCoachEvents().catch(handleError);
-});
-
-elements.eventActivity.addEventListener("change", () => {
-  syncCoachEventTypeOptions();
-  renderCoachEventPreview();
-});
-
-for (const control of [
-  elements.eventProgrammeStartDate,
-  elements.eventDate
-]) {
-  control.addEventListener("input", renderCoachEventPreview);
-  control.addEventListener("change", renderCoachEventPreview);
-}
-
-elements.eventForm.addEventListener("submit", (event) => {
-  createCoachEvent(event).catch(handleError);
 });
 
 elements.refreshTemplatesButton.addEventListener("click", () => {

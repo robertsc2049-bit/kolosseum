@@ -912,33 +912,7 @@
           <div id="coach-events-metrics-root" class="metric-cards"></div>
 
           <div class="two-column events-layout">
-            <form id="eventForm" class="panel form-panel">
-              <div>
-                <p class="eyebrow">New event</p>
-                <h3>Compile event</h3>
-              </div>
-              <label class="field"><span>Event name</span><input id="eventName" required maxlength="120" placeholder="British Championships" /></label>
-              <label class="field"><span>Activity</span>
-                <select id="eventActivity">
-                  <option value="powerlifting">Powerlifting</option>
-                  <option value="general_strength">General strength</option>
-                  <option value="rugby_union">Rugby union</option>
-                </select>
-              </label>
-              <label class="field"><span>Event type</span><select id="eventType"></select></label>
-              <div class="profile-settings-grid">
-                <label class="field"><span>Preparation start date</span><input id="eventProgrammeStartDate" type="date" required /></label>
-                <label class="field"><span>Event date</span><input id="eventDate" type="date" required /></label>
-              </div>
-              <label class="field"><span>Location</span><input id="eventLocation" maxlength="200" placeholder="Optional venue or town" /></label>
-              <label class="field"><span>Timezone</span><input id="eventTimezone" maxlength="80" value="Europe/London" /></label>
-              <label class="field"><span>Notes</span><textarea id="eventNotes" maxlength="1000" placeholder="Factual event details only"></textarea></label>
-              <div class="event-compiler-summary standalone-event-summary">
-                <div><span>Countdown</span><strong id="eventPreviewCountdown">Set event date</strong></div>
-                <div><span>Available weeks</span><strong id="eventPreviewWeeks">—</strong></div>
-              </div>
-              <button class="button primary" type="submit">Compile event</button>
-            </form>
+            <div id="coach-event-create-root"></div>
 
             <article class="panel">
               <div class="panel-header">
