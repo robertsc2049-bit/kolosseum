@@ -149,8 +149,6 @@ const elements = {
   coachUpcomingEventCount: document.getElementById("coachUpcomingEventCount"),
   coachDashboardStatus: document.getElementById("coachDashboardStatus"),
   coachDashboardRefreshButton: document.getElementById("coachDashboardRefreshButton"),
-  coachOverviewOpenSessions: document.getElementById("coachOverviewOpenSessions"),
-  coachOverviewReviewQueue: document.getElementById("coachOverviewReviewQueue"),
   refreshAthleteDirectoryButton: document.getElementById("refreshAthleteDirectoryButton"),
   athleteDirectoryStatus: document.getElementById("athleteDirectoryStatus"),
   eventsStatus: document.getElementById("eventsStatus"),
@@ -3212,33 +3210,6 @@ function dashboardEmptyState(
   `;
 }
 
-function dashboardActionButton(
-  label,
-  action,
-  values = {}
-) {
-  const attributes =
-    Object.entries(values)
-      .filter(([, value]) =>
-        String(value ?? "").length > 0
-      )
-      .map(([key, value]) =>
-        `data-${escapeHtml(key)}="${escapeHtml(value)}"`
-      )
-      .join(" ");
-
-  return `
-    <button
-      class="button secondary small-button"
-      type="button"
-      data-dashboard-action="${escapeHtml(action)}"
-      ${attributes}
-    >
-      ${escapeHtml(label)}
-    </button>
-  `;
-}
-
 function bindCoachDashboardActions() {
   for (
     const button of
@@ -3265,16 +3236,6 @@ function bindCoachDashboardActions() {
           return;
         }
 
-        if (action === "open-review") {
-          setView("review");
-
-          document.dispatchEvent(
-            new CustomEvent("kolosseum:open-session-review", { detail: { athlete_user_id: athleteUserId } })
-          );
-
-          return;
-        }
-
         if (action === "open-programmes") {
           setView("templates");
         }
@@ -3284,13 +3245,6 @@ function bindCoachDashboardActions() {
 }
 
 function renderCoachDashboard() {
-  if (
-    !elements.coachOverviewOpenSessions ||
-    !elements.coachOverviewReviewQueue
-  ) {
-    return;
-  }
-
   const artefacts =
     Array.isArray(
       state.coachDashboardArtefacts
@@ -3451,121 +3405,17 @@ function renderCoachDashboard() {
           "Connect an athlete to begin programme assignment and session review."
         ));
 
-  elements.coachOverviewOpenSessions.innerHTML =
-    openSessions.length
-      ? openSessions
-          .slice(0, 8)
-          .map(({ athlete, artefact }) => `
-            <article class="record-card dashboard-record-card">
-              <div>
-                <h4>
-                  ${escapeHtml(
-                    athlete.displayName
-                  )}
-                </h4>
-
-                <p>
-                  ${escapeHtml(
-                    titleCase(
-                      dashboardSessionStatus(
-                        artefact
-                      )
-                    )
-                  )}
-                  ·
-                  ${Number(
-                    artefact.runtime_event_count ??
-                    0
-                  )}
-                  recorded events
-                </p>
-              </div>
-
-              <div class="record-meta">
-                <span class="badge neutral">
-                  ${escapeHtml(
-                    formatDate(
-                      dashboardSessionDate(
-                        artefact
-                      )
-                    )
-                  )}
-                </span>
-
-                ${dashboardActionButton(
-                  "Open live status",
-                  "open-review",
-                  {
-                    "athlete-id":
-                      athlete.userId
-                  }
-                )}
-              </div>
-            </article>
-          `)
-          .join("")
-      : dashboardEmptyState(
-          "No open sessions",
-          "No connected athlete currently has an open recorded session."
-        );
-
-  elements.coachOverviewReviewQueue.innerHTML =
-    completedSessions.length
-      ? completedSessions
-          .slice(0, 8)
-          .map(({ athlete, artefact }) => `
-            <article class="record-card dashboard-record-card">
-              <div>
-                <h4>
-                  ${escapeHtml(
-                    athlete.displayName
-                  )}
-                </h4>
-
-                <p>
-                  ${escapeHtml(
-                    titleCase(
-                      dashboardSessionStatus(
-                        artefact
-                      )
-                    )
-                  )}
-                  ·
-                  ${Number(
-                    artefact.runtime_event_count ??
-                    0
-                  )}
-                  recorded events
-                </p>
-              </div>
-
-              <div class="record-meta">
-                <span class="badge complete">
-                  ${escapeHtml(
-                    formatDate(
-                      dashboardSessionDate(
-                        artefact
-                      )
-                    )
-                  )}
-                </span>
-
-                ${dashboardActionButton(
-                  "Review record",
-                  "open-review",
-                  {
-                    "athlete-id":
-                      athlete.userId
-                  }
-                )}
-              </div>
-            </article>
-          `)
-          .join("")
-      : dashboardEmptyState(
-          "No completed session records",
-          "Completed athlete sessions will appear here when factual artefacts are available."
-        );
+  // NOTE: the "Open sessions"/"Completed since review" panels moved to
+  // React (see public/app-src/screens/coach/
+  // CoachOverviewSessionReviewPanel.tsx, mounted into
+  // #coach-overview-open-sessions-root and
+  // #coach-overview-review-queue-root) - both independently fetch
+  // GET /coach-workspace/reviews (the same richer, single-query endpoint
+  // useCoachReview.ts's full Review view already relies on exclusively,
+  // superseding the artefact fan-out's narrower fallback role) and refetch
+  // on the kolosseum:coach-overview-changed dispatch just below.
+  // `openSessions`/`completedSessions` above are still used for the
+  // coachOpenSessionCount/coachCompletedSessionCount metrics.
 
   // NOTE: the "Upcoming events" panel moved to React (see
   // public/app-src/screens/coach/CoachOverviewEventsPanel.tsx, mounted
