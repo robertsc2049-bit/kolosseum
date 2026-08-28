@@ -56,6 +56,7 @@ import { CoachVideoFeedbackQueuePanel } from "./screens/coach/CoachVideoFeedback
 import { CoachAthleteMessagePanel } from "./screens/coach/CoachAthleteMessagePanel";
 import { CoachBroadcastPanel } from "./screens/coach/CoachBroadcastPanel";
 import { CoachOverviewAssignmentsPanel } from "./screens/coach/CoachOverviewAssignmentsPanel";
+import { CoachOverviewMetricsPanel } from "./screens/coach/CoachOverviewMetricsPanel";
 import { CoachOverviewAthletesPanel } from "./screens/coach/CoachOverviewAthletesPanel";
 import { CoachOverviewEventsPanel } from "./screens/coach/CoachOverviewEventsPanel";
 import { CoachOverviewOpenSessionsPanel, CoachOverviewReviewQueuePanel } from "./screens/coach/CoachOverviewSessionReviewPanel";
@@ -112,6 +113,7 @@ mount("connect-athlete-root", <ConnectAthletePanel />);
 mount("athlete-relationship-detail-root", <AthleteRelationshipDetailPanel />);
 mount("coach-overview-events-root", <CoachOverviewEventsPanel />);
 mount("coach-overview-assignments-root", <CoachOverviewAssignmentsPanel />);
+mount("coach-overview-metrics-root", <CoachOverviewMetricsPanel />);
 mount("coach-overview-athletes-root", <CoachOverviewAthletesPanel />);
 mount("coach-overview-open-sessions-root", <CoachOverviewOpenSessionsPanel />);
 mount("coach-overview-review-queue-root", <CoachOverviewReviewQueuePanel />);

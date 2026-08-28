@@ -376,10 +376,8 @@ const targets = [
       {
         "path": "public/app/index.html",
         "any": [
-          "coachOverviewAssignments",
-          "coachAssignmentCount",
-          "Assignments requiring action",
-          "Assignment queue"
+          "coach-overview-assignments-root",
+          "Action queue"
         ]
       }
     ],
@@ -401,7 +399,7 @@ const targets = [
       {
         "path": "public/app/index.html",
         "all": [
-          "coachOpenSessionCount",
+          "Open sessions",
           "coach-overview-open-sessions-root"
         ]
       }
@@ -503,10 +501,10 @@ const targets = [
         ]
       },
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/useCoachOverviewSessionReview.ts",
         "all": [
-          "__review_state__",
-          "unreviewed"
+          "review_status",
+          "awaiting_review"
         ]
       }
     ],
