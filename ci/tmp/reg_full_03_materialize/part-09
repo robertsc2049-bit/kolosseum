@@ -1,0 +1,34 @@
+erate governed derived files in repository-authorised order.
+run("node", ["scripts/bundle_writer.cjs"]);
+run("node", ["ci/scripts/run_failure_token_index_guard.mjs", "--write"]);
+run("node", ["ci/scripts/write_checksums.mjs", "--write"]);
+run("node", ["ci/scripts/evidence_seal.mjs", "--write"]);
+run("node", ["ci/scripts/write_registry_seal_snapshot_from_manifest.mjs"]);
+
+// Focused fail-closed proof before any commit/push.
+run("node", ["ci/registry/reg_full_03_exercise_registry_production.mjs"]);
+run("node", ["--test", "test/reg_full_03_exercise_registry_production.test.mjs"]);
+run("node", ["ci/guards/registry_law_guard.mjs"]);
+run("node", ["ci/guards/registry_bundle_guard.mjs"]);
+run("node", ["ci/guards/s_v1_21_exercise_registry_contract_guard.mjs"]);
+run("node", ["ci/guards/s_v1_23_exercise_activity_applicability_coverage_guard.mjs"]);
+run("node", ["--test", "test/s_reg_31_exercise_token_registry_activation.test.mjs"]);
+run("node", ["--test", "test/s_reg_33_exercise_activity_applicability_registry_activation.test.mjs"]);
+run("node", ["ci/scripts/run_unilateral_coverage_verifier.mjs", "registries/exercise/exercise.registry.json"]);
+run("node", ["ci/scripts/run_failure_token_index_guard.mjs"]);
+run("node", ["ci/scripts/sha256_guard.mjs"]);
+run("node", ["ci/scripts/evidence_seal.mjs", "--check"]);
+run("node", ["ci/guards/evidence_seal_guard.mjs"]);
+run("node", ["ci/scripts/run_registry_seal_gate.mjs"]);
+run("git", ["diff", "--check"]);
+
+console.log("\n============================================================");
+console.log("REG-FULL-03 LOCAL PRODUCTION BUILD: PASS");
+console.log("============================================================");
+console.log("exercises:      215");
+console.log("movement cover: 54 / 54");
+console.log("tokens:         4");
+console.log("applicability:  1785");
+console.log("powerlifting:   165 exercises / 41 movements");
+console.log("general:        215 exercises / 54 movements");
+console.log("rugby_union:    215 exercises / 54 movements");
