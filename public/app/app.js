@@ -169,15 +169,7 @@ const elements = {
   templateDraftRecoveryResumeButton: document.getElementById("templateDraftRecoveryResumeButton"),
   templateDraftRecoveryDiscardButton: document.getElementById("templateDraftRecoveryDiscardButton"),
   templateDetailPanel: document.getElementById("templateDetailPanel"),
-  templateDetailTitle: document.getElementById("templateDetailTitle"),
-  templateDetailStatus: document.getElementById("templateDetailStatus"),
   templateDetailCloseButton: document.getElementById("templateDetailCloseButton"),
-  templateDetailMeta: document.getElementById("templateDetailMeta"),
-  templateDetailDescription: document.getElementById("templateDetailDescription"),
-  templateDetailActions: document.getElementById("templateDetailActions"),
-  templateDetailVersionFamily: document.getElementById("templateDetailVersionFamily"),
-  templateDetailUsage: document.getElementById("templateDetailUsage"),
-  templateDetailValidation: document.getElementById("templateDetailValidation"),
   templateDetailPreview: document.getElementById("templateDetailPreview"),
   backToTemplatesButton: document.getElementById("backToTemplatesButton"),
   saveTemplateButton: document.getElementById("saveTemplateButton"),
@@ -4113,62 +4105,23 @@ function programmeActivationIssues(template) {
 // DEV NOTE: programmeVersionFamilyHtml()/programmeUsageHtml() moved to
 // CoachProgrammeDetailPanel.tsx's VersionFamilyList()/UsageList().
 
-function programmeValidationHtml(template) {
-  const issues = programmeActivationIssues(template);
-
-  if (String(template.template_status ?? "") !== "draft") {
-    return `
-      <div class="assignment-requirements neutral">
-        This persisted version is ${escapeHtml(programmeDisplayState(template))}.
-        Completion checks apply to draft versions only.
-      </div>
-    `;
-  }
-
-  if (issues.length === 0) {
-    return `
-      <div class="assignment-requirements complete">
-        All visible completion checks pass. The server remains authoritative when the template is marked complete.
-      </div>
-    `;
-  }
-
-  return `
-    <div class="assignment-requirements warning">
-      ${issues.length} completion issue${issues.length === 1 ? "" : "s"} recorded.
-    </div>
-    <ol class="programme-validation-list">
-      ${issues.map((issue) => `
-        <li>
-          <strong>${escapeHtml(issue.path)}</strong>
-          <span>${escapeHtml(issue.message)}</span>
-          <code>${escapeHtml(issue.code)}</code>
-        </li>
-      `).join("")}
-    </ol>
-    <button
-      class="button secondary small-button programme-validation-edit"
-      type="button"
-      data-template-id="${escapeHtml(template.template_id)}"
-    >
-      Open draft builder
-    </button>
-  `;
-}
-
 // DEV NOTE: FULL-UI-05A programme detail facts/version-family/usage/
 // actions moved to React - see
 // public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx/
 // useCoachProgrammeDetail.ts, mounted at #programme-detail-header-root/
-// #programme-detail-root (both opening on the same
-// kolosseum:open-programme-detail event this function's caller,
-// openProgrammeDetail(), still dispatches to - React and this function
-// both react to it independently). This function keeps only what still-
-// legacy siblings inside #templateDetailPanel need: the marketplace
-// sharing/release sub-panel's shareable-gating/data refresh, and the
-// activation validation summary/structure preview (their own future
-// slices - programmeValidationHtml()/programmePreviewHtml() are ~200 and
-// ~80 lines respectively and were judged too large to fold into this cut).
+// #programme-detail-root. The activation validation summary also moved -
+// see CoachProgrammeValidationPanel.tsx/programmeDraft.ts (a copy of
+// programmeActivationIssues(), which stays here too since
+// completeTemplateById()/currentTemplateBuilderIssues() still call it
+// directly), mounted at #programme-validation-root - programmeValidationHtml()
+// itself had zero remaining callers once this changed and was deleted.
+// All three mount points open on the same kolosseum:open-programme-detail
+// event this function's caller, openProgrammeDetail(), still dispatches to
+// - React and this function each react to it independently. This function
+// keeps only what still-legacy siblings inside #templateDetailPanel need:
+// the marketplace sharing/release sub-panel's shareable-gating/data
+// refresh, and the structure preview (programmePreviewHtml() - its own
+// future slice).
 function renderProgrammeDetail() {
   const template = state.coachTemplates.find(
     (candidate) => candidate.template_id === state.selectedTemplateId
@@ -4189,24 +4142,8 @@ function renderProgrammeDetail() {
     refreshTemplateReleaseHistory(template.template_id).catch(handleError);
   }
 
-  elements.templateDetailValidation.innerHTML =
-    programmeValidationHtml(template);
   elements.templateDetailPreview.innerHTML =
     programmePreviewHtml(template);
-
-  for (
-    const button of
-    elements.templateDetailPanel.querySelectorAll(
-      ".programme-validation-edit"
-    )
-  ) {
-    button.addEventListener("click", () => {
-      const selected = state.coachTemplates.find(
-        (candidate) => candidate.template_id === button.dataset.templateId
-      );
-      if (selected) openTemplateBuilder(templateRecordToDraft(selected));
-    });
-  }
 }
 
 async function refreshTemplateSharingPreference(templateId) {
