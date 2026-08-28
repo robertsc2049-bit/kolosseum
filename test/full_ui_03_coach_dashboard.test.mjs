@@ -29,14 +29,14 @@ const manifest = JSON.parse(
   )
 );
 
-// DEV NOTE: the "Upcoming events", "Action queue", "Open sessions" and
-// "Completed since review" panels all moved to React - see
-// public/app-src/screens/coach/CoachOverviewEventsPanel.tsx/
-// useCoachOverviewEvents.ts, CoachOverviewAssignmentsPanel.tsx/
-// useCoachOverviewAssignments.ts and
-// CoachOverviewSessionReviewPanel.tsx/useCoachOverviewSessionReview.ts.
-// The metric counts, "Connected athletes" panel and the dashboard status
-// line all stay legacy - see those components' own DEV NOTEs for why.
+// DEV NOTE: every dashboard panel (Connected athletes, Action queue, Open
+// sessions, Completed since review, Upcoming events) has moved to React -
+// see public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx/
+// useCoachOverviewAthletes.ts, CoachOverviewAssignmentsPanel.tsx/
+// useCoachOverviewAssignments.ts, CoachOverviewSessionReviewPanel.tsx/
+// useCoachOverviewSessionReview.ts and CoachOverviewEventsPanel.tsx/
+// useCoachOverviewEvents.ts. Only the metric counts and the dashboard
+// status line stay legacy - see those components' own DEV NOTEs for why.
 const coachOverviewEventsPanel = fs.readFileSync(
   new URL("../public/app-src/screens/coach/CoachOverviewEventsPanel.tsx", import.meta.url),
   "utf8"
@@ -49,6 +49,10 @@ const coachOverviewSessionReviewPanel = fs.readFileSync(
   new URL("../public/app-src/screens/coach/CoachOverviewSessionReviewPanel.tsx", import.meta.url),
   "utf8"
 );
+const coachOverviewAthletesPanel = fs.readFileSync(
+  new URL("../public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx", import.meta.url),
+  "utf8"
+);
 
 test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
   const ids = [
@@ -59,8 +63,7 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
     "coachArtefactCount",
     "coachOpenSessionCount",
     "coachCompletedSessionCount",
-    "coachUpcomingEventCount",
-    "coachOverviewAthletes"
+    "coachUpcomingEventCount"
   ];
 
   for (const id of ids) {
@@ -78,6 +81,8 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
   assert.ok(!html.includes('id="coachOverviewOpenSessions"'), "legacy coachOverviewOpenSessions mount point should be fully retired");
   assert.ok(html.includes('id="coach-overview-review-queue-root"'), "missing coach-overview-review-queue-root");
   assert.ok(!html.includes('id="coachOverviewReviewQueue"'), "legacy coachOverviewReviewQueue mount point should be fully retired");
+  assert.ok(html.includes('id="coach-overview-athletes-root"'), "missing coach-overview-athletes-root");
+  assert.ok(!html.includes('id="coachOverviewAthletes"'), "legacy coachOverviewAthletes mount point should be fully retired");
 });
 
 test("FULL-UI-03 loads server-authoritative coach records", () => {
@@ -150,6 +155,19 @@ test("FULL-UI-03 provides direct coach actions", () => {
   assert.ok(!application.includes("function dashboardActionButton"), "dashboardActionButton() should be fully retired from app.js");
   assert.ok(coachOverviewSessionReviewPanel.includes("kolosseum:open-session-review"));
   assert.match(application, /"kolosseum:open-session-review",\s*\n\s*\(event\) => \{\s*\n\s*const athleteUserId = event\.detail\?\.athlete_user_id;\s*\n\s*if \(!athleteUserId\) return;\s*\n\s*\n\s*setView\("review"\);/u);
+
+  // "Connected athletes" moved to React too
+  // (CoachOverviewAthletesPanel.tsx/useCoachOverviewAthletes.ts) -
+  // coachAthleteCard()/bindCoachAthleteActions()/profileForAthlete()/
+  // currentProfileBenchmarks()/relationshipEffectiveState()/
+  // refreshCoachAthleteProfiles()/dashboardEmptyState() are all fully
+  // retired from app.js, and its "Open profile" button dispatches the
+  // same kolosseum:open-athlete-profile-request event
+  // AthleteDirectoryPanel.tsx already uses.
+  assert.ok(!application.includes("function coachAthleteCard"), "coachAthleteCard() should be fully retired from app.js");
+  assert.ok(!application.includes("function bindCoachAthleteActions"), "bindCoachAthleteActions() should be fully retired from app.js");
+  assert.ok(!application.includes("function dashboardEmptyState"), "dashboardEmptyState() should be fully retired from app.js");
+  assert.ok(coachOverviewAthletesPanel.includes("kolosseum:open-athlete-profile-request"));
 });
 
 test("FULL-UI-03 remains factual and read-only", () => {
