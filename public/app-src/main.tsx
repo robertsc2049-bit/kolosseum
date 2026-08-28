@@ -21,6 +21,7 @@ import { AthleteSelfProgressPhotosPanel } from "./screens/athlete/AthleteSelfPro
 import { AthleteSelfProgressInsightsPanel } from "./screens/athlete/AthleteSelfProgressInsightsPanel";
 import { AthleteSelfWeeklyCheckinsPanel } from "./screens/athlete/AthleteSelfWeeklyCheckinsPanel";
 import { AthleteSessionExecutionPanel } from "./screens/athlete/AthleteSessionExecutionPanel";
+import { AthleteTodayHistoryCountBadge, AthleteTodayRecentActivityList } from "./screens/athlete/AthleteTodayRecentActivityPanel";
 import { AthleteTodayCreateSessionButton, AthleteTodayEventCard, AthleteTodaySessionCard } from "./screens/athlete/AthleteTodayPanel";
 import { AthleteDirectoryPanel } from "./screens/coach/AthleteDirectoryPanel";
 import { AthleteProfileAssignmentPanel } from "./screens/coach/AthleteProfileAssignmentPanel";
@@ -119,6 +120,8 @@ mount("coach-video-feedback-queue-root", <CoachVideoFeedbackQueuePanel />);
 mount("athlete-today-create-session-root", <AthleteTodayCreateSessionButton />);
 mount("athlete-today-session-root", <AthleteTodaySessionCard />);
 mount("athlete-today-event-root", <AthleteTodayEventCard />);
+mount("today-history-count-root", <AthleteTodayHistoryCountBadge />);
+mount("today-recent-activity-root", <AthleteTodayRecentActivityList />);
 mount("athlete-history-root", <AthleteHistoryPanel />);
 mount("athlete-self-weekly-checkins-root", <AthleteSelfWeeklyCheckinsPanel />);
 mount("athlete-self-progress-insights-root", <AthleteSelfProgressInsightsPanel />);
