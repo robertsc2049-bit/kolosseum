@@ -303,7 +303,7 @@ const targets = [
       [
         "public/app/index.html",
         [
-          "id=\"coachOverviewReviewQueue\"",
+          "id=\"coach-overview-review-queue-root\"",
           "Awaiting review"
         ]
       ],
