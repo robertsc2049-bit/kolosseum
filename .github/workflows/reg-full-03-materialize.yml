@@ -1,0 +1,41 @@
+name: REG-FULL-03 materialize
+
+on:
+  push:
+    branches:
+      - automation/reg-full-03-exercise-registry-production
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    if: ${{ !contains(github.event.head_commit.message, '[reg-full-03-materialized]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: git fetch origin main
+      - name: Materialize and prove REG-FULL-03
+        run: |
+          cat ci/tmp/reg_full_03_materialize/part-* > /tmp/reg-full-03-materialize.mjs
+          rm -rf ci/tmp/reg_full_03_materialize
+          rm -f .github/workflows/reg-full-03-materialize.yml
+          node /tmp/reg-full-03-materialize.mjs
+      - name: Commit production closure
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No materialization changes"
+            exit 0
+          fi
+          git commit -m "feat(registry): materialize REG-FULL-03 production universe [reg-full-03-materialized]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
