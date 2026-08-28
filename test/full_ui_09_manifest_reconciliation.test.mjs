@@ -813,14 +813,14 @@ const targets = [
     "id": "programme_search_filter",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/useCoachProgrammeLibrary.ts",
         "all": [
           "function programmeSearchText(",
           "function filteredProgrammeTemplates("
         ]
       },
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx",
         "all": [
           "Search programmes"
         ]

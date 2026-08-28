@@ -927,13 +927,7 @@
               <button id="newTemplateButton" class="button primary" type="button">New programme</button>
             </div>
 
-            <div class="metric-cards programme-metric-cards">
-              <article class="panel metric-card"><span>Draft programmes</span><strong id="templateDraftCount">0</strong></article>
-              <article class="panel metric-card"><span>Complete programmes</span><strong id="templateCompleteCount">0</strong></article>
-              <article class="panel metric-card"><span>Active programmes</span><strong id="templateActiveCount">0</strong></article>
-              <article class="panel metric-card"><span>Archived programmes</span><strong id="templateArchivedCount">0</strong></article>
-              <article class="panel metric-card"><span>Superseded versions</span><strong id="templateSupersededCount">0</strong></article>
-            </div>
+            <div id="templates-metrics-root" class="metric-cards programme-metric-cards"></div>
 
             <article class="panel programme-library-panel">
               <div class="panel-header">
@@ -944,62 +938,7 @@
                 <button id="refreshTemplatesButton" class="button secondary" type="button">Refresh</button>
               </div>
 
-              <div class="programme-library-controls" aria-label="Programme library filters">
-                <label class="field programme-search-field">
-                  <span>Search programmes</span>
-                  <input
-                    id="templateLibrarySearch"
-                    type="search"
-                    autocomplete="off"
-                    placeholder="Name, activity, event or version"
-                  />
-                </label>
-
-                <label class="field">
-                  <span>State</span>
-                  <select id="templateLibraryStatusFilter">
-                    <option value="all">All states</option>
-                    <option value="draft">Draft</option>
-                    <option value="complete">Complete</option>
-                    <option value="active">Active</option>
-                    <option value="archived">Archived</option>
-                    <option value="superseded">Superseded</option>
-                  </select>
-                </label>
-
-                <label class="field">
-                  <span>Activity</span>
-                  <select id="templateLibraryActivityFilter">
-                    <option value="all">All activities</option>
-                    <option value="powerlifting">Powerlifting</option>
-                    <option value="general_strength">General strength</option>
-                    <option value="rugby_union">Rugby union</option>
-                  </select>
-                </label>
-
-                <label class="field">
-                  <span>Sort</span>
-                  <select id="templateLibrarySort">
-                    <option value="updated_desc">Recently updated</option>
-                    <option value="name_asc">Name A–Z</option>
-                    <option value="version_desc">Highest version</option>
-                    <option value="usage_desc">Most assignments</option>
-                  </select>
-                </label>
-
-                <button
-                  id="templateLibraryClearFilters"
-                  class="button secondary programme-clear-filters"
-                  type="button"
-                >
-                  Clear filters
-                </button>
-              </div>
-
-              <div class="programme-library-result-line">
-                <p id="templateLibraryResultCount" class="muted small">0 programmes</p>
-                <p id="templateLibraryStatus" class="muted small" role="status" aria-live="polite">Programme data not loaded.</p>
-              </div>
+              <div id="templates-library-root"></div>
 
               <aside
                 id="templateDraftRecovery"
@@ -1017,8 +956,6 @@
                   <button id="templateDraftRecoveryDiscardButton" class="button secondary" type="button">Discard changes</button>
                 </div>
               </aside>
-
-              <div id="templateLibraryList" class="template-library"></div>
             </article>
 
             <section

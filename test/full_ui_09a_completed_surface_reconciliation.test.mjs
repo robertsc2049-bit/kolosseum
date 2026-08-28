@@ -569,7 +569,7 @@ const targets = [
     "id": "programme_states",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx",
         [
           "Draft programmes",
           "Complete programmes",

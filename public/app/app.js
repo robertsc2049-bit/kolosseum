@@ -34,10 +34,6 @@ const DEFAULT_STATE = Object.freeze({
   templateEventBindingStatus: null,
   athleteToday: null,
   coachTemplates: [],
-  templateLibrarySearch: "",
-  templateLibraryStatusFilter: "all",
-  templateLibraryActivityFilter: "all",
-  templateLibrarySort: "updated_desc",
   selectedTemplateId: "",
   templateExercises: [],
   templateDraft: null,
@@ -157,7 +153,6 @@ const elements = {
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
   refreshTemplatesButton: document.getElementById("refreshTemplatesButton"),
-  templateLibraryList: document.getElementById("templateLibraryList"),
   templateDetailSharingSection: document.getElementById("templateDetailSharingSection"),
   templateSharingForm: document.getElementById("templateSharingForm"),
   templateDetailSharedCheckbox: document.getElementById("templateDetailSharedCheckbox"),
@@ -168,23 +163,11 @@ const elements = {
   templateReleaseAccountCodeInput: document.getElementById("templateReleaseAccountCodeInput"),
   templateReleaseStatus: document.getElementById("templateReleaseStatus"),
   templateReleaseHistoryList: document.getElementById("templateReleaseHistoryList"),
-  templateLibrarySearch: document.getElementById("templateLibrarySearch"),
-  templateLibraryStatusFilter: document.getElementById("templateLibraryStatusFilter"),
-  templateLibraryActivityFilter: document.getElementById("templateLibraryActivityFilter"),
-  templateLibrarySort: document.getElementById("templateLibrarySort"),
-  templateLibraryClearFilters: document.getElementById("templateLibraryClearFilters"),
-  templateLibraryResultCount: document.getElementById("templateLibraryResultCount"),
-  templateLibraryStatus: document.getElementById("templateLibraryStatus"),
   templateDraftRecovery: document.getElementById("templateDraftRecovery"),
   templateDraftRecoveryTitle: document.getElementById("templateDraftRecoveryTitle"),
   templateDraftRecoveryText: document.getElementById("templateDraftRecoveryText"),
   templateDraftRecoveryResumeButton: document.getElementById("templateDraftRecoveryResumeButton"),
   templateDraftRecoveryDiscardButton: document.getElementById("templateDraftRecoveryDiscardButton"),
-  templateDraftCount: document.getElementById("templateDraftCount"),
-  templateCompleteCount: document.getElementById("templateCompleteCount"),
-  templateActiveCount: document.getElementById("templateActiveCount"),
-  templateArchivedCount: document.getElementById("templateArchivedCount"),
-  templateSupersededCount: document.getElementById("templateSupersededCount"),
   templateDetailPanel: document.getElementById("templateDetailPanel"),
   templateDetailTitle: document.getElementById("templateDetailTitle"),
   templateDetailStatus: document.getElementById("templateDetailStatus"),
@@ -382,16 +365,6 @@ function loadState() {
         ? parsed.coachAthleteProgressPhotoCompareIds.slice(0, 2)
         : [],
       coachTemplates: Array.isArray(parsed.coachTemplates) ? parsed.coachTemplates : [],
-      templateLibrarySearch: String(parsed.templateLibrarySearch ?? ""),
-      templateLibraryStatusFilter: ["all", "draft", "complete", "active", "archived", "superseded"].includes(parsed.templateLibraryStatusFilter)
-        ? parsed.templateLibraryStatusFilter
-        : "all",
-      templateLibraryActivityFilter: ["all", "powerlifting", "general_strength", "rugby_union"].includes(parsed.templateLibraryActivityFilter)
-        ? parsed.templateLibraryActivityFilter
-        : "all",
-      templateLibrarySort: ["updated_desc", "name_asc", "version_desc", "usage_desc"].includes(parsed.templateLibrarySort)
-        ? parsed.templateLibrarySort
-        : "updated_desc",
       selectedTemplateId: String(parsed.selectedTemplateId ?? ""),
       templateExercises: Array.isArray(parsed.templateExercises) ? parsed.templateExercises : [],
       templateDraft: normalisePersistedTemplateDraft(parsed.templateDraft),
@@ -3483,100 +3456,6 @@ function programmeAssignmentUsage(templateId) {
   };
 }
 
-function programmeSearchText(template) {
-  const eventPlan =
-    template?.event_plan &&
-    typeof template.event_plan === "object"
-      ? template.event_plan
-      : {};
-
-  return [
-    template?.template_name,
-    template?.description,
-    template?.activity_id,
-    template?.template_id,
-    template?.template_family_id,
-    template?.template_version,
-    template?.template_status,
-    programmeDisplayState(template),
-    eventPlan?.event_name,
-    eventPlan?.event_type,
-    eventPlan?.location
-  ]
-    .map((value) => String(value ?? "").toLowerCase())
-    .join(" ");
-}
-
-function filteredProgrammeTemplates() {
-  const search = String(state.templateLibrarySearch ?? "")
-    .trim()
-    .toLowerCase();
-
-  const statusFilter = String(
-    state.templateLibraryStatusFilter ?? "all"
-  );
-
-  const activityFilter = String(
-    state.templateLibraryActivityFilter ?? "all"
-  );
-
-  const visible = state.coachTemplates.filter((template) => {
-    if (
-      statusFilter !== "all" &&
-      programmeDisplayState(template) !== statusFilter
-    ) {
-      return false;
-    }
-
-    if (
-      activityFilter !== "all" &&
-      String(template.activity_id ?? "") !== activityFilter
-    ) {
-      return false;
-    }
-
-    return !search || programmeSearchText(template).includes(search);
-  });
-
-  const sortMode = String(state.templateLibrarySort ?? "updated_desc");
-
-  visible.sort((left, right) => {
-    if (sortMode === "name_asc") {
-      return (
-        String(left.template_name ?? "").localeCompare(
-          String(right.template_name ?? "")
-        ) ||
-        programmeVersionNumber(right) - programmeVersionNumber(left)
-      );
-    }
-
-    if (sortMode === "version_desc") {
-      return (
-        programmeVersionNumber(right) - programmeVersionNumber(left) ||
-        String(left.template_name ?? "").localeCompare(
-          String(right.template_name ?? "")
-        )
-      );
-    }
-
-    if (sortMode === "usage_desc") {
-      return (
-        programmeAssignmentUsage(right.template_id).assignmentCount -
-          programmeAssignmentUsage(left.template_id).assignmentCount ||
-        String(right.updated_at_iso8601 ?? "").localeCompare(
-          String(left.updated_at_iso8601 ?? "")
-        )
-      );
-    }
-
-    return String(right.updated_at_iso8601 ?? "").localeCompare(
-      String(left.updated_at_iso8601 ?? "")
-    );
-  });
-
-  return visible;
-}
-
 function programmePreviewRepetitions(workItem) {
   if (workItem?.rep_mode === "range") {
     return `${Number(workItem.rep_min)}–${Number(workItem.rep_max)} reps`;
@@ -4631,8 +4510,6 @@ function closeProgrammeDetail(options = {}) {
 async function refreshProgrammeLibrary(options = {}) {
   if (state.role !== "coach" || !state.profile?.coachUserId) return [];
 
-  elements.templateLibraryStatus.textContent = "Loading programme records…";
-
   if (!options.quiet) showBusy("Loading programme library…");
 
   try {
@@ -4651,13 +4528,6 @@ async function refreshProgrammeLibrary(options = {}) {
     }
 
     renderTemplateLibrary();
-
-    elements.templateLibraryStatus.textContent = failures.length
-      ? `${failures.length} programme data source${failures.length === 1 ? "" : "s"} could not be refreshed. Persisted records remain visible.`
-      : `Updated ${new Intl.DateTimeFormat("en-GB", {
-          hour: "2-digit",
-          minute: "2-digit"
-        }).format(new Date())}.`;
 
     if (failures.length > 0 && !options.quiet) {
       showNotice(
@@ -4692,214 +4562,24 @@ function templateStatusBadge(status) {
   return '<span class="badge active">Draft</span>';
 }
 
-function templateCard(template) {
-  const storedStatus = String(template.template_status ?? "draft");
-  const displayState = programmeDisplayState(template);
-  const sessionCount = Number(template.session_count ?? 0);
-  const blockCount = Number(
-    template.block_count ??
-    template.template_structure?.blocks?.length ??
-    1
-  );
-  const weekCount = Number(template.week_count ?? 0);
-  const version = programmeVersionNumber(template);
-  const versions = programmeFamilyVersions(template);
-  const usage = programmeAssignmentUsage(template.template_id);
-  const eventPlan =
-    template?.event_plan &&
-    typeof template.event_plan === "object"
-      ? template.event_plan
-      : null;
+// DEV NOTE: templateCard()/bindTemplateLibraryActions() moved to
+// CoachProgrammeLibraryPanel.tsx's TemplateCard(). templateStatusBadge()
+// above stays - still used by programmeVersionFamilyHtml()/
+// renderProgrammeDetail() (the still-legacy detail panel).
 
-  const eventLine = eventPlan
-    ? `
-      <div class="template-event-line">
-        <span class="badge neutral">${escapeHtml(titleCase(eventPlan.event_type))}</span>
-        <strong>${escapeHtml(eventPlan.event_name)}</strong>
-        <span>${escapeHtml(formatDate(eventPlan.event_date))}</span>
-        <span>${escapeHtml(countdownLabel(eventPlan.event_date))}</span>
-      </div>
-    `
-    : "";
-
-  const editAction = storedStatus === "draft"
-    ? `<button class="button secondary small-button template-edit" type="button" data-template-id="${escapeHtml(template.template_id)}">Edit</button>`
-    : "";
-
-  const completeAction = storedStatus === "draft"
-    ? `<button class="button secondary small-button template-complete" type="button" data-template-id="${escapeHtml(template.template_id)}">Mark complete</button>`
-    : "";
-
-  const activateAction = storedStatus === "complete"
-    ? `<button class="button primary small-button template-activate" type="button" data-template-id="${escapeHtml(template.template_id)}">Activate</button>`
-    : "";
-
-  const duplicateAction = storedStatus !== "draft"
-    ? `<button class="button secondary small-button template-duplicate" type="button" data-template-id="${escapeHtml(template.template_id)}">Duplicate version</button>`
-    : "";
-
-  const archiveAction = storedStatus !== "archived"
-    ? `<button class="button secondary small-button template-archive" type="button" data-template-id="${escapeHtml(template.template_id)}">Archive</button>`
-    : "";
-
-  return `
-    <article
-      class="template-card"
-      data-template-id="${escapeHtml(template.template_id)}"
-      data-template-state="${escapeHtml(displayState)}"
-    >
-      <div>
-        <h3>${escapeHtml(template.template_name)}</h3>
-        <p>
-          ${escapeHtml(titleCase(template.activity_id))} ·
-          Version ${version} of ${versions.length}
-        </p>
-        <div class="template-card-facts">
-          <span>${blockCount} block${blockCount === 1 ? "" : "s"}</span>
-          <span>${weekCount} week${weekCount === 1 ? "" : "s"}</span>
-          <span>${sessionCount} session${sessionCount === 1 ? "" : "s"}</span>
-          <span>${usage.assignmentCount} assignment${usage.assignmentCount === 1 ? "" : "s"}</span>
-        </div>
-        ${eventLine}
-        <div class="template-status-line">
-          ${templateStatusBadge(displayState)}
-          <span class="badge neutral">${escapeHtml(formatDate(template.updated_at_iso8601))}</span>
-        </div>
-      </div>
-      <div class="template-card-actions">
-        <button
-          class="button secondary small-button template-detail"
-          type="button"
-          data-template-id="${escapeHtml(template.template_id)}"
-        >
-          View detail
-        </button>
-        ${editAction}
-        ${completeAction}
-        ${activateAction}
-        ${duplicateAction}
-        ${archiveAction}
-      </div>
-    </article>
-  `;
-}
-
-function bindTemplateLibraryActions() {
-  for (
-    const button of
-    elements.templateLibraryList.querySelectorAll(".template-detail")
-  ) {
-    button.addEventListener("click", () => {
-      openProgrammeDetail(button.dataset.templateId);
-    });
-  }
-
-  for (
-    const button of
-    elements.templateLibraryList.querySelectorAll(".template-edit")
-  ) {
-    button.addEventListener("click", () => {
-      const template = state.coachTemplates.find(
-        (entry) => entry.template_id === button.dataset.templateId
-      );
-      if (template) openTemplateBuilder(templateRecordToDraft(template));
-    });
-  }
-
-  for (
-    const button of
-    elements.templateLibraryList.querySelectorAll(".template-complete")
-  ) {
-    button.addEventListener("click", () => {
-      completeTemplateById(button.dataset.templateId).catch(handleError);
-    });
-  }
-
-  for (
-    const button of
-    elements.templateLibraryList.querySelectorAll(".template-activate")
-  ) {
-    button.addEventListener("click", () => {
-      activateTemplateById(button.dataset.templateId).catch(handleError);
-    });
-  }
-
-  for (
-    const button of
-    elements.templateLibraryList.querySelectorAll(".template-duplicate")
-  ) {
-    button.addEventListener("click", () => {
-      duplicateTemplate(button.dataset.templateId).catch(handleError);
-    });
-  }
-
-  for (
-    const button of
-    elements.templateLibraryList.querySelectorAll(".template-archive")
-  ) {
-    button.addEventListener("click", () => {
-      archiveTemplate(button.dataset.templateId).catch(handleError);
-    });
-  }
-}
-
+// DEV NOTE: FULL-UI-05A programme library (metric cards, search/filter/
+// sort, card list) moved to React - see
+// public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx/
+// useCoachProgrammeLibrary.ts, mounted at #templates-metrics-root/
+// #templates-library-root. The programme detail panel and builder stay
+// legacy (out of scope for that slice), so this function keeps only what
+// they still need, plus notifying the React side that persisted programme
+// data may have changed (after any refresh or mutation) so it can refetch
+// independently.
 function renderTemplateLibrary() {
-  const counts = {
-    draft: 0,
-    complete: 0,
-    active: 0,
-    archived: 0,
-    superseded: 0
-  };
-
-  for (const template of state.coachTemplates) {
-    const displayState = programmeDisplayState(template);
-    counts[displayState] = Number(counts[displayState] ?? 0) + 1;
-  }
-
-  elements.templateDraftCount.textContent = String(counts.draft);
-  elements.templateCompleteCount.textContent = String(counts.complete);
-  elements.templateActiveCount.textContent = String(counts.active);
-  elements.templateArchivedCount.textContent = String(counts.archived);
-  elements.templateSupersededCount.textContent = String(counts.superseded);
-
-  elements.templateLibrarySearch.value =
-    String(state.templateLibrarySearch ?? "");
-  elements.templateLibraryStatusFilter.value =
-    String(state.templateLibraryStatusFilter ?? "all");
-  elements.templateLibraryActivityFilter.value =
-    String(state.templateLibraryActivityFilter ?? "all");
-  elements.templateLibrarySort.value =
-    String(state.templateLibrarySort ?? "updated_desc");
-
-  const visible = filteredProgrammeTemplates();
-  elements.templateLibraryResultCount.textContent =
-    `${visible.length} of ${state.coachTemplates.length} programme${state.coachTemplates.length === 1 ? "" : "s"}`;
-
-  if (state.coachTemplates.length === 0) {
-    elements.templateLibraryList.innerHTML = `
-      <div class="empty-state">
-        <h3>No programmes created</h3>
-        <p>Create a programme with at least one training block before assigning training.</p>
-      </div>
-    `;
-  }
-  else if (visible.length === 0) {
-    elements.templateLibraryList.innerHTML = `
-      <div class="empty-state">
-        <h3>No programmes match these filters</h3>
-        <p>Clear or change the search, state or activity filters.</p>
-      </div>
-    `;
-  }
-  else {
-    elements.templateLibraryList.innerHTML =
-      visible.map(templateCard).join("");
-  }
-
-  bindTemplateLibraryActions();
   renderProgrammeDetail();
   renderTemplateRecovery();
+  document.dispatchEvent(new CustomEvent("kolosseum:templates-changed"));
 }
 
 const EVENT_TYPES_BY_ACTIVITY = Object.freeze({
@@ -7922,6 +7602,47 @@ document.addEventListener("kolosseum:continue-history-session", (event) => {
   saveState();
   setView("session");
 });
+
+// DEV NOTE: FULL-UI-05A programme library card actions - the card grid
+// itself moved to CoachProgrammeLibraryPanel.tsx (React); each action
+// button there dispatches one of these bridge events instead of the
+// mutation logic being ported, so the underlying legacy functions
+// (openProgrammeDetail/openTemplateBuilder/completeTemplateById/
+// activateTemplateById/duplicateTemplate/archiveTemplate) - and the
+// still-legacy detail panel/builder they open - are unchanged.
+document.addEventListener("kolosseum:open-programme-detail", (event) => {
+  const templateId = event.detail?.template_id;
+  if (templateId) openProgrammeDetail(templateId);
+});
+
+document.addEventListener("kolosseum:edit-programme", (event) => {
+  const templateId = event.detail?.template_id;
+  const template = state.coachTemplates.find(
+    (entry) => entry.template_id === templateId
+  );
+  if (template) openTemplateBuilder(templateRecordToDraft(template));
+});
+
+document.addEventListener("kolosseum:complete-programme", (event) => {
+  const templateId = event.detail?.template_id;
+  if (templateId) completeTemplateById(templateId).catch(handleError);
+});
+
+document.addEventListener("kolosseum:activate-programme", (event) => {
+  const templateId = event.detail?.template_id;
+  if (templateId) activateTemplateById(templateId).catch(handleError);
+});
+
+document.addEventListener("kolosseum:duplicate-programme", (event) => {
+  const templateId = event.detail?.template_id;
+  if (templateId) duplicateTemplate(templateId).catch(handleError);
+});
+
+document.addEventListener("kolosseum:archive-programme", (event) => {
+  const templateId = event.detail?.template_id;
+  if (templateId) archiveTemplate(templateId).catch(handleError);
+});
+
 elements.templateSharingForm.addEventListener("submit", (event) => {
   guardedAction(submitButtonOf, confirmSaveTemplateSharing)(event).catch(handleError);
 });
@@ -8041,41 +7762,6 @@ elements.refreshEventsButton.addEventListener("click", () => {
 
 elements.refreshTemplatesButton.addEventListener("click", () => {
   refreshProgrammeLibrary().catch(handleError);
-});
-
-elements.templateLibrarySearch.addEventListener("input", () => {
-  state.templateLibrarySearch = elements.templateLibrarySearch.value;
-  saveState();
-  renderTemplateLibrary();
-});
-
-elements.templateLibraryStatusFilter.addEventListener("change", () => {
-  state.templateLibraryStatusFilter =
-    elements.templateLibraryStatusFilter.value;
-  saveState();
-  renderTemplateLibrary();
-});
-
-elements.templateLibraryActivityFilter.addEventListener("change", () => {
-  state.templateLibraryActivityFilter =
-    elements.templateLibraryActivityFilter.value;
-  saveState();
-  renderTemplateLibrary();
-});
-
-elements.templateLibrarySort.addEventListener("change", () => {
-  state.templateLibrarySort = elements.templateLibrarySort.value;
-  saveState();
-  renderTemplateLibrary();
-});
-
-elements.templateLibraryClearFilters.addEventListener("click", () => {
-  state.templateLibrarySearch = "";
-  state.templateLibraryStatusFilter = "all";
-  state.templateLibraryActivityFilter = "all";
-  state.templateLibrarySort = "updated_desc";
-  saveState();
-  renderTemplateLibrary();
 });
 
 elements.templateDetailCloseButton.addEventListener(
