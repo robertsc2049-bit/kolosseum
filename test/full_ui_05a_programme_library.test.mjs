@@ -7,24 +7,34 @@ const app = fs.readFileSync("public/app/app.js", "utf8");
 const styles = fs.readFileSync("public/app/styles.css", "utf8");
 const routes = fs.readFileSync("public/app/route_bootstrap.js", "utf8");
 
+// DEV NOTE: FULL-UI-05A metric cards, search/filter/sort and card list
+// (read-only) moved to React - see
+// public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx/
+// useCoachProgrammeLibrary.ts, mounted at #templates-metrics-root/
+// #templates-library-root (both now static ids in index.html, checked
+// below). The programme detail panel and builder stay legacy - the rest of
+// this file's checks against `app`/`html` for those are untouched.
+const libraryPanel = fs.readFileSync(
+  "public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx",
+  "utf8"
+);
+const libraryHook = fs.readFileSync(
+  "public/app-src/screens/coach/useCoachProgrammeLibrary.ts",
+  "utf8"
+);
+
 test("FULL-UI-05A exposes programme search filter sort and factual state counts", () => {
-  for (const id of [
-    "templateLibrarySearch",
-    "templateLibraryStatusFilter",
-    "templateLibraryActivityFilter",
-    "templateLibrarySort",
-    "templateLibraryClearFilters",
-    "templateSupersededCount",
-    "templateLibraryResultCount",
-    "templateLibraryStatus"
-  ]) {
+  for (const id of ["templates-metrics-root", "templates-library-root"]) {
     assert.match(html, new RegExp(`id="${id}"`, "u"));
   }
 
-  assert.match(app, /function filteredProgrammeTemplates\(/u);
-  assert.match(app, /programmeDisplayState\(template\)/u);
-  assert.match(app, /usage_desc/u);
-  assert.match(app, /superseded/u);
+  assert.match(libraryPanel, /placeholder="Name, activity, event or version"/u);
+  assert.match(libraryPanel, /programme-clear-filters/u);
+  assert.match(libraryPanel, /Superseded versions/u);
+  assert.match(libraryHook, /function filteredProgrammeTemplates\(/u);
+  assert.match(libraryHook, /function programmeDisplayState\(/u);
+  assert.match(libraryPanel, /usage_desc/u);
+  assert.match(libraryHook, /superseded/u);
 });
 
 test("FULL-UI-05A opens a complete programme detail and preview surface", () => {
@@ -76,7 +86,7 @@ test("FULL-UI-05A provides a full visible activation validation summary", () => 
 test("FULL-UI-05A direct programme routes open programme detail", () => {
   assert.match(routes, /target\.querySelector\("\.template-detail"\)/u);
   assert.match(app, /#\/coach\/programmes\/\$\{encodeURIComponent/u);
-  assert.match(app, /class="button secondary small-button template-detail"/u);
+  assert.match(libraryPanel, /className="button secondary small-button template-detail"/u);
 });
 
 test("FULL-UI-05A remains responsive and engine-inert", () => {

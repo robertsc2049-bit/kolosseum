@@ -24,6 +24,7 @@ const broadcastPanel = read("public/app-src/screens/coach/CoachBroadcastPanel.ts
 const connectAthletePanel = read("public/app-src/screens/coach/ConnectAthletePanel.tsx");
 const athleteRelationshipDetailPanel = read("public/app-src/screens/coach/AthleteRelationshipDetailPanel.tsx");
 const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
+const programmeLibraryPanel = read("public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx");
 
 test("every focusable control gets a visible keyboard-only focus ring, distinct from mouse-hover styling", () => {
   assert.match(
@@ -43,10 +44,19 @@ test("prefers-reduced-motion collapses animation and transition duration everywh
 
 test("status/error notices are announced to screen readers, with errors interrupting (assertive) and status waiting its turn (polite)", () => {
   assert.match(js, /elements\.notice\.setAttribute\("aria-live", type === "error" \? "assertive" : "polite"\)/u);
-  for (const id of ["athleteRelationshipCounts", "athleteDirectoryStatus", "eventsStatus", "templateLibraryStatus", "coachDashboardStatus"]) {
+  for (const id of ["athleteRelationshipCounts", "athleteDirectoryStatus", "eventsStatus", "coachDashboardStatus"]) {
     const re = new RegExp(`id="${id}"[^>]*(?:\\n[^>]*)*?(?:role="status"|aria-live="polite")[\\s\\S]{0,120}?(?:role="status"|aria-live="polite")`, "u");
     assert.match(html, re, `${id} must carry both role="status" and aria-live="polite"`);
   }
+
+  // The programme library's status line (FULL-UI-05A) moved to React - see
+  // CoachProgrammeLibraryPanel.tsx - and carries the same role="status"/
+  // aria-live="polite" pair the legacy #templateLibraryStatus element did.
+  assert.match(
+    programmeLibraryPanel,
+    /role="status" aria-live="polite"/u,
+    "the programme library status line must carry both role=\"status\" and aria-live=\"polite\""
+  );
 });
 
 test("a route-level service-unavailable state reuses the view's own status line and offers a real retry control, not just a toast", () => {
