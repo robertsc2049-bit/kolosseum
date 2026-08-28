@@ -4,96 +4,200 @@
   "registries": {
     "activity": {
       "registry_id": "activity",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "entries": {
         "powerlifting": {
           "activity_id": "powerlifting",
           "stimulus_intents": [
             "strength"
+          ],
+          "allowed_movement_patterns": [
+            "squat",
+            "hinge",
+            "single_leg_squat",
+            "single_leg_hinge",
+            "knee_extension_isolation",
+            "knee_flexion_isolation",
+            "hip_abduction_isolation",
+            "hip_adduction_isolation",
+            "hip_extension_isolation",
+            "hip_flexion_isolation",
+            "calf_raise",
+            "tibialis_raise",
+            "horizontal_push",
+            "incline_push",
+            "decline_push",
+            "vertical_push",
+            "angled_push",
+            "horizontal_pull",
+            "vertical_pull",
+            "scapular_retraction",
+            "scapular_protraction",
+            "scapular_upward_rotation",
+            "scapular_depression",
+            "shoulder_external_rotation",
+            "shoulder_internal_rotation",
+            "shoulder_abduction_isolation",
+            "shoulder_horizontal_abduction_isolation",
+            "elbow_flexion_isolation",
+            "elbow_extension_isolation",
+            "forearm_flexion_isolation",
+            "forearm_extension_isolation",
+            "grip_crush",
+            "grip_support",
+            "carry_bilateral",
+            "carry_unilateral",
+            "core_anti_extension",
+            "core_anti_rotation",
+            "core_anti_lateral_flexion",
+            "trunk_flexion",
+            "trunk_extension",
+            "rotation",
+            "locomotion_walk",
+            "locomotion_run",
+            "locomotion_crawl",
+            "jump_vertical",
+            "jump_horizontal",
+            "sprint_acceleration",
+            "sprint_max_velocity",
+            "deceleration",
+            "change_of_direction",
+            "throw_slam",
+            "conditioning_cyclical",
+            "conditioning_row",
+            "conditioning_sled"
           ]
         },
         "general_strength": {
           "activity_id": "general_strength",
           "stimulus_intents": [
             "strength"
+          ],
+          "allowed_movement_patterns": [
+            "squat",
+            "hinge",
+            "single_leg_squat",
+            "single_leg_hinge",
+            "knee_extension_isolation",
+            "knee_flexion_isolation",
+            "hip_abduction_isolation",
+            "hip_adduction_isolation",
+            "hip_extension_isolation",
+            "hip_flexion_isolation",
+            "calf_raise",
+            "tibialis_raise",
+            "horizontal_push",
+            "incline_push",
+            "decline_push",
+            "vertical_push",
+            "angled_push",
+            "horizontal_pull",
+            "vertical_pull",
+            "scapular_retraction",
+            "scapular_protraction",
+            "scapular_upward_rotation",
+            "scapular_depression",
+            "shoulder_external_rotation",
+            "shoulder_internal_rotation",
+            "shoulder_abduction_isolation",
+            "shoulder_horizontal_abduction_isolation",
+            "elbow_flexion_isolation",
+            "elbow_extension_isolation",
+            "forearm_flexion_isolation",
+            "forearm_extension_isolation",
+            "grip_crush",
+            "grip_support",
+            "carry_bilateral",
+            "carry_unilateral",
+            "core_anti_extension",
+            "core_anti_rotation",
+            "core_anti_lateral_flexion",
+            "trunk_flexion",
+            "trunk_extension",
+            "rotation",
+            "locomotion_walk",
+            "locomotion_run",
+            "locomotion_crawl",
+            "jump_vertical",
+            "jump_horizontal",
+            "sprint_acceleration",
+            "sprint_max_velocity",
+            "deceleration",
+            "change_of_direction",
+            "throw_slam",
+            "conditioning_cyclical",
+            "conditioning_row",
+            "conditioning_sled"
           ]
         },
         "rugby_union": {
           "activity_id": "rugby_union",
           "stimulus_intents": [
             "strength"
+          ],
+          "allowed_movement_patterns": [
+            "squat",
+            "hinge",
+            "single_leg_squat",
+            "single_leg_hinge",
+            "knee_extension_isolation",
+            "knee_flexion_isolation",
+            "hip_abduction_isolation",
+            "hip_adduction_isolation",
+            "hip_extension_isolation",
+            "hip_flexion_isolation",
+            "calf_raise",
+            "tibialis_raise",
+            "horizontal_push",
+            "incline_push",
+            "decline_push",
+            "vertical_push",
+            "angled_push",
+            "horizontal_pull",
+            "vertical_pull",
+            "scapular_retraction",
+            "scapular_protraction",
+            "scapular_upward_rotation",
+            "scapular_depression",
+            "shoulder_external_rotation",
+            "shoulder_internal_rotation",
+            "shoulder_abduction_isolation",
+            "shoulder_horizontal_abduction_isolation",
+            "elbow_flexion_isolation",
+            "elbow_extension_isolation",
+            "forearm_flexion_isolation",
+            "forearm_extension_isolation",
+            "grip_crush",
+            "grip_support",
+            "carry_bilateral",
+            "carry_unilateral",
+            "core_anti_extension",
+            "core_anti_rotation",
+            "core_anti_lateral_flexion",
+            "trunk_flexion",
+            "trunk_extension",
+            "rotation",
+            "locomotion_walk",
+            "locomotion_run",
+            "locomotion_crawl",
+            "jump_vertical",
+            "jump_horizontal",
+            "sprint_acceleration",
+            "sprint_max_velocity",
+            "deceleration",
+            "change_of_direction",
+            "throw_slam",
+            "conditioning_cyclical",
+            "conditioning_row",
+            "conditioning_sled"
           ]
         }
       }
     },
     "movement": {
       "registry_id": "movement",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "entries": {
-        "horizontal_push": {
-          "movement_pattern_id": "horizontal_push",
-          "equipment_vocab": [
-            "bodyweight",
-            "barbell",
-            "dumbbell",
-            "machine_general",
-            "bench",
-            "rack",
-            "kettlebell",
-            "cable_machine",
-            "plate"
-          ],
-          "joint_stress_tags_vocab": [
-            "neutral",
-            "shoulder",
-            "elbow",
-            "wrist",
-            "cervical_low",
-            "cervical_medium",
-            "cervical_high",
-            "thoracic_low",
-            "thoracic_medium",
-            "thoracic_high",
-            "lumbar_low",
-            "lumbar_medium",
-            "lumbar_high",
-            "sacroiliac_low",
-            "sacroiliac_medium",
-            "sacroiliac_high"
-          ]
-        },
-        "vertical_push": {
-          "movement_pattern_id": "vertical_push",
-          "equipment_vocab": [
-            "bodyweight",
-            "barbell",
-            "dumbbell",
-            "machine_general",
-            "kettlebell",
-            "bench",
-            "rack",
-            "cable_machine",
-            "plate"
-          ],
-          "joint_stress_tags_vocab": [
-            "neutral",
-            "shoulder",
-            "elbow",
-            "wrist",
-            "cervical_low",
-            "cervical_medium",
-            "cervical_high",
-            "thoracic_low",
-            "thoracic_medium",
-            "thoracic_high",
-            "lumbar_low",
-            "lumbar_medium",
-            "lumbar_high",
-            "sacroiliac_low",
-            "sacroiliac_medium",
-            "sacroiliac_high"
-          ]
-        },
         "squat": {
           "movement_pattern_id": "squat",
           "equipment_vocab": [
@@ -124,6 +228,11 @@
             "sacroiliac_low",
             "sacroiliac_medium",
             "sacroiliac_high"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
           ]
         },
         "hinge": {
@@ -156,6 +265,1140 @@
             "sacroiliac_low",
             "sacroiliac_medium",
             "sacroiliac_high"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "single_leg_squat": {
+          "movement_pattern_id": "single_leg_squat",
+          "equipment_vocab": [
+            "bodyweight",
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "machine_general",
+            "rack",
+            "trap_bar",
+            "plate",
+            "box"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "single_leg_hinge": {
+          "movement_pattern_id": "single_leg_hinge",
+          "equipment_vocab": [
+            "bodyweight",
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "machine_general",
+            "rack",
+            "trap_bar",
+            "plate",
+            "box"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "knee_extension_isolation": {
+          "movement_pattern_id": "knee_extension_isolation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "knee"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "knee_flexion_isolation": {
+          "movement_pattern_id": "knee_flexion_isolation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "knee"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "hip_abduction_isolation": {
+          "movement_pattern_id": "hip_abduction_isolation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "hip_adduction_isolation": {
+          "movement_pattern_id": "hip_adduction_isolation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "hip_extension_isolation": {
+          "movement_pattern_id": "hip_extension_isolation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "hip_flexion_isolation": {
+          "movement_pattern_id": "hip_flexion_isolation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "calf_raise": {
+          "movement_pattern_id": "calf_raise",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "ankle",
+            "knee"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "tibialis_raise": {
+          "movement_pattern_id": "tibialis_raise",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "ankle",
+            "knee"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "horizontal_push": {
+          "movement_pattern_id": "horizontal_push",
+          "equipment_vocab": [
+            "bodyweight",
+            "barbell",
+            "dumbbell",
+            "machine_general",
+            "bench",
+            "rack",
+            "kettlebell",
+            "cable_machine",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "cervical_low",
+            "cervical_medium",
+            "cervical_high",
+            "thoracic_low",
+            "thoracic_medium",
+            "thoracic_high",
+            "lumbar_low",
+            "lumbar_medium",
+            "lumbar_high",
+            "sacroiliac_low",
+            "sacroiliac_medium",
+            "sacroiliac_high"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "incline_push": {
+          "movement_pattern_id": "incline_push",
+          "equipment_vocab": [
+            "bodyweight",
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "machine_general",
+            "bench",
+            "rack",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "decline_push": {
+          "movement_pattern_id": "decline_push",
+          "equipment_vocab": [
+            "bodyweight",
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "machine_general",
+            "bench",
+            "rack",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "vertical_push": {
+          "movement_pattern_id": "vertical_push",
+          "equipment_vocab": [
+            "bodyweight",
+            "barbell",
+            "dumbbell",
+            "machine_general",
+            "kettlebell",
+            "bench",
+            "rack",
+            "cable_machine",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "cervical_low",
+            "cervical_medium",
+            "cervical_high",
+            "thoracic_low",
+            "thoracic_medium",
+            "thoracic_high",
+            "lumbar_low",
+            "lumbar_medium",
+            "lumbar_high",
+            "sacroiliac_low",
+            "sacroiliac_medium",
+            "sacroiliac_high"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "angled_push": {
+          "movement_pattern_id": "angled_push",
+          "equipment_vocab": [
+            "bodyweight",
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "machine_general",
+            "bench",
+            "rack",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "horizontal_pull": {
+          "movement_pattern_id": "horizontal_pull",
+          "equipment_vocab": [
+            "bodyweight",
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "pull_up_bar",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "vertical_pull": {
+          "movement_pattern_id": "vertical_pull",
+          "equipment_vocab": [
+            "bodyweight",
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "pull_up_bar",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "scapular_retraction": {
+          "movement_pattern_id": "scapular_retraction",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "scapular_protraction": {
+          "movement_pattern_id": "scapular_protraction",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "scapular_upward_rotation": {
+          "movement_pattern_id": "scapular_upward_rotation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "scapular_depression": {
+          "movement_pattern_id": "scapular_depression",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "shoulder_external_rotation": {
+          "movement_pattern_id": "shoulder_external_rotation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "shoulder_internal_rotation": {
+          "movement_pattern_id": "shoulder_internal_rotation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "shoulder_abduction_isolation": {
+          "movement_pattern_id": "shoulder_abduction_isolation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "shoulder_horizontal_abduction_isolation": {
+          "movement_pattern_id": "shoulder_horizontal_abduction_isolation",
+          "equipment_vocab": [
+            "bodyweight",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "elbow_flexion_isolation": {
+          "movement_pattern_id": "elbow_flexion_isolation",
+          "equipment_vocab": [
+            "barbell",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "elbow",
+            "wrist",
+            "shoulder"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "elbow_extension_isolation": {
+          "movement_pattern_id": "elbow_extension_isolation",
+          "equipment_vocab": [
+            "barbell",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "elbow",
+            "wrist",
+            "shoulder"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "forearm_flexion_isolation": {
+          "movement_pattern_id": "forearm_flexion_isolation",
+          "equipment_vocab": [
+            "barbell",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "wrist",
+            "elbow"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "forearm_extension_isolation": {
+          "movement_pattern_id": "forearm_extension_isolation",
+          "equipment_vocab": [
+            "barbell",
+            "dumbbell",
+            "machine_general",
+            "cable_machine",
+            "resistance_band",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "wrist",
+            "elbow"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "grip_crush": {
+          "movement_pattern_id": "grip_crush",
+          "equipment_vocab": [
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "trap_bar",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "wrist",
+            "elbow",
+            "shoulder"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "grip_support": {
+          "movement_pattern_id": "grip_support",
+          "equipment_vocab": [
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "trap_bar",
+            "plate"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "wrist",
+            "elbow",
+            "shoulder"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "carry_bilateral": {
+          "movement_pattern_id": "carry_bilateral",
+          "equipment_vocab": [
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "trap_bar",
+            "plate",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "carry_unilateral": {
+          "movement_pattern_id": "carry_unilateral",
+          "equipment_vocab": [
+            "barbell",
+            "dumbbell",
+            "kettlebell",
+            "trap_bar",
+            "plate",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "core_anti_extension": {
+          "movement_pattern_id": "core_anti_extension",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable_machine",
+            "resistance_band",
+            "medicine_ball",
+            "plate",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "core_anti_rotation": {
+          "movement_pattern_id": "core_anti_rotation",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable_machine",
+            "resistance_band",
+            "medicine_ball",
+            "plate",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "core_anti_lateral_flexion": {
+          "movement_pattern_id": "core_anti_lateral_flexion",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable_machine",
+            "resistance_band",
+            "medicine_ball",
+            "plate",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "trunk_flexion": {
+          "movement_pattern_id": "trunk_flexion",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable_machine",
+            "resistance_band",
+            "medicine_ball",
+            "plate",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "trunk_extension": {
+          "movement_pattern_id": "trunk_extension",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable_machine",
+            "resistance_band",
+            "medicine_ball",
+            "plate",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "rotation": {
+          "movement_pattern_id": "rotation",
+          "equipment_vocab": [
+            "bodyweight",
+            "cable_machine",
+            "resistance_band",
+            "medicine_ball",
+            "plate",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "locomotion_walk": {
+          "movement_pattern_id": "locomotion_walk",
+          "equipment_vocab": [
+            "bodyweight",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "wrist",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "locomotion_run": {
+          "movement_pattern_id": "locomotion_run",
+          "equipment_vocab": [
+            "bodyweight",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "wrist",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "locomotion_crawl": {
+          "movement_pattern_id": "locomotion_crawl",
+          "equipment_vocab": [
+            "bodyweight",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "wrist",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "jump_vertical": {
+          "movement_pattern_id": "jump_vertical",
+          "equipment_vocab": [
+            "bodyweight",
+            "box",
+            "open_floor_space",
+            "medicine_ball"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "jump_horizontal": {
+          "movement_pattern_id": "jump_horizontal",
+          "equipment_vocab": [
+            "bodyweight",
+            "box",
+            "open_floor_space",
+            "medicine_ball"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "sprint_acceleration": {
+          "movement_pattern_id": "sprint_acceleration",
+          "equipment_vocab": [
+            "bodyweight",
+            "open_floor_space",
+            "sled"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "sprint_max_velocity": {
+          "movement_pattern_id": "sprint_max_velocity",
+          "equipment_vocab": [
+            "bodyweight",
+            "open_floor_space",
+            "sled"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "deceleration": {
+          "movement_pattern_id": "deceleration",
+          "equipment_vocab": [
+            "bodyweight",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "change_of_direction": {
+          "movement_pattern_id": "change_of_direction",
+          "equipment_vocab": [
+            "bodyweight",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "throw_slam": {
+          "movement_pattern_id": "throw_slam",
+          "equipment_vocab": [
+            "medicine_ball",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hip",
+            "knee"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "conditioning_cyclical": {
+          "movement_pattern_id": "conditioning_cyclical",
+          "equipment_vocab": [
+            "cardio_machine_general",
+            "bodyweight",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "conditioning_row": {
+          "movement_pattern_id": "conditioning_row",
+          "equipment_vocab": [
+            "cardio_machine_general"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hip",
+            "knee"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ]
+        },
+        "conditioning_sled": {
+          "movement_pattern_id": "conditioning_sled",
+          "equipment_vocab": [
+            "sled",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neutral",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
           ]
         }
       }
