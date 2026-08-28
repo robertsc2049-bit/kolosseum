@@ -21,7 +21,7 @@ import {
 // completeTemplateById/activateTemplateById/duplicateTemplate/
 // archiveTemplate) rather than porting any mutation logic here.
 
-function templateStatusBadgeClass(status: string): { label: string; className: string } {
+export function templateStatusBadgeClass(status: string): { label: string; className: string } {
   if (status === "active") return { label: "Active", className: "badge complete" };
   if (status === "archived") return { label: "Archived", className: "badge neutral" };
   if (status === "superseded") return { label: "Superseded", className: "badge warning" };

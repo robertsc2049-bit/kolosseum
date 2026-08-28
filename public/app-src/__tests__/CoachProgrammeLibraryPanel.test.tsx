@@ -94,7 +94,7 @@ test("renders a card with facts, status badge and updated date", async () => {
   render(<CoachProgrammeLibraryPanel />);
 
   await screen.findByText("Peak Block");
-  const card = screen.getByText("Peak Block").closest(".template-card")!;
+  const card = screen.getByText("Peak Block").closest(".template-card") as HTMLElement;
   assert.ok(within(card).getByText("2 blocks"));
   assert.ok(within(card).getByText("6 weeks"));
   assert.ok(within(card).getByText("4 sessions"));

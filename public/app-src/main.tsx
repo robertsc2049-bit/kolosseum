@@ -54,6 +54,7 @@ import { CoachEventsListPanel, CoachEventsMetricCards } from "./screens/coach/Co
 import { CoachMarketplacePanel } from "./screens/coach/CoachMarketplacePanel";
 import { CoachOnboardingPanel } from "./screens/coach/CoachOnboardingPanel";
 import { CoachProgrammeLibraryPanel, CoachProgrammeMetricsPanel } from "./screens/coach/CoachProgrammeLibraryPanel";
+import { CoachProgrammeDetailHeader, CoachProgrammeDetailPanel } from "./screens/coach/CoachProgrammeDetailPanel";
 import { CoachReviewPanel } from "./screens/coach/CoachReviewPanel";
 import { CoachVideoFeedbackQueuePanel } from "./screens/coach/CoachVideoFeedbackQueuePanel";
 import { CoachAthleteMessagePanel } from "./screens/coach/CoachAthleteMessagePanel";
@@ -137,6 +138,8 @@ mount("athlete-onboarding-root", <AthleteOnboardingPanel />);
 mount("coach-onboarding-root", <CoachOnboardingPanel />);
 mount("templates-metrics-root", <CoachProgrammeMetricsPanel />);
 mount("templates-library-root", <CoachProgrammeLibraryPanel />);
+mount("programme-detail-header-root", <CoachProgrammeDetailHeader />);
+mount("programme-detail-root", <CoachProgrammeDetailPanel />);
 mount("athlete-self-weekly-checkins-root", <AthleteSelfWeeklyCheckinsPanel />);
 mount("athlete-self-progress-insights-root", <AthleteSelfProgressInsightsPanel />);
 mount("athlete-self-device-sync-root", <AthleteSelfDeviceSyncPanel />);

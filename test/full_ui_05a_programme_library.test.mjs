@@ -23,6 +23,18 @@ const libraryHook = fs.readFileSync(
   "utf8"
 );
 
+// DEV NOTE: FULL-UI-05A programme detail facts/version-family/usage/
+// actions (read-only) also moved to React - see
+// CoachProgrammeDetailPanel.tsx/useCoachProgrammeDetail.ts, mounted at
+// #programme-detail-header-root/#programme-detail-root. The activation
+// validation summary, structure preview and marketplace sharing/release
+// sub-panel stay legacy (their own future slices) - checks against `app`/
+// `html` for those are untouched below.
+const detailPanel = fs.readFileSync(
+  "public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx",
+  "utf8"
+);
+
 test("FULL-UI-05A exposes programme search filter sort and factual state counts", () => {
   for (const id of ["templates-metrics-root", "templates-library-root"]) {
     assert.match(html, new RegExp(`id="${id}"`, "u"));
@@ -40,13 +52,13 @@ test("FULL-UI-05A exposes programme search filter sort and factual state counts"
 test("FULL-UI-05A opens a complete programme detail and preview surface", () => {
   for (const id of [
     "templateDetailPanel",
-    "templateDetailVersionFamily",
-    "templateDetailUsage",
     "templateDetailValidation",
     "templateDetailPreview"
   ]) {
     assert.match(html, new RegExp(`id="${id}"`, "u"));
   }
+  assert.match(detailPanel, /programme-version-list/u);
+  assert.match(detailPanel, /programme-usage-list/u);
 
   assert.match(app, /function renderProgrammeDetail\(/u);
   assert.match(app, /function programmePreviewHtml\(/u);
@@ -61,7 +73,7 @@ test("FULL-UI-05A derives factual version families and superseded states", () =>
   assert.match(app, /function programmeDisplayState\(/u);
   assert.match(app, /\["active", "archived"\]\.includes/u);
   assert.match(app, /programmeVersionNumber/u);
-  assert.match(app, /template-version-open/u);
+  assert.match(detailPanel, /template-version-open/u);
 });
 
 test("FULL-UI-05A displays assignment usage before archive", () => {
@@ -96,7 +108,7 @@ test("FULL-UI-05A remains responsive and engine-inert", () => {
   assert.match(styles, /@media \(max-width: 760px\)/u);
 
   const helperStart = app.indexOf("// FULL-UI-05A:");
-  const helperEnd = app.indexOf("function templateStatusBadge", helperStart);
+  const helperEnd = app.indexOf("function programmePreviewRepetitions", helperStart);
   const helperSource = app.slice(helperStart, helperEnd);
 
   assert.ok(helperStart >= 0);

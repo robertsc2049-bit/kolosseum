@@ -4110,90 +4110,8 @@ function programmeActivationIssues(template) {
   return issues;
 }
 
-function programmeVersionFamilyHtml(template) {
-  const versions = programmeFamilyVersions(template);
-
-  return versions.map((version) => {
-    const displayState = programmeDisplayState(version);
-    const isCurrent = version.template_id === template.template_id;
-
-    return `
-      <button
-        class="programme-version-row template-version-open ${isCurrent ? "current" : ""}"
-        type="button"
-        data-template-id="${escapeHtml(version.template_id)}"
-      >
-        <span>
-          <strong>Version ${programmeVersionNumber(version)}</strong>
-          <small>${escapeHtml(version.template_name ?? "Programme")}</small>
-        </span>
-        <span>
-          ${templateStatusBadge(displayState)}
-          <small>${escapeHtml(formatDate(version.updated_at_iso8601))}</small>
-        </span>
-      </button>
-    `;
-  }).join("");
-}
-
-function programmeUsageHtml(template) {
-  const usage = programmeAssignmentUsage(template.template_id);
-
-  if (usage.records.length === 0) {
-    return `
-      <div class="empty-state compact-empty">
-        <p>No assignment records use this exact programme version.</p>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="programme-usage-summary">
-      <div><span>Assignments</span><strong>${usage.assignmentCount}</strong></div>
-      <div><span>Athletes</span><strong>${usage.athleteCount}</strong></div>
-      <div><span>Latest</span><strong>${escapeHtml(formatDate(usage.latestAt))}</strong></div>
-    </div>
-    <div class="programme-assignment-records">
-      ${usage.records.map((assignment) => {
-        const athleteId = String(
-          assignment?.athleteUserId ??
-          assignment?.record?.assigned_athlete_id ??
-          ""
-        );
-        const athlete = state.coachAthletes.find(
-          (candidate) => candidate.userId === athleteId
-        );
-        const assignmentId = String(
-          assignment?.assignmentId ??
-          assignment?.record?.assignment_id ??
-          ""
-        );
-        const recordedAt = String(
-          assignment?.recordedAt ??
-          assignment?.record?.requested_at_iso8601 ??
-          ""
-        );
-        const assignmentState = String(
-          assignment?.record?.assignment_status ??
-          "assigned"
-        );
-
-        return `
-          <article class="programme-assignment-record">
-            <div>
-              <strong>${escapeHtml(athlete?.displayName ?? athleteId ?? "Athlete")}</strong>
-              <small>${escapeHtml(assignmentId)}</small>
-            </div>
-            <div>
-              <span class="badge neutral">${escapeHtml(titleCase(assignmentState))}</span>
-              <small>${escapeHtml(formatDate(recordedAt))}</small>
-            </div>
-          </article>
-        `;
-      }).join("")}
-    </div>
-  `;
-}
+// DEV NOTE: programmeVersionFamilyHtml()/programmeUsageHtml() moved to
+// CoachProgrammeDetailPanel.tsx's VersionFamilyList()/UsageList().
 
 function programmeValidationHtml(template) {
   const issues = programmeActivationIssues(template);
@@ -4238,6 +4156,19 @@ function programmeValidationHtml(template) {
   `;
 }
 
+// DEV NOTE: FULL-UI-05A programme detail facts/version-family/usage/
+// actions moved to React - see
+// public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx/
+// useCoachProgrammeDetail.ts, mounted at #programme-detail-header-root/
+// #programme-detail-root (both opening on the same
+// kolosseum:open-programme-detail event this function's caller,
+// openProgrammeDetail(), still dispatches to - React and this function
+// both react to it independently). This function keeps only what still-
+// legacy siblings inside #templateDetailPanel need: the marketplace
+// sharing/release sub-panel's shareable-gating/data refresh, and the
+// activation validation summary/structure preview (their own future
+// slices - programmeValidationHtml()/programmePreviewHtml() are ~200 and
+// ~80 lines respectively and were judged too large to fold into this cut).
 function renderProgrammeDetail() {
   const template = state.coachTemplates.find(
     (candidate) => candidate.template_id === state.selectedTemplateId
@@ -4248,50 +4179,9 @@ function renderProgrammeDetail() {
     return;
   }
 
-  const displayState = programmeDisplayState(template);
-  const usage = programmeAssignmentUsage(template.template_id);
-  const versions = programmeFamilyVersions(template);
-  const counts = templateCounts(templateRecordToDraft(template));
-  const eventPlan =
-    template?.event_plan &&
-    typeof template.event_plan === "object"
-      ? template.event_plan
-      : null;
-
   elements.templateDetailPanel.hidden = false;
-  elements.templateDetailTitle.textContent =
-    template.template_name ?? "Programme";
-
-  elements.templateDetailStatus.innerHTML = `
-    ${templateStatusBadge(displayState)}
-    <span class="badge neutral">Version ${programmeVersionNumber(template)}</span>
-    <span class="badge neutral">${escapeHtml(titleCase(template.activity_id))}</span>
-  `;
-
-  elements.templateDetailMeta.innerHTML = `
-    <div><span>Family versions</span><strong>${versions.length}</strong></div>
-    <div><span>Blocks</span><strong>${counts.blocks}</strong></div>
-    <div><span>Weeks</span><strong>${counts.weeks}</strong></div>
-    <div><span>Sessions</span><strong>${counts.sessions}</strong></div>
-    <div><span>Assignments</span><strong>${usage.assignmentCount}</strong></div>
-    <div><span>Updated</span><strong>${escapeHtml(formatDate(template.updated_at_iso8601))}</strong></div>
-  `;
-
-  elements.templateDetailDescription.textContent =
-    String(template.description ?? "").trim() ||
-    "No programme description was recorded.";
 
   const storedStatus = String(template.template_status ?? "draft");
-  const actions = [
-    `<button class="button secondary programme-detail-edit" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "draft" ? "" : "hidden"}>Edit draft</button>`,
-    `<button class="button secondary programme-detail-complete" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "draft" ? "" : "hidden"}>Save complete template</button>`,
-    `<button class="button primary programme-detail-activate" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "complete" ? "" : "hidden"}>Activate programme</button>`,
-    `<button class="button secondary programme-detail-duplicate" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "draft" ? "hidden" : ""}>Duplicate version</button>`,
-    `<button class="button secondary programme-detail-archive" type="button" data-template-id="${escapeHtml(template.template_id)}" ${storedStatus === "archived" ? "hidden" : ""}>Archive programme</button>`
-  ];
-
-  elements.templateDetailActions.innerHTML = actions.join("");
-
   const shareable = storedStatus === "complete" || storedStatus === "active";
   elements.templateDetailSharingSection.hidden = !shareable;
   if (shareable) {
@@ -4299,37 +4189,15 @@ function renderProgrammeDetail() {
     refreshTemplateReleaseHistory(template.template_id).catch(handleError);
   }
 
-  elements.templateDetailVersionFamily.innerHTML =
-    programmeVersionFamilyHtml(template);
-  elements.templateDetailUsage.innerHTML =
-    programmeUsageHtml(template);
   elements.templateDetailValidation.innerHTML =
     programmeValidationHtml(template);
   elements.templateDetailPreview.innerHTML =
     programmePreviewHtml(template);
 
-  if (eventPlan) {
-    elements.templateDetailMeta.insertAdjacentHTML(
-      "beforeend",
-      `<div><span>Event</span><strong>${escapeHtml(eventPlan.event_name ?? "Event")}</strong></div>`
-    );
-  }
-
   for (
     const button of
     elements.templateDetailPanel.querySelectorAll(
-      ".template-version-open"
-    )
-  ) {
-    button.addEventListener("click", () => {
-      openProgrammeDetail(button.dataset.templateId);
-    });
-  }
-
-  for (
-    const button of
-    elements.templateDetailPanel.querySelectorAll(
-      ".programme-detail-edit, .programme-validation-edit"
+      ".programme-validation-edit"
     )
   ) {
     button.addEventListener("click", () => {
@@ -4337,50 +4205,6 @@ function renderProgrammeDetail() {
         (candidate) => candidate.template_id === button.dataset.templateId
       );
       if (selected) openTemplateBuilder(templateRecordToDraft(selected));
-    });
-  }
-
-  for (
-    const button of
-    elements.templateDetailPanel.querySelectorAll(
-      ".programme-detail-complete"
-    )
-  ) {
-    button.addEventListener("click", () => {
-      completeTemplateById(button.dataset.templateId).catch(handleError);
-    });
-  }
-
-  for (
-    const button of
-    elements.templateDetailPanel.querySelectorAll(
-      ".programme-detail-activate"
-    )
-  ) {
-    button.addEventListener("click", () => {
-      activateTemplateById(button.dataset.templateId).catch(handleError);
-    });
-  }
-
-  for (
-    const button of
-    elements.templateDetailPanel.querySelectorAll(
-      ".programme-detail-duplicate"
-    )
-  ) {
-    button.addEventListener("click", () => {
-      duplicateTemplate(button.dataset.templateId).catch(handleError);
-    });
-  }
-
-  for (
-    const button of
-    elements.templateDetailPanel.querySelectorAll(
-      ".programme-detail-archive"
-    )
-  ) {
-    button.addEventListener("click", () => {
-      archiveTemplate(button.dataset.templateId).catch(handleError);
     });
   }
 }
@@ -4542,30 +4366,13 @@ async function refreshProgrammeLibrary(options = {}) {
     if (!options.quiet) hideBusy();
   }
 }
-function templateStatusBadge(status) {
-  if (status === "active") {
-    return '<span class="badge complete">Active</span>';
-  }
-
-  if (status === "archived") {
-    return '<span class="badge neutral">Archived</span>';
-  }
-
-  if (status === "superseded") {
-    return '<span class="badge warning">Superseded</span>';
-  }
-
-  if (status === "complete") {
-    return '<span class="badge status-complete">Complete</span>';
-  }
-
-  return '<span class="badge active">Draft</span>';
-}
-
 // DEV NOTE: templateCard()/bindTemplateLibraryActions() moved to
-// CoachProgrammeLibraryPanel.tsx's TemplateCard(). templateStatusBadge()
-// above stays - still used by programmeVersionFamilyHtml()/
-// renderProgrammeDetail() (the still-legacy detail panel).
+// CoachProgrammeLibraryPanel.tsx's TemplateCard(); templateStatusBadge()/
+// programmeVersionFamilyHtml()/programmeUsageHtml() moved to
+// CoachProgrammeDetailPanel.tsx (see templateStatusBadgeClass()/
+// VersionFamilyList()/UsageList()) once renderProgrammeDetail() (the last
+// remaining caller of each) was trimmed to just what the still-legacy
+// validation/preview/marketplace sections need.
 
 // DEV NOTE: FULL-UI-05A programme library (metric cards, search/filter/
 // sort, card list) moved to React - see
