@@ -116,6 +116,15 @@ export async function loadCoachEventsList(coachUserId: string): Promise<JsonReco
   return Array.isArray(response.events) ? (response.events as JsonRecord[]) : [];
 }
 
+// DEV NOTE: the "Compile event" form - see useCoachEventCreate.ts/
+// CoachEventCreatePanel.tsx. Session-authenticated like every other write
+// in this file (coach_user_id in the payload is overridden server-side,
+// same as createAthleteAssignment above - sent anyway for parity with the
+// legacy payload shape createCoachEvent()'s exactKeys check expects).
+export function createCoachEvent(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/coach-workspace/events", input, csrfToken);
+}
+
 // DEV NOTE: the coach's athlete directory (roster) - see
 // useAthleteDirectory.ts and AthleteDirectoryPanel.tsx. Unlike the
 // athlete-detail sub-panels above, this is a whole-workspace read, not
@@ -168,7 +177,14 @@ export function submitCoachSessionReview(sessionId: string, input: JsonRecord, c
 
 // DEV NOTE: an older "beta" route (predates the /coach-workspace family)
 // mounted at /sessions - kept as-is, ported verbatim from legacy's
-// recordCoachNote().
+// recordCoachNote()/recordAthleteDetailNote() (the Review view's and the
+// athlete-profile's note forms both posted here). Shared by
+// useCoachReview.ts and useAthleteCoachNotes.ts. Unlike every other write
+// in this file, this route is not session/authenticatedCoach-authorised -
+// see beta17_coach_managed_service.ts's assertRecordIntegrity/
+// permissionContext. It requires the caller to echo back two hash-signed
+// "capability object" records verbatim (coach_profile, relationship)
+// rather than deriving authorization from the session.
 export function submitCoachNote(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/sessions/beta-coach-notes", input, csrfToken);
 }

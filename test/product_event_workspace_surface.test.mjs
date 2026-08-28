@@ -19,9 +19,10 @@ const journey = read("src/api/beta_product_journey_service.ts");
 const blocks = read("src/api/blocks.handlers.ts");
 const templates = read("src/api/beta18_programme_template_service.ts");
 
-// DEV NOTE: the event library (metric counts + event card list) moved to
-// React - see public/app-src/screens/coach/CoachEventsLibraryPanel.tsx.
-// The create-event form and its live countdown/weeks preview stay legacy.
+// DEV NOTE: the event library (metric counts + event card list) AND the
+// create-event form (with its live countdown/weeks preview) both moved to
+// React - see public/app-src/screens/coach/CoachEventsLibraryPanel.tsx/
+// CoachEventCreatePanel.tsx.
 const coachEventsLibraryPanel = read("public/app-src/screens/coach/CoachEventsLibraryPanel.tsx");
 // DEV NOTE: the profile-embedded assignment form moved to React too - see
 // AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts.
@@ -31,7 +32,7 @@ const assignmentClient = read("public/app-src/api/coachWorkspaceClient.ts");
 test("events are a separate coach workspace section", () => {
   assert.match(index, /data-view="events"/u);
   assert.match(index, /id="view-events"/u);
-  assert.match(index, /id="eventForm"/u);
+  assert.match(index, /id="coach-event-create-root"/u);
   assert.match(index, /id="coach-events-list-root"/u);
   assert.match(index, /id="coach-events-metrics-root"/u);
   assert.doesNotMatch(index, /id="eventList"/u);

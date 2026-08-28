@@ -24,7 +24,6 @@ const DEFAULT_STATE = Object.freeze({
   phase1Input: null,
   activeSessionId: null,
   activeSessionState: null,
-  history: [],
   localSessions: [],
   view: "today",
   coachAthletes: [],
@@ -133,8 +132,6 @@ const elements = {
   busyText: document.getElementById("busyText"),
 
   todayGreeting: document.getElementById("todayGreeting"),
-  todayHistoryCount: document.getElementById("todayHistoryCount"),
-  todayRecentList: document.getElementById("todayRecentList"),
 
   refreshHistoryButton: document.getElementById("refreshHistoryButton"),
   exportHistoryButton: document.getElementById("exportHistoryButton"),
@@ -143,15 +140,11 @@ const elements = {
   coachAthleteCount: document.getElementById("coachAthleteCount"),
   coachAssignmentCount: document.getElementById("coachAssignmentCount"),
   coachArtefactCount: document.getElementById("coachArtefactCount"),
-  coachOverviewAthletes: document.getElementById("coachOverviewAthletes"),
   coachOpenSessionCount: document.getElementById("coachOpenSessionCount"),
   coachCompletedSessionCount: document.getElementById("coachCompletedSessionCount"),
   coachUpcomingEventCount: document.getElementById("coachUpcomingEventCount"),
   coachDashboardStatus: document.getElementById("coachDashboardStatus"),
   coachDashboardRefreshButton: document.getElementById("coachDashboardRefreshButton"),
-  coachOverviewAssignments: document.getElementById("coachOverviewAssignments"),
-  coachOverviewOpenSessions: document.getElementById("coachOverviewOpenSessions"),
-  coachOverviewReviewQueue: document.getElementById("coachOverviewReviewQueue"),
   refreshAthleteDirectoryButton: document.getElementById("refreshAthleteDirectoryButton"),
   athleteDirectoryStatus: document.getElementById("athleteDirectoryStatus"),
   eventsStatus: document.getElementById("eventsStatus"),
@@ -159,17 +152,6 @@ const elements = {
   athleteProfileHeading: document.getElementById("athleteProfileHeading"),
   athleteProfileActivity: document.getElementById("athleteProfileActivity"),
   closeAthleteProfileButton: document.getElementById("closeAthleteProfileButton"),
-  eventForm: document.getElementById("eventForm"),
-  eventName: document.getElementById("eventName"),
-  eventActivity: document.getElementById("eventActivity"),
-  eventType: document.getElementById("eventType"),
-  eventProgrammeStartDate: document.getElementById("eventProgrammeStartDate"),
-  eventDate: document.getElementById("eventDate"),
-  eventLocation: document.getElementById("eventLocation"),
-  eventTimezone: document.getElementById("eventTimezone"),
-  eventNotes: document.getElementById("eventNotes"),
-  eventPreviewCountdown: document.getElementById("eventPreviewCountdown"),
-  eventPreviewWeeks: document.getElementById("eventPreviewWeeks"),
   refreshEventsButton: document.getElementById("refreshEventsButton"),
   athleteDetailHistoryPanel: document.getElementById("athleteDetailHistoryPanel"),
   athleteDetailRefreshButton: document.getElementById("athleteDetailRefreshButton"),
@@ -180,12 +162,6 @@ const elements = {
   athleteDetailEventCount: document.getElementById("athleteDetailEventCount"),
   athleteDetailSessionCount: document.getElementById("athleteDetailSessionCount"),
   athleteDetailNoteCount: document.getElementById("athleteDetailNoteCount"),
-  athleteDetailNoteForm: document.getElementById("athleteDetailNoteForm"),
-  athleteDetailNoteSessionId: document.getElementById("athleteDetailNoteSessionId"),
-  athleteDetailNoteArtefactId: document.getElementById("athleteDetailNoteArtefactId"),
-  athleteDetailNoteText: document.getElementById("athleteDetailNoteText"),
-  athleteDetailNoteVisibility: document.getElementById("athleteDetailNoteVisibility"),
-  athleteDetailNoteCancelButton: document.getElementById("athleteDetailNoteCancelButton"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -443,7 +419,6 @@ function loadState() {
         ? parsed.athleteProfileDraft
         : null,
       selectedCoachAthleteId: String(parsed.selectedCoachAthleteId ?? ""),
-      history: Array.isArray(parsed.history) ? parsed.history : [],
       localSessions: Array.isArray(parsed.localSessions) ? parsed.localSessions : [],
       currentTerms: null
     };
@@ -940,27 +915,6 @@ function upsertLocalSession(sessionId, patch = {}) {
 
   saveState();
   return next;
-}
-
-function mergeHistory(serverSessions) {
-  const merged = new Map();
-
-  for (const session of state.localSessions) {
-    merged.set(session.session_id, session);
-  }
-
-  for (const session of serverSessions) {
-    merged.set(session.session_id, {
-      ...(merged.get(session.session_id) ?? {}),
-      ...session
-    });
-  }
-
-  return [...merged.values()].sort((left, right) => {
-    const leftTime = Date.parse(left.created_at ?? left.updated_at ?? "") || 0;
-    const rightTime = Date.parse(right.created_at ?? right.updated_at ?? "") || 0;
-    return leftTime - rightTime || String(left.session_id).localeCompare(String(right.session_id));
-  });
 }
 
 function sessionClassification(sessionState) {
@@ -1873,29 +1827,21 @@ async function loadExerciseHowto(exerciseId, container, respectDensity = true) {
 // public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx and
 // useAthleteSessionExecution.ts.
 
-// DEV NOTE: FULL-UI-16C the plain session list/filters/detail is React-owned
-// now (see public/app-src/screens/athlete/AthleteHistoryPanel.tsx, mounted
-// into athlete-history-root) - it independently fetches
-// beta-athlete-history/-detail and applies filters server-side itself, so
-// it needs no reverse bridge for reads. This function keeps its other jobs
-// (state.history for Today's recent-list preview, refreshing the other
-// still-legacy athlete self-service panels) and now dispatches
-// kolosseum:history-changed so the React panel knows when to refetch.
+// DEV NOTE: FULL-UI-16C/FULL-UI-14C both the full session list/filters/
+// detail (AthleteHistoryPanel.tsx, athlete-history-root) and the Today
+// screen's "Recent activity" preview
+// (AthleteTodayRecentActivityPanel.tsx/useAthleteTodayRecentActivity.ts,
+// today-history-count-root/today-recent-activity-root) are React-owned now -
+// both independently fetch beta-athlete-history themselves, so this
+// function no longer needs to fetch or cache anything itself. It's kept
+// only to dispatch kolosseum:history-changed, the shared signal both of
+// those hooks refetch on, and to show the manual-refresh-button notice.
 async function refreshHistory(options = {}) {
-  if (state.role !== "athlete") return [];
+  if (state.role !== "athlete") return;
 
-  const history = await api("POST", "/sessions/beta-athlete-history", {
-    athlete_user_id: state.profile.userId
-  });
-
-  const serverSessions = Array.isArray(history.sessions) ? history.sessions : [];
-  state.history = mergeHistory(serverSessions);
-  saveState();
-  notifyTodayChanged();
   document.dispatchEvent(new CustomEvent("kolosseum:history-changed"));
 
   if (!options.quiet) showNotice("Training history refreshed.");
-  return state.history;
 }
 
 async function exportHistory() {
@@ -1925,57 +1871,18 @@ async function exportHistory() {
 }
 
 
-function recordCard(session, interactive = true) {
-  const date = formatDate(session.updated_at ?? session.created_at);
-  const status = titleCase(session.status ?? "recorded");
-
-  return `
-    <article class="record-card ${interactive ? "interactive" : ""}" ${interactive ? `data-session-id="${escapeHtml(session.session_id)}"` : ""}>
-      <div>
-        <h3>Training session</h3>
-        <p>${escapeHtml(date)}</p>
-      </div>
-      <div class="record-meta">
-        <span class="badge neutral">${escapeHtml(status)}</span>
-        <span class="badge neutral">${Number(session.runtime_event_count ?? 0)} events</span>
-      </div>
-    </article>
-  `;
-}
-
-function bindSessionCards(container) {
-  for (const card of container.querySelectorAll("[data-session-id]")) {
-    card.addEventListener("click", () => {
-      state.activeSessionId = card.dataset.sessionId;
-      state.activeSessionState = null;
-      saveState();
-      setView("session");
-    });
-  }
-}
-
-// DEV NOTE: FULL-UI-14C Today screen is React-owned now (see
-// public/app-src/screens/athlete/AthleteTodayPanel.tsx, mounted into
+// DEV NOTE: FULL-UI-14C Today screen is fully React-owned now (see
+// public/app-src/screens/athlete/AthleteTodayPanel.tsx/
+// AthleteTodayRecentActivityPanel.tsx, mounted into
 // athlete-today-session-root/athlete-today-event-root/
-// athlete-today-create-session-root) - it independently fetches
-// beta-athlete-today and this session's /state, so it needs no reverse
+// athlete-today-create-session-root/today-history-count-root/
+// today-recent-activity-root) - it independently fetches beta-athlete-today,
+// this session's /state and beta-athlete-history, so it needs no reverse
 // bridge for reads. loadAthleteToday()/loadSessionState() below still run
-// unchanged (they own state.activeSessionId, which the still-legacy
-// Session screen needs) and now dispatch kolosseum:today-changed so the
-// React panel knows when to refetch. Only "Recent activity" stays legacy
-// here - it's a preview of the not-yet-migrated History screen's own card
-// rendering.
-function renderTodayRecent() {
-  elements.todayHistoryCount.textContent = String(state.history.length);
-  const latest = [...state.history].reverse().slice(0, 4);
-  elements.todayRecentList.innerHTML = latest.length
-    ? latest.map((session) => recordCard(session)).join("")
-    : '<div class="empty-state"><p>No recent sessions are recorded.</p></div>';
-  bindSessionCards(elements.todayRecentList);
-}
-
+// unchanged (they own state.activeSessionId, which the still-legacy Session
+// screen needs) - this function is trimmed to just the dispatch those React
+// panels refetch on.
 function notifyTodayChanged() {
-  renderTodayRecent();
   document.dispatchEvent(new CustomEvent("kolosseum:today-changed"));
 }
 
@@ -2069,34 +1976,6 @@ function mapCoachAthleteDirectoryRow(raw, existing = null) {
     relationshipExpired:
       raw?.relationship_expired === true
   };
-}
-
-function relationshipEffectiveState(entry) {
-  if (entry?.relationshipExpired === true) {
-    return "expired";
-  }
-
-  const stored = String(
-    entry?.relationshipState ??
-    entry?.relationship?.relationship_state ??
-    "unknown"
-  ).toLowerCase();
-
-  const expiresAt = String(
-    entry?.relationship?.expires_at_iso8601 ??
-    ""
-  );
-
-  if (
-    stored === "invited" &&
-    expiresAt &&
-    Number.isFinite(Date.parse(expiresAt)) &&
-    Date.parse(expiresAt) <= Date.now()
-  ) {
-    return "expired";
-  }
-
-  return stored;
 }
 
 async function refreshCoachRelationships(
@@ -2345,20 +2224,6 @@ async function refreshCoachAssignments(options = {}) {
   }
 }
 
-async function refreshCoachAthleteProfiles() {
-  const outcomes = await Promise.allSettled(
-    state.coachAthletes.map((athlete) =>
-      loadAthleteProfile(athlete.userId, { quiet: true })
-    )
-  );
-
-  for (const outcome of outcomes) {
-    if (outcome.status === "rejected") {
-      console.error(outcome.reason);
-    }
-  }
-}
-
 // DEV NOTE: the invite-by-email form (FULL-UI-24), broadcast form and
 // manual "Add athlete" connect form all moved to React - see
 // public/app-src/screens/coach/InviteAthleteByEmailPanel.tsx/
@@ -2431,135 +2296,6 @@ function profileRecordToDraft(profile, athlete) {
         }))
       : []
   };
-}
-
-function profileForAthlete(athleteUserId) {
-  const profile = state.athleteProfiles?.[athleteUserId];
-  return profile && typeof profile === "object" ? profile : null;
-}
-
-function currentProfileBenchmarks(
-  profile,
-  asOfDate =
-    new Date()
-      .toISOString()
-      .slice(0, 10)
-) {
-  const authoritativeCurrent =
-    Array.isArray(
-      profile
-        ?.strength_reference_lifecycle
-        ?.current
-    )
-      ? profile
-          .strength_reference_lifecycle
-          .current
-      : null;
-
-  if (authoritativeCurrent) {
-    return new Map(
-      authoritativeCurrent.map(
-        (reference) => [
-          String(
-            reference.exercise_id ??
-            ""
-          ),
-          {
-            benchmark_id:
-              reference.reference_id,
-            exercise_id:
-              reference.exercise_id,
-            value:
-              reference.source_value,
-            unit:
-              reference.source_unit,
-            basis:
-              reference.source_type,
-            effective_date:
-              reference.effective_date,
-            source_note:
-              reference.source_note ??
-              "",
-            replaces_reference_id:
-              reference
-                .replaces_reference_id ??
-              ""
-          }
-        ]
-      )
-    );
-  }
-
-  const current =
-    new Map();
-
-  const benchmarks =
-    Array.isArray(
-      profile?.benchmarks
-    )
-      ? profile.benchmarks
-      : [];
-
-  for (
-    const benchmark of benchmarks
-  ) {
-    const exerciseId =
-      String(
-        benchmark
-          ?.exercise_id ??
-        ""
-      );
-
-    const effectiveDate =
-      String(
-        benchmark
-          ?.effective_date ??
-        ""
-      );
-
-    if (
-      !exerciseId ||
-      !effectiveDate ||
-      effectiveDate > asOfDate
-    ) {
-      continue;
-    }
-
-    const existing =
-      current.get(
-        exerciseId
-      );
-
-    const candidateKey =
-      `${effectiveDate}::${String(
-        benchmark
-          ?.benchmark_id ??
-        ""
-      )}`;
-
-    const existingKey =
-      existing
-        ? `${String(
-            existing.effective_date ??
-            ""
-          )}::${String(
-            existing.benchmark_id ??
-            ""
-          )}`
-        : "";
-
-    if (
-      !existing ||
-      candidateKey > existingKey
-    ) {
-      current.set(
-        exerciseId,
-        benchmark
-      );
-    }
-  }
-
-  return current;
 }
 
 function strengthSourceLabel(
@@ -2766,18 +2502,19 @@ function renderAthleteDetail() {
   // reads out only its own field(s). `assignments`/`strengthProfiles`/
   // `bodyweights`/`eventLinks`/`sessions`/`notes` above are still used for
   // the metric-card counts and the status line just below. Session
-  // history's "Review"/"Add note" actions now dispatch
-  // kolosseum:open-session-review/kolosseum:open-session-note-form - see
-  // this file's listeners for those events for how they replicate the
-  // legacy bindAthleteDetailActions() behaviour those buttons used to
-  // trigger.
+  // history's "Review" action dispatches kolosseum:open-session-review -
+  // see this file's listener for that event for how it replicates the
+  // legacy bindAthleteDetailActions() behaviour that button used to
+  // trigger. Its "Add note" action dispatches
+  // kolosseum:open-session-note-form, which React now owns end to end
+  // (see useAthleteCoachNotes.ts) - no listener for it lives in this file.
 
-  // NOTE: the coach-notes history list moved to React
-  // (AthleteCoachNotesPanel.tsx, mounted into #athlete-coach-notes-root) -
-  // it independently fetches GET /coach-workspace/athlete-detail and reads
-  // out only note_history. `notes` (from detail.note_history above) is
-  // still used for the status line's count just below. Note *creation*
-  // stays legacy - see AthleteCoachNotesPanel.tsx's DEV NOTE for why.
+  // NOTE: the coach-notes history list AND creation form both moved to
+  // React (AthleteCoachNotesPanel.tsx/useAthleteCoachNotes.ts, mounted
+  // into #athlete-coach-notes-root) - the list independently fetches GET
+  // /coach-workspace/athlete-detail and reads out only note_history.
+  // `notes` (from detail.note_history above) is still used for the status
+  // line's count just below.
 
   elements.athleteDetailStatus
     .textContent =
@@ -2851,84 +2588,6 @@ async function refreshAthleteDetail(
     if (!options.quiet) {
       hideBusy();
     }
-  }
-}
-
-async function recordAthleteDetailNote(
-  event
-) {
-  event.preventDefault();
-
-  const athleteUserId =
-    state.selectedCoachAthleteId;
-
-  const athlete =
-    state.coachAthletes.find(
-      (entry) =>
-        entry.userId === athleteUserId
-    );
-
-  if (!athlete?.relationship) {
-    throw new Error(
-      "Open an accepted athlete first."
-    );
-  }
-
-  const noteText =
-    elements.athleteDetailNoteText
-      .value.trim();
-
-  if (!noteText) {
-    throw new Error(
-      "Enter a coach note."
-    );
-  }
-
-  showBusy("Recording note…");
-
-  try {
-    await api(
-      "POST",
-      "/sessions/beta-coach-notes",
-      {
-        coach_profile:
-          state.coachProfile,
-        relationship:
-          athlete.relationship,
-        athlete_user_id:
-          athleteUserId,
-        session_id:
-          elements
-            .athleteDetailNoteSessionId
-            .value,
-        artefact_id:
-          elements
-            .athleteDetailNoteArtefactId
-            .value,
-        note_text: noteText,
-        visibility:
-          elements
-            .athleteDetailNoteVisibility
-            .value
-      }
-    );
-
-    elements.athleteDetailNoteForm
-      .hidden = true;
-
-    await refreshAthleteDetail(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    );
-
-    showNotice(
-      "Non-binding coach note recorded."
-    );
-  }
-  finally {
-    hideBusy();
   }
 }
 
@@ -3105,13 +2764,6 @@ function closeAthleteProfile() {
     elements.athleteDetailHistoryPanel
       .hidden = true;
   }
-
-  if (
-    elements.athleteDetailNoteForm
-  ) {
-    elements.athleteDetailNoteForm
-      .hidden = true;
-  }
 }
 
 // NOTE: benchmark add/remove/save moved to React
@@ -3144,69 +2796,6 @@ function exerciseDisplayName(exerciseId) {
 // state.coachAssignments (which it still populates) is read directly by
 // the React AthleteProfileAssignmentPanel and by the Coach Dashboard.
 
-function coachAthleteCard(athlete) {
-  const assignments = state.coachAssignments.filter(
-    (assignment) => assignment.athleteUserId === athlete.userId
-  ).length;
-  const profile = profileForAthlete(athlete.userId);
-  const referenceCount = currentProfileBenchmarks(profile).size;
-
-  return `
-    <article class="record-card athlete-record-card" data-athlete-id="${escapeHtml(athlete.userId)}">
-      <div>
-        <h3>${escapeHtml(athlete.displayName)}</h3>
-        <p>${escapeHtml(titleCase(athlete.activityId))}</p>
-      </div>
-      <div class="record-meta athlete-record-meta">
-        <span class="badge complete">Connected</span>
-        <span class="badge ${profile ? "active" : "neutral"}">${profile ? `${referenceCount} strength reference${referenceCount === 1 ? "" : "s"}` : "Profile not recorded"}</span>
-        <span class="badge neutral">${assignments} assignment${assignments === 1 ? "" : "s"}</span>
-        <button class="button secondary small-button open-athlete-profile" type="button" data-athlete-id="${escapeHtml(athlete.userId)}">Open profile</button>
-      </div>
-    </article>
-  `;
-}
-
-function bindCoachAthleteActions() {
-  for (
-    const container of [
-      elements.coachOverviewAthletes,
-      elements.athleteRoster
-    ]
-  ) {
-    if (!container) continue;
-
-    for (
-      const button of
-      container.querySelectorAll(
-        ".open-athlete-profile"
-      )
-    ) {
-      if (
-        button.dataset.profileActionBound ===
-        "true"
-      ) {
-        continue;
-      }
-
-      button.dataset.profileActionBound =
-        "true";
-
-      button.addEventListener(
-        "click",
-        () => {
-          setView("athletes");
-
-          openAthleteProfile(
-            button.dataset.athleteId
-          ).catch(handleError);
-        }
-      );
-    }
-  }
-}
-
-
 // FULL-UI-03 factual coach dashboard.
 // Dashboard records are derived from server-authoritative coach,
 // assignment, event and artefact responses. No readiness,
@@ -3224,30 +2813,11 @@ function dashboardAthleteName(athleteUserId) {
     "Athlete";
 }
 
-function dashboardAssignmentAthleteId(assignment) {
-  return String(
-    assignment?.athleteUserId ??
-    assignment?.athlete_user_id ??
-    assignment?.assigned_athlete_id ??
-    ""
-  );
-}
-
 function dashboardAssignmentTemplateId(assignment) {
   return String(
     assignment?.templateId ??
     assignment?.template_id ??
     assignment?.programme_id ??
-    ""
-  );
-}
-
-function dashboardAssignmentRecordedAt(assignment) {
-  return String(
-    assignment?.recordedAt ??
-    assignment?.recorded_at ??
-    assignment?.requested_at_iso8601 ??
-    assignment?.created_at ??
     ""
   );
 }
@@ -3321,45 +2891,6 @@ function dashboardProgrammeName(assignment) {
   );
 }
 
-function dashboardEmptyState(
-  heading,
-  detail
-) {
-  return `
-    <div class="empty-state dashboard-empty-state">
-      <h4>${escapeHtml(heading)}</h4>
-      <p>${escapeHtml(detail)}</p>
-    </div>
-  `;
-}
-
-function dashboardActionButton(
-  label,
-  action,
-  values = {}
-) {
-  const attributes =
-    Object.entries(values)
-      .filter(([, value]) =>
-        String(value ?? "").length > 0
-      )
-      .map(([key, value]) =>
-        `data-${escapeHtml(key)}="${escapeHtml(value)}"`
-      )
-      .join(" ");
-
-  return `
-    <button
-      class="button secondary small-button"
-      type="button"
-      data-dashboard-action="${escapeHtml(action)}"
-      ${attributes}
-    >
-      ${escapeHtml(label)}
-    </button>
-  `;
-}
-
 function bindCoachDashboardActions() {
   for (
     const button of
@@ -3386,35 +2917,6 @@ function bindCoachDashboardActions() {
           return;
         }
 
-        if (action === "open-assignment") {
-          setView("athletes");
-
-          await openAthleteProfile(
-            athleteUserId
-          );
-
-          // The assignment panel is React now (AthleteProfileAssignmentPanel.tsx)
-          // - its mount point stays at the same position, so this dashboard
-          // deep-link still scrolls to the right place.
-          document.getElementById("athlete-profile-assignment-root")
-            ?.scrollIntoView({
-              behavior: "smooth",
-              block: "start"
-            });
-
-          return;
-        }
-
-        if (action === "open-review") {
-          setView("review");
-
-          document.dispatchEvent(
-            new CustomEvent("kolosseum:open-session-review", { detail: { athlete_user_id: athleteUserId } })
-          );
-
-          return;
-        }
-
         if (action === "open-programmes") {
           setView("templates");
         }
@@ -3424,14 +2926,6 @@ function bindCoachDashboardActions() {
 }
 
 function renderCoachDashboard() {
-  if (
-    !elements.coachOverviewAssignments ||
-    !elements.coachOverviewOpenSessions ||
-    !elements.coachOverviewReviewQueue
-  ) {
-    return;
-  }
-
   const artefacts =
     Array.isArray(
       state.coachDashboardArtefacts
@@ -3505,23 +2999,6 @@ function renderCoachDashboard() {
         )
       );
 
-  const assignedAthleteIds =
-    new Set(
-      state.coachAssignments
-        .map(
-          dashboardAssignmentAthleteId
-        )
-        .filter(Boolean)
-    );
-
-  const assignmentActions =
-    state.coachAthletes.filter(
-      (athlete) =>
-        !assignedAthleteIds.has(
-          athlete.userId
-        )
-    );
-
   const today =
     typeof todayDateOnly === "function"
       ? todayDateOnly()
@@ -3577,187 +3054,26 @@ function renderCoachDashboard() {
       upcomingEvents.length
     );
 
-  const pendingRelationshipInvitations =
-    (
-      Array.isArray(state.coachRelationships)
-        ? state.coachRelationships
-        : []
-    ).filter(
-      (entry) =>
-        relationshipEffectiveState(entry) === "invited"
-    );
+  // NOTE: the "Connected athletes" panel moved to React (see
+  // public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx, mounted
+  // into #coach-overview-athletes-root) - it independently fetches
+  // GET /coach-workspace/relationships and one
+  // GET /coach-workspace/athlete-strength-profile per displayed athlete,
+  // and refetches on the kolosseum:coach-overview-changed dispatch just
+  // below. `state.coachAthletes.length` above is still used for the
+  // coachAthleteCount metric.
 
-  const pendingRelationshipsSummary = `
-    <p class="dashboard-pending-summary">
-      ${
-        pendingRelationshipInvitations.length
-          ? `${pendingRelationshipInvitations.length} pending athlete invitation${pendingRelationshipInvitations.length === 1 ? "" : "s"} awaiting acceptance.`
-          : "No pending athlete invitations."
-      }
-    </p>
-  `;
-
-  elements.coachOverviewAthletes.innerHTML =
-    pendingRelationshipsSummary +
-    (state.coachAthletes.length
-      ? state.coachAthletes
-          .slice(0, 6)
-          .map(coachAthleteCard)
-          .join("")
-      : dashboardEmptyState(
-          "No connected athletes",
-          "Connect an athlete to begin programme assignment and session review."
-        ));
-
-  elements.coachOverviewAssignments.innerHTML =
-    assignmentActions.length
-      ? assignmentActions
-          .slice(0, 8)
-          .map((athlete) => `
-            <article class="record-card dashboard-record-card">
-              <div>
-                <h4>${escapeHtml(athlete.displayName)}</h4>
-                <p>No programme assignment is currently recorded.</p>
-              </div>
-
-              <div class="record-meta">
-                <span class="badge neutral">
-                  Action required
-                </span>
-
-                ${dashboardActionButton(
-                  "Open profile",
-                  "open-assignment",
-                  {
-                    "athlete-id": athlete.userId
-                  }
-                )}
-              </div>
-            </article>
-          `)
-          .join("")
-      : dashboardEmptyState(
-          "No assignment actions",
-          state.coachAthletes.length
-            ? "Every connected athlete has at least one recorded assignment."
-            : "Connect an athlete before creating an assignment."
-        );
-
-  elements.coachOverviewOpenSessions.innerHTML =
-    openSessions.length
-      ? openSessions
-          .slice(0, 8)
-          .map(({ athlete, artefact }) => `
-            <article class="record-card dashboard-record-card">
-              <div>
-                <h4>
-                  ${escapeHtml(
-                    athlete.displayName
-                  )}
-                </h4>
-
-                <p>
-                  ${escapeHtml(
-                    titleCase(
-                      dashboardSessionStatus(
-                        artefact
-                      )
-                    )
-                  )}
-                  ·
-                  ${Number(
-                    artefact.runtime_event_count ??
-                    0
-                  )}
-                  recorded events
-                </p>
-              </div>
-
-              <div class="record-meta">
-                <span class="badge neutral">
-                  ${escapeHtml(
-                    formatDate(
-                      dashboardSessionDate(
-                        artefact
-                      )
-                    )
-                  )}
-                </span>
-
-                ${dashboardActionButton(
-                  "Open live status",
-                  "open-review",
-                  {
-                    "athlete-id":
-                      athlete.userId
-                  }
-                )}
-              </div>
-            </article>
-          `)
-          .join("")
-      : dashboardEmptyState(
-          "No open sessions",
-          "No connected athlete currently has an open recorded session."
-        );
-
-  elements.coachOverviewReviewQueue.innerHTML =
-    completedSessions.length
-      ? completedSessions
-          .slice(0, 8)
-          .map(({ athlete, artefact }) => `
-            <article class="record-card dashboard-record-card">
-              <div>
-                <h4>
-                  ${escapeHtml(
-                    athlete.displayName
-                  )}
-                </h4>
-
-                <p>
-                  ${escapeHtml(
-                    titleCase(
-                      dashboardSessionStatus(
-                        artefact
-                      )
-                    )
-                  )}
-                  ·
-                  ${Number(
-                    artefact.runtime_event_count ??
-                    0
-                  )}
-                  recorded events
-                </p>
-              </div>
-
-              <div class="record-meta">
-                <span class="badge complete">
-                  ${escapeHtml(
-                    formatDate(
-                      dashboardSessionDate(
-                        artefact
-                      )
-                    )
-                  )}
-                </span>
-
-                ${dashboardActionButton(
-                  "Review record",
-                  "open-review",
-                  {
-                    "athlete-id":
-                      athlete.userId
-                  }
-                )}
-              </div>
-            </article>
-          `)
-          .join("")
-      : dashboardEmptyState(
-          "No completed session records",
-          "Completed athlete sessions will appear here when factual artefacts are available."
-        );
+  // NOTE: the "Open sessions"/"Completed since review" panels moved to
+  // React (see public/app-src/screens/coach/
+  // CoachOverviewSessionReviewPanel.tsx, mounted into
+  // #coach-overview-open-sessions-root and
+  // #coach-overview-review-queue-root) - both independently fetch
+  // GET /coach-workspace/reviews (the same richer, single-query endpoint
+  // useCoachReview.ts's full Review view already relies on exclusively,
+  // superseding the artefact fan-out's narrower fallback role) and refetch
+  // on the kolosseum:coach-overview-changed dispatch just below.
+  // `openSessions`/`completedSessions` above are still used for the
+  // coachOpenSessionCount/coachCompletedSessionCount metrics.
 
   // NOTE: the "Upcoming events" panel moved to React (see
   // public/app-src/screens/coach/CoachOverviewEventsPanel.tsx, mounted
@@ -3768,13 +3084,6 @@ function renderCoachDashboard() {
   document.dispatchEvent(
     new CustomEvent("kolosseum:coach-overview-changed")
   );
-
-  if (
-    typeof bindCoachAthleteActions ===
-    "function"
-  ) {
-    bindCoachAthleteActions();
-  }
 
   bindCoachDashboardActions();
 
@@ -3970,13 +3279,6 @@ async function refreshCoachDashboard(
 }
 
 function renderCoachWorkspace() {
-  const cards =
-    state.coachAthletes.length
-      ? state.coachAthletes
-          .map(coachAthleteCard)
-          .join("")
-      : '<div class="empty-state"><p>No accepted athletes are connected yet.</p></div>';
-
   elements.coachAthleteCount.textContent =
     String(
       state.coachAthletes.length
@@ -3992,11 +3294,17 @@ function renderCoachWorkspace() {
       state.coachArtefactCount
     );
 
-  elements.coachOverviewAthletes.innerHTML =
-    cards;
-
   renderCoachAthleteDirectory();
-  bindCoachAthleteActions();
+
+  // NOTE: the "Connected athletes" dashboard panel is React now (see
+  // public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx) - notify
+  // it the same way renderCoachDashboard() does, since this function is
+  // also called after a relationship mutation and after an athlete
+  // strength-profile save (kolosseum:coach-athlete-profile-updated), both
+  // of which can change what that panel shows.
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:coach-overview-changed")
+  );
 
   if (
     state.selectedCoachAthleteId &&
@@ -8119,26 +7427,11 @@ async function archiveTemplate(templateId) {
     hideBusy();
   }
 }
-const COACH_EVENT_TYPES = Object.freeze({
-  powerlifting: [
-    ["powerlifting_meet", "Powerlifting meet"],
-    ["strength_event", "Strength event"],
-    ["test_day", "Test day"],
-    ["other", "Other"]
-  ],
-  general_strength: [
-    ["strength_event", "Strength event"],
-    ["test_day", "Test day"],
-    ["other", "Other"]
-  ],
-  rugby_union: [
-    ["rugby_match", "Rugby match"],
-    ["rugby_tournament", "Rugby tournament"],
-    ["test_day", "Test day"],
-    ["other", "Other"]
-  ]
-});
-
+// DEV NOTE: the create-event form's own COACH_EVENT_TYPES/
+// syncCoachEventTypeOptions()/renderCoachEventPreview() moved to React -
+// see CoachEventCreatePanel.tsx/useCoachEventCreate.ts. coachEventPlan/
+// coachEventCompile below stay - dashboardEventDate() and other still-
+// legacy dashboard rendering call them directly.
 function coachEventPlan(eventRecord) {
   return eventRecord?.event_plan && typeof eventRecord.event_plan === "object"
     ? eventRecord.event_plan
@@ -8149,35 +7442,6 @@ function coachEventCompile(eventRecord) {
   return eventRecord?.event_compile_summary && typeof eventRecord.event_compile_summary === "object"
     ? eventRecord.event_compile_summary
     : null;
-}
-
-function syncCoachEventTypeOptions() {
-  const activityId = elements.eventActivity.value || "powerlifting";
-  const previous = elements.eventType.value;
-  const options = COACH_EVENT_TYPES[activityId] ?? COACH_EVENT_TYPES.powerlifting;
-
-  elements.eventType.innerHTML = options
-    .map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`)
-    .join("");
-
-  if (options.some(([value]) => value === previous)) {
-    elements.eventType.value = previous;
-  }
-}
-
-function renderCoachEventPreview() {
-  syncCoachEventTypeOptions();
-  const startDate = elements.eventProgrammeStartDate.value;
-  const eventDate = elements.eventDate.value;
-  const days = dateOnlyDifference(startDate, eventDate);
-
-  elements.eventPreviewCountdown.textContent = eventDate
-    ? countdownLabel(eventDate)
-    : "Set event date";
-
-  elements.eventPreviewWeeks.textContent = Number.isInteger(days) && days > 0
-    ? String(Math.ceil(days / 7))
-    : "—";
 }
 
 async function refreshCoachEvents(options = {}) {
@@ -8201,53 +7465,17 @@ async function refreshCoachEvents(options = {}) {
   }
 }
 
-// NOTE: the event library (metric counts + event card list) moved to
-// React - see public/app-src/screens/coach/CoachEventsLibraryPanel.tsx,
-// mounted into #coach-events-metrics-root and #coach-events-list-root.
-// It independently fetches GET /coach-workspace/events and refetches on
-// the kolosseum:coach-events-changed dispatch just below. The
-// create-event form's own live countdown/weeks preview
-// (renderCoachEventPreview()) stays legacy.
+// NOTE: the event library (metric counts + event card list) AND the
+// create-event form moved to React - see
+// public/app-src/screens/coach/CoachEventsLibraryPanel.tsx/
+// CoachEventCreatePanel.tsx, mounted into #coach-events-metrics-root,
+// #coach-events-list-root and #coach-event-create-root. All three
+// independently fetch GET /coach-workspace/events and refetch on the
+// kolosseum:coach-events-changed dispatch just below.
 function renderCoachEvents() {
   document.dispatchEvent(
     new CustomEvent("kolosseum:coach-events-changed")
   );
-
-  renderCoachEventPreview();
-}
-
-async function createCoachEvent(event) {
-  event.preventDefault();
-  showBusy("Compiling event…");
-
-  try {
-    const timestamp = nowIso();
-    const response = await api("POST", "/coach-workspace/events", {
-      coach_user_id: state.profile.coachUserId,
-      event_id: "",
-      event_name: elements.eventName.value.trim(),
-      activity_id: elements.eventActivity.value,
-      event_type: elements.eventType.value,
-      programme_start_date: elements.eventProgrammeStartDate.value,
-      event_date: elements.eventDate.value,
-      location: elements.eventLocation.value.trim(),
-      timezone: elements.eventTimezone.value.trim() || "Europe/London",
-      notes: elements.eventNotes.value.trim(),
-      created_at_iso8601: timestamp,
-      updated_at_iso8601: timestamp
-    });
-
-    await refreshCoachEvents({ quiet: true });
-    elements.eventForm.reset();
-    elements.eventActivity.value = response.event?.activity_id ?? "powerlifting";
-    elements.eventTimezone.value = "Europe/London";
-    syncCoachEventTypeOptions();
-    renderCoachEventPreview();
-    showNotice(`${coachEventPlan(response.event)?.event_name ?? "Event"} compiled.`);
-  }
-  finally {
-    hideBusy();
-  }
 }
 
 // DEV NOTE: the assignment-from-profile form (selectedAthleteProfileTemplate/
@@ -8643,7 +7871,6 @@ async function enterApplication() {
     // superseded it, so a stale cached session/assignment/completion
     // state is never visible, even briefly, as if it were current.
     showBusy("Loading your training data...");
-    renderTodayRecent();
 
     try {
       // Server state after refresh decides which session is current - a
@@ -8670,8 +7897,6 @@ async function enterApplication() {
         refreshCoachAthletes({ quiet: true }),
         refreshCoachAssignments({ quiet: true })
       ]);
-
-      await refreshCoachAthleteProfiles();
     }
     catch (error) {
       showNotice(error.message, "error");
@@ -9138,23 +8363,6 @@ elements.refreshEventsButton.addEventListener("click", () => {
   refreshCoachEvents().catch(handleError);
 });
 
-elements.eventActivity.addEventListener("change", () => {
-  syncCoachEventTypeOptions();
-  renderCoachEventPreview();
-});
-
-for (const control of [
-  elements.eventProgrammeStartDate,
-  elements.eventDate
-]) {
-  control.addEventListener("input", renderCoachEventPreview);
-  control.addEventListener("change", renderCoachEventPreview);
-}
-
-elements.eventForm.addEventListener("submit", (event) => {
-  createCoachEvent(event).catch(handleError);
-});
-
 elements.refreshTemplatesButton.addEventListener("click", () => {
   refreshProgrammeLibrary().catch(handleError);
 });
@@ -9442,11 +8650,14 @@ document.addEventListener(
 
 // DEV NOTE: React owns the session-history list now (see
 // public/app-src/screens/coach/AthleteHistoryPanels.tsx's
-// AthleteSessionHistoryList) - its "Review"/"Add note" buttons reach into
-// legacy-only state/DOM (elements.athleteDetailNoteForm), so they dispatch
-// these two events instead of the data-athlete-detail-action delegation
-// bindAthleteDetailActions() used to provide. Behaviour is otherwise
-// unchanged from what that removed function did.
+// AthleteSessionHistoryList) - its "Review" button reaches into legacy-only
+// navigation (setView), so it dispatches this event instead of the
+// data-athlete-detail-action delegation bindAthleteDetailActions() used to
+// provide. Behaviour is otherwise unchanged from what that removed
+// function did. Its "Add note" button dispatches
+// kolosseum:open-session-note-form too, but that one's no longer heard
+// here - React owns the whole compose form now (see
+// useAthleteCoachNotes.ts, which listens for it directly).
 //
 // kolosseum:open-session-review's own athlete-filter/data-loading half
 // moved to React too (CoachReviewPanel.tsx/useCoachReview.ts, which
@@ -9462,24 +8673,20 @@ document.addEventListener(
   }
 );
 
-document.addEventListener(
-  "kolosseum:open-session-note-form",
-  (event) => {
-    elements.athleteDetailNoteSessionId.value = event.detail?.session_id ?? "";
-    elements.athleteDetailNoteArtefactId.value = event.detail?.artefact_id ?? "";
-    elements.athleteDetailNoteText.value = "";
-    elements.athleteDetailNoteForm.hidden = false;
-    elements.athleteDetailNoteText.focus();
-  }
-);
-
 // DEV NOTE: React owns the athlete directory now (see
 // public/app-src/screens/coach/AthleteDirectoryPanel.tsx) - its "Open
-// profile" button can't reuse bindCoachAthleteActions() (that function
-// binds listeners imperatively after each legacy render and never
-// re-runs against React output), so it dispatches this event instead.
-// Behaviour is otherwise identical to what that binder's click handler
-// used to do.
+// profile" button can't reuse the old bindCoachAthleteActions() (a
+// function that bound listeners imperatively after each legacy render and
+// never re-ran against React output, since fully removed once the
+// dashboard's "Connected athletes" card - its last remaining consumer -
+// also moved to React), so it dispatches this event instead. Behaviour is
+// otherwise identical to what that binder's click handler used to do.
+// CoachOverviewAssignmentsPanel.tsx's "Open profile" button
+// (the dashboard's action-queue card) dispatches this same event with an
+// extra focus_assignment flag, preserving the scroll-to-assignment-panel
+// nicety bindCoachDashboardActions()'s removed "open-assignment" branch
+// used to provide - default behaviour (no scroll) is unchanged for every
+// other dispatcher.
 document.addEventListener(
   "kolosseum:open-athlete-profile-request",
   (event) => {
@@ -9487,7 +8694,14 @@ document.addEventListener(
     if (!athleteUserId) return;
 
     setView("athletes");
-    openAthleteProfile(athleteUserId).catch(handleError);
+    openAthleteProfile(athleteUserId)
+      .then(() => {
+        if (!event.detail?.focus_assignment) return;
+
+        document.getElementById("athlete-profile-assignment-root")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      })
+      .catch(handleError);
   }
 );
 
@@ -9587,25 +8801,6 @@ elements.athleteDetailRefreshButton
       refreshAthleteDetail(
         state.selectedCoachAthleteId
       ).catch(handleError);
-    }
-  );
-
-elements.athleteDetailNoteForm
-  ?.addEventListener(
-    "submit",
-    (event) => {
-      recordAthleteDetailNote(
-        event
-      ).catch(handleError);
-    }
-  );
-
-elements.athleteDetailNoteCancelButton
-  ?.addEventListener(
-    "click",
-    () => {
-      elements.athleteDetailNoteForm
-        .hidden = true;
     }
   );
 

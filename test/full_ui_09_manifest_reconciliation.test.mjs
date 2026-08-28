@@ -402,7 +402,7 @@ const targets = [
         "path": "public/app/index.html",
         "all": [
           "coachOpenSessionCount",
-          "coachOverviewOpenSessions"
+          "coach-overview-open-sessions-root"
         ]
       }
     ],
@@ -456,9 +456,9 @@ const targets = [
         ]
       },
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/CoachOverviewSessionReviewPanel.tsx",
         "all": [
-          "coachOverviewOpenSessions"
+          "CoachOverviewOpenSessionsPanel"
         ]
       }
     ],

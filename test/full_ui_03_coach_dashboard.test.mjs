@@ -29,14 +29,28 @@ const manifest = JSON.parse(
   )
 );
 
-// DEV NOTE: the "Upcoming events" panel moved to React - see
-// public/app-src/screens/coach/CoachOverviewEventsPanel.tsx and
-// useCoachOverviewEvents.ts. The metric counts, "Connected athletes"/
-// "Action queue"/"Open sessions"/"Completed since review" panels and the
-// dashboard status line all stay legacy - see that component's own DEV
-// NOTE for why.
+// DEV NOTE: every dashboard panel (Connected athletes, Action queue, Open
+// sessions, Completed since review, Upcoming events) has moved to React -
+// see public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx/
+// useCoachOverviewAthletes.ts, CoachOverviewAssignmentsPanel.tsx/
+// useCoachOverviewAssignments.ts, CoachOverviewSessionReviewPanel.tsx/
+// useCoachOverviewSessionReview.ts and CoachOverviewEventsPanel.tsx/
+// useCoachOverviewEvents.ts. Only the metric counts and the dashboard
+// status line stay legacy - see those components' own DEV NOTEs for why.
 const coachOverviewEventsPanel = fs.readFileSync(
   new URL("../public/app-src/screens/coach/CoachOverviewEventsPanel.tsx", import.meta.url),
+  "utf8"
+);
+const coachOverviewAssignmentsPanel = fs.readFileSync(
+  new URL("../public/app-src/screens/coach/CoachOverviewAssignmentsPanel.tsx", import.meta.url),
+  "utf8"
+);
+const coachOverviewSessionReviewPanel = fs.readFileSync(
+  new URL("../public/app-src/screens/coach/CoachOverviewSessionReviewPanel.tsx", import.meta.url),
+  "utf8"
+);
+const coachOverviewAthletesPanel = fs.readFileSync(
+  new URL("../public/app-src/screens/coach/CoachOverviewAthletesPanel.tsx", import.meta.url),
   "utf8"
 );
 
@@ -49,11 +63,7 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
     "coachArtefactCount",
     "coachOpenSessionCount",
     "coachCompletedSessionCount",
-    "coachUpcomingEventCount",
-    "coachOverviewAthletes",
-    "coachOverviewAssignments",
-    "coachOverviewOpenSessions",
-    "coachOverviewReviewQueue"
+    "coachUpcomingEventCount"
   ];
 
   for (const id of ids) {
@@ -65,6 +75,14 @@ test("FULL-UI-03 exposes the complete factual coach dashboard", () => {
 
   assert.ok(html.includes('id="coach-overview-events-root"'), "missing coach-overview-events-root");
   assert.ok(!html.includes('id="coachOverviewEvents"'), "legacy coachOverviewEvents mount point should be fully retired");
+  assert.ok(html.includes('id="coach-overview-assignments-root"'), "missing coach-overview-assignments-root");
+  assert.ok(!html.includes('id="coachOverviewAssignments"'), "legacy coachOverviewAssignments mount point should be fully retired");
+  assert.ok(html.includes('id="coach-overview-open-sessions-root"'), "missing coach-overview-open-sessions-root");
+  assert.ok(!html.includes('id="coachOverviewOpenSessions"'), "legacy coachOverviewOpenSessions mount point should be fully retired");
+  assert.ok(html.includes('id="coach-overview-review-queue-root"'), "missing coach-overview-review-queue-root");
+  assert.ok(!html.includes('id="coachOverviewReviewQueue"'), "legacy coachOverviewReviewQueue mount point should be fully retired");
+  assert.ok(html.includes('id="coach-overview-athletes-root"'), "missing coach-overview-athletes-root");
+  assert.ok(!html.includes('id="coachOverviewAthletes"'), "legacy coachOverviewAthletes mount point should be fully retired");
 });
 
 test("FULL-UI-03 loads server-authoritative coach records", () => {
@@ -92,8 +110,6 @@ test("FULL-UI-03 loads server-authoritative coach records", () => {
 test("FULL-UI-03 provides direct coach actions", () => {
   const actions = [
     "open-athlete",
-    "open-assignment",
-    "open-review",
     "open-programmes",
     "openAthleteProfile"
   ];
@@ -105,6 +121,17 @@ test("FULL-UI-03 provides direct coach actions", () => {
     );
   }
 
+  // "open-assignment" moved to React (CoachOverviewAssignmentsPanel.tsx) -
+  // it dispatches the same kolosseum:open-athlete-profile-request bridge
+  // event AthleteDirectoryPanel.tsx already uses, with an extra
+  // focus_assignment flag app.js's shared listener uses to preserve the
+  // scroll-to-assignment-panel nicety the removed dashboard-action branch
+  // provided.
+  assert.ok(!application.includes('if (action === "open-assignment")'), "the open-assignment action branch should be fully retired from app.js");
+  assert.ok(coachOverviewAssignmentsPanel.includes("kolosseum:open-athlete-profile-request"));
+  assert.ok(coachOverviewAssignmentsPanel.includes("focus_assignment"));
+  assert.ok(application.includes("event.detail?.focus_assignment"));
+
   // "open-event" moved to React (CoachOverviewEventsPanel.tsx) - it
   // navigates the same way legacy's bindCoachDashboardActions() used to
   // (click the legacy nav button for the Events view, then set
@@ -114,14 +141,33 @@ test("FULL-UI-03 provides direct coach actions", () => {
   assert.ok(coachOverviewEventsPanel.includes("#/coach/events/"));
   assert.ok(coachOverviewEventsPanel.includes('data-view="events"'));
 
-  // "open-review" also moved most of its work to React (CoachReviewPanel.tsx/
-  // useCoachReview.ts) - loadCoachReview() is retired, and the dashboard
-  // action now dispatches the same kolosseum:open-session-review bridge
-  // event the other two entry points into the review view already use.
+  // "open-review" (Open sessions/Review queue) moved to React too
+  // (CoachOverviewSessionReviewPanel.tsx/useCoachOverviewSessionReview.ts)
+  // - loadCoachReview() is retired, dashboardActionButton()/the
+  // dashboard-action="open-review" branch are fully retired from app.js,
+  // and both "Open live status"/"Review record" buttons dispatch the same
+  // kolosseum:open-session-review bridge event the other entry points
+  // into the review view (AthleteHistoryPanels.tsx, route_bootstrap.js's
+  // coach_review_athlete deep link) already use - app.js's own listener
+  // for that event still owns the setView("review") navigation.
   assert.ok(!application.includes("loadCoachReview"), "loadCoachReview() should be fully retired from app.js");
-  const openReviewAction = application.match(/if \(action === "open-review"\) \{[\s\S]*?\n {8}\}/u);
-  assert.ok(openReviewAction, "expected the open-review action branch");
-  assert.match(openReviewAction[0], /kolosseum:open-session-review/u);
+  assert.ok(!application.includes('if (action === "open-review")'), "the open-review dashboard-action branch should be fully retired from app.js");
+  assert.ok(!application.includes("function dashboardActionButton"), "dashboardActionButton() should be fully retired from app.js");
+  assert.ok(coachOverviewSessionReviewPanel.includes("kolosseum:open-session-review"));
+  assert.match(application, /"kolosseum:open-session-review",\s*\n\s*\(event\) => \{\s*\n\s*const athleteUserId = event\.detail\?\.athlete_user_id;\s*\n\s*if \(!athleteUserId\) return;\s*\n\s*\n\s*setView\("review"\);/u);
+
+  // "Connected athletes" moved to React too
+  // (CoachOverviewAthletesPanel.tsx/useCoachOverviewAthletes.ts) -
+  // coachAthleteCard()/bindCoachAthleteActions()/profileForAthlete()/
+  // currentProfileBenchmarks()/relationshipEffectiveState()/
+  // refreshCoachAthleteProfiles()/dashboardEmptyState() are all fully
+  // retired from app.js, and its "Open profile" button dispatches the
+  // same kolosseum:open-athlete-profile-request event
+  // AthleteDirectoryPanel.tsx already uses.
+  assert.ok(!application.includes("function coachAthleteCard"), "coachAthleteCard() should be fully retired from app.js");
+  assert.ok(!application.includes("function bindCoachAthleteActions"), "bindCoachAthleteActions() should be fully retired from app.js");
+  assert.ok(!application.includes("function dashboardEmptyState"), "dashboardEmptyState() should be fully retired from app.js");
+  assert.ok(coachOverviewAthletesPanel.includes("kolosseum:open-athlete-profile-request"));
 });
 
 test("FULL-UI-03 remains factual and read-only", () => {
@@ -155,7 +201,7 @@ test("FULL-UI-03 remains factual and read-only", () => {
   }
 
   assert.ok(
-    dashboardSource.includes("recorded events")
+    coachOverviewSessionReviewPanel.includes("recorded events")
   );
 
   assert.ok(

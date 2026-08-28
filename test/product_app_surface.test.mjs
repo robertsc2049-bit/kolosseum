@@ -14,9 +14,10 @@ const accountJs = fs.readFileSync(
   "utf8"
 );
 const applicationJs = `${js}\n${accountJs}`;
-// DEV NOTE: coach-relationship recording and athlete-assignment creation
-// both moved to React (ConnectAthletePanel.tsx/AthleteProfileAssignmentPanel.tsx)
-// - their routes now live in coachWorkspaceClient.ts, not app.js/account_ui.js.
+// DEV NOTE: coach-relationship recording, athlete-assignment creation, and
+// coach-note creation all moved to React (ConnectAthletePanel.tsx/
+// AthleteProfileAssignmentPanel.tsx/AthleteCoachNotesPanel.tsx) - their
+// routes now live in coachWorkspaceClient.ts, not app.js/account_ui.js.
 const coachWorkspaceClientTs = fs.readFileSync(
   path.join(root, "public", "app-src", "api", "coachWorkspaceClient.ts"),
   "utf8"
@@ -68,8 +69,7 @@ test("product UI uses real persisted application endpoints", () => {
     "/account/detail",
     "/blocks/compile?create_session=true&beta_path=true",
     "/sessions/beta-athlete-history",
-    "/sessions/beta-coach-artefacts",
-    "/sessions/beta-coach-notes"
+    "/sessions/beta-coach-artefacts"
   ]) {
     assert.ok(
       applicationJs.includes(route),
@@ -79,6 +79,7 @@ test("product UI uses real persisted application endpoints", () => {
 
   assert.match(coachWorkspaceClientTs, /"\/sessions\/beta-coach-relationship"/u);
   assert.match(coachWorkspaceClientTs, /"\/coach-workspace\/athlete-assignment"/u);
+  assert.match(coachWorkspaceClientTs, /"\/sessions\/beta-coach-notes"/u);
 });
 
 test("product UI assets are substantive", () => {
