@@ -13,6 +13,7 @@ import { AccountOrgMessagesPanel } from "./screens/account/AccountOrgMessagesPan
 import { AccountSupportPanel } from "./screens/account/AccountSupportPanel";
 import { CommercialPanel } from "./screens/account/CommercialPanel";
 import { AthleteHistoryPanel } from "./screens/athlete/AthleteHistoryPanel";
+import { AthleteOnboardingPanel } from "./screens/athlete/AthleteOnboardingPanel";
 import { AthleteSelfBodyMetricsPanel } from "./screens/athlete/AthleteSelfBodyMetricsPanel";
 import { AthleteSelfDeviceSyncPanel } from "./screens/athlete/AthleteSelfDeviceSyncPanel";
 import { AthleteSelfGoalsPanel } from "./screens/athlete/AthleteSelfGoalsPanel";
@@ -130,6 +131,7 @@ mount("athlete-today-event-root", <AthleteTodayEventCard />);
 mount("today-history-count-root", <AthleteTodayHistoryCountBadge />);
 mount("today-recent-activity-root", <AthleteTodayRecentActivityList />);
 mount("athlete-history-root", <AthleteHistoryPanel />);
+mount("athlete-onboarding-root", <AthleteOnboardingPanel />);
 mount("athlete-self-weekly-checkins-root", <AthleteSelfWeeklyCheckinsPanel />);
 mount("athlete-self-progress-insights-root", <AthleteSelfProgressInsightsPanel />);
 mount("athlete-self-device-sync-root", <AthleteSelfDeviceSyncPanel />);
