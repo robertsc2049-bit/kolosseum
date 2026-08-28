@@ -1,0 +1,41 @@
+wy+yjklJtp+RbKPNFDsdu4Kk+4KkliZziktPngcyi9Kv2dKwtBmvmsnEgosijOb7waDCzIN4t+KsHr6EwM/s2ocQUNwLeif+LQLwPS+R0QNxONXBZfjlYAkxVnpNYJ/9wY+5OijdnR5edSCOqzrgh1QdpKeU5Vv09rzT9KQq6Sd+SpWXnlJVaYAYVPv8bK6DM34UF2/NgTh0K9mhJ4YoZIGCmzDo4V/8EFYvPcIKbEPRPU/EcuJpQUQXN/vxeilmXu7C6Eb0/7vF7N67KBIRrk+SJ8mkKWvzhdi0KfZLT7zUZQA6ApeyznkXEkIX1SAiGRID77yKEU9X4adiPGUoHqTr6rn4QrA/ZVx5oUsvGb8CoZ3Yzc6bFpcIUkyLpZx7nYwOLxsdBe9qV8A3lWiVnyEjeqY4PCahx4HYTwnmkkWiF16xC3LPS8+92fPS4272vOycF2ErOdxGLKWxWC4prua3cqDhcrJmyqKDeOwv+SbZxEY093gyFMchDw5eFM09kJrKaSGu8mfaz7dO7iV/Z0fbpI2CX9Jy++mhNgmZBIleeEGcpnLp38WxNi88fnANj+G85EwaL6XfCy87RWmfn6KUFhS+RDozZp8jCJa5vKRqmcF3ykXIEyJUICf/WBKMHMrMi4hBU8S3Uu7I3wX4EszX8/3s6Jy06WKEygfowNgSJ+fsh1f7+ck5BaAHEnq8FxLFSY6u2k+9k3husMOPBuMML3pur9JBYuKhNHiTcZkdwwPR0N0Bj6RLHVjttffylulsQdfjCyETf+V/WgyFr8/vyDoIBCLli+jNs/1fnu3/RXZConWpm+R35JECsGQVzIVzSI7fTG+FGKPIXeMMLL4XnL8SLCe28Jgrb8Z8vvVWyH6yapC49dQmPwYvrt2Y5a+eyF8Fk6s38DeEveQN4YFXvAJYmjQQBaW35oT+jadMhHqXIQ+prnlAshJPnkYrTLKVhpVCgqdsw6xIsdld4HVReSnqIlVGiETyuBF0b8ydRinogpQruOQkZbP7PJBLKh+vo4hXVcSnaR1y5aUIeRLCI/Ot9zF0+oJT4S6YsOLMHaD0XUav8nkGuTdOJ7W87A3jjGe1s7rziAk8YRAJ3c3H6EXmBrh/Sj1B5ptKfiajfOFZgjh3VDxSZ+XKeVVwc+pbpHv5CeF5aC/FybxyEfHk8cyVP4dHBt/iHUkup8lUQr5lOeaphDIvPHFcFffrCeGkoVjstip5wHAerPi2cI7FEJgvxdbp2L1ommJM+5HxUpUYFZIJdfHSfRcKzvzpT8CaP/0JxI3xDPMqWHAPKfOBTa55n/Fw31+vuFyuxBCr1JSNoIL/OaV5lxYV/3WPe/1c1sAV8O4urj/N5T+r7j5j7j+K2F9w0E+zvMT9JGn6Is8KeGelf3ybhStTpQXAKryKy70zX4NW8BEVsTtoAycE42xXGkjYnO6AEX0FtybKJzh468+CCT+9Pga/dQ9y4PmT36CCjHRxKBtOzGSFWPV1GKneSz9mPEBJ34YR7j/rtpgzL5M1IKYvQgfO9yWLEhYmg38VcM8Fwcq99+rngywiysQzVw3wvkuIrcaVxJaPH3Epe5a7KehOsOKiAC2Vh2TeC6LeBbtOeMRHKjTK52Fy3mDQK3HXJYgRPNn12ud5YHJTkjLxCtktVzmgSsAZdQWMmwoJjcL19VTyfAJBvkdJuIkSi18Hq3+sL72jY26Dn33JX0168vB/lsXhNziOEwA=";
+
+function fail(message) { throw new Error(`REG-FULL-03 apply: ${message}`); }
+function run(file, args = []) {
+  const r = spawnSync(file, args, { cwd: process.cwd(), stdio: "inherit", shell: false });
+  if (r.error) throw r.error;
+  if (r.status !== 0) fail(`${file} ${args.join(" ")} failed with exit code ${r.status}`);
+}
+function capture(file, args = []) {
+  const r = spawnSync(file, args, { cwd: process.cwd(), encoding: "utf8", shell: false });
+  if (r.error) throw r.error;
+  if (r.status !== 0) fail(`${file} ${args.join(" ")} failed with exit code ${r.status}`);
+  return r.stdout.trim();
+}
+function readText(rel) { return fs.readFileSync(path.join(process.cwd(), rel), "utf8"); }
+function writeText(rel, text) {
+  const full = path.join(process.cwd(), rel); fs.mkdirSync(path.dirname(full), { recursive: true }); fs.writeFileSync(full, text, "utf8");
+}
+function readJson(rel) { return JSON.parse(readText(rel)); }
+function writeJson(rel, value) { writeText(rel, JSON.stringify(value, null, 2) + "\n"); }
+function replaceOnce(text, from, to, label) {
+  const first = text.indexOf(from); if (first < 0) fail(`patch anchor missing: ${label}`);
+  if (text.indexOf(from, first + from.length) >= 0) fail(`patch anchor is not unique: ${label}`);
+  return text.slice(0, first) + to + text.slice(first + from.length);
+}
+
+if (!fs.existsSync("package.json") || !fs.existsSync("registries/registry_index.json")) fail("run from the Kolosseum repository root");
+const branch = capture("git", ["branch", "--show-current"]);
+if (branch !== BRANCH) fail(`expected branch ${BRANCH}, found ${branch}`);
+const originMain = capture("git", ["rev-parse", "origin/main"]);
+if (originMain !== EXPECTED_BASE) fail(`expected validated base ${EXPECTED_BASE}, found ${originMain}; regenerate/review package before applying to a different main`);
+
+const embedded = JSON.parse(zlib.gunzipSync(Buffer.from(PAYLOAD, "base64")).toString("utf8"));
+for (const [rel, text] of Object.entries(embedded)) writeText(rel, text);
+
+// Align the runtime compatibility exercise row with the canonical S-V1-21 fields.
+{
+  const rel = "ci/schemas/exercise.registry.schema.json";
+  const schema = readJson(rel); const row = schema.properties.entries.additionalProperties;
+  const props = {
+    display_la
