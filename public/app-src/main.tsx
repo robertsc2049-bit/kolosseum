@@ -2,6 +2,7 @@ import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { AccountBrandingPanel } from "./screens/account/AccountBrandingPanel";
+import { AccountIdentityHeaderCard, AccountCodeCard } from "./screens/account/AccountIdentityHeaderPanel";
 import { AccountCoachCodePanel } from "./screens/account/AccountCoachCodePanel";
 import { AccountCoachInvitationsPanel } from "./screens/account/AccountCoachInvitationsPanel";
 import { AccountCoachRelationshipPanel } from "./screens/account/AccountCoachRelationshipPanel";
@@ -71,6 +72,8 @@ function mount(containerId: string, node: React.ReactNode) {
   createRoot(container).render(<StrictMode>{node}</StrictMode>);
 }
 
+mount("account-identity-header-root", <AccountIdentityHeaderCard />);
+mount("account-code-root", <AccountCodeCard />);
 mount("account-identity-root", <AccountIdentityPanel />);
 mount("account-data-rights-root", <AccountDataRightsPanel />);
 mount("account-support-root", <AccountSupportPanel />);

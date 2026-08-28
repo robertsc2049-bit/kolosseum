@@ -3,11 +3,10 @@ import React, { useEffect, useState } from "react";
 import { type JsonRecord, updateAccountProfile } from "../../api/client";
 
 // DEV NOTE: dispatched after a successful profile/verification update so
-// legacy app.js's identity card (name/email/badges in the sidebar and the
-// #view-account header, which stays legacy-rendered this slice) can call its
-// existing applyAccountIdentity()/renderIdentity()/renderAccount() with the
-// fresh account payload rather than showing a stale value. See app.js's new
-// listener for this event.
+// legacy app.js's sidebar identity chips (name/avatar, via
+// applyAccountIdentity()/renderIdentity()) stay in sync, and so
+// AccountIdentityHeaderPanel.tsx's own useAccountIdentityHeader.ts (the
+// #view-account header card, a separate React root) knows to refetch too.
 export const ACCOUNT_IDENTITY_UPDATED_EVENT = "kolosseum:account-identity-updated";
 
 function dispatchAccountIdentityUpdated(account: JsonRecord) {
