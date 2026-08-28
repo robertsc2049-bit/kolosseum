@@ -46,13 +46,16 @@ const coachNoteWriteRoute =
 const schema =
   read("schema.sql");
 
-// DEV NOTE: the coach-notes history list moved to React - see
-// public/app-src/screens/coach/AthleteCoachNotesPanel.tsx and its
-// __tests__ file for its behavioral coverage. Note *creation*
-// (recordAthleteDetailNote, #athleteDetailNoteForm) stays legacy - see
-// that component's own DEV NOTE for why.
+// DEV NOTE: the coach-notes history list AND creation form both moved to
+// React - see public/app-src/screens/coach/AthleteCoachNotesPanel.tsx/
+// useAthleteCoachNotes.ts and their __tests__ file for behavioral
+// coverage. Note creation needs a signed "capability object" pair
+// (coach_profile/relationship) that no other coach write path requires -
+// see useAthleteCoachNotes.ts's own DEV NOTE for why.
 const athleteCoachNotesPanel =
   read("public/app-src/screens/coach/AthleteCoachNotesPanel.tsx");
+const athleteCoachNotesHook =
+  read("public/app-src/screens/coach/useAthleteCoachNotes.ts");
 
 // DEV NOTE: current-programme, current-event, and the assignment/
 // strength/bodyweight/event-link/session history lists also moved to
@@ -73,8 +76,7 @@ test(
     for (const id of [
       "athleteDetailHistoryPanel",
       "athleteDetailRefreshButton",
-      "athleteDetailStatus",
-      "athleteDetailNoteForm"
+      "athleteDetailStatus"
     ]) {
       assert.match(
         html,
@@ -336,8 +338,7 @@ test(
   () => {
     for (const token of [
       "refreshAthleteDetail",
-      "renderAthleteDetail",
-      "recordAthleteDetailNote"
+      "renderAthleteDetail"
     ]) {
       assert.match(
         application,
@@ -380,12 +381,14 @@ test(
       /data-view="events"/u
     );
 
-    // "Review"/"Add note" (session history) also moved to React and no
-    // longer exist as data-athlete-detail-action-carrying legacy DOM -
-    // bindAthleteDetailActions() itself is retired, replaced by two
-    // reverse-bridge custom events app.js listens for, since both actions
-    // reach into legacy-only state/DOM (the Review view's athlete
-    // selector, the note-creation form).
+    // "Review" (session history) also moved to React and no longer exists
+    // as data-athlete-detail-action-carrying legacy DOM -
+    // bindAthleteDetailActions() itself is retired, replaced by a
+    // reverse-bridge custom event app.js listens for, since it reaches
+    // into legacy-only state (the Review view's athlete selector). "Add
+    // note" moved to React too, but React now owns that event end to end
+    // (see useAthleteCoachNotesHook below) - app.js no longer listens for
+    // it at all.
     assert.doesNotMatch(
       application,
       /data-athlete-detail-action="review"|data-athlete-detail-action="note"|function bindAthleteDetailActions/u
@@ -402,9 +405,13 @@ test(
       application,
       /kolosseum:open-session-review/u
     );
-    assert.match(
+    assert.doesNotMatch(
       application,
-      /kolosseum:open-session-note-form/u
+      /addEventListener\(\s*\n?\s*"kolosseum:open-session-note-form"/u
+    );
+    assert.match(
+      athleteCoachNotesHook,
+      /const OPEN_NOTE_FORM_EVENT = "kolosseum:open-session-note-form"/u
     );
     // The review view's own athlete-filter/data-loading half moved to
     // React too (CoachReviewPanel.tsx/useCoachReview.ts, which listens for
@@ -418,9 +425,9 @@ test(
       reviewHook,
       /document\.addEventListener\(OPEN_SESSION_REVIEW_EVENT, handleOpenReview\)/u
     );
-    assert.match(
+    assert.doesNotMatch(
       application,
-      /elements\.athleteDetailNoteForm\.hidden = false/u
+      /elements\.athleteDetailNoteForm/u
     );
 
     assert.match(
@@ -428,9 +435,13 @@ test(
       /\/coach-workspace\/athlete-detail/u
     );
 
-    assert.match(
+    assert.doesNotMatch(
       application,
       /\/sessions\/beta-coach-notes/u
+    );
+    assert.match(
+      coachNoteWriteRoute,
+      /"\/beta-coach-notes"/u
     );
   }
 );

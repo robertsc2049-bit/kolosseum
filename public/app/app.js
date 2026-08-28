@@ -180,12 +180,6 @@ const elements = {
   athleteDetailEventCount: document.getElementById("athleteDetailEventCount"),
   athleteDetailSessionCount: document.getElementById("athleteDetailSessionCount"),
   athleteDetailNoteCount: document.getElementById("athleteDetailNoteCount"),
-  athleteDetailNoteForm: document.getElementById("athleteDetailNoteForm"),
-  athleteDetailNoteSessionId: document.getElementById("athleteDetailNoteSessionId"),
-  athleteDetailNoteArtefactId: document.getElementById("athleteDetailNoteArtefactId"),
-  athleteDetailNoteText: document.getElementById("athleteDetailNoteText"),
-  athleteDetailNoteVisibility: document.getElementById("athleteDetailNoteVisibility"),
-  athleteDetailNoteCancelButton: document.getElementById("athleteDetailNoteCancelButton"),
   templateLibraryView: document.getElementById("templateLibraryView"),
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
@@ -2766,18 +2760,19 @@ function renderAthleteDetail() {
   // reads out only its own field(s). `assignments`/`strengthProfiles`/
   // `bodyweights`/`eventLinks`/`sessions`/`notes` above are still used for
   // the metric-card counts and the status line just below. Session
-  // history's "Review"/"Add note" actions now dispatch
-  // kolosseum:open-session-review/kolosseum:open-session-note-form - see
-  // this file's listeners for those events for how they replicate the
-  // legacy bindAthleteDetailActions() behaviour those buttons used to
-  // trigger.
+  // history's "Review" action dispatches kolosseum:open-session-review -
+  // see this file's listener for that event for how it replicates the
+  // legacy bindAthleteDetailActions() behaviour that button used to
+  // trigger. Its "Add note" action dispatches
+  // kolosseum:open-session-note-form, which React now owns end to end
+  // (see useAthleteCoachNotes.ts) - no listener for it lives in this file.
 
-  // NOTE: the coach-notes history list moved to React
-  // (AthleteCoachNotesPanel.tsx, mounted into #athlete-coach-notes-root) -
-  // it independently fetches GET /coach-workspace/athlete-detail and reads
-  // out only note_history. `notes` (from detail.note_history above) is
-  // still used for the status line's count just below. Note *creation*
-  // stays legacy - see AthleteCoachNotesPanel.tsx's DEV NOTE for why.
+  // NOTE: the coach-notes history list AND creation form both moved to
+  // React (AthleteCoachNotesPanel.tsx/useAthleteCoachNotes.ts, mounted
+  // into #athlete-coach-notes-root) - the list independently fetches GET
+  // /coach-workspace/athlete-detail and reads out only note_history.
+  // `notes` (from detail.note_history above) is still used for the status
+  // line's count just below.
 
   elements.athleteDetailStatus
     .textContent =
@@ -2851,84 +2846,6 @@ async function refreshAthleteDetail(
     if (!options.quiet) {
       hideBusy();
     }
-  }
-}
-
-async function recordAthleteDetailNote(
-  event
-) {
-  event.preventDefault();
-
-  const athleteUserId =
-    state.selectedCoachAthleteId;
-
-  const athlete =
-    state.coachAthletes.find(
-      (entry) =>
-        entry.userId === athleteUserId
-    );
-
-  if (!athlete?.relationship) {
-    throw new Error(
-      "Open an accepted athlete first."
-    );
-  }
-
-  const noteText =
-    elements.athleteDetailNoteText
-      .value.trim();
-
-  if (!noteText) {
-    throw new Error(
-      "Enter a coach note."
-    );
-  }
-
-  showBusy("Recording note…");
-
-  try {
-    await api(
-      "POST",
-      "/sessions/beta-coach-notes",
-      {
-        coach_profile:
-          state.coachProfile,
-        relationship:
-          athlete.relationship,
-        athlete_user_id:
-          athleteUserId,
-        session_id:
-          elements
-            .athleteDetailNoteSessionId
-            .value,
-        artefact_id:
-          elements
-            .athleteDetailNoteArtefactId
-            .value,
-        note_text: noteText,
-        visibility:
-          elements
-            .athleteDetailNoteVisibility
-            .value
-      }
-    );
-
-    elements.athleteDetailNoteForm
-      .hidden = true;
-
-    await refreshAthleteDetail(
-      athleteUserId,
-      {
-        quiet: true
-      }
-    );
-
-    showNotice(
-      "Non-binding coach note recorded."
-    );
-  }
-  finally {
-    hideBusy();
   }
 }
 
@@ -3103,13 +3020,6 @@ function closeAthleteProfile() {
     elements.athleteDetailHistoryPanel
   ) {
     elements.athleteDetailHistoryPanel
-      .hidden = true;
-  }
-
-  if (
-    elements.athleteDetailNoteForm
-  ) {
-    elements.athleteDetailNoteForm
       .hidden = true;
   }
 }
@@ -9442,11 +9352,14 @@ document.addEventListener(
 
 // DEV NOTE: React owns the session-history list now (see
 // public/app-src/screens/coach/AthleteHistoryPanels.tsx's
-// AthleteSessionHistoryList) - its "Review"/"Add note" buttons reach into
-// legacy-only state/DOM (elements.athleteDetailNoteForm), so they dispatch
-// these two events instead of the data-athlete-detail-action delegation
-// bindAthleteDetailActions() used to provide. Behaviour is otherwise
-// unchanged from what that removed function did.
+// AthleteSessionHistoryList) - its "Review" button reaches into legacy-only
+// navigation (setView), so it dispatches this event instead of the
+// data-athlete-detail-action delegation bindAthleteDetailActions() used to
+// provide. Behaviour is otherwise unchanged from what that removed
+// function did. Its "Add note" button dispatches
+// kolosseum:open-session-note-form too, but that one's no longer heard
+// here - React owns the whole compose form now (see
+// useAthleteCoachNotes.ts, which listens for it directly).
 //
 // kolosseum:open-session-review's own athlete-filter/data-loading half
 // moved to React too (CoachReviewPanel.tsx/useCoachReview.ts, which
@@ -9459,17 +9372,6 @@ document.addEventListener(
     if (!athleteUserId) return;
 
     setView("review");
-  }
-);
-
-document.addEventListener(
-  "kolosseum:open-session-note-form",
-  (event) => {
-    elements.athleteDetailNoteSessionId.value = event.detail?.session_id ?? "";
-    elements.athleteDetailNoteArtefactId.value = event.detail?.artefact_id ?? "";
-    elements.athleteDetailNoteText.value = "";
-    elements.athleteDetailNoteForm.hidden = false;
-    elements.athleteDetailNoteText.focus();
   }
 );
 
@@ -9587,25 +9489,6 @@ elements.athleteDetailRefreshButton
       refreshAthleteDetail(
         state.selectedCoachAthleteId
       ).catch(handleError);
-    }
-  );
-
-elements.athleteDetailNoteForm
-  ?.addEventListener(
-    "submit",
-    (event) => {
-      recordAthleteDetailNote(
-        event
-      ).catch(handleError);
-    }
-  );
-
-elements.athleteDetailNoteCancelButton
-  ?.addEventListener(
-    "click",
-    () => {
-      elements.athleteDetailNoteForm
-        .hidden = true;
     }
   );
 

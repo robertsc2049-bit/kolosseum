@@ -168,7 +168,14 @@ export function submitCoachSessionReview(sessionId: string, input: JsonRecord, c
 
 // DEV NOTE: an older "beta" route (predates the /coach-workspace family)
 // mounted at /sessions - kept as-is, ported verbatim from legacy's
-// recordCoachNote().
+// recordCoachNote()/recordAthleteDetailNote() (the Review view's and the
+// athlete-profile's note forms both posted here). Shared by
+// useCoachReview.ts and useAthleteCoachNotes.ts. Unlike every other write
+// in this file, this route is not session/authenticatedCoach-authorised -
+// see beta17_coach_managed_service.ts's assertRecordIntegrity/
+// permissionContext. It requires the caller to echo back two hash-signed
+// "capability object" records verbatim (coach_profile, relationship)
+// rather than deriving authorization from the session.
 export function submitCoachNote(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/sessions/beta-coach-notes", input, csrfToken);
 }
