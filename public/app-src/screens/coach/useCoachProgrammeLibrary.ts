@@ -112,8 +112,10 @@ export function programmeDisplayState(template: JsonRecord, allTemplates: JsonRe
 }
 
 export type ProgrammeAssignmentUsage = {
+  records: JsonRecord[];
   assignmentCount: number;
   athleteCount: number;
+  latestAt: string;
 };
 
 // Works directly against the raw /coach-workspace/assignments records (the
@@ -128,6 +130,9 @@ export function programmeAssignmentUsage(templateId: string, assignments: JsonRe
     })
     .filter((assignment, index, all) =>
       all.findIndex((candidate) => String(candidate.assignment_id ?? "") === String(assignment.assignment_id ?? "")) === index
+    )
+    .sort((left, right) =>
+      String(right?.requested_at_iso8601 ?? "").localeCompare(String(left?.requested_at_iso8601 ?? ""))
     );
 
   const athleteIds = new Set(
@@ -135,8 +140,10 @@ export function programmeAssignmentUsage(templateId: string, assignments: JsonRe
   );
 
   return {
+    records,
     assignmentCount: records.length,
-    athleteCount: athleteIds.size
+    athleteCount: athleteIds.size,
+    latestAt: String(records[0]?.requested_at_iso8601 ?? "")
   };
 }
 

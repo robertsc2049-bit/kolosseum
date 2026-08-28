@@ -527,7 +527,7 @@ const targets = [
         ]
       ],
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx",
         [
           "Programme detail"
         ]

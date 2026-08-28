@@ -840,15 +840,9 @@ const targets = [
     "id": "programme_version_metadata",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx",
         "all": [
-          "function programmeVersionFamilyHtml("
-        ]
-      },
-      {
-        "path": "public/app/index.html",
-        "all": [
-          "templateDetailVersionFamily",
+          "function VersionFamilyList(",
           "Version metadata"
         ]
       }
@@ -873,7 +867,7 @@ const targets = [
         ]
       },
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx",
         "all": [
           "Assignment usage"
         ]
