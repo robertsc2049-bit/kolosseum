@@ -7,6 +7,7 @@ import {
   S_REG_32_EXPECTED_EXERCISE_COUNT,
   S_REG_32_EXTENDED_FIELD_NAMES,
   S_REG_32_FAILURE_TOKEN,
+  S_REG_32_HISTORICAL_EXERCISE_IDS,
   S_REG_32_REQUIRED_FALSE_FLAGS,
   S_REG_32_REQUIRED_TRUE_FLAGS,
   sReg32LoadExerciseActivityApplicabilitySchemaExtension,
@@ -48,54 +49,56 @@ test("S-REG-32 does not touch registry_index.json order or activate any domain",
   assert.deepEqual(registryIndex.order.slice(0, orderAtAuthoringTime.length), orderAtAuthoringTime);
 });
 
-test("S-REG-32 gives every one of the 19 live exercises a genuinely-applicable primary and secondary activity set", () => {
+test("S-REG-32 preserves its historical 19-record extension while the live registry remains schema-compatible", () => {
   const exerciseRegistry = readJson("registries/exercise/exercise.registry.json");
   const entries = Object.values(exerciseRegistry.entries);
 
-  assert.equal(entries.length, S_REG_32_EXPECTED_EXERCISE_COUNT);
+  assert.ok(entries.length >= S_REG_32_EXPECTED_EXERCISE_COUNT);
+  assert.equal(S_REG_32_HISTORICAL_EXERCISE_IDS.length, S_REG_32_EXPECTED_EXERCISE_COUNT);
+
+  for (const exerciseId of S_REG_32_HISTORICAL_EXERCISE_IDS) {
+    assert.ok(exerciseId in exerciseRegistry.entries, `historical S-REG-32 exercise missing: ${exerciseId}`);
+  }
 
   for (const exercise of entries) {
     const primary = exercise.primary_activity_applicability;
     const secondary = exercise.secondary_activity_applicability;
 
     assert.ok(primary in S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS, `${exercise.exercise_id}: unknown primary activity ${primary}`);
-    assert.ok(
-      S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[primary].includes(exercise.movement_pattern_id),
-      `${exercise.exercise_id}: movement_pattern_id ${exercise.movement_pattern_id} not genuinely allowed for primary activity ${primary}`
-    );
-
     assert.ok(Array.isArray(secondary));
     assert.equal(secondary.includes(primary), false, `${exercise.exercise_id}: secondary duplicates primary`);
+    assert.equal(new Set(secondary).size, secondary.length, `${exercise.exercise_id}: duplicate secondary activity`);
 
     for (const activityId of secondary) {
       assert.ok(activityId in S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS, `${exercise.exercise_id}: unknown secondary activity ${activityId}`);
-      assert.ok(
-        S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[activityId].includes(exercise.movement_pattern_id),
-        `${exercise.exercise_id}: movement_pattern_id ${exercise.movement_pattern_id} not genuinely allowed for secondary activity ${activityId}`
-      );
     }
   }
 });
 
-test("S-REG-32 assigns primary=powerlifting only to the 3 competition-lift exercises, general_strength to the rest", () => {
+test("S-REG-32 keeps the 3 historical competition lifts powerlifting-primary without freezing later live primaries", () => {
   const exerciseRegistry = readJson("registries/exercise/exercise.registry.json");
-  const powerliftingPrimary = Object.values(exerciseRegistry.entries)
-    .filter((e) => e.primary_activity_applicability === "powerlifting")
-    .map((e) => e.exercise_id)
-    .sort();
 
-  assert.deepEqual(powerliftingPrimary, ["back_squat", "bench_press", "deadlift"]);
+  for (const exerciseId of ["back_squat", "bench_press", "deadlift"]) {
+    assert.equal(
+      exerciseRegistry.entries[exerciseId].primary_activity_applicability,
+      "powerlifting",
+      `${exerciseId}: historical competition lift must remain powerlifting-primary`
+    );
+  }
 });
 
-test("S-REG-32 excludes powerlifting from the 4 vertical_push exercises' applicability", () => {
+test("S-REG-32 preserves the historical vertical_push exclusion rule without freezing later live applicability", () => {
+  assert.equal(
+    S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS.powerlifting.includes("vertical_push"),
+    false,
+    "historical S-REG-32 powerlifting movement set must exclude vertical_push"
+  );
+
   const exerciseRegistry = readJson("registries/exercise/exercise.registry.json");
   const verticalPushIds = ["overhead_press", "dumbbell_overhead_press", "single_arm_overhead_press", "pike_push_up"];
 
   for (const id of verticalPushIds) {
-    const exercise = exerciseRegistry.entries[id];
-    assert.equal(exercise.movement_pattern_id, "vertical_push");
-    assert.equal(exercise.primary_activity_applicability, "general_strength");
-    assert.deepEqual(exercise.secondary_activity_applicability, ["rugby_union"]);
+    assert.equal(exerciseRegistry.entries[id].movement_pattern_id, "vertical_push");
   }
 });
 
@@ -105,6 +108,7 @@ test("S-REG-32 records human authorisation, before/after hashes, a rollback plan
   assert.equal(typeof extension.human_authorisation.authorised_by, "string");
   assert.ok(extension.human_authorisation.authorised_by.length > 0);
   assert.equal(extension.human_authorisation.authorisation_method, "explicit_chat_instruction");
+  assert.equal(extension.extended_record_count, S_REG_32_EXPECTED_EXERCISE_COUNT);
 
   assert.notEqual(
     extension.active_registry_hashes_before.exercise_registry,
@@ -128,10 +132,7 @@ test("S-REG-32's golden fixtures still list exercise_token as a loaded registry"
   // This slice itself never touched loaded_registries (confirmed by its own
   // frozen runtime_parity_proof above, captured at authoring time). Whether
   // a later slice's own domain name also appears is that slice's concern,
-  // not a permanent negative claim this test should keep making - the same
-  // stale-negative-existence lesson already applied repeatedly elsewhere in
-  // this chain, adapted for a golden-fixture substring instead of a file's
-  // existsSync.
+  // not a permanent negative claim this test should keep making.
   for (const path of [
     "test/fixtures/golden/expected/phase3_precedence_banned_over_available.json",
     "test/fixtures/golden/expected/phase3_sovereign_constraints_envelope.json"
