@@ -28,6 +28,24 @@ function todayDateOnly(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+// DEV NOTE: opens CoachEventDetailPanel.tsx (see useCoachEventDetail.ts) -
+// dispatches kolosseum:open-event-detail directly, the same convention
+// AthleteDirectoryPanel.tsx's "Open profile" button already uses for its
+// own bridge event, rather than only setting location.hash and relying on
+// the resulting hashchange. This button sits inside an
+// <article data-event-id="..."> that route_bootstrap.js's own global click
+// listener also matches (it's registered on the CAPTURING phase, so it
+// runs before this bubbling-phase onClick) - it silently pushState()s the
+// same target hash first, which makes a same-value location.hash
+// assignment here a no-op that would otherwise never fire hashchange, so
+// the deep-link's own applyEntityRoute() dispatch would never run. Setting
+// the hash here too keeps the URL bar/back-button correct without
+// depending on that race.
+function openEventDetail(eventId: string) {
+  window.location.hash = `#/coach/events/${encodeURIComponent(eventId)}`;
+  document.dispatchEvent(new CustomEvent("kolosseum:open-event-detail", { detail: { event_id: eventId } }));
+}
+
 export function CoachEventsMetricCards() {
   const { events } = useCoachEventsLibrary();
 
@@ -106,6 +124,9 @@ export function CoachEventsListPanel() {
               <span className={`badge ${linkedAthletes > 0 ? "active" : "neutral"}`}>
                 {linkedAthletes} athlete{linkedAthletes === 1 ? "" : "s"}
               </span>
+              <button className="button secondary small-button" type="button" onClick={() => openEventDetail(eventId)}>
+                Open event
+              </button>
             </div>
           </article>
         );

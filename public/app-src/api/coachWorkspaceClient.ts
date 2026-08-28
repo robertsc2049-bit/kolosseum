@@ -125,6 +125,64 @@ export function createCoachEvent(input: JsonRecord, csrfToken: string): Promise<
   return request("POST", "/coach-workspace/events", input, csrfToken);
 }
 
+// DEV NOTE: FULL-UI-09C standalone event detail/lifecycle - see
+// useCoachEventDetail.ts/CoachEventDetailPanel.tsx. Ported from the now-
+// deleted event_lifecycle_ui.js, whose DOM targets (#eventList/#eventForm/
+// #athleteEventLinks) were removed when the Events screen migrated to
+// React, leaving this real, tested, DB-backed backend feature
+// (cancel/archive/re-version/link/unlink an event) with no working UI
+// anywhere - every one of its functions guarded on a missing element and
+// silently no-op'd on render while still firing real, wasted fetches (on
+// every page load, hashchange to #/coach/events/:id, and "Refresh" click).
+export function loadStandaloneEventDetail(eventId: string): Promise<JsonRecord> {
+  return request("GET", `/coach-workspace/events/${encodeURIComponent(eventId)}`);
+}
+
+export function createStandaloneEventVersion(eventId: string, input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/coach-workspace/events/${encodeURIComponent(eventId)}/version`, input, csrfToken);
+}
+
+export function cancelStandaloneEvent(eventId: string, expectedCurrentRecordSha256: string, csrfToken: string): Promise<JsonRecord> {
+  return request(
+    "POST",
+    `/coach-workspace/events/${encodeURIComponent(eventId)}/cancel`,
+    { expected_current_record_sha256: expectedCurrentRecordSha256 },
+    csrfToken
+  );
+}
+
+export function archiveStandaloneEvent(eventId: string, expectedCurrentRecordSha256: string, csrfToken: string): Promise<JsonRecord> {
+  return request(
+    "POST",
+    `/coach-workspace/events/${encodeURIComponent(eventId)}/archive`,
+    { expected_current_record_sha256: expectedCurrentRecordSha256 },
+    csrfToken
+  );
+}
+
+export function linkStandaloneEventAthlete(
+  eventId: string,
+  athleteUserId: string,
+  input: JsonRecord,
+  csrfToken: string
+): Promise<JsonRecord> {
+  return request(
+    "POST",
+    `/coach-workspace/events/${encodeURIComponent(eventId)}/athletes/${encodeURIComponent(athleteUserId)}/link`,
+    input,
+    csrfToken
+  );
+}
+
+export function unlinkStandaloneEventAthlete(eventId: string, athleteUserId: string, csrfToken: string): Promise<JsonRecord> {
+  return request(
+    "POST",
+    `/coach-workspace/events/${encodeURIComponent(eventId)}/athletes/${encodeURIComponent(athleteUserId)}/unlink`,
+    {},
+    csrfToken
+  );
+}
+
 // DEV NOTE: the coach's athlete directory (roster) - see
 // useAthleteDirectory.ts and AthleteDirectoryPanel.tsx. Unlike the
 // athlete-detail sub-panels above, this is a whole-workspace read, not

@@ -1946,6 +1946,60 @@ button:focus-visible,
   color: var(--stone-dim);
 }
 
+/* Event detail/lifecycle panel (cancel/archive/re-version/link/unlink) -
+   see CoachEventDetailPanel.tsx. Ported from event_lifecycle_ui.js's
+   dynamically-injected styles, now that the panel itself is a real,
+   reachable React island rather than orphaned dead code. */
+.event-lifecycle-detail {
+  margin-top: 1.25rem;
+}
+
+.event-lifecycle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin: 0.875rem 0;
+}
+
+.event-lifecycle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.event-lifecycle-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.625rem;
+  margin: 0.875rem 0;
+}
+
+.event-lifecycle-facts div {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.625rem;
+}
+
+.event-lifecycle-facts span {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.event-lifecycle-athlete {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .event-lifecycle-grid,
+  .event-lifecycle-facts {
+    grid-template-columns: 1fr;
+  }
+}
+
 .athlete-assignment-panel {
   margin-top: 1.5rem;
   border-top: 1px solid var(--line);

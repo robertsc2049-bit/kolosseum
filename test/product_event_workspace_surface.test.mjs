@@ -8,8 +8,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), "utf8");
 
 const index = read("public/app/index.html");
-const app = read("public/app/app.js");
-const eventLifecycleUi = read("public/app/event_lifecycle_ui.js");
 const routeBootstrap = read("public/app/route_bootstrap.js");
 const routes = read("src/api/coach_workspace.routes.ts");
 const handlers = read("src/api/coach_workspace.handlers.ts");
@@ -70,18 +68,26 @@ test("the coach event library offers a real .ics calendar export link, mounted b
   assert.ok(calendarRouteIndex < paramRouteIndex, "calendar.ics must be registered before the /:event_id param route");
 });
 
-test("event_lifecycle_ui.js's fetch base path actually matches a mounted route - no unreachable /api prefix", () => {
-  // Regression: event_lifecycle_ui.js previously built every request as
-  // `/api/coach-workspace${path}`, but coach_workspace.routes.ts is
-  // mounted at plain "/coach-workspace" (server.ts has no "/api" prefix
-  // anywhere) - every call this module made (library load, event detail,
-  // create, version, link/unlink, cancel/archive) 404'd silently, caught
-  // and shown to the coach as "Event Action Failed". This module has no
-  // other test coverage, so the drift went unnoticed.
-  assert.match(routeBootstrap, /import\s+"\.\/event_lifecycle_ui\.js"/u);
-  assert.match(eventLifecycleUi, /fetch\(`\/coach-workspace\$\{path\}`/u);
-  assert.doesNotMatch(eventLifecycleUi, /\/api\/coach-workspace/u);
-  assert.doesNotMatch(app, /\/api\/coach-workspace/u);
+// DEV NOTE: event_lifecycle_ui.js (the legacy module this test used to
+// guard against an "/api/coach-workspace" prefix regression) is gone -
+// its DOM targets (#eventList/#eventForm/#athleteEventLinks) were removed
+// when the Events screen moved to React, orphaning it completely (every
+// call it made 404'd silently on render, or - before an earlier fix -
+// on a wrong URL prefix). The detail/lifecycle actions it implemented
+// (cancel/archive/re-version/link/unlink) are real, tested, DB-backed
+// backend routes with no other frontend caller, so this slice ports them
+// to React (useCoachEventDetail.ts/CoachEventDetailPanel.tsx) instead of
+// just deleting the dead file. This test preserves the same regression
+// intent for the new client.
+test("the event detail/lifecycle client's fetch paths actually match mounted routes - no unreachable prefix", () => {
+  assert.doesNotMatch(routeBootstrap, /event_lifecycle_ui/u);
+  assert.match(assignmentClient, /`\/coach-workspace\/events\/\$\{encodeURIComponent\(eventId\)\}`/u);
+  assert.match(assignmentClient, /\/coach-workspace\/events\/\$\{encodeURIComponent\(eventId\)\}\/version/u);
+  assert.match(assignmentClient, /\/coach-workspace\/events\/\$\{encodeURIComponent\(eventId\)\}\/cancel/u);
+  assert.match(assignmentClient, /\/coach-workspace\/events\/\$\{encodeURIComponent\(eventId\)\}\/archive/u);
+  assert.match(assignmentClient, /\/athletes\/\$\{encodeURIComponent\(athleteUserId\)\}\/link/u);
+  assert.match(assignmentClient, /\/athletes\/\$\{encodeURIComponent\(athleteUserId\)\}\/unlink/u);
+  assert.doesNotMatch(assignmentClient, /\/api\/coach-workspace/u);
 });
 
 test("coach event routes persist separate event and link records", () => {
