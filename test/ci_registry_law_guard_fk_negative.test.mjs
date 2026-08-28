@@ -51,10 +51,16 @@ test("CI: registry_law_guard rejects legacy joint aliases instead of canonicaliz
     assert.equal(typeof doc, "object");
     assert.equal(typeof doc.entries, "object");
     assert.ok(doc.entries.bench_press, "expected bench_press canonical exercise fixture");
-    assert.deepEqual(doc.entries.bench_press.joint_stress_tags, ["shoulder"], "expected canonical shoulder token before mutation");
+
+    const jointStressTags = doc.entries.bench_press.joint_stress_tags;
+    assert.ok(Array.isArray(jointStressTags), "expected bench_press joint_stress_tags array");
+    assert.ok(jointStressTags.includes("shoulder"), "expected canonical shoulder token before mutation");
 
     // Legacy alias injection (in temp copy ONLY). REG-FULL-01 requires exact canonical vocabulary.
-    doc.entries.bench_press.joint_stress_tags = ["shoulder_low"];
+    // Preserve all other canonical tags so this test proves alias rejection only.
+    doc.entries.bench_press.joint_stress_tags = jointStressTags.map((token) =>
+      token === "shoulder" ? "shoulder_low" : token,
+    );
     writeJsonUtf8Lf(exPath, doc);
 
     const r = runRegistryLawGuard(tempRoot);
