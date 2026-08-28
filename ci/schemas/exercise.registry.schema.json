@@ -41,7 +41,12 @@
           "equipment_requirements",
           "equipment_alternatives",
           "primary_activity_applicability",
-          "secondary_activity_applicability"
+          "secondary_activity_applicability",
+          "display_label",
+          "contraindication_or_exclusion_tags",
+          "substitution_eligibility",
+          "template_eligibility",
+          "copy_legal_boundary_flags"
         ],
         "properties": {
           "exercise_id": {
@@ -236,6 +241,45 @@
                 "uniqueItems": true
               }
             }
+          },
+          "display_label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contraindication_or_exclusion_tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "uniqueItems": true
+          },
+          "substitution_eligibility": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "eligible",
+              "restricted"
+            ]
+          },
+          "template_eligibility": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "eligible",
+              "not_eligible"
+            ]
+          },
+          "copy_legal_boundary_flags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "minItems": 1,
+            "uniqueItems": true
           }
         }
       },

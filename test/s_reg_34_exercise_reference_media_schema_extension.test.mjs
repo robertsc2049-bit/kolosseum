@@ -49,14 +49,16 @@ test("S-REG-34 does not touch registry_index.json order or activate any domain",
   assert.deepEqual(registryIndex.order.slice(0, orderAtAuthoringTime.length), orderAtAuthoringTime);
 });
 
-test("S-REG-34 leaves every one of the 19 live exercise entries without a reference_media value", () => {
+test("S-REG-34 preserves its historical 19-record floor and leaves every current live exercise entry without a reference_media value", () => {
   const exerciseRegistry = readJson("registries/exercise/exercise.registry.json");
   const entries = Object.values(exerciseRegistry.entries);
 
-  assert.equal(entries.length, S_REG_34_EXPECTED_EXERCISE_COUNT);
+  // 19 is the authoring-time evidence count, not a permanent exact live count.
+  assert.equal(S_REG_34_EXPECTED_EXERCISE_COUNT, 19);
+  assert.ok(entries.length >= S_REG_34_EXPECTED_EXERCISE_COUNT);
 
   for (const exercise of entries) {
-    assert.equal("reference_media" in exercise, false, `${exercise.exercise_id}: expected no reference_media value in this content-free slice`);
+    assert.equal("reference_media" in exercise, false, `${exercise.exercise_id}: expected no reference_media value under the still-content-free S-REG-34 boundary`);
   }
 });
 

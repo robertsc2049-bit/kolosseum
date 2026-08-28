@@ -403,6 +403,10 @@
     {
       "kind": "command",
       "value": "node test/reg_full_02_activity_movement_completion.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/reg_full_03_exercise_registry_production.test.mjs"
     }
   ]
 }

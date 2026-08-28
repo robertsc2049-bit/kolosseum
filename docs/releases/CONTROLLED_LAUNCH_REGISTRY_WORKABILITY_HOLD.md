@@ -28,7 +28,7 @@ This does not authorise open availability, marketplace access, organisation acce
 | --- | ---: |
 | activity | 3 |
 | movement | 54 |
-| exercise | 19 |
+| exercise | 215 |
 | program | 3 |
 
 ## Workability findings

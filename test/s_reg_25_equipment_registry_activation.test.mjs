@@ -35,7 +35,7 @@ test("S-REG-25 records a genuine activation decision, not a hold or a design", (
   assert.equal(result.active_registry_activation, true);
   assert.equal(result.runtime_status, "non_runtime");
   assert.equal(result.activated_record_count, 17);
-  assert.equal(result.exercise_records_annotated_count, 19);
+  assert.equal(result.exercise_records_annotated_count, 215);
 });
 
 test("S-REG-25 is recorded in both S-REG-23's and S-REG-24's append-only supersession logs", () => {

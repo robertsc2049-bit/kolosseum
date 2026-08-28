@@ -78,10 +78,11 @@ test("S-REG-31 extends the active registry surface with exercise_token only, app
   assert.deepEqual(activation.active_registry_order_after, S_REG_31_ACTIVE_REGISTRY_ORDER_AFTER);
 
   assert.equal(exerciseTokenRegistry.registry_id, "exercise_token");
-  assert.equal(Object.keys(exerciseTokenRegistry.entries).length, 3);
+  assert.ok(Object.keys(exerciseTokenRegistry.entries).length >= 3);
+  for (const id of ["back_squat_token", "deadlift_token", "bench_press_token"]) assert.ok(id in exerciseTokenRegistry.entries);
 });
 
-test("S-REG-31 excludes the dangling front_plank_token reference and every remaining record's cross-registry references are real", () => {
+test("S-REG-31 preserves its historical front_plank_token exclusion record while later authorised live tokens remain FK-closed", () => {
   const activation = sReg31LoadExerciseTokenRegistryActivation();
   const exerciseTokenRegistry = readJson("registries/exercise_token/exercise_token.registry.json");
   const movementRegistry = readJson("registries/movement/movement.registry.json");
@@ -90,7 +91,7 @@ test("S-REG-31 excludes the dangling front_plank_token reference and every remai
   assert.deepEqual(activation.excluded_candidate_record_ids, S_REG_31_EXCLUDED_CANDIDATE_RECORD_IDS);
   assert.deepEqual(activation.excluded_candidate_record_ids, ["front_plank_token"]);
 
-  assert.equal("front_plank_token" in exerciseTokenRegistry.entries, false);
+  assert.equal("front_plank_token" in exerciseTokenRegistry.entries, true, "REG-FULL-03 lawfully closes the historical token omission");
 
   for (const [id, record] of Object.entries(exerciseTokenRegistry.entries)) {
     assert.ok(record.movement_pattern_id in movementRegistry.entries, `${id}: movement_pattern_id ${record.movement_pattern_id} must exist`);

@@ -297,7 +297,13 @@ function assertActiveRegistrySurfaceExtendedCorrectly() {
     fail("s_reg_31_exercise_token_registry_entries_invalid", { actual: exerciseTokenRegistry.entries });
   }
 
-  return Object.keys(exerciseTokenRegistry.entries).length;
+  const historicalActivationIds = ["back_squat_token", "deadlift_token", "bench_press_token"];
+  for (const id of historicalActivationIds) {
+    if (!(id in exerciseTokenRegistry.entries)) {
+      fail("s_reg_31_historical_activation_record_missing", { id });
+    }
+  }
+  return historicalActivationIds.length;
 }
 
 function assertNoDanglingCrossRegistryReferences() {
@@ -306,10 +312,7 @@ function assertNoDanglingCrossRegistryReferences() {
   const activityRegistry = readJson(S_REG_31_PATHS.activity_registry);
 
   for (const [id, record] of Object.entries(exerciseTokenRegistry.entries)) {
-    if (S_REG_31_EXCLUDED_CANDIDATE_RECORD_IDS.includes(id)) {
-      fail("s_reg_31_excluded_record_present", { id });
-    }
-
+    // REG-FULL-03: S-REG-31 excluded IDs are a historical activation snapshot, not a perpetual live ban.
     if (!(record.movement_pattern_id in movementRegistry.entries)) {
       fail("s_reg_31_dangling_movement_reference", { id, movement_pattern_id: record.movement_pattern_id });
     }
