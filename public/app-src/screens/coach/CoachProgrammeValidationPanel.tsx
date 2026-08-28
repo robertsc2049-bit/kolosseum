@@ -2,7 +2,7 @@ import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { programmeDisplayState } from "./useCoachProgrammeLibrary";
-import { useCoachProgrammeValidation } from "./useCoachProgrammeValidation";
+import { useCoachProgrammeStructure } from "./useCoachProgrammeStructure";
 import { programmeActivationIssues } from "./programmeDraft";
 
 // DEV NOTE: FULL-UI-05A programme activation validation summary (read-
@@ -25,7 +25,7 @@ function openDraftBuilder(templateId: string) {
 }
 
 export function CoachProgrammeValidationPanel() {
-  const { templateId, templates, templateExercises, loading, error } = useCoachProgrammeValidation();
+  const { templateId, templates, templateExercises, loading, error } = useCoachProgrammeStructure();
   const template = currentTemplate(templateId, templates);
 
   if (loading && !template) return null;

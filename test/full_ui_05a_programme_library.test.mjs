@@ -48,6 +48,20 @@ const validationPanel = fs.readFileSync(
   "utf8"
 );
 
+// DEV NOTE: FULL-UI-05A programme structure preview (read-only) also moved
+// to React - see CoachProgrammePreviewPanel.tsx/programmeDraft.ts, mounted
+// at #programme-preview-root. programmePreviewHtml()/exerciseDisplayName()
+// were deleted from app.js as a direct consequence (zero remaining
+// callers) - checks against `app` for those are repointed below.
+const previewPanel = fs.readFileSync(
+  "public/app-src/screens/coach/CoachProgrammePreviewPanel.tsx",
+  "utf8"
+);
+const previewDraft = fs.readFileSync(
+  "public/app-src/screens/coach/programmeDraft.ts",
+  "utf8"
+);
+
 test("FULL-UI-05A exposes programme search filter sort and factual state counts", () => {
   for (const id of ["templates-metrics-root", "templates-library-root"]) {
     assert.match(html, new RegExp(`id="${id}"`, "u"));
@@ -66,7 +80,7 @@ test("FULL-UI-05A opens a complete programme detail and preview surface", () => 
   for (const id of [
     "templateDetailPanel",
     "programme-validation-root",
-    "templateDetailPreview"
+    "programme-preview-root"
   ]) {
     assert.match(html, new RegExp(`id="${id}"`, "u"));
   }
@@ -74,11 +88,11 @@ test("FULL-UI-05A opens a complete programme detail and preview surface", () => 
   assert.match(detailPanel, /programme-usage-list/u);
 
   assert.match(app, /function renderProgrammeDetail\(/u);
-  assert.match(app, /function programmePreviewHtml\(/u);
-  assert.match(app, /programme-preview-block/u);
+  assert.match(previewPanel, /function CoachProgrammePreviewPanel\(/u);
+  assert.match(previewPanel, /programme-preview-block/u);
   assert.match(app, /planned_sets/u);
   assert.match(app, /rest_seconds/u);
-  assert.match(app, /exerciseDisplayName/u);
+  assert.match(previewDraft, /function exerciseDisplayName\(/u);
 });
 
 test("FULL-UI-05A derives factual version families and superseded states", () => {
@@ -121,7 +135,7 @@ test("FULL-UI-05A remains responsive and engine-inert", () => {
   assert.match(styles, /@media \(max-width: 760px\)/u);
 
   const helperStart = app.indexOf("// FULL-UI-05A:");
-  const helperEnd = app.indexOf("function programmePreviewRepetitions", helperStart);
+  const helperEnd = app.indexOf("// DEV NOTE: programmePreviewRepetitions", helperStart);
   const helperSource = app.slice(helperStart, helperEnd);
 
   assert.ok(helperStart >= 0);

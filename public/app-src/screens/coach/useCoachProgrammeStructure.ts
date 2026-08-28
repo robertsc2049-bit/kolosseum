@@ -4,19 +4,23 @@ import { loadAccountDetail } from "../../api/client";
 import { loadCoachTemplates, loadTemplateExercises } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
 
-// DEV NOTE: FULL-UI-05A programme activation validation summary (read-
-// only) - see CoachProgrammeValidationPanel.tsx/programmeDraft.ts. Opens
-// on kolosseum:open-programme-detail (the same bridge event
+// DEV NOTE: FULL-UI-05A programme activation validation summary
+// (CoachProgrammeValidationPanel.tsx) and structure preview
+// (CoachProgrammePreviewPanel.tsx) - both read-only, both need the exact
+// same data (templates + templateExercises, for the exercise-registry
+// check and for exerciseDisplayName() respectively), so they share this
+// one hook rather than each getting a near-duplicate. Opens on
+// kolosseum:open-programme-detail (the same bridge event
 // CoachProgrammeLibraryPanel.tsx's "View detail" and
 // CoachProgrammeDetailPanel.tsx's version-family rows already dispatch)
 // and refetches on kolosseum:templates-changed, same as
-// useCoachProgrammeDetail.ts - a separate hook rather than reusing that
-// one, since this mount point needs templateExercises (for the exercise-
-// registry check) instead of assignments/relationships.
+// useCoachProgrammeDetail.ts - a separate hook rather than reusing THAT
+// one, since this mount point needs templateExercises instead of
+// assignments/relationships.
 const OPEN_EVENT = "kolosseum:open-programme-detail";
 const CHANGED_EVENT = "kolosseum:templates-changed";
 
-export type CoachProgrammeValidationState = {
+export type CoachProgrammeStructureState = {
   templateId: string;
   loading: boolean;
   error: string | null;
@@ -24,7 +28,7 @@ export type CoachProgrammeValidationState = {
   templateExercises: JsonRecord[];
 };
 
-const initialState: CoachProgrammeValidationState = {
+const initialState: CoachProgrammeStructureState = {
   templateId: "",
   loading: false,
   error: null,
@@ -32,8 +36,8 @@ const initialState: CoachProgrammeValidationState = {
   templateExercises: []
 };
 
-export function useCoachProgrammeValidation() {
-  const [state, setState] = useState<CoachProgrammeValidationState>(initialState);
+export function useCoachProgrammeStructure() {
+  const [state, setState] = useState<CoachProgrammeStructureState>(initialState);
   const templateIdRef = useRef("");
 
   useEffect(() => {
@@ -55,7 +59,7 @@ export function useCoachProgrammeValidation() {
       setState((current) => ({
         ...current,
         loading: false,
-        error: "The activation validation summary could not be loaded. Check your connection and try again."
+        error: "The programme structure could not be loaded. Check your connection and try again."
       }));
     }
   }, []);

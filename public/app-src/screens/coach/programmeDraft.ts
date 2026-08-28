@@ -1,12 +1,16 @@
+import { titleCase } from "../../utils/format";
 import { type JsonRecord } from "../../api/transport";
 
 // DEV NOTE: FULL-UI-05A programme structure conversion + activation
-// validation (read-only) - ported field-for-field from public/app/app.js's
-// templateRecordToDraft()/storedWorkItemToDraft()/newTemplateBlock()/
-// newTemplateWeek()/newTemplateSession()/programmeActivationIssues(). Pure
-// data transforms with no DOM/legacy-state dependency, shared by
-// CoachProgrammeValidationPanel.tsx now and the (future) structure-preview
-// slice, which needs the exact same draft shape.
+// validation + structure preview formatting (read-only) - ported field-
+// for-field from public/app/app.js's templateRecordToDraft()/
+// storedWorkItemToDraft()/newTemplateBlock()/newTemplateWeek()/
+// newTemplateSession()/programmeActivationIssues()/
+// programmePreviewRepetitions()/Duration()/Distance()/Prescription()/
+// Load()/exerciseDisplayName(). Pure data transforms with no DOM/legacy-
+// state dependency, shared by CoachProgrammeValidationPanel.tsx and
+// CoachProgrammePreviewPanel.tsx, both of which need the exact same draft
+// shape.
 //
 // Scope boundary: the event-plan-bound branch of programmeActivationIssues()
 // (event_plan_invalid/event_week_allocation_unbalanced/event_date_in_past)
@@ -538,4 +542,51 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
   });
 
   return issues;
+}
+
+export function programmePreviewRepetitions(workItem: ProgrammeWorkItemDraft): string {
+  if (workItem.rep_mode === "range") {
+    return `${workItem.rep_min}–${workItem.rep_max} reps`;
+  }
+  return `${workItem.planned_reps} reps`;
+}
+
+export function programmePreviewDuration(workItem: ProgrammeWorkItemDraft): string {
+  if (workItem.duration_mode === "range") {
+    return `Hold ${workItem.duration_min_seconds}–${workItem.duration_max_seconds}s`;
+  }
+  return `Hold ${workItem.planned_duration_seconds}s`;
+}
+
+export function programmePreviewDistance(workItem: ProgrammeWorkItemDraft): string {
+  const unit = workItem.distance_unit === "feet" ? "ft" : "m";
+  if (workItem.distance_mode === "range") {
+    return `${workItem.distance_min_value}–${workItem.distance_max_value}${unit}`;
+  }
+  return `${workItem.planned_distance_value}${unit}`;
+}
+
+export function programmePreviewPrescription(workItem: ProgrammeWorkItemDraft): string {
+  if (workItem.prescription_mode === "duration") return programmePreviewDuration(workItem);
+  if (workItem.prescription_mode === "distance") return programmePreviewDistance(workItem);
+  return programmePreviewRepetitions(workItem);
+}
+
+export function programmePreviewLoad(workItem: ProgrammeWorkItemDraft): string {
+  if (workItem.load_mode === "bodyweight") return "Bodyweight";
+
+  if (workItem.load_mode === "fixed_weight") {
+    return `${workItem.weight_value} ${workItem.weight_unit}`;
+  }
+
+  if (workItem.load_mode === "rpe") {
+    return `RPE ${workItem.rpe_value}`;
+  }
+
+  return `${workItem.percent_1rm}% 1RM`;
+}
+
+export function exerciseDisplayName(exerciseId: string, templateExercises: JsonRecord[]): string {
+  const match = templateExercises.find((exercise) => exercise.exercise_id === exerciseId);
+  return String(match?.display_name ?? titleCase(exerciseId));
 }
