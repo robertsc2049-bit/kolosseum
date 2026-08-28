@@ -545,9 +545,9 @@ const targets = [
     "id": "programme_preview",
     "evidence": [
       [
-        "public/app/app.js",
+        "public/app-src/screens/coach/CoachProgrammePreviewPanel.tsx",
         [
-          "function programmePreviewHtml("
+          "function CoachProgrammePreviewPanel("
         ]
       ],
       [

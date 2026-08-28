@@ -170,7 +170,6 @@ const elements = {
   templateDraftRecoveryDiscardButton: document.getElementById("templateDraftRecoveryDiscardButton"),
   templateDetailPanel: document.getElementById("templateDetailPanel"),
   templateDetailCloseButton: document.getElementById("templateDetailCloseButton"),
-  templateDetailPreview: document.getElementById("templateDetailPreview"),
   backToTemplatesButton: document.getElementById("backToTemplatesButton"),
   saveTemplateButton: document.getElementById("saveTemplateButton"),
   saveCompleteTemplateButton: document.getElementById("saveCompleteTemplateButton"),
@@ -2712,11 +2711,6 @@ function closeAthleteProfile() {
 // kolosseum:coach-athlete-profile-updated listener below for how this
 // legacy module learns about a React-driven save.
 
-function exerciseDisplayName(exerciseId) {
-  return state.templateExercises.find((exercise) => exercise.exercise_id === exerciseId)?.display_name
-    ?? titleCase(exerciseId);
-}
-
 // DEV NOTE: the standalone, unreachable #view-assign view (no nav button,
 // no route, no data-view="assign" trigger anywhere) and everything that
 // exclusively rendered into it - requiredOneRmExerciseIds/
@@ -2727,8 +2721,10 @@ function exerciseDisplayName(exerciseId) {
 // AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts) already
 // covers the same feature; it reuses the shared
 // compareProgrammeStrengthRequirements from strengthReferenceLifecycle.mjs
-// rather than requiredOneRmExerciseIds. exerciseDisplayName above stays -
-// the still-legacy programme-builder preview (below) also calls it.
+// rather than requiredOneRmExerciseIds. exerciseDisplayName() (formerly
+// here, used by the programme-builder preview) moved to programmeDraft.ts
+// once the preview itself moved to CoachProgrammePreviewPanel.tsx - it had
+// zero remaining callers here.
 // assignmentRecordsForAthlete/currentAssignmentForAthlete/
 // assignmentTemplateRecord/assignmentTemplateName/Version/
 // assignmentStateBadge/assignmentHistoryCards/renderAssignmentCurrent/
@@ -3448,134 +3444,9 @@ function programmeAssignmentUsage(templateId) {
   };
 }
 
-function programmePreviewRepetitions(workItem) {
-  if (workItem?.rep_mode === "range") {
-    return `${Number(workItem.rep_min)}–${Number(workItem.rep_max)} reps`;
-  }
-
-  return `${Number(workItem?.planned_reps ?? 0)} reps`;
-}
-
-function programmePreviewDuration(workItem) {
-  if (workItem?.duration_mode === "range") {
-    return `Hold ${Number(workItem.duration_min_seconds)}–${Number(workItem.duration_max_seconds)}s`;
-  }
-
-  return `Hold ${Number(workItem?.planned_duration_seconds ?? 0)}s`;
-}
-
-function programmePreviewDistance(workItem) {
-  const unit = workItem?.distance_unit === "feet" ? "ft" : "m";
-
-  if (workItem?.distance_mode === "range") {
-    return `${Number(workItem.distance_min_value)}–${Number(workItem.distance_max_value)}${unit}`;
-  }
-
-  return `${Number(workItem?.planned_distance_value ?? 0)}${unit}`;
-}
-
-function programmePreviewPrescription(workItem) {
-  const prescriptionMode = ["duration", "distance"].includes(workItem?.prescription_mode)
-    ? workItem.prescription_mode
-    : "reps";
-
-  if (prescriptionMode === "duration") return programmePreviewDuration(workItem);
-  if (prescriptionMode === "distance") return programmePreviewDistance(workItem);
-  return programmePreviewRepetitions(workItem);
-}
-
-function programmePreviewLoad(workItem) {
-  if (workItem?.load_mode === "bodyweight") return "Bodyweight";
-
-  if (workItem?.load_mode === "fixed_weight") {
-    const unit = workItem?.weight_unit === "lb" ? "lb" : "kg";
-    return `${Number(workItem?.weight_value ?? 0)} ${unit}`;
-  }
-
-  if (workItem?.load_mode === "rpe") {
-    return `RPE ${Number(workItem?.rpe_value ?? 0)}`;
-  }
-
-  return `${Number(workItem?.percent_1rm ?? 0)}% 1RM`;
-}
-
-function programmePreviewHtml(template) {
-  const draft = templateRecordToDraft(template);
-  const blocks = Array.isArray(draft?.blocks) ? draft.blocks : [];
-
-  if (blocks.length === 0) {
-    return `
-      <div class="empty-state compact-empty">
-        <p>No persisted programme structure is available.</p>
-      </div>
-    `;
-  }
-
-  return blocks.map((block, blockIndex) => `
-    <article class="programme-preview-block">
-      <div class="programme-preview-block-heading">
-        <div>
-          <p class="eyebrow">Block ${blockIndex + 1}</p>
-          <h5>${escapeHtml(block.name || `Block ${blockIndex + 1}`)}</h5>
-        </div>
-        <div class="template-status-line">
-          <span class="badge neutral">${escapeHtml(titleCase(block.block_type))}</span>
-          <span class="badge neutral">${block.weeks.length} week${block.weeks.length === 1 ? "" : "s"}</span>
-        </div>
-      </div>
-      ${block.description
-        ? `<p class="muted small">${escapeHtml(block.description)}</p>`
-        : ""}
-      <div class="programme-preview-weeks">
-        ${block.weeks.map((week, weekIndex) => `
-          <details class="programme-preview-week" ${blockIndex === 0 && weekIndex === 0 ? "open" : ""}>
-            <summary>
-              <span>Week ${weekIndex + 1}</span>
-              <span>${week.sessions.length} session${week.sessions.length === 1 ? "" : "s"}</span>
-            </summary>
-            <div class="programme-preview-sessions">
-              ${week.sessions.map((session, sessionIndex) => `
-                <article class="programme-preview-session">
-                  <div class="programme-preview-session-heading">
-                    <strong>${escapeHtml(session.title || `Session ${sessionIndex + 1}`)}</strong>
-                    <span class="badge neutral">
-                      ${session.work_items.length} exercise${session.work_items.length === 1 ? "" : "s"}
-                    </span>
-                  </div>
-                  ${session.coaching_notes
-                    ? `<p class="muted small programme-preview-notes">${escapeHtml(session.coaching_notes)}</p>`
-                    : ""}
-                  <ol>
-                    ${session.work_items.map((workItem) => `
-                      <li>
-                        <div>
-                          <strong>${escapeHtml(exerciseDisplayName(workItem.exercise_id))}</strong>
-                          <span>${escapeHtml(titleCase(workItem.role))}</span>
-                          ${workItem.segment !== "working" ? `<span class="badge neutral">${escapeHtml(titleCase(workItem.segment))}</span>` : ""}
-                          ${workItem.group_id ? `<span class="badge neutral">${escapeHtml(titleCase(workItem.group_type))}</span>` : ""}
-                        </div>
-                        <span>
-                          ${Number(workItem.planned_sets)} sets ·
-                          ${escapeHtml(programmePreviewPrescription(workItem))} ·
-                          ${escapeHtml(programmePreviewLoad(workItem))} ·
-                          ${Number(workItem.rest_seconds)}s rest
-                          ${workItem.tempo ? ` · Tempo ${escapeHtml(workItem.tempo)}` : ""}
-                        </span>
-                        ${workItem.coaching_notes
-                          ? `<p class="muted small programme-preview-notes">${escapeHtml(workItem.coaching_notes)}</p>`
-                          : ""}
-                      </li>
-                    `).join("")}
-                  </ol>
-                </article>
-              `).join("")}
-            </div>
-          </details>
-        `).join("")}
-      </div>
-    </article>
-  `).join("");
-}
+// DEV NOTE: programmePreviewRepetitions()/Duration()/Distance()/
+// Prescription()/Load()/Html() moved to programmeDraft.ts/
+// CoachProgrammePreviewPanel.tsx.
 
 function programmeActivationIssues(template) {
   const draft = templateRecordToDraft(template);
@@ -4109,19 +3980,20 @@ function programmeActivationIssues(template) {
 // actions moved to React - see
 // public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx/
 // useCoachProgrammeDetail.ts, mounted at #programme-detail-header-root/
-// #programme-detail-root. The activation validation summary also moved -
-// see CoachProgrammeValidationPanel.tsx/programmeDraft.ts (a copy of
-// programmeActivationIssues(), which stays here too since
-// completeTemplateById()/currentTemplateBuilderIssues() still call it
-// directly), mounted at #programme-validation-root - programmeValidationHtml()
-// itself had zero remaining callers once this changed and was deleted.
-// All three mount points open on the same kolosseum:open-programme-detail
-// event this function's caller, openProgrammeDetail(), still dispatches to
-// - React and this function each react to it independently. This function
-// keeps only what still-legacy siblings inside #templateDetailPanel need:
-// the marketplace sharing/release sub-panel's shareable-gating/data
-// refresh, and the structure preview (programmePreviewHtml() - its own
-// future slice).
+// #programme-detail-root. The activation validation summary and structure
+// preview also moved - see CoachProgrammeValidationPanel.tsx/
+// CoachProgrammePreviewPanel.tsx/programmeDraft.ts (programmeActivationIssues()
+// itself stays here too, since completeTemplateById()/
+// currentTemplateBuilderIssues() still call it directly) - mounted at
+// #programme-validation-root/#programme-preview-root.
+// programmeValidationHtml()/programmePreviewHtml() themselves had zero
+// remaining callers once each changed in turn and were deleted. All mount
+// points open on the same kolosseum:open-programme-detail event this
+// function's caller, openProgrammeDetail(), still dispatches to - React
+// and this function each react to it independently. This function now
+// only handles the marketplace sharing/release sub-panel's
+// shareable-gating/data refresh (its own future slice) plus the panel's
+// hidden-toggle.
 function renderProgrammeDetail() {
   const template = state.coachTemplates.find(
     (candidate) => candidate.template_id === state.selectedTemplateId
@@ -4141,9 +4013,6 @@ function renderProgrammeDetail() {
     refreshTemplateSharingPreference(template.template_id).catch(handleError);
     refreshTemplateReleaseHistory(template.template_id).catch(handleError);
   }
-
-  elements.templateDetailPreview.innerHTML =
-    programmePreviewHtml(template);
 }
 
 async function refreshTemplateSharingPreference(templateId) {
