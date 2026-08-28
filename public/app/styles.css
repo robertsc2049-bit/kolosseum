@@ -2221,6 +2221,123 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 }
 
 
+/* FULL-UI-03C athlete onboarding - ported from athlete_onboarding_ui.js's
+   dynamically-injected <style> tag (#athleteOnboardingStyles) now that its
+   surface is static markup rendered by AthleteOnboardingPanel.tsx. Colours/
+   fallbacks kept exactly as before - this is a relocation, not a restyle. */
+
+.onboarding-shell {
+  max-width: 960px;
+  margin: auto;
+  display: grid;
+  gap: 16px;
+}
+
+.onboarding-status,
+.onboarding-card {
+  border: 1px solid var(--border, #34404d);
+  border-radius: 12px;
+  background: var(--panel, #121922);
+  padding: 16px;
+}
+
+.onboarding-status {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.onboarding-status strong {
+  margin-right: auto;
+}
+
+.onboarding-status[data-state="validation_failure"] {
+  border-color: #b45309;
+}
+
+.onboarding-status[data-state="unavailable"] {
+  border-color: #b91c1c;
+}
+
+.onboarding-progress {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.onboarding-progress span {
+  height: 5px;
+  border-radius: 8px;
+  background: #34404d;
+}
+
+.onboarding-progress .done {
+  background: #d5a94e;
+}
+
+.onboarding-choice {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #34404d;
+  border-radius: 9px;
+}
+
+.onboarding-choice small {
+  display: block;
+  opacity: 0.7;
+}
+
+.onboarding-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.onboarding-errors {
+  border: 1px solid #b45309;
+  padding: 12px;
+  border-radius: 9px;
+}
+
+.declaration-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.declaration-fact {
+  border: 1px solid #34404d;
+  border-radius: 9px;
+  padding: 11px;
+}
+
+.declaration-fact span {
+  display: block;
+  opacity: 0.7;
+  font-size: 0.82rem;
+}
+
+.onboarding-boundary {
+  border-left: 3px solid #d5a94e;
+  padding-left: 12px;
+  opacity: 0.8;
+}
+
+.declaration-history {
+  display: grid;
+  gap: 10px;
+}
+
+@media (max-width: 700px) {
+  .onboarding-actions .button {
+    width: 100%;
+  }
+}
+
+
 /* FULL-UI-03 factual coach dashboard */
 
 .dashboard-heading {

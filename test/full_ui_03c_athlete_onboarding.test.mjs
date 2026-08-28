@@ -20,6 +20,22 @@ const ui = fs.readFileSync(
   new URL("../public/app/athlete_onboarding_ui.js", import.meta.url),
   "utf8"
 );
+// The wizard/completed-declaration rendering moved to React - see
+// AthleteOnboardingPanel.tsx/useAthleteOnboarding.ts's own DEV NOTEs.
+// athlete_onboarding_ui.js (checked as `ui` above) keeps only what
+// route_bootstrap.js needs to import as a plain, non-bundled ES module.
+const panel = fs.readFileSync(
+  new URL("../public/app-src/screens/athlete/AthleteOnboardingPanel.tsx", import.meta.url),
+  "utf8"
+);
+const hook = fs.readFileSync(
+  new URL("../public/app-src/screens/athlete/useAthleteOnboarding.ts", import.meta.url),
+  "utf8"
+);
+const client = fs.readFileSync(
+  new URL("../public/app-src/api/athleteOnboardingClient.ts", import.meta.url),
+  "utf8"
+);
 const routes = fs.readFileSync(
   new URL("../src/api/athlete_onboarding.routes.ts", import.meta.url),
   "utf8"
@@ -159,7 +175,7 @@ test("FULL-UI-03C UI distinguishes all required product states", () => {
     "Only accessibility and instruction-density preferences can be changed after confirmation",
     "does not infer ability, safety, readiness, suitability"
   ]) {
-    assert.match(ui, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
+    assert.match(panel, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
   }
 
   for (const endpoint of [
@@ -168,22 +184,35 @@ test("FULL-UI-03C UI distinguishes all required product states", () => {
     "/account/onboarding/confirm",
     "/account/onboarding/preferences"
   ]) {
-    assert.match(ui, new RegExp(endpoint.replaceAll("/", "\\/"), "u"));
+    assert.match(client, new RegExp(endpoint.replaceAll("/", "\\/"), "u"));
   }
 
+  // Browser state is presentation-only; completion and history come from
+  // the server, in both the plain-JS route gate and the React wizard.
   assert.doesNotMatch(ui, /localStorage\.setItem\([^)]*onboarding/iu);
+  assert.doesNotMatch(panel, /localStorage\.setItem\([^)]*onboarding/iu);
+  assert.doesNotMatch(hook, /localStorage\.setItem\([^)]*onboarding/iu);
 });
 
 test("FULL-UI-03C declared accessibility preferences are actually applied to the page", () => {
   // Same bug class as PR #865 (session-level coaching notes): a declared,
   // validated, stored preference with no downstream effect. This one is
   // applied via data attributes on <html>, not another server field, so the
-  // proof lives entirely in the UI source + stylesheet, not an API response.
+  // proof lives in the UI source (both the plain-JS route gate and the React
+  // wizard now each keep their own copy - see both DEV NOTEs) + stylesheet,
+  // not an API response. See also
+  // public/app-src/__tests__/AthleteOnboardingPanel.test.tsx's own
+  // behavioral proof that the effect actually lands on document.documentElement.
   assert.match(ui, /function applyAccessibilityPreferences/u);
   assert.match(ui, /root\.dataset\.a11yReducedMotion/u);
   assert.match(ui, /root\.dataset\.a11yHighContrast/u);
   assert.match(ui, /root\.dataset\.a11yLargerText/u);
   assert.match(ui, /root\.dataset\.a11yScreenReaderOptimised/u);
+  assert.match(hook, /function applyAccessibilityPreferences/u);
+  assert.match(hook, /root\.dataset\.a11yReducedMotion/u);
+  assert.match(hook, /root\.dataset\.a11yHighContrast/u);
+  assert.match(hook, /root\.dataset\.a11yLargerText/u);
+  assert.match(hook, /root\.dataset\.a11yScreenReaderOptimised/u);
 
   // Applied on every athlete route resolution (covers page load and normal
   // navigation), not only inside the onboarding view itself.
@@ -196,9 +225,9 @@ test("FULL-UI-03C declared accessibility preferences are actually applied to the
   // Applied immediately after both write paths that can change the
   // declared preferences - first confirmation and the post-confirmation
   // editor - so the effect is visible without a reload.
-  const confirmFunction = ui.slice(ui.indexOf("async function confirm()"), ui.indexOf("function preferenceEditor"));
+  const confirmFunction = hook.slice(hook.indexOf("const confirm = useCallback"), hook.indexOf("const startEditing = useCallback"));
   assert.match(confirmFunction, /applyAccessibilityPreferences\(/u);
-  const saveFunction = ui.slice(ui.indexOf("async function savePreferences()"), ui.indexOf("function unavailable"));
+  const saveFunction = hook.slice(hook.indexOf("const savePreferences = useCallback"), hook.indexOf("return { ...state"));
   assert.match(saveFunction, /applyAccessibilityPreferences\(/u);
 
   // Each declared preference has a real, non-empty CSS effect keyed off the
@@ -227,6 +256,9 @@ test("FULL-UI-03C declared instruction-density preference is actually applied to
   assert.match(ui, /function applyAccessibilityPreferences/u);
   assert.match(ui, /root\.dataset\.instructionDensity/u);
   assert.match(ui, /\["minimal",\s*"standard",\s*"detailed"\]/u);
+  assert.match(hook, /function applyAccessibilityPreferences/u);
+  assert.match(hook, /root\.dataset\.instructionDensity/u);
+  assert.match(hook, /\["minimal",\s*"standard",\s*"detailed"\]/u);
 
   // Applied on every athlete route resolution, and immediately after both
   // write paths that can change the declared preference - same three call
@@ -236,14 +268,14 @@ test("FULL-UI-03C declared instruction-density preference is actually applied to
     ui.indexOf("export function installAthleteOnboardingUi")
   );
   assert.match(gateFunction, /applyAccessibilityPreferences\(/u);
-  const confirmFunction = ui.slice(ui.indexOf("async function confirm()"), ui.indexOf("function preferenceEditor"));
+  const confirmFunction = hook.slice(hook.indexOf("const confirm = useCallback"), hook.indexOf("const startEditing = useCallback"));
   assert.match(confirmFunction, /applyAccessibilityPreferences\(/u);
-  const saveFunction = ui.slice(ui.indexOf("async function savePreferences()"), ui.indexOf("function unavailable"));
+  const saveFunction = hook.slice(hook.indexOf("const savePreferences = useCallback"), hook.indexOf("return { ...state"));
   assert.match(saveFunction, /applyAccessibilityPreferences\(/u);
 
   // An invalid or missing stored value falls back to "standard" rather than
   // leaving the attribute unset or crashing the page.
-  assert.match(ui, /INSTRUCTION_DENSITIES\.includes\(fields\?\.instruction_density\)\s*\n?\s*\?\s*fields\.instruction_density\s*\n?\s*:\s*"standard"/u);
+  assert.match(hook, /INSTRUCTION_DENSITIES\.includes\(String\(fields\?\.instruction_density\s*\?\?\s*""\)\)\s*\n?\s*\?\s*String\(fields\?\.instruction_density\)\s*\n?\s*:\s*"standard"/u);
 });
 
 test("FULL-UI-03C mounts authenticated CSRF-protected HTTP routes", () => {
