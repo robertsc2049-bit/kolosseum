@@ -243,17 +243,9 @@ const elements = {
   templateSessionCount: document.getElementById("templateSessionCount"),
   templateBlocks: document.getElementById("templateBlocks"),
   addTemplateBlockButton: document.getElementById("addTemplateBlockButton"),
-  accountAvatar: document.getElementById("accountAvatar"),
-  accountName: document.getElementById("accountName"),
-  accountEmail: document.getElementById("accountEmail"),
-  accountRoleBadge: document.getElementById("accountRoleBadge"),
-  accountStateBadge: document.getElementById("accountStateBadge"),
-  accountVerificationBadge: document.getElementById("accountVerificationBadge"),
   refreshAccountButton: document.getElementById("refreshAccountButton"),
   entryTermsVersion: document.getElementById("entryTermsVersion"),
-  entryConsentVersion: document.getElementById("entryConsentVersion"),
-  accountCode: document.getElementById("accountCode"),
-  copyAccountCodeButton: document.getElementById("copyAccountCodeButton")
+  entryConsentVersion: document.getElementById("entryConsentVersion")
 };
 
 function cloneDefaultState() {
@@ -877,12 +869,6 @@ function buildPhase1Input(activityId) {
   };
 }
 
-function currentAccountId() {
-  return state.role === "coach"
-    ? state.profile?.coachUserId ?? ""
-    : state.profile?.userId ?? "";
-}
-
 function countsFromSession(sessionState) {
   return {
     completed: Array.isArray(sessionState?.completed_exercises) ? sessionState.completed_exercises : [],
@@ -1211,7 +1197,6 @@ function renderIdentity() {
   elements.sidebarName.textContent = name;
   elements.sidebarAvatar.textContent = avatar;
   elements.topbarAccount.textContent = avatar;
-  elements.accountAvatar.textContent = avatar;
   elements.todayGreeting.textContent = `Welcome, ${name.split(/\s+/u)[0]}`;
   elements.coachGreeting.textContent = `Welcome, ${name.split(/\s+/u)[0]}`;
 }
@@ -7540,55 +7525,14 @@ async function loadServerTerms() {
   return terms;
 }
 
+// DEV NOTE: FULL-UI-02 the account header card (avatar/name/email/role/
+// state/verification badges) and the "Account code" card moved to React
+// (AccountIdentityHeaderPanel.tsx/useAccountIdentityHeader.ts, mounted into
+// #account-identity-header-root/#account-code-root) - this function is
+// trimmed to just its other job, updating the still-legacy entry (sign-up)
+// view's terms/consent version display.
 function renderAccount() {
-  const id = currentAccountId();
-  const account =
-    state.serverAccount ?? {};
-
-  elements.accountName.textContent =
-    account.display_name ??
-    state.profile?.displayName ??
-    "Kolosseum user";
-
-  elements.accountEmail.textContent =
-    account.email ??
-    state.profile?.email ??
-    "";
-
-  elements.accountRoleBadge.textContent =
-    roleLabel();
-
-  const accountState =
-    String(
-      account.account_state ??
-      "active"
-    );
-
-  elements.accountStateBadge.textContent =
-    titleCase(accountState);
-
-  elements.accountStateBadge.className =
-    accountState === "active"
-      ? "badge complete"
-      : accountState === "suspended"
-        ? "badge warning"
-        : "badge danger";
-
-  elements.accountVerificationBadge.textContent =
-    account.email_verified
-      ? "Email verified"
-      : "Email not verified";
-
-  elements.accountVerificationBadge.className =
-    account.email_verified
-      ? "badge complete"
-      : "badge neutral";
-
-  elements.accountCode.textContent =
-    id || "—";
-
   renderTermsState();
-
 }
 
 // FULL-UI-24: a coach invites an athlete by email, never by the athlete's
@@ -7667,6 +7611,12 @@ async function loadPersistentAccountDetail(
   saveState();
   renderIdentity();
   renderAccount();
+
+  // AccountIdentityHeaderPanel.tsx/useAccountIdentityHeader.ts (a separate
+  // React root from the rest of the identity form) refetches on this signal
+  // too, covering both this function's callers: the "Refresh account"
+  // button and account-view entry.
+  document.dispatchEvent(new CustomEvent("kolosseum:account-detail-refreshed"));
 
   if (!options.quiet) {
     showNotice(
@@ -8576,15 +8526,6 @@ elements.templateBlocks.addEventListener("click", (event) => {
 
 elements.closeAthleteProfileButton.addEventListener("click", closeAthleteProfile);
 
-elements.copyAccountCodeButton.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(currentAccountId());
-    showNotice("Account code copied.");
-  }
-  catch {
-    showNotice("Copy was blocked by the browser.", "error");
-  }
-});
 elements.refreshAccountButton.addEventListener(
   "click",
   () => {
