@@ -31,6 +31,40 @@ const onboardingUi =
     "utf8"
   );
 
+// DEV NOTE: FULL-UI-04C profile/terms/completion rendering moved to React -
+// see CoachOnboardingPanel.tsx/useCoachOnboarding.ts/coachOnboardingClient.ts.
+// coach_onboarding_ui.js (checked as `onboardingUi` above) keeps only what
+// route_bootstrap.js needs to import as a plain, non-bundled ES module.
+const onboardingPanel =
+  fs.readFileSync(
+    new URL(
+      "../public/app-src/screens/coach/CoachOnboardingPanel.tsx",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
+const onboardingClient =
+  fs.readFileSync(
+    new URL(
+      "../public/app-src/api/coachOnboardingClient.ts",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
+// The coach-onboarding-view page-heading (title/description copy) is
+// static markup in index.html, matching every other migrated screen -
+// only the interactive body below it is React.
+const indexHtml =
+  fs.readFileSync(
+    new URL(
+      "../public/app/index.html",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
 // DEV NOTE: FULL-UI-08 commercial/billing rendering moved to React
 // (CommercialPanel.tsx + useCommercialAccount.ts) - commercial_ui.js is
 // retired.
@@ -271,6 +305,11 @@ test(
 test(
   "FULL-UI-04C browser flow is server-authoritative and explicit",
   () => {
+    assert.ok(
+      accountUi.includes("/account/coach-onboarding"),
+      "Missing account transport /account/coach-onboarding"
+    );
+
     for (const endpoint of [
       "/account/coach-onboarding",
       "/account/coach-onboarding/profile",
@@ -278,8 +317,8 @@ test(
       "/account/coach-onboarding/complete"
     ]) {
       assert.ok(
-        accountUi.includes(endpoint),
-        `Missing account transport ${endpoint}`
+        onboardingClient.includes(endpoint),
+        `Missing coach onboarding transport ${endpoint}`
       );
     }
 
@@ -289,19 +328,27 @@ test(
       "Coach terms",
       "Completed onboarding",
       "Open coach workspace",
-      "Update coach profile",
-      "cannot alter engine truth"
+      "Update coach profile"
     ]) {
       assert.ok(
-        onboardingUi.includes(
+        onboardingPanel.includes(
           token
         ),
         `Missing coach UI state ${token}`
       );
     }
 
+    assert.ok(
+      indexHtml.includes("cannot alter engine truth"),
+      "Missing coach onboarding engine-truth boundary copy in index.html"
+    );
+
     assert.doesNotMatch(
       onboardingUi,
+      /localStorage|sessionStorage/u
+    );
+    assert.doesNotMatch(
+      onboardingPanel,
       /localStorage|sessionStorage/u
     );
   }

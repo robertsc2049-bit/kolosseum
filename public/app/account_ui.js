@@ -193,46 +193,14 @@ export function completeEmailVerification(
 // loadDataDeletionStatus() were only ever consumed by app.js's now-removed
 // data rights panel rendering.
 
+// DEV NOTE: FULL-UI-04C profile/terms/completion mutations moved to
+// public/app-src/api/coachOnboardingClient.ts - this one stays here since
+// coach_onboarding_ui.js's resolveCoachOnboardingGate() (route_bootstrap.js's
+// onboarding gate) must stay plain JS, independent of the React bundle.
 export function loadCoachOnboardingState() {
   return request(
     "GET",
     "/account/coach-onboarding"
-  );
-}
-
-export function saveCoachOnboardingProfile(
-  input,
-  csrfToken
-) {
-  return request(
-    "PATCH",
-    "/account/coach-onboarding/profile",
-    input,
-    csrfToken
-  );
-}
-
-export function acceptCoachOnboardingTerms(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/coach-onboarding/terms",
-    input,
-    csrfToken
-  );
-}
-
-export function completeCoachOnboarding(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/coach-onboarding/complete",
-    input,
-    csrfToken
   );
 }
 
