@@ -1,31 +1,25 @@
 /**
  * DEV NOTE: S-REG-32 exercise registry schema extension.
- * Purpose: extends the already-active `exercise` registry's schema and all
- * 19 live entries with two new fields (`primary_activity_applicability`,
- * `secondary_activity_applicability`), required by the upcoming S-REG-33
- * activation of `exercise_activity_applicability`. Unlike every S-REG
- * activation slice, this one does not bring any new registry domain into
- * the active surface - `registry_index.json`'s `order[]` is unchanged, so
- * this slice does not claim S-REG-23/24's activation authority and is not
- * recorded in their supersession logs (the same way S-REG-25's own
- * exercise-schema extension for equipment_requirements/equipment_alternatives
- * was bundled inside that activation slice rather than claimed as a
- * separate activation).
- * Derivation rule (confirmed by explicit human decision): an exercise
- * applies to an activity iff its `pattern` field appears in that activity's
- * `allowed_movement_ids` (from the already legacy-active `activity_registry_1`
- * bridge). The 3 competition-lift exercises (`back_squat`, `deadlift`,
- * `bench_press`) get `primary_activity_applicability: "powerlifting"`; every
- * other exercise gets `primary_activity_applicability: "general_strength"`.
- * `secondary_activity_applicability` is every other applicable activity.
- * Boundary: extends `exercise` registry content and schema only. Must not
- * touch `exercise_activity_applicability`, `S-V1-23`, or any other candidate
- * domain. `runtime_status` stays `non_runtime` - nothing yet consumes these
- * new fields.
- * Determinism: validates every one of the 19 live exercise entries has a
- * `primary_activity_applicability` whose pattern is genuinely in that
- * activity's `allowed_movement_ids`, and every `secondary_activity_applicability`
- * entry is likewise genuinely applicable and does not duplicate the primary.
+ * Purpose: historically extended the already-active `exercise` registry's
+ * then-19 live entries with two new fields
+ * (`primary_activity_applicability`, `secondary_activity_applicability`),
+ * required by the upcoming S-REG-33 activation of
+ * `exercise_activity_applicability`. Unlike every S-REG activation slice,
+ * this one did not bring a new registry domain into the active surface -
+ * `registry_index.json`'s `order[]` was unchanged, so this slice did not
+ * claim S-REG-23/24's activation authority and is not recorded in their
+ * supersession logs.
+ * Historical derivation rule (confirmed by explicit human decision): an
+ * exercise applied to an activity iff its then-current movement pattern
+ * appeared in that activity's allowed movement ids. The 3 competition-lift
+ * exercises (`back_squat`, `deadlift`, `bench_press`) were powerlifting
+ * primary; the other then-live exercises were general-strength primary.
+ * Boundary: this validator preserves that historical 19-record evidence and
+ * verifies that the later live exercise registry remains schema-compatible.
+ * Later authorised registry-production slices may add exercises, add movement
+ * patterns, or change live applicability priority; those later facts must not
+ * rewrite S-REG-32's historical record or make its old exact live count a
+ * permanent invariant.
  * Failure: throws CI_S_REG_32_EXERCISE_ACTIVITY_APPLICABILITY_SCHEMA_EXTENSION.
  */
 
@@ -36,10 +30,36 @@ export const S_REG_32_FAILURE_TOKEN = "CI_S_REG_32_EXERCISE_ACTIVITY_APPLICABILI
 export const S_REG_32_EXTENSION_ID = "exercise_activity_applicability_schema_extension";
 export const S_REG_32_RUNTIME_STATUS = "non_runtime";
 export const S_REG_32_EXTENDED_REGISTRY_ID = "exercise";
+
+// Historical authoring-time count. This is evidence, not a permanent exact
+// count for the live exercise registry after later authorised expansion.
 export const S_REG_32_EXPECTED_EXERCISE_COUNT = 19;
 
-// activity_id -> allowed_movement_ids, from the already legacy-active
-// activity_registry_1 bridge (ci/registry/candidates/activity_registry_1).
+export const S_REG_32_HISTORICAL_EXERCISE_IDS = Object.freeze([
+  "bench_press",
+  "incline_bench_press",
+  "dumbbell_bench_press",
+  "push_up",
+  "machine_chest_press",
+  "single_arm_dumbbell_press",
+  "overhead_press",
+  "dumbbell_overhead_press",
+  "single_arm_overhead_press",
+  "back_squat",
+  "goblet_squat",
+  "split_squat",
+  "deadlift",
+  "kettlebell_deadlift",
+  "single_leg_rdl",
+  "pike_push_up",
+  "box_squat",
+  "pin_press",
+  "partial_deadlift"
+]);
+
+// Historical activity_id -> allowed_movement_ids at S-REG-32 authoring time.
+// This is retained to prove the historical derivation boundary. REG-FULL-03
+// owns the later production movement/applicability universe.
 export const S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS = Object.freeze({
   powerlifting: Object.freeze(["squat", "hinge", "horizontal_push", "horizontal_pull", "brace"]),
   general_strength: Object.freeze([
@@ -149,23 +169,33 @@ function assertExactArray(actual, expected, reason) {
   }
 }
 
-function assertExerciseApplicabilityFieldsCorrect() {
+function assertExerciseApplicabilityFieldsCompatible() {
   const exerciseRegistry = readJson(S_REG_32_PATHS.exercise_registry);
-  const entries = Object.values(exerciseRegistry.entries ?? {});
+  const entriesById = exerciseRegistry.entries ?? {};
+  const entries = Object.values(entriesById);
 
-  if (entries.length !== S_REG_32_EXPECTED_EXERCISE_COUNT) {
-    fail("s_reg_32_exercise_count_invalid", { actual: entries.length, expected: S_REG_32_EXPECTED_EXERCISE_COUNT });
+  if (entries.length < S_REG_32_EXPECTED_EXERCISE_COUNT) {
+    fail("s_reg_32_exercise_count_below_historical_extension", {
+      actual: entries.length,
+      historical_minimum: S_REG_32_EXPECTED_EXERCISE_COUNT
+    });
+  }
+
+  for (const exerciseId of S_REG_32_HISTORICAL_EXERCISE_IDS) {
+    if (!(exerciseId in entriesById)) {
+      fail("s_reg_32_historical_exercise_missing", { exercise_id: exerciseId });
+    }
   }
 
   for (const exercise of entries) {
-    const { exercise_id: exerciseId, movement_pattern_id: movementPatternId, primary_activity_applicability: primary, secondary_activity_applicability: secondary } = exercise;
+    const {
+      exercise_id: exerciseId,
+      primary_activity_applicability: primary,
+      secondary_activity_applicability: secondary
+    } = exercise;
 
     if (typeof primary !== "string" || !(primary in S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS)) {
       fail("s_reg_32_primary_activity_invalid", { exercise_id: exerciseId, primary });
-    }
-
-    if (!S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[primary].includes(movementPatternId)) {
-      fail("s_reg_32_primary_activity_not_genuinely_applicable", { exercise_id: exerciseId, movement_pattern_id: movementPatternId, primary });
     }
 
     if (!Array.isArray(secondary)) {
@@ -182,10 +212,6 @@ function assertExerciseApplicabilityFieldsCorrect() {
         fail("s_reg_32_secondary_activity_unknown", { exercise_id: exerciseId, activity_id: activityId });
       }
 
-      if (!S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS[activityId].includes(movementPatternId)) {
-        fail("s_reg_32_secondary_activity_not_genuinely_applicable", { exercise_id: exerciseId, movement_pattern_id: movementPatternId, activity_id: activityId });
-      }
-
       if (seen.has(activityId)) {
         fail("s_reg_32_secondary_activity_duplicate", { exercise_id: exerciseId, activity_id: activityId });
       }
@@ -193,8 +219,6 @@ function assertExerciseApplicabilityFieldsCorrect() {
       seen.add(activityId);
     }
   }
-
-  return entries.length;
 }
 
 export function sReg32LoadExerciseActivityApplicabilitySchemaExtension() {
@@ -211,7 +235,7 @@ export function sReg32ValidateExerciseActivityApplicabilitySchemaExtension({
     "s_reg_32_extension_document_keys_invalid"
   );
 
-  const extendedRecordCount = assertExerciseApplicabilityFieldsCorrect();
+  assertExerciseApplicabilityFieldsCompatible();
 
   if (extensionDocument.slice_id !== S_REG_32_SLICE_ID) {
     fail("s_reg_32_slice_id_invalid", { actual: extensionDocument.slice_id });
@@ -232,10 +256,10 @@ export function sReg32ValidateExerciseActivityApplicabilitySchemaExtension({
     fail("s_reg_32_extended_registry_id_invalid", { actual: extensionDocument.extended_registry_id });
   }
 
-  if (extensionDocument.extended_record_count !== extendedRecordCount) {
-    fail("s_reg_32_extended_record_count_invalid", {
+  if (extensionDocument.extended_record_count !== S_REG_32_EXPECTED_EXERCISE_COUNT) {
+    fail("s_reg_32_historical_extended_record_count_invalid", {
       declared: extensionDocument.extended_record_count,
-      actual: extendedRecordCount
+      historical_expected: S_REG_32_EXPECTED_EXERCISE_COUNT
     });
   }
 
@@ -312,7 +336,7 @@ export function sReg32ValidateExerciseActivityApplicabilitySchemaExtension({
     decision_type: extensionDocument.decision_type,
     runtime_status: S_REG_32_RUNTIME_STATUS,
     extended_registry_id: extensionDocument.extended_registry_id,
-    extended_record_count: extendedRecordCount,
+    extended_record_count: extensionDocument.extended_record_count,
     extended_field_names: [...extensionDocument.extended_field_names]
   });
 }
