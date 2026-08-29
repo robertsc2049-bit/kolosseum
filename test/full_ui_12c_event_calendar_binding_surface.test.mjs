@@ -12,6 +12,13 @@ const js = read("public/app/app.js");
 const templateService = read("src/api/beta18_programme_template_service.ts");
 const templateRoutes = read("src/api/templates.routes.ts");
 const templateHandlers = read("src/api/templates.handlers.ts");
+// DEV NOTE: the typed event-plan fields moved to React (FULL-UI-05B) -
+// see CoachProgrammeEventFields.tsx, mounted at
+// #template-event-fields-root. The disabled-while-bound guard moved
+// with them (disabled={bound}, computed from the same
+// draft.bound_event_id truth) - the binding picker/toggle themselves
+// stay legacy, untouched.
+const eventFields = read("public/app-src/screens/coach/CoachProgrammeEventFields.tsx");
 
 test("programme builder exposes an event-selector bound to the standalone event library", () => {
   for (const id of [
@@ -68,7 +75,7 @@ test("bind-event and event-binding routes are mounted on the template surface", 
 test("the bound event is a read-only display, never a second independently-editable date", () => {
   // Once bound, the typed event fields become disabled - editing them cannot
   // silently move the programme calendar away from the bound event.
-  assert.match(js, /field\.disabled = bound/u);
+  assert.match(eventFields, /disabled=\{bound\}/u);
   assert.match(js, /elements\.templateEventEnabled\.disabled = bound/u);
 
   // Ordinary content saves must echo the existing binding rather than
