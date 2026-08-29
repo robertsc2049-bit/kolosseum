@@ -153,16 +153,6 @@ const elements = {
   templateBuilderView: document.getElementById("templateBuilderView"),
   newTemplateButton: document.getElementById("newTemplateButton"),
   refreshTemplatesButton: document.getElementById("refreshTemplatesButton"),
-  templateDetailSharingSection: document.getElementById("templateDetailSharingSection"),
-  templateSharingForm: document.getElementById("templateSharingForm"),
-  templateDetailSharedCheckbox: document.getElementById("templateDetailSharedCheckbox"),
-  templateDetailPriceLabelInput: document.getElementById("templateDetailPriceLabelInput"),
-  templateDetailPaymentMethodsInput: document.getElementById("templateDetailPaymentMethodsInput"),
-  templateDetailSharingStatus: document.getElementById("templateDetailSharingStatus"),
-  templateReleaseForm: document.getElementById("templateReleaseForm"),
-  templateReleaseAccountCodeInput: document.getElementById("templateReleaseAccountCodeInput"),
-  templateReleaseStatus: document.getElementById("templateReleaseStatus"),
-  templateReleaseHistoryList: document.getElementById("templateReleaseHistoryList"),
   templateDraftRecovery: document.getElementById("templateDraftRecovery"),
   templateDraftRecoveryTitle: document.getElementById("templateDraftRecoveryTitle"),
   templateDraftRecoveryText: document.getElementById("templateDraftRecoveryText"),
@@ -3980,20 +3970,22 @@ function programmeActivationIssues(template) {
 // actions moved to React - see
 // public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx/
 // useCoachProgrammeDetail.ts, mounted at #programme-detail-header-root/
-// #programme-detail-root. The activation validation summary and structure
-// preview also moved - see CoachProgrammeValidationPanel.tsx/
-// CoachProgrammePreviewPanel.tsx/programmeDraft.ts (programmeActivationIssues()
+// #programme-detail-root. The activation validation summary, structure
+// preview and marketplace sharing/release sub-panel also moved - see
+// CoachProgrammeValidationPanel.tsx/CoachProgrammePreviewPanel.tsx/
+// CoachProgrammeMarketplaceSharingPanel.tsx (programmeActivationIssues()
 // itself stays here too, since completeTemplateById()/
 // currentTemplateBuilderIssues() still call it directly) - mounted at
-// #programme-validation-root/#programme-preview-root.
-// programmeValidationHtml()/programmePreviewHtml() themselves had zero
-// remaining callers once each changed in turn and were deleted. All mount
-// points open on the same kolosseum:open-programme-detail event this
-// function's caller, openProgrammeDetail(), still dispatches to - React
-// and this function each react to it independently. This function now
-// only handles the marketplace sharing/release sub-panel's
-// shareable-gating/data refresh (its own future slice) plus the panel's
-// hidden-toggle.
+// #programme-validation-root/#programme-preview-root/
+// #programme-marketplace-sharing-root. programmeValidationHtml()/
+// programmePreviewHtml()/refreshTemplateSharingPreference()/
+// confirmSaveTemplateSharing()/refreshTemplateReleaseHistory()/
+// confirmReleaseTemplate() themselves had zero remaining callers once each
+// changed in turn and were deleted. All mount points open on the same
+// kolosseum:open-programme-detail event this function's caller,
+// openProgrammeDetail(), still dispatches to - React and this function
+// each react to it independently. This function now only handles the
+// panel's hidden-toggle.
 function renderProgrammeDetail() {
   const template = state.coachTemplates.find(
     (candidate) => candidate.template_id === state.selectedTemplateId
@@ -4005,100 +3997,6 @@ function renderProgrammeDetail() {
   }
 
   elements.templateDetailPanel.hidden = false;
-
-  const storedStatus = String(template.template_status ?? "draft");
-  const shareable = storedStatus === "complete" || storedStatus === "active";
-  elements.templateDetailSharingSection.hidden = !shareable;
-  if (shareable) {
-    refreshTemplateSharingPreference(template.template_id).catch(handleError);
-    refreshTemplateReleaseHistory(template.template_id).catch(handleError);
-  }
-}
-
-async function refreshTemplateSharingPreference(templateId) {
-  const response = await api(
-    "GET",
-    `/programme-marketplace/templates/${encodeURIComponent(templateId)}/sharing`
-  );
-
-  if (state.selectedTemplateId !== templateId) return;
-
-  const preference = response.sharing_preference;
-  elements.templateDetailSharedCheckbox.checked = preference?.shared_publicly === true;
-  elements.templateDetailPriceLabelInput.value = preference?.price_label ?? "";
-  elements.templateDetailPaymentMethodsInput.value = preference?.payment_methods_note ?? "";
-  elements.templateDetailSharingStatus.textContent = "";
-}
-
-async function confirmSaveTemplateSharing(event) {
-  event.preventDefault();
-
-  const templateId = state.selectedTemplateId;
-  if (!templateId) return;
-
-  const sharedPublicly = elements.templateDetailSharedCheckbox.checked;
-  const priceLabel = elements.templateDetailPriceLabelInput.value.trim();
-  const paymentMethodsNote = elements.templateDetailPaymentMethodsInput.value.trim();
-  elements.templateDetailSharingStatus.textContent = "Saving…";
-
-  await api(
-    "POST",
-    `/programme-marketplace/templates/${encodeURIComponent(templateId)}/sharing`,
-    {
-      shared_publicly: sharedPublicly,
-      price_label: priceLabel || null,
-      payment_methods_note: paymentMethodsNote || null
-    }
-  );
-  elements.templateDetailSharingStatus.textContent = sharedPublicly
-    ? "Shared with other coaches."
-    : "No longer shared.";
-}
-
-async function refreshTemplateReleaseHistory(templateId) {
-  const response = await api(
-    "GET",
-    `/programme-marketplace/templates/${encodeURIComponent(templateId)}/releases`
-  );
-
-  if (state.selectedTemplateId !== templateId) return;
-
-  const releases = Array.isArray(response.releases) ? response.releases : [];
-  if (releases.length === 0) {
-    elements.templateReleaseHistoryList.innerHTML = `<p class="muted small">Not released to any coach yet.</p>`;
-    return;
-  }
-
-  elements.templateReleaseHistoryList.innerHTML = releases.map((release) => `
-    <article class="record-row">
-      <div>
-        <strong>Released to ${escapeHtml(release.buyer_coach_user_id)}</strong>
-        <p class="muted small">${escapeHtml(formatDate(release.released_at_iso8601))}</p>
-      </div>
-    </article>
-  `).join("");
-}
-
-async function confirmReleaseTemplate(event) {
-  event.preventDefault();
-
-  const templateId = state.selectedTemplateId;
-  if (!templateId) return;
-
-  const buyerAccountCode = elements.templateReleaseAccountCodeInput.value.trim();
-  if (!buyerAccountCode) return;
-
-  elements.templateReleaseStatus.textContent = "Releasing…";
-
-  await api(
-    "POST",
-    `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`,
-    { buyer_account_code: buyerAccountCode }
-  );
-
-  elements.templateReleaseForm.reset();
-  elements.templateReleaseStatus.textContent = `Released to ${buyerAccountCode}.`;
-  await refreshTemplateReleaseHistory(templateId);
 }
 
 function openProgrammeDetail(templateId, options = {}) {
@@ -7254,13 +7152,6 @@ document.addEventListener("kolosseum:duplicate-programme", (event) => {
 document.addEventListener("kolosseum:archive-programme", (event) => {
   const templateId = event.detail?.template_id;
   if (templateId) archiveTemplate(templateId).catch(handleError);
-});
-
-elements.templateSharingForm.addEventListener("submit", (event) => {
-  guardedAction(submitButtonOf, confirmSaveTemplateSharing)(event).catch(handleError);
-});
-elements.templateReleaseForm.addEventListener("submit", (event) => {
-  guardedAction(submitButtonOf, confirmReleaseTemplate)(event).catch(handleError);
 });
 
 // FULL-UI-05B builder interaction bindings.
