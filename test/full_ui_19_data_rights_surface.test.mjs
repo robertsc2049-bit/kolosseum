@@ -30,10 +30,15 @@ test("current terms and consent version, and consent history, are displayed (reu
   // accountConsentHistory/renderAccountHistory) migrated to React - proven
   // behaviorally in public/app-src/__tests__/AccountIdentityPanel.test.tsx.
   // entryTermsVersion/entryConsentVersion (the entry/sign-up screen's own
-  // display, unrelated to this migration) still render via app.js's
-  // renderTermsState, which stays legacy.
+  // display, unrelated to this migration) moved to React too (FULL-UI-02D,
+  // EntryAuthPanel.tsx/useEntryAuth.ts) - app.js's renderTermsState no
+  // longer exists.
   assert.ok(html.includes(`id="account-identity-root"`), "Expected account-identity-root");
-  assert.match(js, /function renderTermsState/u);
+  assert.doesNotMatch(js, /function renderTermsState/u);
+
+  const entryAuthPanel = read("public/app-src/screens/entry/EntryAuthPanel.tsx");
+  assert.match(entryAuthPanel, /entryTermsVersion|current_terms_version/u);
+  assert.match(entryAuthPanel, /entryConsentVersion|current_consent_version/u);
 
   const consentHistoryPanel = read("public/app-src/screens/account/ConsentHistoryPanel.tsx");
   assert.match(consentHistoryPanel, /Current terms/u);

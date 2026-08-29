@@ -22,6 +22,14 @@ const coachWorkspaceClientTs = fs.readFileSync(
   path.join(root, "public", "app-src", "api", "coachWorkspaceClient.ts"),
   "utf8"
 );
+// DEV NOTE: FULL-UI-02D account_create/account_sign_in moved to React
+// (EntryAuthPanel.tsx/useEntryAuth.ts) - their /account/register and
+// /account/sign-in routes now live in authClient.ts, not app.js/
+// account_ui.js.
+const authClientTs = fs.readFileSync(
+  path.join(root, "public", "app-src", "api", "authClient.ts"),
+  "utf8"
+);
 
 test("product application is served independently from diagnostic UI", () => {
   assert.match(server, /const productAppDir = path\.join\(publicDir, "app"\);/u);
@@ -72,7 +80,7 @@ test("product UI uses real persisted application endpoints", () => {
     "/sessions/beta-coach-artefacts"
   ]) {
     assert.ok(
-      applicationJs.includes(route),
+      applicationJs.includes(route) || authClientTs.includes(route),
       `Expected application route ${route}`
     );
   }

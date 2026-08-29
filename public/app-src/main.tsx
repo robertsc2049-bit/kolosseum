@@ -76,6 +76,7 @@ import { CoachOverviewEventsPanel } from "./screens/coach/CoachOverviewEventsPan
 import { CoachOverviewOpenSessionsPanel, CoachOverviewReviewQueuePanel } from "./screens/coach/CoachOverviewSessionReviewPanel";
 import { ConnectAthletePanel } from "./screens/coach/ConnectAthletePanel";
 import { InviteAthleteByEmailPanel } from "./screens/coach/InviteAthleteByEmailPanel";
+import { EntryAuthPanel } from "./screens/entry/EntryAuthPanel";
 
 // DEV NOTE: mounts once at script load into divs that always exist in
 // public/app/index.html (which the legacy router shows/hides unchanged -
@@ -88,6 +89,7 @@ function mount(containerId: string, node: React.ReactNode) {
   createRoot(container).render(<StrictMode>{node}</StrictMode>);
 }
 
+mount("entry-auth-root", <EntryAuthPanel />);
 mount("account-identity-header-root", <AccountIdentityHeaderCard />);
 mount("account-code-root", <AccountCodeCard />);
 mount("account-identity-root", <AccountIdentityPanel />);

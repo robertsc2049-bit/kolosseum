@@ -1,11 +1,6 @@
 import {
-  completePasswordReset,
   loadAccountDetail as fetchAccountDetail,
-  loadCurrentTerms,
-  registerAccount,
-  requestPasswordReset,
-  restoreAccountSession,
-  signInAccount
+  restoreAccountSession
 } from "./account_ui.js";
 
 // FULL-UI-18 factual in-product notifications.
@@ -57,7 +52,6 @@ const DEFAULT_STATE = Object.freeze({
   csrfToken: "",
   serverAccount: null,
   accountDetail: null,
-  currentTerms: null,
   athleteOrgMessageThreads: [],
   athleteOrgContexts: [],
   coachOrgContexts: []
@@ -68,36 +62,6 @@ const state = loadState();
 const elements = {
   bootScreen: document.getElementById("bootScreen"),
   entryView: document.getElementById("entryView"),
-  entryForm: document.getElementById("entryForm"),
-  entryMode: document.getElementById("entryMode"),
-  entryCreateTab: document.getElementById("entryCreateTab"),
-  entrySignInTab: document.getElementById("entrySignInTab"),
-  entryHeading: document.getElementById("entryHeading"),
-  entryDescription: document.getElementById("entryDescription"),
-  entryCreateFields: document.getElementById("entryCreateFields"),
-  entryNameField: document.getElementById("entryNameField"),
-  entryRoleChoice: document.getElementById("entryRoleChoice"),
-  entryConsentFields: document.getElementById("entryConsentFields"),
-  entryName: document.getElementById("entryName"),
-  entryEmail: document.getElementById("entryEmail"),
-  entryPassword: document.getElementById("entryPassword"),
-  forgotPasswordButton: document.getElementById("forgotPasswordButton"),
-  passwordResetRequestForm: document.getElementById("passwordResetRequestForm"),
-  resetRequestEmail: document.getElementById("resetRequestEmail"),
-  resetRequestResult: document.getElementById("resetRequestResult"),
-  cancelPasswordResetButton: document.getElementById("cancelPasswordResetButton"),
-  passwordResetCompleteForm: document.getElementById("passwordResetCompleteForm"),
-  resetCompleteEmail: document.getElementById("resetCompleteEmail"),
-  resetCompleteCode: document.getElementById("resetCompleteCode"),
-  resetCompletePassword: document.getElementById("resetCompletePassword"),
-  resetCompleteResult: document.getElementById("resetCompleteResult"),
-  cancelPasswordResetCompleteButton: document.getElementById("cancelPasswordResetCompleteButton"),
-  entryActivityField: document.getElementById("entryActivityField"),
-  entryActivity: document.getElementById("entryActivity"),
-  entryBetaConsent: document.getElementById("entryBetaConsent"),
-  entryDeclarationConsent: document.getElementById("entryDeclarationConsent"),
-  entrySubmit: document.getElementById("entrySubmit"),
-  entryError: document.getElementById("entryError"),
   appShell: document.getElementById("appShell"),
   sidebar: document.getElementById("sidebar"),
   workspaceLabel: document.getElementById("workspaceLabel"),
@@ -174,9 +138,7 @@ const elements = {
   fitFinalBlockButton: document.getElementById("fitFinalBlockButton"),
   templateBlocks: document.getElementById("templateBlocks"),
   addTemplateBlockButton: document.getElementById("addTemplateBlockButton"),
-  refreshAccountButton: document.getElementById("refreshAccountButton"),
-  entryTermsVersion: document.getElementById("entryTermsVersion"),
-  entryConsentVersion: document.getElementById("entryConsentVersion")
+  refreshAccountButton: document.getElementById("refreshAccountButton")
 };
 
 function cloneDefaultState() {
@@ -332,8 +294,7 @@ function loadState() {
         ? parsed.athleteProfileDraft
         : null,
       selectedCoachAthleteId: String(parsed.selectedCoachAthleteId ?? ""),
-      localSessions: Array.isArray(parsed.localSessions) ? parsed.localSessions : [],
-      currentTerms: null
+      localSessions: Array.isArray(parsed.localSessions) ? parsed.localSessions : []
     };
   }
   catch {
@@ -440,30 +401,6 @@ function showBusy(message) {
 
 function hideBusy() {
   elements.busyOverlay.hidden = true;
-}
-
-// FULL-UI-22 cross-product quality: a single reusable duplicate-submit
-// guard. Disables the relevant button for the duration of the async
-// action (covering both a mouse double-click and a keyboard double-
-// Enter) and always re-enables it afterwards, success or failure.
-// `buttonSource` is either the button itself, or a function that derives
-// it from the handler's own arguments (e.g. a form submit event).
-function guardedAction(buttonSource, asyncFn) {
-  return async (...args) => {
-    const button = typeof buttonSource === "function" ? buttonSource(...args) : buttonSource;
-    if (button?.disabled) return;
-    if (button) button.disabled = true;
-    try {
-      await asyncFn(...args);
-    }
-    finally {
-      if (button) button.disabled = false;
-    }
-  };
-}
-
-function submitButtonOf(event) {
-  return event?.target?.querySelector?.('button[type="submit"]') ?? null;
 }
 
 // FULL-UI-22 cross-product quality: a route-level service-unavailable +
@@ -1082,8 +1019,6 @@ function setView(view) {
   }
 
   if (view === "account") {
-    renderAccount();
-
     loadPersistentAccountDetail({
       quiet: true
     }).catch(handleError);
@@ -1230,287 +1165,50 @@ function applyAccountSession(
 }
 
 function resetAccountState() {
-  const currentTerms =
-    state.currentTerms;
-
   Object.assign(
     state,
     cloneDefaultState()
   );
-
-  state.currentTerms =
-    currentTerms;
 
   localStorage.removeItem(
     STORAGE_KEY
   );
 }
 
-function setEntryMode(mode) {
-  const createMode =
-    mode === "create";
-
-  elements.entryMode.value =
-    createMode
-      ? "create"
-      : "sign-in";
-
-  elements.entryCreateFields.hidden =
-    !createMode;
-
-  elements.entryName.required =
-    createMode;
-
-  elements.entryBetaConsent.required =
-    createMode;
-
-  elements.entryDeclarationConsent.required =
-    createMode;
-
-  elements.entryPassword.autocomplete =
-    createMode
-      ? "new-password"
-      : "current-password";
-
-  elements.entryCreateTab.classList.toggle(
-    "active",
-    createMode
-  );
-
-  elements.entrySignInTab.classList.toggle(
-    "active",
-    !createMode
-  );
-
-  elements.entryHeading.textContent =
-    createMode
-      ? "Create your account"
-      : "Sign in";
-
-  elements.entryDescription.textContent =
-    createMode
-      ? "Create persistent product access for this installation."
-      : "Open an existing athlete or coach workspace.";
-
-  elements.entrySubmit.textContent =
-    createMode
-      ? "Create account"
-      : "Sign in";
-
-  elements.forgotPasswordButton.hidden =
-    createMode;
-
-  elements.entryError.hidden = true;
-  renderTermsState();
-}
-
-function showEntryMessage(
-  message,
-  error = false
-) {
-  elements.entryError.textContent =
-    message;
-
-  elements.entryError.classList.toggle(
-    "success-message",
-    !error
-  );
-
-  elements.entryError.hidden = false;
-}
-
-function showPasswordResetRequest() {
-  elements.entryForm.hidden = true;
-  elements.passwordResetCompleteForm.hidden = true;
-  elements.passwordResetRequestForm.hidden = false;
-  elements.resetRequestEmail.value =
-    elements.entryEmail.value;
-  elements.resetRequestResult.hidden = true;
-}
-
-function showPasswordResetComplete(
-  email = "",
-  code = ""
-) {
-  elements.entryForm.hidden = true;
-  elements.passwordResetRequestForm.hidden = true;
-  elements.passwordResetCompleteForm.hidden = false;
-  elements.resetCompleteEmail.value =
-    email;
-  elements.resetCompleteCode.value =
-    code;
-  elements.resetCompleteResult.hidden = true;
-}
-
-function showSignInForm() {
-  elements.passwordResetRequestForm.hidden = true;
-  elements.passwordResetCompleteForm.hidden = true;
-  elements.entryForm.hidden = false;
-  setEntryMode("sign-in");
-}
-
-async function handleEntrySubmit(
-  event
-) {
-  event.preventDefault();
-
-  elements.entryError.hidden = true;
-
-  const mode =
-    elements.entryMode.value;
-
-  const email =
-    elements.entryEmail.value
-      .trim()
-      .toLowerCase();
-
-  const password =
-    elements.entryPassword.value;
-
-  showBusy(
-    mode === "create"
-      ? "Creating account…"
-      : "Signing in…"
-  );
+// DEV NOTE: FULL-UI-02D the entry (sign-up/sign-in/password-reset) screen
+// moved to React - see EntryAuthPanel.tsx/useEntryAuth.ts, mounted at
+// #entry-auth-root. setEntryMode()/showEntryMessage()/
+// showPasswordResetRequest()/showPasswordResetComplete()/showSignInForm()/
+// handleEntrySubmit()/handleResetRequest()/handleResetComplete() (and
+// currentTermsAvailable()/renderTermsState()/loadServerTerms(), see below)
+// are gone - React owns all of that now, independently fetching its own
+// terms via authClient.ts. This listener replaces handleEntrySubmit()'s
+// success path only: applyAccountSession()/enterApplication() are
+// otherwise unchanged. If applyAccountSession() throws (a data-integrity
+// edge case - a coach profile or athlete declaration that couldn't be
+// restored), the rejection is reported back to React rather than left
+// silent, since the error display now lives there.
+document.addEventListener("kolosseum:entry-auth-succeeded", (event) => {
+  const { response, mode } = event.detail ?? {};
 
   try {
-    let response;
-
-    if (mode === "create") {
-      const role =
-        new FormData(
-          elements.entryForm
-        ).get("role");
-
-      const displayName =
-        elements.entryName.value.trim();
-
-      if (!currentTermsAvailable()) {
-        throw new Error(
-          "Current terms and consent versions are unavailable. Account creation is disabled."
-        );
-      }
-
-      if (
-        !elements.entryBetaConsent.checked ||
-        !elements.entryDeclarationConsent.checked
-      ) {
-        throw new Error(
-          "Accept the terms and account consent before continuing."
-        );
-      }
-
-      response = await registerAccount({
-        actor_type: role,
-        display_name: displayName,
-        email,
-        password,
-        activity_id:
-          role === "athlete"
-            ? elements.entryActivity.value
-            : null,
-        accepted_terms: true,
-        accepted_consent: true,
-        accepted_terms_version:
-          state.currentTerms
-            .current_terms_version,
-        accepted_consent_version:
-          state.currentTerms
-            .current_consent_version
-      });
-    }
-    else {
-      response = await signInAccount({
-        email,
-        password
-      });
-    }
-
     applyAccountSession(response);
+  }
+  catch (error) {
+    document.dispatchEvent(
+      new CustomEvent("kolosseum:entry-auth-session-rejected", { detail: { message: error.message } })
+    );
+    return;
+  }
 
-    await enterApplication();
-
+  enterApplication().then(() => {
     showNotice(
       mode === "create"
         ? "Account created."
         : "Signed in."
     );
-  }
-  catch (error) {
-    showEntryMessage(
-      friendlyError(
-        error.payload,
-        error.status ?? 400
-      ),
-      true
-    );
-  }
-  finally {
-    hideBusy();
-  }
-}
-
-async function handleResetRequest(
-  event
-) {
-  event.preventDefault();
-
-  const email =
-    elements.resetRequestEmail.value
-      .trim()
-      .toLowerCase();
-
-  const response =
-    await requestPasswordReset({
-      email
-    });
-
-  const developmentCode =
-    String(
-      response?.development_code ??
-      ""
-    );
-
-  elements.resetRequestResult.hidden = false;
-  elements.resetRequestResult.textContent =
-    developmentCode
-      ? `Development code: ${developmentCode}`
-      : "The request was recorded.";
-
-  showPasswordResetComplete(
-    email,
-    developmentCode
-  );
-}
-
-async function handleResetComplete(
-  event
-) {
-  event.preventDefault();
-
-  await completePasswordReset({
-    email:
-      elements.resetCompleteEmail.value
-        .trim()
-        .toLowerCase(),
-    code:
-      elements.resetCompleteCode.value
-        .trim(),
-    new_password:
-      elements.resetCompletePassword.value
   });
-
-  elements.entryEmail.value =
-    elements.resetCompleteEmail.value;
-
-  elements.entryPassword.value = "";
-
-  showSignInForm();
-
-  showEntryMessage(
-    "Password reset complete. Sign in with the new password."
-  );
-}
+});
 
 async function createSession() {
   showBusy("Creating session…");
@@ -5929,71 +5627,6 @@ function renderCoachEvents() {
 // and useAthleteProfileAssignment.ts, mounted into
 // #athlete-profile-assignment-root.
 
-function currentTermsAvailable() {
-  return Boolean(
-    state.currentTerms &&
-    typeof state.currentTerms === "object" &&
-    state.currentTerms
-      .current_terms_version &&
-    state.currentTerms
-      .current_consent_version
-  );
-}
-
-function renderTermsState() {
-  const account =
-    state.serverAccount ?? {};
-
-  const terms =
-    state.currentTerms ??
-    state.accountDetail?.terms ??
-    {};
-
-  const currentTerms = String(
-    terms.current_terms_version ??
-    account.current_terms_version ??
-    ""
-  );
-
-  const currentConsent = String(
-    terms.current_consent_version ??
-    account.current_consent_version ??
-    ""
-  );
-
-  elements.entryTermsVersion.textContent =
-    currentTerms || "unavailable";
-
-  elements.entryConsentVersion.textContent =
-    currentConsent || "unavailable";
-
-  if (elements.entrySubmit) {
-    elements.entrySubmit.disabled =
-      elements.entryMode.value === "create" &&
-      (!currentTerms || !currentConsent);
-  }
-}
-
-async function loadServerTerms() {
-  const terms =
-    await loadCurrentTerms();
-
-  state.currentTerms = terms;
-  renderTermsState();
-
-  return terms;
-}
-
-// DEV NOTE: FULL-UI-02 the account header card (avatar/name/email/role/
-// state/verification badges) and the "Account code" card moved to React
-// (AccountIdentityHeaderPanel.tsx/useAccountIdentityHeader.ts, mounted into
-// #account-identity-header-root/#account-code-root) - this function is
-// trimmed to just its other job, updating the still-legacy entry (sign-up)
-// view's terms/consent version display.
-function renderAccount() {
-  renderTermsState();
-}
-
 // FULL-UI-24: a coach invites an athlete by email, never by the athlete's
 // internal user_id; the athlete accepts here by clicking a real button, never
 // by typing any id.
@@ -6025,14 +5658,6 @@ async function loadPersistentAccountDetail(
 
   state.accountDetail = detail;
 
-  if (
-    detail.terms &&
-    typeof detail.terms === "object"
-  ) {
-    state.currentTerms =
-      detail.terms;
-  }
-
   state.csrfToken =
     detail.csrf_token ??
     state.csrfToken;
@@ -6045,7 +5670,6 @@ async function loadPersistentAccountDetail(
 
   saveState();
   renderIdentity();
-  renderAccount();
 
   // AccountIdentityHeaderPanel.tsx/useAccountIdentityHeader.ts (a separate
   // React root from the rest of the identity form) refetches on this signal
@@ -6237,7 +5861,6 @@ async function enterApplication() {
 
   renderRoleNavigation();
   renderIdentity();
-  renderAccount();
 
   // React's own role-gated #view-account panels (AccountBrandingPanel.tsx
   // and friends) read state.role from localStorage at mount time, which is
@@ -6301,13 +5924,6 @@ function showEntry() {
   elements.bootScreen.hidden = true;
   elements.appShell.hidden = true;
   elements.entryView.hidden = false;
-  renderTermsState();
-}
-
-for (const radio of document.querySelectorAll('input[name="role"]')) {
-  radio.addEventListener("change", () => {
-    elements.entryActivityField.hidden = radio.value === "coach" && radio.checked;
-  });
 }
 
 for (const button of document.querySelectorAll("[data-view]")) {
@@ -6317,55 +5933,6 @@ for (const button of document.querySelectorAll("[data-view]")) {
 for (const button of document.querySelectorAll("[data-view-link]")) {
   button.addEventListener("click", () => setView(button.dataset.viewLink));
 }
-
-elements.entryCreateTab.addEventListener(
-  "click",
-  () => setEntryMode("create")
-);
-
-elements.entrySignInTab.addEventListener(
-  "click",
-  () => setEntryMode("sign-in")
-);
-
-elements.entryForm.addEventListener(
-  "submit",
-  (event) => {
-    handleEntrySubmit(event)
-      .catch(handleError);
-  }
-);
-
-elements.forgotPasswordButton.addEventListener(
-  "click",
-  showPasswordResetRequest
-);
-
-elements.passwordResetRequestForm.addEventListener(
-  "submit",
-  (event) => {
-    guardedAction(submitButtonOf, handleResetRequest)(event)
-      .catch(handleError);
-  }
-);
-
-elements.passwordResetCompleteForm.addEventListener(
-  "submit",
-  (event) => {
-    guardedAction(submitButtonOf, handleResetComplete)(event)
-      .catch(handleError);
-  }
-);
-
-elements.cancelPasswordResetButton.addEventListener(
-  "click",
-  showSignInForm
-);
-
-elements.cancelPasswordResetCompleteButton.addEventListener(
-  "click",
-  showSignInForm
-);
 
 // DEV NOTE: FULL-UI-20 platform status + error reporting moved to React
 // (AccountSupportPanel.tsx into #account-support-root, see
@@ -6752,8 +6319,8 @@ elements.refreshAccountButton.addEventListener(
 // DEV NOTE: React drives accountProfileForm/requestVerificationButton/
 // completeVerificationButton/accountPasswordForm submits directly now (see
 // public/app-src/screens/account/) - this legacy listener block is retired.
-// applyAccountIdentity/renderIdentity/renderAccount for a React-driven
-// update instead run from the bridge listener below.
+// applyAccountIdentity/renderIdentity for a React-driven update instead
+// run from the bridge listener below.
 document.addEventListener(
   "kolosseum:account-identity-updated",
   (event) => {
@@ -6761,7 +6328,6 @@ document.addEventListener(
     state.accountDetail = null;
     saveState();
     renderIdentity();
-    renderAccount();
   }
 );
 
@@ -6861,18 +6427,15 @@ document.addEventListener(
   }
 );
 
+// DEV NOTE: FULL-UI-02D EntryAuthPanel.tsx/useEntryAuth.ts independently
+// fetches its own terms (authClient.ts's loadCurrentTerms()) and shows its
+// own "terms unavailable" notice - this function no longer needs to fetch
+// terms itself just to gate/decorate the (now React) entry form. A non-401
+// restoreAccountSession() failure is still a real, distinct case worth
+// surfacing (e.g. a suspended account whose session cookie is otherwise
+// valid-shaped) - reported to React via a bridge event since the error
+// display now lives there too.
 async function bootstrapApplication() {
-  let termsError = null;
-
-  try {
-    await loadServerTerms();
-  }
-  catch (error) {
-    termsError = error;
-    state.currentTerms = null;
-    renderTermsState();
-  }
-
   try {
     const response =
       await restoreAccountSession();
@@ -6884,24 +6447,20 @@ async function bootstrapApplication() {
   catch (error) {
     resetAccountState();
     showEntry();
-    setEntryMode("sign-in");
 
     if (
       error?.status &&
       error.status !== 401
     ) {
-      showEntryMessage(
-        friendlyError(
-          error.payload,
-          error.status
-        ),
-        true
-      );
-    }
-    else if (termsError) {
-      showEntryMessage(
-        "Current terms and consent versions are unavailable. Account creation is disabled; existing users may still sign in.",
-        true
+      document.dispatchEvent(
+        new CustomEvent("kolosseum:entry-bootstrap-notice", {
+          detail: {
+            message: friendlyError(
+              error.payload,
+              error.status
+            )
+          }
+        })
       );
     }
   }

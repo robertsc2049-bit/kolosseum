@@ -468,7 +468,12 @@ function installProductRouting() {
     true
   );
 
-  document.getElementById("entryForm")?.addEventListener("submit", scheduleRouteApplication);
+  // DEV NOTE: FULL-UI-02D the entry form moved to React (EntryAuthPanel.tsx)
+  // - a submit-triggered scheduleRouteApplication() here would need
+  // rebinding on every re-render anyway. The #appShell hidden-attribute
+  // MutationObserver below already covers the exact same moment (a
+  // successful sign-in/register unhides the shell synchronously as part of
+  // app.js's enterApplication()), so no replacement listener is needed.
   addEventListener("hashchange", () => applyCurrentProductRoute());
   addEventListener("popstate", () => applyCurrentProductRoute());
 

@@ -54,31 +54,27 @@ const integrationManifest = JSON.parse(
   )
 );
 
+// DEV NOTE: FULL-UI-02D the entry (sign-up/sign-in/password-reset) screen
+// moved to React - see EntryAuthPanel.tsx/useEntryAuth.ts/authClient.ts,
+// mounted at #entry-auth-root (replacing the static tabs+entryForm+
+// passwordResetRequestForm+passwordResetCompleteForm markup this file used
+// to check inside index.html/app.js/account_ui.js).
+const authClient = fs.readFileSync(
+  new URL("../public/app-src/api/authClient.ts", import.meta.url),
+  "utf8"
+);
+const entryAuthPanel = fs.readFileSync(
+  new URL("../public/app-src/screens/entry/EntryAuthPanel.tsx", import.meta.url),
+  "utf8"
+);
+const useEntryAuthHook = fs.readFileSync(
+  new URL("../public/app-src/screens/entry/useEntryAuth.ts", import.meta.url),
+  "utf8"
+);
+
 test(
   "FULL-UI-02 exposes every account function through normal UI controls",
   () => {
-    const controlIds = [
-      "entryCreateTab",
-      "entrySignInTab",
-      "entryPassword",
-      "forgotPasswordButton",
-      "passwordResetRequestForm",
-      "passwordResetCompleteForm",
-      "entryTermsVersion",
-      "entryConsentVersion"
-    ];
-
-    for (const id of controlIds) {
-      assert.match(
-        html,
-        new RegExp(
-          `id="${id}"`,
-          "u"
-        ),
-        `missing UI control ${id}`
-      );
-    }
-
     // profile_update/email_verification/password_change/consent_history/
     // sign_out/account_close_request (accountProfileForm/
     // requestVerificationButton/completeVerificationButton/
@@ -92,6 +88,25 @@ test(
     assert.match(html, /id="account-identity-root"/u);
     assert.doesNotMatch(html, /id="signOutButton"/u);
     assert.doesNotMatch(html, /id="accountClosureForm"/u);
+
+    // account_create/account_sign_in/password_reset/terms_version
+    // (entryCreateTab/entrySignInTab/entryPassword/forgotPasswordButton/
+    // passwordResetRequestForm/passwordResetCompleteForm/
+    // entryTermsVersion/entryConsentVersion) migrated to React too - see
+    // public/app-src/__tests__/EntryAuthPanel.test.tsx.
+    assert.match(html, /id="entry-auth-root"/u);
+    assert.doesNotMatch(html, /id="entryForm"/u);
+    assert.doesNotMatch(html, /id="entryPassword"/u);
+    assert.doesNotMatch(html, /id="passwordResetRequestForm"/u);
+    assert.doesNotMatch(html, /id="passwordResetCompleteForm"/u);
+
+    assert.match(entryAuthPanel, /role="tab"/u);
+    assert.match(entryAuthPanel, />\s*Sign in\s*</u);
+    assert.match(entryAuthPanel, /autoComplete="new-password"/u);
+    assert.match(entryAuthPanel, />Request code</u);
+    assert.match(entryAuthPanel, /Set new password/u);
+    assert.match(entryAuthPanel, /terms\?\.current_terms_version/u);
+    assert.match(entryAuthPanel, /terms\?\.current_consent_version/u);
   }
 );
 
@@ -99,15 +114,10 @@ test(
   "FULL-UI-02 browser client exposes the complete account API",
   () => {
     const functions = [
-      "loadCurrentTerms",
-      "registerAccount",
-      "signInAccount",
       "restoreAccountSession",
       "loadAccountDetail",
       "updateAccountProfile",
       "changeAccountPassword",
-      "requestPasswordReset",
-      "completePasswordReset",
       "requestEmailVerification",
       "completeEmailVerification"
     ];
@@ -134,6 +144,28 @@ test(
     assert.match(reactClient, /export function requestAccountClosure/u);
     assert.doesNotMatch(accountUi, /export function signOutAccount/u);
     assert.doesNotMatch(accountUi, /export function requestAccountClosure/u);
+
+    // loadCurrentTerms/registerAccount/signInAccount/requestPasswordReset/
+    // completePasswordReset moved to authClient.ts alongside the entry
+    // screen's own migrated controls.
+    for (const functionName of [
+      "loadCurrentTerms",
+      "registerAccount",
+      "signInAccount",
+      "requestPasswordReset",
+      "completePasswordReset"
+    ]) {
+      assert.match(
+        authClient,
+        new RegExp(`export function ${functionName}\\b`, "u"),
+        `missing authClient function ${functionName}`
+      );
+      assert.doesNotMatch(
+        accountUi,
+        new RegExp(`export function ${functionName}\\b`, "u"),
+        `${functionName} should have moved out of account_ui.js`
+      );
+    }
 
     assert.match(
       accountUi,
@@ -181,10 +213,7 @@ test(
       "actorHomeView",
       "bootstrapApplication",
       "factualAccountStateMessage",
-      "loadServerTerms",
-      "renderTermsState",
       "restoreAccountSession",
-      "handleEntrySubmit",
       "loadPersistentAccountDetail"
     ]) {
       assert.match(
@@ -197,6 +226,31 @@ test(
       );
     }
 
+    // FULL-UI-02D setEntryMode/showEntryMessage/handleEntrySubmit/
+    // currentTermsAvailable/renderTermsState/loadServerTerms are gone -
+    // EntryAuthPanel.tsx/useEntryAuth.ts own all of that now, independently
+    // fetching terms via authClient.ts. app.js's own listener for the
+    // kolosseum:entry-auth-succeeded bridge event covers only
+    // applyAccountSession()/enterApplication(), already checked above.
+    for (const token of [
+      "handleEntrySubmit",
+      "renderTermsState",
+      "loadServerTerms",
+      "currentTermsAvailable",
+      "setEntryMode",
+      "guardedAction"
+    ]) {
+      assert.doesNotMatch(
+        app,
+        new RegExp(`function ${token}\\b`, "u"),
+        `${token} should have moved to React`
+      );
+    }
+
+    assert.match(app, /kolosseum:entry-auth-succeeded/u);
+    assert.match(app, /kolosseum:entry-auth-session-rejected/u);
+    assert.match(app, /kolosseum:entry-bootstrap-notice/u);
+
     assert.match(
       app,
       /bootstrap\.declaration_record/u
@@ -208,13 +262,13 @@ test(
     );
 
     assert.match(
-      app,
-      /accepted_terms_version:\s*state\.currentTerms/u
+      useEntryAuthHook,
+      /accepted_terms_version:\s*state\.terms\?\.current_terms_version/u
     );
 
     assert.match(
-      app,
-      /accepted_consent_version:\s*state\.currentTerms/u
+      useEntryAuthHook,
+      /accepted_consent_version:\s*state\.terms\?\.current_consent_version/u
     );
 
     assert.match(
@@ -279,19 +333,28 @@ test(
     );
 
     // profile_update/password_change/email_verification/consent_history/
-    // sign_out/account_close_request migrated to React - their direct_test
-    // now points at the component test file that replaced this file's
-    // former source-text checks for exactly those six functions. Every
-    // other function in this area is still legacy-rendered and keeps
-    // pointing here.
-    const migratedToReact = new Set([
-      "profile_update",
-      "password_change",
-      "email_verification",
-      "consent_history",
-      "sign_out",
-      "account_close_request"
-    ]);
+    // sign_out/account_close_request migrated to React earlier (this
+    // file's AccountIdentityPanel.test.tsx pointer), and account_create/
+    // account_sign_in/password_reset/terms_version moved to React too in
+    // FULL-UI-02D (EntryAuthPanel.test.tsx). authenticated_session/
+    // account_state_message/role_redirect stay legacy-rendered (the
+    // shell-vs-entry-view bootstrap decision and factualAccountStateMessage/
+    // actorHomeView all stay plain JS) and keep pointing here.
+    const directTestByFunction = {
+      account_create: "public/app-src/__tests__/EntryAuthPanel.test.tsx",
+      account_sign_in: "public/app-src/__tests__/EntryAuthPanel.test.tsx",
+      authenticated_session: "test/full_ui_02_account_ui.test.mjs",
+      email_verification: "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
+      password_reset: "public/app-src/__tests__/EntryAuthPanel.test.tsx",
+      account_state_message: "test/full_ui_02_account_ui.test.mjs",
+      role_redirect: "test/full_ui_02_account_ui.test.mjs",
+      terms_version: "public/app-src/__tests__/EntryAuthPanel.test.tsx",
+      consent_history: "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
+      profile_update: "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
+      password_change: "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
+      account_close_request: "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
+      sign_out: "public/app-src/__tests__/AccountIdentityPanel.test.tsx"
+    };
 
     for (const entry of area.functions) {
       assert.equal(
@@ -308,9 +371,7 @@ test(
 
       assert.equal(
         entry.direct_test,
-        migratedToReact.has(entry.function_id)
-          ? "public/app-src/__tests__/AccountIdentityPanel.test.tsx"
-          : "test/full_ui_02_account_ui.test.mjs",
+        directTestByFunction[entry.function_id],
         entry.function_id
       );
 

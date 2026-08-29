@@ -69,29 +69,11 @@ async function request(
   return payload;
 }
 
-export function loadCurrentTerms() {
-  return request(
-    "GET",
-    "/account/terms"
-  );
-}
-
-export function registerAccount(input) {
-  return request(
-    "POST",
-    "/account/register",
-    input
-  );
-}
-
-export function signInAccount(input) {
-  return request(
-    "POST",
-    "/account/sign-in",
-    input
-  );
-}
-
+// DEV NOTE: FULL-UI-02D loadCurrentTerms/registerAccount/signInAccount
+// moved to public/app-src/api/authClient.ts (the entry/sign-up screen
+// itself is React now - EntryAuthPanel.tsx/useEntryAuth.ts). This function
+// stays since bootstrapApplication()'s shell-vs-entry-view decision must
+// stay plain JS, independent of the React bundle.
 export function restoreAccountSession() {
   return request(
     "GET",
@@ -134,25 +116,9 @@ export function changeAccountPassword(
   );
 }
 
-export function requestPasswordReset(
-  input
-) {
-  return request(
-    "POST",
-    "/account/password/reset/request",
-    input
-  );
-}
-
-export function completePasswordReset(
-  input
-) {
-  return request(
-    "POST",
-    "/account/password/reset/complete",
-    input
-  );
-}
+// DEV NOTE: FULL-UI-02D requestPasswordReset/completePasswordReset moved
+// to public/app-src/api/authClient.ts alongside the rest of the entry
+// screen's transport - see the DEV NOTE above restoreAccountSession().
 
 export function requestEmailVerification(
   csrfToken

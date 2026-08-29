@@ -26,6 +26,7 @@ const athleteRelationshipDetailPanel = read("public/app-src/screens/coach/Athlet
 const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
 const programmeLibraryPanel = read("public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx");
 const marketplaceSharingPanel = read("public/app-src/screens/coach/CoachProgrammeMarketplaceSharingPanel.tsx");
+const entryAuthPanel = read("public/app-src/screens/entry/EntryAuthPanel.tsx");
 
 test("every focusable control gets a visible keyboard-only focus ring, distinct from mouse-hover styling", () => {
   assert.match(
@@ -90,38 +91,21 @@ test("every route with a retry status line has that status line rendered in mark
 });
 
 test("a form submit or button click cannot be repeated while its own async action is still in flight", () => {
-  assert.match(js, /function guardedAction\(buttonSource, asyncFn\)/u);
-  assert.match(js, /if \(button\?\.disabled\) return;/u);
-  assert.match(js, /if \(button\) button\.disabled = true;/u);
-  assert.match(js, /function submitButtonOf\(event\)/u);
-
-  // The count of remaining app.js call sites shrinks by one each time a
-  // guardedAction-wrapped function migrates to React (it gains its own
-  // disabled-while-submitting state instead) - see the migrated list below.
-  // acceptRelationshipInvitation/declineRelationshipInvitation/
-  // endAthleteRelationship's button listeners each dropped one when those
-  // panels moved to React (AccountCoachInvitationsPanel.tsx/
-  // AccountCoachRelationshipPanel.tsx), inviteAthleteByEmail/
-  // confirmSendCoachBroadcast dropped two more moving to
-  // InviteAthleteByEmailPanel.tsx/CoachBroadcastPanel.tsx (connectAthlete's
-  // own submit binding was never guardedAction-wrapped to begin with), and
-  // confirmSaveTemplateSharing/confirmReleaseTemplate dropped the final two
-  // moving to CoachProgrammeMarketplaceSharingPanel.tsx - only
-  // handleResetRequest/handleResetComplete remain.
-  const guardedCallCount = [...js.matchAll(/guardedAction\(/gu)].length - 1; // -1 for the function definition itself
-  assert.ok(guardedCallCount >= 2, `expected at least 2 guardedAction call sites, found ${guardedCallCount}`);
+  // guardedAction()/submitButtonOf() themselves are gone now - their last
+  // two remaining call sites (handleResetRequest/handleResetComplete) moved
+  // to React in FULL-UI-02D (EntryAuthPanel.tsx/useEntryAuth.ts), the same
+  // way every other migrated form below already gained its own disabled-
+  // while-submitting state instead of this shared app.js helper.
+  assert.doesNotMatch(js, /function guardedAction\(/u);
+  assert.doesNotMatch(js, /function submitButtonOf\(/u);
 
   // saveAccountProfile/requestAccountVerificationCode/verifyAccountEmail/
   // saveAccountPassword/submitSupportReport/requestDataExportAction/
   // confirmDataDeletionAction/closePersistentAccount migrated to React,
   // which handles its own in-flight/disabled submit state per component -
-  // see public/app-src/screens/account/.
-  for (const fn of [
-    "handleResetRequest", "handleResetComplete"
-  ]) {
-    const re = new RegExp(`guardedAction\\((?:submitButtonOf|elements\\.\\w+), ${fn}\\)`, "u");
-    assert.match(js, re, `expected a guardedAction wrapping ${fn}`);
-  }
+  // see public/app-src/screens/account/. The entry screen's reset-request/
+  // reset-complete forms use the same submitting flag.
+  assert.match(entryAuthPanel, /disabled=\{submitting\}/u);
 
   // React's own equivalent of the same guarantee: the support report, the
   // export request, the deletion confirm and the account closure request
