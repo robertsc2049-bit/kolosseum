@@ -8,11 +8,29 @@ const styles = fs.readFileSync("public/app/styles.css", "utf8");
 // DEV NOTE: FULL-UI-05B the completion validation list moved to React -
 // see CoachProgrammeBuilderValidationList.tsx, mounted directly into the
 // still-legacy #templateBuilderValidationList <ol> so its delegated click
-// listener keeps working unchanged. The outer badge/save-detail text and
-// the section's warning/complete class toggle stay legacy for now (a
-// future slice) - checks against `app` for those are untouched below.
+// listener keeps working unchanged. The section's warning/complete class
+// toggle stays legacy (currentTemplateBuilderIssues() computes the
+// identical issues.length independently, kept in sync by convention) -
+// checks against `app` for that are untouched below.
 const validationList = fs.readFileSync(
   "public/app-src/screens/coach/CoachProgrammeBuilderValidationList.tsx",
+  "utf8"
+);
+// DEV NOTE: FULL-UI-05B the save-state badge and save-detail text also
+// moved to React - see CoachProgrammeBuilderSaveStatus.tsx, mounted at
+// #programme-builder-save-badge-root/#programme-builder-save-detail-root.
+// The badge's original id="templateBuilderSaveState" is gone -
+// openTemplateBuilder()'s recovery-focus call now targets the static
+// #programme-builder-save-badge-root wrapper div instead (kept
+// permanently in the DOM, unlike the React-rendered badge inside it,
+// since app.js's `elements` snapshot is built before the React bundle's
+// script tag runs).
+const saveStatus = fs.readFileSync(
+  "public/app-src/screens/coach/CoachProgrammeBuilderSaveStatus.tsx",
+  "utf8"
+);
+const programmeDraft = fs.readFileSync(
+  "public/app-src/screens/coach/programmeDraft.ts",
   "utf8"
 );
 // DEV NOTE: FULL-UI-05B the builder tree (block/week/session/exercise)
@@ -31,13 +49,18 @@ test("FULL-UI-05B exposes persistent save and recovery state", () => {
     "templateDraftRecovery",
     "templateDraftRecoveryResumeButton",
     "templateDraftRecoveryDiscardButton",
-    "templateBuilderSaveState",
-    "templateBuilderSaveDetail",
     "templateBuilderDiscardButton"
   ]) {
     assert.match(html, new RegExp(`id="${id}"`, "u"));
     assert.match(app, new RegExp(`${id}: document\\.getElementById`, "u"));
   }
+
+  for (const id of ["programme-builder-save-badge-root", "programme-builder-save-detail-root"]) {
+    assert.match(html, new RegExp(`id="${id}"`, "u"));
+  }
+  assert.match(app, /templateBuilderSaveBadgeRoot: document\.getElementById\("programme-builder-save-badge-root"\)/u);
+  assert.match(saveStatus, /function CoachProgrammeBuilderSaveBadge/u);
+  assert.match(saveStatus, /function CoachProgrammeBuilderSaveDetail/u);
 
   assert.match(app, /templateDraftSavedSnapshot/u);
   assert.match(app, /templateDraftWasOpen/u);
@@ -58,9 +81,9 @@ test("FULL-UI-05B warns before discarding unsaved changes", () => {
 
 test("FULL-UI-05B gives durable save feedback and duplicate-submit protection", () => {
   assert.match(app, /let templateBuilderSaving = false/u);
-  assert.match(app, /Saving…/u);
-  assert.match(app, /Save failed/u);
-  assert.match(app, /Last saved/u);
+  assert.match(programmeDraft, /Saving…/u);
+  assert.match(programmeDraft, /Save failed/u);
+  assert.match(programmeDraft, /Last saved/u);
   assert.match(app, /elements\.saveTemplateButton\.disabled = templateBuilderSaving/u);
   assert.match(app, /state\.templateDraftSavedAt/u);
   assert.match(app, /templateDraftSnapshot\(state\.templateDraft\)/u);

@@ -486,7 +486,7 @@ const targets = [
       [
         "public/app/index.html",
         [
-          "id=\"templateBuilderSaveState\""
+          "id=\"programme-builder-save-badge-root\""
         ]
       ],
       [
