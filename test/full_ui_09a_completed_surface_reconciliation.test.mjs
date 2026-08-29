@@ -409,7 +409,7 @@ const targets = [
     "id": "account_create",
     "evidence": [
       [
-        "public/app/account_ui.js",
+        "public/app-src/api/authClient.ts",
         [
           "\"/account/register\""
         ]

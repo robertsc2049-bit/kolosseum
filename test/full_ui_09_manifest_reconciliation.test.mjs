@@ -523,7 +523,7 @@ const targets = [
     "id": "account_sign_in",
     "source": [
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/authClient.ts",
         "all": [
           "signInAccount",
           "/account/sign-in"
@@ -605,7 +605,7 @@ const targets = [
     "id": "password_reset",
     "source": [
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/authClient.ts",
         "all": [
           "requestPasswordReset",
           "completePasswordReset"
