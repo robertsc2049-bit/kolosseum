@@ -13,10 +13,12 @@ export const PATHS = Object.freeze({
   activity: "registries/activity/activity.registry.json",
   applicability: "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
   compatibility: "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
+  surface: "registries/final_registry_surface_manifest.json",
   evidence: "ci/evidence/reg_full_04_equipment_applicability_closure.v1.json"
 });
 
 const FALLBACK_MARKERS = Object.freeze(["fallback", "unknown", "unspecified", "catch_all", "catch-all", "default_equipment"]);
+const EXPECTED_SURFACE_DEPENDENCIES = Object.freeze(["exercise_registry_3a", "equipment_environment_registry_3e"]);
 
 function readJson(root, rel) { return JSON.parse(fs.readFileSync(path.join(root, ...rel.split("/")), "utf8")); }
 function entries(doc) { return doc?.entries && typeof doc.entries === "object" && !Array.isArray(doc.entries) ? doc.entries : {}; }
@@ -183,6 +185,33 @@ export function resolveExerciseRelations(documents, exerciseId) {
   });
 }
 
+function auditCanonicalSurfaceAuthority(root) {
+  const errors = [];
+  let surface;
+  try { surface = readJson(root, PATHS.surface); }
+  catch (error) { return [{ code: "SURFACE_AUTHORITY_MISSING_OR_INVALID", detail: String(error?.message ?? error) }]; }
+
+  if (surface?.manifest_id !== "kolosseum_final_registry_surface_authority" || surface?.slice_id !== "REG-FULL-00" || surface?.status !== "authoritative") {
+    push(errors, "SURFACE_AUTHORITY_HEADER", { manifest_id: surface?.manifest_id, slice_id: surface?.slice_id, status: surface?.status });
+    return errors;
+  }
+
+  const entity = Array.isArray(surface.entities)
+    ? surface.entities.find(candidate => candidate?.canonical_registry_id === "exercise_equipment_compatibility_registry")
+    : null;
+  if (!entity) {
+    push(errors, "SURFACE_AUTHORITY_ENTITY_MISSING", "exercise_equipment_compatibility_registry");
+    return errors;
+  }
+
+  if (entity.classification !== "required_active") push(errors, "SURFACE_AUTHORITY_CLASSIFICATION", entity.classification);
+  if (entity.final_state?.authoritative !== true || entity.final_state?.final_runtime_load !== true || entity.final_state?.new_content_allowed !== true || entity.final_state?.final_load_position !== 21) {
+    push(errors, "SURFACE_AUTHORITY_FINAL_STATE", entity.final_state);
+  }
+  if (!sameSet(entity.dependency_ids ?? [], EXPECTED_SURFACE_DEPENDENCIES)) push(errors, "SURFACE_AUTHORITY_DEPENDENCIES", entity.dependency_ids);
+  return errors;
+}
+
 function auditEvidence(root, result) {
   const errors = [];
   let evidence;
@@ -214,8 +243,9 @@ export function auditRegFull04(root = process.cwd()) {
   try { documents = loadRegFull04Documents(root); }
   catch (error) { return { ok: false, errors: [{ code: "REQUIRED_RELATION_FILE_MISSING", detail: String(error?.message ?? error) }], counts: {} }; }
   const result = auditRegFull04Documents(documents);
+  const surfaceErrors = auditCanonicalSurfaceAuthority(root);
   const evidenceErrors = auditEvidence(root, result);
-  return { ...result, ok: result.ok && evidenceErrors.length === 0, errors: [...result.errors, ...evidenceErrors] };
+  return { ...result, ok: result.ok && surfaceErrors.length === 0 && evidenceErrors.length === 0, errors: [...result.errors, ...surfaceErrors, ...evidenceErrors] };
 }
 
 if (import.meta.url === `file://${process.argv[1]?.replaceAll("\\", "/")}` || process.argv[1]?.endsWith("reg_full_04_equipment_compatibility_applicability_closure.mjs")) {
