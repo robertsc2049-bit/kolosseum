@@ -1,13 +1,43 @@
+// DEV NOTE: REG-FULL-06 runtime adapter. This module projects the canonical
+// substitution registry and its explicit exercise/equipment/activity authorities
+// into the frozen S-V1-32 engine input shape. It never authors, reverses, ranks,
+// or infers substitution edges at runtime.
 
-// DEV NOTE: Small, hand-authored, closed substitution data source for the
-// session execution UI. Deliberately separate from
-// registries/exercise/exercise_substitution_graph.json (which
-// test/dormant_registry_exclusion_guard.test.mjs requires to stay excluded
-// from the live registry surface) - this file is its own narrowly-scoped
-// production input for src/v1SubstitutionEngineContract.mjs and never reads
-// or activates that dormant file.
+import fs from "node:fs";
+import path from "node:path";
 
 const ACTIVITY_ID = "general_strength";
+
+const EXERCISE_REGISTRY_PATH = path.join(
+  process.cwd(),
+  "registries",
+  "exercise",
+  "exercise.registry.json"
+);
+const EQUIPMENT_REGISTRY_PATH = path.join(
+  process.cwd(),
+  "registries",
+  "equipment",
+  "equipment.registry.json"
+);
+const EQUIPMENT_COMPATIBILITY_REGISTRY_PATH = path.join(
+  process.cwd(),
+  "registries",
+  "exercise_equipment_compatibility",
+  "exercise_equipment_compatibility.registry.json"
+);
+const ACTIVITY_APPLICABILITY_REGISTRY_PATH = path.join(
+  process.cwd(),
+  "registries",
+  "exercise_activity_applicability",
+  "exercise_activity_applicability.registry.json"
+);
+const SUBSTITUTION_REGISTRY_PATH = path.join(
+  process.cwd(),
+  "registries",
+  "substitution",
+  "substitution.registry.json"
+);
 
 type RegistryExercise = {
   exercise_id: string;
@@ -24,105 +54,216 @@ type RegistryEdge = {
   reason_codes: string[];
 };
 
-const EXERCISES: readonly RegistryExercise[] = Object.freeze([
-  { exercise_id: "bench_press", activity_id: ACTIVITY_ID, movement_id: "horizontal_push", equipment_ids: ["barbell"] },
-  { exercise_id: "dumbbell_bench_press", activity_id: ACTIVITY_ID, movement_id: "horizontal_push", equipment_ids: ["dumbbell"] },
-  { exercise_id: "overhead_press", activity_id: ACTIVITY_ID, movement_id: "vertical_push", equipment_ids: ["barbell"] },
-  { exercise_id: "dumbbell_overhead_press", activity_id: ACTIVITY_ID, movement_id: "vertical_push", equipment_ids: ["dumbbell"] },
-  { exercise_id: "back_squat", activity_id: ACTIVITY_ID, movement_id: "squat", equipment_ids: ["barbell"] },
-  { exercise_id: "goblet_squat", activity_id: ACTIVITY_ID, movement_id: "squat", equipment_ids: ["dumbbell"] },
-  { exercise_id: "deadlift", activity_id: ACTIVITY_ID, movement_id: "hinge", equipment_ids: ["barbell"] },
-  { exercise_id: "kettlebell_deadlift", activity_id: ACTIVITY_ID, movement_id: "hinge", equipment_ids: ["kettlebell"] }
-]);
+type ExerciseRow = {
+  exercise_id?: string;
+  movement_pattern_id?: string;
+};
 
-const EDGES: readonly RegistryEdge[] = Object.freeze([
-  {
-    edge_id: "sub_edge_bench_press_to_dumbbell_bench_press",
-    activity_id: ACTIVITY_ID,
-    source_exercise_id: "bench_press",
-    target_exercise_id: "dumbbell_bench_press",
-    reason_codes: ["declared_edge_matched"]
-  },
-  {
-    edge_id: "sub_edge_overhead_press_to_dumbbell_overhead_press",
-    activity_id: ACTIVITY_ID,
-    source_exercise_id: "overhead_press",
-    target_exercise_id: "dumbbell_overhead_press",
-    reason_codes: ["declared_edge_matched"]
-  },
-  {
-    edge_id: "sub_edge_back_squat_to_goblet_squat",
-    activity_id: ACTIVITY_ID,
-    source_exercise_id: "back_squat",
-    target_exercise_id: "goblet_squat",
-    reason_codes: ["declared_edge_matched"]
-  },
-  {
-    edge_id: "sub_edge_deadlift_to_kettlebell_deadlift",
-    activity_id: ACTIVITY_ID,
-    source_exercise_id: "deadlift",
-    target_exercise_id: "kettlebell_deadlift",
-    reason_codes: ["declared_edge_matched"]
+type EquipmentCompatibilityRow = {
+  exercise_id?: string;
+  equipment_id?: string;
+  compatibility_type?: string;
+};
+
+type ApplicabilityRow = {
+  exercise_id?: string;
+  activity_id?: string;
+  activity_context?: string;
+  applicability_state?: string;
+  substitution_applicability?: string;
+};
+
+type SubstitutionRow = {
+  substitution_edge_id?: string;
+  source_exercise_id?: string;
+  target_exercise_id?: string;
+  activity_applicability?: string[];
+  deterministic_ordering_key?: string;
+};
+
+type RuntimeAuthority = {
+  exercises: Record<string, ExerciseRow>;
+  equipment: Record<string, Record<string, unknown>>;
+  equipmentCompatibility: Record<string, EquipmentCompatibilityRow>;
+  applicability: Record<string, ApplicabilityRow>;
+  substitutions: Record<string, SubstitutionRow>;
+};
+
+function readEntries<T>(filePath: string, expectedRegistryId: string): Record<string, T> {
+  const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error(`REG_FULL_06_RUNTIME_REGISTRY_INVALID:${expectedRegistryId}`);
   }
-]);
-
-const EQUIPMENT_IDS = Object.freeze(["barbell", "dumbbell", "kettlebell"]);
-
-function connectedExerciseIds(sourceExerciseId: string): string[] {
-  const ids = new Set<string>([sourceExerciseId]);
-  for (const edge of EDGES) {
-    if (edge.source_exercise_id === sourceExerciseId) ids.add(edge.target_exercise_id);
-    if (edge.target_exercise_id === sourceExerciseId) ids.add(edge.source_exercise_id);
+  if (parsed.registry_id !== expectedRegistryId) {
+    throw new Error(`REG_FULL_06_RUNTIME_REGISTRY_ID:${expectedRegistryId}:${String(parsed.registry_id ?? "missing")}`);
   }
-  return [...ids];
+  if (!parsed.entries || typeof parsed.entries !== "object" || Array.isArray(parsed.entries)) {
+    throw new Error(`REG_FULL_06_RUNTIME_REGISTRY_ENTRIES:${expectedRegistryId}`);
+  }
+  return parsed.entries as Record<string, T>;
+}
+
+function loadRuntimeAuthority(): RuntimeAuthority {
+  return {
+    exercises: readEntries<ExerciseRow>(EXERCISE_REGISTRY_PATH, "exercise"),
+    equipment: readEntries<Record<string, unknown>>(EQUIPMENT_REGISTRY_PATH, "equipment"),
+    equipmentCompatibility: readEntries<EquipmentCompatibilityRow>(
+      EQUIPMENT_COMPATIBILITY_REGISTRY_PATH,
+      "exercise_equipment_compatibility_registry"
+    ),
+    applicability: readEntries<ApplicabilityRow>(
+      ACTIVITY_APPLICABILITY_REGISTRY_PATH,
+      "exercise_activity_applicability"
+    ),
+    substitutions: readEntries<SubstitutionRow>(SUBSTITUTION_REGISTRY_PATH, "substitution_registry")
+  };
+}
+
+function requiredEquipmentIds(
+  exerciseId: string,
+  rows: Record<string, EquipmentCompatibilityRow>
+): string[] {
+  return Object.values(rows)
+    .filter(
+      (row) =>
+        row.exercise_id === exerciseId &&
+        row.compatibility_type === "required" &&
+        typeof row.equipment_id === "string" &&
+        row.equipment_id.length > 0
+    )
+    .map((row) => row.equipment_id as string)
+    .sort();
+}
+
+function trainingApplicability(
+  exerciseId: string,
+  rows: Record<string, ApplicabilityRow>
+): ApplicabilityRow | null {
+  return (
+    Object.values(rows).find(
+      (row) =>
+        row.exercise_id === exerciseId &&
+        row.activity_id === ACTIVITY_ID &&
+        row.activity_context === "training"
+    ) ?? null
+  );
+}
+
+function isExplicitlyEligible(exerciseId: string, rows: Record<string, ApplicabilityRow>): boolean {
+  const row = trainingApplicability(exerciseId, rows);
+  return row?.applicability_state === "allowed" && row?.substitution_applicability === "eligible";
+}
+
+function outgoingEdges(
+  sourceExerciseId: string,
+  substitutions: Record<string, SubstitutionRow>
+): SubstitutionRow[] {
+  return Object.values(substitutions)
+    .filter(
+      (row) =>
+        row.source_exercise_id === sourceExerciseId &&
+        Array.isArray(row.activity_applicability) &&
+        row.activity_applicability.includes(ACTIVITY_ID)
+    )
+    .sort((left, right) => {
+      const leftKey = typeof left.deterministic_ordering_key === "string" ? left.deterministic_ordering_key : "";
+      const rightKey = typeof right.deterministic_ordering_key === "string" ? right.deterministic_ordering_key : "";
+      if (leftKey !== rightKey) return leftKey.localeCompare(rightKey);
+      return String(left.substitution_edge_id ?? "").localeCompare(String(right.substitution_edge_id ?? ""));
+    });
+}
+
+function projectExercise(
+  exerciseId: string,
+  authority: RuntimeAuthority
+): RegistryExercise | null {
+  const row = authority.exercises[exerciseId];
+  if (!row || row.exercise_id !== exerciseId || typeof row.movement_pattern_id !== "string") return null;
+  if (!isExplicitlyEligible(exerciseId, authority.applicability)) return null;
+
+  const equipmentIds = requiredEquipmentIds(exerciseId, authority.equipmentCompatibility);
+  if (equipmentIds.length === 0 || equipmentIds.some((equipmentId) => !authority.equipment[equipmentId])) return null;
+
+  return {
+    exercise_id: exerciseId,
+    activity_id: ACTIVITY_ID,
+    movement_id: row.movement_pattern_id,
+    equipment_ids: equipmentIds
+  };
 }
 
 export function isKnownSubstitutionExerciseId(exerciseId: string): boolean {
-  return EXERCISES.some((ex) => ex.exercise_id === exerciseId);
+  const id = typeof exerciseId === "string" ? exerciseId.trim() : "";
+  if (!id) return false;
+  const authority = loadRuntimeAuthority();
+  if (!projectExercise(id, authority)) return false;
+  return outgoingEdges(id, authority.substitutions).some(
+    (edge) => typeof edge.target_exercise_id === "string" && projectExercise(edge.target_exercise_id, authority) !== null
+  );
 }
 
 export function buildV1SubstitutionInput(
   sourceExerciseId: string,
   unavailableEquipmentIds: string[]
 ): Record<string, unknown> | null {
-  if (!isKnownSubstitutionExerciseId(sourceExerciseId)) return null;
+  const sourceId = typeof sourceExerciseId === "string" ? sourceExerciseId.trim() : "";
+  if (!sourceId) return null;
 
-  const relevantIds = connectedExerciseIds(sourceExerciseId);
-  const candidateExercises = EXERCISES.filter((ex) => relevantIds.includes(ex.exercise_id));
-  const relevantEdges = EDGES.filter(
-    (edge) => relevantIds.includes(edge.source_exercise_id) && relevantIds.includes(edge.target_exercise_id)
-  );
+  const authority = loadRuntimeAuthority();
+  const sourceExercise = projectExercise(sourceId, authority);
+  if (!sourceExercise) return null;
+
+  const relevantEdges = outgoingEdges(sourceId, authority.substitutions).filter((edge) => {
+    if (typeof edge.substitution_edge_id !== "string" || edge.substitution_edge_id.length === 0) return false;
+    if (typeof edge.target_exercise_id !== "string" || edge.target_exercise_id.length === 0) return false;
+    return projectExercise(edge.target_exercise_id, authority) !== null;
+  });
+  if (relevantEdges.length === 0) return null;
+
+  const orderedCandidateIds = [
+    sourceId,
+    ...relevantEdges.map((edge) => edge.target_exercise_id as string)
+  ].filter((value, index, values) => values.indexOf(value) === index);
+
+  const candidateExercises = orderedCandidateIds
+    .map((exerciseId) => projectExercise(exerciseId, authority))
+    .filter((exercise): exercise is RegistryExercise => exercise !== null);
+
+  if (candidateExercises.length !== orderedCandidateIds.length) return null;
+
+  const equipmentIds = Object.keys(authority.equipment).sort();
+  const unavailable = [...new Set(unavailableEquipmentIds.filter((value) => typeof value === "string" && value.length > 0))].sort();
 
   return {
     activity_id: ACTIVITY_ID,
-    target_exercise_id: sourceExerciseId,
-    unavailable_equipment_ids: [...new Set(unavailableEquipmentIds)].sort(),
+    target_exercise_id: sourceId,
+    unavailable_equipment_ids: unavailable,
     registry_links: {
       activity_ids: [ACTIVITY_ID],
-      exercise_ids: candidateExercises.map((ex) => ex.exercise_id).sort(),
-      movement_ids: [...new Set(candidateExercises.map((ex) => ex.movement_id))].sort(),
-      equipment_ids: [...EQUIPMENT_IDS].sort(),
-      substitution_edge_ids: relevantEdges.map((edge) => edge.edge_id).sort(),
+      exercise_ids: candidateExercises.map((exercise) => exercise.exercise_id).sort(),
+      movement_ids: [...new Set(candidateExercises.map((exercise) => exercise.movement_id))].sort(),
+      equipment_ids: equipmentIds,
+      substitution_edge_ids: relevantEdges.map((edge) => edge.substitution_edge_id as string).sort(),
       applicability_records: candidateExercises
-        .map((ex) => ({
-          exercise_id: ex.exercise_id,
+        .map((exercise) => ({
+          exercise_id: exercise.exercise_id,
           activity_id: ACTIVITY_ID,
           substitution_applicability: "eligible" as const
         }))
-        .sort((a, b) => a.exercise_id.localeCompare(b.exercise_id))
+        .sort((left, right) => left.exercise_id.localeCompare(right.exercise_id))
     },
-    candidate_exercises: candidateExercises.map((ex) => ({
-      exercise_id: ex.exercise_id,
-      activity_id: ex.activity_id,
-      movement_id: ex.movement_id,
-      equipment_ids: [...ex.equipment_ids]
+    candidate_exercises: candidateExercises.map((exercise) => ({
+      exercise_id: exercise.exercise_id,
+      activity_id: exercise.activity_id,
+      movement_id: exercise.movement_id,
+      equipment_ids: [...exercise.equipment_ids]
     })),
     substitution_edges: relevantEdges.map((edge) => ({
-      edge_id: edge.edge_id,
-      activity_id: edge.activity_id,
-      source_exercise_id: edge.source_exercise_id,
-      target_exercise_id: edge.target_exercise_id,
-      reason_codes: [...edge.reason_codes]
+      edge_id: edge.substitution_edge_id as string,
+      activity_id: ACTIVITY_ID,
+      source_exercise_id: sourceId,
+      target_exercise_id: edge.target_exercise_id as string,
+      reason_codes: ["declared_edge_matched"]
     }))
   };
 }
@@ -132,12 +273,24 @@ export function findSubstitutionRegistryEdge(
   sourceExerciseId: string,
   targetExerciseId: string
 ): RegistryEdge | null {
-  return (
-    EDGES.find(
-      (edge) =>
-        edge.edge_id === edgeId &&
-        edge.source_exercise_id === sourceExerciseId &&
-        edge.target_exercise_id === targetExerciseId
-    ) ?? null
-  );
+  const authority = loadRuntimeAuthority();
+  const row = authority.substitutions[edgeId];
+  if (
+    !row ||
+    row.substitution_edge_id !== edgeId ||
+    row.source_exercise_id !== sourceExerciseId ||
+    row.target_exercise_id !== targetExerciseId ||
+    !Array.isArray(row.activity_applicability) ||
+    !row.activity_applicability.includes(ACTIVITY_ID)
+  ) {
+    return null;
+  }
+
+  return {
+    edge_id: edgeId,
+    activity_id: ACTIVITY_ID,
+    source_exercise_id: sourceExerciseId,
+    target_exercise_id: targetExerciseId,
+    reason_codes: ["declared_edge_matched"]
+  };
 }
