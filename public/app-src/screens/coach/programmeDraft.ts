@@ -288,6 +288,89 @@ export function templateRecordToDraft(template: JsonRecord): ProgrammeDraft {
   };
 }
 
+// DEV NOTE: ported field-for-field from public/app/app.js's
+// templateDraftValidationRecord() - the reverse of templateRecordToDraft()
+// above, rebuilding the persisted template_structure.blocks[].weeks[].
+// days[].sessions[] shape (with its extra "days" level) from a live
+// editing draft, purely so programmeActivationIssues() (which expects a
+// persisted-record shape and flattens it right back via
+// templateRecordToDraft() internally) can validate a draft that has never
+// been saved yet. Used by CoachProgrammeBuilderStatusPanel.tsx to mirror
+// the still-legacy builder's own currentTemplateBuilderIssues().
+export function draftToValidationRecord(draft: ProgrammeDraft): JsonRecord {
+  return {
+    template_id: draft.template_id,
+    template_family_id: draft.template_family_id,
+    template_version: draft.template_version,
+    template_status: draft.template_status,
+    template_name: draft.template_name,
+    description: draft.description,
+    activity_id: draft.activity_id,
+    event_plan: draft.event_plan,
+    event_compile_summary: draft.event_compile_summary,
+    template_structure: {
+      blocks: draft.blocks.map((block, blockIndex) => ({
+        block_id: block.block_id,
+        order_index: blockIndex + 1,
+        name: block.name,
+        description: block.description,
+        block_type: block.block_type,
+        week_count: block.weeks.length,
+        weeks: block.weeks.map((week, weekIndex) => ({
+          week_id: week.week_id,
+          order_index: weekIndex + 1,
+          calendar_start_date: week.calendar_start_date,
+          calendar_end_date: week.calendar_end_date,
+          days_until_event_at_week_start: week.days_until_event_at_week_start,
+          partial_week: week.partial_week,
+          days: week.sessions.map((session, sessionIndex) => ({
+            day_id: "",
+            order_index: sessionIndex + 1,
+            sessions: [{
+              session_id: session.session_id,
+              order_index: 1,
+              title: session.title,
+              coaching_notes: session.coaching_notes,
+              work_items: session.work_items.map((workItem, workItemIndex) => ({
+                work_item_id: workItem.work_item_id,
+                order_index: workItemIndex + 1,
+                exercise_id: workItem.exercise_id,
+                planned_sets: workItem.planned_sets,
+                prescription_mode: workItem.prescription_mode,
+                rep_mode: workItem.rep_mode,
+                planned_reps: workItem.planned_reps,
+                rep_min: workItem.rep_min,
+                rep_max: workItem.rep_max,
+                tempo: workItem.tempo,
+                duration_mode: workItem.duration_mode,
+                planned_duration_seconds: workItem.planned_duration_seconds,
+                duration_min_seconds: workItem.duration_min_seconds,
+                duration_max_seconds: workItem.duration_max_seconds,
+                distance_mode: workItem.distance_mode,
+                distance_unit: workItem.distance_unit,
+                planned_distance_value: workItem.planned_distance_value,
+                distance_min_value: workItem.distance_min_value,
+                distance_max_value: workItem.distance_max_value,
+                load_mode: workItem.load_mode,
+                percent_1rm: workItem.percent_1rm,
+                weight_value: workItem.weight_value,
+                weight_unit: workItem.weight_unit,
+                rpe_value: workItem.rpe_value,
+                rest_seconds: workItem.rest_seconds,
+                role: workItem.role,
+                coaching_notes: workItem.coaching_notes,
+                segment: workItem.segment,
+                group_id: workItem.group_id,
+                group_type: workItem.group_type
+              }))
+            }]
+          }))
+        }))
+      }))
+    }
+  };
+}
+
 export type ProgrammeActivationIssue = {
   code: string;
   message: string;
