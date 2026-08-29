@@ -48,31 +48,65 @@ test("REG-FULL-04 does not infer equipment from movement vocabulary when an expl
   );
 });
 
-test("REG-FULL-04 rejects an equipment relation whose FK is unknown", () => {
+test("REG-FULL-04 rejects an equipment relation whose FK is absent", () => {
   const docs = clone(live());
-  const row = docs.compatibility.entries["back_squat__barbell"];
-  delete docs.compatibility.entries["back_squat__barbell"];
-  docs.compatibility.entries["back_squat__unknown_tool"] = {
+  const source = Object.entries(docs.compatibility.entries).find(([, candidate]) => candidate.compatibility_type === "required");
+  assert.ok(source, "expected at least one required equipment relation");
+  const [sourceKey, row] = source;
+  delete docs.compatibility.entries[sourceKey];
+  const absentEquipmentId = "not_in_equipment_registry";
+  const replacementKey = `${row.exercise_id}__${absentEquipmentId}`;
+  docs.compatibility.entries[replacementKey] = {
     ...row,
-    compatibility_id: "back_squat__unknown_tool",
-    equipment_id: "unknown_tool"
+    compatibility_id: replacementKey,
+    equipment_id: absentEquipmentId
   };
   const result = auditRegFull04Documents(docs);
   assert.equal(result.ok, false);
   assert.equal(codes(result).has("COMPATIBILITY_EQUIPMENT_FK"), true);
+});
+
+test("REG-FULL-04 rejects generic fallback relation markers", () => {
+  const docs = clone(live());
+  const source = Object.entries(docs.compatibility.entries).find(([, candidate]) => candidate.compatibility_type === "required");
+  assert.ok(source, "expected at least one required equipment relation");
+  const [sourceKey, row] = source;
+  delete docs.compatibility.entries[sourceKey];
+  const fallbackEquipmentId = "default_equipment";
+  const replacementKey = `${row.exercise_id}__${fallbackEquipmentId}`;
+  docs.compatibility.entries[replacementKey] = {
+    ...row,
+    compatibility_id: replacementKey,
+    equipment_id: fallbackEquipmentId
+  };
+  const result = auditRegFull04Documents(docs);
+  assert.equal(result.ok, false);
   assert.equal(codes(result).has("GENERIC_FALLBACK_FORBIDDEN"), true);
 });
 
 test("REG-FULL-04 rejects movement-incompatible equipment even when the equipment id exists", () => {
   const docs = clone(live());
-  const row = docs.compatibility.entries["ten_metre_acceleration__open_floor_space"];
-  assert.ok(row, "expected ten_metre_acceleration open-floor relation");
-  delete docs.compatibility.entries["ten_metre_acceleration__open_floor_space"];
-  docs.compatibility.entries["ten_metre_acceleration__barbell"] = {
+  const source = Object.entries(docs.compatibility.entries).find(([, candidate]) => {
+    const exercise = docs.exercise.entries[candidate.exercise_id];
+    const movement = docs.movement.entries[exercise?.movement_pattern_id];
+    return movement && Object.keys(docs.equipment.entries).some(equipmentId => !movement.equipment_vocab.includes(equipmentId));
+  });
+  assert.ok(source, "expected at least one compatibility row with an incompatible existing equipment candidate");
+
+  const [sourceKey, row] = source;
+  const exercise = docs.exercise.entries[row.exercise_id];
+  const movement = docs.movement.entries[exercise.movement_pattern_id];
+  const incompatibleEquipmentId = Object.keys(docs.equipment.entries).find(equipmentId => !movement.equipment_vocab.includes(equipmentId));
+  assert.ok(incompatibleEquipmentId, "expected an existing equipment id outside the movement vocabulary");
+
+  delete docs.compatibility.entries[sourceKey];
+  const replacementKey = `${row.exercise_id}__${incompatibleEquipmentId}`;
+  docs.compatibility.entries[replacementKey] = {
     ...row,
-    compatibility_id: "ten_metre_acceleration__barbell",
-    equipment_id: "barbell"
+    compatibility_id: replacementKey,
+    equipment_id: incompatibleEquipmentId
   };
+
   const result = auditRegFull04Documents(docs);
   assert.equal(result.ok, false);
   assert.equal(codes(result).has("MOVEMENT_EQUIPMENT_COMPATIBILITY"), true);
@@ -110,7 +144,7 @@ test("REG-FULL-04 treats embedded activity fields as compatibility projections, 
   assert.equal(codes(result).has("EMBEDDED_ACTIVITY_PROJECTION_DRIFT"), true);
 });
 
-test("REG-FULL-04 resolver fails closed for an unknown exercise instead of returning a generic fallback", () => {
+test("REG-FULL-04 resolver fails closed for an unregistered exercise instead of returning a generic fallback", () => {
   const docs = live();
   assert.throws(
     () => resolveExerciseRelations(docs, "not_a_real_exercise"),
