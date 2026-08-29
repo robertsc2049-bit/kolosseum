@@ -133,10 +133,12 @@ function validateAndBuild() {
     entries: compatibilityEntries
   };
 
+  const exerciseCount = Object.keys(exercises).length;
   return {
     compatibilityDoc,
     counts: {
-      exercise_count: Object.keys(exercises).length,
+      exercise_count: exerciseCount,
+      resolved_exercise_count: exerciseCount,
       compatibility_edge_count: Object.keys(compatibilityEntries).length,
       required_equipment_edge_count: requiredEdgeCount,
       alternative_equipment_edge_count: alternativeEdgeCount,
