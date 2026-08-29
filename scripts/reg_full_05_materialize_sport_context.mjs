@@ -23,6 +23,8 @@ const P = Object.freeze({
   threshold: "registries/threshold_marker/threshold_marker.registry.json",
   bundle: "registries/registry_bundle.json",
   evidence: "ci/evidence/reg_full_05_sport_context_completion.v1.json",
+  s19: "ci/registry/s_reg_19_sport_metric_candidate_expansion.json",
+  s20: "ci/registry/s_reg_20_metric_exercise_link_candidate_expansion.json",
   s26: "ci/registry/s_reg_26_sport_subdivision_registry_activation.mjs",
   s28: "ci/registry/s_reg_28_sport_role_registry_activation.mjs",
   s29: "ci/registry/s_reg_29_metric_exercise_link_registry_activation.mjs",
@@ -30,7 +32,6 @@ const P = Object.freeze({
 });
 
 const ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union"]);
-
 const HISTORICAL = Object.freeze({
   subdivisions: Object.freeze([
     "powerlifting__competition_lift",
@@ -117,8 +118,9 @@ const ROLES = Object.freeze([
   role("rugby_union__fullback", "rugby_union", "rugby_union__back_three", "Fullback")
 ]);
 
+// S-REG-19-owned metric IDs are promoted from the historical candidate file
+// below so their declared subdivision/unit/value semantics are preserved exactly.
 const METRICS = Object.freeze([
-  metric("powerlifting__body_mass_kg", "powerlifting", "powerlifting__competition", "Body mass", "kg", "number"),
   metric("powerlifting__general_preparation_load_kg", "powerlifting", "powerlifting__general_preparation", "General preparation load", "kg", "number"),
   metric("powerlifting__general_preparation_repetition_count", "powerlifting", "powerlifting__general_preparation", "General preparation repetition count", "count", "integer"),
   metric("powerlifting__general_preparation_set_count", "powerlifting", "powerlifting__general_preparation", "General preparation set count", "count", "integer"),
@@ -135,8 +137,6 @@ const METRICS = Object.freeze([
   metric("rugby_union__set_count", "rugby_union", "rugby_union__general_preparation", "Set count", "count", "integer"),
   metric("rugby_union__duration_seconds", "rugby_union", "rugby_union__conditioning", "Duration", "seconds", "number"),
   metric("rugby_union__distance_m", "rugby_union", "rugby_union__conditioning", "Distance", "m", "number"),
-  metric("rugby_union__sprint_distance_m", "rugby_union", "rugby_union__speed_power", "Sprint distance", "m", "number"),
-  metric("rugby_union__jump_height_cm", "rugby_union", "rugby_union__speed_power", "Jump height", "cm", "number"),
   metric("rugby_union__jump_distance_cm", "rugby_union", "rugby_union__speed_power", "Jump distance", "cm", "number"),
   metric("rugby_union__change_of_direction_time_seconds", "rugby_union", "rugby_union__speed_power", "Change-of-direction time", "seconds", "number"),
   metric("rugby_union__contact_repetition_count", "rugby_union", "rugby_union__forwards", "Contact repetition count", "count", "integer"),
@@ -156,10 +156,50 @@ function write(rel, value) { const abs = path.join(ROOT, rel); fs.mkdirSync(path
 function hash(rel) { return crypto.createHash("sha256").update(fs.readFileSync(path.join(ROOT, rel))).digest("hex"); }
 function keepSeeds(entries, ids, label) { for (const id of ids) if (!entries[id]) fail(`${label}_historical_seed_missing`, { id }); }
 function append(entries, rows, key, label) { const out = { ...entries }; for (const row of rows) { const id = row[key]; if (out[id]) fail(`${label}_collision`, { id }); out[id] = row; } return out; }
-
-function applicabilityPairs(registry) {
-  return new Set(Object.values(registry.entries ?? {}).map((row) => `${row.exercise_id}::${row.activity_id}`));
+function sameProjection(actual, expected, fields, reason, id) {
+  for (const field of fields) if (actual[field] !== expected[field]) fail(reason, { id, field, actual: actual[field], expected: expected[field] });
 }
+
+function promoteSReg19Metrics(entries, candidate) {
+  if (candidate.slice_id !== "S-REG-19" || candidate.registry_id !== "sport_metric_registry_1c") fail("s_reg_19_candidate_identity_invalid");
+  const out = { ...entries };
+  for (const source of candidate.records ?? []) {
+    const row = metric(source.sport_metric_id, source.activity_id, source.sport_subdivision_id, source.display_label, source.unit, source.value_type);
+    if (out[row.sport_metric_id]) {
+      sameProjection(out[row.sport_metric_id], row, ["sport_metric_id", "activity_id", "sport_subdivision_id", "display_label", "metric_kind", "unit", "value_type", "copy_boundary_notes"], "s_reg_19_live_metric_semantic_drift", row.sport_metric_id);
+    } else {
+      out[row.sport_metric_id] = row;
+    }
+  }
+  return out;
+}
+
+function promoteSReg20Links(entries, candidate, metrics, exercises, allowedPairs) {
+  if (candidate.slice_id !== "S-REG-20" || candidate.registry_id !== "metric_exercise_link_registry_1c_a") fail("s_reg_20_candidate_identity_invalid");
+  const out = { ...entries };
+  for (const source of candidate.records ?? []) {
+    const row = {
+      metric_exercise_link_id: source.metric_exercise_link_id,
+      sport_metric_id: source.sport_metric_id,
+      exercise_id: source.exercise_id,
+      activity_id: source.activity_id,
+      link_kind: source.link_kind,
+      value_context: source.value_context,
+      copy_boundary_notes: "factual metric-exercise relationship only"
+    };
+    if (!metrics[row.sport_metric_id]) fail("s_reg_20_metric_fk_missing", { id: row.metric_exercise_link_id });
+    if (!exercises[row.exercise_id]) fail("s_reg_20_exercise_fk_missing", { id: row.metric_exercise_link_id });
+    if (!allowedPairs.has(`${row.exercise_id}::${row.activity_id}`)) fail("s_reg_20_explicit_applicability_missing", { id: row.metric_exercise_link_id });
+    if (out[row.metric_exercise_link_id]) {
+      sameProjection(out[row.metric_exercise_link_id], row, ["metric_exercise_link_id", "sport_metric_id", "exercise_id", "activity_id", "link_kind", "value_context"], "s_reg_20_live_link_semantic_drift", row.metric_exercise_link_id);
+    } else {
+      out[row.metric_exercise_link_id] = row;
+    }
+  }
+  return out;
+}
+
+function applicabilityPairs(registry) { return new Set(Object.values(registry.entries ?? {}).map((row) => `${row.exercise_id}::${row.activity_id}`)); }
 function equipmentByExercise(registry) {
   const out = new Map();
   for (const row of Object.values(registry.entries ?? {})) {
@@ -191,21 +231,21 @@ function link(metricRow, exerciseRow) {
   return { metric_exercise_link_id: id, sport_metric_id: metricRow.sport_metric_id, exercise_id: exerciseRow.exercise_id, activity_id: metricRow.activity_id, link_kind: "factual_metric_exercise_link", value_context: "recorded_value_context_only", copy_boundary_notes: "explicit factual metric-exercise relationship only; no runtime inference or fallback" };
 }
 function thresholdTemplate(metricId, row) {
-  if (row.value_type === "integer" || row.unit === "count") return [{ op: "gte", value: 1 }];
-  if (metricId.endsWith("__body_mass_kg")) return [{ op: "gte", value: 1 }];
-  if (row.unit === "seconds") return [{ op: "gte", value: 0.001 }];
-  if (["kg", "m", "cm"].includes(row.unit)) return [{ op: "gte", value: 0 }];
+  if (row.value_type === "integer" || row.unit === "count") return [{ idOp: "gte", operator: "greater_than_or_equal", value: 1 }];
+  if (metricId.endsWith("__body_mass_kg")) return [{ idOp: "gte", operator: "greater_than_or_equal", value: 1 }];
+  if (row.unit === "seconds") return [{ idOp: "gte", operator: "greater_than_or_equal", value: 0.001 }];
+  if (["kg", "m", "cm"].includes(row.unit)) return [{ idOp: "gte", operator: "greater_than_or_equal", value: 0 }];
   fail("threshold_template_missing", { metric_id: metricId, unit: row.unit });
 }
-function threshold(metricRow, op, value) {
-  const suffix = String(value).replace(".", "_");
-  const id = `${metricRow.sport_metric_id}__${op}_${suffix}`;
+function threshold(metricRow, template) {
+  const suffix = String(template.value).replace(".", "_");
+  const id = `${metricRow.sport_metric_id}__${template.idOp}_${suffix}`;
   return {
     threshold_marker_id: id,
     sport_metric_id: metricRow.sport_metric_id,
     activity_id: metricRow.activity_id,
-    threshold_operator: op,
-    threshold_value: value,
+    threshold_operator: template.operator,
+    threshold_value: template.value,
     threshold_unit: metricRow.unit,
     threshold_source: "coach_declared",
     marker_status_allowed_values: ["recorded_met", "recorded_not_met", "not_recorded", "invalid_source", "insufficient_recorded_data"],
@@ -242,6 +282,8 @@ function materialize() {
   const oldMetric = read(P.metric);
   const oldLink = read(P.link);
   const oldThreshold = read(P.threshold);
+  const s19 = read(P.s19);
+  const s20 = read(P.s20);
 
   const activityIds = Object.keys(activity.entries ?? {}).sort();
   if (JSON.stringify(activityIds) !== JSON.stringify([...ACTIVITIES].sort())) fail("supported_activity_set_invalid", { actual: activityIds });
@@ -253,7 +295,8 @@ function materialize() {
 
   const subdivisions = append(oldSubdivision.entries, SUBDIVISIONS, "sport_subdivision_id", "subdivision");
   const roles = append(oldRole.entries, ROLES, "sport_role_id", "role");
-  const metrics = append(oldMetric.entries, METRICS, "sport_metric_id", "metric");
+  const promotedMetrics = promoteSReg19Metrics(oldMetric.entries, s19);
+  const metrics = append(promotedMetrics, METRICS, "sport_metric_id", "metric");
   const subdivisionIds = new Set(Object.keys(subdivisions));
   const supported = new Set(ACTIVITIES);
 
@@ -269,14 +312,15 @@ function materialize() {
     if (subdivisions[row.sport_subdivision_id].activity_id !== row.activity_id) fail("metric_subdivision_activity_mismatch", { id: row.sport_metric_id });
   }
 
-  const pairs = applicabilityPairs(applicability);
+  const allowedPairs = applicabilityPairs(applicability);
   const eq = equipmentByExercise(equipment);
   const exercises = Object.values(exercise.entries);
-  const links = { ...oldLink.entries };
+  const promotedLinks = promoteSReg20Links(oldLink.entries, s20, metrics, exercise.entries, allowedPairs);
+  const links = { ...promotedLinks };
   for (const metricRow of Object.values(metrics)) {
     const p = policy(metricRow.sport_metric_id);
     if (!p.linkable) continue;
-    const matches = exercises.filter((ex) => pairs.has(`${ex.exercise_id}::${metricRow.activity_id}`)).filter((ex) => p.match(ex, eq)).sort((a, b) => a.exercise_id.localeCompare(b.exercise_id));
+    const matches = exercises.filter((ex) => allowedPairs.has(`${ex.exercise_id}::${metricRow.activity_id}`)).filter((ex) => p.match(ex, eq)).sort((a, b) => a.exercise_id.localeCompare(b.exercise_id));
     if (matches.length === 0) fail("linkable_metric_has_no_explicit_exercises", { metric_id: metricRow.sport_metric_id });
     for (const ex of matches) {
       const row = link(metricRow, ex);
@@ -289,7 +333,7 @@ function materialize() {
     if (!metricRow) fail("metric_link_metric_fk_missing", { id: row.metric_exercise_link_id });
     if (!exerciseRow) fail("metric_link_exercise_fk_missing", { id: row.metric_exercise_link_id });
     if (metricRow.activity_id !== row.activity_id) fail("metric_link_activity_mismatch", { id: row.metric_exercise_link_id });
-    if (!pairs.has(`${row.exercise_id}::${row.activity_id}`)) fail("metric_link_explicit_applicability_missing", { id: row.metric_exercise_link_id });
+    if (!allowedPairs.has(`${row.exercise_id}::${row.activity_id}`)) fail("metric_link_explicit_applicability_missing", { id: row.metric_exercise_link_id });
     if (row.metric_exercise_link_id !== `${row.sport_metric_id}__${row.exercise_id}`) fail("metric_link_primary_key_invalid", { id: row.metric_exercise_link_id });
   }
 
@@ -297,8 +341,8 @@ function materialize() {
   for (const metricRow of Object.values(metrics)) {
     const existing = Object.values(thresholds).some((row) => row.sport_metric_id === metricRow.sport_metric_id);
     if (existing) continue;
-    for (const t of thresholdTemplate(metricRow.sport_metric_id, metricRow)) {
-      const row = threshold(metricRow, t.op, t.value);
+    for (const template of thresholdTemplate(metricRow.sport_metric_id, metricRow)) {
+      const row = threshold(metricRow, template);
       if (thresholds[row.threshold_marker_id]) fail("threshold_marker_collision", { id: row.threshold_marker_id });
       thresholds[row.threshold_marker_id] = row;
     }
@@ -308,6 +352,7 @@ function materialize() {
     if (!metricRow) fail("threshold_metric_fk_missing", { id: row.threshold_marker_id });
     if (row.activity_id !== metricRow.activity_id) fail("threshold_activity_mismatch", { id: row.threshold_marker_id });
     if (row.threshold_unit !== metricRow.unit) fail("threshold_unit_mismatch", { id: row.threshold_marker_id });
+    if (!["greater_than_or_equal", "less_than_or_equal", "equal_to"].includes(row.threshold_operator)) fail("threshold_operator_invalid", { id: row.threshold_marker_id, actual: row.threshold_operator });
   }
 
   write(P.subdivision, { registry_id: "sport_subdivision", version: "2.0.0", entries: subdivisions });
@@ -344,6 +389,7 @@ function writeEvidence() {
       sport_metric_truth: P.metric,
       metric_exercise_link_truth: P.link,
       threshold_marker_truth: P.threshold,
+      historical_candidate_inputs_preserved: ["S-REG-19", "S-REG-20", "S-REG-21"],
       metric_exercise_link_runtime_inference_allowed: false,
       generic_fallback_allowed: false,
       threshold_marker_supersession: {
