@@ -1,0 +1,30 @@
+{
+  "slice_id": "REG-FULL-04",
+  "closure_id": "equipment_compatibility_applicability_closure",
+  "status": "materialized",
+  "authority": {
+    "exercise_equipment_truth": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
+    "exercise_activity_truth": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
+    "embedded_exercise_equipment_fields": "compatibility_projection_only",
+    "embedded_exercise_activity_fields": "compatibility_projection_only",
+    "inferred_equipment_allowed": false,
+    "generic_fallback_allowed": false
+  },
+  "counts": {
+    "exercise_count": 215,
+    "resolved_exercise_count": 215,
+    "compatibility_edge_count": 396,
+    "required_equipment_edge_count": 316,
+    "alternative_equipment_edge_count": 80,
+    "activity_relation_pair_count": 595,
+    "applicability_row_count": 1785
+  },
+  "sha256": {
+    "exercise_registry": "169c80e99b01aced65f65169a29e16a6734cc25336d65a938d7e835851d521b6",
+    "movement_registry": "10309d88db2f41dea1cc07c96012133131f1767778176b5ef630dea0a4160ebc",
+    "equipment_registry": "32e6ea381f25ed8ebb239bf65eee4e92d97a826df15e2dc568ba25ec07e77983",
+    "activity_registry": "21d126c3863b90353f188c26f13fd3ff8229737ad909dbc7e9b5ddff0aed14a1",
+    "exercise_activity_applicability_registry": "e9bd5f9f0db7f1b89fef57b8fc2255aa1416ed4c201ee53d666a42ce76e248cd",
+    "exercise_equipment_compatibility_registry": "828526b9cfcb72143027ee0e3b79eb09f12c03c950c34190e7a1a2f7e01c6346"
+  }
+}
