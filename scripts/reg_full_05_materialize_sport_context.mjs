@@ -1,16 +1,13 @@
 /**
- * DEV NOTE: REG-FULL-05 deterministic sport-context materialiser.
- * Boundary: one-time authoring only. Written registries are explicit truth;
- * this script is not runtime inference and must never be imported by runtime.
+ * REG-FULL-05 deterministic authoring only.
+ * Generated registry rows are explicit authority; this script is not runtime inference.
  */
-
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 
 const ROOT = process.cwd();
 const TOKEN = "CI_REG_FULL_05_SPORT_CONTEXT_COMPLETION";
-
 const P = Object.freeze({
   activity: "registries/activity/activity.registry.json",
   exercise: "registries/exercise/exercise.registry.json",
@@ -30,52 +27,28 @@ const P = Object.freeze({
   s29: "ci/registry/s_reg_29_metric_exercise_link_registry_activation.mjs",
   s30: "ci/registry/s_reg_30_sport_metric_extension_threshold_marker_activation.mjs"
 });
-
 const ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union"]);
 const HISTORICAL = Object.freeze({
-  subdivisions: Object.freeze([
-    "powerlifting__competition_lift",
-    "powerlifting__general_preparation",
-    "general_strength__training",
-    "rugby_union__general_preparation"
-  ]),
-  roles: Object.freeze([
-    "powerlifting__athlete",
-    "general_strength__participant",
-    "rugby_union__field_player"
-  ]),
+  subdivisions: Object.freeze(["powerlifting__competition_lift", "powerlifting__general_preparation", "general_strength__training", "rugby_union__general_preparation"]),
+  roles: Object.freeze(["powerlifting__athlete", "general_strength__participant", "rugby_union__field_player"]),
   links: Object.freeze([
-    "powerlifting__load_kg__back_squat",
-    "powerlifting__load_kg__deadlift",
-    "powerlifting__load_kg__bench_press",
-    "powerlifting__repetition_count__back_squat",
-    "powerlifting__repetition_count__deadlift",
-    "powerlifting__repetition_count__bench_press",
-    "general_strength__load_kg__back_squat",
-    "general_strength__load_kg__deadlift",
-    "general_strength__load_kg__bench_press",
-    "general_strength__repetition_count__back_squat",
-    "general_strength__repetition_count__deadlift",
-    "general_strength__repetition_count__bench_press"
+    "powerlifting__load_kg__back_squat", "powerlifting__load_kg__deadlift", "powerlifting__load_kg__bench_press",
+    "powerlifting__repetition_count__back_squat", "powerlifting__repetition_count__deadlift", "powerlifting__repetition_count__bench_press",
+    "general_strength__load_kg__back_squat", "general_strength__load_kg__deadlift", "general_strength__load_kg__bench_press",
+    "general_strength__repetition_count__back_squat", "general_strength__repetition_count__deadlift", "general_strength__repetition_count__bench_press"
   ]),
   thresholds: Object.freeze([
-    "powerlifting__attempt_count__gte_1",
-    "powerlifting__attempt_count__lte_3",
-    "general_strength__set_count__gte_1",
-    "general_strength__duration_seconds__gte_60",
-    "general_strength__duration_seconds__lte_3600"
+    "threshold_marker__powerlifting__attempt_count__gte_1",
+    "threshold_marker__powerlifting__attempt_count__lte_3",
+    "threshold_marker__general_strength__set_count__gte_1",
+    "threshold_marker__general_strength__duration_seconds__gte_60",
+    "threshold_marker__general_strength__duration_seconds__lte_3600"
   ])
 });
 
-function subdivision(id, activity, label) {
-  return { sport_subdivision_id: id, activity_id: activity, display_label: label, context_type: "declared_context", copy_boundary_notes: "factual sport context classification only" };
-}
-function role(id, activity, subdivisionId, label) {
-  return { sport_role_id: id, activity_id: activity, sport_subdivision_id: subdivisionId, display_label: label, context_type: "declared_context", copy_boundary_notes: "factual sport role classification only" };
-}
-function metric(id, activity, subdivisionId, label, unit, valueType) {
-  return { sport_metric_id: id, activity_id: activity, sport_subdivision_id: subdivisionId, display_label: label, metric_kind: "factual_metric_definition", unit, value_type: valueType, copy_boundary_notes: "factual sport metric definition only" };
-}
+const subdivision = (id, activity, label) => ({ sport_subdivision_id: id, activity_id: activity, display_label: label, context_type: "declared_context", copy_boundary_notes: "factual sport context classification only" });
+const role = (id, activity, subdivisionId, label) => ({ sport_role_id: id, activity_id: activity, sport_subdivision_id: subdivisionId, display_label: label, context_type: "declared_context", copy_boundary_notes: "factual sport role classification only" });
+const metric = (id, activity, subdivisionId, label, unit, valueType) => ({ sport_metric_id: id, activity_id: activity, sport_subdivision_id: subdivisionId, display_label: label, metric_kind: "factual_metric_definition", unit, value_type: valueType, copy_boundary_notes: "factual sport metric definition only" });
 
 const SUBDIVISIONS = Object.freeze([
   subdivision("powerlifting__squat", "powerlifting", "Squat"),
@@ -99,7 +72,6 @@ const SUBDIVISIONS = Object.freeze([
   subdivision("rugby_union__conditioning", "rugby_union", "Conditioning"),
   subdivision("rugby_union__set_piece", "rugby_union", "Set piece")
 ]);
-
 const ROLES = Object.freeze([
   role("rugby_union__forward", "rugby_union", "rugby_union__forwards", "Forward"),
   role("rugby_union__back", "rugby_union", "rugby_union__backs", "Back"),
@@ -117,9 +89,7 @@ const ROLES = Object.freeze([
   role("rugby_union__wing", "rugby_union", "rugby_union__back_three", "Wing"),
   role("rugby_union__fullback", "rugby_union", "rugby_union__back_three", "Fullback")
 ]);
-
-// S-REG-19-owned metric IDs are promoted from the historical candidate file
-// below so their declared subdivision/unit/value semantics are preserved exactly.
+// S-REG-19-owned IDs are promoted from its candidate file to preserve prior semantics.
 const METRICS = Object.freeze([
   metric("powerlifting__general_preparation_load_kg", "powerlifting", "powerlifting__general_preparation", "General preparation load", "kg", "number"),
   metric("powerlifting__general_preparation_repetition_count", "powerlifting", "powerlifting__general_preparation", "General preparation repetition count", "count", "integer"),
@@ -154,62 +124,40 @@ function fail(reason, details = {}) { const e = new Error(`${reason}: ${JSON.str
 function read(rel) { return JSON.parse(fs.readFileSync(path.join(ROOT, rel), "utf8")); }
 function write(rel, value) { const abs = path.join(ROOT, rel); fs.mkdirSync(path.dirname(abs), { recursive: true }); fs.writeFileSync(abs, `${JSON.stringify(value, null, 2)}\n`, "utf8"); }
 function hash(rel) { return crypto.createHash("sha256").update(fs.readFileSync(path.join(ROOT, rel))).digest("hex"); }
-function keepSeeds(entries, ids, label) { for (const id of ids) if (!entries[id]) fail(`${label}_historical_seed_missing`, { id }); }
+function keep(entries, ids, label) { for (const id of ids) if (!entries[id]) fail(`${label}_historical_seed_missing`, { id }); }
 function append(entries, rows, key, label) { const out = { ...entries }; for (const row of rows) { const id = row[key]; if (out[id]) fail(`${label}_collision`, { id }); out[id] = row; } return out; }
-function sameProjection(actual, expected, fields, reason, id) {
-  for (const field of fields) if (actual[field] !== expected[field]) fail(reason, { id, field, actual: actual[field], expected: expected[field] });
-}
+function same(actual, expected, fields, reason, id) { for (const field of fields) if (actual[field] !== expected[field]) fail(reason, { id, field, actual: actual[field], expected: expected[field] }); }
 
-function promoteSReg19Metrics(entries, candidate) {
+function promoteS19(entries, candidate) {
   if (candidate.slice_id !== "S-REG-19" || candidate.registry_id !== "sport_metric_registry_1c") fail("s_reg_19_candidate_identity_invalid");
   const out = { ...entries };
   for (const source of candidate.records ?? []) {
     const row = metric(source.sport_metric_id, source.activity_id, source.sport_subdivision_id, source.display_label, source.unit, source.value_type);
-    if (out[row.sport_metric_id]) {
-      sameProjection(out[row.sport_metric_id], row, ["sport_metric_id", "activity_id", "sport_subdivision_id", "display_label", "metric_kind", "unit", "value_type", "copy_boundary_notes"], "s_reg_19_live_metric_semantic_drift", row.sport_metric_id);
-    } else {
-      out[row.sport_metric_id] = row;
-    }
+    if (out[row.sport_metric_id]) same(out[row.sport_metric_id], row, ["sport_metric_id", "activity_id", "sport_subdivision_id", "display_label", "metric_kind", "unit", "value_type", "copy_boundary_notes"], "s_reg_19_live_metric_semantic_drift", row.sport_metric_id);
+    else out[row.sport_metric_id] = row;
   }
   return out;
 }
-
-function promoteSReg20Links(entries, candidate, metrics, exercises, allowedPairs) {
+function applicabilityPairs(registry) { return new Set(Object.values(registry.entries ?? {}).map((row) => `${row.exercise_id}::${row.activity_id}`)); }
+function promoteS20(entries, candidate, metrics, exercises, allowedPairs) {
   if (candidate.slice_id !== "S-REG-20" || candidate.registry_id !== "metric_exercise_link_registry_1c_a") fail("s_reg_20_candidate_identity_invalid");
   const out = { ...entries };
   for (const source of candidate.records ?? []) {
-    const row = {
-      metric_exercise_link_id: source.metric_exercise_link_id,
-      sport_metric_id: source.sport_metric_id,
-      exercise_id: source.exercise_id,
-      activity_id: source.activity_id,
-      link_kind: source.link_kind,
-      value_context: source.value_context,
-      copy_boundary_notes: "factual metric-exercise relationship only"
-    };
+    const row = { metric_exercise_link_id: source.metric_exercise_link_id, sport_metric_id: source.sport_metric_id, exercise_id: source.exercise_id, activity_id: source.activity_id, link_kind: source.link_kind, value_context: source.value_context, copy_boundary_notes: "factual metric-exercise relationship only" };
     if (!metrics[row.sport_metric_id]) fail("s_reg_20_metric_fk_missing", { id: row.metric_exercise_link_id });
     if (!exercises[row.exercise_id]) fail("s_reg_20_exercise_fk_missing", { id: row.metric_exercise_link_id });
     if (!allowedPairs.has(`${row.exercise_id}::${row.activity_id}`)) fail("s_reg_20_explicit_applicability_missing", { id: row.metric_exercise_link_id });
-    if (out[row.metric_exercise_link_id]) {
-      sameProjection(out[row.metric_exercise_link_id], row, ["metric_exercise_link_id", "sport_metric_id", "exercise_id", "activity_id", "link_kind", "value_context"], "s_reg_20_live_link_semantic_drift", row.metric_exercise_link_id);
-    } else {
-      out[row.metric_exercise_link_id] = row;
-    }
+    if (out[row.metric_exercise_link_id]) same(out[row.metric_exercise_link_id], row, ["metric_exercise_link_id", "sport_metric_id", "exercise_id", "activity_id", "link_kind", "value_context"], "s_reg_20_live_link_semantic_drift", row.metric_exercise_link_id);
+    else out[row.metric_exercise_link_id] = row;
   }
   return out;
 }
-
-function applicabilityPairs(registry) { return new Set(Object.values(registry.entries ?? {}).map((row) => `${row.exercise_id}::${row.activity_id}`)); }
 function equipmentByExercise(registry) {
   const out = new Map();
-  for (const row of Object.values(registry.entries ?? {})) {
-    if (!out.has(row.exercise_id)) out.set(row.exercise_id, new Set());
-    out.get(row.exercise_id).add(row.equipment_id);
-  }
+  for (const row of Object.values(registry.entries ?? {})) { if (!out.has(row.exercise_id)) out.set(row.exercise_id, new Set()); out.get(row.exercise_id).add(row.equipment_id); }
   return out;
 }
 function isLoaded(map, exerciseId) { return [...(map.get(exerciseId) ?? [])].some((id) => LOAD_EQUIPMENT.has(id)); }
-
 function policy(metricId) {
   if (metricId.endsWith("__body_mass_kg")) return { linkable: false, match: () => false };
   if (["powerlifting__load_kg", "powerlifting__repetition_count", "powerlifting__attempt_count"].includes(metricId)) return { linkable: true, match: (ex) => COMP_LIFTS.has(ex.exercise_id) };
@@ -225,7 +173,6 @@ function policy(metricId) {
   if (metricId.endsWith("__repetition_count") || metricId.endsWith("__set_count") || metricId.endsWith("_repetition_count") || metricId.endsWith("_set_count")) return { linkable: true, match: (ex) => RESISTANCE.has(ex.movement_pattern_id) };
   fail("metric_policy_missing", { metric_id: metricId });
 }
-
 function link(metricRow, exerciseRow) {
   const id = `${metricRow.sport_metric_id}__${exerciseRow.exercise_id}`;
   return { metric_exercise_link_id: id, sport_metric_id: metricRow.sport_metric_id, exercise_id: exerciseRow.exercise_id, activity_id: metricRow.activity_id, link_kind: "factual_metric_exercise_link", value_context: "recorded_value_context_only", copy_boundary_notes: "explicit factual metric-exercise relationship only; no runtime inference or fallback" };
@@ -237,20 +184,10 @@ function thresholdTemplate(metricId, row) {
   if (["kg", "m", "cm"].includes(row.unit)) return [{ idOp: "gte", operator: "greater_than_or_equal", value: 0 }];
   fail("threshold_template_missing", { metric_id: metricId, unit: row.unit });
 }
-function threshold(metricRow, template) {
-  const suffix = String(template.value).replace(".", "_");
-  const id = `${metricRow.sport_metric_id}__${template.idOp}_${suffix}`;
-  return {
-    threshold_marker_id: id,
-    sport_metric_id: metricRow.sport_metric_id,
-    activity_id: metricRow.activity_id,
-    threshold_operator: template.operator,
-    threshold_value: template.value,
-    threshold_unit: metricRow.unit,
-    threshold_source: "coach_declared",
-    marker_status_allowed_values: ["recorded_met", "recorded_not_met", "not_recorded", "invalid_source", "insufficient_recorded_data"],
-    copy_boundary_notes: "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
-  };
+function threshold(metricRow, t) {
+  const suffix = String(t.value).replace(".", "_");
+  const id = `threshold_marker__${metricRow.sport_metric_id}__${t.idOp}_${suffix}`;
+  return { threshold_marker_id: id, sport_metric_id: metricRow.sport_metric_id, activity_id: metricRow.activity_id, threshold_operator: t.operator, threshold_value: t.value, threshold_unit: metricRow.unit, threshold_source: "coach_declared", marker_status_allowed_values: ["recorded_met", "recorded_not_met", "not_recorded", "invalid_source", "insufficient_recorded_data"], copy_boundary_notes: "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation" };
 }
 
 function patchHistoricalValidators() {
@@ -273,33 +210,22 @@ function patchHistoricalValidators() {
 }
 
 function materialize() {
-  const activity = read(P.activity);
-  const exercise = read(P.exercise);
-  const applicability = read(P.applicability);
-  const equipment = read(P.equipment);
-  const oldSubdivision = read(P.subdivision);
-  const oldRole = read(P.role);
-  const oldMetric = read(P.metric);
-  const oldLink = read(P.link);
-  const oldThreshold = read(P.threshold);
-  const s19 = read(P.s19);
-  const s20 = read(P.s20);
-
+  const activity = read(P.activity), exercise = read(P.exercise), applicability = read(P.applicability), equipment = read(P.equipment);
+  const oldSubdivision = read(P.subdivision), oldRole = read(P.role), oldMetric = read(P.metric), oldLink = read(P.link), oldThreshold = read(P.threshold);
+  const s19 = read(P.s19), s20 = read(P.s20);
   const activityIds = Object.keys(activity.entries ?? {}).sort();
   if (JSON.stringify(activityIds) !== JSON.stringify([...ACTIVITIES].sort())) fail("supported_activity_set_invalid", { actual: activityIds });
   if (Object.keys(exercise.entries ?? {}).length !== 215) fail("exercise_count_invalid", { actual: Object.keys(exercise.entries ?? {}).length, expected: 215 });
-  keepSeeds(oldSubdivision.entries, HISTORICAL.subdivisions, "subdivision");
-  keepSeeds(oldRole.entries, HISTORICAL.roles, "role");
-  keepSeeds(oldLink.entries, HISTORICAL.links, "metric_link");
-  keepSeeds(oldThreshold.entries, HISTORICAL.thresholds, "threshold");
+  keep(oldSubdivision.entries, HISTORICAL.subdivisions, "subdivision");
+  keep(oldRole.entries, HISTORICAL.roles, "role");
+  keep(oldLink.entries, HISTORICAL.links, "metric_link");
+  keep(oldThreshold.entries, HISTORICAL.thresholds, "threshold");
 
   const subdivisions = append(oldSubdivision.entries, SUBDIVISIONS, "sport_subdivision_id", "subdivision");
   const roles = append(oldRole.entries, ROLES, "sport_role_id", "role");
-  const promotedMetrics = promoteSReg19Metrics(oldMetric.entries, s19);
-  const metrics = append(promotedMetrics, METRICS, "sport_metric_id", "metric");
+  const metrics = append(promoteS19(oldMetric.entries, s19), METRICS, "sport_metric_id", "metric");
   const subdivisionIds = new Set(Object.keys(subdivisions));
   const supported = new Set(ACTIVITIES);
-
   for (const row of Object.values(roles)) {
     if (!supported.has(row.activity_id)) fail("role_activity_fk_missing", { id: row.sport_role_id });
     const sub = subdivisions[row.sport_subdivision_id];
@@ -315,21 +241,16 @@ function materialize() {
   const allowedPairs = applicabilityPairs(applicability);
   const eq = equipmentByExercise(equipment);
   const exercises = Object.values(exercise.entries);
-  const promotedLinks = promoteSReg20Links(oldLink.entries, s20, metrics, exercise.entries, allowedPairs);
-  const links = { ...promotedLinks };
+  const links = promoteS20(oldLink.entries, s20, metrics, exercise.entries, allowedPairs);
   for (const metricRow of Object.values(metrics)) {
     const p = policy(metricRow.sport_metric_id);
     if (!p.linkable) continue;
     const matches = exercises.filter((ex) => allowedPairs.has(`${ex.exercise_id}::${metricRow.activity_id}`)).filter((ex) => p.match(ex, eq)).sort((a, b) => a.exercise_id.localeCompare(b.exercise_id));
-    if (matches.length === 0) fail("linkable_metric_has_no_explicit_exercises", { metric_id: metricRow.sport_metric_id });
-    for (const ex of matches) {
-      const row = link(metricRow, ex);
-      if (!links[row.metric_exercise_link_id]) links[row.metric_exercise_link_id] = row;
-    }
+    if (!matches.length) fail("linkable_metric_has_no_explicit_exercises", { metric_id: metricRow.sport_metric_id });
+    for (const ex of matches) { const row = link(metricRow, ex); if (!links[row.metric_exercise_link_id]) links[row.metric_exercise_link_id] = row; }
   }
   for (const row of Object.values(links)) {
-    const metricRow = metrics[row.sport_metric_id];
-    const exerciseRow = exercise.entries[row.exercise_id];
+    const metricRow = metrics[row.sport_metric_id], exerciseRow = exercise.entries[row.exercise_id];
     if (!metricRow) fail("metric_link_metric_fk_missing", { id: row.metric_exercise_link_id });
     if (!exerciseRow) fail("metric_link_exercise_fk_missing", { id: row.metric_exercise_link_id });
     if (metricRow.activity_id !== row.activity_id) fail("metric_link_activity_mismatch", { id: row.metric_exercise_link_id });
@@ -339,13 +260,8 @@ function materialize() {
 
   const thresholds = { ...oldThreshold.entries };
   for (const metricRow of Object.values(metrics)) {
-    const existing = Object.values(thresholds).some((row) => row.sport_metric_id === metricRow.sport_metric_id);
-    if (existing) continue;
-    for (const template of thresholdTemplate(metricRow.sport_metric_id, metricRow)) {
-      const row = threshold(metricRow, template);
-      if (thresholds[row.threshold_marker_id]) fail("threshold_marker_collision", { id: row.threshold_marker_id });
-      thresholds[row.threshold_marker_id] = row;
-    }
+    if (Object.values(thresholds).some((row) => row.sport_metric_id === metricRow.sport_metric_id)) continue;
+    for (const t of thresholdTemplate(metricRow.sport_metric_id, metricRow)) { const row = threshold(metricRow, t); if (thresholds[row.threshold_marker_id]) fail("threshold_marker_collision", { id: row.threshold_marker_id }); thresholds[row.threshold_marker_id] = row; }
   }
   for (const row of Object.values(thresholds)) {
     const metricRow = metrics[row.sport_metric_id];
@@ -361,23 +277,20 @@ function materialize() {
   write(P.link, { registry_id: "metric_exercise_link", version: "2.0.0", entries: links });
   write(P.threshold, { registry_id: "threshold_marker", version: "2.0.0", entries: thresholds });
   patchHistoricalValidators();
-
   console.log(`REG-FULL-05 materialized subdivisions=${Object.keys(subdivisions).length} roles=${Object.keys(roles).length} metrics=${Object.keys(metrics).length} metric_links=${Object.keys(links).length} thresholds=${Object.keys(thresholds).length}`);
 }
 
 function writeEvidence() {
-  const subdivision = read(P.subdivision), roleRegistry = read(P.role), metricRegistry = read(P.metric), links = read(P.link), thresholds = read(P.threshold);
+  const subdivisionRegistry = read(P.subdivision), roleRegistry = read(P.role), metricRegistry = read(P.metric), links = read(P.link), thresholds = read(P.threshold);
   read(P.bundle);
   const byActivity = {};
-  for (const activityId of ACTIVITIES) {
-    byActivity[activityId] = {
-      subdivision_count: Object.values(subdivision.entries).filter((row) => row.activity_id === activityId).length,
-      role_count: Object.values(roleRegistry.entries).filter((row) => row.activity_id === activityId).length,
-      metric_count: Object.values(metricRegistry.entries).filter((row) => row.activity_id === activityId).length,
-      metric_exercise_link_count: Object.values(links.entries).filter((row) => row.activity_id === activityId).length,
-      threshold_marker_count: Object.values(thresholds.entries).filter((row) => row.activity_id === activityId).length
-    };
-  }
+  for (const activityId of ACTIVITIES) byActivity[activityId] = {
+    subdivision_count: Object.values(subdivisionRegistry.entries).filter((row) => row.activity_id === activityId).length,
+    role_count: Object.values(roleRegistry.entries).filter((row) => row.activity_id === activityId).length,
+    metric_count: Object.values(metricRegistry.entries).filter((row) => row.activity_id === activityId).length,
+    metric_exercise_link_count: Object.values(links.entries).filter((row) => row.activity_id === activityId).length,
+    threshold_marker_count: Object.values(thresholds.entries).filter((row) => row.activity_id === activityId).length
+  };
   write(P.evidence, {
     slice_id: "REG-FULL-05",
     closure_id: "sport_context_completion",
@@ -404,7 +317,7 @@ function writeEvidence() {
     },
     counts: {
       activity_count: ACTIVITIES.length,
-      subdivision_count: Object.keys(subdivision.entries).length,
+      subdivision_count: Object.keys(subdivisionRegistry.entries).length,
       role_count: Object.keys(roleRegistry.entries).length,
       sport_metric_count: Object.keys(metricRegistry.entries).length,
       metric_exercise_link_count: Object.keys(links.entries).length,
