@@ -63,6 +63,7 @@ import { CoachProgrammeBuilderValidationList } from "./screens/coach/CoachProgra
 import { CoachProgrammeBuilderTree } from "./screens/coach/CoachProgrammeBuilderTree";
 import { CoachProgrammeBuilderSaveBadge, CoachProgrammeBuilderSaveDetail } from "./screens/coach/CoachProgrammeBuilderSaveStatus";
 import { CoachProgrammeIdentityFields } from "./screens/coach/CoachProgrammeIdentityFields";
+import { CoachProgrammeEventFields } from "./screens/coach/CoachProgrammeEventFields";
 import { CoachReviewPanel } from "./screens/coach/CoachReviewPanel";
 import { CoachVideoFeedbackQueuePanel } from "./screens/coach/CoachVideoFeedbackQueuePanel";
 import { CoachAthleteMessagePanel } from "./screens/coach/CoachAthleteMessagePanel";
@@ -157,6 +158,7 @@ mount("templateBlocks", <CoachProgrammeBuilderTree />);
 mount("programme-builder-save-badge-root", <CoachProgrammeBuilderSaveBadge />);
 mount("programme-builder-save-detail-root", <CoachProgrammeBuilderSaveDetail />);
 mount("template-identity-root", <CoachProgrammeIdentityFields />);
+mount("template-event-fields-root", <CoachProgrammeEventFields />);
 mount("athlete-self-weekly-checkins-root", <AthleteSelfWeeklyCheckinsPanel />);
 mount("athlete-self-progress-insights-root", <AthleteSelfProgressInsightsPanel />);
 mount("athlete-self-device-sync-root", <AthleteSelfDeviceSyncPanel />);

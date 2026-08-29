@@ -175,13 +175,7 @@ const elements = {
   templateEventBindingStatus: document.getElementById("templateEventBindingStatus"),
   templateEventEnabled: document.getElementById("templateEventEnabled"),
   templateEventFields: document.getElementById("templateEventFields"),
-  templateEventName: document.getElementById("templateEventName"),
-  templateEventType: document.getElementById("templateEventType"),
-  templateProgrammeStartDate: document.getElementById("templateProgrammeStartDate"),
-  templateEventDate: document.getElementById("templateEventDate"),
-  templateEventLocation: document.getElementById("templateEventLocation"),
-  templateEventTimezone: document.getElementById("templateEventTimezone"),
-  templateEventNotes: document.getElementById("templateEventNotes"),
+  templateEventFieldsRoot: document.getElementById("template-event-fields-root"),
   templateEventCountdown: document.getElementById("templateEventCountdown"),
   templateEventRequiredWeeks: document.getElementById("templateEventRequiredWeeks"),
   templateEventAllocatedWeeks: document.getElementById("templateEventAllocatedWeeks"),
@@ -4138,12 +4132,6 @@ function ensureDraftEventPlan() {
   return draft.event_plan;
 }
 
-function eventTypeOptions(activityId, selected) {
-  return eventTypesForActivity(activityId)
-    .map(([value, label]) => `<option value="${value}" ${value === selected ? "selected" : ""}>${escapeHtml(label)}</option>`)
-    .join("");
-}
-
 function localEventCompileSummary(draft) {
   const eventPlan = draft?.event_plan;
   if (!eventPlan) return null;
@@ -4249,17 +4237,24 @@ function localEventCompileSummary(draft) {
   };
 }
 
-function syncTemplateEventFields() {
+// DEV NOTE: FULL-UI-05B the event-plan detail fields moved to React - see
+// CoachProgrammeEventFields.tsx, mounted at
+// #template-event-fields-root. This replaces the old per-element
+// syncTemplateEventFields() (once bound directly to
+// elements.templateEventName/templateEventType/etc, captured at
+// bootstrap before this React bundle's script tag runs) with a delegated
+// handler keyed off each control's data-template-kind="event"/data-field
+// attribute - see the two new elements.templateEventFieldsRoot listeners
+// below, mirroring updateTemplateIdentityField()'s identical pattern for
+// the identity fields.
+function updateTemplateEventField(control) {
   const draft = state.templateDraft;
   if (!draft || !draft.event_plan) return;
 
-  draft.event_plan.event_name = elements.templateEventName.value;
-  draft.event_plan.event_type = elements.templateEventType.value;
-  draft.event_plan.programme_start_date = elements.templateProgrammeStartDate.value;
-  draft.event_plan.event_date = elements.templateEventDate.value;
-  draft.event_plan.location = elements.templateEventLocation.value;
-  draft.event_plan.timezone = elements.templateEventTimezone.value;
-  draft.event_plan.notes = elements.templateEventNotes.value;
+  const field = control.dataset.field;
+  if (!field) return;
+
+  draft.event_plan[field] = control.value;
   draft.event_compile_summary = null;
   saveState();
 }
@@ -4361,6 +4356,19 @@ function renderEventBindingPicker() {
   elements.templateEventBindingStatus.textContent = "This programme is bound to the current version of this event.";
 }
 
+// DEV NOTE: FULL-UI-05B the event-plan detail fields (name/type/
+// programme start date/event date/location/timezone/notes) moved to
+// React - see CoachProgrammeEventFields.tsx, mounted at
+// #template-event-fields-root, reusing the identity-fields slice's
+// delegated-listener-on-a-wrapper technique (see
+// updateTemplateEventField()'s own DEV NOTE below). Everything else this
+// function does - the binding picker, the enabled/hidden toggle, the
+// countdown/allocation summary display, the calendar-date mutation this
+// function still applies to draft.blocks[]/weeks[] - stays legacy; the
+// event-binding picker and the calendar math/mutation are a deeper
+// entanglement (render-triggered state mutation, real interactive
+// picker state) than a clean render-only port could easily separate out
+// in this slice.
 function renderEventCompiler() {
   const draft = state.templateDraft;
   if (!draft) return;
@@ -4378,26 +4386,7 @@ function renderEventCompiler() {
   }
 
   const eventPlan = ensureDraftEventPlan();
-  elements.templateEventName.value = eventPlan.event_name;
-  elements.templateEventType.innerHTML = eventTypeOptions(draft.activity_id, eventPlan.event_type);
-  elements.templateProgrammeStartDate.value = eventPlan.programme_start_date;
-  elements.templateEventDate.value = eventPlan.event_date;
-  elements.templateEventLocation.value = eventPlan.location;
-  elements.templateEventTimezone.value = eventPlan.timezone;
-  elements.templateEventNotes.value = eventPlan.notes;
   elements.templateEventCountdown.textContent = countdownLabel(eventPlan.event_date);
-
-  for (const field of [
-    elements.templateEventName,
-    elements.templateEventType,
-    elements.templateProgrammeStartDate,
-    elements.templateEventDate,
-    elements.templateEventLocation,
-    elements.templateEventTimezone,
-    elements.templateEventNotes
-  ]) {
-    field.disabled = bound;
-  }
   elements.compileEventCalendarButton.disabled = bound;
 
   const summary = localEventCompileSummary(draft);
@@ -4557,7 +4546,6 @@ function eventPreviewPayload() {
   const draft = state.templateDraft;
   if (!draft?.event_plan) throw new Error("Enable the event compiler first.");
 
-  syncTemplateEventFields();
   reindexTemplateDraft();
 
   return {
@@ -5601,9 +5589,6 @@ function templatePayloadFromDraft() {
   const draft = state.templateDraft;
   if (!draft) throw new Error("No programme is open.");
 
-  if (draft.event_plan) {
-    syncTemplateEventFields();
-  }
   reindexTemplateDraft();
 
   if (!draft.template_name.trim()) {
@@ -6896,23 +6881,15 @@ elements.templateEventEnabled.addEventListener("change", () => {
   rerenderTemplateBuilder();
 });
 
-for (const control of [
-  elements.templateEventName,
-  elements.templateEventType,
-  elements.templateProgrammeStartDate,
-  elements.templateEventDate,
-  elements.templateEventLocation,
-  elements.templateEventTimezone,
-  elements.templateEventNotes
-]) {
-  const updateEventCompiler = () => {
-    syncTemplateEventFields();
-    updateTemplateFacts();
-  };
-
-  control.addEventListener("input", updateEventCompiler);
-  control.addEventListener("change", updateEventCompiler);
+function handleTemplateEventFieldEvent(event) {
+  const control = event.target.closest('[data-template-kind="event"]');
+  if (!control) return;
+  updateTemplateEventField(control);
+  updateTemplateFacts();
 }
+
+elements.templateEventFieldsRoot.addEventListener("input", handleTemplateEventFieldEvent);
+elements.templateEventFieldsRoot.addEventListener("change", handleTemplateEventFieldEvent);
 
 elements.compileEventCalendarButton.addEventListener("click", () => {
   previewEventCalendar().catch(handleError);

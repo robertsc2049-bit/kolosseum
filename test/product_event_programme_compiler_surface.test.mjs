@@ -23,6 +23,14 @@ const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignm
 // React (FULL-UI-05B) - see CoachProgrammeBuilderTree.tsx, mounted
 // directly into the still-legacy #templateBlocks.
 const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
+// DEV NOTE: the event-plan detail fields (name/type/dates/location/
+// timezone/notes) moved to React too (FULL-UI-05B) - see
+// CoachProgrammeEventFields.tsx, mounted at
+// #template-event-fields-root. They no longer carry ids (matched by
+// data-field instead, mirroring the builder tree's own controls) - the
+// binding picker, countdown/allocation summary and compile/fit buttons
+// stay legacy, keeping their original ids.
+const eventFields = read("public/app-src/screens/coach/CoachProgrammeEventFields.tsx");
 
 test("programme builder exposes explicit weeks-per-block and a compact add-week action", () => {
   assert.match(html, /id="templateBlocks"/u);
@@ -39,13 +47,6 @@ test("programme builder exposes explicit weeks-per-block and a compact add-week 
 test("event compiler captures the complete scheduling anchor", () => {
   for (const id of [
     "templateEventEnabled",
-    "templateEventName",
-    "templateEventType",
-    "templateProgrammeStartDate",
-    "templateEventDate",
-    "templateEventLocation",
-    "templateEventTimezone",
-    "templateEventNotes",
     "templateEventCountdown",
     "templateEventRequiredWeeks",
     "templateEventAllocatedWeeks",
@@ -53,6 +54,18 @@ test("event compiler captures the complete scheduling anchor", () => {
     "fitFinalBlockButton"
   ]) {
     assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
+  }
+
+  for (const field of [
+    "event_name",
+    "event_type",
+    "programme_start_date",
+    "event_date",
+    "location",
+    "timezone",
+    "notes"
+  ]) {
+    assert.match(eventFields, new RegExp(`data-field="${field}"`, "u"));
   }
 
   assert.match(service, /training_day_count/u);
