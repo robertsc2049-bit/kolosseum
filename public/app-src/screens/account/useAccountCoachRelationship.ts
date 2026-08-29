@@ -16,13 +16,15 @@ import { RELATIONSHIP_CHANGED_EVENT } from "./useAccountCoachInvitations";
 // renderAthleteRelationships() plus the embedded coach-messaging widget
 // (refreshAthleteOwnMessages()/renderAthleteOwnMessages()/
 // confirmSendAthleteOwnMessage()) it renders once a current coach exists -
-// legacy renders both from one panel, so this hook owns both. Legacy's own
-// refreshAthleteRelationships() is kept (trimmed to fetch+cache only) since
-// notificationCoachName() still reads state.athleteRelationships directly;
-// this hook's endRelationship() dispatches RELATIONSHIP_CHANGED_EVENT so
-// that trimmed refresher (and the invitations panel) stay in sync, and app.
-// js's WebSocket handler now dispatches MESSAGE_RECEIVED_EVENT instead of
-// calling the removed renderAthleteOwnMessages() directly - see
+// legacy renders both from one panel, so this hook owns both.
+// refreshAthleteRelationships() itself was deleted from app.js (FULL-UI-18
+// notification bell slice) once notificationCoachName() - its only other
+// reader of state.athleteRelationships - moved to React too (see
+// NotificationBellPanel.tsx's useNotifications.ts, which fetches its own
+// independent copy); this hook's endRelationship() dispatches
+// RELATIONSHIP_CHANGED_EVENT so the invitations panel stays in sync, and
+// app.js's WebSocket handler now dispatches MESSAGE_RECEIVED_EVENT instead
+// of calling the removed renderAthleteOwnMessages() directly - see
 // handleMessagingSocketPayload()'s athlete branch.
 export const MESSAGE_RECEIVED_EVENT = "kolosseum:athlete-coach-message-received";
 

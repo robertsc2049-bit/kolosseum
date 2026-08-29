@@ -8,6 +8,7 @@ import { AccountCoachInvitationsPanel } from "./screens/account/AccountCoachInvi
 import { AccountCoachRelationshipPanel } from "./screens/account/AccountCoachRelationshipPanel";
 import { AccountDataRightsPanel } from "./screens/account/AccountDataRightsPanel";
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
+import { NotificationBellPanel } from "./screens/account/NotificationBellPanel";
 import { AccountOrgContextPanel } from "./screens/account/AccountOrgContextPanel";
 import { AccountOrgMessagesPanel } from "./screens/account/AccountOrgMessagesPanel";
 import { AccountSupportPanel } from "./screens/account/AccountSupportPanel";
@@ -90,6 +91,7 @@ function mount(containerId: string, node: React.ReactNode) {
 mount("account-identity-header-root", <AccountIdentityHeaderCard />);
 mount("account-code-root", <AccountCodeCard />);
 mount("account-identity-root", <AccountIdentityPanel />);
+mount("notification-bell-root", <NotificationBellPanel />);
 mount("account-data-rights-root", <AccountDataRightsPanel />);
 mount("account-support-root", <AccountSupportPanel />);
 mount("account-branding-root", <AccountBrandingPanel />);
