@@ -115,11 +115,7 @@ test(
   () => {
     const functions = [
       "restoreAccountSession",
-      "loadAccountDetail",
-      "updateAccountProfile",
-      "changeAccountPassword",
-      "requestEmailVerification",
-      "completeEmailVerification"
+      "loadAccountDetail"
     ];
 
     for (const functionName of functions) {
@@ -133,17 +129,37 @@ test(
       );
     }
 
-    // signOutAccount/requestAccountClosure moved to the React client
+    // signOutAccount/requestAccountClosure/updateAccountProfile/
+    // changeAccountPassword/requestEmailVerification/
+    // completeEmailVerification moved to the React client
     // (public/app-src/api/client.ts) alongside sign_out/
-    // account_close_request's migrated controls.
+    // account_close_request/profile_update/password_change/
+    // email_verification's migrated controls. The latter four were found
+    // via a post-migration audit sweep to have zero remaining callers in
+    // account_ui.js despite still being exported there.
     const reactClient = fs.readFileSync(
       new URL("../public/app-src/api/client.ts", import.meta.url),
       "utf8"
     );
-    assert.match(reactClient, /export function signOutAccount/u);
-    assert.match(reactClient, /export function requestAccountClosure/u);
-    assert.doesNotMatch(accountUi, /export function signOutAccount/u);
-    assert.doesNotMatch(accountUi, /export function requestAccountClosure/u);
+    for (const functionName of [
+      "signOutAccount",
+      "requestAccountClosure",
+      "updateAccountProfile",
+      "changeAccountPassword",
+      "requestEmailVerification",
+      "completeEmailVerification"
+    ]) {
+      assert.match(
+        reactClient,
+        new RegExp(`export function ${functionName}\\b`, "u"),
+        `missing React client function ${functionName}`
+      );
+      assert.doesNotMatch(
+        accountUi,
+        new RegExp(`export function ${functionName}\\b`, "u"),
+        `${functionName} should have moved out of account_ui.js`
+      );
+    }
 
     // loadCurrentTerms/registerAccount/signInAccount/requestPasswordReset/
     // completePasswordReset moved to authClient.ts alongside the entry

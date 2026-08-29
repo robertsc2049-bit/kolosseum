@@ -27,6 +27,7 @@ const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignm
 const programmeLibraryPanel = read("public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx");
 const marketplaceSharingPanel = read("public/app-src/screens/coach/CoachProgrammeMarketplaceSharingPanel.tsx");
 const entryAuthPanel = read("public/app-src/screens/entry/EntryAuthPanel.tsx");
+const athleteDirectoryPanel = read("public/app-src/screens/coach/AthleteDirectoryPanel.tsx");
 
 test("every focusable control gets a visible keyboard-only focus ring, distinct from mouse-hover styling", () => {
   assert.match(
@@ -46,10 +47,22 @@ test("prefers-reduced-motion collapses animation and transition duration everywh
 
 test("status/error notices are announced to screen readers, with errors interrupting (assertive) and status waiting its turn (polite)", () => {
   assert.match(js, /elements\.notice\.setAttribute\("aria-live", type === "error" \? "assertive" : "polite"\)/u);
-  for (const id of ["athleteRelationshipCounts", "athleteDirectoryStatus", "eventsStatus", "coachDashboardStatus"]) {
+  for (const id of ["athleteDirectoryStatus", "eventsStatus", "coachDashboardStatus"]) {
     const re = new RegExp(`id="${id}"[^>]*(?:\\n[^>]*)*?(?:role="status"|aria-live="polite")[\\s\\S]{0,120}?(?:role="status"|aria-live="polite")`, "u");
     assert.match(html, re, `${id} must carry both role="status" and aria-live="polite"`);
   }
+
+  // athleteRelationshipCounts moved to React (AthleteDirectoryPanel.tsx)
+  // back on 2026-08-25 ("Migrate coach athletes roster (directory) to
+  // React") - this assertion was never repointed, so it kept failing this
+  // check against the (now-removed) legacy id for many subsequent
+  // sessions. The React panel already carries the same role="status"/
+  // aria-live="polite" pair the legacy element did.
+  assert.match(
+    athleteDirectoryPanel,
+    /role="status" aria-live="polite"/u,
+    "the athlete directory's relationship-counts region must carry both role=\"status\" and aria-live=\"polite\""
+  );
 
   // The programme library's status line (FULL-UI-05A) moved to React - see
   // CoachProgrammeLibraryPanel.tsx - and carries the same role="status"/
