@@ -1,4 +1,4 @@
-import { titleCase } from "../../utils/format";
+import { formatDate, titleCase } from "../../utils/format";
 import { type JsonRecord } from "../../api/transport";
 
 // DEV NOTE: FULL-UI-05A programme structure conversion + activation
@@ -115,6 +115,62 @@ export function templateCounts(draft: ProgrammeDraft | null | undefined): Progra
     0
   );
   return { blocks: blocks.length, weeks, sessions };
+}
+
+// DEV NOTE: ported field-for-field from public/app/app.js's
+// renderTemplateBuilderState()'s save-badge/save-detail branches - the
+// six mutually-exclusive states (no draft / saving / save failed /
+// unsaved changes / saved / new draft). Fed by
+// useProgrammeBuilderDraft.ts's bridge-event detail (saving/saveError/
+// dirty/recovered/savedAt), since these are legacy-only module/state
+// fields with no other React-visible source of truth.
+export type ProgrammeBuilderSaveStatus = {
+  label: string;
+  badgeClass: string;
+  detail: string;
+};
+
+export function builderSaveStatus(input: {
+  draft: ProgrammeDraft | null;
+  saving: boolean;
+  saveError: string;
+  dirty: boolean;
+  recovered: boolean;
+  savedAt: string;
+}): ProgrammeBuilderSaveStatus {
+  const { draft, saving, saveError, dirty, recovered, savedAt } = input;
+
+  if (!draft) {
+    return { label: "No draft open", badgeClass: "badge neutral", detail: "Open or create a programme to begin." };
+  }
+
+  if (saving) {
+    return { label: "Saving…", badgeClass: "badge active", detail: "Writing the draft to the server." };
+  }
+
+  if (saveError) {
+    return { label: "Save failed", badgeClass: "badge warning", detail: saveError };
+  }
+
+  if (dirty) {
+    return {
+      label: "Unsaved changes",
+      badgeClass: "badge warning",
+      detail: recovered
+        ? "Recovered browser changes have not been saved to the server."
+        : "Changes are preserved in this browser but not yet saved to the server."
+    };
+  }
+
+  if (draft.template_id) {
+    return {
+      label: "Saved",
+      badgeClass: "badge complete",
+      detail: savedAt ? `Last saved ${formatDate(savedAt)}.` : "This draft matches the server record."
+    };
+  }
+
+  return { label: "New draft", badgeClass: "badge neutral", detail: "Enter programme details, then save the draft." };
 }
 
 function newTemplateWorkItem(): ProgrammeWorkItemDraft {

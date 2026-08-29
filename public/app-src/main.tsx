@@ -61,6 +61,7 @@ import { CoachProgrammeMarketplaceSharingPanel } from "./screens/coach/CoachProg
 import { CoachProgrammeBuilderFactsPanel } from "./screens/coach/CoachProgrammeBuilderFactsPanel";
 import { CoachProgrammeBuilderValidationList } from "./screens/coach/CoachProgrammeBuilderValidationList";
 import { CoachProgrammeBuilderTree } from "./screens/coach/CoachProgrammeBuilderTree";
+import { CoachProgrammeBuilderSaveBadge, CoachProgrammeBuilderSaveDetail } from "./screens/coach/CoachProgrammeBuilderSaveStatus";
 import { CoachReviewPanel } from "./screens/coach/CoachReviewPanel";
 import { CoachVideoFeedbackQueuePanel } from "./screens/coach/CoachVideoFeedbackQueuePanel";
 import { CoachAthleteMessagePanel } from "./screens/coach/CoachAthleteMessagePanel";
@@ -152,6 +153,8 @@ mount("programme-marketplace-sharing-root", <CoachProgrammeMarketplaceSharingPan
 mount("programme-builder-facts-root", <CoachProgrammeBuilderFactsPanel />);
 mount("templateBuilderValidationList", <CoachProgrammeBuilderValidationList />);
 mount("templateBlocks", <CoachProgrammeBuilderTree />);
+mount("programme-builder-save-badge-root", <CoachProgrammeBuilderSaveBadge />);
+mount("programme-builder-save-detail-root", <CoachProgrammeBuilderSaveDetail />);
 mount("athlete-self-weekly-checkins-root", <AthleteSelfWeeklyCheckinsPanel />);
 mount("athlete-self-progress-insights-root", <AthleteSelfProgressInsightsPanel />);
 mount("athlete-self-device-sync-root", <AthleteSelfDeviceSyncPanel />);

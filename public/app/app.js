@@ -164,8 +164,7 @@ const elements = {
   saveTemplateButton: document.getElementById("saveTemplateButton"),
   saveCompleteTemplateButton: document.getElementById("saveCompleteTemplateButton"),
   activateTemplateButton: document.getElementById("activateTemplateButton"),
-  templateBuilderSaveState: document.getElementById("templateBuilderSaveState"),
-  templateBuilderSaveDetail: document.getElementById("templateBuilderSaveDetail"),
+  templateBuilderSaveBadgeRoot: document.getElementById("programme-builder-save-badge-root"),
   templateBuilderDiscardButton: document.getElementById("templateBuilderDiscardButton"),
   templateBuilderValidation: document.getElementById("templateBuilderValidation"),
   templateBuilderValidationList: document.getElementById("templateBuilderValidationList"),
@@ -4666,7 +4665,14 @@ function templateCounts(draft) {
 function broadcastProgrammeDraft() {
   document.dispatchEvent(
     new CustomEvent("kolosseum:programme-draft-changed", {
-      detail: { draft: state.templateDraft ? { ...state.templateDraft } : null }
+      detail: {
+        draft: state.templateDraft ? { ...state.templateDraft } : null,
+        saving: templateBuilderSaving,
+        saveError: templateBuilderSaveError,
+        dirty: templateDraftIsDirty(),
+        recovered: state.templateDraftRecovered === true,
+        savedAt: String(state.templateDraftSavedAt ?? "")
+      }
     })
   );
 }
@@ -5106,71 +5112,31 @@ function focusTemplateValidationIssue(issueIndex) {
   return true;
 }
 
+// DEV NOTE: FULL-UI-05B the save-state badge and save-detail text moved to
+// React - see CoachProgrammeBuilderSaveStatus.tsx's
+// CoachProgrammeBuilderSaveBadge()/CoachProgrammeBuilderSaveDetail(),
+// mounted at #programme-builder-save-badge-root/
+// #programme-builder-save-detail-root, fed by builderSaveStatus() in
+// programmeDraft.ts. broadcastProgrammeDraft() now runs unconditionally
+// at the top of this function (rather than after the old
+// elements.templateBuilderSaveState guard, which no longer exists) so it
+// keeps covering the completion validation list and fact counters
+// regardless of what's left in this function.
 function renderTemplateBuilderState() {
-  if (
-    !elements.templateBuilderSaveState ||
-    !elements.templateBuilderValidation
-  ) {
+  broadcastProgrammeDraft();
+
+  if (!elements.templateBuilderValidation) {
     return;
   }
-
-  // DEV NOTE: FULL-UI-05B the completion validation list moved to React -
-  // see CoachProgrammeBuilderValidationList.tsx, mounted directly into
-  // #templateBuilderValidationList (kept, not replaced, so the delegated
-  // click listener on it keeps firing on real clicks). broadcastProgrammeDraft()
-  // covers every path that can change the draft's validation state,
-  // including field edits routed through scheduleTemplateBuilderStateRefresh()
-  // (which calls this function directly, not through updateTemplateFacts()).
-  broadcastProgrammeDraft();
 
   const draft = state.templateDraft;
 
   if (!draft) {
-    elements.templateBuilderSaveState.textContent = "No draft open";
-    elements.templateBuilderSaveState.className = "badge neutral";
-    elements.templateBuilderSaveDetail.textContent =
-      "Open or create a programme to begin.";
     elements.templateBuilderValidation.hidden = true;
     return;
   }
 
-  const dirty = templateDraftIsDirty();
-  state.templateDraftDirty = dirty;
-
-  if (templateBuilderSaving) {
-    elements.templateBuilderSaveState.textContent = "Saving…";
-    elements.templateBuilderSaveState.className = "badge active";
-    elements.templateBuilderSaveDetail.textContent =
-      "Writing the draft to the server.";
-  }
-  else if (templateBuilderSaveError) {
-    elements.templateBuilderSaveState.textContent = "Save failed";
-    elements.templateBuilderSaveState.className = "badge warning";
-    elements.templateBuilderSaveDetail.textContent =
-      templateBuilderSaveError;
-  }
-  else if (dirty) {
-    elements.templateBuilderSaveState.textContent = "Unsaved changes";
-    elements.templateBuilderSaveState.className = "badge warning";
-    elements.templateBuilderSaveDetail.textContent =
-      state.templateDraftRecovered === true
-        ? "Recovered browser changes have not been saved to the server."
-        : "Changes are preserved in this browser but not yet saved to the server.";
-  }
-  else if (draft.template_id) {
-    elements.templateBuilderSaveState.textContent = "Saved";
-    elements.templateBuilderSaveState.className = "badge complete";
-    elements.templateBuilderSaveDetail.textContent =
-      state.templateDraftSavedAt
-        ? `Last saved ${formatDate(state.templateDraftSavedAt)}.`
-        : "This draft matches the server record.";
-  }
-  else {
-    elements.templateBuilderSaveState.textContent = "New draft";
-    elements.templateBuilderSaveState.className = "badge neutral";
-    elements.templateBuilderSaveDetail.textContent =
-      "Enter programme details, then save the draft.";
-  }
+  state.templateDraftDirty = templateDraftIsDirty();
 
   const issues = currentTemplateBuilderIssues();
   elements.templateBuilderValidation.hidden = false;
@@ -5311,9 +5277,9 @@ function openTemplateBuilder(draft, options = {}) {
 
   if (
     options.recovered === true &&
-    elements.templateBuilderSaveState
+    elements.templateBuilderSaveBadgeRoot
   ) {
-    elements.templateBuilderSaveState.focus({
+    elements.templateBuilderSaveBadgeRoot.focus({
       preventScroll: true
     });
   }

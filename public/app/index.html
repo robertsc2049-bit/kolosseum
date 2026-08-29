@@ -1013,18 +1013,10 @@
             <section class="panel template-builder-status-panel" aria-label="Programme builder status">
               <div class="template-builder-save-panel">
                 <div class="template-builder-save-line">
-                  <span
-                    id="templateBuilderSaveState"
-                    class="badge neutral"
-                    role="status"
-                    aria-live="polite"
-                    tabindex="-1"
-                  >
-                    New draft
-                  </span>
+                  <div id="programme-builder-save-badge-root" tabindex="-1"></div>
                   <button id="templateBuilderDiscardButton" class="button secondary small-button" type="button">Discard and close</button>
                 </div>
-                <p id="templateBuilderSaveDetail" class="muted small">Enter programme details, then save the draft.</p>
+                <div id="programme-builder-save-detail-root"></div>
                 <p class="muted small">Keyboard: Ctrl+S or Command+S saves. Escape returns to the library after confirmation.</p>
               </div>
 
