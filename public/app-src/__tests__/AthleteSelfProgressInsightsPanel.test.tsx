@@ -238,6 +238,82 @@ test("refetches when kolosseum:history-changed fires", async () => {
   await waitFor(() => screen.getByText("100% adherence — 4 of 4 sessions completed in the last 30 days."));
 });
 
+test("charts a strength trend's series and falls back to a factual empty chart state when no series is present", async () => {
+  installMocks({
+    insights: {
+      session_adherence: { has_sufficient_data: false },
+      strength_trends: [
+        {
+          exercise_id: "back_squat",
+          current_value: 140,
+          current_unit: "kg",
+          current_effective_date: "2026-01-05",
+          has_prior_value: true,
+          delta: 5,
+          delta_percentage: 3.7,
+          prior_effective_date: "2025-12-01",
+          series: [
+            { date: "2025-12-01", value: 135 },
+            { date: "2026-01-05", value: 140 }
+          ]
+        },
+        {
+          exercise_id: "deadlift",
+          current_value: 180,
+          current_unit: "kg",
+          current_effective_date: "2026-01-05",
+          has_prior_value: false
+          // no `series` field at all - the panel must not crash on this
+        }
+      ],
+      habit_consistency: [],
+      body_metric_trends: []
+    },
+    exercises: [{ exercise_id: "back_squat", display_name: "Back Squat" }, { exercise_id: "deadlift", display_name: "Deadlift" }]
+  });
+
+  render(<AthleteSelfProgressInsightsPanel />);
+
+  await waitFor(() => screen.getByText("Back Squat"));
+  const cards = document.querySelectorAll(".record-card");
+  assert.equal(cards.length, 2);
+  assert.ok(cards[0].querySelector("svg path"), "back_squat card charts its 2-point series");
+  assert.ok(cards[1].querySelector(".empty-state.compact-empty"), "deadlift card falls back to the empty chart state with no series");
+});
+
+test("charts session adherence over time using the series field, keyed off window_end_date", async () => {
+  installMocks({
+    insights: {
+      session_adherence: {
+        has_sufficient_data: true,
+        adherence_percentage: 75,
+        completed_sessions: 9,
+        total_sessions: 12,
+        series: [
+          { window_end_date: "2025-11-06", adherence_percentage: null, total_sessions: 0 },
+          { window_end_date: "2025-12-06", adherence_percentage: 60, total_sessions: 5 },
+          { window_end_date: "2026-01-05", adherence_percentage: 75, total_sessions: 12 }
+        ]
+      },
+      strength_trends: [],
+      habit_consistency: [],
+      body_metric_trends: []
+    }
+  });
+
+  render(<AthleteSelfProgressInsightsPanel />);
+  await waitFor(() => screen.getByText("75% adherence — 9 of 12 sessions completed in the last 30 days."));
+
+  const panel = document.querySelector(".progress-insights-panel") as HTMLElement;
+  const path = panel.querySelector("svg path");
+  assert.ok(path, "expected an adherence line chart");
+  // A null-adherence window (no sessions at all that far back) must be
+  // dropped, never charted as a fabricated 0% - so only 2 of the 3 series
+  // points become real chart points.
+  const dCommands = path?.getAttribute("d")?.split(" ") ?? [];
+  assert.equal(dCommands.length, 2, "expected exactly 2 plotted points (the null-adherence window excluded)");
+});
+
 test("keeps the three labeled sections (Strength trends, Habit consistency, Body-metric trends) as distinct headings", async () => {
   installMocks({});
   render(<AthleteSelfProgressInsightsPanel />);

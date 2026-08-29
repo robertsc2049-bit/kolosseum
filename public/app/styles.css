@@ -872,6 +872,14 @@ button:focus-visible,
 .record-card p { margin: 0; color: var(--stone-dim); font-size: 0.78rem; }
 .record-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.45rem; }
 
+.record-card .line-chart { grid-column: 1 / -1; }
+
+.line-chart { display: flex; flex-direction: column; gap: 0.4rem; }
+.line-chart-compact { min-width: 96px; max-width: 160px; }
+.line-chart-legend { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.line-chart-legend-item { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--stone-dim); font-size: 0.75rem; }
+.line-chart-legend-swatch { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
 .history-filters {
   display: grid;
   margin-bottom: 1rem;

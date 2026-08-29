@@ -626,6 +626,22 @@ test(
     assert.equal(insights.session_adherence.adherence_percentage, 50, "adherence: adherence_percentage");
     assert.equal(insights.session_adherence.has_sufficient_data, true, "adherence: has_sufficient_data");
 
+    // Progress graphs slice 1: a real time series alongside the existing
+    // single-window fields - 6 trailing 30-day windows, oldest first, the
+    // current (most recent) window last and identical to the top-level
+    // fields above (both sessions were just compiled, so only the current
+    // window has any data).
+    assert.equal(insights.session_adherence.series.length, 6, "adherence: series has 6 windows");
+    const currentAdherenceWindow = insights.session_adherence.series[5];
+    assert.equal(currentAdherenceWindow.total_sessions, 2, "adherence series: current window total_sessions");
+    assert.equal(currentAdherenceWindow.completed_sessions, 1, "adherence series: current window completed_sessions");
+    assert.equal(currentAdherenceWindow.adherence_percentage, 50, "adherence series: current window adherence_percentage");
+    assert.ok(currentAdherenceWindow.window_start_date, "adherence series: current window has a window_start_date");
+    assert.ok(currentAdherenceWindow.window_end_date, "adherence series: current window has a window_end_date");
+    for (const olderWindow of insights.session_adherence.series.slice(0, 5)) {
+      assert.equal(olderWindow.total_sessions, 0, "adherence series: no sessions this far back");
+    }
+
     assert.equal(insights.strength_trends.length, 2, "expected two exercises' strength trends");
     const strengthByExercise = Object.fromEntries(insights.strength_trends.map((entry) => [entry.exercise_id, entry]));
 
@@ -643,6 +659,23 @@ test(
     assert.equal(benchTrend.prior_value, null);
     assert.equal(benchTrend.delta, null, "must not fabricate a delta with no prior value");
 
+    // Progress graphs slice 1: back_squat has two benchmark versions, so
+    // its series carries both, ascending; bench_press has only one, so its
+    // series is exactly that one point - never a fabricated second point.
+    assert.deepEqual(
+      squatTrend.series,
+      [
+        { date: daysAgoDateOnly(40), value: 150 },
+        { date: daysAgoDateOnly(0), value: 160 }
+      ],
+      "back_squat series: both benchmark versions, ascending"
+    );
+    assert.deepEqual(
+      benchTrend.series,
+      [{ date: daysAgoDateOnly(40), value: 100 }],
+      "bench_press series: exactly one point, no fabricated prior"
+    );
+
     assert.equal(insights.habit_consistency.length, 1, "expected exactly one habit");
     const habitInsight = insights.habit_consistency[0];
     assert.equal(habitInsight.habit_id, habitId);
@@ -652,6 +685,17 @@ test(
     assert.equal(habitInsight.window_completions, 6);
     assert.equal(habitInsight.window_expected_units, 30);
     assert.equal(habitInsight.completion_rate_percentage, 20);
+
+    // Progress graphs slice 1: all 6 completions (0-25 days ago) fall
+    // inside the current (most recent) 30-day window only - every older
+    // trailing window has none.
+    assert.equal(habitInsight.series.length, 6, "habit series has 6 windows");
+    const currentHabitWindow = habitInsight.series[5];
+    assert.equal(currentHabitWindow.window_completions, 6, "habit series: current window window_completions");
+    assert.equal(currentHabitWindow.completion_rate_percentage, 20, "habit series: current window completion_rate_percentage");
+    for (const olderWindow of habitInsight.series.slice(0, 5)) {
+      assert.equal(olderWindow.window_completions, 0, "habit series: no completions this far back");
+    }
 
     assert.equal(insights.body_metric_trends.length, 2, "expected two body-metric types");
     const byMetricType = Object.fromEntries(insights.body_metric_trends.map((entry) => [entry.metric_type, entry]));
@@ -669,6 +713,23 @@ test(
     assert.equal(byMetricType.chest_circumference_cm.has_prior_value, false, "chest has no 30+-day-prior entry");
     assert.equal(byMetricType.chest_circumference_cm.prior_value, null);
     assert.equal(byMetricType.chest_circumference_cm.delta, null, "must not fabricate a delta with no prior value");
+
+    // Progress graphs slice 1: waist has two entries so its series carries
+    // both, ascending; chest has only one, so its series is exactly that
+    // one point.
+    assert.deepEqual(
+      byMetricType.waist_circumference_cm.series,
+      [
+        { date: daysAgoDateOnly(35), value: 84 },
+        { date: daysAgoDateOnly(0), value: 80 }
+      ],
+      "waist series: both entries, ascending"
+    );
+    assert.deepEqual(
+      byMetricType.chest_circumference_cm.series,
+      [{ date: daysAgoDateOnly(0), value: 95 }],
+      "chest series: exactly one point, no fabricated prior"
+    );
 
     // ============================================================
     // The accepted coach reads the identical computed summary.
@@ -708,5 +769,6 @@ test(
     assert.equal(restartedInsights.json?.insights?.strength_trends?.[0]?.current_value, 160);
     assert.equal(restartedInsights.json?.insights?.habit_consistency?.[0]?.total_completions, 6);
     assert.equal(restartedInsights.json?.insights?.body_metric_trends?.length, 2);
+    assert.equal(restartedInsights.json?.insights?.session_adherence?.series?.length, 6);
   }
 );
