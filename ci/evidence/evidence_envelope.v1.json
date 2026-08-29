@@ -239,7 +239,7 @@
       },
       {
         "path": "ci/schemas/substitution_registry.registry.schema.json",
-        "sha256": "C3A03D0814E4043286CF28372C5B867752155DB1D11FF4D0B685371CEC12510C"
+        "sha256": "EF0EE6AF7392463FD3D0E0A17807EB33D9F64269B2D5AE0BDBB82D6AE0C3AF1D"
       },
       {
         "path": "ci/schemas/threshold_marker.registry.schema.json",

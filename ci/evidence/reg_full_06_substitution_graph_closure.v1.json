@@ -1,0 +1,52 @@
+{
+  "evidence_id": "reg_full_06_substitution_graph_closure",
+  "version": "1.0.0",
+  "slice_id": "REG-FULL-06",
+  "authority": {
+    "substitution_registry": "registries/substitution/substitution.registry.json",
+    "exercise_registry": "registries/exercise/exercise.registry.json",
+    "movement_registry": "registries/movement/movement.registry.json",
+    "equipment_registry": "registries/equipment/equipment.registry.json",
+    "equipment_compatibility_registry": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
+    "activity_applicability_registry": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
+    "legacy_graph": "registries/exercise/exercise_substitution_graph.json"
+  },
+  "policy": {
+    "exact_movement_pattern_required": true,
+    "exact_stimulus_intent_required": true,
+    "target_substitution_eligibility_required": "eligible",
+    "source_restricted_allowed_only_by_explicit_edge": true,
+    "target_joint_stress_tags_must_be_subset_or_equal": true,
+    "target_difficulty_must_be_same_or_lower": true,
+    "equipment_direction": [
+      "same_required_equipment",
+      "lateral",
+      "downgrade"
+    ],
+    "equipment_upgrade_forbidden": true,
+    "runtime_inference_forbidden": true,
+    "closest_exercise_algorithm_forbidden": true,
+    "generic_fallback_forbidden": true,
+    "deterministic_ordering_required": true
+  },
+  "counts": {
+    "exercise_count": 215,
+    "edge_count": 736,
+    "source_exercise_count": 190,
+    "target_exercise_count": 192,
+    "equipment_change_type_counts": {
+      "same_required_equipment": 294,
+      "lateral": 273,
+      "downgrade": 169
+    }
+  },
+  "hashes": {
+    "exercise_registry_sha256": "169c80e99b01aced65f65169a29e16a6734cc25336d65a938d7e835851d521b6",
+    "movement_registry_sha256": "10309d88db2f41dea1cc07c96012133131f1767778176b5ef630dea0a4160ebc",
+    "equipment_registry_sha256": "32e6ea381f25ed8ebb239bf65eee4e92d97a826df15e2dc568ba25ec07e77983",
+    "equipment_compatibility_registry_sha256": "828526b9cfcb72143027ee0e3b79eb09f12c03c950c34190e7a1a2f7e01c6346",
+    "activity_applicability_registry_sha256": "e9bd5f9f0db7f1b89fef57b8fc2255aa1416ed4c201ee53d666a42ce76e248cd",
+    "substitution_registry_sha256": "932df48c9aec17aa07d800d517f3d66cf35604a3adaf8372cfdc307f0de131f3",
+    "legacy_graph_sha256": "8d97eab5a2149e6e8634f7bf82f3179ae78c2906825bc46fe6588c1d984852c9"
+  }
+}
