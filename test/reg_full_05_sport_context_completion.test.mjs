@@ -8,20 +8,18 @@ import {
   REG_FULL_05_REQUIRED_RUGBY_ROLES,
   auditRegFull05Documents,
   auditRegFull05Authority,
-  loadRegFull05Documents
+  loadRegFull05Documents,
+  runRegFull05Closure
 } from "../ci/registry/reg_full_05_sport_context_completion.mjs";
 
 function clone(value) { return structuredClone(value); }
 function expectClosureFailure(fn, reason) {
   assert.throws(fn, (error) => error?.code === REG_FULL_05_FAILURE_TOKEN && error?.reason === reason);
 }
+function firstLink(documents, predicate = () => true) { return Object.values(documents.link.entries).find(predicate); }
 
-function firstLink(documents, predicate = () => true) {
-  return Object.values(documents.link.entries).find(predicate);
-}
-
-test("REG-FULL-05 completes all three sport-context surfaces", () => {
-  const result = auditRegFull05Documents(loadRegFull05Documents());
+test("REG-FULL-05 completes all three sport-context surfaces with authority proof", () => {
+  const result = runRegFull05Closure();
   assert.equal(result.activity_count, 3);
   assert.ok(result.subdivision_count >= 24);
   assert.ok(result.role_count >= 18);
@@ -34,8 +32,7 @@ test("REG-FULL-05 completes all three sport-context surfaces", () => {
 });
 
 test("REG-FULL-05 requires the completed rugby role model", () => {
-  const docs = loadRegFull05Documents();
-  const mutated = clone(docs);
+  const mutated = clone(loadRegFull05Documents());
   delete mutated.role.entries[REG_FULL_05_REQUIRED_RUGBY_ROLES.at(-1)];
   expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_required_role_missing");
 });
@@ -79,9 +76,7 @@ test("REG-FULL-05 requires explicit exercise/activity applicability for every li
 
 test("REG-FULL-05 requires every linkable metric to have explicit exercise edges", () => {
   const mutated = clone(loadRegFull05Documents());
-  for (const [id, row] of Object.entries(mutated.link.entries)) {
-    if (row.sport_metric_id === "rugby_union__contact_repetition_count") delete mutated.link.entries[id];
-  }
+  for (const [id, row] of Object.entries(mutated.link.entries)) if (row.sport_metric_id === "rugby_union__contact_repetition_count") delete mutated.link.entries[id];
   expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_linkable_metric_without_explicit_exercise");
 });
 
@@ -89,19 +84,13 @@ test("REG-FULL-05 keeps body-mass metrics exercise-link free", () => {
   const mutated = clone(loadRegFull05Documents());
   const source = firstLink(mutated, (item) => item.activity_id === "rugby_union");
   const id = `rugby_union__body_mass_kg__${source.exercise_id}`;
-  mutated.link.entries[id] = {
-    ...source,
-    metric_exercise_link_id: id,
-    sport_metric_id: "rugby_union__body_mass_kg"
-  };
+  mutated.link.entries[id] = { ...source, metric_exercise_link_id: id, sport_metric_id: "rugby_union__body_mass_kg" };
   expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_body_mass_metric_must_be_linkless");
 });
 
 test("REG-FULL-05 requires a threshold marker for every sport metric", () => {
   const mutated = clone(loadRegFull05Documents());
-  for (const [id, row] of Object.entries(mutated.threshold.entries)) {
-    if (row.sport_metric_id === "rugby_union__jump_height_cm") delete mutated.threshold.entries[id];
-  }
+  for (const [id, row] of Object.entries(mutated.threshold.entries)) if (row.sport_metric_id === "rugby_union__jump_height_cm") delete mutated.threshold.entries[id];
   expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_metric_without_threshold_marker");
 });
 
@@ -114,7 +103,7 @@ test("REG-FULL-05 rejects threshold unit drift", () => {
 
 test("REG-FULL-05 rejects threshold status-contract drift", () => {
   const mutated = clone(loadRegFull05Documents());
-  const row = Object.values(mutated.threshold.entries).find((item) => !item.threshold_marker_id.includes("attempt_count__lte_3"));
+  const row = Object.values(mutated.threshold.entries).find((item) => item.sport_metric_id === "rugby_union__jump_height_cm");
   row.marker_status_allowed_values = ["recorded_met"];
   expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_threshold_status_contract_invalid");
 });
@@ -138,8 +127,5 @@ test("REG-FULL-05 threshold supersession cannot activate runtime authority", () 
   const mutated = clone(finalSurface);
   const thresholdEntity = mutated.entities.find((row) => row.canonical_registry_id === "threshold_marker_registry");
   thresholdEntity.final_state.final_runtime_load = true;
-  expectClosureFailure(
-    () => auditRegFull05Authority({ finalSurface: mutated, evidence, liveHashes }),
-    "reg_full_05_threshold_must_remain_dormant_non_runtime"
-  );
+  expectClosureFailure(() => auditRegFull05Authority({ finalSurface: mutated, evidence, liveHashes }), "reg_full_05_threshold_must_remain_dormant_non_runtime");
 });
