@@ -20,6 +20,7 @@
     },
     "entries": {
       "type": "object",
+      "minProperties": 1,
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,
@@ -41,7 +42,7 @@
           "substitution_edge_id": {
             "type": "string",
             "minLength": 1,
-            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            "pattern": "^[a-z0-9][a-z0-9_.-]*__to__[a-z0-9][a-z0-9_.-]*$"
           },
           "source_exercise_id": {
             "type": "string",
@@ -55,28 +56,27 @@
           },
           "movement_pattern_preservation": {
             "type": "string",
-            "minLength": 1,
-            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            "const": "exact"
           },
           "stimulus_intent_preservation": {
             "type": "string",
-            "minLength": 1,
-            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            "const": "exact"
           },
           "equipment_change_type": {
             "type": "string",
-            "minLength": 1,
-            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            "enum": [
+              "same_required_equipment",
+              "lateral",
+              "downgrade"
+            ]
           },
           "excluded_equipment_handling": {
             "type": "string",
-            "minLength": 1,
-            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            "const": "explicit_target_required_equipment_filter"
           },
           "joint_stress_handling": {
             "type": "string",
-            "minLength": 1,
-            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            "const": "target_subset_or_equal"
           },
           "activity_applicability": {
             "type": "array",
@@ -94,12 +94,12 @@
           },
           "difficulty_tier_compatibility": {
             "type": "string",
-            "minLength": 1,
-            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            "const": "same_or_lower"
           },
           "deterministic_ordering_key": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*\\|0[0-2]\\|0[0-2]\\|[a-z0-9][a-z0-9_.-]*$"
           },
           "copy_legal_boundary_notes": {
             "type": "string",
