@@ -14,13 +14,22 @@ const serverTs = read("src/server.ts");
 const lifecycle = read("shared/programme-marketplace/programmeTemplateSharingLifecycle.mjs");
 const recordStore = read("src/api/beta_product_record_store.ts");
 const schemaSql = read("schema.sql");
-const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const guard = read("ci/guards/full_ui_completion_guard.mjs");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 const marketplaceClient = read("public/app-src/api/marketplaceClient.ts");
 const marketplaceHook = read("public/app-src/screens/coach/useCoachMarketplace.ts");
 const marketplacePanel = read("public/app-src/screens/coach/CoachMarketplacePanel.tsx");
+// DEV NOTE: FULL-UI-05A the programme's own sharing/release sub-panel (a
+// coach sharing/releasing ONE of their own templates, as opposed to this
+// file's other subject - the cross-coach marketplace browse view) moved to
+// React too - see CoachProgrammeMarketplaceSharingPanel.tsx/
+// useCoachProgrammeMarketplaceSharing.ts, mounted at
+// #programme-marketplace-sharing-root. The checks below that used to read
+// appJs/indexHtml for the legacy templateDetailSharingSection markup and
+// confirmSaveTemplateSharing()/etc. are repointed to these files.
+const sharingHook = read("public/app-src/screens/coach/useCoachProgrammeMarketplaceSharing.ts");
+const sharingPanel = read("public/app-src/screens/coach/CoachProgrammeMarketplaceSharingPanel.tsx");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -110,15 +119,15 @@ test("the marketplace route file is tracked by the FULL-UI completion guard's ro
   assert.match(guard, /\["src\/api\/programme_template_sharing\.routes\.ts", "\/programme-marketplace"\]/u);
 });
 
-test("the coach workspace has a real share toggle (legacy) and a real marketplace browse view (React), wired to the routes", () => {
+test("the coach workspace has a real share toggle (React) and a real marketplace browse view (React), wired to the routes", () => {
   assert.match(indexHtml, /id="view-marketplace"/u);
   assert.match(indexHtml, /id="coach-marketplace-root"/u);
-  assert.match(indexHtml, /id="templateDetailSharedCheckbox"/u);
-  assert.match(indexHtml, /id="templateDetailSharingSection"/u);
+  assert.match(indexHtml, /id="programme-marketplace-sharing-root"/u);
   assert.match(indexHtml, /data-view="marketplace"/u);
 
-  assert.match(appJs, /async function confirmSaveTemplateSharing/u);
-  assert.match(appJs, /elements\.templateSharingForm\.addEventListener\("submit"/u);
+  assert.match(sharingPanel, /Share this programme publicly with other coaches/u);
+  assert.match(sharingHook, /const saveSharing = useCallback/u);
+  assert.match(sharingHook, /saveTemplateSharingPreference\(/u);
 
   assert.match(marketplaceClient, /loadMarketplaceTemplates/u);
   assert.match(marketplaceClient, /"\/programme-marketplace\/templates"/u);
@@ -132,8 +141,8 @@ test("the marketplace card renders coach-supplied template name, description and
 });
 
 test("the sharing toggle is hidden for draft and archived templates, shown only for complete or active", () => {
-  assert.match(appJs, /storedStatus === "complete" \|\| storedStatus === "active"/u);
-  assert.match(appJs, /templateDetailSharingSection\.hidden = !shareable/u);
+  assert.match(sharingHook, /storedStatus === "complete" \|\| storedStatus === "active"/u);
+  assert.match(sharingHook, /if \(!shareable\)/u);
 });
 
 test("the marketplace browse view has real search, activity-filter and sort controls, wired to a client-side filter", () => {

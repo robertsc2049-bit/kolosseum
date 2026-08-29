@@ -14,10 +14,16 @@ const lifecycle = read("shared/programme-marketplace/programmeTemplateSharingLif
 const recordStore = read("src/api/beta_product_record_store.ts");
 const schemaSql = read("schema.sql");
 const templateService = read("src/api/beta18_programme_template_service.ts");
-const appJs = read("public/app/app.js");
-const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 const marketplacePanel = read("public/app-src/screens/coach/CoachMarketplacePanel.tsx");
+// DEV NOTE: the coach's own price/payment-methods/release controls moved
+// to React - see CoachProgrammeMarketplaceSharingPanel.tsx/
+// useCoachProgrammeMarketplaceSharing.ts, mounted at
+// #programme-marketplace-sharing-root (see full_ui_67_programme_
+// marketplace_surface.test.mjs's matching DEV NOTE for the sharing half).
+const sharingHook = read("public/app-src/screens/coach/useCoachProgrammeMarketplaceSharing.ts");
+const sharingPanel = read("public/app-src/screens/coach/CoachProgrammeMarketplaceSharingPanel.tsx");
+const marketplaceClient = read("public/app-src/api/marketplaceClient.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 const forbiddenPaymentProcessing = /stripe|Stripe|payment_intent|checkout\.sessions|charge\.create/u;
@@ -98,16 +104,15 @@ test("no marketplace release file imports any engine-truth service", () => {
 });
 
 test("the coach workspace has real price/payment-methods inputs and a real release control, wired to the routes", () => {
-  assert.match(indexHtml, /id="templateDetailPriceLabelInput"/u);
-  assert.match(indexHtml, /id="templateDetailPaymentMethodsInput"/u);
-  assert.match(indexHtml, /id="templateReleaseAccountCodeInput"/u);
-  assert.match(indexHtml, /id="templateReleaseHistoryList"/u);
+  assert.match(sharingPanel, /placeholder="e.g. £49"/u);
+  assert.match(sharingPanel, /placeholder="e.g. Venmo @handle, PayPal"/u);
+  assert.match(sharingPanel, /placeholder="coach_\.\.\."/u);
+  assert.match(sharingPanel, /ReleaseHistoryList/u);
 
-  assert.match(appJs, /async function confirmSaveTemplateSharing/u);
-  assert.match(appJs, /async function confirmReleaseTemplate/u);
-  assert.match(appJs, /async function refreshTemplateReleaseHistory/u);
-  assert.match(appJs, /`\/programme-marketplace\/templates\/\$\{encodeURIComponent\(templateId\)\}\/release`/u);
-  assert.match(appJs, /elements\.templateReleaseForm\.addEventListener\("submit"/u);
+  assert.match(sharingHook, /const saveSharing = useCallback/u);
+  assert.match(sharingHook, /const release = useCallback/u);
+  assert.match(sharingHook, /loadTemplateReleaseHistory/u);
+  assert.match(marketplaceClient, /`\/programme-marketplace\/templates\/\$\{encodeURIComponent\(templateId\)\}\/release`/u);
 });
 
 test("the marketplace browse card renders the coach-supplied price label and payment-methods note as React text, never raw HTML", () => {
@@ -116,8 +121,9 @@ test("the marketplace browse card renders the coach-supplied price label and pay
   assert.match(marketplacePanel, /template\.payment_methods_note/u);
 });
 
-test("the release history escapes the buyer account code before rendering", () => {
-  assert.match(appJs, /escapeHtml\(release\.buyer_coach_user_id\)/u);
+test("the release history renders the buyer account code as React text, never raw HTML", () => {
+  assert.doesNotMatch(sharingPanel, /dangerouslySetInnerHTML/u);
+  assert.match(sharingPanel, /\{String\(release\.buyer_coach_user_id \?\? ""\)\}/u);
 });
 
 test("the FULL-UI-68 manifest functions are declared as implemented with real tests inside the existing programme_marketplace area", () => {

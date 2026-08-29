@@ -28,8 +28,9 @@ const libraryHook = fs.readFileSync(
 // CoachProgrammeDetailPanel.tsx/useCoachProgrammeDetail.ts, mounted at
 // #programme-detail-header-root/#programme-detail-root. The activation
 // validation summary, structure preview and marketplace sharing/release
-// sub-panel stay legacy (their own future slices) - checks against `app`/
-// `html` for those are untouched below.
+// sub-panel also moved (see their own test files - full_ui_05a's own
+// scope stays library/detail) - checks against `app`/`html` for those
+// are untouched below.
 const detailPanel = fs.readFileSync(
   "public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx",
   "utf8"

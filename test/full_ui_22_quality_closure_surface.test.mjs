@@ -25,6 +25,7 @@ const connectAthletePanel = read("public/app-src/screens/coach/ConnectAthletePan
 const athleteRelationshipDetailPanel = read("public/app-src/screens/coach/AthleteRelationshipDetailPanel.tsx");
 const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
 const programmeLibraryPanel = read("public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx");
+const marketplaceSharingPanel = read("public/app-src/screens/coach/CoachProgrammeMarketplaceSharingPanel.tsx");
 
 test("every focusable control gets a visible keyboard-only focus ring, distinct from mouse-hover styling", () => {
   assert.match(
@@ -100,12 +101,15 @@ test("a form submit or button click cannot be repeated while its own async actio
   // acceptRelationshipInvitation/declineRelationshipInvitation/
   // endAthleteRelationship's button listeners each dropped one when those
   // panels moved to React (AccountCoachInvitationsPanel.tsx/
-  // AccountCoachRelationshipPanel.tsx), and inviteAthleteByEmail/
+  // AccountCoachRelationshipPanel.tsx), inviteAthleteByEmail/
   // confirmSendCoachBroadcast dropped two more moving to
   // InviteAthleteByEmailPanel.tsx/CoachBroadcastPanel.tsx (connectAthlete's
-  // own submit binding was never guardedAction-wrapped to begin with).
+  // own submit binding was never guardedAction-wrapped to begin with), and
+  // confirmSaveTemplateSharing/confirmReleaseTemplate dropped the final two
+  // moving to CoachProgrammeMarketplaceSharingPanel.tsx - only
+  // handleResetRequest/handleResetComplete remain.
   const guardedCallCount = [...js.matchAll(/guardedAction\(/gu)].length - 1; // -1 for the function definition itself
-  assert.ok(guardedCallCount >= 4, `expected at least 4 guardedAction call sites, found ${guardedCallCount}`);
+  assert.ok(guardedCallCount >= 2, `expected at least 2 guardedAction call sites, found ${guardedCallCount}`);
 
   // saveAccountProfile/requestAccountVerificationCode/verifyAccountEmail/
   // saveAccountPassword/submitSupportReport/requestDataExportAction/
@@ -133,6 +137,11 @@ test("a form submit or button click cannot be repeated while its own async actio
 
   const accountClosurePanel = read("public/app-src/screens/account/AccountClosurePanel.tsx");
   assert.match(accountClosurePanel, /type="submit" disabled=\{submitting\}/u);
+
+  // confirmSaveTemplateSharing/confirmReleaseTemplate's own equivalent,
+  // now that they moved to React too.
+  assert.match(marketplaceSharingPanel, /type="submit" disabled=\{savingSharing\}/u);
+  assert.match(marketplaceSharingPanel, /type="submit" disabled=\{releasing\}/u);
 
   // Same guarantee for the pending-invitations accept/decline buttons and
   // the end-relationship button - each disables while its own actingId/
