@@ -1,0 +1,80 @@
+{
+  "slice_id": "REG-FULL-05",
+  "closure_id": "sport_context_completion",
+  "status": "materialized",
+  "authority": {
+    "supported_activities": [
+      "powerlifting",
+      "general_strength",
+      "rugby_union"
+    ],
+    "sport_subdivision_truth": "registries/sport_subdivision/sport_subdivision.registry.json",
+    "sport_role_truth": "registries/sport_role/sport_role.registry.json",
+    "sport_metric_truth": "registries/sport_metric/sport_metric.registry.json",
+    "metric_exercise_link_truth": "registries/metric_exercise_link/metric_exercise_link.registry.json",
+    "threshold_marker_truth": "registries/threshold_marker/threshold_marker.registry.json",
+    "historical_candidate_inputs_preserved": [
+      "S-REG-19",
+      "S-REG-20",
+      "S-REG-21"
+    ],
+    "metric_exercise_link_runtime_inference_allowed": false,
+    "generic_fallback_allowed": false,
+    "threshold_marker_supersession": {
+      "supersedes": "REG-FULL-00 threshold_marker_registry new_content_allowed=false only",
+      "content_extension_authorised_by": "REG-FULL-05 human instruction",
+      "final_authoritative": false,
+      "final_runtime_load": false,
+      "runtime_evaluator_allowed": false,
+      "interpretation_or_recommendation_allowed": false,
+      "historical_s_reg_30_rows_preserved": true
+    }
+  },
+  "counts": {
+    "activity_count": 3,
+    "subdivision_count": 4,
+    "role_count": 3,
+    "sport_metric_count": 9,
+    "metric_exercise_link_count": 12,
+    "threshold_marker_count": 5,
+    "by_activity": {
+      "powerlifting": {
+        "subdivision_count": 2,
+        "role_count": 1,
+        "metric_count": 3,
+        "metric_exercise_link_count": 6,
+        "threshold_marker_count": 2
+      },
+      "general_strength": {
+        "subdivision_count": 1,
+        "role_count": 1,
+        "metric_count": 4,
+        "metric_exercise_link_count": 6,
+        "threshold_marker_count": 3
+      },
+      "rugby_union": {
+        "subdivision_count": 1,
+        "role_count": 1,
+        "metric_count": 2,
+        "metric_exercise_link_count": 0,
+        "threshold_marker_count": 0
+      }
+    }
+  },
+  "historical_seed_counts": {
+    "subdivision": 4,
+    "role": 3,
+    "sport_metric_pre_s_reg_30": 6,
+    "sport_metric_s_reg_30_extension": 3,
+    "metric_exercise_link": 12,
+    "threshold_marker": 5
+  },
+  "hashes_sha256": {
+    "sport_subdivision_registry": "89d1f415e102e8075c62a7e7cdfd254e84e58ec00a708bb503fac8340d543417",
+    "sport_role_registry": "d346ffe626aae63d1b11321e188675e0a0d67a6b53073de8ee9777c2d124a931",
+    "sport_metric_registry": "9c4d3bc7281929d34a8d7662f3f4a887b13b1de4045b0ef7749d8cdba1f5e965",
+    "metric_exercise_link_registry": "b5ca35511d69e449c89a8fd5e3b3758024ca9d056d329dcf29b89086def2c31f",
+    "threshold_marker_registry": "093df088efc63b9210da6e5af792460a2e5a2ac36a01e0933baad3dd89862f66",
+    "registry_bundle": "80a2bed4920579cbd225a772a48a4690550e785cffc75af898c62570433f35d7"
+  }
+}
