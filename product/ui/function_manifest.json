@@ -168,6 +168,16 @@
       "state": "implemented"
     },
     {
+      "route_id": "coach_marketplace",
+      "pattern": "#/coach/marketplace",
+      "view": "marketplace",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
       "route_id": "shared_account",
       "pattern": "#/account",
       "view": "account",
@@ -7199,7 +7209,7 @@
           "actors": [
             "coach"
           ],
-          "route_id": null,
+          "route_id": "coach_marketplace",
           "api_routes": [
             "/programme-marketplace/templates"
           ],

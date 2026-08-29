@@ -16,6 +16,24 @@ test("FULL-UI-01 route map exposes current athlete and coach product views", () 
   assert.ok(PRODUCT_ROUTE_MAP.some((route) => route.route_id === "coach_event_detail"));
   assert.ok(PRODUCT_ROUTE_MAP.some((route) => route.route_id === "coach_programme_detail"));
   assert.ok(PRODUCT_ROUTE_MAP.some((route) => route.route_id === "coach_review_athlete"));
+  assert.ok(PRODUCT_ROUTE_MAP.some((route) => route.route_id === "coach_marketplace"));
+});
+
+// DEV NOTE: found via a post-migration audit sweep - the marketplace nav
+// item/view was fully React-rendered but had no PRODUCT_ROUTE_MAP entry at
+// all, so navigating there never produced a real #/coach/marketplace hash
+// (routeForView() silently fell through to fallbackRouteForActor() instead,
+// per the "else" branch this test's own file's coverage didn't previously
+// reach) - unreachable via a bookmarked/typed/shared URL, and a refresh
+// while on Marketplace would have silently redirected to Coach Overview.
+test("FULL-UI-01 the marketplace is a real, actor-gated, bookmarkable route", () => {
+  const hash = routeForView("coach", "marketplace");
+  assert.equal(hash, "#/coach/marketplace");
+
+  const route = parseProductRoute(hash);
+  assert.equal(route?.route_id, "coach_marketplace");
+  assert.equal(actorCanAccessRoute("coach", route), true);
+  assert.equal(actorCanAccessRoute("athlete", route), false);
 });
 
 test("FULL-UI-01 entity routes serialize and parse deterministically", () => {
