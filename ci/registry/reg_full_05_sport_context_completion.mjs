@@ -1,9 +1,4 @@
-/**
- * DEV NOTE: REG-FULL-05 sport-context completion guard.
- * Proves explicit sport context for the locked three activities. Threshold
- * markers may gain factual content under REG-FULL-05 but remain dormant,
- * non-authoritative and non-runtime under final architecture.
- */
+/** REG-FULL-05 explicit sport-context closure guard. */
 import fs from "node:fs";
 import crypto from "node:crypto";
 
@@ -37,12 +32,32 @@ export const REG_FULL_05_REQUIRED_METRICS = Object.freeze({
   rugby_union: Object.freeze(["rugby_union__body_mass_kg", "rugby_union__sprint_time_seconds", "rugby_union__load_kg", "rugby_union__repetition_count", "rugby_union__set_count", "rugby_union__duration_seconds", "rugby_union__distance_m", "rugby_union__sprint_distance_m", "rugby_union__jump_height_cm", "rugby_union__jump_distance_cm", "rugby_union__change_of_direction_time_seconds", "rugby_union__contact_repetition_count", "rugby_union__set_piece_repetition_count"])
 });
 export const REG_FULL_05_HISTORICAL_THRESHOLDS = Object.freeze([
-  "powerlifting__attempt_count__gte_1", "powerlifting__attempt_count__lte_3", "general_strength__set_count__gte_1", "general_strength__duration_seconds__gte_60", "general_strength__duration_seconds__lte_3600"
+  "threshold_marker__powerlifting__attempt_count__gte_1",
+  "threshold_marker__powerlifting__attempt_count__lte_3",
+  "threshold_marker__general_strength__set_count__gte_1",
+  "threshold_marker__general_strength__duration_seconds__gte_60",
+  "threshold_marker__general_strength__duration_seconds__lte_3600"
 ]);
-
+export const REG_FULL_05_REQUIRED_S_REG_20_LINKS = Object.freeze([
+  "powerlifting__attempt_count__paused_back_squat",
+  "powerlifting__attempt_count__paused_deadlift",
+  "powerlifting__attempt_count__paused_bench_press",
+  "general_strength__set_count__paused_back_squat",
+  "general_strength__set_count__romanian_deadlift",
+  "general_strength__set_count__close_grip_bench_press",
+  "general_strength__duration_seconds__tempo_back_squat",
+  "general_strength__duration_seconds__romanian_deadlift"
+]);
+const CANDIDATE_METRIC_SUBDIVISIONS = Object.freeze({
+  "powerlifting__body_mass_kg": "powerlifting__general_preparation",
+  "rugby_union__jump_height_cm": "rugby_union__general_preparation",
+  "rugby_union__sprint_distance_m": "rugby_union__general_preparation"
+});
 const LINKLESS = new Set(["powerlifting__body_mass_kg", "general_strength__body_mass_kg", "rugby_union__body_mass_kg"]);
-const STATUSES = ["recorded_met", "recorded_not_met", "not_recorded", "invalid_source", "insufficient_recorded_data"];
-const BAD = ["fallback", "unknown", "unspecified", "catch_all", "default_"];
+const STATUSES = Object.freeze(["recorded_met", "recorded_not_met", "not_recorded", "invalid_source", "insufficient_recorded_data"]);
+const OPERATORS = new Set(["greater_than_or_equal", "less_than_or_equal", "equal_to"]);
+const SOURCES = new Set(["coach_declared", "organisation_declared_later", "fixture_declared"]);
+const BAD = Object.freeze(["fallback", "unknown", "unspecified", "catch_all", "default_"]);
 
 function fail(reason, details = {}) { const e = new Error(reason); e.code = REG_FULL_05_FAILURE_TOKEN; e.reason = reason; e.details = details; throw e; }
 function read(path) { return JSON.parse(fs.readFileSync(path, "utf8")); }
@@ -99,11 +114,13 @@ export function auditRegFull05Documents(docs) {
     if (row.metric_kind !== "factual_metric_definition") fail("reg_full_05_metric_kind_invalid", { id });
     metricCounts[row.activity_id] += 1;
   }
+  for (const [id, subdivisionId] of Object.entries(CANDIDATE_METRIC_SUBDIVISIONS)) if (metric.entries[id]?.sport_subdivision_id !== subdivisionId) fail("reg_full_05_s_reg_19_metric_semantic_drift", { id, actual: metric.entries[id]?.sport_subdivision_id, expected: subdivisionId });
 
   const allowedPairs = pairs(applicability);
   const byMetric = new Map();
   const linkCounts = Object.fromEntries(REG_FULL_05_ACTIVITIES.map((id) => [id, 0]));
   const seen = new Set();
+  requireIds(link.entries, REG_FULL_05_REQUIRED_S_REG_20_LINKS, "reg_full_05_s_reg_20_candidate_link_missing");
   for (const [id, row] of Object.entries(link.entries)) {
     noFallback(id, "metric_exercise_link");
     if (row.metric_exercise_link_id !== id || id !== `${row.sport_metric_id}__${row.exercise_id}`) fail("reg_full_05_metric_link_primary_key_invalid", { id });
@@ -132,12 +149,13 @@ export function auditRegFull05Documents(docs) {
   const thresholdCounts = Object.fromEntries(REG_FULL_05_ACTIVITIES.map((id) => [id, 0]));
   for (const [id, row] of Object.entries(threshold.entries)) {
     noFallback(id, "threshold_marker");
-    if (row.threshold_marker_id !== id) fail("reg_full_05_threshold_primary_key_invalid", { id });
+    if (!id.startsWith("threshold_marker__") || row.threshold_marker_id !== id) fail("reg_full_05_threshold_primary_key_invalid", { id });
     const metricRow = metric.entries[row.sport_metric_id];
     if (!metricRow) fail("reg_full_05_threshold_metric_fk_missing", { id });
     if (metricRow.activity_id !== row.activity_id) fail("reg_full_05_threshold_activity_mismatch", { id });
     if (metricRow.unit !== row.threshold_unit) fail("reg_full_05_threshold_unit_mismatch", { id, metric_unit: metricRow.unit, threshold_unit: row.threshold_unit });
-    if (row.threshold_source !== "coach_declared") fail("reg_full_05_threshold_source_invalid", { id });
+    if (!OPERATORS.has(row.threshold_operator)) fail("reg_full_05_threshold_operator_invalid", { id, actual: row.threshold_operator });
+    if (!SOURCES.has(row.threshold_source)) fail("reg_full_05_threshold_source_invalid", { id, actual: row.threshold_source });
     if (JSON.stringify(row.marker_status_allowed_values) !== JSON.stringify(STATUSES)) fail("reg_full_05_threshold_status_contract_invalid", { id });
     const notes = String(row.copy_boundary_notes ?? "").toLowerCase();
     if (!notes.includes("factual") || (!REG_FULL_05_HISTORICAL_THRESHOLDS.includes(id) && (!notes.includes("dormant") || !notes.includes("non-runtime")))) fail("reg_full_05_threshold_copy_boundary_invalid", { id });
@@ -145,6 +163,7 @@ export function auditRegFull05Documents(docs) {
     thresholdCounts[row.activity_id] += 1;
   }
   for (const metricId of Object.keys(metric.entries)) if ((byThresholdMetric.get(metricId) ?? 0) < 1) fail("reg_full_05_metric_without_threshold_marker", { metric_id: metricId });
+  for (const id of REG_FULL_05_ACTIVITIES) if (thresholdCounts[id] < 1) fail("reg_full_05_activity_threshold_coverage_incomplete", { activity_id: id });
 
   return Object.freeze({
     activity_count: activities.length,
@@ -163,9 +182,9 @@ export function auditRegFull05Authority({ finalSurface, evidence, liveHashes }) 
   if (!thresholdEntity) fail("reg_full_05_threshold_final_surface_missing");
   const final = thresholdEntity.final_state;
   if (thresholdEntity.classification !== "dormant" || !final || final.authoritative !== false || final.final_runtime_load !== false || final.final_load_position !== null) fail("reg_full_05_threshold_must_remain_dormant_non_runtime", { threshold: thresholdEntity });
-
   object(evidence, "reg_full_05_evidence_invalid");
   if (evidence.slice_id !== "REG-FULL-05" || evidence.closure_id !== "sport_context_completion" || evidence.status !== "materialized") fail("reg_full_05_evidence_identity_invalid");
+  if (JSON.stringify(evidence.authority?.historical_candidate_inputs_preserved) !== JSON.stringify(["S-REG-19", "S-REG-20", "S-REG-21"])) fail("reg_full_05_candidate_history_evidence_invalid");
   if (evidence.authority?.metric_exercise_link_runtime_inference_allowed !== false || evidence.authority?.generic_fallback_allowed !== false) fail("reg_full_05_evidence_fallback_boundary_invalid");
   const s = evidence.authority?.threshold_marker_supersession;
   if (!s || s.final_authoritative !== false || s.final_runtime_load !== false || s.runtime_evaluator_allowed !== false || s.interpretation_or_recommendation_allowed !== false || s.historical_s_reg_30_rows_preserved !== true) fail("reg_full_05_threshold_supersession_invalid", { actual: s });
