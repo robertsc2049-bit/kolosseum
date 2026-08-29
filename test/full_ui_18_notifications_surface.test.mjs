@@ -9,12 +9,20 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
-const js = read("public/app/app.js");
 const routeBootstrap = read("public/app/route_bootstrap.js");
 const notificationService = read("src/api/product_notification_service.ts");
 const notificationNoteDerivation = read("src/api/product_notification_note_derivation.ts");
 const notificationRoutes = read("src/api/product_notification.routes.ts");
 const serverTs = read("src/server.ts");
+// DEV NOTE: the bell button, dropdown panel, loading/unavailable/empty
+// states and per-item open/read-toggle controls moved to React - see
+// NotificationBellPanel.tsx/useNotifications.ts/notificationsClient.ts,
+// mounted at #notification-bell-root (replacing the static
+// .notification-bell-wrap markup this file used to check inside
+// index.html/app.js).
+const notificationPanel = read("public/app-src/screens/account/NotificationBellPanel.tsx");
+const notificationHook = read("public/app-src/screens/account/useNotifications.ts");
+const notificationClient = read("public/app-src/api/notificationsClient.ts");
 
 test("notification routes are mounted and delegate to the notification service", () => {
   assert.match(serverTs, /productNotificationRouter/u);
@@ -98,28 +106,26 @@ test("target availability is derived, not assumed - a stale relationship makes a
 });
 
 test("notification bell, panel, loading, unavailable and empty states exist and are real focusable controls", () => {
-  for (const id of [
-    "notificationBellButton", "notificationUnreadBadge", "notificationPanel",
-    "notificationMarkAllReadButton", "notificationLoading", "notificationServiceUnavailable",
-    "notificationRetryButton", "notificationEmpty", "notificationList"
-  ]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
-  }
+  assert.ok(html.includes('id="notification-bell-root"'), "Expected the React mount point for the notification bell/panel");
 
-  for (const id of ["notificationBellButton", "notificationMarkAllReadButton", "notificationRetryButton"]) {
-    const re = new RegExp(`<button[^>]*id="${id}"[^>]*type="button"`, "u");
-    assert.match(html, re, `${id} must be a real <button type="button">`);
-  }
+  assert.match(notificationPanel, /className="icon-button notification-bell"\s*\n\s*type="button"\s*\n\s*aria-label="Open notifications"/u);
+  assert.match(notificationPanel, /className="notification-unread-badge"/u);
+  assert.match(notificationPanel, /className="notification-panel" role="menu"/u);
+  assert.match(notificationPanel, /className="button link" type="button" onClick=\{\(\) => markAllRead\(\)\}>Mark all read</u);
+  assert.match(notificationPanel, /className="notification-loading">Loading notifications/u);
+  assert.match(notificationPanel, /className="notification-unavailable"/u);
+  assert.match(notificationPanel, /className="button" type="button" onClick=\{\(\) => retry\(\)\}>Retry</u);
+  assert.match(notificationPanel, /className="notification-empty">No notifications yet\./u);
+  assert.match(notificationPanel, /className="notification-list"/u);
 
-  assert.match(js, /async function loadNotificationPanelContent/u);
-  assert.match(js, /elements\.notificationServiceUnavailable\.hidden = false/u);
-  assert.match(html, /No notifications yet/u);
+  assert.match(notificationHook, /const loadPanelContent = useCallback\(async \(\) => \{/u);
+  assert.match(notificationHook, /error: true/u);
 });
 
 test("every notification list item exposes a real focusable open control and a real focusable read-state toggle (keyboard reachability)", () => {
-  assert.match(js, /openButton\.type = "button"/u);
-  assert.match(js, /toggleButton\.type = "button"/u);
-  assert.doesNotMatch(js, /notification-item[\s\S]{0,200}onclick=/u);
+  assert.match(notificationPanel, /<button type="button" className="notification-item-open" onClick=\{onOpen\}>/u);
+  assert.match(notificationPanel, /type="button"\s*\n\s*className="notification-item-toggle-read"/u);
+  assert.doesNotMatch(notificationPanel, /onclick=/u);
 });
 
 test("notification markup does not get hidden on narrow (mobile) viewports", () => {
@@ -147,27 +153,27 @@ test("notification_payload is derived, persisted and returned by the API, and ac
   // athlete_user_id} on the wire for every notification type, but until now
   // nothing in the UI ever read it: every notification of the same type
   // rendered as an identical row regardless of which coach or athlete
-  // triggered it. notificationSubject resolves the payload against the
-  // already-loaded coachAthletes / athleteRelationships /
-  // pendingRelationshipInvitations state maps, no extra fetch required.
+  // triggered it. resolveNotificationSubject() (notificationsClient.ts)
+  // resolves the payload against the panel's own freshly-loaded
+  // coachRelationships / athleteRelationships / pendingInvitations lists
+  // (fetched by useNotifications.ts, see its own DEV NOTE), no extra
+  // fetch required beyond what the hook already does on panel open.
   assert.match(notificationService, /notification_payload:\s*isRecord\(row\.notification_payload\)\s*\?\s*row\.notification_payload\s*:\s*\{\}/u);
 
-  assert.match(js, /function notificationSubject\(notification\)/u);
-  assert.match(js, /payload\.athlete_user_id/u);
-  assert.match(js, /payload\.coach_user_id/u);
-  assert.match(js, /function notificationCoachName\(coachUserId\)/u);
-  assert.match(js, /function notificationAthleteName\(athleteUserId\)/u);
+  assert.match(notificationClient, /function resolveNotificationSubject/u);
+  assert.match(notificationClient, /record\.athlete_user_id/u);
+  assert.match(notificationClient, /record\.coach_user_id/u);
 
   // Coach-directed payloads (athlete_user_id) resolve against the coach's
   // own athlete directory; athlete-directed payloads (coach_user_id)
-  // resolve against the athlete's own relationship/invitation lists - both
-  // already populated in state with no dedicated notification-only fetch.
-  assert.match(js, /state\.coachAthletes/u);
-  assert.match(js, /state\.athleteRelationships/u);
-  assert.match(js, /state\.pendingRelationshipInvitations/u);
+  // resolve against the athlete's own relationship/invitation lists.
+  assert.match(notificationClient, /context\.coachRelationships/u);
+  assert.match(notificationClient, /context\.athleteRelationships/u);
+  assert.match(notificationClient, /context\.pendingInvitations/u);
+  assert.match(notificationHook, /coachRelationships,\s*athleteRelationships,\s*pendingInvitations/u);
 
   // The renderer actually inserts the resolved subject into the DOM.
-  assert.match(js, /const subject = notificationSubject\(notification\)/u);
-  assert.match(js, /class="notification-item-subject"/u);
+  assert.match(notificationPanel, /subject=\{resolveNotificationSubject\(notification,/u);
+  assert.match(notificationPanel, /className="notification-item-subject"/u);
   assert.match(css, /\.notification-item-subject\b/u);
 });

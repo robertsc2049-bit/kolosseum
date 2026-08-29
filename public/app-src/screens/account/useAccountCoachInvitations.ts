@@ -13,12 +13,13 @@ import { type JsonRecord } from "../../api/transport";
 // to splice into #view-account via insertAdjacentElement (see
 // AccountCoachRelationshipPanel.tsx/AccountOrgContextPanel.tsx/
 // AccountOrgMessagesPanel.tsx/AccountCoachCodePanel.tsx for the others).
-// Legacy's own refreshPendingRelationshipInvitations() is kept (trimmed to
-// fetch+cache only) since notificationCoachName() in app.js's notification
-// bell still reads state.pendingRelationshipInvitations directly to
-// resolve a coach's display name for a notification card - this hook's
-// own mutations dispatch RELATIONSHIP_CHANGED_EVENT so that trimmed
-// refresher (and the sibling relationships panel) stay in sync.
+// refreshPendingRelationshipInvitations() itself was deleted from app.js
+// (FULL-UI-18 notification bell slice) once notificationCoachName() - its
+// only other reader of state.pendingRelationshipInvitations - moved to
+// React too (see NotificationBellPanel.tsx's useNotifications.ts, which
+// fetches its own independent copy); this hook's own mutations dispatch
+// RELATIONSHIP_CHANGED_EVENT so the sibling relationships panel stays in
+// sync.
 export const RELATIONSHIP_CHANGED_EVENT = "kolosseum:athlete-relationship-changed";
 
 export type AccountCoachInvitationsState = {

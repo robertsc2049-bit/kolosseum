@@ -14,15 +14,17 @@ const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const html = read("public/app/index.html");
-const js = read("public/app/app.js");
 const routes = read("src/api/coach_workspace.routes.ts");
 const handlers = read("src/api/coach_workspace.handlers.ts");
 const invitationService = read("src/api/relationship_invitation_service.ts");
 // DEV NOTE: the pending-invitations panel moved to React - see
 // AccountCoachInvitationsPanel.tsx/useAccountCoachInvitations.ts/
-// accountRelationshipsClient.ts. refreshPendingRelationshipInvitations()
-// stays in app.js, trimmed to fetch+cache only (no render), since
-// notificationCoachName() still reads state.pendingRelationshipInvitations.
+// accountRelationshipsClient.ts, which fetches its own independent copy
+// of the athlete's pending invitations on mount. app.js's own
+// refreshPendingRelationshipInvitations() was deleted entirely (FULL-UI-18
+// notification bell slice) once notificationCoachName() - its only other
+// caller - moved to React too (see NotificationBellPanel.tsx's
+// useNotifications.ts).
 const invitationsPanel = read("public/app-src/screens/account/AccountCoachInvitationsPanel.tsx");
 const invitationsHook = read("public/app-src/screens/account/useAccountCoachInvitations.ts");
 const invitationsClient = read("public/app-src/api/accountRelationshipsClient.ts");
@@ -87,7 +89,7 @@ test("the coach's email lookup only ever resolves an active athlete account, nev
 
 test("the pending-invitations panel is real, focusable markup rendered from the athlete's own server response - not a typed field", () => {
   assert.match(invitationsPanel, /export function AccountCoachInvitationsPanel/u);
-  assert.match(js, /async function refreshPendingRelationshipInvitations\(\)/u);
+  assert.match(invitationsHook, /await loadPendingRelationshipInvitations\(\)/u);
   assert.match(invitationsClient, /export async function acceptRelationshipInvitation/u);
   assert.match(invitationsPanel, />Accept<\/button>/u);
   // A busy in-flight action disables the button (React's own equivalent of
@@ -99,8 +101,8 @@ test("the pending-invitations panel is real, focusable markup rendered from the 
   assert.doesNotMatch(invitationsPanel, /<input/u);
 });
 
-test("visiting the account view refreshes the athlete's own pending invitations, and the coach invite form is duplicate-submit guarded", () => {
-  assert.match(js, /refreshPendingRelationshipInvitations\(\)\.catch\(handleError\);/u);
+test("mounting the pending-invitations panel refreshes the athlete's own pending invitations, and the coach invite form is duplicate-submit guarded", () => {
+  assert.match(invitationsHook, /useEffect\(\(\) => \{\s*\n\s*refresh\(\);/u);
   // The coach's invite-by-email form is React now - useInviteAthleteByEmail's
   // own submitting flag (not app.js's guardedAction) disables the button for
   // the duration of the in-flight request.

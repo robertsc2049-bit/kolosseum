@@ -182,14 +182,21 @@ let applyingRoute = false;
 async function applyEntityRoute(route) {
   const params = route.params ?? {};
 
-  if (route.route_id === "coach_athlete_detail") {
-    const button = await waitForSelector(
-      `.open-athlete-profile[data-athlete-id="${escapeSelector(params.athlete_id)}"]`
+  // DEV NOTE: React owns the athlete directory now
+  // (AthleteDirectoryPanel.tsx) - its "Open profile" button dispatches
+  // kolosseum:open-athlete-profile-request directly (app.js listens and
+  // calls the still-legacy openAthleteProfile()) rather than rendering a
+  // data-athlete-id attribute for a waitForSelector-based click
+  // simulation to find - that attribute was never part of the React
+  // port's markup, so this deep link was unreachable via a raw hash
+  // (bookmark, shared link, or the notification bell's own "Open") until
+  // fixed here, following the same pattern already used for
+  // coach_event_detail below.
+  if (route.route_id === "coach_athlete_detail" && params.athlete_id) {
+    document.dispatchEvent(
+      new CustomEvent("kolosseum:open-athlete-profile-request", { detail: { athlete_user_id: params.athlete_id } })
     );
-    if (button) {
-      button.click();
-      return true;
-    }
+    return true;
   }
 
   if (route.route_id === "athlete_session") {

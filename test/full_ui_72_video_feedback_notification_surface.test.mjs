@@ -9,7 +9,7 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const service = read("src/api/product_notification_service.ts");
 const schemaSql = read("schema.sql");
-const appJs = read("public/app/app.js");
+const notificationClient = read("public/app-src/api/notificationsClient.ts");
 const routeBootstrap = read("public/app/route_bootstrap.js");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 
@@ -53,7 +53,7 @@ test("the notification is never marked stale - the athlete's own session history
 });
 
 test("the athlete workspace displays a real label for this notification type", () => {
-  assert.match(appJs, /video_feedback_received: "Coach feedback on your video"/u);
+  assert.match(notificationClient, /video_feedback_received: "Coach feedback on your video"/u);
 });
 
 test("the FULL-UI-72 manifest function is declared as implemented with real tests inside the existing notifications area", () => {
