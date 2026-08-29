@@ -1,8 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { fileURLToPath } from "node:url";
 
 const ROOT = process.cwd();
+const __filename = fileURLToPath(import.meta.url);
 
 export const REG_FULL_06_PATHS = Object.freeze({
   exercise: "registries/exercise/exercise.registry.json",
@@ -47,7 +49,7 @@ const CHANGE_PRIORITY = Object.freeze({
   downgrade: 2
 });
 
-const COPY_BOUNDARY = "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference, recommendation, medical claim, suitability claim or performance guarantee";
+const COPY_BOUNDARY = "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee";
 
 function readJson(rel) {
   return JSON.parse(fs.readFileSync(path.join(ROOT, rel), "utf8"));
@@ -313,7 +315,7 @@ function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]?.replace(/\\/g, "/")}`) {
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   try {
     main();
   } catch (error) {
