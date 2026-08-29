@@ -19,12 +19,16 @@ const blocks = read("src/api/blocks.handlers.ts");
 // AthleteProfileAssignmentPanel.tsx. The standalone #view-assign twin is
 // gone outright (unreachable dead code).
 const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
+// DEV NOTE: the builder tree (block/week/session/exercise) moved to
+// React (FULL-UI-05B) - see CoachProgrammeBuilderTree.tsx, mounted
+// directly into the still-legacy #templateBlocks.
+const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
 
 test("programme builder exposes explicit weeks-per-block and a compact add-week action", () => {
   assert.match(html, /id="templateBlocks"/u);
-  assert.match(js, /Weeks in block/u);
-  assert.match(js, /data-field="week_count"/u);
-  assert.match(js, /small-inline-action add-template-week/u);
+  assert.match(builderTree, /Weeks in block/u);
+  assert.match(builderTree, /data-field="week_count"/u);
+  assert.match(builderTree, /small-inline-action add-template-week/u);
   assert.match(js, /resizeBlockWeeks/u);
   assert.match(templateService, /block_week_count_mismatch/u);
   assert.match(templateService, /week_count:\s*declaredWeekCount/u);

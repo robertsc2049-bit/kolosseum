@@ -27,6 +27,13 @@ const phase6 = read("engine/src/phases/phase6.ts");
 // AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts. The
 // standalone #view-assign twin is gone outright (unreachable dead code).
 const assignmentHook = read("public/app-src/screens/coach/useAthleteProfileAssignment.ts");
+// DEV NOTE: the builder tree (block/week/session/work-item) moved to
+// React - see CoachProgrammeBuilderTree.tsx, mounted directly into the
+// still-legacy #templateBlocks. toggleTemplateWorkItemInfo() itself stays
+// in app.js (it still directly, imperatively toggles this div's hidden/
+// innerHTML outside React's reconciliation - see that component's own
+// DEV NOTE) - only the div's own class="..." markup moved.
+const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
 
 test("programme and athlete-reference routes are mounted", () => {
   assert.match(server, /import \{ templatesRouter \} from "\.\/api\/templates\.routes\.js";/u);
@@ -98,7 +105,7 @@ test("builder supports flexible session composition: variable exercise count, su
 });
 
 test("builder exposes a per-exercise written instructions, cues and faults lookup", () => {
-  assert.match(js, /class="template-work-item-info"/u);
+  assert.match(builderTree, /className="template-work-item-info"/u);
   assert.match(js, /template-work-item-info-toggle/u);
   assert.match(js, /function toggleTemplateWorkItemInfo\(/u);
   assert.match(js, /\/exercises\/\$\{encodeURIComponent\(exerciseId\)\}\/content/u);
@@ -177,8 +184,8 @@ test("coach UI exposes one coherent athlete, programme, assignment and review wo
   assert.match(js, /moveTemplateBlock/u);
   assert.match(js, /duplicateTemplateWeek/u);
   assert.match(js, /duplicateTemplateSession/u);
-  assert.match(js, /renderTemplateRepControls/u);
-  assert.match(js, /renderTemplateLoadControls/u);
+  assert.match(builderTree, /function RepControls/u);
+  assert.match(builderTree, /function LoadControls/u);
   assert.match(css, /\.template-block/u);
   assert.match(css, /\.athlete-profile-panel/u);
   assert.match(css, /\.benchmark-row/u);

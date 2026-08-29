@@ -111,13 +111,15 @@ test("app.js wires an exercise-content cache and shared render helper for the co
   // did. app.js's own cache/render helper (loadExerciseHowto/
   // renderExerciseHowto) stay - the coach's template-builder info panel
   // still calls them directly (see its own toggleTemplateWorkItemInfo
-  // mechanism below).
+  // mechanism below). The panel div itself moved to React with the rest
+  // of the builder tree (FULL-UI-05B) - see CoachProgrammeBuilderTree.tsx.
   const appJs = read("public/app/app.js");
   const sessionPanel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
+  const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
   assert.match(appJs, /const exerciseContentCache = new Map\(\)/u);
   assert.match(appJs, /function renderExerciseHowto\(/u);
   assert.match(appJs, /function loadExerciseHowto\(/u);
-  assert.match(appJs, /class="template-work-item-info"/u);
+  assert.match(builderTree, /className="template-work-item-info"/u);
   assert.match(appJs, /function toggleTemplateWorkItemInfo\(/u);
 
   assert.match(sessionPanel, /className="exercise-howto"/u);

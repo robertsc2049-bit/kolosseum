@@ -15,6 +15,16 @@ const validationList = fs.readFileSync(
   "public/app-src/screens/coach/CoachProgrammeBuilderValidationList.tsx",
   "utf8"
 );
+// DEV NOTE: FULL-UI-05B the builder tree (block/week/session/exercise)
+// moved to React too - see CoachProgrammeBuilderTree.tsx, mounted
+// directly into the still-legacy #templateBlocks (its three delegated
+// listeners keep firing on real interaction, driving the exact same
+// untouched mutation functions in app.js) - checks for the move-up/down
+// buttons' markup below are repointed to that file.
+const builderTree = fs.readFileSync(
+  "public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx",
+  "utf8"
+);
 
 test("FULL-UI-05B exposes persistent save and recovery state", () => {
   for (const id of [
@@ -68,7 +78,7 @@ test("FULL-UI-05B links every visible validation issue to a builder field", () =
   assert.match(app, /function templateValidationSelector\(/u);
   assert.match(app, /function focusTemplateValidationIssue\(/u);
   assert.match(app, /data-builder-validation-index/u);
-  assert.match(app, /data-template-kind="work-item"/u);
+  assert.match(builderTree, /"data-template-kind": "work-item"/u);
   assert.match(app, /builder-validation-target/u);
 });
 
@@ -76,9 +86,9 @@ test("FULL-UI-05B supports keyboard and phone operation", () => {
   assert.match(app, /event\.key\.toLowerCase\(\) === "s"/u);
   assert.match(app, /event\.key === "Escape"/u);
   assert.match(app, /saveTemplateDraft\(\)\.catch\(handleError\)/u);
-  assert.match(app, /aria-label="Move block up"/u);
-  assert.match(app, /aria-label="Move week down"/u);
-  assert.match(app, /aria-label="Move session up"/u);
+  assert.match(builderTree, /aria-label="Move block up"/u);
+  assert.match(builderTree, /aria-label="Move week down"/u);
+  assert.match(builderTree, /aria-label="Move session up"/u);
   assert.match(styles, /\/\* FULL-UI-05B programme builder state and recovery \*\//u);
   assert.match(styles, /@media \(max-width: 760px\)/u);
   assert.match(styles, /min-height: 44px/u);
