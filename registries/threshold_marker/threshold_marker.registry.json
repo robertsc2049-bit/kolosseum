@@ -1,6 +1,6 @@
 {
   "registry_id": "threshold_marker",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "entries": {
     "threshold_marker__powerlifting__attempt_count__gte_1": {
       "threshold_marker_id": "threshold_marker__powerlifting__attempt_count__gte_1",
@@ -86,6 +86,499 @@
         "insufficient_recorded_data"
       ],
       "copy_boundary_notes": "factual declared threshold marker candidate only; no evaluator or interpretation"
+    },
+    "threshold_marker__powerlifting__load_kg__gte_0": {
+      "threshold_marker_id": "threshold_marker__powerlifting__load_kg__gte_0",
+      "sport_metric_id": "powerlifting__load_kg",
+      "activity_id": "powerlifting",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "kg",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__powerlifting__repetition_count__gte_1": {
+      "threshold_marker_id": "threshold_marker__powerlifting__repetition_count__gte_1",
+      "sport_metric_id": "powerlifting__repetition_count",
+      "activity_id": "powerlifting",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__general_strength__load_kg__gte_0": {
+      "threshold_marker_id": "threshold_marker__general_strength__load_kg__gte_0",
+      "sport_metric_id": "general_strength__load_kg",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "kg",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__general_strength__repetition_count__gte_1": {
+      "threshold_marker_id": "threshold_marker__general_strength__repetition_count__gte_1",
+      "sport_metric_id": "general_strength__repetition_count",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__body_mass_kg__gte_1": {
+      "threshold_marker_id": "threshold_marker__rugby_union__body_mass_kg__gte_1",
+      "sport_metric_id": "rugby_union__body_mass_kg",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "kg",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__sprint_time_seconds__gte_0_001": {
+      "threshold_marker_id": "threshold_marker__rugby_union__sprint_time_seconds__gte_0_001",
+      "sport_metric_id": "rugby_union__sprint_time_seconds",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0.001,
+      "threshold_unit": "seconds",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__powerlifting__body_mass_kg__gte_1": {
+      "threshold_marker_id": "threshold_marker__powerlifting__body_mass_kg__gte_1",
+      "sport_metric_id": "powerlifting__body_mass_kg",
+      "activity_id": "powerlifting",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "kg",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__jump_height_cm__gte_0": {
+      "threshold_marker_id": "threshold_marker__rugby_union__jump_height_cm__gte_0",
+      "sport_metric_id": "rugby_union__jump_height_cm",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "cm",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__sprint_distance_m__gte_0": {
+      "threshold_marker_id": "threshold_marker__rugby_union__sprint_distance_m__gte_0",
+      "sport_metric_id": "rugby_union__sprint_distance_m",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "m",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__powerlifting__general_preparation_load_kg__gte_0": {
+      "threshold_marker_id": "threshold_marker__powerlifting__general_preparation_load_kg__gte_0",
+      "sport_metric_id": "powerlifting__general_preparation_load_kg",
+      "activity_id": "powerlifting",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "kg",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__powerlifting__general_preparation_repetition_count__gte_1": {
+      "threshold_marker_id": "threshold_marker__powerlifting__general_preparation_repetition_count__gte_1",
+      "sport_metric_id": "powerlifting__general_preparation_repetition_count",
+      "activity_id": "powerlifting",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__powerlifting__general_preparation_set_count__gte_1": {
+      "threshold_marker_id": "threshold_marker__powerlifting__general_preparation_set_count__gte_1",
+      "sport_metric_id": "powerlifting__general_preparation_set_count",
+      "activity_id": "powerlifting",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__powerlifting__general_preparation_duration_seconds__gte_0_001": {
+      "threshold_marker_id": "threshold_marker__powerlifting__general_preparation_duration_seconds__gte_0_001",
+      "sport_metric_id": "powerlifting__general_preparation_duration_seconds",
+      "activity_id": "powerlifting",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0.001,
+      "threshold_unit": "seconds",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__general_strength__body_mass_kg__gte_1": {
+      "threshold_marker_id": "threshold_marker__general_strength__body_mass_kg__gte_1",
+      "sport_metric_id": "general_strength__body_mass_kg",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "kg",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__general_strength__distance_m__gte_0": {
+      "threshold_marker_id": "threshold_marker__general_strength__distance_m__gte_0",
+      "sport_metric_id": "general_strength__distance_m",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "m",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__general_strength__sprint_time_seconds__gte_0_001": {
+      "threshold_marker_id": "threshold_marker__general_strength__sprint_time_seconds__gte_0_001",
+      "sport_metric_id": "general_strength__sprint_time_seconds",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0.001,
+      "threshold_unit": "seconds",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__general_strength__sprint_distance_m__gte_0": {
+      "threshold_marker_id": "threshold_marker__general_strength__sprint_distance_m__gte_0",
+      "sport_metric_id": "general_strength__sprint_distance_m",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "m",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__general_strength__jump_height_cm__gte_0": {
+      "threshold_marker_id": "threshold_marker__general_strength__jump_height_cm__gte_0",
+      "sport_metric_id": "general_strength__jump_height_cm",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "cm",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__general_strength__jump_distance_cm__gte_0": {
+      "threshold_marker_id": "threshold_marker__general_strength__jump_distance_cm__gte_0",
+      "sport_metric_id": "general_strength__jump_distance_cm",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "cm",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__general_strength__change_of_direction_time_seconds__gte_0_001": {
+      "threshold_marker_id": "threshold_marker__general_strength__change_of_direction_time_seconds__gte_0_001",
+      "sport_metric_id": "general_strength__change_of_direction_time_seconds",
+      "activity_id": "general_strength",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0.001,
+      "threshold_unit": "seconds",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__load_kg__gte_0": {
+      "threshold_marker_id": "threshold_marker__rugby_union__load_kg__gte_0",
+      "sport_metric_id": "rugby_union__load_kg",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "kg",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__repetition_count__gte_1": {
+      "threshold_marker_id": "threshold_marker__rugby_union__repetition_count__gte_1",
+      "sport_metric_id": "rugby_union__repetition_count",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__set_count__gte_1": {
+      "threshold_marker_id": "threshold_marker__rugby_union__set_count__gte_1",
+      "sport_metric_id": "rugby_union__set_count",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__duration_seconds__gte_0_001": {
+      "threshold_marker_id": "threshold_marker__rugby_union__duration_seconds__gte_0_001",
+      "sport_metric_id": "rugby_union__duration_seconds",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0.001,
+      "threshold_unit": "seconds",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__distance_m__gte_0": {
+      "threshold_marker_id": "threshold_marker__rugby_union__distance_m__gte_0",
+      "sport_metric_id": "rugby_union__distance_m",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "m",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__jump_distance_cm__gte_0": {
+      "threshold_marker_id": "threshold_marker__rugby_union__jump_distance_cm__gte_0",
+      "sport_metric_id": "rugby_union__jump_distance_cm",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0,
+      "threshold_unit": "cm",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__change_of_direction_time_seconds__gte_0_001": {
+      "threshold_marker_id": "threshold_marker__rugby_union__change_of_direction_time_seconds__gte_0_001",
+      "sport_metric_id": "rugby_union__change_of_direction_time_seconds",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 0.001,
+      "threshold_unit": "seconds",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__contact_repetition_count__gte_1": {
+      "threshold_marker_id": "threshold_marker__rugby_union__contact_repetition_count__gte_1",
+      "sport_metric_id": "rugby_union__contact_repetition_count",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
+    },
+    "threshold_marker__rugby_union__set_piece_repetition_count__gte_1": {
+      "threshold_marker_id": "threshold_marker__rugby_union__set_piece_repetition_count__gte_1",
+      "sport_metric_id": "rugby_union__set_piece_repetition_count",
+      "activity_id": "rugby_union",
+      "threshold_operator": "greater_than_or_equal",
+      "threshold_value": 1,
+      "threshold_unit": "count",
+      "threshold_source": "coach_declared",
+      "marker_status_allowed_values": [
+        "recorded_met",
+        "recorded_not_met",
+        "not_recorded",
+        "invalid_source",
+        "insufficient_recorded_data"
+      ],
+      "copy_boundary_notes": "factual recorded-value boundary candidate only; dormant/non-runtime; no evaluator, recommendation, suitability, safety or performance interpretation"
     }
   }
 }

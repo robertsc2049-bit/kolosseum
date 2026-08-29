@@ -266,7 +266,16 @@ function assertActiveRegistrySurfaceExtendedCorrectly() {
     fail("s_reg_28_sport_role_registry_entries_invalid", { actual: sportRoleRegistry.entries });
   }
 
-  return Object.keys(sportRoleRegistry.entries).length;
+  // REG-FULL-05 supersession-safe historical membership: 3
+  const historicalIds = [
+    "powerlifting__athlete",
+    "general_strength__participant",
+    "rugby_union__field_player"
+  ];
+  for (const id of historicalIds) {
+    if (!sportRoleRegistry.entries[id]) fail("s_reg_28_historical_activated_record_missing", { id });
+  }
+  return historicalIds.length;
 }
 
 export function sReg28LoadSportRoleRegistryActivation() {

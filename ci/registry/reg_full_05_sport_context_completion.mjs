@@ -53,7 +53,14 @@ const CANDIDATE_METRIC_SUBDIVISIONS = Object.freeze({
   "rugby_union__jump_height_cm": "rugby_union__general_preparation",
   "rugby_union__sprint_distance_m": "rugby_union__general_preparation"
 });
-const LINKLESS = new Set(["powerlifting__body_mass_kg", "general_strength__body_mass_kg", "rugby_union__body_mass_kg"]);
+export const REG_FULL_05_LINKLESS_METRIC_REASONS = Object.freeze({
+  "powerlifting__body_mass_kg": "athlete_context_measure_not_exercise_measure",
+  "general_strength__body_mass_kg": "athlete_context_measure_not_exercise_measure",
+  "rugby_union__body_mass_kg": "athlete_context_measure_not_exercise_measure",
+  "rugby_union__contact_repetition_count": "sport_context_measure_not_exercise_measure",
+  "rugby_union__set_piece_repetition_count": "sport_context_measure_not_exercise_measure"
+});
+const LINKLESS = new Set(Object.keys(REG_FULL_05_LINKLESS_METRIC_REASONS));
 const STATUSES = Object.freeze(["recorded_met", "recorded_not_met", "not_recorded", "invalid_source", "insufficient_recorded_data"]);
 const OPERATORS = new Set(["greater_than_or_equal", "less_than_or_equal", "equal_to"]);
 const SOURCES = new Set(["coach_declared", "organisation_declared_later", "fixture_declared"]);
@@ -139,7 +146,7 @@ export function auditRegFull05Documents(docs) {
   if (Object.keys(link.entries).length <= 12) fail("reg_full_05_metric_link_seed_only", { actual: Object.keys(link.entries).length });
   for (const metricId of Object.keys(metric.entries)) {
     const count = byMetric.get(metricId) ?? 0;
-    if (LINKLESS.has(metricId)) { if (count !== 0) fail("reg_full_05_body_mass_metric_must_be_linkless", { metric_id: metricId, count }); }
+    if (LINKLESS.has(metricId)) { if (count !== 0) fail("reg_full_05_linkless_metric_must_not_have_exercise_edge", { metric_id: metricId, count }); }
     else if (count < 1) fail("reg_full_05_linkable_metric_without_explicit_exercise", { metric_id: metricId });
   }
   for (const id of REG_FULL_05_ACTIVITIES) if (linkCounts[id] < 1) fail("reg_full_05_activity_metric_link_coverage_incomplete", { activity_id: id });
@@ -186,6 +193,8 @@ export function auditRegFull05Authority({ finalSurface, evidence, liveHashes }) 
   if (evidence.slice_id !== "REG-FULL-05" || evidence.closure_id !== "sport_context_completion" || evidence.status !== "materialized") fail("reg_full_05_evidence_identity_invalid");
   if (JSON.stringify(evidence.authority?.historical_candidate_inputs_preserved) !== JSON.stringify(["S-REG-19", "S-REG-20", "S-REG-21"])) fail("reg_full_05_candidate_history_evidence_invalid");
   if (evidence.authority?.metric_exercise_link_runtime_inference_allowed !== false || evidence.authority?.generic_fallback_allowed !== false) fail("reg_full_05_evidence_fallback_boundary_invalid");
+  const expectedLinkless = Object.entries(REG_FULL_05_LINKLESS_METRIC_REASONS).map(([metric_id, reason]) => ({ metric_id, reason }));
+  if (JSON.stringify(evidence.authority?.metric_exercise_link_exemptions) !== JSON.stringify(expectedLinkless)) fail("reg_full_05_metric_exercise_link_exemption_evidence_invalid", { actual: evidence.authority?.metric_exercise_link_exemptions, expected: expectedLinkless });
   const s = evidence.authority?.threshold_marker_supersession;
   if (!s || s.final_authoritative !== false || s.final_runtime_load !== false || s.runtime_evaluator_allowed !== false || s.interpretation_or_recommendation_allowed !== false || s.historical_s_reg_30_rows_preserved !== true) fail("reg_full_05_threshold_supersession_invalid", { actual: s });
   if (typeof s.supersedes !== "string" || !s.supersedes.includes("new_content_allowed=false only")) fail("reg_full_05_threshold_supersession_scope_too_broad", { actual: s?.supersedes });

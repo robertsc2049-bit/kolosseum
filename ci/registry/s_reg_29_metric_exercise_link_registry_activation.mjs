@@ -285,7 +285,25 @@ function assertActiveRegistrySurfaceExtendedCorrectly() {
     fail("s_reg_29_metric_exercise_link_registry_entries_invalid", { actual: metricExerciseLinkRegistry.entries });
   }
 
-  return Object.keys(metricExerciseLinkRegistry.entries).length;
+  // REG-FULL-05 supersession-safe historical membership: 12
+  const historicalIds = [
+    "powerlifting__load_kg__back_squat",
+    "powerlifting__load_kg__deadlift",
+    "powerlifting__load_kg__bench_press",
+    "powerlifting__repetition_count__back_squat",
+    "powerlifting__repetition_count__deadlift",
+    "powerlifting__repetition_count__bench_press",
+    "general_strength__load_kg__back_squat",
+    "general_strength__load_kg__deadlift",
+    "general_strength__load_kg__bench_press",
+    "general_strength__repetition_count__back_squat",
+    "general_strength__repetition_count__deadlift",
+    "general_strength__repetition_count__bench_press"
+  ];
+  for (const id of historicalIds) {
+    if (!metricExerciseLinkRegistry.entries[id]) fail("s_reg_29_historical_activated_record_missing", { id });
+  }
+  return historicalIds.length;
 }
 
 function assertNoDanglingCrossRegistryReferences() {

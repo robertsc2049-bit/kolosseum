@@ -26,7 +26,7 @@ REG-FULL-05 materialises at least:
 - explicit metric→exercise rows for every exercise-linked metric;
 - at least one factual threshold-marker row for every sport metric.
 
-Body-mass metrics are deliberately non-exercise metrics and must have zero metric→exercise links.
+Body-mass metrics are deliberately non-exercise metrics and must have zero metric→exercise links. Rugby contact-repetition and set-piece-repetition metrics are also sport-context-only in REG-FULL-05: the canonical movement/exercise universe contains no contact or set-piece exercise authority, so this slice records them without inventing metric→exercise edges. Every other metric remains exercise-linked and must resolve through explicit rows.
 
 ## Explicit relation law
 
@@ -94,7 +94,7 @@ Generated files are committed and reviewed; `registry_bundle.json` is never hand
 - metric/subdivision/activity FKs are coherent;
 - every linkable metric has explicit exercise relations;
 - every link uses explicit exercise/activity applicability;
-- body-mass metrics remain linkless;
+- the exact declared linkless context metrics (body mass, rugby contact repetitions and rugby set-piece repetitions) remain linkless while every other metric has explicit exercise relations;
 - every sport metric has a threshold-marker row;
 - historical threshold rows remain present;
 - threshold unit/activity/status contracts remain coherent;

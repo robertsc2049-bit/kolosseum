@@ -263,7 +263,17 @@ function assertActiveRegistrySurfaceExtendedCorrectly() {
     fail("s_reg_26_sport_subdivision_registry_entries_invalid", { actual: sportSubdivisionRegistry.entries });
   }
 
-  return Object.keys(sportSubdivisionRegistry.entries).length;
+  // REG-FULL-05 supersession-safe historical membership: 4
+  const historicalIds = [
+    "powerlifting__competition_lift",
+    "powerlifting__general_preparation",
+    "general_strength__training",
+    "rugby_union__general_preparation"
+  ];
+  for (const id of historicalIds) {
+    if (!sportSubdivisionRegistry.entries[id]) fail("s_reg_26_historical_activated_record_missing", { id });
+  }
+  return historicalIds.length;
 }
 
 export function sReg26LoadSportSubdivisionRegistryActivation() {

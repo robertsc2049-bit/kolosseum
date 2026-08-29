@@ -318,7 +318,18 @@ function assertThresholdMarkerActivatedCorrectly() {
     fail("s_reg_30_threshold_marker_registry_entries_invalid", { actual: thresholdMarkerRegistry.entries });
   }
 
-  return Object.keys(thresholdMarkerRegistry.entries).length;
+  // REG-FULL-05 supersession-safe historical membership: 5
+  const historicalIds = [
+    "threshold_marker__powerlifting__attempt_count__gte_1",
+    "threshold_marker__powerlifting__attempt_count__lte_3",
+    "threshold_marker__general_strength__set_count__gte_1",
+    "threshold_marker__general_strength__duration_seconds__gte_60",
+    "threshold_marker__general_strength__duration_seconds__lte_3600"
+  ];
+  for (const id of historicalIds) {
+    if (!thresholdMarkerRegistry.entries[id]) fail("s_reg_30_historical_threshold_marker_missing", { id });
+  }
+  return historicalIds.length;
 }
 
 function assertNoDanglingCrossRegistryReferences() {

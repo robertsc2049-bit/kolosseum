@@ -114,11 +114,19 @@ const METRICS = Object.freeze([
 ]);
 
 const LOAD_EQUIPMENT = new Set(["barbell", "dumbbell", "kettlebell", "cable_machine", "trap_bar", "medicine_ball", "sled", "machine_general", "plate"]);
-const RESISTANCE = new Set(["squat", "hinge", "horizontal_push", "vertical_push", "horizontal_pull", "vertical_pull", "split_squat", "lunge", "step", "calf_ankle", "carry", "core_anti_extension", "core_anti_rotation", "core_anti_lateral", "rotation"]);
-const DURATION = new Set(["core_anti_extension", "core_anti_rotation", "core_anti_lateral", "carry", "conditioning_sled", "conditioning_cyclical", "locomotion_walk_run", "locomotion_crawl", "rugby_contact", "rugby_set_piece"]);
-const DISTANCE = new Set(["carry", "conditioning_sled", "sprint_acceleration", "sprint_max_velocity", "change_of_direction", "locomotion_walk_run", "locomotion_crawl"]);
+const RESISTANCE = new Set(["squat", "hinge", "single_leg_squat", "single_leg_hinge", "horizontal_push", "incline_push", "decline_push", "vertical_push", "angled_push", "horizontal_pull", "vertical_pull", "carry_bilateral", "carry_unilateral", "core_anti_extension", "core_anti_rotation", "core_anti_lateral_flexion", "rotation", "throw_slam", "conditioning_sled"]);
+const DURATION = new Set(["core_anti_extension", "core_anti_rotation", "core_anti_lateral_flexion", "carry_bilateral", "carry_unilateral", "conditioning_sled", "conditioning_cyclical", "conditioning_row", "locomotion_walk", "locomotion_run", "locomotion_crawl"]);
+const DISTANCE = new Set(["carry_bilateral", "carry_unilateral", "conditioning_sled", "sprint_acceleration", "sprint_max_velocity", "change_of_direction", "locomotion_walk", "locomotion_run", "locomotion_crawl"]);
 const SPRINT = new Set(["sprint_acceleration", "sprint_max_velocity"]);
 const COMP_LIFTS = new Set(["back_squat", "bench_press", "deadlift"]);
+const LINKLESS_METRIC_REASONS = Object.freeze({
+  "powerlifting__body_mass_kg": "athlete_context_measure_not_exercise_measure",
+  "general_strength__body_mass_kg": "athlete_context_measure_not_exercise_measure",
+  "rugby_union__body_mass_kg": "athlete_context_measure_not_exercise_measure",
+  "rugby_union__contact_repetition_count": "sport_context_measure_not_exercise_measure",
+  "rugby_union__set_piece_repetition_count": "sport_context_measure_not_exercise_measure"
+});
+const LINKLESS_METRICS = new Set(Object.keys(LINKLESS_METRIC_REASONS));
 
 function fail(reason, details = {}) { const e = new Error(`${reason}: ${JSON.stringify(details)}`); e.code = TOKEN; throw e; }
 function read(rel) { return JSON.parse(fs.readFileSync(path.join(ROOT, rel), "utf8")); }
@@ -159,14 +167,12 @@ function equipmentByExercise(registry) {
 }
 function isLoaded(map, exerciseId) { return [...(map.get(exerciseId) ?? [])].some((id) => LOAD_EQUIPMENT.has(id)); }
 function policy(metricId) {
-  if (metricId.endsWith("__body_mass_kg")) return { linkable: false, match: () => false };
+  if (LINKLESS_METRICS.has(metricId)) return { linkable: false, match: () => false };
   if (["powerlifting__load_kg", "powerlifting__repetition_count", "powerlifting__attempt_count"].includes(metricId)) return { linkable: true, match: (ex) => COMP_LIFTS.has(ex.exercise_id) };
   if (metricId.endsWith("__sprint_time_seconds") || metricId.endsWith("__sprint_distance_m")) return { linkable: true, match: (ex) => SPRINT.has(ex.movement_pattern_id) };
   if (metricId.endsWith("__jump_height_cm")) return { linkable: true, match: (ex) => ex.movement_pattern_id === "jump_vertical" };
   if (metricId.endsWith("__jump_distance_cm")) return { linkable: true, match: (ex) => ex.movement_pattern_id === "jump_horizontal" };
   if (metricId.endsWith("__change_of_direction_time_seconds")) return { linkable: true, match: (ex) => ex.movement_pattern_id === "change_of_direction" };
-  if (metricId.endsWith("__contact_repetition_count")) return { linkable: true, match: (ex) => ex.movement_pattern_id === "rugby_contact" };
-  if (metricId.endsWith("__set_piece_repetition_count")) return { linkable: true, match: (ex) => ex.movement_pattern_id === "rugby_set_piece" };
   if (metricId.endsWith("__distance_m")) return { linkable: true, match: (ex) => DISTANCE.has(ex.movement_pattern_id) };
   if (metricId.endsWith("__duration_seconds") || metricId.endsWith("_duration_seconds")) return { linkable: true, match: (ex) => DURATION.has(ex.movement_pattern_id) };
   if (metricId.endsWith("__load_kg") || metricId.endsWith("_load_kg")) return { linkable: true, match: (ex, eq) => RESISTANCE.has(ex.movement_pattern_id) && isLoaded(eq, ex.exercise_id) };
@@ -280,8 +286,26 @@ function materialize() {
   console.log(`REG-FULL-05 materialized subdivisions=${Object.keys(subdivisions).length} roles=${Object.keys(roles).length} metrics=${Object.keys(metrics).length} metric_links=${Object.keys(links).length} thresholds=${Object.keys(thresholds).length}`);
 }
 
+function assertMaterializedForEvidence() {
+  const docs = { subdivision: read(P.subdivision), role: read(P.role), metric: read(P.metric), link: read(P.link), threshold: read(P.threshold) };
+  const expected = { subdivision: "sport_subdivision", role: "sport_role", metric: "sport_metric", link: "metric_exercise_link", threshold: "threshold_marker" };
+  for (const [key, registryId] of Object.entries(expected)) {
+    const doc = docs[key];
+    if (doc.registry_id !== registryId || doc.version !== "2.0.0") fail("evidence_requires_materialized_registry", { key, registry_id: doc.registry_id, version: doc.version });
+  }
+  const counts = {
+    subdivision: Object.keys(docs.subdivision.entries ?? {}).length,
+    role: Object.keys(docs.role.entries ?? {}).length,
+    metric: Object.keys(docs.metric.entries ?? {}).length,
+    link: Object.keys(docs.link.entries ?? {}).length,
+    threshold: Object.keys(docs.threshold.entries ?? {}).length
+  };
+  if (counts.subdivision < 24 || counts.role < 18 || counts.metric < 32 || counts.link <= 12 || counts.threshold < counts.metric) fail("evidence_requires_completed_reg_full_05_surface", { counts });
+  return docs;
+}
+
 function writeEvidence() {
-  const subdivisionRegistry = read(P.subdivision), roleRegistry = read(P.role), metricRegistry = read(P.metric), links = read(P.link), thresholds = read(P.threshold);
+  const { subdivision: subdivisionRegistry, role: roleRegistry, metric: metricRegistry, link: links, threshold: thresholds } = assertMaterializedForEvidence();
   read(P.bundle);
   const byActivity = {};
   for (const activityId of ACTIVITIES) byActivity[activityId] = {
@@ -305,6 +329,7 @@ function writeEvidence() {
       historical_candidate_inputs_preserved: ["S-REG-19", "S-REG-20", "S-REG-21"],
       metric_exercise_link_runtime_inference_allowed: false,
       generic_fallback_allowed: false,
+      metric_exercise_link_exemptions: Object.entries(LINKLESS_METRIC_REASONS).map(([metric_id, reason]) => ({ metric_id, reason })),
       threshold_marker_supersession: {
         supersedes: "REG-FULL-00 threshold_marker_registry new_content_allowed=false only",
         content_extension_authorised_by: "REG-FULL-05 human instruction",

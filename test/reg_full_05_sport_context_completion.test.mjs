@@ -52,16 +52,22 @@ test("REG-FULL-05 rejects metric subdivision/activity drift", () => {
 test("REG-FULL-05 rejects dangling metric-exercise metric FKs", () => {
   const mutated = clone(loadRegFull05Documents());
   const row = firstLink(mutated, (item) => item.activity_id === "rugby_union");
+  const oldId = row.metric_exercise_link_id;
+  delete mutated.link.entries[oldId];
   row.sport_metric_id = "rugby_union__not_in_metric_registry";
   row.metric_exercise_link_id = `${row.sport_metric_id}__${row.exercise_id}`;
+  mutated.link.entries[row.metric_exercise_link_id] = row;
   expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_metric_link_metric_fk_missing");
 });
 
 test("REG-FULL-05 rejects dangling metric-exercise exercise FKs", () => {
   const mutated = clone(loadRegFull05Documents());
   const row = firstLink(mutated, (item) => item.activity_id === "rugby_union");
+  const oldId = row.metric_exercise_link_id;
+  delete mutated.link.entries[oldId];
   row.exercise_id = "not_in_exercise_registry";
   row.metric_exercise_link_id = `${row.sport_metric_id}__${row.exercise_id}`;
+  mutated.link.entries[row.metric_exercise_link_id] = row;
   expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_metric_link_exercise_fk_missing");
 });
 
@@ -76,7 +82,7 @@ test("REG-FULL-05 requires explicit exercise/activity applicability for every li
 
 test("REG-FULL-05 requires every linkable metric to have explicit exercise edges", () => {
   const mutated = clone(loadRegFull05Documents());
-  for (const [id, row] of Object.entries(mutated.link.entries)) if (row.sport_metric_id === "rugby_union__contact_repetition_count") delete mutated.link.entries[id];
+  for (const [id, row] of Object.entries(mutated.link.entries)) if (row.sport_metric_id === "rugby_union__load_kg") delete mutated.link.entries[id];
   expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_linkable_metric_without_explicit_exercise");
 });
 
@@ -85,7 +91,20 @@ test("REG-FULL-05 keeps body-mass metrics exercise-link free", () => {
   const source = firstLink(mutated, (item) => item.activity_id === "rugby_union");
   const id = `rugby_union__body_mass_kg__${source.exercise_id}`;
   mutated.link.entries[id] = { ...source, metric_exercise_link_id: id, sport_metric_id: "rugby_union__body_mass_kg" };
-  expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_body_mass_metric_must_be_linkless");
+  expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_linkless_metric_must_not_have_exercise_edge");
+});
+
+test("REG-FULL-05 keeps rugby contact and set-piece context metrics linkless instead of inventing exercise authority", () => {
+  const documents = loadRegFull05Documents();
+  for (const metricId of ["rugby_union__contact_repetition_count", "rugby_union__set_piece_repetition_count"]) {
+    assert.equal(Object.values(documents.link.entries).filter((row) => row.sport_metric_id === metricId).length, 0);
+  }
+
+  const mutated = clone(documents);
+  const source = firstLink(mutated, (item) => item.activity_id === "rugby_union");
+  const id = `rugby_union__contact_repetition_count__${source.exercise_id}`;
+  mutated.link.entries[id] = { ...source, metric_exercise_link_id: id, sport_metric_id: "rugby_union__contact_repetition_count" };
+  expectClosureFailure(() => auditRegFull05Documents(mutated), "reg_full_05_linkless_metric_must_not_have_exercise_edge");
 });
 
 test("REG-FULL-05 requires a threshold marker for every sport metric", () => {

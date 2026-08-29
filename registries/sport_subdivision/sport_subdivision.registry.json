@@ -1,6 +1,6 @@
 {
   "registry_id": "sport_subdivision",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "entries": {
     "powerlifting__competition_lift": {
       "sport_subdivision_id": "powerlifting__competition_lift",
@@ -29,6 +29,146 @@
       "display_label": "General preparation",
       "context_type": "declared_context",
       "copy_boundary_notes": "factual sport subdivision label only"
+    },
+    "powerlifting__squat": {
+      "sport_subdivision_id": "powerlifting__squat",
+      "activity_id": "powerlifting",
+      "display_label": "Squat",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "powerlifting__bench_press": {
+      "sport_subdivision_id": "powerlifting__bench_press",
+      "activity_id": "powerlifting",
+      "display_label": "Bench press",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "powerlifting__deadlift": {
+      "sport_subdivision_id": "powerlifting__deadlift",
+      "activity_id": "powerlifting",
+      "display_label": "Deadlift",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "powerlifting__competition": {
+      "sport_subdivision_id": "powerlifting__competition",
+      "activity_id": "powerlifting",
+      "display_label": "Competition",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "general_strength__lower_body": {
+      "sport_subdivision_id": "general_strength__lower_body",
+      "activity_id": "general_strength",
+      "display_label": "Lower body",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "general_strength__upper_body": {
+      "sport_subdivision_id": "general_strength__upper_body",
+      "activity_id": "general_strength",
+      "display_label": "Upper body",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "general_strength__full_body": {
+      "sport_subdivision_id": "general_strength__full_body",
+      "activity_id": "general_strength",
+      "display_label": "Full body",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "general_strength__conditioning": {
+      "sport_subdivision_id": "general_strength__conditioning",
+      "activity_id": "general_strength",
+      "display_label": "Conditioning",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "general_strength__speed_power": {
+      "sport_subdivision_id": "general_strength__speed_power",
+      "activity_id": "general_strength",
+      "display_label": "Speed and power",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__forwards": {
+      "sport_subdivision_id": "rugby_union__forwards",
+      "activity_id": "rugby_union",
+      "display_label": "Forwards",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__backs": {
+      "sport_subdivision_id": "rugby_union__backs",
+      "activity_id": "rugby_union",
+      "display_label": "Backs",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__front_row": {
+      "sport_subdivision_id": "rugby_union__front_row",
+      "activity_id": "rugby_union",
+      "display_label": "Front row",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__second_row": {
+      "sport_subdivision_id": "rugby_union__second_row",
+      "activity_id": "rugby_union",
+      "display_label": "Second row",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__back_row": {
+      "sport_subdivision_id": "rugby_union__back_row",
+      "activity_id": "rugby_union",
+      "display_label": "Back row",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__half_backs": {
+      "sport_subdivision_id": "rugby_union__half_backs",
+      "activity_id": "rugby_union",
+      "display_label": "Half backs",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__midfield": {
+      "sport_subdivision_id": "rugby_union__midfield",
+      "activity_id": "rugby_union",
+      "display_label": "Midfield",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__back_three": {
+      "sport_subdivision_id": "rugby_union__back_three",
+      "activity_id": "rugby_union",
+      "display_label": "Back three",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__speed_power": {
+      "sport_subdivision_id": "rugby_union__speed_power",
+      "activity_id": "rugby_union",
+      "display_label": "Speed and power",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__conditioning": {
+      "sport_subdivision_id": "rugby_union__conditioning",
+      "activity_id": "rugby_union",
+      "display_label": "Conditioning",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
+    },
+    "rugby_union__set_piece": {
+      "sport_subdivision_id": "rugby_union__set_piece",
+      "activity_id": "rugby_union",
+      "display_label": "Set piece",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport context classification only"
     }
   }
 }

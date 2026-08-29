@@ -20,6 +20,28 @@
     ],
     "metric_exercise_link_runtime_inference_allowed": false,
     "generic_fallback_allowed": false,
+    "metric_exercise_link_exemptions": [
+      {
+        "metric_id": "powerlifting__body_mass_kg",
+        "reason": "athlete_context_measure_not_exercise_measure"
+      },
+      {
+        "metric_id": "general_strength__body_mass_kg",
+        "reason": "athlete_context_measure_not_exercise_measure"
+      },
+      {
+        "metric_id": "rugby_union__body_mass_kg",
+        "reason": "athlete_context_measure_not_exercise_measure"
+      },
+      {
+        "metric_id": "rugby_union__contact_repetition_count",
+        "reason": "sport_context_measure_not_exercise_measure"
+      },
+      {
+        "metric_id": "rugby_union__set_piece_repetition_count",
+        "reason": "sport_context_measure_not_exercise_measure"
+      }
+    ],
     "threshold_marker_supersession": {
       "supersedes": "REG-FULL-00 threshold_marker_registry new_content_allowed=false only",
       "content_extension_authorised_by": "REG-FULL-05 human instruction",
@@ -32,32 +54,32 @@
   },
   "counts": {
     "activity_count": 3,
-    "subdivision_count": 4,
-    "role_count": 3,
-    "sport_metric_count": 9,
-    "metric_exercise_link_count": 12,
-    "threshold_marker_count": 5,
+    "subdivision_count": 24,
+    "role_count": 18,
+    "sport_metric_count": 32,
+    "metric_exercise_link_count": 1156,
+    "threshold_marker_count": 34,
     "by_activity": {
       "powerlifting": {
-        "subdivision_count": 2,
+        "subdivision_count": 6,
         "role_count": 1,
-        "metric_count": 3,
-        "metric_exercise_link_count": 6,
-        "threshold_marker_count": 2
+        "metric_count": 8,
+        "metric_exercise_link_count": 320,
+        "threshold_marker_count": 9
       },
       "general_strength": {
-        "subdivision_count": 1,
+        "subdivision_count": 6,
         "role_count": 1,
-        "metric_count": 4,
-        "metric_exercise_link_count": 6,
-        "threshold_marker_count": 3
+        "metric_count": 11,
+        "metric_exercise_link_count": 419,
+        "threshold_marker_count": 12
       },
       "rugby_union": {
-        "subdivision_count": 1,
-        "role_count": 1,
-        "metric_count": 2,
-        "metric_exercise_link_count": 0,
-        "threshold_marker_count": 0
+        "subdivision_count": 12,
+        "role_count": 16,
+        "metric_count": 13,
+        "metric_exercise_link_count": 417,
+        "threshold_marker_count": 13
       }
     }
   },
@@ -70,11 +92,11 @@
     "threshold_marker": 5
   },
   "hashes_sha256": {
-    "sport_subdivision_registry": "89d1f415e102e8075c62a7e7cdfd254e84e58ec00a708bb503fac8340d543417",
-    "sport_role_registry": "d346ffe626aae63d1b11321e188675e0a0d67a6b53073de8ee9777c2d124a931",
-    "sport_metric_registry": "9c4d3bc7281929d34a8d7662f3f4a887b13b1de4045b0ef7749d8cdba1f5e965",
-    "metric_exercise_link_registry": "b5ca35511d69e449c89a8fd5e3b3758024ca9d056d329dcf29b89086def2c31f",
-    "threshold_marker_registry": "093df088efc63b9210da6e5af792460a2e5a2ac36a01e0933baad3dd89862f66",
-    "registry_bundle": "80a2bed4920579cbd225a772a48a4690550e785cffc75af898c62570433f35d7"
+    "sport_subdivision_registry": "e31e730278abaec97938e9a9a82c4f1e3eb7223fc380229ba3e78470c77b8f72",
+    "sport_role_registry": "35f192ddd1b99c2db215e9c2e73252b9205bec2c9c312ba8a2a0a2612cfc53cd",
+    "sport_metric_registry": "1bbe82e54af20530c14d9d61c67fb65ab5ce07ebd90b57aea6da8d889fbfd7b5",
+    "metric_exercise_link_registry": "f765d4caec9c1b1f0b3a7548757d762556433c928f69f8ce860cb0331d0793ba",
+    "threshold_marker_registry": "3e542d64229c816e19a55fa1615bd860b6b11301f7b86befa3792fb70aa8fa71",
+    "registry_bundle": "3d617fcd099459567dacd89ea03ad1f9090167eb91f982dfc14b7f99f6e5d56a"
   }
 }

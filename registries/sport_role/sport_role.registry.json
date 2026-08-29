@@ -1,6 +1,6 @@
 {
   "registry_id": "sport_role",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "entries": {
     "powerlifting__athlete": {
       "sport_role_id": "powerlifting__athlete",
@@ -25,6 +25,126 @@
       "display_label": "Field player",
       "context_type": "declared_context",
       "copy_boundary_notes": "factual sport role label only"
+    },
+    "rugby_union__forward": {
+      "sport_role_id": "rugby_union__forward",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__forwards",
+      "display_label": "Forward",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__back": {
+      "sport_role_id": "rugby_union__back",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__backs",
+      "display_label": "Back",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__loosehead_prop": {
+      "sport_role_id": "rugby_union__loosehead_prop",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__front_row",
+      "display_label": "Loosehead prop",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__hooker": {
+      "sport_role_id": "rugby_union__hooker",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__front_row",
+      "display_label": "Hooker",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__tighthead_prop": {
+      "sport_role_id": "rugby_union__tighthead_prop",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__front_row",
+      "display_label": "Tighthead prop",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__lock": {
+      "sport_role_id": "rugby_union__lock",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__second_row",
+      "display_label": "Lock",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__blindside_flanker": {
+      "sport_role_id": "rugby_union__blindside_flanker",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__back_row",
+      "display_label": "Blindside flanker",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__openside_flanker": {
+      "sport_role_id": "rugby_union__openside_flanker",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__back_row",
+      "display_label": "Openside flanker",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__number_eight": {
+      "sport_role_id": "rugby_union__number_eight",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__back_row",
+      "display_label": "Number eight",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__scrum_half": {
+      "sport_role_id": "rugby_union__scrum_half",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__half_backs",
+      "display_label": "Scrum-half",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__fly_half": {
+      "sport_role_id": "rugby_union__fly_half",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__half_backs",
+      "display_label": "Fly-half",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__inside_centre": {
+      "sport_role_id": "rugby_union__inside_centre",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__midfield",
+      "display_label": "Inside centre",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__outside_centre": {
+      "sport_role_id": "rugby_union__outside_centre",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__midfield",
+      "display_label": "Outside centre",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__wing": {
+      "sport_role_id": "rugby_union__wing",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__back_three",
+      "display_label": "Wing",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
+    },
+    "rugby_union__fullback": {
+      "sport_role_id": "rugby_union__fullback",
+      "activity_id": "rugby_union",
+      "sport_subdivision_id": "rugby_union__back_three",
+      "display_label": "Fullback",
+      "context_type": "declared_context",
+      "copy_boundary_notes": "factual sport role classification only"
     }
   }
 }
