@@ -77,7 +77,7 @@ test("REG-FULL-07 refuses substitution edges outside the template activity", () 
 });
 
 test("REG-FULL-07 refuses registry binding drift", () => {
-  expectFailure((docs) => { docs.canonicalProgram.entries[0].registry_bindings.exercise_ids.push("push_up"); }, "BINDING_ORDER");
+  expectFailure((docs) => { docs.canonicalProgram.entries[0].registry_bindings.exercise_ids.push("push_up"); }, "BINDING_CLOSURE");
 });
 
 test("REG-FULL-07 refuses non-deterministic structural ordering", () => {
