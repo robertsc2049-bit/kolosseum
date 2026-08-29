@@ -79,7 +79,7 @@
       },
       {
         "path": "ci/schemas/exercise_equipment_compatibility_registry.registry.schema.json",
-        "sha256": "477802EDEB730079055500E9B37FD23935404B372A9B5039233ACEE7605BD3EF"
+        "sha256": "DCE412F469CAA0C476C76ED1DA6D8F5B539C9BB003D74E56A282D8E72011D4E8"
       },
       {
         "path": "ci/schemas/exercise_registry_3a.registry.schema.json",
