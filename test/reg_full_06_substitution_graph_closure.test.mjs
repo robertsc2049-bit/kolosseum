@@ -157,9 +157,8 @@ test("REG-FULL-06 rejects fallback/closest edge identifiers", () => {
   const docs = clone(load());
   const [key, edge] = firstEdge(docs);
   delete docs.substitution.entries[key];
-  const mutated = `fallback__to__${edge.target_exercise_id}`;
+  const mutated = `${edge.source_exercise_id}__to__${edge.target_exercise_id}_fallback`;
   edge.substitution_edge_id = mutated;
-  edge.source_exercise_id = "fallback";
   docs.substitution.entries[mutated] = edge;
   expectCode(docs, "FALLBACK_EDGE_ID");
 });
