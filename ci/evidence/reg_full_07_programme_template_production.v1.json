@@ -1,0 +1,86 @@
+{
+  "evidence_id": "reg_full_07_programme_template_production",
+  "evidence_version": "1.0.0",
+  "slice_id": "REG-FULL-07",
+  "status": "closed",
+  "canonical_registry_path": "registries/program/sport_program_template.registry.json",
+  "canonical_registry_sha256": "6f33e598a0bb63aea63272bc9a1cde1b896509c8d9ffbc377407833dbd7b40d1",
+  "source_authorities": {
+    "activity": {
+      "path": "registries/activity/activity.registry.json",
+      "sha256": "21d126c3863b90353f188c26f13fd3ff8229737ad909dbc7e9b5ddff0aed14a1"
+    },
+    "exercise": {
+      "path": "registries/exercise/exercise.registry.json",
+      "sha256": "169c80e99b01aced65f65169a29e16a6734cc25336d65a938d7e835851d521b6"
+    },
+    "equipment": {
+      "path": "registries/equipment/equipment.registry.json",
+      "sha256": "32e6ea381f25ed8ebb239bf65eee4e92d97a826df15e2dc568ba25ec07e77983"
+    },
+    "equipmentCompatibility": {
+      "path": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
+      "sha256": "828526b9cfcb72143027ee0e3b79eb09f12c03c950c34190e7a1a2f7e01c6346"
+    },
+    "applicability": {
+      "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
+      "sha256": "e9bd5f9f0db7f1b89fef57b8fc2255aa1416ed4c201ee53d666a42ce76e248cd"
+    },
+    "substitution": {
+      "path": "registries/substitution/substitution.registry.json",
+      "sha256": "932df48c9aec17aa07d800d517f3d66cf35604a3adaf8372cfdc307f0de131f3"
+    },
+    "legacyProgram": {
+      "path": "registries/program/program.registry.json",
+      "sha256": "e578db9b58839c23319e8cfccd9de1afb122b0153607e8d58675e6415364a721"
+    },
+    "legacyWarmup": {
+      "path": "registries/exercise/exercise_warmup_mapping.registry.json",
+      "sha256": "11f7c41e7b87f8bf0fc9a7470c777497dd5081b5aa6a7d59c6ac5e044ef16829"
+    },
+    "surfaceManifest": {
+      "path": "registries/final_registry_surface_manifest.json",
+      "sha256": "e236341a4b5ecb7ad4ca36088b6433bffad51cc0e1da9a9b3f0e22cb88d26489"
+    },
+    "schemaManifest": {
+      "path": "registries/final_registry_schema_manifest.json",
+      "sha256": "ea207fbb5f912ff2c26846c5d971982cc9bf4694f632d22a25e2757ded2a904c"
+    }
+  },
+  "counts": {
+    "template_count": 11,
+    "powerlifting_templates": 4,
+    "general_strength_templates": 3,
+    "rugby_union_templates": 4,
+    "low_equipment_templates": 2,
+    "unique_scheduled_exercises": 14,
+    "scheduled_work_items": 388
+  },
+  "family_ids": [
+    "powerlifting_novice",
+    "powerlifting_intermediate",
+    "powerlifting_maintenance",
+    "powerlifting_meet_prep",
+    "general_strength_novice",
+    "general_strength_intermediate",
+    "general_strength_low_equipment",
+    "rugby_union_off_season",
+    "rugby_union_pre_season",
+    "rugby_union_in_season",
+    "rugby_union_low_equipment"
+  ],
+  "policy": {
+    "finished_exercises_only": true,
+    "explicit_training_applicability_only": true,
+    "explicit_required_equipment_only": true,
+    "explicit_substitution_edges_only": true,
+    "runtime_inference_forbidden": true,
+    "formula_payload_forbidden": true,
+    "progression_internals_forbidden": true,
+    "low_equipment_boundary_explicit": true,
+    "legacy_program_projection_mutated": false,
+    "legacy_warmup_authority_reactivated": false,
+    "compact_registry_index_mutated": false,
+    "compact_registry_bundle_mutated": false
+  }
+}
