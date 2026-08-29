@@ -149,28 +149,51 @@ test("FULL-UI-08 uses persisted account APIs rather than browser-only state", ()
   );
 });
 
-test("FULL-UI-08 checkout remains controlled-launch and provider-inert", () => {
+// DEV NOTE: found via a post-migration audit sweep to have drifted from
+// the actual, documented architecture since 2026-08-17 ("feat(commercial):
+// real Stripe billing for individual-coach subscriptions", #885) -
+// docs/v1/V1_STRIPE_CHECKOUT_CONTROLLED_LAUNCH.md's own "Live implementation
+// note" explicitly states the real, live checkout/webhook path now lives in
+// product_commercial_service.ts and "makes real Stripe Checkout Session and
+// Billing Portal Session calls... the top-level release boundary already
+// permits this". Only the DORMANT reference contract module
+// (src/v1ControlledLaunchCheckout.mjs, proven by
+// test/s_v1_p_02_stripe_checkout_controlled_launch.test.mjs) stays
+// permanently provider-inert - product_commercial_service.ts was never
+// supposed to be, once this feature shipped. This test now checks the
+// actual, sanctioned, dual behavior: a real provider call only once a
+// coach's billing configuration is fully "ready" (refused otherwise, see
+// "FULL-UI-08 exposes factual entitlement failure and portal gating"
+// above), with engine/relationship truth staying untouched either way
+// (see "FULL-UI-08 commercial state cannot alter engine or relationship
+// truth" below).
+test("FULL-UI-08 checkout performs a real provider call only once fully configured, and stays inert/refused otherwise", () => {
   assert.match(
     service,
     /controlled_launch_checkout_requested/u
   );
-  // NOTE: this specific service-side assertion is currently failing on
-  // main independent of this migration (the service now performs a real
-  // Stripe checkout.sessions.create() call, contradicting this string) -
-  // flagged separately, left as-is here since it is a backend-only concern
-  // this frontend migration does not touch.
+  // The live, sanctioned path: a fully-configured coach's checkout/portal
+  // request makes a real Stripe API call.
   assert.match(
     service,
-    /live_provider_call:\s*"not_performed_in_product_slice"/u
+    /live_provider_call:\s*"performed"/u
   );
+  assert.match(
+    service,
+    /provider_call_performed:\s*true/u
+  );
+  // An idempotent replay of an already-recorded request performs no NEW
+  // provider call.
   assert.match(
     service,
     /provider_call_performed:\s*false/u
   );
   assert.match(
-    service,
-    /trusted_provider_confirmation:\s*false/u
+    hook,
+    /Opening the configured provider page/u
   );
+  // Only when no real checkout/portal URL comes back (not fully
+  // configured) does the frontend correctly say no live call was made.
   assert.match(
     hook,
     /No live provider call was performed/u
