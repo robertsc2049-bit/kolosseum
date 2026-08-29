@@ -15,6 +15,40 @@ function firstWorkItem(docs, templateId = "powerlifting_novice") {
   const template = docs.canonicalProgram.entries.find((row) => row.template_id === templateId);
   return template.template_structure.blocks[0].weeks[0].days[0].sessions[0].work_items[0];
 }
+function rebuildBindings(docs, template) {
+  const usedExercises = new Set();
+  const usedEquipment = new Set();
+  const usedEdges = new Set();
+  const usedApplicability = new Set();
+  const compatibilityRows = Object.values(docs.equipmentCompatibility.entries);
+
+  for (const block of template.template_structure.blocks) {
+    for (const week of block.weeks) {
+      for (const day of week.days) {
+        for (const session of day.sessions) {
+          for (const item of session.work_items) {
+            usedExercises.add(item.exercise_id);
+            usedEdges.add(item.substitution_policy_id);
+            usedApplicability.add(`${item.exercise_id}__${template.activity_id}__training`);
+            for (const row of compatibilityRows) {
+              if (row.exercise_id === item.exercise_id && row.compatibility_type === "required") {
+                usedEquipment.add(row.equipment_id);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  template.registry_bindings = {
+    activity_id: template.activity_id,
+    exercise_ids: [...usedExercises].sort((a, b) => a.localeCompare(b)),
+    equipment_ids: [...usedEquipment].sort((a, b) => a.localeCompare(b)),
+    substitution_edge_ids: [...usedEdges].sort((a, b) => a.localeCompare(b)),
+    applicability_ids: [...usedApplicability].sort((a, b) => a.localeCompare(b))
+  };
+}
 
 test("REG-FULL-07 canonical programme inventory passes complete registry-backed closure", () => {
   const result = auditRegFull07Documents(loadRegFull07Documents(process.cwd()), process.cwd());
@@ -91,7 +125,11 @@ test("REG-FULL-07 refuses formula and recommendation authority leakage", () => {
 test("REG-FULL-07 enforces the explicit low-equipment ceiling", () => {
   expectFailure((docs) => {
     const template = docs.canonicalProgram.entries.find((row) => row.template_id === "general_strength_low_equipment");
-    template.registry_bindings.equipment_ids = [...template.registry_bindings.equipment_ids, "rack"].sort();
+    const item = firstWorkItem(docs, "general_strength_low_equipment");
+    item.exercise_id = "back_squat";
+    item.equipment_requirement_ids = ["barbell", "rack"];
+    item.substitution_policy_id = "back_squat__to__goblet_squat";
+    rebuildBindings(docs, template);
   }, "LOW_EQUIPMENT_BOUNDARY");
 });
 
