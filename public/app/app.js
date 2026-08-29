@@ -169,9 +169,7 @@ const elements = {
   templateBuilderValidation: document.getElementById("templateBuilderValidation"),
   templateBuilderValidationList: document.getElementById("templateBuilderValidationList"),
   templateBuilderTitle: document.getElementById("templateBuilderTitle"),
-  templateName: document.getElementById("templateName"),
-  templateActivity: document.getElementById("templateActivity"),
-  templateDescription: document.getElementById("templateDescription"),
+  templateIdentityRoot: document.getElementById("template-identity-root"),
   templateEventBindingSelect: document.getElementById("templateEventBindingSelect"),
   bindTemplateEventButton: document.getElementById("bindTemplateEventButton"),
   templateEventBindingStatus: document.getElementById("templateEventBindingStatus"),
@@ -4559,7 +4557,6 @@ function eventPreviewPayload() {
   const draft = state.templateDraft;
   if (!draft?.event_plan) throw new Error("Enable the event compiler first.");
 
-  syncTemplateHeader();
   syncTemplateEventFields();
   reindexTemplateDraft();
 
@@ -5259,9 +5256,6 @@ function openTemplateBuilder(draft, options = {}) {
   elements.templateBuilderTitle.textContent = state.templateDraft.template_id
     ? `Edit ${state.templateDraft.template_name}`
     : "New programme";
-  elements.templateName.value = state.templateDraft.template_name;
-  elements.templateActivity.value = state.templateDraft.activity_id;
-  elements.templateDescription.value = state.templateDraft.description;
   elements.saveTemplateButton.hidden =
     state.templateDraft.template_status !== "draft";
   elements.saveCompleteTemplateButton.hidden =
@@ -5314,12 +5308,24 @@ function closeTemplateBuilder(options = {}) {
   return true;
 }
 
-function syncTemplateHeader() {
-  if (!state.templateDraft) return;
-  state.templateDraft.template_name = elements.templateName.value;
-  state.templateDraft.activity_id = elements.templateActivity.value;
-  state.templateDraft.description = elements.templateDescription.value;
-  if (state.templateDraft.event_plan) {
+// DEV NOTE: FULL-UI-05B the identity fields (name/activity/description)
+// moved to React - see CoachProgrammeIdentityFields.tsx, mounted at
+// #template-identity-root. The old per-element syncTemplateHeader() (once
+// bound directly to elements.templateName/templateActivity/
+// templateDescription) is replaced by this delegated handler, keyed off
+// each control's data-template-kind="header"/data-field attribute - see
+// the two new elements.templateIdentityRoot listeners below for how it's
+// wired, mirroring updateTemplateFieldFromControl()'s existing pattern
+// for the builder tree.
+function updateTemplateIdentityField(control) {
+  const draft = state.templateDraft;
+  if (!draft) return;
+
+  const field = control.dataset.field;
+  if (!field) return;
+
+  draft[field] = control.value;
+  if (draft.event_plan) {
     ensureDraftEventPlan();
   }
   saveState();
@@ -5595,7 +5601,6 @@ function templatePayloadFromDraft() {
   const draft = state.templateDraft;
   if (!draft) throw new Error("No programme is open.");
 
-  syncTemplateHeader();
   if (draft.event_plan) {
     syncTemplateEventFields();
   }
@@ -6855,17 +6860,18 @@ elements.activateTemplateButton.addEventListener("click", () => {
 
 elements.addTemplateBlockButton.addEventListener("click", addTemplateBlock);
 
-for (const control of [
-  elements.templateName,
-  elements.templateActivity,
-  elements.templateDescription
-]) {
-  control.addEventListener("input", syncTemplateHeader);
-  control.addEventListener("change", syncTemplateHeader);
-}
+elements.templateIdentityRoot.addEventListener("input", (event) => {
+  const control = event.target.closest('[data-template-kind="header"]');
+  if (control) updateTemplateIdentityField(control);
+});
 
-elements.templateActivity.addEventListener("change", () => {
-  if (state.templateDraft?.event_plan) {
+elements.templateIdentityRoot.addEventListener("change", (event) => {
+  const control = event.target.closest('[data-template-kind="header"]');
+  if (!control) return;
+
+  updateTemplateIdentityField(control);
+
+  if (control.dataset.field === "activity_id" && state.templateDraft?.event_plan) {
     ensureDraftEventPlan();
     state.templateDraft.event_compile_summary = null;
     rerenderTemplateBuilder();
