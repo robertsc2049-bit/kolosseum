@@ -5,6 +5,16 @@ import test from "node:test";
 const html = fs.readFileSync("public/app/index.html", "utf8");
 const app = fs.readFileSync("public/app/app.js", "utf8");
 const styles = fs.readFileSync("public/app/styles.css", "utf8");
+// DEV NOTE: FULL-UI-05B the completion validation list moved to React -
+// see CoachProgrammeBuilderValidationList.tsx, mounted directly into the
+// still-legacy #templateBuilderValidationList <ol> so its delegated click
+// listener keeps working unchanged. The outer badge/save-detail text and
+// the section's warning/complete class toggle stay legacy for now (a
+// future slice) - checks against `app` for those are untouched below.
+const validationList = fs.readFileSync(
+  "public/app-src/screens/coach/CoachProgrammeBuilderValidationList.tsx",
+  "utf8"
+);
 
 test("FULL-UI-05B exposes persistent save and recovery state", () => {
   for (const id of [
@@ -89,5 +99,5 @@ test("FULL-UI-05B remains presentation-only and engine-inert", () => {
     /runPipelineFromDist|planSessionService|compileBlock|engine_runner/u
   );
   assert.match(helperSource, /programmeActivationIssues/u);
-  assert.match(helperSource, /server remains authoritative/iu);
+  assert.match(validationList, /server remains authoritative/iu);
 });

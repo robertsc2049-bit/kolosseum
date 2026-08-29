@@ -5509,6 +5509,15 @@ function renderTemplateBuilderState() {
     return;
   }
 
+  // DEV NOTE: FULL-UI-05B the completion validation list moved to React -
+  // see CoachProgrammeBuilderValidationList.tsx, mounted directly into
+  // #templateBuilderValidationList (kept, not replaced, so the delegated
+  // click listener on it keeps firing on real clicks). broadcastProgrammeDraft()
+  // covers every path that can change the draft's validation state,
+  // including field edits routed through scheduleTemplateBuilderStateRefresh()
+  // (which calls this function directly, not through updateTemplateFacts()).
+  broadcastProgrammeDraft();
+
   const draft = state.templateDraft;
 
   if (!draft) {
@@ -5560,35 +5569,9 @@ function renderTemplateBuilderState() {
 
   const issues = currentTemplateBuilderIssues();
   elements.templateBuilderValidation.hidden = false;
-
-  if (issues.length === 0) {
-    elements.templateBuilderValidation.className =
-      "template-builder-validation complete";
-    elements.templateBuilderValidationList.innerHTML = `
-      <li class="template-builder-validation-pass">
-        All visible completion checks pass. The server remains authoritative.
-      </li>
-    `;
-  }
-  else {
-    elements.templateBuilderValidation.className =
-      "template-builder-validation warning";
-    elements.templateBuilderValidationList.innerHTML = issues
-      .map((issue, index) => `
-        <li>
-          <button
-            class="template-validation-link"
-            type="button"
-            data-builder-validation-index="${index}"
-          >
-            <span>${escapeHtml(issue.path)}</span>
-            <strong>${escapeHtml(issue.message)}</strong>
-            <code>${escapeHtml(issue.code)}</code>
-          </button>
-        </li>
-      `)
-      .join("");
-  }
+  elements.templateBuilderValidation.className = issues.length === 0
+    ? "template-builder-validation complete"
+    : "template-builder-validation warning";
 
   elements.saveTemplateButton.disabled = templateBuilderSaving;
   elements.saveCompleteTemplateButton.disabled =
