@@ -93,7 +93,12 @@ async function openPanel(insights: Record<string, unknown> | null) {
     );
   });
 
-  await waitFor(() => screen.getByText(/adherence/u));
+  // A regex on the bare word "adherence" is now ambiguous - the new
+  // adherence LineChart's own empty-state text ("...to chart adherence
+  // over time") also contains it when session_adherence carries no
+  // `series` field. The " — " separator is unique to the real adherence
+  // sentence rendered by adherenceText().
+  await waitFor(() => screen.getByText(/adherence — /u));
 }
 
 test.afterEach(() => {
@@ -146,6 +151,55 @@ test("closing the profile clears the panel back to rendering nothing", async () 
   });
 
   await waitFor(() => assert.equal(screen.queryByText(/adherence/u), null));
+});
+
+test("charts a strength trend's series and falls back to a factual empty chart state when no series is present", async () => {
+  await openPanel(
+    baseInsights({
+      strength_trends: [
+        {
+          exercise_id: "back_squat",
+          current_value: 150,
+          current_unit: "kg",
+          current_effective_date: "2026-08-01",
+          has_prior_value: true,
+          delta: 10,
+          delta_percentage: 7.1,
+          prior_effective_date: "2026-07-01",
+          series: [
+            { date: "2026-07-01", value: 140 },
+            { date: "2026-08-01", value: 150 }
+          ]
+        }
+      ]
+    })
+  );
+
+  const card = document.querySelector(".record-card") as HTMLElement;
+  assert.ok(card.querySelector("svg path"), "back_squat card charts its 2-point series");
+});
+
+test("charts session adherence over time using the series field, dropping any null-adherence window", async () => {
+  await openPanel(
+    baseInsights({
+      session_adherence: {
+        has_sufficient_data: true,
+        adherence_percentage: 80,
+        completed_sessions: 8,
+        total_sessions: 10,
+        series: [
+          { window_end_date: "2026-06-01", adherence_percentage: null, total_sessions: 0 },
+          { window_end_date: "2026-07-01", adherence_percentage: 60, total_sessions: 5 },
+          { window_end_date: "2026-08-01", adherence_percentage: 80, total_sessions: 10 }
+        ]
+      }
+    })
+  );
+
+  const path = document.querySelector("svg path");
+  assert.ok(path, "expected an adherence line chart");
+  const dCommands = path?.getAttribute("d")?.split(" ") ?? [];
+  assert.equal(dCommands.length, 2, "expected exactly 2 plotted points (the null-adherence window excluded)");
 });
 
 test("a habit label containing markup is rendered as inert text, never as HTML", async () => {
