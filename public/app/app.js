@@ -192,10 +192,6 @@ const elements = {
   templateEventAllocationState: document.getElementById("templateEventAllocationState"),
   compileEventCalendarButton: document.getElementById("compileEventCalendarButton"),
   fitFinalBlockButton: document.getElementById("fitFinalBlockButton"),
-  templateVersion: document.getElementById("templateVersion"),
-  templateBlockCount: document.getElementById("templateBlockCount"),
-  templateWeekCount: document.getElementById("templateWeekCount"),
-  templateSessionCount: document.getElementById("templateSessionCount"),
   templateBlocks: document.getElementById("templateBlocks"),
   addTemplateBlockButton: document.getElementById("addTemplateBlockButton"),
   refreshAccountButton: document.getElementById("refreshAccountButton"),
@@ -4659,17 +4655,32 @@ function templateCounts(draft) {
   return { blocks: blocks.length, weeks, sessions };
 }
 
+// DEV NOTE: FULL-UI-05B the fact counters (Version/Blocks/Weeks/Sessions)
+// moved to React - see CoachProgrammeBuilderFactsPanel.tsx/
+// useProgrammeBuilderDraft.ts, mounted at #programme-builder-facts-root.
+// broadcastProgrammeDraft() (below) tells it what to render; the rest of
+// the builder (open/close, tree, edits, event binding, save/complete/
+// activate) stays legacy for now. state.templateDraft is mutated in place
+// (add/remove/reorder push/splice its own arrays rather than replacing the
+// object), so a shallow copy is dispatched each time - React's setState
+// bails out on an identical object reference, and every mutating function
+// here reuses the same underlying object across the whole builder session.
+function broadcastProgrammeDraft() {
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:programme-draft-changed", {
+      detail: { draft: state.templateDraft ? { ...state.templateDraft } : null }
+    })
+  );
+}
+
 function updateTemplateFacts() {
   const draft = state.templateDraft;
   const counts = templateCounts(draft);
-  elements.templateVersion.textContent = String(draft?.template_version ?? 1);
-  elements.templateBlockCount.textContent = String(counts.blocks);
-  elements.templateWeekCount.textContent = String(counts.weeks);
-  elements.templateSessionCount.textContent = String(counts.sessions);
   elements.addTemplateBlockButton.disabled =
     counts.blocks >= 12 ||
     counts.weeks >= 104;
   renderEventCompiler();
+  broadcastProgrammeDraft();
 }
 
 function templateWorkItemAttributes(
@@ -5125,6 +5136,7 @@ function clearTemplateDraftState() {
   state.templateDraftRecovered = false;
   state.templateDraftDirty = false;
   templateBuilderSaveError = "";
+  broadcastProgrammeDraft();
 }
 
 function confirmTemplateBuilderDeparture() {

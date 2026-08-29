@@ -100,6 +100,23 @@ export type ProgrammeDraft = {
   blocks: ProgrammeBlockDraft[];
 };
 
+// DEV NOTE: ported field-for-field from public/app/app.js's
+// templateCounts() - a pure derived-count helper the still-legacy
+// programme builder also uses (updateTemplateFacts()) to disable "Add
+// training block" past the block/week ceilings. Both copies are kept in
+// sync by convention, like newTemplateBlock()/Week()/Session() above.
+export type ProgrammeDraftCounts = { blocks: number; weeks: number; sessions: number };
+
+export function templateCounts(draft: ProgrammeDraft | null | undefined): ProgrammeDraftCounts {
+  const blocks = Array.isArray(draft?.blocks) ? draft.blocks : [];
+  const weeks = blocks.reduce((total, block) => total + block.weeks.length, 0);
+  const sessions = blocks.reduce(
+    (total, block) => total + block.weeks.reduce((weekTotal, week) => weekTotal + week.sessions.length, 0),
+    0
+  );
+  return { blocks: blocks.length, weeks, sessions };
+}
+
 function newTemplateWorkItem(): ProgrammeWorkItemDraft {
   return storedWorkItemToDraft(undefined, 0);
 }
