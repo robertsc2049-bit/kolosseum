@@ -13,6 +13,11 @@ const css = read("public/app/styles.css");
 const js = read("public/app/app.js");
 const phase4 = read("engine/src/phases/phase4/types.ts");
 const phase6 = read("engine/src/phases/phase6.ts");
+// DEV NOTE: the builder's rep/load/duration/distance/prescription-mode
+// controls moved to React with the rest of the builder tree (FULL-UI-05B)
+// - see CoachProgrammeBuilderTree.tsx's RepControls()/LoadControls()/
+// DurationControls()/DistanceControls()/PrescriptionControls().
+const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
 
 test("template input supports fixed reps and rep ranges", () => {
   assert.match(service, /const repModes/u);
@@ -46,14 +51,14 @@ test("engine carries the complete explicit prescription to the session", () => {
 test("coach builder exposes conditional rep and loading controls", () => {
   assert.match(html, /Repetitions may be fixed or a range/u);
   assert.match(html, /fixed weight, bodyweight, or RPE/u);
-  assert.match(js, /renderTemplateRepControls/u);
-  assert.match(js, /renderTemplateLoadControls/u);
-  assert.match(js, />Fixed reps</u);
-  assert.match(js, />Rep range</u);
-  assert.match(js, />Weight</u);
-  assert.match(js, />Bodyweight</u);
-  assert.match(js, />RPE</u);
-  assert.match(js, /weight_unit/u);
+  assert.match(builderTree, /function RepControls/u);
+  assert.match(builderTree, /function LoadControls/u);
+  assert.match(builderTree, />Fixed reps</u);
+  assert.match(builderTree, />Rep range</u);
+  assert.match(builderTree, />Weight</u);
+  assert.match(builderTree, />Bodyweight</u);
+  assert.match(builderTree, />RPE</u);
+  assert.match(builderTree, /weight_unit/u);
   assert.match(js, /normalisePersistedTemplateDraft/u);
   assert.match(css, /\.template-prescription-grid/u);
   assert.match(css, /\.template-prescription-card/u);
@@ -86,13 +91,13 @@ test("template input supports an optional coaching tempo", () => {
 
 test("coach builder exposes a prescription mode selector with duration and distance controls", () => {
   assert.match(html, /timed hold or a distance/u);
-  assert.match(js, /function renderTemplatePrescriptionControls/u);
-  assert.match(js, /function renderTemplateDurationControls/u);
-  assert.match(js, /function renderTemplateDistanceControls/u);
-  assert.match(js, />Prescribe by</u);
-  assert.match(js, />Duration</u);
-  assert.match(js, />Distance</u);
-  assert.match(js, /Tempo \(optional\)/u);
+  assert.match(builderTree, /function PrescriptionControls/u);
+  assert.match(builderTree, /function DurationControls/u);
+  assert.match(builderTree, /function DistanceControls/u);
+  assert.match(builderTree, />Prescribe by</u);
+  assert.match(builderTree, />Duration</u);
+  assert.match(builderTree, />Distance</u);
+  assert.match(builderTree, /Tempo \(optional\)/u);
   assert.match(css, /\.template-tempo-field/u);
 });
 
