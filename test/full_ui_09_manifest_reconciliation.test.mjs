@@ -577,7 +577,7 @@ const targets = [
     "id": "email_verification",
     "source": [
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/client.ts",
         "all": [
           "requestEmailVerification",
           "completeEmailVerification",
@@ -712,7 +712,7 @@ const targets = [
         ]
       },
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/client.ts",
         "any": [
           "changePassword",
           "updatePassword",

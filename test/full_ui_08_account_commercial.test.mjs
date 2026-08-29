@@ -24,6 +24,8 @@ const schema = read("schema.sql");
 const client = read("public/app-src/api/commercialClient.ts");
 const hook = read("public/app-src/screens/account/useCommercialAccount.ts");
 const panel = read("public/app-src/screens/account/CommercialPanel.tsx");
+const reactAccountClient = read("public/app-src/api/client.ts");
+const entryAuthClient = read("public/app-src/api/authClient.ts");
 
 test("FULL-UI-08 mounts authenticated commercial account routes", () => {
   assert.match(
@@ -248,17 +250,33 @@ test("FULL-UI-08 keeps commercial scope individual and controlled", () => {
 });
 
 test("FULL-UI-08 preserves existing account controls", () => {
-  for (const token of [
-    "registerAccount",
-    "signInAccount",
-    "updateAccountProfile",
-    "changeAccountPassword",
-    "requestPasswordReset",
-    "requestEmailVerification",
-    "requestAccountClosure"
-  ]) {
-    assert.ok(
-      accountUi.includes(token),
+  // DEV NOTE: this test used to check `accountUi.includes(token)` for all
+  // seven of these - a plain substring check that kept passing for the
+  // WRONG reason once each function moved to React and account_ui.js's own
+  // DEV NOTE comments started mentioning them by name (found via a post-
+  // migration audit sweep: every one of these tokens' only remaining
+  // occurrence in account_ui.js was inside a comment, not a real
+  // definition). Now checks each function's actual current location.
+  for (const token of ["restoreAccountSession", "loadAccountDetail"]) {
+    assert.match(
+      accountUi,
+      new RegExp(`export function ${token}\\b`, "u"),
+      `Existing account control missing: ${token}`
+    );
+  }
+
+  for (const token of ["registerAccount", "signInAccount", "requestPasswordReset"]) {
+    assert.match(
+      entryAuthClient,
+      new RegExp(`export function ${token}\\b`, "u"),
+      `Existing account control missing: ${token}`
+    );
+  }
+
+  for (const token of ["updateAccountProfile", "changeAccountPassword", "requestEmailVerification", "requestAccountClosure"]) {
+    assert.match(
+      reactAccountClient,
+      new RegExp(`export function ${token}\\b`, "u"),
       `Existing account control missing: ${token}`
     );
   }

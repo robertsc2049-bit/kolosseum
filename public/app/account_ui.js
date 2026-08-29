@@ -92,56 +92,16 @@ export function loadAccountDetail() {
   );
 }
 
-export function updateAccountProfile(
-  input,
-  csrfToken
-) {
-  return request(
-    "PATCH",
-    "/account/profile",
-    input,
-    csrfToken
-  );
-}
-
-export function changeAccountPassword(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/password/change",
-    input,
-    csrfToken
-  );
-}
-
 // DEV NOTE: FULL-UI-02D requestPasswordReset/completePasswordReset moved
 // to public/app-src/api/authClient.ts alongside the rest of the entry
 // screen's transport - see the DEV NOTE above restoreAccountSession().
 
-export function requestEmailVerification(
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/email-verification/request",
-    {},
-    csrfToken
-  );
-}
-
-export function completeEmailVerification(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/email-verification/complete",
-    input,
-    csrfToken
-  );
-}
+// DEV NOTE: updateAccountProfile/changeAccountPassword/
+// requestEmailVerification/completeEmailVerification moved to React
+// (client.ts) alongside ProfileForm.tsx/PasswordForm.tsx/
+// EmailVerificationPanel.tsx - these copies had zero remaining callers
+// (found via a post-migration audit sweep) and were only kept alive by a
+// source-text-only governance assertion, not any real usage.
 
 // DEV NOTE: FULL-UI-02 account_close_request transport moved to React
 // (client.ts's requestAccountClosure()) - was only ever consumed by
