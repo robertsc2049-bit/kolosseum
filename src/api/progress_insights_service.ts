@@ -28,6 +28,14 @@ type JsonRecord = Record<string, unknown>;
 
 const WINDOW_DAYS = 30;
 
+// Progress graphs (FULL-UI-36 slice 2): how many trailing, non-overlapping
+// WINDOW_DAYS-long windows each metric's `series` field covers - e.g. 6
+// windows of 30 days each is a rolling 180-day view. Every metric computes
+// its series from the SAME already-fetched history array its single-window
+// value already used - no new query, matching this file's existing
+// "nothing new persisted, nothing new queried" invariant.
+const WINDOW_COUNT = 6;
+
 export class ProgressInsightsError extends Error {
   readonly status: number;
 
@@ -76,12 +84,16 @@ function windowStartIsoDate(fromIsoDate: string, days: number): string {
   return parsed.toISOString().slice(0, 10);
 }
 
-function computeSessionAdherence(sessions: readonly EnrichedHistorySession[]): Readonly<JsonRecord> {
-  const cutoff = windowStartIsoDate(new Date().toISOString().slice(0, 10), WINDOW_DAYS);
+function computeSessionAdherenceWindow(
+  sessions: readonly EnrichedHistorySession[],
+  windowEndIsoDate: string,
+  windowDays: number
+): Readonly<JsonRecord> {
+  const windowStartDate = windowStartIsoDate(windowEndIsoDate, windowDays);
 
   const windowSessions = sessions.filter((session) => {
     const createdDate = cleanString(session.created_at).slice(0, 10);
-    return createdDate >= cutoff;
+    return createdDate >= windowStartDate && createdDate <= windowEndIsoDate;
   });
 
   const totalSessions = windowSessions.length;
@@ -91,6 +103,8 @@ function computeSessionAdherence(sessions: readonly EnrichedHistorySession[]): R
   const readySessions = windowSessions.filter((session) => session.execution_status === "ready").length;
 
   return Object.freeze({
+    window_start_date: windowStartDate,
+    window_end_date: windowEndIsoDate,
     total_sessions: totalSessions,
     completed_sessions: completedSessions,
     partial_sessions: partialSessions,
@@ -98,6 +112,22 @@ function computeSessionAdherence(sessions: readonly EnrichedHistorySession[]): R
     ready_sessions: readySessions,
     adherence_percentage: totalSessions > 0 ? Math.round((100 * completedSessions) / totalSessions) : null,
     has_sufficient_data: totalSessions > 0
+  });
+}
+
+function computeSessionAdherence(sessions: readonly EnrichedHistorySession[]): Readonly<JsonRecord> {
+  const today = new Date().toISOString().slice(0, 10);
+  const current = computeSessionAdherenceWindow(sessions, today, WINDOW_DAYS);
+
+  const series: Readonly<JsonRecord>[] = [];
+  for (let windowIndex = WINDOW_COUNT - 1; windowIndex >= 0; windowIndex--) {
+    const windowEndDate = windowStartIsoDate(today, windowIndex * WINDOW_DAYS);
+    series.push(computeSessionAdherenceWindow(sessions, windowEndDate, WINDOW_DAYS));
+  }
+
+  return Object.freeze({
+    ...current,
+    series: Object.freeze(series)
   });
 }
 
@@ -130,19 +160,35 @@ function computeStrengthTrends(profilePayload: JsonRecord | null): Readonly<Json
 
   // lifecycle.superseded is grouped per-exercise (ascending effective_date
   // within each group) because the underlying projection processes one
-  // exercise at a time - so the last entry seen per exercise_id here is
-  // that exercise's most recent superseded reference.
-  const mostRecentSupersededByExercise = new Map<string, JsonRecord>();
+  // exercise at a time - so pushing in iteration order per exercise_id
+  // builds each exercise's own ascending history, and the last entry in
+  // that group is its most recent superseded reference.
+  const supersededByExercise = new Map<string, JsonRecord[]>();
   for (const record of lifecycle.superseded) {
-    mostRecentSupersededByExercise.set(cleanString(record.exercise_id), record);
+    const exerciseId = cleanString(record.exercise_id);
+    const list = supersededByExercise.get(exerciseId) ?? [];
+    list.push(record);
+    supersededByExercise.set(exerciseId, list);
   }
 
   return lifecycle.current.map((current) => {
     const exerciseId = cleanString(current.exercise_id);
-    const prior = mostRecentSupersededByExercise.get(exerciseId) ?? null;
+    const supersededForExercise = supersededByExercise.get(exerciseId) ?? [];
+    const prior = supersededForExercise.length > 0 ? supersededForExercise[supersededForExercise.length - 1] : null;
 
     const currentValue = Number(current.display_value);
     const priorValue = prior ? Number(prior.display_value) : null;
+
+    const series = [
+      ...supersededForExercise.map((entry) => Object.freeze({
+        date: cleanString(entry.effective_date),
+        value: Number(entry.display_value)
+      })),
+      Object.freeze({
+        date: cleanString(current.effective_date),
+        value: currentValue
+      })
+    ];
 
     return Object.freeze({
       exercise_id: exerciseId,
@@ -153,7 +199,8 @@ function computeStrengthTrends(profilePayload: JsonRecord | null): Readonly<Json
       prior_value: priorValue,
       prior_effective_date: prior ? cleanString(prior.effective_date) : null,
       delta: prior ? round2(currentValue - (priorValue as number)) : null,
-      delta_percentage: prior && priorValue ? round2((100 * (currentValue - priorValue)) / priorValue) : null
+      delta_percentage: prior && priorValue ? round2((100 * (currentValue - priorValue)) / priorValue) : null,
+      series: Object.freeze(series)
     });
   });
 }
@@ -162,11 +209,40 @@ function cadenceExpectedUnits(cadence: string, windowDays: number): number {
   return cadence === "weekly" ? Math.ceil(windowDays / 7) : windowDays;
 }
 
+function computeHabitWindowRate(
+  completions: readonly JsonRecord[],
+  cadence: string,
+  windowEndIsoDate: string,
+  windowDays: number
+): Readonly<JsonRecord> {
+  const windowStartDate = windowStartIsoDate(windowEndIsoDate, windowDays);
+
+  const windowCompletionDates = new Set(
+    completions
+      .map((completion) => cleanString(completion.completion_date))
+      .filter((date) => date >= windowStartDate && date <= windowEndIsoDate)
+  );
+
+  const windowCompletions = windowCompletionDates.size;
+  const windowExpectedUnits = cadenceExpectedUnits(cadence, windowDays);
+  const completionRatePercentage = Math.round(
+    (100 * Math.min(windowCompletions, windowExpectedUnits)) / windowExpectedUnits
+  );
+
+  return Object.freeze({
+    window_start_date: windowStartDate,
+    window_end_date: windowEndIsoDate,
+    window_completions: windowCompletions,
+    window_expected_units: windowExpectedUnits,
+    completion_rate_percentage: completionRatePercentage
+  });
+}
+
 async function computeHabitConsistency(
   habitsWithStreaks: readonly JsonRecord[],
   athleteUserId: string
 ): Promise<Readonly<JsonRecord>[]> {
-  const cutoff = windowStartIsoDate(new Date().toISOString().slice(0, 10), WINDOW_DAYS);
+  const today = new Date().toISOString().slice(0, 10);
 
   return Promise.all(
     habitsWithStreaks.map(async (habit) => {
@@ -174,17 +250,13 @@ async function computeHabitConsistency(
       const cadence = cleanString(habit.cadence);
       const completions = await queryHabitCompletions(athleteUserId, habitId);
 
-      const windowCompletionDates = new Set(
-        completions
-          .map((completion) => cleanString(completion.completion_date))
-          .filter((date) => date >= cutoff)
-      );
+      const current = computeHabitWindowRate(completions, cadence, today, WINDOW_DAYS);
 
-      const windowCompletions = windowCompletionDates.size;
-      const windowExpectedUnits = cadenceExpectedUnits(cadence, WINDOW_DAYS);
-      const completionRatePercentage = Math.round(
-        (100 * Math.min(windowCompletions, windowExpectedUnits)) / windowExpectedUnits
-      );
+      const series: Readonly<JsonRecord>[] = [];
+      for (let windowIndex = WINDOW_COUNT - 1; windowIndex >= 0; windowIndex--) {
+        const windowEndDate = windowStartIsoDate(today, windowIndex * WINDOW_DAYS);
+        series.push(computeHabitWindowRate(completions, cadence, windowEndDate, WINDOW_DAYS));
+      }
 
       return Object.freeze({
         habit_id: habitId,
@@ -193,9 +265,10 @@ async function computeHabitConsistency(
         current_streak_length: habit.current_streak_length,
         longest_streak_length: habit.longest_streak_length,
         total_completions: habit.total_completions,
-        window_completions: windowCompletions,
-        window_expected_units: windowExpectedUnits,
-        completion_rate_percentage: completionRatePercentage
+        window_completions: current.window_completions,
+        window_expected_units: current.window_expected_units,
+        completion_rate_percentage: current.completion_rate_percentage,
+        series: Object.freeze(series)
       });
     })
   );
@@ -229,6 +302,14 @@ function computeBodyMetricTrends(entries: readonly JsonRecord[]): Readonly<JsonR
     const latestValue = Number(latest.value);
     const priorValue = prior ? Number(prior.value) : null;
 
+    const series = sorted
+      .slice()
+      .reverse()
+      .map((entry) => Object.freeze({
+        date: cleanString(entry.effective_date),
+        value: Number(entry.value)
+      }));
+
     trends.push(Object.freeze({
       metric_type: metricType,
       unit: cleanString(latest.unit),
@@ -238,7 +319,8 @@ function computeBodyMetricTrends(entries: readonly JsonRecord[]): Readonly<JsonR
       prior_value: priorValue,
       prior_effective_date: prior ? cleanString(prior.effective_date) : null,
       delta: prior ? round2(latestValue - (priorValue as number)) : null,
-      delta_percentage: prior && priorValue ? round2((100 * (latestValue - priorValue)) / priorValue) : null
+      delta_percentage: prior && priorValue ? round2((100 * (latestValue - priorValue)) / priorValue) : null,
+      series: Object.freeze(series)
     }));
   }
 

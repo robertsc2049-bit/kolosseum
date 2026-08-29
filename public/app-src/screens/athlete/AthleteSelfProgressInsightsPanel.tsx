@@ -1,8 +1,15 @@
 import React from "react";
 
+import { type ChartPoint, LineChart } from "../../components/LineChart";
 import { type JsonRecord } from "../../api/transport";
 import { BODY_METRIC_TYPE_LABELS, formatDate, titleCase } from "../../utils/format";
 import { useProgressInsights } from "./useProgressInsights";
+
+function seriesPoints(series: unknown): ChartPoint[] {
+  return Array.isArray(series)
+    ? series.map((point) => ({ date: String(point?.date ?? ""), value: Number(point?.value) }))
+    : [];
+}
 
 // DEV NOTE: FULL-UI-36 athlete's own progress insights - ported from
 // app.js's progressInsightsAdherenceText()/renderStrengthTrendCard()/
@@ -39,6 +46,11 @@ function StrengthTrendCard({ trend, exercises }: { trend: JsonRecord; exercises:
       </div>
       <strong>{String(trend.current_value)} {String(trend.current_unit)}</strong>
       <p className="muted small">{changeText}</p>
+      <LineChart
+        compact
+        series={[{ id: "value", label: `${exerciseDisplayName(String(trend.exercise_id), exercises)} (${String(trend.current_unit)})`, points: seriesPoints(trend.series) }]}
+        emptyLabel="Not enough history to chart yet."
+      />
     </article>
   );
 }
@@ -56,6 +68,20 @@ function HabitConsistencyCard({ habit }: { habit: JsonRecord }) {
       <p className="muted small">
         Current streak {String(habit.current_streak_length)} · Longest streak {String(habit.longest_streak_length)}
       </p>
+      <LineChart
+        compact
+        series={[{
+          id: "rate",
+          label: "Completion rate %",
+          points: Array.isArray(habit.series)
+            ? (habit.series as JsonRecord[]).map((window) => ({
+                date: String(window.window_end_date ?? ""),
+                value: Number(window.completion_rate_percentage)
+              }))
+            : []
+        }]}
+        emptyLabel="Not enough history to chart yet."
+      />
     </article>
   );
 }
@@ -76,6 +102,11 @@ function BodyMetricTrendCard({ trend }: { trend: JsonRecord }) {
       </div>
       <strong>{String(trend.latest_value)}{unitSuffix}</strong>
       <p className="muted small">{changeText}</p>
+      <LineChart
+        compact
+        series={[{ id: "value", label: `${label} (${String(trend.unit)})`, points: seriesPoints(trend.series) }]}
+        emptyLabel="Not enough history to chart yet."
+      />
     </article>
   );
 }
@@ -104,6 +135,19 @@ export function AthleteSelfProgressInsightsPanel() {
       ) : insights ? (
         <>
           <p className="dashboard-status" role="status" aria-live="polite">{adherenceText(insights.session_adherence as JsonRecord)}</p>
+
+          <LineChart
+            series={[{
+              id: "adherence",
+              label: "Adherence %",
+              points: Array.isArray((insights.session_adherence as JsonRecord).series)
+                ? ((insights.session_adherence as JsonRecord).series as JsonRecord[])
+                    .filter((window) => window.adherence_percentage !== null)
+                    .map((window) => ({ date: String(window.window_end_date ?? ""), value: Number(window.adherence_percentage) }))
+                : []
+            }]}
+            emptyLabel="No sessions recorded yet to chart adherence over time."
+          />
 
           <div className="progress-insights-section">
             <h4>Strength trends</h4>
