@@ -460,9 +460,50 @@ function adherenceSeriesPoints(insights) {
     .map((window) => ({ date: String(window.window_end_date ?? ""), value: Number(window.adherence_percentage) }));
 }
 
-function renderProgress(rollup, coachNamesById) {
+// Progress graphs slice 5 - an "individual"-mode ("gym") org's rollup
+// never carries an athlete_user_id, display_name or email (see
+// org_progress_rollup_service.ts's own DEV NOTE) - only a per-coach
+// AVERAGE adherence trend, itself withheld (insufficient_cohort) until
+// enough athletes contribute that the average could not trivially be
+// reverse-engineered to reveal one specific athlete's own number.
+function aggregateAdherenceSeriesPoints(coach) {
+  return (coach.adherence_series || [])
+    .filter((window) => window.average_adherence_percentage !== null)
+    .map((window) => ({ date: window.window_end_date, value: window.average_adherence_percentage }));
+}
+
+function renderAggregateProgress(coaches, coachNamesById) {
   const container = el("orgProgressList");
-  const coaches = Array.isArray(rollup.coaches) ? rollup.coaches : [];
+  if (coaches.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No coaches on this organisation's roster yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = coaches.map((coach) => `
+    <article class="record-card">
+      <div class="record-meta">
+        <span class="badge ${coach.insufficient_cohort ? "neutral" : "active"}">${coach.insufficient_cohort ? "Unavailable" : "Average adherence"}</span>
+      </div>
+      <div>
+        <h3>${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</h3>
+        <p class="muted small">${escapeHtml(coach.active_athlete_count)} active athlete${coach.active_athlete_count === 1 ? "" : "s"}</p>
+      </div>
+      ${coach.insufficient_cohort
+        ? `<div class="empty-state compact-empty"><p>Not enough athletes yet for a privacy-safe average (fewer than 3).</p></div>`
+        : renderLineChartSvg(
+            [{ id: "average-adherence", label: "Average adherence %", points: aggregateAdherenceSeriesPoints(coach) }],
+            { compact: true, emptyLabel: "Not enough sessions to chart yet." }
+          )}
+    </article>
+  `).join("");
+}
+
+function renderRosterProgress(coaches, coachNamesById) {
+  const container = el("orgProgressList");
   const athleteCount = coaches.reduce((total, coach) => total + coach.athletes.length, 0);
 
   if (athleteCount === 0) {
@@ -498,6 +539,15 @@ function renderProgress(rollup, coachNamesById) {
   ).join("");
 }
 
+function renderProgress(rollup, coachNamesById) {
+  const coaches = Array.isArray(rollup.coaches) ? rollup.coaches : [];
+  if (rollup.visibility_mode === "individual") {
+    renderAggregateProgress(coaches, coachNamesById);
+    return;
+  }
+  renderRosterProgress(coaches, coachNamesById);
+}
+
 async function refreshProgress() {
   const rosterResult = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/roster`);
   const coachNamesById = new Map();
@@ -525,10 +575,8 @@ function showProgressSection(orgId, orgName) {
   el("orgProgressList").innerHTML = "";
   refreshProgress().catch((error) => {
     el("orgProgressError").hidden = false;
-    el("orgProgressError").textContent = error.message === "org_progress_rollup_not_available_for_individual_org"
-      ? "Progress data is only available for shared-visibility organisations."
-      : "Could not load progress data.";
-    if (error.message !== "org_progress_rollup_not_available_for_individual_org") console.error(error);
+    el("orgProgressError").textContent = "Could not load progress data.";
+    console.error(error);
   });
 }
 

@@ -1,20 +1,22 @@
-// DEV NOTE: Progress graphs slice 4 - org-wide progress rollup lifecycle
-// proof. Proves the single most important boundary in this feature: an
-// "individual"-mode ("gym") org's rollup call is rejected outright, and
-// the raw HTTP response NEVER contains an athlete_user_id, display_name,
-// email, or any progress metric value, anywhere - matching the identical
-// zero-athlete-data guarantee test/org_visibility_lifecycle_persistent.
-// integration.test.mjs already proves for the athlete-visibility route
-// this feature is layered on top of. Also proves a "shared"-mode
-// ("team") org's rollup returns real per-athlete insights across every
-// coach on the roster, a revoked relationship is excluded entirely
-// (mirroring listConnectedCoachAthletes's own accepted-only filter),
-// cross-org isolation holds, and an unauthenticated caller is rejected.
-// The per-athlete metric computation itself (all 4 metric shapes,
-// series included) is already exhaustively proven by
-// test/full_ui_36_progress_insights_persistent.integration.test.mjs and
-// test/coach_progress_rollup_persistent.integration.test.mjs - this test
-// only proves the NEW org-wide aggregation and visibility-mode gate.
+// DEV NOTE: Progress graphs slices 4-5 - org-wide progress rollup
+// lifecycle proof. Proves the single most important boundary in this
+// feature: an "individual"-mode ("gym") org's rollup NEVER contains an
+// athlete_user_id, display_name, or email, anywhere in the raw HTTP
+// response - matching the identical zero-athlete-identity guarantee
+// test/org_visibility_lifecycle_persistent.integration.test.mjs already
+// proves for the athlete-visibility route this feature is layered on
+// top of - while still proving the aggregate adherence AVERAGE it
+// computes from real per-athlete data is genuinely correct, and is
+// withheld entirely (not just a zero) below the 3-athlete cohort
+// threshold. Also proves a "shared"-mode ("team") org's rollup returns
+// real per-athlete insights across every coach on the roster, a revoked
+// relationship is excluded entirely (mirroring listConnectedCoachAthletes's
+// own accepted-only filter), cross-org isolation holds, and an
+// unauthenticated caller is rejected. The per-athlete metric computation
+// itself (all 4 metric shapes, series included) is already exhaustively
+// proven by test/full_ui_36_progress_insights_persistent.integration.test.mjs
+// and test/coach_progress_rollup_persistent.integration.test.mjs - this
+// test only proves the NEW org-wide aggregation and visibility-mode gate.
 
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
@@ -258,7 +260,8 @@ async function createActivatedTemplate(baseUrl, coachUserId, name) {
   return template;
 }
 
-async function seedRealSessionData(baseUrl, coach, athlete, nonce) {
+async function seedRealSessionData(baseUrl, coach, athlete, nonce, options = {}) {
+  const complete = options.complete !== false;
   assertStatus(await request(baseUrl, "POST", "/coach-workspace/athlete-strength-profile", {
     coach_user_id: coach.userId, athlete_user_id: athlete.userId, preferred_weight_unit: "kg", load_rounding_increment: 2.5,
     bodyweight: 90, bodyweight_unit: "kg",
@@ -288,10 +291,15 @@ async function seedRealSessionData(baseUrl, coach, athlete, nonce) {
   assertStatus(compiled, 201, "compile session");
   const sessionId = compiled.json.session_id;
 
-  assertStatus(await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/start`, {}), 200, "start session");
-  assertStatus(await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
-    type: "COMPLETE_EXERCISE", exercise_id: "back_squat"
-  }), 201, "complete back_squat");
+  if (complete) {
+    assertStatus(await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/start`, {}), 200, "start session");
+    assertStatus(await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+      type: "COMPLETE_EXERCISE", exercise_id: "back_squat"
+    }), 201, "complete back_squat");
+  }
+  // options.complete === false: left "ready" (compiled but never started) -
+  // still one real, factual session record, just an incomplete one, so its
+  // adherence_percentage is 0, not null.
 
   return sessionId;
 }
@@ -359,9 +367,18 @@ test(
     athleteUserIds.push(athlete1.userId);
 
     // ============================================================
-    // An "individual"-mode ("gym") org: rollup is rejected outright, and
-    // the raw HTTP response never mentions any athlete data at all - the
-    // single most important guarantee of this whole feature.
+    // An "individual"-mode ("gym") org with two coaches:
+    // - coachA has only 1 accepted athlete (below the 3-athlete cohort
+    //   threshold) - insufficient_cohort must be true and NO per-athlete
+    //   data may ever be read for coachA, even though athlete1 genuinely
+    //   has real session data seeded below.
+    // - coachB has 3 accepted athletes with real, DIFFERENT adherence
+    //   outcomes (100%, 100%, 0%) - a genuine, verifiable average
+    //   (round((100+100+0)/3) = 67), proving real aggregation happened
+    //   rather than reflecting a single athlete's own number.
+    // Across both coaches, the raw HTTP response must never mention any
+    // athlete's user_id, email or display name, anywhere - the single
+    // most important guarantee of this whole feature.
     // ============================================================
     const gymOrg = await request(baseUrl, "POST", "/org/organisations", {
       org_name: "Org Prog Individual Gym", visibility_mode: "individual"
@@ -369,28 +386,81 @@ test(
     assertStatus(gymOrg, 201, "create individual-mode org");
     const gymOrgId = gymOrg.json?.organisation?.org_id;
 
-    const gymInvite = await request(
+    const gymInviteA = await request(
       baseUrl, "POST", `/org/organisations/${encodeURIComponent(gymOrgId)}/roster/invite`,
-      { coach_email: coachA.email, request_id: `org_prog_invite_${nonce}_gym` }, { cookie: owner.cookie, csrf: owner.csrf }
+      { coach_email: coachA.email, request_id: `org_prog_invite_${nonce}_gym_a` }, { cookie: owner.cookie, csrf: owner.csrf }
     );
-    assertStatus(gymInvite, 201, "invite coachA to gym org");
-    await acceptOrgInvite(baseUrl, coachA, gymInvite.json?.membership?.membership_id, `org_prog_accept_${nonce}_gym`);
+    assertStatus(gymInviteA, 201, "invite coachA to gym org");
+    await acceptOrgInvite(baseUrl, coachA, gymInviteA.json?.membership?.membership_id, `org_prog_accept_${nonce}_gym_a`);
 
     await seedRelationship(baseUrl, {
       relationshipId: `org_prog_rel_${nonce}_gym1`, coachUserId: coachA.userId, athleteUserId: athlete1.userId, state: "accepted"
     });
     sessionIds.push(await seedRealSessionData(baseUrl, coachA, athlete1, `${nonce}_gym`));
 
+    const coachB = await registerCoach(baseUrl, nonce, "b");
+    coachUserIds.push(coachB.userId);
+    const cohort1 = await registerAthlete(baseUrl, nonce, "cohort1");
+    athleteUserIds.push(cohort1.userId);
+    const cohort2 = await registerAthlete(baseUrl, nonce, "cohort2");
+    athleteUserIds.push(cohort2.userId);
+    const cohort3 = await registerAthlete(baseUrl, nonce, "cohort3");
+    athleteUserIds.push(cohort3.userId);
+
+    const gymInviteB = await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(gymOrgId)}/roster/invite`,
+      { coach_email: coachB.email, request_id: `org_prog_invite_${nonce}_gym_b` }, { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(gymInviteB, 201, "invite coachB to gym org");
+    await acceptOrgInvite(baseUrl, coachB, gymInviteB.json?.membership?.membership_id, `org_prog_accept_${nonce}_gym_b`);
+
+    for (const cohortAthlete of [cohort1, cohort2, cohort3]) {
+      await seedRelationship(baseUrl, {
+        relationshipId: `org_prog_rel_${nonce}_${cohortAthlete.userId}`,
+        coachUserId: coachB.userId, athleteUserId: cohortAthlete.userId, state: "accepted"
+      });
+    }
+    sessionIds.push(await seedRealSessionData(baseUrl, coachB, cohort1, `${nonce}_cohort1`));
+    sessionIds.push(await seedRealSessionData(baseUrl, coachB, cohort2, `${nonce}_cohort2`));
+    sessionIds.push(await seedRealSessionData(baseUrl, coachB, cohort3, `${nonce}_cohort3`, { complete: false }));
+
     const gymRollup = await request(
       baseUrl, "GET", `/org/organisations/${encodeURIComponent(gymOrgId)}/progress-rollup`, undefined, { cookie: owner.cookie }
     );
-    assertStatus(gymRollup, 403, "an individual-mode org's progress rollup is rejected");
-    assert.equal(gymRollup.json?.error, "org_progress_rollup_not_available_for_individual_org");
-    assert.equal(gymRollup.text.includes("athlete_user_id"), false, "gym-mode rejection must never mention athlete_user_id");
-    assert.equal(gymRollup.text.includes(athlete1.userId), false, "gym-mode rejection must never mention the athlete's own id");
-    assert.equal(gymRollup.text.includes(athlete1.email), false, "gym-mode rejection must never mention the athlete's email");
-    assert.equal(gymRollup.text.includes(athlete1.displayName), false, "gym-mode rejection must never mention the athlete's display name");
-    assert.equal(gymRollup.text.includes("adherence"), false, "gym-mode rejection must never mention any progress metric");
+    assertStatus(gymRollup, 200, "individual-mode org owner reads the aggregate progress rollup");
+    const gymRollupBody = gymRollup.json?.rollup;
+    assert.equal(gymRollupBody?.visibility_mode, "individual");
+
+    const coachAAggregate = gymRollupBody?.coaches?.find((entry) => entry.coach_user_id === coachA.userId);
+    assert.ok(coachAAggregate, "expected coachA in the aggregate rollup");
+    assert.equal(coachAAggregate.active_athlete_count, 1);
+    assert.equal(coachAAggregate.insufficient_cohort, true, "1 athlete is below the 3-athlete cohort threshold");
+    assert.deepEqual(coachAAggregate.adherence_series, [], "an insufficient-cohort coach gets no series at all, not a suppressed-but-present one");
+
+    const coachBAggregate = gymRollupBody?.coaches?.find((entry) => entry.coach_user_id === coachB.userId);
+    assert.ok(coachBAggregate, "expected coachB in the aggregate rollup");
+    assert.equal(coachBAggregate.active_athlete_count, 3);
+    assert.equal(coachBAggregate.insufficient_cohort, false);
+    assert.equal(coachBAggregate.adherence_series.length, 6, "aggregate adherence series has 6 windows");
+
+    const currentAggregateWindow = coachBAggregate.adherence_series[5];
+    assert.equal(currentAggregateWindow.contributor_count, 3, "all 3 cohort athletes contributed to the current window");
+    assert.equal(
+      currentAggregateWindow.average_adherence_percentage, 67,
+      "round((100 + 100 + 0) / 3) = 67 - a genuine average, not one athlete's own figure"
+    );
+    for (const olderWindow of coachBAggregate.adherence_series.slice(0, 5)) {
+      assert.equal(olderWindow.contributor_count, 0, "no sessions this far back");
+      assert.equal(olderWindow.average_adherence_percentage, null, "no sessions this far back");
+    }
+
+    const rawGymResponse = gymRollup.text;
+    assert.equal(rawGymResponse.includes("athlete_user_id"), false, "individual mode must never mention athlete_user_id");
+    for (const athlete of [athlete1, cohort1, cohort2, cohort3]) {
+      assert.equal(rawGymResponse.includes(athlete.userId), false, `individual mode must never mention ${athlete.userId}`);
+      assert.equal(rawGymResponse.includes(athlete.email), false, `individual mode must never mention ${athlete.email}`);
+      assert.equal(rawGymResponse.includes(athlete.displayName), false, `individual mode must never mention ${athlete.displayName}`);
+    }
 
     // ============================================================
     // A "shared"-mode ("team") org: coachA has an accepted athlete with

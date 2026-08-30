@@ -5685,7 +5685,7 @@
         },
         {
           "function_id": "org_owner_progress_rollup",
-          "label": "View an org-wide progress rollup - one adherence chart per accepted athlete across every coach on the roster - available only for shared-visibility (team) organisations",
+          "label": "View an org-wide progress rollup - a real per-athlete adherence chart per accepted athlete across every coach on the roster for shared-visibility (team) organisations, or a privacy-preserving per-coach average adherence trend (never an athlete identity, withheld entirely below a 3-athlete cohort) for individual-visibility (gym) organisations",
           "actors": [
             "org_owner"
           ],
