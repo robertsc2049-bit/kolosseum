@@ -41,10 +41,7 @@ import {
   OrgVisibilityError,
   getOrgAthleteVisibility
 } from "./org_visibility_service.js";
-import {
-  OrgProgressRollupError,
-  getOrgProgressRollup
-} from "./org_progress_rollup_service.js";
+import { getOrgProgressRollup } from "./org_progress_rollup_service.js";
 import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
@@ -232,8 +229,10 @@ orgOwnerRouter.get(
   })
 );
 
-// Progress graphs slice 4: an org-wide progress rollup, available only
-// for 'shared'-mode ("team") organisations - see
+// Progress graphs slices 4 & 5: an org-wide progress rollup - a real
+// per-athlete roster for 'shared'-mode ("team") organisations, or an
+// aggregate-only adherence trend (never any individual athlete's
+// identity) for 'individual'-mode ("gym") organisations - see
 // org_progress_rollup_service.ts's own DEV NOTE.
 orgOwnerRouter.get(
   "/organisations/:org_id/progress-rollup",
@@ -380,7 +379,6 @@ orgOwnerRouter.use(
       error instanceof OrgRosterError ||
       error instanceof OrgBillingError ||
       error instanceof OrgVisibilityError ||
-      error instanceof OrgProgressRollupError ||
       error instanceof OrgCoachMessagingError ||
       error instanceof OrgAthleteMessagingError ||
       error instanceof MessageAttachmentError

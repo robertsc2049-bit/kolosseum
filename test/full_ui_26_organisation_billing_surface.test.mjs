@@ -218,22 +218,26 @@ function extractFunctionSource(source, functionName) {
 }
 
 // org_visibility_service.ts (part C), org_athlete_messaging_service.ts
-// (part D.4) and org_progress_rollup_service.ts (progress graphs slice 4)
-// are the three deliberate, explicitly-gated exceptions to the
+// (part D.4) and org_progress_rollup_service.ts (progress graphs slices
+// 4-5) are the three deliberate, explicitly-gated exceptions to the
 // "no org file ever reads or writes athlete-scoped data" rule proved by
 // the test above - none is added to orgFiles, and must never be: doing
 // so would make that test correctly fail the moment its real
 // athlete-scoped queries land. This test instead proves the boundary is
 // mode-aware: org_visibility_service.ts's "individual"-mode aggregate
 // path never touches athlete identity, while its "shared"-mode roster
-// path does - and both org_athlete_messaging_service.ts and
-// org_progress_rollup_service.ts reuse that exact same visibility_mode
-// gate for their own boundaries (the messaging gate proved in the
-// dedicated D.4 test below). org_progress_rollup_service.ts is the odd
-// one out structurally: unlike the other two, it never queries
-// beta_product_records/beta17_coach_relationship itself at all - its
-// only data-access path is calling getOrgAthleteVisibility() directly
-// and enriching its already-resolved, already-gated roster.
+// path does. org_athlete_messaging_service.ts reuses that exact same
+// visibility_mode gate for its own boundary (proved in the dedicated
+// D.4 test below) - it is only ever reachable for 'shared'-mode orgs.
+// org_progress_rollup_service.ts is the odd one out structurally:
+// unlike the other two, it never queries beta_product_records/
+// beta17_coach_relationship itself at all (its only direct data-access
+// path is calling getOrgAthleteVisibility()), but it IS reachable for
+// BOTH modes - its 'individual'-mode branch does its own separate
+// per-athlete reads (via listConnectedCoachAthletes/
+// getProgressInsightsForCoach) to compute an average, so it carries its
+// own additional k-anonymity-style cohort-size gate rather than simply
+// refusing the individual-mode branch outright.
 test("org_visibility_service.ts, org_athlete_messaging_service.ts and org_progress_rollup_service.ts are the only three explicitly-gated exceptions to the athlete-data boundary, and org_visibility_service.ts's individual-mode path never touches athlete identity", () => {
   assert.match(visibilityService, /beta_product_records/u);
   assert.match(visibilityService, /beta17_coach_relationship/u);
@@ -242,7 +246,19 @@ test("org_visibility_service.ts, org_athlete_messaging_service.ts and org_progre
 
   assert.match(orgProgressRollupService, /getOrgAthleteVisibility/u);
   assert.doesNotMatch(orgProgressRollupService, /beta_product_records|beta17_coach_relationship/u);
-  assert.match(orgProgressRollupService, /visibility_mode !== "shared"/u);
+  assert.match(orgProgressRollupService, /visibility\.visibility_mode === "shared"/u);
+
+  // Progress graphs slice 5: the 'individual'-mode branch computes a
+  // per-coach AVERAGE adherence trend from real per-athlete data, but is
+  // never allowed to serialize an athlete_user_id, display_name or email
+  // - and withholds the average entirely below a k-anonymity-style
+  // cohort-size threshold, both at the whole-coach level and per window.
+  const aggregateForCoachFn = extractFunctionSource(orgProgressRollupService, "aggregateAdherenceForCoach");
+  assert.match(aggregateForCoachFn, /listConnectedCoachAthletes/u);
+  assert.doesNotMatch(aggregateForCoachFn, /athlete_user_id:|display_name:|email:/u);
+  assert.match(orgProgressRollupService, /const MIN_COHORT_SIZE = 3/u);
+  assert.match(orgProgressRollupService, /coach\.active_athlete_count < MIN_COHORT_SIZE/u);
+  assert.match(orgProgressRollupService, /contributorCount >= MIN_COHORT_SIZE/u);
 
   for (const source of orgFilesForAthleteIdCheck) {
     assert.doesNotMatch(source, /athlete_user_id/u);
@@ -561,8 +577,9 @@ test("the activity log view calls the new audit-log route, and its back button i
   assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/audit-log`\)/u);
 });
 
-// Progress graphs slice 4 - the org-wide progress rollup view, gated to
-// 'shared'-mode ("team") organisations only.
+// Progress graphs slices 4-5 - the org-wide progress rollup view, real
+// per-athlete for 'shared'-mode ("team") organisations, aggregate-only
+// for 'individual'-mode ("gym") organisations.
 test("the progress-rollup route resolves identity from authenticatedOrgOwner and delegates to getOrgProgressRollup, mirroring the audit-log route's own shape", () => {
   assert.match(
     ownerRoutes,
@@ -592,19 +609,29 @@ test("the progress view calls the new progress-rollup route and the roster route
   assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/progress-rollup`\)/u);
 });
 
-test("an individual-mode org's progress-rollup rejection is shown as a factual, mode-specific message, not a generic error - the Progress button itself is never hidden client-side", () => {
-  assert.match(
-    orgDashboardJs,
-    /error\.message === "org_progress_rollup_not_available_for_individual_org"[\s\S]{0,200}"Progress data is only available for shared-visibility organisations\."/u
-  );
-  // No client-side visibility_mode branch gates whether the button itself
-  // renders - renderOrganisations() renders it unconditionally for every
-  // organisation, same as "View athletes".
+// Progress graphs slice 5 - an 'individual'-mode org's rollup renders a
+// distinct, real branch (never a rejected/error state) - the "Progress"
+// button itself is never hidden client-side regardless of
+// visibility_mode, same as "View athletes".
+test("renderProgress branches on the server's own visibility_mode, rendering a per-coach aggregate trend for individual-mode and a per-athlete roster for shared-mode", () => {
+  assert.match(orgDashboardJs, /rollup\.visibility_mode === "individual"/u);
+  assert.match(orgDashboardJs, /renderAggregateProgress\(coaches, coachNamesById\)/u);
+  assert.match(orgDashboardJs, /renderRosterProgress\(coaches, coachNamesById\)/u);
   assert.doesNotMatch(orgDashboardJs, /organisation\.visibility_mode[\s\S]{0,80}data-view-progress/u);
+});
+
+test("an individual-mode org's per-coach average is withheld below a 3-athlete cohort, shown as a distinct factual message rather than a chart or a generic error", () => {
+  assert.match(orgDashboardJs, /coach\.insufficient_cohort/u);
+  assert.match(orgDashboardJs, /Not enough athletes yet for a privacy-safe average \(fewer than 3\)\./u);
 });
 
 test("athlete names rendered into the progress view are escaped before being inserted into innerHTML", () => {
   assert.match(orgDashboardJs, /escapeHtml\(athlete\.display_name\)/u);
+});
+
+test("coach names and athlete counts rendered into the aggregate progress view are escaped before being inserted into innerHTML", () => {
+  assert.match(orgDashboardJs, /coachLabel\(coach\.coach_user_id, coachNamesById\)/u);
+  assert.match(orgDashboardJs, /escapeHtml\(coach\.active_athlete_count\)/u);
 });
 
 test("the progress-view line chart mirrors LineChart.tsx's design exactly: a lone point renders as a dot, not a line, and colors cycle through the same shared CSS custom properties", () => {
