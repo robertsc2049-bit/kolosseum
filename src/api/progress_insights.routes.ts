@@ -23,7 +23,8 @@ import { authenticatedCoach, cookieValue } from "./coach_session_auth.js";
 import {
   ProgressInsightsError,
   getProgressInsightsForAthlete,
-  getProgressInsightsForCoach
+  getProgressInsightsForCoach,
+  getProgressInsightsForCoachRoster
 } from "./progress_insights_service.js";
 
 export const progressInsightsRouter = Router();
@@ -79,6 +80,17 @@ progressInsightsRouter.get(
     const coachUserId = await authenticatedCoach(request, false);
     const insights = await getProgressInsightsForCoach(coachUserId, String(request.params.athlete_user_id));
     return response.status(200).json({ ok: true, insights });
+  })
+);
+
+// Progress graphs slice 3: a roster-wide overview of the coach's own
+// athletes.
+progressInsightsRouter.get(
+  "/coach-roster",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const roster = await getProgressInsightsForCoachRoster(coachUserId);
+    return response.status(200).json({ ok: true, roster });
   })
 );
 
