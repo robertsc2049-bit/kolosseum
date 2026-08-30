@@ -95,15 +95,3 @@ jobs:
         # Add or remove checks inside the npm script/CI scripts, not by scattering
         # additional ad hoc commands through this YAML.
         run: npm run ci
-
-      - name: Materialize REG-FULL-09 diagnostic report
-        if: always()
-        run: node scripts/reg_full_09_materialize_final_registry_acceptance.mjs --write
-
-      - name: Upload REG-FULL-09 diagnostic report
-        if: always() && hashFiles('ci/evidence/reg_full_09_final_registry_acceptance.v1.json') != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: reg-full-09-diagnostic-report
-          path: ci/evidence/reg_full_09_final_registry_acceptance.v1.json
-          if-no-files-found: error
