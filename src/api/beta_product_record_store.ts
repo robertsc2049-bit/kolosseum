@@ -32,7 +32,11 @@ type SupportedRecordType =
   | "weekly_checkin_entry"
   | "coach_brand_preference"
   | "programme_template_sharing_preference"
-  | "programme_template_release";
+  | "programme_template_release"
+  | "attendance_event"
+  | "attendance_event_occurrence"
+  | "attendance_event_invite"
+  | "attendance_event_rsvp";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -66,7 +70,11 @@ const supportedRecordTypes =
     "weekly_checkin_entry",
     "coach_brand_preference",
     "programme_template_sharing_preference",
-    "programme_template_release"
+    "programme_template_release",
+    "attendance_event",
+    "attendance_event_occurrence",
+    "attendance_event_invite",
+    "attendance_event_rsvp"
   ]);
 
 function isRecord(
@@ -760,6 +768,124 @@ function recordMetadata(
             record,
             "released_at_iso8601",
             "programme_template_release_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "attendance_event": {
+      const coachUserId =
+        requiredString(
+          record,
+          "owner_coach_user_id",
+          "attendance_event_owner_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "event_id",
+            "attendance_event_id_required"
+          ),
+        subject_user_id: coachUserId,
+        actor_user_id: coachUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "attendance_event_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "attendance_event_occurrence": {
+      const coachUserId =
+        requiredString(
+          record,
+          "owner_coach_user_id",
+          "attendance_event_occurrence_owner_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "occurrence_id",
+            "attendance_event_occurrence_id_required"
+          ),
+        subject_user_id: coachUserId,
+        actor_user_id: coachUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "attendance_event_occurrence_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "attendance_event_invite": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "invite_id",
+            "attendance_event_invite_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "attendance_event_invite_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "organizer_user_id",
+            "attendance_event_invite_organizer_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "attendance_event_invite_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "attendance_event_rsvp": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "rsvp_id",
+            "attendance_event_rsvp_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "attendance_event_rsvp_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "organizer_user_id",
+            "attendance_event_rsvp_organizer_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "responded_at_iso8601",
+            "attendance_event_rsvp_effective_at_required"
           ),
         record_sha256: recordSha256
       };

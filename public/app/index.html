@@ -63,6 +63,9 @@
         <button class="nav-item athlete-nav" data-view="history">
           <span class="nav-icon">H</span><span>History</span>
         </button>
+        <button class="nav-item athlete-nav" data-view="attendance">
+          <span class="nav-icon">V</span><span>Attendance</span>
+        </button>
 
         <button class="nav-item coach-nav" data-view="coach-overview">
           <span class="nav-icon">O</span><span>Overview</span>
@@ -84,6 +87,9 @@
         </button>
         <button class="nav-item coach-nav" data-view="coach-progress">
           <span class="nav-icon">G</span><span>Progress</span>
+        </button>
+        <button class="nav-item coach-nav" data-view="coach-attendance">
+          <span class="nav-icon">V</span><span>Attendance</span>
         </button>
 
         <button id="athleteOnboardingNav" class="nav-item athlete-nav" type="button">
@@ -951,6 +957,15 @@
 
         <section id="view-coach-progress" class="view" hidden>
           <div id="coach-progress-overview-root"></div>
+        </section>
+
+        <section id="view-coach-attendance" class="view" hidden>
+          <div id="attendance-event-create-root"></div>
+          <div id="attendance-event-detail-root"></div>
+        </section>
+
+        <section id="view-attendance" class="view" hidden>
+          <div id="athlete-attendance-events-root"></div>
         </section>
 
         <section id="view-account" class="view" hidden>
