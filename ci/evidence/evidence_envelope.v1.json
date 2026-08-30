@@ -47,7 +47,7 @@
       },
       {
         "path": "ci/schemas/copy_registry.registry.schema.json",
-        "sha256": "771564B912CCBDCC581CC99F8FBF73DA27D788DCFA4F7DEECE12951E1219497C"
+        "sha256": "DD4D6926F3E4871641C7F72D3A08CD2A439A7196D523B077DA8B7714CFDC1F22"
       },
       {
         "path": "ci/schemas/equipment_environment_registry_3e.registry.schema.json",

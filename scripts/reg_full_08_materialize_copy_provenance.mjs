@@ -25,7 +25,7 @@ export const REG_FULL_08_SOURCE_SPECS = Object.freeze([
   Object.freeze({ source_key: "metric_exercise_link", source_registry_id: "metric_exercise_link_registry_1c_a", source_file: "registries/metric_exercise_link/metric_exercise_link.registry.json", source_authority: "compatibility_projection", entries_shape: "object", primary_key: "metric_exercise_link_id", expected_registry_id: "metric_exercise_link" }),
   Object.freeze({ source_key: "exercise_equipment_compatibility", source_registry_id: "exercise_equipment_compatibility_registry", source_file: "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json", source_authority: "authoritative", entries_shape: "object", primary_key: "compatibility_id", expected_registry_id: "exercise_equipment_compatibility_registry" }),
   Object.freeze({ source_key: "exercise_sport_applicability", source_registry_id: "exercise_sport_applicability_registry_6x", source_file: "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json", source_authority: "compatibility_projection", entries_shape: "object", primary_key: "applicability_id", expected_registry_id: "exercise_activity_applicability" }),
-  Object.freeze({ source_key: "program_compatibility", source_registry_id: "sport_program_template_registry_5f", source_file: "registries/program/program.registry.json", source_authority: "compatibility_projection", entries_shape: "object", primary_key: "template_id", expected_registry_id: "program" }),
+  Object.freeze({ source_key: "program_compatibility", source_registry_id: "sport_program_template_registry_5f", source_file: "registries/program/program.registry.json", source_authority: "compatibility_projection", entries_shape: "array", primary_key: "template_id", expected_registry_id: "program" }),
   Object.freeze({ source_key: "program_template", source_registry_id: "sport_program_template_registry_5f", source_file: "registries/program/sport_program_template.registry.json", source_authority: "authoritative", entries_shape: "array", primary_key: "template_id", expected_registry_id: "sport_program_template_registry_5f" }),
   Object.freeze({ source_key: "substitution", source_registry_id: "substitution_registry", source_file: "registries/substitution/substitution.registry.json", source_authority: "authoritative", entries_shape: "object", primary_key: "substitution_edge_id", expected_registry_id: "substitution_registry" }),
   Object.freeze({ source_key: "beta_copy_root", source_registry_id: "copy_registry", source_file: "copy/beta_copy_registry.json", source_authority: "compatibility_runtime", entries_shape: "array", primary_key: "copy_id", expected_registry_id: "beta_copy_registry_authoritative" }),
@@ -84,9 +84,16 @@ function assertTrackedAndClean(repoRoot, rel) {
 }
 
 export function rowsForSpec(doc, spec) {
-  assert(isObject(doc), `${spec.source_file}: document must be an object`);
-  if (spec.expected_registry_id !== null) assert(doc.registry_id === spec.expected_registry_id, `${spec.source_file}: registry_id mismatch`);
-  const container = doc.entries;
+  let container;
+  if (Array.isArray(doc)) {
+    assert(spec.expected_registry_id === null, `${spec.source_file}: top-level array requires a headerless source`);
+    assert(spec.entries_shape === "array", `${spec.source_file}: top-level array requires entries_shape=array`);
+    container = doc;
+  } else {
+    assert(isObject(doc), `${spec.source_file}: document must be an object or an explicitly headerless top-level array`);
+    if (spec.expected_registry_id !== null) assert(doc.registry_id === spec.expected_registry_id, `${spec.source_file}: registry_id mismatch`);
+    container = doc.entries;
+  }
   const rows = [];
   if (spec.entries_shape === "object") {
     assert(isObject(container), `${spec.source_file}: entries must be an object`);

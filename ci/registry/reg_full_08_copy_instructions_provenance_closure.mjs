@@ -29,7 +29,7 @@ export const REG_FULL_08_GUARD_SOURCE_SPECS = Object.freeze([
   Object.freeze({ key: "metric_exercise_link", registry: "metric_exercise_link_registry_1c_a", file: "registries/metric_exercise_link/metric_exercise_link.registry.json", authority: "compatibility_projection", shape: "object", pk: "metric_exercise_link_id", header: "metric_exercise_link" }),
   Object.freeze({ key: "exercise_equipment_compatibility", registry: "exercise_equipment_compatibility_registry", file: "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json", authority: "authoritative", shape: "object", pk: "compatibility_id", header: "exercise_equipment_compatibility_registry" }),
   Object.freeze({ key: "exercise_sport_applicability", registry: "exercise_sport_applicability_registry_6x", file: "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json", authority: "compatibility_projection", shape: "object", pk: "applicability_id", header: "exercise_activity_applicability" }),
-  Object.freeze({ key: "program_compatibility", registry: "sport_program_template_registry_5f", file: "registries/program/program.registry.json", authority: "compatibility_projection", shape: "object", pk: "template_id", header: "program" }),
+  Object.freeze({ key: "program_compatibility", registry: "sport_program_template_registry_5f", file: "registries/program/program.registry.json", authority: "compatibility_projection", shape: "array", pk: "template_id", header: "program" }),
   Object.freeze({ key: "program_template", registry: "sport_program_template_registry_5f", file: "registries/program/sport_program_template.registry.json", authority: "authoritative", shape: "array", pk: "template_id", header: "sport_program_template_registry_5f" }),
   Object.freeze({ key: "substitution", registry: "substitution_registry", file: "registries/substitution/substitution.registry.json", authority: "authoritative", shape: "object", pk: "substitution_edge_id", header: "substitution_registry" }),
   Object.freeze({ key: "beta_copy_root", registry: "copy_registry", file: "copy/beta_copy_registry.json", authority: "compatibility_runtime", shape: "array", pk: "copy_id", header: "beta_copy_registry_authoritative" }),
@@ -73,9 +73,16 @@ function canonicalize(value) {
 }
 
 function rows(doc, spec, fail) {
-  if (!isObject(doc)) { fail("SOURCE_DOCUMENT_INVALID", spec.file); return []; }
-  if (spec.header !== null && doc.registry_id !== spec.header) fail("SOURCE_REGISTRY_HEADER", `${spec.file}:${doc.registry_id}`);
-  const container = doc.entries;
+  let container;
+  if (Array.isArray(doc)) {
+    if (spec.header !== null) { fail("SOURCE_DOCUMENT_INVALID", `${spec.file}:top_level_array_with_header`); return []; }
+    if (spec.shape !== "array") { fail("SOURCE_ENTRIES_SHAPE", spec.file); return []; }
+    container = doc;
+  } else {
+    if (!isObject(doc)) { fail("SOURCE_DOCUMENT_INVALID", spec.file); return []; }
+    if (spec.header !== null && doc.registry_id !== spec.header) fail("SOURCE_REGISTRY_HEADER", `${spec.file}:${doc.registry_id}`);
+    container = doc.entries;
+  }
   const out = [];
   if (spec.shape === "object") {
     if (!isObject(container)) { fail("SOURCE_ENTRIES_SHAPE", spec.file); return []; }
@@ -138,9 +145,7 @@ function copyId(spec, id) {
   return `provenance.${slug(spec.key)}.${sha256(`${spec.file}\u0000${id}`).slice(0, 20)}`;
 }
 
-function expectedEntry(root, spec, id, row) {
-  const fileSha = sha256File(root, spec.file);
-  const blobSha = gitBlob(root, spec.file);
+function expectedEntry(spec, id, row, fileSha, blobSha) {
   const idValue = copyId(spec, id);
   return {
     copy_id: idValue,
@@ -227,16 +232,18 @@ export function validateRegFull08Closure({ repoRoot = ROOT, registryOverride = n
     const doc = readJson(repoRoot, spec.file);
     const sourceRows = rows(doc, spec, fail);
     sourceRecordCount += sourceRows.length;
+    const sourceBlobSha = gitBlob(repoRoot, spec.file);
+    const sourceFileSha = sha256File(repoRoot, spec.file);
     sourceFiles.push({
       source_registry_id: spec.registry,
       source_file: spec.file,
       source_authority: spec.authority,
       source_record_count: sourceRows.length,
-      source_git_blob_sha: gitBlob(repoRoot, spec.file),
-      source_file_sha256: sha256File(repoRoot, spec.file)
+      source_git_blob_sha: sourceBlobSha,
+      source_file_sha256: sourceFileSha
     });
     for (const { id, row } of sourceRows) {
-      const entry = expectedEntry(repoRoot, spec, id, row);
+      const entry = expectedEntry(spec, id, row, sourceFileSha, sourceBlobSha);
       expected[entry.copy_id] = entry;
       exactCopyCount += entry.exact_copy_controls.length;
     }
