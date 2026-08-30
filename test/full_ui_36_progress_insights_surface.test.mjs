@@ -109,7 +109,7 @@ test("progress insights are refreshed alongside the other history and athlete-de
   assert.match(coachWorkspaceClient, /progress-insights\/coach\//u);
 });
 
-test("the FULL-UI-36 manifest area declares both functions as implemented with real routes and tests", () => {
+test("the FULL-UI-36 manifest area declares all three functions as implemented with real routes and tests", () => {
   const area = manifest.product_areas.find((entry) => entry.area_id === "progress_insights");
   assert.ok(area, "expected a progress_insights product area");
   assert.equal(area.slice_id, "FULL-UI-36");
@@ -118,21 +118,37 @@ test("the FULL-UI-36 manifest area declares both functions as implemented with r
   const functionIds = area.functions.map((fn) => fn.function_id);
   assert.deepEqual(
     functionIds.sort(),
-    ["progress_insights_athlete_summary", "progress_insights_coach_summary"]
+    [
+      "progress_insights_athlete_summary",
+      "progress_insights_coach_roster",
+      "progress_insights_coach_summary"
+    ]
   );
 
-  // NOTE: both functions' direct_test now point at their respective React
-  // component tests (see the DEV NOTEs above) - renderProgressInsightsSummary
-  // is gone from app.js.
-  const expectedDirectTest = {
-    progress_insights_athlete_summary: "public/app-src/__tests__/AthleteSelfProgressInsightsPanel.test.tsx",
-    progress_insights_coach_summary: "public/app-src/__tests__/AthleteProgressInsightsPanel.test.tsx"
+  // NOTE: the two per-athlete functions' direct_test point at their
+  // respective React component tests (see the DEV NOTEs above) -
+  // renderProgressInsightsSummary is gone from app.js. Progress graphs
+  // slice 3's roster-wide rollup is a distinct capability with its own
+  // component and integration test, not a mirror of the per-athlete pair.
+  const expected = {
+    progress_insights_athlete_summary: {
+      direct_test: "public/app-src/__tests__/AthleteSelfProgressInsightsPanel.test.tsx",
+      integration_test: "test/full_ui_36_progress_insights_persistent.integration.test.mjs"
+    },
+    progress_insights_coach_summary: {
+      direct_test: "public/app-src/__tests__/AthleteProgressInsightsPanel.test.tsx",
+      integration_test: "test/full_ui_36_progress_insights_persistent.integration.test.mjs"
+    },
+    progress_insights_coach_roster: {
+      direct_test: "public/app-src/__tests__/CoachProgressOverviewPanel.test.tsx",
+      integration_test: "test/coach_progress_rollup_persistent.integration.test.mjs"
+    }
   };
 
   for (const fn of area.functions) {
     assert.equal(fn.state, "implemented");
-    assert.equal(fn.integration_test, "test/full_ui_36_progress_insights_persistent.integration.test.mjs");
-    assert.equal(fn.direct_test, expectedDirectTest[fn.function_id]);
+    assert.equal(fn.integration_test, expected[fn.function_id].integration_test);
+    assert.equal(fn.direct_test, expected[fn.function_id].direct_test);
     assert.notEqual(fn.persistence, "localStorage_only");
   }
 

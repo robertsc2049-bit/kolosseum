@@ -178,6 +178,16 @@
       "state": "implemented"
     },
     {
+      "route_id": "coach_progress_overview",
+      "pattern": "#/coach/progress",
+      "view": "coach-progress",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
       "route_id": "shared_account",
       "pattern": "#/account",
       "view": "account",
@@ -6928,6 +6938,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "progress_insights_coach_roster",
+          "label": "Display a roster-wide progress overview - one adherence chart per accepted athlete, in one view",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_progress_overview",
+          "api_routes": [
+            "/progress-insights/coach-roster"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/CoachProgressOverviewPanel.test.tsx",
+          "integration_test": "test/coach_progress_rollup_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -8269,6 +8301,12 @@
     {
       "method": "GET",
       "path": "/progress-insights/coach/:athlete_user_id",
+      "source": "src/api/progress_insights.routes.ts",
+      "tracked_by_area": "progress_insights"
+    },
+    {
+      "method": "GET",
+      "path": "/progress-insights/coach-roster",
       "source": "src/api/progress_insights.routes.ts",
       "tracked_by_area": "progress_insights"
     },

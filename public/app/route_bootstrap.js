@@ -29,6 +29,7 @@ export const PRODUCT_ROUTE_MAP = Object.freeze([
   { route_id: "coach_review", pattern: "#/coach/review", view: "review", actors: ["coach"], entity_key: null },
   { route_id: "coach_review_athlete", pattern: "#/coach/review/:athlete_id", view: "review", actors: ["coach"], entity_key: "athlete_id" },
   { route_id: "coach_marketplace", pattern: "#/coach/marketplace", view: "marketplace", actors: ["coach"], entity_key: null },
+  { route_id: "coach_progress_overview", pattern: "#/coach/progress", view: "coach-progress", actors: ["coach"], entity_key: null },
   { route_id: "shared_account", pattern: "#/account", view: "account", actors: ["athlete", "coach"], entity_key: null }
 ]);
 
@@ -113,6 +114,7 @@ export function routeForView(actor, view, entity = {}) {
     if (view === "review" && entity.athlete_id) return serializeProductRoute("coach_review_athlete", entity);
     if (view === "review") return serializeProductRoute("coach_review");
     if (view === "marketplace") return serializeProductRoute("coach_marketplace");
+    if (view === "coach-progress") return serializeProductRoute("coach_progress_overview");
   }
   else {
     if (view === "onboarding") return serializeProductRoute("athlete_onboarding");

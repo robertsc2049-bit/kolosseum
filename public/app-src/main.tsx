@@ -59,6 +59,7 @@ import { CoachProgrammeDetailHeader, CoachProgrammeDetailPanel } from "./screens
 import { CoachProgrammeValidationPanel } from "./screens/coach/CoachProgrammeValidationPanel";
 import { CoachProgrammePreviewPanel } from "./screens/coach/CoachProgrammePreviewPanel";
 import { CoachProgrammeMarketplaceSharingPanel } from "./screens/coach/CoachProgrammeMarketplaceSharingPanel";
+import { CoachProgressOverviewPanel } from "./screens/coach/CoachProgressOverviewPanel";
 import { CoachProgrammeBuilderFactsPanel } from "./screens/coach/CoachProgrammeBuilderFactsPanel";
 import { CoachProgrammeBuilderValidationList } from "./screens/coach/CoachProgrammeBuilderValidationList";
 import { CoachProgrammeBuilderTree } from "./screens/coach/CoachProgrammeBuilderTree";
@@ -139,6 +140,7 @@ mount("coach-events-list-root", <CoachEventsListPanel />);
 mount("coach-event-create-root", <CoachEventCreatePanel />);
 mount("coach-event-detail-root", <CoachEventDetailPanel />);
 mount("coach-marketplace-root", <CoachMarketplacePanel />);
+mount("coach-progress-overview-root", <CoachProgressOverviewPanel />);
 mount("coach-review-root", <CoachReviewPanel />);
 mount("coach-video-feedback-queue-root", <CoachVideoFeedbackQueuePanel />);
 mount("athlete-today-create-session-root", <AthleteTodayCreateSessionButton />);

@@ -23,6 +23,7 @@ import {
   queryHabitCompletions
 } from "./habit_tracking_service.js";
 import { projectStrengthReferenceLifecycle } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
+import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -384,4 +385,43 @@ export async function getProgressInsightsForCoach(
   ]);
 
   return assembleProgressInsightsSummary(athlete, habitsWithStreaks, bodyMetricEntries);
+}
+
+// Progress graphs slice 3: a roster-wide overview for a coach's own
+// athletes. Deliberately loops getProgressInsightsForCoach() per athlete
+// (rather than a lower-level helper with no authorization of its own) so
+// every single athlete's relationship is independently re-validated by
+// requireCoachAthleteAccess() at read time, not just resolved once via
+// listConnectedCoachAthletes() up front - real defense in depth against a
+// relationship changing state between the roster fetch and this read, at
+// the cost of one extra (cheap, indexed) coach-context lookup per athlete.
+export async function getProgressInsightsForCoachRoster(
+  coachUserIdInput: string
+): Promise<readonly Readonly<JsonRecord>[]> {
+  const coachUserId = cleanString(coachUserIdInput);
+  if (!coachUserId) {
+    throw new ProgressInsightsError("identity_required", 401);
+  }
+
+  const roster = await listConnectedCoachAthletes(coachUserId);
+
+  return Promise.all(
+    roster.map(async (athlete) => {
+      const athleteUserId = cleanString(athlete.athlete_user_id);
+      const displayName = cleanString(athlete.display_name) || athleteUserId;
+
+      try {
+        const insights = await getProgressInsightsForCoach(coachUserId, athleteUserId);
+        return Object.freeze({ athlete_user_id: athleteUserId, display_name: displayName, insights });
+      }
+      catch {
+        // One athlete's failure (a transient read error, or a
+        // relationship that changed state between the roster fetch above
+        // and this per-athlete read) must never take down the whole
+        // roster view - mirrors the identical resilience pattern already
+        // used by org_visibility_service.ts's fullRosterForOrg().
+        return Object.freeze({ athlete_user_id: athleteUserId, display_name: displayName, insights: null });
+      }
+    })
+  );
 }
