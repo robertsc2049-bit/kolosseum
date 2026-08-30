@@ -92,9 +92,13 @@ function computeSessionAdherenceWindow(
 ): Readonly<JsonRecord> {
   const windowStartDate = windowStartIsoDate(windowEndIsoDate, windowDays);
 
+  // Half-open (windowStartDate, windowEndIsoDate] so a session dated
+  // exactly on a boundary shared with the adjacent trailing window (e.g.
+  // windowStartDate for this window is windowEndIsoDate for the next
+  // older one) is counted in exactly one window, not both.
   const windowSessions = sessions.filter((session) => {
     const createdDate = cleanString(session.created_at).slice(0, 10);
-    return createdDate >= windowStartDate && createdDate <= windowEndIsoDate;
+    return createdDate > windowStartDate && createdDate <= windowEndIsoDate;
   });
 
   const totalSessions = windowSessions.length;
@@ -218,10 +222,14 @@ function computeHabitWindowRate(
 ): Readonly<JsonRecord> {
   const windowStartDate = windowStartIsoDate(windowEndIsoDate, windowDays);
 
+  // Half-open (windowStartDate, windowEndIsoDate], matching
+  // computeSessionAdherenceWindow's identical fix - a completion dated
+  // exactly on a boundary shared with the adjacent trailing window must
+  // count in exactly one window, not both.
   const windowCompletionDates = new Set(
     completions
       .map((completion) => cleanString(completion.completion_date))
-      .filter((date) => date >= windowStartDate && date <= windowEndIsoDate)
+      .filter((date) => date > windowStartDate && date <= windowEndIsoDate)
   );
 
   const windowCompletions = windowCompletionDates.size;
