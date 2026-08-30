@@ -188,6 +188,26 @@
       "state": "implemented"
     },
     {
+      "route_id": "coach_attendance_events",
+      "pattern": "#/coach/attendance",
+      "view": "coach-attendance",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "athlete_attendance_events",
+      "pattern": "#/athlete/attendance",
+      "view": "attendance",
+      "actors": [
+        "athlete"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
       "route_id": "shared_account",
       "pattern": "#/account",
       "view": "account",
@@ -7324,6 +7344,83 @@
           }
         }
       ]
+    },
+    {
+      "area_id": "attendance_events",
+      "title": "Attendance events - invite and RSVP",
+      "slice_id": "FULL-UI-76",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "attendance_event_create",
+          "label": "Coach creates a real calendar event (title, location, activity, date and time) and invites a chosen subset of their own accepted athletes",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_attendance_events",
+          "api_routes": [
+            "/attendance-events"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AttendanceEventCreatePanel.test.tsx",
+          "integration_test": "test/attendance_events_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "attendance_event_roster_view",
+          "label": "Coach views their own created events and each invited athlete's current RSVP state, and cancels an event",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_attendance_events",
+          "api_routes": [
+            "/attendance-events",
+            "/attendance-events/:event_id",
+            "/attendance-events/:event_id/cancel"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AttendanceEventDetailPanel.test.tsx",
+          "integration_test": "test/attendance_events_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "attendance_event_athlete_rsvp",
+          "label": "Athlete views every event they are currently invited to across every coach, and replies attending, maybe or not attending",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_attendance_events",
+          "api_routes": [
+            "/attendance-events/mine",
+            "/attendance-events/occurrences/:occurrence_id/rsvp"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteAttendanceEventsPanel.test.tsx",
+          "integration_test": "test/attendance_events_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
     }
   ],
   "delivery_slices": [
@@ -7513,6 +7610,10 @@
     },
     {
       "slice_id": "FULL-UI-75",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-76",
       "state": "implemented"
     }
   ],
@@ -8427,6 +8528,42 @@
       "path": "/programme-marketplace/templates/:template_id/releases",
       "source": "src/api/programme_template_sharing.routes.ts",
       "tracked_by_area": "programme_marketplace"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance-events",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
+      "path": "/attendance-events",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
+      "path": "/attendance-events/mine",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
+      "path": "/attendance-events/:event_id",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance-events/:event_id/cancel",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance-events/occurrences/:occurrence_id/rsvp",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
     }
   ],
   "completion_rules": [

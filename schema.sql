@@ -541,6 +541,52 @@ ALTER TABLE beta_product_records
       )
     );
 
+-- beta_product_records_full_ui_76_type_migration
+-- Additive FULL-UI-76 attendance events (a DIFFERENT, unrelated concept
+-- from beta19_coach_event/beta19_event_athlete_link - see
+-- src/api/attendance_event_service.ts's own DEV NOTE). attendance_event
+-- is the series/definition (descriptive fields only); attendance_event_
+-- occurrence is one row per computed calendar date, carrying the actual
+-- date/time/status; attendance_event_invite is the invited roster (one
+-- row per athlete, written once per series); attendance_event_rsvp is
+-- written only when an athlete actually responds. All four are
+-- append-only, never UPDATEd or DELETEd, "current" state = latest by
+-- effective_at, matching every other record type in this table.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference',
+        'programme_template_sharing_preference',
+        'programme_template_release',
+        'attendance_event',
+        'attendance_event_occurrence',
+        'attendance_event_invite',
+        'attendance_event_rsvp'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.

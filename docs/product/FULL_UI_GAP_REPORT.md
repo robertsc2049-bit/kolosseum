@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 312
+- implemented: 315
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -700,6 +700,20 @@ Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `programme_marketplace_release` — Release a full copy of a shared template to a specific buying coach's account code once paid off-platform, cloning it into the buyer's own independent library
 - `programme_marketplace_release_history` — Display the coach's own history of who a shared template has been released to
 
+### Attendance events - invite and RSVP
+
+Slice: FULL-UI-76
+
+Area state: implemented
+
+Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `attendance_event_create` — Coach creates a real calendar event (title, location, activity, date and time) and invites a chosen subset of their own accepted athletes
+- `attendance_event_roster_view` — Coach views their own created events and each invited athlete's current RSVP state, and cancels an event
+- `attendance_event_athlete_rsvp` — Athlete views every event they are currently invited to across every coach, and replies attending, maybe or not attending
+
 ## Functions without persistent integration proof
 
 - None
@@ -753,6 +767,7 @@ Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-73: implemented
 - FULL-UI-74: implemented
 - FULL-UI-75: implemented
+- FULL-UI-76: implemented
 
 ## Prohibited capabilities
 
