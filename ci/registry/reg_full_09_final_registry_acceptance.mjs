@@ -247,6 +247,13 @@ function fieldOccurrences(value, fieldName, out = []) {
   return out;
 }
 
+function sourceIsLegacyProjection(schema, source) {
+  const projection = schema?.legacy_runtime_projection;
+  return isObject(projection)
+    && projection.authority === "compatibility_only"
+    && projection.data_path === source?.spec?.file;
+}
+
 export function auditDeclaredForeignKeys(root, schemaManifest, errors = []) {
   const byRegistry = preferredAuthoritySpecs();
   const rowsets = new Map();
@@ -271,10 +278,13 @@ export function auditDeclaredForeignKeys(root, schemaManifest, errors = []) {
     const source = rowsets.get(schema.canonical_registry_id);
     if (!source) continue;
     for (const fk of schema.fk_fields ?? []) {
+      const rowOccurrences = source.rows.map((item) => ({ item, occurrences: fieldOccurrences(item.row, fk.field) }));
+      const representedByMaterializedSource = rowOccurrences.some(({ occurrences }) => occurrences.length > 0);
+      if (sourceIsLegacyProjection(schema, source) && !representedByMaterializedSource) continue;
+
       declaredFkFieldCount += 1;
       const target = rowsets.get(fk.target_registry_id);
-      for (const item of source.rows) {
-        const occurrences = fieldOccurrences(item.row, fk.field);
+      for (const { item, occurrences } of rowOccurrences) {
         if (fk.required === true && occurrences.length === 0) {
           orphanRelationshipCount += 1;
           push(errors, "REQUIRED_FK_FIELD_MISSING", { registry: schema.canonical_registry_id, record_id: item.id, field: fk.field });
