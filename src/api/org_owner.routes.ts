@@ -42,6 +42,10 @@ import {
   getOrgAthleteVisibility
 } from "./org_visibility_service.js";
 import {
+  OrgProgressRollupError,
+  getOrgProgressRollup
+} from "./org_progress_rollup_service.js";
+import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
   listOrgCoachThreadsForOwner,
@@ -228,6 +232,18 @@ orgOwnerRouter.get(
   })
 );
 
+// Progress graphs slice 4: an org-wide progress rollup, available only
+// for 'shared'-mode ("team") organisations - see
+// org_progress_rollup_service.ts's own DEV NOTE.
+orgOwnerRouter.get(
+  "/organisations/:org_id/progress-rollup",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const rollup = await getOrgProgressRollup(user_id, String(request.params.org_id));
+    return response.status(200).json({ ok: true, rollup });
+  })
+);
+
 orgOwnerRouter.get(
   "/organisations/:org_id/audit-log",
   asyncHandler(async (request, response) => {
@@ -364,6 +380,7 @@ orgOwnerRouter.use(
       error instanceof OrgRosterError ||
       error instanceof OrgBillingError ||
       error instanceof OrgVisibilityError ||
+      error instanceof OrgProgressRollupError ||
       error instanceof OrgCoachMessagingError ||
       error instanceof OrgAthleteMessagingError ||
       error instanceof MessageAttachmentError

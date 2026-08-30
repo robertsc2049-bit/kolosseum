@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 311
+- implemented: 312
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -479,7 +479,7 @@ Slice: FULL-UI-26
 
 Area state: implemented
 
-Implemented: 11 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -488,6 +488,7 @@ Implemented: 11 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `org_owner_roster` — Invite, list and remove coach roster memberships by email
 - `org_owner_billing` — View seat usage and change the org's seat plan
 - `org_owner_athlete_visibility` — View athlete-level visibility scoped by the organisation's declared visibility mode
+- `org_owner_progress_rollup` — View an org-wide progress rollup - one adherence chart per accepted athlete across every coach on the roster - available only for shared-visibility (team) organisations
 - `org_owner_audit_log` — View the organisation's recorded activity log
 - `coach_org_membership` — Coach reads, accepts and leaves org memberships from their own session
 - `coach_org_roster_visibility` — Coach reads fellow coaches in a shared (team) org they're an active member of - individual (gym) orgs stay coach-private

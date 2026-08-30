@@ -18,6 +18,7 @@ const coachRoutes = read("src/api/coach_org_membership.routes.ts");
 const visibilityService = read("src/api/org_visibility_service.ts");
 const orgCoachMessagingService = read("src/api/org_coach_messaging_service.ts");
 const orgAthleteMessagingService = read("src/api/org_athlete_messaging_service.ts");
+const orgProgressRollupService = read("src/api/org_progress_rollup_service.ts");
 const messagingRoutes = read("src/api/messaging.routes.ts");
 const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
@@ -216,23 +217,32 @@ function extractFunctionSource(source, functionName) {
   return nextBoundary === -1 ? source.slice(start) : source.slice(start, start + startMatch[0].length + nextBoundary);
 }
 
-// org_visibility_service.ts (part C) and org_athlete_messaging_service.ts
-// (part D.4) are the two deliberate, explicitly-gated exceptions to the
+// org_visibility_service.ts (part C), org_athlete_messaging_service.ts
+// (part D.4) and org_progress_rollup_service.ts (progress graphs slice 4)
+// are the three deliberate, explicitly-gated exceptions to the
 // "no org file ever reads or writes athlete-scoped data" rule proved by
-// the test above - neither is added to orgFiles, and must never be:
-// doing so would make that test correctly fail the moment its real
+// the test above - none is added to orgFiles, and must never be: doing
+// so would make that test correctly fail the moment its real
 // athlete-scoped queries land. This test instead proves the boundary is
-// mode-aware: both files legitimately touch beta_product_records, but
-// org_visibility_service.ts's "individual"-mode aggregate path never
-// touches athlete identity, while its "shared"-mode roster path does -
-// and org_athlete_messaging_service.ts reuses that exact same
-// visibility_mode gate for its own messaging boundary (proved in the
-// dedicated D.4 test below).
-test("org_visibility_service.ts and org_athlete_messaging_service.ts are the only two explicitly-gated exceptions to the athlete-data boundary, and org_visibility_service.ts's individual-mode path never touches athlete identity", () => {
+// mode-aware: org_visibility_service.ts's "individual"-mode aggregate
+// path never touches athlete identity, while its "shared"-mode roster
+// path does - and both org_athlete_messaging_service.ts and
+// org_progress_rollup_service.ts reuse that exact same visibility_mode
+// gate for their own boundaries (the messaging gate proved in the
+// dedicated D.4 test below). org_progress_rollup_service.ts is the odd
+// one out structurally: unlike the other two, it never queries
+// beta_product_records/beta17_coach_relationship itself at all - its
+// only data-access path is calling getOrgAthleteVisibility() directly
+// and enriching its already-resolved, already-gated roster.
+test("org_visibility_service.ts, org_athlete_messaging_service.ts and org_progress_rollup_service.ts are the only three explicitly-gated exceptions to the athlete-data boundary, and org_visibility_service.ts's individual-mode path never touches athlete identity", () => {
   assert.match(visibilityService, /beta_product_records/u);
   assert.match(visibilityService, /beta17_coach_relationship/u);
   assert.match(orgAthleteMessagingService, /beta_product_records/u);
   assert.match(orgAthleteMessagingService, /beta17_coach_relationship/u);
+
+  assert.match(orgProgressRollupService, /getOrgAthleteVisibility/u);
+  assert.doesNotMatch(orgProgressRollupService, /beta_product_records|beta17_coach_relationship/u);
+  assert.match(orgProgressRollupService, /visibility_mode !== "shared"/u);
 
   for (const source of orgFilesForAthleteIdCheck) {
     assert.doesNotMatch(source, /athlete_user_id/u);
@@ -549,6 +559,62 @@ test("the activity log view calls the new audit-log route, and its back button i
   );
 
   assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/audit-log`\)/u);
+});
+
+// Progress graphs slice 4 - the org-wide progress rollup view, gated to
+// 'shared'-mode ("team") organisations only.
+test("the progress-rollup route resolves identity from authenticatedOrgOwner and delegates to getOrgProgressRollup, mirroring the audit-log route's own shape", () => {
+  assert.match(
+    ownerRoutes,
+    /"\/organisations\/:org_id\/progress-rollup"[\s\S]{0,200}authenticatedOrgOwner\(request, false\)[\s\S]{0,200}getOrgProgressRollup/u
+  );
+});
+
+test("each organisation card exposes a real, keyboard-reachable button to view the progress rollup, and opening it hides every other detail section", () => {
+  assert.match(orgDashboardHtml, /<section id="orgProgressSection"/u);
+  assert.match(orgDashboardJs, /data-view-progress="\$\{escapeHtml\(organisation\.org_id\)\}"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-view-progress=/u);
+  assert.match(orgDashboardJs, /querySelectorAll\("\[data-view-progress\]"\)/u);
+  assert.match(
+    orgDashboardJs,
+    /function showProgressSection[\s\S]{0,300}orgRosterSection"\)\.hidden = true[\s\S]{0,300}orgBillingSection"\)\.hidden = true[\s\S]{0,300}orgVisibilitySection"\)\.hidden = true[\s\S]{0,300}orgAuditSection"\)\.hidden = true/u
+  );
+});
+
+test("the progress view calls the new progress-rollup route and the roster route, and its back button is a real, keyboard-reachable control", () => {
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgProgressBackButton"[^>]*type="button"/u,
+    "orgProgressBackButton must be a real <button type=\"button\">"
+  );
+
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/roster`\)/u);
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/progress-rollup`\)/u);
+});
+
+test("an individual-mode org's progress-rollup rejection is shown as a factual, mode-specific message, not a generic error - the Progress button itself is never hidden client-side", () => {
+  assert.match(
+    orgDashboardJs,
+    /error\.message === "org_progress_rollup_not_available_for_individual_org"[\s\S]{0,200}"Progress data is only available for shared-visibility organisations\."/u
+  );
+  // No client-side visibility_mode branch gates whether the button itself
+  // renders - renderOrganisations() renders it unconditionally for every
+  // organisation, same as "View athletes".
+  assert.doesNotMatch(orgDashboardJs, /organisation\.visibility_mode[\s\S]{0,80}data-view-progress/u);
+});
+
+test("athlete names rendered into the progress view are escaped before being inserted into innerHTML", () => {
+  assert.match(orgDashboardJs, /escapeHtml\(athlete\.display_name\)/u);
+});
+
+test("the progress-view line chart mirrors LineChart.tsx's design exactly: a lone point renders as a dot, not a line, and colors cycle through the same shared CSS custom properties", () => {
+  assert.match(orgDashboardJs, /PROGRESS_CHART_COLORS = \["var\(--k-accent\)", "var\(--k-warning\)", "var\(--k-danger\)", "var\(--k-accent-bright\)"\]/u);
+  assert.match(orgDashboardJs, /entry\.points\.length === 1/u);
+  assert.match(orgDashboardJs, /<circle /u);
+  assert.match(orgDashboardJs, /<path /u);
+  // Deliberately does not import from a shared module - org.js is a
+  // standalone, import-free file (proved above).
+  assert.doesNotMatch(orgDashboardJs, /from ["']\.\/progressChart\.js["']/u);
 });
 
 // Part O.6 - athlete-facing team/org context. The athlete panel used to be
