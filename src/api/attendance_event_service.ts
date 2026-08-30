@@ -83,6 +83,162 @@ function isTimeOnly(value: unknown): value is string {
   return typeof value === "string" && /^([01]\d|2[0-3]):[0-5]\d$/u.test(value);
 }
 
+// Occurrences are materialized upfront at creation time (never lazily
+// expanded on read) - this cap is a hard reject, never a silent
+// truncation, so a coach never ends up with a series shorter than what
+// they asked for. 200 gives real headroom over a common worst case
+// (weekly for 2 years ~= 104 occurrences) without being pathological.
+const ATTENDANCE_OCCURRENCE_CAP = 200;
+
+const WEEKDAY_TOKENS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+
+function weekdayTokenToIndex(token: string): number {
+  return WEEKDAY_TOKENS.indexOf(token as (typeof WEEKDAY_TOKENS)[number]);
+}
+
+type RecurrenceEnds =
+  | Readonly<{ type: "on_date"; value: string }>
+  | Readonly<{ type: "after_count"; value: number }>;
+
+type RecurrenceRule = Readonly<{
+  frequency: "daily" | "weekly";
+  interval: number;
+  weekdays: readonly string[];
+  ends: RecurrenceEnds;
+}>;
+
+// Full recurrence rules (weekdays + interval + end-date-or-count),
+// deliberately hand-rolled - there is no RRULE library anywhere in this
+// codebase, and every other domain date is a plain JSONB string, not a
+// typed date column, so this stays consistent with that.
+function validateRecurrenceRule(raw: unknown, anchorDate: string): RecurrenceRule | null {
+  if (raw === null || raw === undefined) return null;
+  if (!isRecord(raw)) {
+    throw new AttendanceEventError("recurrence_rule_invalid");
+  }
+
+  if (raw.frequency !== "daily" && raw.frequency !== "weekly") {
+    throw new AttendanceEventError("recurrence_frequency_invalid");
+  }
+  const frequency = raw.frequency;
+
+  if (!Number.isInteger(raw.interval) || (raw.interval as number) < 1 || (raw.interval as number) > 52) {
+    throw new AttendanceEventError("recurrence_interval_invalid");
+  }
+  const interval = raw.interval as number;
+
+  let weekdays: string[] = [];
+  if (frequency === "weekly") {
+    if (!Array.isArray(raw.weekdays) || raw.weekdays.length === 0) {
+      throw new AttendanceEventError("recurrence_weekdays_required");
+    }
+    weekdays = [...new Set(raw.weekdays.map((value) => cleanString(value).toLowerCase()))];
+    if (weekdays.some((token) => weekdayTokenToIndex(token) === -1)) {
+      throw new AttendanceEventError("recurrence_weekdays_invalid");
+    }
+    const anchorToken = WEEKDAY_TOKENS[new Date(`${anchorDate}T00:00:00.000Z`).getUTCDay()];
+    if (!weekdays.includes(anchorToken)) {
+      throw new AttendanceEventError("recurrence_start_date_weekday_mismatch");
+    }
+  }
+  else if (Array.isArray(raw.weekdays) && raw.weekdays.length > 0) {
+    throw new AttendanceEventError("recurrence_weekdays_not_allowed_for_daily");
+  }
+
+  if (!isRecord(raw.ends)) {
+    throw new AttendanceEventError("recurrence_ends_invalid");
+  }
+  if (raw.ends.type === "on_date") {
+    if (!isDateOnly(raw.ends.value) || raw.ends.value < anchorDate) {
+      throw new AttendanceEventError("recurrence_ends_on_date_invalid");
+    }
+    return Object.freeze({
+      frequency,
+      interval,
+      weekdays: Object.freeze(weekdays),
+      ends: Object.freeze({ type: "on_date" as const, value: raw.ends.value })
+    });
+  }
+  if (raw.ends.type === "after_count") {
+    const count = raw.ends.value;
+    if (typeof count !== "number" || !Number.isInteger(count) || count < 1 || count > ATTENDANCE_OCCURRENCE_CAP) {
+      throw new AttendanceEventError("recurrence_ends_after_count_invalid");
+    }
+    return Object.freeze({
+      frequency,
+      interval,
+      weekdays: Object.freeze(weekdays),
+      ends: Object.freeze({ type: "after_count" as const, value: count })
+    });
+  }
+  throw new AttendanceEventError("recurrence_ends_invalid");
+}
+
+function toDateOnly(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+// Deterministic occurrence-date generation from a validated recurrence
+// rule. Every branch either terminates on a finite, already-validated
+// bound (an after_count value capped at ATTENDANCE_OCCURRENCE_CAP, or a
+// fixed end date) or throws before the occurrence count can exceed the
+// cap - this never silently truncates a series short of what was asked.
+function generateOccurrenceDates(anchorDate: string, rule: RecurrenceRule | null): readonly string[] {
+  if (rule === null) return Object.freeze([anchorDate]);
+
+  const anchor = new Date(`${anchorDate}T00:00:00.000Z`);
+  const dates: string[] = [];
+
+  if (rule.frequency === "daily") {
+    const endDate = rule.ends.type === "on_date" ? new Date(`${rule.ends.value}T00:00:00.000Z`) : null;
+    let cursor = anchor;
+    while (true) {
+      if (rule.ends.type === "after_count" && dates.length >= rule.ends.value) break;
+      if (endDate !== null && cursor.getTime() > endDate.getTime()) break;
+      dates.push(toDateOnly(cursor));
+      if (dates.length > ATTENDANCE_OCCURRENCE_CAP) {
+        throw new AttendanceEventError("recurrence_occurrence_cap_exceeded");
+      }
+      cursor = new Date(cursor.getTime() + rule.interval * 24 * 60 * 60 * 1000);
+    }
+    return Object.freeze(dates);
+  }
+
+  const weekdayIndexes = [...new Set(rule.weekdays.map((token) => weekdayTokenToIndex(token)))].sort((left, right) => left - right);
+  const anchorWeekStart = new Date(anchor.getTime() - anchor.getUTCDay() * 24 * 60 * 60 * 1000);
+  const endDate = rule.ends.type === "on_date" ? new Date(`${rule.ends.value}T00:00:00.000Z`) : null;
+
+  let weekIndex = 0;
+  outer:
+  while (true) {
+    // Defense in depth against a logic bug above - every real
+    // termination path is already bounded (an after_count value capped
+    // at ATTENDANCE_OCCURRENCE_CAP, or a fixed end date a finite number
+    // of weeks away), so this should never actually trip.
+    if (weekIndex > ATTENDANCE_OCCURRENCE_CAP * 8) {
+      throw new AttendanceEventError("recurrence_occurrence_cap_exceeded");
+    }
+
+    const weekStart = new Date(anchorWeekStart.getTime() + weekIndex * rule.interval * 7 * 24 * 60 * 60 * 1000);
+    if (endDate !== null && weekStart.getTime() > endDate.getTime()) break;
+
+    for (const weekdayIndex of weekdayIndexes) {
+      const date = new Date(weekStart.getTime() + weekdayIndex * 24 * 60 * 60 * 1000);
+      if (date.getTime() < anchor.getTime()) continue;
+      if (endDate !== null && date.getTime() > endDate.getTime()) continue;
+      if (rule.ends.type === "after_count" && dates.length >= rule.ends.value) break outer;
+      dates.push(toDateOnly(date));
+      if (dates.length > ATTENDANCE_OCCURRENCE_CAP) {
+        throw new AttendanceEventError("recurrence_occurrence_cap_exceeded");
+      }
+    }
+    weekIndex += 1;
+  }
+
+  dates.sort();
+  return Object.freeze(dates);
+}
+
 async function requireActiveCoachProfile(coachUserId: string): Promise<void> {
   const profile = await loadLatestBetaProductRecord("beta17_coach_profile", coachUserId, coachUserId);
   if (!profile || profile.account_role !== "coach" || profile.account_state !== "active") {
@@ -217,6 +373,7 @@ type CreateAttendanceEventInput = Readonly<{
   occurrence_date?: unknown;
   start_time?: unknown;
   end_time?: unknown;
+  recurrence_rule?: unknown;
 }>;
 
 function validateCreateInput(input: CreateAttendanceEventInput): Readonly<{
@@ -228,6 +385,7 @@ function validateCreateInput(input: CreateAttendanceEventInput): Readonly<{
   occurrence_date: string;
   start_time: string | null;
   end_time: string | null;
+  recurrence_rule: RecurrenceRule | null;
 }> {
   const title = cleanString(input.title);
   if (!title || title.length > 120) {
@@ -270,6 +428,8 @@ function validateCreateInput(input: CreateAttendanceEventInput): Readonly<{
     throw new AttendanceEventError("end_time_before_start_time");
   }
 
+  const recurrenceRule = validateRecurrenceRule(input.recurrence_rule, input.occurrence_date);
+
   return {
     title,
     description,
@@ -278,7 +438,8 @@ function validateCreateInput(input: CreateAttendanceEventInput): Readonly<{
     timezone,
     occurrence_date: input.occurrence_date,
     start_time: startTime as string | null,
-    end_time: endTime as string | null
+    end_time: endTime as string | null,
+    recurrence_rule: recurrenceRule
   };
 }
 
@@ -287,10 +448,9 @@ export type AttendanceEventWithOccurrences = Readonly<{
   occurrences: readonly Readonly<JsonRecord>[];
 }>;
 
-// Slice 1: a coach creates a single (non-recurring) event for their own
-// roster. recurrence_rule is always null here - slice 2 adds the
-// recurrence input and multi-occurrence materialization on top of this
-// same data model without changing its shape.
+// Coach creates an event for their own roster - a single occurrence when
+// recurrence_rule is omitted, or a full materialized series (every
+// occurrence written upfront, capped) when it's provided.
 export async function createAttendanceEventForCoach(
   coachUserIdInput: string,
   input: CreateAttendanceEventInput
@@ -302,9 +462,10 @@ export async function createAttendanceEventForCoach(
   await requireActiveCoachProfile(coachUserId);
 
   const validated = validateCreateInput(input);
+  const occurrenceDates = generateOccurrenceDates(validated.occurrence_date, validated.recurrence_rule);
+
   const timestamp = new Date().toISOString();
   const eventId = randomId("attendance_event");
-  const occurrenceId = randomId("attendance_occurrence");
 
   const event = await writeEventVersion({
     event_id: eventId,
@@ -316,28 +477,31 @@ export async function createAttendanceEventForCoach(
     location: validated.location,
     activity_label: validated.activity_label,
     timezone: validated.timezone,
-    recurrence_rule: null,
+    recurrence_rule: validated.recurrence_rule,
     status: "active",
     created_at_iso8601: timestamp,
     updated_at_iso8601: timestamp
   });
 
-  const occurrence = await writeOccurrenceVersion({
-    occurrence_id: occurrenceId,
-    event_id: eventId,
-    owner_coach_user_id: coachUserId,
-    occurrence_date: validated.occurrence_date,
-    start_time: validated.start_time,
-    end_time: validated.end_time,
-    status: "scheduled",
-    rescheduled_to_date: null,
-    rescheduled_to_start_time: null,
-    rescheduled_to_end_time: null,
-    created_at_iso8601: timestamp,
-    updated_at_iso8601: timestamp
-  });
+  const occurrences: Readonly<JsonRecord>[] = [];
+  for (const occurrenceDate of occurrenceDates) {
+    occurrences.push(await writeOccurrenceVersion({
+      occurrence_id: randomId("attendance_occurrence"),
+      event_id: eventId,
+      owner_coach_user_id: coachUserId,
+      occurrence_date: occurrenceDate,
+      start_time: validated.start_time,
+      end_time: validated.end_time,
+      status: "scheduled",
+      rescheduled_to_date: null,
+      rescheduled_to_start_time: null,
+      rescheduled_to_end_time: null,
+      created_at_iso8601: timestamp,
+      updated_at_iso8601: timestamp
+    }));
+  }
 
-  return Object.freeze({ event, occurrences: Object.freeze([occurrence]) });
+  return Object.freeze({ event, occurrences: Object.freeze(occurrences) });
 }
 
 export async function cancelAttendanceEvent(
@@ -433,4 +597,117 @@ export async function loadAttendanceOccurrenceRecord(occurrenceId: string): Prom
 
 export async function loadAttendanceOccurrenceRecords(eventId: string): Promise<readonly Readonly<JsonRecord>[]> {
   return latestOccurrenceRecords(eventId);
+}
+
+async function loadOwnedOccurrence(
+  coachUserId: string,
+  eventId: string,
+  occurrenceId: string
+): Promise<Readonly<JsonRecord>> {
+  const event = await latestEventRecord(eventId);
+  if (!event || cleanString(event.owner_coach_user_id) !== coachUserId) {
+    throw new AttendanceEventError("event_not_found", 404);
+  }
+
+  const occurrence = await latestOccurrenceRecord(occurrenceId);
+  if (!occurrence || cleanString(occurrence.event_id) !== eventId) {
+    throw new AttendanceEventError("occurrence_not_found", 404);
+  }
+  if (occurrence.status === "skipped") {
+    throw new AttendanceEventError("occurrence_already_skipped", 409);
+  }
+
+  return occurrence;
+}
+
+// Coach action: skip a single occurrence of a series they own, without
+// touching any sibling occurrence or any RSVP already recorded against
+// it (the RSVP history stays attached to occurrence_id regardless of the
+// occurrence's own status changes over time).
+export async function skipAttendanceOccurrence(
+  coachUserIdInput: string,
+  eventIdInput: unknown,
+  occurrenceIdInput: unknown
+): Promise<Readonly<JsonRecord>> {
+  const coachUserId = cleanString(coachUserIdInput);
+  const eventId = cleanString(eventIdInput);
+  const occurrenceId = cleanString(occurrenceIdInput);
+  if (!coachUserId || !eventId || !occurrenceId) {
+    throw new AttendanceEventError("event_identity_required");
+  }
+
+  const occurrence = await loadOwnedOccurrence(coachUserId, eventId, occurrenceId);
+  const timestamp = new Date().toISOString();
+
+  return writeOccurrenceVersion({
+    occurrence_id: occurrenceId,
+    event_id: eventId,
+    owner_coach_user_id: coachUserId,
+    occurrence_date: cleanString(occurrence.occurrence_date),
+    start_time: (occurrence.start_time as string | null) ?? null,
+    end_time: (occurrence.end_time as string | null) ?? null,
+    status: "skipped",
+    rescheduled_to_date: null,
+    rescheduled_to_start_time: null,
+    rescheduled_to_end_time: null,
+    created_at_iso8601: cleanString(occurrence.created_at_iso8601) || timestamp,
+    updated_at_iso8601: timestamp
+  });
+}
+
+type RescheduleAttendanceOccurrenceInput = Readonly<{
+  new_date?: unknown;
+  new_start_time?: unknown;
+  new_end_time?: unknown;
+}>;
+
+// Coach action: move a single occurrence of a series they own to a new
+// date/time, independent of the rest of the series - occurrence_date
+// (the original slot) never changes, only the rescheduled_to_* target
+// fields do, so the record still reflects what was originally scheduled.
+export async function rescheduleAttendanceOccurrence(
+  coachUserIdInput: string,
+  eventIdInput: unknown,
+  occurrenceIdInput: unknown,
+  input: RescheduleAttendanceOccurrenceInput
+): Promise<Readonly<JsonRecord>> {
+  const coachUserId = cleanString(coachUserIdInput);
+  const eventId = cleanString(eventIdInput);
+  const occurrenceId = cleanString(occurrenceIdInput);
+  if (!coachUserId || !eventId || !occurrenceId) {
+    throw new AttendanceEventError("event_identity_required");
+  }
+
+  const occurrence = await loadOwnedOccurrence(coachUserId, eventId, occurrenceId);
+
+  if (!isDateOnly(input.new_date)) {
+    throw new AttendanceEventError("reschedule_date_invalid");
+  }
+  const newStartTime = input.new_start_time === null || input.new_start_time === undefined ? null : input.new_start_time;
+  const newEndTime = input.new_end_time === null || input.new_end_time === undefined ? null : input.new_end_time;
+  if (newStartTime !== null && !isTimeOnly(newStartTime)) {
+    throw new AttendanceEventError("reschedule_start_time_invalid");
+  }
+  if (newEndTime !== null && !isTimeOnly(newEndTime)) {
+    throw new AttendanceEventError("reschedule_end_time_invalid");
+  }
+  if (newStartTime !== null && newEndTime !== null && newEndTime <= newStartTime) {
+    throw new AttendanceEventError("reschedule_end_time_before_start_time");
+  }
+
+  const timestamp = new Date().toISOString();
+  return writeOccurrenceVersion({
+    occurrence_id: occurrenceId,
+    event_id: eventId,
+    owner_coach_user_id: coachUserId,
+    occurrence_date: cleanString(occurrence.occurrence_date),
+    start_time: (occurrence.start_time as string | null) ?? null,
+    end_time: (occurrence.end_time as string | null) ?? null,
+    status: "rescheduled",
+    rescheduled_to_date: input.new_date,
+    rescheduled_to_start_time: newStartTime as string | null,
+    rescheduled_to_end_time: newEndTime as string | null,
+    created_at_iso8601: cleanString(occurrence.created_at_iso8601) || timestamp,
+    updated_at_iso8601: timestamp
+  });
 }

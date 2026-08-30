@@ -5,6 +5,13 @@
 
 import { type JsonRecord, request } from "./transport";
 
+export type RecurrenceRuleInput = Readonly<{
+  frequency: "daily" | "weekly";
+  interval: number;
+  weekdays: readonly string[];
+  ends: Readonly<{ type: "on_date"; value: string }> | Readonly<{ type: "after_count"; value: number }>;
+}>;
+
 export type CreateAttendanceEventInput = Readonly<{
   title: string;
   description: string;
@@ -15,6 +22,7 @@ export type CreateAttendanceEventInput = Readonly<{
   start_time: string | null;
   end_time: string | null;
   athlete_user_ids: readonly string[];
+  recurrence_rule?: RecurrenceRuleInput | null;
 }>;
 
 export async function createAttendanceEvent(
@@ -35,6 +43,33 @@ export async function loadCoachAttendanceEventDetail(eventId: string): Promise<J
 
 export async function cancelAttendanceEvent(eventId: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", `/attendance-events/${encodeURIComponent(eventId)}/cancel`, {}, csrfToken);
+}
+
+export async function skipAttendanceOccurrence(
+  eventId: string,
+  occurrenceId: string,
+  csrfToken: string
+): Promise<JsonRecord> {
+  return request(
+    "POST",
+    `/attendance-events/${encodeURIComponent(eventId)}/occurrences/${encodeURIComponent(occurrenceId)}/skip`,
+    {},
+    csrfToken
+  );
+}
+
+export async function rescheduleAttendanceOccurrence(
+  eventId: string,
+  occurrenceId: string,
+  input: Readonly<{ new_date: string; new_start_time: string | null; new_end_time: string | null }>,
+  csrfToken: string
+): Promise<JsonRecord> {
+  return request(
+    "POST",
+    `/attendance-events/${encodeURIComponent(eventId)}/occurrences/${encodeURIComponent(occurrenceId)}/reschedule`,
+    input as unknown as JsonRecord,
+    csrfToken
+  );
 }
 
 export async function loadMyAttendanceOccurrences(): Promise<JsonRecord[]> {

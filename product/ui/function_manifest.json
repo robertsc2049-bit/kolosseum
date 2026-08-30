@@ -7353,7 +7353,7 @@
       "functions": [
         {
           "function_id": "attendance_event_create",
-          "label": "Coach creates a real calendar event (title, location, activity, date and time) and invites a chosen subset of their own accepted athletes",
+          "label": "Coach creates a real calendar event or a full recurring series (weekdays, interval, end date or occurrence count) and invites a chosen subset of their own accepted athletes",
           "actors": [
             "coach"
           ],
@@ -7365,7 +7365,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "public/app-src/__tests__/AttendanceEventCreatePanel.test.tsx",
-          "integration_test": "test/attendance_events_persistent.integration.test.mjs",
+          "integration_test": "test/attendance_events_recurrence.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -7375,7 +7375,7 @@
         },
         {
           "function_id": "attendance_event_roster_view",
-          "label": "Coach views their own created events and each invited athlete's current RSVP state, and cancels an event",
+          "label": "Coach views their own created events (including full recurring series) and each invited athlete's current RSVP state per occurrence, cancels an event, and skips or reschedules a single occurrence",
           "actors": [
             "coach"
           ],
@@ -7383,13 +7383,15 @@
           "api_routes": [
             "/attendance-events",
             "/attendance-events/:event_id",
-            "/attendance-events/:event_id/cancel"
+            "/attendance-events/:event_id/cancel",
+            "/attendance-events/:event_id/occurrences/:occurrence_id/skip",
+            "/attendance-events/:event_id/occurrences/:occurrence_id/reschedule"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "public/app-src/__tests__/AttendanceEventDetailPanel.test.tsx",
-          "integration_test": "test/attendance_events_persistent.integration.test.mjs",
+          "integration_test": "test/attendance_events_recurrence.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -7399,7 +7401,7 @@
         },
         {
           "function_id": "attendance_event_athlete_rsvp",
-          "label": "Athlete views every event they are currently invited to across every coach, and replies attending, maybe or not attending",
+          "label": "Athlete views every occurrence they are currently invited to across every coach (a skipped occurrence never appears, a rescheduled one shows its new date/time), and replies attending, maybe or not attending",
           "actors": [
             "athlete"
           ],
@@ -7412,7 +7414,7 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "public/app-src/__tests__/AthleteAttendanceEventsPanel.test.tsx",
-          "integration_test": "test/attendance_events_persistent.integration.test.mjs",
+          "integration_test": "test/attendance_events_recurrence.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -8556,6 +8558,18 @@
     {
       "method": "POST",
       "path": "/attendance-events/:event_id/cancel",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance-events/:event_id/occurrences/:occurrence_id/skip",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance-events/:event_id/occurrences/:occurrence_id/reschedule",
       "source": "src/api/attendance_event.routes.ts",
       "tracked_by_area": "attendance_events"
     },

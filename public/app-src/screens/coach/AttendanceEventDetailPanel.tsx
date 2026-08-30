@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { useAttendanceEventDetail } from "./useAttendanceEventDetail";
@@ -19,16 +19,133 @@ function formatOccurrence(occurrence: JsonRecord): string {
   return date;
 }
 
+function occurrenceStatusLabel(status: string): string {
+  if (status === "skipped") return "Skipped";
+  if (status === "rescheduled") return "Rescheduled";
+  return "Scheduled";
+}
+
+function RescheduleForm({
+  onSubmit,
+  onCancel
+}: {
+  onSubmit: (input: { new_date: string; new_start_time: string | null; new_end_time: string | null }) => void;
+  onCancel: () => void;
+}) {
+  const [newDate, setNewDate] = useState("");
+  const [newStartTime, setNewStartTime] = useState("");
+  const [newEndTime, setNewEndTime] = useState("");
+
+  return (
+    <div className="reschedule-form">
+      <label className="field">
+        <span>New date</span>
+        <input type="date" value={newDate} onChange={(event) => setNewDate(event.target.value)} required />
+      </label>
+      <label className="field">
+        <span>New start time</span>
+        <input type="time" value={newStartTime} onChange={(event) => setNewStartTime(event.target.value)} />
+      </label>
+      <label className="field">
+        <span>New end time</span>
+        <input type="time" value={newEndTime} onChange={(event) => setNewEndTime(event.target.value)} />
+      </label>
+      <div className="button-row">
+        <button
+          className="button primary small-button"
+          type="button"
+          disabled={!newDate}
+          onClick={() => onSubmit({ new_date: newDate, new_start_time: newStartTime || null, new_end_time: newEndTime || null })}
+        >
+          Confirm
+        </button>
+        <button className="button secondary small-button" type="button" onClick={onCancel}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+function OccurrenceRow({
+  occurrence,
+  roster,
+  onSkip,
+  onReschedule
+}: {
+  occurrence: JsonRecord;
+  roster: JsonRecord[];
+  onSkip: () => void;
+  onReschedule: (input: { new_date: string; new_start_time: string | null; new_end_time: string | null }) => void;
+}) {
+  const [reschedulingOpen, setReschedulingOpen] = useState(false);
+  const status = String(occurrence.status ?? "scheduled");
+  const occurrenceId = String(occurrence.occurrence_id ?? "");
+  const canAct = status !== "skipped";
+
+  return (
+    <div className="record-card attendance-occurrence-row">
+      <div className="button-row" style={{ justifyContent: "space-between" }}>
+        <span>
+          <span className={`badge ${status === "skipped" ? "neutral" : status === "rescheduled" ? "warning" : "active"}`}>
+            {occurrenceStatusLabel(status)}
+          </span>{" "}
+          {formatOccurrence(occurrence)}
+        </span>
+        {canAct ? (
+          <div className="button-row">
+            <button className="button secondary small-button" type="button" onClick={() => setReschedulingOpen((open) => !open)}>
+              Reschedule
+            </button>
+            <button className="button secondary small-button" type="button" onClick={onSkip}>Skip</button>
+          </div>
+        ) : null}
+      </div>
+
+      {status === "rescheduled" && occurrence.rescheduled_to_date ? (
+        <p className="muted small">
+          Moved to {String(occurrence.rescheduled_to_date)}
+          {occurrence.rescheduled_to_start_time ? `, ${String(occurrence.rescheduled_to_start_time)}` : ""}
+        </p>
+      ) : null}
+
+      {reschedulingOpen ? (
+        <RescheduleForm
+          onSubmit={(input) => { onReschedule(input); setReschedulingOpen(false); }}
+          onCancel={() => setReschedulingOpen(false)}
+        />
+      ) : null}
+
+      {roster.length > 0 ? (
+        <div className="record-list">
+          {roster.map((entry) => {
+            const rsvpByOccurrence = (entry.rsvp_by_occurrence ?? {}) as Record<string, string | null>;
+            const state = rsvpByOccurrence[occurrenceId] ?? null;
+            return (
+              <div className="record-meta" key={String(entry.athlete_user_id)}>
+                <span>{String(entry.display_name ?? entry.athlete_user_id)}</span>
+                <span className="badge neutral">{rsvpLabel(state)}</span>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function EventDetail({
   detail,
   detailError,
   onCancel,
-  onClose
+  onClose,
+  onSkipOccurrence,
+  onRescheduleOccurrence
 }: {
   detail: JsonRecord | null;
   detailError: string | null;
   onCancel: () => void;
   onClose: () => void;
+  onSkipOccurrence: (occurrenceId: string) => void;
+  onRescheduleOccurrence: (occurrenceId: string, input: { new_date: string; new_start_time: string | null; new_end_time: string | null }) => void;
 }) {
   if (detailError) {
     return (
@@ -61,28 +178,17 @@ function EventDetail({
       {event.location ? <p className="muted">{String(event.location)}</p> : null}
       {event.description ? <p>{String(event.description)}</p> : null}
 
+      <h4>Occurrences{occurrences.length > 1 ? ` (${occurrences.length})` : ""}</h4>
+      {roster.length === 0 ? <p className="muted small">No athletes invited yet.</p> : null}
       {occurrences.map((occurrence) => (
-        <p key={String(occurrence.occurrence_id)} className="muted small">{formatOccurrence(occurrence)}</p>
+        <OccurrenceRow
+          key={String(occurrence.occurrence_id)}
+          occurrence={occurrence}
+          roster={roster}
+          onSkip={() => onSkipOccurrence(String(occurrence.occurrence_id))}
+          onReschedule={(input) => onRescheduleOccurrence(String(occurrence.occurrence_id), input)}
+        />
       ))}
-
-      <h4>Attendees</h4>
-      {roster.length === 0 ? (
-        <p className="muted small">No athletes invited yet.</p>
-      ) : (
-        <div className="record-list">
-          {roster.map((entry) => {
-            const rsvpByOccurrence = (entry.rsvp_by_occurrence ?? {}) as Record<string, string | null>;
-            const firstOccurrenceId = occurrences[0] ? String(occurrences[0].occurrence_id) : null;
-            const state = firstOccurrenceId ? rsvpByOccurrence[firstOccurrenceId] ?? null : null;
-            return (
-              <article className="record-card" key={String(entry.athlete_user_id)}>
-                <strong>{String(entry.display_name ?? entry.athlete_user_id)}</strong>
-                <span className="badge neutral">{rsvpLabel(state)}</span>
-              </article>
-            );
-          })}
-        </div>
-      )}
 
       {!cancelled ? (
         <div className="button-row">
@@ -104,7 +210,9 @@ export function AttendanceEventDetailPanel() {
     detailError,
     selectEvent,
     closeDetail,
-    cancel
+    cancel,
+    skipOccurrence,
+    rescheduleOccurrence
   } = useAttendanceEventDetail();
 
   return (
@@ -122,6 +230,8 @@ export function AttendanceEventDetailPanel() {
           detailError={detailError}
           onCancel={() => cancel(selectedEventId)}
           onClose={closeDetail}
+          onSkipOccurrence={(occurrenceId) => skipOccurrence(selectedEventId, occurrenceId)}
+          onRescheduleOccurrence={(occurrenceId, input) => rescheduleOccurrence(selectedEventId, occurrenceId, input)}
         />
       ) : loading && events.length === 0 ? (
         <p className="dashboard-status" role="status" aria-live="polite">Loading events…</p>

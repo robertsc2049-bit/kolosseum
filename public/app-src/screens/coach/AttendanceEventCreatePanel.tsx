@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useAttendanceEventCreate } from "./useAttendanceEventCreate";
+import { useAttendanceEventCreate, WEEKDAY_OPTIONS } from "./useAttendanceEventCreate";
 
 export function AttendanceEventCreatePanel() {
   const {
@@ -15,6 +15,13 @@ export function AttendanceEventCreatePanel() {
     acceptedAthletes,
     selectedAthleteIds,
     toggleAthlete,
+    repeats, setRepeats,
+    frequency, setFrequency,
+    interval, setInterval,
+    weekdays, toggleWeekday,
+    endsType, setEndsType,
+    endsOnDate, setEndsOnDate,
+    endsAfterCount, setEndsAfterCount,
     submitting,
     error,
     resultMessage,
@@ -76,6 +83,97 @@ export function AttendanceEventCreatePanel() {
           <span>Timezone</span>
           <input value={timezone} onChange={(event) => setTimezone(event.target.value)} maxLength={80} />
         </label>
+
+        <fieldset>
+          <legend>Repeats</legend>
+          <label className="checkbox-field">
+            <input type="checkbox" checked={repeats} onChange={(event) => setRepeats(event.target.checked)} />
+            <span>This event repeats</span>
+          </label>
+
+          {repeats ? (
+            <div className="recurrence-fields">
+              <label className="field">
+                <span>Frequency</span>
+                <select value={frequency} onChange={(event) => setFrequency(event.target.value as "daily" | "weekly")}>
+                  <option value="weekly">Weekly</option>
+                  <option value="daily">Daily</option>
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Every</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={52}
+                  value={interval}
+                  onChange={(event) => setInterval(event.target.value)}
+                />
+                <span className="muted small">{frequency === "weekly" ? "week(s)" : "day(s)"}</span>
+              </label>
+
+              {frequency === "weekly" ? (
+                <fieldset>
+                  <legend>On these days</legend>
+                  {WEEKDAY_OPTIONS.map((option) => (
+                    <label key={option.token} className="checkbox-field">
+                      <input
+                        type="checkbox"
+                        checked={weekdays.includes(option.token)}
+                        onChange={() => toggleWeekday(option.token)}
+                      />
+                      <span>{option.label}</span>
+                    </label>
+                  ))}
+                </fieldset>
+              ) : null}
+
+              <fieldset>
+                <legend>Ends</legend>
+                <label className="radio-field">
+                  <input
+                    type="radio"
+                    name="attendance-ends-type"
+                    checked={endsType === "after_count"}
+                    onChange={() => setEndsType("after_count")}
+                  />
+                  <span>After a number of occurrences</span>
+                </label>
+                <label className="field">
+                  <span>Number of occurrences</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={200}
+                    value={endsAfterCount}
+                    disabled={endsType !== "after_count"}
+                    onChange={(event) => setEndsAfterCount(event.target.value)}
+                  />
+                </label>
+
+                <label className="radio-field">
+                  <input
+                    type="radio"
+                    name="attendance-ends-type"
+                    checked={endsType === "on_date"}
+                    onChange={() => setEndsType("on_date")}
+                  />
+                  <span>On a specific date</span>
+                </label>
+                <label className="field">
+                  <span>End date</span>
+                  <input
+                    type="date"
+                    value={endsOnDate}
+                    disabled={endsType !== "on_date"}
+                    onChange={(event) => setEndsOnDate(event.target.value)}
+                  />
+                </label>
+              </fieldset>
+            </div>
+          ) : null}
+        </fieldset>
 
         <fieldset>
           <legend>Invite athletes</legend>

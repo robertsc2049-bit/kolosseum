@@ -4,7 +4,9 @@ import { loadAccountDetail } from "../../api/client";
 import {
   cancelAttendanceEvent,
   loadCoachAttendanceEventDetail,
-  loadCoachAttendanceEvents
+  loadCoachAttendanceEvents,
+  rescheduleAttendanceOccurrence,
+  skipAttendanceOccurrence
 } from "../../api/attendanceEventsClient";
 import { type JsonRecord } from "../../api/transport";
 
@@ -76,6 +78,38 @@ export function useAttendanceEventDetail() {
     }
   }, [refreshList, refreshDetail]);
 
+  const skipOccurrence = useCallback(async (eventId: string, occurrenceId: string) => {
+    try {
+      const account = await loadAccountDetail();
+      const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
+      await skipAttendanceOccurrence(eventId, occurrenceId, csrfToken);
+      await refreshDetail(eventId);
+      return true;
+    }
+    catch (error_) {
+      setDetailError(error_ instanceof Error ? error_.message : "The occurrence could not be skipped.");
+      return false;
+    }
+  }, [refreshDetail]);
+
+  const rescheduleOccurrence = useCallback(async (
+    eventId: string,
+    occurrenceId: string,
+    input: Readonly<{ new_date: string; new_start_time: string | null; new_end_time: string | null }>
+  ) => {
+    try {
+      const account = await loadAccountDetail();
+      const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
+      await rescheduleAttendanceOccurrence(eventId, occurrenceId, input, csrfToken);
+      await refreshDetail(eventId);
+      return true;
+    }
+    catch (error_) {
+      setDetailError(error_ instanceof Error ? error_.message : "The occurrence could not be rescheduled.");
+      return false;
+    }
+  }, [refreshDetail]);
+
   return {
     loading,
     error,
@@ -86,6 +120,8 @@ export function useAttendanceEventDetail() {
     detailError,
     selectEvent,
     closeDetail,
-    cancel
+    cancel,
+    skipOccurrence,
+    rescheduleOccurrence
   };
 }

@@ -116,6 +116,51 @@ test("creating an event with selected athletes submits the form and shows a succ
   assert.equal((received as { title?: string })?.title, "Saturday class");
 });
 
+test("toggling repeats reveals recurrence fields, and a weekly series submits the expected recurrence_rule", async () => {
+  installMocks({ relationships: [] });
+
+  render(<AttendanceEventCreatePanel />);
+  await waitFor(() => screen.getByText("No connected athletes yet."));
+
+  assert.equal(screen.queryByText("Frequency"), null, "recurrence fields hidden until repeats is toggled on");
+
+  fireEvent.click(screen.getByLabelText("This event repeats"));
+  await waitFor(() => screen.getByText("Frequency"));
+
+  fireEvent.change(screen.getByLabelText("Title"), { target: { value: "MWF class" } });
+  fireEvent.change(screen.getByLabelText("Date"), { target: { value: "2026-09-07" } });
+  fireEvent.click(screen.getByLabelText("Mon"));
+  fireEvent.click(screen.getByLabelText("Wed"));
+  fireEvent.change(screen.getByLabelText("Number of occurrences"), { target: { value: "5" } });
+
+  let received: unknown;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: COACH_USER_ID }, csrf_token: "csrf-token" });
+    if (path.startsWith("/coach-workspace/relationships")) return jsonResponse({ relationships: [] });
+    if (path === "/attendance-events" && init?.method === "POST") {
+      received = init.body ? JSON.parse(String(init.body)) : null;
+      return jsonResponse({
+        ok: true,
+        event: { event_id: "attendance_event_1", title: "MWF class" },
+        occurrences: [{ occurrence_id: "occ_1" }, { occurrence_id: "occ_2" }, { occurrence_id: "occ_3" }],
+        invites: []
+      }, true, 201);
+    }
+    return jsonResponse({ error: `unhandled_request_${path}` }, false, 404);
+  }) as typeof fetch;
+
+  await act(async () => {
+    fireEvent.submit(screen.getByText("Create event").closest("form") as HTMLFormElement);
+  });
+
+  await waitFor(() => screen.getByText("MWF class created (3 occurrences)."));
+  const recurrence = (received as { recurrence_rule?: Record<string, unknown> })?.recurrence_rule;
+  assert.equal(recurrence?.frequency, "weekly");
+  assert.deepEqual(recurrence?.weekdays, ["mon", "wed"]);
+  assert.deepEqual(recurrence?.ends, { type: "after_count", value: 5 });
+});
+
 test("a rejected create shows a factual error message, not a generic one", async () => {
   installMocks({
     relationships: [],

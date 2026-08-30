@@ -710,9 +710,9 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
-- `attendance_event_create` — Coach creates a real calendar event (title, location, activity, date and time) and invites a chosen subset of their own accepted athletes
-- `attendance_event_roster_view` — Coach views their own created events and each invited athlete's current RSVP state, and cancels an event
-- `attendance_event_athlete_rsvp` — Athlete views every event they are currently invited to across every coach, and replies attending, maybe or not attending
+- `attendance_event_create` — Coach creates a real calendar event or a full recurring series (weekdays, interval, end date or occurrence count) and invites a chosen subset of their own accepted athletes
+- `attendance_event_roster_view` — Coach views their own created events (including full recurring series) and each invited athlete's current RSVP state per occurrence, cancels an event, and skips or reschedules a single occurrence
+- `attendance_event_athlete_rsvp` — Athlete views every occurrence they are currently invited to across every coach (a skipped occurrence never appears, a rescheduled one shows its new date/time), and replies attending, maybe or not attending
 
 ## Functions without persistent integration proof
 

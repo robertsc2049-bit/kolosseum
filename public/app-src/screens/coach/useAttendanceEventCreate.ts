@@ -2,12 +2,22 @@ import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
 import { loadCoachRelationships } from "../../api/coachWorkspaceClient";
-import { createAttendanceEvent } from "../../api/attendanceEventsClient";
+import { createAttendanceEvent, type RecurrenceRuleInput } from "../../api/attendanceEventsClient";
 import { type JsonRecord } from "../../api/transport";
 
 const CHANGED_EVENT = "kolosseum:attendance-events-changed";
 
 export type AcceptedAthleteOption = Readonly<{ athlete_user_id: string; display_name: string }>;
+
+export const WEEKDAY_OPTIONS: ReadonlyArray<Readonly<{ token: string; label: string }>> = [
+  { token: "mon", label: "Mon" },
+  { token: "tue", label: "Tue" },
+  { token: "wed", label: "Wed" },
+  { token: "thu", label: "Thu" },
+  { token: "fri", label: "Fri" },
+  { token: "sat", label: "Sat" },
+  { token: "sun", label: "Sun" }
+];
 
 export function useAttendanceEventCreate() {
   const [title, setTitle] = useState("");
@@ -23,6 +33,20 @@ export function useAttendanceEventCreate() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
+
+  const [repeats, setRepeats] = useState(false);
+  const [frequency, setFrequency] = useState<"daily" | "weekly">("weekly");
+  const [interval, setInterval_] = useState("1");
+  const [weekdays, setWeekdays] = useState<string[]>([]);
+  const [endsType, setEndsType] = useState<"on_date" | "after_count">("after_count");
+  const [endsOnDate, setEndsOnDate] = useState("");
+  const [endsAfterCount, setEndsAfterCount] = useState("10");
+
+  const toggleWeekday = useCallback((token: string) => {
+    setWeekdays((current) =>
+      current.includes(token) ? current.filter((value) => value !== token) : [...current, token]
+    );
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,6 +86,31 @@ export function useAttendanceEventCreate() {
     setSubmitting(true);
     setError(null);
     setResultMessage(null);
+
+    if (repeats && frequency === "weekly" && weekdays.length === 0) {
+      setSubmitting(false);
+      setError("Pick at least one weekday for a weekly series.");
+      return false;
+    }
+    if (repeats && endsType === "on_date" && !endsOnDate) {
+      setSubmitting(false);
+      setError("Pick an end date for the series.");
+      return false;
+    }
+
+    let recurrenceRule: RecurrenceRuleInput | null = null;
+    if (repeats) {
+      const parsedInterval = Number.parseInt(interval, 10);
+      recurrenceRule = {
+        frequency,
+        interval: Number.isFinite(parsedInterval) && parsedInterval > 0 ? parsedInterval : 1,
+        weekdays: frequency === "weekly" ? weekdays : [],
+        ends: endsType === "on_date"
+          ? { type: "on_date", value: endsOnDate }
+          : { type: "after_count", value: Number.parseInt(endsAfterCount, 10) || 1 }
+      };
+    }
+
     try {
       const account = await loadAccountDetail();
       const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
@@ -76,12 +125,14 @@ export function useAttendanceEventCreate() {
           occurrence_date: occurrenceDate,
           start_time: startTime || null,
           end_time: endTime || null,
-          athlete_user_ids: selectedAthleteIds
+          athlete_user_ids: selectedAthleteIds,
+          recurrence_rule: recurrenceRule
         },
         csrfToken
       );
 
       const event = response.event as JsonRecord | undefined;
+      const occurrenceCount = Array.isArray(response.occurrences) ? response.occurrences.length : 1;
       setSubmitting(false);
       setTitle("");
       setDescription("");
@@ -91,7 +142,18 @@ export function useAttendanceEventCreate() {
       setStartTime("");
       setEndTime("");
       setSelectedAthleteIds([]);
-      setResultMessage(`${String(event?.title ?? "Event")} created.`);
+      setRepeats(false);
+      setFrequency("weekly");
+      setInterval_("1");
+      setWeekdays([]);
+      setEndsType("after_count");
+      setEndsOnDate("");
+      setEndsAfterCount("10");
+      setResultMessage(
+        occurrenceCount > 1
+          ? `${String(event?.title ?? "Event")} created (${occurrenceCount} occurrences).`
+          : `${String(event?.title ?? "Event")} created.`
+      );
       document.dispatchEvent(new CustomEvent(CHANGED_EVENT));
       return true;
     }
@@ -100,7 +162,10 @@ export function useAttendanceEventCreate() {
       setError(error_ instanceof Error ? error_.message : "The event could not be created.");
       return false;
     }
-  }, [title, description, location, activityLabel, timezone, occurrenceDate, startTime, endTime, selectedAthleteIds]);
+  }, [
+    title, description, location, activityLabel, timezone, occurrenceDate, startTime, endTime, selectedAthleteIds,
+    repeats, frequency, interval, weekdays, endsType, endsOnDate, endsAfterCount
+  ]);
 
   return {
     title, setTitle,
@@ -114,6 +179,13 @@ export function useAttendanceEventCreate() {
     acceptedAthletes,
     selectedAthleteIds,
     toggleAthlete,
+    repeats, setRepeats,
+    frequency, setFrequency,
+    interval, setInterval: setInterval_,
+    weekdays, toggleWeekday,
+    endsType, setEndsType,
+    endsOnDate, setEndsOnDate,
+    endsAfterCount, setEndsAfterCount,
     submitting,
     error,
     resultMessage,
