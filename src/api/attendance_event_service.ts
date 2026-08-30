@@ -21,6 +21,7 @@ import {
   loadLatestBetaProductRecord,
   persistBetaProductRecord
 } from "./beta_product_record_store.js";
+import { requireActiveSharedOrgMembership } from "./attendance_event_org_invite_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -374,6 +375,8 @@ type CreateAttendanceEventInput = Readonly<{
   start_time?: unknown;
   end_time?: unknown;
   recurrence_rule?: unknown;
+  owner_scope?: unknown;
+  owner_org_id?: unknown;
 }>;
 
 function validateCreateInput(input: CreateAttendanceEventInput): Readonly<{
@@ -448,9 +451,17 @@ export type AttendanceEventWithOccurrences = Readonly<{
   occurrences: readonly Readonly<JsonRecord>[];
 }>;
 
-// Coach creates an event for their own roster - a single occurrence when
-// recurrence_rule is omitted, or a full materialized series (every
-// occurrence written upfront, capped) when it's provided.
+// Coach creates an event for their own roster, or - when owner_scope is
+// "org" - for a whole shared-visibility org they're an ACTIVE member of
+// (any active coach may do this, per the user's explicit product
+// decision; see attendance_event_org_invite_service.ts's DEV NOTE for
+// why this is genuinely new authorization surface). Either way the
+// creating coach stays owner_coach_user_id, so the existing
+// ownership-gated cancel/skip/reschedule/detail-view checks continue to
+// apply unchanged - only the CREATOR ever manages an event they made,
+// org-wide or not. A single occurrence is materialized when
+// recurrence_rule is omitted, or a full series (every occurrence
+// written upfront, capped) when it's provided.
 export async function createAttendanceEventForCoach(
   coachUserIdInput: string,
   input: CreateAttendanceEventInput
@@ -461,6 +472,11 @@ export async function createAttendanceEventForCoach(
   }
   await requireActiveCoachProfile(coachUserId);
 
+  const ownerScope = input.owner_scope === "org" ? "org" : "coach";
+  const ownerOrgId = ownerScope === "org"
+    ? await requireActiveSharedOrgMembership(coachUserId, input.owner_org_id)
+    : null;
+
   const validated = validateCreateInput(input);
   const occurrenceDates = generateOccurrenceDates(validated.occurrence_date, validated.recurrence_rule);
 
@@ -469,9 +485,9 @@ export async function createAttendanceEventForCoach(
 
   const event = await writeEventVersion({
     event_id: eventId,
-    owner_scope: "coach",
+    owner_scope: ownerScope,
     owner_coach_user_id: coachUserId,
-    owner_org_id: null,
+    owner_org_id: ownerOrgId,
     title: validated.title,
     description: validated.description,
     location: validated.location,

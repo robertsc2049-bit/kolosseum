@@ -13,6 +13,10 @@ export function AttendanceEventCreatePanel() {
     startTime, setStartTime,
     endTime, setEndTime,
     acceptedAthletes,
+    sharedOrgOptions,
+    inviteScope, chooseInviteScope,
+    selectedOrgId, chooseOrgId,
+    orgAthletes,
     selectedAthleteIds,
     toggleAthlete,
     repeats, setRepeats,
@@ -175,12 +179,40 @@ export function AttendanceEventCreatePanel() {
           ) : null}
         </fieldset>
 
+        {sharedOrgOptions.length > 0 ? (
+          <fieldset>
+            <legend>Who is this event for</legend>
+            <label className="radio-field">
+              <input
+                type="radio"
+                name="attendance-invite-scope"
+                checked={inviteScope === "own"}
+                onChange={() => chooseInviteScope("own")}
+              />
+              <span>My own athletes</span>
+            </label>
+            {sharedOrgOptions.map((org) => (
+              <label key={org.org_id} className="radio-field">
+                <input
+                  type="radio"
+                  name="attendance-invite-scope"
+                  checked={inviteScope === "org" && selectedOrgId === org.org_id}
+                  onChange={() => { chooseInviteScope("org"); chooseOrgId(org.org_id); }}
+                />
+                <span>Everyone in {org.org_name}</span>
+              </label>
+            ))}
+          </fieldset>
+        ) : null}
+
         <fieldset>
           <legend>Invite athletes</legend>
-          {acceptedAthletes.length === 0 ? (
-            <p className="muted small">No connected athletes yet.</p>
+          {(inviteScope === "org" ? orgAthletes : acceptedAthletes).length === 0 ? (
+            <p className="muted small">
+              {inviteScope === "org" ? "No accepted athletes in this team yet." : "No connected athletes yet."}
+            </p>
           ) : (
-            acceptedAthletes.map((athlete) => (
+            (inviteScope === "org" ? orgAthletes : acceptedAthletes).map((athlete) => (
               <label key={athlete.athlete_user_id} className="checkbox-field">
                 <input
                   type="checkbox"
