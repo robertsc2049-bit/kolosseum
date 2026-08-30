@@ -7,6 +7,7 @@ import test from "node:test";
 import {
   REG_FULL_09_REPORT,
   auditActiveRecordPolicies,
+  auditDeclaredForeignKeys,
   computeRegFull09Acceptance
 } from "../ci/registry/reg_full_09_final_registry_acceptance.mjs";
 
@@ -77,6 +78,18 @@ test("REG-FULL-09 reports the exact final closure counts", () => {
   assert.equal(c.copy_source_record_count, 3383);
   assert.equal(c.copy_provenance_record_count, 3383);
   assert.equal(c.exact_copy_control_count, 5499);
+});
+
+test("REG-FULL-09 does not require fabricated data for schema-only closed authorities", () => {
+  const schemaManifest = readJson("registries/final_registry_schema_manifest.json");
+  const schemaOnlyClosed = schemaManifest.registries.filter(
+    (row) => row?.row_contract_status === "closed" && row?.legacy_runtime_projection === null
+  );
+  assert.ok(schemaOnlyClosed.length > 0);
+  const errors = [];
+  const counts = auditDeclaredForeignKeys(root, schemaManifest, errors);
+  assert.deepEqual(errors, []);
+  assert.equal(counts.orphan_relationship_count, 0);
 });
 
 test("REG-FULL-09 rebuilds registry_bundle.json twice with byte-identical output", () => {
